@@ -167,6 +167,9 @@ static const Nvm2cHost host_adapters[] = {
     {"file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
     {"vm_file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
     {"nl_os_file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
+    {"file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
+    {"vm_file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
+    {"nl_os_file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
@@ -217,8 +220,9 @@ static const Nvm2cHost *import_host(const NvmModule *mod, uint32_t index) {
         const Nvm2cHost *host = &host_adapters[i];
         if (strcmp(name, host->name) != 0 || imp->param_count != host->argc ||
             imp->return_type != host->result) continue;
-        if (host->argc && (!mod->import_param_types || !mod->import_param_types[index] ||
-                          mod->import_param_types[index][0] != host->parameter)) return NULL;
+        if (host->argc && (!mod->import_param_types || !mod->import_param_types[index])) return NULL;
+        for (uint8_t p = 0; p < host->argc; ++p)
+            if (mod->import_param_types[index][p] != host->parameter) return NULL;
         return host;
     }
     return NULL;
@@ -2222,6 +2226,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                              ins.operands[0].u32, args[0], args[1]);
                 else snprintf(expression, sizeof expression, "nhost_artifact_%u(s[%d])",
                               ins.operands[0].u32, args[0]);
+            } else if (host->argc == 2) {
+                int right = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
+                int left = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
+                if (b->failed) goto done;
+                snprintf(expression, sizeof expression, "%s(s[%d], s[%d])", host->c_name, left, right);
             } else if (host->argc) {
                 uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT;
                 int arg = stack_pop_expect(b, &st, kind, "CALL_EXTERN");
@@ -2532,6 +2541,19 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_host_file_write(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "#include <stdio.h>\n"
+        "static inline int64_t nhost_file_write(const char *path, const char *content) {\n"
+        "    if (!path || !content) return -1;\n"
+        "    FILE *file = fopen(path, \"w\");\n"
+        "    if (!file) return -1;\n"
+        "    size_t length = strlen(content);\n"
+        "    size_t written = fwrite(content, 1, length, file);\n"
+        "    int closed = fclose(file);\n"
+        "    return written == length && closed == 0 ? 0 : -1;\n}\n");
+}
+
 static void emit_host_file_read(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "#include <stdio.h>\n"
@@ -2788,6 +2810,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             int tmp_used = module_uses_host(mod, "nhost_tmp_dir");
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
             if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
+            if (module_uses_host(mod, "nhost_file_write")) emit_host_file_write(&b);
             if (argv_used || env_used || tmp_used || cwd_used) nvm2c_puts(&b,
                 "static inline const char *nhost_copy(const char *value) {\n"
                 "    if (!value) value = \"\";\n"

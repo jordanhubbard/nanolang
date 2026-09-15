@@ -520,6 +520,66 @@ static void test_builtin_text_reader(void) {
     unlink(path); rmdir(directory);
 }
 
+static void test_builtin_text_writer(void) {
+    char directory[] = "/tmp/nvm2c-write-XXXXXX";
+    if (!mkdtemp(directory)) { CHECK(0, "I create a writer fixture"); return; }
+    char path[256], payload_path[256], assembly[1024];
+    snprintf(path, sizeof path, "%s/output", directory);
+    snprintf(payload_path, sizeof payload_path, "%s/payload", directory);
+    const char *aliases[] = {"file_write", "vm_file_write", "nl_os_file_write"};
+    for (int variant = 0; variant < 5; ++variant) {
+        const char *payload = variant == 1 ? "" : payload_path;
+        snprintf(assembly, sizeof assembly,
+                 ".string path \"%s\"\n.string text \"%s\"\n"
+                 ".import \"\" \"%s\" int string string\n"
+                 ".entry 0\n.function main 0 0 0 int 1\n"
+                 "PUSH_STR path\nPUSH_STR text\nCALL_EXTERN 0\nPUSH_I64 %d\nEQ\nASSERT\n"
+                 "PUSH_I64 0\nRET\n.end\n", variant == 2 ? directory : path,
+                 payload, aliases[variant % 3], variant < 2 ? 0 : -1);
+        NvmModule *module = assemble_ok(assembly, "builtin text writer");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit the two-argument builtin writer");
+        if (source) {
+            if (variant >= 3) {
+                const char *prefix = variant == 3 ?
+                    "#include <stdio.h>\nstatic int failed_close(FILE *f) { fclose(f); return EOF; }\n#define fclose failed_close\n" :
+                    "#include <stdio.h>\nstatic int closes;\n"
+                    "static size_t short_write(const void *p, size_t s, size_t n, FILE *f) { (void)p; (void)s; (void)n; (void)f; return 0; }\n"
+                    "static int counted_close(FILE *f) { ++closes; return fclose(f); }\n"
+                    "#define fwrite short_write\n#define fclose counted_close\n#define main generated_main\n";
+                const char *suffix = variant == 4 ?
+                    "\n#undef main\nint main(int argc, char **argv) { int result = generated_main(argc, argv); return closes == 1 ? result : 77; }\n" : "";
+                char *injected = malloc(strlen(prefix) + strlen(source) + strlen(suffix) + 1);
+                if (!injected) abort();
+                strcpy(injected, prefix); strcat(injected, source); strcat(injected, suffix);
+                free(source); source = injected;
+            }
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I report open/write/close failures and close after short writes");
+            if (variant < 2) {
+                FILE *file = fopen(path, "rb");
+                CHECK(file != NULL, "I wrote the path argument, not the contents argument");
+                if (file) {
+                    char text[256] = {0};
+                    size_t size = fread(text, 1, sizeof text, file);
+                    CHECK(size == strlen(payload) && memcmp(text, payload, size) == 0,
+                          "I preserve exact written contents");
+                    fclose(file);
+                }
+            }
+        }
+        free(source);
+        module->import_param_types[0][1] = TAG_INT;
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I validate the second builtin parameter tag");
+        free(source); nvm_module_free(module);
+    }
+    unlink(path); unlink(payload_path); rmdir(directory);
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
@@ -2994,6 +3054,7 @@ int main(int argc, char **argv) {
     test_store_load_local();
     test_builtin_host_imports();
     test_builtin_text_reader();
+    test_builtin_text_writer();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();
