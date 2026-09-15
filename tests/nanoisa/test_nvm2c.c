@@ -803,8 +803,41 @@ static void test_builtin_normalize(void) {
     }
 }
 
+static void test_builtin_capture(void) {
+    NvmModule *module = assemble_ok(
+        ".string first \"printf retained && exit 9\"\n.string second \"printf second\"\n"
+        ".string expected \"retained\"\n.string next \"second\"\n"
+        ".string empty \":\"\n.string large \"printf '%0300000d' 0\"\n"
+        ".import \"\" \"nl_exec_capture\" string string\n"
+        ".entry 0\n.function main 0 1 0 int 1\n"
+        "PUSH_STR first\nCALL_EXTERN 0\nSTORE_LOCAL 0\n"
+        "PUSH_STR second\nCALL_EXTERN 0\nPUSH_STR next\nEQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_STR expected\nEQ\nASSERT\n"
+        "PUSH_STR empty\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n"
+        "PUSH_STR large\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 65535\nEQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        "bounded owned capture");
+    if (!module) return;
+    char error[256];
+    char *source = nvm2c_emit(module, error, sizeof error);
+    CHECK(source != NULL, "I emit the exact capture adapter");
+    if (source) {
+        int status = -1;
+        CHECK(compile_and_run(source, &status) == 0 && status == 0,
+              "I retain independent captures and drain output beyond the retained bound");
+    } else fprintf(stderr, "%s\n", error);
+    free(source);
+    module->imports[0].return_type = TAG_INT;
+    source = nvm2c_emit(module, error, sizeof error);
+    CHECK(source == NULL, "I reject an incompatible capture return signature");
+    free(source); nvm_module_free(module);
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
+        {"nl_exec_shell", "PUSH_STR shell_ok\nCALL_EXTERN 0\nPUSH_I64 0\nEQ\nASSERT\n"
+                          "PUSH_STR shell_failure\nCALL_EXTERN 0\nPUSH_I64 1792\nEQ\nASSERT\n",
+                          1, TAG_STRING, TAG_INT},
         {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
         {"get_argv", "PUSH_I64 -1\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n"
                      "PUSH_I64 9223372036854775807\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n"
@@ -823,6 +856,7 @@ static void test_builtin_host_imports(void) {
         char source[2048];
         snprintf(source, sizeof source,
                  ".string key \"NANOLANG_NVM2C_HOST_TEST\"\n"
+                 ".string shell_ok \":\"\n.string shell_failure \"exit 7\"\n"
                  ".string expected \"retained\"\n.string absent \"\"\n"
                  ".import \"\" \"%s\" %s %s\n"
                  ".entry 0\n.function main 0 0 0 int 1\n%sPUSH_I64 0\nRET\n.end\n",
@@ -3282,6 +3316,7 @@ int main(int argc, char **argv) {
     test_builtin_removal_and_rename();
     test_builtin_identity();
     test_builtin_normalize();
+    test_builtin_capture();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();

@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT shell execution.** I adapt the exact `nl_exec_shell` builtin
+      contract, preserving raw system status. I test success, nonzero exit and
+      signature rejection before rerunning compiler acceptance.
+      I also preserve bounded capture/draining with independent result storage.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 842 checks. Compiler acceptance still fails at
+      `vm_string_from_char` (import 32). Evidence: `docs/evidence/aot-shell-capture.md`.
 - [x] **AOT lexical normalization.** I normalize builtin paths without
       fixed component/output limits, preserving relative parents and roots.
       I test long paths and rerun compiler acceptance.
