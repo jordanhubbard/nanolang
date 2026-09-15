@@ -3038,6 +3038,46 @@ static void test_classifier_branch_stack(void) {
     }
 }
 
+static void test_emitter_many_temporaries(void) {
+    const char *pushes[] = {"PUSH_I64 42\n", "PUSH_STR value\n", "ARR_NEW 1\n",
+                           "ARR_NEW 5\n", "PUSH_I64 42\nAGG_PACK 0 0 0 1\n", "ARR_NEW 8\n",
+                           "PUSH_STR value\nAGG_PACK 0 0 0 1\n"};
+    const char *reads[] = {"", "STR_LEN\n", "ARR_LEN\n", "ARR_LEN\n", "AGG_GET 0\n", "ARR_LEN\n",
+                          "AGG_GET 0\nSTR_LEN\n"};
+    const int expected[] = {42, 5, 0, 0, 42, 0, 5};
+    const char *declarations[] = {"int64_t t[300]", "const char *s[300]", "narr_t a[300]",
+                                  "nsarr_t sa[300]", "nrec_t r[300]", "nrarr_t ra[300]", "nrec_t r[300]"};
+    for (int kind = 0; kind < 7; ++kind) {
+        for (int condition = 0; condition <= 1; ++condition) {
+            char source[32768];
+            strcpy(source, ".string value \"hello\"\n.entry 0\n.function main 0 0 0 int 1\n");
+            /* The branch condition adds an integer temporary, so that case's
+             * total is 301, while every other tested kind has exactly 300. */
+            for (int i = 0; i < 300; ++i) {
+                strcat(source, pushes[kind]);
+                if (i != 299) strcat(source, "POP\n");
+            }
+            strcat(source, condition ? "PUSH_BOOL 1\n" : "PUSH_BOOL 0\n");
+            strcat(source, "JMP_FALSE alternate\nJMP joined\nalternate:\nNOP\njoined:\n");
+            strcat(source, reads[kind]);
+            strcat(source, "RET\n.end\n");
+            NvmModule *m = assemble_ok(source, "many emitter temporaries");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "many emitter temporaries");
+            if (c) {
+                CHECK(strstr(c, kind == 0 ? "int64_t t[301]" : declarations[kind]) != NULL,
+                      "I size generated storage to the actual temporary high-water count");
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0,
+                      "I compile more than 256 temporaries of each supported representation");
+                CHECK(status == expected[kind], "I restore late temporary values through either branch");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+}
+
 static void test_emitter_deep_stacks(void) {
     for (int condition = 0; condition <= 1; ++condition) {
         char source[8192];
@@ -3607,6 +3647,7 @@ int main(int argc, char **argv) {
     test_classifier_branch_stack();
     test_classifier_deep_stack();
     test_emitter_deep_stacks();
+    test_emitter_many_temporaries();
     test_classifier_unreachable_and_invalid_joins();
     test_classifier_local_bounds();
     test_loop_carried_stack();

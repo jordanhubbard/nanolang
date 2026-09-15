@@ -60,6 +60,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I remove fixed temporary-count limits and support the compiler's
           aggregate widths and array-valued fields without guessing their
           representation. I require full compiler translation and execution.
+          - [x] I size generated temporary arrays to actual high-water counts,
+            allocate emitter record facts and snapshots dynamically, and test
+            more than 256 temporaries. I check output-growth arithmetic before
+            inserting the resulting declarations. My AOT suite passes 992
+            checks; evidence: `docs/evidence/aot-dynamic-temporaries.md`.
+          - [x] I select array constructors from emitted representations,
+            including direct stack construction without locals and legacy
+            inferred array kinds; strict generated-C compilation passes.
 - [x] **AOT byte-character conversion.** I preserve the existing C-byte
       `vm_string_from_char` contract, including zero-byte empty text and
       independent storage. I test integer boundaries before compiler acceptance.
