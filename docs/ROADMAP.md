@@ -233,6 +233,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               - [ ] I enumerate and validate module array exports before
                 widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
+                - [x] I declare and test collections key/value/set snapshots
+                  and JSON object-key arrays against the canonical layout,
+                  including empty and post-source-destruction results. Their
+                  copied-string ownership remains a separate runtime task;
+                  a layout marker does not certify leak-free ownership.
+                  All four version markers and snapshot contents pass normal
+                  and ASan/UBSan tests. Test cleanup explicitly frees the known
+                  copied elements; runtime ownership is still tracked by MAC
+                  `task_93bb44374587a757753418fc28c2095d`.
               - [x] I repair SDL_image array exports before declaring their ABI:
                 batch loading accepts raw `char**` and returns raw `int64_t*`,
                 while the language declares `DynArray` arguments/results.

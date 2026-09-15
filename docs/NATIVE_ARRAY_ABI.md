@@ -71,6 +71,18 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+My collections exports `nl_hm_keys`, `nl_hm_values`, `nl_set_values` and JSON
+export `nl_json_object_keys` declare the canonical array ABI. The
+`test-collection-array-exports` gate checks their markers, string element
+layout, empty results, set deduplication and snapshots after their source
+objects are freed, normally and with ASan/UBSan.
+
+These snapshot functions copy strings. My native array destructor still frees
+only the pointer buffer, not those copies. The fixture explicitly frees its
+known copies; I do not present that as runtime leak freedom. Reclaiming copied
+strings must account for elements that escape their arrays before adding
+automatic cleanup. That ownership contract remains open.
+
 `make test-sdl-image-arrays` loads my production cleanup adapter with fake SDL
 entry points and exercises VM dispatch in-process, through the mailbox, and
 through a 2,000-element pipe call. Prefix cleanup clears duplicate slots outside

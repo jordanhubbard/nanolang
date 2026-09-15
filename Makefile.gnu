@@ -579,6 +579,11 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@rm -f tests/test_gc_struct
 
 .PHONY: test-vm-ffi
+.PHONY: test-collection-array-exports
+test-collection-array-exports:
+	python3 -m unittest tests.test_collection_array_exports
+
+test-units: test-collection-array-exports
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
