@@ -55,6 +55,11 @@
  * I preserve complete tokens and restore clipping even if allocation fails.
  * Failed measurements do not advance the pen. Multiline layout remains work. */
 
+/* My ANSI viewer uses the same geometry/source/scroll limits. Numeric SGR
+ * overflow or malformed parameters leave colors unchanged; supported numeric
+ * parameters are applied in sequence. This is not a complete terminal parser.
+ * Both viewers saturate horizontal advances beyond SDL's coordinate range. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

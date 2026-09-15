@@ -277,6 +277,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     beyond 255 bytes, and restore clipping; I test failures.
                   - [ ] I audit ANSI/code-editor indexing and rendering,
                     including multiline tokens and visual-line scrolling.
+                    - [x] I bound ANSI geometry and escape parsing, check
+                      measurements and surface placement, saturate offscreen
+                      pen advances, and restore clipping; I test malformed SGR.
                   - [ ] I reconcile the text-input API's promised editing and
                     Enter behavior with its current render-only implementation.
                 - [x] I make process pipe-spawn result allocation precede pipe

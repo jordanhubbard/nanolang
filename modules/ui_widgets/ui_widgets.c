@@ -5,6 +5,10 @@
 #include <stdlib.h>
 
 static int ui_bar_geometry(int64_t x, int64_t y, int64_t w, int64_t h, int margin);
+static int64_t ui_advance_pen(int64_t x, int64_t amount) {
+    int64_t limit = (int64_t)INT_MAX + 1;
+    return x >= limit || amount > limit - x ? limit : x + amount;
+}
 static uint8_t ui_color_channel(int64_t value) {
     return value < 0 ? 0 : value > 255 ? 255 : (uint8_t)value;
 }
@@ -1531,11 +1535,11 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
                 // Measure space width
                 int space_w = 0;
                 if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
-                    current_x += space_w;
+                    current_x = ui_advance_pen(current_x, space_w);
             } else if (c == '\t') {
                 int space_w = 0;
                 if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
-                    current_x += (int64_t)space_w * 4;
+                    current_x = ui_advance_pen(current_x, (int64_t)space_w * 4);
             }
             pos++;
             continue;
@@ -1562,7 +1566,7 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
                     SDL_Rect dest = {(int)current_x, (int)current_y, surface->w, surface->h};
                     SDL_RenderCopy(renderer, texture, NULL, &dest);
                 }
-                if (surface->w >= 0) current_x += surface->w;
+                if (surface->w >= 0) current_x = ui_advance_pen(current_x, surface->w);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -1616,7 +1620,11 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
                              const char* code, int64_t x, int64_t y,
                              int64_t w, int64_t h, int64_t scroll_offset,
                              int64_t line_height) {
-    if (!font || !code) return;
+    if (!renderer || !font || !code || w < 10 || h < 5 ||
+        !ui_bar_geometry(x, y, w, h, 0) || scroll_offset < 0 ||
+        scroll_offset > INT_MAX || line_height <= 0 || line_height > INT_MAX) return;
+    size_t source_length = strlen(code);
+    if (source_length >= INT_MAX) return;
 
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
     SDL_SetRenderDrawColor(renderer, 20, 20, 28, 255);
@@ -1625,12 +1633,15 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
     SDL_RenderDrawRect(renderer, &bg);
 
     SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
+    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
+    SDL_Rect previous_clip;
+    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &clip);
 
-    int current_x = (int)x + 5;
-    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
+    int64_t current_x = x + 5;
+    int64_t current_y = y + 5 - scroll_offset * line_height;
     int pos = 0;
-    int code_len = strlen(code);
+    int code_len = (int)source_length;
 
     int r = 220, g = 220, b = 220;
 
@@ -1646,17 +1657,17 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
         }
 
         if (c == ' ') {
-            int space_w;
-            TTF_SizeText(font, " ", &space_w, NULL);
-            current_x += space_w;
+            int space_w = 0;
+            if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
+                current_x = ui_advance_pen(current_x, space_w);
             pos++;
             continue;
         }
 
         if (c == '\t') {
-            int space_w;
-            TTF_SizeText(font, " ", &space_w, NULL);
-            current_x += space_w * 4;
+            int space_w = 0;
+            if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
+                current_x = ui_advance_pen(current_x, (int64_t)space_w * 4);
             pos++;
             continue;
         }
@@ -1664,14 +1675,23 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
         if (c == 27 && code[pos + 1] == '[') {
             int seq = 0;
             int seq_pos = pos + 2;
+            int valid = 1, next_r = r, next_g = g, next_b = b;
             while (code[seq_pos] && code[seq_pos] != 'm') {
                 if (code[seq_pos] >= '0' && code[seq_pos] <= '9') {
-                    seq = seq * 10 + (code[seq_pos] - '0');
-                }
+                    int digit = code[seq_pos] - '0';
+                    if (seq > (INT_MAX - digit) / 10) valid = 0;
+                    else seq = seq * 10 + digit;
+                } else if (code[seq_pos] == ';') {
+                    if (valid) ansi_color_from_code(seq, &next_r, &next_g, &next_b);
+                    seq = 0;
+                } else valid = 0;
                 seq_pos++;
             }
             if (code[seq_pos] == 'm') {
-                ansi_color_from_code(seq, &r, &g, &b);
+                if (valid) {
+                    ansi_color_from_code(seq, &next_r, &next_g, &next_b);
+                    r = next_r; g = next_g; b = next_b;
+                }
                 pos = seq_pos + 1;
                 continue;
             }
@@ -1699,9 +1719,11 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
             if (surface) {
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture) {
-                    SDL_Rect dst = {current_x, current_y, surface->w, surface->h};
-                    SDL_RenderCopy(renderer, texture, NULL, &dst);
-                    current_x += surface->w;
+                    if (ui_bar_geometry(current_x, current_y, surface->w, surface->h, 0)) {
+                        SDL_Rect dst = {(int)current_x, (int)current_y, surface->w, surface->h};
+                        SDL_RenderCopy(renderer, texture, NULL, &dst);
+                    }
+                    if (surface->w >= 0) current_x = ui_advance_pen(current_x, surface->w);
                     SDL_DestroyTexture(texture);
                 }
                 SDL_FreeSurface(surface);
@@ -1711,7 +1733,7 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
         pos += token_len;
     }
 
-    SDL_RenderSetClipRect(renderer, NULL);
+    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
 }
 
 // Code editor widget - displays code with line numbers, syntax highlighting, and blinking cursor

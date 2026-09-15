@@ -508,6 +508,42 @@ static void code_displays(void) {
     nl_ui_code_display(r,f,"token\n token",0,0,100,100,INT_MAX,INT_MAX);
     assert(!clip_enabled);
 }
+static void ansi_displays(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    int draws=draw_calls;
+    nl_ui_code_display_ansi(r,f,"word",INT64_MAX,0,100,100,0,20);
+    nl_ui_code_display_ansi(r,f,"word",0,0,100,100,0,0);
+    nl_ui_code_display_ansi(r,f,"word",0,0,100,100,-1,20);
+    assert(draw_calls == draws);
+    expected_text="word"; provide_surface=1;
+    test_surface.w=10; test_surface.h=10;
+    clip_enabled=SDL_TRUE; clip_rect=(SDL_Rect){1,2,3,4};
+    nl_ui_code_display_ansi(r,f,"\033[1;35mword",0,0,100,100,0,20);
+    assert(last_text_color.r == 180 && last_text_color.g == 120);
+    nl_ui_code_display_ansi(r,f,"\033[35m\033[999999999999999999999999mword",0,0,100,100,0,20);
+    assert(last_text_color.r == 180 && last_text_color.g == 120);
+    nl_ui_code_display_ansi(r,f,"\033[35m\033[32;xmword",0,0,100,100,0,20);
+    assert(last_text_color.r == 180 && last_text_color.g == 120);
+    int copies=render_copies;
+    measured_w=INT_MAX;
+    nl_ui_code_display_ansi(r,f,"\t\t word",0,0,100,100,0,20);
+    assert(render_copies == copies);
+    fail_measure=1;
+    nl_ui_code_display_ansi(r,f," word",0,0,100,100,0,20);
+    fail_measure=0; measured_w=10;
+    assert(render_copies == copies+1);
+    test_surface.w=INT_MAX; test_surface.h=INT_MAX;
+    nl_ui_code_display_ansi(r,f,"word",INT_MAX-100,INT_MAX-100,100,100,0,20);
+    assert(clip_enabled && clip_rect.x == 1 && clip_rect.w == 3);
+    provide_surface=0; expected_text="[";
+    nl_ui_code_display_ansi(r,f,"\033[",0,0,100,100,0,20);
+    clip_enabled=SDL_FALSE; expected_text="word";
+    nl_ui_code_display_ansi(r,f,"word\nword",0,0,100,100,INT_MAX,INT_MAX);
+    assert(!clip_enabled);
+    assert(ui_advance_pen(INT_MAX, INT64_MAX) == (int64_t)INT_MAX+1);
+    assert(ui_advance_pen((int64_t)INT_MAX+1, INT64_MAX) == (int64_t)INT_MAX+1);
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -584,5 +620,6 @@ int main(void) {
     list_geometry();
     dropdown_geometry();
     code_displays();
+    ansi_displays();
     return 0;
 }

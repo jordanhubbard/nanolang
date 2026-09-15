@@ -166,6 +166,12 @@ at 255 bytes. Token allocation failure ends rendering with clip restoration.
 The fixture checks 600-byte tokens, allocation/measurement failure, extreme
 scrolling and surfaces, and clipping under the same gates. ANSI/editor paths
 and multiline/visual-line semantics remain separate work.
+The ANSI viewer now checks geometry, source/scroll limits, measurements and
+surface placement, restores clipping, and bounds numeric SGR parsing. Invalid
+completed sequences leave colors unchanged; semicolon parameters are applied
+in order. Both viewers saturate offscreen pen advancement. Fake-SDL tests cover
+numeric overflow, malformed/incomplete escapes, measurements, extreme surfaces
+and scroll offsets under the same gates. This is not full ANSI/terminal support.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;
