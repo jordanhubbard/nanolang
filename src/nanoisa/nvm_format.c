@@ -3,6 +3,7 @@
  */
 
 #include "nvm_format.h"
+#include "isa.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -86,6 +87,7 @@ NvmModule *nvm_module_new(void) {
 
     mod->function_capacity = 32;
     mod->functions = calloc(mod->function_capacity, sizeof(NvmFunctionEntry));
+    mod->function_param_types = calloc(mod->function_capacity, sizeof(uint8_t *));
 
     mod->code_capacity = 4096;
     mod->code = calloc(mod->code_capacity, sizeof(uint8_t));
@@ -100,7 +102,7 @@ NvmModule *nvm_module_new(void) {
     mod->module_ref_capacity = 16;
     mod->module_refs = calloc(mod->module_ref_capacity, sizeof(NvmModuleRefEntry));
 
-    if (!mod->strings || !mod->string_lengths || !mod->functions ||
+    if (!mod->strings || !mod->string_lengths || !mod->functions || !mod->function_param_types ||
         !mod->code || !mod->debug_entries || !mod->imports ||
         !mod->import_param_types || !mod->module_refs) {
         nvm_module_free(mod);
@@ -121,6 +123,11 @@ void nvm_module_free(NvmModule *mod) {
     }
     free(mod->string_lengths);
     free(mod->functions);
+    if (mod->function_param_types) {
+        for (uint32_t i = 0; i < mod->function_count; i++)
+            free(mod->function_param_types[i]);
+        free(mod->function_param_types);
+    }
     free(mod->code);
     free(mod->debug_entries);
     if (mod->import_param_types) {
@@ -207,18 +214,49 @@ uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index) {    if (index
  * ======================================================================== */
 
 uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry) {
+    if (!mod || !entry) return UINT32_MAX;
+    NvmFunctionEntry copied_entry = *entry;
     if (mod->function_count >= mod->function_capacity) {
-        uint32_t new_cap = mod->function_capacity * 2;
-        NvmFunctionEntry *new_fns = realloc(mod->functions, new_cap * sizeof(NvmFunctionEntry));
-        if (!new_fns) return 0;
+        if (mod->function_capacity > UINT32_MAX / 2) return UINT32_MAX;
+        uint32_t new_cap = mod->function_capacity ? mod->function_capacity * 2 : 32;
+        NvmFunctionEntry *new_fns = calloc(new_cap, sizeof(NvmFunctionEntry));
+        uint8_t **new_types = calloc(new_cap, sizeof(uint8_t *));
+        if (!new_fns || !new_types) {
+            free(new_fns);
+            free(new_types);
+            return UINT32_MAX;
+        }
+        if (mod->function_count) {
+            memcpy(new_fns, mod->functions, mod->function_count * sizeof(*new_fns));
+            if (mod->function_param_types)
+                memcpy(new_types, mod->function_param_types,
+                       mod->function_count * sizeof(*new_types));
+        }
+        free(mod->functions);
+        free(mod->function_param_types);
         mod->functions = new_fns;
+        mod->function_param_types = new_types;
         mod->function_capacity = new_cap;
     }
 
     uint32_t idx = mod->function_count;
-    mod->functions[idx] = *entry;
+    mod->functions[idx] = copied_entry;
     mod->function_count++;
     return idx;
+}
+
+bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
+                                  const uint8_t *tags, uint16_t count) {
+    if (!mod || index >= mod->function_count || !mod->function_param_types ||
+        count != mod->functions[index].arity || (count && !tags)) return false;
+    for (uint16_t i = 0; i < count; i++)
+        if (tags[i] >= TAG_COUNT) return false;
+    uint8_t *copy = count ? malloc(count) : NULL;
+    if (count && !copy) return false;
+    if (count) memcpy(copy, tags, count);
+    free(mod->function_param_types[index]);
+    mod->function_param_types[index] = copy;
+    return true;
 }
 
 uint32_t nvm_find_function(const NvmModule *mod, const char *name) {
@@ -791,7 +829,10 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     fn.upvalue_count = le_read_u16(sec_data + pos);     pos += 2;
                     fn.result_tag    = sec_data[pos++];
                     fn.result_count  = sec_data[pos++];
-                    nvm_add_function(mod, &fn);
+                    if (nvm_add_function(mod, &fn) == UINT32_MAX) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                 }
                 break;
             }

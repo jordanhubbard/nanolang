@@ -754,7 +754,37 @@ void test_tc_impure_fn_not_affected(void) {
  * main
  * ============================================================================ */
 
+void test_tc_nested_return_context(void) {
+    const char *valid =
+        "fn outer() -> int {\n"
+        "  fn inner() -> float { return 2.5 }\n"
+        "  assert (== (inner) 2.5)\n"
+        "  return 7\n"
+        "}\n"
+        "shadow outer { assert (== (outer) 7) }\n"
+        "fn main() -> int { return (outer) }\n"
+        "shadow main { assert (== (main) 7) }\n";
+    const char *invalid =
+        "fn outer() -> int {\n"
+        "  fn inner() -> bool { return 7 }\n"
+        "  return 0\n"
+        "}\n"
+        "shadow outer { assert (== (outer) 0) }\n"
+        "fn main() -> int { return (outer) }\n"
+        "shadow main { assert (== (main) 0) }\n";
+    ASSERT(tc_passes(valid));
+    ASSERT(tc_module_passes(valid));
+    ASSERT(!tc_passes(invalid));
+    ASSERT(!tc_module_passes(invalid));
+    ASSERT(!tc_passes(
+        "fn main() -> int { while true {\n"
+        "  fn inner() -> void { break }\n"
+        "  break\n"
+        "} return 0 }\n"));
+}
+
 int main(void) {
+    TEST(tc_nested_return_context);
     printf("=== Typechecker Tests ===\n");
 
     printf("\n--- Valid programs ---\n");

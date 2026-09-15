@@ -405,9 +405,9 @@ void nvm_v2_module_free(NvmV2Module *m);
  * nvm_v2_module_free. `nvm_v2_to_nvm_module` allocates an NvmModule: free it
  * with nvm_module_free.
  *
- * A v1 module does not record function parameter types or max_stack. The
- * bridge emits TAG_VOID placeholder parameter tags and a max_stack of 0
- * rather than guessing; a v2-native producer supplies the real values.
+ * I preserve parameter types supplied by typed producers. Legacy producers
+ * leave TAG_VOID placeholders rather than guessed types. The bridge derives
+ * max_stack when verification succeeds and leaves it undeclared otherwise.
  */
 NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out);
 NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out);

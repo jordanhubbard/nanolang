@@ -1480,6 +1480,40 @@ static void test_closure_capture_local_var(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_declared_function_parameter_tags(void) {
+    TestResult tr = compile_and_run(
+        "fn choose(value: float, enabled: bool) -> float {\n"
+        "  if enabled { return value } return 0.0\n"
+        "}\n"
+        "shadow choose { assert (== (choose 2.5 true) 2.5) }\n"
+        "fn outer(base: int) -> int {\n"
+        "  fn inner(value: int) -> int { return (+ base value) }\n"
+        "  fn scale(amount: float) -> float { return (* amount 2.0) }\n"
+        "  assert (== (scale 1.5) 3.0)\n"
+        "  fn check_base() -> void { assert (== base 3) }\n"
+        "  (check_base)\n"
+        "  return (inner 4)\n"
+        "}\n"
+        "shadow outer { assert (== (outer 3) 7) }\n"
+        "fn main() -> int { return (outer 3) }\n"
+        "shadow main { assert (== (main) 7) }\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I execute the typed signature fixture");
+    ASSERT_INT(tr.result.as.i64, 7);
+    uint32_t choose = nvm_find_function(tr.module, "choose");
+    uint32_t inner = nvm_find_function(tr.module, "inner");
+    ASSERT(choose != UINT32_MAX && inner != UINT32_MAX, "I retain named and nested functions");
+    ASSERT(tr.module->function_param_types[choose] != NULL, "I retain declared parameter tags");
+    ASSERT(tr.module->function_param_types[choose][0] == TAG_FLOAT &&
+           tr.module->function_param_types[choose][1] == TAG_BOOL,
+           "I preserve mixed parameter order");
+    ASSERT(tr.module->function_param_types[inner] != NULL &&
+           tr.module->function_param_types[inner][0] == TAG_INT,
+           "I preserve captured function parameter tags");
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
@@ -1490,6 +1524,7 @@ int main(void) {
     test_debug_metadata_is_not_executable();
     test_scalar_codegen_uses_typed_opcodes();
     test_function_result_signatures();
+    test_declared_function_parameter_tags();
     test_empty_struct_list_result_keeps_element_tag();
 
     fprintf(stderr, "\nInteger Arithmetic:\n");

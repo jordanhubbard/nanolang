@@ -368,6 +368,12 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (fn->result_tag >= TAG_COUNT)
             return fail("function[%u] result_tag %u is invalid",
                         i, fn->result_tag);
+        if (mod->function_param_types && mod->function_param_types[i]) {
+            for (uint16_t p = 0; p < fn->arity; p++) {
+                if (mod->function_param_types[i][p] >= TAG_COUNT)
+                    return fail("I found an invalid parameter tag in function[%u] parameter[%u]", i, p);
+            }
+        }
         if ((fn->result_count == 0) != (fn->result_tag == TAG_VOID))
             return fail("function[%u] result signature must be void/0 or non-void/nonzero", i);
         if (fn->local_count < fn->arity)

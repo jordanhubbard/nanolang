@@ -201,6 +201,7 @@ typedef struct {
 
     /* Function table */
     NvmFunctionEntry *functions;
+    uint8_t **function_param_types; /* Owned tags; NULL entry means unknown. */
     uint32_t function_count;
     uint32_t function_capacity;
 
@@ -252,7 +253,12 @@ void nvm_module_free(NvmModule *mod);
 uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length);
 
 /* Add a function entry. Returns the function index. */
+/* I return UINT32_MAX on failure; entry may borrow an existing table entry. */
 uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry);
+/* I copy exact-arity tags transactionally; failure leaves the old tags intact.
+ * TAG_VOID explicitly means unknown, not a callback-compatible scalar. */
+bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
+                                  const uint8_t *tags, uint16_t count);
 
 /* Append bytecode to the code section. Returns the byte offset where it was written. */
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);

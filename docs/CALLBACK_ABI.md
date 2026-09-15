@@ -13,7 +13,22 @@ deterministic queued cancellation, and late calls after shutdown. Both test
 binaries pass AddressSanitizer/UndefinedBehaviorSanitizer and ThreadSanitizer
 on Darwin arm64. LeakSanitizer is unsupported on that host; I ran ASan with
 `detect_leaks=0`. The existing 22 FFI unit tests still pass. None of this
-establishes compiler metadata, VM activation, dispatch, or COP integration.
+establishes callback-import metadata, VM activation, dispatch, or COP integration.
+
+I now preserve declared ordinary function parameter tags in the execution
+module and through v2 serialization. Legacy producers still leave unknown
+tags; an unknown tag is not permission to publish a callback. My v2 bridge
+passes 295 checks, including mixed parameter order, distinct-signature
+interning, and table growth. Allocation-failure tests check transactional
+growth and updates, including a source entry borrowed from the growing table.
+They pass ASan/UBSan with leak detection disabled on Darwin.
+
+The 64-check NanoVirt suite includes reused parameter names across nested
+functions, distinct nested result types, a void capturing closure, and a
+tail-position call that must preserve captures. Typechecker tests reject a
+nested result of the wrong type and a nested `break` targeting the outer
+function's loop. The 93-check verifier suite passes. This is declaration
+preservation and selected execution evidence, not full callback support.
 
 ## Boundary
 

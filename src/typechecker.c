@@ -4654,10 +4654,27 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (stmt->as.function.body) {
                     for (int p = 0; p < stmt->as.function.param_count; p++) {
                         Value dummy_val = {0};
-                        env_define_var(tc->env, stmt->as.function.params[p].name,
-                                      stmt->as.function.params[p].type, true, dummy_val);
+                        Parameter *param = &stmt->as.function.params[p];
+                        env_define_var_with_type_info(tc->env, param->name,
+                                      param->type, param->element_type,
+                                      param->type_info, false, dummy_val);
+                        Symbol *symbol = env_get_var(tc->env, param->name);
+                        if (symbol) {
+                            symbol->def_line = stmt->line;
+                            symbol->def_column = stmt->column;
+                            /* I use this declaration, not metadata copied from
+                             * an unrelated earlier parameter with this name. */
+                            free(symbol->struct_type_name);
+                            symbol->struct_type_name = param->struct_type_name
+                                ? strdup(param->struct_type_name) : NULL;
+                        }
                     }
-                    check_statement(tc, stmt->as.function.body);
+                    TypeChecker nested = *tc;
+                    nested.loop_depth = 0;
+                    nested.current_function_return_type = func.return_type;
+                    nested.current_function_return_struct_name = func.return_struct_type_name;
+                    check_statement(&nested, stmt->as.function.body);
+                    tc->has_error = tc->has_error || nested.has_error;
                 }
             }
             return TYPE_VOID;

@@ -316,9 +316,69 @@ static void test_import_kinds_and_bindings(void) {
     nvm_module_free(m);
 }
 
+static void test_parameter_tags_survive(void) {
+    NvmModule *m = build_v1();
+    CHECK(m != NULL, "I allocate a typed signature fixture");
+    if (!m) return;
+    uint8_t first[] = {TAG_INT, TAG_FLOAT};
+    uint8_t second[] = {TAG_FLOAT, TAG_INT};
+    CHECK(nvm_set_function_param_types(m, 0, first, 2), "I accept declared parameters");
+    CHECK(nvm_set_function_param_types(m, 1, second, 2), "I accept distinct parameters");
+    first[0] = TAG_BOOL;
+    CHECK(m->function_param_types[0][0] == TAG_INT, "I own a copy of the declaration");
+    CHECK(!nvm_set_function_param_types(m, 0, first, 1), "I reject wrong arity");
+    CHECK(!nvm_set_function_param_types(m, 0, NULL, 2), "I reject missing tags");
+    first[0] = TAG_COUNT;
+    CHECK(!nvm_set_function_param_types(m, 0, first, 2), "I reject invalid tags");
+    CHECK(m->function_param_types[0][0] == TAG_INT, "I preserve tags after rejected updates");
+    CHECK(!nvm_set_function_param_types(m, UINT32_MAX, first, 2), "I reject invalid functions");
+    NvmV2Module v2;
+    CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I convert typed functions");
+    CHECK(v2.functions.items[0].signature_idx != v2.functions.items[1].signature_idx,
+          "I do not intern distinct parameter types as the same signature");
+    size_t length = 0;
+    CHECK_RESULT(nvm_v2_module_serialize(&v2, NULL, 0, &length), NVM_V2_OK, "I size typed bytes");
+    uint8_t *bytes = malloc(length);
+    CHECK(bytes != NULL, "I allocate typed bytes");
+    if (bytes) {
+        CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, length, &length), NVM_V2_OK,
+                     "I serialize typed signatures");
+        NvmV2Module decoded;
+        NvmV2Result r = nvm_v2_module_deserialize(bytes, length, &decoded);
+        CHECK_RESULT(r, NVM_V2_OK, "I decode typed signatures");
+        if (r == NVM_V2_OK) {
+            NvmModule *back = NULL;
+            CHECK_RESULT(nvm_v2_to_nvm_module(&decoded, &back), NVM_V2_OK,
+                         "I restore typed signatures to the execution module");
+            if (back) {
+                CHECK(back->function_param_types[0][0] == TAG_INT &&
+                      back->function_param_types[0][1] == TAG_FLOAT &&
+                      back->function_param_types[1][0] == TAG_FLOAT &&
+                      back->function_param_types[1][1] == TAG_INT,
+                      "I preserve exact parameter order across the wire");
+                nvm_module_free(back);
+            }
+            nvm_v2_module_free(&decoded);
+        }
+        free(bytes);
+    }
+    nvm_v2_module_free(&v2);
+    /* I cross multiple capacity boundaries without losing earlier tags. */
+    NvmFunctionEntry f = m->functions[0];
+    for (unsigned i = 0; i < 100; i++) {
+        uint32_t idx = nvm_add_function(m, &f);
+        CHECK(idx == i + 3, "I grow the function table");
+        CHECK(nvm_set_function_param_types(m, idx, second, 2), "I populate a grown tag slot");
+    }
+    CHECK(m->function_param_types[0][0] == TAG_INT &&
+          m->function_param_types[102][0] == TAG_FLOAT, "I preserve old and new tags during growth");
+    nvm_module_free(m);
+}
+
 int main(void) {
     printf("\n[nvm_v2_convert] NvmModule <-> v2 bridge tests...\n\n");
     test_round_trip_through_v2();
+    test_parameter_tags_survive();
     test_import_kinds_and_bindings();
     test_header_flags_are_derived();
     test_a_module_without_main_gains_no_entry_point();

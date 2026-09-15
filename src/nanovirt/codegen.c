@@ -1820,6 +1820,19 @@ static void compile_expr(CG *cg, ASTNode *node) {
         const char *name = node->as.call.name;
         int argc = node->as.call.arg_count;
 
+        /* I invoke the lexical callable, including its captures. A same-name
+         * entry in the function table is not a substitute for that value. */
+        int16_t callable_slot = name ? local_find(cg, name) : -1;
+        int16_t callable_upvalue = name && callable_slot < 0 ? upvalue_resolve(cg, name) : -1;
+        if (callable_slot >= 0 || callable_upvalue >= 0) {
+            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
+            if (callable_slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)callable_slot);
+            else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            emit_op(cg, OP_CALL_INDIRECT, argc,
+                    check_expression(node, cg->env) == TYPE_VOID ? 0 : 1);
+            break;
+        }
+
         /* Handle built-in functions */
         if (name && fn_find(cg, name) < 0 && local_find(cg, name) < 0
                 && compile_builtin_call(cg, node)) {
@@ -2340,6 +2353,42 @@ typedef struct {
     CG      parent_snapshot;
 } NestedFnState;
 
+static void bind_parameter_type(CG *cg, const Parameter *param, int line) {
+    env_define_var_with_type_info(cg->env, param->name, param->type,
+                                  param->element_type, param->type_info,
+                                  false, create_void());
+    Symbol *symbol = env_get_var(cg->env, param->name);
+    if (symbol) {
+        symbol->def_line = line;
+        symbol->def_column = 0;
+        free(symbol->struct_type_name);
+        symbol->struct_type_name = param->struct_type_name
+            ? strdup(param->struct_type_name) : NULL;
+        symbol->is_used = true;
+    }
+}
+
+static bool record_function_parameters(CG *cg, ASTNode *node, uint32_t index) {
+    int count = node->as.function.param_count;
+    if (count < 0 || count > UINT16_MAX || index >= cg->module->function_count) {
+        cg_error(cg, node->line, "I cannot represent this function's parameter signature");
+        return false;
+    }
+    uint8_t *tags = count ? malloc((size_t)count) : NULL;
+    if (count && !tags) {
+        cg_error(cg, node->line, "I could not allocate function parameter tags");
+        return false;
+    }
+    for (int i = 0; i < count; i++) {
+        Parameter *p = &node->as.function.params[i];
+        tags[i] = type_to_tag(p->type, p->struct_type_name, cg->env);
+    }
+    bool ok = nvm_set_function_param_types(cg->module, index, tags, (uint16_t)count);
+    free(tags);
+    if (!ok) cg_error(cg, node->line, "I could not preserve function parameter tags");
+    return ok;
+}
+
 static void compile_nested_function(CG *cg, ASTNode *node) {
     if (node->as.function.is_extern) return;
 
@@ -2363,6 +2412,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         }
     }
 
+    if (!record_function_parameters(cg, node, (uint32_t)fn_idx)) return;
     NestedFnState *st = malloc(sizeof(NestedFnState));
     if (!st) {
         cg_error(cg, node->line, "out of memory compiling nested function '%s'", name);
@@ -2404,6 +2454,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
 
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
+        bind_parameter_type(cg, &node->as.function.params[i], node->line);
         uint16_t slot = local_add(cg, node->as.function.params[i].name, node->line);
         if (node->as.function.params[i].struct_type_name) {
             cg->locals[slot].struct_type = node->as.function.params[i].struct_type_name;
@@ -2526,8 +2577,12 @@ static bool stmt_falls_through(ASTNode *node) {
 
 static int32_t direct_call_target(CG *cg, ASTNode *node) {
     if (!node) return -1;
-    if (node->type == AST_CALL)
-        return node->as.call.name ? fn_find(cg, node->as.call.name) : -1;
+    if (node->type == AST_CALL) {
+        const char *name = node->as.call.name;
+        if (!name || local_find(cg, name) >= 0 || upvalue_resolve(cg, name) >= 0)
+            return -1;
+        return fn_find(cg, name);
+    }
     if (node->type == AST_MODULE_QUALIFIED_CALL) {
         char qualified[512];
         snprintf(qualified, sizeof(qualified), "%s.%s",
@@ -2956,6 +3011,11 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
         }
     }
 
+    if (!record_function_parameters(cg, fn_node, (uint32_t)fn_idx)) {
+        cg->env->current_module = saved_module;
+        return;
+    }
+
     /* Reset per-function state */
     cg->code_size = 0;
     cg->local_count = 0;
@@ -2984,21 +3044,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
          * exactly where it should be: within this file, at or after this
          * point. Two modules may both have a parameter named `a` without
          * either seeing the other's. */
-        const Parameter *param = &fn_node->as.function.params[i];
-        Value unset = create_void();
-        env_define_var_with_type_info(cg->env, param->name, param->type,
-                                      param->element_type, param->type_info,
-                                      false, unset);
-        Symbol *psym = env_get_var(cg->env, param->name);
-        if (psym) {
-            psym->def_line = fn_node->line;
-            psym->def_column = 0;
-            /* The environment owns and frees this string, so it gets a copy
-             * rather than the AST's pointer. */
-            if (param->struct_type_name && !psym->struct_type_name)
-                psym->struct_type_name = strdup(param->struct_type_name);
-            psym->is_used = true;   /* a parameter is not an unused local */
-        }
+        bind_parameter_type(cg, &fn_node->as.function.params[i], fn_node->line);
     }
 
     /* Compile function body */

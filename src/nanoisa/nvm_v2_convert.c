@@ -15,9 +15,9 @@
  *    must deduplicate exactly -- if two identically-shaped callables get
  *    different indices, comparing signature indices stops meaning "same type",
  *    which is the property the verifier is meant to gain from v2.
- *  - v1 records neither function parameter types nor max_stack. Rather than
- *    guess, the bridge emits TAG_VOID placeholder parameter tags and a
- *    max_stack of 0; a v2-native producer supplies the real values.
+ *  - Legacy producers can omit function parameter types. I preserve typed
+ *    producers' declarations and retain TAG_VOID placeholders only where
+ *    types are unknown. I derive max_stack when verification succeeds.
  *
  * Constant payloads and import tag arrays alias the source NvmModule, so it
  * must outlive the NvmV2Module the bridge produces.
@@ -113,9 +113,11 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         const NvmFunctionEntry *f = &mod->functions[i];
         size_t mark = pool_used;
 
-        /* Parameter tags are TAG_VOID placeholders: v1 does not record them,
-         * and the pool is already zeroed, so this only reserves the bytes. */
+        /* I retain producer-declared tags. Legacy producers leave the zeroed
+         * TAG_VOID placeholders; I do not invent a signature for them. */
         const uint8_t *ptags = f->arity ? pool + pool_used : NULL;
+        if (f->arity && mod->function_param_types && mod->function_param_types[i])
+            memcpy(pool + pool_used, mod->function_param_types[i], f->arity);
         pool_used += f->arity;
 
         const uint8_t *rtags = NULL;
@@ -319,7 +321,12 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         e.upvalue_count = f->upvalue_count;
         e.result_count  = (uint8_t)s->result_count;
         e.result_tag    = s->result_count ? s->result_tags[0] : TAG_VOID;
-        nvm_add_function(mod, &e);
+        uint32_t index = nvm_add_function(mod, &e);
+        if (index == UINT32_MAX ||
+            !nvm_set_function_param_types(mod, index, s->param_tags, s->param_count)) {
+            nvm_module_free(mod);
+            return NVM_V2_ERR_TRUNCATED;
+        }
     }
 
     for (uint32_t i = 0; i < m->imports.count; i++) {

@@ -107,6 +107,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I carry callback signatures and adapter contracts through the
         compiler, serialized imports, loader, and verifier; absent contracts
         fail closed rather than inferring behavior from symbol names.
+        - [x] I preserve declared function parameter tags through the
+          in-memory module and v2 round trip, including nested functions.
+          Unknown legacy tags stay explicitly unknown. Function-table growth
+          must fail transactionally rather than returning function zero.
+        - [x] I assign nested parameters their own declaration provenance
+          and check nested bodies against their own return type. A preceding
+          float parameter named `value` must not change a nested integer
+          parameter with that name. I test distinct nested return types too.
+          A nested body cannot break out of the enclosing function's loop.
+          I also preserve callable-local precedence in tail-position calls:
+          `return (inner 4)` must invoke the closure with its captures, not
+          tail-call a bare function index and lose its captured values.
+          MAC `task_63005c07d487b97ee55756fb3373bef7`. NanoVirt passes 64
+          checks, the v2 bridge 295, and the verifier 93. Typechecker tests
+          include rejected nested return and loop-control violations.
       - [ ] I connect owner-thread callback execution to suspended VM
         activations, preserve captures/globals, pump during foreign waits,
         and propagate errors without racing the heap or corrupting frames.
