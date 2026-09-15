@@ -1147,6 +1147,10 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
+    if (arg_count < 0 || arg_count > NANO_MAX_FFI_ARGS || (!args && arg_count) || !result) {
+        snprintf(error_msg, error_msg_size, "I require a valid isolated argument count and result");
+        return false;
+    }
     if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         /* Isolation was explicitly requested (this function only runs under
@@ -1165,17 +1169,10 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     /* ── Fast path: mailbox ──────────────────────────────────────────── */
     if (mbox) {
         /* Serialize args directly into the mailbox request slot */
-        uint32_t pos = 0;
-        bool fits = true;
-        for (int i = 0; i < arg_count && i < NANO_MAX_FFI_ARGS && fits; i++) {
-            uint32_t n = cop_serialize_value(&args[i],
-                                             mbox->req_data + pos,
-                                             COP_MAILBOX_SLOT_SIZE - pos);
-            if (n == 0) { fits = false; break; }
-            pos += n;
-        }
-
-        if (fits) {
+        uint32_t pos = cop_encode_call_values(args, (uint8_t)arg_count,
+                                               mbox->req_data, COP_MAILBOX_SLOT_SIZE);
+        if (pos) {
+            cop_put_u32(mbox->req_batch_count, 0);
             cop_put_u32(mbox->req_import_idx, import_idx);
             cop_put_u16(mbox->req_argc, (uint16_t)arg_count);
             cop_put_u16(mbox->req_data_size, (uint16_t)pos);
@@ -1207,25 +1204,16 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
 
             /* Read result from mailbox */
             if (mbox->resp_is_error) {
-                snprintf(error_msg, error_msg_size, "%s", mbox->resp_error);
+                snprintf(error_msg, error_msg_size, "%.*s",
+                         (int)sizeof(mbox->resp_error), mbox->resp_error);
                 return false;
             }
             uint32_t resp_wire_size = cop_get_u32(mbox->resp_data_size);
-            if (resp_wire_size > 0) {
-                /* resp_data_size is written by the (untrusted) child; clamp to
-                 * the actual slot size so a corrupt/hostile child can't make us
-                 * read past the 4 KB mailbox slot / the shared mapping. */
-                uint32_t resp_size = resp_wire_size;
-                if (resp_size > COP_MAILBOX_SLOT_SIZE) resp_size = COP_MAILBOX_SLOT_SIZE;
-                uint32_t consumed = cop_deserialize_value(
-                    mbox->resp_data, resp_size, result, heap);
-                if (consumed == 0) {
-                    snprintf(error_msg, error_msg_size,
-                             "COP: failed to deserialize mailbox result");
-                    return false;
-                }
-            } else {
-                *result = val_void();
+            if (resp_wire_size > COP_MAILBOX_SLOT_SIZE ||
+                !cop_apply_call_reply(mbox->resp_data, resp_wire_size, args,
+                                      (uint8_t)arg_count, result, heap)) {
+                snprintf(error_msg, error_msg_size, "I rejected an invalid isolated reply");
+                return false;
             }
             return true;
         }
@@ -1347,7 +1335,20 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
     }
 
     CopMailbox *mbox = vm->cop_mailbox;
-    if (!mbox) {
+    bool array_arguments = false;
+    for (int i = 0; i < count; ++i) {
+        if (calls[i].arg_count < 0 || calls[i].arg_count > NANO_MAX_FFI_ARGS ||
+            (!calls[i].args && calls[i].arg_count)) {
+            snprintf(error_msg, error_msg_size, "I require valid isolated batch arguments");
+            return false;
+        }
+        for (int j = 0; j < calls[i].arg_count; ++j)
+            if (calls[i].args[j].tag == TAG_ARRAY) array_arguments = true;
+    }
+    if (!mbox || array_arguments) {
+        /* Array calls must observe the previous call's published mutations.
+         * I retain scalar batching; packing array snapshots ahead of execution
+         * would silently erase dependencies between calls sharing an array. */
         /* No shared-memory mailbox: fall back to per-call dispatch so batching
          * still works functionally over the pipe channel (just without the
          * single-crossing win). */

@@ -283,6 +283,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                       This codec does not establish transport integration.
                     - [ ] I connect that envelope to mailbox and pipe dispatch,
                       preserving ordered array mutations across batched calls.
+                      - [x] My mailbox uses call envelopes and resets batch mode
+                        for single calls. Array-bearing batches cross in order;
+                        scalar batches remain packed. Forked tests check shared
+                        argument/result identity, three dependent mutations,
+                        repeated clearing and invalid-result rejection.
+                      - [ ] I migrate pipe requests and replies, update the wire
+                        version, and test large isolated payloads without
+                        silently falling back to in-process execution.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native

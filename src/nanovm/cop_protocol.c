@@ -590,38 +590,28 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             uint16_t argc       = cop_get_u16(mailbox->req_argc);
             uint16_t data_size  = cop_get_u16(mailbox->req_data_size);
 
-            NanoValue args[NANO_MAX_FFI_ARGS] = {0};
-            int actual_argc = 0;
-            uint32_t pos = 0;
-            for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS && pos < data_size; i++) {
-                uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
-                                                          data_size - pos,
-                                                          &args[i], &heap);
-                if (consumed == 0) break;
-                pos += consumed;
-                actual_argc++;
-            }
-
-            NanoValue result;
+            NanoValue args[NANO_MAX_FFI_ARGS + 1] = {0};
             char errmsg[256] = {0};
-            if (!vm_ffi_call(module, import_idx, args, actual_argc, &result, &heap,
-                             errmsg, sizeof(errmsg))) {
+            bool decoded = argc <= NANO_MAX_FFI_ARGS && data_size <= COP_MAILBOX_SLOT_SIZE &&
+                cop_decode_call_values(mailbox->req_data, data_size, args, (uint8_t)argc, &heap);
+            bool ok = decoded && vm_ffi_call(module, import_idx, args, argc, &args[argc], &heap,
+                                             errmsg, sizeof(errmsg));
+            uint32_t rlen = ok ? cop_encode_call_values(args, (uint8_t)(argc + 1),
+                mailbox->resp_data, COP_MAILBOX_SLOT_SIZE) : 0;
+            if (!decoded) snprintf(errmsg, sizeof errmsg, "I rejected a malformed isolated call envelope");
+            else if (ok && !rlen) snprintf(errmsg, sizeof errmsg, "I cannot fit the isolated reply in the mailbox");
+            if (!ok || !rlen) {
                 mailbox->resp_is_error  = 1;
                 cop_put_u32(mailbox->resp_data_size, 0);
                 cop_put_u32(mailbox->resp_batch_count, 0);
                 strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
                 mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             } else {
-                uint32_t rlen = cop_serialize_value(&result,
-                                                    mailbox->resp_data,
-                                                    COP_MAILBOX_SLOT_SIZE);
                 mailbox->resp_is_error  = 0;
                 cop_put_u32(mailbox->resp_data_size, rlen);
                 cop_put_u32(mailbox->resp_batch_count, 0);
-                vm_release(&heap, result);
             }
-
-            for (int i = 0; i < actual_argc; i++) vm_release(&heap, args[i]);
+            if (decoded) for (int i = 0; i <= argc; i++) vm_release(&heap, args[i]);
 
             if (write(sig_out_fd, &sig, 1) != 1) break;
         }

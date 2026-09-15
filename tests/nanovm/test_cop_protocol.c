@@ -470,6 +470,11 @@ TEST(batch_roundtrip_many_calls) {
         ASSERT_EQ(results[i].as.i64, (int64_t)(i + 1));  /* abs(-(i+1)) */
         vm_release(&heap, results[i]);
     }
+    NanoValue single_arg = val_int(-123), single_result;
+    ASSERT(vm_ffi_call_cop(&vm, mod, 0, &single_arg, 1, &single_result, &heap,
+                          err, sizeof err));
+    ASSERT(single_result.tag == TAG_INT && single_result.as.i64 == 123);
+    vm_release(&heap, single_result);
 
     vm_ffi_cop_stop(&vm);
     vm_heap_destroy(&heap);

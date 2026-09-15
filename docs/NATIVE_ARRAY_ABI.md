@@ -17,8 +17,8 @@ their ownership contract remains separate work. Metadata checks do not make
 arbitrary foreign pointers safe to dereference.
 
 I reject nested and record array layouts at this boundary. My co-process
-transport still needs mutation and alias propagation; this in-process frame
-does not establish isolated-call parity. `make test-ffi-array-copyback` checks
+mailbox carries mutation and alias snapshots; the pipe transport still needs
+migration before I claim isolated-call parity. `make test-ffi-array-copyback` checks
 scalar/string conversion, aliases, growth, cleanup and injected allocation
 failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
@@ -32,8 +32,14 @@ non-array references and trailing bytes, and preserve one owned reference per
 decoded slot. Reply application validates the original alias topology and
 element types before publishing any array storage changes.
 
-The codec is tested but not yet connected to mailbox or pipe dispatch. The
-existing transport wire version remains unchanged until that migration.
+My mailbox single-call dispatcher uses this envelope in both directions.
+Batches with array arguments use ordered single-call crossings, so a later
+call sees earlier mutations. Scalar-only batches retain the packed fast path.
+I test actual forked dispatch, returned aliases, repeated handle clearing,
+invalid-result rejection and switching from a scalar batch to a single call.
+The pipe transport still uses the old value-only encoding; its migration and
+wire-version update remain unfinished. Mailbox overflow fails closed and
+cannot undo native side effects that occurred before reply overflow.
 
 I currently use native array ABI version 1. `DynArray` still has a one-byte
 element width; I reject records larger than 255 bytes. This change does not

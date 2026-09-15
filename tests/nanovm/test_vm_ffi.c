@@ -717,6 +717,29 @@ TEST(array_mutation_copyback) {
         vm_release(&heap, result);
         ASSERT_EQ(gc_get_stats().num_objects, native_objects);
     }
+    VmState isolated = {0};
+    isolated.cop_pid = isolated.cop_in_fd = isolated.cop_out_fd = -1;
+    isolated.cop_sig_send_fd = isolated.cop_sig_recv_fd = -1;
+    isolated.cop_timeout_ms = 5000;
+    isolated.isolate_ffi = true;
+    CopBatchCall calls[3] = {{0, args, 2}, {0, args, 2}, {0, args, 2}};
+    NanoValue replies[3];
+    ASSERT(vm_ffi_call_cop_batch(&isolated, mod, calls, 3, replies, &heap, error, sizeof error));
+    ASSERT_EQ(vm_array_get(array, 0).as.i64, 113);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT(replies[i].tag == TAG_ARRAY && replies[i].as.array == array);
+        vm_release(&heap, replies[i]);
+    }
+    ASSERT(!vm_ffi_call_cop(&isolated, mod, 6, args, 1, &result, &heap, error, sizeof error));
+    ASSERT_EQ(vm_array_get(array, 0).as.i64, 113);
+    for (int i = 0; i < 2; ++i) {
+        ASSERT(vm_ffi_call_cop(&isolated, mod, 1, args, 1, &result, &heap, error, sizeof error));
+        ASSERT_EQ(vm_array_get(array, 0).as.i64, 0);
+    }
+    ASSERT(vm_ffi_call_cop(&isolated, mod, 2, NULL, 0, &result, &heap, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 1);
+    vm_ffi_cop_stop(&isolated);
+    vm_array_set(array, 0, val_int(1));
     for (int repeat = 0; repeat < 2; ++repeat) {
         ASSERT(vm_ffi_call(mod, 1, args, 1, &result, &heap, error, sizeof error));
         ASSERT_EQ(vm_array_get(array, 0).as.i64, 0);
