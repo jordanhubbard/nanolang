@@ -35,10 +35,16 @@ Static archive declarations must remain exported by the executable. My Linux
 native link already uses `-rdynamic`; my Darwin fixture checks archive exports.
 Hidden or stripped declarations count as absent, not as verified metadata.
 
+My self-hosted native emitter applies the same guard to direct and qualified
+calls and unqualified extern function values. Local function variables keep
+their own binding. Its native driver selects loader/export flags for Linux
+and FreeBSD after identifying the host; an unsuccessful host query stops
+compilation. I test the Linux flag selection, not Linux execution, on Darwin.
+
 This is a trusted declaration by C code, not proof of its memory safety,
-signature correctness, pointer provenance or ownership. Self-hosted native
-emission and the separate C-source backend still need corresponding coverage
-before I widen the layout. Qualified extern
+signature correctness, pointer provenance or ownership. The separate C-seed
+C-source backend still needs corresponding coverage before I widen the layout.
+Qualified extern
 function-value syntax currently fails typechecking; qualified calls work.
 
 `make test-array-abi-loader` checks matching and mismatched declarations,
@@ -53,3 +59,8 @@ results, qualified calls and unqualified function values. It also checks
 static archives and rejection of unsupported qualified function-value syntax
 before executable publication. The loader fixture exercises the native guard
 against missing version-2 declarations and wrong-image declarations as well.
+
+`make test-selfhost-array-abi` exercises the same shared/static fixtures with
+my self-hosted compiler, plus a local function variable that shadows an
+array-bearing extern. Both compilers currently reject qualified extern
+function-value syntax before output, with different frontend diagnostics.

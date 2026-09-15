@@ -216,10 +216,31 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 descriptor cache. All 26 VM FFI tests pass; loader tests cover
                 logical matching, mismatched, missing-v2 and wrong-image
                 declarations normally and under ASan/UBSan.
-              - [ ] I apply equivalent guards to self-hosted native emission,
-                then enumerate module exports before widening the layout.
-                Exported declarations remain trusted metadata;
+              - [x] I guard self-hosted native array calls and unqualified
+                extern function values, preserving local function shadowing.
+                Sixteen shared/static executable cases pass with a private
+                Stage 1 compiler normally and under ASan/UBSan; nine module
+                binding regressions pass. The compiler builds a private Stage 2
+                with default dependency shadows; Stage 2 passes the same
+                sixteen executable cases. The C-seed fifteen-case suite and
+                eight bootstrap dependency tests also pass. I include Linux loader/export
+                flags and test their selection in a shadow; actual Linux
+                integration still requires its platform gate.
+                The complete `src_nano/nanoc_v06.nano` driver also builds to a
+                575,024-byte NanoISA artifact with default dependency shadows.
+                That establishes bytecode compilation, not the unfinished
+                native AOT compiler-bootstrap acceptance gate.
+              - [ ] I enumerate and validate module array exports before
+                widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
+              - [ ] I repair SDL_image array exports before declaring their ABI:
+                batch loading accepts raw `char**` and returns raw `int64_t*`,
+                while the language declares `DynArray` arguments/results.
+                Batch destruction also frees a raw buffer rather than accepting
+                the declared array representation. I check supported-format
+                results, count bounds, partial failure and repeated cleanup
+                with fake SDL entry points and sanitizers before certification.
+                MAC `task_5f2879308468ad24921d62eedea9f3e9`.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native

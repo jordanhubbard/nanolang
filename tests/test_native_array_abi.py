@@ -11,19 +11,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class NativeArrayAbi(unittest.TestCase):
-    def run_ok(self, command):
-        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=60)
+    def run_ok(self, command, env=None):
+        result = subprocess.run(command, env=env, cwd=ROOT, capture_output=True, text=True, timeout=60)
         if result.returncode and "--keep-c" in command:
             result.stderr += result.stdout
             output = Path(command[-1]).with_suffix(".c")
             if output.exists():
                 result.stderr += "\nABI declarations: " + "\n".join(
                     line for line in output.read_text().splitlines() if "nano_array_abi" in line)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
         return result
 
     def test_generated_references(self):
         compiler = os.environ.get("NANO_TEST_NATIVE_COMPILER", str(ROOT / "bin/nanoc_c"))
+        selfhost = os.environ.get("NANO_TEST_SELFHOST") == "1"
         cc = shlex.split(os.environ.get("CC", "cc"))
         with tempfile.TemporaryDirectory(prefix="nano-native-array-abi-") as tmp:
             directory = Path(tmp)
@@ -43,7 +44,10 @@ class NativeArrayAbi(unittest.TestCase):
                 ''')
             module = directory / "foreign.nano"
             module.write_text("pub extern fn probe() -> array<int>\n")
-            for route in ("direct", "qualified", "value", "qualified_value", "parameter"):
+            routes = ["direct", "qualified", "value", "qualified_value", "parameter"]
+            if selfhost:
+                routes.append("shadow")
+            for route in routes:
                 source = directory / (route + ".nano")
                 declaration = (f'module "{module}" as foreign\n' if route.startswith("qualified")
                                else "extern fn probe() -> array<int>\n")
@@ -57,18 +61,25 @@ class NativeArrayAbi(unittest.TestCase):
                 result_body = body + "\nreturn (array_length a)"
                 if route == "parameter":
                     result_body = "let a: array<int> = [7]\nreturn (probe a)"
+                if route == "shadow":
+                    declaration += "fn local() -> int { return 0 }\nshadow local { assert (== (local) 0) }\n"
+                    result_body = "let probe: fn() -> int = local\nreturn (probe)"
                 source.write_text(declaration + "\nfn main() -> int { unsafe {\n" + result_body + "\n} }\n")
                 if route == "qualified_value":
                     rejected = directory / "qualified_value"
                     result = subprocess.run([compiler, str(source), "-o", str(rejected)],
                                             cwd=ROOT, capture_output=True, text=True, timeout=60)
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn("Field access requires a struct value", result.stderr)
+                    diagnostic = ("I cannot find this name in the current scope: foreign" if selfhost
+                                  else "Field access requires a struct value")
+                    self.assertIn(diagnostic, result.stderr + result.stdout)
                     self.assertFalse(rejected.exists())
                     continue
                 # I exercise deliberately incompatible FFI in subprocesses;
                 # these are native boundary fixtures, not interpreter shadows.
                 variants = [(version, False) for version in (None, 1, 99)]
+                if route == "shadow":
+                    variants = [(99, False)]
                 if route == "direct":
                     variants += [(version, True) for version in (None, 1, 99)]
                 for version, static in variants:
@@ -88,12 +99,19 @@ class NativeArrayAbi(unittest.TestCase):
                         if static:
                             self.run_ok(["ar", "rcs", str(archive), str(library)])
                         executable = directory / "program"
-                        self.run_ok([compiler, str(source), "--verbose", "--keep-c", "-L", tmp,
-                                     "-lfixture", "-o", str(executable)])
+                        if selfhost:
+                            build_env = dict(os.environ, NANO_LDFLAGS=f"-L{shlex.quote(tmp)} -lfixture")
+                            self.run_ok([compiler, str(source), "-o", str(executable)], env=build_env)
+                        else:
+                            self.run_ok([compiler, str(source), "--verbose", "--keep-c", "-L", tmp,
+                                         "-lfixture", "-o", str(executable)])
                         run_env = dict(os.environ)
                         run_env["LD_LIBRARY_PATH"] = tmp + ":" + run_env.get("LD_LIBRARY_PATH", "")
                         result = subprocess.run([str(executable)], env=run_env, capture_output=True, text=True, timeout=15)
-                        if version == 99:
+                        if route == "shadow":
+                            self.assertEqual(result.returncode, 0, result.stderr)
+                            self.assertNotIn("foreign entered", result.stdout)
+                        elif version == 99:
                             self.assertNotEqual(result.returncode, 0)
                             self.assertNotIn("foreign entered", result.stdout)
                             self.assertIn("native array ABI", result.stderr)

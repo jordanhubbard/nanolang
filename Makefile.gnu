@@ -619,6 +619,10 @@ test-callback-runtime:
 test-native-array-abi: $(COMPILER_C)
 	python3 -m unittest tests.test_native_array_abi
 
+.PHONY: test-selfhost-array-abi
+test-selfhost-array-abi: bootstrap3
+	NANO_TEST_SELFHOST=1 NANO_TEST_NATIVE_COMPILER=$(NANOC_STAGE2) python3 -m unittest tests.test_native_array_abi
+
 test-array-abi-loader:
 	python3 -m unittest tests.test_array_abi_loader
 

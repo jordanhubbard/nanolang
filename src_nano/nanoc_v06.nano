@@ -2295,6 +2295,13 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2"))
             } else { (print "") }
             set cc_cmd (+ cc_cmd " -lm")
+            let abi_platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
+            if (== abi_platform "") {
+                (println "I could not identify the host for native array ABI linking")
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
+            set cc_cmd (+ cc_cmd (native_array_abi_link_flags abi_platform))
             /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
             if (> (str_length mod_flags.link_flags) 0) {
                 set cc_cmd (+ cc_cmd mod_flags.link_flags)
@@ -2401,6 +2408,18 @@ fn show_usage() -> int {
 shadow show_usage {
     let result: int = (show_usage)
     assert (== result 0)  /* show_usage always returns 0 */
+}
+
+fn native_array_abi_link_flags(platform: string) -> string {
+    if (== platform "Linux") { return " -rdynamic -ldl" }
+    if (== platform "FreeBSD") { return " -Wl,-E" }
+    return ""
+}
+
+shadow native_array_abi_link_flags {
+    assert (== (native_array_abi_link_flags "Linux") " -rdynamic -ldl")
+    assert (== (native_array_abi_link_flags "FreeBSD") " -Wl,-E")
+    assert (== (native_array_abi_link_flags "Darwin") "")
 }
 
 fn main() -> int {
