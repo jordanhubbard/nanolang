@@ -72,6 +72,23 @@ int main(void) {
         assert(!result.ok && strstr(result.error_msg, "no known stack effect"));
         assert(depth == 77 && outstanding == 0);
     }
+    unknown_effect = 0;
+    allocation = 0;
+    VmDecodedInstruction ownership_path[4] = {0};
+    const uint8_t opcodes[] = {OP_PUSH_I64, OP_PUSH_I64, OP_GC_RETAIN, OP_GC_RELEASE};
+    const uint32_t offsets[] = {0, 9, 18, 19, 20};
+    for (int i = 0; i < 4; i++) {
+        ownership_path[i].instruction.opcode = opcodes[i];
+        ownership_path[i].byte_offset = offsets[i];
+        ownership_path[i].next_byte_offset = offsets[i + 1];
+    }
+    decoded.instructions = ownership_path;
+    decoded.instruction_count = 4;
+    decoded.code_size = 20;
+    depth = 77;
+    NvmVerifyResult result = verify_stack_heights(&module, &decoded, 0, &depth);
+    assert(!result.ok && strstr(result.error_msg, "reaches its end"));
+    assert(depth == 77 && outstanding == 0);
     puts("I released verifier allocations across rejection, allocation failure and success.");
     return 0;
 }

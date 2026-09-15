@@ -334,6 +334,24 @@ static void test_implicit_return_shape_is_checked(void) {
     PASS(test_name);
 }
 
+static void test_implicit_return_shape_releases_ownership_state(void) {
+    const char *test_name = "return shape: implicit rejection releases ownership state";
+    /* I check rejection after ownership propagation. The allocation-counted
+     * test_verifier_cleanup probe checks cleanup for this instruction path. */
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)7);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)8);
+    n += emit(code + n, OP_GC_RETAIN);
+    n += emit(code + n, OP_GC_RELEASE);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "falling off the end with a value and no declared result must fail");
+    ASSERT(strstr(r.error_msg, "reaches its end") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_implicit_return_with_matching_shape_passes(void) {
     const char *test_name = "return shape: a clean implicit return is still legal";
     uint8_t code[32];
@@ -1710,6 +1728,7 @@ int main(void) {
     test_returning_more_than_declared_fails();
     test_returning_fewer_than_declared_fails();
     test_implicit_return_shape_is_checked();
+    test_implicit_return_shape_releases_ownership_state();
     test_implicit_return_with_matching_shape_passes();
     test_max_stack_of_an_empty_function();
     test_max_stack_counts_the_deepest_point();

@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **PR #295 reconciliation.** I integrate main's verifier cleanup and
+      ownership-propagation regression while retaining my allocation-counted
+      rejection tests and unknown-effect cleanup. I require schema and verifier
+      gates before recording the reviewed worker head as ancestry. MAC
+      `task_69dab2ee6f1a4c96845ba7139cfc360f`.
+      Schema, 95 verifier tests and allocation-counted checks pass, including
+      the new retain/release path. Evidence: `docs/evidence/pr-295-reconciliation.md`.
 - [x] **Record-alias branch reconciliation.** I retain recursive record
       copies before binding replacement rather than restore symbol-scan
       reference counts from `9698ce08`. I retain its direct-call alias
