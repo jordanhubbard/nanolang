@@ -6,6 +6,8 @@
 
 opaque type Mix_Chunk
 opaque type Mix_Music
+opaque type Mix_UserData
+opaque type Mix_AudioBuffer
 
 # === Initialization ===
 
@@ -150,11 +152,10 @@ extern fn Mix_PausedMusic() -> int
 
 # === Audio Analysis ===
 
-# Set post-mix processor callback
-# This callback receives the final mixed audio stream
-# callback: function to process audio data
-# arg: user data passed to callback
-extern fn Mix_SetPostMix(_callback: fn(void, int) -> void, _arg: void) -> void
+# I lend the buffer only until the callback returns. It must not escape.
+# My retained registration returns 0 on success and -1 on allocation failure.
+extern fn nl_mix_set_post_mix(_callback: fn(Mix_UserData, Mix_AudioBuffer, int) -> void, _arg: Mix_UserData) -> int
+extern fn nl_mix_clear_post_mix() -> void
 
 # Query mixing channels
 # Returns number of channels in use
@@ -167,4 +168,3 @@ extern fn Mix_GetError() -> string
 
 # Clear error message
 extern fn Mix_ClearError() -> int
-

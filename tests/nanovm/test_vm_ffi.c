@@ -790,6 +790,11 @@ TEST(retained_native_scheduler) {
     ASSERT(vm_ffi_call_vm(vm, mod, 3, mixed, 5, &result, error, sizeof error));
     ASSERT_EQ(result.tag, TAG_FLOAT);
     ASSERT_EQ(result.as.f64, 241.5);
+    mixed[4] = val_int(0);
+    ASSERT(vm_ffi_call_vm(vm, mod, 3, mixed, 5, &result, error, sizeof error));
+    ASSERT_EQ(result.as.f64, 241.5);
+    mixed[4] = val_int(1);
+    ASSERT(!vm_ffi_call_vm(vm, mod, 3, mixed, 5, &result, error, sizeof error));
     uint32_t adapter = mod->callback_contracts[0].adapter_name_idx;
     mod->callback_contracts[0].adapter_name_idx = nvm_add_string(mod, "nl_ffi_test_mix_fi", 18);
     ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));

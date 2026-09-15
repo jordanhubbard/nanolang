@@ -2,8 +2,13 @@
   "name": "sdl_mixer",
   "version": "1.0.0",
   "description": "Audio mixing and playback for SDL - music and sound effects",
-  "headers": ["SDL2/SDL_mixer.h"],
-  "c_sources": ["sdl_mixer_anchor.c"],
+  "headers": ["SDL2/SDL_mixer.h", "sdl_mixer_callbacks.h"],
+  "c_sources": ["sdl_mixer_anchor.c", "sdl_mixer_callbacks.c"],
+  "callback_adapters": {
+    "nl_mix_set_post_mix": {"symbol": "nl_mix_set_post_mix_retained", "abi": "retained_v1", "execution": "worker"},
+    "nl_mix_clear_post_mix": {"symbol": "nl_mix_clear_post_mix", "abi": "retained_v1", "execution": "worker"},
+    "Mix_CloseAudio": {"symbol": "nl_mix_close_audio_retained", "abi": "retained_v1", "execution": "worker"}
+  },
   "pkg_config": ["SDL2_mixer"],
   "system_packages": ["sdl2", "sdl2_mixer"],
   "dependencies": ["sdl"]

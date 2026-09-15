@@ -127,6 +127,12 @@ void val_println(NanoValue v) {
  * ======================================================================== */
 
 bool val_equal(NanoValue a, NanoValue b) {
+    /* I accept the language's zero spelling for an opaque null, not arbitrary
+     * integer-to-pointer equality. No pointer representation cast is needed. */
+    if (a.tag == TAG_OPAQUE && b.tag == TAG_INT)
+        return a.as.obj == NULL && b.as.i64 == 0;
+    if (a.tag == TAG_INT && b.tag == TAG_OPAQUE)
+        return a.as.i64 == 0 && b.as.obj == NULL;
     /* Allow enum ↔ int comparison (enum values are integers) */
     if (a.tag == TAG_ENUM && b.tag == TAG_INT)
         return (int64_t)a.as.enum_val == b.as.i64;

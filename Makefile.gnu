@@ -587,6 +587,13 @@ test-dispatch-retained:
 test-dispatch-callbacks: nano_virt nano_vm test-dispatch-retained
 	@python3 -m unittest tests.test_dispatch_callbacks
 
+.PHONY: test-mixer-callbacks
+test-mixer-callbacks: nano_virt nano_vm
+	@pkg-config --exists SDL2_mixer || { echo "I require SDL2_mixer development headers for this integration gate."; exit 1; }
+	$(CC) $(CFLAGS) $$(pkg-config --cflags SDL2_mixer) -pthread tests/nanovm/test_mixer_callbacks.c src/runtime/callback_runtime.c -o $(OBJ_DIR)/test_mixer_callbacks $(LDFLAGS)
+	@$(OBJ_DIR)/test_mixer_callbacks
+	@python3 -m unittest tests.test_mixer_callbacks
+
 .PHONY: test-callback-runtime
 test-callback-runtime:
 	@mkdir -p $(OBJ_DIR)
@@ -1859,7 +1866,7 @@ test-verify-all-programs: nano_virt nano_vm
 	@bash tests/test_verify_all_programs.sh
 
 .PHONY: test-vm-examples
-test-vm-examples: nano_virt nano_vm $(COMPILER_C) test-dispatch-callbacks
+test-vm-examples: nano_virt nano_vm $(COMPILER_C) test-dispatch-callbacks test-mixer-callbacks
 	@python3 tests/test_vm_example_reporting.py
 	@bash tests/test_vm_examples_coverage.sh
 

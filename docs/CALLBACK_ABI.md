@@ -3,7 +3,8 @@
 ## Status
 
 I require this work before 5.0. My retained VM bridge and Apple dispatch
-adapters are implemented and tested below. SDL_mixer adapter contracts and
+adapters are implemented and tested below. My SDL_mixer post-mix lifecycle
+passes focused tests, but its wider audio-lock/error-reporting audit and
 complete release acceptance remain unfinished on my roadmap.
 
 My handle runtime in `src/runtime/callback_runtime.c` passes
@@ -328,6 +329,45 @@ and compile it in lexical context. Intermediate capture tables preserve entries
 discovered by nested closures. These changes do not establish C-native capture
 parity. The six original dispatch example gates and newly exposed SDL_mixer
 callback contracts remain part of the full release acceptance.
+
+## SDL_mixer post-mix lifecycle
+
+I replace the invalid `Mix_SetPostMix(fn(void, int), void)` declaration with
+`nl_mix_set_post_mix(fn(Mix_UserData, Mix_AudioBuffer, int) -> void, Mix_UserData)
+-> int`. It returns zero after publication and minus one on allocation or
+signature failure. `nl_mix_clear_post_mix()` removes the hook explicitly.
+The callback borrows userdata and the writable audio buffer until it returns;
+neither pointer gains ownership or may outlive its native owner.
+
+My adapter retains a callback before publication. SDL_mixer replaces post-mix
+hooks under its audio lock; after replacement returns, I can release the old
+registration. A separate registration mutex serializes replacement, clearing
+and close. The callback does not take that mutex. Worker policies let the VM
+owner service the old callback while a setter waits for audio quiescence.
+My native-C adapter widens SDL's byte count to the language's 64-bit integer.
+My module header routes native audio close through the same hook cleanup.
+
+These are lifetime rules, not a real-time latency guarantee. The audio thread
+waits for VM execution. A post-mix callback must not acquire SDL's audio lock
+or replace/clear itself. Until the wider mixer-operation audit is complete,
+configure playback before installing the hook and clear it before other mixer
+operations. I have not established safe arbitrary playback changes with an
+active hook, worker-thread SDL error propagation, or general C-native closure
+capture parity. Those are open release work, not implied by the example gate.
+
+`make test-mixer-callbacks` checks allocation failure preserving the old hook,
+replacement, clearing while an old callback holds the modeled audio lock,
+buffer mutation, native callback arguments, and cancellation after runtime
+destruction. The lifecycle fixture passes ASan/UBSan and TSan. The integration
+fixture uses a real SDL dummy audio device and a captured VM array, executes
+dependency/root shadows, receives at least eight callbacks per run, clears and
+closes audio, and checks isolated-call refusal. This is not a hardware latency
+or sound-quality test.
+
+I accept integer zero, including my current `null_opaque()` value, as a null
+opaque foreign argument. I reject nonzero integer addresses at the retained
+boundary. VM equality recognizes opaque null versus integer zero in either
+order; floating-point zero is not a pointer.
 
 ## Evidence required
 

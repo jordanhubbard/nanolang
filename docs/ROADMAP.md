@@ -213,15 +213,34 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         shadows enabled, sanitizer checks, and the complete clean release gate.
         - [ ] I resolve newly exposed SDL_mixer callback declarations, including
           `Mix_SetPostMix`, through explicit adapter and threading contracts.
-          The full example gate currently rejects six audio/visualizer users;
+          The full example gate exposed six rejected audio/visualizer users;
           I do not exempt unused callback declarations to hide this boundary.
+          - [x] I correct the post-mix signature to userdata, borrowed buffer
+            and byte count; retain registrations across replacement, clear and
+            audio close; and test audio-lock quiescence and late cancellation.
+            I preserve the language's integer-zero null spelling for opaque
+            foreign parameters while rejecting nonzero integer addresses.
+            `make test-mixer-callbacks` passes a real dummy-audio VM capture
+            fixture and isolated-call refusal; the lifecycle/failure fixture
+            passes ASan/UBSan and TSan. The wider locking audit remains open.
+          - [x] I reconcile `null_opaque()` inference and VM representation;
+            the mixer fixture exposed its current unknown-type diagnostic.
+            I accept its generic opaque type at a nominal opaque parameter and
+            its integer-zero representation at the native boundary. VM equality
+            now recognizes opaque null versus integer zero; the real callback
+            trace reproduced the old inequality. Value/FFI tests cover both
+            directions and reject nonzero integer addresses and floating nulls.
+          - [ ] I audit remaining mixer/audio-lock operations for owner-thread
+            deadlocks while a post-mix callback is registered. I preserve error
+            reporting across worker calls and verify native-C callback parity.
         - [x] I give the boids graphical shadow a bounded real-frame runner.
           Its current shadow invokes the interactive event loop indefinitely
           and hits the ten-second deadline. I preserve interactive main and
           test rendering/dispatch cleanup through the bounded runner.
           Its two one-frame runs now complete inside the original deadline.
           All six original dispatch examples compile with dependency shadows;
-          the complete example and release gates remain open for SDL_mixer.
+          the complete example gate now passes all 243 eligible programs with
+          six validated exclusions. Mixer locking and full release work remain open.
 - [x] **Release-gate non-callback example shadows.** I correct nominal record
       lookup on call results, retain SDL_mixer artifact linkage, bound the
       particle rendering smoke test, and verify the entire example tree from

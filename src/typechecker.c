@@ -2182,7 +2182,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             if (opaque) {
                                 is_opaque_param = true;
                                 /* For opaque types, allow TYPE_INT (for passing 0 as NULL) */
-                                if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT) {
+                                if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT && arg_type != TYPE_OPAQUE) {
                                     char message[256];
                                     snprintf(message, sizeof(message),
                                             "Argument %d expects opaque type `%s` or 0 (null), got %s.",

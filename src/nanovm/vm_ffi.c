@@ -679,8 +679,10 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
         uint8_t tag = module->import_param_types[import_idx][p];
         types[p] = callback_native_type(tag);
         values[p] = &storage[p];
+        bool opaque_null = tag == TAG_OPAQUE && args[p].tag == TAG_INT && args[p].as.i64 == 0;
         if (!types[p] || tag == TAG_VOID ||
-            ((tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? !val_is_function(args[p]) : args[p].tag != tag)) {
+            ((tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? !val_is_function(args[p]) :
+             (args[p].tag != tag && !opaque_null))) {
             snprintf(error_msg, error_msg_size, "I require matching scalar or callable parameters for this native adapter");
             goto cleanup;
         }
@@ -689,7 +691,7 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
         case TAG_FLOAT: storage[p].number = args[p].as.f64; break;
         case TAG_BOOL: storage[p].byte = args[p].as.boolean; break;
         case TAG_U8: storage[p].byte = args[p].as.u8; break;
-        case TAG_OPAQUE: storage[p].pointer = args[p].as.obj; break;
+        case TAG_OPAQUE: storage[p].pointer = opaque_null ? NULL : args[p].as.obj; break;
         default: {
             const NvmCallbackContract *contract = policy;
             while (contract->parameter_idx != (uint16_t)p) contract++;
