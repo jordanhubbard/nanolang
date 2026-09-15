@@ -34,6 +34,15 @@ static bool verbose_mode = false;
 
 static pthread_rwlock_t ffi_lock = PTHREAD_RWLOCK_INITIALIZER;
 
+typedef struct RetainedImage {
+    void *handle;
+    struct RetainedImage *next;
+} RetainedImage;
+/* I keep one additional loader reference per retained image, across registry
+ * shutdown/reinitialization. A callback's final release can occur while native
+ * code is still returning through that image, so it is not an unload boundary. */
+static RetainedImage *retained_images;
+
 /* ── Lifecycle ───────────────────────────────────────────────────── */
 
 bool ffi_loader_init(bool verbose) {
@@ -167,8 +176,17 @@ bool ffi_loader_open(const char *module_name, const char *lib_path) {
     }
 
     FfiModule *m = &modules[module_count];
-    m->name = strdup(module_name);
-    m->path = strdup(lib_path);
+    char *name = strdup(module_name);
+    char *path = strdup(lib_path);
+    if (!name || !path) {
+        free(name);
+        free(path);
+        dlclose(handle);
+        pthread_rwlock_unlock(&ffi_lock);
+        return false;
+    }
+    m->name = name;
+    m->path = path;
     m->handle = handle;
     m->user_data = NULL;
     module_count++;
@@ -202,6 +220,36 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
             ptr = dlsym(modules[i].handle, symbol_name);
             break;
         }
+    }
+    pthread_rwlock_unlock(&ffi_lock);
+    return ptr;
+}
+
+void *ffi_loader_resolve_retained(const char *symbol_name, const char *module_name) {
+    if (!symbol_name || !module_name) return NULL;
+    void *ptr = NULL;
+    pthread_rwlock_wrlock(&ffi_lock);
+    for (int i = 0; i < module_count; i++) {
+        FfiModule *module = &modules[i];
+        if (strcmp(module->name, module_name)) continue;
+        ptr = dlsym(module->handle, symbol_name);
+        if (!ptr) break;
+        RetainedImage *image = retained_images;
+        while (image && image->handle != module->handle) image = image->next;
+        if (!image) {
+            image = malloc(sizeof(*image));
+            if (!image) { ptr = NULL; break; }
+            image->handle = dlopen(module->path, RTLD_LAZY | RTLD_GLOBAL);
+            if (image->handle != module->handle) {
+                if (image->handle) dlclose(image->handle);
+                free(image);
+                ptr = NULL;
+                break;
+            }
+            image->next = retained_images;
+            retained_images = image;
+        }
+        break;
     }
     pthread_rwlock_unlock(&ffi_lock);
     return ptr;

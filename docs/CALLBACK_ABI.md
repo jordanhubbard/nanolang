@@ -32,9 +32,9 @@ preservation and selected execution evidence, not full callback support.
 
 My callback metadata tests now check serialized contracts, malformed input,
 canonical assembly round trips, and allocation failure. The FFI suite passes
-23 tests, including rejection of contracted imports before direct dispatch or
+24 tests, including rejection of contracted imports before legacy dispatch or
 co-process launch. My bytecode compiler now binds manifest contracts to loaded
-declarations; scheduler integration remains unfinished. Metadata alone does
+declarations, and my VM host dispatches their explicit adapters. Metadata alone does
 not authorize the old calling convention.
 
 ## Module manifests
@@ -185,8 +185,8 @@ assertion failure, or halt. Allocation-failure tests check rejection and actual
 stack relocation while borrowing caller stack values. Linked-module tests
 exercise returned functions, returned closures, and a root callable passed into
 a dependency. This establishes activation and target identity for those cases;
-retained-handle execution now uses this activation mechanism, while automatic
-foreign-call pumping remains unconnected.
+retained-handle execution and automatic foreign-call pumping use this activation
+mechanism. Dispatch-module adapters remain unfinished.
 The 272359-check VM suite and stack-allocation failure tests pass ASan/UBSan
 on Darwin with leak detection disabled. I disable inlining in the sanitized
 VM harness: its optimized `main` otherwise inlines enough large stack-based
@@ -223,8 +223,8 @@ leaves the caller's reference intact. `vm_callback_pump` services a request
 through `vm_invoke_callable`; it also collects released roots. VM execution
 failures return `NANO_CALLBACK_EXECUTION_ERROR` and preserve the first failure
 in `callback_error` and `callback_error_msg`, even if native code ignores the
-status. The host integration must inspect that failure before resuming normal
-execution; automatic foreign-call waiting is still unfinished.
+status. My host checks this failure before resuming normal execution and keeps
+the original VM error code when a native adapter ignores a failed callback.
 
 `vm_callback_shutdown` cancels admission and detaches roots before heap
 destruction. I reject publication after shutdown. A busy callback prevents
@@ -240,6 +240,51 @@ signatures, wrong-thread host operations, isolated-FFI refusal, VM assertion
 failure, final-release collection, and failed root allocation/publication.
 The VM bridge passes ASan/UBSan and TSan on Darwin; allocation-failure tests
 pass ASan/UBSan. These use the sanitizer harness settings described above.
+
+## Native-call scheduling
+
+`vm_ffi_call_vm` validates contracted imports and marshals their arguments on
+the owner thread. I resolve only the declared adapter in the selected module,
+not a same-named global symbol. Scalar arguments use private native storage;
+callable arguments use rooted retained handles. Strings, aggregates, and
+callable return values require additional contracts and are rejected here.
+
+For `worker` policy, a native thread executes only `ffi_call`, publishes its
+completion under a mutex, and wakes the callback runtime. The owner pumps
+requests while waiting and joins that worker before releasing argument storage
+or constructing the VM result. A policy-only wait uses the same mechanism.
+For `owner` policy, the adapter executes directly and may invoke callbacks on
+that thread. It must not wait for a foreign-thread callback: that would deadlock.
+Native adapter declarations remain trusted; this is not native-code isolation.
+
+I retain one additional loader reference for each native image used by a
+retained adapter. That reference survives VM and loader-registry shutdown and
+lasts until process exit. Repeated use of the same loaded image shares the
+reference. Final callback release is not an unload boundary: native code can
+still be returning through the adapter after releasing its last handle.
+This policy deliberately retains image memory and static state, including old
+generations in a long-lived host. Hot-unloading those images requires a separate
+native quiescence contract; I do not claim to support it.
+
+Once a callback runtime exists, my core yields within 1,024 instruction
+dispatches. The host pumps one request at each resumed trap boundary. I avoid
+draining queued requests at the entry to a new callback activation, before its
+first instruction. Nested blocking native calls pump explicitly. No native
+worker reads VM frames, globals, or heap reference counts.
+
+The FFI fixture tests owner and worker calls, nested foreign waits, retained
+asynchronous work, policy-only joins, mixed scalar arguments, repeated yields
+from a non-terminating instruction stream, VM progress while native work is
+pending, and latched callback failure. The 39-test bytecode-shadow suite now
+compiles and executes a real foreign-thread callback during a shadow test.
+These fixtures do not establish that the dispatch module or its six release
+examples work; those remain release gates.
+The native fixture also cancels outstanding work at VM teardown, shuts down
+the loader registry, then calls the still-resident native join function and
+checks cancellation. Handle tombstones alone would not keep that code live.
+I test failed image-reference allocation and reopen, recovery, and deduplication
+across loader shutdown. The failure fixture passes ASan/UBSan; the scheduler
+and loader bridge pass ASan/UBSan and TSan on Darwin with the settings above.
 
 ## Co-process transport
 

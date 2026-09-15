@@ -21,7 +21,9 @@ const char *get_project_root(void) { return g_project_root; }
 #include "../../src/nanovm/heap.h"
 #include "../../src/nanovm/value.h"
 #include "../../src/nanoisa/nvm_format.h"
+#include "../../src/nanoisa/assembler.h"
 #include "../../src/nanovm/cop_protocol.h"
+#include "../../src/runtime/ffi_loader.h"
 
 /* ── Exported helpers with mixed integer/floating signatures ───────────────
  * These deterministic functions let the mixed-signature dispatcher be checked
@@ -720,9 +722,115 @@ TEST(contracted_import_never_uses_legacy_dispatch) {
     nvm_module_free(module);
 }
 
+TEST(retained_native_scheduler) {
+    char *path = realpath("obj/ffi_callback_fixture.so", NULL);
+    ASSERT(path);
+    char source[8192];
+    snprintf(source, sizeof source,
+        ".import \"%s\" \"call\" int function int\n.import_kind 0 artifact\n"
+        ".callback 0 0 \"retained_call\" 1 worker int int\n"
+        ".import \"%s\" \"start\" opaque function\n.import_kind 1 artifact\n"
+        ".callback 1 0 \"retained_start\" 1 owner int int\n"
+        ".import \"%s\" \"wait\" int opaque\n.import_kind 2 artifact\n"
+        ".callback 2 65535 \"retained_wait\" 1 worker void\n"
+        ".import \"%s\" \"mix\" float function float bool u8 opaque\n.import_kind 3 artifact\n"
+        ".callback 3 0 \"retained_mix\" 1 worker int int\n"
+        ".function increment 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 1\nADD\nDUP\nSTORE_GLOBAL 0\nRET\n.end\n.parameters 0 int\n"
+        ".function nested 1 1 0 int 1\nFUNCREF 0\nLOAD_LOCAL 0\nCALL_EXTERN 0\nRET\n.end\n.parameters 1 int\n"
+        ".function fail 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\nLOAD_LOCAL 0\nRET\n.end\n.parameters 2 int\n"
+        ".function spin 0 0 0 void 0\nagain:\nJMP again\n.end\n"
+        ".function progress 0 1 0 int 1\nFUNCREF 0\nCALL_EXTERN 1\nSTORE_LOCAL 0\n"
+        "waiting:\nLOAD_GLOBAL 0\nPUSH_I64 42\nEQ\nJMP_FALSE waiting\n"
+        "LOAD_LOCAL 0\nCALL_EXTERN 2\nRET\n.end\n"
+        ".function failing_host 0 0 0 int 1\nFUNCREF 2\nPUSH_I64 1\nCALL_EXTERN 0\nRET\n.end\n",
+        path, path, path, path);
+    free(path);
+    AsmResult assembled;
+    NvmModule *mod = asm_assemble(source, &assembled);
+    if (!mod) printf("assembly: %s\n", assembled.message);
+    ASSERT(mod);
+    VmState *vm = malloc(sizeof(*vm));
+    ASSERT(vm);
+    vm_init(vm, mod);
+    NanoValue args[] = {val_function(0), val_int(41)}, result;
+    char error[256] = {0};
+    alarm(20);
+    ASSERT(vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 42);
+    /* I can enter a second blocking native call from a suspended callback. */
+    args[0] = val_function(1);
+    ASSERT(vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 42);
+    mod->callback_contracts[0].execution = NVM_FOREIGN_OWNER_THREAD;
+    args[0] = val_function(0);
+    ASSERT(vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 42);
+    /* The adapter owns the handle after publication; a policy-only wait pumps it. */
+    ASSERT(vm_ffi_call_vm(vm, mod, 1, args, 1, &result, error, sizeof error));
+    ASSERT(result.tag == TAG_OPAQUE && result.as.obj);
+    NanoValue pending = result;
+    ASSERT(vm_ffi_call_vm(vm, mod, 2, &pending, 1, &result, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 42);
+    /* I yield a non-terminating pure instruction stream without needing I/O. */
+    vm->current_fn = 3;
+    vm->ip = mod->functions[3].code_offset;
+    vm->frame_count = 1;
+    vm->frames[0].module = mod;
+    vm->frames[0].fn_idx = 3;
+    ASSERT_EQ(vm_core_execute(vm).type, TRAP_YIELD);
+    ASSERT_EQ(vm_core_execute(vm).type, TRAP_YIELD);
+    vm->frame_count = 0;
+    vm->current_fn = 0;
+    vm->ip = 0;
+    vm->globals[0] = val_int(0);
+    ASSERT_EQ(vm_invoke_callable(vm, val_function(4), NULL, 0, &result), VM_OK);
+    ASSERT_EQ(result.as.i64, 42);
+    NanoValue mixed[] = {val_function(0), val_float(0.5), val_bool(true), val_u8(200), val_void()};
+    mixed[4].tag = TAG_OPAQUE;
+    ASSERT(vm_ffi_call_vm(vm, mod, 3, mixed, 5, &result, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_FLOAT);
+    ASSERT_EQ(result.as.f64, 241.5);
+    uint32_t adapter = mod->callback_contracts[0].adapter_name_idx;
+    mod->callback_contracts[0].adapter_name_idx = nvm_add_string(mod, "nl_ffi_test_mix_fi", 18);
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));
+    ASSERT(strstr(error, "selected module"));
+    mod->callback_contracts[0].adapter_name_idx = adapter;
+    NvmCallbackContract *contracts = mod->callback_contracts;
+    mod->callback_contracts = NULL;
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));
+    ASSERT(strstr(error, "valid callback contracts"));
+    mod->callback_contracts = contracts;
+    vm->isolate_ffi = true;
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 2, &result, error, sizeof error));
+    ASSERT(strstr(error, "isolated FFI"));
+    ASSERT_EQ(vm->cop_pid, -1);
+    vm->isolate_ffi = false;
+    mod->callback_contracts[0].execution = NVM_FOREIGN_WORKER_THREAD;
+    ASSERT_EQ(vm_invoke_callable(vm, val_function(5), NULL, 0, &result), VM_ERR_ASSERT_FAILED);
+    ASSERT_EQ(vm->callback_error, VM_ERR_ASSERT_FAILED);
+    ASSERT_EQ(result.tag, TAG_VOID);
+    vm_destroy(vm);
+    vm_init(vm, mod);
+    /* I cancel native-owned work and call its join code after loader shutdown. */
+    args[0] = val_function(0);
+    ASSERT(vm_ffi_call_vm(vm, mod, 1, args, 1, &pending, error, sizeof error));
+    ASSERT(pending.tag == TAG_OPAQUE && pending.as.obj);
+    const char *library = nvm_get_string(mod, mod->imports[2].module_name_idx);
+    int64_t (*late_wait)(void *) = (int64_t (*)(void *))ffi_loader_resolve_module("retained_wait", library);
+    ASSERT(late_wait);
+    vm_destroy(vm);
+    vm_ffi_shutdown();
+    ASSERT_EQ(late_wait(pending.as.obj), -1);
+    alarm(0);
+    free(vm);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
 int main(void) {
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
+    RUN(retained_native_scheduler);
     RUN(wide_mixed_signature);
     RUN(call_string_returning_float);
     RUN(call_bytecode_callback_rejected);

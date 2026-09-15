@@ -33,7 +33,8 @@ typedef struct {
 bool ffi_loader_init(bool verbose);
 
 /**
- * Shut down the FFI loader and dlclose all modules.
+ * Shut down the registry and release its dlopen references. Images used by
+ * retained adapters keep a separate process-lifetime reference.
  * Does NOT free user_data — callers must clean up their own data first
  * via ffi_loader_get_modules().
  */
@@ -74,6 +75,10 @@ void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module);
 
 /* I resolve only through the named library handle, without global fallback. */
 void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name);
+
+/* I resolve without fallback and retain the selected image until process exit.
+ * Native asynchronous code can outlive both the VM and its callback handles. */
+void *ffi_loader_resolve_retained(const char *symbol_name, const char *module_name);
 
 /**
  * Access the loaded module array (for callers that need to iterate,

@@ -1169,6 +1169,7 @@ VmTrap vm_core_execute(VmState *vm) {
      * jump, a call, or a return. */
     VmDispatchCursor cursor = {0};
     uint32_t cursor_offset = UINT32_MAX;
+    uint32_t callback_budget = 1024;
 
 #ifdef NANO_COMPUTED_GOTO
     /* One entry per opcode, defaulting to the same handler the switch's
@@ -1361,6 +1362,10 @@ vm_dispatch_top:
 #else
     while (vm->ip < code_end) {
 #endif
+        if (vm->callbacks && --callback_budget == 0) {
+            VmTrap yielded = {.type = TRAP_YIELD};
+            return yielded;
+        }
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
             vm, vm->module, &dispatch_valid);
@@ -3899,10 +3904,20 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     vm->ip = fn->code_offset;
 
     /* Run the core in a loop, handling traps */
+    bool pump_at_boundary = false;
     for (;;) {
+        /* I do not recursively drain queued requests before a newly entered
+         * callback executes its first instruction. Nested native waits pump
+         * explicitly; pure execution gets its own bounded safe points. */
+        if (pump_at_boundary && vm->callbacks) vm_callback_pump(vm, false);
+        pump_at_boundary = true;
+        if (vm->callback_error != VM_OK)
+            return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
         VmTrap trap = vm_core_execute(vm);
 
         switch (trap.type) {
+        case TRAP_YIELD:
+            break;
         case TRAP_NONE:
             return VM_OK;
 
@@ -3936,17 +3951,9 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
                         &trap.data.extern_call.args[i], scratch, sizeof(scratch));
                 }
             }
-            if (vm->isolate_ffi) {
-                ffi_ok = vm_ffi_call_cop(vm, vm->module, trap.data.extern_call.import_idx,
-                                         trap.data.extern_call.args, trap.data.extern_call.argc,
-                                         &ext_result, &vm->heap,
-                                         ext_err, sizeof(ext_err));
-            } else {
-                ffi_ok = vm_ffi_call(vm->module, trap.data.extern_call.import_idx,
-                                     trap.data.extern_call.args, trap.data.extern_call.argc,
-                                     &ext_result, &vm->heap,
-                                     ext_err, sizeof(ext_err));
-            }
+            ffi_ok = vm_ffi_call_vm(vm, vm->module, trap.data.extern_call.import_idx,
+                                    trap.data.extern_call.args, trap.data.extern_call.argc,
+                                    &ext_result, ext_err, sizeof(ext_err));
             if (vm->profile.enabled) {
                 clock_gettime(CLOCK_MONOTONIC, &ffi_stop);
                 int64_t seconds = ffi_stop.tv_sec - ffi_start.tv_sec;
@@ -3973,6 +3980,8 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             }
 
             if (!ffi_ok) {
+                if (vm->callback_error != VM_OK)
+                    return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
                 return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                 "FFI call failed: %s", ext_err);
             }

@@ -52,6 +52,10 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 /* VmState is needed for per-VM co-process state */
 #include "vm.h"
 
+bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
+                    NanoValue *args, int arg_count, NanoValue *result,
+                    char *error_msg, size_t error_msg_size);
+
 /* Start the co-process for FFI isolation.
  * Forks, pipes, and execs nano_cop, then sends COP_MSG_INIT.
  * Stores cop_pid/cop_in_fd/cop_out_fd in vm.

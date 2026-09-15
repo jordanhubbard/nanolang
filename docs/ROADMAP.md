@@ -168,6 +168,27 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           handles, wrong-thread operations, and failed allocation/publication.
           VM tests pass 272379 checks; the bridge passes ASan/UBSan and TSan
           on Darwin. Automatic safe-point and native-wait pumping remain open.
+        - [x] I marshal contracted native calls on the owner, run worker-policy
+          calls outside the VM, pump callback requests during waits and at
+          bounded instruction intervals, and propagate latched failures.
+          I test synchronous callbacks, nested waits, asynchronous completion,
+          policy-only waits, and explicit isolated-call rejection.
+          FFI tests pass 24 cases, VM 272379 checks, and bytecode shadows 39
+          tests including a real foreign-thread callback. The native-call
+          bridge passes ASan/UBSan and TSan on Darwin with the documented
+          harness settings. These are fixture gates, not dispatch acceptance.
+        - [x] I keep a retained adapter's native image resident after VM and
+          loader shutdown. A cancelled handle does not make delayed native
+          code safe to unload. I test late native completion after teardown
+          and document the process-lifetime image retention policy.
+          I test failed allocation/open, recovery, and reuse across loader
+          shutdown without adding duplicate image references. Those failure
+          tests pass ASan/UBSan; the native scheduler and loader pass
+          ASan/UBSan and TSan on Darwin.
+        - [x] I keep loader registration transactional when copying a module
+          name or path fails, and test both failures before retrying resolution.
+          The failure fixture passes ASan/UBSan, and interpreter/VM FFI tests
+          pass after the repair.
       - [ ] I implement retained dispatch adapters and an explicit COP
         transport policy, then test delayed work and shutdown in both paths.
       - [ ] I pass all six dispatch-dependent examples with dependency

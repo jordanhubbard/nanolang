@@ -592,6 +592,173 @@ static bool callback_contract_pending(const NvmModule *module, uint32_t import_i
     return false;
 }
 
+typedef union {
+    int64_t integer;
+    double number;
+    uint8_t byte;
+    void *pointer;
+    ffi_arg word;
+} CallbackNativeSlot;
+
+typedef struct {
+    ffi_cif *cif;
+    void *function;
+    void **arguments;
+    CallbackNativeSlot returned;
+    pthread_mutex_t mutex;
+    bool done;
+    NanoCallbackRuntime *runtime;
+} CallbackNativeCall;
+
+static void *callback_native_worker(void *opaque) {
+    CallbackNativeCall *call = opaque;
+    ffi_call(call->cif, FFI_FN(call->function), &call->returned, call->arguments);
+    pthread_mutex_lock(&call->mutex);
+    call->done = true;
+    pthread_mutex_unlock(&call->mutex);
+    nano_callback_wake(call->runtime);
+    return NULL;
+}
+
+static ffi_type *callback_native_type(uint8_t tag) {
+    switch (tag) {
+    case TAG_VOID: return &ffi_type_void;
+    case TAG_INT: return &ffi_type_sint64;
+    case TAG_FLOAT: return &ffi_type_double;
+    case TAG_BOOL: case TAG_U8: return &ffi_type_uint8;
+    case TAG_OPAQUE: case TAG_FUNCTION: case TAG_CLOSURE: return &ffi_type_pointer;
+    default: return NULL;
+    }
+}
+
+bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
+                    NanoValue *args, int arg_count, NanoValue *result,
+                    char *error_msg, size_t error_msg_size) {
+    if (!vm || !pthread_equal(vm->owner_thread, pthread_self())) return false;
+    if (!module || !result) {
+        snprintf(error_msg, error_msg_size, "I require a module and result storage for native dispatch");
+        return false;
+    }
+    *result = val_void();
+    if (!nvm_callback_contracts_valid(module)) {
+        snprintf(error_msg, error_msg_size, "I require valid callback contracts for native dispatch");
+        return false;
+    }
+    const NvmCallbackContract *policy = NULL;
+    for (uint32_t i = 0; i < module->callback_contract_count; i++)
+        if (module->callback_contracts[i].import_idx == import_idx) { policy = &module->callback_contracts[i]; break; }
+    if (!policy) {
+        return vm->isolate_ffi
+            ? vm_ffi_call_cop(vm, module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size)
+            : vm_ffi_call(module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size);
+    }
+    if (import_idx >= module->import_count || vm->callbacks_closed) {
+        snprintf(error_msg, error_msg_size, "I require a valid callback contract and live VM host");
+        return false;
+    }
+    const NvmImportEntry *import = &module->imports[import_idx];
+    if (vm->isolate_ffi || import->kind == NVM_IMPORT_COPROCESS) {
+        snprintf(error_msg, error_msg_size, "I cannot transport retained callback handles through isolated FFI");
+        return false;
+    }
+    if (arg_count != import->param_count || arg_count > NANO_MAX_FFI_ARGS || arg_count < 0 || (arg_count && !args)) {
+        snprintf(error_msg, error_msg_size, "I require the declared callback-aware foreign argument count");
+        return false;
+    }
+    ffi_type *return_type = callback_native_type(import->return_type);
+    if (!return_type || import->return_type == TAG_FUNCTION || import->return_type == TAG_CLOSURE) {
+        snprintf(error_msg, error_msg_size, "I require a scalar result for a callback-aware native import");
+        return false;
+    }
+    CallbackNativeSlot storage[NANO_MAX_FFI_ARGS] = {{0}};
+    void *values[NANO_MAX_FFI_ARGS];
+    ffi_type *types[NANO_MAX_FFI_ARGS];
+    NanoCallbackV1 *handles[NANO_MAX_FFI_ARGS] = {0};
+    bool ok = false;
+    for (int p = 0; p < arg_count; p++) {
+        uint8_t tag = module->import_param_types[import_idx][p];
+        types[p] = callback_native_type(tag);
+        values[p] = &storage[p];
+        if (!types[p] || tag == TAG_VOID ||
+            ((tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? !val_is_function(args[p]) : args[p].tag != tag)) {
+            snprintf(error_msg, error_msg_size, "I require matching scalar or callable parameters for this native adapter");
+            goto cleanup;
+        }
+        switch (tag) {
+        case TAG_INT: storage[p].integer = args[p].as.i64; break;
+        case TAG_FLOAT: storage[p].number = args[p].as.f64; break;
+        case TAG_BOOL: storage[p].byte = args[p].as.boolean; break;
+        case TAG_U8: storage[p].byte = args[p].as.u8; break;
+        case TAG_OPAQUE: storage[p].pointer = args[p].as.obj; break;
+        default: {
+            const NvmCallbackContract *contract = policy;
+            while (contract->parameter_idx != (uint16_t)p) contract++;
+            handles[p] = vm_callback_create(vm, args[p], contract);
+            if (!handles[p]) {
+                snprintf(error_msg, error_msg_size, "I could not publish a retained callback with the declared target signature");
+                goto cleanup;
+            }
+            storage[p].pointer = handles[p];
+        }
+        }
+    }
+    const char *symbol = nvm_get_string(module, policy->adapter_name_idx);
+    const char *library = nvm_get_string(module, import->module_name_idx);
+    if (!ffi_loader_is_initialized()) vm_ffi_init();
+    void *function = vm_ffi_load_import(module, import_idx) && library && library[0]
+        ? ffi_loader_resolve_retained(symbol, library) : NULL;
+    if (!function) {
+        snprintf(error_msg, error_msg_size, "I could not resolve retained adapter %s in its selected module", symbol);
+        goto cleanup;
+    }
+    ffi_cif cif;
+    if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count, return_type, types) != FFI_OK) {
+        snprintf(error_msg, error_msg_size, "I could not prepare the retained adapter's native signature");
+        goto cleanup;
+    }
+    CallbackNativeCall call = {.cif = &cif, .function = function, .arguments = values};
+    if (policy->execution == NVM_FOREIGN_WORKER_THREAD) {
+        if (!vm->callbacks) vm->callbacks = nano_callback_runtime_create();
+        if (!vm->callbacks || pthread_mutex_init(&call.mutex, NULL)) {
+            snprintf(error_msg, error_msg_size, "I could not prepare the native-call worker");
+            goto cleanup;
+        }
+        call.runtime = vm->callbacks;
+        pthread_t thread;
+        if (pthread_create(&thread, NULL, callback_native_worker, &call)) {
+            pthread_mutex_destroy(&call.mutex);
+            snprintf(error_msg, error_msg_size, "I could not start the native-call worker");
+            goto cleanup;
+        }
+        for (;;) {
+            pthread_mutex_lock(&call.mutex);
+            bool done = call.done;
+            pthread_mutex_unlock(&call.mutex);
+            if (done) break;
+            vm_callback_pump(vm, true);
+        }
+        pthread_join(thread, NULL);
+        pthread_mutex_destroy(&call.mutex);
+    } else ffi_call(&cif, FFI_FN(function), &call.returned, values);
+    if (vm->callback_error != VM_OK) {
+        snprintf(error_msg, error_msg_size, "I stopped after a callback failed: %s", vm->callback_error_msg);
+        goto cleanup;
+    }
+    switch (import->return_type) {
+    case TAG_VOID: break;
+    case TAG_INT: *result = val_int(call.returned.integer); break;
+    case TAG_FLOAT: *result = val_float(call.returned.number); break;
+    case TAG_BOOL: *result = val_bool(call.returned.word != 0); break;
+    case TAG_U8: *result = val_u8((uint8_t)call.returned.word); break;
+    case TAG_OPAQUE: result->tag = TAG_OPAQUE; result->as.obj = call.returned.pointer; break;
+    }
+    ok = true;
+cleanup:
+    for (int p = 0; p < arg_count; p++) if (handles[p]) handles[p]->release(handles[p]);
+    if (vm->callbacks) nano_callback_collect(vm->callbacks);
+    return ok;
+}
+
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,

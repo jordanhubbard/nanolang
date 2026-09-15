@@ -4250,15 +4250,17 @@ static void test_vm_retained_callbacks(void) {
     alarm(0);
     ASSERT(worker.ok, "I execute foreign-thread requests only through the owner");
     ASSERT_EQ_INT(vm.globals[0].as.i64, 295, "I preserve shared globals and captured arrays");
-    NanoCallbackV1 *bad = vm_callback_create(&vm, val_function(1), &contract);
+    VmState failed_vm;
+    vm_init(&failed_vm, module);
+    NanoCallbackV1 *bad = vm_callback_create(&failed_vm, val_function(1), &contract);
     ASSERT(bad, "I publish a typed callback that can fail during execution");
     NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = 1}, result;
     ASSERT_EQ_INT(bad->invoke(bad, &arg, 1, &result), NANO_CALLBACK_EXECUTION_ERROR,
                   "I report a VM assertion failure through the retained ABI");
-    ASSERT(vm.callback_error == VM_ERR_ASSERT_FAILED && result.tag == NANO_CALLBACK_VOID,
+    ASSERT(failed_vm.callback_error == VM_ERR_ASSERT_FAILED && result.tag == NANO_CALLBACK_VOID,
            "I retain callback failure evidence and clear the native result");
     bad->release(bad);
-    vm_callback_pump(&vm, false);
+    vm_destroy(&failed_vm);
     worker.allow_cancellation = true;
     handle->retain(handle);
     alarm(20);

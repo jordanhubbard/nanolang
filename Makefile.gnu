@@ -586,6 +586,9 @@ test-callback-runtime:
 	@$(OBJ_DIR)/test_callback_failures
 
 test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -pthread tests/nanovm/ffi_callback_fixture.c -o obj/ffi_callback_fixture.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -pthread tests/nanovm/test_retained_image_failure.c obj/runtime/module_build_dir.o -o obj/test_retained_image_failure $(LDFLAGS)
+	@obj/test_retained_image_failure
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)
 	@echo "Running vm_ffi unit tests..."

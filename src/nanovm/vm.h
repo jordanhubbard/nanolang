@@ -232,7 +232,8 @@ typedef enum {
     TRAP_PRINT,             /* OP_PRINT — stdout output */
     TRAP_ASSERT,            /* OP_ASSERT — assertion check */
     TRAP_HALT,              /* OP_HALT — explicit stop */
-    TRAP_ERROR              /* Runtime error */
+    TRAP_ERROR,             /* Runtime error */
+    TRAP_YIELD              /* Owner-thread callback scheduling boundary */
 } VmTrapType;
 
 typedef struct {

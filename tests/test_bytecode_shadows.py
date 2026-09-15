@@ -316,8 +316,12 @@ shadow main {{ assert (== (main) 42) }}
         (module_dir / "answer.c").write_text('''#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "NANO_CALLBACK_HEADER"
 void submit(void *callback) { (void)callback; abort(); }
-void retained_submit(void *callback) { (void)callback; abort(); }
+void retained_submit(NanoCallbackV1 *callback) {
+    NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = 1}, result;
+    if (callback->invoke(callback, &arg, 1, &result) != NANO_CALLBACK_OK) abort();
+}
 int64_t mutate_manifest(void) {
     const char *path = getenv("NANO_CALLBACK_MANIFEST");
     FILE *stream = path ? fopen(path, "wb") : NULL;
@@ -326,7 +330,7 @@ int64_t mutate_manifest(void) {
     int closed = fclose(stream);
     return written >= 0 && closed == 0;
 }
-''')
+'''.replace("NANO_CALLBACK_HEADER", str(ROOT / "src/runtime/nano_callback.h")))
         manifest = {"name": "answer_native", "c_sources": ["answer.c"],
                     "callback_adapters": {"submit": {"symbol": "retained_submit",
                         "abi": "retained_v1", "execution": "worker"}}}
@@ -375,9 +379,9 @@ int64_t mutate_manifest(void) {
             source += ('fn callback(value: int) -> void { assert (== value 1) }\n'
                        'shadow callback { (callback 1) unsafe { (foreign.submit callback) } }\n')
             result, output = self.compile(source, directory, env=env)
-            self.assertNotEqual(result.returncode, 0, result.stderr)
-            self.assertIn(b"retained callback scheduler", result.stderr)
-            self.assertFalse(output.exists())
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(output.exists())
+            self.assertEqual(self.execute(output, env=env).returncode, 0)
 
     def test_foreign_library_cold_and_warm_build(self):
         for cached in (False, True):
