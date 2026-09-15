@@ -117,6 +117,13 @@ ownership, and threading contract needed by a safe native callback bridge.
 It produced no implementation. I await an explicit release-scope decision;
 I have not excluded dispatch examples or published the release.
 
+The subsequent full run passes all 220 runnable programs with zero skips,
+all 34 negative compiler contracts, and the self-hosted compiler checks,
+then reaches the callback-dependent example gate. The generation-selection
+regression also passes independently and is now wired into `make test`
+as well as the focused module-dependency target. My checkpoint's Formal
+Proofs workflow passed; it is not a substitute for the failing example gate.
+
 The runnable integration suite now passes all 219 programs. I reject
 duplicate module introspection identities in the C loader; all 34 negative
 tests pass, and the identity regression also passes with stage one and

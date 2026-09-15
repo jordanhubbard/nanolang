@@ -1936,6 +1936,7 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing module dependency re-checks against a warm object cache..."
 	@bash tests/test_module_dep_recheck.sh
+	@python3 tests/test_native_module_generation_selection.py
 	@echo ""
 	@echo "Testing failed imports reject bytecode publication..."
 	@bash tests/test_failed_import_publication.sh
