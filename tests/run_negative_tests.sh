@@ -24,6 +24,8 @@ failed=0
 
 expected_diagnostic() {
     case "$1" in
+        */array_errors/invalid_array_index_type.nano)
+            echo "I require an integer array index" ;;
         */type_errors/format_template.nano)
             echo "I require a string template for format" ;;
         */duplicate_functions/duplicate_function.nano)

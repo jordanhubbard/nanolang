@@ -313,6 +313,12 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         if (sym) return sym->type_info;
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
+        if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
+            (strcmp(expr->as.call.name, "at") == 0 ||
+             strcmp(expr->as.call.name, "array_get") == 0)) {
+            TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
+            if (array && array->base_type == TYPE_ARRAY) return array->element_type;
+        }
         Function *func = env_get_function(env, expr->as.call.name);
         if (func && func->return_type_info) return func->return_type_info;
     }
@@ -795,6 +801,9 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    TypeInfo *info = try_get_expr_type_info(array_expr, env);
+    if (info && info->base_type == TYPE_ARRAY && info->element_type)
+        return info->element_type->base_type;
 
     if (array_expr->type == AST_CALL && array_expr->as.call.name &&
         !array_expr->as.call.func_expr) {
@@ -914,6 +923,33 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
         }
     }
     return sig->return_type;
+}
+
+static bool check_array_access_arguments(ASTNode *call, Environment *env) {
+    if (call->as.call.arg_count != 2) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+                           "I require an array and an index for array access.",
+                           "Pass exactly two arguments.");
+        return false;
+    }
+    ASTNode *array = call->as.call.args[0];
+    ASTNode *index = call->as.call.args[1];
+    Type array_type = check_expression(array, env);
+    Type index_type = check_expression(index, env);
+    bool valid = true;
+    if (array_type != TYPE_ARRAY) {
+        emit_context_error("E001 TYPE MISMATCH", array->line, array->column, 1,
+                           "I require an array as the first argument to array access.",
+                           "Pass an array before its index.");
+        valid = false;
+    }
+    if (index_type != TYPE_INT && index_type != TYPE_U8) {
+        emit_context_error("E001 TYPE MISMATCH", index->line, index->column, 1,
+                           "I require an integer array index.",
+                           "Pass an int or u8 index.");
+        valid = false;
+    }
+    return valid;
 }
 
 /* Internal implementation of check_expression */
@@ -1707,6 +1743,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Special handling for array_get builtin */
                 if (strcmp(expr->as.call.name, "array_get") == 0) {
+                    if (!check_array_access_arguments(expr, env)) return TYPE_UNKNOWN;
+                    Type inferred = infer_array_element_type(expr->as.call.args[0], env);
+                    if (inferred != TYPE_UNKNOWN) return inferred;
                     /* array_get(array, index) -> element type (same as at()) */
                     if (expr->as.call.arg_count >= 1) {
                         ASTNode *array_arg = expr->as.call.args[0];
@@ -2298,6 +2337,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Special handling for array operations that need element type inference */
             if (strcmp(expr->as.call.name, "at") == 0 || strcmp(expr->as.call.name, "array_get") == 0) {
+                if (!check_array_access_arguments(expr, env)) return TYPE_UNKNOWN;
                 /* at(array, index) returns the element type of the array */
                 if (expr->as.call.arg_count >= 1) {
                     ASTNode *array_arg = expr->as.call.args[0];

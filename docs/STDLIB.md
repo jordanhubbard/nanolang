@@ -620,6 +620,11 @@ I convert a lowercase letter code to uppercase. I leave non-letters unchanged.
 ### `at(arr: array<T>, index: int) -> T`
 I return the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds.
 
+My C-seed and NanoVirt frontends require exactly two arguments: an array and
+an integer index (`int` or `u8`). I reject strings, floats and booleans as
+indices during typechecking, before publishing native or bytecode output.
+The same rule applies to `array_get`.
+
 ```nano
 let nums: array<int> = [1, 2, 3, 4, 5]
 (at nums 0)   # Returns 1

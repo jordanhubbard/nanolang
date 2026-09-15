@@ -113,6 +113,30 @@ void test_tc_format_template(void) {
     ASSERT(!tc_passes("fn main() -> int { let s = (format) return 0 }"));
 }
 
+void test_tc_array_index_contract(void) {
+    const char *names[] = {"at", "array_get"};
+    const char *bad_indices[] = {"\"hello\"", "true", "1.5", "[0]", "missing"};
+    char source[512];
+    for (size_t n = 0; n < 2; n++) {
+        snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2] 0) }", names[n]);
+        ASSERT(tc_passes(source));
+        snprintf(source, sizeof(source), "fn main() -> int { let index: u8 = 0 let s: string = (%s [\"ok\"] index) return 0 }", names[n]);
+        ASSERT(tc_passes(source));
+        snprintf(source, sizeof(source), "fn main() -> int { let inner: array<int> = [42] let rows: array<array<int>> = [inner] let cube: array<array<array<int>>> = [rows] return (%s (%s (%s cube 0) 0) 0) }", names[n], names[n], names[n]);
+        ASSERT(tc_passes(source));
+        for (size_t i = 0; i < sizeof(bad_indices) / sizeof(bad_indices[0]); i++) {
+            snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2] %s) }", names[n], bad_indices[i]);
+            ASSERT(!tc_passes(source));
+        }
+        snprintf(source, sizeof(source), "fn main() -> int { return (%s 42 0) }", names[n]);
+        ASSERT(!tc_passes(source));
+        snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2]) }", names[n]);
+        ASSERT(!tc_passes(source));
+        snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2] 0 1) }", names[n]);
+        ASSERT(!tc_passes(source));
+    }
+}
+
 void test_tc_arithmetic(void) {
     ASSERT(tc_passes(
         "fn main() -> int {\n"
@@ -801,6 +825,7 @@ int main(void) {
     printf("\n--- Valid programs ---\n");
     TEST(tc_minimal_main);
     TEST(tc_format_template);
+    TEST(tc_array_index_contract);
     TEST(tc_arithmetic);
     TEST(tc_float_ops);
     TEST(tc_string_ops);

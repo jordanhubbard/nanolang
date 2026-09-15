@@ -94,10 +94,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           Typechecker tests pass; the focused negative fixture passes both
           CLIs. The full native negative suite passes 35/35; NanoVirt passes
           34/35 and exposes the array-index defect below.
-        - [ ] I reject non-integer array indices in `at` and `array_get`
+        - [x] I reject non-integer array indices in `at` and `array_get`
           before emission. NanoVirt accepts the string-index negative fixture;
           native rejection alone does not establish frontend type safety.
           MAC `task_fe0c5cdbdb647732ea9084281c24261f`.
+          I preserve nested array element metadata through indexed access;
+          stricter validation exposed a false rejection of three-dimensional
+          arrays when the middle access was incorrectly inferred as `int`.
+          Parser/typechecker tests and 69 NanoVirt checks pass. Both negative
+          suites now pass 35/35 with a pinned index-type diagnostic. Strict
+          dispatch returns to 175 selected, 171 identical, four failures and
+          zero skipped; async, effects and formatting remain unfinished.
         - [ ] I reconcile formatting conversions across my interpreter,
           native emitter and VM before claiming variadic formatting parity.
           My interpreter formats whole floats without the native `.0` suffix;
