@@ -606,10 +606,39 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             break;
         }
+        case OP_ARR_SET:
         case OP_ARR_PUSH: {
             Nvm2cSimSlot val, arr;
             if (!sim_pop(b, idx, stk, &sp, &val)) return 0;
+            if (ins.opcode == OP_ARR_SET) {
+                Nvm2cSimSlot index;
+                if (!sim_pop(b, idx, stk, &sp, &index)) return 0;
+                if (index.kind != NVM2C_VK_INT && index.kind != NVM2C_VK_UNK) {
+                    nvm2c_fail(b, "ARR_SET index must be an integer");
+                    return 0;
+                }
+            }
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
+            if (ins.opcode == OP_ARR_SET && arr.kind != NVM2C_VK_UNK &&
+                val.kind != NVM2C_VK_UNK) {
+                uint8_t expected = val.kind == NVM2C_VK_REC ? NVM2C_VK_RARR :
+                    val.kind == NVM2C_VK_STR ? NVM2C_VK_SARR : NVM2C_VK_ARR;
+                if (arr.kind != expected) {
+                    nvm2c_fail(b, "ARR_SET element representation mismatch");
+                    return 0;
+                }
+                if (expected == NVM2C_VK_RARR) {
+                    for (int f = 0; f < NVM2C_MAX_REC_FIELDS; ++f) {
+                        if ((facts->final ||
+                            (arr.rec_k[f] != NVM2C_VK_UNK &&
+                             val.rec_k[f] != NVM2C_VK_UNK)) &&
+                            arr.rec_k[f] != val.rec_k[f]) {
+                            nvm2c_fail(b, "ARR_SET record field representation mismatch");
+                            return 0;
+                        }
+                    }
+                }
+            }
             if (val.kind == NVM2C_VK_REC) {
                 Nvm2cSimSlot pushed = arr;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
@@ -1766,6 +1795,38 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_ARR_SET: {
+            uint8_t vk, ak;
+            int val = stack_pop_kind(b, &st, &vk);
+            int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SET index");
+            int arr = stack_pop_kind(b, &st, &ak);
+            if (b->failed) goto done;
+            const char *array = NULL, *value = NULL;
+            if (ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) { array = "a"; value = "t"; }
+            else if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_STR) { array = "sa"; value = "s"; }
+            else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) { array = "ra"; value = "r"; }
+            else {
+                nvm2c_fail(b, "ARR_SET element representation mismatch");
+                goto done;
+            }
+            nvm2c_printf(b,
+                "    if (!%s[%d] || t[%d] < 0 || (uint64_t)t[%d] >= %s[%d]->len) abort();\n",
+                array, arr, ix, ix, array, arr);
+            if (ak == NVM2C_VK_RARR) {
+                /* Classifier field kinds do not encode the runtime width. */
+                nvm2c_printf(b,
+                    "    if (ra[%d]->data[t[%d]].n != r[%d].n || ra[%d]->data[t[%d]].kind != r[%d].kind) abort();\n",
+                    arr, ix, val, arr, ix, val);
+                nvm2c_printf(b,
+                    "    for (size_t f = 0; f < r[%d].n; ++f) if (ra[%d]->data[t[%d]].k[f] != r[%d].k[f]) abort();\n",
+                    val, arr, ix, val);
+            }
+            nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
+            /* The result is the same handle, not a copy: aliases see the write. */
+            st.slots[st.sp] = arr;
+            st.kinds[st.sp++] = ak;
+            break;
+        }
         case OP_ARR_PUSH: {
             uint8_t vk = NVM2C_VK_INT;
             uint8_t ak = NVM2C_VK_INT;
@@ -2284,18 +2345,20 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
-static void emit_nrarr_helpers(Nvm2cBuf *b) {
-    nvm2c_puts(b,
+static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int need_get) {
+    if (need_new) nvm2c_puts(b,
         "static nrarr_t nrarr_new(void) {\n"
         "    nrarr_t a = (nrarr_t)calloc(1, sizeof(nrarr_s));\n"
         "    if (!a) abort();\n"
         "    return a;\n"
-        "}\n\n"
+        "}\n\n");
+    if (need_push) nvm2c_puts(b,
         "static nrarr_t nrarr_push(nrarr_t a, nrec_t v) {\n"
         "    if (!a || a->len >= NVM2C_RECORD_ARRAY_CAP) abort();\n"
         "    a->data[a->len++] = v;\n"
         "    return a;\n"
-        "}\n\n"
+        "}\n\n");
+    if (need_get) nvm2c_puts(b,
         "static nrec_t nrarr_get(nrarr_t a, int64_t idx) {\n"
         "    if (!a || idx < 0 || (size_t)idx >= a->len) abort();\n"
         "    return a->data[idx];\n"
@@ -2460,7 +2523,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
-        if (need_rarr) emit_nrarr_helpers(&b);
+        if (need_rarr) emit_nrarr_helpers(&b, module_has_opcode(mod, OP_ARR_NEW),
+                                         need_arr_push, need_arr_get);
     }
 
     {

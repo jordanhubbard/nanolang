@@ -410,7 +410,7 @@ static void test_glue_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_arr_set_is_refused(void) {
+static void test_arr_set_runs_natively(void) {
     const char *src =
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
@@ -419,8 +419,8 @@ static void test_arr_set_is_refused(void) {
         "  PUSH_I64 0\n"
         "  PUSH_I64 9\n"
         "  ARR_SET\n"
-        "  POP\n"
         "  PUSH_I64 0\n"
+        "  ARR_GET\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "ARR_SET fixture");
@@ -428,8 +428,12 @@ static void test_arr_set_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "ARR_SET stays outside the closed subset");
-    CHECK(strstr(err, "ARR_SET") != NULL, "error names ARR_SET");
+    CHECK(c != NULL, "ARR_SET emits native C");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "ARR_SET C compiles and runs");
+        CHECK(status == 9, "ARR_SET returns the updated array");
+    }
     free(c);
     nvm_module_free(m);
 }
@@ -2431,6 +2435,76 @@ static void test_recursive_and_branch_record_facts(void) {
     nvm_module_free(m);
 }
 
+static void test_array_set_aliases_bounds_and_types(void) {
+    const char *initial[] = {
+        "PUSH_I64 1\nARR_LITERAL 1 1\n",
+        "PUSH_STR old\nARR_LITERAL 5 1\n",
+        "ARR_NEW 1\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_I64 1\nPUSH_STR old\nAGG_PACK 0 0 0 2\nARR_PUSH\n"
+    };
+    const char *replacement[] = {
+        "PUSH_I64 7\n", "PUSH_STR updated\n",
+        "PUSH_I64 7\nPUSH_STR updated\nAGG_PACK 0 0 0 2\n"
+    };
+    const char *readback[] = { "", "STR_LEN\n", "AGG_GET 0\n" };
+    const char *indices[] = { "0", "-1", "1", "9223372036854775807" };
+    for (int kind = 0; kind < 3; ++kind) {
+        for (int index = 0; index < 4; ++index) {
+            char source[2048];
+            snprintf(source, sizeof source,
+                ".string old \"a\"\n.string updated \"changed\"\n.entry 0\n"
+                ".function main 0 2 0 int 1\n%sSTORE_LOCAL 0\n"
+                "LOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nPUSH_I64 %s\n%s"
+                "ARR_SET\nPOP\nLOAD_LOCAL 1\nPUSH_I64 0\nARR_GET\n%sRET\n.end\n",
+                initial[kind], indices[index], replacement[kind], readback[kind]);
+            NvmModule *m = assemble_ok(source, "array mutation boundary");
+            if (!m) continue;
+            char error[256] = {0};
+            char *c = nvm2c_emit(m, error, sizeof error);
+            if (!c) fprintf(stderr, "array mutation: %s\n", error);
+            CHECK(c != NULL, "array mutation emits C");
+            if (c) {
+                int status = 0;
+                CHECK(compile_and_run(c, &status) == 0, "array mutation C compiles and executes");
+                CHECK(index == 0 ? status == 7 : (status == -1 || status == 134),
+                      "aliases see mutation; invalid indices abort");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    const char *invalid[] = {
+        "PUSH_I64 1\nARR_LITERAL 1 1\nPUSH_I64 0\nPUSH_STR text\n",
+        "PUSH_STR text\nARR_LITERAL 5 1\nPUSH_I64 0\nPUSH_I64 1\n",
+        "PUSH_I64 1\nARR_LITERAL 1 1\nPUSH_STR text\nPUSH_I64 1\n",
+        ("ARR_NEW 1\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
+         "STORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_I64 0\nPUSH_STR text\nAGG_PACK 0 0 0 1\n"),
+        ("ARR_NEW 1\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
+         "STORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 2\nPUSH_I64 3\nAGG_PACK 0 0 0 2\n")
+    };
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        char source[2048];
+        snprintf(source, sizeof source,
+            ".string text \"bad\"\n.entry 0\n.function main 0 1 0 int 1\n"
+            "%sARR_SET\nPOP\nPUSH_I64 0\nRET\n.end\n", invalid[i]);
+        NvmModule *m = assemble_ok(source, "invalid array mutation");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        if (i == 4) {
+            CHECK(c != NULL, "record-width mutation has runtime representation guards");
+            if (c) {
+                int status = 0;
+                CHECK(compile_and_run(c, &status) == 0, "record-width guard compiles and executes");
+                CHECK(status == -1 || status == 134, "I reject incompatible record widths at runtime");
+            }
+        } else {
+            CHECK(c == NULL && strstr(error, "ARR_SET"), "I reject incompatible array mutation");
+        }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_string_edges_run_as_native_c(void) {
     const struct { const char *text, *part; int starts, ends; } cases[] = {
         {"", "", 1, 1}, {"abc", "", 1, 1}, {"", "a", 0, 0},
@@ -2471,6 +2545,7 @@ static void test_string_edges_run_as_native_c(void) {
 }
 
 int main(int argc, char **argv) {
+    test_array_set_aliases_bounds_and_types();
     test_string_edges_run_as_native_c();
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_record_result_crosses_direct_call();
@@ -2482,7 +2557,7 @@ int main(int argc, char **argv) {
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
     test_glue_runs_without_nano_vm();
-    test_arr_set_is_refused();
+    test_arr_set_runs_natively();
     test_len3_runs_without_nano_vm();
     test_first_runs_without_nano_vm();
     test_agg_set_is_refused();

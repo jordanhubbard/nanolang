@@ -19,6 +19,8 @@
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
  * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT, STR_STARTS_WITH and STR_ENDS_WITH.
  * Prefix/suffix predicates use byte comparisons, including empty patterns.
+ * ARR_SET mutates int/string/flat-record arrays in place and returns the same
+ * handle. I reject incompatible representations and abort on invalid indices.
  * I emit UTF-8 and control bytes with fixed-width C escapes; embedded NUL
  * remains refused because these helpers use NUL-terminated strings.
  * Anything else is refused with an error.

@@ -100,9 +100,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           `make test-nvm2c` passes 485 checks, including emitted C compilation
           and execution for 22 prefix/suffix cases. The imported implementation
           comes from `8299138f`; its larger classifier is not merged by this step.
-        - [ ] I reconcile `ARR_SET` for integer, string and record arrays with
+        - [x] I reconcile `ARR_SET` for integer, string and record arrays with
           the current typed classifier, preserving alias-visible mutation,
           bounds checks and rejection of incompatible element representations.
+          Record widths need runtime guards because classifier field-kind facts
+          do not encode width. Write-only record arrays also exposed an unused
+          helper warning under `-Werror`; inline did not suppress it, so I emit
+          only the record-array helpers selected by the module's operations.
+          `make test-nvm2c` passes 529 checks, including alias-visible writes,
+          negative/length/maximum-int indices, incompatible scalar/record fields
+          and runtime record-width rejection. Generated programs and the test
+          harness also pass ASan/UBSan with leak detection disabled on Darwin;
+          this does not establish lifetime reclamation for the AOT runtime.
         A read-only merge preview finds 16 conflicting paths across 56 changed
         files. I first reconcile main's three conflicts: preserve checked FFI
         failure reporting and the central GC child-slot walk while incorporating
