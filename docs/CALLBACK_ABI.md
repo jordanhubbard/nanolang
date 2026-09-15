@@ -33,8 +33,55 @@ preservation and selected execution evidence, not full callback support.
 My callback metadata tests now check serialized contracts, malformed input,
 canonical assembly round trips, and allocation failure. The FFI suite passes
 23 tests, including rejection of contracted imports before direct dispatch or
-co-process launch. Compiler manifest binding and scheduler integration remain
-unfinished; metadata alone does not authorize the old calling convention.
+co-process launch. My bytecode compiler now binds manifest contracts to loaded
+declarations; scheduler integration remains unfinished. Metadata alone does
+not authorize the old calling convention.
+
+## Module manifests
+
+I select native adapters explicitly in `module.json`:
+
+```json
+{
+  "name": "queue_support",
+  "c_sources": ["queue.c"],
+  "callback_adapters": {
+    "submit": {
+      "symbol": "retained_submit",
+      "abi": "retained_v1",
+      "execution": "worker"
+    },
+    "wait": {
+      "symbol": "retained_wait",
+      "abi": "retained_v1",
+      "execution": "worker"
+    }
+  }
+}
+```
+
+Keys name source extern functions. `symbol` names their retained-ABI native
+adapter in the selected artifact; both names must be C identifiers. I require
+all three fields, accept only `retained_v1` and `owner` or `worker`, and reject
+duplicate entries, duplicate fields, and unknown fields within a contract.
+I reject NUL-bearing manifest text and strings before JSON decoding can lose
+their length. A literal escaped backslash followed by `u0000` is still text.
+
+My `nano_virt` CLI retains the parsed metadata alongside the native generation
+returned by the builder. Adapter fields participate in its build-context
+fingerprint. Both shadow and production binding use that retained metadata
+and the loaded source declaration, not another read of `module.json`. A test
+changes the manifest during shadow execution and checks the original contract
+in production bytecode. This is a snapshot-selection check, not protection
+against hostile native code modifying compiler memory.
+
+I derive scalar argument and result tags from each declared `fn(...) -> ...`
+parameter. An import without callback parameters gets a policy-only record.
+I reject a callback-bearing import without an adapter contract before bytecode
+publication, including an unused declaration. Unsupported shapes also fail
+before publication. The C-native emitter still uses its original C ABI;
+these adapters are the bytecode runtime boundary, not a C function-pointer
+compatibility layer.
 
 ## Serialized import contracts
 

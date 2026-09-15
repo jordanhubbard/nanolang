@@ -43,4 +43,10 @@ CodegenResult codegen_compile_shadow_scope(ASTNode *program, Environment *env,
                                           ModuleList *modules, const char *input_file,
                                           bool include_imports);
 
+/* I bind only a loaded extern declaration and an explicitly selected adapter.
+ * On failure the caller discards the unpublished module. */
+bool codegen_bind_callback_contract(NvmModule *module, uint32_t import_index,
+                                   const ASTNode *declaration, Environment *env,
+                                   const char *adapter_symbol, bool worker_thread);
+
 #endif /* NANOVIRT_CODEGEN_H */

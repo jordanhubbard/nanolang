@@ -308,6 +308,77 @@ shadow main {{ assert (== (main) 42) }}
             env.pop(name, None)
         return module_dir, source, env
 
+    def callback_build_fixture(self, directory, callback_type="fn(int, float) -> bool"):
+        module_dir, _, env = self.foreign_build_fixture(directory)
+        (module_dir / "api.nano").write_text(
+            f"pub extern fn submit(callback: {callback_type}) -> void\n"
+            "pub extern fn mutate_manifest() -> int\n")
+        (module_dir / "answer.c").write_text('''#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+void submit(void *callback) { (void)callback; abort(); }
+void retained_submit(void *callback) { (void)callback; abort(); }
+int64_t mutate_manifest(void) {
+    const char *path = getenv("NANO_CALLBACK_MANIFEST");
+    FILE *stream = path ? fopen(path, "wb") : NULL;
+    if (!stream) return 0;
+    int written = fputs("{}", stream);
+    int closed = fclose(stream);
+    return written >= 0 && closed == 0;
+}
+''')
+        manifest = {"name": "answer_native", "c_sources": ["answer.c"],
+                    "callback_adapters": {"submit": {"symbol": "retained_submit",
+                        "abi": "retained_v1", "execution": "worker"}}}
+        path = module_dir / "module.json"
+        path.write_text(json.dumps(manifest))
+        env["NANO_CALLBACK_MANIFEST"] = str(path)
+        source = (f'module "{module_dir / "api.nano"}" as foreign\n'
+                  'fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n')
+        return module_dir, source, env, manifest
+
+    def test_callback_contract_uses_captured_manifest(self):
+        with tempfile.TemporaryDirectory(prefix="nano-callback-capture-") as tmp:
+            directory = Path(tmp)
+            module_dir, source, env, _ = self.callback_build_fixture(directory)
+            source = source.replace('assert (== (main) 0)',
+                'assert (== (main) 0) unsafe { assert (== (foreign.mutate_manifest) 1) }')
+            result, output = self.compile(source, directory, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((module_dir / "module.json").read_text(), "{}")
+            dumped = subprocess.run([str(ROOT / "bin/nanoisa"), "dump", str(output)],
+                                    cwd=ROOT, capture_output=True, timeout=10)
+            self.assertEqual(dumped.returncode, 0, dumped.stderr)
+            self.assertIn(b'"retained_submit" 1 worker bool int float', dumped.stdout)
+            self.assertIn(b'.import_kind 0 artifact', dumped.stdout)
+            executed = self.execute(output, env=env)
+            self.assertEqual(executed.returncode, 0, executed.stderr)
+
+    def test_callback_missing_or_unsupported_contract_preserves_output(self):
+        for shape in ("fn(int) -> void", "fn(string) -> void", "fn(int) -> string"):
+            with self.subTest(shape=shape), tempfile.TemporaryDirectory(prefix="nano-callback-reject-") as tmp:
+                directory = Path(tmp)
+                module_dir, source, env, manifest = self.callback_build_fixture(directory, shape)
+                if shape == "fn(int) -> void":
+                    manifest.pop("callback_adapters")
+                    (module_dir / "module.json").write_text(json.dumps(manifest))
+                (directory / "program.nvm").write_bytes(b"preserve existing output")
+                result, output = self.compile(source, directory, env=env)
+                self.assertNotEqual(result.returncode, 0, result.stderr)
+                self.assertIn(b"callback", result.stderr)
+                self.assertEqual(output.read_bytes(), b"preserve existing output")
+
+    def test_callback_shadow_reaches_contracted_dispatch(self):
+        with tempfile.TemporaryDirectory(prefix="nano-callback-shadow-") as tmp:
+            directory = Path(tmp)
+            _, source, env, _ = self.callback_build_fixture(directory, "fn(int) -> void")
+            source += ('fn callback(value: int) -> void { assert (== value 1) }\n'
+                       'shadow callback { (callback 1) unsafe { (foreign.submit callback) } }\n')
+            result, output = self.compile(source, directory, env=env)
+            self.assertNotEqual(result.returncode, 0, result.stderr)
+            self.assertIn(b"retained callback scheduler", result.stderr)
+            self.assertFalse(output.exists())
+
     def test_foreign_library_cold_and_warm_build(self):
         for cached in (False, True):
             for transitive in (False, True):

@@ -78,14 +78,22 @@ static bool has_nvm_extension(const char *path) {
 
 /* I already lower NanoLang imports into bytecode. Here I build only their
  * manifest-backed foreign support, including transitive imports. */
-static void free_ffi_bindings(char **bindings, int count) {
+typedef struct {
+    char *artifact;
+    ModuleBuildMetadata *metadata;
+} FfiBinding;
+
+static void free_ffi_bindings(FfiBinding *bindings, int count) {
     if (!bindings) return;
-    for (int i = 0; i < count; i++) free(bindings[i]);
+    for (int i = 0; i < count; i++) {
+        free(bindings[i].artifact);
+        module_metadata_free(bindings[i].metadata);
+    }
     free(bindings);
 }
 
 static bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
-                             char **bindings, const char *input) {
+                             FfiBinding *bindings, const char *input, Environment *env) {
     for (uint32_t i = 0; i < module->import_count; i++) {
         NvmImportEntry *imp = &module->imports[i];
         const char *name = nvm_get_string(module, imp->module_name_idx);
@@ -94,13 +102,35 @@ static bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
         char *canonical = realpath(resolved ? resolved : name, NULL);
         free((void *)resolved);
         for (int j = 0; j < modules->count; j++) {
-            if (!bindings[j]) continue;
+            if (!bindings[j].artifact) continue;
             char *candidate = realpath(modules->module_paths[j], NULL);
             bool match = strcmp(name, modules->module_paths[j]) == 0 ||
                          (canonical && candidate && strcmp(canonical, candidate) == 0);
             free(candidate);
             if (!match) continue;
-            uint32_t idx = nvm_add_string(module, bindings[j], (uint32_t)strlen(bindings[j]));
+            ModuleBuildMetadata *metadata = bindings[j].metadata;
+            const char *symbol = nvm_get_string(module, imp->function_name_idx);
+            for (size_t a = 0; a < metadata->callback_adapters_count; a++) {
+                const ModuleCallbackAdapter *adapter = &metadata->callback_adapters[a];
+                if (!symbol || strcmp(symbol, adapter->function_name)) continue;
+                ASTNode *ast = get_cached_module_ast(modules->module_paths[j]);
+                ASTNode *declaration = NULL;
+                for (int d = 0; ast && d < ast->as.program.count; d++) {
+                    ASTNode *item = ast->as.program.items[d];
+                    if (item->type == AST_FUNCTION && item->as.function.is_extern &&
+                        !strcmp(item->as.function.name, symbol)) {
+                        if (declaration) { free(canonical); return false; }
+                        declaration = item;
+                    }
+                }
+                if (!codegen_bind_callback_contract(module, i, declaration, env,
+                                                    adapter->adapter_symbol, adapter->worker_thread)) {
+                    fprintf(stderr, "I cannot bind the retained callback declaration for %s\n", symbol);
+                    free(canonical);
+                    return false;
+                }
+            }
+            uint32_t idx = nvm_add_string(module, bindings[j].artifact, (uint32_t)strlen(bindings[j].artifact));
             if (idx == UINT32_MAX) { free(canonical); return false; }
             imp->module_name_idx = idx;
             imp->kind = NVM_IMPORT_ARTIFACT;
@@ -108,10 +138,25 @@ static bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
         }
         free(canonical);
     }
-    return true;
+    uint32_t contract = 0;
+    for (uint32_t i = 0; i < module->import_count; i++) {
+        while (contract < module->callback_contract_count &&
+               module->callback_contracts[contract].import_idx < i) contract++;
+        bool bound = contract < module->callback_contract_count &&
+                     module->callback_contracts[contract].import_idx == i;
+        for (uint16_t p = 0; !bound && p < module->imports[i].param_count; p++) {
+            uint8_t tag = module->import_param_types[i][p];
+            if (tag == TAG_FUNCTION || tag == TAG_CLOSURE) {
+                fprintf(stderr, "I require an explicit retained callback adapter for %s\n",
+                        nvm_get_string(module, module->imports[i].function_name_idx));
+                return false;
+            }
+        }
+    }
+    return nvm_callback_contracts_valid(module);
 }
 
-static bool build_ffi_modules(ModuleList *modules, char **bindings) {
+static bool build_ffi_modules(ModuleList *modules, FfiBinding *bindings) {
     for (int i = 0; i < modules->count; i++) {
         char *dir = strdup(modules->module_paths[i]);
         if (!dir) return false;
@@ -141,7 +186,7 @@ static bool build_ffi_modules(ModuleList *modules, char **bindings) {
             module_metadata_free(meta);
             return false;
         }
-        bool ok = true;
+        bool ok = !meta->callback_adapters_count || meta->c_sources_count > 0;
         if (meta->c_sources_count > 0) {
             ModuleBuildInfo *info = module_build(NULL, meta);
             ok = info != NULL;
@@ -162,15 +207,15 @@ static bool build_ffi_modules(ModuleList *modules, char **bindings) {
                     int n = snprintf(library, sizeof(library), "%s/lib%s.%s", generation, meta->name, extension);
                     ok = n > 0 && (size_t)n < sizeof(library);
                     if (ok) {
-                        bindings[i] = realpath(library, NULL);
-                        ok = bindings[i] != NULL;
+                        bindings[i].artifact = realpath(library, NULL);
+                        ok = bindings[i].artifact != NULL;
                     }
                 }
                 free(generation);
             }
             module_build_info_free(info);
         }
-        module_metadata_free(meta);
+        bindings[i].metadata = meta;
         if (!ok) {
             fprintf(stderr, "I could not build foreign support for %s\n", modules->module_paths[i]);
             return false;
@@ -180,7 +225,7 @@ static bool build_ffi_modules(ModuleList *modules, char **bindings) {
 }
 
 static bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
-                           const char *input, char **bindings, bool include_imports) {
+                           const char *input, FfiBinding *bindings, bool include_imports) {
     bool present = false;
     for (int i = 0; i < program->as.program.count; i++) {
         if (program->as.program.items[i]->type == AST_SHADOW) present = true;
@@ -191,7 +236,7 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
         fprintf(stderr, "I could not compile shadows at line %d: %s\n", tests.error_line, tests.error_msg);
         return false;
     }
-    if (!bind_ffi_imports(tests.module, modules, bindings, input)) {
+    if (!bind_ffi_imports(tests.module, modules, bindings, input, env)) {
         fprintf(stderr, "I could not bind shadow foreign imports\n");
         nvm_module_free(tests.module);
         return false;
@@ -370,7 +415,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char **bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(char *));
+    FfiBinding *bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(*bindings));
     if (!bindings || !build_ffi_modules(modules, bindings) ||
         !check_shadows(program, env, modules, input, bindings, test_imports)) {
         free_ffi_bindings(bindings, modules->count);
@@ -385,7 +430,7 @@ int main(int argc, char **argv) {
 
     /* Codegen */
     CodegenResult cg = codegen_compile(program, env, modules, input);
-    if (cg.ok && !bind_ffi_imports(cg.module, modules, bindings, input)) {
+    if (cg.ok && !bind_ffi_imports(cg.module, modules, bindings, input, env)) {
         fprintf(stderr, "I could not bind production foreign imports\n");
         nvm_module_free(cg.module);
         cg.ok = false;

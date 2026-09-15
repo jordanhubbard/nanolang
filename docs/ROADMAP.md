@@ -107,6 +107,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I carry callback signatures and adapter contracts through the
         compiler, serialized imports, loader, and verifier; absent contracts
         fail closed rather than inferring behavior from symbol names.
+        - [x] I parse strict `callback_adapters` manifest entries, retain
+          their metadata with the selected native generation, and bind
+          scalar callback signatures from the loaded declaration for both
+          production and shadow modules. I reject missing contracts,
+          duplicate/unknown fields, unsupported signatures, and NUL-bearing
+          manifest strings before native symbol selection. I test manifest
+          mutation after capture and document the supported schema.
+          NanoVirt passes 65 checks, bytecode shadows 39 tests, and native
+          cache/link-response regressions 83 tests. Manifest-parser and JSON
+          decoder metadata tests pass ASan/UBSan on Darwin with leak detection
+          disabled. Runtime scheduler integration remains unfinished.
         - [x] I encode explicit retained-handle adapter contracts in a
           feature-gated v2 section, referencing existing signatures. I verify
           indices, scalar shapes, parameter coverage, duplicates, policy,
@@ -135,6 +146,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I connect owner-thread callback execution to suspended VM
         activations, preserve captures/globals, pump during foreign waits,
         and propagate errors without racing the heap or corrupting frames.
+        - [ ] I retain callable module identity across linked-module returns
+          and callback publication. My current callable stores a function
+          index, and indirect dispatch uses the current module's table. I
+          test colliding function indices in two linked modules before
+          treating a retained callback's target as established.
       - [ ] I implement retained dispatch adapters and an explicit COP
         transport policy, then test delayed work and shutdown in both paths.
       - [ ] I pass all six dispatch-dependent examples with dependency

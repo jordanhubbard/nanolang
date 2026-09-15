@@ -2135,7 +2135,7 @@ MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR
 $(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(SRC_DIR)/module_link_response.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ tests/test_module_generation_probe.c $(MODULE_GENERATION_PROBE_OBJECTS) $(LDFLAGS) -pthread $(if $(filter Linux,$(UNAME_S)),-ldl)
 
-test-bytecode-shadows: nano_virt nano_vm $(COMPILER_C) $(OBJ_DIR)/test_module_generation_probe
+test-bytecode-shadows: nano_virt nano_vm nanoisa_dump $(COMPILER_C) $(OBJ_DIR)/test_module_generation_probe
 	@python3 tests/test_bytecode_shadows.py
 	@python3 -m unittest tests.test_module_cache_publication
 	@python3 -m unittest tests.test_linux_link_cache

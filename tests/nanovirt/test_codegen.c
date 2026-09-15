@@ -1514,6 +1514,68 @@ static void test_declared_function_parameter_tags(void) {
     TEST_PASS();
 }
 
+static void test_callback_contract_binding(void) {
+    const char *source =
+        "extern fn submit(context: int, first: fn(int, float) -> bool, second: fn(u8) -> void) -> void\n"
+        "extern fn wait(context: int) -> void\n"
+        "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n";
+    int token_count = 0;
+    Token *tokens = tokenize(source, &token_count);
+    ASSERT(tokens, "I tokenize callback declarations");
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program && program->as.program.count == 4, "I parse callback declarations");
+    Environment *env = create_environment();
+    ASSERT(type_check(program, env), "I typecheck callback declarations");
+    NvmModule *m = nvm_module_new();
+    uint32_t library = nvm_add_string(m, "fixture", 7);
+    uint32_t name = nvm_add_string(m, "submit", 6);
+    uint8_t tags[] = {TAG_INT, TAG_FUNCTION, TAG_FUNCTION};
+    ASSERT(nvm_add_import(m, library, name, 3, TAG_VOID, tags) == 0, "I add the submit import");
+    ASTNode *declaration = program->as.program.items[0];
+    FunctionSignature *signature = declaration->as.function.params[1].fn_sig;
+    ASSERT(signature, "I retain the declared callback shape");
+    declaration->as.function.params[1].fn_sig = NULL;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject a missing callback signature");
+    declaration->as.function.params[1].fn_sig = signature;
+    signature->param_count = 17;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject a callback above the native argument limit");
+    signature->param_count = 2;
+    signature->param_types[0] = TYPE_STRING;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject non-scalar callback arguments");
+    ASSERT(m->callback_contract_count == 0, "I reject shapes before adding any contract");
+    signature->param_types[0] = TYPE_INT;
+    signature->return_type = TYPE_ARRAY;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject non-scalar callback results");
+    signature->return_type = TYPE_BOOL;
+    ASSERT(codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I bind both declared callbacks");
+    ASSERT(m->callback_contract_count == 2, "I preserve both callback parameters");
+    ASSERT(m->callback_contracts[0].param_count == 2 &&
+           m->callback_contracts[0].param_tags[0] == TAG_INT &&
+           m->callback_contracts[0].param_tags[1] == TAG_FLOAT &&
+           m->callback_contracts[0].return_tag == TAG_BOOL, "I preserve the first callback shape");
+    ASSERT(m->callback_contracts[1].param_count == 1 &&
+           m->callback_contracts[1].param_tags[0] == TAG_U8 &&
+           m->callback_contracts[1].return_tag == TAG_VOID, "I preserve the second callback shape");
+    name = nvm_add_string(m, "wait", 4);
+    ASSERT(nvm_add_import(m, library, name, 1, TAG_VOID, tags) == 1, "I add a wait import");
+    ASSERT(codegen_bind_callback_contract(m, 1, program->as.program.items[1], env, "retained_wait", false),
+           "I bind a policy-only import");
+    ASSERT(m->callback_contracts[2].parameter_idx == NVM_CALLBACK_NO_PARAMETER &&
+           m->callback_contracts[2].execution == NVM_FOREIGN_OWNER_THREAD,
+           "I preserve an explicit owner-thread policy");
+    ASSERT(nvm_callback_contracts_valid(m), "I validate the bound table");
+    nvm_module_free(m);
+    free_ast(program);
+    free_tokens(tokens, token_count);
+    free_environment(env);
+    TEST_PASS();
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
@@ -1521,6 +1583,7 @@ int main(void) {
     fprintf(stderr, "\n=== NanoVirt Codegen Tests ===\n\n");
 
     fprintf(stderr, "Debug Metadata:\n");
+    test_callback_contract_binding();
     test_debug_metadata_is_not_executable();
     test_scalar_codegen_uses_typed_opcodes();
     test_function_result_signatures();

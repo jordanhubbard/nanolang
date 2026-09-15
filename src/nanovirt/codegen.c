@@ -518,6 +518,59 @@ static uint8_t list_element_tag(CG *cg, const char *name, const char *suffix) {
     return TAG_INT;
 }
 
+/* I preserve the declaration's callback shape at its selected import boundary. */
+bool codegen_bind_callback_contract(NvmModule *module, uint32_t import_index,
+                                   const ASTNode *declaration, Environment *env,
+                                   const char *adapter_symbol, bool worker_thread) {
+    if (!module || import_index >= module->import_count || !declaration ||
+        declaration->type != AST_FUNCTION || !declaration->as.function.is_extern ||
+        !adapter_symbol || !adapter_symbol[0]) return false;
+    const NvmImportEntry *import = &module->imports[import_index];
+    const char *name = nvm_get_string(module, import->function_name_idx);
+    if (!name || !declaration->as.function.name || strcmp(name, declaration->as.function.name) ||
+        declaration->as.function.param_count != import->param_count ||
+        import->param_count > NANO_MAX_FFI_ARGS ||
+        type_to_tag(declaration->as.function.return_type,
+                    declaration->as.function.return_struct_type_name, env) != import->return_type)
+        return false;
+    NvmCallbackContract contracts[NANO_MAX_FFI_ARGS] = {{0}};
+    uint16_t count = 0;
+    for (uint16_t p = 0; p < import->param_count; p++) {
+        const Parameter *parameter = &declaration->as.function.params[p];
+        if (!module->import_param_types || !module->import_param_types[import_index] ||
+            type_to_tag(parameter->type, parameter->struct_type_name, env) !=
+                module->import_param_types[import_index][p]) return false;
+        if (parameter->type != TYPE_FUNCTION) continue;
+        const FunctionSignature *signature = parameter->fn_sig;
+        if (!signature || signature->param_count < 0 || signature->param_count > NANO_MAX_FFI_ARGS ||
+            (signature->param_count && !signature->param_types)) return false;
+        NvmCallbackContract *contract = &contracts[count++];
+        contract->parameter_idx = p;
+        contract->param_count = (uint16_t)signature->param_count;
+        contract->return_tag = type_to_tag(signature->return_type, signature->return_struct_name, env);
+        if (contract->return_tag == TAG_VOID && signature->return_type != TYPE_VOID) return false;
+        for (uint16_t a = 0; a < contract->param_count; a++)
+            contract->param_tags[a] = type_to_tag(signature->param_types[a],
+                signature->param_struct_names ? signature->param_struct_names[a] : NULL, env);
+        if (!nvm_callback_shape_valid(contract->param_tags, contract->param_count, contract->return_tag))
+            return false;
+    }
+    if (!count) {
+        count = 1;
+        contracts[0].parameter_idx = NVM_CALLBACK_NO_PARAMETER;
+    }
+    uint32_t adapter = nvm_add_string(module, adapter_symbol, (uint32_t)strlen(adapter_symbol));
+    if (adapter == UINT32_MAX) return false;
+    for (uint16_t i = 0; i < count; i++) {
+        contracts[i].import_idx = import_index;
+        contracts[i].adapter_name_idx = adapter;
+        contracts[i].abi_version = NVM_CALLBACK_ABI_RETAINED_V1;
+        contracts[i].execution = worker_thread ? NVM_FOREIGN_WORKER_THREAD : NVM_FOREIGN_OWNER_THREAD;
+        if (!nvm_add_callback_contract(module, &contracts[i])) return false;
+    }
+    return true;
+}
+
 /* Register an extern function in the codegen extern table and NVM import table */
 static void register_extern(CG *cg, const char *name, const char *module_name,
                            uint16_t param_count, uint8_t return_tag,

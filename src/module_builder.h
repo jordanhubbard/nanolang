@@ -16,6 +16,12 @@
 
 // Module build metadata structure (from module.json)
 typedef struct {
+    char *function_name;
+    char *adapter_symbol;
+    bool worker_thread;
+} ModuleCallbackAdapter;
+
+typedef struct {
     char *name;
     char *version;
     char *description;
@@ -107,6 +113,8 @@ typedef struct {
     // without exporting symbols that would clash with other modules.
     char **shared_c_sources;
     size_t shared_c_sources_count;
+    ModuleCallbackAdapter *callback_adapters;
+    size_t callback_adapters_count;
 } ModuleBuildMetadata;
 
 // Build information for tracking

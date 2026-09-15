@@ -441,6 +441,13 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
     hash_context_field(&hash, "nanolang-c-build-context-v46-aliasing-snapshot-flags");
+    hash_context_field(&hash, "retained-callback-adapters-v1");
+    for (size_t i = 0; i < meta->callback_adapters_count; i++) {
+        const ModuleCallbackAdapter *adapter = &meta->callback_adapters[i];
+        hash_context_field(&hash, adapter->function_name);
+        hash_context_field(&hash, adapter->adapter_symbol);
+        hash_context_field(&hash, adapter->worker_thread ? "worker" : "owner");
+    }
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -1774,6 +1781,63 @@ static void append_string_array_unique(char ***arr, size_t *count, const char *v
     }
 }
 
+static bool module_callback_symbol_valid(const char *symbol) {
+    const char *first = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+    const char *rest = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
+    return symbol && symbol[0] && strchr(first, symbol[0]) &&
+           strspn(symbol, rest) == strlen(symbol);
+}
+
+static bool module_parse_callback_adapters(const cJSON *json, ModuleBuildMetadata *meta) {
+    const cJSON *adapters = NULL;
+    for (const cJSON *field = json->child; field; field = field->next) {
+        if (!strcmp(field->string, "callback_adapters")) {
+            if (adapters) return false;
+            adapters = field;
+        }
+    }
+    if (!adapters) return true;
+    if (!cJSON_IsObject(adapters)) return false;
+    size_t count = (size_t)cJSON_GetArraySize(adapters);
+    meta->callback_adapters = count ? calloc(count, sizeof(*meta->callback_adapters)) : NULL;
+    if (count && !meta->callback_adapters) return false;
+    for (const cJSON *item = adapters->child; item; item = item->next) {
+        if (!module_callback_symbol_valid(item->string) || !cJSON_IsObject(item)) return false;
+        for (size_t i = 0; i < meta->callback_adapters_count; i++)
+            if (!strcmp(meta->callback_adapters[i].function_name, item->string)) return false;
+        const char *symbol = NULL, *abi = NULL, *execution = NULL;
+        for (const cJSON *field = item->child; field; field = field->next) {
+            if (!cJSON_IsString(field)) return false;
+            const char **target = !strcmp(field->string, "symbol") ? &symbol :
+                !strcmp(field->string, "abi") ? &abi :
+                !strcmp(field->string, "execution") ? &execution : NULL;
+            if (!target || *target) return false;
+            *target = field->valuestring;
+        }
+        if (!module_callback_symbol_valid(symbol) || !abi || strcmp(abi, "retained_v1") ||
+            !execution || (strcmp(execution, "worker") && strcmp(execution, "owner"))) return false;
+        ModuleCallbackAdapter *adapter = &meta->callback_adapters[meta->callback_adapters_count++];
+        adapter->function_name = strdup(item->string);
+        adapter->adapter_symbol = strdup(symbol);
+        adapter->worker_thread = !strcmp(execution, "worker");
+        if (!adapter->function_name || !adapter->adapter_symbol) return false;
+    }
+    return true;
+}
+
+/* I reject decoded NULs before cJSON loses their length. Escaped backslashes
+ * are skipped as pairs, so a literal "\\u0000" is not a decoded NUL. */
+static bool module_manifest_has_nul(const char *text, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        if (!text[i]) return true;
+        if (text[i] == '\\' && i + 1 < size) {
+            if (size - i >= 6 && !memcmp(text + i + 1, "u0000", 5)) return true;
+            i++;
+        }
+    }
+    return false;
+}
+
 static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module_dir) {
     char path[1024];
     int length = snprintf(path, sizeof(path), "%s/module.json", module_dir);
@@ -1809,12 +1873,15 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         return NULL;
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-    fread(content, 1, (size_t)size, fp);
-#pragma GCC diagnostic pop
+    size_t read_size = fread(content, 1, (size_t)size, fp);
     content[size] = '\0';
     fclose(fp);
+
+    if (read_size != (size_t)size || module_manifest_has_nul(content, read_size)) {
+        fprintf(stderr, "I require complete, NUL-free module metadata: %s\n", path);
+        free(content);
+        return NULL;
+    }
 
     if (!nl_utf8_validate(content, (size_t)size, NULL)) {
         fprintf(stderr, "Error: %s is not valid UTF-8\n", path);
@@ -1823,16 +1890,24 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
     }
 
     // Parse JSON
-    cJSON *json = cJSON_Parse(content);
+    cJSON *json = cJSON_ParseWithOpts(content, NULL, true);
     free(content);
 
-    if (!json) {
+    if (!cJSON_IsObject(json)) {
         fprintf(stderr, "Error: Invalid JSON in %s\n", path);
+        cJSON_Delete(json);
         return NULL;
     }
 
     ModuleBuildMetadata *meta = calloc(1, sizeof(ModuleBuildMetadata));
     if (!meta) {
+        cJSON_Delete(json);
+        return NULL;
+    }
+
+    if (!module_parse_callback_adapters(json, meta)) {
+        fprintf(stderr, "I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: %s\n", path);
+        module_metadata_free(meta);
         cJSON_Delete(json);
         return NULL;
     }
@@ -2105,6 +2180,12 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
     FREE_STRING_ARRAY(shared_c_sources, shared_c_sources_count);
 
     #undef FREE_STRING_ARRAY
+
+    for (size_t i = 0; i < meta->callback_adapters_count; i++) {
+        free(meta->callback_adapters[i].function_name);
+        free(meta->callback_adapters[i].adapter_symbol);
+    }
+    free(meta->callback_adapters);
 
     free(meta);
 }
