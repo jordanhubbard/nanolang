@@ -52,6 +52,30 @@ int main(void) {
     return 0;
 }
 '''
+                if module:
+                    program = program.replace('    return 0;\n}', r'''
+    const char *relative = path_relpath("/a/b/c", "/a");
+    assert(relative && strcmp(relative, "b/c") == 0); free((void *)relative);
+    relative = path_relpath("/a", "/a/b/c");
+    assert(relative && strcmp(relative, "../..") == 0); free((void *)relative);
+    relative = path_relpath(components, components);
+    assert(relative && strcmp(relative, ".") == 0); free((void *)relative);
+    char shared[1500];
+    strcpy(shared, components); strcat(shared, "/leaf");
+    relative = path_relpath(shared, components);
+    assert(relative && strcmp(relative, "leaf") == 0); free((void *)relative);
+    relative = path_relpath(long_name, "/");
+    assert(relative && strcmp(relative, long_name) == 0); free((void *)relative);
+    char many[3001], expected[4505];
+    for (int i = 0; i < 1500; ++i) {
+        memcpy(many + i * 2, "x/", 2);
+        memcpy(expected + i * 3, "../", 3);
+    }
+    many[2999] = 0; memcpy(expected + 4500, "leaf", 5);
+    relative = path_relpath("leaf", many);
+    assert(relative && strcmp(relative, expected) == 0); free((void *)relative);
+    return 0;
+}''')
                 work = Path(tmp)
                 (work / "probe.c").write_text(program)
                 command = [*shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-D_GNU_SOURCE",

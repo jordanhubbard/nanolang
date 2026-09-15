@@ -34,15 +34,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
       My AOT suite passes 828 checks. Compiler acceptance still fails at
       `nl_exec_shell` (import 25). Evidence: `docs/evidence/aot-builtin-normalize.md`.
-- [ ] **Native normalization bounds.** I replace module path truncation and
+- [x] **Native normalization bounds.** I replace module path truncation and
       generated-native `parts[512]` overflow on leading parents with checked
       dynamic storage. I test both paths beyond their old limits.
       MAC `task_82bd388637824cc889b12204d226e75b`.
       - [x] I use checked dynamic storage for public `path_normalize` and
         generated `nl_os_path_normalize`, with 700-component/parent and
         5,000-byte tests. Evidence: `docs/evidence/native-normalization.md`.
-      - [ ] I remove the remaining bounded normalization/token/output buffers
+      - [x] I remove the remaining bounded normalization/token/output buffers
         inside `path_relpath`; public normalization does not fix this caller.
+        Long shared-prefix and 4,504-byte result tests pass. Evidence:
+        `docs/evidence/dynamic-relative-paths.md`.
+- [ ] **Relative-path anchors.** I define and verify dot, mixed-root and
+      unresolved-parent behavior rather than treating all normalized components
+      as interchangeable. MAC `task_64696231d8984732a5a1e1c319ca043b`.
 - [x] **AOT identity checks.** I preserve file/destination identity semantics
       for builtin imports, including hard links, missing paths and failed
       lookups. I test absent-destination probe cleanup in private directories.

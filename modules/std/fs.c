@@ -92,68 +92,6 @@ int64_t file_compare_destinations(const char* first, const char* second) {
     return result;
 }
 
-/* Internal helper: normalize path into caller-provided buffer */
-static void path_normalize_into(const char* path, char* result, size_t result_size) {
-    if (!path || path[0] == '\0') {
-        snprintf(result, result_size, ".");
-        return;
-    }
-
-    int is_absolute = (path[0] == '/');
-
-    /* Copy path for tokenization */
-    char* copy = strdup(path);
-    if (!copy) {
-        snprintf(result, result_size, "%s", path);
-        return;
-    }
-
-    /* Split path into components */
-    const char* parts[512];
-    int count = 0;
-
-    char* saveptr = NULL;
-    char* token = strtok_r(copy, "/", &saveptr);
-    while (token) {
-        if (strcmp(token, "") == 0 || strcmp(token, ".") == 0) {
-            /* Skip empty and current directory */
-        } else if (strcmp(token, "..") == 0) {
-            /* Go up one level if possible */
-            if (count > 0 && strcmp(parts[count - 1], "..") != 0) {
-                count--;
-            } else if (!is_absolute) {
-                /* Keep .. for relative paths */
-                if (count < 512) parts[count++] = token;
-            }
-        } else {
-            /* Normal component */
-            if (count < 512) parts[count++] = token;
-        }
-        token = strtok_r(NULL, "/", &saveptr);
-    }
-
-    /* Build result */
-    result[0] = '\0';
-    if (is_absolute) {
-        strcat(result, "/");
-    }
-
-    for (int i = 0; i < count; i++) {
-        if (i > 0 || is_absolute) {
-            if (result[strlen(result) - 1] != '/') {
-                strncat(result, "/", result_size - strlen(result) - 1);
-            }
-        }
-        strncat(result, parts[i], result_size - strlen(result) - 1);
-    }
-
-    /* Handle empty result */
-    if (result[0] == '\0') {
-        snprintf(result, result_size, ".");
-    }
-
-    free(copy);
-}
 
 /* Normalize path (resolve . and .., remove redundant slashes) */
 const char* path_normalize(const char* path) {
@@ -223,72 +161,45 @@ const char* path_dirname(const char* path) {
     return result;
 }
 
-static void path_append(char* out, size_t out_size, const char* part) {
-    if (!out || !part) return;
-    if (out[0] != '\0') {
-        strncat(out, "/", out_size - strlen(out) - 1);
-    }
-    strncat(out, part, out_size - strlen(out) - 1);
-}
-
-/* Compute relative path from base to target */
+/* I compare normalized lexical components without fixed path/token buffers.
+ * Mixed roots and unresolved parent components retain the existing lexical
+ * comparison rules; I do not resolve either path against a working directory. */
 const char* path_relpath(const char* target, const char* base) {
-    char result[4096];
-
-    if (!target || !base) {
-        return strdup(".");
+    if (!target || !base) return strdup(".");
+    char *target_norm = nl_normalize_path(target);
+    char *base_norm = nl_normalize_path(base);
+    if (!target_norm || !base_norm) {
+        free(target_norm); free(base_norm); return NULL;
     }
-
-    char target_norm[2048];
-    char base_norm[2048];
-    path_normalize_into(target, target_norm, sizeof(target_norm));
-    path_normalize_into(base, base_norm, sizeof(base_norm));
-
-    char target_copy[2048];
-    char base_copy[2048];
-    snprintf(target_copy, sizeof(target_copy), "%s", target_norm);
-    snprintf(base_copy, sizeof(base_copy), "%s", base_norm);
-
-    char* target_parts[256];
-    char* base_parts[256];
-    int target_count = 0;
-    int base_count = 0;
-
-    char* saveptr = NULL;
-    char* token = strtok_r(target_copy, "/", &saveptr);
-    while (token && target_count < 256) {
-        target_parts[target_count++] = token;
-        token = strtok_r(NULL, "/", &saveptr);
+    size_t target_length = strlen(target_norm), base_length = strlen(base_norm);
+    if (target_length > SIZE_MAX - 2 || base_length > (SIZE_MAX - target_length - 2) / 3) {
+        free(target_norm); free(base_norm); return NULL;
     }
-
-    saveptr = NULL;
-    token = strtok_r(base_copy, "/", &saveptr);
-    while (token && base_count < 256) {
-        base_parts[base_count++] = token;
-        token = strtok_r(NULL, "/", &saveptr);
+    char *result = malloc(target_length + base_length * 3 + 2);
+    if (!result) { free(target_norm); free(base_norm); return NULL; }
+    char *target_save = NULL, *base_save = NULL;
+    char *a = strtok_r(target_norm, "/", &target_save);
+    char *b = strtok_r(base_norm, "/", &base_save);
+    while (a && b && strcmp(a, b) == 0) {
+        a = strtok_r(NULL, "/", &target_save);
+        b = strtok_r(NULL, "/", &base_save);
     }
-
-    int common = 0;
-    while (common < target_count && common < base_count &&
-           strcmp(target_parts[common], base_parts[common]) == 0) {
-        common++;
+    size_t used = 0;
+    while (b) {
+        if (used) result[used++] = '/';
+        result[used++] = '.'; result[used++] = '.';
+        b = strtok_r(NULL, "/", &base_save);
     }
-
-    result[0] = '\0';
-
-    for (int i = common; i < base_count; i++) {
-        path_append(result, sizeof(result), "..");
+    while (a) {
+        if (used) result[used++] = '/';
+        size_t length = strlen(a);
+        memcpy(result + used, a, length); used += length;
+        a = strtok_r(NULL, "/", &target_save);
     }
-
-    for (int i = common; i < target_count; i++) {
-        path_append(result, sizeof(result), target_parts[i]);
-    }
-
-    if (result[0] == '\0') {
-        snprintf(result, sizeof(result), ".");
-    }
-
-    return strdup(result);
+    if (!used) result[used++] = '.';
+    result[used] = 0;
+    free(target_norm); free(base_norm);
+    return result;
 }
 
 /* Read file content as string */
