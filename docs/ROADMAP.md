@@ -74,6 +74,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       behavior, run clean build/tests and documentation gates, then merge and
       publish 5.0. The fleet dispatch hold does not gate this user-authorized
       release. Unfinished roadmap items remain explicitly unfinished.
+      - [ ] I make dispatch-equivalence coverage explicit: unexpected compile
+        failures and zero comparisons fail, expected exclusions are reported,
+        and compilation/VM executions have deadlines and retained diagnostics.
+        The current script silently skips failed compilation and can hang.
+        MAC `task_31ecd1c81d6740d0e856a117ce786b6a`.
       - [x] I isolate MAC module shadows from live hub writes and replace the
         unresolved capture/status extern pair with the existing process runner.
         Incoming tests hid missing interpreter support as offline success, and
