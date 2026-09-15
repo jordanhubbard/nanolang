@@ -235,8 +235,11 @@ before later elements or arms execute. I test partial string/record-array
 cleanup without freeing the caller's original records. Interpreter `map`,
 `filter` and `reduce` stop iteration when a callback propagates a handler return;
 an ordinary handler value resumes the callback. Static and dynamic arrays are
-tested. Coroutine-specific paths, full expression coverage and native/VM lowering
-remain roadmap work; these tests do not establish backend equivalence.
+tested. One hundred nested synchronous async calls also propagate the handler
+return and release all 200 private coroutine handles. This is run-to-completion
+interpreter behavior, not resumable async or an owned-task API. Full expression
+coverage, foreign callback boundaries and native/VM lowering remain roadmap
+work; these tests do not establish backend equivalence.
 
 ## Imports And Modules
 

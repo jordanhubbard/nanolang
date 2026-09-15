@@ -145,8 +145,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             uninstrumented and leak detection disabled. Map, filter and reduce
             now propagate callback returns and discard partial output, with
             twelve static/dynamic-array escape/resumption cases passing.
-            I still audit coroutine-specific argument paths and remaining consumers before
-            marking general interpreter propagation complete.
+            One hundred nested synchronous async calls propagate the return,
+            allocate exactly 200 private handles and release them all; evaluator
+            and scheduler gates pass. The handwritten `coro_spawn`, `coro_done`
+            and `coro_result` special paths are not registered by the frontend;
+            they are not evidence of a working owned-task API. Their argument
+            propagation belongs with the task-lifecycle implementation below.
+            General propagation and foreign callback boundaries remain open.
             MAC `task_67e5e620d75a413b99753c7cdbde1f48`.
           - [x] I preserve declared handler parameter metadata for nominal
             field access, typed array reads and function signatures. I test

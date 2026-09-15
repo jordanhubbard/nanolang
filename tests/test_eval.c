@@ -2505,7 +2505,32 @@ void test_eval_handler_return_higher_order(void) {
     }
 }
 
+void test_eval_handler_return_async_calls(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Stop { stop : int -> int } let mut trace: int = 0 "
+        "async fn inner(n: int) -> int { let x = perform Stop.stop(n) set trace 1 return x } "
+        "async fn outer(n: int) -> int { let x = (inner n) set trace 2 return x } "
+        "fn owner() -> int { let x = handle { (outer 7) } with { stop n -> { return n } } set trace 3 return 99 } "
+        "fn main() -> int { set trace 0 let x = (owner) return (+ x (* trace 1000)) }"));
+    nano_scheduler_init();
+    int first_id = g_scheduler.count;
+    for (int i = 0; i < 100; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 7);
+        ASSERT(!result.is_return);
+        ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+        for (int slot = 0; slot < MAX_COROUTINES; slot++) {
+            ASSERT(g_scheduler.coroutines[slot].id < first_id);
+        }
+    }
+    ASSERT_EQ(g_scheduler.count - first_id, 200);
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
+    TEST(eval_handler_return_async_calls);
     TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);
     TEST(eval_handler_return_recursive_activation);
