@@ -4,6 +4,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -41,7 +42,8 @@ class OneIrCompiler(unittest.TestCase):
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assertNotIn("nano_vm", source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
-                              source, "-o", compiler], timeout=240)
+                              source, "-o", compiler,
+                              *(["-ldl"] if sys.platform.startswith("linux") else [])], timeout=240)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
             self.assertIn(b"Compiler", help_output)
             hello = work / "hello"

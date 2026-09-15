@@ -171,6 +171,15 @@ static const Nvm2cHost *import_host(const NvmModule *mod, uint32_t index) {
     const NvmImportEntry *imp = &mod->imports[index];
     const char *module = nvm_get_string(mod, imp->module_name_idx);
     const char *name = nvm_get_string(mod, imp->function_name_idx);
+    static const Nvm2cHost walk = {"fs_walkdir", "nhost_walk", 1, TAG_STRING, TAG_ARRAY};
+    if (module && name && mod->string_lengths &&
+        imp->kind == NVM_IMPORT_ARTIFACT && module[0] == '/' &&
+        mod->string_lengths[imp->module_name_idx] == strlen(module) &&
+        mod->string_lengths[imp->function_name_idx] == strlen(name) &&
+        strcmp(name, walk.name) == 0 && imp->param_count == 1 &&
+        imp->return_type == TAG_ARRAY && mod->import_param_types &&
+        mod->import_param_types[index] && mod->import_param_types[index][0] == TAG_STRING)
+        return &walk;
     if (!module || module[0] || !name || imp->kind != NVM_IMPORT_FFI ||
         !mod->string_lengths || mod->string_lengths[imp->module_name_idx] != 0 ||
         mod->string_lengths[imp->function_name_idx] != strlen(name)) return NULL;
@@ -803,6 +812,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, arg.origin, expected);
             }
             if (!sim_push(b, idx, stk, &sp,
+                          host->result == TAG_ARRAY ? NVM2C_VK_SARR :
                           host->result == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -2178,10 +2188,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(%c[%d])", host->c_name,
                          kind == NVM2C_VK_STR ? 's' : 't', arg);
+                if (host->result == TAG_ARRAY)
+                    snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d])",
+                             ins.operands[0].u32, arg);
             } else {
                 snprintf(expression, sizeof expression, "%s()", host->c_name);
             }
-            if (host->result == TAG_STRING) stack_push_str(b, &st, expression);
+            if (host->result == TAG_ARRAY) stack_push_sarr(b, &st, expression);
+            else if (host->result == TAG_STRING) stack_push_str(b, &st, expression);
             else stack_push_temp(b, &st, expression);
             break;
         }
@@ -2478,6 +2492,60 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
+    int emitted = 0;
+    for (uint32_t i = 0; i < mod->import_count; ++i) {
+        const Nvm2cHost *host = import_host(mod, i);
+        if (!host || host->result != TAG_ARRAY) continue;
+        if (!emitted++) nvm2c_puts(b,
+            "#include <dlfcn.h>\n#include <stdbool.h>\n"
+            "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
+            "    nh_array=5, nh_struct=6, nh_pointer=7, nh_u8=8 } nh_element;\n"
+            "typedef struct { int64_t length, capacity; nh_element type;\n"
+            "    uint8_t width; void *data; } nh_array_value;\n");
+        nvm2c_printf(b, "static inline nsarr_t nhost_walk_%u(const char *root) {\n", i);
+        nvm2c_puts(b,
+            "    static void *library;\n"
+            "    static nh_array_value *(*walk)(const char *);\n"
+            "    static bool (*release)(nh_array_value *);\n"
+            "    if (!library) {\n"
+            "        library = dlopen(");
+        const NvmImportEntry *imp = &mod->imports[i];
+        emit_c_string_lit(b, mod->strings[imp->module_name_idx],
+                          mod->string_lengths[imp->module_name_idx]);
+        nvm2c_puts(b,
+            ", RTLD_NOW | RTLD_LOCAL);\n"
+            "        if (!library) abort();\n"
+            "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"fs_walkdir__nano_array_abi\");\n"
+            "        if (!abi || *abi != 1) abort();\n"
+            "        walk = (nh_array_value *(*)(const char *))dlsym(library, \"fs_walkdir\");\n"
+            "        release = (bool (*)(nh_array_value *))dlsym(library, \"fs_walkdir_release\");\n"
+            "        if (!walk || !release) abort();\n"
+            "    }\n"
+            "    nh_array_value *foreign = walk(root);\n"
+            "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
+            "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
+            "        foreign->capacity < foreign->length ||\n"
+            "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) abort();\n"
+            "    nsarr_t result = calloc(1, sizeof *result);\n"
+            "    if (!result) abort();\n"
+            "    result->len = (size_t)foreign->length;\n"
+            "    result->data = calloc(result->len ? result->len : 1, sizeof *result->data);\n"
+            "    if (!result->data) abort();\n"
+            "    for (size_t j = 0; j < result->len; ++j) {\n"
+            "        const char *value = ((const char **)foreign->data)[j];\n"
+            "        if (!value) abort();\n"
+            "        size_t length = strlen(value);\n"
+            "        if (length == SIZE_MAX) abort();\n"
+            "        char *copy = malloc(length + 1);\n"
+            "        if (!copy) abort();\n"
+            "        memcpy(copy, value, length + 1); result->data[j] = copy;\n"
+            "    }\n"
+            "    if (!release(foreign)) abort();\n"
+            "    return result;\n}\n");
+    }
+}
+
 static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int need_get) {
     if (need_new) nvm2c_puts(b,
         "static nrarr_t nrarr_new(void) {\n"
@@ -2590,7 +2658,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_lit ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
-        int need_sarr = need_sarr_lit ||
+        int need_sarr = need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR);
         int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
@@ -2665,6 +2733,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef narr_s *narr_t;\n"
             "typedef struct { const char **data; size_t len; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
+        emit_walk_adapters(&b, mod);
         nvm2c_printf(&b,
             "typedef struct { int64_t f[%d]; const char *s[%d]; uint8_t k[%d]; uint16_t n, tag; uint8_t kind; } nrec_t;\n",
             NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
@@ -2739,6 +2808,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "int main(int argc, char **argv) {\n"
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
+        for (uint32_t i = 0; i < mod->import_count; ++i) {
+            const Nvm2cHost *host = import_host(mod, i);
+            if (host && host->result == TAG_ARRAY)
+                nvm2c_printf(&b, "    (void)nhost_walk_%u;\n", i);
+        }
         nvm2c_printf(&b,
             "    return (int)%s();\n"
             "}\n",

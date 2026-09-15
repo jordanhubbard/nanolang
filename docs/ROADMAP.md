@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT owned filesystem adapter.** I bind `fs_walkdir` to its absolute
+      artifact path, check its array ABI and release entry point, copy returned
+      strings into AOT storage, then release the foreign result. I test exact
+      binding and failure cases before using it in compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 647 checks. Compiler acceptance now stops at
+      `path_normalize`; remaining adapters stay open under the same task.
+      Evidence: `docs/evidence/aot-owned-walk-adapter.md`.
 - [x] **Owned walk-result release.** I add an opt-in C release operation for
       unmodified, exclusively owned `fs_walkdir` results, freeing their copied
       strings before the array. Existing callers retain current behavior.

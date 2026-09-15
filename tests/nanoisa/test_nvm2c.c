@@ -15,6 +15,11 @@
 #include "nanoisa.h"
 
 static int g_pass = 0, g_fail = 0;
+#ifdef __linux__
+#define TEST_DL_LIB " -ldl"
+#else
+#define TEST_DL_LIB ""
+#endif
 
 #define CHECK(cond, what) do { \
     if (cond) { g_pass++; } \
@@ -52,7 +57,7 @@ static int compile_and_run_with_args(const char *c_src, int *status_out, const c
     if (!cc || !cc[0]) cc = "cc";
     char cmd[512];
     snprintf(cmd, sizeof cmd,
-             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s",
+             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s" TEST_DL_LIB,
              cc, bin_path, src_path);
     int rc = system(cmd);
     if (rc != 0) {
@@ -253,11 +258,127 @@ static void test_artifact_array_import_is_not_a_builtin(void) {
     module->imports[0].module_name_idx = nvm_add_string(module, artifact, (uint32_t)strlen(artifact));
     char error[256];
     char *source = nvm2c_emit(module, error, sizeof error);
-    CHECK(source == NULL, "I do not substitute a filesystem builtin for an exact artifact");
-    CHECK(strstr(error, "fs_walkdir") && strstr(error, "artifact-backed"),
-          "I identify the unsupported artifact array boundary");
+    CHECK(source != NULL, "I emit an exact filesystem artifact adapter");
+    CHECK(source && strstr(source, artifact) && strstr(source, "fs_walkdir_release"),
+          "I retain the artifact path and explicit ownership release");
+    if (source) {
+        int status = -1;
+        CHECK(compile_and_run(source, &status) == 0 && status == 0,
+              "I compile an unused artifact adapter without loading it");
+    }
     free(source);
+    NvmImportEntry original = module->imports[0];
+    for (int bad = 0; bad < 5; ++bad) {
+        if (bad == 0) module->imports[0].kind = NVM_IMPORT_FFI;
+        if (bad == 1) module->imports[0].return_type = TAG_STRING;
+        if (bad == 2) module->imports[0].param_count = 0;
+        if (bad == 3) module->imports[0].module_name_idx = nvm_add_string(module, "relative.so", 11);
+        if (bad == 4) module->imports[0].module_name_idx = nvm_add_string(module, "/path\0suffix", 12);
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I refuse a noncanonical filesystem artifact contract");
+        free(source);
+        module->imports[0] = original;
+    }
     nvm_module_free(module);
+}
+
+static void test_owned_artifact_execution(void) {
+    char directory[] = "/tmp/nvm2c-walk-XXXXXX";
+    CHECK(mkdtemp(directory) != NULL, "I create a private artifact fixture");
+    char path[256], library[256], command[1024];
+    snprintf(path, sizeof path, "%s/library.c", directory);
+    snprintf(library, sizeof library, "%s/library.so", directory);
+    FILE *file = fopen(path, "w");
+    CHECK(file != NULL, "I write an owned artifact fixture");
+    if (!file) { rmdir(directory); return; }
+    fputs("#include <stdint.h>\n#include <stdbool.h>\n#include <string.h>\n"
+          "#include <stdlib.h>\n"
+          "typedef struct { int64_t length, capacity; int type; uint8_t width; void *data; } A;\n"
+          "#ifndef ABI_VERSION\n#define ABI_VERSION 1\n#endif\n"
+          "const uint32_t fs_walkdir__nano_array_abi = ABI_VERSION;\n"
+          "static char value[] = \"retained\"; static char *items[] = {value};\n"
+          "static A array = {1, 1, 3, sizeof(char *), items};\n"
+          "A *fs_walkdir(const char *root) {\n"
+          " if (!strcmp(root, \"bad-layout\")) array.width = 1;\n"
+          " return &array; }\n"
+          "#ifndef OMIT_RELEASE\n"
+          "bool fs_walkdir_release(A *a) { if (a != &array) abort();\n"
+          " memset(value, 'x', sizeof(value)-1); return true; }\n#endif\n", file);
+    CHECK(fclose(file) == 0, "I finish the artifact fixture");
+    snprintf(command, sizeof command, "cc -shared -fPIC -o %s %s", library, path);
+    CHECK(system(command) == 0, "I build the artifact fixture");
+    for (int variant = 0; variant < 5; ++variant) {
+        if (variant >= 3) {
+            snprintf(command, sizeof command, "cc -shared -fPIC %s -o %s %s",
+                     variant == 3 ? "-DABI_VERSION=99" : "-DOMIT_RELEASE", library, path);
+            CHECK(system(command) == 0, "I build an incompatible artifact fixture");
+        }
+        NvmModule *module = assemble_ok(
+            ".string root \"valid\"\n.string expected \"retained\"\n"
+            ".import \"\" \"fs_walkdir\" array string\n"
+            ".entry 0\n.function main 0 0 0 int 1\n"
+            "PUSH_STR root\nCALL_EXTERN 0\nPUSH_I64 0\nARR_GET\n"
+            "PUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+            "owned artifact execution");
+        if (!module) continue;
+        module->imports[0].kind = NVM_IMPORT_ARTIFACT;
+        const char *binding = variant == 2 ? "/nonexistent/nanolang-owned-artifact.so" : library;
+        module->imports[0].module_name_idx = nvm_add_string(module, binding, (uint32_t)strlen(binding));
+        if (variant == 1) {
+            free(module->strings[0]);
+            module->strings[0] = strdup("bad-layout");
+            module->string_lengths[0] = 10;
+        }
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I translate an artifact call and string-array access");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0, "I compile the artifact caller");
+            CHECK(variant == 0 ? status == 0 : status != 0,
+                  "I preserve copies after release and refuse invalid artifacts");
+        } else fprintf(stderr, "%s\n", error);
+        free(source);
+        nvm_module_free(module);
+    }
+    unlink(path); unlink(library); rmdir(directory);
+}
+
+static void test_real_walk_artifact(void) {
+    char directory[] = "/tmp/nvm2c-real-walk-XXXXXX";
+    if (!mkdtemp(directory)) { CHECK(0, "I create a real walk fixture"); return; }
+    char library[256], command[1024], assembly[2048];
+    snprintf(library, sizeof library, "%s/library.so", directory);
+    snprintf(command, sizeof command,
+             "cc -shared -fPIC -D_GNU_SOURCE -Isrc -o %s modules/std/fs.c "
+             "src/runtime/dyn_array.c src/runtime/gc.c src/runtime/gc_struct.c", library);
+    int built = system(command);
+    CHECK(built == 0, "I build the real filesystem artifact");
+    if (built == 0) {
+        snprintf(assembly, sizeof assembly,
+                 ".string root \"%s\"\n.string expected \"%s\"\n"
+                 ".import \"\" \"fs_walkdir\" array string\n"
+                 ".entry 0\n.function main 0 0 0 int 1\n"
+                 "PUSH_STR root\nCALL_EXTERN 0\nPUSH_I64 0\nARR_GET\n"
+                 "PUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                 directory, library);
+        NvmModule *module = assemble_ok(assembly, "real filesystem artifact");
+        if (module) {
+            module->imports[0].kind = NVM_IMPORT_ARTIFACT;
+            module->imports[0].module_name_idx = nvm_add_string(module, library, (uint32_t)strlen(library));
+            char error[256];
+            char *source = nvm2c_emit(module, error, sizeof error);
+            CHECK(source != NULL, "I emit a real filesystem artifact call");
+            if (source) {
+                int status = -1;
+                CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                      "I copy and release a real filesystem result");
+            }
+            free(source);
+            nvm_module_free(module);
+        }
+    }
+    unlink(library); rmdir(directory);
 }
 
 static void test_builtin_host_imports(void) {
@@ -2734,6 +2855,8 @@ int main(int argc, char **argv) {
     test_store_load_local();
     test_builtin_host_imports();
     test_artifact_array_import_is_not_a_builtin();
+    test_owned_artifact_execution();
+    test_real_walk_artifact();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
     test_push_str_len_runs_without_nano_vm();
