@@ -790,6 +790,13 @@ test-typechecker: stage1
 	@rm -f tests/test_typechecker
 
 .PHONY: test-env-scoping
+.PHONY: test-resource-classification
+test-resource-classification: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_resource_classification tests/test_resource_classification.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_resource_classification
+
+test-units: test-resource-classification
+
 test-env-scoping: stage1
 	@echo "Running environment scoping unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_env_scoping tests/test_env_scoping.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
