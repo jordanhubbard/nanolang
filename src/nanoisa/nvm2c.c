@@ -188,6 +188,8 @@ static const Nvm2cHost host_adapters[] = {
     {"nl_os_path_normalize", "nhost_normalize", 1, TAG_STRING, TAG_STRING},
     {"nl_exec_shell", "nhost_shell", 1, TAG_STRING, TAG_INT},
     {"nl_exec_capture", "nhost_capture", 1, TAG_STRING, TAG_STRING},
+    {"vm_string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
+    {"string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
@@ -1472,7 +1474,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         case OP_PUSH_I64: {
             char rhs[32];
-            snprintf(rhs, sizeof rhs, "%lldLL", (long long)ins.operands[0].i64);
+            if (ins.operands[0].i64 == INT64_MIN)
+                snprintf(rhs, sizeof rhs, "(-9223372036854775807LL - 1LL)");
+            else snprintf(rhs, sizeof rhs, "%lldLL", (long long)ins.operands[0].i64);
             stack_push_temp(b, &st, rhs);
             break;
         }
@@ -2903,6 +2907,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
             if (module_uses_host(mod, "nhost_file_write")) emit_host_file_write(&b);
             if (module_uses_host(mod, "nhost_normalize")) emit_host_normalize(&b);
+            if (module_uses_host(mod, "nhost_from_char")) nvm2c_puts(&b,
+                "static inline const char *nhost_from_char(int64_t code) {\n"
+                "    char *text = malloc(2);\n"
+                "    if (!text) abort();\n"
+                "    text[0] = (char)code; text[1] = 0;\n"
+                "    return text;\n}\n");
             if (module_uses_host(mod, "nhost_shell")) nvm2c_puts(&b,
                 "static inline int64_t nhost_shell(const char *command) {\n"
                 "    return (int64_t)system(command);\n}\n");

@@ -833,6 +833,55 @@ static void test_builtin_capture(void) {
     free(source); nvm_module_free(module);
 }
 
+static void test_builtin_from_char(void) {
+    NvmModule *extrema = assemble_ok(
+        ".entry 0\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 -9223372036854775808\nPUSH_I64 9223372036854775807\nI64_ADD\n"
+        "PUSH_I64 -1\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n", "signed integer extrema");
+    if (extrema) {
+        char error[256];
+        char *source = nvm2c_emit(extrema, error, sizeof error);
+        CHECK(source != NULL, "I emit exact signed extrema");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I preserve signed extrema without out-of-range C literals");
+        }
+        free(source); nvm_module_free(extrema);
+    }
+    int64_t codes[] = {0, 65, 127, 128, 255, 256, 257, -1, INT64_MIN, INT64_MAX};
+    for (int alias = 0; alias < 2; ++alias) {
+        for (size_t i = 0; i < sizeof codes / sizeof codes[0]; ++i) {
+            char assembly[1024];
+            snprintf(assembly, sizeof assembly,
+                ".string expected \"byte-placeholder\"\n"
+                ".import \"\" \"%s\" string int\n.entry 0\n.function main 0 1 0 int 1\n"
+                "PUSH_I64 %lld\nCALL_EXTERN 0\nSTORE_LOCAL 0\n"
+                "PUSH_I64 66\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 1\nEQ\nASSERT\n"
+                "LOAD_LOCAL 0\nPUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                alias ? "string_from_char" : "vm_string_from_char", (long long)codes[i]);
+            NvmModule *module = assemble_ok(assembly, "byte character conversion");
+            if (!module) continue;
+            char expected[2] = {(char)codes[i], 0};
+            free(module->strings[0]); module->strings[0] = strdup(expected);
+            module->string_lengths[0] = (uint32_t)strlen(expected);
+            char error[256];
+            char *source = nvm2c_emit(module, error, sizeof error);
+            CHECK(source != NULL, "I emit byte-oriented character conversion");
+            if (source) {
+                int status = -1;
+                CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                      "I preserve C-byte boundaries and independent conversion results");
+            } else fprintf(stderr, "%s\n", error);
+            free(source);
+            module->import_param_types[0][0] = TAG_STRING;
+            source = nvm2c_emit(module, error, sizeof error);
+            CHECK(source == NULL, "I reject a non-integer character input");
+            free(source); nvm_module_free(module);
+        }
+    }
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"nl_exec_shell", "PUSH_STR shell_ok\nCALL_EXTERN 0\nPUSH_I64 0\nEQ\nASSERT\n"
@@ -3317,6 +3366,7 @@ int main(int argc, char **argv) {
     test_builtin_identity();
     test_builtin_normalize();
     test_builtin_capture();
+    test_builtin_from_char();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();

@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT byte-character conversion.** I preserve the existing C-byte
+      `vm_string_from_char` contract, including zero-byte empty text and
+      independent storage. I test integer boundaries before compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      - [x] I emit `INT64_MIN` without an out-of-range positive C literal;
+        strict C compilation and the signed-extrema arithmetic case pass.
+      My AOT suite passes 904 checks. Compiler acceptance remains failing at
+      `vm_mktemp_dir` (import 34). Evidence: `docs/evidence/aot-byte-character.md`.
 - [x] **AOT shell execution.** I adapt the exact `nl_exec_shell` builtin
       contract, preserving raw system status. I test success, nonzero exit and
       signature rejection before rerunning compiler acceptance.
