@@ -28,6 +28,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Darwin user-guide parser shadow.** I reproduce the failed temporary
+      snippet fixture in my guide checker and retain shadow execution and all
+      snippet checks while repairing its cause. MAC `task_3f227591ba94400a831005e1eec376f5`.
+
 - [ ] **Imported effect declarations.** I register imported effect signatures
       before checking module functions, and execute a handler across the module
       boundary with the shared native runtime. I currently reject the declared

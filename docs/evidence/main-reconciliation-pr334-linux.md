@@ -148,3 +148,33 @@ regressions, preserving alias writes and invalid-payload rejection. Recursive
 shape validation rejects the invalid payload before the older runtime-kind
 check, so that diagnostic assertion follows the retained implementation.
 The combined translator suite passes 1,739 checks and 1,073 shape checks.
+
+## Integrated checkpoint after main PR #340
+
+I reconcile main through `2711c6eb` in `b21fbeed`, preserving the candidate's
+dynamic native storage and importing both string-array regressions from #338.
+My translator passes 1,739 checks and 1,073 shape checks on Linux ARM64.
+
+I repair retained C++ input replay, the bundled dictionary path, strict
+coprocessor diagnostics and the scalar synchronous async lowering. The module
+publication suite passes 55 methods with eight platform skips. The C++ fixture
+passes on Darwin with its deprecated file-extension warning explicitly
+acknowledged; production warning-bearing inputs remain ineligible for reuse.
+
+I link packaged wrappers against instrumented runtime objects using a private
+source/object/link sequence. Actual coverage objects pass five wrapper unit
+cases and seven publication methods, without leaving private coverage files.
+
+My Linux `make test-quick` run begun at `2e5967e2` passes, including all 242
+eligible VM examples, laboratory frontends, Forth word sets, PTY and IDE smoke.
+Only documentation changed while that run executed. This is a checkpoint,
+not validation of the subsequent effect implementation.
+
+I integrate real VM effect dispatch in `d50737cd`, preserving scalar async
+lowering. Its isolated implementation passes 88 codegen, 272,403 VM, 2,676
+ISA, 96 verifier and 33 schema tests plus opcode coverage. With the existing
+async and resource fixture repairs, all 175 selected programs verify and both
+VM dispatch implementations agree on all 175 outputs and statuses. There are
+no exclusions. The implementation and boundaries are recorded in
+[my VM effect evidence](vm-effect-dispatch.md). Final combined native/VM tests
+remain required before publication.
