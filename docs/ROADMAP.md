@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **UI bounds fixture math linkage.** I link the standalone C regression
+      against its math dependency on Linux and retain its bounds assertions.
+      I query the actual SDL2 dependencies for Darwin runtime lookup, instead
+      of unrelated SDL3. The focused regression passes on Linux and Darwin.
+      MAC `task_ed795be2aaa843c291abece7cffc2111`.
+
 - [ ] **Interpreter union string lifetime.** I give returned union string
       fields their own lifetime instead of borrowing a callee local. Darwin
       exposes the dangling Result payload in my user-guide checker. I retain

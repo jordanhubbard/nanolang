@@ -18,13 +18,15 @@ class UiArrayBounds(unittest.TestCase):
             built = subprocess.run([
                 *shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-g",
                 "tests/test_ui_array_bounds.c", "-o", str(output),
-                *shlex.split(flags)], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                *shlex.split(flags), "-lm"], cwd=ROOT, capture_output=True, text=True, timeout=60)
             self.assertEqual(built.returncode, 0, built.stderr)
             env = dict(os.environ)
             if os.uname().sysname == "Darwin":
-                libdir = subprocess.check_output(
-                    ["pkg-config", "--variable=libdir", "sdl3"], text=True).strip()
-                env["DYLD_LIBRARY_PATH"] = libdir + ":" + env.get("DYLD_LIBRARY_PATH", "")
+                libdirs = [subprocess.check_output(
+                    ["pkg-config", "--variable=libdir", package], text=True).strip()
+                    for package in ("sdl2", "SDL2_ttf")]
+                env["DYLD_LIBRARY_PATH"] = ":".join(
+                    [*dict.fromkeys(libdirs), env.get("DYLD_LIBRARY_PATH", "")])
             ran = subprocess.run([str(output)], env=env, capture_output=True,
                                  text=True, timeout=15)
             self.assertEqual(ran.returncode, 0, ran.stderr)
