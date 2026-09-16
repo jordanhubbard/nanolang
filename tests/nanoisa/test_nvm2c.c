@@ -328,6 +328,44 @@ static void test_uninitialized_global_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_scalar_runtime_tags(void) {
+    const char *source =
+        ".string key \"key\"\n.entry main\n"
+        ".function main 0 2 0 int 1\n"
+        "PUSH_BOOL 1\nCALL relay\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nTYPE_CHECK 4\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nEQ\nBOOL_NOT\nASSERT\n"
+        "HM_NEW 5 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nPUSH_I64 0\nEQ\nBOOL_NOT\nASSERT\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nPUSH_I64 0\nHM_SET\nPUSH_STR key\nHM_GET\n"
+        "PUSH_BOOL 0\nEQ\nBOOL_NOT\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+        ".function relay 1 1 0 bool 1\nLOAD_LOCAL 0\nTAIL_CALL identity\n.end\n"
+        ".function identity 1 1 0 bool 1\nLOAD_LOCAL 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "scalar runtime tags");
+    CHECK(m != NULL, "scalar runtime-tag fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "I preserve scalar tags through locals, calls, returns and map lookups");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I distinguish bool from int and missing map values from integer zero");
+        free(c);
+    }
+    nvm_module_free(m);
+
+    m = assemble_ok(
+        ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "HM_NEW 5 1\nPUSH_STR key\nPUSH_BOOL 1\nHM_SET\nPOP\nPUSH_I64 0\nRET\n.end\n",
+        "boolean map insertion");
+    if (m) {
+        char error[256] = {0};
+        c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && error[0], "I reject boolean insertion into an integer map");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_call_extern_is_refused(void) {
     NvmModule *m = nvm_module_new();
     CHECK(m != NULL, "empty module allocates");
@@ -2672,6 +2710,7 @@ static void test_arity_exceeding_locals_is_refused(void) {
 
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
+    test_scalar_runtime_tags();
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();
     test_store_load_local();

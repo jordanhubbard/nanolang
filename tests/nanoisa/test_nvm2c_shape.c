@@ -148,6 +148,15 @@ static void test_map_shapes(void) {
 }
 
 int main(void) {
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId boolean = nvm_shape_new(&g, NVM_SHAPE_BOOL);
+        CHECK(nvm_shape_kind(&g, boolean) == NVM_SHAPE_BOOL);
+        CHECK(nvm_shape_unify(&g, boolean, nvm_shape_new(&g, NVM_SHAPE_BOOL)));
+        CHECK(!nvm_shape_unify(&g, boolean, nvm_shape_new(&g, NVM_SHAPE_INT)));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
     for (int conflict = 0; conflict < 2; ++conflict) {
         NvmShapeGraph g = {0};
         NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
