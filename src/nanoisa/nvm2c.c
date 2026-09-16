@@ -929,7 +929,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
                 if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
                     v.kind != NVM2C_VK_ARR && v.kind != NVM2C_VK_SARR &&
-                    v.kind != NVM2C_VK_RARR &&
+                    v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC &&
                     !(v.kind == NVM2C_VK_UNK && !facts->final)) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     return 0;
@@ -963,7 +963,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot field = {0};
             field.kind = fk;
             field.origin = -1;
-            if (fk == NVM2C_VK_RARR || fk == NVM2C_VK_REC) {
+            if (fk == NVM2C_VK_RARR || fk == NVM2C_VK_REC || fk == NVM2C_VK_UNK) {
                 /* A flat parent vector describes this field's representation,
                  * not the representations inside its nested elements. */
                 field.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
@@ -2297,7 +2297,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 elems[ei] = stack_pop_kind(b, &st, &vk);
                 if (b->failed) goto done;
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
-                    vk != NVM2C_VK_ARR && vk != NVM2C_VK_SARR && vk != NVM2C_VK_RARR) {
+                    vk != NVM2C_VK_ARR && vk != NVM2C_VK_SARR &&
+                    vk != NVM2C_VK_RARR && vk != NVM2C_VK_REC) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     goto done;
                 }
@@ -2327,6 +2328,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         nvm2c_printf(b, "    r[%d].sa[%d] = sa[%d];\n", r, ei, elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_RARR) {
                         nvm2c_printf(b, "    r[%d].ra[%d] = ra[%d];\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_REC) {
+                        nvm2c_printf(b, "    r[%d].rec[%d] = nrec_snapshot(r[%d]);\n", r, ei, elems[ei]);
                     } else {
                         nvm2c_printf(b, "    r[%d].f[%d] = t[%d];\n", r, ei, elems[ei]);
                     }
@@ -2357,10 +2360,6 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t resolved = resolved_shape_kind(b, b->shape_outputs[idx][start]);
             if (!shape_ok(b)) goto done;
             if (resolved != NVM2C_VK_UNK) st.rec_k[rec][fi] = resolved;
-            if (st.rec_k[rec][fi] == NVM2C_VK_REC) {
-                nvm2c_fail(b, "I need nested aggregate storage for this resolved field shape");
-                goto done;
-            }
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
             nvm2c_printf(b, "    if (r[%d].k[%u] != %u) abort();\n", rec, (unsigned)fi,
                          (unsigned)st.rec_k[rec][fi]);
@@ -2369,6 +2368,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
                     snprintf(expr, sizeof expr, "r[%d].s[%u]", rec, (unsigned)fi);
                     stack_push_str(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_REC) {
+                    nvm2c_printf(b, "    if (!r[%d].rec[%u]) abort();\n", rec, (unsigned)fi);
+                    snprintf(expr, sizeof expr, "*r[%d].rec[%u]", rec, (unsigned)fi);
+                    int nested = stack_push_rec(b, &st, expr);
+                    if (nested >= 0) {
+                        NvmShapeId shape = b->shape_outputs[idx][start];
+                        for (size_t f = 0; f < b->record_width; ++f)
+                            st.rec_k[nested][f] = resolved_shape_kind(b,
+                                nvm_shape_lookup(&b->shapes, shape, (uint32_t)f));
+                        if (!shape_ok(b)) goto done;
+                    }
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_ARR) {
                     snprintf(expr, sizeof expr, "r[%d].a[%u]", rec, (unsigned)fi);
                     stack_push_arr(b, &st, expr);
@@ -3243,6 +3253,17 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (!facts.changed) facts.final = 1;
     }
 
+    /* Nested projections may acquire their representation from a later
+     * function's constraints. Resolve local storage after all final passes. */
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        for (uint16_t l = 0; l < mod->functions[f].local_count; ++l) {
+            size_t at = (size_t)f * NVM2C_MAX_LOCALS + l;
+            uint8_t resolved = resolved_shape_kind(&b, b.shape_locals[at]);
+            if (resolved != NVM2C_VK_UNK) kinds[at] = resolved;
+        }
+    }
+    if (!shape_ok(&b)) goto fail;
+
     {
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
@@ -3397,7 +3418,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
-            need_assert || need_rarr) {
+            need_assert || need_rarr || module_has_opcode(mod, OP_AGG_PACK)) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
@@ -3411,12 +3432,24 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
+        nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
         nvm2c_printf(&b,
-            "typedef struct { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; uint8_t k[%zu]; uint16_t n, tag; uint8_t kind; } nrec_t;\n",
-            b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
+            "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu]; uint16_t n, tag; uint8_t kind; };\n",
+            b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
             "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
+        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
+            "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
+            "static nrec_owned *nrec_owned_head;\n"
+            "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
+            "    nrec_owned *node = malloc(sizeof *node);\n"
+            "    if (!node) abort();\n"
+            "    node->value = value; node->next = nrec_owned_head; nrec_owned_head = node;\n"
+            "    return &node->value;\n}\n"
+            "static void nrec_release_snapshots(void) {\n"
+            "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
+            "        nrec_owned_head = node->next; free(node); }\n}\n");
         if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
@@ -3484,6 +3517,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "int main(int argc, char **argv) {\n"
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
+        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         for (uint32_t i = 0; i < mod->import_count; ++i) {
             const Nvm2cHost *host = import_host(mod, i);
             if (host && host->result == TAG_ARRAY)
@@ -3491,10 +3525,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (host && strcmp(host->c_name, "nhost_artifact") == 0)
                 nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);
         }
-        nvm2c_printf(&b,
-            "    return (int)%s();\n"
-            "}\n",
-            ename);
+        nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
+        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
+        nvm2c_puts(&b, "    return result;\n}\n");
     }
 
     if (b.failed) goto fail;

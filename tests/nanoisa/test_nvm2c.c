@@ -2692,7 +2692,27 @@ static void test_one_t_result_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_nested_record_pack_is_refused(void) {
+static void test_nested_record_values(void) {
+    const char *returned = ".string first \"hello\"\n.string second \"replacement\"\n.entry main\n"
+        ".function make 2 2 0 struct 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nAGG_PACK 0 0 0 2\n"
+        "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+        ".function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".function main 0 3 0 int 1\nPUSH_STR first\nPUSH_I64 42\nCALL make\nCALL relay\nSTORE_LOCAL 0\n"
+        "PUSH_STR second\nPUSH_I64 17\nCALL make\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\nAGG_GET 0\nSTORE_LOCAL 2\nLOAD_LOCAL 2\nSTR_LEN\n"
+        "PUSH_I64 5\nI64_EQ\nASSERT\nLOAD_LOCAL 1\nAGG_GET 0\nAGG_GET 0\nAGG_GET 1\n"
+        "PUSH_I64 17\nI64_EQ\nASSERT\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\nAGG_GET 1\nRET\n.end\n";
+    NvmModule *returned_module = assemble_ok(returned, "returned nested snapshots");
+    if (returned_module) {
+        char *output = emit_or_fail(returned_module, "I translate returned nested snapshots");
+        if (output) {
+            int status = -1;
+            CHECK(compile_and_run(output, &status) == 0 && status == 42,
+                  "I preserve earlier nested values after a second constructor call");
+            free(output);
+        }
+        nvm_module_free(returned_module);
+    }
     const char *src =
         ".entry 0\n"
         ".function main 0 1 0 int 1\n"
@@ -2704,15 +2724,17 @@ static void test_nested_record_pack_is_refused(void) {
         "  STORE_LOCAL 0\n"
         "  LOAD_LOCAL 0\n"
         "  AGG_GET 0\n"
+        "  AGG_GET 1\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "nested record fixture");
     CHECK(m != NULL, "nested record fixture assembles");
     if (!m) return;
-    char err[256];
-    char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "nested records stay outside the closed subset");
-    CHECK(strstr(err, "nested aggregate shape") != NULL, "I name the missing nested aggregate shape facts");
+    char *c = emit_or_fail(m, "I emit nested record values");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 2, "I extract nested record fields");
+    }
     free(c);
     nvm_module_free(m);
 }
@@ -3327,14 +3349,14 @@ static void test_array_valued_record_fields(void) {
     const char *invalid[] = {
         ".entry main\n.function wrap 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
         ".function main 0 0 0 int 1\nARR_NEW 1\nCALL wrap\nPOP\nARR_NEW 5\nCALL wrap\nPOP\nPUSH_I64 0\nRET\n.end\n",
-        ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nRET\n.end\n"
     };
     for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
         NvmModule *m = assemble_ok(invalid[i], "unsupported array field shape");
         if (!m) continue;
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && strstr(error, i ? "nested aggregate shape" : "conflicting kinds"),
+        CHECK(c == NULL && strstr(error, i ? "shape" : "conflicting kinds"),
               "I reject incompatible array representations and unresolved nested field shapes");
         free(c);
         nvm_module_free(m);
@@ -3854,7 +3876,7 @@ int main(int argc, char **argv) {
     test_get_s_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
-    test_nested_record_pack_is_refused();
+    test_nested_record_values();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

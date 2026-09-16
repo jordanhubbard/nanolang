@@ -95,6 +95,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             - [ ] I connect those facts to classification and C emission,
               preserve record-array element shapes, and pass full compiler
               acceptance. A standalone graph test does not complete this gate.
+              - [x] I preserve nested record values using immutable snapshots
+                whose lifetime outlasts returning functions, release owned
+                snapshots after entry returns, and test calls, copies and
+                repeated construction under sanitizers.
+                My sanitizer suite passes 1,057 AOT and 965 graph checks.
+                Compiler acceptance now reaches conflicting inferred field
+                kinds rather than unsupported nested storage. Evidence:
+                `docs/evidence/aot-nested-record-values.md`.
+              - [ ] I reclaim unreachable nested-record snapshots during
+                long-running execution, with bounded-live-state stress tests
+                and alias-safe destruction. Entry-return cleanup alone does
+                not bound retained memory. MAC
+                `task_d152cc3913f248fb8d1483210e60f00b`.
               - [x] I store record-array fields by reference and preserve
                 their element shapes through packing, calls, extraction and
                 aliases; I test empty arrays and mixed-field elements.
