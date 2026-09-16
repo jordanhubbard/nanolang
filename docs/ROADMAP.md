@@ -28,12 +28,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Darwin launcher StringBuilder linkage.** I retain the runtime symbols
+      referenced by imported StringBuilder objects in strict native builds,
+      preserving transitive link dependencies and cache identity.
+      MAC `task_7c505ffcb1f3464aa8cda8fb461dc4ee`.
+
 - [ ] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
       sanitizer-build deadline without dropping shadows or instrumentation,
       and test an explicit bounded budget when the workload requires it.
       MAC `task_6a2f75e259e84f09bbec61554b9ff9a7`.
 
-- [ ] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
+- [x] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
       MAC `task_5e530abdfdd3459c978149ae4b25f80f`.
 
 - [x] **Imported fixture discovery.** I keep imported empty-array-return coverage while distinguishing module fixtures from standalone programs.
