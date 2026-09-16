@@ -1710,6 +1710,62 @@ static void test_compiler_local_limit(void) {
     TEST_PASS();
 }
 
+static void test_block_local_shadowing(void) {
+    fprintf(stderr, "  test_block_local_shadowing...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  let value: int = 5\n"
+        "  if true { let value: int = 9 assert (== value 9) }\n"
+        "  return value\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 5);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_unsafe_block_local_shadowing(void) {
+    fprintf(stderr, "  test_unsafe_block_local_shadowing...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  let fd: int = 5\n"
+        "  unsafe { let fd: int = 9 assert (== fd 9) }\n"
+        "  return fd\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 5);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_nested_closure_keeps_block_capture(void) {
+    fprintf(stderr, "  test_nested_closure_keeps_block_capture...");
+    TestResult tr = compile_and_run(
+        "fn make_callback() -> fn(int) -> int {\n"
+        "  let value: int = 5\n"
+        "  fn callback(x: int) -> int { return (+ value x) }\n"
+        "  if true { let value: int = 8 assert (== value 8) }\n"
+        "  return callback\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let f: fn(int) -> int = (make_callback)\n"
+        "  return (f 2)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 7);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 int main(void) {
     test_empty_array_return_tags();
     test_array_search_types();
@@ -1830,6 +1886,11 @@ int main(void) {
     test_closure_multiple_captures();
     test_closure_two_closures();
     test_closure_capture_local_var();
+
+    fprintf(stderr, "\nLexical Blocks:\n");
+    test_block_local_shadowing();
+    test_unsafe_block_local_shadowing();
+    test_nested_closure_keeps_block_capture();
 
     fprintf(stderr, "\nRound-Trip:\n");
     test_serialize_and_run();

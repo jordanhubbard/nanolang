@@ -68,7 +68,7 @@ static int compile_and_run_with_args(const char *c_src, int *status_out, const c
         return -2;
     }
 
-    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s %s", bin_path, args);
+    snprintf(cmd, sizeof cmd, "exec perl -e 'alarm 30; exec @ARGV' %s %s", bin_path, args);
     rc = system(cmd);
     int status = -1;
     if (WIFEXITED(rc)) status = WEXITSTATUS(rc);
@@ -117,7 +117,7 @@ static int compile_and_run_capture(const char *c_src, int *status_out,
         return -2;
     }
 
-    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s > %s", bin_path, out_path);
+    snprintf(cmd, sizeof cmd, "exec perl -e 'alarm 30; exec @ARGV' %s > %s", bin_path, out_path);
     rc = system(cmd);
     int status = -1;
     if (WIFEXITED(rc)) status = WEXITSTATUS(rc);
@@ -2814,7 +2814,7 @@ static void test_array_result_kinds(void) {
     for (int kind = 0; kind < 3; ++kind) {
         for (int tail = 0; tail < 2; ++tail) {
             for (int before = 0; before < 2; ++before) {
-                char body[768], workers[1536], source[2560];
+                char body[768], workers[1536], source[8192];
                 snprintf(body, sizeof body,
                     ".function main 0 1 0 int 1\nPUSH_I64 3\nCALL recur\nCALL identity\nSTORE_LOCAL 0\n"
                     "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
@@ -2884,7 +2884,7 @@ static void test_optional_record_arguments(void) {
     }
     for (int reverse = 0; reverse < 2; ++reverse) {
         for (int before = 0; before < 2; ++before) {
-            char body[2048], source[3072];
+            char body[2048], source[8192];
             const char *worker = ".function inspect 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\n"
                 "DUP\nTYPE_CHECK 0\nJMP_FALSE present\nPOP\nPUSH_I64 0\nRET\npresent:\nTYPE_CHECK 5\nASSERT\nPUSH_I64 5\nRET\n.end\n";
             const char *plain = "LOAD_LOCAL 0\nCALL inspect\nPUSH_I64 5\nEQ\nASSERT\n";
@@ -2913,7 +2913,7 @@ static void test_optional_record_arguments(void) {
             for (int before = 0; before < 2; ++before) {
                 const char *plain = "LOAD_LOCAL 0\nCALL relay\nAGG_GET 0\nPUSH_STR text\nEQ\nASSERT\n";
                 const char *missing = "LOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK 0\nASSERT\n";
-                char body[2048], workers[512], source[3072];
+                char body[2048], workers[512], source[8192];
                 snprintf(body, sizeof body,
                     ".function main 0 1 0 int 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n%s%s"
                     "PUSH_STR text\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nCALL relay\n"
@@ -3064,7 +3064,7 @@ static void test_mixed_lookup_arguments(void) {
     const char *missing = "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nCALL consume\nPUSH_I64 0\nI64_EQ\nASSERT\n";
     for (int before = 0; before < 2; ++before) {
         for (int raw_first = 0; raw_first < 2; ++raw_first) {
-            char main_body[2048], source[4096];
+            char main_body[2048], source[8192];
             snprintf(main_body, sizeof main_body,
                 ".function main 0 1 0 int 1\nHM_NEW 5 5\nSTORE_LOCAL 0\n%s%s"
                 "LOAD_LOCAL 0\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPUSH_STR key\nHM_GET\n"
@@ -4394,7 +4394,7 @@ static void test_map_aggregate_fields(void) {
         for (int nested = 0; nested < 2; ++nested) {
             for (int variant = 0; variant < 2; ++variant) {
                 for (int forward = 0; forward < 2; ++forward) {
-                    char source[4096], entry[2048], worker[512];
+                    char source[8192], entry[2048], worker[512];
                     const char *value = strings ? "PUSH_STR text\n" : "PUSH_I64 42\n";
                     snprintf(worker, sizeof worker,
                         ".function wrap 1 1 0 %s 1\nLOAD_LOCAL 0\nAGG_PACK %d 0 0 1\n%sRET\n.end\n",
@@ -4865,7 +4865,7 @@ static void test_boolean_arrays(void) {
     for (int constructor = 0; constructor < 3; ++constructor) {
         for (int before = 0; before < 2; ++before) {
             for (int tail = 0; tail < 2; ++tail) {
-                char source[4096], entry[3072], worker[512];
+                char source[8192], entry[3072], worker[512];
                 snprintf(worker, sizeof worker,
                     ".function relay 1 1 0 array 1\nLOAD_LOCAL 0\n%s\n.end\n"
                     ".function identity 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n",
@@ -5269,7 +5269,7 @@ static void test_tagged_string_array_writes(void) {
         for (int reverse = 0; reverse < 2; ++reverse) {
             for (int tail = 0; tail < 2; ++tail) {
                 for (int tag = 0; tag < 4; ++tag) {
-                    char main_fn[2048], helpers[1024], source[4096];
+                    char main_fn[2048], helpers[1024], source[8192];
                     snprintf(main_fn, sizeof main_fn,
                         ".function main 0 2 0 int 1\n%s"
                         "PUSH_STR old\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n"

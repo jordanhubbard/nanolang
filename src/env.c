@@ -72,6 +72,7 @@ Environment *create_environment(void) {
     
     env->builtins_registered = false;
     env->effect_registry = NULL;
+    env->checking_types = false;
 
     return env;
 }
@@ -322,6 +323,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.def_column = 0;
     sym.scope_end_line = 0;
     sym.scope_end_column = 0;
+    sym.checker_visible = true;
     sym.def_file = env->current_file;   /* NULL when no file is in scope */
 
     /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
@@ -405,6 +407,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         Symbol *sym = &env->symbols[i];
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
+        if (env->checking_types && !sym->checker_visible) continue;
 
         int sline = sym->def_line;
         int scol = sym->def_column;
@@ -440,6 +443,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         Symbol *sym = &env->symbols[i];
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
+        if (env->checking_types && !sym->checker_visible) continue;
 
         if (sym->def_line > 0) continue;
         if (sym->scope_end_line > 0 &&

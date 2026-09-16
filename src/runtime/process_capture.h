@@ -77,7 +77,8 @@ static inline DynArray* nl_process_run_capture(const char* command) {
         close(out); close(err);
         execl("/bin/sh", "sh", "-c", command, (char *)NULL);
         const char message[] = "I could not execute the shell command.\n";
-        (void)write(STDERR_FILENO, message, sizeof(message) - 1);
+        ssize_t diagnostic_written = write(STDERR_FILENO, message, sizeof(message) - 1);
+        (void)diagnostic_written;
         _exit(127);
     }
     if (child < 0) {

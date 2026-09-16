@@ -295,8 +295,10 @@ char* nl_path_normalize(const char* path) {
     char* copy = strdup(path);
     if (!copy) return strdup("");
 
-    const char* parts[512];
-    int count = 0;
+    size_t parts_capacity = 16;
+    size_t count = 0;
+    char** parts = malloc(parts_capacity * sizeof(*parts));
+    if (!parts) { free(copy); return strdup(""); }
     char* save = NULL;
     char* tok = strtok_r(copy, "/", &save);
     while (tok) {
@@ -306,25 +308,39 @@ char* nl_path_normalize(const char* path) {
             if (count > 0 && strcmp(parts[count - 1], "..") != 0) {
                 count--;
             } else if (!abs) {
+                if (count == parts_capacity) {
+                    size_t new_capacity = parts_capacity * 2;
+                    char** grown = realloc(parts, new_capacity * sizeof(*grown));
+                    if (!grown) { free(parts); free(copy); return strdup(""); }
+                    parts = grown;
+                    parts_capacity = new_capacity;
+                }
                 parts[count++] = tok;
             }
         } else {
-            if (count < 512) parts[count++] = tok;
+            if (count == parts_capacity) {
+                size_t new_capacity = parts_capacity * 2;
+                char** grown = realloc(parts, new_capacity * sizeof(*grown));
+                if (!grown) { free(parts); free(copy); return strdup(""); }
+                parts = grown;
+                parts_capacity = new_capacity;
+            }
+            parts[count++] = tok;
         }
         tok = strtok_r(NULL, "/", &save);
     }
 
     size_t cap = strlen(path) + 3;
     char* out = malloc(cap);
-    if (!out) { free(copy); return strdup(""); }
+    if (!out) { free(parts); free(copy); return strdup(""); }
     size_t pos = 0;
     if (abs) out[pos++] = '/';
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         size_t len = strlen(parts[i]);
         if (pos + len + 2 > cap) {
             cap = (pos + len + 2) * 2;
             char* n = realloc(out, cap);
-            if (!n) { free(out); free(copy); return strdup(""); }
+            if (!n) { free(out); free(parts); free(copy); return strdup(""); }
             out = n;
         }
         if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';
@@ -337,6 +353,7 @@ char* nl_path_normalize(const char* path) {
     }
     out[pos] = '\0';
 
+    free(parts);
     free(copy);
     return out;
 }

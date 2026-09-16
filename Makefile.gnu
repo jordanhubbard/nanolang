@@ -1362,6 +1362,16 @@ test-std-fs-write-failures: $(OBJ_DIR)/std_fs_faults.o $(RUNTIME_OBJECTS) $(OBJ_
 	@./tests/test_std_fs_write_failures
 	@rm -f tests/test_std_fs_write_failures
 
+.PHONY: test-path-normalize-limits
+test-path-normalize-limits: $(RUNTIME_OBJECTS) $(OBJ_DIR)/utf8.o
+	@echo "Running path normalization limit tests..."
+	$(CC) $(CFLAGS) -Imodules/std -o tests/test_path_normalize_limits \
+		tests/test_path_normalize_limits.c modules/std/fs.c \
+		obj/runtime/dyn_array.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/nl_string.o \
+		obj/utf8.o $(LDFLAGS)
+	@./tests/test_path_normalize_limits
+	@rm -f tests/test_path_normalize_limits
+
 .PHONY: test-proptest-unit
 test-proptest-unit: stage1
 	@echo "Running proptest unit tests..."
