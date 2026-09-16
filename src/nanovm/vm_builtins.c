@@ -57,8 +57,8 @@ int64_t vm_file_write(const char *path, const char *content) {
     if (!f) return -1;
     size_t len = strlen(content);
     size_t written = fwrite(content, 1, len, f);
-    fclose(f);
-    return (int64_t)written == (int64_t)len ? 0 : -1;
+    int close_failed = fclose(f) == EOF;
+    return written == len && !close_failed ? 0 : -1;
 }
 
 int64_t vm_file_exists(const char *path) {

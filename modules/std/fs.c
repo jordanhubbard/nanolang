@@ -302,10 +302,11 @@ int64_t file_write(const char* path, const char* content) {
     FILE* f = fopen(path, "w");
     if (!f) return -1;
     
-    size_t written = fwrite(content, 1, strlen(content), f);
-    fclose(f);
+    size_t length = strlen(content);
+    size_t written = fwrite(content, 1, length, f);
+    int close_failed = fclose(f) == EOF;
     
-    return (written == strlen(content)) ? 0 : -1;
+    return written == length && !close_failed ? 0 : -1;
 }
 
 /* Append string to file */
@@ -313,10 +314,11 @@ int64_t file_append(const char* path, const char* content) {
     FILE* f = fopen(path, "a");
     if (!f) return -1;
     
-    size_t written = fwrite(content, 1, strlen(content), f);
-    fclose(f);
+    size_t length = strlen(content);
+    size_t written = fwrite(content, 1, length, f);
+    int close_failed = fclose(f) == EOF;
     
-    return (written == strlen(content)) ? 0 : -1;
+    return written == length && !close_failed ? 0 : -1;
 }
 
 /* Check if file exists */

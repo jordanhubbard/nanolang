@@ -136,9 +136,9 @@ Value builtin_file_write(Value *args) {
     FILE *f = fopen(path, "w");
     if (!f) return create_int(-1);
 
-    fputs(content, f);
-    fclose(f);
-    return create_int(0);
+    int write_failed = fputs(content, f) == EOF;
+    int close_failed = fclose(f) == EOF;
+    return create_int(write_failed || close_failed ? -1 : 0);
 }
 
 Value builtin_file_append(Value *args) {
@@ -147,9 +147,9 @@ Value builtin_file_append(Value *args) {
     FILE *f = fopen(path, "a");
     if (!f) return create_int(-1);
 
-    fputs(content, f);
-    fclose(f);
-    return create_int(0);
+    int write_failed = fputs(content, f) == EOF;
+    int close_failed = fclose(f) == EOF;
+    return create_int(write_failed || close_failed ? -1 : 0);
 }
 
 Value builtin_file_remove(Value *args) {

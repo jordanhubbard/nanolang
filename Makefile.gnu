@@ -677,7 +677,7 @@ test-coroutine-scheduler: stage1
 .PHONY: test-eval
 test-eval: stage1
 	@echo "Running interpreter (eval.c) unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -Wl,--wrap=fputs -Wl,--wrap=fclose
 	@./tests/test_eval
 	@rm -f tests/test_eval
 
@@ -1029,9 +1029,18 @@ test-vm-builtins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTI
 	@echo "Running vm_builtins unit tests..."
 	$(CC) $(CFLAGS) -o tests/nanovm/test_vm_builtins \
 		tests/nanovm/test_vm_builtins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
-		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -Wl,--wrap=fclose -Wl,--wrap=fwrite
 	@./tests/nanovm/test_vm_builtins
 	@rm -f tests/nanovm/test_vm_builtins
+
+.PHONY: test-std-fs-write-failures
+test-std-fs-write-failures:
+	@echo "Running std fs write failure tests..."
+	$(CC) $(CFLAGS) -Imodules/std -o tests/test_std_fs_write_failures \
+		tests/test_std_fs_write_failures.c modules/std/fs.c $(RUNTIME_OBJECTS) obj/utf8.o \
+		$(LDFLAGS) -Wl,--wrap=fclose -Wl,--wrap=fwrite
+	@./tests/test_std_fs_write_failures
+	@rm -f tests/test_std_fs_write_failures
 
 .PHONY: test-proptest-unit
 test-proptest-unit: stage1

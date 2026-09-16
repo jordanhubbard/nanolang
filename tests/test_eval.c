@@ -11,9 +11,22 @@
 
 #include "../src/nanolang.h"
 #include "../src/builtins_registry.h"
+#include "../src/eval/eval_io.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static int s_fail_fputs = 0;
+static int s_fail_fclose = 0;
+int __real_fputs(const char *s, FILE *stream);
+int __real_fclose(FILE *stream);
+int __wrap_fputs(const char *s, FILE *stream) {
+    return s_fail_fputs ? EOF : __real_fputs(s, stream);
+}
+int __wrap_fclose(FILE *stream) {
+    int result = __real_fclose(stream);
+    return s_fail_fclose ? EOF : result;
+}
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -2050,6 +2063,21 @@ void test_eval_array_broadcast_scalar_right(void) {
  * main
  * ============================================================================ */
 
+static void test_eval_file_write_failures(void) {
+    Value args[2] = {create_string("/tmp/test_eval_file_failure.txt"), create_string("content")};
+
+    s_fail_fputs = 1;
+    Value write_result = builtin_file_write(args);
+    s_fail_fputs = 0;
+    ASSERT_EQ(write_result.as.int_val, -1);
+
+    s_fail_fclose = 1;
+    Value append_result = builtin_file_append(args);
+    s_fail_fclose = 0;
+    ASSERT_EQ(append_result.as.int_val, -1);
+    unlink(args[0].as.string_val);
+}
+
 int main(void) {
     printf("=== Interpreter (eval.c) Tests ===\n");
     TEST(eval_integer_arithmetic);
@@ -2149,6 +2177,7 @@ int main(void) {
     TEST(eval_async_fn_direct_call);
     TEST(eval_string_format_struct);
     TEST(eval_array_broadcast_scalar_right);
+    TEST(eval_file_write_failures);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
