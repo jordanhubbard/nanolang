@@ -47,7 +47,10 @@ fn count_primes_sieve(limit: int) -> int {
 
 shadow count_primes_sieve {
     assert (== (count_primes_sieve 0) 0)
+    assert (== (count_primes_sieve 1) 0)
     assert (== (count_primes_sieve 2) 0)
+    assert (== (count_primes_sieve 3) 1)
+    assert (== (count_primes_sieve 20) 8)
     assert (== (count_primes_sieve 10) 4)
     assert (== (count_primes_sieve 100) 25)
 }

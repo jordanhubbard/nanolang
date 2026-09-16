@@ -4,7 +4,9 @@
 set -e
 
 TESTS_DIR="tests/selfhost"
-NANOC="./bin/nanoc"
+NANOC="${NANOC:-./bin/nanoc}"
+LOG_DIR=".test_output/selfhost"
+mkdir -p "$LOG_DIR"
 
 echo "========================================"
 echo "SELF-HOSTED COMPILER TEST SUITE"
@@ -56,7 +58,8 @@ for test in $TESTS; do
     printf "Testing %-30s ... " "$test"
     
     # Compile (timeout to avoid nanoc infinite loops)
-    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+    COMPILE_LOG="$LOG_DIR/$(basename "$test" .nano).compile.log"
+    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > "$COMPILE_LOG" 2>&1; then
         # Run
         if [ "$test" = "test_returned_function_calls.nano" ]; then
             OUTPUT=$(perl -e 'alarm 60; exec @ARGV' $TEST_BIN 2>&1) || OUTPUT_STATUS=$?
@@ -79,6 +82,7 @@ argument" ]; then
         fi
     else
         echo "❌ FAIL (compilation error)"
+        cat "$COMPILE_LOG"
         FAILED=$((FAILED + 1))
     fi
 done

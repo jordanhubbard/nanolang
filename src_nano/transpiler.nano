@@ -1128,6 +1128,7 @@ fn map_builtin_func_name(func_name: string) -> string {
     
     /* OS/system builtins from runtime/cli.c (nl_os_* prefix) */
     if (== func_name "getenv") { return "nl_getenv" } else { (print "") }
+    if (== func_name "env_get") { return "nl_env_get" } else { (print "") }
     if (== func_name "setenv") { return "nl_os_setenv" } else { (print "") }
     if (== func_name "system") { return "nl_os_system" } else { (print "") }
     if (== func_name "exit") { return "nl_os_exit" } else { (print "") }
@@ -1162,7 +1163,11 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "file_copy") { return "nl_file_copy" } else { (print "") }
     if (== func_name "dir_copy") { return "nl_dir_copy" } else { (print "") }
     if (== func_name "process_run") { return "nl_os_process_run" } else { (print "") }
-    
+    if (== func_name "process_spawn") { return "nl_os_process_spawn" } else { (print "") }
+    if (== func_name "process_is_running") { return "nl_os_process_is_running" } else { (print "") }
+    if (== func_name "process_wait") { return "nl_os_process_wait" } else { (print "") }
+    if (== func_name "unsetenv") { return "nl_os_unsetenv" } else { (print "") }
+
     /* HashMap/map builtins (self-hosted runtime provides nl_map_*) */
     if (== func_name "map_set") { return "nl_map_put" } else { (print "") }
     if (== func_name "map_length") { return "nl_map_size" } else { (print "") }
@@ -1197,8 +1202,8 @@ shadow map_builtin_func_name {
     assert (== (map_builtin_func_name "int_to_string") "nl_int_to_string")
     assert (== (map_builtin_func_name "is_digit") "nl_is_digit")
     assert (== (map_builtin_func_name "getenv") "nl_getenv")
-    assert (== (map_builtin_func_name "file_read") "file_read")
-    assert (== (map_builtin_func_name "path_join") "path_join")
+    assert (== (map_builtin_func_name "file_read") "nl_file_read")
+    assert (== (map_builtin_func_name "path_join") "nl_path_join")
     assert (== (map_builtin_func_name "map_set") "nl_map_put")
     assert (== (map_builtin_func_name "unknown_func") "")
 }
@@ -1738,6 +1743,8 @@ fn is_runtime_declared_extern(name: string) -> bool {
     if (== name "nl_exec_capture") { return true } else { (print "") }
     if (== name "nl_exec_last_status") { return true } else { (print "") }
     if (== name "nl_get_time_ms") { return true } else { (print "") }
+    if (== name "nl_env_get") { return true } else { (print "") }
+    if (== name "nl_getenv") { return true } else { (print "") }
     /* C standard library: <ctype.h> */
     if (== name "isalpha") { return true } else { (print "") }
     if (== name "isdigit") { return true } else { (print "") }
@@ -3162,6 +3169,15 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include \"runtime/list_string.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_token.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_LexerToken.h\"\n")
+    /* Backward-compat aliases: old generated C used unprefixed list_LexerToken_* names.
+     * Map them to the canonical nl_list_LexerToken_* symbols from the header. */
+    set parts (cg_append parts "/* list_LexerToken compat aliases (unprefixed -> nl_ prefixed) */\n")
+    set parts (cg_append parts "#ifndef list_LexerToken_new\n")
+    set parts (cg_append parts "#define list_LexerToken_new  nl_list_LexerToken_new\n")
+    set parts (cg_append parts "#define list_LexerToken_push nl_list_LexerToken_push\n")
+    set parts (cg_append parts "#define list_LexerToken_get  nl_list_LexerToken_get\n")
+    set parts (cg_append parts "#define list_LexerToken_length nl_list_LexerToken_length\n")
+    set parts (cg_append parts "#endif\n")
     set parts (cg_append parts "#include \"runtime/list_CompilerDiagnostic.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_CompilerSourceLocation.h\"\n")
     set parts (cg_append parts "#include \"runtime/token_helpers.h\"\n")
@@ -3470,9 +3486,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "static int64_t nl_file_copy(const char* s, const char* d) { return file_copy(s, d); }\n")
     set sb (cg_append sb "static int64_t nl_dir_copy(const char* s, const char* d) { return dir_copy(s, d); }\n\n")
 
-    /* process.h does not declare nl_os_process_run (nanoc_c generates a static version that
-     * would conflict); declare it here as extern so user code can call process_run(...). */
-    set sb (cg_append sb "extern DynArray* nl_os_process_run(const char* command);\n\n")
+    /* nl_os_process_run is declared by #include "process.h" in gen_c_includes().
+     * No redundant extern needed here — that caused a duplicate-decl warning. */
 
     set sb (cg_append sb "/* CLI and OS functions (defined in runtime/cli.c) */\n")
     set sb (cg_append sb "int g_argc = 0;\n")
@@ -3482,6 +3497,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "extern const char* nl_os_getenv(const char* name);\n")
     set sb (cg_append sb "static const char* nl_get_argv(int64_t idx) { return get_argv(idx); }\n")
     set sb (cg_append sb "static const char* nl_getenv(const char* name) { return nl_os_getenv(name); }\n")
+    set sb (cg_append sb "static const char* nl_env_get(const char* name) { return nl_os_getenv(name); }\n")
     set sb (cg_append sb "extern int64_t nl_os_setenv(const char* name, const char* value, int64_t overwrite);\n")
     set sb (cg_append sb "extern int64_t nl_os_system(const char* command);\n")
     set sb (cg_append sb "static int64_t nl_exec_shell(const char* cmd) { return (int64_t)system(cmd); }\n\n")
@@ -3668,12 +3684,19 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "}\n\n")
 
     /* HashMap wrappers (generic API over type-specific implementations) */
+    /* nl_map_* operate on HashMap_string_int (int-valued maps)             */
+    /* nl_hm_*  operate on HashMap_string_string (string-valued maps)       */
     set sb (cg_append sb "/* HashMap wrappers */\n")
     set sb (cg_append sb "static inline HashMap_string_int* nl_map_new(void) { return nl_hashmap_string_int_alloc(16); }\n")
     set sb (cg_append sb "static inline void nl_map_put(HashMap_string_int* hm, const char* key, int64_t val) { nl_hashmap_string_int_put(hm, key, val); }\n")
     set sb (cg_append sb "static inline int64_t nl_map_get(HashMap_string_int* hm, const char* key) { return nl_hashmap_string_int_get(hm, key); }\n")
     set sb (cg_append sb "static inline int nl_map_has(HashMap_string_int* hm, const char* key) { return nl_hashmap_string_int_has(hm, key); }\n")
     set sb (cg_append sb "static inline int64_t nl_map_size(HashMap_string_int* hm) { return hm->size; }\n\n")
+    /* nl_hm_* for HashMap<string,string> are declared by collections/collections.h
+     * (included via gen_c_includes) as void*-based functions.  Do NOT redefine
+     * them here with concrete HashMap_string_string* types — that causes
+     * -Wint-conversion conflicting-type errors when both declarations are visible.
+     * collections.h void* signatures are ABI-compatible at every call site. */
 
     /* Timing utilities */
     set sb (cg_append sb "/* Timing utilities */\n")

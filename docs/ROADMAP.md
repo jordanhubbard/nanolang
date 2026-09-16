@@ -24,6 +24,39 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
+      type metadata while parsing and registering locals and parameters, then
+      select the correct getter at each nested `at`. The C seed passes all
+      16 native acceptance cases; the nested-array case also passes Stage 2.
+      I allow explicit compiler selection and retain compilation diagnostics
+      in the acceptance runner. Remaining Stage 2 failures are tracked below.
+      MAC `task_b2c8c93fb14a4f089573edec76b99aab`.
+
+- [ ] **Explicit Stage 2 acceptance.** I close parse failures in the loop,
+      recursion, let/set and infix fixtures, and preserve the inferred result
+      type of match expressions. Explicit Stage 2 selection currently passes
+      11 of 16 cases; the C seed passes all 16 after nested-array repair.
+      MAC `task_4d134cb7dd9c401c9aa8926cddbdeef3`.
+
+- [ ] **Nested-array shadow evaluation.** I support nested dynamic arrays
+      in the C evaluator so native nested-array regression programs can also
+      execute their full behavior inside shadows. The current evaluator
+      rejects those arrays with `Unsupported array element type`.
+      MAC `task_23e8d93323aa4af392384aa096189509`.
+
+- [x] **Local hook migration.** I preserve and disable retired Beads shim
+      hooks in this checkout so commits no longer invoke the removed ledger.
+      MAC `task_a6600695ae154212a97e1b012c0dff20`.
+
+- [x] **Local integration recovery.** I finish the interrupted rebase onto
+      current main, preserve applicable compiler, module-header and shadow
+      changes, and retain upstream removals. `make test-quick` and
+      `make test-c-backend` pass; both changed examples compile and run
+      with the C seed and rebuilt Stage 2. SDL helper headers pass a C
+      syntax check. Native bootstrap binaries differ; I claim passing
+      smoke and parity checks, not a fixed point.
+      MAC `task_52371d21b5174f2aba3acc13074d28f0`.
+
 - [x] **5.0 / self-hosted nested-array indexing.** I preserve every remaining
       array level while inferring and emitting nested `at` calls, and test both
       intermediate array values and the scalar value through native execution.

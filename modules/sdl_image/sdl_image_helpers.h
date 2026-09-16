@@ -2,8 +2,8 @@
 #define SDL_IMAGE_HELPERS_H
 
 #include <stdint.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 /* Basic loading helpers */
 int64_t nl_img_load_png_texture(SDL_Renderer* renderer, const char* file);
