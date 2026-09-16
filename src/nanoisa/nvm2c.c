@@ -845,7 +845,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
             } else if (v.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_SARR);
-            } else {
+            } else if (v.kind != NVM2C_VK_UNK) {
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_ARR);
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
@@ -869,6 +869,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else if (arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            } else if (arr.kind == NVM2C_VK_UNK) {
+                Nvm2cSimSlot value = {0};
+                value.kind = NVM2C_VK_UNK;
+                value.origin = -1;
+                value.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!value.rec_k || !sim_push_slot(b, idx, stk, &sp, value)) return 0;
             } else {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
@@ -917,7 +923,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     }
                 }
             }
-            if (val.kind == NVM2C_VK_REC) {
+            if (val.kind == NVM2C_VK_UNK) {
+                /* Missing element facts cannot erase a constructor's known
+                 * array kind or invent an integer-array representation. */
+                Nvm2cSimSlot pushed = arr;
+                pushed.origin = -1;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else if (val.kind == NVM2C_VK_REC) {
                 Nvm2cSimSlot pushed = arr;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
                 if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {

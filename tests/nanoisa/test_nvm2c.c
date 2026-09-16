@@ -3345,7 +3345,45 @@ static void test_record_array_fields(void) {
     }
 }
 
+static void test_delayed_array_element_facts(void) {
+    for (int scenario = 0; scenario < 3; ++scenario) {
+        int incompatible = scenario == 1;
+        char source[4096];
+        strcpy(source, ".string text \"hello\"\n.entry main\n");
+        if (scenario == 2) strcat(source,
+            ".function count 1 1 0 int 1\nLOAD_LOCAL 0\nARR_LEN\nRET\n.end\n");
+        strcat(source,
+            ".function main 0 1 0 int 1\nARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\n"
+            "ARR_PUSH\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nCALL count\nPOP\n"
+            "LOAD_LOCAL 0\nCALL make\nAGG_GET 0\nPUSH_I64 0\nARR_GET\nARR_PUSH\nPOP\n"
+            "LOAD_LOCAL 0\nCALL count\nRET\n.end\n"
+            ".function make 0 0 0 struct 1\n");
+        strcat(source, incompatible ? "PUSH_I64 7\nARR_LITERAL 1 1\n" :
+            "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\n");
+        strcat(source, "AGG_PACK 0 0 0 1\nRET\n.end\n");
+        if (scenario != 2) strcat(source,
+            ".function count 1 1 0 int 1\nLOAD_LOCAL 0\nARR_LEN\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, "delayed record-array element facts");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        if (incompatible) CHECK(c == NULL, "I reject scalar insertion into an explicit record array");
+        else {
+            CHECK(c != NULL, "I preserve explicit record arrays while a later callee's fields are unknown");
+            if (!c) fprintf(stderr, "    delayed array: %s\n", error);
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 2,
+                      "I append an element from a later-inferred nested array");
+            }
+        }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_valued_record_fields(void) {
+    test_delayed_array_element_facts();
     test_record_array_fields();
     for (int strings = 0; strings < 2; ++strings) {
         for (int empty = 0; empty < 2; ++empty) {
