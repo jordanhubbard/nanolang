@@ -1585,8 +1585,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
 static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                              uint8_t *local_kind, uint8_t *rec_fields, Nvm2cFacts *facts) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
-    if (fn->local_count > NVM2C_MAX_LOCALS || fn->arity > fn->local_count) {
-        nvm2c_fail(b, "I cannot classify function %u with invalid local or parameter counts", idx);
+    if (fn->local_count > NVM2C_MAX_LOCALS) {
+        nvm2c_fail(b, "function %u: too many locals", idx);
+        return 0;
+    }
+    if (fn->arity > fn->local_count) {
+        nvm2c_fail(b, "function %u: arity exceeds local_count", idx);
         return 0;
     }
     if (fn->code_offset > mod->code_size || fn->code_length > mod->code_size - fn->code_offset) {

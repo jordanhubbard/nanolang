@@ -28,19 +28,24 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Native test signal status.** I preserve the tested process wait status
+- [ ] **Main PR #335 reconciliation.** I retain my existing 1,024-local
+      runtime, import the high-slot and malformed-arity tests, and preserve
+      the bounded call formatter. I rerun the native translator gate.
+      MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
+
+- [x] **Native test signal status.** I preserve the tested process wait status
       through shell supervision, distinguishing a signal from an ordinary
       nonzero exit. MAC `task_e77f2d8201d344d3a105ac32181e9cb7`.
 
-- [ ] **GCC native helper emission.** I brace emitted allocation and tagged
+- [x] **GCC native helper emission.** I brace emitted allocation and tagged
       comparison conditions so strict GCC accepts my generated runtime. I
       retain all translator assertions. MAC `task_9e5e6347b6f342aba0ff470fafe6904f`.
 
-- [ ] **Linux native regression buffers.** I size composed assembly fixtures
+- [x] **Linux native regression buffers.** I size composed assembly fixtures
       for their input bounds and retain fortified GCC warnings. I rerun the
       translator suite. MAC `task_b6d77b789ec4404f8c3d64d81647c286`.
 
-- [ ] **Linux process-capture build.** I consume the child diagnostic write
+- [x] **Linux process-capture build.** I consume the child diagnostic write
       result explicitly so fortified GCC builds retain `-Werror`. I verify
       capture behavior after rebuilding. MAC `task_c4e1e543cb674af69bdc343eb9d11dcc`.
 
