@@ -242,7 +242,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         and 1,073 shape checks. I retain existing 1,024-argument coverage.
         Evidence: `docs/evidence/native-call-branch-reconciliation.md`.
         MAC `task_ce16c7f531c94738bfca747633289540`.
-      - [ ] I reconcile PR #303's early map reclamation only after tracing
+      - [x] I reconcile PR #303's early map reclamation only after tracing
         roots across caller frames, globals, aggregate fields and escaped
         strings. Its current-function-only root scan cannot establish safe
         process-wide reclamation. I reproduce these lifetimes and verify
@@ -254,7 +254,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           locals/operands, strings, arrays, nested records, mutable edges,
           backward conditional branches and 20,000 self-tail restarts. My
           focused tests require at most 16 live map/string owners and zero
-          after entry cleanup. Remaining PR ancestry reconciliation stays open.
+          after entry cleanup. I reconcile its ancestry, retain the existing
+          map storage/shape work and import its original eight-owner stress
+          case. All five lifetime methods pass with VM/native execution.
           Evidence: `docs/evidence/native-map-root-lifetimes.md`.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects

@@ -50,6 +50,15 @@ class NativeMapLifetimes(unittest.TestCase):
     def test_caller_owned_map(self):
         self.check_program((ROOT / 'tests/nanoisa/fixtures/map_caller_lifetime.nasm').read_text())
 
+    def test_incoming_pr303_bounded_map_stress(self):
+        self.check_program(HEADER +
+            '.function main 0 2 0 int 1\nPUSH_I64 0\nSTORE_LOCAL 0\n'
+            'loop:\nLOAD_LOCAL 0\nPUSH_I64 20000\nI64_LT_S\nJMP_FALSE done\n'
+            'HM_NEW 5 1\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nPUSH_STR key\nLOAD_LOCAL 0\nHM_SET\nPOP\n'
+            'LOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nPOP\nHM_NEW 5 1\nPOP\n'
+            'LOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\nJMP loop\n'
+            'done:\nPUSH_I64 0\nRET\n.end\n', peak=8)
+
     def test_reachable_values_and_bounded_churn(self):
         cases = {
             'boxed_local': GET + 'STORE_LOCAL 0\nCALL churn\nLOAD_LOCAL 0\n' + CHECK_TEXT,

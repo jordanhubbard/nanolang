@@ -35,6 +35,23 @@ Evidence on the integration branch:
   after entry cleanup. Leak detection is disabled because other native owner
   families remain separate work.
 
-`make test-one-ir-compiler` now includes this lifetime gate. PR #303's other
-commits and ancestry still require reconciliation; this repair alone does not
-complete the release. MAC: `task_d3310bef8bd541ba9e1e267ee213eb9e`.
+`make test-one-ir-compiler` now includes this lifetime gate. This repair alone
+does not complete the release. MAC: `task_d3310bef8bd541ba9e1e267ee213eb9e`.
+
+## PR #303 reconciliation
+
+I compare its earlier map commits with my existing integration history:
+`86454c80` storage matches `9ebc79d9`'s runtime fragment; `7ed63d5e` flow
+matches `1e3ede7d`'s translator and shape sources; `a4ae73a5` tagged lookup
+matches `3124f5fb`'s translator and shape sources. These selected production
+files are byte-identical at each pair, not merely similarly named commits.
+My current implementation includes later fixes that I retain.
+
+The final branch commit adds the unsafe collector, a stress test, an older
+test execution helper and import-kind plumbing. I retain my existing import
+kinds, shape build integration and broader execution helper; I do not restore
+its old nested-record rejection or current-frame-only collector. I import its
+20,000-iteration map stress program into the VM/native lifetime gate with its
+original eight-owner peak bound. I preserve the branch ancestry in the merge.
+All five lifetime methods pass after reconciliation. The production translator
+and shape sources remain identical to the sanitizer-tested repair checkpoint.
