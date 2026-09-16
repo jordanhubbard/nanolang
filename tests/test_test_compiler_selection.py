@@ -21,6 +21,32 @@ def recipe(target):
 
 
 class TestCompilerSelection(unittest.TestCase):
+    def test_negative_runner_retains_selection_and_rejection_contract(self):
+        with tempfile.TemporaryDirectory(prefix="nano negative selection ") as tmp:
+            root = Path(tmp)
+            (root / "tests/negative").mkdir(parents=True)
+            (root / "bin").mkdir()
+            shutil.copy2(ROOT / "tests/run_negative_tests.sh", root / "tests/run_negative_tests.sh")
+            (root / "tests/negative/probe.nano").write_text("invalid source\n")
+            compiler = root / "bin/selected"
+            compiler.write_text('#!/bin/sh\necho selected >> calls\necho "Error: rejected" >&2\nexit 1\n')
+            compiler.chmod(0o700)
+            other = root / "bin/nanoc"
+            other.write_text('#!/bin/sh\nexit 0\n')
+            other.chmod(0o700)
+            env = dict(os.environ, NANOLANG_COMPILER=str(compiler))
+            env.pop("NANOC", None)
+            result = subprocess.run(["bash", "tests/run_negative_tests.sh"], cwd=root,
+                                    env=env, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual((root / "calls").read_text(), "selected\n")
+            # An explicitly requested accepting compiler must fail the contract.
+            env["NANOC"] = str(other)
+            result = subprocess.run(["bash", "tests/run_negative_tests.sh"], cwd=root,
+                                    env=env, capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("compiler accepted invalid input", result.stdout)
+
     def check_selection(self, target, backend="c", fail=False):
         with tempfile.TemporaryDirectory(prefix="nano compiler selection ") as tmp:
             root = Path(tmp)

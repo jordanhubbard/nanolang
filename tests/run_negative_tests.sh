@@ -10,7 +10,7 @@ shopt -s globstar nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-COMPILER="${NANOC:-$PROJECT_ROOT/bin/nanoc}"
+COMPILER="${NANOC:-${NANOLANG_COMPILER:-$PROJECT_ROOT/bin/nanoc}}"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/nanolang-negative.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 

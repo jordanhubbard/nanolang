@@ -2424,7 +2424,7 @@ test-c-backend: $(COMPILER_C)
 test-cross-backend: $(COMPILER) test-cross-backend-runner
 	@echo "🔀 Running direct cross-backend compile suite (riscv, c, ptx)..."
 	@chmod +x tests/cross-backend/run-all.sh
-	@bash tests/cross-backend/run-all.sh $(COMPILER)
+	@bash tests/cross-backend/run-all.sh "$(if $(NANOLANG_COMPILER),$(NANOLANG_COMPILER),$(COMPILER))"
 	@echo "✅ Cross-backend tests PASSED"
 
 .PHONY: test-cross-backend-runner
