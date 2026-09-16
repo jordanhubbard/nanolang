@@ -571,8 +571,12 @@ static void mark_origin(uint8_t *local_kind, uint16_t nloc, int origin, uint8_t 
     }
 }
 
-static void mark_str_origin(uint8_t *local_kind, uint16_t nloc, int origin) {
-    mark_origin(local_kind, nloc, origin, NVM2C_VK_STR);
+static int mark_string_operand(Nvm2cBuf *b, uint8_t *local_kind, uint16_t nloc,
+                               Nvm2cSimSlot value) {
+    mark_origin(local_kind, nloc, value.origin, NVM2C_VK_STR);
+    /* I propagate a consumer's inferred storage back to an unresolved
+     * projection. Observed tagged values retain their runtime unboxing. */
+    return value.kind != NVM2C_VK_UNK || shape_field_kind(b, value.shape, NVM2C_VK_STR);
 }
 
 static const uint8_t *fn_rec_k_const(const Nvm2cBuf *b, const uint8_t *tab, uint32_t fn, uint16_t slot) {
@@ -938,7 +942,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_STR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-            mark_str_origin(local_kind, nloc, v.origin);
+            if (!mark_string_operand(b, local_kind, nloc, v)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -946,8 +950,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            mark_str_origin(local_kind, nloc, rhs.origin);
-            mark_str_origin(local_kind, nloc, lhs.origin);
+            if (!mark_string_operand(b, local_kind, nloc, rhs) ||
+                !mark_string_operand(b, local_kind, nloc, lhs)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
@@ -958,7 +962,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)len;
             (void)start;
-            mark_str_origin(local_kind, nloc, s.origin);
+            if (!mark_string_operand(b, local_kind, nloc, s)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
@@ -968,8 +972,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot needle, hay;
             if (!sim_pop(b, idx, stk, &sp, &needle)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &hay)) return 0;
-            mark_str_origin(local_kind, nloc, needle.origin);
-            mark_str_origin(local_kind, nloc, hay.origin);
+            if (!mark_string_operand(b, local_kind, nloc, needle) ||
+                !mark_string_operand(b, local_kind, nloc, hay)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -978,7 +982,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)ix;
-            mark_str_origin(local_kind, nloc, s.origin);
+            if (!mark_string_operand(b, local_kind, nloc, s)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -1051,7 +1055,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
                 }
-                mark_str_origin(local_kind, nloc, key.origin);
+                if (!mark_string_operand(b, local_kind, nloc, key)) return 0;
                 if (!shape_type(b, key.shape, NVM_SHAPE_STRING) ||
                     !shape_equal(b, shape_child(b, map.shape, 0), key.shape)) return 0;
             }
@@ -1485,7 +1489,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (fn->result_tag == TAG_BOOL) {
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_BOOL);
                 } else if (fn->result_tag == TAG_STRING) {
-                    mark_str_origin(local_kind, nloc, v.origin);
+                    if (!mark_string_operand(b, local_kind, nloc, v)) return 0;
                 } else if (fn->result_tag == TAG_ARRAY) {
                     if (v.kind != NVM2C_VK_UNK && !integer_array_storage(v.kind) &&
                         v.kind != NVM2C_VK_SARR && v.kind != NVM2C_VK_RARR) {

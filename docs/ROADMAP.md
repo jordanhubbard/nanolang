@@ -355,11 +355,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   fresh ASan/UBSan suites pass 1,670 AOT and 1,073 shape checks.
                   Full compiler emission reaches the next failure below.
                   Evidence: `docs/evidence/aot-nested-record-consumers.md`.
-                - [ ] I resolve the emitted string-store mismatch in
+                - [x] I resolve the emitted string-store mismatch in
                   `generate_enum_definitions_from_tokens` (394). I trace its
                   source and destination representations, retain exact type
                   distinctions and rerun compiler acceptance. MAC
                   `task_34d2d9345d584ff78fab59261eb112d6`.
+                  Thirty-two native string-operation and tag-rejection cases
+                  pass. Normal and fresh ASan/UBSan suites pass 1,670 AOT and
+                  1,073 shape checks; full compiler emission advances below.
+                  Evidence: `docs/evidence/aot-string-consumer-shapes.md`.
+                - [ ] I resolve projected array reads in `genenv_get_mut`
+                  (410), preserving the container shape as well as the boolean
+                  element representation, runtime tags and bounds. I rerun full
+                  compiler acceptance. MAC
+                  `task_3b10cd3d807f44d8bf04a5128b697932`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

@@ -394,6 +394,38 @@ class OneIrCompiler(unittest.TestCase):
                         result = subprocess.run([binary], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I trap invalid nested record storage")
 
+    def test_string_consumers_constrain_projected_local(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        operations = {
+            "length": ("LOAD_LOCAL 1\nSTR_LEN", "int", "nl_use(r) == 5"),
+            "concat_right": ("LOAD_LOCAL 1\nPUSH_STR bang\nSTR_CONCAT", "string", 'strcmp(nl_use(r), "hello!") == 0'),
+            "concat_left": ("PUSH_STR bang\nLOAD_LOCAL 1\nSTR_CONCAT", "string", 'strcmp(nl_use(r), "!hello") == 0'),
+            "substring": ("LOAD_LOCAL 1\nPUSH_I64 1\nPUSH_I64 3\nSTR_SUBSTR", "string", 'strcmp(nl_use(r), "ell") == 0'),
+            "starts": ("LOAD_LOCAL 1\nPUSH_STR prefix\nSTR_STARTS_WITH", "bool", "nl_use(r) == 1"),
+            "ends": ("LOAD_LOCAL 1\nPUSH_STR suffix\nSTR_ENDS_WITH", "bool", "nl_use(r) == 1"),
+            "contains": ("LOAD_LOCAL 1\nPUSH_STR middle\nSTR_CONTAINS", "bool", "nl_use(r) == 1"),
+            "char": ("LOAD_LOCAL 1\nPUSH_I64 0\nSTR_CHAR_AT", "int", "nl_use(r) == 104"),
+        }
+        for reverse in (False, True):
+            for name, (operation, result_tag, check) in operations.items():
+                with self.subTest(reverse=reverse, operation=name), tempfile.TemporaryDirectory(prefix="nano-string-consumer-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    helper = f".function use 1 2 0 {result_tag} 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\n{operation}\nRET\n.end\n"
+                    text = '.string bang "!"\n.string prefix "he"\n.string suffix "lo"\n.string middle "ell"\n.entry main\n' + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} struct\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    source.write_text(generated + f'\nint main(int argc, char **argv) {{ (void)argv; nrec_t r = {{.n = 1}}; r.k[0] = argc > 1 ? 0 : 1; r.s[0] = "hello"; return !({check}); }}\n')
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+                    rejected = subprocess.run([binary, "bad-tag"], capture_output=True, timeout=10)
+                    self.assertLess(rejected.returncode, 0, "I trap a non-string field before its consumer")
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
