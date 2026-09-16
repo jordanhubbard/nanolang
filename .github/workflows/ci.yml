@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test (${{ matrix.arch || 'x64' }})
+    name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
     timeout-minutes: 45

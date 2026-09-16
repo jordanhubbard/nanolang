@@ -28,10 +28,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Interpreter epoch-time acceptance.** I remove the mixed-clock
+- [x] **Distinct CI platform checks.** I include the OS in full-suite check
+      names so Linux and Darwin ARM jobs cannot hide each other in PR summaries.
+      I inspect raw job and required test-step outcomes for release acceptance.
+      MAC `task_6edaa699fd1145b8b89ab0b4ed223c47`.
+
+- [x] **Interpreter epoch-time acceptance.** I remove the mixed-clock
       second-boundary assumption from the millisecond regression, retain
       integer and epoch conversion checks, and verify interpreter acceptance.
-      MAC `task_d6d0fcccd1634cd9a1fe652f1dc3743c`.
+      MAC `task_d6d0fcccd1634cd9a1fe652f1dc3743c`. Five deterministic clock
+      samples preserve the conversion contract; all 118 interpreter tests pass.
 
 - [ ] **Publication stop fence after this release.** My MAC publisher can
       finish an admitted merge after its task is stopped. PR #357 demonstrated
