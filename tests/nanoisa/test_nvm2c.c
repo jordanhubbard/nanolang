@@ -265,6 +265,76 @@ static void test_store_load_local(void) {
     nvm_module_free(m);
 }
 
+static void test_generic_comparisons_are_typed(void) {
+    const char *src =
+        ".string apple \"apple\"\n"
+        ".string berry \"berry\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR apple\n"
+        "  PUSH_STR berry\n"
+        "  LT\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "generic string comparison fixture");
+    CHECK(m != NULL, "generic string comparison fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "nvm2c lowers generic string LT");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "strcmp") != NULL, "generic string LT uses lexical comparison");
+        CHECK(compile_and_run(c, &status) == 0, "generic string LT C compiles and runs");
+        CHECK(status == 1, "apple compares less than berry");
+        free(c);
+    }
+    nvm_module_free(m);
+
+    src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_F64 1.5\n"
+        "  PUSH_I64 2\n"
+        "  LT\n"
+        "  RET\n"
+        ".end\n";
+    m = assemble_ok(src, "generic numeric comparison fixture");
+    CHECK(m != NULL, "generic numeric comparison fixture assembles");
+    if (m) {
+        c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c != NULL, "nvm2c lowers generic float/int LT without integer coercion");
+        if (c) {
+            int status = -1;
+            CHECK(strstr(c, "double") != NULL, "generic float/int LT retains a double operand");
+            CHECK(compile_and_run(c, &status) == 0, "generic float/int LT C compiles and runs");
+            CHECK(status == 1, "1.5 compares less than 2");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+
+    src =
+        ".string one \"one\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR one\n"
+        "  PUSH_I64 1\n"
+        "  LT\n"
+        "  RET\n"
+        ".end\n";
+    m = assemble_ok(src, "generic comparison mismatch fixture");
+    CHECK(m != NULL, "generic comparison mismatch fixture assembles");
+    if (m) {
+        c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c == NULL, "nvm2c refuses generic string/integer comparison");
+        CHECK(strstr(err, "incompatible operand types") != NULL,
+              "generic comparison mismatch reports incompatible types");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_call_extern_is_refused(void) {
     NvmModule *m = nvm_module_new();
     CHECK(m != NULL, "empty module allocates");
@@ -2612,6 +2682,7 @@ int main(int argc, char **argv) {
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
+    test_generic_comparisons_are_typed();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
     test_push_str_len_runs_without_nano_vm();
