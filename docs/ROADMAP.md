@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Strict CI OpenGL dependencies.** I install GLFW and GLEW alongside
+      freeglut when my strict job selects the complete OpenGL example set.
+      I preserve strict selection and the ban on implicit package installation.
+      MAC `task_d7e811304f2a4669bfcce7a4a89198eb`.
+
 - [x] **Darwin recursive test discovery.** I enumerate nested and root test
       fixtures on the default Bash without globstar, and reject empty negative
       coverage rather than reporting a vacuous pass. I preserve argument
