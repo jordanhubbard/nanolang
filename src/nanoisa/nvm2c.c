@@ -2246,10 +2246,30 @@ static int module_has_result_kind(const uint8_t *result_kinds, uint32_t fn_count
     return 0;
 }
 
-static void emit_nstr_arena(Nvm2cBuf *b) {
+static void emit_nstr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static char nstr_arena[65536];\n"
-        "static size_t nstr_used;\n");
+        "typedef struct nstr_owned_s {\n"
+        "    struct nstr_owned_s *next;\n"
+        "    char data[];\n"
+        "} nstr_owned_t;\n"
+        "static nstr_owned_t *nstr_owned;\n"
+        "static char *nstr_alloc(size_t len) {\n"
+        "    if (len == SIZE_MAX) abort();\n"
+        "    size_t bytes = sizeof(nstr_owned_t) + len + 1;\n"
+        "    if (bytes < len) abort();\n"
+        "    nstr_owned_t *owned = (nstr_owned_t *)malloc(bytes);\n"
+        "    if (!owned) abort();\n"
+        "    owned->next = nstr_owned;\n"
+        "    nstr_owned = owned;\n"
+        "    return owned->data;\n"
+        "}\n"
+        "static void nstr_free_all(void) {\n"
+        "    while (nstr_owned) {\n"
+        "        nstr_owned_t *next = nstr_owned->next;\n"
+        "        free(nstr_owned);\n"
+        "        nstr_owned = next;\n"
+        "    }\n"
+        "}\n");
 }
 
 static void emit_nstr_concat(Nvm2cBuf *b) {
@@ -2257,12 +2277,11 @@ static void emit_nstr_concat(Nvm2cBuf *b) {
         "static const char *nstr_concat(const char *a, const char *b) {\n"
         "    size_t na = strlen(a ? a : \"\");\n"
         "    size_t nb = strlen(b ? b : \"\");\n"
-        "    if (nstr_used + na + nb + 1 > sizeof nstr_arena) abort();\n"
-        "    char *p = nstr_arena + nstr_used;\n"
+        "    if (nb > SIZE_MAX - na) abort();\n"
+        "    char *p = nstr_alloc(na + nb);\n"
         "    memcpy(p, a ? a : \"\", na);\n"
         "    memcpy(p + na, b ? b : \"\", nb);\n"
         "    p[na + nb] = 0;\n"
-        "    nstr_used += na + nb + 1;\n"
         "    return p;\n"
         "}\n\n");
 }
@@ -2275,11 +2294,9 @@ static void emit_nstr_substr(Nvm2cBuf *b) {
         "    if (start < 0) start = 0;\n"
         "    if (start >= slen || len <= 0) return \"\";\n"
         "    if (len > slen - start) len = slen - start;\n"
-        "    if (nstr_used + (size_t)len + 1 > sizeof nstr_arena) abort();\n"
-        "    char *p = nstr_arena + nstr_used;\n"
+        "    char *p = nstr_alloc((size_t)len);\n"
         "    memcpy(p, src + start, (size_t)len);\n"
         "    p[len] = 0;\n"
-        "    nstr_used += (size_t)len + 1;\n"
         "    return p;\n"
         "}\n\n");
 }
@@ -2299,10 +2316,9 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
         "static const char *nstr_from_i64(int64_t v) {\n"
         "    char tmp[32];\n"
         "    int n = snprintf(tmp, sizeof tmp, \"%lld\", (long long)v);\n"
-        "    if (n < 0 || (size_t)n + 1 > sizeof nstr_arena - nstr_used) abort();\n"
-        "    char *p = nstr_arena + nstr_used;\n"
+        "    if (n < 0 || (size_t)n >= sizeof tmp) abort();\n"
+        "    char *p = nstr_alloc((size_t)n);\n"
         "    memcpy(p, tmp, (size_t)n + 1);\n"
-        "    nstr_used += (size_t)n + 1;\n"
         "    return p;\n"
         "}\n\n");
 }
@@ -2455,6 +2471,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     uint8_t *result_kinds = calloc(mod->function_count, 1);
     uint8_t *result_fields = calloc((size_t)mod->function_count * NVM2C_MAX_REC_FIELDS, 1);
     uint8_t *reachable = calloc(mod->function_count, 1);
+    int need_owned_strings;
     if (!kinds || !rec_fields || !result_kinds || !result_fields || !reachable) {
         free(kinds);
         free(rec_fields);
@@ -2505,6 +2522,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             }
         }
     }
+
+    need_owned_strings = module_has_opcode(mod, reachable, OP_STR_CONCAT) ||
+        module_has_opcode(mod, reachable, OP_CAST_STRING) ||
+        module_has_opcode(mod, reachable, OP_STR_SUBSTR);
 
     {
         int need_concat = module_has_opcode(mod, reachable, OP_STR_CONCAT);
@@ -2581,7 +2602,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
             "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
-        if (need_concat || need_cast_string || need_substr) emit_nstr_arena(&b);
+        if (need_concat || need_cast_string || need_substr) emit_nstr_storage(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
@@ -2638,11 +2659,21 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         char ename[64];
         fn_c_name(mod, entry, ename, sizeof ename);
-        nvm2c_printf(&b,
-            "int main(void) {\n"
-            "    return (int)%s();\n"
-            "}\n",
-            ename);
+        if (need_owned_strings) {
+            nvm2c_printf(&b,
+                "int main(void) {\n"
+                "    int result = (int)%s();\n"
+                "    nstr_free_all();\n"
+                "    return result;\n"
+                "}\n",
+                ename);
+        } else {
+            nvm2c_printf(&b,
+                "int main(void) {\n"
+                "    return (int)%s();\n"
+                "}\n",
+                ename);
+        }
     }
 
     if (b.failed) goto fail;
