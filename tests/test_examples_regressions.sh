@@ -47,6 +47,7 @@ compile_example() {
 
 compile_example examples/graphics/sdl_game_of_life.nano
 compile_example examples/audio/sdl_nanoamp.nano
+compile_example audio/sdl_nanoamp.nano "$REPO_ROOT/examples"
 compile_example examples/opl/opl_cli.nano
 compile_example opl/opl_cli.nano "$REPO_ROOT/examples"
 

@@ -149,9 +149,14 @@ fn list_audio_files(dir: string) -> array<string> {
 }
 
 shadow list_audio_files {
-    # The repository commits examples/audio/gabba-studies-12.mod and no other
-    # playable audio, so the case-insensitive scan must surface exactly it.
-    let found: array<string> = (list_audio_files "examples/audio")
+    # I locate my committed fixture from either build directory and require
+    # the case-insensitive scan to find it.
+    let mut fixture_dir: string = "examples/audio"
+    unsafe {
+        if (== (nl_fs_is_directory fixture_dir) 0) { set fixture_dir "audio" }
+        assert (== (nl_fs_is_directory fixture_dir) 1)
+    }
+    let found: array<string> = (list_audio_files fixture_dir)
     let mut has_mod: int = 0
     let mut k: int = 0
     while (< k (array_length found)) {
