@@ -164,6 +164,35 @@ static void test_record_result_crosses_direct_call(void) {
     nvm_module_free(m);
 }
 
+static void test_record_temporary_storage_is_function_sized(void) {
+    const char *src =
+        ".string seven \"seven\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR seven\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "record temporary sizing fixture");
+    CHECK(m != NULL, "record temporary sizing fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c sizes record temporary storage");
+    if (c) {
+        CHECK(strstr(c, "nrec_t r[256]") == NULL,
+              "generated frames do not reserve the global record temporary limit");
+        CHECK(strstr(c, "nrec_t r[001]") != NULL,
+              "generated frame reserves only its one record temporary");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "function-sized record storage compiles and runs");
+        CHECK(status == 7, "function-sized record storage preserves the result");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_uncalled_record_parameter_needs_no_invented_shape(void) {
     const char *src =
         ".entry 1\n"
@@ -2496,6 +2525,7 @@ static void test_cli_refuses_call_extern(const char *cli) {
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_record_result_crosses_direct_call();
+    test_record_temporary_storage_is_function_sized();
     test_uncalled_record_parameter_needs_no_invented_shape();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
