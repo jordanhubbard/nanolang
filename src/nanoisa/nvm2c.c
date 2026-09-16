@@ -574,12 +574,27 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 pushed.origin = -1;
                 memcpy(pushed.rec_k, val.rec_k, NVM2C_MAX_REC_FIELDS);
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
-            } else if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {
+            } else if (val.kind == NVM2C_VK_STR) {
+                Nvm2cSimSlot pushed = arr;
                 if (!mark_origin(b, local_kind, nloc, arr.origin, NVM2C_VK_SARR)) return 0;
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
-            } else {
+                pushed.kind = NVM2C_VK_SARR;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else if (arr.kind == NVM2C_VK_SARR) {
+                Nvm2cSimSlot pushed = arr;
+                if (val.kind != NVM2C_VK_UNK ||
+                    !mark_str_origin(b, local_kind, nloc, val.origin)) {
+                    nvm2c_fail(b, "function %u: ARR_PUSH string array requires a string value", idx);
+                    return 0;
+                }
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else if (val.kind == NVM2C_VK_INT || val.kind == NVM2C_VK_UNK) {
+                Nvm2cSimSlot pushed = arr;
                 if (!mark_origin(b, local_kind, nloc, arr.origin, NVM2C_VK_ARR)) return 0;
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, -1)) return 0;
+                pushed.kind = NVM2C_VK_ARR;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else {
+                nvm2c_fail(b, "function %u: ARR_PUSH type mismatch", idx);
+                return 0;
             }
             break;
         }
