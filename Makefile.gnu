@@ -2217,6 +2217,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@bash tests/test_selfhost_stack_bounds.sh
 	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2250,6 +2251,10 @@ endif
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
+
+.PHONY: test-selfhost-stack-bounds
+test-selfhost-stack-bounds: build
+	@bash tests/test_selfhost_stack_bounds.sh
 
 .PHONY: test-affine-selfhost
 test-affine-selfhost: bootstrap
