@@ -278,6 +278,43 @@ class OneIrCompiler(unittest.TestCase):
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
+    def test_nominal_constructor_scalar_evidence(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for case in ("int", "bool", "string", "type", "variant", "width", "conflict", "alias_conflict"):
+                with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-nominal-field-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    value = "PUSH_BOOL 1" if case == "bool" else "PUSH_STR text" if case == "string" else "PUSH_I64 42"
+                    seed_pack = "0 1 0 1" if case == "type" else "1 0 1 1" if case == "variant" else "0 0 0 2" if case == "width" else "0 0 0 1"
+                    copy_pack = "1 0 0 1" if case == "variant" else "0 0 0 1"
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    seed = f".function seed 0 0 0 struct 1\n{value}\n" + ("PUSH_I64 7\n" if case == "width" else "") + f"AGG_PACK {seed_pack}\nRET\n.end\n"
+                    copy = f".function copy 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_PACK {copy_pack}\nRET\n.end\n"
+                    other = ".function other 0 0 0 struct 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nRET\n.end\n" if case == "conflict" else ""
+                    if case == "alias_conflict":
+                        copy = copy.replace("RET\n", "POP\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_PACK 0 1 0 1\nRET\n")
+                        other = ".function other 0 0 0 struct 1\nPUSH_STR text\nAGG_PACK 0 1 0 1\nRET\n.end\n"
+                    blocks = [main, seed, copy] + ([other] if other else [])
+                    if reverse:
+                        blocks.reverse()
+                    text = '.types 2 0 1\n.string text "hello"\n.entry main\n' + "".join(blocks)
+                    text += f".parameters {blocks.index(copy)} struct\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    if case not in ("int", "bool", "string"):
+                        result = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source], capture_output=True, timeout=30)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn(b"conflicting nominal scalar field evidence" if case == "alias_conflict" else b"cannot resolve AGG_PACK field 0", result.stderr)
+                        continue
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    check = "r.k[0] == 9 && r.f[0] == 1" if case == "bool" else 'r.k[0] == 1 && strcmp(r.s[0], "hello") == 0' if case == "string" else "r.k[0] == 0 && r.f[0] == 42"
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_copy(nl_seed()); return !(r.n == 1 && {check}); }}\n")
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

@@ -4014,6 +4014,109 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
         "}\n\n");
 }
 
+/* The legacy module has nominal type IDs but no field-layout table. I can
+ * recover an unresolved scalar field when constructors of that same declared
+ * type, variant and width agree. Conflicting or aggregate evidence is not a
+ * scalar layout; I leave it unresolved rather than choose a constructor. */
+static int infer_nominal_scalar_fields(Nvm2cBuf *b, const NvmModule *mod) {
+    typedef struct {
+        uint8_t kind;
+        uint16_t type, variant, width;
+        NvmShapeId shape;
+    } Pack;
+    Pack *packs = NULL;
+    uint8_t *inferred = NULL;
+    size_t count = 0, capacity = 0;
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        const NvmFunctionEntry *fn = &mod->functions[f];
+        for (size_t pc = 0; pc < fn->code_length;) {
+            DecodedInstruction ins;
+            uint32_t n = isa_decode(mod->code + fn->code_offset + pc, fn->code_length - pc, &ins);
+            if (!n) { nvm2c_fail(b, "I cannot decode nominal field evidence"); goto done; }
+            if (ins.opcode == OP_AGG_PACK && b->shape_outputs[f][pc]) {
+                uint8_t kind = ins.operands[0].u8;
+                uint16_t type = ins.operands[1].u16;
+                uint32_t declared = kind == AGG_RECORD ? mod->struct_count :
+                    kind == AGG_VARIANT ? mod->union_count : 0;
+                if (type < declared) {
+                    if (count == capacity) {
+                        size_t next = capacity ? capacity * 2 : 64;
+                        if (next < capacity || next > SIZE_MAX / sizeof *packs) {
+                            nvm2c_fail(b, "I cannot represent nominal field evidence"); goto done;
+                        }
+                        Pack *grown = realloc(packs, next * sizeof *packs);
+                        if (!grown) { nvm2c_fail(b, "I cannot allocate nominal field evidence"); goto done; }
+                        packs = grown; capacity = next;
+                    }
+                    packs[count++] = (Pack){kind, type, ins.operands[2].u16,
+                                            ins.operands[3].u16, b->shape_outputs[f][pc]};
+                }
+            }
+            pc += n;
+        }
+    }
+    if (count && b->record_width > SIZE_MAX / count) {
+        nvm2c_fail(b, "I cannot represent inferred nominal fields"); goto done;
+    }
+    inferred = calloc(count ? count * b->record_width : 1, 1);
+    if (!inferred) { nvm2c_fail(b, "I cannot allocate inferred nominal fields"); goto done; }
+    int changed;
+    do {
+        changed = 0;
+        for (size_t i = 0; i < count; ++i) {
+            for (uint16_t field = 0; field < packs[i].width; ++field) {
+                NvmShapeId target = nvm_shape_lookup(&b->shapes, packs[i].shape, field);
+                if (!target || nvm_shape_kind(&b->shapes, target) != NVM_SHAPE_UNKNOWN) continue;
+                NvmShapeKind agreed = NVM_SHAPE_UNKNOWN;
+                int conflict = 0;
+                for (size_t j = 0; j < count; ++j) {
+                    if (packs[i].kind != packs[j].kind || packs[i].type != packs[j].type ||
+                        packs[i].variant != packs[j].variant || packs[i].width != packs[j].width) continue;
+                    NvmShapeId candidate = nvm_shape_lookup(&b->shapes, packs[j].shape, field);
+                    if (!candidate) continue;
+                    NvmShapeKind kind = nvm_shape_kind(&b->shapes, candidate);
+                    if (kind == NVM_SHAPE_UNKNOWN) continue;
+                    if ((kind != NVM_SHAPE_INT && kind != NVM_SHAPE_BOOL && kind != NVM_SHAPE_STRING) ||
+                        (agreed != NVM_SHAPE_UNKNOWN && agreed != kind)) { conflict = 1; break; }
+                    agreed = kind;
+                }
+                if (!conflict && agreed != NVM_SHAPE_UNKNOWN) {
+                    NvmShapeId root = nvm_shape_root(&b->shapes, target);
+                    for (size_t j = 0; j < count; ++j)
+                        for (uint16_t k = 0; k < packs[j].width; ++k)
+                            if (nvm_shape_lookup(&b->shapes, packs[j].shape, k) == root)
+                                inferred[j * b->record_width + k] = 1;
+                    if (!shape_type(b, target, agreed)) goto done;
+                    changed = 1;
+                }
+            }
+        }
+        if (!nvm_shape_solve_conversions(&b->shapes) || !shape_ok(b)) goto done;
+    } while (changed);
+    /* Later inference can expose another constructor's conflicting field.
+     * Recheck every hint, so scan order cannot select one nominal layout. */
+    for (size_t i = 0; i < count; ++i) {
+        for (uint16_t field = 0; field < packs[i].width; ++field) {
+            if (!inferred[i * b->record_width + field]) continue;
+            NvmShapeKind expected = nvm_shape_kind(&b->shapes,
+                nvm_shape_lookup(&b->shapes, packs[i].shape, field));
+            for (size_t j = 0; j < count; ++j) {
+                if (packs[i].kind != packs[j].kind || packs[i].type != packs[j].type ||
+                    packs[i].variant != packs[j].variant || packs[i].width != packs[j].width) continue;
+                NvmShapeKind kind = nvm_shape_kind(&b->shapes,
+                    nvm_shape_lookup(&b->shapes, packs[j].shape, field));
+                if (kind != NVM_SHAPE_UNKNOWN && kind != expected) {
+                    nvm2c_fail(b, "I found conflicting nominal scalar field evidence"); goto done;
+                }
+            }
+        }
+    }
+done:
+    free(inferred);
+    free(packs);
+    return !b->failed && shape_ok(b);
+}
+
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
     if (!mod) {
@@ -4162,6 +4265,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_fail(&b, "I cannot solve aggregate storage shape conversions: %s", b.shapes.error);
         goto fail;
     }
+    if (!infer_nominal_scalar_fields(&b, mod)) goto fail;
 
     for (uint32_t f = 0; f < mod->function_count; ++f)
         if (!check_local_initialization(&b, mod, f)) goto fail;
