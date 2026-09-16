@@ -28,6 +28,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Packaged runtime instrumentation.** I retain build instrumentation
+      flags when linking standalone and daemon wrappers, and test against
+      actual coverage objects. MAC `task_2da82432bba24a13b05e693fc2c55e83`.
+
 - [x] **Sentence dictionary build paths.** I find my bundled dictionary from
       both the repository and examples directories, preserving the shadow
       deadline and explicit dictionary override. MAC `task_a212d46b307b443db949733ed336ba60`.

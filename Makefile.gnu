@@ -846,8 +846,9 @@ $(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIR
 
 # I retain the same optional OpenSSL library directory as my compiler link,
 # including when callers override CFLAGS or LDFLAGS.
+WRAPPER_INSTRUMENT_FLAGS = $(sort $(filter -fsanitize=% -fprofile-arcs -ftest-coverage --coverage,$(CFLAGS) $(LDFLAGS)))
 $(OBJ_DIR)/nanovirt/wrapper_gen.o: $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)/wrapper_gen.h $(SRC_DIR)/shell_path.h Makefile.gnu | $(OBJ_DIR)/nanovirt
-	$(CC) $(CFLAGS) $(if $(OPENSSL_PREFIX),-DNANO_WRAPPER_CRYPTO_DIR='"$(OPENSSL_PREFIX)/lib"') -c $< -o $@
+	$(CC) $(CFLAGS) $(if $(OPENSSL_PREFIX),-DNANO_WRAPPER_CRYPTO_DIR='"$(OPENSSL_PREFIX)/lib"') -DNANO_WRAPPER_INSTRUMENT_FLAGS='"$(WRAPPER_INSTRUMENT_FLAGS)"' -c $< -o $@
 
 $(OBJ_DIR)/nanovirt:
 	mkdir -p $(OBJ_DIR)/nanovirt

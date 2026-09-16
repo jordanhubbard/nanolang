@@ -129,3 +129,12 @@ successfully. My valid-resource fixture explicitly destructures its owned
 parameter and also passes executed bytecode acceptance. These checks do not
 establish promise scheduling or dynamic effect handlers; effect execution is
 still a separate failing release gate under active implementation.
+
+## Coverage wrapper links
+
+I compile the small wrapper source separately, then link it with the runtime's
+required sanitizer/coverage flags. This retains the instrumentation runtime
+without creating coverage output in a private directory removed before program
+execution. In a separate checkout built with real gcov instrumentation, all
+five wrapper unit cases and seven publication methods pass, including literal
+paths, overlapping failure, preserved destinations and staging cleanup.

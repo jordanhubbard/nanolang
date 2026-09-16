@@ -355,12 +355,16 @@ static bool write_daemon_wrapper_c(FILE *f, const uint8_t *blob, uint32_t blob_s
 
 /* I stage beside the destination so successful rename is one filesystem
  * operation. Compilers are trusted configuration, not a sandbox boundary. */
+#ifndef NANO_WRAPPER_INSTRUMENT_FLAGS
+#define NANO_WRAPPER_INSTRUMENT_FLAGS ""
+#endif
+
 static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
                           uint32_t blob_size, const char *output_path,
                           const ASTNode *program, bool daemon, bool verbose) {
     bool ok = false, staged = false;
     char *obj_dir = NULL, *parent_input = NULL, *parent = NULL, *output = NULL;
-    char *stage = NULL, *source = NULL, *binary = NULL;
+    char *stage = NULL, *source = NULL, *binary = NULL, *wrapper_object = NULL;
     char *src_candidate = NULL, *modules_candidate = NULL;
     char *src = NULL, *modules = NULL;
     FILE *f = NULL;
@@ -403,7 +407,8 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     staged = true;
     source = wrapper_path(stage, "source.c");
     binary = wrapper_path(stage, "executable");
-    if (!source || !binary) goto cleanup;
+    wrapper_object = wrapper_path(stage, "wrapper.o");
+    if (!source || !binary || !wrapper_object) goto cleanup;
     f = fopen(source, "wx");
     if (!f) goto cleanup;
     bool written = daemon ? write_daemon_wrapper_c(f, blob, blob_size)
@@ -422,13 +427,24 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     int n = snprintf(command, sizeof(command),
                      "%s -std=c99 -Wall -Wextra -Werror "
                      "-Wno-error=unused-function -Wno-error=unused-parameter "
-                     "-Wno-error=unused-variable -Wno-error=unused-but-set-variable ",
+                     "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -c ",
                      cc);
     if (n < 0 || (size_t)n >= sizeof(command)) goto cleanup;
     if (!module_append_include(command, sizeof(command), src) ||
         (modules && !module_append_include(command, sizeof(command), modules)) ||
-        !module_append_path_flag(command, sizeof(command), "-o ", binary) ||
+        !module_append_path_flag(command, sizeof(command), "-o ", wrapper_object) ||
         !module_append_path_flag(command, sizeof(command), "", source)) goto cleanup;
+    /* I compile this temporary wrapper without runtime instrumentation, then
+     * link the instrumented runtime. Coverage must not create reports in a
+     * private staging directory that I remove before execution. */
+    if (system(command) != 0) goto cleanup;
+    struct stat wrapper_stat;
+    if (lstat(wrapper_object, &wrapper_stat) != 0 || !S_ISREG(wrapper_stat.st_mode) ||
+        wrapper_stat.st_size <= 0 || wrapper_stat.st_nlink != 1) goto cleanup;
+    n = snprintf(command, sizeof(command), "%s ", cc);
+    if (n < 0 || (size_t)n >= sizeof(command) ||
+        !module_append_path_flag(command, sizeof(command), "-o ", binary) ||
+        !module_append_path_flag(command, sizeof(command), "", wrapper_object)) goto cleanup;
     if (!daemon) {
 #ifdef NANO_WRAPPER_CRYPTO_DIR
         if (!module_append_path_flag(command, sizeof(command), "-L", NANO_WRAPPER_CRYPTO_DIR))
@@ -442,8 +458,9 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
 #elif defined(__FreeBSD__)
     if (!daemon) platform = "-Wl,-E";
 #endif
-    n = snprintf(command + used, sizeof(command) - used, " %s %s %s", objects,
-                 daemon ? "" : "-lm -pthread -lcrypto -lffi", platform);
+    n = snprintf(command + used, sizeof(command) - used, " %s %s %s %s", objects,
+                 daemon ? "" : "-lm -pthread -lcrypto -lffi", platform,
+                 NANO_WRAPPER_INSTRUMENT_FLAGS);
     if (n < 0 || (size_t)n >= sizeof(command) - used) goto cleanup;
     if (verbose) printf("I compile a private wrapper: %s\n", command);
     if (system(command) != 0) goto cleanup;
@@ -459,13 +476,14 @@ cleanup:
     if (staged) {
         if (source) unlink(source);
         if (binary) unlink(binary);
+        if (wrapper_object) unlink(wrapper_object);
         /* I never recursively delete compiler-created unknown files. */
         if (rmdir(stage) != 0 && errno != ENOENT)
             fprintf(stderr, "I retained extra compiler artifacts in %s\n", stage);
     }
     if (!ok) fprintf(stderr, "I could not publish the wrapper; I did not replace the destination\n");
     free(obj_dir); free(parent_input); free(parent); free(output);
-    free(stage); free(source); free(binary);
+    free(stage); free(source); free(binary); free(wrapper_object);
     free(src_candidate); free(modules_candidate); free(src); free(modules);
     return ok;
 }
