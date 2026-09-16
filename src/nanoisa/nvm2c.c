@@ -797,7 +797,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
-        case OP_CAST_INT: {
+        case OP_CAST_INT:
+        case OP_CAST_BOOL: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
@@ -976,7 +977,6 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             (void)ix;
             NvmShapeId element_shape = shape_child(b, arr.shape, 0);
-            if (!shape_equal(b, shape_variable(b, b->shape_current), element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
@@ -987,7 +987,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             } else if (arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                stk[sp - 1].shape = element_shape;
             } else if (arr.kind == NVM2C_VK_UNK) {
                 Nvm2cSimSlot value = {0};
                 value.kind = NVM2C_VK_UNK;
@@ -996,7 +997,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!value.rec_k || !sim_push_slot(b, idx, stk, &sp, value)) return 0;
             } else {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                stk[sp - 1].shape = element_shape;
             }
             break;
         }
@@ -2479,6 +2481,26 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, expression);
             break;
         }
+        case OP_CAST_BOOL: {
+            uint8_t kind;
+            int value = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            char expression[96];
+            if (kind == NVM2C_VK_VALUE)
+                snprintf(expression, sizeof expression,
+                         "(v[%d].kind == 5 || (v[%d].kind == 1 && v[%d].integer != 0))",
+                         value, value, value);
+            else if (kind == NVM2C_VK_STR)
+                snprintf(expression, sizeof expression, "(s[%d] != NULL)", value);
+            else if (kind == NVM2C_VK_INT)
+                snprintf(expression, sizeof expression, "(t[%d] != 0)", value);
+            else {
+                nvm2c_fail(b, "I cannot emit CAST_BOOL with this representation");
+                goto done;
+            }
+            stack_push_temp(b, &st, expression);
+            break;
+        }
         case OP_HM_NEW: {
             char expression[48];
             snprintf(expression, sizeof expression, "nmap_owned_new(%u)", (unsigned)ins.operands[1].u8);
@@ -2652,11 +2674,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (ak == NVM2C_VK_ARR) {
                 char expr[80];
                 snprintf(expr, sizeof expr, "narr_get(a[%d], t[%d])", arr, ix);
-                stack_push_temp(b, &st, expr);
+                stack_push_value(b, &st, expr);
             } else if (ak == NVM2C_VK_SARR) {
                 char expr[80];
                 snprintf(expr, sizeof expr, "nsarr_get(sa[%d], t[%d])", arr, ix);
-                stack_push_str(b, &st, expr);
+                stack_push_value(b, &st, expr);
             } else if (ak == NVM2C_VK_RARR) {
                 char expr[80];
                 snprintf(expr, sizeof expr, "nrarr_get(ra[%d], t[%d])", arr, ix);
@@ -3085,7 +3107,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_fail(b, "I cannot format temporary declarations");
             goto done;
         }
-        if (b->has_maps) {
+        if (st.next_value) {
             int extra = snprintf(declarations + count, sizeof declarations - (size_t)count,
                                  "    nmap_value v[%d] = {0}; (void)v;\n",
                                  st.next_value ? st.next_value : 1);
@@ -3338,9 +3360,10 @@ static void emit_narr_lit(Nvm2cBuf *b) {
 
 static void emit_narr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static int64_t narr_get(narr_t a, int64_t idx) {\n"
-        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
-        "    return a->data[idx];\n"
+        "static nmap_value narr_get(narr_t a, int64_t idx) {\n"
+        "    uint32_t narrowed = (uint32_t)idx;\n"
+        "    if (!a || !a->data || (size_t)narrowed >= a->len) return (nmap_value){0};\n"
+        "    return (nmap_value){1, a->data[narrowed], NULL};\n"
         "}\n\n");
 }
 
@@ -3393,9 +3416,10 @@ static void emit_nsarr_lit(Nvm2cBuf *b) {
 
 static void emit_nsarr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static const char *nsarr_get(nsarr_t a, int64_t idx) {\n"
-        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
-        "    return a->data[idx] ? a->data[idx] : \"\";\n"
+        "static nmap_value nsarr_get(nsarr_t a, int64_t idx) {\n"
+        "    uint32_t narrowed = (uint32_t)idx;\n"
+        "    if (!a || !a->data || (size_t)narrowed >= a->len) return (nmap_value){0};\n"
+        "    return (nmap_value){5, 0, (char *)a->data[narrowed]};\n"
         "}\n\n");
 }
 
@@ -3908,6 +3932,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         nvm2c_puts(&b,
             "\ntypedef struct nmap_s *nmap_t;\n"
+            "typedef struct { uint8_t kind; int64_t integer; char *text; } nmap_value;\n"
             "typedef struct { int64_t *data; size_t len; } narr_s;\n"
             "typedef narr_s *narr_t;\n"
             "typedef struct { const char **data; size_t len; } nsarr_s;\n"
@@ -3960,7 +3985,20 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); free(owner); --nmap_owned_live; }\n"
                 "    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;\n"
                 "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); --nmap_owned_live; }\n}\n");
+        } else if (need_arr_get) {
+            nvm2c_puts(&b,
+                "static inline int64_t nvalue_require_int(nmap_value value) {\n"
+                "    if (value.kind != 1) abort();\n    return value.integer;\n}\n"
+                "static inline const char *nvalue_require_string(nmap_value value) {\n"
+                "    if (value.kind != 5) abort();\n    return value.text;\n}\n");
+            if (module_has_opcode(mod, OP_CAST_INT)) nvm2c_puts(&b,
+                "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
+                "    if (value.kind != 1) abort();\n    return value.integer;\n}\n");
         }
+        if (need_arr_get && !b.has_maps) nvm2c_puts(&b,
+            "static inline void nvalue_helpers_used(void) {\n"
+            "    (void)nvalue_require_int; (void)nvalue_require_string;\n"
+            "}\n");
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
@@ -4049,6 +4087,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "int main(int argc, char **argv) {\n"
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
+        if (module_has_opcode(mod, OP_ARR_GET) && !b.has_maps)
+            nvm2c_puts(&b, "    nvalue_helpers_used();\n");
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
             "    (void)nvalue_require_int; (void)nvalue_require_string; (void)nvalue_cast_int; (void)nvalue_equal;\n"

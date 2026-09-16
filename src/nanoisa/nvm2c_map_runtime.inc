@@ -1,7 +1,6 @@
 /* I keep this runtime as C source text so AOT output remains self-contained.
  * Set inputs are borrowed. Successful get results own their copied text and
  * must be released. Missing gets return a void value (kind zero). */
-"typedef struct { uint8_t kind; int64_t integer; char *text; } nmap_value;\n"
 "typedef struct nmap_entry { uint64_t hash; char *key; nmap_value value; struct nmap_entry *next; } nmap_entry;\n"
 "typedef struct nmap_s { nmap_entry **buckets; size_t capacity, count; uint8_t value_kind; } nmap_s;\n"
 "typedef nmap_s *nmap_t;\n"

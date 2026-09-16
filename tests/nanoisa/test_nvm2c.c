@@ -1473,6 +1473,40 @@ static void test_via_at_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_array_get_preserves_void_and_narrows_index(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 23\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 4294967296\n"
+        "  ARR_GET\n"
+        "  CAST_INT\n"
+        "  PUSH_I64 7\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 -1\n"
+        "  ARR_GET\n"
+        "  TYPE_CHECK 0\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "ARR_GET void and narrowing fixture");
+    CHECK(m != NULL, "ARR_GET void and narrowing fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits tagged array reads");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "uint32_t narrowed = (uint32_t)idx") != NULL,
+              "array indexes narrow like NanoVM");
+        CHECK(strstr(c, "return (nmap_value){0}") != NULL,
+              "out-of-bounds array reads preserve void");
+        CHECK(compile_and_run(c, &status) == 0, "tagged array read C compiles and runs");
+        CHECK(status == 24, "narrowed in-bounds and void type-check results are preserved");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_slen_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -1967,7 +2001,7 @@ static void test_nested_record_pack_is_refused(void) {
 }
 
 static void test_unsupported_classifier_instructions(void) {
-    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL, OP_PUSH_F64,
+    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_PUSH_F64,
         OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
         OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
@@ -2153,6 +2187,7 @@ static void test_native_map_runtime(void) {
     test_emitted_map_flow();
     const char *source =
         "#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <assert.h>\n"
+        "typedef struct { uint8_t kind; int64_t integer; char *text; } nmap_value;\n"
 #include "../../src/nanoisa/nvm2c_map_runtime.inc"
         "int main(int argc, char **argv) {\n"
         "    if (argc > 1) {\n"
@@ -2651,6 +2686,7 @@ int main(int argc, char **argv) {
     test_diff_runs_without_nano_vm();
     test_eq_array_is_refused();
     test_via_at_runs_without_nano_vm();
+    test_array_get_preserves_void_and_narrows_index();
     test_slen_runs_without_nano_vm();
     test_slice_runs_without_nano_vm();
     test_str_substr_array_is_refused();
