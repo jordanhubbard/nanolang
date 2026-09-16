@@ -2798,7 +2798,56 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_optional_record_results(void) {
+    const char *main_body =
+        ".function main 0 3 0 int 1\nHM_NEW 5 5\nSTORE_LOCAL 0\nPUSH_STR text\nSTORE_LOCAL 2\n"
+        "PUSH_BOOL 0\nLOAD_LOCAL 0\nLOAD_LOCAL 2\nCALL choose\nAGG_GET 0\nTYPE_CHECK 0\nASSERT\n"
+        "PUSH_BOOL 1\nLOAD_LOCAL 0\nLOAD_LOCAL 2\nCALL choose\nAGG_GET 0\nDUP\nTYPE_CHECK 5\nASSERT\n"
+        "PUSH_STR text\nEQ\nASSERT\nLOAD_LOCAL 2\nSTR_LEN\nPUSH_I64 2\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPOP\n"
+        "PUSH_BOOL 0\nLOAD_LOCAL 0\nLOAD_LOCAL 2\nCALL choose\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 0\nPUSH_STR key\nHM_DELETE\nPOP\nLOAD_LOCAL 1\nAGG_GET 0\n"
+        "PUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n";
+    for (int tail = 0; tail < 2; ++tail) {
+        for (int before = 0; before < 2; ++before) {
+            char workers[1024], source[4096];
+            snprintf(workers, sizeof workers,
+                ".function choose 3 3 0 struct 1\nLOAD_LOCAL 0\nJMP_FALSE lookup\nLOAD_LOCAL 2\n%s"
+                "lookup:\nLOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nAGG_PACK 0 0 0 1\nRET\n.end\n%s",
+                tail ? "TAIL_CALL plain\n" : "AGG_PACK 0 0 0 1\nRET\n",
+                tail ? ".function plain 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n" : "");
+            snprintf(source, sizeof source, ".string key \"key\"\n.string text \"42\"\n.entry main\n%s%s",
+                     before ? workers : main_body, before ? main_body : workers);
+            NvmModule *m = assemble_ok(source, "optional record result conversion");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I join ordinary and optional returned fields without changing source strings");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I preserve void and present tags across ordinary and tail record returns");
+                CHECK(strstr(c, "const char * a2") != NULL,
+                      "I keep the original string parameter in ordinary string storage");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    NvmModule *m = assemble_ok(
+        ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_BOOL 0\nCALL choose\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".function choose 1 1 0 struct 1\nLOAD_LOCAL 0\nJMP_FALSE lookup\n"
+        "PUSH_STR key\nAGG_PACK 0 0 0 1\nRET\nlookup:\nHM_NEW 5 1\nPUSH_STR key\nHM_GET\n"
+        "AGG_PACK 0 0 0 1\nRET\n.end\n", "conflicting optional result payload");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I reject incompatible payloads in optional record results");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_tagged_record_fields(void) {
+    test_optional_record_results();
     for (int strings = 0; strings < 2; ++strings) {
         char source[4096];
         snprintf(source, sizeof source,

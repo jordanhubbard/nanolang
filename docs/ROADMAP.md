@@ -136,9 +136,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   AOT and 965 graph checks. Evidence:
                   `docs/evidence/aot-record-array-literals.md`.
                 - [ ] I diagnose and implement the compiler's hashmap opcode
-                  requirements. Acceptance now stops at function 282
-                  (`type_from_string`) offset 120: result field 1 conflicts
-                  between ordinary and tagged string representations.
+                  requirements. Acceptance now passes the previously rejected
+                  record-result merge and stops at `LOAD_GLOBAL` in function
+                  323 (`check_expr_node`) at offset 21. General map and tagged
+                  aggregate flow remains incomplete below.
                   - [x] I implement reusable emitted map storage with checked
                     growth, owned keys/values, missing-key results, replacement,
                     deletion and retained lookup values; test both integer and
@@ -201,6 +202,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                           Normal and sanitizer suites pass 1,142 AOT and 990
                           shape checks. Evidence:
                           `docs/evidence/aot-tagged-record-fields.md`.
+                        - [x] I join ordinary and optional string fields in
+                          record results using explicit source-to-result
+                          compatibility, including tail returns. I test both
+                          return paths, missing values and unchanged ordinary
+                          source strings; nested field joins remain required.
+                          Normal and sanitizer suites pass 1,155 AOT and 990
+                          shape checks. Evidence:
+                          `docs/evidence/aot-optional-record-results.md`.
+                - [ ] I implement typed global load/store data flow, checked
+                  slot sizing, VM-compatible initialization and shared
+                  cross-function mutation/ownership. I test uninitialized
+                  values and full compiler acceptance. MAC
+                  `task_bcc4271b0de244c2810c09e004f6cd2e`.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.

@@ -373,8 +373,8 @@ static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uin
     return 1;
 }
 
-/* Only parameter storage widens here. Aggregate fields still require exact
- * compatibility; the final graph checks the optional's payload separately. */
+/* Callers opt into present-string to optional storage widening. Ordinary
+ * aggregate field merging stays exact; the graph checks optional payloads. */
 static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
     if (*dest == NVM2C_VK_VALUE && kind == NVM2C_VK_STR) return 1;
     if (*dest == NVM2C_VK_STR && kind == NVM2C_VK_VALUE) {
@@ -383,6 +383,12 @@ static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_
         return 1;
     }
     return merge_fact(b, facts, dest, kind);
+}
+
+static int merge_record_results(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uint8_t *fields) {
+    for (size_t i = 0; i < b->record_width; ++i)
+        if (!merge_parameter(b, facts, &dest[i], fields[i])) return 0;
+    return 1;
 }
 
 static int shape_ok(Nvm2cBuf *b) {
@@ -437,6 +443,27 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
     NvmShapeId child = nvm_shape_child(&b->shapes, parent, index);
     shape_ok(b);
     return child;
+}
+
+/* Returning a present string into optional record storage is a conversion,
+ * not equality between the source string and an optional shape. */
+static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result,
+                               const uint8_t *source_fields, const uint8_t *result_fields) {
+    if (!b->track_shapes) return 1;
+    int optional = 0;
+    for (size_t i = 0; i < b->record_width; ++i)
+        if (result_fields[i] == NVM2C_VK_VALUE) optional = 1;
+    if (!optional) return shape_equal(b, source, result);
+    if (!shape_type(b, source, NVM_SHAPE_RECORD) || !shape_type(b, result, NVM_SHAPE_RECORD)) return 0;
+    for (size_t i = 0; i < b->record_width; ++i) {
+        NvmShapeId from = shape_child(b, source, (uint32_t)i);
+        NvmShapeId to = shape_child(b, result, (uint32_t)i);
+        if (!shape_kind(b, from, source_fields[i]) || !shape_kind(b, to, result_fields[i])) return 0;
+        if (source_fields[i] == NVM2C_VK_STR && result_fields[i] == NVM2C_VK_VALUE) {
+            if (!shape_equal(b, from, shape_child(b, to, 0))) return 0;
+        } else if (!shape_equal(b, from, to)) return 0;
+    }
+    return 1;
 }
 
 static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
@@ -1191,15 +1218,23 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!result.rec_k) return 0;
                     if (!sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 }
-            } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION || cf->result_tag == TAG_ARRAY || cf->result_tag == TAG_HASHMAP) {
+            } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
+                if (!merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
+                                          facts->results + (size_t)callee * b->record_width)) return 0;
+            } else if (cf->result_tag == TAG_ARRAY || cf->result_tag == TAG_HASHMAP) {
                 if (!merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                   facts->results + (size_t)callee * b->record_width)) return 0;
             }
             if (ins.opcode == OP_CALL && cf->result_count == 1 && sp > 0) {
                 if (!shape_equal(b, stk[sp - 1].shape, shape_variable(b, &b->shape_results[callee]))) return 0;
             } else if (ins.opcode == OP_TAIL_CALL && cf->result_count == 1) {
-                if (!shape_equal(b, shape_variable(b, &b->shape_results[idx]),
-                                 shape_variable(b, &b->shape_results[callee]))) return 0;
+                if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
+                    if (!shape_record_return(b, shape_variable(b, &b->shape_results[callee]),
+                                             shape_variable(b, &b->shape_results[idx]),
+                                             facts->results + (size_t)callee * b->record_width,
+                                             facts->results + (size_t)idx * b->record_width)) return 0;
+                } else if (!shape_equal(b, shape_variable(b, &b->shape_results[idx]),
+                                        shape_variable(b, &b->shape_results[callee]))) return 0;
             }
             break;
         }
@@ -1248,7 +1283,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                                       v.rec_k)) return 0;
                 } else if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP) {
                     mark_origin(local_kind, nloc, v.origin, fn->result_tag == TAG_HASHMAP ? NVM2C_VK_MAP : NVM2C_VK_REC);
-                    if ((v.kind == NVM2C_VK_REC || v.kind == NVM2C_VK_MAP) &&
+                    if (v.kind == NVM2C_VK_REC &&
+                        !merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
+                                              v.rec_k)) return 0;
+                    if (v.kind == NVM2C_VK_MAP &&
                         !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
                 }
@@ -1256,8 +1294,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
                     fn->result_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
                     (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
-                if (!shape_type(b, v.shape, declared) ||
-                    !shape_equal(b, v.shape, shape_variable(b, &b->shape_results[idx]))) return 0;
+                if (!shape_type(b, v.shape, declared)) return 0;
+                if (declared == NVM_SHAPE_RECORD) {
+                    if (!shape_record_return(b, v.shape, shape_variable(b, &b->shape_results[idx]),
+                                             v.rec_k, facts->results + (size_t)idx * b->record_width)) return 0;
+                } else if (!shape_equal(b, v.shape, shape_variable(b, &b->shape_results[idx]))) return 0;
             }
             break;
         }
@@ -2745,17 +2786,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!shape_ok(b)) goto done;
             if (resolved != NVM2C_VK_UNK) st.rec_k[rec][fi] = resolved;
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
-            nvm2c_printf(b, "    if (r[%d].k[%u] != %u) abort();\n", rec, (unsigned)fi,
-                         (unsigned)st.rec_k[rec][fi]);
+            if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u) abort();\n",
+                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR);
+            else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) abort();\n", rec, (unsigned)fi,
+                              (unsigned)st.rec_k[rec][fi]);
             {
-                char expr[160];
+                char expr[256];
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
                     snprintf(expr, sizeof expr, "r[%d].s[%u]", rec, (unsigned)fi);
                     stack_push_str(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_VALUE) {
                     snprintf(expr, sizeof expr,
-                             "(nmap_value){r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
-                             rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
+                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
+                             rec, (unsigned)fi, NVM2C_VK_STR, rec, (unsigned)fi,
+                             rec, (unsigned)fi, rec, (unsigned)fi);
                     stack_push_value(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_REC) {
                     nvm2c_printf(b, "    if (!r[%d].rec[%u]) abort();\n", rec, (unsigned)fi);
