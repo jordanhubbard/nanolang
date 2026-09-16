@@ -30,7 +30,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 - [ ] **Darwin recursive test discovery.** I enumerate nested and root test
       fixtures on the default Bash without globstar, and reject empty negative
-      coverage rather than reporting a vacuous pass.
+      coverage rather than reporting a vacuous pass. I preserve argument
+      boundaries when discovered fixtures contain whitespace.
       MAC `task_0c4db2d50e2d4428828a487053535661`.
 
 - [ ] **Darwin launcher StringBuilder linkage.** I retain the runtime symbols
@@ -57,7 +58,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [x] **Stable full-suite compiler selection.** I pin the compiler requested
       by my test entry point even when bootstrap changes the installed symlink.
       I also propagate that selection into the negative-contract runner, which
-      otherwise follows the mutated symlink. My C-reference suite must execute
+      otherwise follows the mutated symlink, including direct CI invocations.
+      My C-reference suite must execute
       that compiler; the explicit self-hosted
       suite must retain its own compiler. I test the link-mutation case.
       MAC `task_9bdaa5f642b04645948f37acc282ea41`.
