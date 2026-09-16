@@ -253,6 +253,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   I trace source/result fields and test compatible optional
                   records without accepting incompatible payloads. MAC
                   `task_d1cdf01edf9040b2885cb31134688288`.
+                  - [x] I isolate nested present/missing string returns in
+                    `tests/nanoisa/fixtures/nested_optional_returns.nasm`.
+                    The VM executes it; native translation rejects it. I add
+                    that fixture to the compiler acceptance gate and report
+                    conflicting shape kinds and node IDs in diagnostics.
+                  - [ ] I implement recursive storage conversion without
+                    merging a present string node into its optional wrapper.
+                    I test shared payload nodes, call order, recursive graphs
+                    and incompatible payloads before clearing the regression.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

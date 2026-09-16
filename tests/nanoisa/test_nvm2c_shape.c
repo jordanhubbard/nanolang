@@ -150,6 +150,21 @@ static void test_map_shapes(void) {
 int main(void) {
     {
         NvmShapeGraph g = {0};
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        NvmShapeId string = nvm_shape_new(&g, NVM_SHAPE_STRING);
+        CHECK(!nvm_shape_unify(&g, optional, string));
+        CHECK(g.error == g.error_detail);
+        CHECK(strstr(g.error, "optional/string") != NULL);
+        CHECK(strstr(g.error, "nodes 1/2") != NULL);
+        char saved[160];
+        snprintf(saved, sizeof saved, "%s", g.error);
+        CHECK(nvm_shape_new(&g, NVM_SHAPE_INT) == 0);
+        CHECK(strcmp(saved, g.error) == 0);
+        nvm_shape_destroy(&g);
+        CHECK(g.error == NULL && g.error_detail[0] == '\0');
+    }
+    {
+        NvmShapeGraph g = {0};
         NvmShapeId boolean = nvm_shape_new(&g, NVM_SHAPE_BOOL);
         CHECK(nvm_shape_kind(&g, boolean) == NVM_SHAPE_BOOL);
         CHECK(nvm_shape_unify(&g, boolean, nvm_shape_new(&g, NVM_SHAPE_BOOL)));

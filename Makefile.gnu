@@ -427,7 +427,7 @@ test-nvm2c-sanitizers:
 	@python3 scripts/run_nvm2c_sanitizers.py --make "$(MAKE)" --cc "$(CC)"
 
 .PHONY: test-one-ir-compiler
-test-one-ir-compiler: nano_virt nvm2c
+test-one-ir-compiler: nano_virt nvm2c nanoisa_dump nano_vm
 	@python3 -m unittest tests.test_one_ir_compiler
 
 .PHONY: test-nvm2c-shapes

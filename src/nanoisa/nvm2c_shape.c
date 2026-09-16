@@ -1,6 +1,7 @@
 #include "nvm2c_shape.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 typedef struct { uint32_t index; NvmShapeId child; } ShapeEdge;
 struct NvmShapeNode {
@@ -11,6 +12,11 @@ struct NvmShapeNode {
     size_t count, capacity;
 };
 typedef struct { NvmShapeId a, b; } ShapePair;
+
+static const char *kind_name(NvmShapeKind kind) {
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool"};
+    return names[kind];
+}
 
 static int fail(NvmShapeGraph *g, const char *message) {
     if (!g->error) g->error = message;
@@ -123,7 +129,10 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
         if (left == right) continue;
         NvmShapeNode *x = &g->nodes[left - 1], *y = &g->nodes[right - 1];
         if (x->kind != NVM_SHAPE_UNKNOWN && y->kind != NVM_SHAPE_UNKNOWN && x->kind != y->kind) {
-            fail(g, "I found conflicting aggregate shape kinds");
+            snprintf(g->error_detail, sizeof g->error_detail,
+                     "I found conflicting aggregate shape kinds %s/%s at nodes %u/%u",
+                     kind_name(x->kind), kind_name(y->kind), left, right);
+            fail(g, g->error_detail);
             break;
         }
         if (x->rank < y->rank) {

@@ -21,6 +21,7 @@ typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
     const char *error;
+    char error_detail[160];
 } NvmShapeGraph;
 
 void nvm_shape_destroy(NvmShapeGraph *graph);

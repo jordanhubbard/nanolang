@@ -75,6 +75,20 @@ class OneIrCompiler(unittest.TestCase):
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
 
+    def test_nested_optional_returns_reach_native(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        with tempfile.TemporaryDirectory(prefix="nano-nested-optional-") as tmp:
+            work = Path(tmp)
+            module, source, binary = (work / name for name in ("input.nvm", "input.c", "input"))
+            self.run_checked([ROOT / "bin/nanoisa", "asm",
+                              ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm",
+                              "-o", module])
+            self.run_checked([ROOT / "bin/nano_vm", module])
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+            self.run_checked([binary])
+
 
 if __name__ == "__main__":
     unittest.main()
