@@ -234,6 +234,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   representation mismatch`. I preserve incompatible-layout
                   rejection and alias semantics while tracing the exact
                   field. MAC `task_dfd2bd4170e544b9869cb936484845b9`.
+                  - [x] I defer unknown flat-field comparisons at `ARR_SET`
+                    while retaining recursive element unification and runtime
+                    guards. Both function orders preserve alias-visible writes
+                    and reject incompatible nested fields. Normal and fresh
+                    ASan/UBSan runs pass 1,534 AOT and 994 shape checks. Evidence:
+                    `docs/evidence/aot-late-array-update-fields.md`.
+                - [ ] I preserve boolean element tags in native arrays.
+                  `typecheck_local_lets` (305), offset 41, appends a boolean to
+                  an explicitly boolean empty array and conflicts in the shape
+                  graph. I test literals, append, get/set, calls and tagged
+                  values without conflating boolean and integer tags. MAC
+                  `task_4fb63e3486c4404fa2f8b9e5ee8124a9`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

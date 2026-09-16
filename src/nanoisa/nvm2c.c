@@ -419,8 +419,9 @@ static int merge_record_results(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, c
 static int shape_ok(Nvm2cBuf *b) {
     if (b->shapes.error) {
         const InstructionInfo *info = isa_get_info(b->shape_opcode);
-        nvm2c_fail(b, "I found invalid aggregate shape constraints during %s: %s",
-                   info ? info->name : "classification", b->shapes.error);
+        nvm2c_fail(b, "I found invalid aggregate shape constraints during %s in function %u at offset %zu: %s",
+                   info ? info->name : "classification", b->classify_function_index,
+                   b->classify_offset, b->shapes.error);
     }
     return !b->failed;
 }
@@ -1201,11 +1202,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 }
                 if (expected == NVM2C_VK_RARR) {
                     for (size_t f = 0; f < b->record_width; ++f) {
-                        if ((facts->final ||
-                            (arr.rec_k[f] != NVM2C_VK_UNK &&
-                             val.rec_k[f] != NVM2C_VK_UNK)) &&
+                        /* Unknown flat fields can acquire recursive facts
+                         * later. The element graph is still unified below. */
+                        if (arr.rec_k[f] != NVM2C_VK_UNK &&
+                            val.rec_k[f] != NVM2C_VK_UNK &&
                             arr.rec_k[f] != val.rec_k[f]) {
-                            nvm2c_fail(b, "ARR_SET record field representation mismatch");
+                            nvm2c_fail(b, "ARR_SET record field representation mismatch (function %u, offset %zu, field %zu, kinds %u/%u, final=%d)",
+                                       idx, start, f, arr.rec_k[f], val.rec_k[f], facts->final);
                             return 0;
                         }
                     }

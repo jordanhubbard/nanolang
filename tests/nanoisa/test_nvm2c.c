@@ -4770,6 +4770,33 @@ static void test_self_tail_rejects_malformed_calls(void) {
 }
 
 static void test_array_set_aliases_bounds_and_types(void) {
+    for (int before = 0; before < 2; ++before) {
+        for (int wrong = 0; wrong < 2; ++wrong) {
+            char worker[1024], source[3072];
+            snprintf(worker, sizeof worker,
+                ".function update 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 0\n%s"
+                "AGG_PACK 0 0 0 1\nARR_SET\nPOP\nPUSH_I64 0\nRET\n.end\n",
+                wrong ? "PUSH_I64 7\n" : "PUSH_STR updated\n");
+            const char *entry = ".function main 0 1 0 int 1\nPUSH_STR old\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nSTORE_LOCAL 0\n"
+                "LOAD_LOCAL 0\nAGG_PACK 0 1 0 1\nCALL update\nPOP\n"
+                "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_STR updated\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n";
+            snprintf(source, sizeof source,
+                ".string old \"old\"\n.string updated \"new\"\n.types 2 0 0\n.entry main\n%s%s",
+                before ? worker : entry, before ? entry : worker);
+            NvmModule *m = assemble_ok(source, "late record-array update facts");
+            if (!m) continue;
+            char err[512];
+            char *c = nvm2c_emit(m, err, sizeof err);
+            CHECK((c != NULL) == !wrong, "I distinguish unknown fields from incompatible record-array updates");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I preserve alias-visible updates through a projected record array");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
     const char *initial[] = {
         "PUSH_I64 1\nARR_LITERAL 1 1\n",
         "PUSH_STR old\nARR_LITERAL 5 1\n",
