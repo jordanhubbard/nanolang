@@ -4,7 +4,7 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 
 ## [Unreleased]
 
-## [5.0.0] - 2026-09-14
+## [5.0.0] - 2026-09-16
 
 ### Changed
 - I make `return` exit the enclosing function inside match arms; expressions
@@ -26,6 +26,13 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 - I execute nested-array shadows in the interpreter, preserve nested literal
   tags in bytecode, supply coverage timing, and repair dormant dependency
   shadow fixtures.
+- I execute imported retained-callback shadows through my shared VM bridge,
+  preserve callback signatures and lexical captures, and honor dispatch
+  availability on each host.
+- I replay retained C++ module inputs with their selected language and link
+  packaged wrappers against instrumented runtime objects.
+- I preserve scalar synchronous async lowering and verify all 175 selected
+  bytecode corpus programs, with matching execution in both VM dispatch modes.
 
 ### Added
 - I include the Scheme, ML, Actor, Dataflow, Object, Shell and Logic laboratory
@@ -37,8 +44,9 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 - I still bootstrap through C transpilation. NanoISA-only self-hosting,
   complete ownership checking, broader snapshot coverage and production
   service isolation remain unfinished roadmap work.
-- I retain the 4.5 deck and narrative as historical artifacts, not 5.0
-  documentation. This is an explicit presentation-gate acknowledgement.
+- I regenerate the local 5.0 deck and narrative. The Google publication links
+  still identify the historical 4.5 edition; local generation does not update
+  those external artifacts.
 - See [my release scope and evidence](docs/RELEASE_5.0.md).
 
 ## [4.5.0] - 2026-09-07
