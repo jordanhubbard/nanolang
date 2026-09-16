@@ -21,6 +21,30 @@ def recipe(target):
 
 
 class TestCompilerSelection(unittest.TestCase):
+    def test_runtime_failure_diagnostic_reaches_the_job_log(self):
+        with tempfile.TemporaryDirectory(prefix="nano runtime diagnostic ") as tmp:
+            root = Path(tmp)
+            (root / "tests/unit").mkdir(parents=True)
+            shutil.copy2(ROOT / "tests/run_all_tests.sh", root / "tests/run_all_tests.sh")
+            (root / "tests/unit/probe.nano").write_text("fn main() -> int { return 19 }\n")
+            compiler = root / "compiler"
+            compiler.write_text('''#!/usr/bin/env python3
+from pathlib import Path
+import sys
+output = Path(sys.argv[sys.argv.index("-o") + 1])
+output.write_text("#!/bin/sh\\necho 'I retained the runtime diagnostic' >&2\\nexit 19\\n")
+output.chmod(0o700)
+''')
+            compiler.chmod(0o700)
+            env = dict(os.environ, NANOLANG_COMPILER=str(compiler), NANOLANG_BACKEND="c")
+            result = subprocess.run(["bash", "tests/run_all_tests.sh", "--unit"], cwd=root,
+                                    env=env, capture_output=True, text=True, timeout=15)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("runtime failure", result.stdout)
+            self.assertIn("I retained the runtime diagnostic", result.stderr)
+            self.assertIn("I retained the runtime diagnostic",
+                          (root / ".test_output/unit_probe.nano.run.log").read_text())
+
     def test_negative_runner_retains_selection_and_rejection_contract(self):
         with tempfile.TemporaryDirectory(prefix="nano negative selection ") as tmp:
             root = Path(tmp)

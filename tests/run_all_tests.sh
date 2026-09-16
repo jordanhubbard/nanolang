@@ -207,6 +207,7 @@ run_test() {
         local _compile_err
         _compile_err=$(cat "$log_file" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
         echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
+        tail -n 80 "$log_file" >&2
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
             "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
@@ -268,6 +269,7 @@ run_test() {
             local _fail_msg
             _fail_msg=$(cat "$run_log" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
             echo -e "${RED}❌${NC} $test_name ${RED}(runtime failure)${NC}"
+            tail -n 80 "$run_log" >&2
             TOTAL_FAIL=$((TOTAL_FAIL + 1))
             case "$category" in
                 "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
