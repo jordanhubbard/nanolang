@@ -30,6 +30,31 @@ class OneIrCompiler(unittest.TestCase):
                          f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
         return stdout
 
+    def test_declared_empty_array_returns_reach_native(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for element_type, value in (("int", "42"), ("string", '"answer"'),
+                                    ("Point", "Point { x: 42 }")):
+            with self.subTest(element_type=element_type), tempfile.TemporaryDirectory(prefix="nano-empty-return-") as tmp:
+                work = Path(tmp)
+                source, module, native_c, binary = (work / name for name in ("input.nano", "input.nvm", "input.c", "input"))
+                source.write_text(
+                    "struct Point { x: int }\n"
+                    f"fn make(empty: bool) -> array<{element_type}> {{\n"
+                    "  if empty { return [] }\n"
+                    f"  return [{value}]\n}}\n"
+                    "shadow make { assert (== (array_length (make true)) 0) }\n"
+                    "fn main() -> int {\n"
+                    "  assert (== (array_length (make true)) 0)\n"
+                    "  assert (== (array_length (make false)) 1)\n"
+                    "  return 0\n}\n"
+                    "shadow main { assert (== (main) 0) }\n"
+                )
+                self.run_checked([ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", native_c])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary])
+                self.run_checked([binary])
+
     def test_compiler_bytecode_to_native_to_program(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

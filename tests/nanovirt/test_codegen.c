@@ -218,6 +218,50 @@ static void test_function_result_signatures(void) {
     nvm_module_free(tr.module);
 }
 
+static void test_empty_array_return_tags(void) {
+    const char *types[] = {"int", "float", "bool", "string", "Point"};
+    const char *values[] = {"42", "1.5", "true", "\"answer\"", "Point { x: 42 }"};
+    const uint8_t tags[] = {TAG_INT, TAG_FLOAT, TAG_BOOL, TAG_STRING, TAG_STRUCT};
+    for (size_t type = 0; type < sizeof tags / sizeof tags[0]; ++type) {
+        char source[2048];
+        snprintf(source, sizeof source,
+            "struct Point { x: int }\n"
+            "fn make(empty: bool) -> array<%s> {\n"
+            "  fn nested() -> array<int> { return [] }\n"
+            "  let other: array<int> = (nested)\n"
+            "  if empty { return [] }\n"
+            "  return [%s]\n}\n"
+            "shadow make { assert (== (array_length (make true)) 0) }\n"
+            "fn main() -> int {\n"
+            "  assert (== (array_length (make true)) 0)\n"
+            "  assert (== (array_length (make false)) 1)\n"
+            "  return 0\n}\n"
+            "shadow main { assert (== (main) 0) }\n", types[type], values[type]);
+        TestResult tr = compile_and_run(source);
+        ASSERT(tr.ok, "I compile declared empty array return types");
+        ASSERT(tr.vm_result == VM_OK, "I execute empty and nonempty return paths");
+        bool found = false;
+        for (uint32_t i = 0; i < tr.module->function_count; ++i) {
+            NvmFunctionEntry *fn = &tr.module->functions[i];
+            const char *name = nvm_get_string(tr.module, fn->name_idx);
+            if (!name || strcmp(name, "make") != 0) continue;
+            for (uint32_t pc = fn->code_offset; pc < fn->code_offset + fn->code_length;) {
+                DecodedInstruction ins;
+                uint32_t width = isa_decode(tr.module->code + pc, fn->code_offset + fn->code_length - pc, &ins);
+                ASSERT(width > 0, "I decode empty array return instructions");
+                if (ins.opcode == OP_ARR_LITERAL && ins.operands[1].u16 == 0) {
+                    ASSERT(ins.operands[0].u8 == tags[type], "I restore the enclosing return element type after nested compilation");
+                    found = true;
+                }
+                pc += width;
+            }
+        }
+        ASSERT(found, "I exercise an emitted empty return literal");
+        nvm_module_free(tr.module);
+        TEST_PASS();
+    }
+}
+
 static void test_empty_struct_list_result_keeps_element_tag(void) {
     const char *source =
         "struct Point { x: int }\n"
@@ -1667,6 +1711,7 @@ static void test_compiler_local_limit(void) {
 }
 
 int main(void) {
+    test_empty_array_return_tags();
     test_array_search_types();
     test_compiler_local_limit();
     setvbuf(stdout, NULL, _IONBF, 0);

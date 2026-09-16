@@ -125,6 +125,7 @@ struct CG {
     uint16_t local_count;
     uint16_t param_count;
     uint32_t current_fn_idx;
+    Type current_return_element_type;
 
     /* Function table (populated in pass 1) */
     FnEntry functions[MAX_FUNCTIONS];
@@ -2679,6 +2680,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     uint16_t saved_local_count = cg->local_count;
     uint16_t saved_param_count = cg->param_count;
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
+    Type saved_return_element_type = cg->current_return_element_type;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
     int saved_loop_depth = cg->loop_depth;
     uint16_t saved_upvalue_count = cg->upvalue_count;
@@ -2701,6 +2703,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->loop_depth = 0;
     cg->upvalue_count = 0;
     cg->current_fn_idx = (uint32_t)fn_idx;
+    cg->current_return_element_type = node->as.function.return_element_type;
 
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -2751,6 +2754,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->local_count = saved_local_count;
     cg->param_count = saved_param_count;
     cg->current_fn_idx = saved_current_fn_idx;
+    cg->current_return_element_type = saved_return_element_type;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
     cg->loop_depth = saved_loop_depth;
     /* Resolving a grandchild's free variable can add a capture to this
@@ -3110,6 +3114,13 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_RETURN: {
+        ASTNode *value = node->as.return_stmt.value;
+        if (value && value->type == AST_ARRAY_LITERAL &&
+            value->as.array_literal.element_count == 0 &&
+            cg->module->functions[cg->current_fn_idx].result_tag == TAG_ARRAY &&
+            cg->current_return_element_type != TYPE_UNKNOWN) {
+            value->as.array_literal.element_type = cg->current_return_element_type;
+        }
         if (node->as.return_stmt.value
                 && compile_tail_call(cg, node->as.return_stmt.value)) {
             break;
@@ -3303,6 +3314,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     cg->loop_depth = 0;
     cg->upvalue_count = 0;
     cg->current_fn_idx = (uint32_t)fn_idx;
+    cg->current_return_element_type = fn_node->as.function.return_element_type;
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {

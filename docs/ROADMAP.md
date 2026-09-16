@@ -141,11 +141,26 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     Full compiler acceptance remains a separate gate. Normal
                     and sanitizer suites pass 1,284 AOT and 994 shape checks.
                     Evidence: `docs/evidence/aot-array-result-kinds.md`.
-                  - [ ] I reconcile empty array returns with nonempty string
-                    array returns in `extract_type_args`. My current compiler
-                    translation stops at function 369, offset 553 with
-                    conflicting `narr_t` and `nsarr_t` results. I retain type
-                    checks while inferring the empty path's element kind.
+                  - [x] I reconcile the direct empty array return with the
+                    nonempty string array return in `extract_type_args` by
+                    retaining its declared element type during lowering.
+                    Fresh compiler bytecode passes the former conflict at
+                    function 369, offset 553 without weakening native checks.
+                    - [x] I retain the declared array element type when
+                      lowering a direct empty return literal, including nested
+                      function contexts. I test emitted tags, VM execution and
+                      native translation without reinterpreting explicit
+                      integer-array bytecode as string arrays. All 74 codegen
+                      tests pass; source-to-bytecode-to-native empty/nonempty
+                      int, string and record return fixtures pass. Evidence:
+                      `docs/evidence/empty-array-return-tags.md`.
+                - [ ] I remove my native translator's 256-local bottleneck
+                  without weakening malformed-arity checks. Fresh compiler
+                  bytecode reaches function 463, which exceeds that limit;
+                  NanoVirt allows 1,024 locals. I test high local indices,
+                  parameter facts and checked allocation sizes, and rerun full
+                  compiler acceptance. MAC
+                  `task_183123ca3822426499719b042132b49f`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
