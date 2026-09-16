@@ -28,6 +28,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **5.0 finalization on sparky.** I finish the user-authorized release
+      from integration checkpoint `5cf21fc1`, preserving its audited contracts.
+      MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
+      - [ ] I reconcile main through `ded3ee5a`, including affine rejection,
+        lexical bindings, native allocation lifetimes and path normalization.
+      - [ ] I reproduce remaining release failures, repair them in dependency
+        order, and reconcile stale checkboxes against executable evidence.
+      - [ ] I run a clean build and full tests, review all open release work,
+        and update documentation, presentation and release evidence.
+      - [ ] I merge the validated candidate, publish the 5.0 tag and release,
+        and verify the published artifacts against the tested commit.
+
 - [x] **Self-hosted literal filter dispatch.** I infer direct literal array
       element types before choosing a native filter helper, including the
       boolean callback ABI. My fresh Stage 2 selects the integer helper for
