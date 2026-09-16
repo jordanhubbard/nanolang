@@ -138,6 +138,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 - [ ] I diagnose and implement the compiler's hashmap opcode
                   requirements. Acceptance now stops at function 267
                   (`build_field_metadata_index`) with operand-stack underflow.
+                  - [x] I implement reusable emitted map storage with checked
+                    growth, owned keys/values, missing-key results, replacement,
+                    deletion and retained lookup values; test both integer and
+                    string maps. Normal and sanitizer suites pass 1,106 AOT
+                    and 965 graph checks. Evidence:
+                    `docs/evidence/aot-map-storage.md`.
+                  - [ ] I connect map storage to classification and emission,
+                    preserving value kinds, missing-key tags and ownership
+                    through locals, branches, calls and returns. Storage tests
+                    alone do not implement `HM_NEW` or complete acceptance.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.
