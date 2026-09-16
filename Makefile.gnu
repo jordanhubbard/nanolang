@@ -711,11 +711,11 @@ test-array-abi-loader:
 	python3 -m unittest tests.test_array_abi_loader
 
 test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
-	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -pthread tests/nanovm/ffi_callback_fixture.c -o obj/ffi_callback_fixture.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -pthread tests/nanovm/ffi_callback_fixture.c -o obj/ffi_callback_fixture.so $(LDFLAGS)
 	$(CC) $(CFLAGS) -pthread tests/nanovm/test_retained_image_failure.c $(OBJ_DIR)/runtime/module_build_dir.o -o obj/test_retained_image_failure $(LDFLAGS)
 	@obj/test_retained_image_failure
-	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
-	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)
 	$(CC) $(CFLAGS) tests/nanovm/test_artifact_load.c -o obj/test_artifact_load $(LDFLAGS) $(if $(filter Linux,$(UNAME_S)),-ldl,)
 	@obj/test_artifact_load obj/ffi_artifact_first.so obj/ffi_artifact_second.so
 	@echo "Running vm_ffi unit tests..."
@@ -1075,7 +1075,7 @@ test-selfhost-map-results: bootstrap3
 
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<
+	$(CC) $(CFLAGS) -fPIC $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<
 
 test-ffi: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
 	@echo "Running interpreter FFI unit tests..."
