@@ -125,6 +125,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   Normal and tail-return regressions preserve mixed fields.
                   The sanitizer suite passes 1,070 AOT and 965 graph checks.
                   Evidence: `docs/evidence/aot-record-array-return-fields.md`.
+                - [ ] I infer scalar versus record array results in native
+                  signatures instead of classifying every array return as a
+                  record array. Compiler acceptance reaches function 323,
+                  offset 5359: `split_tuple_type_names` returns strings, but
+                  its indexed element is inferred as a record when passed to
+                  `strip_spaces`. I test direct/tail calls, recursion, empty
+                  arrays and preserved record-array behavior. MAC
+                  `task_f6b029d7b7e749caa7a064c9566bd666`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
@@ -224,6 +232,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                           offset 1761 and conflicts on field 1 of parameter 0
                           of function 274. I preserve source representations
                           while widening the callee's field storage.
+                          - [x] I support ordinary/optional string fields at
+                            direct and tail record calls, preserving source
+                            records and checking payload compatibility. I test
+                            both caller orders and function-definition orders;
+                            nested and other scalar field joins remain open.
+                            Normal and sanitizer suites pass 1,259 AOT and
+                            994 shape checks. Evidence:
+                            `docs/evidence/aot-record-arguments.md`.
                         - [x] I carry consistently tagged fields through
                           records, nested snapshots and returned record
                           arrays. I defer unresolved projection validation

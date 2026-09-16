@@ -1299,14 +1299,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 size_t at = (size_t)callee * NVM2C_MAX_LOCALS + i - 1;
                 if (!merge_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
                 NvmShapeId parameter = shape_variable(b, &b->shape_locals[at]);
-                if (facts->parameters[at] == NVM2C_VK_VALUE && arg.kind == NVM2C_VK_STR) {
+                if (arg.kind == NVM2C_VK_REC) {
+                    uint8_t *fields = facts->fields + at * b->record_width;
+                    if (!merge_record_results(b, facts, fields, arg.rec_k) ||
+                        !shape_record_return(b, arg.shape, parameter, arg.rec_k, fields)) return 0;
+                } else if (facts->parameters[at] == NVM2C_VK_VALUE && arg.kind == NVM2C_VK_STR) {
                     if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL) ||
                         !shape_equal(b, arg.shape, shape_child(b, parameter, 0))) return 0;
                 } else if (!shape_equal(b, arg.shape, parameter)) return 0;
                 if (arg.kind == NVM2C_VK_UNK) {
                     mark_origin(local_kind, nloc, arg.origin, facts->parameters[at]);
                 }
-                if (arg.kind == NVM2C_VK_REC || arg.kind == NVM2C_VK_RARR || arg.kind == NVM2C_VK_MAP) {
+                if (arg.kind == NVM2C_VK_RARR || arg.kind == NVM2C_VK_MAP) {
                     if (!merge_fields(b, facts, facts->fields + at * b->record_width, arg.rec_k)) return 0;
                 }
             }

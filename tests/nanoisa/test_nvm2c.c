@@ -2807,7 +2807,55 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_optional_record_arguments(void) {
+    for (int tail = 0; tail < 2; ++tail) {
+        for (int reverse = 0; reverse < 2; ++reverse) {
+            for (int before = 0; before < 2; ++before) {
+                const char *plain = "LOAD_LOCAL 0\nCALL relay\nAGG_GET 0\nPUSH_STR text\nEQ\nASSERT\n";
+                const char *missing = "LOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK 0\nASSERT\n";
+                char body[2048], workers[512], source[3072];
+                snprintf(body, sizeof body,
+                    ".function main 0 1 0 int 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n%s%s"
+                    "PUSH_STR text\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nCALL relay\n"
+                    "AGG_GET 0\nPUSH_STR text\nEQ\nASSERT\n"
+                    "LOAD_LOCAL 0\nAGG_GET 0\nSTR_LEN\nPUSH_I64 4\nI64_EQ\nASSERT\n"
+                    "PUSH_I64 0\nRET\n.end\n", reverse ? missing : plain, reverse ? plain : missing);
+                snprintf(workers, sizeof workers,
+                    ".function relay 1 1 0 struct 1\nLOAD_LOCAL 0\n%s\n.end\n"
+                    ".function identity 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n",
+                    tail ? "TAIL_CALL identity" : "CALL identity\nRET");
+                snprintf(source, sizeof source, ".string text \"kept\"\n.entry main\n%s%s",
+                         before ? workers : body, before ? body : workers);
+                NvmModule *m = assemble_ok(source, "mixed record argument fields");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I reconcile ordinary and tagged record argument fields independent of ordering");
+                if (c) {
+                    int status = -1;
+                    CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                          "I preserve present and missing fields through calls and leave the caller record unchanged");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+    NvmModule *m = assemble_ok(
+        ".string text \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_STR text\nAGG_PACK 0 0 0 1\nCALL inspect\nPOP\n"
+        "HM_NEW 5 1\nPUSH_STR text\nHM_GET\nAGG_PACK 0 0 0 1\nCALL inspect\nPOP\n"
+        "PUSH_I64 0\nRET\n.end\n"
+        ".function inspect 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_INT\nRET\n.end\n",
+        "incompatible record argument payload");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I still reject incompatible optional payload constraints at record calls");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_optional_record_results(void) {
+    test_optional_record_arguments();
     const char *main_body =
         ".function main 0 3 0 int 1\nHM_NEW 5 5\nSTORE_LOCAL 0\nPUSH_STR text\nSTORE_LOCAL 2\n"
         "PUSH_BOOL 0\nLOAD_LOCAL 0\nLOAD_LOCAL 2\nCALL choose\nAGG_GET 0\nTYPE_CHECK 0\nASSERT\n"
@@ -2894,9 +2942,12 @@ static void test_tagged_record_fields(void) {
         ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nSTR_LEN\nRET\n.end\n";
     NvmModule *m = assemble_ok(mixed, "mixed ordinary and optional record fields");
     if (m) {
-        char error[256] = {0};
-        char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && error[0], "I reject mixed record field representations until field joins preserve tags");
+        char *c = emit_or_fail(m, "I preserve tags in mixed record parameter fields");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I consume missing and present fields without changing their tags");
+        }
         free(c); nvm_module_free(m);
     }
 }
