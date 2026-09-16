@@ -34,3 +34,19 @@ translator rejects these effect opcodes; I do not claim AOT handler support.
 I do not unwind an effect across an externally entered callback activation.
 A handler arm can loop locally, but cannot break or continue a suspended
 outer loop. Those transfers need their own specified unwinding contract.
+
+## My root-test corpus check
+
+After integrating the existing scalar async and resource-fixture repairs from
+`60d845f3`, I ran both corpus gates alone in the VM effects worktree:
+
+- `make test-dispatch-equivalence`: 175 selected, 175 identical output/status,
+  zero failures, zero skipped.
+- `make test-verify-all-programs`: 175 selected, 175 verified, zero failures,
+  zero skipped. The verification-only and gate contract tests also passed.
+
+The first gate compares my switch and computed-goto dispatch implementations;
+it does not compare either one against the native backend. The second checks
+compilation with shadows and bytecode verification, not every runtime input.
+The initial dispatch run found only the already corrected scalar async and
+resource-fixture defects. I added no corpus exclusions.
