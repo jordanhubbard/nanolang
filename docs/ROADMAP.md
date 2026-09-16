@@ -124,6 +124,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       Bounded compile-flag buffers must reject overflow explicitly too.
       MAC `task_7c505ffcb1f3464aa8cda8fb461dc4ee`.
 
+- [ ] **Hosted full-suite execution budget.** I preserve every release test
+      while allowing the full hosted suite a bounded 3,600 seconds and its CI
+      job 75 minutes for the suite, JUnit corpus and user guide. At `86aa2006`,
+      Ubuntu ARM job `104950451685` exhausted the old 1,800-second make budget
+      during progressing Forth Jackson tests with zero reported errors. I
+      require focused workflow checks and a fresh exact-head hosted pass.
+      MAC `task_0675dace285d3c8d0a593800f50ffa16`.
+
 - [x] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
       sanitizer-build deadline without dropping shadows or instrumentation,
       and test an explicit bounded budget when the workload requires it.

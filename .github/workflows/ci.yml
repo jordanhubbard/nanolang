@@ -12,7 +12,7 @@ jobs:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
-    timeout-minutes: 45
+    timeout-minutes: 75
     permissions:
       contents: read
       checks: write
@@ -104,7 +104,7 @@ jobs:
       - name: Run test suite
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
-        run: make test
+        run: make test TEST_TIMEOUT=3600
 
       - name: Run test suite with JUnit XML output
         run: make test-junit
