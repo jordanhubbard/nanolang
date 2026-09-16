@@ -411,12 +411,26 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   GC regressions pass; full compiler acceptance passes 16 of 17
                   methods and advances to the parser failure below. Evidence:
                   `docs/evidence/aot-host-runtime-linkage.md`.
-                - [ ] I preserve token record-field tags in native compiler
+                - [x] I preserve token record-field tags in native compiler
                   execution. With the host runtime linked, hello compilation
                   reaches `parser_is_at_end` and aborts on field zero's expected
                   storage kind 2. I trace construction and projection, retain
                   validation and rerun compiler acceptance. MAC
                   `task_45fedd409e1447089dad970396b0a075`.
+                  I project unresolved scalars through checked tagged values,
+                  including local copies, without guessing an integer type.
+                  Forty-eight execution/rejection cases pass. Normal and fresh
+                  ASan/UBSan suites pass 1,670 AOT and 1,073 shape checks.
+                  Full acceptance passes 17 of 18 methods; native compiler
+                  execution remains failing. Evidence:
+                  `docs/evidence/aot-unconstrained-scalar-projections.md`.
+                - [ ] I bound native record and temporary frame growth during
+                  parsing. Fresh native compiler runs exhaust an approximately
+                  8 MiB stack about seventeen frames deep while compiling hello.
+                  I measure storage/lifetimes, add a bounded-stack regression and
+                  rerun acceptance without merely raising the stack limit. I also
+                  reconcile the full suite's SIGABRT with standalone SIGSEGV.
+                  MAC `task_e81212c768d148639429d1d2be9f826d`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

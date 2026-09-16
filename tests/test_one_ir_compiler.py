@@ -538,6 +538,44 @@ class OneIrCompiler(unittest.TestCase):
                             rejected = subprocess.run([binary, invalid], capture_output=True, timeout=10)
                             self.assertLess(rejected.returncode, 0, "I trap an invalid generic array descriptor")
 
+    def test_unconstrained_scalar_projection_preserves_tags(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for local in (False, True):
+                with self.subTest(reverse=reverse, local=local), tempfile.TemporaryDirectory(prefix="nano-projected-tag-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = '.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
+                    helper = '.function probe 1 2 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\n'
+                    if local:
+                        helper += 'STORE_LOCAL 1\nLOAD_LOCAL 1\n'
+                    helper += 'PUSH_I64 24\nEQ\nRET\n.end\n'
+                    assembly.write_text('.entry main\n' + (helper + main if reverse else main + helper) +
+                                        f'.parameters {0 if reverse else 1} struct\n')
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    source.write_text(generated + '''
+int main(int argc, char **argv) {
+    if (argc != 2) return 2;
+    int which = atoi(argv[1]);
+    nrec_t record = {.n = 1}; record.f[0] = 24; record.s[0] = "24";
+    const uint8_t kinds[] = {0, 9, 1, 8, 8, 8, 8, 2, 4, 7, 8, 1};
+    const uint8_t tags[] = {0, 0, 0, 1, 4, 5, 0, 0, 0, 0, 2, 0};
+    record.k[0] = kinds[which]; record.vk[0] = tags[which];
+    if (which == 1 || which == 4) record.f[0] = 1;
+    if (which == 11) record.s[0] = NULL;
+    return nl_probe(record) != (which == 0 || which == 3);
+}
+''')
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    for which in range(7):
+                        self.run_checked([binary, str(which)])
+                    for which in range(7, 12):
+                        rejected = subprocess.run([binary, str(which)], capture_output=True, timeout=10)
+                        self.assertLess(rejected.returncode, 0, "I reject unsupported projected storage")
+
     def test_uncalled_functions_are_warning_clean_not_executed(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

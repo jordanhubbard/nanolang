@@ -3163,6 +3163,23 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 break;
             }
             if (resolved != NVM2C_VK_UNK) st.rec_k[rec][fi] = resolved;
+            if (st.rec_k[rec][fi] == NVM2C_VK_UNK) {
+                /* I preserve an unconstrained scalar's runtime tag. Unknown
+                 * is an inference marker, never a valid record storage tag. */
+                nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != 0 && r[%d].k[%u] != 9 && r[%d].k[%u] != 1 && r[%d].k[%u] != 8) abort();\n",
+                             rec, fi, rec, fi, rec, fi, rec, fi);
+                nvm2c_printf(b, "    if (r[%d].k[%u] == 8 && r[%d].vk[%u] != 0 && r[%d].vk[%u] != 1 && r[%d].vk[%u] != 4 && r[%d].vk[%u] != 5) abort();\n",
+                             rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
+                nvm2c_printf(b, "    if ((r[%d].k[%u] == 1 || (r[%d].k[%u] == 8 && r[%d].vk[%u] == 5)) && !r[%d].s[%u]) abort();\n",
+                             rec, fi, rec, fi, rec, fi, rec, fi);
+                char expr[384];
+                snprintf(expr, sizeof expr,
+                         "(nmap_value){r[%d].k[%u] == 0 ? 1 : r[%d].k[%u] == 9 ? 4 : r[%d].k[%u] == 1 ? 5 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
+                         rec, fi, rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
+                stack_push_value(b, &st, expr);
+                break;
+            }
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
             if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
                 nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u) abort();\n",
@@ -4301,6 +4318,23 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
 
     /* Nested projections may acquire their representation from a later
      * function's constraints. Resolve local storage after all final passes. */
+    uint8_t *tagged_projections = calloc(b.shapes.count + 1, 1);
+    if (!tagged_projections) { nvm2c_fail(&b, "I cannot allocate projected storage facts"); goto fail; }
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        const NvmFunctionEntry *fn = &mod->functions[f];
+        for (size_t pc = 0; pc < fn->code_length;) {
+            DecodedInstruction ins;
+            uint32_t size = isa_decode(mod->code + fn->code_offset + pc, fn->code_length - pc, &ins);
+            if (!size) { free(tagged_projections); nvm2c_fail(&b, "I cannot decode projected storage facts"); goto fail; }
+            NvmShapeId shape = b.shape_outputs[f][pc];
+            if (ins.opcode == OP_AGG_GET && shape &&
+                nvm_shape_kind(&b.shapes, shape) == NVM_SHAPE_UNKNOWN) {
+                tagged_projections[nvm_shape_root(&b.shapes, shape)] = 1;
+                b.has_maps = 1;
+            }
+            pc += size;
+        }
+    }
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) {
             uint8_t resolved = resolved_shape_kind(&b, b.shape_results[f]);
@@ -4310,6 +4344,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             size_t at = (size_t)f * b.local_width + l;
             uint8_t resolved = resolved_shape_kind(&b, b.shape_locals[at]);
             if (resolved != NVM2C_VK_UNK) kinds[at] = resolved;
+            else if (kinds[at] == NVM2C_VK_UNK && b.shape_locals[at] &&
+                     tagged_projections[nvm_shape_root(&b.shapes, b.shape_locals[at])])
+                kinds[at] = NVM2C_VK_VALUE;
             else if (kinds[at] == NVM2C_VK_UNK && b.shape_locals[at] &&
                      nvm_shape_kind(&b.shapes, b.shape_locals[at]) == NVM_SHAPE_ARRAY) {
                 /* An array container with unresolved element storage uses the
@@ -4322,6 +4359,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (kinds[at] == NVM2C_VK_UNK) kinds[at] = NVM2C_VK_INT;
         }
     }
+    free(tagged_projections);
     if (!shape_ok(&b)) goto fail;
 
     /* I finish graph construction before requiring packed field kinds.
