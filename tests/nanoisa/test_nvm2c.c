@@ -1854,6 +1854,84 @@ static void test_one_t_result_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_array_result_kinds_cross_calls(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 4\n"
+        ".function ints 0 0 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function strings 0 0 0 array 1\n"
+        "  ARR_NEW 5\n"
+        "  RET\n"
+        ".end\n"
+        ".function forward 0 0 0 array 1\n"
+        "  TAIL_CALL strings\n"
+        ".end\n"
+        ".function records 0 0 0 array 1\n"
+        "  ARR_NEW 8\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 3 0 int 1\n"
+        "  CALL ints\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  CALL forward\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_STR hi\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STR_LEN\n"
+        "  POP\n"
+        "  CALL records\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 2\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  AGG_GET 0\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "array result kinds fixture");
+    CHECK(m != NULL, "array result kinds fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c infers array result kinds");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "static narr_t nl_ints") != NULL,
+          "integer-array result uses narr_t");
+    CHECK(strstr(c, "static nsarr_t nl_strings") != NULL,
+          "string-array result uses nsarr_t");
+    CHECK(strstr(c, "static nsarr_t nl_forward") != NULL,
+          "tail-call array result uses the callee kind");
+    CHECK(strstr(c, "static nrarr_t nl_records") != NULL,
+          "record-array result keeps nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "array result kinds C compiles and runs");
+    CHECK(status == 7, "array result kinds preserve native behavior");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2281,6 +2359,7 @@ int main(int argc, char **argv) {
     test_get_s_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
+    test_array_result_kinds_cross_calls();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
