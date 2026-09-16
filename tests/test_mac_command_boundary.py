@@ -10,6 +10,84 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MacCommandBoundary(unittest.TestCase):
+    def test_dependency_shadows_do_not_invoke_the_installed_cli(self):
+        for compiler, bytecode in (("nanoc_c", False), ("nano_virt", True)):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-mac-shadows-") as tmp:
+                directory = Path(tmp)
+                log = directory / "unexpected-cli"
+                cli = directory / "mac"
+                cli.write_text("#!/bin/sh\nprintf '%s\\n' called >> \"$NANO_MAC_TEST_LOG\"\nexit 91\n")
+                cli.chmod(0o700)
+                env = dict(os.environ, PATH=str(directory) + os.pathsep + os.environ["PATH"],
+                           NANO_MAC_TEST_LOG=str(log))
+                for fixture in ("test_mac_exec_once", "test_mac_exec_once_vm"):
+                    source = directory / (fixture + ".nano")
+                    source.write_text((ROOT / "tests/unit" / (fixture + ".nano")).read_text().replace(
+                        "/tmp/mac_exec_once_", str(directory / "exec_once_")))
+                    output = directory / (fixture + (".nvm" if bytecode else ""))
+                    command = [str(ROOT / "bin" / compiler), str(source), "-o", str(output)]
+                    if bytecode:
+                        command.append("--emit-nvm")
+                    built = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, timeout=40)
+                    self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+                    self.assertFalse(log.exists(), "dependency shadows invoked the installed CLI")
+                    command = [str(ROOT / "bin/nano_vm"), str(output)] if bytecode else [str(output)]
+                    run = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, timeout=20)
+                    self.assertEqual(run.returncode, 0, run.stderr.decode(errors="replace"))
+                    self.assertFalse(log.exists())
+
+    def test_public_queries_keep_the_real_command_boundary(self):
+        for compiler, bytecode in (("nanoc_c", False), ("nano_virt", True)):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-mac-queries-") as tmp:
+                directory = Path(tmp)
+                log = directory / "calls.jsonl"
+                cli = directory / "mac"
+                cli.write_text("#!/usr/bin/env python3\nimport json,os,sys\n"
+                    "with open(os.environ['NANO_MAC_TEST_LOG'],'a') as f: f.write(json.dumps(sys.argv[1:])+'\\n')\n"
+                    "task={'id':'task_fixture','title':'Fixture','state':'open','priority':2}\n"
+                    "print(json.dumps(task if sys.argv[2]=='show' else [task]))\n")
+                cli.chmod(0o700)
+                env = dict(os.environ, PATH=str(directory) + os.pathsep + os.environ["PATH"],
+                           NANO_MAC_TEST_LOG=str(log))
+                source = directory / "queries.nano"
+                source.write_text('''from "stdlib/mac.nano" import mac_list, mac_open, mac_ready, mac_by_priority, mac_show, mac_stats, Task, TaskStats
+fn main() -> int {
+ assert (== (array_length (mac_list "")) 1)
+ assert (== (array_length (mac_open)) 1)
+ assert (== (array_length (mac_ready)) 1)
+ let tasks: array<Task> = (mac_by_priority 2)
+ let selected: Task = (at tasks 0)
+ assert (== selected.priority 2)
+ let task: Task = (mac_show "task_fixture")
+ assert (== task.id "task_fixture")
+ let stats: TaskStats = (mac_stats)
+ assert (== stats.total 1)
+ assert (== stats.open 1)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+                output = directory / ("queries.nvm" if bytecode else "queries")
+                command = [str(ROOT / "bin" / compiler), str(source), "-o", str(output)]
+                if bytecode:
+                    command.append("--emit-nvm")
+                built = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, timeout=40)
+                self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+                command = [str(ROOT / "bin/nano_vm"), str(output)] if bytecode else [str(output)]
+                run = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, timeout=20)
+                self.assertEqual(run.returncode, 0, run.stderr.decode(errors="replace"))
+                calls = [json.loads(line) for line in log.read_text().splitlines()]
+                expected = [
+                    ["task", "list", "--json", "--all-states"],
+                    ["task", "list", "--json", "--all-states", "--state=open"],
+                    ["task", "ready", "--json"],
+                    ["task", "list", "--json", "--all-states", "--selector", "priority=2"],
+                    ["task", "show", "--json", "--", "task_fixture"],
+                ]
+                self.assertEqual(len(calls), 12)
+                for call in expected:
+                    self.assertEqual(calls.count(call), 4 if call == expected[0] else 2, calls)
+
     def test_arguments_are_data(self):
         for compiler, bytecode in [("nanoc_c", False), ("nano_virt", True)]:
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-mac-quoting-") as tmp:
