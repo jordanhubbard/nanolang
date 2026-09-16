@@ -5177,6 +5177,34 @@ static void test_local_initialization_tags(void) {
     }
 }
 
+static void test_scalar_runtime_tags(void) {
+    const char *source =
+        ".string key \"key\"\n.entry main\n"
+        ".function main 0 2 0 int 1\n"
+        "PUSH_BOOL 1\nCALL relay\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nTYPE_CHECK 4\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nEQ\nBOOL_NOT\nASSERT\n"
+        "HM_NEW 5 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nPUSH_I64 0\nEQ\nBOOL_NOT\nASSERT\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nPUSH_I64 0\nHM_SET\nPUSH_STR key\nHM_GET\n"
+        "PUSH_BOOL 0\nEQ\nBOOL_NOT\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+        ".function relay 1 1 0 bool 1\nLOAD_LOCAL 0\nTAIL_CALL identity\n.end\n"
+        ".function identity 1 1 0 bool 1\nLOAD_LOCAL 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "scalar runtime tags");
+    CHECK(m != NULL, "scalar runtime-tag fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "I preserve scalar tags through locals, calls, returns and map lookups");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I distinguish bool from int and missing map values from integer zero");
+        free(c);
+    }
+    nvm_module_free(m);
+
+}
+
+
 static void test_boolean_tags(void) {
     test_local_initialization_tags();
     const char *producers[] = {
@@ -5858,6 +5886,7 @@ int main(int argc, char **argv) {
     test_tagged_host_arguments();
     test_generic_ordering();
     test_boolean_tags();
+    test_scalar_runtime_tags();
     test_module_initializer();
     test_self_tail_restart_preserves_values();
     test_self_tail_rejects_malformed_calls();
