@@ -6,7 +6,6 @@
 # pin their documented error or warning text.
 
 set -uo pipefail
-shopt -s globstar nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -42,7 +41,7 @@ expected_diagnostic() {
     esac
 }
 
-for source in "$SCRIPT_DIR"/negative/**/*.nano; do
+while IFS= read -r -d '' source; do
     relative="${source#"$SCRIPT_DIR"/}"
     output="$WORK/${relative//\//_}.out"
     log="$WORK/${relative//\//_}.log"
@@ -71,8 +70,12 @@ for source in "$SCRIPT_DIR"/negative/**/*.nano; do
 
     echo "PASS"
     passed=$((passed + 1))
-done
+done < <(find "$SCRIPT_DIR/negative" -type f -name '*.nano' -print0)
 
 total=$((passed + failed))
 echo "Negative compiler contracts: $passed/$total passed"
+if [ "$total" -eq 0 ]; then
+    echo "ERROR: I found no negative compiler fixtures" >&2
+    exit 1
+fi
 test "$failed" -eq 0
