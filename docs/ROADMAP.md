@@ -1459,6 +1459,9 @@ Compiler product:
       a fixed process-wide arena through quadratic copies. Native compiler
       workloads can push beyond the old 65,536-element cumulative limit.
       `make test-nvm2c`.
+- [x] I bound every append while formatting native direct calls and size the
+      call expression for the full supported arity. Wide ordinary and tail
+      calls pass the focused `nvm2c` sanitizer test.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
