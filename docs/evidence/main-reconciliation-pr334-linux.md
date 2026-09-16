@@ -251,3 +251,12 @@ The real negative corpus passes 37/37 with the C seed. Cross-backend coverage
 with that compiler reports seven native executions and fourteen structural
 checks, no failures or skips. Those results do not imply target execution for
 the structural checks or a completed full-suite gate.
+
+
+The diagnostic continuation from GLUT through the end of `test-impl` exits
+successfully on `4373abc5`, with an explicit C-seed selection. It covers module
+cache/dependency checks, failed-import publication, VM examples, stdlib docs,
+Jackson Forth evidence and graphical/PTY smoke, interpreter examples, benchmark
+measurements and property-test smoke. Gforth differential execution is skipped
+because Gforth is absent on this local host; CI installs it. This continuation
+is a discovery aid and does not replace the clean combined release gate.
