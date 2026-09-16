@@ -197,6 +197,22 @@ static void path_append(char* out, size_t out_size, const char* part) {
     strncat(out, part, out_size - strlen(out) - 1);
 }
 
+static int path_make_absolute(const char* path, char* result, size_t result_size) {
+    if (path[0] == '/') {
+        path_normalize_into(path, result, result_size);
+        return 1;
+    }
+
+    char cwd[2048];
+    char anchored[4096];
+    if (!getcwd(cwd, sizeof(cwd))) return 0;
+    if (snprintf(anchored, sizeof(anchored), "%s/%s", cwd, path) >= (int)sizeof(anchored)) {
+        return 0;
+    }
+    path_normalize_into(anchored, result, result_size);
+    return 1;
+}
+
 /* Compute relative path from base to target */
 const char* path_relpath(const char* target, const char* base) {
     char result[4096];
@@ -207,29 +223,31 @@ const char* path_relpath(const char* target, const char* base) {
 
     char target_norm[2048];
     char base_norm[2048];
-    path_normalize_into(target, target_norm, sizeof(target_norm));
-    path_normalize_into(base, base_norm, sizeof(base_norm));
+    if (!path_make_absolute(target, target_norm, sizeof(target_norm)) ||
+        !path_make_absolute(base, base_norm, sizeof(base_norm))) {
+        return strdup(".");
+    }
 
     char target_copy[2048];
     char base_copy[2048];
     snprintf(target_copy, sizeof(target_copy), "%s", target_norm);
     snprintf(base_copy, sizeof(base_copy), "%s", base_norm);
 
-    char* target_parts[256];
-    char* base_parts[256];
+    char* target_parts[512];
+    char* base_parts[512];
     int target_count = 0;
     int base_count = 0;
 
     char* saveptr = NULL;
     char* token = strtok_r(target_copy, "/", &saveptr);
-    while (token && target_count < 256) {
+    while (token && target_count < 512) {
         target_parts[target_count++] = token;
         token = strtok_r(NULL, "/", &saveptr);
     }
 
     saveptr = NULL;
     token = strtok_r(base_copy, "/", &saveptr);
-    while (token && base_count < 256) {
+    while (token && base_count < 512) {
         base_parts[base_count++] = token;
         token = strtok_r(NULL, "/", &saveptr);
     }
