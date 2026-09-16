@@ -24,6 +24,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **5.0 / reachable native translation.** I emit and classify only functions
+      reachable from the NanoISA entry point, so an uncalled function whose
+      record parameter has no recoverable field layout cannot make native
+      translation invent field types. `test-nvm2c` covers direct and transitive
+      reachability and an uncalled record helper. MAC
+      `task_8aaa3f722ce34624a4bb8a16283afa2b`.
+
 - [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
       type metadata while parsing and registering locals and parameters, then
       select the correct getter at each nested `at`. The C seed passes all

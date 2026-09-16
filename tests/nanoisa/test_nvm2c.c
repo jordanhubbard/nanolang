@@ -164,6 +164,36 @@ static void test_record_result_crosses_direct_call(void) {
     nvm_module_free(m);
 }
 
+static void test_uncalled_record_parameter_needs_no_invented_shape(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function uncalled 1 1 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "uncalled record parameter fixture");
+    CHECK(m != NULL, "uncalled record parameter fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c ignores an uncalled record parameter shape");
+    if (c) {
+        CHECK(strstr(c, "nl_uncalled") == NULL,
+              "uncalled function is absent from generated C");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "reachable generated C compiles and runs");
+        CHECK(status == 7, "entry result survives removal of uncalled code");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_add_is_structured_c_and_runs(void) {
     const char *src =
         ".entry 1\n"
@@ -2337,6 +2367,7 @@ static void test_cli_refuses_call_extern(const char *cli) {
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_record_result_crosses_direct_call();
+    test_uncalled_record_parameter_needs_no_invented_shape();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_call_extern_is_refused();

@@ -142,6 +142,59 @@ static int result_is_i64(const NvmFunctionEntry *fn) {
            (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL);
 }
 
+static int mark_reachable_functions(Nvm2cBuf *b, const NvmModule *mod,
+                                    uint8_t *reachable) {
+    uint32_t entry = mod->header.entry_point;
+    uint32_t scan;
+    if (entry >= mod->function_count) {
+        nvm2c_fail(b, "entry_point %u is not a function", entry);
+        return 0;
+    }
+    reachable[entry] = 1;
+    for (scan = 0; scan < mod->function_count; scan++) {
+        uint32_t i;
+        int changed = 0;
+        for (i = 0; i < mod->function_count; i++) {
+            const NvmFunctionEntry *fn;
+            const uint8_t *code;
+            size_t remaining;
+            size_t pc = 0;
+            if (!reachable[i]) continue;
+            fn = &mod->functions[i];
+            if (fn->code_offset > mod->code_size ||
+                fn->code_length > mod->code_size - fn->code_offset) {
+                nvm2c_fail(b, "function %u: code range is outside the module", i);
+                return 0;
+            }
+            code = mod->code + fn->code_offset;
+            remaining = fn->code_length;
+            while (pc < remaining) {
+                DecodedInstruction ins;
+                uint32_t n = isa_decode(code + pc, remaining - pc, &ins);
+                if (n == 0) {
+                    nvm2c_fail(b, "function %u: invalid instruction at offset %zu", i, pc);
+                    return 0;
+                }
+                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL) {
+                    uint32_t callee = ins.operands[0].u32;
+                    if (callee >= mod->function_count) {
+                        nvm2c_fail(b, "function %u: CALL target %u is out of range", i, callee);
+                        return 0;
+                    }
+                    if (!reachable[callee]) {
+                        reachable[callee] = 1;
+                        changed = 1;
+                    }
+                }
+                pc += n;
+            }
+        }
+        if (!changed) return 1;
+    }
+    nvm2c_fail(b, "function reachability did not converge");
+    return 0;
+}
+
 static const char *c_local_type(uint8_t kind) {
     if (kind == NVM2C_VK_STR) return "const char *";
     if (kind == NVM2C_VK_ARR) return "narr_t";
@@ -2063,9 +2116,10 @@ done:
     free(join_set);
 }
 
-static int module_has_opcode(const NvmModule *mod, uint8_t op) {
+static int module_has_opcode(const NvmModule *mod, const uint8_t *reachable, uint8_t op) {
     uint32_t i;
     for (i = 0; i < mod->function_count; i++) {
+        if (!reachable[i]) continue;
         const NvmFunctionEntry *fn = &mod->functions[i];
         if (fn->code_offset > mod->code_size ||
             fn->code_length > mod->code_size - fn->code_offset) {
@@ -2085,9 +2139,11 @@ static int module_has_opcode(const NvmModule *mod, uint8_t op) {
     return 0;
 }
 
-static int module_has_arr_op_tag(const NvmModule *mod, uint8_t op, uint8_t tag) {
+static int module_has_arr_op_tag(const NvmModule *mod, const uint8_t *reachable,
+                                 uint8_t op, uint8_t tag) {
     uint32_t i;
     for (i = 0; i < mod->function_count; i++) {
+        if (!reachable[i]) continue;
         const NvmFunctionEntry *fn = &mod->functions[i];
         if (fn->code_offset > mod->code_size ||
             fn->code_length > mod->code_size - fn->code_offset) {
@@ -2343,11 +2399,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                                    * NVM2C_MAX_REC_FIELDS, 1);
     uint8_t *result_kinds = calloc(mod->function_count, 1);
     uint8_t *result_fields = calloc((size_t)mod->function_count * NVM2C_MAX_REC_FIELDS, 1);
-    if (!kinds || !rec_fields || !result_kinds || !result_fields) {
+    uint8_t *reachable = calloc(mod->function_count, 1);
+    if (!kinds || !rec_fields || !result_kinds || !result_fields || !reachable) {
         free(kinds);
         free(rec_fields);
         free(result_kinds);
         free(result_fields);
+        free(reachable);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
@@ -2358,6 +2416,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     memset(result_kinds, NVM2C_VK_UNK, mod->function_count);
     memset(result_fields, NVM2C_VK_UNK,
            (size_t)mod->function_count * NVM2C_MAX_REC_FIELDS);
+    if (!mark_reachable_functions(&b, mod, reachable)) goto fail;
 
     {
         uint32_t pass;
@@ -2365,6 +2424,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             uint32_t i;
             int changed = 0;
             for (i = 0; i < mod->function_count; i++) {
+                if (!reachable[i]) continue;
                 if (!classify_function(&b, mod, i, kinds, rec_fields, result_kinds,
                                        result_fields,
                                        &changed)) {
@@ -2381,6 +2441,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (kinds[pass] == NVM2C_VK_UNK) kinds[pass] = NVM2C_VK_INT;
         }
         for (pass = 0; pass < mod->function_count; pass++) {
+            if (!reachable[pass]) continue;
             if (mod->functions[pass].result_count == 1 &&
                 mod->functions[pass].result_tag == TAG_ARRAY &&
                 result_kinds[pass] == NVM2C_VK_UNK) {
@@ -2391,22 +2452,22 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
 
     {
-        int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
-        int need_cast_string = module_has_opcode(mod, OP_CAST_STRING);
-        int need_cast_int = module_has_opcode(mod, OP_CAST_INT);
-        int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
-        int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
-        int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
+        int need_concat = module_has_opcode(mod, reachable, OP_STR_CONCAT);
+        int need_cast_string = module_has_opcode(mod, reachable, OP_CAST_STRING);
+        int need_cast_int = module_has_opcode(mod, reachable, OP_CAST_INT);
+        int need_contains = module_has_opcode(mod, reachable, OP_STR_CONTAINS);
+        int need_substr = module_has_opcode(mod, reachable, OP_STR_SUBSTR);
+        int need_char_at = module_has_opcode(mod, reachable, OP_STR_CHAR_AT);
         int need_string = need_concat || need_cast_string || need_contains || need_substr ||
             need_char_at ||
-            module_has_opcode(mod, OP_PUSH_STR) ||
-            module_has_opcode(mod, OP_STR_LEN);
-        int need_arr_lit = module_has_opcode(mod, OP_ARR_LITERAL);
-        int need_arr_get = module_has_opcode(mod, OP_ARR_GET);
-        int need_arr_push = module_has_opcode(mod, OP_ARR_PUSH);
-        int need_iarr_new = module_has_arr_op_tag(mod, OP_ARR_NEW, TAG_INT);
-        int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT);
-        int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
+            module_has_opcode(mod, reachable, OP_PUSH_STR) ||
+            module_has_opcode(mod, reachable, OP_STR_LEN);
+        int need_arr_lit = module_has_opcode(mod, reachable, OP_ARR_LITERAL);
+        int need_arr_get = module_has_opcode(mod, reachable, OP_ARR_GET);
+        int need_arr_push = module_has_opcode(mod, reachable, OP_ARR_PUSH);
+        int need_iarr_new = module_has_arr_op_tag(mod, reachable, OP_ARR_NEW, TAG_INT);
+        int need_iarr_lit = module_has_arr_op_tag(mod, reachable, OP_ARR_LITERAL, TAG_INT);
+        int need_sarr_lit = module_has_arr_op_tag(mod, reachable, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_lit ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR) ||
             module_has_result_kind(result_kinds, mod->function_count, NVM2C_VK_ARR);
@@ -2419,13 +2480,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
         int need_sarr_push = need_arr_push && need_sarr;
-        int need_sarr_new = need_sarr && module_has_opcode(mod, OP_ARR_NEW);
-        int need_agg_get = module_has_opcode(mod, OP_AGG_GET);
-        int need_print = module_has_opcode(mod, OP_PRINT) ||
-            module_has_opcode(mod, OP_PRINTLN);
-        int need_assert = module_has_opcode(mod, OP_ASSERT);
+        int need_sarr_new = need_sarr && module_has_opcode(mod, reachable, OP_ARR_NEW);
+        int need_agg_get = module_has_opcode(mod, reachable, OP_AGG_GET);
+        int need_print = module_has_opcode(mod, reachable, OP_PRINT) ||
+            module_has_opcode(mod, reachable, OP_PRINTLN);
+        int need_assert = module_has_opcode(mod, reachable, OP_ASSERT);
         uint32_t i;
         for (i = 0; i < mod->function_count && !need_string; i++) {
+            if (!reachable[i]) continue;
             const NvmFunctionEntry *fn = &mod->functions[i];
             uint16_t li;
             if (fn->result_tag == TAG_STRING) need_string = 1;
@@ -2490,6 +2552,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
+            if (!reachable[i]) continue;
             emit_prototype(&b, mod, i, kinds, result_kinds);
             if (b.failed) goto fail;
         }
@@ -2499,6 +2562,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
+            if (!reachable[i]) continue;
             emit_function_body(&b, mod, i, kinds, rec_fields, result_kinds,
                                result_fields);
             if (b.failed) goto fail;
@@ -2538,6 +2602,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(rec_fields);
     free(result_kinds);
     free(result_fields);
+    free(reachable);
     return b.data;
 
 fail:
@@ -2545,6 +2610,7 @@ fail:
     free(rec_fields);
     free(result_kinds);
     free(result_fields);
+    free(reachable);
     free(b.data);
     return NULL;
 }
