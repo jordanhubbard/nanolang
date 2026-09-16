@@ -60,21 +60,20 @@ Laboratory frontends do not establish a distributed production runtime.
 
 ## Release review
 
-On 2026-09-16 I reviewed all 39 open pull requests and zero open issues by title,
-body, labels, milestone, ancestry and relevant diffs. Only the candidate PR #336
-explicitly named this release in its metadata. Thirteen open PR heads already
-occurred in the candidate's ancestry. Repeated fleet integration branches need
-semantic reconciliation, not blanket merging or closure. My refreshed snapshot
-uses `807dc593`, after main incorporated PRs #346 and #350. It identifies 34
-superseded PRs for closure only after #336 merges with accepted release gates
-and their heads are rechecked. The scope-review gate remains open.
-[My scope snapshot](RELEASE_5.0_SCOPE.json) records each disposition and the
-reviewed candidate SHA. It is a dated review, not a claim that the queue cannot
-change. I must refresh it before publication.
+On 2026-09-16 I reviewed the open pull requests and issues by title, body,
+labels, milestone, ancestry and relevant diffs. Only candidate PR #336 explicitly
+named this release in its metadata. My refreshed
+[scope snapshot](RELEASE_5.0_SCOPE.json) records the reviewed heads, dispositions
+and candidate revision after main incorporated PR #353. Superseded PR closure
+remains conditional on #336 landing with accepted gates and unchanged heads.
+The snapshot is a dated review; the published release evidence must also record
+the final queue check.
 
-Native floating-point comparison lowering in PRs #310, #332, #344 and #351
-is only partly superseded: the reviewed candidate rejects `PUSH_F64`.
-I retain that limitation in the scope record rather than claim full AOT parity.
+I preserve unfinished native AOT parity work. Floating-point comparison branches
+still add `PUSH_F64`, which this candidate rejects. Array-read branches also add
+`CAST_BOOL` and, in some branches, `PUSH_VOID`; their common missing-read repairs
+alone do not justify closing those branches as superseded. These are retained
+follow-ups, not claims of full AOT parity.
 I preserve the newer tagged and owned representations when reconciling older
 branches. My source-snapshot boundaries remain in
 [the snapshot record](SOURCE_SNAPSHOT_EVIDENCE.md).
@@ -125,8 +124,9 @@ must identify their tested revisions and final outcomes before publication.
 [The integration evidence](evidence/main-reconciliation-pr334-linux.md) records
 commands, revisions, fixes and limitations. Final clean-tree tests, platform CI,
 and release acceptance are mandatory gates for the exact commit to tag. This
-document records bounded checkpoints; the release evidence must identify that
-commit and its completed gates before tagging.
+document records bounded checkpoints. My GitHub release carries the final
+validation record, identifying that revision, completed gates and final scope
+review; I publish it only after those gates pass.
 
 ## Presentation
 

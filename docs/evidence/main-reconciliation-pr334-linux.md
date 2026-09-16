@@ -316,3 +316,19 @@ I keep all first-generation array tests, give the second generation only its
 scalar identity export, and test simultaneous per-handle 42/43 lookup. All 27
 FFI tests pass normally and in a clean ASan/UBSan rebuild with default ODR
 checking. I retain runtime failure diagnostics directly in corpus job output.
+
+
+## Final main reconciliation
+
+At `bd6ee293`, I incorporate main `feb298be` (PR #353) without changing
+production compiler code from `0ec585e8`. I retain the distinct compact
+missing-map-value versus integer-zero regression. The focused gate passes
+1,748 translator checks and 1,073 shape checks. Existing boolean evidence is
+explicitly dated as a historical checkpoint.
+
+I temporarily stop only the seven active AOT publication lineages while the
+release gate runs, preserving their branches and evidence. Unfinished float
+and array opcode work stays separate from this release and is resumed afterward.
+The final validation record is attached to the GitHub release after the exact
+candidate passes clean full-suite and hosted checks; these focused results do
+not replace those gates.

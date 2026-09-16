@@ -269,16 +269,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [ ] **5.0 finalization on sparky.** I finish the user-authorized release
       from integration checkpoint `5cf21fc1`, preserving its audited contracts.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
-      - [x] I reconcile main through `dda0290e`, including affine rejection,
+      - [x] I reconcile main through `feb298be`, including affine rejection,
         lexical bindings, native allocation lifetimes and path normalization.
       - [x] I deduplicate merged filter predicate declarations while retaining
         both branches' literal, variable and empty-result assertions.
-      - [ ] I reproduce remaining release failures, repair them in dependency
-        order, and reconcile stale checkboxes against executable evidence.
+      - [x] I reproduce the failures found through `bd6ee293`, repair them in
+        dependency order, and reconcile stale checkboxes against executable
+        evidence. The complete final gate below remains separate.
       - [ ] I run a clean build and full tests, review all open release work,
         and update documentation, presentation and release evidence.
       - [ ] I merge the validated candidate, publish the 5.0 tag and release,
-        and verify the published artifacts against the tested commit.
+        and verify the published artifacts against the tested commit. These
+        are pre-tag checklist states; my GitHub release validation record and
+        MAC finalization task record the completed publication afterward.
 
 - [x] **Self-hosted literal filter dispatch.** I infer direct literal array
       element types before choosing a native filter helper, including the
