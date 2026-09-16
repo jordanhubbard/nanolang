@@ -352,6 +352,8 @@ jobs:
           make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
 
       - name: Run tests with sanitizers
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         timeout-minutes: 20  # Timeout for test step specifically
         run: |
           export ASAN_OPTIONS=detect_leaks=0

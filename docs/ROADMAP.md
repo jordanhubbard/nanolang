@@ -104,6 +104,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       hosted sanitizer build and bootstrap also pass at `094cfa80`;
       the full sanitizer test suite remains a release acceptance gate.
       MAC `task_6a2f75e259e84f09bbec61554b9ff9a7`.
+      - [x] I carry the same bounded instrumented budget into test-unit
+        prerequisite compilation, including `nanoisa_emit`. Timeout unit tests
+        isolate ambient configuration and still verify the normal default.
 
 - [x] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
       MAC `task_5e530abdfdd3459c978149ae4b25f80f`.
