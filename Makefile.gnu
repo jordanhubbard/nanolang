@@ -2244,6 +2244,7 @@ test-forth-wordsets:
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
+	@python3 tests/test_test_compiler_selection.py
 	@bash tests/test_make_header_dependencies.sh
 	@$(MAKE) --no-print-directory test-bootstrap-dependencies
 	@python3 tests/test_bootstrap_messages.py
@@ -2375,7 +2376,7 @@ test: build shadow-check userguide-export
 	@echo ""
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
-	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(MAKE) test-impl
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(MAKE) test-impl NANOLANG_COMPILER="$(abspath $(COMPILER_C))"
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -2664,7 +2665,7 @@ test-bootstrap: bootstrap
 	@echo "🎯 Testing with FULLY BOOTSTRAPPED compiler (nanoc_stage2)"
 	@echo "   Using self-hosted compiler (stage1 → nanoc_stage2)"
 	@echo ""
-	@$(TIMEOUT_CMD) $(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl NANOLANG_COMPILER="$(abspath $(NANOC_STAGE2))"
 
 # Test with self-hosted compiler (nanoc_stage2), without rebuilding
 test-selfhosted: build
@@ -2678,7 +2679,7 @@ test-selfhosted: build
 	fi
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_stage2 $(COMPILER)
-	@$(TIMEOUT_CMD) $(MAKE) test-impl
+	@$(TIMEOUT_CMD) $(MAKE) test-impl NANOLANG_COMPILER="$(abspath $(NANOC_STAGE2))"
 	@# Restore after test (stage2 is still primary when bootstrapped)
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
