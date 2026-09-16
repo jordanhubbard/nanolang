@@ -24,6 +24,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **Local hook migration.** I preserve and disable retired Beads shim
+      hooks in this checkout so commits no longer invoke the removed ledger.
+      MAC `task_a6600695ae154212a97e1b012c0dff20`.
+
 - [x] **Local integration recovery.** I finish the interrupted rebase onto
       current main, preserve applicable compiler, module-header and shadow
       changes, and retain upstream removals. `make test-quick` and
