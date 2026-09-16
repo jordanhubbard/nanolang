@@ -28,12 +28,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **NanoAmp audio-list shadow.** I prepare the audio fixture correctly
+- [ ] **Escaped module compiler staging.** I preserve unusual source names
+      while giving generated C inputs compiler-safe private paths. GCC currently
+      crashes expanding __FILE__ in a staging directory with control bytes.
+      I retain invocation, snapshot and publication checks.
+      MAC `task_3488384a0b1140e389e26ef10ca1694d`.
+
+- [x] **NanoAmp audio-list shadow.** I prepare the audio fixture correctly
       from root and examples working directories, preserving its file-list
       assertions and the strict example selection.
       MAC `task_f8d4b1586a43497cb94516601909c727`.
 
-- [ ] **OPL native dependency shadow.** I diagnose and repair the failing
+- [x] **OPL native dependency shadow.** I diagnose and repair the failing
       opl_compile_ast assertion in strict opl_cli compilation, preserving
       dependency shadow execution and the complete example selection.
       MAC `task_62d2355ac0f84625a51574786e3e9aa5`.
@@ -43,7 +49,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       I verify the real module loader path and preserve instrumentation flags.
       MAC `task_e7e676830c454787acfd6a600e3306a2`.
 
-- [ ] **Launcher shadow fixture paths.** I prepare and verify my prebuilt
+- [x] **Launcher shadow fixture paths.** I prepare and verify my prebuilt
       artifact fixture from both root and examples working directories.
       I retain the dependency shadows in strict example builds.
       MAC `task_d43b4d7f2ede47788cbeb2b94db32db3`.
