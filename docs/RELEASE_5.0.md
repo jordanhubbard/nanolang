@@ -37,6 +37,14 @@ for imported callback shadows. Callback-bearing isolated imports remain rejected
 this in-process bridge does not establish co-process callback support or
 production isolation. SDL audio-lock restrictions remain an unsafe boundary.
 
+I execute synchronous effect handlers in my native C source backend and NanoVM.
+A final handler expression resumes the perform; an explicit return exits its
+lexical function. Native C rejects nonlocal returns across foreign callbacks;
+NanoVM does not unwind across externally entered callback activations. My
+`nvm2c` AOT translator rejects effect opcodes. I record the tested contracts in
+[my native effect evidence](evidence/native-effects-linux.md) and
+[my VM effect evidence](evidence/vm-effect-dispatch.md).
+
 I use start/length semantics for `array_slice` in both backends, with overflow-safe
 clamping. I preserve nested-array tags and expand native record/array lowering.
 These repairs do not establish complete backend parity.

@@ -16,6 +16,8 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 
 ### Fixed
 - I track included C headers in incremental builds (#211).
+- I retain independent interpreter union-string payloads across function
+  cleanup and prepare example shadow fixtures in either supported build directory.
 - I protect source and diagnostic destinations, reject failed imports before
   bytecode publication, preserve lexical function bindings, and link packaged
   interpreter wrappers with their runtime dependencies.
@@ -35,6 +37,9 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
   bytecode corpus programs, with matching execution in both VM dispatch modes.
 
 ### Added
+- I execute synchronous native C and NanoVM effect handlers with lexical
+  captures, resumption, nonlocal returns and tested ownership cleanup. My
+  native AOT translator and foreign callback unwinding retain explicit limits.
 - I include the Scheme, ML, Actor, Dataflow, Object, Shell and Logic laboratory
   frontends with their documented restrictions.
 - I expand NanoISA verification and native AOT aggregate/control-flow coverage.
