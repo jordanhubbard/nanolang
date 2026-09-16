@@ -389,9 +389,7 @@ ALL_EXAMPLES = \
 # the native CLI requires a main function.
 VM_LIBRARY_SOURCES := \
 	emacs/init.nano \
-	lib/launcher_ui.nano \
-	opl/opl_codegen.nano \
-	opl/opl_compile.nano
+	lib/launcher_ui.nano
 
 # Sources the native compiler rejects too, so they are not NanoVirt gaps:
 # a deliberately-invalid diagnostics fixture, generated OPL output, and
