@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **OPL native dependency shadow.** I diagnose and repair the failing
+      opl_compile_ast assertion in strict opl_cli compilation, preserving
+      dependency shadow execution and the complete example selection.
+      MAC `task_62d2355ac0f84625a51574786e3e9aa5`.
+
 - [x] **Packaged native effect state.** I link the shared effect runtime into
       packaged wrappers so foreign modules can resolve its TLS symbols.
       I verify the real module loader path and preserve instrumentation flags.
