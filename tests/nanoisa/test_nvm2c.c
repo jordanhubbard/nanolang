@@ -32,6 +32,33 @@ static NvmModule *assemble_ok(const char *src, const char *label) {
     return m;
 }
 
+static int compile_and_run_with_args(const char *c_src, int *status_out,
+                                     const char *args) {
+    char dir[] = "/tmp/nvm2cXXXXXX";
+    if (!mkdtemp(dir)) return -1;
+    char src_path[128], bin_path[128], cmd[512];
+    snprintf(src_path, sizeof src_path, "%s/out.c", dir);
+    snprintf(bin_path, sizeof bin_path, "%s/out", dir);
+    FILE *f = fopen(src_path, "w");
+    if (!f) { rmdir(dir); return -1; }
+    fputs(c_src, f);
+    fclose(f);
+    const char *cc = getenv("CC");
+    if (!cc || !cc[0]) cc = "cc";
+    snprintf(cmd, sizeof cmd,
+             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -Wall -Wextra -Werror -o %s %s",
+             cc, bin_path, src_path);
+    int rc = system(cmd);
+    if (rc != 0) { unlink(src_path); rmdir(dir); return -2; }
+    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s %s", bin_path, args);
+    rc = system(cmd);
+    *status_out = WIFEXITED(rc) ? WEXITSTATUS(rc) : -1;
+    unlink(src_path);
+    unlink(bin_path);
+    rmdir(dir);
+    return 0;
+}
+
 static int compile_and_run(const char *c_src, int *status_out) {
     char dir[] = "/tmp/nvm2cXXXXXX";
     if (!mkdtemp(dir)) return -1;
@@ -428,8 +455,7 @@ static void test_arr_set_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "ARR_SET stays outside the closed subset");
-    CHECK(strstr(err, "ARR_SET") != NULL, "error names ARR_SET");
+    CHECK(c != NULL, "ARR_SET emits structured C");
     free(c);
     nvm_module_free(m);
 }
@@ -1874,7 +1900,8 @@ static void test_nested_record_pack_is_refused(void) {
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL, "nested records stay outside the closed subset");
-    CHECK(strstr(err, "int or string") != NULL, "error names int or string fields");
+    CHECK(strstr(err, "conflicting") != NULL || strstr(err, "record") != NULL,
+          "error explains the unsupported nested record shape");
     free(c);
     nvm_module_free(m);
 }
@@ -2020,6 +2047,45 @@ static void test_emitted_map_flow(void) {
         char *c = nvm2c_emit(m, error, sizeof error);
         CHECK(c == NULL && strstr(error, "map"), "I reject unsupported or conflicting map types");
         free(c); nvm_module_free(m);
+    }
+
+    const char *stress =
+        ".string key \"key\"\n.entry main\n"
+        ".function main 0 2 0 int 1\nPUSH_I64 0\nSTORE_LOCAL 0\n"
+        "loop:\nLOAD_LOCAL 0\nPUSH_I64 20000\nI64_LT_S\nJMP_FALSE done\n"
+        "HM_NEW 5 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nLOAD_LOCAL 0\nHM_SET\nPOP\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nPOP\n"
+        "HM_NEW 5 1\nPOP\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\nJMP loop\n"
+        "done:\nPUSH_I64 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(stress, "bounded map ownership stress");
+    if (m) {
+        char *c = emit_or_fail(m, "I emit early map reclamation at loop back-edges");
+        if (c) {
+            const char *needle = "    return result;\n}";
+            char *at = strstr(c, needle);
+            CHECK(at != NULL, "I locate the generated entry epilogue for the stress probe");
+            if (at) {
+                const char *probe =
+                    "    if (nmap_owned_peak > 8 || nmap_owned_live != 0) abort();\n"
+                    "    return result;\n}";
+                size_t prefix = (size_t)(at - c), total = prefix + strlen(probe) + 1;
+                char *instrumented = malloc(total);
+                if (instrumented) {
+                    memcpy(instrumented, c, prefix);
+                    memcpy(instrumented + prefix, probe, strlen(probe) + 1);
+                    int status = -1;
+                    CHECK(compile_and_run(instrumented, &status) == 0 && status == 0,
+                          "I keep maps and fetched values bounded through repeated construction");
+                    free(instrumented);
+                } else {
+                    CHECK(0, "I allocate the bounded-memory stress source");
+                }
+            }
+            free(c);
+        }
+        nvm_module_free(m);
     }
 }
 

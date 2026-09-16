@@ -161,11 +161,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
                       checks. Compiler acceptance reaches `HM_GET` in function
                       268 at offset 32. Evidence:
                       `docs/evidence/aot-map-flow.md`.
-                    - [ ] I reclaim unreachable emitted maps and fetched
+                    - [x] I reclaim unreachable emitted maps and fetched
                       string copies before entry returns, preserving aliases
                       and returned values under
                       bounded-live-memory stress. MAC
                       `task_2f837947d5f24130b401ae433dd8d8c9`.
+                      I trace live map identities and fetched string copies at
+                      loop back-edges, reclaim only owners absent from locals
+                      and the operand stack, and retain entry cleanup as the
+                      final safety net. Repeated construction stays bounded.
                     - [ ] I preserve lookup results as tagged values through
                       stack transfers, locals, branches, calls and returns.
                       I test missing versus zero/empty values and retained

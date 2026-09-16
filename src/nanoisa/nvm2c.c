@@ -1573,6 +1573,59 @@ static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
     return stack_pop_expect(b, st, NVM2C_VK_INT, what);
 }
 
+static void emit_map_collection(Nvm2cBuf *b, const Nvm2cStack *st,
+                                const NvmFunctionEntry *fn,
+                                const uint8_t *kinds, uint32_t fn_idx) {
+    size_t map_count = 0, value_count = 0;
+    for (uint16_t i = 0; i < fn->local_count; ++i) {
+        uint8_t kind = fn_local_kind(kinds, fn_idx, i);
+        map_count += kind == NVM2C_VK_MAP;
+        value_count += kind == NVM2C_VK_VALUE;
+    }
+    for (int i = 0; i < st->sp; ++i) {
+        map_count += st->kinds[i] == NVM2C_VK_MAP;
+        value_count += st->kinds[i] == NVM2C_VK_VALUE;
+    }
+
+    nvm2c_puts(b, "    nmap_collect(");
+    if (map_count) {
+        nvm2c_puts(b, "(nmap_t[]){");
+        int first = 1;
+        for (uint16_t i = 0; i < fn->local_count; ++i) {
+            if (fn_local_kind(kinds, fn_idx, i) != NVM2C_VK_MAP) continue;
+            nvm2c_printf(b, "%sl%u", first ? "" : ", ", (unsigned)i);
+            first = 0;
+        }
+        for (int i = 0; i < st->sp; ++i) {
+            if (st->kinds[i] != NVM2C_VK_MAP) continue;
+            nvm2c_printf(b, "%sm[%d]", first ? "" : ", ", st->slots[i]);
+            first = 0;
+        }
+        nvm2c_puts(b, "}");
+    } else {
+        nvm2c_puts(b, "NULL");
+    }
+    nvm2c_printf(b, ", %zu, ", map_count);
+    if (value_count) {
+        nvm2c_puts(b, "(nmap_value[]){");
+        int first = 1;
+        for (uint16_t i = 0; i < fn->local_count; ++i) {
+            if (fn_local_kind(kinds, fn_idx, i) != NVM2C_VK_VALUE) continue;
+            nvm2c_printf(b, "%sl%u", first ? "" : ", ", (unsigned)i);
+            first = 0;
+        }
+        for (int i = 0; i < st->sp; ++i) {
+            if (st->kinds[i] != NVM2C_VK_VALUE) continue;
+            nvm2c_printf(b, "%sv[%d]", first ? "" : ", ", st->slots[i]);
+            first = 0;
+        }
+        nvm2c_puts(b, "}");
+    } else {
+        nvm2c_puts(b, "NULL");
+    }
+    nvm2c_printf(b, ", %zu);\n", value_count);
+}
+
 static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
     if ((strcmp(op, "&&") == 0 || strcmp(op, "||") == 0) && st->sp >= 2 &&
         (st->kinds[st->sp - 1] == NVM2C_VK_VALUE || st->kinds[st->sp - 2] == NVM2C_VK_VALUE)) {
@@ -2824,6 +2877,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
+            if (b->has_maps && tgt <= start)
+                emit_map_collection(b, &st, fn, kinds, idx);
             nvm2c_printf(b, "    goto L_%zu;\n", tgt);
             terminated = 1;
             break;
@@ -2837,6 +2892,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             nvm2c_printf(b, "    if (!t[%d]) {\n", cond);
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
+            if (b->has_maps && tgt <= start)
+                emit_map_collection(b, &st, fn, kinds, idx);
             nvm2c_printf(b, "    goto L_%zu;\n    }\n", tgt);
             break;
         }
@@ -3817,11 +3874,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static nmap_owned *nmap_owned_head;\n"
                 "typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; } nvalue_owned;\n"
                 "static nvalue_owned *nvalue_owned_head;\n"
+                "static size_t nmap_owned_live, nmap_owned_peak;\n"
                 "static nmap_value nmap_owned_get(nmap_t map, const char *key) {\n"
                 "    nmap_value value = nmap_get(map, key);\n"
                 "    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);\n"
                 "        if (!owner) { nmap_release_value(value); abort(); }\n"
-                "        *owner = (nvalue_owned){value, nvalue_owned_head}; nvalue_owned_head = owner; }\n"
+                "        *owner = (nvalue_owned){value, nvalue_owned_head}; nvalue_owned_head = owner;\n"
+                "        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }\n"
                 "    return value;\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
                 "    if (value.kind != 1) abort();\n    return value.integer;\n}\n"
@@ -3835,12 +3894,25 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static nmap_t nmap_owned_new(uint8_t kind) {\n"
                 "    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);\n"
                 "    if (!owner) { nmap_destroy(map); abort(); }\n"
-                "    *owner = (nmap_owned){map, nmap_owned_head}; nmap_owned_head = owner; return map;\n}\n"
+                "    *owner = (nmap_owned){map, nmap_owned_head}; nmap_owned_head = owner;\n"
+                "    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;\n"
+                "    return map;\n}\n"
+                "static void nmap_collect(nmap_t *maps, size_t map_count, nmap_value *values, size_t value_count) {\n"
+                "    nmap_owned **map_link = &nmap_owned_head;\n"
+                "    while (*map_link) { nmap_owned *owner = *map_link; size_t i = 0;\n"
+                "        while (i < map_count && maps[i] != owner->map) ++i;\n"
+                "        if (i < map_count) { map_link = &owner->next; continue; }\n"
+                "        *map_link = owner->next; nmap_destroy(owner->map); free(owner); --nmap_owned_live; }\n"
+                "    nvalue_owned **value_link = &nvalue_owned_head;\n"
+                "    while (*value_link) { nvalue_owned *owner = *value_link; size_t i = 0;\n"
+                "        while (i < value_count && (values[i].kind != 5 || values[i].text != owner->value.text)) ++i;\n"
+                "        if (i < value_count) { value_link = &owner->next; continue; }\n"
+                "        *value_link = owner->next; nmap_release_value(owner->value); free(owner); --nmap_owned_live; }\n}\n"
                 "static void nmap_release_owned(void) {\n"
                 "    while (nvalue_owned_head) { nvalue_owned *owner = nvalue_owned_head;\n"
-                "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); free(owner); }\n"
+                "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); free(owner); --nmap_owned_live; }\n"
                 "    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;\n"
-                "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); }\n}\n");
+                "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); --nmap_owned_live; }\n}\n");
         }
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
@@ -3933,7 +4005,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
             "    (void)nvalue_require_int; (void)nvalue_require_string; (void)nvalue_cast_int; (void)nvalue_equal;\n"
-            "    (void)nmap_has; (void)nmap_len; (void)nmap_delete;\n");
+            "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         if (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT)) nvm2c_puts(&b, "    (void)nrarr_push;\n");
         for (uint32_t i = 0; i < mod->import_count; ++i) {
