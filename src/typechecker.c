@@ -1073,17 +1073,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             sym->is_used = true;  /* Mark variable as used */
             
-            /* Track resource usage - this is a READ/USE (not consumption) */
-            /* Note: We'll track consumption separately when passing to functions */
-            /* For now, just mark as used to detect use-after-consume */
-            if (sym->is_resource) {
-                bool resource_error = false;
-                check_resource_use(env, expr->as.identifier, expr->line, expr->column, &resource_error);
-                if (resource_error) {
-                    g_typecheck_error_count++;
-                }
-            }
-            
             return sym->type;
         }
 
@@ -2338,20 +2327,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             func->params[i].type == TYPE_ARRAY &&
                             func->params[i].element_type != TYPE_UNKNOWN) {
                             arg->as.array_literal.element_type = func->params[i].element_type;
-                        }
-                        
-                        /* Track resource consumption when passing to functions */
-                        /* If argument is a resource variable passed by value, mark as consumed */
-                        if (arg->type == AST_IDENTIFIER) {
-                            Symbol *arg_sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
-                            if (arg_sym && arg_sym->is_resource) {
-                                /* Resource is being passed to function - mark as consumed */
-                                bool resource_error = false;
-                                check_resource_consume(env, arg->as.identifier, arg->line, arg->column, &resource_error);
-                                if (resource_error) {
-                                    g_typecheck_error_count++;
-                                }
-                            }
                         }
                         
                         /* Check for opaque type parameters - allow 0 (null) as argument */
@@ -6846,6 +6821,7 @@ register_function_pass1:;
         if (item->type == AST_FUNCTION) {
             /* Skip extern functions - they have no body to check */
             if (item->as.function.is_extern) {
+                check_function_ownership(env, item, &tc.has_error);
                 continue;
             }
             
@@ -6992,6 +6968,7 @@ register_function_pass1:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+            check_function_ownership(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
             if (item->as.function.is_pure) {
@@ -7705,6 +7682,7 @@ register_function_pass2:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+            check_function_ownership(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
             if (item->as.function.is_pure) {

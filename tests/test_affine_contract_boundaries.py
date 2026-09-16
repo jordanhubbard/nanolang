@@ -72,6 +72,76 @@ class AffineContractBoundaries(unittest.TestCase):
         statements.append("let remaining: FileHandle = FileHandle { fd: 256 }")
         self.check_case("owner_257", "fn probe() -> int {\n" + "\n".join(statements) + "\nreturn 0\n}", False)
 
+    def test_branch_join(self):
+        self.check_case("both_arms", """fn probe(file: FileHandle, choose: bool) -> void {
+    if choose { unsafe { (consume_handle file) } }
+    else { unsafe { (consume_handle file) } }
+}""", True)
+        self.check_case("one_arm", """fn probe(file: FileHandle, choose: bool) -> void {
+    if choose { unsafe { (consume_handle file) } }
+    unsafe { (consume_handle file) }
+}""", False)
+
+    def test_early_return(self):
+        self.check_case("resolved_return", """fn probe(file: FileHandle, leave: bool) -> int {
+    if leave { unsafe { (consume_handle file) } return 1 }
+    unsafe { (consume_handle file) }
+    return 0
+}""", True)
+        self.check_case("leaking_return", """fn probe(file: FileHandle, leave: bool) -> int {
+    if leave { return 1 }
+    unsafe { (consume_handle file) }
+    return 0
+}""", False)
+
+    def test_loop_outer_owner(self):
+        self.check_case("outer_loop_move", """fn probe(file: FileHandle, repeat: bool) -> void {
+    while repeat { unsafe { (consume_handle file) } }
+    unsafe { (consume_handle file) }
+}""", False)
+
+    def test_loop_local_exits(self):
+        for edge in ("break", "continue", ""):
+            body = "let file: FileHandle = FileHandle { fd: 1 }\n"
+            for resolved in (True, False):
+                resolution = "unsafe { (consume_handle file) }\n" if resolved else ""
+                self.check_case(f"loop_{edge}_{resolved}",
+                                "fn probe(repeat: bool) -> void { while repeat {\n" + body + resolution + edge + "\n} }", resolved)
+
+    def test_shadowed_ordinary_binding(self):
+        self.check_case("ordinary_shadow", """fn probe(file: FileHandle, choose: bool) -> void {
+    if choose { let file: int = 3 assert (== file 3) }
+    unsafe { (consume_handle file) }
+}""", True)
+
+    def test_resource_assignment(self):
+        for resolved in (True, False):
+            resolution = "unsafe { (consume_handle file) }" if resolved else ""
+            self.check_case(f"overwrite_{resolved}", """fn probe() -> void {
+    let mut file: FileHandle = FileHandle { fd: 1 }
+""" + resolution + """
+    set file FileHandle { fd: 2 }
+    unsafe { (consume_handle file) }
+}""", resolved)
+
+    def test_resource_collection_annotations(self):
+        self.check_case("resource_array_parameter", """fn probe(files: array<FileHandle>) -> array<FileHandle> {
+    return files
+}""", False)
+        self.check_case("resource_empty_array", """fn probe() -> array<FileHandle> {
+    let files: array<FileHandle> = []
+    return files
+}""", False)
+        self.check_case("extern_resource_array", "extern fn probe(files: array<FileHandle>) -> void", False)
+
+    def test_indirect_resource_result(self):
+        self.check_case("indirect_result_owner", """fn probe(factory: fn() -> FileHandle) -> FileHandle {
+    return (factory)
+}""", True)
+        self.check_case("indirect_result_discard", """fn probe(factory: fn() -> FileHandle) -> void {
+    (factory)
+}""", False)
+
 
 if __name__ == "__main__":
     unittest.main()

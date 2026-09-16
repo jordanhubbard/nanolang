@@ -387,18 +387,23 @@ resource struct FileHandle {
     fd: int
 }
 
+extern fn consume_handle(owned: FileHandle) -> void
+
 fn close_file(file: FileHandle) -> void {
-    unsafe { (c_close file.fd) }
+    unsafe { (consume_handle file) }
 }
 ```
 
-The current typechecker marks explicitly typed resource bindings and treats a
-direct resource identifier passed by value as consumed. It contains checks for
-use-after-consume and repeated consumption. The implementation is not a full
-ownership proof: leak checking is not wired into normal typechecking, inferred
-resource bindings do not carry all the same metadata, branch-sensitive state
-is limited, and some resource diagnostics do not currently propagate into the
-typecheck result.
+The foreign declaration above states a consuming boundary; it is not an
+implementation of cleanup. Reading `file.fd` alone does not consume `file`.
+My C-seed checker tracks parameter and local obligations in a separate
+function pass. I check moves, observations, scope exits, branch joins and loop
+edges, and reject resource-bearing collections. My self-hosted checker does
+not yet implement the same flow rules. Resource match payloads, captures,
+borrows and whole-owner destructuring still need lowering; some forms are
+rejected pending that work. Neither checker establishes the complete ownership
+contract. The shared conformance gate remains failing, and successful
+compilation does not establish runtime cleanup.
 
 **Policy:** annotate resource locals explicitly, give ownership to exactly one
 scope, pass the resource once to its cleanup function, and never use it

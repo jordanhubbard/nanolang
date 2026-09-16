@@ -74,6 +74,22 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       I also audit `test_resource_tracking.nano` and `test_affine_integration.nano`:
       their print-only close helpers and direct nested-field consumption do not
       establish the normative terminal-operation and whole-owner rules.
+      I replace shared-symbol mutation with a separate function ownership pass:
+      growable lexical bindings, parameter obligations, moves and observations,
+      branch joins, return cleanup and loop-edge checks. I add positive/negative
+      source-only flow cases and retain unsupported borrow/destructuring and
+      ownership-metadata work as incomplete rather than claim full conformance.
+      The expanded flow cases expose self-hosted branch/loop/assignment gaps
+      and a C-seed ordinary shadow leaking out of its block into argument
+      type checking. I keep these failures in the shared gate while repairing
+      lexical typing and self-hosted flow; seven straight-line cases are not
+      enough to claim conformance.
+      Lexical symbol repair: `task_a47320503e11474e8a4b51dab4b347a4`.
+      My C-seed flow checkpoint passes the allocation-failure sanitizer fixture,
+      bootstrap smoke, resource classification and 21 native compiler methods.
+      The expanded ownership gate still has 27 failing subcases, including
+      foreign collection signatures on both self-hosted stages. I keep this
+      item open. Evidence: `docs/evidence/affine-c-seed-flow.md`.
 - [ ] **Current-main release reconciliation.** I review and integrate the eight
       newer main commits through `b37136cc` (PR #297), including recursive-array
       C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
