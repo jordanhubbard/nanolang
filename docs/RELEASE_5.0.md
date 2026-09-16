@@ -102,8 +102,12 @@ run passed 47 methods, with eight platform/compiler-specific skips. The Darwin C
 compilation, reuse and header invalidation; its deprecated `.c`-as-C++ warning
 is acknowledged for that fixture, not described as warning-free.
 
-At `094cfa80`, a fresh Linux build passes and the continuing full test run
-passes the translator, shape, VM and 175-program verifier/equivalence gates.
+At `094cfa80`, a fresh Linux build passes and the full test run
+passes the translator, shape, VM and 175-program verifier/equivalence gates,
+then stops on two obsolete OPL exclusions after all 225 corpus programs pass.
+The repaired VM example gate now covers 244 eligible sources and four verified
+exclusions. Native array search also passes a reproduced x86 argument-order
+regression, and all 27 FFI tests pass with default sanitizer ODR checking.
 Darwin compiles all 187 targets selected after installing the actual OpenGL
 and readline dependencies, including the nine targets absent from the earlier
 178-target selection. Five example regressions pass. These are compilation

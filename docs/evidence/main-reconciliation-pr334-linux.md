@@ -294,3 +294,25 @@ The hosted sanitizer build and bootstrap pass at `094cfa80` under the explicit
 tests remain separate acceptance. The release-version regression checks actual
 CLI output and future generated metadata; I no longer report the stale 0.2.0
 version from the public C compiler.
+
+
+The full `094cfa80` run passes all 225 language/application/unit programs,
+37 negative contracts, 20 self-hosted checks, cross-backend checks and the
+242 eligible VM compilations. It then correctly stops because two repaired OPL
+libraries still occur in the exclusion list. I remove those obsolete exclusions
+and verify all 244 eligible sources plus all four remaining exclusions; the
+standalone target now also supplies the compiler invoked by example shadows.
+I do not count the stopped full run as passing.
+
+Hosted coverage exposes x86 argument order in native array search. On madmax
+with GCC 15.2, baseline generated C fails `trace == 12` under both coverage at
+`-O0` and ordinary `-O2`; explicit array-then-needle temporaries pass both.
+The native ARM and VM regressions retain all assertions and add contains-order
+coverage. General native call-order parity remains a separate roadmap audit.
+
+After explicit PIC fixes allow sanitizer FFI fixtures to link, duplicate array
+metadata in the scalar second-generation fixture triggers ODR registration.
+I keep all first-generation array tests, give the second generation only its
+scalar identity export, and test simultaneous per-handle 42/43 lookup. All 27
+FFI tests pass normally and in a clean ASan/UBSan rebuild with default ODR
+checking. I retain runtime failure diagnostics directly in corpus job output.

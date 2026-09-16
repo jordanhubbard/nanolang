@@ -28,23 +28,29 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Coverage-built array search and reverse.** I reproduce the hosted
+- [ ] **General native call-order audit after this release.** I compare
+      other C-seed multi-argument calls against interpreter and VM ordering
+      before claiming general parity. The documented self-hosted computed-call
+      contract and repaired array-search contract retain their own tests.
+      MAC `task_8bee9e1410ad44c2ab714b8dab98fdfa` depends on release finalization.
+
+- [x] **Coverage-built array search and reverse.** I reproduce the hosted
       runtime failure with instrumented objects, retain the runtime diagnostic,
       and preserve ordering, typed-array and aliasing assertions.
       MAC `task_1460c2ef56414a7a98e9ce2bcd6b2890`.
 
-- [ ] **Repaired OPL VM coverage.** I include the now-compilable OPL codegen
+- [x] **Repaired OPL VM coverage.** I include the now-compilable OPL codegen
       and compiler fixtures in example coverage, preserving the check that
       every remaining exclusion really requires exclusion. I also provide
       the compiler alias invoked by shadows from the standalone test target.
       MAC `task_0afb69d3691b416cbd1659b2600d9cdc`.
 
-- [ ] **Sanitized FFI generation identity.** I diagnose duplicate ABI-metadata
+- [x] **Sanitized FFI generation identity.** I diagnose duplicate ABI-metadata
       registration across independent fixture libraries, preserve per-image
       binding and memory instrumentation, and test both loaded generations.
       MAC `task_3f7613b3c2d7453aa2d365bb5eb8d8b3`.
 
-- [ ] **Instrumented shared FFI fixture compilation.** I require PIC in
+- [x] **Instrumented shared FFI fixture compilation.** I require PIC in
       shared-library recipes even when a caller replaces CFLAGS, keeping
       sanitizer instrumentation and real shared-object linkage.
       MAC `task_a2498192c9bf4490aa5f5f2a995214b0`.
