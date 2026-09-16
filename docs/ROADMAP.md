@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **List failure fixture jump state.** I preserve the fault-injection
+      loop state across longjmp and keep strict GCC warnings and all ownership
+      and aliasing assertions enabled.
+      MAC `task_9c9cc0a069f0431f93fb12778fd78d01`.
+
 - [ ] **Escaped module compiler staging.** I preserve unusual source names
       while giving generated C inputs compiler-safe private paths. GCC currently
       crashes expanding __FILE__ in a staging directory with control bytes.

@@ -51,7 +51,8 @@ static void test_exit(int status) {
 #undef exit
 
 int main(void) {
-    for (int operation = 0; operation < 3; operation++) {
+    /* I keep the loop selector defined across the injected nonlocal exit. */
+    for (volatile int operation = 0; operation < 3; operation++) {
         List_string *xs = list_string_new();
         list_string_push(xs, "alpha");
         list_string_push(xs, "beta");
