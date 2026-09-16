@@ -442,7 +442,11 @@ NVM2C_TEST_BINARY ?= tests/nanoisa/test_nvm2c
 test-nvm2c-sanitizer-driver:
 	@python3 -m unittest tests.test_nvm2c_sanitizer_driver
 
-test-nvm2c: test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+.PHONY: test-nvm2c-opcode-coverage
+test-nvm2c-opcode-coverage:
+	@python3 -m unittest tests.test_nvm2c_opcode_coverage
+
+test-nvm2c: test-nvm2c-opcode-coverage test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(NVM2C_TEST_BINARY) \
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)

@@ -2774,7 +2774,32 @@ static void test_nested_record_values(void) {
     nvm_module_free(m);
 }
 
+static void test_unsupported_classifier_instructions(void) {
+    const uint8_t opcodes[] = {OP_HM_NEW, OP_HM_SET, OP_HM_GET, OP_PUSH_F64,
+        OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
+        OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
+    for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
+        NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
+            "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
+            "PUSH_I64 0\nRET\n.end\n", "unsupported classifier instruction");
+        if (!m) continue;
+        DecodedInstruction instruction = {0};
+        instruction.opcode = opcodes[i];
+        uint32_t written = isa_encode(&instruction, m->code + m->functions[0].code_offset, 16);
+        CHECK(written != 0, "I encode the unsupported instruction using ISA metadata");
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        const InstructionInfo *info = isa_get_info(opcodes[i]);
+        CHECK(c == NULL && strstr(error, "cannot classify unsupported opcode") &&
+              strstr(error, info->name) && strstr(error, "function 0 at offset 0"),
+              "I reject unsupported stack effects at their own instruction");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_null_module(void) {
+    test_unsupported_classifier_instructions();
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
     CHECK(c == NULL, "null module is refused");

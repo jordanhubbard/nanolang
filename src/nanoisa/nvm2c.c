@@ -1159,8 +1159,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             break;
         }
-        default:
+        case OP_JMP:
             break;
+        default: {
+            const InstructionInfo *info = isa_get_info(ins.opcode);
+            nvm2c_fail(b, "I cannot classify unsupported opcode %s (0x%02X) "
+                          "in function %u at offset %zu",
+                       info ? info->name : "UNKNOWN", ins.opcode, idx, start);
+            return 0;
+        }
         }
         if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
             size_t target;

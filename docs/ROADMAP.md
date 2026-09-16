@@ -142,6 +142,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.
                   MAC `task_f90db79b0f464637a18486c44262c4d3`.
+                  - [x] I reject unimplemented classifier instructions at
+                    their own offsets, check classifier/emitter case parity,
+                    and test representative unsupported instruction families.
+                    Normal and sanitizer suites pass 1,102 AOT and 965 graph
+                    checks, plus the opcode case-parity test. Compiler
+                    acceptance now names `HM_NEW` at function 267 offset 0.
+                    Evidence: `docs/evidence/aot-opcode-coverage.md`.
               - [ ] I reclaim unreachable nested-record snapshots during
                 long-running execution, with bounded-live-state stress tests
                 and alias-safe destruction. Entry-return cleanup alone does
