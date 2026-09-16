@@ -146,6 +146,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       tests, C frontend/evaluator suites and 21 compiler-to-native methods
       pass. Evidence: `docs/evidence/owned-record-patterns.md`. The broader
       ownership contract and release gate remain open.
+      The subsequent `make -j1 test-quick` exits successfully: 17 language
+      cases, 242 eligible VM examples, 33 affine methods and the remaining
+      runtime/Forth checks pass. The IDE builds, but graphical initialization
+      is skipped without `xvfb-run` and `timeout`; it remains unverified.
       My broader quick gate stops at GLUT native compilation: source-aware
       emitter lookup selects retained declaration placeholders instead of
       imported constant values, leaving `GL_LIGHT0` and related names undefined
@@ -167,10 +171,34 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
       branch's compiler/runtime work, verify affected gates and record ancestry
       before release. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+      Merge `26397722` already includes `b37136cc`; that earlier ancestry is
+      complete. The remaining reconciliation now covers eight further commits
+      through `931517fb`, not those already merged commits.
       Six further commits through `19afddf5` add nested-array evaluation,
       relative-path anchoring, write/close failure reporting and AOT signature,
       void-local and opcode-classification changes. I review their overlap
       with my integration runtime before merging and rerun affected gates.
+      The two newest commits add entry-reachable AOT emission and projected
+      array-field representation. My read-only merge preview reports nine
+      conflicted files, including the roadmap and overlapping AOT changes.
+      I preserve the integration branch's dynamic shape/storage work and
+      evaluate the new runtime tests rather than take either side wholesale.
+      Before that merge, I add standalone native regressions for an uncalled
+      record-parameter function and an eleven-field record containing an array.
+      These check the incoming fixes against my current translator directly.
+      The array-field case passes. The uncalled-function case fails with
+      `I cannot resolve AGG_PACK field 0`; PR #311 is not redundant here.
+      Reconciliation must also retain my separately invoked `__init__` root,
+      not just follow calls from the entry function.
+      I retain whole-module structural/type checking and representable native
+      helpers. I omit only unresolved uncalled packed-layout functions and their
+      uncalled callers. I test both execution roots and keep unresolved reachable
+      layouts rejected. Dropping every uncalled body broke 101 existing native
+      boundary subcases, so I preserve their independent tag/representation probes.
+      The adapted behavior passes all 22 compiler-to-native methods, 1,673
+      translator checks and 1,073 shape checks, including fresh ASan/UBSan
+      translation tests. Main ancestry is still unmerged. Evidence:
+      `docs/evidence/main-reconciliation-pr313.md`.
 - [ ] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure

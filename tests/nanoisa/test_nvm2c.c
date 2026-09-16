@@ -4343,8 +4343,13 @@ static void test_map_aggregate_fields(void) {
     if (unknown) {
         char err[512];
         char *c = nvm2c_emit(unknown, err, sizeof err);
-        CHECK(c == NULL && strstr(err, "cannot resolve AGG_PACK field"),
-              "I reject a packed field still unresolved after graph construction");
+        CHECK(c != NULL,
+              "I do not require an executable layout for an uncalled parameter");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I execute entry without the uncalled unresolved record");
+        }
         free(c);
         nvm_module_free(unknown);
     }
@@ -4675,15 +4680,25 @@ static void test_unrepresentable_call_facts(void) {
         ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
         ".entry main\n.function take 1 1 0 int 1\nPUSH_I64 0\nRET\n.end\n"
         ".function main 0 0 0 int 1\nPUSH_I64 1\nCALL take\nPOP\n"
-        "PUSH_I64 2\nAGG_PACK 0 0 0 1\nCALL take\nRET\n.end\n"
+        "PUSH_I64 2\nAGG_PACK 0 0 0 1\nCALL take\nRET\n.end\n",
+        ".entry make\n.function make 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
     };
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         NvmModule *m = assemble_ok(sources[i], "unrepresentable function facts");
         if (!m) continue;
         char error[256];
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && strstr(error, i == 1 ? "AGG_PACK" : "conflicting") != NULL,
-              "I reject conflicting or unresolved field types instead of guessing");
+        if (i == 1) {
+            CHECK(c != NULL, "I omit the uncalled function with unresolved parameter storage");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I preserve entry execution without inventing the uncalled layout");
+            }
+        } else {
+            CHECK(c == NULL && strstr(error, i == 3 ? "AGG_PACK" : "conflicting") != NULL,
+                  "I reject conflicting or reachable unresolved field types instead of guessing");
+        }
         free(c);
         nvm_module_free(m);
     }

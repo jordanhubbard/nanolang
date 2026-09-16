@@ -46,6 +46,13 @@ policy checks pass. The broader quick gate is a separate release requirement.
 The final rebuilt combined run passes 43 methods across frontend parity,
 ownership boundaries, lexical scope and owned-record patterns.
 
+After this repair, `make -j1 test-quick` exits successfully. It passes all 17
+language cases, all 242 eligible VM example compilations and the 33-method
+affine gate, then completes the remaining runtime/Forth checks and IDE build.
+The six existing example exclusions remain checked for ineligibility. The IDE
+graphical initialization check is skipped because `xvfb-run` and `timeout` are
+unavailable; this result does not establish interactive graphical acceptance.
+
 ## Boundary
 
 This checkpoint does not implement borrows, resource captures or match-payload

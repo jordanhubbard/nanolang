@@ -68,6 +68,8 @@ typedef struct {
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
+    uint8_t *emitted_functions;
+    uint8_t *required_functions;
     uint16_t array_shape_kinds;
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
@@ -4196,6 +4198,87 @@ done:
     return !b->failed && shape_ok(b);
 }
 
+/* I need executable layouts for both VM roots, not for uncalled parameters.
+ * The existing whole-module validation still rejects unsupported instructions. */
+static int mark_required_functions(Nvm2cBuf *b, const NvmModule *mod) {
+    if (mod->header.entry_point >= mod->function_count) {
+        nvm2c_fail(b, "entry_point %u is not a function", mod->header.entry_point);
+        return 0;
+    }
+    b->required_functions[mod->header.entry_point] = 1;
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        const char *name = nvm_get_string(mod, mod->functions[i].name_idx);
+        if (name && strcmp(name, "__init__") == 0) {
+            b->required_functions[i] = 1;
+            break;
+        }
+    }
+    int changed;
+    do {
+        changed = 0;
+        for (uint32_t i = 0; i < mod->function_count; ++i) {
+            if (!b->required_functions[i]) continue;
+            const NvmFunctionEntry *fn = &mod->functions[i];
+            for (size_t pc = 0; pc < fn->code_length;) {
+                DecodedInstruction ins;
+                uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
+                                           fn->code_length - pc, &ins);
+                if (!size) { nvm2c_fail(b, "I cannot decode function reachability"); return 0; }
+                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL) {
+                    uint32_t callee = ins.operands[0].u32;
+                    if (callee >= mod->function_count) {
+                        nvm2c_fail(b, "function %u: CALL target %u is out of range", i, callee);
+                        return 0;
+                    }
+                    if (!b->required_functions[callee]) {
+                        b->required_functions[callee] = 1;
+                        changed = 1;
+                    }
+                }
+                pc += size;
+            }
+        }
+    } while (changed);
+    return 1;
+}
+
+/* An omitted callee also makes its uncalled callers unemittable. I retain
+ * representable functions for native boundary probes and embedding. */
+static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
+    int changed;
+    do {
+        changed = 0;
+        for (uint32_t i = 0; i < mod->function_count; ++i) {
+            if (!b->emitted_functions[i]) continue;
+            const NvmFunctionEntry *fn = &mod->functions[i];
+            for (size_t pc = 0; pc < fn->code_length;) {
+                DecodedInstruction ins;
+                uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
+                                           fn->code_length - pc, &ins);
+                if (!size) { nvm2c_fail(b, "I cannot decode uncalled function dependencies"); return 0; }
+                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL) {
+                    uint32_t callee = ins.operands[0].u32;
+                    if (callee >= mod->function_count) {
+                        nvm2c_fail(b, "function %u: CALL target %u is out of range", i, callee);
+                        return 0;
+                    }
+                    if (!b->emitted_functions[callee]) {
+                        if (b->required_functions[i]) {
+                            nvm2c_fail(b, "I cannot omit required function %u", i);
+                            return 0;
+                        }
+                        b->emitted_functions[i] = 0;
+                        changed = 1;
+                        break;
+                    }
+                }
+                pc += size;
+            }
+        }
+    } while (changed);
+    return 1;
+}
+
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
     if (!mod) {
@@ -4281,21 +4364,27 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.shape_locals = calloc((size_t)mod->function_count * b.local_width, sizeof(NvmShapeId));
     b.shape_results = calloc(mod->function_count, sizeof(NvmShapeId));
     b.shape_outputs = calloc(mod->function_count, sizeof *b.shape_outputs);
+    b.emitted_functions = calloc(mod->function_count, 1);
+    b.required_functions = calloc(mod->function_count, 1);
     uint8_t *inference = malloc(fact_size);
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * b.local_width
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs) {
+    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs || !b.emitted_functions || !b.required_functions) {
         free(inference);
         free(kinds);
         free(rec_fields);
         free(b.shape_locals);
         free(b.shape_results);
         free(b.shape_outputs);
+        free(b.emitted_functions);
+        free(b.required_functions);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
 
+    if (!mark_required_functions(&b, mod)) goto fail;
+    memset(b.emitted_functions, 1, mod->function_count);
     memset(inference, NVM2C_VK_UNK, fact_size);
     Nvm2cFacts facts = {0};
     facts.parameters = inference;
@@ -4414,6 +4503,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (ins.opcode == OP_AGG_PACK && shape) {
                 for (uint16_t field = 0; field < ins.operands[3].u16; ++field) {
                     if (resolved_shape_kind(&b, nvm_shape_lookup(&b.shapes, shape, field)) == NVM2C_VK_UNK) {
+                        if (!b.required_functions[f]) {
+                            b.emitted_functions[f] = 0;
+                            break;
+                        }
                         nvm2c_fail(&b, "function %u at offset %zu: I cannot resolve AGG_PACK field %u",
                                    f, pc, (unsigned)field);
                         goto fail;
@@ -4425,6 +4518,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
 
     {
+        if (!prune_unemittable_callers(&b, mod)) goto fail;
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
@@ -4702,6 +4796,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
+            if (!b.emitted_functions[i]) continue;
             emit_prototype(&b, mod, i, kinds);
             if (b.failed) goto fail;
         }
@@ -4711,6 +4806,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
+            if (!b.emitted_functions[i]) continue;
             emit_function_body(&b, mod, i, kinds, rec_fields, facts.results);
             if (b.failed) goto fail;
         }
@@ -4737,9 +4833,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "int main(int argc, char **argv) {\n"
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
-        /* I retain every translated function without executing uncalled ones.
-         * Standard C references keep strict unused-function warnings clean. */
+        /* Standard C references keep strict unused-function warnings clean. */
         for (uint32_t i = 0; i < mod->function_count; ++i) {
+            if (!b.emitted_functions[i]) continue;
             char name[64];
             fn_c_name(mod, i, name, sizeof name);
             nvm2c_printf(&b, "    (void)%s;\n", name);
@@ -4799,6 +4895,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(b.shape_results);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
+    free(b.emitted_functions);
+    free(b.required_functions);
     return b.data;
 
 fail:
@@ -4810,6 +4908,8 @@ fail:
     free(b.shape_results);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
+    free(b.emitted_functions);
+    free(b.required_functions);
     free(b.data);
     return NULL;
 }

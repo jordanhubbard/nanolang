@@ -14,6 +14,47 @@ HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
 
 
 class OneIrCompiler(unittest.TestCase):
+    def test_incoming_main_record_shapes_execute(self):
+        fixtures = {
+            "uncalled_record_parameter": (
+                ".entry 1\n.function uncalled 1 1 0 struct 1\n"
+                "LOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 1\nAGG_PACK 0 0 0 2\nRET\n.end\n"
+                ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+            ),
+            "array_in_large_record": (
+                ".entry 0\n.function main 0 1 0 int 1\n"
+                "PUSH_I64 7\nARR_LITERAL 1 1\n" + "PUSH_I64 0\n" * 10 +
+                "AGG_PACK 0 0 0 11\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nAGG_GET 0\n"
+                "ARR_LEN\nPUSH_I64 1\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+            ),
+            "initializer_call_root": (
+                ".entry main\n.function initialize 0 0 0 void 0\n"
+                "PUSH_I64 42\nSTORE_GLOBAL 0\nRET\n.end\n"
+                ".function __init__ 0 0 0 void 0\nCALL initialize\nRET\n.end\n"
+                ".function main 0 0 0 int 1\nLOAD_GLOBAL 0\nPUSH_I64 42\nEQ\n"
+                "ASSERT\nPUSH_I64 0\nRET\n.end\n"
+            ),
+            "uncalled_wrapper_chain": (
+                ".entry main\n.function outer 1 1 0 struct 1\nLOAD_LOCAL 0\nTAIL_CALL inner\n.end\n"
+                ".function inner 1 1 0 struct 1\nLOAD_LOCAL 0\nCALL unresolved\nRET\n.end\n"
+                ".function unresolved 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_GET 0\n"
+                "PUSH_I64 1\nAGG_PACK 0 0 0 2\nRET\n.end\n"
+                ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+            ),
+        }
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for name, assembly_text in fixtures.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="nano-main-shapes-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / item for item in
+                                                    ("input.nasm", "input.nvm", "input.c", "program"))
+                assembly.write_text(assembly_text)
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([binary])
+
     def run_checked(self, args, timeout=180):
         env = dict(os.environ, NANO_MODULE_PATH=str(ROOT / "modules"))
         process = subprocess.Popen([str(arg) for arg in args], cwd=ROOT, env=env,
@@ -294,7 +335,16 @@ class OneIrCompiler(unittest.TestCase):
                     source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_pack({argument}); return !(r.n == 1 && {check}); }}\n")
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
-                    assembly.write_text(text.split(".parameters", 1)[0])
+                    untyped = text.split(".parameters", 1)[0]
+                    assembly.write_text(untyped)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    self.assertNotIn("nl_pack", source.read_text())
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+                    # A required unresolved layout still fails; omission only
+                    # applies when no VM execution root reaches the function.
+                    assembly.write_text(untyped.replace(".entry main", ".entry pack"))
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     result = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source], capture_output=True, timeout=30)
                     self.assertNotEqual(result.returncode, 0)
@@ -345,6 +395,13 @@ class OneIrCompiler(unittest.TestCase):
                     assembly.write_text(text)
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     if case not in ("int", "bool", "string"):
+                        if case != "alias_conflict":
+                            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                            self.assertNotIn("nl_copy", source.read_text())
+                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([binary])
+                            assembly.write_text(text.replace(".entry main", ".entry copy"))
+                            self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                         result = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source], capture_output=True, timeout=30)
                         self.assertNotEqual(result.returncode, 0)
                         self.assertIn(b"conflicting nominal scalar field evidence" if case == "alias_conflict" else b"cannot resolve AGG_PACK field 0", result.stderr)
