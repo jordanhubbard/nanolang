@@ -51,6 +51,78 @@ shadow filter_empty_returns_empty {
     assert (== (filter_empty_returns_empty) 0)
 }
 
+fn positive_float(x: float) -> bool {
+    return (> x 0.0)
+}
+
+shadow positive_float {
+    assert (positive_float 1.5)
+    assert (not (positive_float -1.5))
+}
+
+fn nonempty_string(x: string) -> bool {
+    return (> (str_length x) 0)
+}
+
+shadow nonempty_string {
+    assert (nonempty_string "nano")
+    assert (not (nonempty_string ""))
+}
+
+fn is_true(x: bool) -> bool {
+    return x
+}
+
+shadow is_true {
+    assert (is_true true)
+    assert (not (is_true false))
+}
+
+fn filter_scalar_literals() -> int {
+    let ints: array<int> = (filter [1, 2, 3, 4] is_even)
+    let floats: array<float> = (filter [-1.0, 2.5] positive_float)
+    let strings: array<string> = (filter ["", "nano"] nonempty_string)
+    let bools: array<bool> = (filter [false, true] is_true)
+    assert (== (at ints 0) 2)
+    assert (== (at floats 0) 2.5)
+    assert (== (at strings 0) "nano")
+    assert (at bools 0)
+    return (+ (+ (array_length ints) (array_length floats))
+              (+ (array_length strings) (array_length bools)))
+}
+
+shadow filter_scalar_literals {
+    assert (== (filter_scalar_literals) 5)
+}
+
+fn filter_scalar_variables() -> int {
+    let floats: array<float> = [-2.0, 3.5]
+    let strings: array<string> = ["", "stage2"]
+    let bools: array<bool> = [false, true]
+    let filtered_floats: array<float> = (filter floats positive_float)
+    let filtered_strings: array<string> = (filter strings nonempty_string)
+    let filtered_bools: array<bool> = (filter bools is_true)
+    assert (== (at filtered_floats 0) 3.5)
+    assert (== (at filtered_strings 0) "stage2")
+    assert (at filtered_bools 0)
+    return (+ (+ (array_length filtered_floats) (array_length filtered_strings))
+              (array_length filtered_bools))
+}
+
+shadow filter_scalar_variables {
+    assert (== (filter_scalar_variables) 3)
+}
+
+fn filter_empty_bool_result() -> int {
+    let values: array<bool> = [false]
+    let result: array<bool> = (filter values is_true)
+    return (array_length result)
+}
+
+shadow filter_empty_bool_result {
+    assert (== (filter_empty_bool_result) 0)
+}
+
 fn pipeline_filter_map_reduce() -> int {
     let nums: array<int> = [1, 2, 3, 4]
     let evens: array<int> = (filter nums is_even)

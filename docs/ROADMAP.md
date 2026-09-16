@@ -24,6 +24,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [ ] **Stage 2 scalar filter parity.** I infer the element type of literal and
+      variable array expressions when lowering `filter`, use a boolean-specific
+      callback ABI, preserve typed empty results, and test int, float, string,
+      and bool arrays through both expression forms. MAC
+      `task_ac94d5cc420e481a896d5f1a2d37f595`.
+
 - [x] **5.0 / reachable native translation.** I emit and classify only functions
       reachable from the NanoISA entry point, so an uncalled function whose
       record parameter has no recoverable field layout cannot make native
