@@ -39,6 +39,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       preserving transitive link dependencies and cache identity. I replace
       the silently truncating 2,048-byte closure buffer with complete checked
       accumulation and test a link closure that exceeds the old limit.
+      Bounded compile-flag buffers must reject overflow explicitly too.
       MAC `task_7c505ffcb1f3464aa8cda8fb461dc4ee`.
 
 - [ ] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
