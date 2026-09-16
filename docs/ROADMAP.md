@@ -136,9 +136,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   AOT and 965 graph checks. Evidence:
                   `docs/evidence/aot-record-array-literals.md`.
                 - [ ] I diagnose and implement the compiler's hashmap opcode
-                  requirements. Acceptance now stops at function 268
-                  (`lookup_field_type_kind`), with unsupported `HM_GET` at
-                  offset 32.
+                  requirements. Acceptance now stops at function 280 offset
+                  487: ordinary and tagged strings conflict at parameter 0 of
+                  function 282 (`type_from_string`).
                   - [x] I implement reusable emitted map storage with checked
                     growth, owned keys/values, missing-key results, replacement,
                     deletion and retained lookup values; test both integer and
@@ -158,10 +158,30 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                       checks. Compiler acceptance reaches `HM_GET` in function
                       268 at offset 32. Evidence:
                       `docs/evidence/aot-map-flow.md`.
-                    - [ ] I reclaim unreachable emitted maps before entry
-                      returns, preserving aliases and returned values under
+                    - [ ] I reclaim unreachable emitted maps and fetched
+                      string copies before entry returns, preserving aliases
+                      and returned values under
                       bounded-live-memory stress. MAC
                       `task_2f837947d5f24130b401ae433dd8d8c9`.
+                    - [ ] I preserve lookup results as tagged values through
+                      stack transfers, locals, branches, calls and returns.
+                      I test missing versus zero/empty values and retained
+                      strings after replacement/deletion. Scalar consumers
+                      check tags at consumption; lookup itself does not trap
+                      or invent a default. I extend mixed-value joins and
+                      return inference before claiming full integration.
+                      - [x] I emit tagged lookups through locals, compatible
+                        calls and same-representation branch joins, retaining
+                        fetched strings after map mutation. I test missing
+                        values, casts, tag inspection, scalar consumption and
+                        truthiness. Normal and sanitizer suites pass 1,128
+                        AOT checks and 990 shape checks. Evidence:
+                        `docs/evidence/aot-tagged-map-lookups.md`.
+                      - [ ] I preserve boolean versus integer runtime tags
+                        across native scalar flow, generic equality and map
+                        insertion. I do not infer a runtime tag from their
+                        shared C integer representation. MAC
+                        `task_811f280202174ac88a501ca3281d5e58`.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.
