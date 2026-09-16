@@ -297,6 +297,69 @@ static void test_store_load_local(void) {
     nvm_module_free(m);
 }
 
+static void test_globals_cross_functions_and_preserve_identity(void) {
+    const char *src =
+        ".entry 2\n"
+        ".function init 0 0 0 void 0\n"
+        "  ARR_NEW 1\n"
+        "  STORE_GLOBAL 3\n"
+        "  RET\n"
+        ".end\n"
+        ".function append 0 0 0 void 0\n"
+        "  LOAD_GLOBAL 3\n"
+        "  PUSH_I64 41\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL init\n"
+        "  CALL append\n"
+        "  LOAD_GLOBAL 3\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "globals fixture");
+    CHECK(m != NULL, "globals fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "nvm2c emits typed globals across functions");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "ng_init[3]") != NULL,
+              "global loads retain an explicit initialization check");
+        CHECK(compile_and_run(c, &status) == 0, "global generated C compiles and runs");
+        CHECK(status == 42, "global array mutation preserves shared identity");
+        free(c);
+    } else {
+        printf("    nvm2c error: %s\n", err);
+    }
+    nvm_module_free(m);
+}
+
+static void test_uninitialized_global_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  LOAD_GLOBAL 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "uninitialized global fixture");
+    CHECK(m != NULL, "uninitialized global fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "nvm2c refuses a global with no inferred store type");
+    CHECK(strstr(err, "no inferred stored value") != NULL,
+          "uninitialized global refusal is explicit");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_call_extern_is_refused(void) {
     NvmModule *m = nvm_module_new();
     CHECK(m != NULL, "empty module allocates");
@@ -2669,6 +2732,8 @@ int main(int argc, char **argv) {
     test_uncalled_record_parameter_needs_no_invented_shape();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
+    test_globals_cross_functions_and_preserve_identity();
+    test_uninitialized_global_is_refused();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
     test_cast_int_updates_classifier_stack();
