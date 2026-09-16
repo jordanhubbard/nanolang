@@ -4267,6 +4267,37 @@ static void test_classifier_unreachable_and_invalid_joins(void) {
     }
 }
 
+static void test_tagged_host_arguments(void) {
+    for (int integer = 0; integer < 2; ++integer) {
+        for (int value = 0; value < 4; ++value) {
+            for (int forward = 0; forward < 2; ++forward) {
+                char source[2048], worker[512], entry[512];
+                snprintf(worker, sizeof worker,
+                    ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\nCALL_EXTERN 0\nPOP\n"
+                    "LOAD_LOCAL 0\nTYPE_CHECK %d\nASSERT\nPUSH_I64 0\nRET\n.end\n", integer ? 1 : 5);
+                const char *stored = value == 0 ? "" : value == 3 ? "PUSH_BOOL 1\nSTORE_GLOBAL 0\n" :
+                    ((value == 1) == integer) ? "PUSH_I64 65\nSTORE_GLOBAL 0\n" : "PUSH_STR text\nSTORE_GLOBAL 0\n";
+                snprintf(entry, sizeof entry,
+                    ".function main 0 0 0 int 1\n%sLOAD_GLOBAL 0\nCALL consume\nRET\n.end\n", stored);
+                snprintf(source, sizeof source,
+                    ".string text \"\"\n.import \"\" \"%s\" %s %s\n.entry main\n%s%s",
+                    integer ? "vm_string_from_char" : "vm_file_exists", integer ? "string" : "bool",
+                    integer ? "int" : "string", forward ? entry : worker, forward ? worker : entry);
+                NvmModule *m = assemble_ok(source, "tagged host argument boundary");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I retain tagged argument storage at exact host boundaries");
+                if (c) {
+                    int status = 0;
+                    CHECK(compile_and_run(c, &status) == 0 && status == (value == 1 ? 0 : -1),
+                          "I check host argument tags before invocation without changing source locals");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+}
+
 static void test_generic_ordering(void) {
     const char *ops[] = {"LT", "LE", "GT", "GE"};
     const struct { const char *values; int order; } cases[] = {
@@ -4902,6 +4933,7 @@ static void test_module_initializer(void) {
 }
 
 int main(int argc, char **argv) {
+    test_tagged_host_arguments();
     test_generic_ordering();
     test_boolean_tags();
     test_module_initializer();

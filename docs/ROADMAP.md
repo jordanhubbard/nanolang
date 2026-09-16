@@ -185,13 +185,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     checks. Float, enum and erased nominal-tag comparisons
                     remain outside this native subset. Evidence:
                     `docs/evidence/aot-generic-ordering.md`.
-                - [ ] I preserve tagged argument storage while checking exact
+                - [x] I preserve tagged argument storage while checking exact
                   host-call parameter tags at consumption. Fresh compiler
                   translation reaches function 569, `exists`, at import 29
                   (`vm_file_exists`, string parameter, bool result), where the
                   classifier rejects an argument-kind mismatch. I test valid,
                   missing and wrong tags without weakening the host ABI. MAC
-                  `task_f6b888111b8246f89843e1f945d80936`.
+                  `task_f6b888111b8246f89843e1f945d80936`. Normal and fresh
+                  ASan/UBSan suites pass 1,476 AOT and 994 shape checks.
+                  Evidence: `docs/evidence/aot-tagged-host-arguments.md`.
+                - [ ] I retain the compiler's nested aggregate field shapes
+                  through `AGG_PACK`. Full compiler acceptance now reaches
+                  function 599, `collect_files_dfs`, whose packed result has a
+                  hashmap field. I test recursive packing and invalid
+                  layouts before rerunning compiler acceptance. MAC
+                  `task_f8e9b2d46ce3470f81ed8b06acbea7ed`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

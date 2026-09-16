@@ -1389,11 +1389,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 uint8_t expected = host->parameter == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT;
+                /* I check tagged arguments when the host consumes them; that
+                 * use does not change their caller-owned representation. */
+                if (arg.kind == NVM2C_VK_VALUE) continue;
                 if (arg.kind != expected && arg.kind != NVM2C_VK_UNK) {
-                    nvm2c_fail(b, "function %u: CALL_EXTERN argument kind mismatch", idx);
+                    nvm2c_fail(b, "function %u at offset %zu: CALL_EXTERN %s argument kind mismatch at %u: %u requires %u",
+                               idx, start, host->c_name, (unsigned)(host->argc - p - 1), arg.kind, expected);
                     return 0;
                 }
-                mark_origin(local_kind, nloc, arg.origin, expected);
+                /* I wait for caller facts before constraining an unknown
+                 * parameter: its eventual storage may retain runtime tags. */
+                if (arg.kind != NVM2C_VK_UNK || facts->final)
+                    mark_origin(local_kind, nloc, arg.origin, expected);
             }
             if (!sim_push(b, idx, stk, &sp,
                           host->result == TAG_ARRAY ? NVM2C_VK_SARR :
