@@ -1320,6 +1320,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             uint16_t fi = ins.operands[0].u16;
             uint8_t fk;
             if (!sim_pop(b, idx, stk, &sp, &rec)) return 0;
+            /* A nested projection can have no local origin. I constrain the
+             * consumed shape itself, not only the flat local-kind vector. */
+            if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD)) return 0;
             mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
             if (fi >= b->record_width) {
                 nvm2c_fail(b, "function %u: AGG_GET field is out of range", idx);

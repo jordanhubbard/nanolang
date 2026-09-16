@@ -351,6 +351,49 @@ class OneIrCompiler(unittest.TestCase):
                     else:
                         self.run_checked([binary])
 
+    def test_nested_record_consumer_constrains_projection(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for case in ("int", "bool", "string", "outer_tag", "inner_tag", "null", "outer_bounds", "inner_bounds"):
+                with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-nested-consumer-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    result_tag = case if case in ("int", "bool", "string") else "int"
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    helper = f".function read 1 1 0 {result_tag} 1\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\nRET\n.end\n"
+                    text = ".entry main\n" + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} struct\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    setup = "nrec_t inner = {.n = 1}, outer = {.n = 1}; outer.k[0] = 4; outer.rec[0] = &inner; inner.f[0] = 42;"
+                    check = "nl_read(outer) == 42"
+                    if case == "bool":
+                        setup += "inner.k[0] = 9; inner.f[0] = 1;"
+                        check = "nl_read(outer) == 1"
+                    elif case == "string":
+                        setup += 'inner.k[0] = 1; inner.s[0] = "hello";'
+                        check = 'strcmp(nl_read(outer), "hello") == 0'
+                    elif case == "outer_tag":
+                        setup += "outer.k[0] = 0;"
+                    elif case == "inner_tag":
+                        setup += 'inner.k[0] = 1; inner.s[0] = "bad";'
+                    elif case == "null":
+                        setup += "outer.rec[0] = NULL;"
+                    elif case == "outer_bounds":
+                        setup += "outer.n = 0;"
+                    elif case == "inner_bounds":
+                        setup += "inner.n = 0;"
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    source.write_text(generated + f"\nint main(void) {{ {setup} return !({check}); }}\n")
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    if case in ("int", "bool", "string"):
+                        self.run_checked([binary])
+                    else:
+                        result = subprocess.run([binary], capture_output=True, timeout=10)
+                        self.assertLess(result.returncode, 0, "I trap invalid nested record storage")
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
