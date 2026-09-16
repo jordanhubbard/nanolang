@@ -39,9 +39,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       integrating new main ancestry and reviewing its globals regressions.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
 
-- [x] **Stable full-suite compiler selection.** I pin the compiler requested
+- [ ] **Stable full-suite compiler selection.** I pin the compiler requested
       by my test entry point even when bootstrap changes the installed symlink.
-      My C-reference suite must execute that compiler; the explicit self-hosted
+      I also propagate that selection into the negative-contract runner, which
+      otherwise follows the mutated symlink. My C-reference suite must execute
+      that compiler; the explicit self-hosted
       suite must retain its own compiler. I test the link-mutation case.
       MAC `task_9bdaa5f642b04645948f37acc282ea41`.
 
