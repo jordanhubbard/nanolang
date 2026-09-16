@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Sanitized FFI generation identity.** I diagnose duplicate ABI-metadata
+      registration across independent fixture libraries, preserve per-image
+      binding and memory instrumentation, and test both loaded generations.
+      MAC `task_3f7613b3c2d7453aa2d365bb5eb8d8b3`.
+
 - [ ] **Instrumented shared FFI fixture compilation.** I require PIC in
       shared-library recipes even when a caller replaces CFLAGS, keeping
       sanitizer instrumentation and real shared-object linkage.
