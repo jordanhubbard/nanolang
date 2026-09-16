@@ -1974,6 +1974,52 @@ static void test_choose_else_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_void_local_flows_through_branches_loops_and_calls(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function consume 1 1 0 void 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  POP\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_BOOL 0\n"
+        "  JMP_FALSE after_store\n"
+        "  PUSH_I64 9\n"
+        "  STORE_LOCAL 0\n"
+        "after_store:\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL consume\n"
+        "loop:\n"
+        "  LOAD_LOCAL 0\n"
+        "  POP\n"
+        "  PUSH_BOOL 0\n"
+        "  JMP_FALSE done\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "void local data-flow fixture");
+    CHECK(m != NULL, "void local data-flow fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for void local data flow");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "int lv0 = 0") != NULL,
+          "non-parameter local starts with an explicit void tag");
+    CHECK(strstr(c, "!lv0") != NULL,
+          "LOAD_LOCAL carries the void tag independently of typed payload storage");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0,
+          "conditional, loop, and call void-local C compiles and runs");
+    CHECK(status == 0, "void local can be passed and discarded with VM semantics");
+    free(c);
+    nvm_module_free(m);
+}
+
 /* loop_sum: let mut i,s; while (< i n) { set s (+ s i); set i (+ i 1) }; return s.
  * Backward JMP must be valid C (temps declared once, not mid-function). */
 static void test_loop_sum_runs_without_nano_vm(void) {
@@ -2239,6 +2285,7 @@ int main(int argc, char **argv) {
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
+    test_void_local_flows_through_branches_loops_and_calls();
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
