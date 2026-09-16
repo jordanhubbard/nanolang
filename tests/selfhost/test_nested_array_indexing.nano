@@ -18,3 +18,7 @@ fn main() -> int {
     if (!= value 22) { return 4 }
     return 0
 }
+
+shadow main {
+    assert (== (main) 0)
+}

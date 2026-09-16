@@ -38,10 +38,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       11 of 16 cases; the C seed passes all 16 after nested-array repair.
       MAC `task_4d134cb7dd9c401c9aa8926cddbdeef3`.
 
-- [ ] **Nested-array shadow evaluation.** I support nested dynamic arrays
+- [x] **Nested-array shadow evaluation.** I support nested dynamic arrays
       in the C evaluator so native nested-array regression programs can also
-      execute their full behavior inside shadows. The current evaluator
-      rejects those arrays with `Unsupported array element type`.
+      execute their full behavior inside shadows. The native fixture now keeps
+      its compiler regression and checks the same behavior in a shadow.
       MAC `task_23e8d93323aa4af392384aa096189509`.
 
 - [x] **Local hook migration.** I preserve and disable retired Beads shim
