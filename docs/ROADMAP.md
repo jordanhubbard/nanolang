@@ -210,6 +210,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I extend void-before-store preservation to aggregate locals with
         owned/tagged representation, shape conversion and VM/native tests for
         arrays, records and maps. Scalar tags do not complete this work.
+        I first reconcile the overlapping main translator changes below.
         MAC `task_9bc9d52fdd4a4f818064f53a4a071bae`.
       - [ ] I reconcile main's newer `4936f8cf` (PR #316) after this checkpoint.
         I review its unary/grouping parser changes and import its grouping
@@ -226,6 +227,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         PR #317 lands as `710a1cdb` during my push. I must retain my tested
         frame implementation when reconciling that newer main commit.
         MAC `task_7a307efeea0e4ea5b2476904b2cbdfea`.
+        I preserve my existing unary/grouped-call parser and match checker,
+        import the two incoming regression functions, and extend match tests
+        across C seed, both self-hosted stages and NanoVM. I rerun affected
+        parser, native-frame and match gates before committing the merge.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure
