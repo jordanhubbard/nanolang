@@ -223,6 +223,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         emission when reconciling that branch.
         My integration tests now pass counts 8, 9, 10, 18 and 100 under
         generated-code ASan/UBSan; the external branch still needs repair.
+        PR #317 lands as `710a1cdb` during my push. I must retain my tested
+        frame implementation when reconciling that newer main commit.
         MAC `task_7a307efeea0e4ea5b2476904b2cbdfea`.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects

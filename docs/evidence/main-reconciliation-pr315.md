@@ -79,3 +79,9 @@ Its `r[010]` would allocate eight records, not ten. I post the finding at
 https://github.com/jordanhubbard/nanolang/pull/317#issuecomment-5697117488 and
 file `task_7a307efeea0e4ea5b2476904b2cbdfea`. I do not close either new PR or
 claim that the refreshed inventory is reconciled.
+
+During my push, PR #317 lands on main as `710a1cdb`. The octal-size finding
+therefore applies to that main checkpoint, not just an open proposal. My pushed
+integration merge `e5a14b8f` remains through PR #315 and retains its tested
+decimal/dynamic record-frame implementation. I must reconcile both newer main
+commits before claiming current-main integration.
