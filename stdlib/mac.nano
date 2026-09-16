@@ -75,6 +75,30 @@ struct TaskCreateOptions {
     kind: string              # "code" (default) or "report"
 }
 
+# I give query shadows an explicit local runner. Public queries still use
+# exec_command; integration tests exercise their real CLI boundary with a fixture.
+fn mac_shadow_query_runner(command: string) -> CommandResult {
+    let row: string = "{\"id\":\"task_fixture\",\"title\":\"Fixture\",\"state\":\"open\",\"priority\":2}"
+    if (== command "mac task show --json -- 'task_fixture'") {
+        return CommandResult { stdout: row, stderr: "", exit_code: 0 }
+    }
+    if (or (== command "mac task list --json --all-states")
+           (or (== command "mac task list --json --all-states --state='open'")
+               (or (== command "mac task ready --json")
+                   (== command "mac task list --json --all-states --selector priority=2")))) {
+        return CommandResult { stdout: (+ "[" (+ row "]")), stderr: "", exit_code: 0 }
+    }
+    return CommandResult { stdout: "", stderr: "I do not recognize this fixture command.", exit_code: 2 }
+}
+
+shadow mac_shadow_query_runner {
+    let result: CommandResult = (mac_shadow_query_runner "mac task ready --json")
+    assert (== result.exit_code 0)
+    assert (str_contains result.stdout "task_fixture")
+    let rejected: CommandResult = (mac_shadow_query_runner "unknown")
+    assert (== rejected.exit_code 2)
+}
+
 # === Core Functions ===
 
 # I encode one POSIX shell argument, including embedded single quotes.
@@ -90,13 +114,17 @@ shadow mac_shell_quote {
 
 # List tasks with optional state filter (e.g. "open", "running", "" for active).
 fn mac_list(state: string) -> array<Task> {
+    return (mac_list_with_runner state exec_command)
+}
+
+fn mac_list_with_runner(state: string, runner: fn(string) -> CommandResult) -> array<Task> {
     let mut cmd: string = "mac task list --json --all-states"
 
     if (!= state "") {
         set cmd (+ cmd (+ " --state=" (mac_shell_quote state)))
     }
 
-    let result: CommandResult = (exec_command cmd)
+    let result: CommandResult = (runner cmd)
 
     if (!= result.exit_code 0) {
         (println (+ "Error running mac task list: " result.stderr))
@@ -111,8 +139,17 @@ fn mac_list(state: string) -> array<Task> {
 }
 
 shadow mac_list {
-    let tasks: array<Task> = (mac_list "")
-    assert (>= (array_length tasks) 0)
+    let tasks: array<Task> = (mac_list_with_runner "open" mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
+    let task: Task = (at tasks 0)
+    assert (== task.state "open")
+}
+
+shadow mac_list_with_runner {
+    let tasks: array<Task> = (mac_list_with_runner "open" mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
+    let task: Task = (at tasks 0)
+    assert (== task.state "open")
 }
 
 # Get all open tasks
@@ -121,13 +158,19 @@ fn mac_open() -> array<Task> {
 }
 
 shadow mac_open {
-    let tasks: array<Task> = (mac_open)
-    assert (>= (array_length tasks) 0)
+    let tasks: array<Task> = (mac_list_with_runner "open" mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
+    let task: Task = (at tasks 0)
+    assert (== task.state "open")
 }
 
 # Get all task-ready work (`mac task ready`)
 fn mac_ready() -> array<Task> {
-    let result: CommandResult = (exec_command "mac task ready --json")
+    return (mac_ready_with_runner exec_command)
+}
+
+fn mac_ready_with_runner(runner: fn(string) -> CommandResult) -> array<Task> {
+    let result: CommandResult = (runner "mac task ready --json")
 
     if (!= result.exit_code 0) {
         return []
@@ -140,16 +183,25 @@ fn mac_ready() -> array<Task> {
 }
 
 shadow mac_ready {
-    let tasks: array<Task> = (mac_ready)
-    assert (>= (array_length tasks) 0)
+    let tasks: array<Task> = (mac_ready_with_runner mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
+}
+
+shadow mac_ready_with_runner {
+    let tasks: array<Task> = (mac_ready_with_runner mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
 }
 
 # Get tasks at (or filtered to) a given integer priority via the selector.
 fn mac_by_priority(priority: int) -> array<Task> {
+    return (mac_by_priority_with_runner priority exec_command)
+}
+
+fn mac_by_priority_with_runner(priority: int, runner: fn(string) -> CommandResult) -> array<Task> {
     let mut cmd: string = "mac task list --json --all-states --selector priority="
     set cmd (+ cmd (int_to_string priority))
 
-    let result: CommandResult = (exec_command cmd)
+    let result: CommandResult = (runner cmd)
 
     if (!= result.exit_code 0) {
         return []
@@ -162,14 +214,27 @@ fn mac_by_priority(priority: int) -> array<Task> {
 }
 
 shadow mac_by_priority {
-    let tasks: array<Task> = (mac_by_priority 0)
-    assert (>= (array_length tasks) 0)
+    let tasks: array<Task> = (mac_by_priority_with_runner 2 mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
+    let task: Task = (at tasks 0)
+    assert (== task.priority 2)
+}
+
+shadow mac_by_priority_with_runner {
+    let tasks: array<Task> = (mac_by_priority_with_runner 2 mac_shadow_query_runner)
+    assert (== (array_length tasks) 1)
+    let task: Task = (at tasks 0)
+    assert (== task.priority 2)
 }
 
 # Show a specific task by ID (`mac task show <id> --json`).
 fn mac_show(id: string) -> Task {
+    return (mac_show_with_runner id exec_command)
+}
+
+fn mac_show_with_runner(id: string, runner: fn(string) -> CommandResult) -> Task {
     let cmd: string = (+ "mac task show --json -- " (mac_shell_quote id))
-    let result: CommandResult = (exec_command cmd)
+    let result: CommandResult = (runner cmd)
 
     if (!= result.exit_code 0) {
         (println (+ "Error showing task: " result.stderr))
@@ -183,9 +248,13 @@ fn mac_show(id: string) -> Task {
 }
 
 shadow mac_show {
-    let task: Task = (mac_show "does-not-exist")
-    # Returns empty task if mac is unavailable or the id is unknown
-    assert (>= (str_length task.id) 0)
+    let task: Task = (mac_show_with_runner "task_fixture" mac_shadow_query_runner)
+    assert (== task.id "task_fixture")
+}
+
+shadow mac_show_with_runner {
+    let task: Task = (mac_show_with_runner "task_fixture" mac_shadow_query_runner)
+    assert (== task.id "task_fixture")
 }
 
 # Create a new task. Returns the new task id (or "" on failure).
@@ -252,7 +321,11 @@ shadow mac_close {
 
 # Get statistics by counting tasks per state (portable across mac versions).
 fn mac_stats() -> TaskStats {
-    let all: array<Task> = (mac_list "")
+    return (mac_stats_with_runner exec_command)
+}
+
+fn mac_stats_with_runner(runner: fn(string) -> CommandResult) -> TaskStats {
+    let all: array<Task> = (mac_list_with_runner "" runner)
     let mut open: int = 0
     let mut claimed: int = 0
     let mut running: int = 0
@@ -289,8 +362,17 @@ fn mac_stats() -> TaskStats {
 }
 
 shadow mac_stats {
-    let stats: TaskStats = (mac_stats)
-    assert (>= stats.total 0)
+    let stats: TaskStats = (mac_stats_with_runner mac_shadow_query_runner)
+    assert (== stats.total 1)
+    assert (== stats.open 1)
+    assert (== stats.completed 0)
+}
+
+shadow mac_stats_with_runner {
+    let stats: TaskStats = (mac_stats_with_runner mac_shadow_query_runner)
+    assert (== stats.total 1)
+    assert (== stats.open 1)
+    assert (== stats.completed 0)
 }
 
 # === Helper Functions ===
