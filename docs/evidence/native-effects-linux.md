@@ -35,3 +35,14 @@ On Linux ARM64 I exercised:
 These tests do not establish equivalence for every effect signature or backend.
 My 5.0 effect roadmap remains open until the combined native/VM and release
 checks pass.
+
+## My generated wrapper link closure
+
+I also run a generated VM wrapper that imports a C module reading my native
+`nl_effect_top` state. Without `effect_runtime.o` in the wrapper's runtime object
+list, the wrapper cannot load that module: its shared library has an unresolved
+`nl_effect_top` symbol. Running the same bytecode with `nano_vm` succeeds. With
+the runtime object included, the wrapper compiles and executes the probe.
+`test_wrapper_exports_native_effect_state_to_foreign_modules` is my eleventh
+native acceptance case; this added wrapper case was checked without sanitizers.
+MAC `task_e7e676830c454787acfd6a600e3306a2` tracks this link-closure correction.
