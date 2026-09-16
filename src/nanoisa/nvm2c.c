@@ -1261,8 +1261,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     v.kind != NVM2C_VK_ARR && v.kind != NVM2C_VK_SARR &&
                     v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC && v.kind != NVM2C_VK_VALUE &&
                     v.kind != NVM2C_VK_BOOL && v.kind != NVM2C_VK_MAP &&
-                    !(v.kind == NVM2C_VK_UNK && !facts->final)) {
-                    nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
+                    v.kind != NVM2C_VK_UNK) {
+                    nvm2c_fail(b, "function %u at offset %zu: AGG_PACK field %u kind %u requires supported aggregate shape facts (final=%d)",
+                               idx, start, (unsigned)(count - 1 - ai), v.kind, facts->final);
                     return 0;
                 }
                 packed.rec_k[count - 1 - ai] = v.kind;
@@ -4098,6 +4099,29 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
     }
     if (!shape_ok(&b)) goto fail;
+
+    /* I finish graph construction before requiring packed field kinds.
+     * A later caller can supply facts absent from the flat field vectors. */
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        const NvmFunctionEntry *fn = &mod->functions[f];
+        for (size_t pc = 0; pc < fn->code_length;) {
+            DecodedInstruction ins;
+            uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
+                                       fn->code_length - pc, &ins);
+            if (!size) { nvm2c_fail(&b, "I cannot decode packed field shapes"); goto fail; }
+            NvmShapeId shape = b.shape_outputs[f][pc];
+            if (ins.opcode == OP_AGG_PACK && shape) {
+                for (uint16_t field = 0; field < ins.operands[3].u16; ++field) {
+                    if (resolved_shape_kind(&b, nvm_shape_lookup(&b.shapes, shape, field)) == NVM2C_VK_UNK) {
+                        nvm2c_fail(&b, "function %u at offset %zu: I cannot resolve AGG_PACK field %u",
+                                   f, pc, (unsigned)field);
+                        goto fail;
+                    }
+                }
+            }
+            pc += size;
+        }
+    }
 
     {
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);

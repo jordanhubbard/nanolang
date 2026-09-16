@@ -4319,6 +4319,35 @@ static void test_classifier_unreachable_and_invalid_joins(void) {
 }
 
 static void test_map_aggregate_fields(void) {
+    for (int before = 0; before < 2; ++before) {
+        const char *worker = ".function repack 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\nAGG_PACK 0 2 0 1\nRET\n.end\n";
+        const char *entry = ".function main 0 0 0 int 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1\nCALL repack\nAGG_GET 0\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n";
+        char source[2048];
+        snprintf(source, sizeof source, ".string text \"late\"\n.types 3 0 0\n.entry main\n%s%s",
+                 before ? worker : entry, before ? entry : worker);
+        NvmModule *m = assemble_ok(source, "late packed field facts");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I resolve packed nested projections after constructing the graph");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve late string field facts through nested projection and repacking");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    NvmModule *unknown = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+        ".function uncalled 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n",
+        "truly unresolved packed field");
+    if (unknown) {
+        char err[512];
+        char *c = nvm2c_emit(unknown, err, sizeof err);
+        CHECK(c == NULL && strstr(err, "cannot resolve AGG_PACK field"),
+              "I reject a packed field still unresolved after graph construction");
+        free(c);
+        nvm_module_free(unknown);
+    }
     for (int strings = 0; strings < 2; ++strings) {
         for (int nested = 0; nested < 2; ++nested) {
             for (int variant = 0; variant < 2; ++variant) {

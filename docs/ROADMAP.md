@@ -216,11 +216,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   payloads. MAC `task_380228e6684346c7b211956940ca4f43`.
                   Normal and fresh ASan/UBSan runs pass 1,523 AOT and 994 shape
                   checks. Evidence: `docs/evidence/aot-optional-record-arrays.md`.
-                - [ ] I resolve final aggregate field facts in function 163,
+                - [x] I resolve final aggregate field facts in function 163,
                   `parser_store_union_construct`. Full compiler acceptance
                   now reaches its `AGG_PACK` rejection. I trace the unresolved
                   field rather than inventing an integer representation. MAC
                   `task_a478c928daf246129a8b8fb82da27fd6`.
+                  I defer packed-field validation until graph construction is
+                  complete and still reject genuinely unresolved fields.
+                  Normal and fresh ASan/UBSan runs pass 1,528 AOT and 994 shape
+                  checks. Evidence: `docs/evidence/aot-late-packed-field-shapes.md`.
+                - [ ] I reconcile record-array update facts after recursive
+                  inference. With deferred packed-field validation, full
+                  compiler acceptance reaches `ARR_SET record field
+                  representation mismatch`. I preserve incompatible-layout
+                  rejection and alias semantics while tracing the exact
+                  field. MAC `task_dfd2bd4170e544b9869cb936484845b9`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
