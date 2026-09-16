@@ -29,6 +29,9 @@ fn main() -> int {
     assert (== trace 12)
     assert (== (array_length (array_reverse (search_values))) 3)
     assert (== trace 121)
+    set trace 0
+    assert (array_contains (search_values) (search_needle))
+    assert (== trace 12)
     let integers: array<int> = [2, 1, 2]
     let reverse: array<int> = (array_reverse integers)
     assert (== (array_length reverse) 3)
