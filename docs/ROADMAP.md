@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Interpreter epoch-time acceptance.** I remove the mixed-clock
+      second-boundary assumption from the millisecond regression, retain
+      integer and epoch conversion checks, and verify interpreter acceptance.
+      MAC `task_d6d0fcccd1634cd9a1fe652f1dc3743c`.
+
 - [ ] **Publication stop fence after this release.** My MAC publisher can
       finish an admitted merge after its task is stopped. PR #357 demonstrated
       that race. I track a final pre-forge state check and deterministic race
