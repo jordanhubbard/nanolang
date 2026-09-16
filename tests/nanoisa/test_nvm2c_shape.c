@@ -102,7 +102,30 @@ static void test_projection_conflicts(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_lookup_without_constraints(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId record = recursive_record(&g);
+    size_t count = g.count;
+    CHECK(nvm_shape_lookup(&g, record, 123) == 0);
+    CHECK(g.count == count && !g.error);
+    NvmShapeId array = nvm_shape_lookup(&g, record, 0);
+    CHECK(nvm_shape_kind(&g, array) == NVM_SHAPE_ARRAY);
+    CHECK(nvm_shape_lookup(&g, array, 0) == nvm_shape_root(&g, record));
+    CHECK(g.count == count);
+    NvmShapeId alias = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    CHECK(nvm_shape_unify(&g, alias, record));
+    CHECK(nvm_shape_lookup(&g, alias, 0) == array);
+    NvmShapeId empty = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+    count = g.count;
+    CHECK(nvm_shape_lookup(&g, empty, 0) == 0);
+    CHECK(g.count == count && !g.error);
+    CHECK(nvm_shape_lookup(&g, empty, 1) == 0);
+    CHECK(g.error != NULL);
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_lookup_without_constraints();
     test_cycles_and_shared_children();
     test_deep_graph(0);
     test_deep_graph(1);

@@ -412,6 +412,28 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     return 1;
 }
 
+/* Read only resolved representation facts. An array with no established
+ * element kind is not evidence for an integer-array representation. */
+static uint8_t resolved_shape_kind(Nvm2cBuf *b, NvmShapeId id) {
+    if (!id) return NVM2C_VK_UNK;
+    switch (nvm_shape_kind(&b->shapes, id)) {
+    case NVM_SHAPE_INT: return NVM2C_VK_INT;
+    case NVM_SHAPE_STRING: return NVM2C_VK_STR;
+    case NVM_SHAPE_RECORD: return NVM2C_VK_REC;
+    case NVM_SHAPE_ARRAY: {
+        NvmShapeId element = nvm_shape_lookup(&b->shapes, id, 0);
+        if (!element) return NVM2C_VK_UNK;
+        switch (nvm_shape_kind(&b->shapes, element)) {
+        case NVM_SHAPE_INT: return NVM2C_VK_ARR;
+        case NVM_SHAPE_STRING: return NVM2C_VK_SARR;
+        case NVM_SHAPE_RECORD: return NVM2C_VK_RARR;
+        default: return NVM2C_VK_UNK;
+        }
+    }
+    default: return NVM2C_VK_UNK;
+    }
+}
+
 static int sim_push(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
                     uint8_t kind, int origin) {
     Nvm2cSimSlot slot;
@@ -2318,6 +2340,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (b->failed) goto done;
             if (fi >= b->record_width) {
                 nvm2c_fail(b, "function %u: AGG_GET field is out of range", idx);
+                goto done;
+            }
+            uint8_t resolved = resolved_shape_kind(b, b->shape_outputs[idx][start]);
+            if (!shape_ok(b)) goto done;
+            if (resolved != NVM2C_VK_UNK) st.rec_k[rec][fi] = resolved;
+            if (st.rec_k[rec][fi] == NVM2C_VK_REC || st.rec_k[rec][fi] == NVM2C_VK_RARR) {
+                nvm2c_fail(b, "I need nested aggregate storage for this resolved field shape");
                 goto done;
             }
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);

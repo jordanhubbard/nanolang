@@ -85,16 +85,23 @@ static int allows_edge(NvmShapeKind kind, uint32_t index) {
            (kind == NVM_SHAPE_ARRAY && index == 0);
 }
 
-NvmShapeId nvm_shape_child(NvmShapeGraph *g, NvmShapeId id, uint32_t index) {
+NvmShapeId nvm_shape_lookup(NvmShapeGraph *g, NvmShapeId id, uint32_t index) {
     NvmShapeId root = nvm_shape_root(g, id);
     if (!root) return 0;
     NvmShapeNode *node = &g->nodes[root - 1];
     if (!allows_edge(node->kind, index)) return fail(g, "I found an invalid shape projection");
     for (size_t i = 0; i < node->count; ++i)
         if (node->edges[i].index == index) return nvm_shape_root(g, node->edges[i].child);
+    return 0;
+}
+
+NvmShapeId nvm_shape_child(NvmShapeGraph *g, NvmShapeId id, uint32_t index) {
+    NvmShapeId found = nvm_shape_lookup(g, id, index);
+    if (found || g->error) return found;
+    NvmShapeId root = nvm_shape_root(g, id);
     NvmShapeId child = nvm_shape_new(g, NVM_SHAPE_UNKNOWN);
     if (!child) return 0;
-    node = &g->nodes[root - 1]; /* Adding a node can relocate the node array. */
+    NvmShapeNode *node = &g->nodes[root - 1]; /* Adding a node can relocate the node array. */
     ShapeEdge *edges = grow(g, node->edges, &node->capacity, node->count + 1, sizeof *node->edges);
     if (!edges) return 0;
     node->edges = edges;

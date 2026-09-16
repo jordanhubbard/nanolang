@@ -25,6 +25,9 @@ NvmShapeId nvm_shape_new(NvmShapeGraph *graph, NvmShapeKind kind);
 NvmShapeId nvm_shape_root(NvmShapeGraph *graph, NvmShapeId id);
 NvmShapeKind nvm_shape_kind(NvmShapeGraph *graph, NvmShapeId id);
 NvmShapeId nvm_shape_child(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
+/* Unlike child, lookup does not create a missing edge. Zero with no error
+ * means unconstrained. Root path compression may still update parent links. */
+NvmShapeId nvm_shape_lookup(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
 int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
 
 #endif

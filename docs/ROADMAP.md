@@ -95,6 +95,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             - [ ] I connect those facts to classification and C emission,
               preserve record-array element shapes, and pass full compiler
               acceptance. A standalone graph test does not complete this gate.
+              - [x] I read resolved field representations from the graph
+                during emission without creating new constraints; I test
+                missing edges, aliases and existing extraction behavior.
+                Normal and sanitizer runs pass 1,048 AOT and 965 graph
+                checks. Nested storage remains unfinished. Evidence:
+                `docs/evidence/aot-resolved-field-emission.md`.
               - [x] I attach persistent shape variables to production
                 classifier values, locals, parameters, results and joins,
                 checking compatibility alongside existing representation facts.
