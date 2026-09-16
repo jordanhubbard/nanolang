@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Repaired OPL VM coverage.** I include the now-compilable OPL codegen
+      and compiler fixtures in example coverage, preserving the check that
+      every remaining exclusion really requires exclusion.
+      MAC `task_0afb69d3691b416cbd1659b2600d9cdc`.
+
 - [ ] **Sanitized FFI generation identity.** I diagnose duplicate ABI-metadata
       registration across independent fixture libraries, preserve per-image
       binding and memory instrumentation, and test both loaded generations.
