@@ -1496,6 +1496,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [x] I classify perform, handle, and await as value expressions in
+            my shared parser and verify native handler captures, nesting,
+            lexical return, and cleanup. I register imported effect declarations
+            before checking module functions and keep native dynamic handler
+            state shared across compilation units. I isolate unsafe-block
+            cleanup inside its emitted C scope. Three shared native cases and
+            ten native/runtime cases pass, including the latter under ASan/UBSan
+            with leak detection disabled. My evidence is in
+            `docs/evidence/native-effects-linux.md`. MAC
+            `task_36491565f7db6038fb0b1591f6164c36`.
           - [ ] I route interpreter handler returns to the lexical function's
             active call, preserving the destination through intervening helper
             calls and cleanup. I test final-expression resumption separately,

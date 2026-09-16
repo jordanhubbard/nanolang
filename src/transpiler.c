@@ -4666,35 +4666,38 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
     #undef EMIT_EXTERN_DECL
 }
 
-/* I retain declaration-shaped placeholders until native dispatch is implemented.
- * They do not execute handlers; the required execution gate detects that gap.
- * Interpreter dispatch is synchronous, not a full CPS implementation. */
-static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
+/* I dispatch synchronous effects through lexical frames and explicitly unwind
+ * owned local guards before a handler returns from its installing function. */
+static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) return;
-    sb_append(sb, "/* ── Algebraic effect perform stubs (interpreter dispatches at runtime) ── */\n");
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (!item || item->type != AST_EFFECT_DECL) continue;
-        const char *eff = item->as.effect_decl.effect_name;
+    native_effect_program = env->effect_count > 0;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_EFFECT_DECL) native_effect_program = true;
+    if (!native_effect_program) return;
+    sb_append(sb, "#include \"runtime/effect_runtime.h\"\n");
+    for (int i = 0; i < env->effect_count; i++) {
+        EffectDef *effect = &env->effects[i];
+        const char *eff = effect->name;
         if (!eff) continue;
-        for (int j = 0; j < item->as.effect_decl.op_count; j++) {
-            const char *op = item->as.effect_decl.op_names[j];
-            int count = item->as.effect_decl.op_param_counts
-                ? item->as.effect_decl.op_param_counts[j] : 0;
-            Type rtype = item->as.effect_decl.op_return_types[j];
-            const char *crt = type_to_c(rtype);
+        for (int j = 0; j < effect->op_count; j++) {
+            const char *op = effect->ops[j].name;
+            int count = effect->ops[j].param_count;
+            Type rtype = effect->ops[j].return_type;
+            const char *crt = effect_c_type(rtype, effect->ops[j].return_type_name, env);
             sb_appendf(sb, "static %s nl_perform_%s_%s(", crt, eff, op);
             if (!count) sb_append(sb, "void");
             for (int k = 0; k < count; k++) {
                 if (k) sb_append(sb, ", ");
                 sb_appendf(sb, "%s _arg%d",
-                    type_to_c(item->as.effect_decl.op_params[j][k].type), k);
+                    effect_c_type(effect->ops[j].params[k].type, effect->ops[j].params[k].struct_type_name, env), k);
             }
-            sb_append(sb, ") { /* effect stub */ ");
-            for (int k = 0; k < count; k++)
-                sb_appendf(sb, "(void)_arg%d; ", k);
-            if (rtype != TYPE_VOID && rtype != TYPE_UNKNOWN)
-                sb_appendf(sb, "%s _r; memset(&_r, 0, sizeof(_r)); return _r; ", crt);
+            sb_append(sb, ") { void *_args[] = {");
+            for (int k = 0; k < count; k++) sb_appendf(sb, "%s&_arg%d", k ? "," : "", k);
+            if (!count) sb_append(sb, "NULL");
+            sb_append(sb, "}; ");
+            if (rtype != TYPE_VOID) sb_appendf(sb, "%s _r = {0}; ", crt);
+            sb_appendf(sb, "nl_effect_dispatch(\"%s.%s\", _args, %s); ", eff, op, rtype == TYPE_VOID ? "NULL" : "&_r");
+            if (rtype != TYPE_VOID) sb_append(sb, "return _r; ");
             sb_append(sb, "}\n");
         }
     }
@@ -4713,6 +4716,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     }
 
     /* Set source file for #line directive emission */
+    const char *saved_environment_file = env_current_file(env);
+    env_set_current_file(env, input_file);
     g_source_file_for_line_directives = input_file;
 
     /* Clear and collect headers from imported modules */
@@ -4844,8 +4849,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Generate extern function declarations */
     generate_extern_declarations(sb, program, env, fn_registry);
 
-    /* Generate nl_perform_* stubs for algebraic effect operations */
-    generate_effect_perform_stubs(sb, program);
+    /* Generate typed entry points for synchronous effect operations. */
+    generate_effect_dispatch(sb, program, env);
 
     /* Also generate extern declarations for extern functions from imported modules */
     generate_module_extern_declarations(sb, program, env, fn_registry);
@@ -4860,7 +4865,13 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
 
     /* Generate function implementations */
-    generate_function_implementations(sb, program, env, fn_registry, tuple_registry);
+    effect_helpers = sb_create(); effect_serial = 0;
+    StringBuilder *implementations = sb_create();
+    generate_function_implementations(implementations, program, env, fn_registry, tuple_registry);
+    sb_append(sb, effect_helpers->buffer);
+    sb_append(sb, implementations->buffer);
+    free(effect_helpers->buffer); free(effect_helpers); effect_helpers = NULL;
+    free(implementations->buffer); free(implementations);
 
     /* Add C main() wrapper for standalone executables (skip for module objects) */
     if (env && env->emit_c_main) {
@@ -4878,5 +4889,6 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     char *result = sb->buffer;
     free(sb);
+    env_set_current_file(env, saved_environment_file);
     return result;
 }
