@@ -2358,14 +2358,88 @@ static void test_void_local_flows_through_branches_loops_and_calls(void) {
         nvm_module_free(m);
         return;
     }
-    CHECK(strstr(c, "int lv0 = 0") != NULL,
+    CHECK(strstr(c, "uint8_t lt0 = TAG_VOID") != NULL,
           "non-parameter local starts with an explicit void tag");
-    CHECK(strstr(c, "!lv0") != NULL,
+    CHECK(strstr(c, "= lt0") != NULL,
           "LOAD_LOCAL carries the void tag independently of typed payload storage");
     int status = -1;
     CHECK(compile_and_run(c, &status) == 0,
           "conditional, loop, and call void-local C compiles and runs");
     CHECK(status == 0, "void local can be passed and discarded with VM semantics");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_void_local_typed_consumers_keep_runtime_checks(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "void local typed consumer fixture");
+    CHECK(m != NULL, "void local typed consumer fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits typed void-local consumption");
+    if (c) {
+        CHECK(strstr(c, "!= TAG_INT) abort()") != NULL,
+              "typed consumers retain a runtime tag check");
+        int status = 0;
+        CHECK(compile_and_run(c, &status) == 0,
+              "typed void-local consumer C compiles and runs");
+        CHECK(status != 0, "integer arithmetic rejects void instead of using its payload");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_void_local_flows_through_tail_call(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function consume 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  TAIL_CALL consume\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "void local tail-call fixture");
+    CHECK(m != NULL, "void local tail-call fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits a void-valued tail-call argument");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "void-valued tail-call C compiles and runs");
+        CHECK(status != 0, "tail call preserves void for the typed consumer check");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_void_aggregate_field_is_explicitly_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_VOID\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  POP\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "void aggregate field fixture");
+    CHECK(m != NULL, "void aggregate field fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "void aggregate fields remain outside the tagged-storage subset");
+    CHECK(strstr(err, "PUSH_VOID") != NULL || strstr(err, "scalar or array") != NULL,
+          "aggregate limitation remains explicit");
     free(c);
     nvm_module_free(m);
 }
@@ -2644,6 +2718,9 @@ int main(int argc, char **argv) {
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
     test_void_local_flows_through_branches_loops_and_calls();
+    test_void_local_typed_consumers_keep_runtime_checks();
+    test_void_local_flows_through_tail_call();
+    test_void_aggregate_field_is_explicitly_refused();
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
