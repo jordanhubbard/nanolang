@@ -1,7 +1,7 @@
 {
-  "captured_utc": "2026-09-16T19:08:39.999294+00:00",
-  "candidate_sha": "bd6ee29359105cd4da4b005b2eaf1c3c23ce5748",
-  "open_pr_count": 45,
+  "captured_utc": "2026-09-16T19:20:23.289821+00:00",
+  "candidate_sha": "01f9f08e33b514fd6612dbe2bd5af5a7c40ead15",
+  "open_pr_count": 44,
   "open_issue_count": 0,
   "prs": [
     {
@@ -27,30 +27,8 @@
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "evidence_commit_ancestry": {
         "663ff9d5": true
-      }
-    },
-    {
-      "baseRefName": "main",
-      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_65ab040f1a056d9bd06dd4260d8f75e6`\n- head: `9f84f492ee9bceb3165ec3470825d016f75f5dbd`\n- base at push: `feb298beee50f644f31b354e2eca8846a6721e2b`\n",
-      "headRefName": "mac/agent_bullwinkle/task_65ab040f1a056d9bd06dd4260d8f75e6-lease_db777020aa194f148d",
-      "headRefOid": "9f84f492ee9bceb3165ec3470825d016f75f5dbd",
-      "labels": [],
-      "milestone": null,
-      "number": 357,
-      "title": "Integrate conflicting approved task task_27ff305e367a92ab217edfa34825ee67 onto current main (task_65ab040f1a056d9bd06dd4260d8f75e6)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/357",
-      "head_object_available": true,
-      "head_ancestor_of_candidate": false,
-      "metadata_and_head_unchanged_since_initial_audit": true,
-      "release_scoped_by_metadata": false,
-      "changed_files": [
-        "src/nanoisa/nvm2c.c",
-        "tests/nanoisa/test_nvm2c.c"
-      ],
-      "family": "generic-comparisons",
-      "disposition": "Partially superseded: I retain the float/int comparison capability.",
-      "evidence": "The reviewed diff adds the float/int LT fixture from PR310/332/344/351. My test_unsupported_classifier_instructions still rejects OP_PUSH_F64; integer/string ordering alone does not supersede this work. Reconcile mixed-tag comparison policy with the VM before integration.",
-      "closure_after_336": "keep open: unsuperseded floating-point capability"
+      },
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -73,7 +51,8 @@
       "family": "missing-array-values",
       "disposition": "Partially superseded: I retain this work for native CAST_BOOL support and PUSH_VOID support.",
       "evidence": "I cover missing array reads and uint32 index narrowing in test_array_globals (4dd41bc4). My tests/nanoisa/test_nvm2c.c:test_unsupported_classifier_instructions still explicitly rejects OP_CAST_BOOL and OP_PUSH_VOID at bd6ee293. These native-parity additions are not superseded; adapt their semantic fixtures to current boolean tags before integration.",
-      "closure_after_336": "keep open: unsuperseded native cast/void capability"
+      "closure_after_336": "keep open: unsuperseded native cast/void capability",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -94,9 +73,13 @@
         "tests/nanoisa/test_nvm2c.c"
       ],
       "family": "generic-comparisons",
-      "disposition": "Partially superseded: I retain the float/int comparison capability.",
-      "evidence": "The reviewed diff adds the float/int LT fixture from PR310/332/344/351. My test_unsupported_classifier_instructions still rejects OP_PUSH_F64; integer/string ordering alone does not supersede this work. Reconcile mixed-tag comparison policy with the VM before integration.",
-      "closure_after_336": "keep open: unsuperseded floating-point capability"
+      "disposition": "I incorporate the float comparison capability and supersede the earlier implementation.",
+      "evidence": "My reconciliation 86f1f3d2 (ancestor of 01f9f08e) retains float literals, numeric equality/ordering, locals, duplication, joins and direct/tail-call operand transport. test_generic_comparisons_are_typed and test_float_comparison_transport preserve the incoming semantic cases; docs/evidence/main-reconciliation-pr357.md records 1,761 translator and 1,076 shape checks. I retain VM mixed-tag ordering rather than the incoming string/int rejection. The reviewed PR adds no float arithmetic, casts or function-result capability beyond this bounded scope.",
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true,
+      "evidence_commit_ancestry": {
+        "86f1f3d2": true
+      }
     },
     {
       "baseRefName": "main",
@@ -121,7 +104,8 @@
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "evidence_commit_ancestry": {
         "663ff9d5": true
-      }
+      },
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -143,7 +127,8 @@
       "family": "generic-comparison-inference",
       "disposition": "I supersede the reviewed unknown-operand and string comparison inference changes.",
       "evidence": "The complete reviewed diff changes only classify_function_body operand inference; it adds no float support. My shape-driven classification and test_generic_ordering at bd6ee293 cover the dynamic comparison path (ef28ba12).",
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -156,13 +141,17 @@
       "title": "Integrate conflicting approved task task_dc171e3db9cb497c981d7f06621baa5d onto current main (task_3d624fc2c4db94e35909a642f43d377b)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/351",
       "head_ancestor_of_candidate": false,
-      "closure_after_336": "keep open: unsuperseded floating-point capability",
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "generic-comparisons",
-      "disposition": "partly superseded; float/int LT requires PUSH_F64, still unsupported; string/int rejection conflicts with current dynamic tag semantics",
-      "evidence": "Same three fixtures as PR310/332/344; archived pr-351.diff; no new language/runtime release contract.",
+      "disposition": "I incorporate the float comparison capability and supersede the earlier implementation.",
+      "evidence": "My reconciliation 86f1f3d2 (ancestor of 01f9f08e) retains float literals, numeric equality/ordering, locals, duplication, joins and direct/tail-call operand transport. test_generic_comparisons_are_typed and test_float_comparison_transport preserve the incoming semantic cases; docs/evidence/main-reconciliation-pr357.md records 1,761 translator and 1,076 shape checks. I retain VM mixed-tag ordering rather than the incoming string/int rejection. The reviewed PR adds no float arithmetic, casts or function-result capability beyond this bounded scope.",
       "head_object_available": true,
       "metadata_and_head_unchanged_since_initial_audit": true,
-      "release_scoped_by_metadata": false
+      "release_scoped_by_metadata": false,
+      "isDraft": true,
+      "evidence_commit_ancestry": {
+        "86f1f3d2": true
+      }
     },
     {
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_89a170e2741eb1676e38de143547e804`\n- head: `93a6d224bb95aadb033ec37066516468f11171b9`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
@@ -189,7 +178,8 @@
         "4dd41bc4": true
       },
       "baseRefName": "main",
-      "closure_after_336": "keep open: unsuperseded native cast/void capability"
+      "closure_after_336": "keep open: unsuperseded native cast/void capability",
+      "isDraft": true
     },
     {
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_c6144341c51c8d49618275710c89d888`\n- head: `d3e67f72c22872276b49c7adec52700e77ae7a94`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
@@ -216,7 +206,8 @@
         "4dd41bc4": true
       },
       "baseRefName": "main",
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_d5d42912d498f9b6b82473a1283d7083`\n- head: `275b7098f3cb95c3e897a292fd96c43b3f92b355`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
@@ -243,7 +234,8 @@
         "4dd41bc4": true
       },
       "baseRefName": "main",
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -270,7 +262,8 @@
         "010087dd": true,
         "4dd41bc4": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -289,14 +282,15 @@
         "tests/nanoisa/test_nvm2c.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "partially superseded; preserve float capability for separate scope decision",
+      "disposition": "I incorporate the float comparison capability and supersede the earlier implementation.",
       "family": "generic-comparisons",
-      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log",
+      "evidence": "My reconciliation 86f1f3d2 (ancestor of 01f9f08e) retains float literals, numeric equality/ordering, locals, duplication, joins and direct/tail-call operand transport. test_generic_comparisons_are_typed and test_float_comparison_transport preserve the incoming semantic cases; docs/evidence/main-reconciliation-pr357.md records 1,761 translator and 1,076 shape checks. I retain VM mixed-tag ordering rather than the incoming string/int rejection. The reviewed PR adds no float arithmetic, casts or function-result capability beyond this bounded scope.",
       "metadata_and_head_unchanged_since_initial_audit": true,
       "evidence_commit_ancestry": {
-        "ef28ba12": true
+        "86f1f3d2": true
       },
-      "closure_after_336": "keep open: unsuperseded floating-point capability"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -322,7 +316,8 @@
       "evidence_commit_ancestry": {
         "4dd41bc4": true
       },
-      "closure_after_336": "keep open: unsuperseded native cast/void capability"
+      "closure_after_336": "keep open: unsuperseded native cast/void capability",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -349,7 +344,8 @@
         "010087dd": true,
         "4dd41bc4": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -376,7 +372,8 @@
         "010087dd": true,
         "4dd41bc4": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -402,7 +399,8 @@
       "evidence_commit_ancestry": {
         "77811399": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -429,13 +427,14 @@
       "evidence_commit_ancestry": {
         "663ff9d5": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
       "body": "I bring the audited compiler/runtime work into the 5.0 language-contract release. I make returns leave their enclosing function, run dependency shadows by default, preserve lexical/module identity, and execute synchronous native and VM effects with captured state and tested cleanup. The release contract in `docs/RELEASE_5.0.md` explicitly leaves NanoISA-only self-hosting, complete backend parity, full ownership checking and production isolation unfinished.\n\nI also repair interpreter union-string lifetimes, callback signature identity and VM bridges, private native artifact publication, C++ replay and instrumented wrapper links. Final platform checks found and repaired recursive Bash 3 discovery, long Darwin link closures, shadow-test compiler selection, hermetic MAC dependency tests, obsolete VM exclusions, sanitizer FFI fixture PIC/ODR issues and x86 native array-search argument sequencing. My public compiler version and generated package metadata agree on 5.0.0.\n\nBounded checks pass 272,403 VM checks, 1,745 translator checks, 1,073 shape checks and all 175 verified/equivalent bytecode programs. VM coverage compiles 244 eligible sources and validates four exclusions. Darwin compiles 187 selected example targets and passes five example regressions. All 27 FFI tests pass normally and with ASan/UBSan using default ODR checking. The x86 array-order failure is reproduced before the fix and passes afterward under both ordinary and coverage builds. The regenerated local release deck and narrative pass all 12 document-pair tests.\n\nThe final clean full-suite gate and platform CI remain pending. I keep this PR as a draft until they pass. Earlier checkpoints and their limitations are recorded in `docs/evidence/main-reconciliation-pr334-linux.md` and its linked evidence. The scope review retains floating-point AOT follow-ups and makes stale PR closure conditional on this integration landing and unchanged heads. Finalization ledger: `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.\n",
       "headRefName": "release/5.0-finalization",
-      "headRefOid": "0ec585e826278b1b14f9e677311f7cb73668c659",
+      "headRefOid": "4f81e5eb85b0e94bcde01fa56aeae5f930d48ca9",
       "labels": [],
       "milestone": null,
       "number": 336,
@@ -450,7 +449,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "release candidate; not a stale closure",
       "family": "release-candidate",
-      "evidence": "I review bd6ee293, which reconciles main feb298be (PR353). This scope snapshot is not a full-suite or CI pass."
+      "evidence": "I review 01f9f08e, including main PR353 and PR357 reconciliations. This scope snapshot is not my final full-suite or CI acceptance.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -476,7 +476,8 @@
       "evidence_commit_ancestry": {
         "77811399": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -495,14 +496,15 @@
         "tests/nanoisa/test_nvm2c.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "partially superseded; preserve float capability for separate scope decision",
+      "disposition": "I incorporate the float comparison capability and supersede the earlier implementation.",
       "family": "generic-comparisons",
-      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log",
+      "evidence": "My reconciliation 86f1f3d2 (ancestor of 01f9f08e) retains float literals, numeric equality/ordering, locals, duplication, joins and direct/tail-call operand transport. test_generic_comparisons_are_typed and test_float_comparison_transport preserve the incoming semantic cases; docs/evidence/main-reconciliation-pr357.md records 1,761 translator and 1,076 shape checks. I retain VM mixed-tag ordering rather than the incoming string/int rejection. The reviewed PR adds no float arithmetic, casts or function-result capability beyond this bounded scope.",
       "metadata_and_head_unchanged_since_initial_audit": true,
       "evidence_commit_ancestry": {
-        "ef28ba12": true
+        "86f1f3d2": true
       },
-      "closure_after_336": "keep open: unsuperseded floating-point capability"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -528,7 +530,8 @@
       "evidence_commit_ancestry": {
         "4dd41bc4": true
       },
-      "closure_after_336": "keep open: unsuperseded native cast/void capability"
+      "closure_after_336": "keep open: unsuperseded native cast/void capability",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -556,7 +559,8 @@
       "evidence_commit_ancestry": {
         "663ff9d5": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -583,7 +587,8 @@
         "010087dd": true,
         "4dd41bc4": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -612,7 +617,8 @@
         "8e3e8514": true,
         "f8c21480": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -638,7 +644,8 @@
       "evidence_commit_ancestry": {
         "3124f5fb": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -668,7 +675,8 @@
         "f2b6203a": true
       },
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
-      "additional_runtime_evidence": "The original record string field -> local -> STR_LEN assembly emits C that returns 2 using the active release tools. This is a focused checkpoint, not an independently rebuilt 807dc593 toolchain. The old generated-local spelling is representation-specific."
+      "additional_runtime_evidence": "The original record string field -> local -> STR_LEN assembly emits C that returns 2 using the active release tools. This is a focused checkpoint, not an independently rebuilt 807dc593 toolchain. The old generated-local spelling is representation-specific.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -694,7 +702,8 @@
       "evidence_commit_ancestry": {
         "77811399": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -713,14 +722,15 @@
         "tests/nanoisa/test_nvm2c.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "partially superseded; preserve float capability for separate scope decision",
+      "disposition": "I incorporate the float comparison capability and supersede the earlier implementation.",
       "family": "generic-comparisons",
-      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log",
+      "evidence": "My reconciliation 86f1f3d2 (ancestor of 01f9f08e) retains float literals, numeric equality/ordering, locals, duplication, joins and direct/tail-call operand transport. test_generic_comparisons_are_typed and test_float_comparison_transport preserve the incoming semantic cases; docs/evidence/main-reconciliation-pr357.md records 1,761 translator and 1,076 shape checks. I retain VM mixed-tag ordering rather than the incoming string/int rejection. The reviewed PR adds no float arithmetic, casts or function-result capability beyond this bounded scope.",
       "metadata_and_head_unchanged_since_initial_audit": true,
       "evidence_commit_ancestry": {
-        "ef28ba12": true
+        "86f1f3d2": true
       },
-      "closure_after_336": "keep open: unsuperseded floating-point capability"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -747,7 +757,8 @@
       "evidence_commit_ancestry": {
         "663ff9d5": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -776,7 +787,8 @@
         "8e3e8514": true,
         "f8c21480": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -802,7 +814,8 @@
       "evidence_commit_ancestry": {
         "4dd41bc4": true
       },
-      "closure_after_336": "keep open: unsuperseded native cast/void capability"
+      "closure_after_336": "keep open: unsuperseded native cast/void capability",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -829,7 +842,8 @@
         "010087dd": true,
         "4dd41bc4": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -855,7 +869,8 @@
       "evidence_commit_ancestry": {
         "3124f5fb": true
       },
-      "closure_after_336": "safe to close after 336 lands with semantic evidence"
+      "closure_after_336": "safe to close after 336 lands with semantic evidence",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -876,7 +891,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -903,7 +919,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -927,7 +944,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -955,7 +973,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -979,7 +998,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1003,7 +1023,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1027,7 +1048,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1057,7 +1079,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1083,7 +1106,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1108,7 +1132,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1129,7 +1154,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     },
     {
       "baseRefName": "main",
@@ -1152,7 +1178,8 @@
       "evidence_commit_ancestry": {},
       "closure_after_336": "safe to close after 336 lands with semantic evidence",
       "family": "incorporated-ancestor",
-      "evidence": "I include this exact PR head in the reviewed candidate ancestry."
+      "evidence": "I include this exact PR head in the reviewed candidate ancestry.",
+      "isDraft": true
     }
   ],
   "safe_close_after_336": [
@@ -1172,22 +1199,27 @@
     304,
     308,
     309,
+    310,
     312,
     314,
     326,
     327,
     329,
     330,
+    332,
     333,
     337,
     339,
     341,
     342,
+    344,
     345,
     347,
     348,
+    351,
     352,
     354,
+    355,
     358
   ],
   "exact_ancestor_closures": [
@@ -1209,36 +1241,35 @@
     301,
     304,
     308,
+    310,
     312,
     314,
     326,
     327,
     329,
     330,
+    332,
     333,
     337,
     339,
     341,
     342,
+    344,
     345,
     347,
     348,
+    351,
     352,
     354,
+    355,
     358
   ],
   "retain_prs": [
     307,
-    310,
     331,
-    332,
     343,
-    344,
     349,
-    351,
-    355,
-    356,
-    357
+    356
   ],
   "new_release_blockers": [],
   "closure_conditions": [
@@ -1246,8 +1277,8 @@
     "Recheck each listed PR head before closure; changed heads require another review",
     "Record semantic supersession with the MAC task lineage as well as GitHub closure"
   ],
-  "coordination_recommendation": "I reconcile only superseded NanoLang conflict-repair lineages against the merged release SHA. I preserve the float and cast/void capability work. GitHub closure alone does not retire MAC publication retries; I attach the reviewed evidence to each lineage before retiring redundant descendants. Global fleet dispatch remains independent.",
-  "limitations": "I reviewed metadata, ancestry and relevant diffs. I did not execute a new full suite for this snapshot. The candidate still rejects native PUSH_F64, CAST_BOOL and PUSH_VOID, and NanoISA-only bootstrap/full backend parity remain unfinished. Final clean-suite and hosted CI results must identify the accepted release commit.",
+  "coordination_recommendation": "I reconcile superseded NanoLang conflict-repair lineages against the accepted merge SHA. I preserve the five cast/void capability PRs. I retire redundant MAC publication retries with semantic evidence as well as GitHub closure; global fleet dispatch remains independent.",
+  "limitations": "I reviewed metadata, ancestry and relevant diffs. The PR357 reconciliation adds tested native float comparisons and operand transport; it does not establish float arithmetic, function results, tagged float globals or float arrays. Native CAST_BOOL and PUSH_VOID, NanoISA-only bootstrap and full backend parity remain unfinished. I did not execute a new full release suite for this snapshot; final clean-suite and hosted CI results must identify the accepted release commit.",
   "issues": [],
   "review_gate": "Open: I require final exact-commit release acceptance and PR336 merge before closing superseded work.",
   "merged_since_previous_review": [
@@ -1257,6 +1288,13 @@
       "candidate_reconciliation_sha": "bd6ee29359105cd4da4b005b2eaf1c3c23ce5748",
       "family": "scalar-map-tags",
       "evidence": "I retain current boolean tags and the incoming scalar runtime regression. The reconciled checkpoint reports 1,748 AOT checks and 1,073 shape checks; this is not my final full release gate."
+    },
+    {
+      "number": 357,
+      "merge_sha": "7b982db3",
+      "candidate_reconciliation_sha": "86f1f3d2b457778568690a12b78ca77add00c9fd",
+      "family": "generic-comparisons",
+      "evidence": "I preserve bounded native float comparison and transport support with 1,761 translator and 1,076 shape checks. Final release gates remain separate."
     }
   ]
 }
