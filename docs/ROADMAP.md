@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **NanoAmp audio-list shadow.** I prepare the audio fixture correctly
+      from root and examples working directories, preserving its file-list
+      assertions and the strict example selection.
+      MAC `task_f8d4b1586a43497cb94516601909c727`.
+
 - [ ] **OPL native dependency shadow.** I diagnose and repair the failing
       opl_compile_ast assertion in strict opl_cli compilation, preserving
       dependency shadow execution and the complete example selection.
