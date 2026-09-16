@@ -3650,6 +3650,43 @@ static void test_tail_call_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_wide_direct_calls(void) {
+    size_t cap = 65536;
+    char *src = malloc(cap);
+    CHECK(src != NULL, "wide direct-call fixture allocates");
+    if (!src) return;
+    size_t pos = (size_t)snprintf(src, cap,
+        ".entry 3\n.function wide_void 256 256 0 void 0\n"
+        "  RET\n.end\n"
+        ".function wide 256 256 0 int 1\n"
+        "  LOAD_LOCAL 255\n  RET\n.end\n"
+        ".function ordinary 0 0 0 void 0\n");
+    for (int i = 0; i < 256; i++) {
+        pos += (size_t)snprintf(src + pos, cap - pos, "  PUSH_I64 %d\n", i);
+    }
+    pos += (size_t)snprintf(src + pos, cap - pos,
+        "  CALL wide_void\n  RET\n.end\n"
+        ".function main 0 0 0 int 1\n  CALL ordinary\n");
+    for (int i = 0; i < 256; i++) {
+        pos += (size_t)snprintf(src + pos, cap - pos, "  PUSH_I64 %d\n", i);
+    }
+    (void)snprintf(src + pos, cap - pos, "  TAIL_CALL wide\n.end\n");
+
+    NvmModule *m = assemble_ok(src, "wide direct-call fixture");
+    free(src);
+    CHECK(m != NULL, "wide ordinary/tail direct-call fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits full-arity ordinary and tail calls");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "full-arity ordinary and tail call C compiles and runs");
+        CHECK(status == 255, "full-arity tail call preserves its last argument");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static char *quote_path(const char *path) {
     size_t len = strlen(path);
     char *quoted = malloc(len + 3);
@@ -5740,6 +5777,7 @@ int main(int argc, char **argv) {
     test_aggregate_call_facts();
     test_unrepresentable_call_facts();
     test_recursive_and_branch_record_facts();
+    test_wide_direct_calls();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);

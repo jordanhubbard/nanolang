@@ -235,9 +235,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         frame implementation, import both regression functions and verify
         1,718 translator checks, 1,073 shape checks and 27 native/match methods.
         Evidence: `docs/evidence/main-reconciliation-pr317.md`.
-      - [ ] I reconcile PR #309's checked direct-call formatting with my
+      - [x] I reconcile PR #309's checked direct-call formatting with my
         existing bounded formatter and dynamic operand stack. I import its
         full-arity ordinary/tail-call regression and run the translator gates.
+        Both regular and fresh ASan/UBSan runs pass 1,723 translator checks
+        and 1,073 shape checks. I retain existing 1,024-argument coverage.
+        Evidence: `docs/evidence/native-call-branch-reconciliation.md`.
+        MAC `task_ce16c7f531c94738bfca747633289540`.
       - [ ] I reconcile PR #303's early map reclamation only after tracing
         roots across caller frames, globals, aggregate fields and escaped
         strings. Its current-function-only root scan cannot establish safe
@@ -7225,6 +7229,9 @@ Compiler product:
 - [x] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
       without `nano_vm`. Nested records stay refused.
       `make test-nvm2c` (306 passed).
+- [x] I bound every append while formatting native direct calls and size the
+      call expression for the full supported arity. Wide ordinary and tail
+      calls pass the focused `nvm2c` sanitizer test.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
