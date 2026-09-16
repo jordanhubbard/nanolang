@@ -285,6 +285,7 @@ uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
     mod->imports[idx].function_name_idx = function_name_idx;
     mod->imports[idx].param_count = param_count;
     mod->imports[idx].return_type = return_type;
+    mod->imports[idx].kind = NVM_IMPORT_FFI;
 
     if (param_count > 0 && param_types) {
         mod->import_param_types[idx] = malloc(param_count);
@@ -790,6 +791,7 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     mod->imports[idx].function_name_idx  = le_read_u32(sec_data + pos); pos += 4;
                     mod->imports[idx].param_count        = le_read_u16(sec_data + pos); pos += 2;
                     mod->imports[idx].return_type        = sec_data[pos++];
+                    mod->imports[idx].kind               = NVM_IMPORT_FFI;
 
                     if (pos + mod->imports[idx].param_count > sec_size) break;
 

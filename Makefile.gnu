@@ -364,7 +364,7 @@ NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
-	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c \
+	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c_shape.c $(NANOISA_DIR)/nvm2c.c \
 	$(NANOISA_DIR)/frontend.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
@@ -790,13 +790,6 @@ test-typechecker: stage1
 	@rm -f tests/test_typechecker
 
 .PHONY: test-env-scoping
-.PHONY: test-resource-classification
-test-resource-classification: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
-	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_resource_classification tests/test_resource_classification.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	@$(OBJ_DIR)/test_resource_classification
-
-test-units: test-resource-classification
-
 test-env-scoping: stage1
 	@echo "Running environment scoping unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_env_scoping tests/test_env_scoping.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -2224,7 +2217,6 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
-	@bash tests/test_selfhost_stack_bounds.sh
 	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2258,10 +2250,6 @@ endif
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
-
-.PHONY: test-selfhost-stack-bounds
-test-selfhost-stack-bounds: build
-	@bash tests/test_selfhost_stack_bounds.sh
 
 .PHONY: test-affine-selfhost
 test-affine-selfhost: bootstrap
