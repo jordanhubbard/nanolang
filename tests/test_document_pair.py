@@ -43,7 +43,13 @@ class DocumentPairAcceptance(unittest.TestCase):
             verifier = text("ppt/slides/slide6.xml")
             for boundary in ("not whole-program proof", "not object identity", "unknown stays unknown"):
                 self.assertIn(boundary, verifier)
-            self.assertIn("5.0 DRAFT", text("ppt/slides/slide1.xml"))
+            cover = text("ppt/slides/slide1.xml")
+            self.assertIn("NANOLANG 5.0", cover)
+            self.assertNotIn("DRAFT", cover)
+            release = text("ppt/slides/slide15.xml")
+            for boundary in ("NanoISA-only bootstrap", "full backend parity", "isolated callback ABI"):
+                self.assertIn(boundary, release)
+            self.assertIn("mandatory release gates", text("ppt/notesSlides/notesSlide15.xml"))
             source = (ROOT / "docs/presentation/examples/gcd.nano").read_text().strip()
             slide = ET.fromstring(archive.read("ppt/slides/slide10.xml"))
             frames = ["\n".join("".join(node.text or "" for node in p.findall(".//a:t", NS))
