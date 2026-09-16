@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Coverage-built array search and reverse.** I reproduce the hosted
+      runtime failure with instrumented objects, retain the runtime diagnostic,
+      and preserve ordering, typed-array and aliasing assertions.
+      MAC `task_1460c2ef56414a7a98e9ce2bcd6b2890`.
+
 - [ ] **Repaired OPL VM coverage.** I include the now-compilable OPL codegen
       and compiler fixtures in example coverage, preserving the check that
       every remaining exclusion really requires exclusion.
