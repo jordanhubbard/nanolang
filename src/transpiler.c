@@ -3832,9 +3832,15 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 /* Preserve element_type for array parameters */
                 env_define_var_with_type_info(env, item->as.function.params[j].name,
                              item->as.function.params[j].type, item->as.function.params[j].element_type, 
-                             item->as.function.params[j].type == TYPE_ARRAY ?
-                                 item->as.function.params[j].type_info : NULL,
+                             item->as.function.params[j].type_info,
                              false, dummy_val);
+                Symbol *located_param = &env->symbols[env->symbol_count - 1];
+                located_param->def_line = item->line;
+                located_param->def_column = item->column;
+                if (item->as.function.body) {
+                    located_param->scope_end_line = item->as.function.body->scope_end_line;
+                    located_param->scope_end_column = item->as.function.body->scope_end_column;
+                }
                 
                 /* For array<Struct> parameters, set struct_type_name */
                 if (item->as.function.params[j].type == TYPE_ARRAY && 

@@ -207,6 +207,37 @@ char *nl_unescape_string(const char *raw) {
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
+
+/* I restore lexical bindings on every exit, retaining a yielded local string. */
+static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
+    int first = env->symbol_count;
+    Value result = create_void();
+    for (int i = 0; i < count; ++i) {
+        result = eval_statement(statements[i], env);
+        if (result.is_return || result.is_break || result.is_continue) break;
+    }
+    if (result.type == VAL_STRING) {
+        for (int i = first; i < env->symbol_count; ++i) {
+            if (env->symbols[i].value.type == VAL_STRING &&
+                env->symbols[i].value.as.string_val == result.as.string_val) {
+                Value copy = create_string(result.as.string_val);
+                result.as.string_val = copy.as.string_val;
+                break;
+            }
+        }
+    }
+    for (int i = first; i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        free(symbol->name);
+        free(symbol->struct_type_name);
+        if (symbol->value.type == VAL_STRING) {
+            if (gc_is_managed(symbol->value.as.string_val)) gc_release(symbol->value.as.string_val);
+            else free(symbol->value.as.string_val);
+        }
+    }
+    env->symbol_count = first;
+    return result;
+}
 static Value create_dyn_array(DynArray *arr);
 
 static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op);
@@ -5451,15 +5482,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Blocks can be used as expressions in match arms
              * I yield the final expression and preserve function-scoped control flow.
              */
-            Value result = create_void();
-            for (int i = 0; i < expr->as.block.count; i++) {
-                result = eval_statement(expr->as.block.statements[i], env);
-                /* If statement returned a value, propagate it immediately */
-                if (result.is_return || result.is_break || result.is_continue) {
-                    return result;
-                }
-            }
-            return result;
+            return eval_scoped_block(expr->as.block.statements, expr->as.block.count, env);
         }
 
         case AST_RETURN: {
@@ -5914,15 +5937,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         }
 
         case AST_BLOCK: {
-            Value result = create_void();
-            for (int i = 0; i < stmt->as.block.count; i++) {
-                result = eval_statement(stmt->as.block.statements[i], env);
-                /* If statement returned a value, propagate it immediately */
-                if (result.is_return || result.is_break || result.is_continue) {
-                    return result;
-                }
-            }
-            return result;
+            return eval_scoped_block(stmt->as.block.statements, stmt->as.block.count, env);
         }
 
         case AST_BREAK: {
@@ -5988,15 +6003,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_UNSAFE_BLOCK: {
             /* Unsafe blocks are treated like regular blocks in the interpreter */
-            Value result = create_void();
-            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
-                result = eval_statement(stmt->as.unsafe_block.statements[i], env);
-                /* If statement returned a value, propagate it immediately */
-                if (result.is_return || result.is_break || result.is_continue) {
-                    return result;
-                }
-            }
-            return result;
+            return eval_scoped_block(stmt->as.unsafe_block.statements, stmt->as.unsafe_block.count, env);
         }
 
         case AST_STRUCT_DEF:

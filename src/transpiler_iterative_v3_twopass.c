@@ -511,7 +511,7 @@ static const char *map_function_name(const char *name, Environment *env) {
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     if (expr->type == AST_IDENTIFIER) {
-        Symbol *sym = env_get_var(env, expr->as.identifier);
+        Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         return sym && sym->type == TYPE_ARRAY ? sym->type_info : NULL;
     }
     if (expr->type == AST_CALL && expr->as.call.name &&
@@ -553,7 +553,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     }
 
     if (array_expr->type == AST_IDENTIFIER) {
-        Symbol *sym = env_get_var(env, array_expr->as.identifier);
+        Symbol *sym = env_get_var_visible_at(env, array_expr->as.identifier, array_expr->line, array_expr->column);
         if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
             return sym->element_type;
         }
@@ -843,7 +843,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             
         case AST_IDENTIFIER: {
             /* Check for constant inlining */
-            Symbol *sym = env_get_var(env, expr->as.identifier);
+            Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
             if (sym && sym->type == TYPE_VOID) {
                 emit_literal(list, "((void)0)");
                 break;
@@ -1602,7 +1602,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 const char *struct_name = NULL;
 
                 if (array_arg && array_arg->type == AST_IDENTIFIER) {
-                    Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                    Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
                         if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
@@ -1693,7 +1693,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 const char *struct_name = NULL;
 
                 if (array_arg && array_arg->type == AST_IDENTIFIER) {
-                    Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                    Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
                         if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
@@ -1780,7 +1780,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 const char *elem_struct_name = NULL;
 
                 if (array_arg && array_arg->type == AST_IDENTIFIER) {
-                    Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                    Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
                         if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
@@ -1815,7 +1815,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     if (initial_arg && initial_arg->type == AST_STRUCT_LITERAL) {
                         acc_struct_name = initial_arg->as.struct_literal.struct_name;
                     } else if (initial_arg && initial_arg->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var(env, initial_arg->as.identifier);
+                        Symbol *sym = env_get_var_visible_at(env, initial_arg->as.identifier, initial_arg->line, initial_arg->column);
                         if (sym && sym->struct_type_name) {
                             acc_struct_name = sym->struct_type_name;
                         }
@@ -1894,7 +1894,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         }
                     }
                     if (array_arg->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var(env, array_arg->as.identifier);
+                        Symbol *sym = env_get_var_visible_at(env, array_arg->as.identifier, array_arg->line, array_arg->column);
                         if (sym && sym->struct_type_name) {
                             struct_name = sym->struct_type_name;
                         }
@@ -1984,7 +1984,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 /* For structs, get the struct name */
                 if (elem_type == TYPE_STRUCT) {
                     if (value_arg->type == AST_IDENTIFIER) {
-                        Symbol *value_sym = env_get_var(env, value_arg->as.identifier);
+                        Symbol *value_sym = env_get_var_visible_at(env, value_arg->as.identifier, value_arg->line, value_arg->column);
                         if (value_sym && value_sym->struct_type_name) {
                             struct_name = value_sym->struct_type_name;
                         }
@@ -2058,7 +2058,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (array_arg->type == AST_IDENTIFIER) {
                     /* Array is a variable - look up its element type */
                     const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var(env, array_name);
+                    Symbol *sym = env_get_var_visible_at(env, array_name, array_arg->line, array_arg->column);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
                         /* For array<struct>, the struct name is stored in struct_type_name */
@@ -2078,7 +2078,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_STRUCT && !struct_name) {
                     /* Check if value is a variable with struct type */
                     if (value_arg->type == AST_IDENTIFIER) {
-                        Symbol *value_sym = env_get_var(env, value_arg->as.identifier);
+                        Symbol *value_sym = env_get_var_visible_at(env, value_arg->as.identifier, value_arg->line, value_arg->column);
                         if (value_sym && value_sym->type == TYPE_STRUCT && value_sym->struct_type_name) {
                             struct_name = value_sym->struct_type_name;
                         }
@@ -2132,7 +2132,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 ASTNode *array_arg = expr->as.call.args[0];
                 if (array_arg->type == AST_IDENTIFIER) {
                     const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var(env, array_name);
+                    Symbol *sym = env_get_var_visible_at(env, array_name, array_arg->line, array_arg->column);
                     if (sym && sym->element_type != TYPE_UNKNOWN) {
                         elem_type = sym->element_type;
                         if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
@@ -2188,7 +2188,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_STRUCT) {
                     ASTNode *arr_expr = expr->as.call.args[0];
                     if (arr_expr->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var(env, arr_expr->as.identifier);
+                        Symbol *sym = env_get_var_visible_at(env, arr_expr->as.identifier, arr_expr->line, arr_expr->column);
                         if (sym && sym->struct_type_name) {
                             struct_name = sym->struct_type_name;
                         }
@@ -3817,8 +3817,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         }
         
         case AST_SET:
-            if (env_get_var(env, stmt->as.set.name) &&
-                env_get_var(env, stmt->as.set.name)->type == TYPE_VOID) {
+            if (env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column) &&
+                env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column)->type == TYPE_VOID) {
                 emit_indent_item(list, indent);
                 emit_literal(list, "(void)(");
                 build_expr(list, stmt->as.set.value, env);
@@ -3850,7 +3850,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 stmt->as.set.value->as.array_literal.element_type == TYPE_UNKNOWN) {
                 
                 /* Look up the target variable's element type */
-                Symbol *sym = env_get_var(env, stmt->as.set.name);
+                Symbol *sym = env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column);
                 if (sym && sym->element_type != TYPE_UNKNOWN) {
                     /* Propagate the element type to the empty array literal */
                     stmt->as.set.value->as.array_literal.element_type = sym->element_type;
@@ -3900,7 +3900,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 Type dyn_elem_type = TYPE_INT;
 
                 if (range && range->type == AST_IDENTIFIER) {
-                    Symbol *arr_sym = env_get_var(env, range->as.identifier);
+                    Symbol *arr_sym = env_get_var_visible_at(env, range->as.identifier, range->line, range->column);
                     if (arr_sym && arr_sym->type == TYPE_ARRAY) {
                         is_dyn_array = true;
                         dyn_elem_type = arr_sym->element_type;
@@ -3979,7 +3979,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 const char *list_struct_name = NULL;
 
                 if (range && range->type == AST_IDENTIFIER) {
-                    Symbol *list_sym = env_get_var(env, range->as.identifier);
+                    Symbol *list_sym = env_get_var_visible_at(env, range->as.identifier, range->line, range->column);
                     if (list_sym) {
                         if (list_sym->type == TYPE_LIST_INT || list_sym->type == TYPE_LIST_TOKEN) {
                             is_list = true;

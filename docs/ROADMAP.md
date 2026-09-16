@@ -85,6 +85,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       lexical typing and self-hosted flow; seven straight-line cases are not
       enough to claim conformance.
       Lexical symbol repair: `task_a47320503e11474e8a4b51dab4b347a4`.
+      I retain exact closing-brace positions for parsed blocks and bound retained
+      local metadata to its declaring scope. I test same-line and multiline
+      shadowing, exited-block rejection and native value/type preservation;
+      keeping symbols for emission must not extend their source visibility.
+      The native/shadow regression also exposes interpreter block locals
+      leaking into the outer scope. I restore block bindings on normal and
+      control-flow exits, preserving returned strings before local cleanup.
+      My array-shadow execution probe also catches native emission choosing the
+      inner integer array helper for the outer float array. I use source-aware
+      lookup for emitter reads and assignments rather than the latest symbol.
+      The located-block repair passes a fresh bootstrap, 36 environment checks,
+      eight scope methods, evaluator/typechecker/parser/transpiler suites and
+      21 native compiler methods. The ownership gate now has 26 failing
+      subcases, all self-hosted. Evidence:
+      `docs/evidence/lexical-scope-boundaries.md`.
       My C-seed flow checkpoint passes the allocation-failure sanitizer fixture,
       bootstrap smoke, resource classification and 21 native compiler methods.
       The expanded ownership gate still has 27 failing subcases, including

@@ -233,6 +233,22 @@ static void test_import_owner_restoration(void) {
     }
 }
 
+static void test_retained_block_bounds(void) {
+    Environment *env = create_environment();
+    define_at(env, "scope.nano", "value", TYPE_FLOAT, 1);
+    Symbol *inner = define_at(env, "scope.nano", "value", TYPE_STRING, 2);
+    inner->scope_end_line = 3;
+    inner->scope_end_column = 20;
+    Symbol *found = env_get_var_visible_at(env, "value", 3, 19);
+    CHECK(found && found->type == TYPE_STRING, "I see the inner binding before its closing brace");
+    found = env_get_var_visible_at(env, "value", 3, 20);
+    CHECK(found && found->type == TYPE_FLOAT, "I restore the outer binding at the scope boundary");
+    found = env_get_var_visible_at(env, "value", 4, 1);
+    CHECK(found && found->type == TYPE_FLOAT, "I restore the outer binding after the block");
+    CHECK(env->symbol_count == 2, "I retain both symbols for later emission");
+    free_environment(env);
+}
+
 int main(void) {
     printf("\n[env_scoping] symbol visibility is confined to one file...\n\n");
     test_lookup_ignores_other_files();
@@ -242,6 +258,7 @@ int main(void) {
     test_same_name_in_many_files();
     test_import_alias_owners();
     test_import_owner_restoration();
+    test_retained_block_bounds();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

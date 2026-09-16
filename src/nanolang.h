@@ -258,6 +258,9 @@ struct ASTNode {
     ASTNodeType type;
     int line;
     int column;
+    /* Closing brace for parsed lexical blocks; zero for unlocated nodes. */
+    int scope_end_line;
+    int scope_end_column;
     /* I borrow the hoisted anonymous declaration at its lexical expression.
      * The program owns that declaration; this link does not own or free it. */
     ASTNode *lambda_definition;
@@ -578,6 +581,8 @@ typedef struct {
     bool from_c_header;  /* True if this constant was loaded from a C header #define */
     int def_line;        /* Line where variable was defined */
     int def_column;      /* Column where variable was defined */
+    int scope_end_line;  /* Exclusive source bound; zero for unbounded symbols */
+    int scope_end_column;
     /* Source file the definition came from, or NULL for symbols with no file
      * (builtins, and anything registered without a location).
      *

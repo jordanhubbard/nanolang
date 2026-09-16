@@ -239,6 +239,13 @@ for i in (range 0 count) {
 
 `while`, `break`, and `continue` are also accepted.
 
+Block-local names stop being visible at the block's closing brace. My C
+frontend retains their type metadata for emission without extending that
+visibility. I test scalar and array shadowing through interpreted shadows and
+native execution, including same-line blocks, loop exits and returned local
+strings. These checks do not establish stored-closure lifetime safety or
+complete scope identity for generated nodes.
+
 ### Match Values In 5.0
 
 I use `return` to leave the enclosing function, including inside a match arm.

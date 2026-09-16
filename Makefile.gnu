@@ -1100,6 +1100,7 @@ test-env-scoping: stage1
 	@echo "Running environment scoping unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_env_scoping tests/test_env_scoping.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_env_scoping
+	python3 -m unittest tests.test_lexical_scope_boundaries
 	@rm -f tests/test_env_scoping
 
 .PHONY: test-transpiler

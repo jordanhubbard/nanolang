@@ -319,6 +319,8 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.from_c_header = false;  /* Not from C header (normal nanolang variable) */
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
+    sym.scope_end_line = 0;
+    sym.scope_end_column = 0;
     sym.def_file = env->current_file;   /* NULL when no file is in scope */
 
     /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
@@ -425,6 +427,9 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 
         if (sline > line) continue;
         if (sline == line && column > 0 && scol > column) continue;
+        if (sym->scope_end_line > 0 &&
+            (line > sym->scope_end_line ||
+             (line == sym->scope_end_line && column >= sym->scope_end_column))) continue;
 
         return sym;
     }
@@ -436,6 +441,9 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         if (safe_strcmp(sym->name, name) != 0) continue;
 
         if (sym->def_line > 0) continue;
+        if (sym->scope_end_line > 0 &&
+            (line > sym->scope_end_line ||
+             (line == sym->scope_end_line && column >= sym->scope_end_column))) continue;
 
         best_unknown = sym;
         break;

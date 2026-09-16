@@ -1595,12 +1595,15 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 }
             }
 
+            Token *scope_end = current_token(p);
             if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
                 free(statements);
                 return NULL;
             }
 
             node = create_node(AST_UNSAFE_BLOCK, line, column);
+            node->scope_end_line = scope_end->line;
+            node->scope_end_column = scope_end->column;
             node->as.unsafe_block.statements = statements;
             node->as.unsafe_block.count = count;
             return node;
@@ -2975,6 +2978,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     // fprintf(stderr, "DEBUG: [block_%d depth=%d] Expecting closing '}' at line %d\n",
     //         my_block_id, p->recursion_depth, end_tok ? end_tok->line : 0);
     
+    Token *scope_end = current_token(p);
     if (!expect(p, TOKEN_RBRACE, "Expected '}'")) {
         free(statements);
         p->recursion_depth--;
@@ -2985,6 +2989,8 @@ static ASTNode *parse_block(Stage1Parser *p) {
     //         my_block_id, p->recursion_depth, count);
 
     ASTNode *node = create_node(AST_BLOCK, line, column);
+    node->scope_end_line = scope_end->line;
+    node->scope_end_column = scope_end->column;
     node->as.block.statements = statements;
     node->as.block.count = count;
     p->recursion_depth--;
@@ -3247,12 +3253,15 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                 }
             }
 
+            Token *scope_end = current_token(p);
             if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
                 free(statements);
                 return NULL;
             }
 
             node = create_node(AST_UNSAFE_BLOCK, line, column);
+            node->scope_end_line = scope_end->line;
+            node->scope_end_column = scope_end->column;
             node->as.unsafe_block.statements = statements;
             node->as.unsafe_block.count = count;
             return node;

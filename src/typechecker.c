@@ -920,6 +920,17 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 /* Internal implementation - do not call directly */
 static Type check_expression_impl(ASTNode *expr, Environment *env);
 
+/* I retain emission metadata without extending a local's source visibility. */
+static void bound_scope_symbols(Environment *env, int first, ASTNode *scope) {
+    if (!env || !scope || scope->scope_end_line <= 0) return;
+    for (int i = first; i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        if (symbol->scope_end_line > 0) continue; /* Inner scopes keep their bound. */
+        symbol->scope_end_line = scope->scope_end_line;
+        symbol->scope_end_column = scope->scope_end_column;
+    }
+}
+
 /* Check expression type (wrapper with recursion depth tracking) */
 Type check_expression(ASTNode *expr, Environment *env) {
     if (!expr) return TYPE_UNKNOWN;
@@ -933,7 +944,9 @@ Type check_expression(ASTNode *expr, Environment *env) {
         return TYPE_UNKNOWN;
     }
 
+    int first_symbol = env ? env->symbol_count : 0;
     Type result = check_expression_impl(expr, env);
+    bound_scope_symbols(env, first_symbol, expr);
     g_check_expr_depth--;
     return result;
 }
@@ -3848,7 +3861,10 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 
     TypeChecker *previous = active_statement_checker;
     active_statement_checker = tc;
+    int first_symbol = tc->env->symbol_count;
     Type result = check_statement_impl(tc, stmt);
+    ASTNode *scope = stmt->type == AST_FOR ? stmt->as.for_stmt.body : stmt;
+    bound_scope_symbols(tc->env, first_symbol, scope);
     active_statement_checker = previous;
     g_check_stmt_depth--;
     return result;
@@ -6968,6 +6984,7 @@ register_function_pass1:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+            bound_scope_symbols(env, saved_symbol_count, item->as.function.body);
             check_function_ownership(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
@@ -7682,6 +7699,7 @@ register_function_pass2:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+            bound_scope_symbols(env, saved_symbol_count, item->as.function.body);
             check_function_ownership(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
