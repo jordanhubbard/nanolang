@@ -2039,7 +2039,42 @@ static void test_digits_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_cast_int_values(void) {
+    const char *source =
+        ".string number \"  -42tail\"\n.string empty \"\"\n.string invalid \"no number\"\n"
+        ".string maximum \"9223372036854775807\"\n.string minimum \"-9223372036854775808\"\n"
+        ".string overflow \"99999999999999999999999999999\"\n"
+        ".string underflow \"-99999999999999999999999999999\"\n.entry main\n"
+        ".function identity 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\n"
+        "PUSH_STR number\nCAST_INT\nCALL identity\nPUSH_I64 -42\nI64_EQ\nASSERT\n"
+        "PUSH_I64 42\nCAST_INT\nCALL identity\nPUSH_I64 42\nI64_EQ\nASSERT\n"
+        "PUSH_BOOL 1\nCAST_INT\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+        "PUSH_STR empty\nCAST_INT\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_STR invalid\nCAST_INT\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_STR maximum\nCAST_INT\nPUSH_I64 9223372036854775807\nI64_EQ\nASSERT\n"
+        "PUSH_STR minimum\nCAST_INT\nPUSH_I64 -9223372036854775808\nI64_EQ\nASSERT\n"
+        "PUSH_STR overflow\nCAST_INT\nPUSH_I64 9223372036854775807\nI64_EQ\nASSERT\n"
+        "PUSH_STR underflow\nCAST_INT\nPUSH_I64 -9223372036854775808\nI64_EQ\nASSERT\n"
+        "ARR_NEW 1\nCAST_INT\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "ARR_NEW 5\nCAST_INT\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "ARR_NEW 8\nCAST_INT\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_I64 7\nAGG_PACK 0 0 0 1\nCAST_INT\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "CAST_INT values and mixed callers");
+    if (!m) return;
+    char *c = emit_or_fail(m, "I infer CAST_INT results as integers before calls");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I preserve decimal conversion, scalar identity and aggregate-zero CAST_INT behavior");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_cast_string_array_is_refused(void) {
+    test_cast_int_values();
     const char *src =
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
@@ -3358,6 +3393,8 @@ static void test_array_valued_record_fields(void) {
         char *c = nvm2c_emit(m, error, sizeof error);
         CHECK(c == NULL && strstr(error, i ? "shape" : "conflicting kinds"),
               "I reject incompatible array representations and unresolved nested field shapes");
+        if (!i) CHECK(strstr(error, "function 1, offset") && strstr(error, "parameter 0 of function 0"),
+                      "I identify both the conflicting caller and destination parameter");
         free(c);
         nvm_module_free(m);
     }

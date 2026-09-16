@@ -49,6 +49,8 @@ typedef struct {
     int shape_generic_array;
     int track_shapes;
     uint8_t shape_opcode;
+    uint32_t classify_function_index;
+    size_t classify_offset;
 } Nvm2cBuf;
 
 static void nvm2c_fail(Nvm2cBuf *b, const char *fmt, ...) {
@@ -331,7 +333,26 @@ static uint8_t *sim_fields(Nvm2cBuf *b, const uint8_t *source, uint8_t fill) {
 static int merge_fact(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
     if (kind == NVM2C_VK_UNK || *dest == kind) return 1;
     if (*dest != NVM2C_VK_UNK) {
-        nvm2c_fail(b, "I cannot assign conflicting kinds to a function parameter or aggregate field");
+        char target[96];
+        if (dest < facts->fields) {
+            size_t offset = (size_t)(dest - facts->parameters);
+            snprintf(target, sizeof target, "parameter %zu of function %zu",
+                     offset % NVM2C_MAX_LOCALS, offset / NVM2C_MAX_LOCALS);
+        } else if (dest < facts->results) {
+            size_t offset = (size_t)(dest - facts->fields);
+            size_t parameter = offset / b->record_width;
+            snprintf(target, sizeof target, "field %zu of parameter %zu of function %zu",
+                     offset % b->record_width, parameter % NVM2C_MAX_LOCALS,
+                     parameter / NVM2C_MAX_LOCALS);
+        } else {
+            size_t offset = (size_t)(dest - facts->results);
+            snprintf(target, sizeof target, "result field %zu of function %zu",
+                     offset % b->record_width, offset / b->record_width);
+        }
+        nvm2c_fail(b, "I cannot assign conflicting kinds to a function parameter or aggregate field "
+                      "(function %u, offset %zu: %s versus %s at %s)",
+                   b->classify_function_index, b->classify_offset,
+                   c_local_type(*dest), c_local_type(kind), target);
         return 0;
     }
     *dest = kind;
@@ -536,6 +557,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     b->track_shapes = facts->final;
+    b->classify_function_index = idx;
+    b->classify_offset = 0;
     uint16_t i;
     memset(local_kind, NVM2C_VK_UNK, nloc);
     memset(rec_fields, NVM2C_VK_UNK, (size_t)nloc * b->record_width);
@@ -574,6 +597,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
 
         b->shape_current = facts->final ? &b->shape_outputs[idx][start] : NULL;
         b->shape_opcode = ins.opcode;
+        b->classify_offset = start;
         b->shape_generic_array = !(ins.opcode == OP_ARR_LITERAL || ins.opcode == OP_CALL_EXTERN ||
             (ins.opcode == OP_ARR_NEW && ins.operands[0].u8 != TAG_INT));
         switch (ins.opcode) {
@@ -750,6 +774,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)ix;
             mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
+        case OP_CAST_INT: {
+            Nvm2cSimSlot v;
+            if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -2093,6 +2123,25 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_CAST_INT: {
+            uint8_t kind;
+            int value = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            char expression[96];
+            if (kind == NVM2C_VK_STR)
+                snprintf(expression, sizeof expression, "(int64_t)strtoll(s[%d] ? s[%d] : \"\", NULL, 10)", value, value);
+            else if (kind == NVM2C_VK_INT)
+                snprintf(expression, sizeof expression, "t[%d]", value);
+            else if (kind == NVM2C_VK_REC || kind == NVM2C_VK_ARR ||
+                     kind == NVM2C_VK_SARR || kind == NVM2C_VK_RARR)
+                snprintf(expression, sizeof expression, "0");
+            else {
+                nvm2c_fail(b, "I cannot emit CAST_INT with an unresolved representation");
+                goto done;
+            }
+            stack_push_temp(b, &st, expression);
+            break;
+        }
         case OP_ARR_NEW: {
             uint8_t tag = ins.operands[0].u8;
             int as_sarr = (tag == TAG_STRING);
@@ -3418,7 +3467,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
-            need_assert || need_rarr || module_has_opcode(mod, OP_AGG_PACK)) {
+            need_assert || need_rarr || module_has_opcode(mod, OP_AGG_PACK) ||
+            module_has_opcode(mod, OP_CAST_INT)) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");

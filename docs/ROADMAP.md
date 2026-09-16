@@ -103,6 +103,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 Compiler acceptance now reaches conflicting inferred field
                 kinds rather than unsupported nested storage. Evidence:
                 `docs/evidence/aot-nested-record-values.md`.
+              - [ ] I resolve the compiler's conflicting nested-field
+                inference with function/instruction diagnostics and focused
+                regressions before relying on those shapes for reclamation.
+                - [x] I implement `CAST_INT` stack effects and emission;
+                  skipping it currently misclassifies a parsed tuple index as
+                  a string. I test conversion boundaries and mixed call sites.
+                  The sanitizer suite passes 1,060 AOT and 965 graph checks.
+                  Compiler acceptance advances to function 170's array-kind
+                  conflict. Evidence: `docs/evidence/aot-cast-int.md`.
+                - [ ] I preserve explicitly constructed record-array kinds
+                  while nested element facts remain unknown. Function 170 at
+                  offset 925 currently passes inferred `narr_t` to parameter 1
+                  of function 141, which requires `nrarr_t`.
+                - [ ] I audit classifier opcode coverage against emission
+                  and verifier stack effects, explicitly handling or rejecting
+                  each opcode instead of silently skipping unknown effects.
+                  MAC `task_f90db79b0f464637a18486c44262c4d3`.
               - [ ] I reclaim unreachable nested-record snapshots during
                 long-running execution, with bounded-live-state stress tests
                 and alias-safe destruction. Entry-return cleanup alone does
