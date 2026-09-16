@@ -206,7 +206,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [ ] **5.0 finalization on sparky.** I finish the user-authorized release
       from integration checkpoint `5cf21fc1`, preserving its audited contracts.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
-      - [ ] I reconcile main through `ded3ee5a`, including affine rejection,
+      - [x] I reconcile main through `dda0290e`, including affine rejection,
         lexical bindings, native allocation lifetimes and path normalization.
       - [x] I deduplicate merged filter predicate declarations while retaining
         both branches' literal, variable and empty-result assertions.

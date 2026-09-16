@@ -208,3 +208,28 @@ passes on both hosts. The first combined clean build at `d8ba6c47` exposed the
 module lookup regression above. I stop the subsequent `be5ae648` checkpoint
 run after integrating the final wrapper and launcher fixes, then restart the
 clean full gate at `4373abc5`. I do not count that interrupted run as a pass.
+
+
+## Main globals reconciliation and full-gate follow-up
+
+At `807dc593` I merge main through PRs #346 and #350 (`dda0290e`).
+I retain the candidate translator source unchanged: its tagged global values,
+array identity, initialization and ownership checks cover a broader contract
+than the incoming typed-global representation. I add the incoming cross-function
+array identity case and test uninitialized integer-result consumption against
+my tagged-value contract. The resulting translator gate passes 1,745 checks
+and 1,073 shape checks.
+
+The clean full run at `4373abc5` passed its build, bootstrap and unit prerequisites
+but stopped in the unusual-source-path module compilation regression. I repair
+that private staging path in `09114660` and verify 24 invocation cases plus
+47 cache-publication cases with eight existing compiler/platform skips.
+I also make the list failure fixture selector volatile across longjmp.
+
+A diagnostic continuation exposed bootstrap's mutation of the installed compiler
+symlink. In `38fc36fe` I pin each test entry point's intended compiler. Three
+regression methods cover seven selection, override and failure scenarios. With
+an explicit C-reference compiler, the corpus passes 17 language cases and 178
+application cases; its unit portion stops at one misplaced imported fixture and
+two live-MAC shadow deadlines. I track those repairs separately. These diagnostic
+continuations are not a passing full-suite run.
