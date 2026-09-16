@@ -33,7 +33,7 @@ fn record_callee() -> fn(int) -> int {
 }
 
 shadow record_callee {
-    assert true
+    assert (== ((record_callee) 3) 4)
 }
 
 fn record_argument() -> int {
@@ -42,7 +42,7 @@ fn record_argument() -> int {
 }
 
 shadow record_argument {
-    assert true
+    assert (== (record_argument) 9)
 }
 
 fn main() -> int {
@@ -53,5 +53,5 @@ fn main() -> int {
 }
 
 shadow main {
-    assert true
+    assert (== (main) 0)
 }

@@ -1,26 +1,4 @@
-# test_mac_exec_once.nano — regression test for stdlib/mac.nano exec_command.
-#
-# Background: exec_command used to run its command twice — once via
-# nl_exec_capture (for stdout) and again via nl_exec_shell (for the exit
-# status). Every `mac task create` (and any other mutating command) therefore
-# executed twice, which could duplicate task creation on the live ledger.
-# exec_command now runs the command exactly once and reads the exit status of
-# that same capture via nl_exec_last_status.
-#
-# This test is deliberately backend-agnostic and never touches the live `mac`
-# CLI (an offline fixture). It exercises four guarantees:
-#   1. A counted side effect runs exactly once (never twice).
-#   2. stdout is captured from that single execution.
-#   3. A non-zero exit status is preserved.
-#   4. Offline / unresolved-FFI backends stay side-effect-free.
-#
-# In the C backend the FFI is live, so exec_command really runs the command;
-# in the interpreter and NanoVM the exec externs are offline no-ops, so the
-# captured stdout is empty and no side effect is produced. The command is
-# never allowed to run more than once in ANY backend.
-#
-# Run: nanoc tests/unit/test_mac_exec_once.nano -o /tmp/mac_exec_once && /tmp/mac_exec_once
-
+# I require real command execution, captured output, and preserved failure.
 from "stdlib/mac.nano" import exec_command, CommandResult
 from "modules/std/fs.nano" import exists, read, write, delete
 
@@ -52,20 +30,20 @@ fn exec_is_live() -> bool {
 
 shadow exec_is_live {
     let live: bool = (exec_is_live)
-    assert (or (== live true) (== live false))
+    assert live
 }
 
 # 1 + 2: a single execution appends exactly one line and captures stdout.
 fn side_effect_runs_once() -> int {
     let counter: string = "/tmp/mac_exec_once_counter.txt"
     (write counter "")
-    let cmd: string = (+ "printf tick >> " (+ counter "; printf CAPTURED"))
+    let cmd: string = (+ "printf 'tick\\n' >> " (+ counter "; printf CAPTURED"))
     let result: CommandResult = (exec_command cmd)
 
     # The command must never run more than once. In a live backend it runs
     # exactly once; in an offline backend it does not run at all.
     let lines: int = (counter_lines counter)
-    assert (<= lines 1)
+    assert (== lines 1)
 
     if (exec_is_live) {
         assert (== lines 1)
@@ -82,7 +60,7 @@ fn side_effect_runs_once() -> int {
 
 shadow side_effect_runs_once {
     let lines: int = (side_effect_runs_once)
-    assert (<= lines 1)
+    assert (== lines 1)
 }
 
 # 3: a non-zero exit status is preserved on a live backend.
@@ -98,7 +76,7 @@ fn failure_status_preserved() -> int {
 
 shadow failure_status_preserved {
     let code: int = (failure_status_preserved)
-    assert (>= code 0)
+    assert (== code 3)
 }
 
 # 4: offline / unresolved-command behavior never crashes and never duplicates.
@@ -121,14 +99,14 @@ fn offline_command_is_clean() -> int {
 
 shadow offline_command_is_clean {
     let code: int = (offline_command_is_clean)
-    assert (>= code 0)
+    assert (!= code 0)
 }
 
 fn main() -> int {
     let once: int = (side_effect_runs_once)
-    assert (<= once 1)
+    assert (== once 1)
     let fail: int = (failure_status_preserved)
-    assert (>= fail 0)
+    assert (== fail 3)
     let off: int = (offline_command_is_clean)
     assert (>= off 0)
     (println "mac exec_command runs exactly once")

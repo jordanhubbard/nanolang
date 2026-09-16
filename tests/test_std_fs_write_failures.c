@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static int fail_fwrite;
 static int fail_fclose;
@@ -9,16 +10,13 @@ static int fclose_calls;
 int g_argc;
 char **g_argv;
 
-size_t __real_fwrite(const void *ptr, size_t size, size_t count, FILE *stream);
-int __real_fclose(FILE *stream);
-
-size_t __wrap_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
-    return fail_fwrite ? 0 : __real_fwrite(ptr, size, count, stream);
+size_t nano_test_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
+    return fail_fwrite ? 0 : fwrite(ptr, size, count, stream);
 }
 
-int __wrap_fclose(FILE *stream) {
+int nano_test_fclose(FILE *stream) {
     fclose_calls++;
-    int result = __real_fclose(stream);
+    int result = fclose(stream);
     return fail_fclose ? EOF : result;
 }
 
@@ -30,7 +28,10 @@ int __wrap_fclose(FILE *stream) {
 } while (0)
 
 int main(void) {
-    const char *path = "/tmp/test_std_fs_write_failures.txt";
+    char path[] = "/tmp/test_std_fs_write_failures.XXXXXX";
+    int fd = mkstemp(path);
+    ASSERT(fd >= 0);
+    ASSERT(close(fd) == 0);
 
     fail_fwrite = 1;
     fclose_calls = 0;
@@ -39,7 +40,9 @@ int main(void) {
     fail_fwrite = 0;
 
     fail_fclose = 1;
+    fclose_calls = 0;
     ASSERT(file_append(path, "content") == -1);
+    ASSERT(fclose_calls == 1);
     fail_fclose = 0;
 
     remove(path);

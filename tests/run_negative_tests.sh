@@ -6,11 +6,10 @@
 # pin their documented error or warning text.
 
 set -uo pipefail
-shopt -s globstar nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-COMPILER="${NANOC:-$PROJECT_ROOT/bin/nanoc}"
+COMPILER="${NANOC:-${NANOLANG_COMPILER:-$PROJECT_ROOT/bin/nanoc}}"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/nanolang-negative.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
 
@@ -24,6 +23,14 @@ failed=0
 
 expected_diagnostic() {
     case "$1" in
+        */effect_errors/perform_argument.nano)
+            echo "I require the declared operation's argument type for perform" ;;
+        */effect_errors/ambiguous_handler.nano)
+            echo "I cannot infer a unique effect for this handler" ;;
+        */array_errors/invalid_array_index_type.nano)
+            echo "I require an integer array index" ;;
+        */type_errors/format_template.nano)
+            echo "I require a string template for format" ;;
         */duplicate_functions/duplicate_function.nano)
             echo "Function 'add' is already defined" ;;
         */builtin_collision/redefine_abs.nano)
@@ -34,7 +41,7 @@ expected_diagnostic() {
     esac
 }
 
-for source in "$SCRIPT_DIR"/negative/**/*.nano; do
+while IFS= read -r -d '' source; do
     relative="${source#"$SCRIPT_DIR"/}"
     output="$WORK/${relative//\//_}.out"
     log="$WORK/${relative//\//_}.log"
@@ -63,9 +70,12 @@ for source in "$SCRIPT_DIR"/negative/**/*.nano; do
 
     echo "PASS"
     passed=$((passed + 1))
-done
+done < <(find "$SCRIPT_DIR/negative" -type f -name '*.nano' -print0)
 
 total=$((passed + failed))
 echo "Negative compiler contracts: $passed/$total passed"
+if [ "$total" -eq 0 ]; then
+    echo "ERROR: I found no negative compiler fixtures" >&2
+    exit 1
+fi
 test "$failed" -eq 0
-

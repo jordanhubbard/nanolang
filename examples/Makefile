@@ -374,10 +374,9 @@ ALL_EXAMPLES = \
 # This list is deliberately NOT assembled from the native build's source
 # variables. Those are filtered by host library availability (SDL2, ncurses,
 # OpenGL, MuJoCo, Bullet, libuv, libreadline) because the native build has to
-# link against them. nano_virt links nothing: an FFI call becomes an extern
-# reference that bin/nano_vm resolves at run time through the co-process
-# loader, so bytecode for an SDL example emits fine on a machine with no SDL2
-# installed. Reusing the native filters meant those examples silently vanished
+# link against them. I keep foreign calls as imports in bytecode, but execute
+# dependency shadows during compilation. Those tests need their foreign
+# libraries installed. Reusing the native filters meant examples silently vanished
 # from the VM build instead of being compiled, and an example that is never
 # attempted is not an example that passes.
 #
@@ -385,24 +384,12 @@ ALL_EXAMPLES = \
 # sources that are not standalone programs. A newly added example is therefore
 # covered automatically and must lower to bytecode.
 
-# Library modules imported by other examples. They define no `main`, so neither
-# the native build nor the VM build compiles them on their own.
-# emacs_buffer, emacs_keys, and init.nano are imported by nano_emacs.nano;
-# they are not standalone programs. Leave them out of vm-examples.
+# I exclude only library sources that do not yet compile independently.
+# Libraries accepted by NanoVirt stay in the bytecode coverage set even when
+# the native CLI requires a main function.
 VM_LIBRARY_SOURCES := \
-	advanced/math_helper.nano \
-	emacs/emacs_buffer.nano \
-	emacs/emacs_keys.nano \
 	emacs/init.nano \
-	$(wildcard lib/*.nano) \
-	$(wildcard large_project/src/*.nano) \
-	opl/opl_ast.nano \
-	opl/opl_codegen.nano \
-	opl/opl_compile.nano \
-	opl/opl_json.nano \
-	opl/opl_lexer.nano \
-	opl/opl_parser.nano \
-	opl/opl_validate.nano
+	lib/launcher_ui.nano
 
 # Sources the native compiler rejects too, so they are not NanoVirt gaps:
 # a deliberately-invalid diagnostics fixture, generated OPL output, and
@@ -878,11 +865,12 @@ $(BIN_DIR)/mujoco_%$(BIN_SUFFIX)$(BIN_EXT): mujoco/mujoco_%.nano $(COMPILER)
 
 clean:
 	@echo "Cleaning example binaries..."
-	rm -f $(ALL_EXAMPLES)
-	rm -rf $(GPU_KERNEL_DIR)
-	rm -rf $(BIN_DIR)/*.dSYM
-	rm -rf ../modules/*/.build/ ../std/*/.build/
-	rm -rf $(NANO_BUILD_CACHE)
+	cd .. && python3 scripts/clean_build_trees.py \
+		$(foreach file,$(ALL_EXAMPLES),--file "$(abspath $(file))") \
+		--root "$(abspath $(GPU_KERNEL_DIR))" \
+		$(foreach file,$(wildcard $(BIN_DIR)/*.dSYM),--root "$(abspath $(file))") \
+		--cache "$(abspath ../obj/module_cache)" --cache "$(abspath $(NANO_BUILD_CACHE))"
+	@echo "I retain local and shared module caches for existing bytecode."
 	@echo "Done"
 
 # === Help ===

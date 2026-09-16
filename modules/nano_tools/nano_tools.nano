@@ -7,7 +7,7 @@ import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 from "src_nano/compiler/error_messages.nano" import format_diagnostics_elm_style
 from "src_nano/compiler/lexer.nano" import tokenize_string, list_LexerToken_length
-from "src_nano/parser.nano" import parse_phase_run, parser_get_function_count, parser_get_function, parser_init_ast_lists
+from "src_nano/parser.nano" import parse_phase_run, parser_get_function_count, parser_get_function, parser_new
 from "src_nano/generated/compiler_ast.nano" import ASTShadow, ASTFunction
 
 extern fn eval(_source: string) -> int
@@ -64,7 +64,8 @@ fn collect_shadow_names(parser: Parser) -> array<string> {
 }
 
 shadow collect_shadow_names {
-    let parser: Parser = (parser_init_ast_lists)
+    let phase: LexPhaseOutput = (lex_phase_run "" "shadow.nano")
+    let parser: Parser = (parser_new phase.tokens phase.token_count "shadow.nano")
     let names: array<string> = (collect_shadow_names parser)
     assert (== (array_length names) 0)
 }

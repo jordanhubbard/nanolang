@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "filesystem.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,9 +9,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
-/* Use runtime DynArray API - no manual memory management needed */
-extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
-extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
+NANO_EXPORT_ARRAY_ABI(nl_fs_list_files);
+NANO_EXPORT_ARRAY_ABI(nl_fs_list_files_ci);
+NANO_EXPORT_ARRAY_ABI(nl_fs_list_dirs);
 
 static int cmp_cstr_ptr(const void *a, const void *b) {
     const char *sa = *(const char * const *)a;
@@ -52,116 +53,40 @@ static int ends_with_ci(const char *str, const char *suffix) {
     return 1;
 }
 
-// List files in directory
-DynArray* nl_fs_list_files(const char* path, const char* extension) {
-    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 32);
-    if (!result) return NULL;
-    
-    DIR* dir = opendir(path);
-    if (!dir) {
-        return result; // Return empty array
-    }
-    
-    struct dirent* entry;
-    int filter_by_ext = (extension && strlen(extension) > 0);
-    
+/* I resolve entries relative to the open directory, without truncating a
+ * joined path. Flags zero preserves the existing symlink-following behavior. */
+static DynArray *list_entries(const char *path, const char *extension,
+                               bool directories, bool case_insensitive) {
+    DynArray *result = dyn_array_new_with_capacity(ELEM_STRING, 32);
+    if (!result || !path) return result;
+    DIR *dir = opendir(path);
+    if (!dir) return result;
+    struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
-        // Skip . and ..
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-        
-        // Check if it's a regular file
-        // Build full path for stat check
-        char full_path[1024];
-        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
-        
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) continue;
         struct stat st;
-        if (stat(full_path, &st) == 0) {
-            // Only include regular files
-            if (S_ISREG(st.st_mode)) {
-                // Filter by extension if specified
-                if (!filter_by_ext || ends_with(entry->d_name, extension)) {
-                    dyn_array_push_string_copy(result, entry->d_name);
-                }
-            }
-        }
+        if (fstatat(dirfd(dir), entry->d_name, &st, 0) != 0) continue;
+        if (directories ? !S_ISDIR(st.st_mode) : !S_ISREG(st.st_mode)) continue;
+        if (!directories && extension && *extension &&
+            !(case_insensitive ? ends_with_ci(entry->d_name, extension)
+                               : ends_with(entry->d_name, extension))) continue;
+        dyn_array_push_string_copy(result, entry->d_name);
     }
-    
     closedir(dir);
     sort_string_array(result);
     return result;
 }
 
-DynArray* nl_fs_list_files_ci(const char* path, const char* extension) {
-    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 32);
-    if (!result) return NULL;
-
-    DIR* dir = opendir(path);
-    if (!dir) {
-        return result;
-    }
-
-    struct dirent* entry;
-    int filter_by_ext = (extension && strlen(extension) > 0);
-
-    while ((entry = readdir(dir)) != NULL) {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-
-        char full_path[1024];
-        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
-
-        struct stat st;
-        if (stat(full_path, &st) == 0) {
-            if (S_ISREG(st.st_mode)) {
-                if (!filter_by_ext || ends_with_ci(entry->d_name, extension)) {
-                    dyn_array_push_string_copy(result, entry->d_name);
-                }
-            }
-        }
-    }
-
-    closedir(dir);
-    sort_string_array(result);
-    return result;
+DynArray *nl_fs_list_files(const char *path, const char *extension) {
+    return list_entries(path, extension, false, false);
 }
 
-// List directories in directory
-DynArray* nl_fs_list_dirs(const char* path) {
-    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 32);
-    if (!result) return NULL;
-    
-    DIR* dir = opendir(path);
-    if (!dir) {
-        return result; // Return empty array
-    }
-    
-    struct dirent* entry;
-    
-    while ((entry = readdir(dir)) != NULL) {
-        // Skip . and ..
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-        
-        // Build full path for stat check
-        char full_path[1024];
-        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
-        
-        struct stat st;
-        if (stat(full_path, &st) == 0) {
-            // Only include directories
-            if (S_ISDIR(st.st_mode)) {
-                dyn_array_push_string_copy(result, entry->d_name);
-            }
-        }
-    }
-    
-    closedir(dir);
-    sort_string_array(result);
-    return result;
+DynArray *nl_fs_list_files_ci(const char *path, const char *extension) {
+    return list_entries(path, extension, false, true);
+}
+
+DynArray *nl_fs_list_dirs(const char *path) {
+    return list_entries(path, NULL, true, false);
 }
 
 const char* nl_fs_parent_dir(const char* path) {
@@ -172,8 +97,9 @@ const char* nl_fs_parent_dir(const char* path) {
     }
 
     /* Copy and trim trailing slashes (except root). */
-    snprintf(out, sizeof(out), "%s", path);
-    size_t n = strlen(out);
+    size_t n = strlen(path);
+    if (n >= sizeof(out)) return NULL;
+    memmove(out, path, n + 1);
     while (n > 1 && out[n - 1] == '/') {
         out[n - 1] = 0;
         n--;
@@ -201,7 +127,7 @@ const char* nl_fs_parent_dir(const char* path) {
 // Check if path is directory
 int64_t nl_fs_is_directory(const char* path) {
     struct stat st;
-    if (stat(path, &st) != 0) {
+    if (!path || stat(path, &st) != 0) {
         return 0;
     }
     return S_ISDIR(st.st_mode) ? 1 : 0;
@@ -209,13 +135,13 @@ int64_t nl_fs_is_directory(const char* path) {
 
 // Check if file exists
 int64_t nl_fs_file_exists(const char* path) {
-    return (access(path, F_OK) == 0) ? 1 : 0;
+    return (path && access(path, F_OK) == 0) ? 1 : 0;
 }
 
 // Get file size
 int64_t nl_fs_file_size(const char* path) {
     struct stat st;
-    if (stat(path, &st) != 0) {
+    if (!path || stat(path, &st) != 0) {
         return -1;
     }
     return (int64_t)st.st_size;
@@ -224,25 +150,17 @@ int64_t nl_fs_file_size(const char* path) {
 // Join path components
 const char* nl_fs_join_path(const char* dir, const char* filename) {
     static char result[2048];
-    
-    // Handle empty inputs
-    if (!dir || strlen(dir) == 0) {
-        snprintf(result, sizeof(result), "%s", filename ? filename : "");
-        return result;
-    }
-    
-    if (!filename || strlen(filename) == 0) {
-        snprintf(result, sizeof(result), "%s", dir);
-        return result;
-    }
-    
-    // Check if dir ends with /
-    size_t dir_len = strlen(dir);
-    if (dir[dir_len - 1] == '/') {
-        snprintf(result, sizeof(result), "%s%s", dir, filename);
-    } else {
-        snprintf(result, sizeof(result), "%s/%s", dir, filename);
-    }
-    
+    /* I stage output so a previous result can safely be either input. */
+    char staged[sizeof(result)];
+    if (!dir) dir = "";
+    if (!filename) filename = "";
+    size_t dir_len = strlen(dir), file_len = strlen(filename);
+    if (dir_len >= sizeof(result) || file_len >= sizeof(result)) return NULL;
+    size_t separator = dir_len && file_len && dir[dir_len - 1] != '/';
+    if (dir_len + file_len + separator >= sizeof(result)) return NULL;
+    memcpy(staged, dir, dir_len);
+    if (separator) staged[dir_len] = '/';
+    memcpy(staged + dir_len + separator, filename, file_len + 1);
+    memcpy(result, staged, dir_len + separator + file_len + 1);
     return result;
 }

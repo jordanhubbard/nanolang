@@ -13,19 +13,21 @@ DynArray* nl_fs_list_files_ci(const char* path, const char* extension);
 // List directories in directory
 DynArray* nl_fs_list_dirs(const char* path);
 
-// Get parent directory of path. Returns a pointer to an internal static buffer.
+// I return a borrowed static parent path, "." for null/empty input, or NULL
+// for inputs of 2048 bytes or longer. My static path buffers are not thread-safe.
 const char* nl_fs_parent_dir(const char* path);
 
-// Check if path is a directory
+// I return 0 for null, unavailable, or non-directory paths.
 int64_t nl_fs_is_directory(const char* path);
 
-// Check if file exists
+// I return 0 for null or unavailable paths.
 int64_t nl_fs_file_exists(const char* path);
 
-// Get file size
+// I return -1 for null or unavailable paths.
 int64_t nl_fs_file_size(const char* path);
 
-// Join path components
+// I join null/empty components as empty strings in a borrowed static buffer.
+// I return NULL if the joined path exceeds 2047 bytes, without truncation.
 const char* nl_fs_join_path(const char* dir, const char* filename);
 
 #endif // NANOLANG_FILESYSTEM_H

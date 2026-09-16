@@ -375,6 +375,22 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
             fprintf(out, "\n");
         }
         if (mod->import_count) fprintf(out, "\n");
+        for (uint32_t i = 0; i < mod->import_count; i++) {
+            if (mod->imports[i].kind != NVM_IMPORT_FFI)
+                fprintf(out, ".import_kind %u %s\n", i,
+                        mod->imports[i].kind == NVM_IMPORT_ARTIFACT ? "artifact" : "coprocess");
+        }
+        for (uint32_t i = 0; i < mod->callback_contract_count; i++) {
+            const NvmCallbackContract *c = &mod->callback_contracts[i];
+            fprintf(out, ".callback %u %u ", c->import_idx, c->parameter_idx);
+            disasm_write_quoted(out, mod, c->adapter_name_idx);
+            fprintf(out, " %u %s %s", c->abi_version,
+                    c->execution == NVM_FOREIGN_WORKER_THREAD ? "worker" : "owner",
+                    isa_tag_name(c->return_tag));
+            for (uint16_t p = 0; p < c->param_count; p++)
+                fprintf(out, " %s", isa_tag_name(c->param_tags[p]));
+            fprintf(out, "\n");
+        }
         for (uint32_t i = 0; i < mod->module_ref_count; i++) {
             fprintf(out, ".module_ref ");
             disasm_write_quoted(out, mod, mod->module_refs[i].module_name_idx);
@@ -417,6 +433,13 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         }
 
         fprintf(out, ".end\n\n");
+        if (style == DISASM_STYLE_CANONICAL && fn->arity &&
+            mod->function_param_types && mod->function_param_types[i]) {
+            fprintf(out, ".parameters %u", i);
+            for (uint16_t p = 0; p < fn->arity; p++)
+                fprintf(out, " %s", isa_tag_name(mod->function_param_types[i][p]));
+            fprintf(out, "\n\n");
+        }
     }
 }
 

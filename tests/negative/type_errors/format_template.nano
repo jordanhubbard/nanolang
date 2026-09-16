@@ -1,0 +1,11 @@
+# I reject a non-string template before passing it to my formatting runtime.
+fn main() -> int {
+    let template = 42
+    let result = (format template "value")
+    (println result)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -219,6 +219,108 @@ Packages installed by `nanoc-pkg` land in `modules/` and are immediately availab
 
 My module builder (`module_builder.c`) tracks content hashes for incremental builds. When `nanoc-pkg install` updates a module, the content hash changes, triggering a rebuild on next compilation. This is automatic.
 
+With `NANO_BUILD_CACHE` set, I use a versioned namespace:
+`<cache>/v2-<SHA-256 of the resolved absolute module-directory path>`. I require
+that directory to exist. Relative paths and symlink aliases resolve to the same
+identity; slashes and underscores no longer collapse distinct directories.
+Module-relative metadata include fallback uses that same physical directory.
+I reject insufficient destination buffers rather than return a truncated key.
+The hash identifies a directory, not its artifacts or their authenticity.
+
+I leave old slash-to-underscore shared-cache directories untouched and do not
+load or migrate their artifacts: their ownership is ambiguous. The first build
+in the new namespace rebuilds them. Without `NANO_BUILD_CACHE`, I still use
+`<module_dir>/.build`, including legacy flat-library lookup. A build-context
+version change also invalidates old local records whose include fallback could
+depend on the spelling of an alias. Namespace hashing
+uses my existing OpenSSL build dependency; Make retains its required flags when
+caller-supplied compiler or linker flags are used.
+
+I rebuild when the hash record is missing, unreadable, malformed or disagrees
+with current inputs. Older or unchanged timestamps cannot override a content
+change. I include regular and shared-only C sources, the manifest, and headers
+recorded in compiler dependency files. Shared-only sources use the same selected
+compiler as the ordinary module sources and produce dependency files too.
+
+I hold a per-cache process lock through validation, compilation and publication.
+I compile into a private directory and require nonempty regular artifacts.
+I move the complete artifact set into a retained `.nano-gen-<suffix>` directory,
+including dependency files and reuse evidence when available. One atomic rename
+replaces a relative `current` symlink. Failed publication leaves the previous
+generation and pointer intact. A killed build may leave an unpublished directory
+or temporary pointer; later builds ignore it.
+
+My native builder returns the generation's object path. My shared-library loader
+resolves `current` once to a generation path before opening the library. Rebuilds
+do not overwrite those paths. I reject malformed generation pointers and symlink
+generation directories. With no pointer, runtime lookup supports legacy flat
+libraries; the changed build-context version makes old cache records rebuild.
+
+I retain old generations because readers can still hold their paths. I do not yet
+have automatic generation collection; remove a cache only when its readers and
+builders are finished. These are stable paths under my builder's behavior, not
+filesystem-enforced immutability against another process with write access.
+
+I also compare a versioned build-context digest: the selected compiler command
+(`NANO_CC`, then `CC`, then the manifest, then `cc`), its resolved executable
+path and bytes, and the working directory. I include these environment inputs,
+distinguishing unset from empty values:
+
+- Search paths: `PATH`, `CPATH`, `C_INCLUDE_PATH`, `CPLUS_INCLUDE_PATH`,
+  `OBJC_INCLUDE_PATH`, `LIBRARY_PATH`, `COMPILER_PATH`, `GCC_EXEC_PREFIX`.
+- SDK and flags: `SDKROOT`, `DEVELOPER_DIR`, `MACOSX_DEPLOYMENT_TARGET`,
+  `IPHONEOS_DEPLOYMENT_TARGET`, `ARCHFLAGS`, `CFLAGS`, `CPPFLAGS`, `LDFLAGS`.
+- Package configuration: `PKG_CONFIG_PATH`, `PKG_CONFIG_LIBDIR`,
+  `PKG_CONFIG_SYSROOT_DIR`.
+- Driver loading: `LD_LIBRARY_PATH`, `LD_PRELOAD`, `LD_AUDIT`,
+  `DYLD_LIBRARY_PATH`, `DYLD_FALLBACK_LIBRARY_PATH`, `DYLD_INSERT_LIBRARIES`.
+- Other build inputs: `SOURCE_DATE_EPOCH`, `LANG`, `LC_ALL`, `LC_CTYPE`,
+  `NANO_TOOLCHAIN_ID`.
+
+The digest does not make unused flags active. I persist the digest, not these
+environment strings. Existing records without this context rebuild once.
+Compiler shell expressions or unreadable/unresolved executables do not qualify
+for cache reuse. I still attempt the requested build; on success I leave no
+reusable hash record. If driver/context changes across a build, I likewise
+withhold reuse evidence.
+
+`NANO_TOOLCHAIN_ID` is a caller-supplied invalidation stamp for inputs I do not
+discover, such as a wrapper's configuration or a managed SDK revision. Change
+it when those inputs change. It is not a verified toolchain digest. Driver
+hashing does not identify every compiler subprocess, linker, library,
+pkg-config result or wrapper dependency; their automatic tracking remains open.
+
+These hashes are a non-cryptographic cache optimization, not artifact
+authentication. Generation publication is atomic per module, not across multiple
+modules. Bytecode still records logical/source module names: loading it later can
+select a newer generation than the one used during compilation. Exact bytecode
+bindings, power-loss durability, source snapshots and complete toolchain identity
+remain open work. A matching source
+hash alone does not establish a reproducible build.
+
+### System Dependencies During Compilation
+
+I check declared `pkg_config` dependencies on every module build, including
+warm-cache builds. By default I report a missing dependency without running a
+package manager, sudo, or package-registry install/probe commands. I also report
+a missing `pkg-config` executable without installing it. A manifest without
+`pkg_config` entries has no such availability probe; a later compiler or linker
+error can still expose a missing dependency.
+
+Install system dependencies separately, or opt in for one trusted build:
+
+```bash
+NANO_ALLOW_PACKAGE_INSTALL=1 ./bin/nanoc_c program.nano -o program
+```
+
+Only the exact value `1` enables my module builder's existing installation
+paths. That opt-in permits package-registry commands and host package-manager
+operations; it is not a promise that installation will succeed. It does not
+affect explicit package-installation tools such as `nanoc-pkg`.
+
+This default is not a build sandbox. Module build flags and foreign code still
+require trust, and my separate shell-argument boundary audit remains open.
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -227,6 +329,7 @@ My module builder (`module_builder.c`) tracks content hashes for incremental bui
 | `NANO_REGISTRY_BRANCH` | `main` | Registry branch |
 | `NANO_PKG_CACHE` | `~/.cache/nanolang/packages` | Local cache directory |
 | `NANO_VERBOSE_BUILD` | `0` | Set to `1` for verbose output |
+| `NANO_ALLOW_PACKAGE_INSTALL` | unset | Only `1` permits system-package installation by the compiler's module builder |
 
 ## Example
 

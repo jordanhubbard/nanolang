@@ -4,12 +4,14 @@
 
 Explain NanoLang to software developers and compiler engineers. Show the
 language contract, the compiler pipeline, NanoISA, NanoVM, tests, diagnostics,
-what my 4.0 verifier actually proves, and what 4.1–4.5 added on top of that.
+what my verifier checks, and what 4.1–4.5 added on top of that.
 
-**4.5 edition.** 4.0 made bytecode verified rather than merely well-formed.
+**5.0 release edition; unpublished.** I retain the historical 4.0 and
+4.1–4.5 account while correcting my current contract and proof boundaries.
+4.0 added bytecode verification beyond structural loading.
 4.5 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
 fabric, an isolated editor walker, effects-to-policy, and a trap journal.
-I am a language and a secure runtime. The deck must not promote those as a
+I am a language with a runtime under development. The deck must not promote those as a
 Standard System, GNU Emacs, a kernel, or an internationalized product.
 
 The deck is also read by people who have never encountered me. It must
@@ -35,21 +37,21 @@ trap journal library is not a hook on every VM trap.
 
 ## Slide sequence
 
-1. I am NanoLang 4.5: a language and a secure runtime.
+1. I am NanoLang: my 5.0 language and runtime release scope.
 2. My design refuses ambiguity.
 3. One source language, two execution paths.
 4. NanoISA is readable bytecode, not a hidden intermediate.
 5. My module format carries the instruction set.
-6. My verifier proves a program before it runs.
+6. My verifier checks modeled invariants before execution.
 7. What my verifier used to miss.
 8. I treat every module as hostile input.
 9. NanoVM dispatches through a label table, and keeps a portable fallback.
-10. Every function carries a shadow test.
+10. My policy requires shadows; my compiler has exemptions.
 11. FFI is an explicit unsafe boundary and can be isolated.
-12. I collect cycles, so my two backends agree about leaks.
+12. I collect tested reference cycles; this is not complete leak freedom.
 13. What I measured, and what I declined because of it.
-14. The secure runtime: contracts, capabilities, fabric, journal.
-15. What 4.1–4.5 shipped, and what I have not done.
+14. My runtime foundations: contracts, capabilities, fabric, journal.
+15. My 5.0 language/runtime contract, and the architecture still ahead.
 16. Start with the code, then run the gates.
 
 Slide 1 must say what I am before it says what I prove. A reader may never
@@ -61,7 +63,8 @@ Slide 8 exists because slides 6 and 7 are about one layer and the release was
 about more than one. A correct verifier still sits on top of a decoder, a
 loader, an assembler, a disassembler and a wire protocol, and every one of
 those parses input that a hostile module controls. The slide names all six as
-fuzzed, and shows the bounds form -- `size > total - offset`, never
+tested with malformed inputs, and shows the bounds form -- first bound the
+offset, then check `size > total - offset`, never
 `offset + size > total` -- because the wrapping version passes exactly the case
 it exists to reject. Do not reduce this to a list of test counts: the claim is
 that the arithmetic was changed, not that more tests were added around it.
@@ -75,12 +78,24 @@ Slide 14 is the runtime mechanism. Five named layers — source effect, module
 requirement, NanoISA trap, NSI method, capability — and a journal that records
 at the trap boundary. Do not collapse them into one word. POSIX is the host.
 
-Slide 15 names the 4.1–4.5 product and the claims I refuse. Slide 7 still shows
+Slide 15 names the audited 5.0 contract and unfinished NanoISA-only bootstrap,
+backend parity and production isolation. Retained callbacks execute through
+the owner-thread bridge; they do not establish isolated callback support. Slide 7 still shows
 the six-instruction program that passed verification; that lesson did not
 expire.
 
-Slide 12 must show a noise band beside every number. A measurement without its
+Slides 9 and 13 retain the recorded historical noise bands beside measurements.
+A measurement without its
 spread is the thing the 4.0 benchmark work exists to stop.
+
+Slides 2 and 10 distinguish required project policy from warning/exemption
+behavior. Ordinary compilation runs dependency and root shadows in separate
+test processes; source-only emission does not execute them. A shadow tests
+selected assertions, not every input. Both members use `examples/gcd.nano`,
+and acceptance compiles the example extracted from the narrative.
+Slide 6 distinguishes abstract reference balance from object ownership and
+whole-program proof. Runtime laboratory evidence does not establish production
+isolation. Historical test counts and measurements must be labeled as historical.
 
 ## Visual direction
 

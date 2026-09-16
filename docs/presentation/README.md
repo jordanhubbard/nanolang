@@ -4,10 +4,11 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**4.5 edition.** This package describes my public 4.5 cut: NanoISA v2 from 4.0,
-Forth Core evidence, NSI, POSIX capability fabric, an isolated editor walker,
-effects-to-policy, a trap journal, and what I have not done. Last public
-GitHub Release was `v4.0.0`. I am a language and a secure runtime.
+**Local 5.0 release-edition edition; unpublished.** I describe my audited language
+contract, dependency shadows, retained callback bridge and runtime boundaries,
+with the historical NanoISA and 4.1–4.5 runtime account. My latest public
+release is `v4.5.0`. Full NanoISA-only bootstrap, backend parity and production
+service isolation remain unfinished. The Google links below retain the 4.5 edition.
 
 Published presentation: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
 

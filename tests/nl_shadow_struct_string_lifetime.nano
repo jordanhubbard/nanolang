@@ -1,0 +1,24 @@
+# I keep a record's string alive after a callee reads it into a local.
+struct ShadowText { text: string }
+
+fn text_length(value: ShadowText) -> int {
+    let text: string = value.text
+    return (str_length text)
+}
+
+shadow text_length {
+    let value: ShadowText = ShadowText { text: "seven" }
+    assert (== (text_length value) 5)
+    assert (== (text_length value) 5)
+    assert (== value.text "seven")
+}
+
+fn main() -> int {
+    let value: ShadowText = ShadowText { text: "seven" }
+    assert (== (text_length value) 5)
+    assert (== (text_length value) 5)
+    assert (== value.text "seven")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

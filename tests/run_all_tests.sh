@@ -19,11 +19,13 @@
 #   NANOLANG_BACKEND=c       ./tests/run_all_tests.sh   # C transpiler (default)
 #   NANOLANG_BACKEND=vm      ./tests/run_all_tests.sh   # NanoVM bytecode
 #   NANOLANG_BACKEND=daemon  ./tests/run_all_tests.sh   # NanoVM daemon mode
+#   NANOLANG_COMPILER=./bin/nanoc_stage1 ./tests/run_all_tests.sh --lang
+#     I can test an explicit native compiler without changing bin/nanoc.
 #
 # ============================================================================
 
 set +e
-shopt -s globstar nullglob
+shopt -s nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -31,6 +33,7 @@ cd "$PROJECT_ROOT"
 
 # Backend selection: c (default), vm, daemon
 BACKEND="${NANOLANG_BACKEND:-c}"
+C_COMPILER="${NANOLANG_COMPILER:-./bin/nanoc}"
 
 mkdir -p .test_output
 rm -f .test_output/*.compile.log
@@ -182,7 +185,7 @@ run_test() {
     # Compile the test (backend-dependent)
     case "$BACKEND" in
         c|native)
-            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
+            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" "$C_COMPILER" "$test_file" -o "$out_file" >"$log_file" 2>&1
             ;;
         vm|nanovm)
             perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nano_virt "$test_file" --emit-nvm -o "${out_file}.nvm" >"$log_file" 2>&1
@@ -204,6 +207,7 @@ run_test() {
         local _compile_err
         _compile_err=$(cat "$log_file" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
         echo -e "${RED}❌${NC} $test_name ${RED}(compilation failed)${NC}"
+        tail -n 80 "$log_file" >&2
         TOTAL_FAIL=$((TOTAL_FAIL + 1))
         case "$category" in
             "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
@@ -215,19 +219,20 @@ run_test() {
     fi
 
     # Determine the artifact to check and run command
-    local run_artifact run_cmd
+    local run_artifact
+    local -a run_cmd
     case "$BACKEND" in
         c|native)
             run_artifact="$out_file"
-            run_cmd="$out_file"
+            run_cmd=("$out_file")
             ;;
         vm|nanovm)
             run_artifact="${out_file}.nvm"
-            run_cmd="./bin/nano_vm ${out_file}.nvm"
+            run_cmd=(./bin/nano_vm "${out_file}.nvm")
             ;;
         daemon)
             run_artifact="${out_file}.nvm"
-            run_cmd="./bin/nano_vm --daemon ${out_file}.nvm"
+            run_cmd=(./bin/nano_vm --daemon "${out_file}.nvm")
             ;;
     esac
 
@@ -245,7 +250,7 @@ run_test() {
 
     # Run the compiled artifact
     if [ -f "$run_artifact" ]; then
-        perl -e "alarm $RUN_TIMEOUT; exec @ARGV" $run_cmd >"$run_log" 2>&1
+        perl -e "alarm $RUN_TIMEOUT; exec {\$ARGV[0]} @ARGV" "${run_cmd[@]}" >"$run_log" 2>&1
         local _run_exit=$?
         local _elapsed_val
         _elapsed_val=$(_elapsed)
@@ -264,6 +269,7 @@ run_test() {
             local _fail_msg
             _fail_msg=$(cat "$run_log" 2>/dev/null | head -5 | tr '\n' ' ' | sed 's/[<>&"]/./g')
             echo -e "${RED}❌${NC} $test_name ${RED}(runtime failure)${NC}"
+            tail -n 80 "$run_log" >&2
             TOTAL_FAIL=$((TOTAL_FAIL + 1))
             case "$category" in
                 "nl") NL_FAIL=$((NL_FAIL + 1)) ;;
@@ -295,6 +301,9 @@ echo -e "${BOLD}========================================"
 echo "NANOLANG COMPREHENSIVE TEST SUITE"
 echo -e "========================================${NC}"
 echo -e "Backend: ${CYAN}${BACKEND}${NC}"
+if [[ "$BACKEND" == c || "$BACKEND" == native ]]; then
+    echo "Native compiler: $C_COMPILER"
+fi
 echo ""
 
 # ============================================================================
@@ -394,9 +403,9 @@ if [ "$RUN_UNIT" = true ]; then
     echo -e "${CYAN}=== UNIT TESTS ===${NC}"
     echo ""
     
-    for f in tests/unit/**/*.nano; do
-        [ -f "$f" ] && run_test "$f" "unit"
-    done
+    while IFS= read -r -d '' f; do
+        run_test "$f" "unit"
+    done < <(find tests/unit -type f -name '*.nano' -print0)
     echo ""
     
     echo -e "${CYAN}Unit Tests: ${GREEN}$UNIT_PASS passed${NC}, ${RED}$UNIT_FAIL failed${NC}"

@@ -395,15 +395,25 @@ Proof.
   eexists _, _, _. split; [reflexivity | assumption].
 Qed.
 
+Lemma step_tuple_target : forall es target,
+  step (ETuple es) target -> exists es', target = ETuple es'.
+Proof.
+  intros es target Hstep. inversion Hstep; subst; eauto.
+Qed.
+
 Lemma step_tuple_form : forall es es',
   step (ETuple es) (ETuple es') ->
-  exists e e' rest, es = e :: rest /\ (step e e' /\ es' = e' :: rest \/
-                                       (is_value e /\ step (ETuple rest) (ETuple es'))).
+  exists e rest, es = e :: rest /\
+    ((exists e', step e e' /\ es' = e' :: rest) \/
+     (exists rest', is_value e /\ step (ETuple rest) (ETuple rest') /\
+                    es' = e :: rest')).
 Proof.
   intros es es' Hstep.
   inversion Hstep; subst.
-  - (* S_TupleHead *) eexists _, _, _. split; [reflexivity|]. left. split; assumption.
-  - (* S_TupleTail *) eexists _, _, _. split; [reflexivity|]. right. split; [assumption | assumption].
+  - (* S_TupleHead *) eexists _, _. split; [reflexivity|].
+    left. eexists. split; [eassumption | reflexivity].
+  - (* S_TupleTail *) eexists _, _. split; [reflexivity|].
+    right. eexists. repeat split; try eassumption; reflexivity.
 Qed.
 
 Lemma canonical_forms_tuple : forall e ts,
@@ -791,21 +801,26 @@ Proof.
       * (* tail is also value ETuple *)
         left. inversion Hv2; subst. constructor. constructor; assumption.
       * (* tail steps *)
+        destruct (step_tuple_target _ _ Hstl) as [tail' Heq].
+        subst etl'. rename tail' into etl'.
         right. exists (ETuple (ehd :: etl')). apply S_TupleTail; assumption.
     + (* head steps *)
       right. exists (ETuple (e1' :: etl)). apply S_TupleHead. assumption.
   - (* T_TupleIndex *)
     right.
     destruct IHHtype as [Hv | [e' Hs]]; [reflexivity | |].
-    + apply canonical_forms_tuple in Htype as [vs [? HF]]; [| assumption]; subst.
+    + pose proof Htype as Htuple.
+      apply canonical_forms_tuple in Htype as [vs [? HF]]; [| assumption]; subst.
       (* nth_error ts i = Some t implies i < length ts = length vs *)
       assert (Hsome : exists v, nth_error vs i = Some v).
-      { clear HF. revert vs Htype.
-        induction i; intros vs Ht.
-        - inversion Ht; subst; [discriminate | simpl; eauto].
-        - inversion Ht; subst; [destruct i; discriminate |].
-          simpl. apply IHi. assumption. }
+      { clear - H Htuple.
+        revert vs ts H Htuple.
+        induction i; intros vs ts Hindex Ht.
+        - inversion Ht; subst; simpl in Hindex; try discriminate.
+          simpl. eauto.
+        - inversion Ht; subst; simpl in Hindex; try discriminate.
+          simpl. eapply IHi; eassumption. }
       destruct Hsome as [v Hnth].
-      eexists. apply S_TupleIndexVal; [assumption | assumption].
+      exists v. apply S_TupleIndexVal; [exact HF | exact Hnth].
     + exists (ETupleIndex e' i). apply S_TupleIndex1. assumption.
 Qed.

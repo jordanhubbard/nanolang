@@ -19,9 +19,10 @@ I transpile to C when you need native performance. NanoISA is my verified byteco
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
 - [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
-- [NanoLang 4.5](docs/RELEASE_4.5.md) - Public cut covering 4.1–4.5. Last public GitHub Release was `v4.0.0`. Language plus secure runtime: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
+- [NanoLang 5.0](docs/RELEASE_5.0.md) - Language-contract changes, dependency shadows by default, module/cache hardening, and explicit unfinished runtime boundaries.
+- [NanoLang 4.5](docs/RELEASE_4.5.md) - Previous public cut covering 4.1–4.5: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
 - [NanoLang 4.0](docs/RELEASE_4.0.md) - NanoISA v2, the verifier, and measured dispatch.
-- [Developer overview](docs/presentation/README.md) - Slides and narrative for the current release.
+- [Developer overview](docs/presentation/README.md) - Local 5.0 release-edition deck and narrative; published Google artifacts remain the 4.5 edition.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start
@@ -68,7 +69,7 @@ EOF
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
 - **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking (warnings on incomplete matches).
-- **Shadow Tests** - I warn loudly when a function is missing its `shadow` test block. The compiler tracks shadow coverage but does not currently fail the build on its absence.
+- **Shadow Tests** - My project policy requires useful shadows. Missing-shadow enforcement is not universal. My C seed, self-hosted native driver and `nano_virt` run dependency shadows before root shadows by default, before publishing executable output. `--root-shadows-only` narrows that scope. Source-only C emission does not execute shadows. Deadlines supervise test processes; they are not security sandboxes. `make test-language-claims` and `make test-native-shadows` check these boundaries.
 - **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
@@ -187,18 +188,31 @@ make dap   # Build bin/nanolang-dap  (breakpoints, step-through, variable inspec
 A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP servers automatically.
 
 ```bash
-# Compile to native C (default)
+# Compile through C to a native executable (default)
 ./bin/nanoc program.nano -o program
 
-# Experimental direct targets during the NanoISA translator migration
-./bin/nanoc program.nano --target ptx   -o program.ptx  # CUDA PTX
-./bin/nanoc program.nano --target riscv -o program.s    # RISC-V assembly
+# Emit C source without invoking a native compiler
+./bin/nanoc program.nano --target c -o program.c
+
+# Experimental C-seed targets during the NanoISA translator migration
+./bin/nanoc_c program.nano --target ptx   -o program.ptx  # CUDA PTX
+./bin/nanoc_c program.nano --target riscv -o program.s    # RISC-V assembly
 
 # Export documentation from triple-slash comments
-./bin/nanoc program.nano --doc-md -o program.md
+./bin/nanoc_c program.nano --doc-md -o program.md
 ```
 
+My self-hosted driver accepts `--target native` and `--target c`; it rejects
+unknown options, unsupported targets, missing option values, and multiple
+input files. With `--target c` and no `-o`, I write a sibling `.c` file. Use
+`--` before an input path beginning with `-`. My generated C uses headers in
+`src` and `modules/std`; link the runtime and module libraries used by the
+program. Source emission alone does not prove that those dependencies link.
+
 ## Performance Monitoring and LLM Optimization
+
+The profiling options in this section belong to my C-seed driver,
+`bin/nanoc_c`; my self-hosted driver does not implement them yet.
 
 When I compile with `-pg`, the native binary wraps `main` as `_nl_run_with_profiling`. On Linux I drive **gprofng**. On macOS I drive **xctrace** (full Xcode) and fall back to **sample**. I print JSON on **stdout** and, with `--profile-output`, to a file. That JSON is for an agent to read; it is not a PGO input.
 
@@ -207,6 +221,11 @@ When I compile with `-pg`, the native binary wraps `main` as `_nl_run_with_profi
 I treat optimization as: profile a real workload, change source, run tests, profile again, keep only a demonstrated improvement. I document the JSON fields I actually emit, and the per-OS collectors, in **[docs/PERFORMANCE_MONITORING.md](docs/PERFORMANCE_MONITORING.md)**. The user-guide session is **[Performance Profiling](userguide/guide/07_performance_profiling.md)**.
 
 ## Building & Testing
+
+My native interpreter uses libffi for fixed-arity foreign calls. I need its
+development headers and library (`libffi-dev` on Debian/Ubuntu, `libffi` via
+Homebrew when the macOS SDK package is unavailable). My Makefile reads
+`pkg-config libffi`; `LIBFFI_CFLAGS` and `LIBFFI_LIBS` allow an explicit toolchain.
 
 ```bash
 make build          # Build my compiler (bin/nanoc)
@@ -218,6 +237,15 @@ make test-vm        # Run my tests through the NanoVM backend
 make test-quick     # Run my quick language tests
 make examples       # Build my examples
 ```
+
+My self-hosted bootstrap tracks Nano and C sources, headers, JSON manifests,
+and directory membership under `src_nano`, `src`, `modules`, `std`, and
+`stdlib`. This is a conservative, modification-time dependency set: a library
+edit can rebuild the compiler even when that library is not imported. Hidden
+cache contents, object files and documentation edits are not source inputs;
+directory entry changes still invalidate conservatively. An unchanged build
+reuses its completed stages. Toolchain or environment changes require separate
+rebuild control; these prerequisites are not a content-addressed build key.
 
 ## Examples & Interactive Tools
 
@@ -293,7 +321,7 @@ What followed was a period the programmer later called "necessary" and Sir Regin
 
 Sir Reginald, who had been sleeping on the formal specification documents, shifted his weight slightly to cover the section on semantic equivalence.  He had learned that if he stayed on the important papers, progress was slowed.  He had also learned that this did not stop progress.  It merely made it slightly damp.
 
-The mandatory test blocks — `shadow` functions that must accompany every function definition, without exception, or the compiler refuses to proceed — were added because the programmer was, as he put it, "tired of code that was never tested before it was written and therefore was never tested at all."  When asked whether `shadow` was a strange name for a test block, the programmer replied that it was "evocative."  Sir Reginald expressed no opinion.  His opinion on keywords was that they were all equally irrelevant to the procurement of tuna.
+The test blocks — `shadow` blocks I require under project policy, with enforcement gaps documented above — were added because the programmer was, as he put it, "tired of code that was never tested before it was written and therefore was never tested at all."  When asked whether `shadow` was a strange name for a test block, the programmer replied that it was "evocative."  Sir Reginald expressed no opinion.  His opinion on keywords was that they were all equally irrelevant to the procurement of tuna.
 
 The language was named NanoLang.  It was minimal in the way that a Swiss watch is minimal: every component was necessary, the whole was smaller than it had any right to be, and explaining how it worked required considerably more time than most people had.
 

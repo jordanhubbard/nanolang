@@ -13,12 +13,31 @@
 #include "wrapper_gen.h"
 #include "../nanoisa/nvm_format.h"
 #include "../nanolang.h"
+#include "../shell_path.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <sys/stat.h>
+#include <errno.h>
+
+static char *wrapper_path(const char *directory, const char *name) {
+    size_t a = strlen(directory), b = strlen(name);
+    if (a > SIZE_MAX - b - 2) return NULL;
+    char *path = malloc(a + b + 2);
+    if (path) snprintf(path, a + b + 2, "%s/%s", directory, name);
+    return path;
+}
+
+/* I encode path bytes as fixed-width octal C escapes, not source syntax. */
+static void write_path_literal(FILE *f, const char *path) {
+    fputc('"', f);
+    for (const unsigned char *p = (const unsigned char *)path; *p; p++)
+        fprintf(f, "\\%03o", *p);
+    fputc('"', f);
+}
 
 /* ========================================================================
  * Object File Discovery
@@ -38,7 +57,12 @@ static char *find_obj_dir(void) {
     const char *env_dir = getenv("NANO_VIRT_LIB");
     if (env_dir) {
         if (access(env_dir, R_OK) == 0) {
-            return strdup(env_dir);
+            if (env_dir[0] == '/') return strdup(env_dir);
+            char *cwd = getcwd(NULL, 0);
+            if (!cwd) return NULL;
+            char *absolute = wrapper_path(cwd, env_dir);
+            free(cwd);
+            return absolute;
         }
     }
 
@@ -53,8 +77,8 @@ static char *find_obj_dir(void) {
         if (_NSGetExecutablePath(exe_path, &size) == 0) {
             char *dir = dirname(exe_path);
             char obj_path[4096];
-            snprintf(obj_path, sizeof(obj_path), "%s/../obj", dir);
-            if (access(obj_path, R_OK) == 0) {
+            int n = snprintf(obj_path, sizeof(obj_path), "%s/../obj", dir);
+            if (n >= 0 && (size_t)n < sizeof(obj_path) && access(obj_path, R_OK) == 0) {
                 /* Resolve to canonical path */
                 char *real = realpath(obj_path, NULL);
                 if (real) return real;
@@ -69,8 +93,8 @@ static char *find_obj_dir(void) {
             exe_path[len] = '\0';
             char *dir = dirname(exe_path);
             char obj_path[4096];
-            snprintf(obj_path, sizeof(obj_path), "%s/../obj", dir);
-            if (access(obj_path, R_OK) == 0) {
+            int n = snprintf(obj_path, sizeof(obj_path), "%s/../obj", dir);
+            if (n >= 0 && (size_t)n < sizeof(obj_path) && access(obj_path, R_OK) == 0) {
                 char *real = realpath(obj_path, NULL);
                 if (real) return real;
                 return strdup(obj_path);
@@ -147,10 +171,7 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
         /* Load modules from import table */
         fprintf(f, "    /* Load modules referenced in import table */\n");
         fprintf(f, "    for (uint32_t i = 0; i < module->import_count; i++) {\n");
-        fprintf(f, "        const char *mod_name = nvm_get_string(module, module->imports[i].module_name_idx);\n");
-        fprintf(f, "        if (mod_name && mod_name[0] != '\\0') {\n");
-        fprintf(f, "            vm_ffi_load_module(mod_name);\n");
-        fprintf(f, "        }\n");
+        fprintf(f, "        vm_ffi_load_import(module, i);\n");
         fprintf(f, "    }\n\n");
 
         /* Scan AST_IMPORT nodes for module paths */
@@ -163,8 +184,9 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
                         fprintf(f, "    /* Load modules by path from source imports */\n");
                         has_imports = true;
                     }
-                    fprintf(f, "    vm_ffi_load_module(\"%s\");\n",
-                            item->as.import_stmt.module_path);
+                    fprintf(f, "    vm_ffi_load_module(");
+                    write_path_literal(f, item->as.import_stmt.module_path);
+                    fprintf(f, ");\n");
                 }
             }
             if (has_imports) fprintf(f, "\n");
@@ -252,12 +274,15 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
  * Build Object List
  * ======================================================================== */
 
-static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
-    /* These match exactly the objects linked for nano_virt in Makefile.gnu,
-     * minus nanovirt/main.o and nanovirt/codegen.o (not needed at runtime) */
+static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool daemon) {
+    /* I keep the runtime link closure here and exercise it in wrapper tests. */
+    static const char *daemon_objs[] = {
+        "nanovm/vmd_protocol.o", "nanovm/vmd_client.o", NULL
+    };
     static const char *nanovm_objs[] = {
         "nanovm/value.o", "nanovm/heap.o", "nanovm/heap_cycles.o", "nanovm/vm.o",
-        "nanovm/vm_ffi.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o",
+        "nanovm/vm_ffi.o", "nanovm/vm_ffi_arrays.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o",
+        "nanovm/vm_callback.o", "runtime/callback_runtime.o",
         /* asm_assemble() verifies its output, so anything linking the
          * assembler also needs the verifier and the decode/dispatch tables it
          * checks against. */
@@ -272,9 +297,9 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
         "stdlib_runtime.o", "env.o", "builtins_registry.o",
-        "module.o", "module_metadata.o",
+        "module.o", "module_metadata.o", "utf8.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
-        "resource_tracking.o", "eval.o", "interpreter_ffi.o",
+        "resource_tracking.o", "resource_flow.o", "eval.o", "interpreter_ffi.o",
         "json_diagnostics.o", "reflection.o", "effects.o", "coroutine.o",
         "eval/eval_hashmap.o", "eval/eval_math.o",
         "eval/eval_string.o", "eval/eval_io.o", NULL
@@ -301,23 +326,21 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
         "runtime/list_ASTMatch.o", "runtime/list_ASTImport.o",
         "runtime/list_ASTOpaqueType.o", "runtime/list_ASTTupleLiteral.o",
         "runtime/list_ASTTupleIndex.o",
-        "runtime/token_helpers.o", "runtime/gc.o", "runtime/dyn_array.o",
+        "runtime/token_helpers.o", "runtime/gc.o", "runtime/effect_runtime.o", "runtime/dyn_array.o",
         "runtime/gc_struct.o", "runtime/nl_string.o", "runtime/ffi_loader.o",
-        "runtime/cli.o", "runtime/regex.o", NULL
+        "runtime/module_build_dir.o", "runtime/cli.o", "runtime/regex.o", NULL
     };
 
     buf[0] = '\0';
-    size_t offset = 0;
-
-    const char **groups[] = { nanovm_objs, nanoisa_objs, common_objs, runtime_objs, NULL };
+    const char **groups[] = { daemon ? daemon_objs : nanovm_objs,
+                             daemon ? NULL : nanoisa_objs, common_objs, runtime_objs, NULL };
     for (int g = 0; groups[g]; g++) {
         for (int i = 0; groups[g][i]; i++) {
-            int n = snprintf(buf + offset, buf_size - offset, "%s/%s ",
-                             obj_dir, groups[g][i]);
-            if (n < 0 || (size_t)n >= buf_size - offset) {
-                return false;
-            }
-            offset += (size_t)n;
+            char *path = wrapper_path(obj_dir, groups[g][i]);
+            if (!path) return false;
+            bool ok = module_append_path_flag(buf, buf_size, "", path);
+            free(path);
+            if (!ok) return false;
         }
     }
 
@@ -328,138 +351,148 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
  * Public API
  * ======================================================================== */
 
+static bool write_daemon_wrapper_c(FILE *f, const uint8_t *blob, uint32_t blob_size);
+
+/* I stage beside the destination so successful rename is one filesystem
+ * operation. Compilers are trusted configuration, not a sandbox boundary. */
+#ifndef NANO_WRAPPER_INSTRUMENT_FLAGS
+#define NANO_WRAPPER_INSTRUMENT_FLAGS ""
+#endif
+
+static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
+                          uint32_t blob_size, const char *output_path,
+                          const ASTNode *program, bool daemon, bool verbose) {
+    bool ok = false, staged = false;
+    char *obj_dir = NULL, *parent_input = NULL, *parent = NULL, *output = NULL;
+    char *stage = NULL, *source = NULL, *binary = NULL, *wrapper_object = NULL;
+    char *src_candidate = NULL, *modules_candidate = NULL;
+    char *src = NULL, *modules = NULL;
+    FILE *f = NULL;
+    if (!output_path || !*output_path || !blob || !blob_size || (!daemon && !module)) {
+        fprintf(stderr, "I require a module and a nonempty wrapper output path\n");
+        return false;
+    }
+
+    parent_input = strdup(output_path);
+    if (!parent_input) goto cleanup;
+    char *slash = strrchr(parent_input, '/');
+    const char *name = slash ? slash + 1 : output_path;
+    if (!*name || strcmp(name, ".") == 0 || strcmp(name, "..") == 0) goto cleanup;
+    char *base = strdup(name);
+    if (!base) goto cleanup;
+    if (slash == parent_input) slash[1] = '\0';
+    else if (slash) *slash = '\0';
+    else strcpy(parent_input, ".");
+    parent = realpath(parent_input, NULL);
+    if (parent) output = wrapper_path(parent, base);
+    free(base);
+    if (!parent || !output) goto cleanup;
+
+    obj_dir = find_obj_dir();
+    if (!obj_dir) goto cleanup;
+    src_candidate = wrapper_path(obj_dir, "../src");
+    modules_candidate = wrapper_path(obj_dir, "../modules");
+    if (!src_candidate || !modules_candidate) goto cleanup;
+    src = realpath(src_candidate, NULL);
+    if (!src) src = realpath("src", NULL);
+    if (!src) goto cleanup;
+    if (!daemon) {
+        modules = realpath(modules_candidate, NULL);
+        if (!modules) modules = realpath("modules", NULL);
+        if (!modules) goto cleanup;
+    }
+
+    stage = wrapper_path(parent, ".nano-wrapper-XXXXXX");
+    if (!stage || !mkdtemp(stage)) goto cleanup;
+    staged = true;
+    source = wrapper_path(stage, "source.c");
+    binary = wrapper_path(stage, "executable");
+    wrapper_object = wrapper_path(stage, "wrapper.o");
+    if (!source || !binary || !wrapper_object) goto cleanup;
+    f = fopen(source, "wx");
+    if (!f) goto cleanup;
+    bool written = daemon ? write_daemon_wrapper_c(f, blob, blob_size)
+                          : write_wrapper_c(f, module, blob, blob_size, program);
+    written = written && !ferror(f);
+    if (fclose(f) != 0) written = false;
+    f = NULL;
+    if (!written) goto cleanup;
+
+    char objects[16384];
+    if (!build_obj_list(objects, sizeof(objects), obj_dir, daemon)) goto cleanup;
+    const char *cc = getenv("NANO_CC");
+    if (!cc) cc = getenv("CC");
+    if (!cc) cc = "cc";
+    char command[32768];
+    int n = snprintf(command, sizeof(command),
+                     "%s -std=c99 -Wall -Wextra -Werror "
+                     "-Wno-error=unused-function -Wno-error=unused-parameter "
+                     "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -c ",
+                     cc);
+    if (n < 0 || (size_t)n >= sizeof(command)) goto cleanup;
+    if (!module_append_include(command, sizeof(command), src) ||
+        (modules && !module_append_include(command, sizeof(command), modules)) ||
+        !module_append_path_flag(command, sizeof(command), "-o ", wrapper_object) ||
+        !module_append_path_flag(command, sizeof(command), "", source)) goto cleanup;
+    /* I compile this temporary wrapper without runtime instrumentation, then
+     * link the instrumented runtime. Coverage must not create reports in a
+     * private staging directory that I remove before execution. */
+    if (system(command) != 0) goto cleanup;
+    struct stat wrapper_stat;
+    if (lstat(wrapper_object, &wrapper_stat) != 0 || !S_ISREG(wrapper_stat.st_mode) ||
+        wrapper_stat.st_size <= 0 || wrapper_stat.st_nlink != 1) goto cleanup;
+    n = snprintf(command, sizeof(command), "%s ", cc);
+    if (n < 0 || (size_t)n >= sizeof(command) ||
+        !module_append_path_flag(command, sizeof(command), "-o ", binary) ||
+        !module_append_path_flag(command, sizeof(command), "", wrapper_object)) goto cleanup;
+    if (!daemon) {
+#ifdef NANO_WRAPPER_CRYPTO_DIR
+        if (!module_append_path_flag(command, sizeof(command), "-L", NANO_WRAPPER_CRYPTO_DIR))
+            goto cleanup;
+#endif
+    }
+    size_t used = strlen(command);
+    const char *platform = "";
+#if defined(__linux__)
+    if (!daemon) platform = "-rdynamic -ldl";
+#elif defined(__FreeBSD__)
+    if (!daemon) platform = "-Wl,-E";
+#endif
+    n = snprintf(command + used, sizeof(command) - used, " %s %s %s %s", objects,
+                 daemon ? "" : "-lm -pthread -lcrypto -lffi", platform,
+                 NANO_WRAPPER_INSTRUMENT_FLAGS);
+    if (n < 0 || (size_t)n >= sizeof(command) - used) goto cleanup;
+    if (verbose) printf("I compile a private wrapper: %s\n", command);
+    if (system(command) != 0) goto cleanup;
+
+    struct stat st;
+    if (lstat(binary, &st) != 0 || !S_ISREG(st.st_mode) || st.st_size <= 0 ||
+        !(st.st_mode & 0111) || st.st_nlink != 1) goto cleanup;
+    if (rename(binary, output) != 0) goto cleanup;
+    ok = true;
+
+cleanup:
+    if (f) fclose(f);
+    if (staged) {
+        if (source) unlink(source);
+        if (binary) unlink(binary);
+        if (wrapper_object) unlink(wrapper_object);
+        /* I never recursively delete compiler-created unknown files. */
+        if (rmdir(stage) != 0 && errno != ENOENT)
+            fprintf(stderr, "I retained extra compiler artifacts in %s\n", stage);
+    }
+    if (!ok) fprintf(stderr, "I could not publish the wrapper; I did not replace the destination\n");
+    free(obj_dir); free(parent_input); free(parent); free(output);
+    free(stage); free(source); free(binary); free(wrapper_object);
+    free(src_candidate); free(modules_candidate); free(src); free(modules);
+    return ok;
+}
+
 bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blob_size,
                       const char *output_path, const char *source_path,
                       const ASTNode *program, bool verbose) {
     (void)source_path;
-
-    /* Find object directory */
-    char *obj_dir = find_obj_dir();
-    if (!obj_dir) {
-        fprintf(stderr, "error: cannot find obj/ directory for linking\n");
-        fprintf(stderr, "  Set NANO_VIRT_LIB environment variable or build from project root\n");
-        return false;
-    }
-
-    /* Verify a key object file exists */
-    char test_obj[4096];
-    snprintf(test_obj, sizeof(test_obj), "%s/nanovm/vm.o", obj_dir);
-    if (access(test_obj, R_OK) != 0) {
-        fprintf(stderr, "error: cannot find %s\n", test_obj);
-        fprintf(stderr, "  Run 'make -f Makefile.gnu nano_virt' first to build .o files\n");
-        free(obj_dir);
-        return false;
-    }
-
-    /* Generate temp C file */
-    char temp_c[256];
-    snprintf(temp_c, sizeof(temp_c), "/tmp/nanovirt_%d.c", getpid());
-
-    FILE *f = fopen(temp_c, "w");
-    if (!f) {
-        fprintf(stderr, "error: cannot create temp file %s\n", temp_c);
-        free(obj_dir);
-        return false;
-    }
-
-    if (!write_wrapper_c(f, module, blob, blob_size, program)) {
-        fprintf(stderr, "error: failed to generate wrapper C code\n");
-        fclose(f);
-        remove(temp_c);
-        free(obj_dir);
-        return false;
-    }
-    fclose(f);
-
-    /* Build object file list */
-    char obj_list[16384];
-    if (!build_obj_list(obj_list, sizeof(obj_list), obj_dir)) {
-        fprintf(stderr, "error: object file list too long\n");
-        remove(temp_c);
-        free(obj_dir);
-        return false;
-    }
-
-    /* Find the src/ include directory (sibling to obj/) */
-    /* obj_dir is like /path/to/project/obj, so src/ is ../src relative to it */
-    char src_dir[4096];
-    snprintf(src_dir, sizeof(src_dir), "%s/../src", obj_dir);
-    char *real_src = realpath(src_dir, NULL);
-    if (!real_src) {
-        /* Fallback: try ./src */
-        real_src = realpath("src", NULL);
-        if (!real_src) {
-            fprintf(stderr, "error: cannot find src/ include directory\n");
-            remove(temp_c);
-            free(obj_dir);
-            return false;
-        }
-    }
-
-    char modules_dir[4096];
-    snprintf(modules_dir, sizeof(modules_dir), "%s/../modules", obj_dir);
-    char *real_modules = realpath(modules_dir, NULL);
-    if (!real_modules) {
-        real_modules = realpath("modules", NULL);
-        if (!real_modules) {
-            fprintf(stderr, "error: cannot find modules/ include directory\n");
-            remove(temp_c);
-            free(real_src);
-            free(obj_dir);
-            return false;
-        }
-    }
-
-    /* Select compiler */
-    const char *cc = getenv("NANO_CC");
-    if (!cc) cc = getenv("CC");
-    if (!cc) cc = "cc";
-
-    /* Platform-specific flags */
-    const char *export_dynamic = "";
-#ifdef __linux__
-    export_dynamic = "-rdynamic";
-#elif defined(__FreeBSD__)
-    export_dynamic = "-Wl,-E";
-#endif
-
-    /* Compile command */
-    char cmd[32768];
-    int cmd_len = snprintf(cmd, sizeof(cmd),
-            "%s -std=c99 -Wall -Wextra -Werror "
-            "-Wno-error=unused-function -Wno-error=unused-parameter "
-            "-Wno-error=unused-variable -Wno-error=unused-but-set-variable "
-            "%s -I%s -I%s -o %s %s %s -lm -lffi",
-            cc, export_dynamic, real_src, real_modules,
-            output_path, temp_c, obj_list);
-
-    if (cmd_len >= (int)sizeof(cmd)) {
-        fprintf(stderr, "error: compile command too long\n");
-        remove(temp_c);
-        free(real_modules);
-        free(real_src);
-        free(obj_dir);
-        return false;
-    }
-
-    if (verbose) {
-        printf("Compiling wrapper: %s\n", cmd);
-    }
-
-    int result = system(cmd);
-
-    /* Cleanup */
-    remove(temp_c);
-    free(real_modules);
-    free(real_src);
-    free(obj_dir);
-
-    if (result != 0) {
-        fprintf(stderr, "error: native compilation failed (exit code %d)\n", result);
-        return false;
-    }
-
-    return true;
+    return build_wrapper(module, blob, blob_size, output_path, program, false, verbose);
 }
 
 /* ========================================================================
@@ -512,89 +545,5 @@ static bool write_daemon_wrapper_c(FILE *f, const uint8_t *blob, uint32_t blob_s
 
 bool wrapper_generate_daemon(const uint8_t *blob, uint32_t blob_size,
                               const char *output_path, bool verbose) {
-    /* Find object directory */
-    char *obj_dir = find_obj_dir();
-    if (!obj_dir) {
-        fprintf(stderr, "error: cannot find obj/ directory for linking\n");
-        return false;
-    }
-
-    /* Verify the VMD client object exists */
-    char test_obj[4096];
-    snprintf(test_obj, sizeof(test_obj), "%s/nanovm/vmd_client.o", obj_dir);
-    if (access(test_obj, R_OK) != 0) {
-        fprintf(stderr, "error: cannot find %s\n", test_obj);
-        fprintf(stderr, "  Run 'make -f Makefile.gnu nano_vm' first to build VMD client objects\n");
-        free(obj_dir);
-        return false;
-    }
-
-    /* Generate temp C file */
-    char temp_c[256];
-    snprintf(temp_c, sizeof(temp_c), "/tmp/nanovirt_daemon_%d.c", getpid());
-
-    FILE *f = fopen(temp_c, "w");
-    if (!f) {
-        fprintf(stderr, "error: cannot create temp file %s\n", temp_c);
-        free(obj_dir);
-        return false;
-    }
-
-    if (!write_daemon_wrapper_c(f, blob, blob_size)) {
-        fprintf(stderr, "error: failed to generate daemon wrapper C code\n");
-        fclose(f);
-        remove(temp_c);
-        free(obj_dir);
-        return false;
-    }
-    fclose(f);
-
-    /* Daemon wrappers need only: vmd_protocol.o + vmd_client.o */
-    char obj_list[4096];
-    snprintf(obj_list, sizeof(obj_list), "%s/nanovm/vmd_protocol.o %s/nanovm/vmd_client.o",
-             obj_dir, obj_dir);
-
-    /* Find the src/ include directory */
-    char src_dir[4096];
-    snprintf(src_dir, sizeof(src_dir), "%s/../src", obj_dir);
-    char *real_src = realpath(src_dir, NULL);
-    if (!real_src) {
-        real_src = realpath("src", NULL);
-        if (!real_src) {
-            fprintf(stderr, "error: cannot find src/ include directory\n");
-            remove(temp_c);
-            free(obj_dir);
-            return false;
-        }
-    }
-
-    /* Select compiler */
-    const char *cc = getenv("NANO_CC");
-    if (!cc) cc = getenv("CC");
-    if (!cc) cc = "cc";
-
-    /* Compile command — much simpler than full wrapper */
-    char cmd[8192];
-    snprintf(cmd, sizeof(cmd),
-             "%s -std=c99 -Wall -Wextra -Werror "
-             "-Wno-error=unused-parameter "
-             "-I%s -o %s %s %s",
-             cc, real_src, output_path, temp_c, obj_list);
-
-    if (verbose) {
-        printf("Compiling daemon wrapper: %s\n", cmd);
-    }
-
-    int result = system(cmd);
-
-    remove(temp_c);
-    free(real_src);
-    free(obj_dir);
-
-    if (result != 0) {
-        fprintf(stderr, "error: daemon wrapper compilation failed (exit code %d)\n", result);
-        return false;
-    }
-
-    return true;
+    return build_wrapper(NULL, blob, blob_size, output_path, NULL, true, verbose);
 }

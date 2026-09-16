@@ -112,6 +112,10 @@ fn test_str_trim_left() -> string {
 
 shadow test_str_trim_left {
     assert (== (test_str_trim_left) "hello  ")
+    assert (== (str_trim_left "") "")
+    assert (== (str_trim_left " \t\r\n") "")
+    assert (== (str_trim_left "\t\n café \r") "café \r")
+    assert (== (str_trim_left " café ") " café ")
 }
 
 fn test_str_trim_right() -> string {
@@ -120,6 +124,10 @@ fn test_str_trim_right() -> string {
 
 shadow test_str_trim_right {
     assert (== (test_str_trim_right) "  hello")
+    assert (== (str_trim_right "") "")
+    assert (== (str_trim_right " \t\r\n") "")
+    assert (== (str_trim_right "\t café \r\n") "\t café")
+    assert (== (str_trim_right " café ") " café ")
 }
 
 fn test_str_to_lower() -> string {
@@ -173,6 +181,12 @@ fn test_str_join() -> string {
 
 shadow test_str_join {
     assert (== (test_str_join) "a-b-c")
+    let empty: array<string> = []
+    assert (== (str_join empty ",") "")
+    assert (== (str_join ["", ""] ",") ",")
+    assert (== (str_join ["café", "茶"] "") "café茶")
+    assert (== (str_join ["café"] "--") "café")
+    assert (== (str_join ["a", "", "b"] "--") "a----b")
 }
 
 fn main() -> int {

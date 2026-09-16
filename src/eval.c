@@ -26,6 +26,7 @@
 #include <sys/wait.h>
 #include <spawn.h>
 #include <math.h>
+#include <limits.h>
 
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
@@ -59,6 +60,7 @@ static Value coro_trampoline(void *raw_arg, int coro_id) {
 
 typedef struct {
     const char *test_name;
+    const char *source_file;
     int first_line;
     int first_column;
     int fail_count;
@@ -102,10 +104,31 @@ static FunctionSignature *copy_function_signature(const FunctionSignature *sig) 
 }
 
 static bool g_in_shadow_tests = false;
-static const char *g_shadow_current_test = NULL;
 static int g_shadow_current_fail_count = 0;
 static int g_shadow_current_first_line = 0;
 static int g_shadow_current_first_column = 0;
+/* Like shadow accounting, my interpreted call context is sequential. */
+static ASTNode *g_eval_call_site = NULL;
+/* I borrow stack-local call identities only while their activations are live. */
+static const void *g_eval_return_target = NULL;
+
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column);
+
+/* I keep checked dispatch and shadow failure accounting shared by every call route. */
+static Value eval_foreign_call(Function *func, Value *args, int arg_count,
+                               Environment *env, int line, int column) {
+    bool success = false;
+    Value result = ffi_call_extern_checked(func->name, args, arg_count, func, env, &success);
+    if (!success && g_in_shadow_tests) {
+        g_shadow_current_fail_count++;
+        if (g_shadow_current_first_line == 0) {
+            g_shadow_current_first_line = line;
+            g_shadow_current_first_column = column;
+        }
+    }
+    return result;
+}
 
 static void shadow_json_escape(FILE *out, const char *s) {
     if (!s) return;
@@ -124,19 +147,22 @@ static void shadow_json_escape(FILE *out, const char *s) {
     }
 }
 
-static void shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success) {
-    if (!path || path[0] == '\0') return;
+static bool shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success, int test_count) {
+    if (!path || path[0] == '\0') return true;
     FILE *f = fopen(path, "w");
-    if (!f) return;
+    if (!f) return false;
 
     fprintf(f, "{");
     fprintf(f, "\"tool\":\"nanoc_c\",");
     fprintf(f, "\"success\":%s,", success ? "true" : "false");
+    fprintf(f, "\"completed\":true,");
+    fprintf(f, "\"test_count\":%d,", test_count);
     fprintf(f, "\"failures\":[");
     for (int i = 0; i < fail_len; i++) {
         if (i > 0) fprintf(f, ",");
         fprintf(f, "{");
         fprintf(f, "\"test\":\""); shadow_json_escape(f, fails[i].test_name); fprintf(f, "\",");
+        fprintf(f, "\"source_file\":\""); shadow_json_escape(f, fails[i].source_file); fprintf(f, "\",");
         fprintf(f, "\"fail_count\":%d,", fails[i].fail_count);
         fprintf(f, "\"first_location\":{");
         fprintf(f, "\"line\":%d,", fails[i].first_line);
@@ -145,14 +171,17 @@ static void shadow_write_json_file(const char *path, const ShadowFailure *fails,
         fprintf(f, "}");
     }
     fprintf(f, "]}");
-    fclose(f);
+    bool written = !ferror(f);
+    if (fclose(f) != 0) written = false;
+    return written;
 }
 
 
 /* Process escape sequences in a raw lexer string into actual characters */
-static char *unescape_string(const char *raw) {
+char *nl_unescape_string(const char *raw) {
     size_t len = strlen(raw);
     char *buf = malloc(len + 1);
+    if (!buf) return NULL;
     size_t out = 0;
     for (size_t i = 0; i < len; i++) {
         if (raw[i] == '\\' && i + 1 < len) {
@@ -178,6 +207,37 @@ static char *unescape_string(const char *raw) {
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
+
+/* I restore lexical bindings on every exit, retaining a yielded local string. */
+static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
+    int first = env->symbol_count;
+    Value result = create_void();
+    for (int i = 0; i < count; ++i) {
+        result = eval_statement(statements[i], env);
+        if (result.is_return || result.is_break || result.is_continue) break;
+    }
+    if (result.type == VAL_STRING) {
+        for (int i = first; i < env->symbol_count; ++i) {
+            if (env->symbols[i].value.type == VAL_STRING &&
+                env->symbols[i].value.as.string_val == result.as.string_val) {
+                Value copy = create_string(result.as.string_val);
+                result.as.string_val = copy.as.string_val;
+                break;
+            }
+        }
+    }
+    for (int i = first; i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        free(symbol->name);
+        free(symbol->struct_type_name);
+        if (symbol->value.type == VAL_STRING) {
+            if (gc_is_managed(symbol->value.as.string_val)) gc_release(symbol->value.as.string_val);
+            else free(symbol->value.as.string_val);
+        }
+    }
+    env->symbol_count = first;
+    return result;
+}
 static Value create_dyn_array(DynArray *arr);
 
 static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op);
@@ -893,6 +953,8 @@ static Value builtin_at(Value *args) {
         
         /* Return element based on type */
         switch (arr->element_type) {
+            case VAL_ARRAY:
+                return ((Value*)arr->data)[index];
             case VAL_INT:
                 return create_int(((long long*)arr->data)[index]);
             case VAL_FLOAT:
@@ -926,6 +988,8 @@ static Value builtin_at(Value *args) {
         /* Return element based on type */
         ElementType elem_type = dyn_array_get_elem_type(arr);
         switch (elem_type) {
+            case ELEM_U8:
+                return create_int(dyn_array_get_u8(arr, index));
             case ELEM_INT:
                 return create_int(dyn_array_get_int(arr, index));
             case ELEM_FLOAT:
@@ -1012,14 +1076,53 @@ static Value builtin_array_new(Value *args) {
     return arr;
 }
 
+static ElementType value_type_to_elem_type(ValueType vtype);
+
 static Value builtin_array_set(Value *args) {
     /* array_set(array, index, value) -> void */
-    if (args[0].type != VAL_ARRAY) {
+    if (args[1].type != VAL_INT) {
+        fprintf(stderr, "Error: array_set() requires an integer index\n");
+        return create_void();
+    }
+    if (args[0].type != VAL_ARRAY && args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_set() requires an array as first argument\n");
         return create_void();
     }
-    if (args[1].type != VAL_INT) {
-        fprintf(stderr, "Error: array_set() requires an integer index\n");
+
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *arr = args[0].as.dyn_array_val;
+        long long index = args[1].as.int_val;
+        if (index < 0 || index >= dyn_array_length(arr)) {
+            fprintf(stderr, "I cannot write array index %lld outside [0..%lld).\n",
+                    index, (long long)dyn_array_length(arr));
+            exit(1);
+        }
+        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr)) {
+            fprintf(stderr, "I cannot assign a different element type to this array.\n");
+            exit(1);
+        }
+        switch (args[2].type) {
+            case VAL_INT: dyn_array_set_int(arr, index, args[2].as.int_val); break;
+            case VAL_FLOAT: dyn_array_set_float(arr, index, args[2].as.float_val); break;
+            case VAL_BOOL: dyn_array_set_bool(arr, index, args[2].as.bool_val); break;
+            case VAL_STRING: {
+                char *copy = strdup(args[2].as.string_val);
+                if (!copy) { fprintf(stderr, "I cannot allocate an array string.\n"); exit(1); }
+                dyn_array_set_string(arr, index, copy);
+                break;
+            }
+            case VAL_DYN_ARRAY: dyn_array_set_array(arr, index, args[2].as.dyn_array_val); break;
+            case VAL_STRUCT: {
+                StructValue *sv = args[2].as.struct_val;
+                Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                StructValue *stored = copy.as.struct_val;
+                dyn_array_set_struct(arr, index, &stored, sizeof(stored));
+                break;
+            }
+            default:
+                fprintf(stderr, "I cannot write this array element representation.\n");
+                exit(1);
+        }
         return create_void();
     }
     
@@ -1035,6 +1138,13 @@ static Value builtin_array_set(Value *args) {
     
     /* Set element based on type */
     switch (arr->element_type) {
+        case VAL_ARRAY:
+            if (args[2].type != VAL_ARRAY && args[2].type != VAL_DYN_ARRAY) {
+                fprintf(stderr, "I require an array value for a nested array element.\n");
+                exit(1);
+            }
+            ((Value*)arr->data)[index] = args[2];
+            break;
         case VAL_INT:
             if (args[2].type != VAL_INT) {
                 fprintf(stderr, "Error: Type mismatch in array_set\n");
@@ -1104,12 +1214,17 @@ static Value builtin_array_slice(Value *args) {
         Array *arr = args[0].as.array_val;
         int64_t len = arr->length;
         if (start > len) start = len;
+        if (length > len - start) length = len - start;
         int64_t end = start + length;
         if (end > len) end = len;
         int64_t out_len = end - start;
 
         Value out = create_array(arr->element_type, out_len, out_len);
         switch (arr->element_type) {
+            case VAL_ARRAY:
+                for (int64_t i = 0; i < out_len; i++)
+                    ((Value*)out.as.array_val->data)[i] = ((Value*)arr->data)[start + i];
+                break;
             case VAL_INT:
                 for (int64_t i = 0; i < out_len; i++) {
                     ((long long*)out.as.array_val->data)[i] = ((long long*)arr->data)[start + i];
@@ -1147,6 +1262,7 @@ static Value builtin_array_slice(Value *args) {
         DynArray *arr = args[0].as.dyn_array_val;
         int64_t len = dyn_array_length(arr);
         if (start > len) start = len;
+        if (length > len - start) length = len - start;
         int64_t end = start + length;
         if (end > len) end = len;
 
@@ -1155,7 +1271,7 @@ static Value builtin_array_slice(Value *args) {
         for (int64_t i = start; i < end; i++) {
             switch (t) {
                 case ELEM_INT: dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;
-                case ELEM_U8: dyn_array_push_int(out, (int64_t)dyn_array_get_u8(arr, i)); break;
+                case ELEM_U8: dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;
                 case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
                 case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
                 case ELEM_STRING: dyn_array_push_string_copy(out, dyn_array_get_string(arr, i)); break;
@@ -1199,48 +1315,6 @@ static Value create_dyn_array(DynArray *arr) {
     return val;
 }
 
-static DynArray *static_array_to_dyn_array(Array *source) {
-    if (!source) return NULL;
-
-    ElementType elem_type;
-    switch (source->element_type) {
-        case VAL_INT: elem_type = ELEM_INT; break;
-        case VAL_FLOAT: elem_type = ELEM_FLOAT; break;
-        case VAL_BOOL: elem_type = ELEM_BOOL; break;
-        case VAL_STRING: elem_type = ELEM_STRING; break;
-        case VAL_ARRAY: elem_type = ELEM_ARRAY; break;
-        default: return NULL;
-    }
-
-    DynArray *result = dyn_array_new_with_capacity(elem_type, source->length);
-    if (!result) return NULL;
-    for (int i = 0; i < source->length; i++) {
-        switch (source->element_type) {
-            case VAL_INT:
-                dyn_array_push_int(result, ((long long *)source->data)[i]);
-                break;
-            case VAL_FLOAT:
-                dyn_array_push_float(result, ((double *)source->data)[i]);
-                break;
-            case VAL_BOOL:
-                dyn_array_push_bool(result, ((bool *)source->data)[i]);
-                break;
-            case VAL_STRING:
-                dyn_array_push_string_copy(result, ((char **)source->data)[i]);
-                break;
-            case VAL_ARRAY: {
-                DynArray *nested = static_array_to_dyn_array(((Array **)source->data)[i]);
-                if (!nested) return NULL;
-                dyn_array_push_array(result, nested);
-                break;
-            }
-            default:
-                return NULL;
-        }
-    }
-    return result;
-}
-
 /* Helper to map ValueType to ElementType */
 static ElementType value_type_to_elem_type(ValueType vtype) {
     switch (vtype) {
@@ -1248,7 +1322,6 @@ static ElementType value_type_to_elem_type(ValueType vtype) {
         case VAL_FLOAT: return ELEM_FLOAT;
         case VAL_BOOL: return ELEM_BOOL;
         case VAL_STRING: return ELEM_STRING;
-        case VAL_ARRAY:
         case VAL_DYN_ARRAY: return ELEM_ARRAY;  /* Nested arrays */
         case VAL_STRUCT:
         case VAL_GC_STRUCT: return ELEM_STRUCT;  /* Structs */
@@ -1262,6 +1335,15 @@ static Value builtin_array_push(Value *args) {
      * For dynamic arrays, appends element
      */
     
+    /* I retain each inner Value's representation and identity. A static
+     * literal and a dynamic array can inhabit the same nested array. */
+    if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0 &&
+        (args[1].type == VAL_ARRAY || args[1].type == VAL_DYN_ARRAY)) {
+        Value nested = create_array(VAL_ARRAY, 1, 1);
+        ((Value*)nested.as.array_val->data)[0] = args[1];
+        return nested;
+    }
+
     /* If arg[0] is an empty static array, convert to dynamic */
     if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0) {
         /* Create new dynamic array with element type from value */
@@ -1285,16 +1367,6 @@ static Value builtin_array_push(Value *args) {
             case VAL_DYN_ARRAY:
                 dyn_array_push_array(arr, args[1].as.dyn_array_val);
                 break;
-            case VAL_ARRAY: {
-                DynArray *nested = static_array_to_dyn_array(args[1].as.array_val);
-                if (!nested) {
-                    fprintf(stderr, "Error: Unsupported array element type\n");
-                    gc_release(arr);
-                    return create_void();
-                }
-                dyn_array_push_array(arr, nested);
-                break;
-            }
             case VAL_STRUCT: {
                 Value copy = create_struct(args[1].as.struct_val->struct_name,
                     args[1].as.struct_val->field_names,
@@ -1313,6 +1385,40 @@ static Value builtin_array_push(Value *args) {
         return create_dyn_array(arr);
     }
     
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        size_t width;
+        switch (arr->element_type) {
+            case VAL_ARRAY: width = sizeof(Value); break;
+            case VAL_INT: width = sizeof(long long); break;
+            case VAL_FLOAT: width = sizeof(double); break;
+            case VAL_BOOL: width = sizeof(bool); break;
+            case VAL_STRING: width = sizeof(char*); break;
+            case VAL_STRUCT: width = sizeof(StructValue*); break;
+            default:
+                fprintf(stderr, "I cannot append this array element representation.\n");
+                exit(1);
+        }
+        bool nested_value = arr->element_type == VAL_ARRAY &&
+            (args[1].type == VAL_ARRAY || args[1].type == VAL_DYN_ARRAY);
+        if ((!nested_value && args[1].type != arr->element_type) || arr->length == INT_MAX ||
+            (size_t)arr->length + 1 > SIZE_MAX / width) {
+            fprintf(stderr, "I cannot append this value to the array.\n");
+            exit(1);
+        }
+        if (arr->length == arr->capacity) {
+            void *data = realloc(arr->data, ((size_t)arr->length + 1) * width);
+            if (!data) { fprintf(stderr, "I cannot grow the array.\n"); exit(1); }
+            arr->data = data;
+            arr->capacity++;
+        }
+        memset((char*)arr->data + (size_t)arr->length * width, 0, width);
+        Value set_args[] = {args[0], create_int(arr->length), args[1]};
+        arr->length++;
+        builtin_array_set(set_args);
+        return args[0];
+    }
+
     /* Must be a dynamic array */
     if (args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_push() requires a dynamic array (use [] to create one)\n");
@@ -1347,15 +1453,6 @@ static Value builtin_array_push(Value *args) {
         case VAL_DYN_ARRAY:
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
-        case VAL_ARRAY: {
-            DynArray *nested = static_array_to_dyn_array(args[1].as.array_val);
-            if (!nested) {
-                fprintf(stderr, "Error: Unsupported array element type\n");
-                return create_void();
-            }
-            dyn_array_push_array(arr, nested);
-            break;
-        }
         case VAL_STRUCT: {
             Value copy = create_struct(args[1].as.struct_val->struct_name,
                 args[1].as.struct_val->field_names,
@@ -1449,49 +1546,56 @@ static Value builtin_array_remove_at(Value *args) {
     return args[0];
 }
 
-static Value builtin_array_sort(Value *args) {
-    /* array_sort(array) -> array — returns sorted copy (integers ascending) */
-    if (args[0].type == VAL_ARRAY) {
-        /* Empty static array — return new empty dynamic array */
-        DynArray *out = dyn_array_new(ELEM_INT);
-        return create_dyn_array(out);
+/* I normalize scalar literals without confusing them with empty arrays. */
+static DynArray *builtin_scalar_array(Value value) {
+    if (value.type == VAL_DYN_ARRAY) return value.as.dyn_array_val;
+    if (value.type != VAL_ARRAY || !value.as.array_val) return NULL;
+    Array *source = value.as.array_val;
+    if (source->length < 0 || (source->length && !source->data)) return NULL;
+    ElementType type;
+    switch (source->element_type) {
+        case VAL_INT: type = ELEM_INT; break;
+        case VAL_FLOAT: type = ELEM_FLOAT; break;
+        case VAL_BOOL: type = ELEM_BOOL; break;
+        case VAL_STRING: type = ELEM_STRING; break;
+        default: return NULL;
     }
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_sort() requires a dynamic array\n");
+    DynArray *result = dyn_array_new_with_capacity(type, source->length);
+    if (!result) return NULL;
+    for (int i = 0; i < source->length; i++) {
+        switch (source->element_type) {
+            case VAL_INT: dyn_array_push_int(result, ((long long *)source->data)[i]); break;
+            case VAL_FLOAT: dyn_array_push_float(result, ((double *)source->data)[i]); break;
+            case VAL_BOOL: dyn_array_push_bool(result, ((bool *)source->data)[i]); break;
+            case VAL_STRING: dyn_array_push_string(result, ((char **)source->data)[i]); break;
+            default: break;
+        }
+    }
+    return result;
+}
+
+static Value builtin_array_sort(Value *args) {
+    /* I share scalar ordering with native code and the VM. */
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_sort.\n");
         return create_void();
     }
-    DynArray *arr = args[0].as.dyn_array_val;
-    DynArray *out = dyn_array_clone(arr);
-    if (!out) return args[0];
-    int64_t len = dyn_array_length(out);
-    if (len <= 1) return create_dyn_array(out);
-    if (dyn_array_get_elem_type(out) == ELEM_INT) {
-        /* Simple insertion sort for interpreter correctness */
-        for (int64_t i = 1; i < len; i++) {
-            int64_t key = dyn_array_get_int(out, i);
-            int64_t j = i - 1;
-            while (j >= 0 && dyn_array_get_int(out, j) > key) {
-                dyn_array_set_int(out, j + 1, dyn_array_get_int(out, j));
-                j--;
-            }
-            dyn_array_set_int(out, j + 1, key);
-        }
+    DynArray *out = dyn_array_sorted(arr);
+    if (!out) {
+        fprintf(stderr, "I could not sort this array.\n");
+        return create_void();
     }
     return create_dyn_array(out);
 }
 
 static Value builtin_array_reverse(Value *args) {
     /* array_reverse(array) -> array — returns reversed copy */
-    if (args[0].type == VAL_ARRAY) {
-        /* Empty static array — return new empty dynamic array */
-        DynArray *out = dyn_array_new(ELEM_INT);
-        return create_dyn_array(out);
-    }
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_reverse() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_reverse.\n");
         return create_void();
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     int64_t len = dyn_array_length(arr);
     ElementType t = dyn_array_get_elem_type(arr);
     DynArray *out = dyn_array_new(t);
@@ -1510,11 +1614,11 @@ static Value builtin_array_reverse(Value *args) {
 
 static Value builtin_array_contains(Value *args) {
     /* array_contains(array, elem) -> bool */
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_contains() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_contains.\n");
         return create_bool(false);
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     int64_t len = dyn_array_length(arr);
     ElementType t = dyn_array_get_elem_type(arr);
     for (int64_t i = 0; i < len; i++) {
@@ -1543,11 +1647,11 @@ static Value builtin_array_contains(Value *args) {
 
 static Value builtin_array_index_of(Value *args) {
     /* array_index_of(array, elem) -> int (-1 if not found) */
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_index_of() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_index_of.\n");
         return create_int(-1);
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     int64_t len = dyn_array_length(arr);
     ElementType t = dyn_array_get_elem_type(arr);
     for (int64_t i = 0; i < len; i++) {
@@ -1751,6 +1855,8 @@ static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *
     }
 }
 
+static void discard_partial_owned_array(Array *array, int initialized);
+
 static Value builtin_map(Value *args, Environment *env) {
     /* map(array, transform_fn) -> array
      * Applies transform_fn to each element and returns a new array
@@ -1761,14 +1867,25 @@ static Value builtin_map(Value *args, Environment *env) {
     }
     
     const char *transform_fn_name = args[1].as.function_val.function_name;
+    Function *transform = env_get_function(env, transform_fn_name);
+    ValueType result_type = VAL_VOID;
+    if (transform) {
+        switch (transform->return_type) {
+            case TYPE_INT: result_type = VAL_INT; break;
+            case TYPE_FLOAT: result_type = VAL_FLOAT; break;
+            case TYPE_BOOL: result_type = VAL_BOOL; break;
+            case TYPE_STRING: result_type = VAL_STRING; break;
+            default: break;
+        }
+    }
     
     /* Handle static arrays */
     if (args[0].type == VAL_ARRAY) {
         Array *input_arr = args[0].as.array_val;
         int64_t len = input_arr->length;
         
-        /* Create new array of same type and size */
-        Value result = create_array(input_arr->element_type, len, len);
+        /* I retain declared scalar output types even when no callback runs. */
+        Value result = create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
         Array *output_arr = result.as.array_val;
         
         /* Apply transform to each element */
@@ -1802,33 +1919,37 @@ static Value builtin_map(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            if (transformed.is_return) {
+                discard_partial_owned_array(output_arr, (int)i);
+                return transformed;
+            }
             
             /* Store transformed value in output array */
             switch (output_arr->element_type) {
                 case VAL_INT:
                     if (transformed.type != VAL_INT) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((long long*)output_arr->data)[i] = transformed.as.int_val;
                     break;
                 case VAL_FLOAT:
                     if (transformed.type != VAL_FLOAT) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((double*)output_arr->data)[i] = transformed.as.float_val;
                     break;
                 case VAL_BOOL:
                     if (transformed.type != VAL_BOOL) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((bool*)output_arr->data)[i] = transformed.as.bool_val;
                     break;
                 case VAL_STRING:
                     if (transformed.type != VAL_STRING) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
@@ -1849,7 +1970,8 @@ static Value builtin_map(Value *args, Environment *env) {
 
         /* Fast path: pure arithmetic lambda — bypass call_function overhead.
          * Pre-allocate full output, extract restrict pointers, inline the expression. */
-        if (elem_type == ELEM_INT || elem_type == ELEM_FLOAT) {
+        if ((elem_type == ELEM_INT && result_type == VAL_INT) ||
+            (elem_type == ELEM_FLOAT && result_type == VAL_FLOAT)) {
             Function *fn = env_get_function(env, transform_fn_name);
             if (fn && fn->param_count == 1 && fn->body &&
                 is_pure_arithmetic_lambda(fn->body)) {
@@ -1876,8 +1998,8 @@ static Value builtin_map(Value *args, Environment *env) {
             }
         }
 
-        /* Create new dynamic array of same type */
-        DynArray *output_arr = dyn_array_new(elem_type);
+        ElementType output_type = result_type == VAL_VOID ? elem_type : value_type_to_elem_type(result_type);
+        DynArray *output_arr = dyn_array_new(output_type);
 
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
@@ -1917,40 +2039,44 @@ static Value builtin_map(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            if (transformed.is_return) {
+                gc_release(output_arr);
+                return transformed;
+            }
             
             /* Push transformed value to output array */
-            switch (elem_type) {
+            switch (output_type) {
                 case ELEM_INT:
                     if (transformed.type != VAL_INT) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_int(output_arr, transformed.as.int_val);
                     break;
                 case ELEM_FLOAT:
                     if (transformed.type != VAL_FLOAT) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_float(output_arr, transformed.as.float_val);
                     break;
                 case ELEM_BOOL:
                     if (transformed.type != VAL_BOOL) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_bool(output_arr, transformed.as.bool_val);
                     break;
                 case ELEM_STRING:
                     if (transformed.type != VAL_STRING) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_array(output_arr, transformed.as.dyn_array_val);
@@ -2019,6 +2145,10 @@ static Value builtin_filter(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value pred = call_function(pred_fn_name, call_args, 1, env);
+            if (pred.is_return) {
+                free(keep);
+                return pred;
+            }
             if (pred.type != VAL_BOOL) {
                 free(keep);
                 fprintf(stderr, "Error: filter predicate must return bool\n");
@@ -2100,6 +2230,10 @@ static Value builtin_filter(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value pred = call_function(pred_fn_name, call_args, 1, env);
+            if (pred.is_return) {
+                gc_release(output_arr);
+                return pred;
+            }
             if (pred.type != VAL_BOOL) {
                 fprintf(stderr, "Error: filter predicate must return bool\n");
                 return create_void();
@@ -2183,6 +2317,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
             call_args[0] = accumulator;
             call_args[1] = elem;
             accumulator = call_function(combine_fn_name, call_args, 2, env);
+            if (accumulator.is_return) return accumulator;
         }
         
         return accumulator;
@@ -2263,6 +2398,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
             call_args[0] = accumulator;
             call_args[1] = elem;
             accumulator = call_function(combine_fn_name, call_args, 2, env);
+            if (accumulator.is_return) return accumulator;
         }
 
         return accumulator;
@@ -2305,6 +2441,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         /* Handle unary minus: (- x) */
         if (op == TOKEN_MINUS && arg_count == 1) {
             Value arg = eval_expression(node->as.prefix_op.args[0], env);
+            if (arg.is_return) return arg;
             if (arg.type == VAL_INT) {
                 return create_int(-arg.as.int_val);
             } else if (arg.type == VAL_FLOAT) {
@@ -2351,7 +2488,9 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
+        if (right.is_return) return right;
 
         /* Array arithmetic (elementwise) */
         if (left.type == VAL_DYN_ARRAY || right.type == VAL_DYN_ARRAY || left.type == VAL_ARRAY || right.type == VAL_ARRAY) {
@@ -2661,7 +2800,9 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
+        if (right.is_return) return right;
 
         if (left.type == VAL_INT && right.type == VAL_INT) {
             bool result;
@@ -2717,7 +2858,9 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
+        if (right.is_return) return right;
 
         bool equal = false;
         if (left.type == right.type) {
@@ -2807,14 +2950,17 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
 
         if (op == TOKEN_AND) {
             if (!is_truthy(left)) return create_bool(false);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
+            if (right.is_return) return right;
             return create_bool(is_truthy(right));
         } else { /* OR */
             if (is_truthy(left)) return create_bool(true);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
+            if (right.is_return) return right;
             return create_bool(is_truthy(right));
         }
     }
@@ -2825,18 +2971,31 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value arg = eval_expression(node->as.prefix_op.args[0], env);
+        if (arg.is_return) return arg;
         return create_bool(!is_truthy(arg));
     }
 
     return create_void();
 }
 
-/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env);
+
+/* I retain the invoking source node while native builtins call back into me. */
 static Value eval_call(ASTNode *node, Environment *env) {
+    ASTNode *saved_site = g_eval_call_site;
+    g_eval_call_site = node;
+    Value result = eval_call_impl(node, env);
+    g_eval_call_site = saved_site;
+    return result;
+}
+
+/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env) {
     /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
     if (node->as.call.func_expr) {
         /* Evaluate the inner function call to get the function */
         Value func_val = eval_expression(node->as.call.func_expr, env);
+        if (func_val.is_return) return func_val;
         if (func_val.type != VAL_FUNCTION) {
             fprintf(stderr, "Error: Expression does not return a function\n");
             return create_void();
@@ -2866,6 +3025,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
         Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
         for (int i = 0; i < node->as.call.arg_count; i++) {
             args[i] = eval_expression(node->as.call.args[i], env);
+            if (args[i].is_return) {
+                Value result = args[i];
+                free(args);
+                return result;
+            }
         }
         if (!func) {
             fprintf(stderr, "Error: Function '%s' not found\n", func_name);
@@ -2873,7 +3037,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
             return create_void();
         }
         
-        Value result = call_function(func_name, args, node->as.call.arg_count, env);
+        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
+                                        node->line, node->column);
         free(args);
         return result;
     }
@@ -3003,6 +3168,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     Value args[16];  /* Max args for function calls */
     for (int i = 0; i < node->as.call.arg_count; i++) {
         args[i] = eval_expression(node->as.call.args[i], env);
+        if (args[i].is_return) return args[i];
     }
 
     /* File operations */
@@ -3143,6 +3309,14 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Timing utilities */
+    if (strcmp(name, "nl_get_time_ms") == 0) {
+        struct timespec ts;
+        if (node->as.call.arg_count != 0 || clock_gettime(CLOCK_REALTIME, &ts) != 0) {
+            fprintf(stderr, "I cannot read epoch milliseconds.\n");
+            exit(1);
+        }
+        return create_int((long long)ts.tv_sec * 1000LL + ts.tv_nsec / 1000000LL);
+    }
     if (strcmp(name, "nl_timing_get_nanoseconds") == 0) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -3210,6 +3384,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_starts_with") == 0) return builtin_str_starts_with(args);
     if (strcmp(name, "str_ends_with") == 0) return builtin_str_ends_with(args);
     if (strcmp(name, "str_index_of") == 0) return builtin_str_index_of(args);
+    if (strcmp(name, "str_last_index_of") == 0) return builtin_str_last_index_of(args);
     if (strcmp(name, "str_trim") == 0) return builtin_str_trim(args);
     if (strcmp(name, "str_trim_left") == 0) return builtin_str_trim_left(args);
     if (strcmp(name, "str_trim_right") == 0) return builtin_str_trim_right(args);
@@ -3308,26 +3483,35 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return create_dyn_array(result);
     }
     if (strcmp(name, "str_join") == 0) {
-        if (args[0].type != VAL_DYN_ARRAY || args[1].type != VAL_STRING) {
+        if ((args[0].type != VAL_DYN_ARRAY && args[0].type != VAL_ARRAY) || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_join requires array<string> and string\n");
             return create_void();
         }
-        DynArray *arr = args[0].as.dyn_array_val;
+        DynArray *arr = args[0].type == VAL_DYN_ARRAY ? args[0].as.dyn_array_val : NULL;
+        Array *literal = args[0].type == VAL_ARRAY ? args[0].as.array_val : NULL;
+        if (!arr && !literal) return create_void();
         const char *delim = args[1].as.string_val;
-        int64_t count = dyn_array_length(arr);
+        int64_t count = arr ? dyn_array_length(arr) : literal->length;
         if (count == 0) return create_string("");
+        if (count < 0 || (arr && arr->elem_type != ELEM_STRING) ||
+            (literal && literal->element_type != VAL_STRING)) return create_void();
         size_t delim_len = strlen(delim);
         size_t total = 0;
         for (int64_t i = 0; i < count; i++) {
-            const char *s = dyn_array_get_string(arr, i);
-            if (s) total += strlen(s);
-            if (i < count - 1) total += delim_len;
+            const char *s = arr ? dyn_array_get_string(arr, i) : ((char **)literal->data)[i];
+            size_t length = s ? strlen(s) : 0;
+            if (length > SIZE_MAX - 1 - total) return create_void();
+            total += length;
+            if (i < count - 1) {
+                if (delim_len > SIZE_MAX - 1 - total) return create_void();
+                total += delim_len;
+            }
         }
         char *buf = malloc(total + 1);
         if (!buf) return create_string("");
         size_t pos = 0;
         for (int64_t i = 0; i < count; i++) {
-            const char *s = dyn_array_get_string(arr, i);
+            const char *s = arr ? dyn_array_get_string(arr, i) : ((char **)literal->data)[i];
             if (s) { size_t slen = strlen(s); memcpy(buf + pos, s, slen); pos += slen; }
             if (i < count - 1) { memcpy(buf + pos, delim, delim_len); pos += delim_len; }
         }
@@ -4471,7 +4655,9 @@ static Value eval_call(ASTNode *node, Environment *env) {
             ca->env = env;
             int coro_id = nano_coro_spawn(coro_trampoline, ca);
             if (coro_id >= 0) {
-                return nano_coro_await_id(coro_id);
+                Value result = nano_coro_await_id(coro_id);
+                (void)nano_coro_release(coro_id);
+                return result;
             }
             free(ca->func_name); free(ca->args); free(ca);
         }
@@ -4481,25 +4667,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
     /* If built-in with no body, already handled above */
     if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
         /* Try FFI for extern functions */
-        if (func->is_extern && ffi_is_available()) {
-            return ffi_call_extern(name, args, node->as.call.arg_count, func, env);
-        }
-
-        /* Offline extern (no FFI backend available): return a typed default so
-         * callers that store the result in a typed field (e.g. an empty string
-         * for a string-returning exec capture) stay well-defined instead of
-         * receiving a void value. This keeps modules like stdlib/mac.nano
-         * usable — and side-effect-free — in the interpreter without a live
-         * FFI backend. */
         if (func->is_extern) {
-            switch (func->return_type) {
-                case TYPE_STRING: return create_string("");
-                case TYPE_INT:    return create_int(0);
-                case TYPE_BOOL:   return create_bool(false);
-                case TYPE_FLOAT:  return create_float(0.0);
-                default: break;
-            }
-            return create_void();
+            Value result = eval_foreign_call(func, args, node->as.call.arg_count,
+                                            env, node->line, node->column);
+            return result;
         }
 
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
@@ -4539,6 +4710,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Execute function body */
+    char return_boundary;
+    const void *saved_return_target = g_eval_return_target;
+    g_eval_return_target = &return_boundary;
+    char *saved_module_context = env->current_module;
+    env->current_module = func->module_name;
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
         ASTNode *stmt = func->body->as.block.statements[i];
@@ -4556,6 +4732,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Pop call stack */
+    g_eval_return_target = saved_return_target;
+    env->current_module = saved_module_context;
     tracing_pop_call();
 
     /*
@@ -4597,8 +4775,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
         return_value.as.struct_val = dst;
     }
 
-    /* Return statements are handled inside the callee; don't let is_return escape. */
-    return_value.is_return = false;
+    /* I consume only returns addressed to this call, not an enclosing handler owner. */
+    return_value.is_return = result.is_return && result.return_target &&
+        result.return_target != &return_boundary;
+    return_value.return_target = return_value.is_return ? result.return_target : NULL;
     return_value.is_break = false;
     return_value.is_continue = false;
 
@@ -4628,6 +4808,35 @@ static Value eval_call(ASTNode *node, Environment *env) {
     return return_value;
 }
 
+/* I discard only record/string storage cloned by create_struct. Arrays and
+ * other referenced fields remain borrowed, as in that constructor. */
+static void discard_literal_record(StructValue *record) {
+    if (!record) return;
+    for (int i = 0; i < record->field_count; i++) {
+        Value field = record->field_values[i];
+        if (field.type == VAL_STRUCT) discard_literal_record(field.as.struct_val);
+        else if (field.type == VAL_STRING) {
+            if (gc_is_managed(field.as.string_val)) gc_release(field.as.string_val);
+            else free(field.as.string_val);
+        }
+        free(record->field_names[i]);
+    }
+    free(record->field_names);
+    free(record->field_values);
+    free(record->struct_name);
+    free(record);
+}
+
+static void discard_partial_owned_array(Array *array, int initialized) {
+    for (int i = 0; i < initialized; i++) {
+        if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
+        else if (array->element_type == VAL_STRUCT)
+            discard_literal_record(((StructValue **)array->data)[i]);
+    }
+    free(array->data);
+    free(array);
+}
+
 /* Evaluate expression */
 static Value eval_expression(ASTNode *expr, Environment *env) {
     if (!expr) return create_void();
@@ -4641,7 +4850,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return create_float(expr->as.float_val);
 
         case AST_STRING: {
-            char *unescaped = unescape_string(expr->as.string_val);
+            char *unescaped = nl_unescape_string(expr->as.string_val);
             Value v = create_string(unescaped);
             free(unescaped);
             return v;
@@ -4711,10 +4920,17 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 args = malloc(sizeof(Value) * (size_t)arg_count);
                 for (int i = 0; i < arg_count; i++) {
                     args[i] = eval_expression(expr->as.module_qualified_call.args[i], env);
+                    if (args[i].is_return) {
+                        Value result = args[i];
+                        free(args);
+                        free(qualified_name);
+                        return result;
+                    }
                 }
             }
 
-            Value result = call_function(qualified_name, args, arg_count, env);
+            Value result = call_function_at(qualified_name, args, arg_count, env,
+                                            expr->line, expr->column);
             free(args);
             free(qualified_name);
             return result;
@@ -4726,23 +4942,44 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Empty array */
             if (count == 0) {
-                /* Create empty array - type will be determined by context */
-                return create_array(VAL_INT, 0, 0);  /* Default to int for now */
+                ValueType element = VAL_INT;
+                switch (expr->as.array_literal.element_type) {
+                    case TYPE_FLOAT: element = VAL_FLOAT; break;
+                    case TYPE_BOOL: element = VAL_BOOL; break;
+                    case TYPE_STRING: element = VAL_STRING; break;
+                    case TYPE_ARRAY: element = VAL_ARRAY; break;
+                    case TYPE_STRUCT: element = VAL_STRUCT; break;
+                    default: break;
+                }
+                return create_array(element, 0, 0);
             }
             
             /* Evaluate first element to determine type */
             Value first = eval_expression(expr->as.array_literal.elements[0], env);
+            if (first.is_return) return first;
             ValueType elem_type = first.type;
+            if (elem_type == VAL_DYN_ARRAY) elem_type = VAL_ARRAY;
             
             /* Create array */
             Value arr = create_array(elem_type, count, count);
             
             /* Set elements */
             for (int i = 0; i < count; i++) {
-                Value elem = eval_expression(expr->as.array_literal.elements[i], env);
+                Value elem = i == 0 ? first : eval_expression(expr->as.array_literal.elements[i], env);
+                if (elem.is_return) {
+                    discard_partial_owned_array(arr.as.array_val, i);
+                    return elem;
+                }
                 
                 /* Store element in array data */
                 switch (elem_type) {
+                    case VAL_ARRAY:
+                        if (elem.type != VAL_ARRAY && elem.type != VAL_DYN_ARRAY) {
+                            fprintf(stderr, "I require array values in a nested array literal.\n");
+                            exit(1);
+                        }
+                        ((Value*)arr.as.array_val->data)[i] = elem;
+                        break;
                     case VAL_INT:
                         ((long long*)arr.as.array_val->data)[i] = elem.as.int_val;
                         break;
@@ -4755,6 +4992,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case VAL_STRING:
                         ((char**)arr.as.array_val->data)[i] = strdup(elem.as.string_val);
                         break;
+                    case VAL_STRUCT: {
+                        StructValue *sv = elem.as.struct_val;
+                        Value copy = create_struct(sv->struct_name, sv->field_names,
+                                                   sv->field_values, sv->field_count);
+                        ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                        break;
+                    }
                     default:
                         fprintf(stderr, "Error: Unsupported array element type\n");
                         break;
@@ -4766,6 +5010,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_IF: {
             Value cond = eval_expression(expr->as.if_stmt.condition, env);
+            if (cond.is_return) return cond;
             if (is_truthy(cond)) {
                 return eval_statement(expr->as.if_stmt.then_branch, env);
             } else {
@@ -4778,6 +5023,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Check each condition in order and return the corresponding value */
             for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
                 Value cond = eval_expression(expr->as.cond_expr.conditions[i], env);
+                if (cond.is_return) return cond;
                 if (is_truthy(cond)) {
                     return eval_expression(expr->as.cond_expr.values[i], env);
                 }
@@ -4825,6 +5071,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                 field_values = malloc(sizeof(Value) * field_count);
                                 for (int i = 0; i < field_count; i++) {
                                     field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                                    if (field_values[i].is_return) {
+                                        Value result = field_values[i];
+                                        free(field_values);
+                                        return result;
+                                    }
                                 }
                             }
 
@@ -4845,6 +5096,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * handle spread regardless of whether struct_name is set. */
             if (expr->as.struct_literal.spread_source) {
                 Value base_val = eval_expression(expr->as.struct_literal.spread_source, env);
+                if (base_val.is_return) return base_val;
                 StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
                 int base_count = base_sv ? base_sv->field_count : 0;
                 int over_count = expr->as.struct_literal.field_count;
@@ -4872,6 +5124,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     merged_names[merged_count]  = expr->as.struct_literal.field_names[oi];
                     merged_values[merged_count] = eval_expression(
                         expr->as.struct_literal.field_values[oi], env);
+                    if (merged_values[merged_count].is_return) {
+                        Value result = merged_values[merged_count];
+                        free(merged_names);
+                        free(merged_values);
+                        return result;
+                    }
                     merged_count++;
                 }
                 /* Prefer the declared struct_name (set by typechecker) over the
@@ -4903,6 +5161,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             for (int i = 0; i < field_count; i++) {
                 field_names[i] = expr->as.struct_literal.field_names[i];
                 field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                if (field_values[i].is_return) {
+                    Value result = field_values[i];
+                    free(field_names);
+                    free(field_values);
+                    return result;
+                }
             }
             
             
@@ -4961,6 +5225,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Regular struct field access */
             /* Evaluate field access: point.x */
             Value obj = eval_expression(expr->as.field_access.object, env);
+            if (obj.is_return) return obj;
             
             if (obj.type != VAL_STRUCT) {
                 fprintf(stderr, "Error: Cannot access field on non-struct value\n");
@@ -4973,6 +5238,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Find field in struct */
             for (int i = 0; i < sv->field_count; i++) {
                 if (strcmp(sv->field_names[i], field_name) == 0) {
+                    /* I return an owned string, not a record's borrowed storage.
+                     * A local binding releases its value when its call ends. */
                     if (sv->field_values[i].type == VAL_STRING) {
                         return create_string(sv->field_values[i].as.string_val);
                     }
@@ -5009,6 +5276,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < field_count; i++) {
                     field_names[i] = expr->as.union_construct.field_names[i];
                     field_values[i] = eval_expression(expr->as.union_construct.field_values[i], env);
+                    if (field_values[i].is_return) {
+                        Value result = field_values[i];
+                        free(field_names);
+                        free(field_values);
+                        return result;
+                    }
                 }
             }
             
@@ -5029,6 +5302,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * Also supports integer literal patterns: match n { 0 => "zero", 1 => "one", _ => "many" }
              */
             Value match_val = eval_expression(expr->as.match_expr.expr, env);
+            if (match_val.is_return) return match_val;
 
             /* Integer/primitive literal pattern matching */
             if (match_val.type != VAL_UNION) {
@@ -5061,6 +5335,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         int saved_symbol_count = env->symbol_count;
                         if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
                             Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
+                            if (guard_val.is_return) {
+                                env->symbol_count = saved_symbol_count;
+                                return guard_val;
+                            }
                             if (!guard_val.as.bool_val) {
                                 env->symbol_count = saved_symbol_count;
                                 continue;  /* Guard failed, try next arm */
@@ -5077,6 +5355,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* Check guard on wildcard arm if present */
                     if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
                         Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
+                        if (guard_val.is_return) {
+                            env->symbol_count = saved_symbol_count;
+                            return guard_val;
+                        }
                         if (!guard_val.as.bool_val) {
                             env->symbol_count = saved_symbol_count;
                             fprintf(stderr, "Error: No matching arm in match expression (guard failed)\n");
@@ -5149,6 +5431,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* Check guard expression if present */
                     if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
                         Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
+                        if (guard_val.is_return) {
+                            env->symbol_count = saved_symbol_count;
+                            return guard_val;
+                        }
                         if (!guard_val.as.bool_val) {
                             /* Guard failed — restore scope and try next arm */
                             env->symbol_count = saved_symbol_count;
@@ -5172,6 +5458,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 /* Check guard on wildcard arm if present */
                 if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
                     Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
+                    if (guard_val.is_return) {
+                        env->symbol_count = saved_symbol_count;
+                        return guard_val;
+                    }
                     if (!guard_val.as.bool_val) {
                         env->symbol_count = saved_symbol_count;
                         fprintf(stderr, "Error: No matching arm for variant '%s' (guard failed)\n", uval->variant_name);
@@ -5190,21 +5480,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_BLOCK: {
             /* Blocks can be used as expressions in match arms
-             * Execute statements and return the last return value
+             * I yield the final expression and preserve function-scoped control flow.
              */
-            Value result = create_void();
-            for (int i = 0; i < expr->as.block.count; i++) {
-                result = eval_statement(expr->as.block.statements[i], env);
-                /* If statement returned a value, propagate it immediately */
-                if (result.is_return) {
-                    /* Clear the return flag since we're handling it */
-                    result.is_return = false;
-                    result.is_break = false;
-                    result.is_continue = false;
-                    return result;
-                }
-            }
-            return result;
+            return eval_scoped_block(expr->as.block.statements, expr->as.block.count, env);
         }
 
         case AST_RETURN: {
@@ -5215,7 +5493,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             } else {
                 result = create_void();
             }
-            /* Don't set is_return flag here - let the block handler deal with it */
+            if (result.is_return) return result;
+            result.is_return = true;
+            result.return_target = g_eval_return_target;
             return result;
         }
 
@@ -5232,6 +5512,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value *elements = malloc(sizeof(Value) * element_count);
             for (int i = 0; i < element_count; i++) {
                 elements[i] = eval_expression(expr->as.tuple_literal.elements[i], env);
+                if (elements[i].is_return) {
+                    Value result = elements[i];
+                    free(elements);
+                    return result;
+                }
             }
             
             /* Create tuple value */
@@ -5244,6 +5529,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_TUPLE_INDEX: {
             /* Evaluate tuple index access: tuple.0, tuple.1 */
             Value tuple = eval_expression(expr->as.tuple_index.tuple, env);
+            if (tuple.is_return) return tuple;
             
             if (tuple.type != VAL_TUPLE) {
                 fprintf(stderr, "Error: Tuple index access on non-tuple value (type %d)\n", tuple.type);
@@ -5266,6 +5552,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Desugar expr? in the interpreter:
              * evaluate operand; if Err variant, propagate as return; else return Ok's first field. */
             Value inner = eval_expression(expr->as.try_op.operand, env);
+            if (inner.is_return) return inner;
             if (inner.type != VAL_UNION || !inner.as.union_val) {
                 fprintf(stderr, "Error at line %d, column %d: '?' operator requires a union value\n",
                         expr->line, expr->column);
@@ -5275,6 +5562,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (strcmp(uv->variant_name, "Err") == 0) {
                 /* Propagate the Err as a return value */
                 inner.is_return = true;
+                inner.return_target = g_eval_return_target;
                 inner.is_break = false;
                 inner.is_continue = false;
                 return inner;
@@ -5295,6 +5583,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * Otherwise fall through (synchronous transparent await).
              */
             Value inner = eval_expression(expr->as.await_expr.expr, env);
+            if (inner.is_return) return inner;
             if (inner.type == VAL_COROUTINE) {
                 int coro_id = (int)inner.as.int_val;
                 return nano_coro_await_id(coro_id);
@@ -5305,6 +5594,27 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_EFFECT_DECL:
             /* Effect declarations are registered at program-level; no runtime work. */
             return create_void();
+
+        case AST_HANDLE_EXPR: {
+            int count = expr->as.handle_expr.handler_count;
+            if (count <= 0 || !expr->as.handle_expr.effect_name) {
+                fprintf(stderr, "I require a resolved effect and nonempty handler clauses.\n");
+                return create_void();
+            }
+            EffectHandlerFrame frame = {0};
+            frame.effect_name = expr->as.handle_expr.effect_name;
+            frame.handler_op_names = expr->as.handle_expr.handler_op_names;
+            frame.handler_param_groups = expr->as.handle_expr.handler_param_names;
+            frame.handler_param_counts = expr->as.handle_expr.handler_param_counts;
+            frame.handler_bodies = expr->as.handle_expr.handler_bodies;
+            frame.handler_count = count;
+            frame.env = env;
+            frame.return_target = g_eval_return_target;
+            nl_effect_frame_push(&frame);
+            Value result = eval_expression(expr->as.handle_expr.body, env);
+            nl_effect_frame_pop();
+            return result;
+        }
 
         case AST_EFFECT_HANDLER: {
             /* handle <body> with { Effect.op(param) -> handler_body }
@@ -5317,6 +5627,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             frame.handler_bodies      = expr->as.effect_handler.handler_bodies;
             frame.handler_count       = expr->as.effect_handler.handler_count;
             frame.env                 = env;
+            frame.return_target       = g_eval_return_target;
 
             nl_effect_frame_push(&frame);
             Value result = eval_expression(expr->as.effect_handler.body, env);
@@ -5341,26 +5652,43 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 return create_void();
             }
 
-            /* Use the handler's captured environment; save/restore symbol count for scope. */
+            const char *legacy_param = frame->handler_param_names
+                ? frame->handler_param_names[arm_idx] : NULL;
+            int count = frame->handler_param_counts ? frame->handler_param_counts[arm_idx]
+                : (legacy_param && legacy_param[0] ? 1 : 0);
+            if (count != expr->as.effect_op.arg_count) {
+                fprintf(stderr, "I require matching perform and handler argument counts.\n");
+                return create_void();
+            }
+            Value *args = count ? calloc((size_t)count, sizeof(*args)) : NULL;
+            if (count && !args) return create_void();
+            /* I evaluate in the caller before handler names can shadow arguments. */
+            for (int i = 0; i < count; i++) {
+                args[i] = eval_expression(expr->as.effect_op.args[i], env);
+                if (args[i].is_return) {
+                    Value result = args[i];
+                    free(args);
+                    return result;
+                }
+            }
             Environment *henv = frame->env;
             int saved_sym = henv->symbol_count;
-
-            /* Bind the parameter (if named) to the performed argument value. */
-            const char *param = frame->handler_param_names[arm_idx];
-            if (param && param[0] != '\0') {
-                Value arg_val = expr->as.effect_op.arg
-                                ? eval_expression(expr->as.effect_op.arg, env)
-                                : create_void();
-                env_define_var(henv, param, TYPE_UNKNOWN, false, arg_val);
+            for (int i = 0; i < count; i++) {
+                const char *param = frame->handler_param_groups
+                    ? frame->handler_param_groups[arm_idx][i] : legacy_param;
+                env_define_var(henv, param, TYPE_UNKNOWN, false, args[i]);
             }
+            free(args);
 
+            const void *saved_return_target = g_eval_return_target;
+            g_eval_return_target = frame->return_target;
             Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
+            g_eval_return_target = saved_return_target;
 
             /* Restore scope. */
             henv->symbol_count = saved_sym;
 
-            /* Strip control-flow flags — handler result is the perform's result. */
-            handler_result.is_return   = false;
+            /* I preserve lexical returns; ordinary final values resume perform. */
             handler_result.is_break    = false;
             handler_result.is_continue = false;
             return handler_result;
@@ -5429,6 +5757,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_SET: {
             Value value = eval_expression(stmt->as.set.value, env);
+            if (value.is_return) return value;
             env_set_var(env, stmt->as.set.name, value);
             
             /* Trace variable assignment */
@@ -5447,7 +5776,10 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_WHILE: {
             Value result = create_void();
-            while (is_truthy(eval_expression(stmt->as.while_stmt.condition, env))) {
+            for (;;) {
+                Value condition = eval_expression(stmt->as.while_stmt.condition, env);
+                if (condition.is_return) return condition;
+                if (!is_truthy(condition)) break;
                 result = eval_statement(stmt->as.while_stmt.body, env);
                 /* If body returned a value, propagate it immediately */
                 if (result.is_return) {
@@ -5475,7 +5807,9 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 range_expr->as.call.arg_count == 2) {
 
                 Value start_val = eval_expression(range_expr->as.call.args[0], env);
+                if (start_val.is_return) return start_val;
                 Value end_val = eval_expression(range_expr->as.call.args[1], env);
+                if (end_val.is_return) return end_val;
 
                 if (start_val.type != VAL_INT || end_val.type != VAL_INT) {
                     fprintf(stderr, "Error: range requires int arguments\n");
@@ -5510,6 +5844,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 }
 
                 Value iter_val = eval_expression(range_expr, env);
+                if (iter_val.is_return) return iter_val;
                 Type list_type = iterable_sym ? iterable_sym->type : TYPE_UNKNOWN;
 
                 int loop_var_index = env->symbol_count;
@@ -5593,22 +5928,16 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             } else {
                 result = create_void();
             }
+            if (result.is_return) return result;
             result.is_return = true;  /* Mark as return value */
+            result.return_target = g_eval_return_target;
             result.is_break = false;
             result.is_continue = false;
             return result;
         }
 
         case AST_BLOCK: {
-            Value result = create_void();
-            for (int i = 0; i < stmt->as.block.count; i++) {
-                result = eval_statement(stmt->as.block.statements[i], env);
-                /* If statement returned a value, propagate it immediately */
-                if (result.is_return || result.is_break || result.is_continue) {
-                    return result;
-                }
-            }
-            return result;
+            return eval_scoped_block(stmt->as.block.statements, stmt->as.block.count, env);
         }
 
         case AST_BREAK: {
@@ -5625,6 +5954,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_PRINT: {
             Value value = eval_expression(stmt->as.print.expr, env);
+            if (value.is_return) return value;
             print_value(value);
             if (stmt->as.print.is_println) printf("\n");
             return create_void();
@@ -5632,6 +5962,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_ASSERT: {
             Value cond = eval_expression(stmt->as.assert.condition, env);
+            if (cond.is_return) return cond;
             if (!is_truthy(cond)) {
                 if (g_in_shadow_tests) {
                     g_shadow_current_fail_count++;
@@ -5672,15 +6003,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_UNSAFE_BLOCK: {
             /* Unsafe blocks are treated like regular blocks in the interpreter */
-            Value result = create_void();
-            for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
-                result = eval_statement(stmt->as.unsafe_block.statements[i], env);
-                /* If statement returned a value, propagate it immediately */
-                if (result.is_return || result.is_break || result.is_continue) {
-                    return result;
-                }
-            }
-            return result;
+            return eval_scoped_block(stmt->as.unsafe_block.statements, stmt->as.unsafe_block.count, env);
         }
 
         case AST_STRUCT_DEF:
@@ -5848,67 +6171,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
     }
 }
 
-/* Check if an AST node contains calls to extern functions */
-static bool contains_extern_calls(ASTNode *node, Environment *env) {
-    if (!node) return false;
-    
-    switch (node->type) {
-        case AST_CALL: {
-            const char *func_name = node->as.call.name;
-            Function *func = env_get_function(env, func_name);
-            if (func && func->is_extern) {
-                return true;
-            }
-            /* Check arguments recursively */
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                if (contains_extern_calls(node->as.call.args[i], env)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        case AST_BLOCK:
-            for (int i = 0; i < node->as.block.count; i++) {
-                if (contains_extern_calls(node->as.block.statements[i], env)) {
-                    return true;
-                }
-            }
-            return false;
-        case AST_IF:
-            if (contains_extern_calls(node->as.if_stmt.condition, env)) return true;
-            if (contains_extern_calls(node->as.if_stmt.then_branch, env)) return true;
-            if (node->as.if_stmt.else_branch && contains_extern_calls(node->as.if_stmt.else_branch, env)) return true;
-            return false;
-        case AST_WHILE:
-            if (contains_extern_calls(node->as.while_stmt.condition, env)) return true;
-            if (contains_extern_calls(node->as.while_stmt.body, env)) return true;
-            return false;
-        case AST_RETURN:
-            if (node->as.return_stmt.value && contains_extern_calls(node->as.return_stmt.value, env)) return true;
-            return false;
-        case AST_PREFIX_OP:
-            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
-                if (contains_extern_calls(node->as.prefix_op.args[i], env)) return true;
-            }
-            return false;
-        case AST_ARRAY_LITERAL:
-            for (int i = 0; i < node->as.array_literal.element_count; i++) {
-                if (contains_extern_calls(node->as.array_literal.elements[i], env)) return true;
-            }
-            return false;
-        case AST_FIELD_ACCESS:
-            return contains_extern_calls(node->as.field_access.object, env);
-        case AST_LET:
-            return contains_extern_calls(node->as.let.value, env);
-        case AST_SET:
-            return contains_extern_calls(node->as.set.value, env);
-        default:
-            return false;
-    }
-}
 
 /* Run shadow tests */
 bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
+    return run_shadow_tests_scope(program, env, NULL, env_current_file(env), false, verbose);
+}
+
+bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                            const char *input_file, bool include_imports, bool verbose) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;
@@ -5925,136 +6195,142 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
     int failure_count = 0;
     int failure_cap = 0;
     int test_count = 0;
-    int skipped_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
+    ASTNode *root_program = program;
+    char *root_owner = env->current_module;
+    const char *root_file = env_current_file(env);
+    int imported_count = include_imports && modules ? modules->count : 0;
 
-    /* First pass: Evaluate top-level constants */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_LET) {
-            eval_statement(item, env);  /* Evaluate the constant */
+    for (int source = 0; source <= imported_count; source++) {
+        bool imported = source < imported_count;
+        const char *file = imported ? modules->module_paths[source] : input_file;
+        program = imported ? get_cached_module_ast(file) : root_program;
+        char *owner = imported ? module_program_name(program, file) : NULL;
+        if (!program || (imported && !owner)) {
+            fprintf(stderr, "I cannot load a selected shadow module: %s\n", file ? file : "");
+            free(owner);
+            all_passed = false;
+            break;
         }
-    }
+        env->current_module = imported ? owner : root_owner;
+        env_set_current_file(env, file);
 
-    /* Second pass: Register all enum definitions so they're available in shadow tests */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        /* First pass: Evaluate top-level constants */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
         
-        if (item->type == AST_ENUM_DEF) {
-            eval_statement(item, env);  /* This will register the enum */
-        }
-    }
-
-    /* Third pass: Register all union definitions so they're available in shadow tests */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_UNION_DEF) {
-            eval_statement(item, env);  /* This will register the union */
-        }
-    }
-
-    /* Fourth pass: Run each shadow test */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_SHADOW) {
-            const char *func_name = item->as.shadow.function_name;
-            Function *func = env_get_function(env, func_name);
-            
-            /* Check if shadow test or function body uses extern functions */
-            bool uses_extern = false;
-            if (func && func->body && contains_extern_calls(func->body, env)) {
-                uses_extern = true;
+            if (item->type == AST_LET) {
+                eval_statement(item, env);  /* Evaluate the constant */
             }
-            if (contains_extern_calls(item->as.shadow.body, env)) {
-                uses_extern = true;
+        }
+
+        /* Second pass: Register all enum definitions so they're available in shadow tests */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_ENUM_DEF) {
+                eval_statement(item, env);  /* This will register the enum */
             }
+        }
+
+        /* Third pass: Register all union definitions so they're available in shadow tests */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_UNION_DEF) {
+                eval_statement(item, env);  /* This will register the union */
+            }
+        }
+
+        /* Fourth pass: Run each shadow test */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_SHADOW) {
+                const char *func_name = item->as.shadow.function_name;
+                /* I execute explicit shadows; foreign syntax does not exempt them. */
             
-            if (uses_extern) {
+                test_count++;
                 if (verbose) {
-                    fprintf(stdout, "Testing %s... SKIPPED (uses extern functions)\n", func_name);
+                    fprintf(stdout, "Testing %s... ", func_name);
                 }
-                skipped_count++;
-                continue;
-            }
             
-            test_count++;
-            if (verbose) {
-                fprintf(stdout, "Testing %s... ", func_name);
-            }
-            
-            /* Execute shadow test */
-            g_shadow_current_test = func_name;
-            g_shadow_current_fail_count = 0;
-            g_shadow_current_first_line = 0;
-            g_shadow_current_first_column = 0;
+                /* Execute shadow test */
+                g_shadow_current_fail_count = 0;
+                g_shadow_current_first_line = 0;
+                g_shadow_current_first_column = 0;
 
-            /* When not verbose, suppress stdout from test body execution */
-            int saved_stdout_fd = -1;
-            if (!verbose) {
-                fflush(stdout);
-                saved_stdout_fd = dup(STDOUT_FILENO);
-                int devnull = open("/dev/null", O_WRONLY);
-                if (devnull >= 0) {
-                    dup2(devnull, STDOUT_FILENO);
-                    close(devnull);
-                }
-            }
-
-            eval_statement(item->as.shadow.body, env);
-
-            if (!verbose && saved_stdout_fd >= 0) {
-                fflush(stdout);
-                dup2(saved_stdout_fd, STDOUT_FILENO);
-                close(saved_stdout_fd);
-            }
-
-            if (g_shadow_current_fail_count > 0) {
-                all_passed = false;
-                if (verbose) {
-                    fprintf(stdout, "FAILED\n");
-                }
-                fprintf(stdout, "  Shadow test '%s' FAILED: %d assertion(s) failed\n", func_name, g_shadow_current_fail_count);
-                if (g_shadow_current_first_line > 0) {
-                    fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
-                }
-
-                if (failure_count >= failure_cap) {
-                    int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
-                    ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
-                    if (new_arr) {
-                        failures = new_arr;
-                        failure_cap = new_cap;
+                /* When not verbose, suppress stdout from test body execution */
+                int saved_stdout_fd = -1;
+                if (!verbose) {
+                    fflush(stdout);
+                    saved_stdout_fd = dup(STDOUT_FILENO);
+                    int devnull = open("/dev/null", O_WRONLY);
+                    if (devnull >= 0) {
+                        dup2(devnull, STDOUT_FILENO);
+                        close(devnull);
                     }
                 }
-                if (failure_count < failure_cap) {
-                    failures[failure_count].test_name = func_name;
-                    failures[failure_count].fail_count = g_shadow_current_fail_count;
-                    failures[failure_count].first_line = g_shadow_current_first_line;
-                    failures[failure_count].first_column = g_shadow_current_first_column;
-                    failure_count++;
+
+                eval_statement(item->as.shadow.body, env);
+
+                if (!verbose && saved_stdout_fd >= 0) {
+                    fflush(stdout);
+                    dup2(saved_stdout_fd, STDOUT_FILENO);
+                    close(saved_stdout_fd);
                 }
-            } else {
-                if (verbose) {
-                    fprintf(stdout, "PASSED\n");
+
+                if (g_shadow_current_fail_count > 0) {
+                    all_passed = false;
+                    if (verbose) {
+                        fprintf(stdout, "FAILED\n");
+                    }
+                    fprintf(stdout, "  Shadow test '%s' FAILED: %d failure(s)\n", func_name, g_shadow_current_fail_count);
+                    if (g_shadow_current_first_line > 0) {
+                        fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
+                    }
+
+                    if (failure_count >= failure_cap) {
+                        int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
+                        ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
+                        if (new_arr) {
+                            failures = new_arr;
+                            failure_cap = new_cap;
+                        }
+                    }
+                    if (failure_count < failure_cap) {
+                        failures[failure_count].test_name = func_name;
+                        failures[failure_count].source_file = file;
+                        failures[failure_count].fail_count = g_shadow_current_fail_count;
+                        failures[failure_count].first_line = g_shadow_current_first_line;
+                        failures[failure_count].first_column = g_shadow_current_first_column;
+                        failure_count++;
+                    }
+                } else {
+                    if (verbose) {
+                        fprintf(stdout, "PASSED\n");
+                    }
                 }
             }
+            /* Note: We do NOT execute non-shadow items here - they're already registered
+             * in the environment by the type checker. Only shadow test bodies need execution. */
         }
-        /* Note: We do NOT execute non-shadow items here - they're already registered
-         * in the environment by the type checker. Only shadow test bodies need execution. */
+        env->current_module = root_owner;
+        free(owner);
     }
+    env_set_current_file(env, root_file);
 
     if (all_passed) {
         if (verbose) {
             fprintf(stdout, "All shadow tests passed! (%d tests", test_count);
-            if (skipped_count > 0) fprintf(stdout, ", %d skipped", skipped_count);
             fprintf(stdout, ")\n");
         }
     }
 
-    shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed);
+    if (!shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed, test_count)) {
+        fprintf(stderr, "I cannot write the completed shadow report.\n");
+        all_passed = false;
+    }
     free(failures);
     g_in_shadow_tests = false;
 
@@ -6105,7 +6381,8 @@ bool run_program(ASTNode *program, Environment *env) {
 }
 
 /* Call a function by name with arguments */
-Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column) {
     /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
     if (strncmp(name, "List_", 5) == 0) {
         /* Extract element type name and operation from function name */
@@ -6191,6 +6468,10 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         return create_void();
     }
 
+    if (func->is_extern && func->body == NULL) {
+        return eval_foreign_call(func, args, arg_count, env, line, column);
+    }
+
     /* Check argument count */
     if (arg_count != func->param_count) {
         fprintf(stderr, "Error: Function '%s' expects %d arguments, got %d\n",
@@ -6214,7 +6495,14 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     }
 
     /* Execute the function body */
+    char return_boundary;
+    const void *saved_return_target = g_eval_return_target;
+    g_eval_return_target = &return_boundary;
+    char *saved_module_context = env->current_module;
+    env->current_module = func->module_name;
     Value result = eval_statement(func->body, env);
+    g_eval_return_target = saved_return_target;
+    env->current_module = saved_module_context;
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;
@@ -6222,8 +6510,10 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         return_value = create_string(result.as.string_val);
     }
     
-    /* Clear is_return flag - we've exited the function */
-    return_value.is_return = false;
+    /* I consume only this activation's return, after preserving its value. */
+    return_value.is_return = result.is_return && result.return_target &&
+        result.return_target != &return_boundary;
+    return_value.return_target = return_value.is_return ? result.return_target : NULL;
     return_value.is_break = false;
     return_value.is_continue = false;
 
@@ -6242,6 +6532,13 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     env->symbol_count = original_symbol_count;
 
     return return_value;
+}
+
+Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+    /* A builtin callback inherits its invoking call. Host calls have no location. */
+    return call_function_at(name, args, arg_count, env,
+                            g_eval_call_site ? g_eval_call_site->line : 0,
+                            g_eval_call_site ? g_eval_call_site->column : 0);
 }
 
 /* ============================================================================

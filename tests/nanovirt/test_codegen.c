@@ -218,6 +218,50 @@ static void test_function_result_signatures(void) {
     nvm_module_free(tr.module);
 }
 
+static void test_empty_array_return_tags(void) {
+    const char *types[] = {"int", "float", "bool", "string", "Point"};
+    const char *values[] = {"42", "1.5", "true", "\"answer\"", "Point { x: 42 }"};
+    const uint8_t tags[] = {TAG_INT, TAG_FLOAT, TAG_BOOL, TAG_STRING, TAG_STRUCT};
+    for (size_t type = 0; type < sizeof tags / sizeof tags[0]; ++type) {
+        char source[2048];
+        snprintf(source, sizeof source,
+            "struct Point { x: int }\n"
+            "fn make(empty: bool) -> array<%s> {\n"
+            "  fn nested() -> array<int> { return [] }\n"
+            "  let other: array<int> = (nested)\n"
+            "  if empty { return [] }\n"
+            "  return [%s]\n}\n"
+            "shadow make { assert (== (array_length (make true)) 0) }\n"
+            "fn main() -> int {\n"
+            "  assert (== (array_length (make true)) 0)\n"
+            "  assert (== (array_length (make false)) 1)\n"
+            "  return 0\n}\n"
+            "shadow main { assert (== (main) 0) }\n", types[type], values[type]);
+        TestResult tr = compile_and_run(source);
+        ASSERT(tr.ok, "I compile declared empty array return types");
+        ASSERT(tr.vm_result == VM_OK, "I execute empty and nonempty return paths");
+        bool found = false;
+        for (uint32_t i = 0; i < tr.module->function_count; ++i) {
+            NvmFunctionEntry *fn = &tr.module->functions[i];
+            const char *name = nvm_get_string(tr.module, fn->name_idx);
+            if (!name || strcmp(name, "make") != 0) continue;
+            for (uint32_t pc = fn->code_offset; pc < fn->code_offset + fn->code_length;) {
+                DecodedInstruction ins;
+                uint32_t width = isa_decode(tr.module->code + pc, fn->code_offset + fn->code_length - pc, &ins);
+                ASSERT(width > 0, "I decode empty array return instructions");
+                if (ins.opcode == OP_ARR_LITERAL && ins.operands[1].u16 == 0) {
+                    ASSERT(ins.operands[0].u8 == tags[type], "I restore the enclosing return element type after nested compilation");
+                    found = true;
+                }
+                pc += width;
+            }
+        }
+        ASSERT(found, "I exercise an emitted empty return literal");
+        nvm_module_free(tr.module);
+        TEST_PASS();
+    }
+}
+
 static void test_empty_struct_list_result_keeps_element_tag(void) {
     const char *source =
         "struct Point { x: int }\n"
@@ -695,6 +739,28 @@ static void test_while_continue(void) {
 }
 
 /* ── Tests: Functions ───────────────────────────────────────────── */
+
+static void test_array_search_types(void) {
+    fprintf(stderr, "  test_array_search_types...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  assert (array_contains [1.5, 2.5] 2.5)\n"
+        "  assert (== (array_index_of [1.5, 2.5, 1.5] 1.5) 0)\n"
+        "  assert (not (array_contains [true, true] false))\n"
+        "  assert (== (array_index_of [false, true] true) 1)\n"
+        "  let text: string = (str_concat \"ca\" \"fé\")\n"
+        "  assert (array_contains [\"café\", \"tea\"] text)\n"
+        "  assert (== (array_index_of [\"café\", \"tea\"] \"tea\") 1)\n"
+        "  return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "VM search error");
+    ASSERT_INT(tr.result.as.i64, 0);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
 
 static void test_function_call(void) {
     fprintf(stderr, "  test_function_call...");
@@ -1396,6 +1462,49 @@ static void test_map_builtin(void) {
 
 /* ── Closure capture tests ──────────────────────────────────────── */
 
+static void test_transitive_anonymous_captures(void) {
+    fprintf(stderr, "  test_transitive_anonymous_captures...");
+    TestResult tr = compile_and_run(
+        "fn make(n: int) -> fn() -> fn() -> int {\n"
+        "  return fn() -> fn() -> int { return fn() -> int { return (+ n 2) } }\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let middle: fn() -> fn() -> int = (make 40)\n"
+        "  let inner: fn() -> int = (middle)\n"
+        "  return (inner)\n"
+        "}\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_transitive_named_captures(void) {
+    fprintf(stderr, "  test_transitive_named_captures...");
+    TestResult tr = compile_and_run(
+        "fn make(n: int, extra: int) -> fn() -> fn() -> int {\n"
+        "  fn middle() -> fn() -> int {\n"
+        "    let base: int = n\n"
+        "    fn inner() -> int { return (+ (+ base n) extra) }\n"
+        "    return inner\n"
+        "  }\n"
+        "  return middle\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let middle: fn() -> fn() -> int = (make 20 2)\n"
+        "  let inner: fn() -> int = (middle)\n"
+        "  return (inner)\n"
+        "}\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 static void test_closure_single_capture(void) {
     fprintf(stderr, "  test_closure_single_capture...");
     TestResult tr = compile_and_run(
@@ -1480,6 +1589,127 @@ static void test_closure_capture_local_var(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_declared_function_parameter_tags(void) {
+    TestResult tr = compile_and_run(
+        "fn choose(value: float, enabled: bool) -> float {\n"
+        "  if enabled { return value } return 0.0\n"
+        "}\n"
+        "shadow choose { assert (== (choose 2.5 true) 2.5) }\n"
+        "fn outer(base: int) -> int {\n"
+        "  fn inner(value: int) -> int { return (+ base value) }\n"
+        "  fn scale(amount: float) -> float { return (* amount 2.0) }\n"
+        "  assert (== (scale 1.5) 3.0)\n"
+        "  fn check_base() -> void { assert (== base 3) }\n"
+        "  (check_base)\n"
+        "  return (inner 4)\n"
+        "}\n"
+        "shadow outer { assert (== (outer 3) 7) }\n"
+        "fn main() -> int { return (outer 3) }\n"
+        "shadow main { assert (== (main) 7) }\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I execute the typed signature fixture");
+    ASSERT_INT(tr.result.as.i64, 7);
+    uint32_t choose = nvm_find_function(tr.module, "choose");
+    uint32_t inner = nvm_find_function(tr.module, "inner");
+    ASSERT(choose != UINT32_MAX && inner != UINT32_MAX, "I retain named and nested functions");
+    ASSERT(tr.module->function_param_types[choose] != NULL, "I retain declared parameter tags");
+    ASSERT(tr.module->function_param_types[choose][0] == TAG_FLOAT &&
+           tr.module->function_param_types[choose][1] == TAG_BOOL,
+           "I preserve mixed parameter order");
+    ASSERT(tr.module->function_param_types[inner] != NULL &&
+           tr.module->function_param_types[inner][0] == TAG_INT,
+           "I preserve captured function parameter tags");
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_callback_contract_binding(void) {
+    const char *source =
+        "extern fn submit(context: int, first: fn(int, float) -> bool, second: fn(u8) -> void) -> void\n"
+        "extern fn wait(context: int) -> void\n"
+        "fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n";
+    int token_count = 0;
+    Token *tokens = tokenize(source, &token_count);
+    ASSERT(tokens, "I tokenize callback declarations");
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program && program->as.program.count == 4, "I parse callback declarations");
+    Environment *env = create_environment();
+    ASSERT(type_check(program, env), "I typecheck callback declarations");
+    NvmModule *m = nvm_module_new();
+    uint32_t library = nvm_add_string(m, "fixture", 7);
+    uint32_t name = nvm_add_string(m, "submit", 6);
+    uint8_t tags[] = {TAG_INT, TAG_FUNCTION, TAG_FUNCTION};
+    ASSERT(nvm_add_import(m, library, name, 3, TAG_VOID, tags) == 0, "I add the submit import");
+    ASTNode *declaration = program->as.program.items[0];
+    FunctionSignature *signature = declaration->as.function.params[1].fn_sig;
+    ASSERT(signature, "I retain the declared callback shape");
+    declaration->as.function.params[1].fn_sig = NULL;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject a missing callback signature");
+    declaration->as.function.params[1].fn_sig = signature;
+    signature->param_count = 17;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject a callback above the native argument limit");
+    signature->param_count = 2;
+    signature->param_types[0] = TYPE_STRING;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject non-scalar callback arguments");
+    ASSERT(m->callback_contract_count == 0, "I reject shapes before adding any contract");
+    signature->param_types[0] = TYPE_INT;
+    signature->return_type = TYPE_ARRAY;
+    ASSERT(!codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I reject non-scalar callback results");
+    signature->return_type = TYPE_BOOL;
+    ASSERT(codegen_bind_callback_contract(m, 0, declaration, env, "retained_submit", true),
+           "I bind both declared callbacks");
+    ASSERT(m->callback_contract_count == 2, "I preserve both callback parameters");
+    ASSERT(m->callback_contracts[0].param_count == 2 &&
+           m->callback_contracts[0].param_tags[0] == TAG_INT &&
+           m->callback_contracts[0].param_tags[1] == TAG_FLOAT &&
+           m->callback_contracts[0].return_tag == TAG_BOOL, "I preserve the first callback shape");
+    ASSERT(m->callback_contracts[1].param_count == 1 &&
+           m->callback_contracts[1].param_tags[0] == TAG_U8 &&
+           m->callback_contracts[1].return_tag == TAG_VOID, "I preserve the second callback shape");
+    name = nvm_add_string(m, "wait", 4);
+    ASSERT(nvm_add_import(m, library, name, 1, TAG_VOID, tags) == 1, "I add a wait import");
+    ASSERT(codegen_bind_callback_contract(m, 1, program->as.program.items[1], env, "retained_wait", false),
+           "I bind a policy-only import");
+    ASSERT(m->callback_contracts[2].parameter_idx == NVM_CALLBACK_NO_PARAMETER &&
+           m->callback_contracts[2].execution == NVM_FOREIGN_OWNER_THREAD,
+           "I preserve an explicit owner-thread policy");
+    ASSERT(nvm_callback_contracts_valid(m), "I validate the bound table");
+    nvm_module_free(m);
+    free_ast(program);
+    free_tokens(tokens, token_count);
+    free_environment(env);
+    TEST_PASS();
+}
+
+static void test_compiler_local_limit(void) {
+    for (int count = 1024; count <= 1025; ++count) {
+        char *source = malloc(65536);
+        ASSERT(source != NULL, "local-limit source allocation");
+        size_t used = (size_t)snprintf(source, 65536, "fn main() -> int {\n");
+        for (int i = 0; i < count; ++i) {
+            used += (size_t)snprintf(source + used, 65536 - used,
+                                     "let local_%d: int = %d\n", i, i);
+        }
+        snprintf(source + used, 65536 - used, "return local_%d\n}\n", count - 1);
+        TestResult result = compile_and_run(source);
+        free(source);
+        if (count == 1024) {
+            ASSERT(result.ok, "I compile 1024 compiler-sized locals");
+            ASSERT(result.vm_result == VM_OK, "I execute the expanded local frame");
+            ASSERT_INT(result.result.as.i64, 1023);
+            nvm_module_free(result.module);
+        } else {
+            ASSERT(!result.ok && strstr(result.error, "too many local variables"),
+                   "I reject a local beyond the bounded compiler table");
+        }
+    }
+    TEST_PASS();
+}
+
 static void test_block_local_shadowing(void) {
     fprintf(stderr, "  test_block_local_shadowing...");
     TestResult tr = compile_and_run(
@@ -1536,16 +1766,337 @@ static void test_nested_closure_keeps_block_capture(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_anonymous_callback_captures_lexical_array(void) {
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  let observed: array<int> = [5]\n"
+        "  unsafe {\n"
+        "    let callback: fn() -> int = fn() -> int {\n"
+        "      (array_set observed 0 (+ (at observed 0) 2))\n"
+        "      return (at observed 0)\n"
+        "    }\n"
+        "    assert (== (callback) 7)\n"
+        "  }\n"
+        "  return (at observed 0)\n"
+        "}\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I execute the lifted callback");
+    ASSERT_INT(tr.result.as.i64, 7);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_handler_observes_perform(void) {
+    const char *source =
+        "\n"
+        "effect Recorder { emit : int -> void }\n"
+        "let mut recorded: int = 0\n"
+        "\n"
+        "fn send(value: int) -> void {\n"
+        "    perform Recorder.emit(value)\n"
+        "}\n"
+        "\n"
+        "fn exercise() -> int {\n"
+        "    set recorded 0\n"
+        "    let ignored = handle { (send 7) } with {\n"
+        "        emit value -> { set recorded value }\n"
+        "    }\n"
+        "    return recorded\n"
+        "}\n"
+        "\n"
+        "shadow send { assert (== (exercise) 7) }\n"
+        "shadow exercise { assert (== (exercise) 7) }\n"
+        "fn main() -> int {\n"
+        "    assert (== (exercise) 7)\n"
+        "    (println \"I dispatched the effect.\")\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 0);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_lexical_return_and_final_expression(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "let mut trace: int = 0\n"
+        "fn send() -> int {\n"
+        "    let x = perform Ask.ask(7)\n"
+        "    set trace (+ trace 1)\n"
+        "    return (+ x 10)\n"
+        "}\n"
+        "fn leave() -> int {\n"
+        "    let x = handle { (send) } with { ask n -> { return n } }\n"
+        "    set trace 100\n"
+        "    return x\n"
+        "}\n"
+        "fn resume_value() -> int {\n"
+        "    let x = handle { (send) } with { ask n -> { (+ n 1) } }\n"
+        "    return (+ x 100)\n"
+        "}\n"
+        "fn exercise() -> int {\n"
+        "    set trace 0\n"
+        "    let left = (leave)\n"
+        "    assert (== trace 0)\n"
+        "    let resumed = (resume_value)\n"
+        "    assert (== trace 1)\n"
+        "    return (+ left resumed)\n"
+        "}\n"
+        "shadow send { assert (== (exercise) 125) }\n"
+        "shadow leave { assert (== (exercise) 125) }\n"
+        "shadow resume_value { assert (== (exercise) 125) }\n"
+        "shadow exercise { assert (== (exercise) 125) }\n"
+        "fn main() -> int {\n"
+        "    assert (== (exercise) 125)\n"
+        "    (println \"I dispatched the effect.\")\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 0);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_ordered_multiple_and_zero_arguments(void) {
+    const char *source =
+        "\n"
+        "effect Recorder { pair : int int -> void, tick : void -> void }\n"
+        "let mut trace: int = 0\n"
+        "let mut recorded: int = 0\n"
+        "fn argument(value: int) -> int { set trace (+ (* trace 10) value) return value }\n"
+        "fn exercise() -> int {\n"
+        "    set trace 0 set recorded 0\n"
+        "    let first: int = 9\n"
+        "    let ignored = handle { perform Recorder.pair((argument 1) (+ first (argument 2))) } with {\n"
+        "        pair first second -> { set recorded (+ (* first 100) second) }\n"
+        "    }\n"
+        "    let ticked = handle { perform Recorder.tick() } with {\n"
+        "        tick -> { set recorded (+ recorded 1000) }\n"
+        "    }\n"
+        "    return (+ (* trace 10000) recorded)\n"
+        "}\n"
+        "shadow argument { assert (== (exercise) 121111) }\n"
+        "shadow exercise { assert (== (exercise) 121111) }\n"
+        "fn main() -> int {\n"
+        "    assert (== (exercise) 121111)\n"
+        "    (println \"I dispatched the effect.\")\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 0);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_lexical_locals(void) {
+    const char *source =
+        "\n"
+        "effect Change { change : int -> int }\n"
+        "fn send(n: int) -> int { return perform Change.change(n) }\n"
+        "fn main() -> int {\n"
+        " let mut state: int = 3\n"
+        " let result = handle { (+ 20 (send 4)) } with { change n -> { set state (+ state n) state } }\n"
+        " return (+ (* state 100) result)\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 727);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_nested_handlers(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "fn send(n: int) -> int { return perform Ask.ask(n) }\n"
+        "fn inner() -> int {\n"
+        " let result = handle { (send 2) } with { ask n -> { (+ n 10) } }\n"
+        " return (+ (* result 1000) (send 3))\n"
+        "}\n"
+        "fn main() -> int {\n"
+        " return handle { (inner) } with { ask n -> { (+ n 100) } }\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 12103);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_recursive_parameters(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "fn send(n: int) -> int { return perform Ask.ask(n) }\n"
+        "fn main() -> int {\n"
+        " let result = handle { (send 3) } with { ask n -> {\n"
+        "   let mut child: int = 0\n"
+        "   if (> n 0) { set child (send (- n 1)) }\n"
+        "   (+ n child)\n"
+        " } }\n"
+        " return result\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 6);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_float_signature(void) {
+    const char *source =
+        "\n"
+        "effect Scale { scale : float -> float }\n"
+        "fn send(n: float) -> float { return perform Scale.scale(n) }\n"
+        "fn main() -> int {\n"
+        " let result = handle { (send 1.5) } with { scale n -> { (* n 2.0) } }\n"
+        " assert (== result 3.0)\n"
+        " return 17\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 17);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_local_string_ownership(void) {
+    const char *source =
+        "\n"
+        "effect Text { replace : string -> string }\n"
+        "fn send(n: string) -> string { return perform Text.replace(n) }\n"
+        "fn main() -> int {\n"
+        " let mut text: string = \"old\"\n"
+        " let result = handle { (send \"new\") } with { replace n -> { set text (+ n \"!\") text } }\n"
+        " assert (== text \"new!\")\n"
+        " assert (== result \"new!\")\n"
+        " return 19\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 19);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_recursive_lexical_return(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "fn send(n: int) -> int { return (+ 100 (perform Ask.ask(n))) }\n"
+        "fn leave() -> int {\n"
+        " return (+ 1000 (handle { (send 3) } with { ask n -> {\n"
+        "   if (> n 0) { let ignored = (send (- n 1)) }\n"
+        "   return (+ n 7)\n"
+        " } }))\n"
+        "}\n"
+        "fn main() -> int { return (leave) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 7);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_unhandled_effect_traps(void) {
+    TestResult tr = compile_and_run(
+        "effect Ask { ask : int -> int }\n"
+        "fn main() -> int { return perform Ask.ask(1) }\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_ERR_TYPE_ERROR, "I trap an unhandled effect");
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_recursive_owned_strings(void) {
+    const char *source =
+        "effect Text { text : string int -> string }\n"
+        "fn send(s: string, n: int) -> string { return perform Text.text(s n) }\n"
+        "fn exercise() -> string {\n"
+        " let mut saved: string = \"initial\"\n"
+        " let result = handle { (send \"a\" 12) } with { text s n -> {\n"
+        "   let own: string = (+ s \"x\")\n"
+        "   set saved own\n"
+        "   if (> n 0) { let child = (send own (- n 1)) assert (> (str_length child) 0) }\n"
+        "   own\n"
+        " } }\n"
+        " assert (== (str_length saved) 14)\n"
+        " return result\n"
+        "}\n"
+        "fn leave() -> string {\n"
+        " let mut saved: string = \"initial\"\n"
+        " let result = handle { (send \"a\" 12) } with { text s n -> {\n"
+        "   let own: string = (+ s \"x\")\n"
+        "   set saved own\n"
+        "   if (> n 0) { let child = (send own (- n 1)) }\n"
+        "   return saved\n"
+        " } }\n"
+        " return result\n"
+        "}\n"
+        "fn main() -> int {\n"
+        " let mut total: int = 0\n"
+        " for i in (range 0 20) {\n"
+        "   let resumed = (exercise)\n"
+        "   let escaped = (leave)\n"
+        "   assert (== resumed \"ax\")\n"
+        "   assert (== (str_length escaped) 14)\n"
+        "   set total (+ total (str_length escaped))\n"
+        " }\n"
+        " return total\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I retain owned strings through recursive resumption and lexical exit");
+    ASSERT_INT(tr.result.as.i64, 280);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
 int main(void) {
+    test_effect_recursive_owned_strings();
+    test_unhandled_effect_traps();
+    test_handler_observes_perform();
+    test_lexical_return_and_final_expression();
+    test_ordered_multiple_and_zero_arguments();
+    test_effect_lexical_locals();
+    test_effect_nested_handlers();
+    test_effect_recursive_parameters();
+    test_effect_float_signature();
+    test_effect_local_string_ownership();
+    test_effect_recursive_lexical_return();
+    test_anonymous_callback_captures_lexical_array();
+    test_empty_array_return_tags();
+    test_array_search_types();
+    test_compiler_local_limit();
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
     fprintf(stderr, "\n=== NanoVirt Codegen Tests ===\n\n");
 
     fprintf(stderr, "Debug Metadata:\n");
+    test_callback_contract_binding();
     test_debug_metadata_is_not_executable();
     test_scalar_codegen_uses_typed_opcodes();
     test_function_result_signatures();
+    test_declared_function_parameter_tags();
     test_empty_struct_list_result_keeps_element_tag();
 
     fprintf(stderr, "\nInteger Arithmetic:\n");
@@ -1646,6 +2197,8 @@ int main(void) {
 
     fprintf(stderr, "\nClosure Captures:\n");
     test_closure_single_capture();
+    test_transitive_anonymous_captures();
+    test_transitive_named_captures();
     test_closure_multiple_captures();
     test_closure_two_closures();
     test_closure_capture_local_var();

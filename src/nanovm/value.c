@@ -127,6 +127,12 @@ void val_println(NanoValue v) {
  * ======================================================================== */
 
 bool val_equal(NanoValue a, NanoValue b) {
+    /* I accept the language's zero spelling for an opaque null, not arbitrary
+     * integer-to-pointer equality. No pointer representation cast is needed. */
+    if (a.tag == TAG_OPAQUE && b.tag == TAG_INT)
+        return a.as.obj == NULL && b.as.i64 == 0;
+    if (a.tag == TAG_INT && b.tag == TAG_OPAQUE)
+        return a.as.i64 == 0 && b.as.obj == NULL;
     /* Allow enum ↔ int comparison (enum values are integers) */
     if (a.tag == TAG_ENUM && b.tag == TAG_INT)
         return (int64_t)a.as.enum_val == b.as.i64;
@@ -145,6 +151,8 @@ bool val_equal(NanoValue a, NanoValue b) {
         case TAG_FLOAT:  return a.as.f64 == b.as.f64;
         case TAG_BOOL:   return a.as.boolean == b.as.boolean;
         case TAG_ENUM:   return a.as.enum_val == b.as.enum_val;
+        case TAG_FUNCTION:
+            return a.callable_module == b.callable_module && a.as.fn_idx == b.as.fn_idx;
         case TAG_STRING:
             if (a.as.string == b.as.string) return true;
             if (!a.as.string || !b.as.string) return false;
@@ -156,6 +164,11 @@ bool val_equal(NanoValue a, NanoValue b) {
 }
 
 int val_compare(NanoValue a, NanoValue b) {
+    if (a.tag == TAG_FUNCTION && b.tag == TAG_FUNCTION) {
+        if (a.callable_module != b.callable_module)
+            return a.callable_module < b.callable_module ? -1 : 1;
+        return a.as.fn_idx < b.as.fn_idx ? -1 : a.as.fn_idx > b.as.fn_idx ? 1 : 0;
+    }
     /* Cross-type comparisons */
     if (a.tag == TAG_ENUM && b.tag == TAG_INT) {
         int64_t av = (int64_t)a.as.enum_val;

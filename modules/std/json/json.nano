@@ -256,7 +256,7 @@ pub fn keys(obj: Json) -> array<string> { return (nl_json_object_keys obj) }
 shadow keys {
     let j: Json = (parse "{\"a\": 1, \"b\": 2}")
     let k: array<string> = (keys j)
-    assert (> (len k) 0)
+    assert (> (array_length k) 0)
     (free j)
 }
 

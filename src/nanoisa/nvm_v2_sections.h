@@ -277,10 +277,11 @@ NvmV2Result nvm_v2_globals_encode(const NvmV2Globals *g,
 
 typedef enum {
     NVM_V2_IMPORT_FFI       = 0,
-    NVM_V2_IMPORT_COPROCESS = 1
+    NVM_V2_IMPORT_COPROCESS = 1,
+    NVM_V2_IMPORT_ARTIFACT  = 2
 } NvmV2ImportKind;
 
-#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_COPROCESS
+#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_ARTIFACT
 
 /* A weak link may resolve to nothing. Encoded and validated now; nothing
  * consumes it until the 4.4 capability work. */
@@ -295,6 +296,24 @@ typedef struct {
 } NvmV2Import;
 
 typedef struct { NvmV2Import *items; uint32_t count; } NvmV2Imports;
+
+/* I encode 16-byte callback contract records, preceded by a u32 count:
+ * import u32, parameter u16, ABI u8, execution u8, signature u32, adapter u32.
+ * NO_PARAMETER requires NO_INDEX for its signature. Records are sorted and
+ * unique by (import, parameter); the module validator checks their targets. */
+typedef struct {
+    uint32_t import_idx;
+    uint16_t parameter_idx;
+    uint8_t abi_version;
+    uint8_t execution;
+    uint32_t signature_idx;
+    uint32_t adapter_name_idx;
+} NvmV2Callback;
+typedef struct { NvmV2Callback *items; uint32_t count; } NvmV2Callbacks;
+NvmV2Result nvm_v2_callbacks_decode(const uint8_t *data, size_t size, NvmV2Callbacks *out);
+void nvm_v2_callbacks_free(NvmV2Callbacks *callbacks);
+size_t nvm_v2_callbacks_encoded_size(const NvmV2Callbacks *callbacks);
+NvmV2Result nvm_v2_callbacks_encode(const NvmV2Callbacks *callbacks, uint8_t *out, size_t size);
 
 typedef struct {
     uint32_t module_name_idx;
@@ -364,6 +383,7 @@ typedef struct {
     NvmV2Functions  functions;
     NvmV2Globals    globals;
     NvmV2Imports    imports;
+    NvmV2Callbacks  callbacks;
     NvmV2Links      links;
     NvmV2Debug      debug;
     const uint8_t  *code;          /* aliases the module buffer when decoded */
@@ -404,9 +424,9 @@ void nvm_v2_module_free(NvmV2Module *m);
  * nvm_v2_module_free. `nvm_v2_to_nvm_module` allocates an NvmModule: free it
  * with nvm_module_free.
  *
- * A v1 module does not record function parameter types or max_stack. The
- * bridge emits TAG_VOID placeholder parameter tags and a max_stack of 0
- * rather than guessing; a v2-native producer supplies the real values.
+ * I preserve parameter types supplied by typed producers. Legacy producers
+ * leave TAG_VOID placeholders rather than guessed types. The bridge derives
+ * max_stack when verification succeeds and leaves it undeclared otherwise.
  */
 NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out);
 NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out);
