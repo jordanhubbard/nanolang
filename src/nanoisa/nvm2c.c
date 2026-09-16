@@ -63,6 +63,7 @@ typedef struct {
     size_t sim_stack_capacity;
     size_t record_width;
     int has_maps;
+    int has_string_arrays;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -3756,31 +3757,59 @@ static void emit_narr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
-static void emit_nsarr_arena(Nvm2cBuf *b) {
+static void emit_nsarr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static const char *nsarr_arena[65536];\n"
-        "static size_t nsarr_used;\n");
-}
-
-static void emit_nsarr_new(Nvm2cBuf *b) {
-    nvm2c_puts(b,
-        "static nsarr_t nsarr_new(void) {\n"
-        "    nsarr_t a = (nsarr_t)calloc(1, sizeof(nsarr_s));\n"
-        "    if (!a) abort();\n"
-        "    return a;\n"
-        "}\n\n");
+        "#include <string.h>\n"
+        "struct nsarr_owner { const char **data; size_t cap; nsarr_t handle; struct nsarr_owner *next; };\n"
+        "static struct nsarr_owner *nsarr_owners;\n"
+        "typedef struct nsarr_string { char *data; struct nsarr_string *next; } nsarr_string;\n"
+        "static nsarr_string *nsarr_strings;\n"
+        "static inline struct nsarr_owner *nsarr_track(nsarr_t a, int own_handle) {\n"
+        "    struct nsarr_owner *owner = calloc(1, sizeof *owner);\n"
+        "    if (!owner) abort();\n"
+        "    owner->handle = own_handle ? a : NULL; owner->next = nsarr_owners;\n"
+        "    nsarr_owners = owner; a->owner = owner; return owner;\n}\n"
+        "static inline nsarr_t nsarr_new(void) {\n"
+        "    nsarr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
+        "    nsarr_track(a, 1); return a;\n}\n"
+        "static inline void nsarr_reserve(nsarr_t a, size_t n) {\n"
+        "    size_t limit = SIZE_MAX / sizeof *a->data;\n"
+        "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) abort();\n"
+        "    struct nsarr_owner *owner = a->owner;\n"
+        "    if (owner && (owner->data != a->data || a->len > owner->cap)) abort();\n"
+        "    if (owner && n <= owner->cap) return;\n"
+        "    if (n < a->len) n = a->len;\n"
+        "    size_t cap = owner && owner->cap ? owner->cap : 8;\n"
+        "    while (cap < n) { if (cap > limit / 2) { cap = n; break; } cap *= 2; }\n"
+        "    if (!owner) {\n"
+        "        const char **data = malloc(cap * sizeof *data); if (!data) abort();\n"
+        "        if (a->len) memcpy(data, a->data, a->len * sizeof *data);\n"
+        "        owner = nsarr_track(a, 0); owner->data = data;\n"
+        "    } else {\n"
+        "        const char **data = realloc(owner->data, cap * sizeof *data);\n"
+        "        if (!data) abort(); owner->data = data;\n"
+        "    }\n"
+        "    owner->cap = cap; a->data = owner->data;\n}\n"
+        "static inline const char *nsarr_copy_string(const char *value) {\n"
+        "    if (!value) abort(); size_t n = strlen(value); if (n == SIZE_MAX) abort();\n"
+        "    nsarr_string *owner = malloc(sizeof *owner); if (!owner) abort();\n"
+        "    owner->data = malloc(n + 1); if (!owner->data) abort();\n"
+        "    memcpy(owner->data, value, n + 1); owner->next = nsarr_strings;\n"
+        "    nsarr_strings = owner; return owner->data;\n}\n"
+        "static inline void nsarr_release_owned(void) {\n"
+        "    while (nsarr_owners) { struct nsarr_owner *owner = nsarr_owners;\n"
+        "        nsarr_owners = owner->next; free(owner->data); free(owner->handle); free(owner); }\n"
+        "    while (nsarr_strings) { nsarr_string *owner = nsarr_strings;\n"
+        "        nsarr_strings = owner->next; free(owner->data); free(owner); }\n}\n");
 }
 
 static void emit_nsarr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_lit(const char *const *elems, size_t n) {\n"
         "    if (n > 0 && !elems) abort();\n"
-        "    if (nsarr_used + n > (sizeof nsarr_arena / sizeof nsarr_arena[0])) abort();\n"
-        "    const char **p = nsarr_arena + nsarr_used;\n"
-        "    if (n) memcpy(p, elems, n * sizeof(const char *));\n"
-        "    nsarr_used += n;\n"
         "    nsarr_t a = nsarr_new();\n"
-        "    a->data = p;\n"
+        "    nsarr_reserve(a, n);\n"
+        "    if (n) memcpy(a->data, elems, n * sizeof *a->data);\n"
         "    a->len = n;\n"
         "    return a;\n"
         "}\n\n");
@@ -3797,15 +3826,10 @@ static void emit_nsarr_get(Nvm2cBuf *b) {
 static void emit_nsarr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_push(nsarr_t a, const char *v) {\n"
-        "    if (!a) abort();\n"
+        "    if (!a || a->len == SIZE_MAX) abort();\n"
         "    size_t n = a->len + 1;\n"
-        "    if (a->len && !a->data) abort();\n"
-        "    if (nsarr_used + n > (sizeof nsarr_arena / sizeof nsarr_arena[0])) abort();\n"
-        "    const char **p = nsarr_arena + nsarr_used;\n"
-        "    if (a->len) memcpy(p, a->data, a->len * sizeof(const char *));\n"
-        "    p[a->len] = v ? v : \"\";\n"
-        "    nsarr_used += n;\n"
-        "    a->data = p;\n"
+        "    nsarr_reserve(a, n);\n"
+        "    a->data[a->len] = v ? v : \"\";\n"
         "    a->len = n;\n"
         "    return a;\n"
         "}\n\n");
@@ -4033,19 +4057,12 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
             "        foreign->capacity < foreign->length ||\n"
             "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) abort();\n"
-            "    nsarr_t result = calloc(1, sizeof *result);\n"
-            "    if (!result) abort();\n"
+            "    nsarr_t result = nsarr_new();\n"
+            "    nsarr_reserve(result, (size_t)foreign->length);\n"
             "    result->len = (size_t)foreign->length;\n"
-            "    result->data = calloc(result->len ? result->len : 1, sizeof *result->data);\n"
-            "    if (!result->data) abort();\n"
             "    for (size_t j = 0; j < result->len; ++j) {\n"
             "        const char *value = ((const char **)foreign->data)[j];\n"
-            "        if (!value) abort();\n"
-            "        size_t length = strlen(value);\n"
-            "        if (length == SIZE_MAX) abort();\n"
-            "        char *copy = malloc(length + 1);\n"
-            "        if (!copy) abort();\n"
-            "        memcpy(copy, value, length + 1); result->data[j] = copy;\n"
+            "        result->data[j] = nsarr_copy_string(value);\n"
             "    }\n"
             "    if (!release(foreign)) abort();\n"
             "    return result;\n}\n");
@@ -4432,6 +4449,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_sarr = need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
             (b.array_shape_kinds & (1u << NVM2C_VK_SARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_SARR);
+        /* I emit retained adapters even when no instruction calls them. */
+        for (uint32_t import = 0; import < mod->import_count; ++import) {
+            const Nvm2cHost *host = import_host(mod, import);
+            if (host && host->result == TAG_ARRAY) need_sarr = 1;
+        }
         int need_rarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT);
         int need_rarr = need_rarr_lit || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_RARR) ||
             (b.array_shape_kinds & (1u << NVM2C_VK_RARR)) ||
@@ -4574,8 +4596,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "\ntypedef struct nmap_s *nmap_t;\n"
             "typedef struct { int64_t *data; size_t len; } narr_s;\n"
             "typedef narr_s *narr_t;\n"
-            "typedef struct { const char **data; size_t len; } nsarr_s;\n"
+            "typedef struct { const char **data; size_t len; struct nsarr_owner *owner; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
+        if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_runtime.inc"
@@ -4661,12 +4684,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_iarr_lit) emit_narr_lit(&b);
         if (need_iarr_get) emit_narr_get(&b);
         if (need_iarr_push) emit_narr_push(&b);
-        if (need_sarr_lit || need_sarr_new) {
-            emit_nsarr_new(&b);
-        }
-        if (need_sarr_lit || need_sarr_push) {
-            emit_nsarr_arena(&b);
-        }
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
@@ -4727,6 +4744,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete;\n");
+        if (b.has_string_arrays) nvm2c_puts(&b,
+            "    (void)nsarr_new; (void)nsarr_reserve; (void)nsarr_copy_string;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64;\n");
         if (b.has_maps && (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN)))
@@ -4756,6 +4775,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
+        if (b.has_string_arrays) nvm2c_puts(&b, "    nsarr_release_owned();\n");
         nvm2c_puts(&b, "    return result;\n}\n");
     }
 

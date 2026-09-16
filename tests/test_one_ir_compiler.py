@@ -624,6 +624,66 @@ int main(int argc, char **argv) {
                 failed = subprocess.run([binary, "fail"], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I fail closed when a record frame cannot be allocated")
 
+    def test_string_array_growth_owns_buffers_and_preserves_aliases(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        with tempfile.TemporaryDirectory(prefix="nano-string-growth-") as tmp:
+            work = Path(tmp)
+            assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+            assembly.write_text('.string text "seed"\n.entry main\n.function main 0 1 0 int 1\n'
+                                'PUSH_STR text\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n'
+                                'LOAD_LOCAL 0\nPUSH_STR text\nARR_PUSH\nPOP\n'
+                                'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nSTR_LEN\nRET\n.end\n')
+            self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+            generated = source.read_text().replace("int main(", "int generated_main(")
+            source.write_text('''#include <stdlib.h>
+static size_t live, calls, fail_at;
+static void *tracked_malloc(size_t n) { if (++calls == fail_at) return NULL; void *p = malloc(n); if (p) ++live; return p; }
+static void *tracked_calloc(size_t n, size_t s) { if (++calls == fail_at) return NULL; void *p = calloc(n, s); if (p) ++live; return p; }
+static void *tracked_realloc(void *p, size_t n) { if (++calls == fail_at) return NULL; int fresh = p == NULL; void *q = realloc(p, n); if (q && fresh) ++live; return q; }
+static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
+#define malloc tracked_malloc
+#define calloc tracked_calloc
+#define realloc tracked_realloc
+#define free tracked_free
+''' + generated + '''
+int main(int argc, char **argv) {
+    int mode = argc > 1 ? atoi(argv[1]) : 0;
+    if (mode >= 1 && mode <= 5) fail_at = (size_t)mode;
+    nsarr_t a = nsarr_new(), alias = a;
+    for (size_t i = 0; i < 70000; ++i) nsarr_push(a, i % 2 ? "odd" : "even");
+    if (alias->len != 70000 || strcmp(nsarr_get(alias, 0), "even") || strcmp(nsarr_get(alias, 69999), "odd")) return 1;
+    if (calls > 25) return 2;
+    if (mode == 10 || mode == 11) fail_at = calls + (size_t)(mode - 9);
+    const char *escaped = nsarr_copy_string("kept");
+    nsarr_push(a, escaped); a->data[70000] = "replaced";
+    if (strcmp(escaped, "kept")) return 3;
+    const char **elements = malloc(70000 * sizeof *elements);
+    if (!elements) return 4;
+    for (size_t i = 0; i < 70000; ++i) elements[i] = "literal";
+    nsarr_t literal = nsarr_lit(elements, 70000); free(elements);
+    if (literal->len != 70000 || strcmp(nsarr_get(literal, 69999), "literal")) return 5;
+    const char *borrowed_data[] = {"original"};
+    nsarr_s borrowed = {.data = borrowed_data, .len = 1}; nsarr_t borrowed_alias = &borrowed;
+    if (mode == 6 || mode == 12) fail_at = calls + (mode == 6 ? 1 : 2);
+    nsarr_push(&borrowed, "added");
+    if (borrowed_alias->len != 2 || strcmp(borrowed_data[0], "original") || strcmp(borrowed.data[1], "added")) return 6;
+    if (mode == 7) { a->len = SIZE_MAX; nsarr_push(a, "overflow"); }
+    if (mode == 8) nsarr_reserve(a, SIZE_MAX / sizeof *a->data + 1);
+    if (mode == 9) { a->data = NULL; nsarr_push(a, "invalid"); }
+    nsarr_release_owned(); if (live) return 7;
+    nsarr_release_owned(); if (live) return 8;
+    if (generated_main() != 4 || live) return 9;
+    return 0;
+}
+''')
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([binary])
+            for mode in range(1, 13):
+                failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
+                self.assertLess(failed.returncode, 0, "I trap allocation, size and storage failures")
+
     def test_uncalled_functions_are_warning_clean_not_executed(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

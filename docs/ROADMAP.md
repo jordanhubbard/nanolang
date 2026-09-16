@@ -447,12 +447,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     raises recipe stack limits from 8,176 to 65,520 KiB. The
                     larger-stack run reaches the fixed string-array arena abort;
                     direct runs exhausted the old record-temporary stack pools.
-                - [ ] I replace the fixed string-array growth arena with checked
+                - [x] I replace the fixed string-array growth arena with checked
                   owned capacity growth. Native compiler execution now reaches
                   `cg_append` and exhausts `nsarr_arena` in `nsarr_push` while
                   emitting the C runtime. I preserve aliases, test sustained
                   append and allocation failure, and rerun compiler acceptance.
                   MAC `task_7b8691dd087e48ea9afdeb89ddcf4640`.
+                  I test 70,000 appends, large literals, aliases, borrowed buffers,
+                  escaped copies, balanced cleanup and twelve failure cases.
+                  Normal and fresh ASan/UBSan suites pass 1,670 AOT and 1,073
+                  shape checks; compiler acceptance advances to 19 of 20 methods.
+                  Evidence: `docs/evidence/aot-owned-string-array-growth.md`.
+                - [ ] I replace the fixed scalar-string arena with checked
+                  owned storage. Native compiler execution now passes array
+                  growth and aborts in `nstr_concat`, called by `cg_build` while
+                  emitting the C runtime. I preserve escaped strings, test
+                  allocation/size failures and rerun full acceptance. MAC
+                  `task_b0c4ad8c9a824e64ab8fd3fa6881146e`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
