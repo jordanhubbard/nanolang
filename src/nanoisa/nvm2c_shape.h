@@ -8,11 +8,12 @@
  * A failed graph is poisoned and must be discarded, not queried or reused.
  * Record edges are field indices; an array's edge zero is its element shape.
  * A map's edges zero and one are its key and value shapes respectively.
+ * An optional's edge zero is the present value shape; absence remains tagged.
  * Missing edges mean unconstrained, not absent fields or a proved width. */
 typedef uint32_t NvmShapeId;
 typedef enum {
     NVM_SHAPE_UNKNOWN, NVM_SHAPE_INT, NVM_SHAPE_STRING,
-    NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP
+    NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_OPTIONAL
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct {

@@ -1880,7 +1880,7 @@ static void test_nested_record_pack_is_refused(void) {
 }
 
 static void test_unsupported_classifier_instructions(void) {
-    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_HM_GET, OP_PUSH_F64,
+    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL, OP_PUSH_F64,
         OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
         OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
@@ -1903,7 +1903,84 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_emitted_map_get(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[4096];
+        snprintf(source, sizeof source,
+            ".string key \"key\"\n.string old \"42\"\n.string newer \"changed\"\n.string empty \"\"\n"
+            ".entry main\n.function main 0 3 0 int 1\nHM_NEW 5 %d\nSTORE_LOCAL 0\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nDUP\nPOP\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 1\nTYPE_CHECK 0\nASSERT\n"
+            "LOAD_LOCAL 1\nCAST_STRING\nPUSH_STR empty\nEQ\nASSERT\n"
+            "LOAD_LOCAL 1\nJMP_FALSE missing_ok\nPUSH_BOOL 0\nASSERT\nmissing_ok:\n"
+            "LOAD_LOCAL 1\nLOAD_LOCAL 1\nEQ\nASSERT\n"
+            "LOAD_LOCAL 1\n%s\nEQ\nBOOL_NOT\nASSERT\n"
+            "LOAD_LOCAL 1\nCALL cast_value\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\n%s\nHM_SET\nPOP\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nSTORE_LOCAL 2\n"
+            "LOAD_LOCAL 2\nTYPE_CHECK 0\nBOOL_NOT\nASSERT\n"
+            "LOAD_LOCAL 2\nCAST_STRING\nPUSH_STR old\nEQ\nASSERT\n"
+            "LOAD_LOCAL 2\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\n%s\nHM_SET\nPUSH_STR key\nHM_DELETE\nPOP\n"
+            "LOAD_LOCAL 2\n%s\nASSERT\n"
+            "PUSH_BOOL %d\nJMP_FALSE alternate\nLOAD_LOCAL 2\nJMP joined\n"
+            "alternate:\nLOAD_LOCAL 2\nDUP\nSWAP\nPOP\njoined:\nCALL cast_value\n"
+            "PUSH_I64 42\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 2\nCALL consume\nPUSH_I64 %d\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+            ".function cast_value 1 1 0 int 1\nLOAD_LOCAL 0\nCAST_INT\nRET\n.end\n"
+            ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\n%s\nRET\n.end\n",
+            strings ? 5 : 1, strings ? "PUSH_STR empty" :
+                "LOAD_LOCAL 0\nPUSH_STR key\nPUSH_I64 0\nHM_SET\nPUSH_STR key\nHM_GET",
+            strings ? "PUSH_STR old" : "PUSH_I64 42",
+            strings ? "PUSH_STR newer" : "PUSH_I64 99",
+            strings ? "PUSH_STR old\nEQ" : "CAST_INT\nPUSH_I64 42\nI64_EQ", strings,
+            strings ? 2 : 43, strings ? "STR_LEN" : "PUSH_I64 1\nI64_ADD");
+        NvmModule *m = assemble_ok(source, "tagged map lookup flow");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I retain tagged lookups through locals, branches and calls");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I distinguish missing values and preserve fetched values after replacement and deletion");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[512];
+        snprintf(source, sizeof source, ".string key \"missing\"\n.entry main\n"
+            ".function main 0 0 0 int 1\nHM_NEW 5 %d\nPUSH_STR key\nHM_GET\n%s\nRET\n.end\n",
+            strings ? 5 : 1, strings ? "STR_LEN" : "PUSH_I64 1\nI64_ADD");
+        NvmModule *m = assemble_ok(source, "missing lookup consumption");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I check lookup tags at scalar consumption");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status != 0,
+                  "I reject a missing lookup when an integer or string is required");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *unresolved[] = {
+        "PUSH_I64 0\nEQ\n", "PUSH_BOOL 0\nEQ\n", "RET\n",
+        "BOOL_NOT\n", "PUSH_BOOL 1\nBOOL_AND\n", "PUSH_BOOL 0\nBOOL_OR\n"
+    };
+    for (size_t i = 0; i < sizeof unresolved / sizeof unresolved[0]; ++i) {
+        char source[512], error[256] = {0};
+        snprintf(source, sizeof source, ".string key \"key\"\n.entry main\n"
+            ".function main 0 0 0 int 1\nHM_NEW 5 1\nPUSH_STR key\nHM_GET\n%s"
+            "POP\nPUSH_I64 0\nRET\n.end\n", unresolved[i]);
+        NvmModule *m = assemble_ok(source, "unresolved lookup representation");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && error[0], "I reject missing tag information and unsupported tagged return flow");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_emitted_map_flow(void) {
+    test_emitted_map_get();
     for (int strings = 0; strings < 2; ++strings) {
         char source[4096];
         snprintf(source, sizeof source, ".string key \"name\"\n.string value \"text\"\n.entry main\n"
