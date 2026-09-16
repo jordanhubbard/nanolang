@@ -1,16 +1,23 @@
 #include "nvm2c_shape.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 typedef struct { uint32_t index; NvmShapeId child; } ShapeEdge;
 struct NvmShapeNode {
     NvmShapeId parent;
     uint32_t rank;
     NvmShapeKind kind;
+    int conversion_kind;
     ShapeEdge *edges;
     size_t count, capacity;
 };
 typedef struct { NvmShapeId a, b; } ShapePair;
+
+static const char *kind_name(NvmShapeKind kind) {
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float"};
+    return names[kind];
+}
 
 static int fail(NvmShapeGraph *g, const char *message) {
     if (!g->error) g->error = message;
@@ -45,12 +52,13 @@ static void *grow(NvmShapeGraph *g, void *data, size_t *capacity,
 void nvm_shape_destroy(NvmShapeGraph *g) {
     for (size_t i = 0; i < g->count; ++i) free(g->nodes[i].edges);
     free(g->nodes);
+    free(g->conversions);
     memset(g, 0, sizeof *g);
 }
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_BOOL)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_FLOAT)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -123,7 +131,10 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
         if (left == right) continue;
         NvmShapeNode *x = &g->nodes[left - 1], *y = &g->nodes[right - 1];
         if (x->kind != NVM_SHAPE_UNKNOWN && y->kind != NVM_SHAPE_UNKNOWN && x->kind != y->kind) {
-            fail(g, "I found conflicting aggregate shape kinds");
+            snprintf(g->error_detail, sizeof g->error_detail,
+                     "I found conflicting aggregate shape kinds %s/%s at nodes %u/%u",
+                     kind_name(x->kind), kind_name(y->kind), left, right);
+            fail(g, g->error_detail);
             break;
         }
         if (x->rank < y->rank) {
@@ -162,5 +173,117 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
         y->count = y->capacity = 0;
     }
     free(pending);
+    return !g->error;
+}
+
+int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+    if (!nvm_shape_root(g, source) || !nvm_shape_root(g, target)) return 0;
+    NvmShapeConversion *next = grow(g, g->conversions, &g->conversion_capacity,
+                                    g->conversion_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->conversions = next;
+    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target};
+    return 1;
+}
+
+typedef struct { NvmShapeId source, target; int exact; } FlowPair;
+
+static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
+    NvmShapeNode *node = &g->nodes[target - 1];
+    for (size_t i = 0; i < node->count; ++i)
+        if (!allows_edge(kind, node->edges[i].index))
+            return fail(g, "I found incompatible projections during storage conversion");
+    if (node->kind != kind) { node->kind = kind; node->conversion_kind = 1; *changed = 1; }
+    return 1;
+}
+
+static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *changed) {
+    size_t count = 0, capacity = 0, cursor = 0;
+    FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
+    if (!queue) return 0;
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0};
+    while (cursor < count && !g->error) {
+        FlowPair pair = queue[cursor++];
+        NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
+        if (!source || !target) break;
+        if (source == target) continue;
+        int seen = 0;
+        for (size_t i = 0; i + 1 < cursor; ++i)
+            if (nvm_shape_root(g, queue[i].source) == source &&
+                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact) seen = 1;
+        if (seen) continue;
+        NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
+        if (from == NVM_SHAPE_UNKNOWN) continue;
+        if (to == NVM_SHAPE_UNKNOWN) {
+            if (!flow_kind(g, target, from, changed)) break;
+            to = from;
+        }
+        if (!pair.exact && from == NVM_SHAPE_OPTIONAL && to == NVM_SHAPE_STRING) {
+            if (!g->nodes[target - 1].conversion_kind) {
+                fail(g, "I cannot widen an exactly constrained string destination"); break;
+            }
+            /* I widen only destination storage. Its old string is a fresh
+             * payload node, never the destination wrapper itself. */
+            if (!flow_kind(g, target, NVM_SHAPE_OPTIONAL, changed)) break;
+            NvmShapeId payload = nvm_shape_child(g, target, 0);
+            if (!payload || !flow_kind(g, payload, NVM_SHAPE_STRING, changed)) break;
+            to = NVM_SHAPE_OPTIONAL;
+        }
+        if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
+                            from == NVM_SHAPE_BOOL) && to == NVM_SHAPE_OPTIONAL) {
+            NvmShapeId payload = nvm_shape_child(g, target, 0);
+            FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
+            if (!next || !payload) break;
+            queue = next; queue[count++] = (FlowPair){source, payload, 1};
+            continue;
+        }
+        if (from != to) {
+            snprintf(g->error_detail, sizeof g->error_detail,
+                     "I cannot convert aggregate storage %s to %s at nodes %u/%u",
+                     kind_name(from), kind_name(to), source, target);
+            fail(g, g->error_detail); break;
+        }
+        size_t edges = g->nodes[source - 1].count;
+        for (size_t i = 0; i < edges && !g->error; ++i) {
+            ShapeEdge edge = g->nodes[source - 1].edges[i];
+            NvmShapeId child_source = nvm_shape_root(g, edge.child);
+            NvmShapeId child_target = nvm_shape_lookup(g, target, edge.index);
+            if (!child_target && !g->error) {
+                /* I preserve cycles and sharing when creating missing target
+                 * edges, without equating an existing destination view. */
+                NvmShapeKind child_kind = nvm_shape_kind(g, child_source);
+                for (size_t j = 0; j < cursor; ++j)
+                    if ((child_kind == NVM_SHAPE_RECORD || child_kind == NVM_SHAPE_ARRAY ||
+                         child_kind == NVM_SHAPE_MAP || child_kind == NVM_SHAPE_OPTIONAL) &&
+                        nvm_shape_root(g, queue[j].source) == child_source &&
+                        nvm_shape_kind(g, queue[j].target) == child_kind) {
+                        child_target = nvm_shape_root(g, queue[j].target); break;
+                    }
+                if (!child_target) child_target = nvm_shape_new(g, NVM_SHAPE_UNKNOWN);
+                if (!child_target) break;
+                NvmShapeNode *node = &g->nodes[target - 1];
+                ShapeEdge *next = grow(g, node->edges, &node->capacity, node->count + 1, sizeof *next);
+                if (!next) break;
+                node->edges = next; node->edges[node->count++] = (ShapeEdge){edge.index, child_target};
+                *changed = 1;
+            }
+            FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
+            if (!next) break;
+            queue = next;
+            queue[count++] = (FlowPair){child_source, child_target,
+                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP};
+        }
+    }
+    free(queue);
+    return !g->error;
+}
+
+int nvm_shape_solve_conversions(NvmShapeGraph *g) {
+    int changed;
+    do {
+        changed = 0;
+        for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
+            if (!flow_one(g, g->conversions[i], &changed)) return 0;
+    } while (changed && !g->error);
     return !g->error;
 }

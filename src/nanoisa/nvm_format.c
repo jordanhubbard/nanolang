@@ -3,6 +3,7 @@
  */
 
 #include "nvm_format.h"
+#include "isa.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -86,6 +87,7 @@ NvmModule *nvm_module_new(void) {
 
     mod->function_capacity = 32;
     mod->functions = calloc(mod->function_capacity, sizeof(NvmFunctionEntry));
+    mod->function_param_types = calloc(mod->function_capacity, sizeof(uint8_t *));
 
     mod->code_capacity = 4096;
     mod->code = calloc(mod->code_capacity, sizeof(uint8_t));
@@ -100,7 +102,7 @@ NvmModule *nvm_module_new(void) {
     mod->module_ref_capacity = 16;
     mod->module_refs = calloc(mod->module_ref_capacity, sizeof(NvmModuleRefEntry));
 
-    if (!mod->strings || !mod->string_lengths || !mod->functions ||
+    if (!mod->strings || !mod->string_lengths || !mod->functions || !mod->function_param_types ||
         !mod->code || !mod->debug_entries || !mod->imports ||
         !mod->import_param_types || !mod->module_refs) {
         nvm_module_free(mod);
@@ -121,6 +123,11 @@ void nvm_module_free(NvmModule *mod) {
     }
     free(mod->string_lengths);
     free(mod->functions);
+    if (mod->function_param_types) {
+        for (uint32_t i = 0; i < mod->function_count; i++)
+            free(mod->function_param_types[i]);
+        free(mod->function_param_types);
+    }
     free(mod->code);
     free(mod->debug_entries);
     if (mod->import_param_types) {
@@ -130,6 +137,7 @@ void nvm_module_free(NvmModule *mod) {
         free(mod->import_param_types);
     }
     free(mod->imports);
+    free(mod->callback_contracts);
     free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
 }
@@ -146,6 +154,8 @@ void nvm_call_descriptors_reset(NvmModule *mod) {
  * ======================================================================== */
 
 uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length) {
+    if (!mod || (!str && length)) return UINT32_MAX;
+    if (!str) str = "";
     /* Deduplicate */
     for (uint32_t i = 0; i < mod->string_count; i++) {
         if (mod->string_lengths[i] == length &&
@@ -156,22 +166,33 @@ uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length) {
 
     /* Grow if needed */
     if (mod->string_count >= mod->string_capacity) {
-        uint32_t new_cap = mod->string_capacity * 2;
-        char **new_strs = realloc(mod->strings, new_cap * sizeof(char *));
-        uint32_t *new_lens = realloc(mod->string_lengths, new_cap * sizeof(uint32_t));
+        if (mod->string_capacity > UINT32_MAX / 2) return UINT32_MAX;
+        uint32_t new_cap = mod->string_capacity ? mod->string_capacity * 2 : 16;
+#if SIZE_MAX <= UINT32_MAX
+        if (new_cap > SIZE_MAX / sizeof(char *) || new_cap > SIZE_MAX / sizeof(uint32_t)) return UINT32_MAX;
+#endif
+        char **new_strs = malloc((size_t)new_cap * sizeof(char *));
+        uint32_t *new_lens = malloc((size_t)new_cap * sizeof(uint32_t));
         if (!new_strs || !new_lens) {
             free(new_strs);
             free(new_lens);
-            return 0; /* error */
+            return UINT32_MAX;
         }
+        if (mod->string_count) {
+            memcpy(new_strs, mod->strings, (size_t)mod->string_count * sizeof(char *));
+            memcpy(new_lens, mod->string_lengths, (size_t)mod->string_count * sizeof(uint32_t));
+        }
+        free(mod->strings);
+        free(mod->string_lengths);
         mod->strings = new_strs;
         mod->string_lengths = new_lens;
         mod->string_capacity = new_cap;
     }
 
     uint32_t idx = mod->string_count;
-    mod->strings[idx] = malloc(length + 1);
-    if (!mod->strings[idx]) return 0;
+    if ((size_t)length + 1 < length) return UINT32_MAX;
+    mod->strings[idx] = malloc((size_t)length + 1);
+    if (!mod->strings[idx]) return UINT32_MAX;
     memcpy(mod->strings[idx], str, length);
     mod->strings[idx][length] = '\0';
     mod->string_lengths[idx] = length;
@@ -194,18 +215,137 @@ uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index) {    if (index
  * ======================================================================== */
 
 uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry) {
+    if (!mod || !entry) return UINT32_MAX;
+    NvmFunctionEntry copied_entry = *entry;
     if (mod->function_count >= mod->function_capacity) {
-        uint32_t new_cap = mod->function_capacity * 2;
-        NvmFunctionEntry *new_fns = realloc(mod->functions, new_cap * sizeof(NvmFunctionEntry));
-        if (!new_fns) return 0;
+        if (mod->function_capacity > UINT32_MAX / 2) return UINT32_MAX;
+        uint32_t new_cap = mod->function_capacity ? mod->function_capacity * 2 : 32;
+        NvmFunctionEntry *new_fns = calloc(new_cap, sizeof(NvmFunctionEntry));
+        uint8_t **new_types = calloc(new_cap, sizeof(uint8_t *));
+        if (!new_fns || !new_types) {
+            free(new_fns);
+            free(new_types);
+            return UINT32_MAX;
+        }
+        if (mod->function_count) {
+            memcpy(new_fns, mod->functions, mod->function_count * sizeof(*new_fns));
+            if (mod->function_param_types)
+                memcpy(new_types, mod->function_param_types,
+                       mod->function_count * sizeof(*new_types));
+        }
+        free(mod->functions);
+        free(mod->function_param_types);
         mod->functions = new_fns;
+        mod->function_param_types = new_types;
         mod->function_capacity = new_cap;
     }
 
     uint32_t idx = mod->function_count;
-    mod->functions[idx] = *entry;
+    mod->functions[idx] = copied_entry;
     mod->function_count++;
     return idx;
+}
+
+bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
+                                  const uint8_t *tags, uint16_t count) {
+    if (!mod || index >= mod->function_count || !mod->function_param_types ||
+        count != mod->functions[index].arity || (count && !tags)) return false;
+    for (uint16_t i = 0; i < count; i++)
+        if (tags[i] >= TAG_COUNT) return false;
+    uint8_t *copy = count ? malloc(count) : NULL;
+    if (count && !copy) return false;
+    if (count) memcpy(copy, tags, count);
+    free(mod->function_param_types[index]);
+    mod->function_param_types[index] = copy;
+    return true;
+}
+
+static bool callback_scalar(uint8_t tag) {
+    return tag == TAG_INT || tag == TAG_FLOAT || tag == TAG_BOOL ||
+           tag == TAG_U8 || tag == TAG_OPAQUE;
+}
+
+bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result) {
+    if (count > NANO_MAX_FFI_ARGS || (count && !tags) ||
+        (result != TAG_VOID && !callback_scalar(result))) return false;
+    for (uint16_t i = 0; i < count; i++)
+        if (!callback_scalar(tags[i])) return false;
+    return true;
+}
+
+bool nvm_add_callback_contract(NvmModule *mod, const NvmCallbackContract *contract) {
+    if (!mod || !contract || contract->abi_version != NVM_CALLBACK_ABI_RETAINED_V1 ||
+        contract->execution > NVM_FOREIGN_WORKER_THREAD ||
+        !nvm_callback_shape_valid(contract->param_tags, contract->param_count,
+                                  contract->return_tag)) return false;
+    NvmCallbackContract copy = *contract;
+    if (copy.parameter_idx == NVM_CALLBACK_NO_PARAMETER &&
+        (copy.param_count || copy.return_tag != TAG_VOID)) return false;
+    if (mod->callback_contract_count) {
+        const NvmCallbackContract *last = &mod->callback_contracts[mod->callback_contract_count - 1];
+        if (copy.import_idx < last->import_idx ||
+            (copy.import_idx == last->import_idx && copy.parameter_idx <= last->parameter_idx))
+            return false;
+    }
+    if (mod->callback_contract_count == mod->callback_contract_capacity) {
+        if (mod->callback_contract_capacity > UINT32_MAX / 2) return false;
+        uint32_t capacity = mod->callback_contract_capacity ? mod->callback_contract_capacity * 2 : 8;
+        NvmCallbackContract *items = calloc(capacity, sizeof(*items));
+        if (!items) return false;
+        if (mod->callback_contract_count)
+            memcpy(items, mod->callback_contracts, mod->callback_contract_count * sizeof(*items));
+        free(mod->callback_contracts);
+        mod->callback_contracts = items;
+        mod->callback_contract_capacity = capacity;
+    }
+    mod->callback_contracts[mod->callback_contract_count++] = copy;
+    return true;
+}
+
+bool nvm_callback_contracts_valid(const NvmModule *mod) {
+    if (!mod || (mod->callback_contract_count && !mod->callback_contracts)) return false;
+    uint32_t begin = 0;
+    while (begin < mod->callback_contract_count) {
+        const NvmCallbackContract *first = &mod->callback_contracts[begin];
+        if (first->import_idx >= mod->import_count || !mod->imports) return false;
+        const NvmImportEntry *import = &mod->imports[first->import_idx];
+        if (import->param_count > NANO_MAX_FFI_ARGS ||
+            (import->param_count && (!mod->import_param_types ||
+                                     !mod->import_param_types[first->import_idx]))) return false;
+        uint32_t expected = 0, actual = 0;
+        for (uint16_t p = 0; p < import->param_count; p++) {
+            uint8_t tag = mod->import_param_types[first->import_idx][p];
+            if (tag == TAG_FUNCTION || tag == TAG_CLOSURE) expected |= 1u << p;
+        }
+        uint32_t end = begin;
+        while (end < mod->callback_contract_count &&
+               mod->callback_contracts[end].import_idx == first->import_idx) {
+            const NvmCallbackContract *c = &mod->callback_contracts[end];
+            if (c->abi_version != NVM_CALLBACK_ABI_RETAINED_V1 ||
+                c->execution > NVM_FOREIGN_WORKER_THREAD ||
+                c->execution != first->execution || c->adapter_name_idx != first->adapter_name_idx ||
+                !nvm_callback_shape_valid(c->param_tags, c->param_count, c->return_tag)) return false;
+            const char *adapter = nvm_get_string(mod, c->adapter_name_idx);
+            if (!adapter || !adapter[0] ||
+                strlen(adapter) != nvm_get_string_len(mod, c->adapter_name_idx)) return false;
+            if (end > begin && c->parameter_idx <= mod->callback_contracts[end - 1].parameter_idx)
+                return false;
+            if (c->parameter_idx == NVM_CALLBACK_NO_PARAMETER) {
+                if (expected || end != begin || c->param_count || c->return_tag != TAG_VOID)
+                    return false;
+            } else {
+                if (c->parameter_idx >= import->param_count || !(expected & (1u << c->parameter_idx)))
+                    return false;
+                actual |= 1u << c->parameter_idx;
+            }
+            end++;
+        }
+        if (actual != expected ||
+            (end < mod->callback_contract_count && mod->callback_contracts[end].import_idx < first->import_idx))
+            return false;
+        begin = end;
+    }
+    return true;
 }
 
 uint32_t nvm_find_function(const NvmModule *mod, const char *name) {
@@ -270,11 +410,26 @@ void nvm_strip_debug_info(NvmModule *mod) {
 uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
                         uint32_t function_name_idx, uint16_t param_count,
                         uint8_t return_type, const uint8_t *param_types) {
+    if (!mod) return UINT32_MAX;
     if (mod->import_count >= mod->import_capacity) {
-        uint32_t new_cap = mod->import_capacity * 2;
-        NvmImportEntry *new_imp = realloc(mod->imports, new_cap * sizeof(NvmImportEntry));
-        uint8_t **new_pt = realloc(mod->import_param_types, new_cap * sizeof(uint8_t *));
-        if (!new_imp || !new_pt) return 0;
+        if (mod->import_capacity > UINT32_MAX / 2) return UINT32_MAX;
+        uint32_t new_cap = mod->import_capacity ? mod->import_capacity * 2 : 16;
+#if SIZE_MAX <= UINT32_MAX
+        if (new_cap > SIZE_MAX / sizeof(NvmImportEntry) || new_cap > SIZE_MAX / sizeof(uint8_t *)) return UINT32_MAX;
+#endif
+        NvmImportEntry *new_imp = malloc((size_t)new_cap * sizeof(NvmImportEntry));
+        uint8_t **new_pt = malloc((size_t)new_cap * sizeof(uint8_t *));
+        if (!new_imp || !new_pt) {
+            free(new_imp);
+            free(new_pt);
+            return UINT32_MAX;
+        }
+        if (mod->import_count) {
+            memcpy(new_imp, mod->imports, (size_t)mod->import_count * sizeof(NvmImportEntry));
+            memcpy(new_pt, mod->import_param_types, (size_t)mod->import_count * sizeof(uint8_t *));
+        }
+        free(mod->imports);
+        free(mod->import_param_types);
         mod->imports = new_imp;
         mod->import_param_types = new_pt;
         mod->import_capacity = new_cap;
@@ -289,9 +444,8 @@ uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
 
     if (param_count > 0 && param_types) {
         mod->import_param_types[idx] = malloc(param_count);
-        if (mod->import_param_types[idx]) {
-            memcpy(mod->import_param_types[idx], param_types, param_count);
-        }
+        if (!mod->import_param_types[idx]) return UINT32_MAX;
+        memcpy(mod->import_param_types[idx], param_types, param_count);
     } else {
         mod->import_param_types[idx] = NULL;
     }
@@ -426,6 +580,17 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
+    if (mod->callback_contract_count) {
+        if (out_size) *out_size = 0;
+        return NULL;
+    }
+    /* I cannot erase an exact binding or coprocess kind in legacy output. */
+    for (uint32_t i = 0; i < mod->import_count; i++) {
+        if (mod->imports[i].kind != NVM_IMPORT_FFI) {
+            if (out_size) *out_size = 0;
+            return NULL;
+        }
+    }
     /* Count sections we'll write */
     uint32_t nsections = 0;
     bool has_strings   = (mod->string_count > 0);
@@ -757,7 +922,10 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     fn.upvalue_count = le_read_u16(sec_data + pos);     pos += 2;
                     fn.result_tag    = sec_data[pos++];
                     fn.result_count  = sec_data[pos++];
-                    nvm_add_function(mod, &fn);
+                    if (nvm_add_function(mod, &fn) == UINT32_MAX) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                 }
                 break;
             }

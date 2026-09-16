@@ -44,7 +44,8 @@
 #define NVM_V2_FEATURE_COPROCESS (1u << 2)  /* requires the co-process host */
 #define NVM_V2_FEATURE_DEBUG     (1u << 3)  /* DEBUG section present */
 #define NVM_V2_FEATURE_CLOSURES  (1u << 4)  /* constructs heap closures */
-#define NVM_V2_FEATURE_KNOWN_MASK 0x0000001Fu
+#define NVM_V2_FEATURE_CALLBACKS (1u << 5)  /* retained callback import contracts */
+#define NVM_V2_FEATURE_KNOWN_MASK 0x0000003Fu
 
 /* Section types. Renumbered from v1: the clean break makes v1 numbering
  * irrelevant, and reusing it would invite confusion between the two. */
@@ -58,11 +59,12 @@ typedef enum {
     NVM_V2_SECTION_GLOBALS    = 0x07,
     NVM_V2_SECTION_IMPORTS    = 0x08,
     NVM_V2_SECTION_LINKS      = 0x09,
-    NVM_V2_SECTION_DEBUG      = 0x0A
+    NVM_V2_SECTION_DEBUG      = 0x0A,
+    NVM_V2_SECTION_CALLBACKS  = 0x0B
 } NvmV2SectionType;
 
 #define NVM_V2_SECTION_TYPE_MIN NVM_V2_SECTION_METADATA
-#define NVM_V2_SECTION_TYPE_MAX NVM_V2_SECTION_DEBUG
+#define NVM_V2_SECTION_TYPE_MAX NVM_V2_SECTION_CALLBACKS
 
 /* No entry_point. 0xFFFFFFFF means the module has none. */
 #define NVM_V2_NO_ENTRY_POINT 0xFFFFFFFFu

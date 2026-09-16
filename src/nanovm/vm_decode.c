@@ -109,8 +109,8 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
         VmDecodedInstruction *decoded = &out->instructions[i];
         uint8_t opcode = decoded->instruction.opcode;
         if (opcode == OP_JMP || opcode == OP_JMP_TRUE
-                || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG) {
-            int32_t relative = opcode == OP_MATCH_TAG
+                || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH) {
+            int32_t relative = (opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH)
                 ? decoded->instruction.operands[1].i32
                 : decoded->instruction.operands[0].i32;
             int64_t target = (int64_t)decoded->byte_offset + relative;

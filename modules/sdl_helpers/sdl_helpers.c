@@ -12,6 +12,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../../src/utf8.h"
+#include "../../src/runtime/dyn_array.h"
+#include <limits.h>
+
+NANO_EXPORT_ARRAY_ABI(nl_sdl_update_texture);
 
 #define NL_SDL_EVENT_BUF_CAP 256
 
@@ -26,24 +30,24 @@ static int nl_sdl_has_mousemotion = 0;
 
 int64_t nl_sdl_update_texture(SDL_Texture *texture, void *array,
                               int64_t width, int64_t height) {
-    struct {
-        int64_t length;
-        int64_t capacity;
-        int32_t elem_type;
-        uint8_t elem_size;
-        uint8_t padding[3];
-        void *data;
-    } *pixels = array;
-    if (!texture || !pixels || !pixels->data || width <= 0 || height <= 0 ||
-        pixels->length < width * height) {
+    DynArray *pixels = array;
+    if (!texture || width <= 0 || height <= 0 || width > INT_MAX / 4 || height > INT_MAX ||
+        (uint64_t)width > SIZE_MAX / sizeof(int64_t) / (uint64_t)height) {
         return -1;
     }
+    size_t count = (size_t)width * (size_t)height;
+    if (!dyn_array_has_storage(pixels, ELEM_INT, sizeof(int64_t), count * sizeof(int64_t))) return -1;
+    int actual_width, actual_height;
+    Uint32 format;
+    if (SDL_QueryTexture(texture, &format, NULL, &actual_width, &actual_height) != 0 ||
+        actual_width != width || actual_height != height ||
+        SDL_BYTESPERPIXEL(format) != sizeof(uint32_t) || SDL_ISPIXELFORMAT_FOURCC(format)) return -1;
 
-    uint32_t *packed = malloc((size_t)(width * height) * sizeof(uint32_t));
+    uint32_t *packed = malloc(count * sizeof(uint32_t));
     if (!packed) return -1;
 
     const int64_t *source = pixels->data;
-    for (int64_t i = 0; i < width * height; i++) {
+    for (size_t i = 0; i < count; i++) {
         packed[i] = (uint32_t)source[i];
     }
 

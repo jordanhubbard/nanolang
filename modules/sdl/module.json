@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "SDL2 windowing, rendering, events, and input - cross-platform UI engine",
   "headers": ["SDL2/SDL.h"],
+  "c_sources": ["sdl_anchor.c"],
   "header_priority": 10,
   "pkg_config": ["sdl2"],
   "system_packages": ["sdl2"]

@@ -1,0 +1,7 @@
+# I reject a perform argument that disagrees with its operation declaration.
+effect Recorder { emit : int -> void }
+fn main() -> int {
+    perform Recorder.emit("not an integer")
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -51,7 +51,9 @@ static int try_connect(const char *sock_path) {
     memcpy(addr.sun_path, sock_path, path_len + 1);
 
     if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        int saved_errno = errno;
         close(fd);
+        errno = saved_errno;
         return -1;
     }
 
@@ -153,9 +155,22 @@ VmdClient *vmd_connect(int timeout_ms) {
     vmd_socket_path(sock_path, sizeof(sock_path));
     vmd_pid_path(pid_path, sizeof(pid_path));
 
+    if (!sock_path[0] || !pid_path[0] ||
+        strlen(sock_path) >= sizeof(((struct sockaddr_un *)0)->sun_path)) {
+        fprintf(stderr, "[vmd-client] I cannot represent this daemon socket path.\n");
+        return NULL;
+    }
+
     /* Try connecting first */
     int fd = try_connect(sock_path);
     if (fd >= 0) goto connected;
+
+    const char *no_autostart = getenv("NANOVMD_NO_AUTOSTART");
+    if (no_autostart && strcmp(no_autostart, "1") == 0) {
+        fprintf(stderr, "[vmd-client] I cannot connect to %s: %s; automatic launch is disabled.\n",
+                sock_path, strerror(errno));
+        return NULL;
+    }
 
     /* Launch daemon and poll for socket */
     if (!launch_daemon(pid_path)) {

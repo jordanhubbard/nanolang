@@ -1,4 +1,6 @@
 /* Test: bytes conversion and file operations */
+from "modules/std/fs.nano" import write, delete
+
 fn main() -> int {
     return 0
 }
@@ -13,11 +15,15 @@ shadow main {
 
     let path: string = (mktemp "nanolang_bytes_")
     assert (!= path "")
-    assert (== (file_write path "ABC") 0)
+    assert (== (write path "ABC") 0)
     let b2: array<u8> = (file_read_bytes path)
     assert (== (array_length b2) 3)
     assert (== (at b2 0) 65)
     assert (== (at b2 1) 66)
     assert (== (at b2 2) 67)
-    assert (== (file_remove path) 0)
+    assert (== (string_from_bytes b2) "ABC")
+    assert (== (write path "") 0)
+    assert (== (array_length (file_read_bytes path)) 0)
+    assert (== (delete path) 0)
+    assert (== (array_length (file_read_bytes path)) 0)
 }

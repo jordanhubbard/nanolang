@@ -518,15 +518,10 @@ static const char *last_error_str(void) {
     return "";
 }
 
-/* ── nanolang DynArray ABI (must match runtime/dyn_array.h) ─────────────── */
-typedef struct {
-    int64_t  length;
-    int64_t  capacity;
-    int32_t  elem_type;
-    uint8_t  elem_size;
-    uint8_t  _pad[3];
-    void    *data;
-} NLArray;
+#include "../../src/runtime/dyn_array.h"
+typedef DynArray NLArray;
+NANO_EXPORT_ARRAY_ABI(nl_gpu_memcpy_to_device);
+NANO_EXPORT_ARRAY_ABI(nl_gpu_memcpy_from_device);
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * PUBLIC nl_gpu_* API
@@ -607,7 +602,7 @@ void nl_gpu_free(int64_t ptr) {
 }
 
 bool nl_gpu_memcpy_to_device(int64_t dst, NLArray *src, int64_t bytes) {
-    if (!src || !src->data || bytes <= 0) return false;
+    if (bytes <= 0 || !dyn_array_has_storage(src, ELEM_INT, sizeof(int64_t), (uint64_t)bytes)) return false;
     if (runtime_select() == RT_NONE) return false;
     if (g_runtime == RT_CUDA) {
         CUresult r = g_cuda.cuMemcpyHtoD((CUdeviceptr)dst, src->data, (size_t)bytes);
@@ -623,7 +618,7 @@ bool nl_gpu_memcpy_to_device(int64_t dst, NLArray *src, int64_t bytes) {
 }
 
 bool nl_gpu_memcpy_from_device(NLArray *dst, int64_t src, int64_t bytes) {
-    if (!dst || !dst->data || bytes <= 0) return false;
+    if (bytes <= 0 || !dyn_array_has_storage(dst, ELEM_INT, sizeof(int64_t), (uint64_t)bytes)) return false;
     if (runtime_select() == RT_NONE) return false;
     if (g_runtime == RT_CUDA) {
         CUresult r = g_cuda.cuMemcpyDtoH(dst->data, (CUdeviceptr)src, (size_t)bytes);

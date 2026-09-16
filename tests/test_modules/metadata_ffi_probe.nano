@@ -1,0 +1,5 @@
+unsafe module metadata_ffi_probe
+extern fn get_argc() -> int
+struct HiddenForeign { value: int }
+pub fn metadata_visible(value: int) -> int { return value }
+shadow metadata_visible { assert (== (metadata_visible 7) 7) }

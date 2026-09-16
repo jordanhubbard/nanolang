@@ -6,6 +6,7 @@
 
 #include "vmd_protocol.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -16,11 +17,17 @@
  * ======================================================================== */
 
 void vmd_socket_path(char *buf, size_t size) {
-    snprintf(buf, size, "/tmp/nanolang_vm_%u.sock", (unsigned)getuid());
+    const char *path = getenv("NANOVMD_SOCKET");
+    int count = path ? snprintf(buf, size, "%s", path)
+                     : snprintf(buf, size, "/tmp/nanolang_vm_%u.sock", (unsigned)getuid());
+    if (size && (count < 0 || (size_t)count >= size)) buf[0] = '\0';
 }
 
 void vmd_pid_path(char *buf, size_t size) {
-    snprintf(buf, size, "/tmp/nanolang_vm_%u.pid", (unsigned)getuid());
+    const char *path = getenv("NANOVMD_SOCKET");
+    int count = path ? snprintf(buf, size, "%s.pid", path)
+                     : snprintf(buf, size, "/tmp/nanolang_vm_%u.pid", (unsigned)getuid());
+    if (size && (count < 0 || (size_t)count >= size)) buf[0] = '\0';
 }
 
 /* ========================================================================

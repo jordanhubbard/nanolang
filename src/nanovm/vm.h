@@ -13,6 +13,8 @@
 #include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
+#include "../runtime/callback_runtime.h"
+#include <pthread.h>
 
 /* ========================================================================
  * VM Configuration
@@ -20,7 +22,7 @@
 
 #define VM_STACK_INITIAL    4096
 #define VM_MAX_FRAMES       1024
-#define VM_MAX_GLOBALS      4096
+#define VM_MAX_GLOBALS      NVM_MAX_GLOBALS
 #define VM_PROFILE_TRIPLES  4096
 
 typedef struct {
@@ -64,6 +66,8 @@ typedef struct {
  * ======================================================================== */
 
 typedef struct {
+    uint32_t effect_owner; /* One-based lexical owner for handler activations. */
+    uint16_t effect_local_start;
     uint32_t fn_idx;          /* Function table index */
     uint32_t return_ip;       /* Instruction pointer to return to */
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
@@ -106,6 +110,12 @@ typedef enum {
  * VM State
  * ======================================================================== */
 
+typedef struct {
+    const NvmModule *module;
+    uint32_t operation, target, owner;
+    uint16_t parameter_start, parameter_count;
+} VmEffectHandler;
+
 typedef struct VmState {
     /* Module being executed */
     const NvmModule *module;
@@ -134,6 +144,14 @@ typedef struct VmState {
     /* Call stack */
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
+    VmEffectHandler handlers[VM_MAX_FRAMES];
+    uint32_t handler_count;
+    uint32_t activation_floor; /* RET stops before resuming a suspended caller. */
+    pthread_t owner_thread;
+    NanoCallbackRuntime *callbacks;
+    bool callbacks_closed;
+    VmResult callback_error;
+    char callback_error_msg[256];
 
     /* Current execution state */
     uint32_t ip;              /* Instruction pointer (byte offset in code) */
@@ -224,7 +242,8 @@ typedef enum {
     TRAP_PRINT,             /* OP_PRINT — stdout output */
     TRAP_ASSERT,            /* OP_ASSERT — assertion check */
     TRAP_HALT,              /* OP_HALT — explicit stop */
-    TRAP_ERROR              /* Runtime error */
+    TRAP_ERROR,             /* Runtime error */
+    TRAP_YIELD              /* Owner-thread callback scheduling boundary */
 } VmTrapType;
 
 typedef struct {
@@ -252,15 +271,33 @@ void vm_destroy(VmState *vm);
  * and handles each trap. */
 VmResult vm_execute(VmState *vm);
 
-/* Execute a specific function by index. Returns VM_OK on success. */
+/* I execute a function and transfer argument references into its frame.
+ * Argument storage must be outside my stack. Use vm_invoke for borrowed or
+ * stack-backed arguments. A rejected call before frame setup consumes none. */
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count);
 
 /* Invoke one function as an isolated host call on a persistent VM.
+ * I borrow and snapshot args, including complete live slices of my stack.
+ * out_result must be outside my stack and ready to receive an owned value.
  * Exact arity is required. On success, ownership of the returned value moves
  * to out_result; pass NULL to discard it. On failure, temporary operand-stack
  * values and call frames are removed while globals and heap state remain. */
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result);
+
+/* I borrow a VM-local callable and args at an owner-thread host boundary.
+ * The core must be suspended, never executing concurrently. I permit nested
+ * activations, require normal return, and unwind only the new activation.
+ * Returned values are owned by the caller; out_result cannot alias my stack. */
+VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *args,
+                            uint16_t arg_count, NanoValue *out_result);
+
+/* I publish only typed VM-local callables. The returned native reference is
+ * owned by the caller. Pump/shutdown/publication are owner-thread operations. */
+NanoCallbackV1 *vm_callback_create(VmState *vm, NanoValue callable,
+                                  const NvmCallbackContract *contract);
+int vm_callback_pump(VmState *vm, bool wait);
+NanoCallbackStatus vm_callback_shutdown(VmState *vm);
 
 /* Run pure NanoISA instructions until a trap occurs.
  * This is the "processor" — no I/O, no dlopen, no stdout.
@@ -288,6 +325,11 @@ const char *vm_error_string(VmResult result);
 /* Link a module for legacy roots without MODULE_REFS (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* I resolve a callable within this VM's stable root/linked-module registry.
+ * Values are VM-local and do not authorize transfer to another VM/process. */
+bool vm_callable_target(const VmState *vm, NanoValue callable,
+                        const NvmModule **module, uint32_t *function_index);
 
 /* Link the next dependency declared by the root module's MODULE_REFS section.
  * The name and declaration order define the OP_CALL_MODULE index. */

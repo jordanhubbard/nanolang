@@ -1387,8 +1387,8 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
             /* perform Foo.op arg — record the effect, return op return type */
             const char *eff_name = node->as.effect_op.effect_name;
             const char *op_name  = node->as.effect_op.op_name;
-            if (node->as.effect_op.arg)
-                infer_expr(ctx, env, node->as.effect_op.arg);
+            for (int i = 0; i < node->as.effect_op.arg_count; i++)
+                infer_expr(ctx, env, node->as.effect_op.args[i]);
             if (ctx->current_effects && eff_name)
                 effect_row_add(ctx->current_effects, eff_name);
             if (ctx->effect_registry && eff_name && op_name) {

@@ -1,0 +1,70 @@
+# I keep value representations consistent across native and VM shadows.
+struct ReleaseDecoy { y: int, x: int }
+struct ReleasePoint { x: int, y: int }
+union ReleaseChoice { Some { value: int }, None {} }
+
+fn release_point() -> ReleasePoint {
+    return ReleasePoint { x: 3, y: 7 }
+}
+shadow release_point {
+    let point = (release_point)
+    assert (== point.y 7)
+    assert (== (release_point).y 7)
+}
+
+fn release_choice() -> ReleaseChoice {
+    return ReleaseChoice.Some { value: 9 }
+}
+shadow release_choice {
+    let choice = (release_choice)
+    let answer: int = match choice {
+        Some(item) if (< item.value 0) => -1
+        Some(item) => { let doubled: int = (* item.value 2) doubled }
+        _ => 0
+    }
+    assert (== answer 18)
+}
+
+fn release_integer_match(n: int) -> int {
+    let answer: int = match n {
+        1 if false => 90
+        1 => { let value: int = 11 value }
+        2 => { return 22 }
+        _ => 33
+    }
+    return (+ answer 100)
+}
+shadow release_integer_match {
+    assert (== (release_integer_match 1) 111)
+    assert (== (release_integer_match 2) 22)
+    assert (== (release_integer_match 7) 133)
+}
+
+fn release_arrays() -> void {
+    let values: array<float> = (array_new 3 2.5)
+    assert (== (at values 2) 2.5)
+    let mut empty: array<float> = []
+    set empty (array_push empty 3.5)
+    assert (== (at empty 0) 3.5)
+    let tail: array<float> = (array_slice values 1 9223372036854775807)
+    assert (== (array_length tail) 2)
+    assert (== (at tail 0) 2.5)
+    assert (== (array_length (array_slice values 9223372036854775807 1)) 0)
+    assert (== (array_length (array_slice values 1 -1)) 0)
+}
+shadow release_arrays { (release_arrays) }
+
+fn release_escapes() -> void {
+    assert (== (str_length "\"hello\"") 7)
+    assert (== (str_length "\n\t\r\\\'") 5)
+    assert (== (char_at "x\ny" 1) 10)
+}
+shadow release_escapes { (release_escapes) }
+
+fn main() -> int {
+    (release_arrays)
+    (release_escapes)
+    assert (== (release_integer_match 2) 22)
+    return 0
+}
+shadow main { assert (== (main) 0) }

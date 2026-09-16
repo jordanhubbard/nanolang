@@ -1,0 +1,4 @@
+module "../test_modules/introspection_collision/a.nano" as first
+module "../test_modules/introspection_collision/b.nano" as second
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

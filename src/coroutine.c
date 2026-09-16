@@ -8,13 +8,12 @@
  * Design notes:
  * - "spawn(fn, args)" creates a coroutine entry in the run_queue
  * - "scheduler_run()" or "await coro_handle" drains the run queue
- * - "yield()" is a cooperative hint; in this implementation it allows
- *   other pending coroutines to run (by returning and re-queueing)
+ * - "yield()" is currently a no-op; it does not re-queue or suspend a call
  * - No setjmp/longjmp needed; each coroutine runs as a normal function call
  * - "await coro_val" runs the scheduler until the target coroutine is done
  *
- * This model is correct for nanolang's async/await semantics since the
- * CPS pass already transforms async functions into continuation-based code.
+ * I do not implement resumable async/await here. My CPS walker does not
+ * create continuations. Await may execute nested callbacks on the C stack.
  */
 
 #include "coroutine.h"
@@ -22,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 /* ── Global scheduler instance ─────────────────────────────────────────── */
 NanoScheduler g_scheduler = { .initialized = false };
@@ -41,6 +41,7 @@ void nano_scheduler_init(void) {
 
 /* ── Internal: find coroutine by id ───────────────────────────────────── */
 static NanoCoroutine *coro_by_id(int id) {
+    if (!g_scheduler.initialized || id < 0) return NULL;
     for (int i = 0; i < MAX_COROUTINES; i++) {
         if (g_scheduler.coroutines[i].id == id) {
             return &g_scheduler.coroutines[i];
@@ -52,13 +53,12 @@ static NanoCoroutine *coro_by_id(int id) {
 /* ── Spawn ─────────────────────────────────────────────────────────────── */
 int nano_coro_spawn(CoroFn fn, void *arg) {
     if (!g_scheduler.initialized) nano_scheduler_init();
+    if (!fn || g_scheduler.count == INT_MAX) return -1;
 
     /* Find a free slot */
     int slot = -1;
     for (int i = 0; i < MAX_COROUTINES; i++) {
-        if (g_scheduler.coroutines[i].id < 0 ||
-            g_scheduler.coroutines[i].status == CORO_DONE ||
-            g_scheduler.coroutines[i].status == CORO_ERROR) {
+        if (!g_scheduler.coroutines[i].active && g_scheduler.coroutines[i].id < 0) {
             slot = i;
             break;
         }
@@ -82,16 +82,28 @@ int nano_coro_spawn(CoroFn fn, void *arg) {
     return id;
 }
 
+bool nano_coro_release(int id) {
+    NanoCoroutine *coro = coro_by_id(id);
+    if (!coro || coro->active ||
+        (coro->status != CORO_DONE && coro->status != CORO_ERROR)) return false;
+    free(coro->error_msg);
+    memset(coro, 0, sizeof(*coro));
+    coro->id = -1;
+    coro->status = CORO_DONE;
+    coro->awaiting_id = -1;
+    coro->result.type = VAL_VOID;
+    return true;
+}
+
 /* ── Yield ─────────────────────────────────────────────────────────────── */
 /*
  * yield() — cooperative hint to allow other coroutines to run.
  * In our simple non-setjmp scheduler, yield is a no-op for the current
- * coroutine (it continues executing). The scheduler's round-robin ensures
- * interleaving at spawn/await boundaries.
+ * coroutine (it continues executing). Await can execute another callback
+ * on the same C stack; spawn only queues work.
  *
  * For a full preemptive/cooperative yield, ucontext_t or fibers would be needed.
- * Since nanolang is single-threaded and the CPS pass handles async control flow,
- * this cooperative hint is sufficient for most use cases.
+ * I do not claim suspension or fairness from this no-op.
  */
 void nano_coro_yield(void) {
     /* In the simple scheduler: yield is a no-op.
@@ -129,9 +141,11 @@ bool nano_scheduler_step(void) {
     int prev_current = g_scheduler.current;
     g_scheduler.current = found;
     coro->status = CORO_RUNNING;
+    coro->active = true;
 
     /* Run coroutine to completion (or until it calls await on another coro) */
     Value result = coro->fn(coro->arg, coro->id);
+    coro->active = false;
 
     /* If still running (wasn't suspended by await), mark as done */
     if (coro->status == CORO_RUNNING) {
@@ -162,6 +176,7 @@ void nano_scheduler_run_until_done(void) {
 Value nano_coro_await_id(int coro_id) {
     NanoCoroutine *target = coro_by_id(coro_id);
     if (!target) {
+        nano_coro_error("I cannot await an invalid or released task handle.");
         Value v;
         memset(&v, 0, sizeof(v));
         v.type = VAL_VOID;
@@ -171,6 +186,15 @@ Value nano_coro_await_id(int coro_id) {
     /* If already done, return result immediately */
     if (target->status == CORO_DONE) {
         return target->result;
+    }
+
+    /* In this run-to-completion scheduler every active target is on the
+     * current C call stack. Waiting for it would wait on myself or an ancestor. */
+    if (target->active && target->status != CORO_ERROR) {
+        nano_coro_error("I cannot await myself or an active ancestor task.");
+        Value result = {0};
+        result.type = VAL_VOID;
+        return result;
     }
 
     /* Run the scheduler until this coroutine is done */
@@ -192,7 +216,9 @@ Value nano_coro_await_id(int coro_id) {
             if (slot >= 0) {
                 g_scheduler.current = slot;
                 target->status = CORO_RUNNING;
+                target->active = true;
                 Value result = target->fn(target->arg, target->id);
+                target->active = false;
                 if (target->status == CORO_RUNNING) {
                     target->status = CORO_DONE;
                     target->result = result;
@@ -207,6 +233,8 @@ Value nano_coro_await_id(int coro_id) {
     }
 
     if (target->status == CORO_DONE) return target->result;
+
+    nano_coro_error("I could not complete the awaited task.");
 
     Value v;
     memset(&v, 0, sizeof(v));
@@ -247,6 +275,7 @@ int nano_scheduler_pending_count(void) {
 void nano_coro_complete(Value result) {
     if (g_scheduler.current < 0) return;
     NanoCoroutine *c = &g_scheduler.coroutines[g_scheduler.current];
+    if (c->status != CORO_RUNNING) return;
     c->status = CORO_DONE;
     c->result = result;
 }
@@ -254,6 +283,7 @@ void nano_coro_complete(Value result) {
 void nano_coro_error(const char *msg) {
     if (g_scheduler.current < 0) return;
     NanoCoroutine *c = &g_scheduler.coroutines[g_scheduler.current];
+    if (c->status != CORO_RUNNING) return;
     c->status = CORO_ERROR;
     if (msg) {
         size_t len = strlen(msg);

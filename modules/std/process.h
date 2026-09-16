@@ -5,7 +5,12 @@
 #include "../../src/runtime/dyn_array.h"
 
 /* Run a command and capture stdout/stderr
- * Returns array<string> with [exit_code, stdout, stderr]
+ * I execute the full command through /bin/sh, capturing through anonymous
+ * file descriptors. I return [exit_code, stdout, stderr], use -1 with a
+ * diagnostic on setup/read failure, and return NULL on result allocation
+ * failure. Embedded NUL output is rejected; this is a text API. I impose no
+ * execution timeout or output quota. The caller owns the child command's
+ * side effects, including when capture/result allocation later fails.
  */
 DynArray* nl_os_process_run(const char* command);
 
@@ -28,7 +33,8 @@ int64_t nl_os_process_wait(int64_t pid);
 int64_t nl_os_process_kill_group(int64_t pid, int64_t signal_number);
 
 /* Spawn a process non-blocking with pipes for stdout/stderr capture.
- * Returns array<string> with [pid, stdout_fd, stderr_fd], or ["-1","-1","-1"] on error.
+ * Returns array<string> with [pid, stdout_fd, stderr_fd], ["-1","-1","-1"] on
+ * setup failure/null command, or NULL when result allocation fails.
  * Both fds are set non-blocking. Caller must close them with nl_os_fd_close().
  */
 DynArray* nl_os_process_spawn_with_pipes(const char* command);

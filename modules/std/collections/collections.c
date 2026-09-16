@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+NANO_EXPORT_ARRAY_ABI(nl_hm_keys);
+NANO_EXPORT_ARRAY_ABI(nl_hm_values);
+NANO_EXPORT_ARRAY_ABI(nl_set_values);
+
 /* ============================ StringBuilder ============================ */
 
 typedef struct {

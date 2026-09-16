@@ -9,9 +9,14 @@ fn create_file() -> FileHandle {
 }
 
 fn close_file(f: FileHandle) -> void {
-    /* This function consumes the FileHandle */
+    # I dismantle a simulated handle, not an operating-system file.
+    let FileHandle { fd } = f
+    assert (== fd 42)
     (println "File closed")
 }
+
+shadow create_file { let f: FileHandle = (create_file) assert (== f.fd 42) (close_file f) }
+shadow close_file { (close_file FileHandle { fd: 42 }) }
 
 fn main() -> int {
     (println "Testing resource tracking infrastructure")
@@ -29,4 +34,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

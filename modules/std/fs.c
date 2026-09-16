@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L  /* For strdup(), strtok_r() */
+#define _XOPEN_SOURCE 700       /* For realpath() */
 
 #include "fs.h"
 #include <stdio.h>
@@ -11,148 +12,90 @@
 #include <libgen.h>
 #include <errno.h>
 
-/* Forward declarations */
-extern char* nl_str_concat(const char* s1, const char* s2);
-extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
-extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
+#include "../../src/runtime/directory_walk.h"
+#include "../../src/runtime/file_text.h"
+#include "../../src/runtime/file_write.h"
+#include "../../src/runtime/path_normalize.h"
 
-/* Recursive directory walker */
-static void walkdir_recursive(const char* path, DynArray* result) {
-    DIR* dir = opendir(path);
-    if (!dir) return;
-    
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-        /* Skip . and .. */
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-        
-        /* Build full path */
-        char full_path[2048];
-        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
-        
-        struct stat st;
-        if (stat(full_path, &st) == 0) {
-            if (S_ISREG(st.st_mode)) {
-                /* Add file to result */
-                dyn_array_push_string_copy(result, full_path);
-            } else if (S_ISDIR(st.st_mode)) {
-                /* Recurse into directory */
-                walkdir_recursive(full_path, result);
-            }
-        }
-    }
-    
-    closedir(dir);
-}
+NANO_EXPORT_ARRAY_ABI(fs_walkdir);
 
-/* Walk directory tree, returning all file paths */
 DynArray* fs_walkdir(const char* root) {
-    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 128);
-    if (!result) return NULL;
-    
-    walkdir_recursive(root, result);
+    return nl_fs_walkdir(root);
+}
+
+bool fs_walkdir_release(DynArray* result) {
+    if (!result || !gc_is_managed(result)) return false;
+    GCHeader *header = gc_get_header(result);
+    if (header->type != GC_TYPE_ARRAY || header->ref_count != 1 ||
+        !dyn_array_has_storage(result, ELEM_STRING, sizeof(char*), 0)) return false;
+    for (int64_t i = 0; i < result->length; i++) {
+        free(((char**)result->data)[i]);
+        ((char**)result->data)[i] = NULL;
+    }
+    result->length = 0;
+    gc_release(result);
+    return true;
+}
+
+/* I resolve existing paths physically; failure is an empty string, never a
+ * lexical approximation of the requested identity. */
+const char* path_canonical(const char* path) {
+    if (!path || !path[0]) return strdup("");
+    char *resolved = realpath(path, NULL);
+    return resolved ? resolved : strdup("");
+}
+
+/* I compare existing file identities without opening either file for writing.
+ * A missing candidate is distinct; unavailable source identity is an error.
+ * This is a snapshot check, not protection against concurrent path replacement. */
+int64_t file_compare_identity(const char* source, const char* candidate) {
+    struct stat source_stat, candidate_stat;
+    if (!source || !source[0] || !candidate || !candidate[0]) return -1;
+    if (stat(source, &source_stat) != 0) return -1;
+    if (stat(candidate, &candidate_stat) != 0)
+        return errno == ENOENT || errno == ENOTDIR ? 0 : -1;
+    return source_stat.st_dev == candidate_stat.st_dev &&
+           source_stat.st_ino == candidate_stat.st_ino ? 1 : 0;
+}
+
+/* I distinguish absent entries from dangling links and lookup failures. */
+static int destination_stat(const char* path, struct stat* info) {
+    if (stat(path, info) == 0) return 1;
+    if (errno != ENOENT) return -1;
+    if (lstat(path, info) == 0 || errno != ENOENT) return -1;
+    return 0;
+}
+
+/* I compare stable destination entries, including files not yet created.
+ * An exclusive empty-directory probe asks the filesystem about absent names.
+ * I remove it before returning; unresolved identity or cleanup fails closed.
+ * This is not protection against concurrent namespace replacement. */
+int64_t file_compare_destinations(const char* first, const char* second) {
+    if (!first || !first[0] || !second || !second[0]) return -1;
+    struct stat a, b;
+    int a_exists = destination_stat(first, &a);
+    int b_exists = destination_stat(second, &b);
+    if (a_exists < 0 || b_exists < 0) return -1;
+    if (a_exists && b_exists)
+        return a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+    if (a_exists || b_exists) return 0;
+
+    if (mkdir(first, 0700) != 0) return -1;
+    int64_t result = -1;
+    if (stat(first, &a) == 0) {
+        b_exists = destination_stat(second, &b);
+        if (b_exists == 0) result = 0;
+        else if (b_exists > 0)
+            result = a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+    }
+    if (rmdir(first) != 0) return -1;
     return result;
 }
 
-/* Internal helper: normalize path into a newly allocated string. */
-static char* path_normalize_alloc(const char* path) {
-    if (!path || path[0] == '\0') {
-        return strdup(".");
-    }
-
-    int is_absolute = (path[0] == '/');
-    char* copy = strdup(path);
-    if (!copy) return NULL;
-
-    size_t parts_capacity = 16;
-    size_t count = 0;
-    char** parts = malloc(parts_capacity * sizeof(*parts));
-    if (!parts) {
-        free(copy);
-        return NULL;
-    }
-
-    char* saveptr = NULL;
-    char* token = strtok_r(copy, "/", &saveptr);
-    while (token) {
-        if (strcmp(token, "") == 0 || strcmp(token, ".") == 0) {
-            /* Skip empty and current directory */
-        } else if (strcmp(token, "..") == 0) {
-            /* Go up one level if possible */
-            if (count > 0 && strcmp(parts[count - 1], "..") != 0) {
-                count--;
-            } else if (!is_absolute) {
-                if (count == parts_capacity) {
-                    size_t new_capacity = parts_capacity * 2;
-                    char** grown = realloc(parts, new_capacity * sizeof(*grown));
-                    if (!grown) {
-                        free(parts);
-                        free(copy);
-                        return NULL;
-                    }
-                    parts = grown;
-                    parts_capacity = new_capacity;
-                }
-                parts[count++] = token;
-            }
-        } else {
-            if (count == parts_capacity) {
-                size_t new_capacity = parts_capacity * 2;
-                char** grown = realloc(parts, new_capacity * sizeof(*grown));
-                if (!grown) {
-                    free(parts);
-                    free(copy);
-                    return NULL;
-                }
-                parts = grown;
-                parts_capacity = new_capacity;
-            }
-            parts[count++] = token;
-        }
-        token = strtok_r(NULL, "/", &saveptr);
-    }
-
-    size_t result_size = is_absolute ? 2 : 1;
-    if (count == 0 && !is_absolute) result_size = 2;
-    for (size_t i = 0; i < count; i++) {
-        size_t len = strlen(parts[i]);
-        if (len > SIZE_MAX - result_size - 1) {
-            free(parts);
-            free(copy);
-            return NULL;
-        }
-        result_size += len + 1;
-    }
-
-    char* result = malloc(result_size);
-    if (!result) {
-        free(parts);
-        free(copy);
-        return NULL;
-    }
-
-    size_t pos = 0;
-    if (is_absolute) result[pos++] = '/';
-    for (size_t i = 0; i < count; i++) {
-        size_t len = strlen(parts[i]);
-        if (pos > 0 && result[pos - 1] != '/') result[pos++] = '/';
-        memcpy(result + pos, parts[i], len);
-        pos += len;
-    }
-    if (pos == 0) result[pos++] = '.';
-    result[pos] = '\0';
-
-    free(parts);
-    free(copy);
-    return result;
-}
 
 /* Normalize path (resolve . and .., remove redundant slashes) */
 const char* path_normalize(const char* path) {
-    char* result = path_normalize_alloc(path);
-    return result ? result : strdup("");
+    return nl_normalize_path(path);
 }
 
 /* Join two path components */
@@ -218,149 +161,92 @@ const char* path_dirname(const char* path) {
     return result;
 }
 
-static void path_append(char* out, size_t out_size, const char* part) {
-    if (!out || !part) return;
-    if (out[0] != '\0') {
-        strncat(out, "/", out_size - strlen(out) - 1);
+static char *relative_path_cwd(void) {
+    size_t capacity = 256;
+    for (;;) {
+        char *cwd = malloc(capacity);
+        if (!cwd) return NULL;
+        if (getcwd(cwd, capacity)) return cwd;
+        int error = errno;
+        free(cwd);
+        if (error != ERANGE || capacity > SIZE_MAX / 2) return NULL;
+        capacity *= 2;
     }
-    strncat(out, part, out_size - strlen(out) - 1);
 }
 
-static int path_make_absolute(const char* path, char* result, size_t result_size) {
-    char* normalized;
-    if (path[0] == '/') {
-        normalized = path_normalize_alloc(path);
-        if (!normalized || strlen(normalized) >= result_size) {
-            free(normalized);
-            return 0;
-        }
-        memcpy(result, normalized, strlen(normalized) + 1);
-        free(normalized);
-        return 1;
-    }
-
-    char cwd[2048];
-    char anchored[4096];
-    if (!getcwd(cwd, sizeof(cwd))) return 0;
-    if (snprintf(anchored, sizeof(anchored), "%s/%s", cwd, path) >= (int)sizeof(anchored)) {
-        return 0;
-    }
-    normalized = path_normalize_alloc(anchored);
-    if (!normalized || strlen(normalized) >= result_size) {
-        free(normalized);
-        return 0;
-    }
-    memcpy(result, normalized, strlen(normalized) + 1);
-    free(normalized);
-    return 1;
+static char *relative_path_absolute(const char *path, const char *cwd) {
+    if (path[0] == '/') return nl_normalize_path(path);
+    size_t prefix = strlen(cwd), suffix = strlen(path);
+    if (suffix > SIZE_MAX - 2 || prefix > SIZE_MAX - suffix - 2) return NULL;
+    char *joined = malloc(prefix + suffix + 2);
+    if (!joined) return NULL;
+    memcpy(joined, cwd, prefix); joined[prefix] = '/';
+    memcpy(joined + prefix + 1, path, suffix + 1);
+    char *normalized = nl_normalize_path(joined);
+    free(joined);
+    return normalized;
 }
 
-/* Compute relative path from base to target */
+/* I anchor relative inputs to one cwd snapshot before lexical comparison.
+ * I do not require target/base existence or resolve their symbolic links. */
 const char* path_relpath(const char* target, const char* base) {
-    char result[4096];
-
-    if (!target || !base) {
-        return strdup(".");
+    if (!target || !base) return strdup(".");
+    char *cwd = NULL;
+    if (target[0] != '/' || base[0] != '/') {
+        cwd = relative_path_cwd();
+        if (!cwd) return NULL;
     }
-
-    char target_norm[2048];
-    char base_norm[2048];
-    if (!path_make_absolute(target, target_norm, sizeof(target_norm)) ||
-        !path_make_absolute(base, base_norm, sizeof(base_norm))) {
-        return strdup(".");
+    char *target_norm = relative_path_absolute(target, cwd);
+    char *base_norm = relative_path_absolute(base, cwd);
+    free(cwd);
+    if (!target_norm || !base_norm) {
+        free(target_norm); free(base_norm); return NULL;
     }
-
-    char target_copy[2048];
-    char base_copy[2048];
-    snprintf(target_copy, sizeof(target_copy), "%s", target_norm);
-    snprintf(base_copy, sizeof(base_copy), "%s", base_norm);
-
-    char* target_parts[512];
-    char* base_parts[512];
-    int target_count = 0;
-    int base_count = 0;
-
-    char* saveptr = NULL;
-    char* token = strtok_r(target_copy, "/", &saveptr);
-    while (token && target_count < 512) {
-        target_parts[target_count++] = token;
-        token = strtok_r(NULL, "/", &saveptr);
+    size_t target_length = strlen(target_norm), base_length = strlen(base_norm);
+    if (target_length > SIZE_MAX - 2 || base_length > (SIZE_MAX - target_length - 2) / 3) {
+        free(target_norm); free(base_norm); return NULL;
     }
-
-    saveptr = NULL;
-    token = strtok_r(base_copy, "/", &saveptr);
-    while (token && base_count < 512) {
-        base_parts[base_count++] = token;
-        token = strtok_r(NULL, "/", &saveptr);
+    char *result = malloc(target_length + base_length * 3 + 2);
+    if (!result) { free(target_norm); free(base_norm); return NULL; }
+    char *target_save = NULL, *base_save = NULL;
+    char *a = strtok_r(target_norm, "/", &target_save);
+    char *b = strtok_r(base_norm, "/", &base_save);
+    while (a && b && strcmp(a, b) == 0) {
+        a = strtok_r(NULL, "/", &target_save);
+        b = strtok_r(NULL, "/", &base_save);
     }
-
-    int common = 0;
-    while (common < target_count && common < base_count &&
-           strcmp(target_parts[common], base_parts[common]) == 0) {
-        common++;
+    size_t used = 0;
+    while (b) {
+        if (used) result[used++] = '/';
+        result[used++] = '.'; result[used++] = '.';
+        b = strtok_r(NULL, "/", &base_save);
     }
-
-    result[0] = '\0';
-
-    for (int i = common; i < base_count; i++) {
-        path_append(result, sizeof(result), "..");
+    while (a) {
+        if (used) result[used++] = '/';
+        size_t length = strlen(a);
+        memcpy(result + used, a, length); used += length;
+        a = strtok_r(NULL, "/", &target_save);
     }
-
-    for (int i = common; i < target_count; i++) {
-        path_append(result, sizeof(result), target_parts[i]);
-    }
-
-    if (result[0] == '\0') {
-        snprintf(result, sizeof(result), ".");
-    }
-
-    return strdup(result);
+    if (!used) result[used++] = '.';
+    result[used] = 0;
+    free(target_norm); free(base_norm);
+    return result;
 }
 
 /* Read file content as string */
 const char* file_read(const char* path) {
-    FILE* f = fopen(path, "r");
-    if (!f) return "";
-    
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    
-    char* buffer = malloc(size + 1);
-    if (!buffer) {
-        fclose(f);
-        return "";
-    }
-    
-    size_t read = fread(buffer, 1, size, f);
-    buffer[read] = '\0';
-    fclose(f);
-    
-    return buffer;
+    char *text = nl_read_file_text(path);
+    return text ? text : "";
 }
 
 /* Write string to file */
 int64_t file_write(const char* path, const char* content) {
-    FILE* f = fopen(path, "w");
-    if (!f) return -1;
-    
-    size_t length = strlen(content);
-    size_t written = fwrite(content, 1, length, f);
-    int close_failed = fclose(f) == EOF;
-    
-    return written == length && !close_failed ? 0 : -1;
+    return nl_write_file_text(path, content, "w");
 }
 
 /* Append string to file */
 int64_t file_append(const char* path, const char* content) {
-    FILE* f = fopen(path, "a");
-    if (!f) return -1;
-    
-    size_t length = strlen(content);
-    size_t written = fwrite(content, 1, length, f);
-    int close_failed = fclose(f) == EOF;
-    
-    return written == length && !close_failed ? 0 : -1;
+    return nl_write_file_text(path, content, "a");
 }
 
 /* Check if file exists */

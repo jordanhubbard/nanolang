@@ -611,8 +611,8 @@ fn prop_fail_sum_over_five(a: int, b: int) -> string {
 }
 
 shadow prop_fail_sum_over_five {
-    let report: PropertyReport = (forall_int_pair "sum" (int_pair (int_range 0 3) (int_range 0 3)) prop_fail_sum_over_five)
-    assert (report_passed report)
+    let report: PropertyReport = (forall_int_pair "sum" (int_pair (int_range 3 3) (int_range 3 3)) prop_fail_sum_over_five)
+    assert (not (report_passed report))
 }
 
 fn prop_fail_length_over_one(values: array<int>) -> string {
@@ -626,7 +626,7 @@ fn prop_fail_length_over_one(values: array<int>) -> string {
 shadow prop_fail_length_over_one {
     let gen: IntArrayGenerator = (int_array (int_range 0 1) 2)
     let report: PropertyReport = (forall_int_array_with_config "len" gen prop_fail_length_over_one (config 5 5 5 5))
-    assert (report_passed report)
+    assert (not (report_passed report))
 }
 
 fn prop_non_negative_only(x: int) -> string {
@@ -1008,7 +1008,7 @@ pub fn forall_int_pair_with_config(name: string, generator: IntPairGenerator, pr
 
 shadow forall_int_pair_with_config {
     let cfg: RunConfig = (config 3 3 3 9)
-    let report: PropertyReport = (forall_int_pair_with_config "pair" (int_pair (int_range 0 1) (int_range 0 1)) prop_fail_on_zero_sum cfg)
+    let report: PropertyReport = (forall_int_pair_with_config "pair" (int_pair (int_range 0 0) (int_range 0 0)) prop_fail_on_zero_sum cfg)
     assert (not (report_passed report))
 }
 

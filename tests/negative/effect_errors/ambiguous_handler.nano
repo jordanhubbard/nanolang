@@ -1,0 +1,9 @@
+# I reject declaration-order selection between indistinguishable effects.
+effect Alpha { common : int -> int }
+effect Beta { common : int -> int }
+
+fn main() -> int {
+    return handle { 99 } with { common value -> { value } }
+}
+
+shadow main { assert (== (main) 99) }

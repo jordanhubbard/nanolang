@@ -451,6 +451,9 @@ typedef struct nl_ASTLet {
     int value;
     int value_type;
     bool is_mut;
+    bool is_destructure;
+    bool is_destructure_projection;
+    DynArray * destructure_names;
 } nl_ASTLet;
 typedef nl_ASTLet ASTLet;
 #endif

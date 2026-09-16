@@ -1,0 +1,57 @@
+# I check that continue advances only the innermost for iterator.
+fn main() -> int {
+    let mut visits: int = 0
+    let mut sum: int = 0
+    for i in (range 0 6) {
+        set visits (+ visits 1)
+        assert (<= visits 6)
+        if (== (% i 2) 1) { continue }
+        set sum (+ sum i)
+    }
+    assert (== visits 6)
+    assert (== sum 6)
+
+    set visits 0
+    for i in (range 0 4) {
+        set visits (+ visits 1)
+        assert (<= visits 4)
+        continue
+    }
+    assert (== visits 4)
+
+    set visits 0
+    for i in (range 0 3) {
+        for j in (range 0 2) {
+            set visits (+ visits 1)
+            assert (<= visits 6)
+            continue
+        }
+        let mut k: int = 0
+        while (< k 2) {
+            set k (+ k 1)
+            continue
+        }
+        assert (== k 2)
+        continue
+    }
+    assert (== visits 6)
+
+    let mut outer: int = 0
+    set visits 0
+    while (< outer 3) {
+        set outer (+ outer 1)
+        for j in (range 0 2) {
+            set visits (+ visits 1)
+            assert (<= visits 6)
+            if (== j 0) { continue }
+            break
+        }
+        continue
+    }
+    assert (== visits 6)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

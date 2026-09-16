@@ -32,6 +32,9 @@ typedef struct VmClosure VmClosure;
 
 typedef struct {
     uint8_t tag;  /* NanoValueTag */
+    /* VM-local callable owner: 1=root, 2+linked index; 0 is invalid.
+     * I use the tag's existing alignment padding, keeping values at 16 bytes. */
+    uint32_t callable_module;
     union {
         int64_t  i64;
         double   f64;
@@ -129,7 +132,14 @@ static inline NanoValue val_union(VmUnion *u) {
 static inline NanoValue val_function(uint32_t fn_idx) {
     NanoValue v = {0};
     v.tag = TAG_FUNCTION;
+    v.callable_module = 1;
     v.as.fn_idx = fn_idx;
+    return v;
+}
+
+static inline NanoValue val_function_owned(uint32_t fn_idx, uint32_t module_id) {
+    NanoValue v = val_function(fn_idx);
+    v.callable_module = module_id;
     return v;
 }
 

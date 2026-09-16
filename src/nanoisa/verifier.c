@@ -149,6 +149,10 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
             pop_count = instruction->operands[2].u16;
             push_count = instruction->operands[3].u16;
             break;
+        case OP_PERFORM:
+            pop_count = instruction->operands[1].u16;
+            push_count = 1;
+            break;
         case OP_RET:
             /* A return consumes this function's declared results and leaves
              * nothing: the frame goes away with it. */
@@ -176,9 +180,13 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
          * stopped there and every instruction after it went unverified while
          * nvm_verify still returned ok. Absence of data must not read as
          * proof. See issue #212. */
-        if (pop_count < 0 || push_count < 0)
+        if (pop_count < 0 || push_count < 0) {
+            free(heights);
+            free(work);
+            free(owed);
             return fail("function[%u] %s at offset %u has no known stack effect",
                         fn_idx, info->name, decoded_instruction->byte_offset);
+        }
         int32_t before = heights[index];
 
         /* Return shape: a return must leave exactly the results the function
@@ -195,6 +203,14 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                         mod->functions[fn_idx].result_count);
         }
 
+        if (instruction->opcode == OP_HANDLER_PUSH && owed[index] != 0) {
+            free(heights); free(work); free(owed);
+            return fail("I cannot install a nonlocal-return handler across outstanding explicit retains.");
+        }
+        if (instruction->opcode == OP_EFFECT_RESUME && (before != 1 || owed[index] != 0)) {
+            free(heights); free(work); free(owed);
+            return fail("I require one result and balanced ownership when resuming an effect.");
+        }
         if (before < pop_count) {
             free(heights);
             free(work);
@@ -233,7 +249,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
         uint32_t successor_count = 0;
         uint8_t opcode = instruction->opcode;
         if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
-                || opcode == OP_MATCH_TAG) {
+                || opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH) {
             /* resolved_target is an offset into the whole CODE section, while
              * the instruction-index table is per function, so the function's
              * base has to come off first. Without that, every branch in a
@@ -259,11 +275,13 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
             successors[successor_count++] = target_index;
         }
         if (opcode != OP_JMP && opcode != OP_RET && opcode != OP_TAIL_CALL
-                && opcode != OP_HALT) {
+                && opcode != OP_HALT && opcode != OP_EFFECT_RESUME) {
             successors[successor_count++] = index + 1;
         }
         for (uint32_t i = 0; i < successor_count; i++) {
             uint32_t successor = successors[i];
+            int32_t successor_height = opcode == OP_HANDLER_PUSH && i == 0 ? 0 : after;
+            int32_t successor_owed = opcode == OP_HANDLER_PUSH && i == 0 ? 0 : owed_after;
             /* Reaching the end of a function's code is an implicit return,
              * not a fall-through into whatever follows: the VM checks the
              * result count and tags there exactly as OP_RET does. So the rule
@@ -291,18 +309,18 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                 continue;
             }
             if (heights[successor] < 0) {
-                heights[successor] = after;
-                owed[successor] = owed_after;
+                heights[successor] = successor_height;
+                owed[successor] = successor_owed;
                 work[tail++] = successor;
-            } else if (owed[successor] != owed_after) {
+            } else if (owed[successor] != successor_owed) {
                 uint32_t offset = decoded->instructions[successor].byte_offset;
                 int32_t existing = owed[successor];
                 free(heights);
                 free(work);
                 free(owed);
                 return fail("function[%u] incompatible ownership balance at offset %u (%d and %d)",
-                            fn_idx, offset, existing, owed_after);
-            } else if (heights[successor] != after) {
+                            fn_idx, offset, existing, successor_owed);
+            } else if (heights[successor] != successor_height) {
                 uint32_t offset = successor == decoded->instruction_count
                     ? decoded->code_size : decoded->instructions[successor].byte_offset;
                 int32_t existing = heights[successor];
@@ -310,7 +328,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                 free(work);
                 free(owed);
                 return fail("function[%u] incompatible stack heights at offset %u (%d and %d)",
-                            fn_idx, offset, existing, after);
+                            fn_idx, offset, existing, successor_height);
             }
         }
     }
@@ -369,6 +387,12 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (fn->result_tag >= TAG_COUNT)
             return fail("function[%u] result_tag %u is invalid",
                         i, fn->result_tag);
+        if (mod->function_param_types && mod->function_param_types[i]) {
+            for (uint16_t p = 0; p < fn->arity; p++) {
+                if (mod->function_param_types[i][p] >= TAG_COUNT)
+                    return fail("I found an invalid parameter tag in function[%u] parameter[%u]", i, p);
+            }
+        }
         if ((fn->result_count == 0) != (fn->result_tag == TAG_VOID))
             return fail("function[%u] result signature must be void/0 or non-void/nonzero", i);
         if (fn->local_count < fn->arity)
@@ -391,6 +415,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         }
     }
 
+    if (!nvm_callback_contracts_valid(mod))
+        return fail("I found an invalid retained callback import contract");
+
     /* Import string indices and imported-call signatures.
      * Imported (extern) calls are regularized around verified signatures:
      * every import must name valid strings and carry a well-formed signature
@@ -403,6 +430,13 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (imp->function_name_idx >= mod->string_count)
             return fail("import[%u] function_name_idx %u >= string_count %u",
                         i, imp->function_name_idx, mod->string_count);
+        if (imp->kind > NVM_IMPORT_ARTIFACT)
+            return fail("import[%u] has unknown kind %u", i, imp->kind);
+        if (imp->kind == NVM_IMPORT_ARTIFACT) {
+            const char *path = nvm_get_string(mod, imp->module_name_idx);
+            if (!path || path[0] != '/' || strlen(path) != nvm_get_string_len(mod, imp->module_name_idx))
+                return fail("import[%u] artifact path must be absolute and contain no NUL", i);
+        }
         if (imp->return_type >= TAG_COUNT)
             return fail("import[%u] return_type %u is not a valid value tag",
                         i, imp->return_type);
@@ -478,6 +512,17 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
             break;
         }
 
+        case OP_HANDLER_PUSH:
+            if (instr.operands[0].u32 >= mod->string_count ||
+                (uint32_t)instr.operands[2].u16 + instr.operands[3].u16 > fn->local_count)
+                FAIL_DECODED("I require valid handler names and parameter slots.");
+            if (decoded.instructions[i].resolved_target >= fn->code_offset + fn->code_length)
+                FAIL_DECODED("I require an executable handler arm.");
+            break;
+        case OP_PERFORM:
+            if (instr.operands[0].u32 >= mod->string_count)
+                FAIL_DECODED("I require a valid effect operation name.");
+            break;
         /* --- OP_MATCH_TAG: variant index + jump offset --- */
         case OP_MATCH_TAG: {
             int32_t offset = instr.operands[1].i32;
