@@ -28,10 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
+- [x] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
       instrumented objects instead of reusing normal objects when only `CC`
       changes. I test warm-cache behavior before claiming translator coverage.
-      MAC `task_f3df199b025042e0b1d83484cd104ed3`.
+      MAC `task_f3df199b025042e0b1d83484cd104ed3`. My warm-cache run passes
+      1,048 AOT and 952 shape checks with fresh instrumented objects, leaving
+      normal translator artifacts unchanged. Evidence:
+      `docs/evidence/aot-sanitizer-build-isolation.md`.
 - [x] **Chronicle branch reconciliation.** I review main `1a5fed53` and
       worker `633acda1`, retain their identical README chronology update, and
       integrate both histories without replacing compiler work. I verify the

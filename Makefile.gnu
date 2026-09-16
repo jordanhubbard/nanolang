@@ -424,7 +424,7 @@ test-verifier: test-verifier-cleanup
 
 .PHONY: test-nvm2c-sanitizers
 test-nvm2c-sanitizers:
-	@ASAN_OPTIONS="$${ASAN_OPTIONS:-detect_leaks=0}" $(MAKE) CC="$(CC) -fsanitize=address,undefined" test-nvm2c
+	@python3 scripts/run_nvm2c_sanitizers.py --make "$(MAKE)" --cc "$(CC)"
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: nano_virt nvm2c
@@ -436,12 +436,18 @@ test-nvm2c-shapes: | $(OBJ_DIR)
 		tests/nanoisa/test_nvm2c_shape.c $(NANOISA_DIR)/nvm2c_shape.c
 	@$(OBJ_DIR)/test_nvm2c_shape
 
-test-nvm2c: test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+NVM2C_TEST_BINARY ?= tests/nanoisa/test_nvm2c
+
+.PHONY: test-nvm2c-sanitizer-driver
+test-nvm2c-sanitizer-driver:
+	@python3 -m unittest tests.test_nvm2c_sanitizer_driver
+
+test-nvm2c: test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nvm2c \
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(NVM2C_TEST_BINARY) \
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c bin/nvm2c
-	@rm -f tests/nanoisa/test_nvm2c
+	@$(TIMEOUT_CMD) $(NVM2C_TEST_BINARY) $(BIN_DIR)/nvm2c
+	@rm -f $(NVM2C_TEST_BINARY)
 
 .PHONY: test-nvm2c371pass0fail
 test-nvm2c371pass0fail: test-nvm2c
@@ -480,8 +486,8 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
 .PHONY: nvm2c
-nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | bin
-	$(CC) $(CFLAGS) -o bin/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
 .PHONY: nanoisa_emit
 nanoisa_emit: $(COMPILER_C) | bin
