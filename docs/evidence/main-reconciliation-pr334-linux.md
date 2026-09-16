@@ -3,8 +3,10 @@
 I reconcile main `ded3ee5a` with integration `5cf21fc1` on Ubuntu ARM64.
 I retain the independent ownership pass in `resource_flow.c`; main's older
 identifier-only pass does not replace its lexical, branch and exit checks.
-I combine checker visibility with source-bounded emitter metadata and keep
-VM slot allocation separate from live lexical bindings.
+I retain source-bounded emitter metadata and keep VM slot allocation separate
+from live lexical bindings. Eager checker visibility flags from main hide lifted
+lambda captures; I remove those flags and verify lexical rejection together
+with captured array mutation.
 
 I retain dynamic native frames, owned arrays and scalar strings, tagged
 locals/globals and recursive shape facts. Main carries older snapshots of
@@ -69,3 +71,16 @@ The parser contract fixture reveals an ARM64 varargs defect: its final enum
 constant is promoted to four bytes but read as `int64_t`. The parsed node kind
 is 38; the expected array value contains unrelated upper bits. I cast integer
 array literal arguments to the helper ABI. The compiled parser fixture passes.
+
+## Clean-build and callback follow-up
+
+I make module metadata checks depend on the generation probe and compiler/VM
+binaries they execute. The standalone metadata gate passes. I give the mixer
+fixture its own SDL calling-convention callback typedef, supported by SDL2.
+All three mixer callback tests pass.
+
+I verify 43 lexical, ownership and record-pattern methods together, all
+code-generation cases including a lifted array capture, and the environment
+and typechecker suites. The translator and sanitizer runs each pass 1,730
+checks plus 1,073 shape checks. The VM run passes 272,379 checks and its
+allocation-failure recovery tests.

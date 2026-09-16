@@ -28,6 +28,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Lifted callback lexical captures.** I retain source-bounded symbols
+      for later checking of lifted lambdas. I remove the conflicting eager
+      visibility flags while preserving exited-block and shadowing checks.
+      MAC `task_b0cd5c144a2d44a6b158e3e57288300b`.
+
+- [ ] **SDL2 mixer fixture portability.** I name the public post-mix callback
+      signature locally instead of requiring a newer header alias. I retain
+      the callback lifetime checks. MAC `task_461188d55ed34eae903d9c0143db7235`.
+
+- [ ] **Module metadata gate prerequisites.** I build the cache probe and
+      bytecode tools before the foreign-path regression, including from a
+      clean tree. MAC `task_82ee0874f7894e23add656e651843c4d`.
+
 - [ ] **GCC VM allocation fixtures.** I match the stack-count assertion to
       its unsigned runtime type and rerun allocation-failure acceptance and
       the full release gate. MAC `task_ecf93f572e624145baff78bb3a8a2345`.

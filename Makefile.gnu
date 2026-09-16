@@ -884,7 +884,7 @@ test-diagnostics: stage1
 	@rm -f tests/test_diagnostics
 
 .PHONY: test-module-metadata
-test-module-metadata: stage1
+test-module-metadata: stage1 nano_virt nano_vm $(OBJ_DIR)/test_module_generation_probe
 	@echo "Running module metadata unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_module_builder_paths tests/test_module_builder_paths.c
 	@./tests/test_module_builder_paths

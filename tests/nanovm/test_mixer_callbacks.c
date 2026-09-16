@@ -12,11 +12,12 @@ static pthread_mutex_t audio_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t clear_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t clear_changed = PTHREAD_COND_INITIALIZER;
 static bool clear_entered;
-static Mix_MixCallback hook;
+typedef void (SDLCALL *TestMixCallback)(void *, Uint8 *, int);
+static TestMixCallback hook;
 static void *hook_data;
 static int closes;
 static bool fail_allocation;
-static void test_set_post_mix(Mix_MixCallback callback, void *userdata) {
+static void test_set_post_mix(TestMixCallback callback, void *userdata) {
     if (!callback) {
         pthread_mutex_lock(&clear_lock);
         clear_entered = true;

@@ -1766,7 +1766,28 @@ static void test_nested_closure_keeps_block_capture(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_anonymous_callback_captures_lexical_array(void) {
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  let observed: array<int> = [5]\n"
+        "  unsafe {\n"
+        "    let callback: fn() -> int = fn() -> int {\n"
+        "      (array_set observed 0 (+ (at observed 0) 2))\n"
+        "      return (at observed 0)\n"
+        "    }\n"
+        "    assert (== (callback) 7)\n"
+        "  }\n"
+        "  return (at observed 0)\n"
+        "}\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I execute the lifted callback");
+    ASSERT_INT(tr.result.as.i64, 7);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
 int main(void) {
+    test_anonymous_callback_captures_lexical_array();
     test_empty_array_return_tags();
     test_array_search_types();
     test_compiler_local_limit();
