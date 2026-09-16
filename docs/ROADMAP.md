@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Instrumented shared FFI fixture compilation.** I require PIC in
+      shared-library recipes even when a caller replaces CFLAGS, keeping
+      sanitizer instrumentation and real shared-object linkage.
+      MAC `task_a2498192c9bf4490aa5f5f2a995214b0`.
+
 - [x] **Public compiler release version.** I synchronize my existing compiler
       version header with package metadata, update both during future releases,
       and test metadata parity and actual CLI output.
