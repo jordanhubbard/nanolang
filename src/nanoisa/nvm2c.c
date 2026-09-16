@@ -27,6 +27,7 @@
 #define NVM2C_VK_REC 4
 #define NVM2C_VK_SARR 5
 #define NVM2C_VK_RARR 6
+#define NVM2C_VK_HM 7
 
 typedef struct {
     char *data;
@@ -201,6 +202,7 @@ static const char *c_local_type(uint8_t kind) {
     if (kind == NVM2C_VK_SARR) return "nsarr_t";
     if (kind == NVM2C_VK_REC) return "nrec_t";
     if (kind == NVM2C_VK_RARR) return "nrarr_t";
+    if (kind == NVM2C_VK_HM) return "nhmap_t";
     return "int64_t";
 }
 
@@ -367,6 +369,26 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_PUSH_BOOL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
+        case OP_HM_NEW:
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_HM, -1)) return 0;
+            break;
+        case OP_HM_GET: {
+            Nvm2cSimSlot key, map;
+            if (!sim_pop(b, idx, stk, &sp, &key) ||
+                !sim_pop(b, idx, stk, &sp, &map)) return 0;
+            if (!mark_origin(b, local_kind, nloc, map.origin, NVM2C_VK_HM)) return 0;
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
+        case OP_HM_SET: {
+            Nvm2cSimSlot value, key, map;
+            if (!sim_pop(b, idx, stk, &sp, &value) ||
+                !sim_pop(b, idx, stk, &sp, &key) ||
+                !sim_pop(b, idx, stk, &sp, &map)) return 0;
+            if (!mark_origin(b, local_kind, nloc, map.origin, NVM2C_VK_HM)) return 0;
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_HM, -1)) return 0;
+            break;
+        }
         case OP_PUSH_STR:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
@@ -898,6 +920,7 @@ typedef struct {
     int next_rec;
     int next_rarr;
     int next_tag;
+    int next_hm;
 } Nvm2cStack;
 
 static int stack_push_tag(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -927,6 +950,27 @@ static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
     st->kinds[st->sp] = NVM2C_VK_INT;
     st->sp++;
     return t;
+}
+
+static int stack_push_scalar(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs,
+                             const char *tag) {
+    int t = stack_push_temp(b, st, rhs);
+    if (t >= 0) nvm2c_printf(b, "    vt[%d] = %s;\n", st->tags[st->sp - 1], tag);
+    return t;
+}
+
+static int stack_push_hm(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
+    if (st->sp >= NVM2C_MAX_STACK || st->next_hm >= NVM2C_MAX_TEMPS) {
+        nvm2c_fail(b, "too many hashmap temporaries");
+        return -1;
+    }
+    int h = st->next_hm++;
+    nvm2c_printf(b, "    h[%d] = %s;\n", h, rhs);
+    if (stack_push_tag(b, st, "TAG_HASHMAP") < 0) return -1;
+    st->slots[st->sp] = h;
+    st->kinds[st->sp] = NVM2C_VK_HM;
+    st->sp++;
+    return h;
 }
 
 static int stack_push_str(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -1109,6 +1153,7 @@ static void stack_keep_high_water(Nvm2cStack *st, const Nvm2cStack *other) {
     if (other->next_rec > st->next_rec) st->next_rec = other->next_rec;
     if (other->next_rarr > st->next_rarr) st->next_rarr = other->next_rarr;
     if (other->next_tag > st->next_tag) st->next_tag = other->next_tag;
+    if (other->next_hm > st->next_hm) st->next_hm = other->next_hm;
 }
 
 static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
@@ -1147,7 +1192,9 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
         } else if (st->kinds[i] == NVM2C_VK_RARR) {
             nvm2c_printf(b, "    ra[%d] = ra[%d];\n", joins[tgt].slots[i], st->slots[i]);
             memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
-                   st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
+                    st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
+        } else if (st->kinds[i] == NVM2C_VK_HM) {
+            nvm2c_printf(b, "    h[%d] = h[%d];\n", joins[tgt].slots[i], st->slots[i]);
         } else {
             nvm2c_printf(b, "    t[%d] = t[%d];\n", joins[tgt].slots[i], st->slots[i]);
         }
@@ -1216,6 +1263,8 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
             pos += (size_t)snprintf(call + pos, call_sz - pos, "r[%d]", args[a]);
         } else if (argk[a] == NVM2C_VK_RARR) {
             pos += (size_t)snprintf(call + pos, call_sz - pos, "ra[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_HM) {
+            pos += (size_t)snprintf(call + pos, call_sz - pos, "h[%d]", args[a]);
         } else {
             pos += (size_t)snprintf(call + pos, call_sz - pos, "t[%d]", args[a]);
         }
@@ -1267,6 +1316,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_printf(b, "    nrec_t l%u = {0};\n", (unsigned)i);
         } else if (lk == NVM2C_VK_RARR) {
             nvm2c_printf(b, "    nrarr_t l%u = {0};\n", (unsigned)i);
+        } else if (lk == NVM2C_VK_HM) {
+            nvm2c_printf(b, "    nhmap_t l%u = {0};\n", (unsigned)i);
         } else {
             nvm2c_printf(b, "    int64_t l%u = 0;\n", (unsigned)i);
         }
@@ -1295,6 +1346,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     nvm2c_puts(b, "    (void)ra;\n");
     nvm2c_printf(b, "    uint8_t vt[%d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)vt;\n");
+    nvm2c_printf(b, "    nhmap_t h[%d] = {0};\n", NVM2C_MAX_TEMPS);
+    nvm2c_puts(b, "    (void)h;\n");
 
     if (fn->code_offset > mod->code_size ||
         fn->code_length > mod->code_size - fn->code_offset) {
@@ -1391,14 +1444,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_PUSH_I64: {
             char rhs[32];
             snprintf(rhs, sizeof rhs, "%lldLL", (long long)ins.operands[0].i64);
-            stack_push_temp(b, &st, rhs);
+            stack_push_scalar(b, &st, rhs, "TAG_INT");
             break;
         }
         case OP_PUSH_BOOL: {
             char rhs[8];
             snprintf(rhs, sizeof rhs, "%dLL", ins.operands[0].u8 ? 1 : 0);
-            stack_push_temp(b, &st, rhs);
-            if (!b->failed) nvm2c_printf(b, "    vt[%d] = TAG_BOOL;\n", st.tags[st.sp - 1]);
+            stack_push_scalar(b, &st, rhs, "TAG_BOOL");
             break;
         }
         case OP_PUSH_VOID:
@@ -1466,6 +1518,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         int nr = stack_push_rarr(b, &st, rhs);
                         if (nr >= 0) memcpy(st.rec_k[nr], st.rec_k[src], NVM2C_MAX_REC_FIELDS);
                     }
+                } else if (k == NVM2C_VK_HM) {
+                    snprintf(rhs, sizeof rhs, "h[%d]", src);
+                    stack_push_hm(b, &st, rhs);
                 } else {
                     snprintf(rhs, sizeof rhs, "t[%d]", src);
                     stack_push_temp(b, &st, rhs);
@@ -1552,6 +1607,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
                            NVM2C_MAX_REC_FIELDS);
                 }
+            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_HM) {
+                stack_push_hm(b, &st, rhs);
             } else {
                 stack_push_temp(b, &st, rhs);
             }
@@ -1587,6 +1644,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    if (lt%u != TAG_VOID) l%u = r[%d];\n", (unsigned)slot, (unsigned)slot, t);
                 } else if (expect == NVM2C_VK_RARR) {
                     nvm2c_printf(b, "    if (lt%u != TAG_VOID) l%u = ra[%d];\n", (unsigned)slot, (unsigned)slot, t);
+                } else if (expect == NVM2C_VK_HM) {
+                    nvm2c_printf(b, "    if (lt%u != TAG_VOID) l%u = h[%d];\n", (unsigned)slot, (unsigned)slot, t);
                 } else {
                     nvm2c_printf(b, "    if (lt%u != TAG_VOID) l%u = t[%d];\n", (unsigned)slot, (unsigned)slot, t);
                 }
@@ -1641,14 +1700,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_NE: {
             uint8_t rk = NVM2C_VK_INT;
             uint8_t lk = NVM2C_VK_INT;
-            int rhs = stack_pop_kind(b, &st, &rk);
-            int lhs = stack_pop_kind(b, &st, &lk);
+            int rhs_tag = -1;
+            int lhs_tag = -1;
+            int rhs = stack_pop_value(b, &st, &rk, &rhs_tag);
+            int lhs = stack_pop_value(b, &st, &lk, &lhs_tag);
             if (b->failed) goto done;
             if (lk == NVM2C_VK_INT && rk == NVM2C_VK_INT) {
-                char expr[64];
-                snprintf(expr, sizeof expr, "t[%d] %s t[%d]",
-                         lhs, ins.opcode == OP_EQ ? "==" : "!=", rhs);
-                stack_push_temp(b, &st, expr);
+                char expr[96];
+                snprintf(expr, sizeof expr, "(vt[%d] == vt[%d] && t[%d] %s t[%d])",
+                          lhs_tag, rhs_tag, lhs, ins.opcode == OP_EQ ? "==" : "!=", rhs);
+                if (ins.opcode == OP_NE) {
+                    snprintf(expr, sizeof expr, "(vt[%d] != vt[%d] || t[%d] != t[%d])",
+                             lhs_tag, rhs_tag, lhs, rhs);
+                }
+                int t = stack_push_temp(b, &st, expr);
+                if (t >= 0) nvm2c_printf(b, "    vt[%d] = TAG_BOOL;\n", st.tags[st.sp - 1]);
             } else if (lk == NVM2C_VK_STR && rk == NVM2C_VK_STR) {
                 char expr[192];
                 snprintf(expr, sizeof expr,
@@ -1659,6 +1725,46 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_fail(b, "function %u: EQ/NE of mixed or non-string values is refused", idx);
                 goto done;
             }
+            break;
+        }
+        case OP_HM_NEW: {
+            char expr[64];
+            snprintf(expr, sizeof expr, "nhmap_new(%u, %u)",
+                     (unsigned)ins.operands[0].u8, (unsigned)ins.operands[1].u8);
+            stack_push_hm(b, &st, expr);
+            break;
+        }
+        case OP_HM_GET: {
+            uint8_t key_kind = NVM2C_VK_INT;
+            int key_tag = -1;
+            int key = stack_pop_value(b, &st, &key_kind, &key_tag);
+            int map = stack_pop_expect(b, &st, NVM2C_VK_HM, "HM_GET map");
+            if (!b->failed && key_kind != NVM2C_VK_INT) {
+                nvm2c_fail(b, "HM_GET key: expected scalar value");
+            }
+            if (b->failed) goto done;
+            int t = stack_push_temp(b, &st, "0");
+            nvm2c_printf(b, "    vt[%d] = nhmap_get(h[%d], (nscalar_t){vt[%d], t[%d]}, &t[%d]);\n",
+                         st.tags[st.sp - 1], map, key_tag, key, t);
+            break;
+        }
+        case OP_HM_SET: {
+            uint8_t value_kind = NVM2C_VK_INT;
+            uint8_t key_kind = NVM2C_VK_INT;
+            int value_tag = -1;
+            int key_tag = -1;
+            int value = stack_pop_value(b, &st, &value_kind, &value_tag);
+            int key = stack_pop_value(b, &st, &key_kind, &key_tag);
+            int map = stack_pop_expect(b, &st, NVM2C_VK_HM, "HM_SET map");
+            if (!b->failed && (key_kind != NVM2C_VK_INT || value_kind != NVM2C_VK_INT)) {
+                nvm2c_fail(b, "HM_SET: expected scalar key and value");
+            }
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    nhmap_set(h[%d], (nscalar_t){vt[%d], t[%d]}, (nscalar_t){vt[%d], t[%d]});\n",
+                         map, key_tag, key, value_tag, value);
+            char expr[32];
+            snprintf(expr, sizeof expr, "h[%d]", map);
+            stack_push_hm(b, &st, expr);
             break;
         }
         case OP_I64_NE:
@@ -2520,6 +2626,37 @@ static void emit_nrarr_helpers(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nhmap_helpers(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "typedef struct { uint8_t tag; int64_t value; } nscalar_t;\n"
+        "typedef struct { nscalar_t key, value; uint8_t used; } nhmentry_t;\n"
+        "struct nhmap_s { uint8_t key_tag, value_tag; nhmentry_t entries[64]; };\n"
+        "static nhmap_t nhmap_new(uint8_t key_tag, uint8_t value_tag) {\n"
+        "    nhmap_t h = (nhmap_t)calloc(1, sizeof(struct nhmap_s));\n"
+        "    if (!h) abort();\n"
+        "    h->key_tag = key_tag; h->value_tag = value_tag;\n"
+        "    return h;\n"
+        "}\n"
+        "static void nhmap_set(nhmap_t h, nscalar_t key, nscalar_t value) {\n"
+        "    if (!h || key.tag != h->key_tag || value.tag != h->value_tag) abort();\n"
+        "    for (size_t i = 0; i < 64; i++) {\n"
+        "        if (!h->entries[i].used || (h->entries[i].key.tag == key.tag && h->entries[i].key.value == key.value)) {\n"
+        "            h->entries[i] = (nhmentry_t){key, value, 1}; return;\n"
+        "        }\n"
+        "    }\n"
+        "    abort();\n"
+        "}\n"
+        "static uint8_t nhmap_get(nhmap_t h, nscalar_t key, int64_t *out) {\n"
+        "    if (!h || key.tag != h->key_tag) abort();\n"
+        "    for (size_t i = 0; i < 64; i++) {\n"
+        "        if (h->entries[i].used && h->entries[i].key.tag == key.tag && h->entries[i].key.value == key.value) {\n"
+        "            *out = h->entries[i].value.value; return h->entries[i].value.tag;\n"
+        "        }\n"
+        "    }\n"
+        "    *out = 0; return TAG_VOID;\n"
+        "}\n\n");
+}
+
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
     if (!mod) {
@@ -2640,6 +2777,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_print = module_has_opcode(mod, reachable, OP_PRINT) ||
             module_has_opcode(mod, reachable, OP_PRINTLN);
         int need_assert = module_has_opcode(mod, reachable, OP_ASSERT);
+        int need_hm = module_has_opcode(mod, reachable, OP_HM_NEW);
         uint32_t i;
         for (i = 0; i < mod->function_count && !need_string; i++) {
             if (!reachable[i]) continue;
@@ -2657,13 +2795,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "#include <stdint.h>\n"
             "#include <stdlib.h>\n"
             "enum { TAG_VOID = 0, TAG_INT = 1, TAG_BOOL = 3, TAG_STRING = 5, "
-            "TAG_ARRAY = 6, TAG_STRUCT = 7 };\n");
+            "TAG_ARRAY = 6, TAG_STRUCT = 7, TAG_HASHMAP = 9 };\n");
         if (need_print || need_cast_string) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
         if (need_concat || need_cast_string || need_cast_int || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
-            need_assert) {
+            need_assert || need_hm) {
             nvm2c_puts(&b, "#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
@@ -2675,7 +2813,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef struct { const char **data; size_t len; size_t cap; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n"
             "typedef struct nrarr_s nrarr_s;\n"
-            "typedef nrarr_s *nrarr_t;\n");
+            "typedef nrarr_s *nrarr_t;\n"
+            "typedef struct nhmap_s *nhmap_t;\n");
         nvm2c_printf(&b,
             "typedef struct { int64_t f[%d]; const char *s[%d]; narr_t a[%d]; "
             "nsarr_t sa[%d]; nrarr_t ra[%d]; uint8_t k[%d]; uint16_t n; } nrec_t;\n",
@@ -2684,6 +2823,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
             "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
+        if (need_hm) emit_nhmap_helpers(&b);
         if (need_concat || need_cast_string || need_substr) emit_nstr_storage(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
