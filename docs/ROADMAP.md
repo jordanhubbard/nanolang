@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
+      sanitizer-build deadline without dropping shadows or instrumentation,
+      and test an explicit bounded budget when the workload requires it.
+      MAC `task_6a2f75e259e84f09bbec61554b9ff9a7`.
+
 - [ ] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
       MAC `task_5e530abdfdd3459c978149ae4b25f80f`.
 
