@@ -238,7 +238,7 @@ static void test_internal_calls(void) {
         assert(vm.stack == original && vm.stack_capacity == 8);
         assert(vm.frame_count == 1 && vm.frames[0].fn_idx == 0);
         assert(vm.frames[0].local_count == 2);
-        assert(vm.stack_size == 4 + indirect);
+        assert(vm.stack_size == 4u + (uint32_t)indirect);
         assert(vm.stack[0].as.i64 == 100);
         assert(vm.stack[1].tag == TAG_VOID && vm.stack[2].tag == TAG_VOID);
         assert(vm.stack[3].as.i64 == 7);

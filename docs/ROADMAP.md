@@ -28,6 +28,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **GCC VM allocation fixtures.** I match the stack-count assertion to
+      its unsigned runtime type and rerun allocation-failure acceptance and
+      the full release gate. MAC `task_ecf93f572e624145baff78bb3a8a2345`.
+
 - [x] **Parenthesized parser release acceptance.** I reproduce and repair
       the explicit parser node-kind mismatch in the quick gate, preserving
       grouped operators and tuple/call distinctions. My probe shows the parser
@@ -40,10 +44,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       parameters. I verify callback imports and the SDL mixer example.
       MAC `task_2883edb70fb348778b7193a52bd83c8a`.
 
-- [ ] **Main PR #335 reconciliation.** I retain my existing 1,024-local
+- [x] **Main PR #335 reconciliation.** I retain my existing 1,024-local
       runtime, import the high-slot and malformed-arity tests, and preserve
       the bounded call formatter. I rerun the native translator gate.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
+      I pass 1,730 translator and 1,073 shape checks on Linux ARM64.
 
 - [x] **Native test signal status.** I preserve the tested process wait status
       through shell supervision, distinguishing a signal from an ordinary
