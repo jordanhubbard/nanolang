@@ -18,6 +18,7 @@
 #include <string.h>
 
 #define NVM2C_MAX_LOCALS 1024
+#define NVM2C_MAX_GLOBALS 4096
 
 #define NVM2C_VK_INT 0
 #define NVM2C_VK_STR 1
@@ -47,7 +48,7 @@ typedef struct {
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
     NvmShapeGraph shapes;
-    NvmShapeId *shape_locals, *shape_results, **shape_outputs;
+    NvmShapeId *shape_locals, *shape_results, *shape_globals, **shape_outputs;
     NvmShapeId *shape_current;
     int shape_generic_array;
     int track_shapes;
@@ -319,6 +320,9 @@ typedef struct {
     uint8_t *parameters;
     uint8_t *fields;
     uint8_t *results;
+    uint8_t *globals;
+    uint8_t *global_fields;
+    uint32_t global_count;
     int changed;
     int final;
 } Nvm2cFacts;
@@ -486,14 +490,21 @@ static int sim_pop(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     return 1;
 }
 
-static void mark_origin(uint8_t *local_kind, uint16_t nloc, int origin, uint8_t kind) {
+static int mark_origin(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *local_kind,
+                       uint16_t nloc, int origin, uint8_t kind) {
     if (origin >= 0 && (uint16_t)origin < nloc) {
         if (local_kind[origin] != NVM2C_VK_VALUE) local_kind[origin] = kind;
+    } else if (origin <= -2) {
+        uint32_t slot = (uint32_t)(-origin - 2);
+        if (slot < facts->global_count &&
+            !merge_fact(b, facts, &facts->globals[slot], kind)) return 0;
     }
+    return 1;
 }
 
-static void mark_str_origin(uint8_t *local_kind, uint16_t nloc, int origin) {
-    mark_origin(local_kind, nloc, origin, NVM2C_VK_STR);
+static int mark_str_origin(Nvm2cBuf *b, Nvm2cFacts *facts,
+                           uint8_t *local_kind, uint16_t nloc, int origin) {
+    return mark_origin(b, facts, local_kind, nloc, origin, NVM2C_VK_STR);
 }
 
 static const uint8_t *fn_rec_k_const(const Nvm2cBuf *b, const uint8_t *tab, uint32_t fn, uint16_t slot) {
@@ -711,6 +722,42 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             break;
         }
+        case OP_LOAD_GLOBAL: {
+            uint32_t slot = ins.operands[0].u32;
+            Nvm2cSimSlot loaded;
+            if (slot >= facts->global_count) {
+                nvm2c_fail(b, "function %u: LOAD_GLOBAL %u out of range", idx, slot);
+                return 0;
+            }
+            memset(&loaded, 0, sizeof loaded);
+            loaded.kind = facts->globals[slot];
+            loaded.origin = -(int)slot - 2;
+            loaded.shape = shape_variable(b, &b->shape_globals[slot]);
+            if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR ||
+                loaded.kind == NVM2C_VK_MAP) {
+                loaded.rec_k = sim_fields(b, facts->global_fields +
+                                          (size_t)slot * b->record_width, 0);
+                if (!loaded.rec_k) return 0;
+            }
+            if (!sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
+            break;
+        }
+        case OP_STORE_GLOBAL: {
+            uint32_t slot = ins.operands[0].u32;
+            Nvm2cSimSlot v;
+            if (slot >= facts->global_count) {
+                nvm2c_fail(b, "function %u: STORE_GLOBAL %u out of range", idx, slot);
+                return 0;
+            }
+            if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+            if (!merge_fact(b, facts, &facts->globals[slot], v.kind) ||
+                !shape_equal(b, v.shape, shape_variable(b, &b->shape_globals[slot]))) return 0;
+            if (v.kind == NVM2C_VK_REC || v.kind == NVM2C_VK_RARR || v.kind == NVM2C_VK_MAP) {
+                if (!merge_fields(b, facts, facts->global_fields +
+                                  (size_t)slot * b->record_width, v.rec_k)) return 0;
+            }
+            break;
+        }
         case OP_ADD:
         case OP_I64_ADD:
         case OP_SUB:
@@ -749,7 +796,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_STR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-            mark_str_origin(local_kind, nloc, v.origin);
+            if (!mark_str_origin(b, facts, local_kind, nloc, v.origin)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -757,8 +804,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            mark_str_origin(local_kind, nloc, rhs.origin);
-            mark_str_origin(local_kind, nloc, lhs.origin);
+            if (!mark_str_origin(b, facts, local_kind, nloc, rhs.origin) ||
+                !mark_str_origin(b, facts, local_kind, nloc, lhs.origin)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
@@ -769,7 +816,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)len;
             (void)start;
-            mark_str_origin(local_kind, nloc, s.origin);
+            if (!mark_str_origin(b, facts, local_kind, nloc, s.origin)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
@@ -779,8 +826,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot needle, hay;
             if (!sim_pop(b, idx, stk, &sp, &needle)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &hay)) return 0;
-            mark_str_origin(local_kind, nloc, needle.origin);
-            mark_str_origin(local_kind, nloc, hay.origin);
+            if (!mark_str_origin(b, facts, local_kind, nloc, needle.origin) ||
+                !mark_str_origin(b, facts, local_kind, nloc, hay.origin)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -789,7 +836,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)ix;
-            mark_str_origin(local_kind, nloc, s.origin);
+            if (!mark_str_origin(b, facts, local_kind, nloc, s.origin)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -822,8 +869,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
             if (lhs.kind != NVM2C_VK_VALUE && rhs.kind != NVM2C_VK_VALUE &&
                 (lhs.kind != NVM2C_VK_INT || rhs.kind != NVM2C_VK_INT)) {
-                mark_str_origin(local_kind, nloc, lhs.origin);
-                mark_str_origin(local_kind, nloc, rhs.origin);
+                if (!mark_str_origin(b, facts, local_kind, nloc, lhs.origin) ||
+                    !mark_str_origin(b, facts, local_kind, nloc, rhs.origin)) return 0;
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -858,12 +905,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 nvm2c_fail(b, "I require a map for this hashmap operation"); return 0;
             }
             if (!shape_type(b, map.shape, NVM_SHAPE_MAP)) return 0;
-            mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
+            if (!mark_origin(b, facts, local_kind, nloc, map.origin, NVM2C_VK_MAP)) return 0;
             if (ins.opcode != OP_HM_LEN) {
                 if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
                 }
-                mark_str_origin(local_kind, nloc, key.origin);
+                if (!mark_str_origin(b, facts, local_kind, nloc, key.origin)) return 0;
                 if (!shape_type(b, key.shape, NVM_SHAPE_STRING) ||
                     !shape_equal(b, shape_child(b, map.shape, 0), key.shape)) return 0;
             }
@@ -957,11 +1004,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             if (v.kind == NVM2C_VK_RARR) {
-                mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
+                if (!mark_origin(b, facts, local_kind, nloc, v.origin, NVM2C_VK_RARR)) return 0;
             } else if (v.kind == NVM2C_VK_SARR) {
-                mark_origin(local_kind, nloc, v.origin, NVM2C_VK_SARR);
+                if (!mark_origin(b, facts, local_kind, nloc, v.origin, NVM2C_VK_SARR)) return 0;
             } else if (v.kind != NVM2C_VK_UNK) {
-                mark_origin(local_kind, nloc, v.origin, NVM2C_VK_ARR);
+                if (!mark_origin(b, facts, local_kind, nloc, v.origin, NVM2C_VK_ARR)) return 0;
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -975,14 +1022,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!shape_equal(b, shape_variable(b, b->shape_current), element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;
-                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
+                if (!mark_origin(b, facts, local_kind, nloc, arr.origin, NVM2C_VK_RARR)) return 0;
                 memset(&rec, 0, sizeof rec);
                 rec.kind = NVM2C_VK_REC;
                 rec.origin = -1;
                 rec.rec_k = arr.rec_k;
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             } else if (arr.kind == NVM2C_VK_SARR) {
-                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
+                if (!mark_origin(b, facts, local_kind, nloc, arr.origin, NVM2C_VK_SARR)) return 0;
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             } else if (arr.kind == NVM2C_VK_UNK) {
                 Nvm2cSimSlot value = {0};
@@ -991,7 +1038,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 value.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
                 if (!value.rec_k || !sim_push_slot(b, idx, stk, &sp, value)) return 0;
             } else {
-                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
+                if (!mark_origin(b, facts, local_kind, nloc, arr.origin, NVM2C_VK_ARR)) return 0;
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             }
             break;
@@ -1044,13 +1091,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 /* Missing element facts cannot erase a constructor's known
                  * array kind or invent an integer-array representation. */
                 Nvm2cSimSlot pushed = arr;
-                if (arr.kind == NVM2C_VK_SARR)
-                    mark_str_origin(local_kind, nloc, val.origin);
+                if (arr.kind == NVM2C_VK_SARR &&
+                    !mark_str_origin(b, facts, local_kind, nloc, val.origin)) return 0;
                 pushed.origin = -1;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
             } else if (val.kind == NVM2C_VK_REC) {
                 Nvm2cSimSlot pushed = arr;
-                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
+                if (!mark_origin(b, facts, local_kind, nloc, arr.origin, NVM2C_VK_RARR)) return 0;
                 if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {
                     memcpy(rec_fields + (size_t)arr.origin * b->record_width,
                            val.rec_k, b->record_width);
@@ -1061,7 +1108,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
             } else if (val.kind == NVM2C_VK_STR) {
                 Nvm2cSimSlot pushed = arr;
-                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
+                if (!mark_origin(b, facts, local_kind, nloc, arr.origin,
+                                 NVM2C_VK_SARR)) return 0;
                 pushed.kind = NVM2C_VK_SARR;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
             } else if (arr.kind == NVM2C_VK_SARR) {
@@ -1069,7 +1117,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             } else if (val.kind == NVM2C_VK_INT || val.kind == NVM2C_VK_UNK) {
                 Nvm2cSimSlot pushed = arr;
-                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
+                if (!mark_origin(b, facts, local_kind, nloc, arr.origin,
+                                 NVM2C_VK_ARR)) return 0;
                 pushed.kind = NVM2C_VK_ARR;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
             } else {
@@ -1114,7 +1163,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_AGG_TAG: {
             Nvm2cSimSlot aggregate;
             if (!sim_pop(b, idx, stk, &sp, &aggregate)) return 0;
-            mark_origin(local_kind, nloc, aggregate.origin, NVM2C_VK_REC);
+            if (!mark_origin(b, facts, local_kind, nloc, aggregate.origin, NVM2C_VK_REC)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -1123,7 +1172,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             uint16_t fi = ins.operands[0].u16;
             uint8_t fk;
             if (!sim_pop(b, idx, stk, &sp, &rec)) return 0;
-            mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
+            if (!mark_origin(b, facts, local_kind, nloc, rec.origin, NVM2C_VK_REC)) return 0;
             if (fi >= b->record_width) {
                 nvm2c_fail(b, "function %u: AGG_GET field is out of range", idx);
                 return 0;
@@ -1162,7 +1211,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!merge_fact(b, facts, &facts->parameters[at], arg.kind)) return 0;
                 if (!shape_equal(b, arg.shape, shape_variable(b, &b->shape_locals[at]))) return 0;
                 if (arg.kind == NVM2C_VK_UNK) {
-                    mark_origin(local_kind, nloc, arg.origin, facts->parameters[at]);
+                    if (!mark_origin(b, facts, local_kind, nloc, arg.origin,
+                                     facts->parameters[at])) return 0;
                 }
                 if (arg.kind == NVM2C_VK_REC || arg.kind == NVM2C_VK_RARR || arg.kind == NVM2C_VK_MAP) {
                     if (!merge_fields(b, facts, facts->fields + at * b->record_width, arg.rec_k)) return 0;
@@ -1215,7 +1265,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     nvm2c_fail(b, "function %u: CALL_EXTERN argument kind mismatch", idx);
                     return 0;
                 }
-                mark_origin(local_kind, nloc, arg.origin, expected);
+                if (!mark_origin(b, facts, local_kind, nloc, arg.origin, expected)) return 0;
             }
             if (!sim_push(b, idx, stk, &sp,
                           host->result == TAG_ARRAY ? NVM2C_VK_SARR :
@@ -1238,14 +1288,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
                 if (fn->result_tag == TAG_STRING) {
-                    mark_str_origin(local_kind, nloc, v.origin);
+                    if (!mark_str_origin(b, facts, local_kind, nloc, v.origin)) return 0;
                 } else if (fn->result_tag == TAG_ARRAY) {
-                    mark_origin(local_kind, nloc, v.origin, v.kind);
+                    if (!mark_origin(b, facts, local_kind, nloc, v.origin,
+                                     v.kind)) return 0;
                     if (v.kind == NVM2C_VK_RARR &&
                         !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
                 } else if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP) {
-                    mark_origin(local_kind, nloc, v.origin, fn->result_tag == TAG_HASHMAP ? NVM2C_VK_MAP : NVM2C_VK_REC);
+                    if (!mark_origin(b, facts, local_kind, nloc, v.origin,
+                                     fn->result_tag == TAG_HASHMAP ? NVM2C_VK_MAP : NVM2C_VK_REC)) return 0;
                     if ((v.kind == NVM2C_VK_REC || v.kind == NVM2C_VK_MAP) &&
                         !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
@@ -1899,7 +1951,10 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
 
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                const uint8_t *kinds, const uint8_t *rec_fields,
-                               const uint8_t *result_fields) {
+                               const uint8_t *result_fields,
+                               const uint8_t *global_kinds,
+                               const uint8_t *global_fields,
+                               uint32_t global_count) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint8_t result_kind = resolved_shape_kind(b, b->shape_results[idx]);
     const char *rt = c_result_type(fn, result_kind);
@@ -2249,6 +2304,53 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    l%u = t[%d];\n", (unsigned)slot, t);
                 }
             }
+            break;
+        }
+        case OP_LOAD_GLOBAL: {
+            uint32_t slot = ins.operands[0].u32;
+            uint8_t kind;
+            char rhs[48];
+            if (slot >= global_count) {
+                nvm2c_fail(b, "function %u: LOAD_GLOBAL %u out of range", idx, slot);
+                goto done;
+            }
+            nvm2c_printf(b, "    if (!ng_init[%u]) abort();\n", slot);
+            kind = global_kinds[slot];
+            snprintf(rhs, sizeof rhs, "ng%u", slot);
+            if (kind == NVM2C_VK_STR) stack_push_str(b, &st, rhs);
+            else if (kind == NVM2C_VK_ARR) stack_push_arr(b, &st, rhs);
+            else if (kind == NVM2C_VK_SARR) stack_push_sarr(b, &st, rhs);
+            else if (kind == NVM2C_VK_REC) {
+                int r = stack_push_rec(b, &st, rhs);
+                if (r >= 0) memcpy(st.rec_k[r], global_fields +
+                                   (size_t)slot * b->record_width, b->record_width);
+            } else if (kind == NVM2C_VK_RARR) {
+                int a = stack_push_rarr(b, &st, rhs);
+                if (a >= 0) memcpy(st.rarr_k[a], global_fields +
+                                   (size_t)slot * b->record_width, b->record_width);
+            } else if (kind == NVM2C_VK_MAP) stack_push_map(b, &st, rhs);
+            else if (kind == NVM2C_VK_VALUE) stack_push_value(b, &st, rhs);
+            else stack_push_temp(b, &st, rhs);
+            break;
+        }
+        case OP_STORE_GLOBAL: {
+            uint32_t slot = ins.operands[0].u32;
+            uint8_t kind;
+            int v;
+            const char *array;
+            if (slot >= global_count) {
+                nvm2c_fail(b, "function %u: STORE_GLOBAL %u out of range", idx, slot);
+                goto done;
+            }
+            kind = global_kinds[slot];
+            v = stack_pop_expect(b, &st, kind, "STORE_GLOBAL");
+            if (b->failed) goto done;
+            array = kind == NVM2C_VK_STR ? "s" : kind == NVM2C_VK_ARR ? "a" :
+                kind == NVM2C_VK_SARR ? "sa" : kind == NVM2C_VK_REC ? "r" :
+                kind == NVM2C_VK_RARR ? "ra" : kind == NVM2C_VK_MAP ? "m" :
+                kind == NVM2C_VK_VALUE ? "v" : "t";
+            nvm2c_printf(b, "    ng%u = %s[%d];\n    ng_init[%u] = 1;\n",
+                         slot, array, v, slot);
             break;
         }
         case OP_ADD:
@@ -3150,6 +3252,73 @@ static int module_has_array_constructor(const NvmModule *mod, const uint8_t *kin
     return 0;
 }
 
+static int module_has_global_op(const NvmModule *mod, uint8_t op, uint32_t slot) {
+    uint32_t i;
+    for (i = 0; i < mod->function_count; i++) {
+        const NvmFunctionEntry *fn = &mod->functions[i];
+        if (fn->code_offset > mod->code_size ||
+            fn->code_length > mod->code_size - fn->code_offset) continue;
+        const uint8_t *code = mod->code + fn->code_offset;
+        size_t pc = 0;
+        while (pc < fn->code_length) {
+            DecodedInstruction ins;
+            uint32_t n = isa_decode(code + pc, fn->code_length - pc, &ins);
+            if (n == 0) break;
+            if (ins.opcode == op && ins.operands[0].u32 == slot) return 1;
+            pc += n;
+        }
+    }
+    return 0;
+}
+
+static int module_global_count(Nvm2cBuf *b, const NvmModule *mod, uint32_t *out) {
+    uint32_t count = 0;
+    uint32_t i;
+    for (i = 0; i < mod->function_count; i++) {
+        const NvmFunctionEntry *fn = &mod->functions[i];
+        if (fn->code_offset > mod->code_size ||
+            fn->code_length > mod->code_size - fn->code_offset) continue;
+        const uint8_t *code = mod->code + fn->code_offset;
+        size_t pc = 0;
+        while (pc < fn->code_length) {
+            DecodedInstruction ins;
+            uint32_t n = isa_decode(code + pc, fn->code_length - pc, &ins);
+            if (n == 0) break;
+            if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
+                uint32_t slot = ins.operands[0].u32;
+                if (slot >= NVM2C_MAX_GLOBALS) {
+                    nvm2c_fail(b, "function %u: global %u exceeds module limit %u",
+                               i, slot, NVM2C_MAX_GLOBALS);
+                    return 0;
+                }
+                if (slot + 1 > count) count = slot + 1;
+            }
+            pc += n;
+        }
+    }
+    *out = count;
+    return 1;
+}
+
+static int module_has_global_kind(const uint8_t *kinds, uint32_t count, uint8_t kind) {
+    uint32_t i;
+    for (i = 0; i < count; i++) if (kinds[i] == kind) return 1;
+    return 0;
+}
+
+static void emit_globals(Nvm2cBuf *b, const NvmModule *mod,
+                         const uint8_t *kinds, uint32_t count) {
+    uint32_t i;
+    if (count == 0) return;
+    nvm2c_printf(b, "static unsigned char ng_init[%u];\n", count);
+    for (i = 0; i < count; i++) {
+        if (!module_has_global_op(mod, OP_LOAD_GLOBAL, i) &&
+            !module_has_global_op(mod, OP_STORE_GLOBAL, i)) continue;
+        nvm2c_printf(b, "static %s ng%u;\n", c_local_type(kinds[i]), i);
+    }
+    nvm2c_puts(b, "\n");
+}
+
 static int module_has_arr_op_tag(const NvmModule *mod, uint8_t op, uint8_t tag) {
     uint32_t i;
     for (i = 0; i < mod->function_count; i++) {
@@ -3660,12 +3829,19 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
 
     if (b.has_maps && b.record_width < 2) b.record_width = 2;
+    uint32_t global_count = 0;
+    if (!module_global_count(&b, mod, &global_count)) {
+        free(b.data);
+        return NULL;
+    }
     size_t per_function = NVM2C_MAX_LOCALS * (1 + b.record_width) + b.record_width;
-    if (mod->function_count > SIZE_MAX / per_function) {
+    size_t global_size = (size_t)global_count * (1 + b.record_width);
+    if (mod->function_count > SIZE_MAX / per_function ||
+        (size_t)mod->function_count * per_function > SIZE_MAX - global_size) {
         if (err && err_len) snprintf(err, err_len, "I cannot allocate this many function facts");
         return NULL;
     }
-    size_t fact_size = (size_t)mod->function_count * per_function;
+    size_t fact_size = (size_t)mod->function_count * per_function + global_size;
     size_t shape_code_count = mod->code_size;
     size_t shape_local_count = (size_t)mod->function_count * NVM2C_MAX_LOCALS;
     if (shape_code_count > SIZE_MAX / sizeof(NvmShapeId) || shape_local_count > SIZE_MAX / sizeof(NvmShapeId)) {
@@ -3674,17 +3850,20 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
     b.shape_locals = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS, sizeof(NvmShapeId));
     b.shape_results = calloc(mod->function_count, sizeof(NvmShapeId));
+    b.shape_globals = calloc(global_count ? global_count : 1, sizeof(NvmShapeId));
     b.shape_outputs = calloc(mod->function_count, sizeof *b.shape_outputs);
     uint8_t *inference = malloc(fact_size);
     uint8_t *kinds = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs) {
+    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results ||
+        !b.shape_globals || !b.shape_outputs) {
         free(inference);
         free(kinds);
         free(rec_fields);
         free(b.shape_locals);
         free(b.shape_results);
+        free(b.shape_globals);
         free(b.shape_outputs);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
@@ -3695,10 +3874,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.parameters = inference;
     facts.fields = inference + (size_t)mod->function_count * NVM2C_MAX_LOCALS;
     facts.results = facts.fields + (size_t)mod->function_count * NVM2C_MAX_LOCALS * b.record_width;
+    facts.globals = facts.results + (size_t)mod->function_count * b.record_width;
+    facts.global_fields = facts.globals + global_count;
+    facts.global_count = global_count;
     /* I only add known facts to unknown slots; conflicts fail, never widen. */
     for (size_t pass = 0; ; pass++) {
         if (pass > fact_size + 1) {
-            nvm2c_fail(&b, "I could not converge function type facts");
+            nvm2c_fail(&b, "I could not converge function, global, and aggregate facts");
             goto fail;
         }
         facts.changed = 0;
@@ -3711,6 +3893,23 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (facts.final) break;
         if (!facts.changed) facts.final = 1;
+    }
+
+    for (uint32_t slot = 0; slot < global_count; ++slot) {
+        if (module_has_global_op(mod, OP_LOAD_GLOBAL, slot) &&
+            !module_has_global_op(mod, OP_STORE_GLOBAL, slot)) {
+            nvm2c_fail(&b, "global %u is loaded but has no inferred stored value", slot);
+            goto fail;
+        }
+        uint8_t resolved = resolved_shape_kind(&b, b.shape_globals[slot]);
+        if (resolved != NVM2C_VK_UNK) facts.globals[slot] = resolved;
+        if (facts.globals[slot] == NVM2C_VK_UNK) {
+            if (module_has_global_op(mod, OP_LOAD_GLOBAL, slot)) {
+                nvm2c_fail(&b, "global %u is loaded but has no inferred stored value", slot);
+                goto fail;
+            }
+            facts.globals[slot] = NVM2C_VK_INT;
+        }
     }
 
     /* Nested projections may acquire their representation from a later
@@ -3745,12 +3944,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT);
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_new || need_iarr_lit ||
-            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
+            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR) ||
+            module_has_global_kind(facts.globals, global_count, NVM2C_VK_ARR);
         int need_sarr = need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
-            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR);
+            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR) ||
+            module_has_global_kind(facts.globals, global_count, NVM2C_VK_SARR);
         int need_rarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT);
         int need_rarr = need_rarr_lit || module_has_array_constructor(mod, kinds, NVM2C_VK_RARR) ||
-            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
+            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR) ||
+            module_has_global_kind(facts.globals, global_count, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
@@ -3880,7 +4082,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
             need_assert || need_rarr || b.has_maps || module_has_opcode(mod, OP_AGG_PACK) ||
-            module_has_opcode(mod, OP_CAST_INT)) {
+            module_has_opcode(mod, OP_CAST_INT) || module_has_opcode(mod, OP_LOAD_GLOBAL)) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
@@ -3988,6 +4190,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_push) emit_nsarr_push(&b);
         if (need_rarr) emit_nrarr_helpers(&b, need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
                                          need_rarr_lit || need_arr_push, need_arr_get);
+        emit_globals(&b, mod, facts.globals, global_count);
     }
 
     {
@@ -4002,7 +4205,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
-            emit_function_body(&b, mod, i, kinds, rec_fields, facts.results);
+            emit_function_body(&b, mod, i, kinds, rec_fields, facts.results,
+                               facts.globals, facts.global_fields, global_count);
             if (b.failed) goto fail;
         }
     }
@@ -4058,6 +4262,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);
+    free(b.shape_globals);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
     return b.data;
@@ -4069,6 +4274,7 @@ fail:
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);
+    free(b.shape_globals);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
     free(b.data);
