@@ -60,17 +60,20 @@ Laboratory frontends do not establish a distributed production runtime.
 
 ## Release review
 
-On 2026-09-16 I reviewed all 40 open pull requests and zero open issues by title,
+On 2026-09-16 I reviewed all 39 open pull requests and zero open issues by title,
 body, labels, milestone, ancestry and relevant diffs. Only the candidate PR #336
 explicitly named this release in its metadata. Thirteen open PR heads already
 occurred in the candidate's ancestry. Repeated fleet integration branches need
-semantic reconciliation, not blanket merging or closure.
+semantic reconciliation, not blanket merging or closure. My refreshed snapshot
+uses `807dc593`, after main incorporated PRs #346 and #350. It identifies 34
+superseded PRs for closure only after #336 merges with accepted release gates
+and their heads are rechecked. The scope-review gate remains open.
 [My scope snapshot](RELEASE_5.0_SCOPE.json) records each disposition and the
 reviewed candidate SHA. It is a dated review, not a claim that the queue cannot
 change. I must refresh it before publication.
 
-Native floating-point comparison lowering in PR #310 and its integration
-successors is only partly superseded: the reviewed candidate rejects `PUSH_F64`.
+Native floating-point comparison lowering in PRs #310, #332, #344 and #351
+is only partly superseded: the reviewed candidate rejects `PUSH_F64`.
 I retain that limitation in the scope record rather than claim full AOT parity.
 I preserve the newer tagged and owned representations when reconciling older
 branches. My source-snapshot boundaries remain in
