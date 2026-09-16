@@ -20,3 +20,12 @@ eligible sources records the earlier selection and remains unchanged.
 This is bytecode compilation coverage, not execution of every example.
 
 Log: `/tmp/nanolang-opl-vm-coverage-final.log`.
+
+I also corrected the standalone gate prerequisite to depend on my existing
+`$(COMPILER)` target. Three dependency shadows invoke `bin/nanoc`; building
+only `bin/nanoc_c` did not create that alias in a fresh checkout. The existing
+target preserves my C-seed/selfhost selection policy. After removing the
+owned worktree's generated alias, `make -j8 test-vm-examples` recreated it
+and passed the complete 244-example gate again.
+
+Standalone log: `/tmp/nanolang-opl-vm-standalone.log`.
