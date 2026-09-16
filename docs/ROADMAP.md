@@ -133,6 +133,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   `strip_spaces`. I test direct/tail calls, recursion, empty
                   arrays and preserved record-array behavior. MAC
                   `task_f6b029d7b7e749caa7a064c9566bd666`.
+                  - [x] I propagate integer-, string- and record-array result
+                    representations through function facts, typed native
+                    signatures, direct/tail calls and final shape resolution.
+                    I test forward definitions, recursive results, parameter
+                    passthrough, empty arrays and conflicting return paths.
+                    Full compiler acceptance remains a separate gate. Normal
+                    and sanitizer suites pass 1,284 AOT and 994 shape checks.
+                    Evidence: `docs/evidence/aot-array-result-kinds.md`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
@@ -272,6 +280,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     initialization and later stores. My compiler's fourteen
                     globals include booleans, strings and arrays; scalar-only
                     storage does not satisfy its requirements.
+                    My next confirmed compiler failure is an empty string
+                    array store to global 6 in `register_extern_names`
+                    (function 342, offset 4).
                     - [x] I first carry tagged scalar global loads and stores
                       through initialization, cross-function mutation and
                       saved values. I check slot bounds and retain void before

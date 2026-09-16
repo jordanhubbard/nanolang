@@ -2807,7 +2807,56 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_array_result_kinds(void) {
+    const int tags[] = {1, 5, 8};
+    const char *elements[] = {"PUSH_I64 42", "PUSH_STR text", "PUSH_I64 42\nAGG_PACK 0 0 0 1"};
+    const char *checks[] = {"PUSH_I64 42\nI64_EQ", "PUSH_STR text\nEQ", "AGG_GET 0\nPUSH_I64 42\nI64_EQ"};
+    for (int kind = 0; kind < 3; ++kind) {
+        for (int tail = 0; tail < 2; ++tail) {
+            for (int before = 0; before < 2; ++before) {
+                char body[768], workers[1536], source[2560];
+                snprintf(body, sizeof body,
+                    ".function main 0 1 0 int 1\nPUSH_I64 3\nCALL recur\nCALL identity\nSTORE_LOCAL 0\n"
+                    "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+                    "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n%s\nASSERT\n"
+                    "CALL empty\nARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n", checks[kind]);
+                snprintf(workers, sizeof workers,
+                    ".function recur 1 1 0 array 1\nLOAD_LOCAL 0\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\n"
+                    "%s make\n%sagain:\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\n%s recur\n%s.end\n"
+                    ".function make 0 0 0 array 1\n%s\nARR_LITERAL %d 1\nRET\n.end\n"
+                    ".function empty 0 0 0 array 1\nARR_NEW %d\nRET\n.end\n"
+                    ".function identity 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n",
+                    tail ? "TAIL_CALL" : "CALL", tail ? "" : "RET\n",
+                    tail ? "TAIL_CALL" : "CALL", tail ? "" : "RET\n", elements[kind], tags[kind], tags[kind]);
+                snprintf(source, sizeof source, ".string text \"forty-two\"\n.entry main\n%s%s",
+                         before ? workers : body, before ? body : workers);
+                NvmModule *m = assemble_ok(source, "array result element kinds");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I infer array result kinds through forward and recursive calls");
+                if (c) {
+                    int status = -1;
+                    CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                          "I return and index scalar and record arrays through ordinary and tail recursion");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+    NvmModule *m = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_BOOL 1\nCALL mixed\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".function mixed 1 1 0 array 1\nLOAD_LOCAL 0\nJMP_FALSE other\nARR_NEW 1\nRET\n"
+        "other:\nARR_NEW 5\nRET\n.end\n", "incompatible array return paths");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "array result"), "I reject conflicting native array result representations explicitly");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_optional_record_arguments(void) {
+    test_array_result_kinds();
     for (int tail = 0; tail < 2; ++tail) {
         for (int reverse = 0; reverse < 2; ++reverse) {
             for (int before = 0; before < 2; ++before) {
