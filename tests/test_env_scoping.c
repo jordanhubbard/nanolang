@@ -18,6 +18,7 @@
  */
 
 #include "nanolang.h"
+#include "runtime/gc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -249,6 +250,29 @@ static void test_retained_block_bounds(void) {
     free_environment(env);
 }
 
+static void test_union_owns_string_payload(void) {
+    gc_init();
+    Value local = create_string("retained text");
+    char *names[] = {"value"};
+    Value result = create_union("Result", 0, "Ok", names, &local, 1);
+    Value alias = result;
+    CHECK(result.as.union_val->field_values[0].as.string_val != local.as.string_val,
+          "I copy a union string independently of its constructing local");
+    gc_release(local.as.string_val);
+    CHECK(strcmp(alias.as.union_val->field_values[0].as.string_val, "retained text") == 0,
+          "I retain a returned union string after its local is released");
+    CHECK(alias.as.union_val == result.as.union_val,
+          "A Value copy preserves the existing shared union identity");
+    gc_release(result.as.union_val->field_values[0].as.string_val);
+    free(result.as.union_val->field_names[0]);
+    free(result.as.union_val->field_names);
+    free(result.as.union_val->field_values);
+    free(result.as.union_val->union_name);
+    free(result.as.union_val->variant_name);
+    free(result.as.union_val);
+    gc_shutdown();
+}
+
 int main(void) {
     printf("\n[env_scoping] symbol visibility is confined to one file...\n\n");
     test_lookup_ignores_other_files();
@@ -259,6 +283,7 @@ int main(void) {
     test_import_alias_owners();
     test_import_owner_restoration();
     test_retained_block_bounds();
+    test_union_owns_string_payload();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
