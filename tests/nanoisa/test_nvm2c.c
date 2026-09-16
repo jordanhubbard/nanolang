@@ -2858,6 +2858,57 @@ static void test_array_result_kinds(void) {
 static void test_optional_record_arguments(void) {
     test_array_result_kinds();
     for (int tail = 0; tail < 2; ++tail) {
+        for (int wrong = 0; wrong < 2; ++wrong) {
+            char source[3072];
+            snprintf(source, sizeof source,
+                ".string text \"kept\"\n.entry main\n"
+                ".function main 0 0 0 int 1\nPUSH_BOOL 1\nCALL choose\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_STR text\nEQ\nASSERT\n"
+                "PUSH_BOOL 0\nCALL choose\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+                ".function choose 1 1 0 array 1\nLOAD_LOCAL 0\nJMP_FALSE missing\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nRET\n"
+                "missing:\n%s\n.end\n"
+                ".function absent 0 0 0 array 1\nHM_NEW 5 %d\nPUSH_STR text\nHM_GET\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nRET\n.end\n",
+                tail ? "TAIL_CALL absent" : "CALL absent\nRET", wrong ? 1 : 5);
+            NvmModule *m = assemble_ok(source, "optional record array returns");
+            if (!m) continue;
+            char err[512];
+            char *c = nvm2c_emit(m, err, sizeof err);
+            CHECK((c != NULL) == !wrong, "I reconcile array return fields only for compatible payloads");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I preserve present and missing array fields across ordinary and tail returns");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        for (int before = 0; before < 2; ++before) {
+            char body[2048], source[3072];
+            const char *worker = ".function inspect 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\n"
+                "DUP\nTYPE_CHECK 0\nJMP_FALSE present\nPOP\nPUSH_I64 0\nRET\npresent:\nTYPE_CHECK 5\nASSERT\nPUSH_I64 5\nRET\n.end\n";
+            const char *plain = "LOAD_LOCAL 0\nCALL inspect\nPUSH_I64 5\nEQ\nASSERT\n";
+            const char *missing = "LOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nCALL inspect\nPUSH_I64 0\nEQ\nASSERT\n";
+            snprintf(body, sizeof body,
+                ".function main 0 1 0 int 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nSTORE_LOCAL 0\n%s%s"
+                "PUSH_STR text\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nCALL inspect\nPUSH_I64 5\nEQ\nASSERT\n"
+                "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nSTR_LEN\nPUSH_I64 4\nEQ\nASSERT\n"
+                "PUSH_I64 0\nRET\n.end\n", reverse ? missing : plain, reverse ? plain : missing);
+            snprintf(source, sizeof source, ".string text \"kept\"\n.entry main\n%s%s",
+                     before ? worker : body, before ? body : worker);
+            NvmModule *m = assemble_ok(source, "optional record array arguments");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I preserve tagged record fields in array arguments");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I observe present and absent array fields without rewriting source storage");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    for (int tail = 0; tail < 2; ++tail) {
         for (int reverse = 0; reverse < 2; ++reverse) {
             for (int before = 0; before < 2; ++before) {
                 const char *plain = "LOAD_LOCAL 0\nCALL relay\nAGG_GET 0\nPUSH_STR text\nEQ\nASSERT\n";

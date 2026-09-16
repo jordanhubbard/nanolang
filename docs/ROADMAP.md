@@ -202,12 +202,25 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   `task_f8e9b2d46ce3470f81ed8b06acbea7ed`. Normal and fresh
                   ASan/UBSan runs pass 1,509 AOT and 994 shape checks. Evidence:
                   `docs/evidence/aot-map-aggregate-fields.md`.
-                - [ ] I reconcile tagged string fields across compiler call
+                - [x] I reconcile tagged string fields across compiler call
                   shapes without accepting incompatible payloads. After map
                   field support, `check_function` (333), offset 351, conflicts
                   at field 3 of parameter 5 of `symbol_new` (301): string
                   versus tagged value. I test both function orders and actual
                   runtime values. MAC `task_ad09fe6dbbb24d5781e970dca9db299a`.
+                  Evidence: `docs/evidence/aot-optional-record-arrays.md`.
+                - [x] I retain optional record-field constraints across array
+                  returns and tail calls. After argument conversion, function
+                  281 offset 769 conflicts at returned element field 3. I test
+                  present and absent return paths and reject incompatible
+                  payloads. MAC `task_380228e6684346c7b211956940ca4f43`.
+                  Normal and fresh ASan/UBSan runs pass 1,523 AOT and 994 shape
+                  checks. Evidence: `docs/evidence/aot-optional-record-arrays.md`.
+                - [ ] I resolve final aggregate field facts in function 163,
+                  `parser_store_union_construct`. Full compiler acceptance
+                  now reaches its `AGG_PACK` rejection. I trace the unresolved
+                  field rather than inventing an integer representation. MAC
+                  `task_a478c928daf246129a8b8fb82da27fd6`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
