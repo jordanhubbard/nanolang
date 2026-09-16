@@ -1414,6 +1414,10 @@ Compiler product:
 - [x] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
       without `nano_vm`. Nested records stay refused.
       `make test-nvm2c` (306 passed).
+- [x] `nvm2c` infers integer, string, and record array result kinds through
+      direct calls, tail calls, recursion, empty arrays, and returns, then
+      emits matching native signatures while preserving record arrays.
+      `make test-nvm2c` (323 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
