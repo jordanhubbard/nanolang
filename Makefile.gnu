@@ -219,7 +219,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTMatch.c $(RUNTIME_DIR)/list_ASTImport.c \
 	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
 	$(RUNTIME_DIR)/list_ASTTupleIndex.c \
-	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/dyn_array.c \
+	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/effect_runtime.c $(RUNTIME_DIR)/dyn_array.c \
 	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/ffi_loader.c \
 	$(RUNTIME_DIR)/module_build_dir.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
@@ -1012,6 +1012,7 @@ test-effects: stage1
 .PHONY: test-effect-execution
 test-effect-execution: stage1 nano_virt nano_vm
 	python3 tests/test_effect_execution.py
+	python3 tests/test_native_effect_execution.py
 
 test-units: test-effect-execution
 

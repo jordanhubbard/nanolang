@@ -356,6 +356,8 @@ static void scope_add_var(ScopeStack *stack, const char *name, Type type, const 
     var->needs_gc_release = true;
 }
 
+static bool native_effect_program;
+
 static void scope_emit_cleanup(ScopeStack *stack, WorkList *list, int indent) {
     if (stack->count == 0) return;
 
@@ -364,7 +366,9 @@ static void scope_emit_cleanup(ScopeStack *stack, WorkList *list, int indent) {
     for (int i = scope->count - 1; i >= 0; i--) {
         if (scope->vars[i].needs_gc_release) {
             emit_indent_item(list, indent);
-            emit_formatted(list, "gc_release(%s);\n", scope->vars[i].name);
+            if (!native_effect_program) emit_formatted(list, "gc_release(%s);\n", scope->vars[i].name);
+        } else if (native_effect_program) {
+            emit_formatted(list, "_nl_gc_%s.owned = false;\n", scope->vars[i].name);
         }
     }
 }
@@ -812,9 +816,91 @@ static bool is_generic_list_runtime_fn(const char *name) {
 }
 
 
+/* I lift synchronous handlers into ordinary C functions. Captures point at
+ * the installing lexical frame; handlers cannot escape that frame. */
+static const char *effect_c_type(Type type, const char *name, Environment *env) {
+    if (name && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
+        if (env_get_opaque_type(env, name)) return "void*";
+        return get_prefixed_type_name(name);
+    }
+    return type_to_c(type);
+}
+static StringBuilder *effect_helpers;
+static int effect_serial;
+static ASTNode *effect_guarded_foreign_call;
+static bool in_effect_handler;
+static Type effect_lexical_return;
+static const char *effect_lexical_name;
+static Environment *effect_environment;
+static Symbol **effect_captures;
+static int effect_capture_count;
+static int *effect_capture_slots;
+static const char *effect_capture_name(const char *name, int line, int column) {
+    static char result[512];
+    for (int i = 0; i < effect_capture_count; ++i) {
+        if (strcmp(effect_captures[i]->name, name) == 0) {
+            Symbol *visible = env_get_var_visible_at(effect_environment, name, line, column);
+            if (visible && (visible->def_line != effect_captures[i]->def_line || visible->def_column != effect_captures[i]->def_column)) return name;
+            snprintf(result, sizeof(result), "(*(%s *)_frame->captures[%d])",
+                     effect_c_type(effect_captures[i]->type, effect_captures[i]->struct_type_name, effect_environment), effect_capture_slots[i]);
+            return result;
+        }
+    }
+    return name;
+}
+static Type effect_body_type(ASTNode *body, Environment *env) {
+    if (!body) return TYPE_VOID;
+    if (body->type == AST_BLOCK) {
+        if (!body->as.block.count) return TYPE_VOID;
+        body = body->as.block.statements[body->as.block.count - 1];
+    }
+    return ast_is_value_expression(body->type) ? check_expression(body, env) : TYPE_VOID;
+}
+static void build_effect_handle(WorkList *, ASTNode *, Environment *);
+
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
 
+    if (native_effect_program && expr != effect_guarded_foreign_call &&
+        (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)) {
+        char qualified[1024];
+        const char *name = expr->type == AST_CALL ? expr->as.call.name : NULL;
+        if (expr->type == AST_MODULE_QUALIFIED_CALL) {
+            snprintf(qualified, sizeof(qualified), "%s.%s", expr->as.module_qualified_call.module_alias, expr->as.module_qualified_call.function_name);
+            name = qualified;
+        }
+        Function *foreign = name ? env_get_function(env, name) : NULL;
+        if (foreign && foreign->is_extern) {
+            int count = expr->type == AST_CALL ? expr->as.call.arg_count : expr->as.module_qualified_call.arg_count;
+            ASTNode **args = expr->type == AST_CALL ? expr->as.call.args : expr->as.module_qualified_call.args;
+            ASTNode **temporaries = calloc((size_t)count + 1, sizeof(*temporaries));
+            int serial = effect_serial++;
+            emit_literal(list, "({ ");
+            for (int i = 0; i < count; ++i) {
+                emit_formatted(list, "__auto_type _foreign_%d_%d = ", serial, i);
+                build_expr(list, args[i], env);
+                emit_literal(list, "; ");
+                temporaries[i] = calloc(1, sizeof(ASTNode));
+                temporaries[i]->type = AST_IDENTIFIER;
+                char temp_name[80]; snprintf(temp_name, sizeof(temp_name), "_foreign_%d_%d", serial, i);
+                temporaries[i]->as.identifier = strdup(temp_name);
+            }
+            ASTNode guarded = *expr;
+            if (expr->type == AST_CALL) guarded.as.call.args = temporaries;
+            else guarded.as.module_qualified_call.args = temporaries;
+            emit_literal(list, "++nl_effect_foreign_depth; ");
+            if (foreign->return_type != TYPE_VOID) emit_literal(list, "__auto_type _foreign_result = ");
+            ASTNode *saved = effect_guarded_foreign_call;
+            effect_guarded_foreign_call = &guarded;
+            build_expr(list, &guarded, env);
+            effect_guarded_foreign_call = saved;
+            emit_literal(list, "; --nl_effect_foreign_depth; ");
+            emit_literal(list, foreign->return_type == TYPE_VOID ? "(void)0; })" : "_foreign_result; })");
+            for (int i = 0; i < count; ++i) { free(temporaries[i]->as.identifier); free(temporaries[i]); }
+            free(temporaries);
+            return;
+        }
+    }
     switch (expr->type) {
         case AST_NUMBER:
             if (expr->as.number == INT64_MIN) {
@@ -842,6 +928,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
             
         case AST_IDENTIFIER: {
+            if (in_effect_handler) {
+                const char *captured = effect_capture_name(expr->as.identifier, expr->line, expr->column);
+                if (captured != expr->as.identifier) { emit_literal(list, captured); break; }
+            }
             /* Check for constant inlining */
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
             /* I prefer the latest global value over its older declaration
@@ -3065,12 +3155,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
         }
         case AST_HANDLE_EXPR: {
-            /* handle { body } with { handlers... }
-             * Phase 1: evaluate body directly. Effect dispatch via longjmp/handlers
-             * will be added in a later commit when perform/resume are wired.
-             * For now, the body expression is the result.
-             */
-            build_expr(list, expr->as.handle_expr.body, env);
+            build_effect_handle(list, expr, env);
             break;
         }
 
@@ -3085,36 +3170,38 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
 
         case AST_EFFECT_HANDLER: {
-            /* handle <body> with { Effect.op(p) -> handler_body }
-             * Emits a GNU-C statement-expression that installs a setjmp handler frame,
-             * evaluates the body, and dispatches performs via a switch.
-             * For simplicity we emit a linear dispatch helper and call the body. */
-            const char *eff = expr->as.effect_handler.effect_name;
-            if (!eff) eff = "unknown";
-            /* Emit a block that just evaluates the body — a full CPS transform is out of
-             * scope here; the interpreter handles real dispatch at runtime.  The C output
-             * is best-effort for programs that do not use perform in transpiled paths. */
-            emit_literal(list, "({");
-            if (expr->as.effect_handler.body)
-                build_expr(list, expr->as.effect_handler.body, env);
-            else
-                emit_literal(list, "0");
-            emit_literal(list, ";})");
+            ASTNode normalized = *expr;
+            normalized.type = AST_HANDLE_EXPR;
+            normalized.as.handle_expr.body = expr->as.effect_handler.body;
+            normalized.as.handle_expr.effect_name = expr->as.effect_handler.effect_name;
+            normalized.as.handle_expr.handler_count = expr->as.effect_handler.handler_count;
+            normalized.as.handle_expr.handler_op_names = expr->as.effect_handler.handler_op_names;
+            normalized.as.handle_expr.handler_bodies = expr->as.effect_handler.handler_bodies;
+            int count = expr->as.effect_handler.handler_count;
+            normalized.as.handle_expr.handler_param_counts = calloc((size_t)count, sizeof(int));
+            normalized.as.handle_expr.handler_param_names = calloc((size_t)count, sizeof(char **));
+            for (int i = 0; i < count; ++i) {
+                normalized.as.handle_expr.handler_param_counts[i] = expr->as.effect_handler.handler_param_names[i] ? 1 : 0;
+                normalized.as.handle_expr.handler_param_names[i] = &expr->as.effect_handler.handler_param_names[i];
+            }
+            build_effect_handle(list, &normalized, env);
+            free(normalized.as.handle_expr.handler_param_counts);
+            free(normalized.as.handle_expr.handler_param_names);
             break;
         }
 
         case AST_EFFECT_OP: {
-            /* perform Effect.op(arg) — emit a call to a handler stub nl_perform_EffectName_opName(arg). */
-            const char *eff = expr->as.effect_op.effect_name;
-            const char *op  = expr->as.effect_op.op_name;
-            if (!eff) eff = "unknown";
-            if (!op)  op  = "unknown";
-            emit_formatted(list, "nl_perform_%s_%s(", eff, op);
-            for (int i = 0; i < expr->as.effect_op.arg_count; i++) {
-                if (i) emit_literal(list, ", ");
+            EffectOp *op = effect_get_op(env_get_effect(env, expr->as.effect_op.effect_name), expr->as.effect_op.op_name);
+            emit_literal(list, "({ ");
+            for (int i = 0; i < expr->as.effect_op.arg_count; ++i) {
+                emit_formatted(list, "%s _effect_arg%d = ", effect_c_type(op->params[i].type, op->params[i].struct_type_name, env), i);
                 build_expr(list, expr->as.effect_op.args[i], env);
+                emit_literal(list, "; ");
             }
-            emit_literal(list, ")");
+            emit_formatted(list, "nl_perform_%s_%s(", expr->as.effect_op.effect_name, expr->as.effect_op.op_name);
+            for (int i = 0; i < expr->as.effect_op.arg_count; ++i)
+                emit_formatted(list, "%s_effect_arg%d", i ? ", " : "", i);
+            emit_literal(list, "); })");
             break;
         }
 
@@ -3188,7 +3275,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         case AST_HANDLE_EXPR:
             /* Handle expression used as statement: evaluate body */
             emit_indent_item(list, indent);
-            build_expr(list, stmt->as.handle_expr.body, env);
+            build_expr(list, stmt, env);
             emit_literal(list, ";\n");
             break;
 
@@ -3196,9 +3283,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             /* Unsafe blocks transpile to regular C blocks */
             emit_indent_item(list, indent);
             emit_literal(list, "/* unsafe */ {\n");
+            scope_stack_push(scopes);
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
                 build_stmt(list, scopes, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
             }
+            scope_emit_cleanup(scopes, list, indent + 1);
+            scope_stack_pop(scopes);
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
             break;
@@ -3567,6 +3657,30 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         }
             
         case AST_RETURN:
+            if (native_effect_program && !in_effect_handler && stmt->as.return_stmt.value && stmt->as.return_stmt.value->type == AST_IDENTIFIER) {
+                const char *name = stmt->as.return_stmt.value->as.identifier;
+                for (int si = scopes->count - 1; si >= 0; --si) {
+                    Scope *scope = &scopes->scopes[si];
+                    for (int vi = scope->count - 1; vi >= 0; --vi) {
+                        if (!strcmp(scope->vars[vi].name, name)) {
+                            emit_formatted(list, "_nl_gc_%s.owned = false;\n", name);
+                            si = -1; break;
+                        }
+                    }
+                }
+            }
+            if (in_effect_handler) {
+                if (stmt->as.return_stmt.value) {
+                    emit_formatted(list, "*(%s *)_frame->lexical_result = ", effect_c_type(effect_lexical_return, effect_lexical_name, env));
+                    build_expr(list, stmt->as.return_stmt.value, env);
+                    emit_literal(list, "; ");
+                }
+                if (effect_lexical_return == TYPE_OPAQUE || effect_lexical_return == TYPE_HASHMAP ||
+                    (effect_lexical_return == TYPE_STRUCT && effect_lexical_name && env_get_opaque_type(env, effect_lexical_name)))
+                    emit_literal(list, "nl_effect_preserve_return(_frame->lexical_result); ");
+                emit_literal(list, "nl_effect_escape(_frame);\n");
+                break;
+            }
             emit_indent_item(list, indent);
             emit_literal(list, "return");
             if (stmt->as.return_stmt.value) {
@@ -3839,6 +3953,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
             /* Track variable for GC cleanup if needed */
             scope_add_var(scopes, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.type_name, env);
+            if (native_effect_program && scopes->count > 0) {
+                Scope *scope = &scopes->scopes[scopes->count - 1];
+                if (scope->count > 0 && !strcmp(scope->vars[scope->count - 1].name, stmt->as.let.name)) {
+                    emit_formatted(list, "NlEffectGC _nl_gc_%s __attribute__((cleanup(nl_effect_gc_pop))) = {nl_effect_gc_top, (void **)&%s, true, true}; nl_effect_gc_top = &_nl_gc_%s;\n", stmt->as.let.name, stmt->as.let.name, stmt->as.let.name);
+                }
+            }
 
             break;
         }
@@ -3867,7 +3987,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
             
             emit_indent_item(list, indent);
-            emit_literal(list, stmt->as.set.name);
+            emit_literal(list, in_effect_handler ? effect_capture_name(stmt->as.set.name, stmt->line, stmt->column) : stmt->as.set.name);
             emit_literal(list, " = ");
             
             /* Special handling for empty array literals: infer type from target variable */
@@ -4288,4 +4408,108 @@ void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
     /* Cleanup */
     worklist_free(list);
     scope_stack_free(scopes);
+}
+
+static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env) {
+    bool saved_handler = in_effect_handler;
+    Type saved_return = effect_lexical_return;
+    const char *saved_return_name = effect_lexical_name;
+    Symbol **saved_captures = effect_captures;
+    int saved_count = effect_capture_count;
+    int *saved_slots = effect_capture_slots;
+    int id = effect_serial++;
+    Type result = effect_body_type(expr->as.handle_expr.body, env);
+    ASTNode *result_expr = expr->as.handle_expr.body;
+    if (result_expr->type == AST_BLOCK && result_expr->as.block.count)
+        result_expr = result_expr->as.block.statements[result_expr->as.block.count - 1];
+    const char *result_name = get_struct_type_name(result_expr, env);
+    if (result_expr->type == AST_EFFECT_OP) {
+        EffectOp *result_op = effect_get_op(env_get_effect(env, result_expr->as.effect_op.effect_name), result_expr->as.effect_op.op_name);
+        if (result_op) result_name = result_op->return_type_name;
+    }
+    Type lexical = g_current_function->as.function.return_type;
+    Symbol **captures = calloc((size_t)env->symbol_count, sizeof(*captures));
+    int count = 0;
+    for (int i = 0; i < env->symbol_count; ++i) {
+        Symbol *sym = &env->symbols[i];
+        if (!sym->def_file || (g_source_file_for_line_directives && strcmp(sym->def_file, g_source_file_for_line_directives))) continue;
+        if (!sym->is_global && sym->def_line > 0 && sym->type != TYPE_VOID &&
+            env_get_var_visible_at(env, sym->name, expr->line, expr->column) == sym)
+            { captures[count] = malloc(sizeof(*sym)); *captures[count++] = *sym; }
+    }
+    for (int h = 0; h <= expr->as.handle_expr.handler_count; ++h) {
+        StringBuilder *helper_source = sb_create();
+        bool body_helper = h == expr->as.handle_expr.handler_count;
+        EffectOp body_op = {.param_count = 0, .return_type = result, .return_type_name = (char *)result_name};
+        const char *name = body_helper ? NULL : expr->as.handle_expr.handler_op_names[h];
+        EffectOp *op = body_helper ? &body_op : effect_get_op(env_get_effect(env, expr->as.handle_expr.effect_name), name);
+        ASTNode *handler_body = body_helper ? expr->as.handle_expr.body : expr->as.handle_expr.handler_bodies[h];
+        sb_appendf(helper_source, "static void nl_handler_%d_%d(NlEffectFrame *_frame, void **_args, void *_result) {\n", id, h);
+        for (int p = 0; p < op->param_count; ++p)
+            sb_appendf(helper_source, "%s %s = *(%s *)_args[%d];\n", effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), expr->as.handle_expr.handler_param_names[h][p], effect_c_type(op->params[p].type, op->params[p].struct_type_name, env), p);
+        if (op->return_type != TYPE_VOID) sb_appendf(helper_source, "%s _out = {0};\n", effect_c_type(op->return_type, op->return_type_name, env));
+        WorkList *handler = worklist_create(100);
+        handler->fn_registry = list->fn_registry;
+        in_effect_handler = true; effect_lexical_return = lexical; effect_lexical_name = g_current_function->as.function.return_struct_type_name; effect_environment = env;
+        effect_captures = captures; effect_capture_count = count;
+        /* Operation parameters shadow lexical captures. */
+        Symbol **filtered = calloc((size_t)count + 1, sizeof(*filtered));
+        int *slots = calloc((size_t)count + 1, sizeof(*slots));
+        int n = 0;
+        for (int c = 0; c < count; ++c) {
+            bool shadow = false;
+            for (int p = 0; p < op->param_count; ++p)
+                if (!strcmp(captures[c]->name, expr->as.handle_expr.handler_param_names[h][p])) shadow = true;
+            if (!shadow) { slots[n] = c; filtered[n++] = captures[c]; }
+        }
+        /* I keep slot numbers stable even when a parameter shadows a capture. */
+        effect_captures = filtered; effect_capture_count = n; effect_capture_slots = slots;
+        int saved_symbols = env->symbol_count;
+        for (int p = 0; p < op->param_count; ++p) {
+            Value value = {0}; value.type = VAL_VOID;
+            env_define_var_with_type_info(env, expr->as.handle_expr.handler_param_names[h][p], op->params[p].type, op->params[p].element_type, op->params[p].type_info, true, value);
+            Symbol *parameter = &env->symbols[env->symbol_count - 1];
+            parameter->struct_type_name = op->params[p].struct_type_name ? strdup(op->params[p].struct_type_name) : NULL;
+            parameter->def_line = handler_body->line;
+            parameter->def_column = handler_body->column;
+            parameter->scope_end_line = handler_body->scope_end_line;
+            parameter->scope_end_column = handler_body->scope_end_column;
+        }
+        if (op->return_type != TYPE_VOID) build_match_arm_value(handler, handler_body, env);
+        else { ScopeStack *scopes = scope_stack_create(); scope_stack_push(scopes); build_stmt(handler, scopes, handler_body, 0, env, list->fn_registry); scope_stack_free(scopes); }
+        env->symbol_count = saved_symbols;
+        in_effect_handler = false; effect_captures = NULL; effect_capture_count = 0;
+        process_worklist(helper_source, handler); worklist_free(handler); free(filtered); free(slots);
+        if (op->return_type != TYPE_VOID) sb_appendf(helper_source, "*(%s *)_result = _out;\n", effect_c_type(op->return_type, op->return_type_name, env));
+        sb_append(helper_source, "}\n");
+        sb_append(effect_helpers, helper_source->buffer);
+        free(helper_source->buffer); free(helper_source);
+        in_effect_handler = saved_handler; effect_lexical_return = saved_return; effect_lexical_name = saved_return_name;
+        effect_captures = saved_captures; effect_capture_count = saved_count; effect_capture_slots = saved_slots;
+    }
+    emit_literal(list, "({ ");
+    emit_formatted(list, "void *_captures_%d[] = {", id);
+    for (int c = 0; c < count; ++c) emit_formatted(list, "%s&%s", c ? ", " : "", saved_handler ? effect_capture_name(captures[c]->name, expr->line, expr->column) : captures[c]->name);
+    if (!count) emit_literal(list, "NULL");
+    emit_literal(list, "}; ");
+    emit_formatted(list, "NlEffectEntry _entries_%d[] = {", id);
+    for (int h = 0; h < expr->as.handle_expr.handler_count; ++h)
+        emit_formatted(list, "%s{\"%s.%s\", nl_handler_%d_%d}", h ? ", " : "", expr->as.handle_expr.effect_name, expr->as.handle_expr.handler_op_names[h], id, h);
+    emit_literal(list, "}; ");
+    if (lexical != TYPE_VOID) emit_formatted(list, "%s _lexical_%d = {0}; ", effect_c_type(lexical, g_current_function->as.function.return_struct_type_name, env), id);
+    emit_formatted(list, "NlEffectFrame _frame_%d __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_%d, .count=%d, .captures=_captures_%d, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=", id, id, expr->as.handle_expr.handler_count, id);
+    if (lexical == TYPE_VOID) emit_literal(list, "NULL"); else emit_formatted(list, "&_lexical_%d", id);
+    emit_literal(list, "}; ");
+    if (result != TYPE_VOID) emit_formatted(list, "%s _out = {0}; ", effect_c_type(result, result_name, env));
+    emit_formatted(list, "if (nl_effect_run(&_frame_%d, nl_handler_%d_%d, %s)) {", id, id, expr->as.handle_expr.handler_count, result == TYPE_VOID ? "NULL" : "&_out");
+    if (saved_handler) {
+        if (lexical != TYPE_VOID) emit_formatted(list, "*(%s *)_frame->lexical_result = _lexical_%d; ", effect_c_type(lexical, g_current_function->as.function.return_struct_type_name, env), id);
+        emit_formatted(list, "nl_effect_pop(&_frame_%d); nl_effect_escape(_frame);", id);
+    } else if (lexical != TYPE_VOID) emit_formatted(list, "%s _ret = _lexical_%d; return _ret;", effect_c_type(lexical, g_current_function->as.function.return_struct_type_name, env), id);
+    else emit_literal(list, "return;");
+    emit_literal(list, "} ");
+    if (result != TYPE_VOID) emit_literal(list, "_out; "); else emit_literal(list, "(void)0; ");
+    emit_literal(list, "})");
+    for (int c = 0; c < count; ++c) free(captures[c]);
+    free(captures);
 }

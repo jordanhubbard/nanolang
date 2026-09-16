@@ -6176,6 +6176,45 @@ bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *mod
     return typed;
 }
 
+static bool register_effect_declaration(ASTNode *item, Environment *env) {
+    /* Register algebraic effect definition */
+    const char *eff_name = item->as.effect_decl.effect_name;
+    if (env_get_effect(env, eff_name)) {
+        emit_context_error("E031 DUPLICATE EFFECT", item->line, item->column, (int)strlen(eff_name),
+            "Effect is already defined in this scope",
+            "E013: effect names must be unique");
+        return false;
+    }
+
+    EffectDef edef;
+    edef.name = strdup(eff_name);
+    edef.op_count = item->as.effect_decl.op_count;
+    edef.is_pub = item->as.effect_decl.is_pub;
+    edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+    edef.ops = edef.op_count > 0 ? malloc(sizeof(EffectOp) * edef.op_count) : NULL;
+
+    for (int j = 0; j < edef.op_count; j++) {
+        edef.ops[j].name = strdup(item->as.effect_decl.op_names[j]);
+        edef.ops[j].return_type = item->as.effect_decl.op_return_types[j];
+        edef.ops[j].return_type_name = item->as.effect_decl.op_return_type_names[j]
+            ? strdup(item->as.effect_decl.op_return_type_names[j]) : NULL;
+        edef.ops[j].param_count = item->as.effect_decl.op_param_counts[j];
+        if (edef.ops[j].param_count > 0) {
+            edef.ops[j].params = malloc(sizeof(Parameter) * edef.ops[j].param_count);
+            for (int k = 0; k < edef.ops[j].param_count; k++) {
+                edef.ops[j].params[k] = item->as.effect_decl.op_params[j][k];
+                if (item->as.effect_decl.op_params[j][k].name)
+                    edef.ops[j].params[k].name = strdup(item->as.effect_decl.op_params[j][k].name);
+            }
+        } else {
+            edef.ops[j].params = NULL;
+        }
+    }
+    env_define_effect(env, edef);
+
+    return true;
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -6443,41 +6482,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             env_define_opaque_type(env, type_name);
 
         } else if (item->type == AST_EFFECT_DECL) {
-            /* Register algebraic effect definition */
-            const char *eff_name = item->as.effect_decl.effect_name;
-            if (env_get_effect(env, eff_name)) {
-                emit_context_error("E031 DUPLICATE EFFECT", item->line, item->column, (int)strlen(eff_name),
-                    "Effect is already defined in this scope",
-                    "E013: effect names must be unique");
-                tc.has_error = true;
-                continue;
-            }
-
-            EffectDef edef;
-            edef.name = strdup(eff_name);
-            edef.op_count = item->as.effect_decl.op_count;
-            edef.is_pub = item->as.effect_decl.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
-            edef.ops = edef.op_count > 0 ? malloc(sizeof(EffectOp) * edef.op_count) : NULL;
-
-            for (int j = 0; j < edef.op_count; j++) {
-                edef.ops[j].name = strdup(item->as.effect_decl.op_names[j]);
-                edef.ops[j].return_type = item->as.effect_decl.op_return_types[j];
-                edef.ops[j].return_type_name = item->as.effect_decl.op_return_type_names[j]
-                    ? strdup(item->as.effect_decl.op_return_type_names[j]) : NULL;
-                edef.ops[j].param_count = item->as.effect_decl.op_param_counts[j];
-                if (edef.ops[j].param_count > 0) {
-                    edef.ops[j].params = malloc(sizeof(Parameter) * edef.ops[j].param_count);
-                    for (int k = 0; k < edef.ops[j].param_count; k++) {
-                        edef.ops[j].params[k] = item->as.effect_decl.op_params[j][k];
-                        if (item->as.effect_decl.op_params[j][k].name)
-                            edef.ops[j].params[k].name = strdup(item->as.effect_decl.op_params[j][k].name);
-                    }
-                } else {
-                    edef.ops[j].params = NULL;
-                }
-            }
-            env_define_effect(env, edef);
+            if (!register_effect_declaration(item, env)) tc.has_error = true;
 
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */
@@ -7278,6 +7283,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register the opaque type in environment */
             env_define_opaque_type(env, type_name);
             
+        } else if (item->type == AST_EFFECT_DECL) {
+            if (!register_effect_declaration(item, env)) tc.has_error = true;
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */
             if (!item) {

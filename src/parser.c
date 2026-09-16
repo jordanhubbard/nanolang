@@ -4863,6 +4863,10 @@ bool ast_is_value_expression(ASTNodeType type) {
         case AST_TUPLE_INDEX:
         case AST_QUALIFIED_NAME:
         case AST_TRY_OP:
+        case AST_EFFECT_OP:
+        case AST_HANDLE_EXPR:
+        case AST_EFFECT_HANDLER:
+        case AST_AWAIT:
             return true;
         default:
             return false;
