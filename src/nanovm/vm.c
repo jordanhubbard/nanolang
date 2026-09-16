@@ -884,6 +884,19 @@ static inline NanoValue stack_peek(VmState *vm, uint32_t offset) {
 }
 
 /* Locals and the caller's stack are not operands of the current frame. */
+/* Handler locals alias their lexical frame; arm parameters and temporaries
+ * live in the activation itself so recursive performs cannot overwrite them. */
+static uint32_t effect_local_index(VmState *vm, VmCallFrame *frame, uint16_t index) {
+    while (frame->effect_owner && index < frame->effect_local_start)
+        frame = &vm->frames[frame->effect_owner - 1];
+    return frame->stack_base + index;
+}
+
+static void effect_prune(VmState *vm, uint32_t frame_count) {
+    while (vm->handler_count && vm->handlers[vm->handler_count - 1].owner >= frame_count)
+        vm->handler_count--;
+}
+
 static inline bool stack_has_operands(const VmState *vm, uint32_t count) {
     if (vm->verified) return true;
     uint32_t base = 0;
@@ -1274,6 +1287,10 @@ VmTrap vm_core_execute(VmState *vm) {
         vm_labels[OP_CALL] = &&L_OP_CALL;
         vm_labels[OP_TAIL_CALL] = &&L_OP_TAIL_CALL;
         vm_labels[OP_CALL_INDIRECT] = &&L_OP_CALL_INDIRECT;
+        vm_labels[OP_HANDLER_PUSH] = &&L_OP_HANDLER_PUSH;
+        vm_labels[OP_HANDLER_POP] = &&L_OP_HANDLER_POP;
+        vm_labels[OP_PERFORM] = &&L_OP_PERFORM;
+        vm_labels[OP_EFFECT_RESUME] = &&L_OP_EFFECT_RESUME;
         vm_labels[OP_RET] = &&L_OP_RET;
         vm_labels[OP_CALL_EXTERN] = &&L_OP_CALL_EXTERN;
         vm_labels[OP_CALL_MODULE] = &&L_OP_CALL_MODULE;
@@ -1405,6 +1422,10 @@ vm_dispatch_top:
             int32_t required = info ? info->pop_count : -1;
             int32_t produced = info ? info->push_count : -1;
             switch (instr.opcode) {
+            case OP_PERFORM:
+                required = instr.operands[1].u16;
+                produced = 1;
+                break;
             case OP_ARR_LITERAL:
             case OP_STRUCT_LITERAL:
             case OP_CLOSURE_NEW:
@@ -1456,7 +1477,7 @@ vm_dispatch_top:
                 /* Fused OP_LOAD_LOCAL idx ; OP_AGG_GET field. */
                 uint16_t idx = instr.operands[0].u16;
                 uint16_t field = decoded->super_operand;
-                uint32_t abs_idx = frame->stack_base + idx;
+                uint32_t abs_idx = effect_local_index(vm, frame, idx);
                 if (abs_idx >= vm->stack_size) {
                     return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                                       "Local %u out of range", idx);
@@ -1608,7 +1629,7 @@ vm_dispatch_top:
 
         VM_CASE(OP_LOAD_LOCAL) {
             uint16_t idx = instr.operands[0].u16;
-            uint32_t abs_idx = frame->stack_base + idx;
+            uint32_t abs_idx = effect_local_index(vm, frame, idx);
             if (abs_idx >= vm->stack_size) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
             }
@@ -1620,7 +1641,7 @@ vm_dispatch_top:
 
         VM_CASE(OP_STORE_LOCAL) {
             uint16_t idx = instr.operands[0].u16;
-            uint32_t abs_idx = frame->stack_base + idx;
+            uint32_t abs_idx = effect_local_index(vm, frame, idx);
             if (abs_idx >= vm->stack_size) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
             }
@@ -2291,6 +2312,7 @@ dynamic_div:
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
+            new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
@@ -2309,6 +2331,9 @@ dynamic_div:
         }
 
         VM_CASE(OP_TAIL_CALL) {
+            if (frame->effect_owner)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I cannot tail-call from an effect activation.");
+            effect_prune(vm, vm->frame_count - 1);
             if (vm->profile.enabled) vm->profile.direct_calls++;
             uint32_t callee_idx = decoded->call_target;
             if (callee_idx >= vm->module->function_count)
@@ -2416,7 +2441,8 @@ dynamic_div:
                 VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
                 new_frame->fn_idx = callee_idx;
                 new_frame->return_ip = vm->ip;
-                new_frame->stack_base = new_base;
+                new_frame->effect_owner = 0;
+            new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
                 new_frame->closure = closure;
                 new_frame->module = callee_module;
@@ -2438,7 +2464,115 @@ dynamic_div:
             VM_NEXT();
         }
 
+        VM_CASE(OP_HANDLER_PUSH) {
+            if (instr.operands[0].u32 >= vm->module->string_count ||
+                (uint32_t)instr.operands[2].u16 + instr.operands[3].u16 > frame->local_count)
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "I require valid handler names and local slots.");
+            if (vm->handler_count == VM_MAX_FRAMES)
+                return trap_error(vm, VM_ERR_CALL_DEPTH, "I exceeded my effect handler limit.");
+            VmEffectHandler *handler = &vm->handlers[vm->handler_count++];
+            *handler = (VmEffectHandler){vm->module, instr.operands[0].u32,
+                decoded->branch_target_offset, vm->frame_count - 1,
+                instr.operands[2].u16, instr.operands[3].u16};
+            VM_NEXT();
+        }
+        VM_CASE(OP_HANDLER_POP) {
+            uint16_t count = instr.operands[0].u16;
+            if (count > vm->handler_count)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I cannot pop absent effect handlers.");
+            for (uint16_t i = 0; i < count; i++) {
+                if (vm->handlers[vm->handler_count - 1].owner != vm->frame_count - 1)
+                    return trap_error(vm, VM_ERR_TYPE_ERROR, "I cannot pop another frame's handler.");
+                vm->handler_count--;
+            }
+            VM_NEXT();
+        }
+        VM_CASE(OP_PERFORM) {
+            if (instr.operands[0].u32 >= vm->module->string_count)
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "I require a valid effect name.");
+            const char *operation = vm->module->strings[instr.operands[0].u32];
+            VmEffectHandler *handler = NULL;
+            for (uint32_t i = vm->handler_count; i > 0; i--) {
+                VmEffectHandler *candidate = &vm->handlers[i - 1];
+                if (candidate->owner >= vm->activation_floor &&
+                    !strcmp(operation, candidate->module->strings[candidate->operation])) {
+                    handler = candidate; break;
+                }
+            }
+            if (!handler)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I found no handler for %s.", operation);
+            uint16_t argc = instr.operands[1].u16;
+            if (argc != handler->parameter_count)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I require matching effect argument counts.");
+            if (vm->frame_count == VM_MAX_FRAMES)
+                return trap_error(vm, VM_ERR_CALL_DEPTH, "I exceeded my effect activation limit.");
+            VmCallFrame *owner = &vm->frames[handler->owner];
+            const NvmFunctionEntry *function = &handler->module->functions[owner->fn_idx];
+            uint32_t base = vm->stack_size - argc;
+            if (stack_reserve_frame(vm, base, function) != VM_OK)
+                return trap_error(vm, VM_ERR_MEMORY, "I cannot reserve an effect activation.");
+            /* Move ordered arguments above the caller's operand stack into
+             * their lexical slots; all other activation slots begin void. */
+            memmove(&vm->stack[base + handler->parameter_start], &vm->stack[base],
+                    argc * sizeof(NanoValue));
+            for (uint16_t i = 0; i < function->local_count; i++)
+                if (i < handler->parameter_start || i >= handler->parameter_start + argc)
+                    vm->stack[base + i] = val_void();
+            vm->stack_size = base + function->local_count;
+            VmCallFrame *activation = &vm->frames[vm->frame_count++];
+            *activation = *owner;
+            activation->stack_base = base;
+            activation->effect_owner = handler->owner + 1;
+            activation->effect_local_start = handler->parameter_start;
+            activation->owned_callable = val_void();
+            activation->return_ip = vm->ip;
+            frame = activation;
+            vm->module = handler->module;
+            vm->current_fn = owner->fn_idx;
+            vm->ip = handler->target;
+            cur_fn = function;
+            code_end = function->code_offset + function->code_length;
+            VM_NEXT();
+        }
+        VM_CASE(OP_EFFECT_RESUME) {
+            if (!frame->effect_owner || vm->stack_size != frame->stack_base + frame->local_count + 1)
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I can resume only an active effect with one result.");
+            NanoValue value = stack_pop(vm);
+            while (vm->stack_size > frame->stack_base) vm_release(&vm->heap, stack_pop(vm));
+            uint32_t return_ip = frame->return_ip;
+            vm->frame_count--;
+            effect_prune(vm, vm->frame_count);
+            frame = &vm->frames[vm->frame_count - 1];
+            vm->module = frame->module;
+            vm->current_fn = frame->fn_idx;
+            vm->ip = return_ip;
+            cur_fn = &vm->module->functions[frame->fn_idx];
+            code_end = cur_fn->code_offset + cur_fn->code_length;
+            stack_push(vm, value);
+            VM_NEXT();
+        }
         VM_CASE(OP_RET) {
+            if (frame->effect_owner) {
+                uint32_t owner = frame->effect_owner - 1;
+                while (vm->frames[owner].effect_owner)
+                    owner = vm->frames[owner].effect_owner - 1;
+                uint8_t count = vm->module->functions[frame->fn_idx].result_count;
+                if (vm->stack_size != frame->stack_base + frame->local_count + count)
+                    return trap_error(vm, VM_ERR_TYPE_ERROR, "I require the lexical return result shape.");
+                NanoValue results[UINT8_MAX];
+                for (uint8_t i = count; i > 0; i--) results[i - 1] = stack_pop(vm);
+                uint32_t keep = vm->frames[owner].stack_base + vm->frames[owner].local_count;
+                while (vm->stack_size > keep) vm_release(&vm->heap, stack_pop(vm));
+                while (vm->frame_count > owner + 1) {
+                    vm_release(&vm->heap, vm->frames[--vm->frame_count].owned_callable);
+                    vm->frames[vm->frame_count].owned_callable = val_void();
+                }
+                effect_prune(vm, vm->frame_count);
+                frame = &vm->frames[owner];
+                vm->module = frame->module;
+                vm->current_fn = frame->fn_idx;
+                for (uint8_t i = 0; i < count; i++) stack_push(vm, results[i]);
+            }
             const NvmFunctionEntry *returning =
                 &vm->module->functions[frame->fn_idx];
             uint32_t actual_results = vm->stack_size
@@ -2473,6 +2607,7 @@ dynamic_div:
             vm_release(&vm->heap, frame->owned_callable);
             frame->owned_callable = val_void();
             vm->frame_count--;
+            effect_prune(vm, vm->frame_count);
 
             if (vm->frame_count == vm->activation_floor) {
                 for (uint8_t i = 0; i < returning->result_count; i++)
@@ -2593,6 +2728,7 @@ dynamic_div:
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = fn_idx_m;
             new_frame->return_ip = vm->ip;
+            new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
@@ -3734,6 +3870,7 @@ vm_dispatch_done: ;
         vm_release(&vm->heap, frame->owned_callable);
         frame->owned_callable = val_void();
         vm->frame_count--;
+            effect_prune(vm, vm->frame_count);
         if (vm->frame_count == 0) {
             for (uint8_t i = 0; i < returning->result_count; i++)
                 stack_push(vm, results[i]);
@@ -3891,6 +4028,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     VmCallFrame *frame = &vm->frames[vm->frame_count++];
     frame->fn_idx = fn_idx;
     frame->return_ip = vm->ip;
+    frame->effect_owner = 0;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
     frame->closure = callable.tag == TAG_CLOSURE ? callable.as.closure : NULL;
@@ -4091,6 +4229,7 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         vm->frames[i].owned_callable = val_void();
     }
     vm->frame_count = frames;
+    effect_prune(vm, frames);
     vm->activation_floor = floor;
     vm->ip = ip;
     vm->current_fn = current_fn;
@@ -4176,6 +4315,7 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
         vm->frames[i].owned_callable = val_void();
     }
     vm->frame_count = 0;
+    vm->handler_count = 0;
     vm->ip = saved_ip;
     vm->current_fn = saved_fn;
     vm->module = saved_module;
