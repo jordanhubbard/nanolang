@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Darwin recursive test discovery.** I enumerate nested and root test
+      fixtures on the default Bash without globstar, and reject empty negative
+      coverage rather than reporting a vacuous pass.
+      MAC `task_0c4db2d50e2d4428828a487053535661`.
+
 - [ ] **Darwin launcher StringBuilder linkage.** I retain the runtime symbols
       referenced by imported StringBuilder objects in strict native builds,
       preserving transitive link dependencies and cache identity.
