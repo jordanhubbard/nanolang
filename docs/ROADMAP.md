@@ -28,14 +28,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Stable full-suite compiler selection.** I pin the compiler requested
+      by my test entry point even when bootstrap changes the installed symlink.
+      My C-reference suite must execute that compiler; the explicit self-hosted
+      suite must retain its own compiler. I test the link-mutation case.
+      MAC `task_9bdaa5f642b04645948f37acc282ea41`.
+
 - [x] **List failure fixture jump state.** I preserve the fault-injection
       loop state across longjmp and keep strict GCC warnings and all ownership
       and aliasing assertions enabled.
       MAC `task_9c9cc0a069f0431f93fb12778fd78d01`.
 
-- [ ] **Escaped module compiler staging.** I preserve unusual source names
-      while giving generated C inputs compiler-safe private paths. GCC currently
-      crashes expanding __FILE__ in a staging directory with control bytes.
+- [x] **Escaped module compiler staging.** I preserve unusual source names
+      while giving generated C inputs compiler-safe private paths. I avoid the
+      GCC __FILE__ crash caused by staging directories with control bytes.
       I retain invocation, snapshot and publication checks.
       MAC `task_3488384a0b1140e389e26ef10ca1694d`.
 

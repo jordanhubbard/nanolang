@@ -95,7 +95,7 @@ ordinary bootstrap passed its smoke checks. The native translator checkpoint
 at `b21fbeed` reconciles main through PR #340 (`2711c6eb`) and retains both
 PR #338 string-array regressions. Coverage-wrapper tests passed five unit and
 seven integration cases against real gcov objects. The Linux cache-publication
-run passed 55 methods with eight platform skips. The Darwin C++ fixture passed
+run passed 47 methods, with eight platform/compiler-specific skips. The Darwin C++ fixture passed
 compilation, reuse and header invalidation; its deprecated `.c`-as-C++ warning
 is acknowledged for that fixture, not described as warning-free.
 
