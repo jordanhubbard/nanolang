@@ -206,6 +206,15 @@ static void test_directed_conversions(void) {
 }
 
 int main(void) {
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId floating = nvm_shape_new(&g, NVM_SHAPE_FLOAT);
+        CHECK(nvm_shape_kind(&g, floating) == NVM_SHAPE_FLOAT);
+        CHECK(nvm_shape_unify(&g, floating, nvm_shape_new(&g, NVM_SHAPE_FLOAT)));
+        CHECK(!nvm_shape_unify(&g, floating, nvm_shape_new(&g, NVM_SHAPE_INT)));
+        nvm_shape_destroy(&g);
+    }
+
     test_directed_conversions();
     {
         NvmShapeGraph g = {0};

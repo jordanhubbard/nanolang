@@ -1130,6 +1130,111 @@ static void test_uninitialized_global_result_traps(void) {
     nvm_module_free(m);
 }
 
+static void test_float_comparison_transport(void) {
+    const char *source =
+        ".entry main\n.function less 2 2 0 bool 1\n"
+        "LOAD_LOCAL 0\nLOAD_LOCAL 1\nLT\nRET\n.end\n"
+        ".function relay 2 2 0 bool 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nTAIL_CALL less\n.end\n"
+        ".function main 0 1 0 int 1\nPUSH_F64 1.5\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nDUP\nEQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 2\nCALL relay\nTYPE_CHECK 4\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 2\nCALL less\nASSERT\n"
+        "PUSH_I64 2\nLOAD_LOCAL 0\nGT\nASSERT\n"
+        "PUSH_F64 2.0\nPUSH_I64 2\nEQ\nASSERT\n"
+        "PUSH_F64 -0.0\nPUSH_I64 0\nEQ\nASSERT\n"
+        "PUSH_F64 inf\nPUSH_F64 1.5\nGT\nASSERT\n"
+        "PUSH_F64 nan\nPUSH_F64 1.5\nLE\nASSERT\n"
+        "PUSH_F64 nan\nPUSH_F64 1.5\nGE\nASSERT\n"
+        "PUSH_F64 nan\nPUSH_F64 nan\nEQ\nBOOL_NOT\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "float comparison transport");
+    if (!m) return;
+    char *c = emit_or_fail(m, "I preserve float constants, locals and direct/tail call arguments");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I retain numeric comparison and VM NaN ordering through float storage");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_generic_comparisons_are_typed(void) {
+    const char *src =
+        ".string apple \"apple\"\n"
+        ".string berry \"berry\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR apple\n"
+        "  PUSH_STR berry\n"
+        "  LT\n"
+        "  CAST_INT\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "generic string comparison fixture");
+    CHECK(m != NULL, "generic string comparison fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "nvm2c lowers generic string LT");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "strcmp") != NULL, "generic string LT uses lexical comparison");
+        CHECK(compile_and_run(c, &status) == 0, "generic string LT C compiles and runs");
+        CHECK(status == 1, "apple compares less than berry");
+        free(c);
+    }
+    nvm_module_free(m);
+
+    src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_F64 1.5\n"
+        "  PUSH_I64 2\n"
+        "  LT\n"
+        "  CAST_INT\n"
+        "  RET\n"
+        ".end\n";
+    m = assemble_ok(src, "generic numeric comparison fixture");
+    CHECK(m != NULL, "generic numeric comparison fixture assembles");
+    if (m) {
+        c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c != NULL, "nvm2c lowers generic float/int LT without integer coercion");
+        if (c) {
+            int status = -1;
+            CHECK(strstr(c, "double") != NULL, "generic float/int LT retains a double operand");
+            CHECK(compile_and_run(c, &status) == 0, "generic float/int LT C compiles and runs");
+            CHECK(status == 1, "1.5 compares less than 2");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+
+    src =
+        ".string one \"one\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR one\n"
+        "  PUSH_I64 1\n"
+        "  LT\n"
+        "  CAST_INT\n"
+        "  RET\n"
+        ".end\n";
+    m = assemble_ok(src, "generic comparison mismatch fixture");
+    CHECK(m != NULL, "generic comparison mismatch fixture assembles");
+    if (m) {
+        c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c != NULL, "I preserve VM generic ordering across distinct scalar tags");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "string tags order after integer tags in the VM contract");
+        }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_call_extern_is_refused(void) {
     NvmModule *m = nvm_module_new();
     CHECK(m != NULL, "empty module allocates");
@@ -2841,7 +2946,7 @@ static void test_nested_record_values(void) {
 }
 
 static void test_unsupported_classifier_instructions(void) {
-    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL, OP_PUSH_F64,
+    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL,
         OP_PUSH_VOID, OP_CAST_FLOAT,
         OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
@@ -5898,6 +6003,8 @@ int main(int argc, char **argv) {
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
+    test_generic_comparisons_are_typed();
+    test_float_comparison_transport();
     test_globals_cross_functions_and_preserve_identity();
     test_uninitialized_global_result_traps();
     test_builtin_host_imports();
