@@ -33,8 +33,12 @@ undefined C identifiers. I track that regression in
 explicitly, keeps emitted locals' exact declaration bounds and complete type
 metadata, and initializes header-created symbols. Ten lexical/global methods
 and the headless GLUT guard pass afterward. The interactive window check is
-not run. A full quick rerun remains required; the first failed run is not
-release acceptance.
+not run. The quick rerun passes that boundary, dependency checks and the
+dispatch/mixer callback prerequisites, then fails one of 242 eligible VM
+examples: `nl_affine_resource_demo.nano`. Its `close_file` helper only prints
+and leaves its resource parameter live. I retain that rejection and track the
+missing whole-record destructuring and honest simulated teardown in
+`task_826838b808f340968c526f849276b913`. The full quick gate is not passed.
 
 The final repair also keeps nominal record names on emitted local declarations;
 one function's same-named local must not supply another function's record type.
@@ -45,9 +49,17 @@ above includes the separate frontend-parity fixture suite.
 
 ## Still incomplete
 
-My self-hosted classifier currently recognizes explicit resource declarations;
-recursive records, union payloads, generic substitution and module-owned nominal
-identity need further work. Resource match payloads, captures, borrows,
+My self-hosted classifier now propagates explicit resource roots through named
+record fields and union payloads until no new name becomes resource-bearing.
+A recursive cycle alone creates no obligation. My helper shadow exercises a
+reverse-declared chain, a union envelope and a non-resource cycle. The expanded
+matrix adds inherited parameter leaks, moves, returns and collection signatures.
+After a fresh bootstrap, all 21 combined ownership methods and all ten lexical
+scope methods pass on the rebuilt binaries. The separate C classification
+fixture and shadow-policy check also pass.
+The compiler-to-native acceptance target passes all 21 methods afterward.
+Generic substitution and module-owned nominal identity still need further
+work. Resource match payloads, captures, borrows,
 whole-owner destructuring, inferred higher-order signatures and ownership facts
 in NanoISA are not established by this matrix. Unsupported expression forms
 produce an ownership-lowering diagnostic in resource-bearing programs; that

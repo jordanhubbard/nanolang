@@ -39,6 +39,27 @@ class AffineContractBoundaries(unittest.TestCase):
     def test_return_owned_parameter(self):
         self.check_case("return_parameter", "fn probe(file: FileHandle) -> FileHandle { return file }", True)
 
+    def test_nested_record_parameter_obligations(self):
+        types = "struct Inner { file: FileHandle }\nstruct Outer { inner: Inner }\n"
+        self.check_case("nested_leak", types + "fn probe(owner: Outer) -> int { return 0 }", False)
+        self.check_case("nested_return", types + "fn probe(owner: Outer) -> Outer { return owner }", True)
+        self.check_case("nested_after_move", types + """extern fn consume_outer(owner: Outer) -> void
+fn probe(owner: Outer) -> void {
+    let next: Outer = owner
+    unsafe { (consume_outer next) (consume_outer owner) }
+}""", False)
+
+    def test_union_payload_parameter_obligations(self):
+        types = "union Choice { Some { file: FileHandle }, None {} }\nstruct Envelope { choice: Choice }\n"
+        self.check_case("union_leak", types + "fn probe(owner: Choice) -> int { return 0 }", False)
+        self.check_case("union_return", types + "fn probe(owner: Choice) -> Choice { return owner }", True)
+        self.check_case("union_envelope_leak", types + "fn probe(owner: Envelope) -> int { return 0 }", False)
+
+    def test_nested_resource_collection_signature(self):
+        self.check_case("nested_collection", """struct Box { file: FileHandle }
+extern fn unsupported(items: array<Box>) -> void
+""", False)
+
     def test_move_then_consume(self):
         self.check_case("move_consume", """fn probe(first: FileHandle) -> void {
     let second: FileHandle = first

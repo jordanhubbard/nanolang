@@ -407,8 +407,9 @@ My C-seed checker tracks parameter and local obligations in a separate
 function pass. I check moves, observations, scope exits, branch joins and loop
 edges, and reject resource-bearing collections. My self-hosted checker now
 passes the same bounded flow matrix, including short-circuit consumption and
-hidden outer obligations. Its resource classification is still limited to
-explicit declarations. Resource match payloads, captures,
+hidden outer obligations. Its classifier propagates ownership through named
+record fields and union payloads; generic substitution and module identity
+remain incomplete. Resource match payloads, captures,
 borrows and whole-owner destructuring still need lowering; some forms are
 rejected pending that work. Neither checker establishes the complete ownership
 contract. Passing the shared flow gate is not full conformance, and successful

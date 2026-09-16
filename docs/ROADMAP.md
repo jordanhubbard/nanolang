@@ -110,6 +110,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       bounded cases do not establish recursive self-hosted classification,
       borrows, captures or ownership facts in NanoISA. Evidence:
       `docs/evidence/affine-selfhost-flow.md`.
+      I propagate self-hosted resource classification through named record
+      fields and union payloads to a least fixed point, including cycles. I
+      test inherited parameter obligations and moves against the C frontend;
+      generic substitution and module identity remain separate requirements.
+      A fresh bootstrap and 31 combined ownership/scope methods pass after
+      this change, including inherited record/union parameter obligations.
+      The broader quick rerun reaches all 242 eligible VM examples and rejects
+      `nl_affine_resource_demo.nano`: its close helper merely prints and leaves
+      its parameter live. I implement the specified whole-record destructuring
+      in both frontends and lowering paths, with complete-field and move checks,
+      then give the simulated demo an honest terminal operation. I do not
+      waive the obligation or exclude the example. MAC
+      `task_826838b808f340968c526f849276b913`.
       My broader quick gate stops at GLUT native compilation: source-aware
       emitter lookup selects retained declaration placeholders instead of
       imported constant values, leaving `GL_LIGHT0` and related names undefined

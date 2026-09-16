@@ -74,17 +74,73 @@ struct ResourceState {
     column: int
 }
 
-fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
+fn resource_name_in(names: array<string>, name: string) -> bool {
     let mut i: int = 0
-    while (< i (parser_get_struct_def_count parser)) {
-        let def: ASTStruct = (parser_get_struct_def parser i)
-        if (and def.is_resource (== def.name type_name)) { return true } else { (print "") }
+    while (< i (array_length names)) {
+        if (== (at names i) name) { return true }
         set i (+ i 1)
     }
     return false
 }
 
-shadow resource_type_is_declared { assert true }
+shadow resource_name_in {
+    assert (resource_name_in ["Handle", "Wrapper"] "Wrapper")
+    assert (not (resource_name_in ["Handle"] "int"))
+}
+
+fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
+    let mut bearing: array<string> = []
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let def: ASTStruct = (parser_get_struct_def parser i)
+        if def.is_resource { set bearing (array_push bearing def.name) }
+        set i (+ i 1)
+    }
+    # A cycle alone creates no obligation. I propagate only from resource roots.
+    let mut changed: bool = true
+    while changed {
+        set changed false
+        set i 0
+        while (< i (parser_get_struct_def_count parser)) {
+            let def: ASTStruct = (parser_get_struct_def parser i)
+            if (not (resource_name_in bearing def.name)) {
+                let mut field: int = 0
+                let mut owns: bool = false
+                while (< field (array_length def.field_types)) {
+                    if (resource_name_in bearing (at def.field_types field)) { set owns true }
+                    set field (+ field 1)
+                }
+                if owns { set bearing (array_push bearing def.name) set changed true }
+            }
+            set i (+ i 1)
+        }
+        set i 0
+        while (< i (parser_get_union_count parser)) {
+            let def: ASTUnion = (parser_get_union parser i)
+            if (not (resource_name_in bearing def.name)) {
+                let mut field: int = 0
+                let mut owns: bool = false
+                while (< field (array_length def.variant_field_types)) {
+                    if (resource_name_in bearing (at def.variant_field_types field)) { set owns true }
+                    set field (+ field 1)
+                }
+                if owns { set bearing (array_push bearing def.name) set changed true }
+            }
+            set i (+ i 1)
+        }
+    }
+    return (resource_name_in bearing type_name)
+}
+
+shadow resource_type_is_declared {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } struct Outer { inner: Inner } struct Inner { owner: Handle } struct Cycle { next: Cycle } union Wrapped { Some { owner: Outer }, None {} } struct Envelope { item: Wrapped }")
+    assert (resource_type_is_declared parser "Handle")
+    assert (resource_type_is_declared parser "Outer")
+    assert (resource_type_is_declared parser "Wrapped")
+    assert (resource_type_is_declared parser "Envelope")
+    assert (not (resource_type_is_declared parser "Cycle"))
+    assert (not (resource_type_is_declared parser "int"))
+}
 
 fn resource_find(states: array<ResourceState>, name: string) -> int {
     let mut i: int = (- (array_length states) 1)
