@@ -2372,18 +2372,62 @@ static void emit_narr_new(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_narr_storage(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "typedef struct narr_owned_s {\n"
+        "    struct narr_owned_s *next;\n"
+        "    int64_t data[];\n"
+        "} narr_owned_t;\n"
+        "static narr_owned_t *narr_owned;\n"
+        "static void narr_free_all(void) {\n"
+        "    while (narr_owned) {\n"
+        "        narr_owned_t *next = narr_owned->next;\n"
+        "        free(narr_owned);\n"
+        "        narr_owned = next;\n"
+        "    }\n"
+        "}\n\n");
+}
+
+static void emit_narr_alloc(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t *narr_alloc(size_t cap) {\n"
+        "    if (cap > (SIZE_MAX - sizeof(narr_owned_t)) / sizeof(int64_t)) abort();\n"
+        "    size_t bytes = sizeof(narr_owned_t) + cap * sizeof(int64_t);\n"
+        "    narr_owned_t *owned = (narr_owned_t *)malloc(bytes);\n"
+        "    if (!owned) abort();\n"
+        "    owned->next = narr_owned;\n"
+        "    narr_owned = owned;\n"
+        "    return owned->data;\n"
+        "}\n\n");
+}
+
+static void emit_narr_reserve(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static void narr_reserve(narr_t a, size_t n) {\n"
+        "    if (!a || a->len > a->cap || (a->len && !a->data)) abort();\n"
+        "    if (n <= a->cap) return;\n"
+        "    size_t cap = a->cap ? a->cap : 8;\n"
+        "    while (cap < n) {\n"
+        "        if (cap > SIZE_MAX / 2) abort();\n"
+        "        cap *= 2;\n"
+        "    }\n"
+        "    int64_t *data = narr_alloc(cap);\n"
+        "    if (a->len) memcpy(data, a->data, a->len * sizeof(int64_t));\n"
+        "    a->data = data;\n"
+        "    a->cap = cap;\n"
+        "}\n\n");
+}
+
 static void emit_narr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_lit(const int64_t *elems, size_t n) {\n"
         "    if (n > 0 && !elems) abort();\n"
         "    narr_t a = narr_new();\n"
         "    if (n) {\n"
-        "        a->data = (int64_t *)malloc(n * sizeof(int64_t));\n"
-        "        if (!a->data) abort();\n"
+        "        narr_reserve(a, n);\n"
         "        memcpy(a->data, elems, n * sizeof(int64_t));\n"
         "    }\n"
         "    a->len = n;\n"
-        "    a->cap = n;\n"
         "    return a;\n"
         "}\n\n");
 }
@@ -2400,15 +2444,8 @@ static void emit_narr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_push(narr_t a, int64_t v) {\n"
         "    if (!a) abort();\n"
-        "    if (a->len && !a->data) abort();\n"
-        "    if (a->len == a->cap) {\n"
-        "        size_t cap = a->cap ? a->cap * 2 : 8;\n"
-        "        if (cap < a->cap || cap > SIZE_MAX / sizeof(int64_t)) abort();\n"
-        "        int64_t *data = (int64_t *)realloc(a->data, cap * sizeof(int64_t));\n"
-        "        if (!data) abort();\n"
-        "        a->data = data;\n"
-        "        a->cap = cap;\n"
-        "    }\n"
+        "    if (a->len == SIZE_MAX) abort();\n"
+        "    narr_reserve(a, a->len + 1);\n"
         "    a->data[a->len++] = v;\n"
         "    return a;\n"
         "}\n\n");
@@ -2512,6 +2549,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     uint8_t *result_fields = calloc((size_t)mod->function_count * NVM2C_MAX_REC_FIELDS, 1);
     uint8_t *reachable = calloc(mod->function_count, 1);
     int need_owned_strings;
+    int need_owned_iarrays = 0;
     if (!kinds || !rec_fields || !result_kinds || !result_fields || !reachable) {
         free(kinds);
         free(rec_fields);
@@ -2596,6 +2634,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
         int need_sarr_push = need_arr_push && need_sarr;
+        need_owned_iarrays = need_iarr_lit || (need_iarr && need_iarr_new);
         int need_sarr_new = need_sarr && module_has_opcode(mod, reachable, OP_ARR_NEW);
         int need_agg_get = module_has_opcode(mod, reachable, OP_AGG_GET);
         int need_print = module_has_opcode(mod, reachable, OP_PRINT) ||
@@ -2650,8 +2689,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
         if (need_cast_string) emit_nstr_from_i64(&b);
-        if (need_iarr_lit || (need_iarr && need_iarr_new)) {
+        if (need_owned_iarrays) {
+            emit_narr_storage(&b);
             emit_narr_new(&b);
+            if (need_iarr_lit || need_iarr_push) {
+                emit_narr_alloc(&b);
+                emit_narr_reserve(&b);
+            }
         }
         if (need_iarr_lit) emit_narr_lit(&b);
         if (need_iarr_get) emit_narr_get(&b);
@@ -2702,14 +2746,16 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         char ename[64];
         fn_c_name(mod, entry, ename, sizeof ename);
-        if (need_owned_strings) {
+        if (need_owned_strings || need_owned_iarrays) {
             nvm2c_printf(&b,
                 "int main(void) {\n"
                 "    int result = (int)%s();\n"
-                "    nstr_free_all();\n"
+                "%s%s"
                 "    return result;\n"
                 "}\n",
-                ename);
+                ename,
+                need_owned_strings ? "    nstr_free_all();\n" : "",
+                need_owned_iarrays ? "    narr_free_all();\n" : "");
         } else {
             nvm2c_printf(&b,
                 "int main(void) {\n"

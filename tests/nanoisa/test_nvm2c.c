@@ -2150,6 +2150,19 @@ static void test_array_growth_has_no_process_wide_arena_limit(void) {
         int status = -1;
         CHECK(strstr(c, "narr_arena") == NULL,
               "integer arrays do not share a fixed process-wide arena");
+        CHECK(strstr(c, "if (!owned) abort();") != NULL,
+              "integer array allocation failure aborts safely");
+        CHECK(strstr(c, "cap > (SIZE_MAX - sizeof(narr_owned_t)) / sizeof(int64_t)") != NULL,
+              "integer array allocation checks byte-size arithmetic");
+        CHECK(strstr(c, "if (cap > SIZE_MAX / 2) abort();") != NULL,
+              "integer array growth checks capacity arithmetic");
+        CHECK(strstr(c, "int64_t *data = narr_alloc(cap);") != NULL &&
+              strstr(c, "realloc(a->data") == NULL,
+              "integer array growth preserves foreign backing storage");
+        CHECK(strstr(c, "a->data = data;") != NULL,
+              "integer array growth updates shared array aliases");
+        CHECK(strstr(c, "narr_free_all();") != NULL,
+              "generated main releases owned integer array storage");
         CHECK(compile_and_run(c, &status) == 0,
               "large array growth C compiles and runs");
         CHECK(status == 1, "an array grows past the former 65,536-element limit");
