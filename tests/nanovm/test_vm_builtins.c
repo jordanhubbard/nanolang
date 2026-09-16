@@ -16,6 +16,18 @@ char **g_argv = NULL;
 #include <string.h>
 #include <unistd.h>
 
+static int s_fail_fclose = 0;
+static int s_fail_fwrite = 0;
+static int s_fclose_calls = 0;
+int nano_test_fclose(FILE *stream) {
+    s_fclose_calls++;
+    int result = fclose(stream);
+    return s_fail_fclose ? EOF : result;
+}
+size_t nano_test_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
+    return s_fail_fwrite ? 0 : fwrite(ptr, size, count, stream);
+}
+
 /* ── Test runner ─────────────────────────────────────────────────────────── */
 
 static int g_pass = 0, g_fail = 0;
@@ -305,6 +317,38 @@ static void test_vm_file_write_null(void) {
     PASS(test_name);
 }
 
+static void test_vm_file_write_close_failure(void) {
+    const char *test_name = "vm_file_write: close failure returns error";
+    char path[] = "/tmp/test_vm_builtins_close_failure.XXXXXX";
+    int fd = mkstemp(path);
+    ASSERT(fd >= 0, "I create a private file fixture");
+    ASSERT(close(fd) == 0, "I close the fixture descriptor");
+    s_fail_fclose = 1;
+    s_fclose_calls = 0;
+    int64_t rc = vm_file_write(path, "content");
+    s_fail_fclose = 0;
+    unlink(path);
+    ASSERT(rc == -1, "close failure should return -1");
+    ASSERT(s_fclose_calls == 1, "I close the stream exactly once");
+    PASS(test_name);
+}
+
+static void test_vm_file_write_failure_closes_stream(void) {
+    const char *test_name = "vm_file_write: write failure closes stream";
+    char path[] = "/tmp/test_vm_builtins_write_failure.XXXXXX";
+    int fd = mkstemp(path);
+    ASSERT(fd >= 0, "I create a private file fixture");
+    ASSERT(close(fd) == 0, "I close the fixture descriptor");
+    s_fail_fwrite = 1;
+    s_fclose_calls = 0;
+    int64_t rc = vm_file_write(path, "content");
+    s_fail_fwrite = 0;
+    ASSERT(rc == -1, "write failure should return -1");
+    ASSERT(s_fclose_calls == 1, "stream should be closed after write failure");
+    unlink(path);
+    PASS(test_name);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 static void test_vm_format(void) {
@@ -367,6 +411,8 @@ int main(void) {
     test_vm_bstr_utf8();
     test_vm_process_run();
     test_vm_file_write_null();
+    test_vm_file_write_close_failure();
+    test_vm_file_write_failure_closes_stream();
 
     printf("\n");
     if (g_fail == 0) {

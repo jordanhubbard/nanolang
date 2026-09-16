@@ -166,47 +166,65 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       The expanded ownership gate still has 27 failing subcases, including
       foreign collection signatures on both self-hosted stages. I keep this
       item open. Evidence: `docs/evidence/affine-c-seed-flow.md`.
-- [ ] **Current-main release reconciliation.** I review and integrate the eight
-      newer main commits through `b37136cc` (PR #297), including recursive-array
-      C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
-      branch's compiler/runtime work, verify affected gates and record ancestry
-      before release. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
-      Merge `26397722` already includes `b37136cc`; that earlier ancestry is
-      complete. The remaining reconciliation now covers eight further commits
-      through `931517fb`, not those already merged commits.
-      Six further commits through `19afddf5` add nested-array evaluation,
-      relative-path anchoring, write/close failure reporting and AOT signature,
-      void-local and opcode-classification changes. I review their overlap
-      with my integration runtime before merging and rerun affected gates.
-      The two newest commits add entry-reachable AOT emission and projected
-      array-field representation. My read-only merge preview reports nine
-      conflicted files, including the roadmap and overlapping AOT changes.
-      I preserve the integration branch's dynamic shape/storage work and
-      evaluate the new runtime tests rather than take either side wholesale.
-      Before that merge, I add standalone native regressions for an uncalled
-      record-parameter function and an eleven-field record containing an array.
-      These check the incoming fixes against my current translator directly.
-      The array-field case passes. The uncalled-function case fails with
-      `I cannot resolve AGG_PACK field 0`; PR #311 is not redundant here.
-      Reconciliation must also retain my separately invoked `__init__` root,
-      not just follow calls from the entry function.
+- [ ] **Current-main release reconciliation.** I preserve my integration
+      compiler/runtime work while reviewing main and the remaining branches,
+      verifying affected gates and recording ancestry before release.
+      MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+      Merge `26397722` includes main through `b37136cc` (PR #297), including
+      recursive-array fixes and SDL header metadata. My next checkpoint covers
+      nine further commits through `5c358000` (PR #315). Those commits add
+      nested-array evaluation, relative-path anchoring, write/close failure
+      reporting and native translation fixes. I reconcile nine conflicted files.
       I retain whole-module structural/type checking and representable native
       helpers. I omit only unresolved uncalled packed-layout functions and their
       uncalled callers. I test both execution roots and keep unresolved reachable
       layouts rejected. Dropping every uncalled body broke 101 existing native
       boundary subcases, so I preserve their independent tag/representation probes.
-      The adapted behavior passes all 22 compiler-to-native methods, 1,673
-      translator checks and 1,073 shape checks, including fresh ASan/UBSan
-      translation tests. Main ancestry is still unmerged. Evidence:
+      The pre-merge checkpoint passes 22 compiler-to-native methods, 1,673
+      translator checks and 1,073 shape checks, including fresh ASan/UBSan.
+      Evidence:
       `docs/evidence/main-reconciliation-pr313.md`.
       I now reconcile nine main commits through `5c358000` (PR #315), retaining
-      my owned/growing native arrays, tagged values, dynamic record shapes and
+      my owned/growing native string arrays, tagged values, dynamic record shapes and
       `Value`-backed interpreter nested arrays. I import the seven incoming
       native regression functions and preserve the filesystem/shadow cases.
       For write failure tests I compile dedicated production objects with
       test-only stdio substitution instead of GNU linker wrapping. I run the
       affected suites, bootstrap and quick gate before completing this merge.
-- [ ] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
+      This checkpoint passes those gates, 1,712 native translator checks,
+      1,073 shape checks, fresh ASan/UBSan and the final 24-method native
+      compiler suite. I integrate main through PR #315; the newer PR #316,
+      PR #317 and remaining branches keep this parent item open. Evidence:
+      `docs/evidence/main-reconciliation-pr315.md`.
+      - [x] I replace my native scalar-local initialization refusal with tagged
+        storage for locals read before assignment. I preserve void through
+        branches, loops and calls, reject invalid typed consumption at runtime,
+        and reset locals on self-tail calls. This reconciles PR #305 rather
+        than discarding its accepted behavior.
+        MAC `task_07fe41e0143b4ed7be809a95032f96e0`.
+      - [x] I replace the remaining integer-array arena with checked owned
+        capacity growth. My string arrays already grow; the incoming 70,000
+        element integer regression exposed the still-fixed integer arena.
+        I preserve alias identity and check foreign backing-store growth.
+        MAC `task_8ec838f199f242ea96b07e205291c414`.
+      - [ ] I extend void-before-store preservation to aggregate locals with
+        owned/tagged representation, shape conversion and VM/native tests for
+        arrays, records and maps. Scalar tags do not complete this work.
+        MAC `task_9bc9d52fdd4a4f818064f53a4a071bae`.
+      - [ ] I reconcile main's newer `4936f8cf` (PR #316) after this checkpoint.
+        I review its unary/grouping parser changes and import its grouping
+        regression without restoring the old match-arm return-as-value rule.
+        My creator's 5.0 rule remains: return exits the enclosing function;
+        a final expression supplies the arm value. I also review new PR #317's
+        native record-frame changes against my existing frame work.
+        PR #317's zero-padded counts are C octal literals: `[008]` fails to
+        compile, while `[010]` allocates eight elements rather than ten. I
+        reproduce the compiler error and retain my decimal/dynamic frame
+        emission when reconciling that branch.
+        My integration tests now pass counts 8, 9, 10, 18 and 100 under
+        generated-code ASan/UBSan; the external branch still needs repair.
+        MAC `task_7a307efeea0e4ea5b2476904b2cbdfea`.
+- [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure
       coverage with portable test instrumentation, then run the affected
@@ -216,6 +234,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       production-body probe for seven wrappers; `tests/test_file_write.py`
       passes on Darwin. I must preserve that coverage and reconcile the new
       test targets, not replace the helper with duplicated write logic.
+      I now compile dedicated production objects with test-only stdio
+      substitution. The three affected suites and generated-writer checks pass
+      on Darwin, as does the seven-wrapper production-body probe. I use private
+      temporary fixtures and include the filesystem target in `test-units`.
+      Evidence: `docs/evidence/main-reconciliation-pr315.md`.
       My merge preserves both histories and passes the focused gates. The
       filter blocker is repaired; the broader quick gate now reaches the
       existing affine rejection gap above. Initial merge evidence:

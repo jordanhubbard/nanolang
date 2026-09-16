@@ -11,6 +11,7 @@
 
 #include "../src/nanolang.h"
 #include "../src/builtins_registry.h"
+#include "../src/eval/eval_io.h"
 #include "../src/coroutine.h"
 #include "../src/effects.h"
 #include "../src/interpreter_ffi.h"
@@ -20,6 +21,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+
+static int s_fail_fwrite;
+static int s_fail_fclose;
+static int s_fclose_calls;
+size_t nano_test_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
+    return s_fail_fwrite ? 0 : fwrite(ptr, size, count, stream);
+}
+int nano_test_fclose(FILE *stream) {
+    s_fclose_calls++;
+    int result = fclose(stream);
+    return s_fail_fclose ? EOF : result;
+}
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -2618,7 +2632,29 @@ void test_eval_handler_return_async_calls(void) {
     run_ctx_free(&ctx);
 }
 
+static void test_eval_file_write_failures(void) {
+    char path[] = "/tmp/test_eval_file_failure.XXXXXX";
+    int fd = mkstemp(path);
+    ASSERT(fd >= 0);
+    ASSERT(close(fd) == 0);
+    Value args[2] = {create_string(path), create_string("content")};
+    s_fail_fwrite = 1;
+    s_fclose_calls = 0;
+    Value write_result = builtin_file_write(args);
+    s_fail_fwrite = 0;
+    ASSERT_EQ(write_result.as.int_val, -1);
+    ASSERT_EQ(s_fclose_calls, 1);
+    s_fail_fclose = 1;
+    s_fclose_calls = 0;
+    Value append_result = builtin_file_append(args);
+    s_fail_fclose = 0;
+    ASSERT_EQ(append_result.as.int_val, -1);
+    ASSERT_EQ(s_fclose_calls, 1);
+    remove(args[0].as.string_val);
+}
+
 int main(void) {
+    TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
     TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);

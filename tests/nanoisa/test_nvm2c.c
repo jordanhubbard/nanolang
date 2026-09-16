@@ -4526,7 +4526,12 @@ static void test_classifier_local_bounds(void) {
     if (uninitialized) {
         char error[256] = {0};
         char *native = nvm2c_emit(uninitialized, error, sizeof error);
-        CHECK(native == NULL && strstr(error, "uninitialized"), "I reject uninitialized high-index locals");
+        CHECK(native != NULL, "I preserve uninitialized high-index locals as void");
+        if (native) {
+            int status = -1;
+            CHECK(compile_and_run(native, &status) == 0 && status != 0,
+                  "I reject void as a typed integer return at runtime");
+        }
         free(native); nvm_module_free(uninitialized);
     }
     NvmModule *m = assemble_ok(".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
@@ -5028,22 +5033,26 @@ static void test_string_edges_run_as_native_c(void) {
     }
 }
 
-static void test_local_initialization_guard(void) {
-    const char *bad[] = {
-        "LOAD_LOCAL 0\nTYPE_CHECK 0\nPOP\nPUSH_I64 0\nRET\n",
+static void test_local_initialization_tags(void) {
+    const char *sources[] = {
+        "LOAD_LOCAL 0\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n",
         "PUSH_BOOL 0\nJMP_FALSE joined\nPUSH_BOOL 1\nSTORE_LOCAL 0\njoined:\n"
-        "LOAD_LOCAL 0\nTYPE_CHECK 4\nPOP\nPUSH_I64 0\nRET\n",
+        "LOAD_LOCAL 0\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n",
         "loop:\nLOAD_LOCAL 0\nPOP\nPUSH_BOOL 1\nSTORE_LOCAL 0\nPUSH_BOOL 0\nJMP_FALSE done\n"
         "JMP loop\ndone:\nPUSH_I64 0\nRET\n"
     };
-    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i) {
+    for (size_t i = 0; i < sizeof sources / sizeof sources[0]; ++i) {
         char source[1024], error[256] = {0};
-        snprintf(source, sizeof source, ".entry main\n.function main 0 1 0 int 1\n%s.end\n", bad[i]);
+        snprintf(source, sizeof source, ".entry main\n.function main 0 1 0 int 1\n%s.end\n", sources[i]);
         NvmModule *m = assemble_ok(source, "possibly uninitialized local");
         if (!m) continue;
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && strstr(error, "possibly uninitialized local 0"),
-              "I refuse to turn void-before-store into a native zero or scalar tag");
+        CHECK(c != NULL, "I preserve void-before-store in native locals");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I execute void-before-store without inventing a scalar tag");
+        }
         free(c); nvm_module_free(m);
     }
     for (int arm = 0; arm < 2; ++arm) {
@@ -5075,7 +5084,7 @@ static void test_local_initialization_guard(void) {
 }
 
 static void test_boolean_tags(void) {
-    test_local_initialization_guard();
+    test_local_initialization_tags();
     const char *producers[] = {
         "PUSH_I64 1\nPUSH_I64 2\nI64_EQ\n", "PUSH_I64 1\nPUSH_I64 2\nI64_NE\n",
         "PUSH_I64 1\nPUSH_I64 2\nI64_LT_S\n", "PUSH_I64 1\nPUSH_I64 2\nI64_LE_S\n",
@@ -5271,7 +5280,333 @@ static void test_tagged_string_array_writes(void) {
     }
 }
 
+static void test_uncalled_record_parameter_needs_no_invented_shape(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function uncalled 1 1 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "uncalled record parameter fixture");
+    CHECK(m != NULL, "uncalled record parameter fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c ignores an uncalled record parameter shape");
+    if (c) {
+        CHECK(strstr(c, "nl_uncalled") == NULL,
+              "uncalled function is absent from generated C");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "reachable generated C compiles and runs");
+        CHECK(status == 7, "entry result survives removal of uncalled code");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_cast_int_updates_classifier_stack(void) {
+    const char *src =
+        ".string value \"42\"\n"
+        ".entry 1\n"
+        ".function take_int 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR value\n"
+        "  CAST_INT\n"
+        "  CALL take_int\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "CAST_INT classifier fixture");
+    CHECK(m != NULL, "CAST_INT classifier fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "CAST_INT replaces its classifier operand with an integer");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "CAST_INT generated C compiles and runs");
+        CHECK(status == 42, "CAST_INT converts a string before a later CALL");
+        free(c);
+    } else {
+        printf("    nvm2c error: %s\n", err);
+    }
+    nvm_module_free(m);
+}
+
+static void test_array_record_field_keeps_runtime_representation(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  AGG_PACK 0 0 0 11\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "array record field fixture");
+    CHECK(m != NULL, "array record field fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c preserves an array-valued record field");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "array record field C compiles and runs");
+    CHECK(status == 1, "ARR_LEN reads the projected field's preserved array representation");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_array_result_kinds_cross_calls(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 4\n"
+        ".function ints 0 0 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function strings 0 0 0 array 1\n"
+        "  ARR_NEW 5\n"
+        "  RET\n"
+        ".end\n"
+        ".function forward 0 0 0 array 1\n"
+        "  TAIL_CALL strings\n"
+        ".end\n"
+        ".function records 0 0 0 array 1\n"
+        "  ARR_NEW 8\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 3 0 int 1\n"
+        "  CALL ints\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  CALL forward\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_STR hi\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STR_LEN\n"
+        "  POP\n"
+        "  CALL records\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 2\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  AGG_GET 0\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "array result kinds fixture");
+    CHECK(m != NULL, "array result kinds fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c infers array result kinds");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "static narr_t nl_ints") != NULL,
+          "integer-array result uses narr_t");
+    CHECK(strstr(c, "static nsarr_t nl_strings") != NULL,
+          "string-array result uses nsarr_t");
+    CHECK(strstr(c, "static nsarr_t nl_forward") != NULL,
+          "tail-call array result uses the callee kind");
+    CHECK(strstr(c, "static nrarr_t nl_records") != NULL,
+          "record-array result keeps nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "array result kinds C compiles and runs");
+    CHECK(status == 7, "array result kinds preserve native behavior");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_array_growth_has_no_process_wide_arena_limit(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 70000\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE done\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 70000\n"
+        "  EQ\n"
+        "  ASSERT\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "large array growth fixture");
+    CHECK(m != NULL, "large array growth fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits unbounded array growth");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "narr_arena") == NULL,
+              "integer arrays do not share a fixed process-wide arena");
+        CHECK(compile_and_run(c, &status) == 0,
+              "large array growth C compiles and runs");
+        CHECK(status == 1, "an array grows past the former 65,536-element limit");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_string_array_growth_has_no_process_wide_arena_limit(void) {
+    const char *src =
+        ".string value \"x\"\n"
+        ".entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 5\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 70000\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE done\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR value\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 70000\n"
+        "  EQ\n"
+        "  ASSERT\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "large string array growth fixture");
+    CHECK(m != NULL, "large string array growth fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits unbounded string array growth");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "nsarr_arena") == NULL,
+              "string arrays do not share a fixed process-wide arena");
+        CHECK(compile_and_run(c, &status) == 0,
+              "large string array growth C compiles and runs");
+        CHECK(status == 1, "a string array grows past the former 65,536-element limit");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_void_local_flows_through_branches_loops_and_calls(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function consume 1 1 0 void 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  TYPE_CHECK 0\n"
+        "  ASSERT\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_BOOL 0\n"
+        "  JMP_FALSE after_store\n"
+        "  PUSH_I64 9\n"
+        "  STORE_LOCAL 0\n"
+        "after_store:\n"
+        "  LOAD_LOCAL 0\n"
+        "  TYPE_CHECK 0\n"
+        "  ASSERT\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL consume\n"
+        "loop:\n"
+        "  LOAD_LOCAL 0\n"
+        "  TYPE_CHECK 0\n"
+        "  ASSERT\n"
+        "  PUSH_BOOL 0\n"
+        "  JMP_FALSE done\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "void local data-flow fixture");
+    CHECK(m != NULL, "void local data-flow fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for void local data flow");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0,
+          "conditional, loop, and call void-local C compiles and runs");
+    CHECK(status == 0, "void local can be passed and discarded with VM semantics");
+    free(c);
+    nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
+    test_uncalled_record_parameter_needs_no_invented_shape();
+    test_cast_int_updates_classifier_stack();
+    test_array_record_field_keeps_runtime_representation();
+    test_array_result_kinds_cross_calls();
+    test_array_growth_has_no_process_wide_arena_limit();
+    test_string_array_growth_has_no_process_wide_arena_limit();
+    test_void_local_flows_through_branches_loops_and_calls();
     test_tagged_string_array_writes();
     test_boolean_arrays();
     test_map_aggregate_fields();

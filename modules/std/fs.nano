@@ -119,6 +119,11 @@ pub fn relpath(target: string, base: string) -> string {
 
 shadow relpath {
     assert (== (relpath "/a/b/c" "/a") "b/c")
+    assert (== (relpath "leaf" ".") "leaf")
+    assert (== (relpath "../leaf" "..") "leaf")
+    assert (== (relpath "/leaf" ".") (relpath "/leaf" (cwd)))
+    assert (== (normalize (join "." (relpath "leaf" "."))) (normalize "leaf"))
+    assert (== (normalize (join ".." (relpath "../leaf" ".."))) (normalize "../leaf"))
 }
 
 pub fn cwd() -> string {

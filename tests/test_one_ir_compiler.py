@@ -14,6 +14,45 @@ HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
 
 
 class OneIrCompiler(unittest.TestCase):
+    def test_void_locals_preserve_tags_through_calls_and_tail_restarts(self):
+        fixtures = {}
+        for name, tag, value, consume in (
+            ("int", 1, "PUSH_I64 42", "PUSH_I64 1\nI64_ADD\nPUSH_I64 43\nEQ\nASSERT"),
+            ("bool", 4, "PUSH_BOOL 1", "BOOL_NOT\nBOOL_NOT\nASSERT"),
+            ("string", 5, "PUSH_STR text", "STR_LEN\nPUSH_I64 4\nEQ\nASSERT"),
+        ):
+            fixtures[name] = (
+                '.string text "test"\n.entry main\n'
+                '.function check 2 2 0 void 0\nLOAD_LOCAL 1\nJMP_FALSE absent\n'
+                f'LOAD_LOCAL 0\nTYPE_CHECK {tag}\nASSERT\nLOAD_LOCAL 0\n{consume}\nJMP done\n'
+                'absent:\nLOAD_LOCAL 0\nTYPE_CHECK 0\nASSERT\ndone:\nRET\n.end\n'
+                '.function relay 2 2 0 void 0\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nCALL check\nRET\n.end\n'
+                '.function tail 2 2 0 void 0\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nTAIL_CALL relay\n.end\n'
+                '.function main 0 1 0 int 1\nLOAD_LOCAL 0\nPUSH_BOOL 0\nCALL tail\n'
+                f'{value}\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_BOOL 1\nCALL tail\n'
+                'PUSH_I64 0\nRET\n.end\n'
+            )
+        fixtures["self_tail_reset"] = (
+            '.entry main\n.function repeat 1 2 0 int 1\n'
+            'LOAD_LOCAL 1\nTYPE_CHECK 0\nASSERT\nPUSH_I64 5\nSTORE_LOCAL 1\n'
+            'LOAD_LOCAL 0\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\nPUSH_I64 0\nRET\n'
+            'again:\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\nTAIL_CALL repeat\n.end\n'
+            '.function main 0 0 0 int 1\nPUSH_I64 10000\nCALL repeat\nRET\n.end\n'
+        )
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        for name, body in fixtures.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="nano-void-local-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / item for item in
+                                                    ("input.nasm", "input.nvm", "input.c", "program"))
+                assembly.write_text(body)
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([binary])
+
     def test_incoming_main_record_shapes_execute(self):
         fixtures = {
             "uncalled_record_parameter": (
@@ -633,7 +672,29 @@ int main(int argc, char **argv) {
                         rejected = subprocess.run([binary, str(which)], capture_output=True, timeout=10)
                         self.assertLess(rejected.returncode, 0, "I reject unsupported projected storage")
 
+    def _check_record_temporary_count_boundaries(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        for count in (8, 9, 10, 18, 100):
+            with self.subTest(temporaries=count), tempfile.TemporaryDirectory(prefix="nano-record-count-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in
+                                                    ("input.nasm", "input.nvm", "input.c", "input"))
+                operations = []
+                for index in range(count):
+                    operations.append(f"PUSH_I64 {index}\nAGG_PACK 0 0 0 1\n"
+                                      f"AGG_GET 0\nPUSH_I64 {index}\nEQ\nASSERT\n")
+                assembly.write_text(".entry main\n.function main 0 0 0 int 1\n" +
+                                    "".join(operations) + "PUSH_I64 0\nRET\n.end\n")
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                  source, "-o", binary])
+                self.run_checked([binary])
+
     def test_record_temporaries_have_scoped_heap_storage(self):
+        self._check_record_temporary_count_boundaries()
         import resource
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
@@ -738,6 +799,62 @@ int main(int argc, char **argv) {
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
             self.run_checked([binary])
             for mode in range(1, 13):
+                failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
+                self.assertLess(failed.returncode, 0, "I trap allocation, size and storage failures")
+
+    def test_integer_array_growth_owns_buffers_and_preserves_aliases(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        with tempfile.TemporaryDirectory(prefix="nano-integer-growth-") as tmp:
+            work = Path(tmp)
+            assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+            assembly.write_text('.entry main\n.function main 0 1 0 int 1\n'
+                                'PUSH_I64 4\nARR_LITERAL 1 1\nSTORE_LOCAL 0\n'
+                                'LOAD_LOCAL 0\nPUSH_I64 4\nARR_PUSH\nPOP\n'
+                                'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nRET\n.end\n')
+            self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+            generated = source.read_text().replace("int main(", "int generated_main(")
+            source.write_text('''#include <stdlib.h>
+static size_t live, calls, fail_at;
+static void *tracked_malloc(size_t n) { if (++calls == fail_at) return NULL; void *p = malloc(n); if (p) ++live; return p; }
+static void *tracked_calloc(size_t n, size_t s) { if (++calls == fail_at) return NULL; void *p = calloc(n, s); if (p) ++live; return p; }
+static void *tracked_realloc(void *p, size_t n) { if (++calls == fail_at) return NULL; int fresh = p == NULL; void *q = realloc(p, n); if (q && fresh) ++live; return q; }
+static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
+#define malloc tracked_malloc
+#define calloc tracked_calloc
+#define realloc tracked_realloc
+#define free tracked_free
+''' + generated + '''
+int main(int argc, char **argv) {
+    int mode = argc > 1 ? atoi(argv[1]) : 0;
+    if (mode >= 1 && mode <= 5) fail_at = (size_t)mode;
+    narr_t a = narr_new(), alias = a;
+    for (size_t i = 0; i < 70000; ++i) narr_push(a, (int64_t)i);
+    if (alias->len != 70000 || narr_get(alias, 0) != 0 || narr_get(alias, 69999) != 69999) return 1;
+    if (calls > 25) return 2;
+    int64_t *elements = malloc(70000 * sizeof *elements);
+    if (!elements) return 4;
+    for (size_t i = 0; i < 70000; ++i) elements[i] = (int64_t)i;
+    narr_t literal = narr_lit(elements, 70000); free(elements);
+    if (literal->len != 70000 || narr_get(literal, 69999) != 69999) return 5;
+    int64_t borrowed_data[] = {42};
+    narr_s borrowed = {.data = borrowed_data, .len = 1}; narr_t borrowed_alias = &borrowed;
+    if (mode == 6 || mode == 10) fail_at = calls + (mode == 6 ? 1 : 2);
+    narr_push(&borrowed, 99);
+    if (borrowed_alias->len != 2 || borrowed_data[0] != 42 || borrowed.data[1] != 99) return 6;
+    if (mode == 7) { a->len = SIZE_MAX; narr_push(a, 0); }
+    if (mode == 8) narr_reserve(a, SIZE_MAX / sizeof *a->data + 1);
+    if (mode == 9) { a->data = NULL; narr_push(a, 0); }
+    narr_release_owned(); if (live) return 7;
+    narr_release_owned(); if (live) return 8;
+    if (generated_main() != 4 || live) return 9;
+    return 0;
+}
+''')
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([binary])
+            for mode in range(1, 11):
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I trap allocation, size and storage failures")
 

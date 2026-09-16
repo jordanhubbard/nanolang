@@ -229,7 +229,8 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (!payload || !flow_kind(g, payload, NVM_SHAPE_STRING, changed)) break;
             to = NVM_SHAPE_OPTIONAL;
         }
-        if (!pair.exact && from == NVM_SHAPE_STRING && to == NVM_SHAPE_OPTIONAL) {
+        if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
+                            from == NVM_SHAPE_BOOL) && to == NVM_SHAPE_OPTIONAL) {
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;

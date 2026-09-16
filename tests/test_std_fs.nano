@@ -1,6 +1,6 @@
 /* Test std::fs module */
 
-from "modules/std/fs.nano" import walkdir, normalize, join, basename, dirname, glob_match, glob
+from "modules/std/fs.nano" import walkdir, normalize, join, basename, dirname, relpath, cwd, glob_match, glob
 
 fn test_path_operations() -> int {
     /* Test normalize */
@@ -22,6 +22,18 @@ fn test_path_operations() -> int {
     let p4 = (dirname "/foo/bar/baz.txt")
     (print "dirname /foo/bar/baz.txt = ")
     (println p4)
+
+    assert (== (relpath "leaf" ".") "leaf")
+    assert (== (relpath "../leaf" "..") "leaf")
+    assert (== (relpath "/leaf" ".") (relpath "/leaf" (cwd)))
+    assert (== (normalize (join ".." (relpath "../leaf" ".."))) (normalize "../leaf"))
+
+    let absolute_leaf = (join (cwd) "leaf")
+    let from_dot = (relpath absolute_leaf ".")
+    assert (== (normalize (join "." from_dot)) (normalize "leaf"))
+
+    let from_absolute = (relpath "leaf" (cwd))
+    assert (== (normalize (join (cwd) from_absolute)) (normalize absolute_leaf))
 
     return 0
 }
@@ -124,4 +136,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

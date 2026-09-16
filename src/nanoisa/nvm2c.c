@@ -64,12 +64,14 @@ typedef struct {
     size_t record_width;
     int has_maps;
     int has_string_arrays;
+    int has_integer_arrays;
     int has_owned_strings;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
     uint8_t *emitted_functions;
     uint8_t *required_functions;
+    uint8_t *tagged_locals;
     uint16_t array_shape_kinds;
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
@@ -408,11 +410,11 @@ static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uin
     return 1;
 }
 
-/* Callers opt into present-string to optional storage widening. Ordinary
+/* Callers opt into present-scalar to optional storage widening. Ordinary
  * aggregate field merging stays exact; the graph checks optional payloads. */
 static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
-    if (*dest == NVM2C_VK_VALUE && kind == NVM2C_VK_STR) return 1;
-    if (*dest == NVM2C_VK_STR && kind == NVM2C_VK_VALUE) {
+    if (*dest == NVM2C_VK_VALUE && (kind == NVM2C_VK_STR || kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL)) return 1;
+    if ((*dest == NVM2C_VK_STR || *dest == NVM2C_VK_INT || *dest == NVM2C_VK_BOOL) && kind == NVM2C_VK_VALUE) {
         *dest = NVM2C_VK_VALUE;
         facts->changed = 1;
         return 1;
@@ -650,9 +652,8 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
 static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
                        size_t remaining, size_t *out);
 
-/* Native locals do not yet carry void before their first store. Reject that
- * unsupported case using intersection over reachable control-flow paths. */
-static int check_local_initialization(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) {
+/* I use tagged storage when a reachable read can precede the first store. */
+static int mark_uninitialized_locals(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     size_t WIDTH = ((size_t)fn->local_count + 7) / 8;
     if (!WIDTH) WIDTH = 1;
@@ -716,8 +717,7 @@ static int check_local_initialization(Nvm2cBuf *b, const NvmModule *mod, uint32_
         if ((flags[pc] & 1) && ins.opcode == OP_LOAD_LOCAL) {
             uint16_t slot = ins.operands[0].u16;
             if (!(states[pc * WIDTH + slot / 8] & (1u << (slot % 8))))
-                nvm2c_fail(b, "I cannot preserve a possibly uninitialized local %u in function %u at offset %zu",
-                          (unsigned)slot, idx, pc);
+                b->tagged_locals[(size_t)idx * b->local_width + slot] = 1;
         }
         pc += n;
     }
@@ -739,6 +739,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     memset(local_kind, NVM2C_VK_UNK, nloc);
     memset(rec_fields, NVM2C_VK_UNK, (size_t)nloc * b->record_width);
     memcpy(local_kind, facts->parameters + (size_t)idx * b->local_width, fn->arity);
+    for (i = 0; i < nloc; ++i) {
+        if (b->tagged_locals[(size_t)idx * b->local_width + i]) {
+            local_kind[i] = NVM2C_VK_VALUE;
+            b->has_maps = 1;
+        }
+    }
     memcpy(rec_fields, facts->fields + (size_t)idx * b->local_width * b->record_width,
            (size_t)nloc * b->record_width);
 
@@ -863,6 +869,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             NvmShapeId destination = shape_variable(b, &b->shape_locals[(size_t)idx * b->local_width + slot]);
+            if (b->tagged_locals[(size_t)idx * b->local_width + slot]) {
+                if (!shape_type(b, destination, NVM_SHAPE_OPTIONAL)) return 0;
+                if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
+                local_kind[slot] = NVM2C_VK_VALUE;
+                break;
+            }
             if (v.kind == NVM2C_VK_REC) {
                 /* A local joins incoming record storage; it does not redefine
                  * the producer's exact field representation. */
@@ -1382,7 +1394,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
-                           (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_UNK)) {
+                           (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
+                            arg.kind == NVM2C_VK_BOOL || arg.kind == NVM2C_VK_UNK)) {
                     /* A projected field can resolve after flat classification.
                      * Its storage conversion must wait for those graph facts. */
                     if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL)) return 0;
@@ -1850,6 +1863,13 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
     if (got == NVM2C_VK_STR && kind == NVM2C_VK_VALUE) {
         char expression[80];
         snprintf(expression, sizeof expression, "(nmap_value){5, 0, (char *)s[%d]}", slot);
+        stack_push_value(b, st, expression);
+        return b->failed ? -1 : stack_pop_kind(b, st, NULL);
+    }
+    if ((got == NVM2C_VK_INT || got == NVM2C_VK_BOOL) && kind == NVM2C_VK_VALUE) {
+        char expression[80];
+        snprintf(expression, sizeof expression, "(nmap_value){%u, t[%d], NULL}",
+                 got == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT, slot);
         stack_push_value(b, st, expression);
         return b->failed ? -1 : stack_pop_kind(b, st, NULL);
     }
@@ -3708,59 +3728,61 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
         "}\n\n");
 }
 
-static void emit_narr_arena(Nvm2cBuf *b) {
+static void emit_narr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static int64_t narr_arena[65536];\n"
-        "static size_t narr_used;\n");
-}
-
-static void emit_narr_new(Nvm2cBuf *b) {
-    nvm2c_puts(b,
-        "static narr_t narr_new(void) {\n"
-        "    narr_t a = (narr_t)calloc(1, sizeof(narr_s));\n"
-        "    if (!a) abort();\n"
-        "    return a;\n"
-        "}\n\n");
+        "struct narr_owner { int64_t *data; size_t cap; narr_t handle; struct narr_owner *next; };\n"
+        "static struct narr_owner *narr_owners;\n"
+        "static inline struct narr_owner *narr_track(narr_t a, int own_handle) {\n"
+        "    struct narr_owner *owner = calloc(1, sizeof *owner); if (!owner) abort();\n"
+        "    owner->handle = own_handle ? a : NULL; owner->next = narr_owners;\n"
+        "    narr_owners = owner; a->owner = owner; return owner;\n}\n"
+        "static inline narr_t narr_new(void) {\n"
+        "    narr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
+        "    narr_track(a, 1); return a;\n}\n"
+        "static inline void narr_reserve(narr_t a, size_t n) {\n"
+        "    size_t limit = SIZE_MAX / sizeof *a->data;\n"
+        "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) abort();\n"
+        "    struct narr_owner *owner = a->owner;\n"
+        "    if (owner && (owner->data != a->data || a->len > owner->cap)) abort();\n"
+        "    if (owner && n <= owner->cap) return;\n"
+        "    if (n < a->len) n = a->len;\n"
+        "    size_t cap = owner && owner->cap ? owner->cap : 8;\n"
+        "    while (cap < n) { if (cap > limit / 2) { cap = n; break; } cap *= 2; }\n"
+        "    if (!owner) {\n"
+        "        int64_t *data = malloc(cap * sizeof *data); if (!data) abort();\n"
+        "        if (a->len) memcpy(data, a->data, a->len * sizeof *data);\n"
+        "        owner = narr_track(a, 0); owner->data = data;\n"
+        "    } else {\n"
+        "        int64_t *data = realloc(owner->data, cap * sizeof *data);\n"
+        "        if (!data) abort(); owner->data = data;\n"
+        "    }\n"
+        "    owner->cap = cap; a->data = owner->data;\n}\n"
+        "static inline void narr_release_owned(void) {\n"
+        "    while (narr_owners) { struct narr_owner *owner = narr_owners;\n"
+        "        narr_owners = owner->next; free(owner->data); free(owner->handle); free(owner); }\n}\n");
 }
 
 static void emit_narr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_lit(const int64_t *elems, size_t n) {\n"
         "    if (n > 0 && !elems) abort();\n"
-        "    if (narr_used + n > (sizeof narr_arena / sizeof narr_arena[0])) abort();\n"
-        "    int64_t *p = narr_arena + narr_used;\n"
-        "    if (n) memcpy(p, elems, n * sizeof(int64_t));\n"
-        "    narr_used += n;\n"
-        "    narr_t a = narr_new();\n"
-        "    a->data = p;\n"
-        "    a->len = n;\n"
-        "    return a;\n"
-        "}\n\n");
+        "    narr_t a = narr_new(); narr_reserve(a, n);\n"
+        "    if (n) memcpy(a->data, elems, n * sizeof *a->data);\n"
+        "    a->len = n; return a;\n}\n");
 }
 
 static void emit_narr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static int64_t narr_get(narr_t a, int64_t idx) {\n"
         "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
-        "    return a->data[idx];\n"
-        "}\n\n");
+        "    return a->data[idx];\n}\n");
 }
 
 static void emit_narr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_push(narr_t a, int64_t v) {\n"
-        "    if (!a) abort();\n"
-        "    size_t n = a->len + 1;\n"
-        "    if (a->len && !a->data) abort();\n"
-        "    if (narr_used + n > (sizeof narr_arena / sizeof narr_arena[0])) abort();\n"
-        "    int64_t *p = narr_arena + narr_used;\n"
-        "    if (a->len) memcpy(p, a->data, a->len * sizeof(int64_t));\n"
-        "    p[a->len] = v;\n"
-        "    narr_used += n;\n"
-        "    a->data = p;\n"
-        "    a->len = n;\n"
-        "    return a;\n"
-        "}\n\n");
+        "    if (!a || a->len == SIZE_MAX) abort();\n"
+        "    narr_reserve(a, a->len + 1); a->data[a->len++] = v; return a;\n}\n");
 }
 
 static void emit_nsarr_storage(Nvm2cBuf *b) {
@@ -4366,11 +4388,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.shape_outputs = calloc(mod->function_count, sizeof *b.shape_outputs);
     b.emitted_functions = calloc(mod->function_count, 1);
     b.required_functions = calloc(mod->function_count, 1);
+    b.tagged_locals = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *inference = malloc(fact_size);
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * b.local_width
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs || !b.emitted_functions || !b.required_functions) {
+    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs || !b.emitted_functions || !b.required_functions || !b.tagged_locals) {
         free(inference);
         free(kinds);
         free(rec_fields);
@@ -4379,11 +4402,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         free(b.shape_outputs);
         free(b.emitted_functions);
         free(b.required_functions);
+        free(b.tagged_locals);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
 
     if (!mark_required_functions(&b, mod)) goto fail;
+    for (uint32_t f = 0; f < mod->function_count; ++f)
+        if (!mark_uninitialized_locals(&b, mod, f)) goto fail;
     memset(b.emitted_functions, 1, mod->function_count);
     memset(inference, NVM2C_VK_UNK, fact_size);
     Nvm2cFacts facts = {0};
@@ -4434,9 +4460,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         goto fail;
     }
     if (!infer_nominal_scalar_fields(&b, mod)) goto fail;
-
-    for (uint32_t f = 0; f < mod->function_count; ++f)
-        if (!check_local_initialization(&b, mod, f)) goto fail;
 
     /* Nested projections may acquire their representation from a later
      * function's constraints. Resolve local storage after all final passes. */
@@ -4692,11 +4715,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         nvm2c_puts(&b,
             "\ntypedef struct nmap_s *nmap_t;\n"
-            "typedef struct { int64_t *data; size_t len; } narr_s;\n"
+            "typedef struct { int64_t *data; size_t len; struct narr_owner *owner; } narr_s;\n"
             "typedef narr_s *narr_t;\n"
             "typedef struct { const char **data; size_t len; struct nsarr_owner *owner; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
         if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
+        if (need_iarr) { b.has_integer_arrays = 1; emit_narr_storage(&b); }
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_runtime.inc"
@@ -4775,12 +4799,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_starts) emit_nstr_starts_with(&b);
         if (need_ends) emit_nstr_ends_with(&b);
         if (need_cast) emit_nstr_from_i64(&b);
-        if (need_iarr_lit || (need_iarr && need_iarr_new)) {
-            emit_narr_new(&b);
-        }
-        if (need_iarr_lit || need_iarr_push) {
-            emit_narr_arena(&b);
-        }
         if (need_iarr_lit) emit_narr_lit(&b);
         if (need_iarr_get) emit_narr_get(&b);
         if (need_iarr_push) emit_narr_push(&b);
@@ -4848,6 +4866,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete;\n");
         if (b.has_string_arrays) nvm2c_puts(&b,
             "    (void)nsarr_new; (void)nsarr_reserve; (void)nsarr_copy_string;\n");
+        if (b.has_integer_arrays) nvm2c_puts(&b,
+            "    (void)narr_new; (void)narr_reserve;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64;\n");
         if (b.has_maps && (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN)))
@@ -4878,6 +4898,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
         if (b.has_string_arrays) nvm2c_puts(&b, "    nsarr_release_owned();\n");
+        if (b.has_integer_arrays) nvm2c_puts(&b, "    narr_release_owned();\n");
         if (b.has_owned_strings) nvm2c_puts(&b, "    nstr_release_owned();\n");
         nvm2c_puts(&b, "    return result;\n}\n");
     }
@@ -4897,6 +4918,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(b.shape_outputs);
     free(b.emitted_functions);
     free(b.required_functions);
+    free(b.tagged_locals);
     return b.data;
 
 fail:
@@ -4910,6 +4932,7 @@ fail:
     free(b.shape_outputs);
     free(b.emitted_functions);
     free(b.required_functions);
+    free(b.tagged_locals);
     free(b.data);
     return NULL;
 }

@@ -909,9 +909,12 @@ test-coroutine-scheduler: stage1
 	@rm -f tests/test_coroutine_scheduler
 
 .PHONY: test-eval
-test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
+$(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
+
+test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o
 	@echo "Running interpreter (eval.c) unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(filter-out $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval
 	@rm -f tests/test_eval
 
@@ -1335,13 +1338,29 @@ test-channel: stage1
 	@rm -f tests/test_channel
 
 .PHONY: test-vm-builtins
-test-vm-builtins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+$(OBJ_DIR)/vm_builtins_faults.o: src/nanovm/vm_builtins.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
+
+test-vm-builtins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/vm_builtins_faults.o
 	@echo "Running vm_builtins unit tests..."
 	$(CC) $(CFLAGS) -o tests/nanovm/test_vm_builtins \
-		tests/nanovm/test_vm_builtins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		tests/nanovm/test_vm_builtins.c $(filter-out $(OBJ_DIR)/nanovm/vm_builtins.o,$(NANOVM_OBJECTS)) $(OBJ_DIR)/vm_builtins_faults.o $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovm/test_vm_builtins
 	@rm -f tests/nanovm/test_vm_builtins
+
+.PHONY: test-std-fs-write-failures
+test-units: test-std-fs-write-failures
+$(OBJ_DIR)/std_fs_faults.o: modules/std/fs.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
+
+test-std-fs-write-failures: $(OBJ_DIR)/std_fs_faults.o $(RUNTIME_OBJECTS) $(OBJ_DIR)/utf8.o
+	@echo "Running std fs write failure tests..."
+	$(CC) $(CFLAGS) -Imodules/std -o tests/test_std_fs_write_failures \
+		tests/test_std_fs_write_failures.c $(OBJ_DIR)/std_fs_faults.o $(RUNTIME_OBJECTS) $(OBJ_DIR)/utf8.o \
+		$(LDFLAGS)
+	@./tests/test_std_fs_write_failures
+	@rm -f tests/test_std_fs_write_failures
 
 .PHONY: test-proptest-unit
 test-proptest-unit: stage1
