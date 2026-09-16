@@ -200,6 +200,8 @@ jobs:
             libreadline-dev \
             libuv1-dev \
             libbullet-dev \
+            libglfw3-dev \
+            libglew-dev \
             freeglut3-dev
 
       - name: Install example dependencies (macOS)
@@ -217,6 +219,8 @@ jobs:
             readline \
             libuv \
             bullet \
+            glfw \
+            glew \
             freeglut
 
       - name: Build C reference compiler
