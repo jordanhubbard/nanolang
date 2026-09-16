@@ -1,5 +1,26 @@
 # NanoLang presentation QA ledger
 
+## 2026-09-16 local 5.0 release edition
+
+I regenerated both local members from the release scope and bounded evidence
+recorded in `docs/RELEASE_5.0.md`. My scope snapshot reviews 40 open PRs at
+`4373abc5`. Native and VM effects have tested implementations. Exact-commit
+clean-tree tests, platform CI and release acceptance remain mandatory release
+gates; this artifact build does not establish their completion.
+
+`make presentation` accepts 16 slides and 35 narrative headings. All 12
+`test_document_pair.py` regressions pass; documentation and presentation
+freshness checks pass. LibreOffice 24.2.7.2 and Poppler render 16 slides and six
+narrative pages. I inspected the contact sheets, every full-size slide and the
+changed narrative pages, with no observed clipping or overlap. The release
+contract starts its own narrative page so its evidence paragraph stays together.
+
+The local pair is my 5.0 release edition. I have not uploaded either member;
+the Google links still identify 4.5. Local artifact SHA-256 hashes:
+
+- PPTX: `7bfe457833dad2a36c36a2a47b4c51f5bd5fb9920424695df04426bae14550e6`
+- DOCX: `1a9e4622b686faaf6df32c47f3b92cb3d194249b447967ffde881ffd2bf21ddb`
+
 ## 2026-09-16 candidate refresh on Linux ARM64
 
 I rebuilt the local 5.0 candidate pair with `make presentation`, preserving
@@ -9,7 +30,7 @@ unfinished NanoISA-only bootstrap, backend parity and production isolation.
 I corrected the callback status and retained dated test counts as checkpoints.
 The later `b21fbeed` checkpoint raises the native translator count to 1,739;
 I rebuilt the narrative and rechecked its changed page after that update.
-Native and VM effect repairs and final integrated acceptance remain pending.
+At this earlier checkpoint, native and VM effect repairs and final integrated acceptance were unfinished.
 
 The portable pair verifier accepts 16 slides and 35 narrative headings with
 no geometry, notes, heading or placeholder failures. All 12 document-pair

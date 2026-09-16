@@ -4,7 +4,7 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**Local 5.0 candidate edition; unpublished.** I describe my audited language
+**Local 5.0 release-edition edition; unpublished.** I describe my audited language
 contract, dependency shadows, retained callback bridge and runtime boundaries,
 with the historical NanoISA and 4.1–4.5 runtime account. My latest public
 release is `v4.5.0`. Full NanoISA-only bootstrap, backend parity and production

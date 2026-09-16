@@ -38,11 +38,11 @@ def build() -> Path:
     section.left_margin = section.right_margin = Inches(0.9)
     document.core_properties.title = "NanoLang: the language, compiler, and VM"
     document.core_properties.author = "NanoLang"
-    document.core_properties.subject = "NanoLang 5.0 development draft — unpublished"
+    document.core_properties.subject = "NanoLang 5.0 release edition — unpublished"
 
     heading(document, 1, "NanoLang: the language, compiler, and VM")
     heading(document, 2, "What I am")
-    paragraph(document, "I am NanoLang. This is my unpublished 5.0 development draft, not a release-readiness claim. It explains my language contract, compiler paths, NanoISA bytecode, NanoVM execution, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and unfinished work. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
+    paragraph(document, "I am NanoLang. This is my local 5.0 release edition. My tag requires the exact-commit release gates. It explains my language contract, compiler paths, NanoISA bytecode, NanoVM execution, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and unfinished work. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
     paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, and the current test suites.")
     heading(document, 2, "Who this is for")
     paragraph(document, "Software developers and compiler engineers who need the technical account behind the companion deck. I describe tested behavior. Roadmap work is labelled as such.")
@@ -80,7 +80,7 @@ def build() -> Path:
 
     heading(document, 1, "Evidence and diagnostics")
     heading(document, 2, "Unit, integration, and shadow tests")
-    paragraph(document, "4.0 counted 2,632 NanoISA tests, 621 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests at the v4.0.0 tag. 4.1–4.5 added NSI, fabric, catalog, Forth, nano_emacs_worker, policy, journal, and observability suites. These are historical counts, not fresh results for this draft. Configured CI workflows and local passing gates are distinct evidence; neither implies that every hosted check ran for this revision.")
+    paragraph(document, "4.0 counted 2,632 NanoISA tests, 621 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests at the v4.0.0 tag. 4.1–4.5 added NSI, fabric, catalog, Forth, nano_emacs_worker, policy, journal, and observability suites. These are historical counts, not fresh results for this edition. Configured CI workflows and local passing gates are distinct evidence; neither implies that every hosted check ran for this revision.")
     heading(document, 2, "NanoISA profiles and opcode traces")
     paragraph(document, "--profile-isa writes structured counters for retired instructions, opcode sequences, branches, calls, stack and frame depth, traps, heap traffic, and FFI traffic. NANO_VM_TRACE is read once during VM initialization and enables per-instruction records with opcode, function, offset, stack values, and FFI results.")
     heading(document, 2, "Generated-C profiling")
@@ -106,9 +106,10 @@ def build() -> Path:
     heading(document, 2, "Effects, policy, journal, and provenance")
     paragraph(document, "schema/nsi/effect_map.v0.json maps source effects, NanoISA traps, NSI methods, and capabilities. I emit an inventory, generate a deployment manifest, and reject uncovered grants. A versioned journal records trap-boundary events and replays the recorded result without calling the original service. HMAC-SHA256 authenticates a journal with a deployment key; that is not PKI. Checkpoints are sequence numbers, not heap snapshots. The journal is a tested C library, not a hook on every vm.c trap. Authority: docs/NSI_EFFECTS.md.")
 
-    heading(document, 1, "My 5.0 candidate contract")
+    document.add_page_break()
+    heading(document, 1, "My 5.0 release contract")
     paragraph(document, "I make return leave the enclosing function, run dependency shadows by default, preserve module identity and harden private native artifacts. My retained callback bridge carries signatures and lifetimes, executes on the VM owner thread and handles cancellation. Dispatch and SDL_mixer adapters use that in-process bridge; callback-bearing isolated imports remain unsupported. C-seed imported callback shadows select the same bridge. See docs/RELEASE_5.0.md and docs/CALLBACK_ABI.md.")
-    paragraph(document, "The 2026-09-16 Linux finalization checkpoint records 1,739 native translator checks, 1,073 shape checks, 272,379 VM checks and 242 example programs. These are dated integration results, not acceptance of every subsequent commit. Native and VM effect repairs remain in progress. Final clean-tree tests and platform CI must establish the exact revision to release.")
+    paragraph(document, "My 2026-09-16 checkpoints record 1,739 native translator checks, 1,073 shape checks, 272,403 VM checks, 89 VM codegen checks and 175 verified/equivalent programs. A clean bootstrap passed at 4373abc5. Darwin passed 14 effect tests, 49 scoping checks and 39 executable guide snippets. An ownership sanitizer run exercised 52,000 activations. Strict Linux ARM64 acceptance passed all 185 selected native example artifacts with unchanged selection/exclusions, plus five root/examples-working-directory regression compilations. These are bounded integration results, not acceptance of every later revision. Exact-commit clean-tree tests, platform CI and release acceptance are mandatory release gates.")
     heading(document, 1, "What I have not done")
     paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, full backend parity, complete ownership analysis, production service isolation, or NanoISA-only self-hosted compilation with matching Stage 1/Stage 2 .nvm artifacts. See docs/ROADMAP.md; historical release scope is in docs/RELEASE_4.5.md.")
     paragraph(document, "I have implemented transitive C header dependencies in Makefile.gnu, resolving the implementation gap recorded as GitHub issue #211. The focused gate is make test-make-header-dependencies. Broader native-cache snapshot and publication requirements remain separate work.")
