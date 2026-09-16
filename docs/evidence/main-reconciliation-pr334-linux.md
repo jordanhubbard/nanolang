@@ -178,3 +178,33 @@ VM dispatch implementations agree on all 175 outputs and statuses. There are
 no exclusions. The implementation and boundaries are recorded in
 [my VM effect evidence](vm-effect-dispatch.md). Final combined native/VM tests
 remain required before publication.
+
+## Combined effect and platform checkpoint
+
+At `4373abc5` I integrate native and VM effects, independent interpreter union
+string payloads, the launcher shadow fixture and shared effect state in
+packaged wrappers. I restrict capture source identity to emitted symbols;
+changing the environment's whole-file lookup context had broken ordinary
+module string lowering during bootstrap. My corrected clean build and
+three-stage bootstrap pass on Linux ARM64.
+
+The exact same revision passes a fresh Darwin ARM64 compiler/VM build, all
+14 shared/native effect tests, 39 C environment checks, 10 lexical tests, and
+all 39 snippets through the compiled executable guide checker. The wrapper
+regression loads a real foreign module that references the shared effect TLS.
+Darwin emits SDK text-stub linker warnings while building the guide checker;
+all these commands exit successfully.
+
+The union regression reproduces the previous heap-use-after-free and passes
+with independent payload storage under ASan/UBSan and LeakSanitizer. Native
+effect tests separately pass ASan/UBSan with leak detection disabled. The VM
+ownership harness executes 52,000 recursive handler activations with leak
+checking enabled and returns to its stack, frame, handler and collected heap
+baselines. These are bounded ownership tests, not whole-language proofs.
+
+The earlier full run at `0e55bbbe` stopped at the UI fixture's missing math
+library. I fix that link and Darwin's SDL2 runtime lookup; the focused test
+passes on both hosts. The first combined clean build at `d8ba6c47` exposed the
+module lookup regression above. I stop the subsequent `be5ae648` checkpoint
+run after integrating the final wrapper and launcher fixes, then restart the
+clean full gate at `4373abc5`. I do not count that interrupted run as a pass.

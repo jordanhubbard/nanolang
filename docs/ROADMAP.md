@@ -28,7 +28,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Packaged native effect state.** I link the shared effect runtime into
+- [x] **Packaged native effect state.** I link the shared effect runtime into
       packaged wrappers so foreign modules can resolve its TLS symbols.
       I verify the real module loader path and preserve instrumentation flags.
       MAC `task_e7e676830c454787acfd6a600e3306a2`.
@@ -38,9 +38,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       I retain the dependency shadows in strict example builds.
       MAC `task_d43b4d7f2ede47788cbeb2b94db32db3`.
 
-- [ ] **Effect integration bootstrap regression.** I preserve normal string
+- [x] **Effect integration bootstrap regression.** I preserve normal string
       type inference and concatenation while lowering native handlers. My clean
-      bootstrap currently emits invalid pointer addition in error_messages.
+      bootstrap had emitted invalid pointer addition in error_messages; I now
+      confine capture identity to emitted symbols and pass the clean bootstrap.
       MAC `task_7ecadba95e9445098841f83707a1d7c6`.
 
 - [x] **UI bounds fixture math linkage.** I link the standalone C regression
@@ -49,16 +50,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       of unrelated SDL3. The focused regression passes on Linux and Darwin.
       MAC `task_ed795be2aaa843c291abece7cffc2111`.
 
-- [ ] **Interpreter union string lifetime.** I give returned union string
+- [x] **Interpreter union string lifetime.** I give returned union string
       fields their own lifetime instead of borrowing a callee local. Darwin
       exposes the dangling Result payload in my user-guide checker. I retain
       all shadows and test returned payloads directly.
       MAC `task_3f227591ba94400a831005e1eec376f5`.
 
-- [ ] **Imported effect declarations.** I register imported effect signatures
+- [x] **Imported effect declarations.** I register imported effect signatures
       before checking module functions, and execute a handler across the module
-      boundary with the shared native runtime. I currently reject the declared
-      operation while checking its module. MAC `task_36491565f7db6038fb0b1591f6164c36`.
+      boundary with the shared native runtime. I preserve imported operation
+      signatures when checking the module and the importing program.
+      MAC `task_36491565f7db6038fb0b1591f6164c36`.
 
 - [x] **Main PRs #338 and #340 reconciliation.** I retain dynamic native
       storage and bounded call formatting, import string-array write
