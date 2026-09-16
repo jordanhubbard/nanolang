@@ -136,8 +136,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   AOT and 965 graph checks. Evidence:
                   `docs/evidence/aot-record-array-literals.md`.
                 - [ ] I diagnose and implement the compiler's hashmap opcode
-                  requirements. Acceptance now stops at tagged record packing
-                  in function 282 (`type_from_string`).
+                  requirements. Acceptance now stops at function 282
+                  (`type_from_string`) offset 120: result field 1 conflicts
+                  between ordinary and tagged string representations.
                   - [x] I implement reusable emitted map storage with checked
                     growth, owned keys/values, missing-key results, replacement,
                     deletion and retained lookup values; test both integer and
@@ -192,6 +193,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                         extraction, returned record facts and compatible
                         ordinary/optional field joins. I retain missing tags
                         and owned lookup strings instead of unboxing on pack.
+                        - [x] I carry consistently tagged fields through
+                          records, nested snapshots and returned record
+                          arrays. I defer unresolved projection validation
+                          until the complete shape graph is available, then
+                          require an actual tagged representation at emission.
+                          Normal and sanitizer suites pass 1,142 AOT and 990
+                          shape checks. Evidence:
+                          `docs/evidence/aot-tagged-record-fields.md`.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.

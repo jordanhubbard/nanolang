@@ -2798,7 +2798,53 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_tagged_record_fields(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[4096];
+        snprintf(source, sizeof source,
+            ".string key \"key\"\n.string text \"42\"\n.entry main\n"
+            ".function main 0 3 0 int 1\nHM_NEW 5 %d\nSTORE_LOCAL 0\n"
+            "ARR_NEW 8\nLOAD_LOCAL 0\nCALL relay\nARR_PUSH\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\n%s\nHM_SET\nPOP\n"
+            "LOAD_LOCAL 1\nLOAD_LOCAL 0\nCALL relay\nARR_PUSH\nPOP\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_DELETE\nPOP\n"
+            "LOAD_LOCAL 1\nCALL pass_array\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 1\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nAGG_GET 1\nTYPE_CHECK 0\nASSERT\n"
+            "LOAD_LOCAL 1\nPUSH_I64 1\nARR_GET\nSTORE_LOCAL 2\n"
+            "LOAD_LOCAL 2\nAGG_GET 0\nAGG_GET 0\nPUSH_I64 7\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 0\nAGG_GET 1\nDUP\nTYPE_CHECK %d\nASSERT\n"
+            "CAST_INT\nPUSH_I64 42\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+            ".function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nTAIL_CALL pack\n.end\n"
+            ".function pack 1 1 0 struct 1\nPUSH_I64 7\nLOAD_LOCAL 0\nPUSH_STR key\nHM_GET\n"
+            "AGG_PACK 0 0 0 2\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+            ".function pass_array 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n",
+            strings ? 5 : 1, strings ? "PUSH_STR text" : "PUSH_I64 42", strings ? 5 : 1);
+        NvmModule *m = assemble_ok(source, "nested tagged record fields");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I preserve tagged fields through nested records and returned record arrays");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I retain missing tags and fetched payloads in nested records after map deletion");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *mixed = ".string key \"key\"\n.entry main\n"
+        ".function main 0 0 0 int 1\nPUSH_STR key\nAGG_PACK 0 0 0 1\nCALL consume\nPOP\n"
+        "HM_NEW 5 5\nPUSH_STR key\nHM_GET\nAGG_PACK 0 0 0 1\nCALL consume\nRET\n.end\n"
+        ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nSTR_LEN\nRET\n.end\n";
+    NvmModule *m = assemble_ok(mixed, "mixed ordinary and optional record fields");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && error[0], "I reject mixed record field representations until field joins preserve tags");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_mixed_lookup_arguments(void) {
+    test_tagged_record_fields();
     const char *workers =
         ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\nTYPE_CHECK 0\nJMP_FALSE present\n"
         "PUSH_I64 0\nRET\npresent:\nLOAD_LOCAL 0\nCAST_STRING\nSTR_LEN\nRET\n.end\n"
