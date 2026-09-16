@@ -290,6 +290,37 @@ static void test_str_trim_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_cast_int_updates_classifier_stack(void) {
+    const char *src =
+        ".string value \"42\"\n"
+        ".entry 1\n"
+        ".function take_int 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR value\n"
+        "  CAST_INT\n"
+        "  CALL take_int\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "CAST_INT classifier fixture");
+    CHECK(m != NULL, "CAST_INT classifier fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "CAST_INT replaces its classifier operand with an integer");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "CAST_INT generated C compiles and runs");
+        CHECK(status == 42, "CAST_INT converts a string before a later CALL");
+        free(c);
+    } else {
+        printf("    nvm2c error: %s\n", err);
+    }
+    nvm_module_free(m);
+}
+
 static void test_push_str_len_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -2186,6 +2217,7 @@ int main(int argc, char **argv) {
     test_store_load_local();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
+    test_cast_int_updates_classifier_stack();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
