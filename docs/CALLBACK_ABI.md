@@ -38,7 +38,7 @@ co-process launch. My bytecode compiler now binds manifest contracts to loaded
 declarations, and my VM host dispatches their explicit adapters. Metadata alone does
 not authorize the old calling convention.
 
-My 2026-09-16 Linux finalization checkpoint passes 272,379 VM checks. My C
+My 2026-09-16 finalization checkpoint passes 272,403 VM checks. My C
 seed now routes imported callback shadows through the shared VM bridge; it
 does not cast bytecode indices to C function pointers. Final release acceptance
 still needs the exact integrated revision and all platform gates.

@@ -19,6 +19,6 @@ application-foundry, or Literate-AI framing.
 
 Every slide needs speaker notes naming its repository authority and its limits.
 The deck must distinguish tested behavior, measured behavior, formal proof, and
-unfinished architecture work. Describe the 5.0 language/runtime candidate
+unfinished architecture work. Describe the 5.0 language/runtime release scope
 and implemented retained callback bridge without claiming the final release gates passed. I do not claim a Forth Standard System, GNU Emacs, a kernel,
 or that the system is internationalized.

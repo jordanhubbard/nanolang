@@ -6,7 +6,7 @@ Explain NanoLang to software developers and compiler engineers. Show the
 language contract, the compiler pipeline, NanoISA, NanoVM, tests, diagnostics,
 what my verifier checks, and what 4.1–4.5 added on top of that.
 
-**5.0 development draft; unpublished.** I retain the historical 4.0 and
+**5.0 release edition; unpublished.** I retain the historical 4.0 and
 4.1–4.5 account while correcting my current contract and proof boundaries.
 4.0 added bytecode verification beyond structural loading.
 4.5 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
@@ -37,7 +37,7 @@ trap journal library is not a hook on every VM trap.
 
 ## Slide sequence
 
-1. I am NanoLang: a 5.0 development draft, not a release.
+1. I am NanoLang: my 5.0 language and runtime release scope.
 2. My design refuses ambiguity.
 3. One source language, two execution paths.
 4. NanoISA is readable bytecode, not a hidden intermediate.

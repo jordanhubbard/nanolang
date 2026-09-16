@@ -30,7 +30,7 @@
 
 ## Release evidence
 
-My local repository contains `v4.0.0` and `v4.5.0` tags. This local 5.0 draft
+My local repository contains `v4.0.0` and `v4.5.0` tags. This local 5.0 release edition
 does not claim a new tag or external publication. `docs/RELEASE_4.5.md` is the
 public summary covering 4.1–4.5. `docs/RELEASE_4.4.md` is the 4.4 product
 page as it stood on `main` before Phase 19.
@@ -86,7 +86,7 @@ checks the compiler observations; formal correspondence remains separate.
 The shared nonnegative-input `examples/gcd.nano` demonstrates executable assertions,
 not a theorem for every integer. Artifact tests extract and compile its text.
 
-## 5.0 candidate checkpoint — 2026-09-16
+## 5.0 release-edition checkpoint — 2026-09-16
 
 I use `docs/RELEASE_5.0.md` and `docs/CALLBACK_ABI.md` for current contract
 and callback claims. `src/runtime/callback_runtime.c`, `src/nanovm/vm_callback.c`,
@@ -94,8 +94,12 @@ the dispatch/SDL_mixer adapters and their tests implement retained handles,
 owner-thread execution and cancellation. C-seed callback shadows select the
 shared VM bridge. These in-process adapters do not establish isolated callbacks.
 
-Dated Linux finalization evidence records 1,739 native translator checks,
-1,073 shape checks, 272,379 VM checks and 242 example programs. These counts
-are checkpoints, not final-tree validation. Native/VM effect repairs are still
-in progress. `docs/evidence/main-reconciliation-pr334-linux.md` owns the detailed
+Dated finalization evidence records 1,739 native translator checks, 1,073 shape
+checks, 272,403 VM checks, 89 VM codegen checks and 175 verified/equivalent
+programs. A clean bootstrap passed at `4373abc5`. Darwin passed 14 effect
+tests, 49 scoping checks and 39 executable guide snippets; ownership sanitizers
+exercised 52,000 activations. Strict Linux ARM64 acceptance passed all 185
+selected native example artifacts with unchanged selection/exclusions and five
+root/examples-working-directory regression compilations. These are bounded checkpoints. Exact-commit
+clean-tree tests, platform CI and release acceptance are mandatory release gates. `docs/evidence/main-reconciliation-pr334-linux.md` owns the detailed
 integration evidence. Full NanoISA-only bootstrap and backend parity remain open.

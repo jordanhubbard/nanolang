@@ -100,7 +100,7 @@ def build() -> Path:
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG 5.0 DRAFT", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 5.0", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
     # Someone meeting this deck cold needs to know what I am before being told
     # what I prove. The previous subtitle assumed both.
@@ -109,7 +109,7 @@ def build() -> Path:
          0.75, 4.35, 7.5, 1.2, 16, BLUE)
     text(s, "Verified bytecode · NSI · capabilities · fabric · trap journal", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
     notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.5.md.",
-              "I am a language with a runtime under development. This local draft is not a release or a production-isolation claim.",
+              "I am a language with a runtime under development. My release scope does not establish production isolation.",
               "I describe tested behavior. Work I have not done is labelled as such."])
 
     # 2 — syntax
@@ -272,14 +272,14 @@ def build() -> Path:
               "I do not claim a kernel, AES, PKI, or that the journal is wired into every trap."])
 
     # 15 — boundary
-    s = slide(INK); title(s, "My 5.0 contract, and the work still ahead.", "The current 5.0 draft is not a release-readiness claim.", 15)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.0 CANDIDATE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    s = slide(INK); title(s, "My 5.0 contract, and the work still ahead.", "My language/runtime scope has explicit architecture limits.", 15)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.0 RELEASE SCOPE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
     text(s, "enclosing-function return\ndependency shadows\nretained native callbacks\nmodule identity + caches\nexpanded native lowering\nlaboratory frontends", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
     text(s, "NanoISA-only bootstrap\nmatching compiler .nvm\nfull backend parity\ncomplete ownership\nisolated callback ABI\nproduction isolation", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
     notes(s, ["Authority: docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, docs/ROADMAP.md.",
               "Retained adapters preserve callback lifetimes and owner-thread execution. Isolated imports cannot use this bridge.",
-              "The 2026-09-16 evidence is a checkpoint; native and VM effect repairs and final integrated gates remain pending."])
+              "My 2026-09-16 checkpoints cover native and VM effects. Exact-commit clean-tree tests, platform CI and release acceptance are mandatory release gates."])
 
     # 16 — closing
     s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))

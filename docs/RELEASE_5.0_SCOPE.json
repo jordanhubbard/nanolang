@@ -1,10 +1,136 @@
 {
-  "captured_utc": "2026-09-16T17:05:10.612273+00:00",
-  "candidate_sha": "60d845f383cd26a759e274f8a8a8d973fa7f3e96",
+  "captured_utc": "20260916T174502Z",
+  "candidate_sha": "4373abc5dd9ea1adccf2f4c6c819750da47560fb",
+  "open_pr_count": 40,
+  "open_issue_count": 0,
   "issues": [],
-  "release": "5.0.0",
-  "reviewed_on": "2026-09-16",
-  "pull_requests": [
+  "prs": [
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_9e7eec108586a874607309762869061e`\n- head: `09151fcd8483fd57b8c5aa4c9eaa359e5ffeb1ef`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
+      "headRefName": "mac/agent_natasha/task_9e7eec108586a874607309762869061e-lease_043862c80a634d7488",
+      "headRefOid": "09151fcd8483fd57b8c5aa4c9eaa359e5ffeb1ef",
+      "labels": [],
+      "milestone": null,
+      "number": 350,
+      "title": "Integrate conflicting approved task task_f60e4cd8305d9a90591eb41354c712c3 onto current main (task_9e7eec108586a874607309762869061e)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/350",
+      "head_object_available": true,
+      "head_ancestor_of_candidate": false,
+      "metadata_and_head_unchanged_since_initial_audit": false,
+      "release_scoped_by_metadata": false,
+      "family": "tagged-globals",
+      "disposition": "semantic functionality superseded by tagged globals; retain runtime regression coverage, reject obsolete static refusal policy",
+      "evidence": "Candidate test_array_globals and test_scalar_globals preserve cross-function mutation, shared identity, void initialization, dynamic tags and typed-consumer traps; commits 010087dd and 4dd41bc4.",
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "merge_hazard": "Also removes per-snprintf bounds checks from build_direct_call, reverting safety from current main. Do not merge wholesale.",
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_89a170e2741eb1676e38de143547e804`\n- head: `93a6d224bb95aadb033ec37066516468f11171b9`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
+      "headRefName": "mac/agent_rocky/task_89a170e2741eb1676e38de143547e804-lease_c78ae66aef7d402cbe",
+      "headRefOid": "93a6d224bb95aadb033ec37066516468f11171b9",
+      "labels": [],
+      "milestone": null,
+      "number": 349,
+      "title": "Integrate conflicting approved task task_ed0f455484d04f13818362fd857d2889 onto current main (task_89a170e2741eb1676e38de143547e804)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/349",
+      "head_object_available": true,
+      "head_ancestor_of_candidate": false,
+      "metadata_and_head_unchanged_since_initial_audit": false,
+      "release_scoped_by_metadata": false,
+      "family": "missing-array-values",
+      "disposition": "semantic functionality incorporated through tagged array reads",
+      "evidence": "Candidate test_array_globals covers negative/out-of-bounds void reads and uint32 narrowing of 4294967296; commit 4dd41bc4.",
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "src/nanoisa/nvm2c_map_runtime.inc",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "evidence_commit_ancestry": {
+        "4dd41bc4": true
+      }
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_c6144341c51c8d49618275710c89d888`\n- head: `d3e67f72c22872276b49c7adec52700e77ae7a94`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
+      "headRefName": "mac/agent_natasha/task_c6144341c51c8d49618275710c89d888-lease_ec0ca141ce9a41468b",
+      "headRefOid": "d3e67f72c22872276b49c7adec52700e77ae7a94",
+      "labels": [],
+      "milestone": null,
+      "number": 348,
+      "title": "Integrate conflicting approved task task_bcc4271b0de244c2810c09e004f6cd2e onto current main (task_c6144341c51c8d49618275710c89d888)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/348",
+      "head_object_available": true,
+      "head_ancestor_of_candidate": false,
+      "metadata_and_head_unchanged_since_initial_audit": false,
+      "release_scoped_by_metadata": false,
+      "family": "tagged-globals",
+      "disposition": "semantic functionality superseded by tagged globals; retain runtime regression coverage, reject obsolete static refusal policy",
+      "evidence": "Candidate test_array_globals and test_scalar_globals preserve cross-function mutation, shared identity, void initialization, dynamic tags and typed-consumer traps; commits 010087dd and 4dd41bc4.",
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_d5d42912d498f9b6b82473a1283d7083`\n- head: `275b7098f3cb95c3e897a292fd96c43b3f92b355`\n- base at push: `2711c6eb2ac202f8a4b9a23162d1d96fad639857`\n",
+      "headRefName": "mac/agent_rocky/task_d5d42912d498f9b6b82473a1283d7083-lease_d0a3a5b2c44d454482",
+      "headRefOid": "275b7098f3cb95c3e897a292fd96c43b3f92b355",
+      "labels": [],
+      "milestone": null,
+      "number": 347,
+      "title": "Integrate conflicting approved task task_85c76ecc621c88d470642bc6ff733627 onto current main (task_d5d42912d498f9b6b82473a1283d7083)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/347",
+      "head_object_available": true,
+      "head_ancestor_of_candidate": false,
+      "metadata_and_head_unchanged_since_initial_audit": false,
+      "release_scoped_by_metadata": false,
+      "family": "tagged-globals",
+      "disposition": "semantic functionality superseded by tagged globals; retain runtime regression coverage, reject obsolete static refusal policy",
+      "evidence": "Candidate test_array_globals and test_scalar_globals preserve cross-function mutation, shared identity, void initialization, dynamic tags and typed-consumer traps; commits 010087dd and 4dd41bc4.",
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_f60e4cd8305d9a90591eb41354c712c3`\n- head: `9259778eee29e0b2ee4b45f198f2fc81beb9c33d`\n- base at push: `769c0891e78f4438f8166c76aebbf4615e54bce0`\n",
+      "headRefName": "mac/agent_bullwinkle/task_f60e4cd8305d9a90591eb41354c712c3-lease_576dd4d8f2974c56b4",
+      "headRefOid": "9259778eee29e0b2ee4b45f198f2fc81beb9c33d",
+      "labels": [],
+      "milestone": null,
+      "number": 346,
+      "title": "Integrate conflicting approved task task_90469f202cb610a8adcee406d0824238 onto current main (task_f60e4cd8305d9a90591eb41354c712c3)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/346",
+      "head_object_available": true,
+      "head_ancestor_of_candidate": false,
+      "metadata_and_head_unchanged_since_initial_audit": false,
+      "release_scoped_by_metadata": false,
+      "family": "tagged-globals",
+      "disposition": "semantic functionality superseded by tagged globals; retain runtime regression coverage, reject obsolete static refusal policy",
+      "evidence": "Candidate test_array_globals and test_scalar_globals preserve cross-function mutation, shared identity, void initialization, dynamic tags and typed-consumer traps; commits 010087dd and 4dd41bc4.",
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
+    },
     {
       "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_85c76ecc621c88d470642bc6ff733627`\n- head: `540c999ad6eb75050d9064b2464d4d36a3d6f1ea`\n- base at push: `769c0891e78f4438f8166c76aebbf4615e54bce0`\n",
@@ -16,7 +142,7 @@
       "title": "Integrate conflicting approved task task_9146bd436ee336bbb69153548cebedeb onto current main (task_85c76ecc621c88d470642bc6ff733627)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/345",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "src/nanoisa/nvm2c.c",
         "tests/nanoisa/test_nvm2c.c"
@@ -24,7 +150,12 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "tagged-globals",
-      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -37,7 +168,7 @@
       "title": "Integrate conflicting approved task task_dc171e3db9cb497c981d7f06621baa5d onto current main (task_b942461604a2ccaf01bda98560857137)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/344",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "src/nanoisa/nvm2c.c",
         "tests/nanoisa/test_nvm2c.c"
@@ -45,7 +176,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "partially superseded; preserve float capability for separate scope decision",
       "family": "generic-comparisons",
-      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log"
+      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "ef28ba12": true
+      }
     },
     {
       "baseRefName": "main",
@@ -58,7 +193,7 @@
       "title": "Integrate conflicting approved task task_ed0f455484d04f13818362fd857d2889 onto current main (task_60af2be121fe003b6f266ceb2a66cfc0)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/343",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "src/nanoisa/nvm2c.c",
         "tests/nanoisa/test_nvm2c.c"
@@ -66,7 +201,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "missing-array-values",
-      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps"
+      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -79,7 +218,7 @@
       "title": "Integrate conflicting approved task task_bcc4271b0de244c2810c09e004f6cd2e onto current main (task_90469f202cb610a8adcee406d0824238)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/342",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "src/nanoisa/nvm2c.c",
         "tests/nanoisa/test_nvm2c.c"
@@ -87,7 +226,12 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "tagged-globals",
-      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -100,7 +244,7 @@
       "title": "Integrate conflicting approved task task_9ab7b8fec9b20e398eb5d0afee131578 onto current main (task_9146bd436ee336bbb69153548cebedeb)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/341",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "src/nanoisa/nvm2c.c",
         "tests/nanoisa/test_nvm2c.c"
@@ -108,30 +252,12 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "tagged-globals",
-      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
-    },
-    {
-      "baseRefName": "main",
-      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_026fda7c3c56df0e05b283b52d3c1868`\n- head: `917834fcca87dbe737e652aa29f9508085f85526`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
-      "headRefName": "mac/agent_rocky/task_026fda7c3c56df0e05b283b52d3c1868-lease_9df95807217d465cad",
-      "headRefOid": "917834fcca87dbe737e652aa29f9508085f85526",
-      "labels": [],
-      "milestone": null,
-      "number": 340,
-      "title": "Integrate conflicting approved task task_ea1a3ae068019af489ecd859a9db5e9b onto current main (task_026fda7c3c56df0e05b283b52d3c1868)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/340",
-      "head_ancestor_of_candidate": false,
-      "head_object_available": false,
-      "changed_files": [
-        ".gitignore",
-        "docs/ROADMAP.md",
-        "src/nanoisa/nvm2c.c",
-        "tests/nanoisa/test_nvm2c.c"
-      ],
-      "release_scoped_by_metadata": false,
-      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
-      "family": "direct-call-formatting",
-      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -144,7 +270,7 @@
       "title": "Integrate conflicting approved task task_ed5f20e9b78d4759b44e7b496b92a2ea onto current main (task_da5a3af7ded84469998dffa6a4f98153)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/339",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "src/nanoisa/nvm2c.c",
         "tests/nanoisa/test_nvm2c.c"
@@ -152,7 +278,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "string-array-writes",
-      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation"
+      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "77811399": true
+      }
     },
     {
       "baseRefName": "main",
@@ -165,7 +295,7 @@
       "title": "Integrate conflicting approved task task_ce16c7f531c94738bfca747633289540 onto current main (task_1c43624c496c54b58083f103519f556f)",
       "url": "https://github.com/jordanhubbard/nanolang/pull/337",
       "head_ancestor_of_candidate": false,
-      "head_object_available": false,
+      "head_object_available": true,
       "changed_files": [
         "docs/ROADMAP.md",
         "src/nanoisa/nvm2c.c",
@@ -174,13 +304,17 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "direct-call-formatting",
-      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "663ff9d5": true
+      }
     },
     {
       "baseRefName": "main",
-      "body": "I reconcile the audited 5.0 compiler/runtime branch with main through `ded3ee5a`, preserving the enclosing-function return contract, dependency-shadow defaults, lexical/module identity, private native artifacts, callback boundaries and expanded NanoISA/native lowering.\n\nI repair Linux build and acceptance failures without suppressing strict warnings: generated runtime conditions, composed fixture bounds, process-capture diagnostics and native test signal supervision. I retain the stronger ownership and dynamic native representations where incoming branches carry older implementations.\n\nCurrent Linux ARM64 evidence: bootstrap smoke checks, 33 ownership/record-pattern methods, 77 VM code-generation tests, 1,723 native translator checks, 1,073 shape checks, process capture and long-path regression pass. Native compiler acceptance, broad quick/full release gates, documentation and final scope reconciliation remain in progress. This draft is not authorization to bypass those gates or publish a tag.\n\nDetailed reconciliation: `docs/evidence/main-reconciliation-pr334-linux.md`. Finalization ledger: `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.\n",
+      "body": "I reconcile the audited 5.0 compiler/runtime branch with main through PR #340 (`2711c6eb`). I retain enclosing-function returns, dependency shadows by default, lexical/module identity, private native artifacts and explicit callback boundaries. My release contract is in `docs/RELEASE_5.0.md`; NanoISA-only self-hosting and complete backend parity remain unfinished.\n\nI repair strict Linux/Darwin compilation, imported callback signatures and shadow execution, lifted captures, retained C++ replay, platform-dependent examples, and wrapper links against instrumented runtimes. I add scoped VM effect dispatch with lexical state and returns. Native effect lowering and a newly reproduced interpreter union-string lifetime defect are still being finalized.\n\nValidation checkpoints on Linux ARM64: `make test-quick` passes; 242 eligible examples compile; all 175 selected bytecode programs verify and both VM dispatch implementations agree; 1,739 native translator and 1,073 shape checks pass. Coverage-built wrappers pass five unit and seven publication cases. The VM effect branch passes its expanded codegen, VM, ISA, verifier, schema and opcode-coverage gates. Focused Darwin callback, dispatch, dictionary and C++ checks pass. The local deck and narrative are regenerated and checked.\n\nThese are checkpoint results. The clean full-suite run, final native/VM integration, exact-head platform CI and final release review remain gates before publication. I keep this PR as a draft until those pass.\n\nDetailed evidence: `docs/evidence/main-reconciliation-pr334-linux.md` and `docs/evidence/vm-effect-dispatch.md`. Finalization ledger: `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.\n",
       "headRefName": "release/5.0-finalization",
-      "headRefOid": "f31c1420035e8922964389eff2e93f4016d12178",
+      "headRefOid": "4373abc5dd9ea1adccf2f4c6c819750da47560fb",
       "labels": [],
       "milestone": null,
       "number": 336,
@@ -190,7 +324,9 @@
       "head_object_available": true,
       "changed_files": [],
       "release_scoped_by_metadata": true,
-      "disposition": "candidate itself; merge only after gates"
+      "disposition": "candidate itself; exact commit gates still in progress",
+      "metadata_and_head_unchanged_since_initial_audit": false,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -211,7 +347,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "string-array-writes",
-      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation"
+      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "77811399": true
+      }
     },
     {
       "baseRefName": "main",
@@ -232,7 +372,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "partially superseded; preserve float capability for separate scope decision",
       "family": "generic-comparisons",
-      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log"
+      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "ef28ba12": true
+      }
     },
     {
       "baseRefName": "main",
@@ -253,7 +397,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "missing-array-values",
-      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps"
+      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -276,7 +424,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "direct-call-formatting",
-      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "663ff9d5": true
+      }
     },
     {
       "baseRefName": "main",
@@ -297,7 +449,12 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "tagged-globals",
-      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -319,7 +476,13 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "local-count",
-      "evidence": "480c05cf PR335 + 8e3e8514/f8c21480; tests/nanoisa/test_nvm2c.c:5699 and :5717"
+      "evidence": "480c05cf PR335 + 8e3e8514/f8c21480; tests/nanoisa/test_nvm2c.c:5699 and :5717",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "480c05cf": true,
+        "8e3e8514": true,
+        "f8c21480": true
+      }
     },
     {
       "baseRefName": "main",
@@ -340,7 +503,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "scalar-map-tags",
-      "evidence": "3124f5fb; tests/nanoisa/test_nvm2c.c:3292 test_emitted_map_get and :3375 test_emitted_map_flow"
+      "evidence": "3124f5fb; tests/nanoisa/test_nvm2c.c:3292 test_emitted_map_get and :3375 test_emitted_map_flow",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "3124f5fb": true
+      }
     },
     {
       "baseRefName": "main",
@@ -362,7 +529,13 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "projected-string-locals",
-      "evidence": "daaef965,60e66341,f2b6203a; source storage conversion and tagged record fields supersede simple kind overwrite; retain proposed runtime regression"
+      "evidence": "daaef965,60e66341,f2b6203a; source storage conversion and tagged record fields supersede simple kind overwrite; retain proposed runtime regression",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "daaef965": true,
+        "60e66341": true,
+        "f2b6203a": true
+      }
     },
     {
       "baseRefName": "main",
@@ -383,7 +556,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "string-array-writes",
-      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation"
+      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "77811399": true
+      }
     },
     {
       "baseRefName": "main",
@@ -404,7 +581,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "partially superseded; preserve float capability for separate scope decision",
       "family": "generic-comparisons",
-      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log"
+      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "ef28ba12": true
+      }
     },
     {
       "baseRefName": "main",
@@ -426,7 +607,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "exact head already incorporated in candidate",
       "family": "direct-call-formatting",
-      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "663ff9d5": true
+      }
     },
     {
       "baseRefName": "main",
@@ -448,7 +633,13 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "local-count",
-      "evidence": "480c05cf PR335 + 8e3e8514/f8c21480; tests/nanoisa/test_nvm2c.c:5699 and :5717"
+      "evidence": "480c05cf PR335 + 8e3e8514/f8c21480; tests/nanoisa/test_nvm2c.c:5699 and :5717",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "480c05cf": true,
+        "8e3e8514": true,
+        "f8c21480": true
+      }
     },
     {
       "baseRefName": "main",
@@ -469,7 +660,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "missing-array-values",
-      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps"
+      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -490,7 +685,12 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "tagged-globals",
-      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "010087dd": true,
+        "4dd41bc4": true
+      }
     },
     {
       "baseRefName": "main",
@@ -511,7 +711,11 @@
       "release_scoped_by_metadata": false,
       "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
       "family": "scalar-map-tags",
-      "evidence": "3124f5fb; tests/nanoisa/test_nvm2c.c:3292 test_emitted_map_get and :3375 test_emitted_map_flow"
+      "evidence": "3124f5fb; tests/nanoisa/test_nvm2c.c:3292 test_emitted_map_get and :3375 test_emitted_map_flow",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {
+        "3124f5fb": true
+      }
     },
     {
       "baseRefName": "main",
@@ -527,7 +731,9 @@
       "head_object_available": true,
       "changed_files": [],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -549,7 +755,9 @@
         "tests/nanovm/test_vmd_server.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -568,7 +776,9 @@
         "tests/test_compiler_contracts.sh"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -591,7 +801,9 @@
         "tests/test_selfhost_path_aliases.sh"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -610,7 +822,9 @@
         "tests/test_timeout_wrappers.sh"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -629,7 +843,9 @@
         "src_nano/compiler/lexer.nano"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -648,7 +864,9 @@
         "tests/test_typechecker.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -673,7 +891,9 @@
         "tests/test_language_claims.py"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -694,7 +914,9 @@
         "tests/test_module_builder_paths.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -714,7 +936,9 @@
         "tests/nanoisa/test_nvm2c.c"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -730,7 +954,9 @@
       "head_object_available": true,
       "changed_files": [],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     },
     {
       "baseRefName": "main",
@@ -748,8 +974,18 @@
         "src_nano/transpiler.nano"
       ],
       "release_scoped_by_metadata": false,
-      "disposition": "exact head already incorporated in candidate"
+      "disposition": "exact head already incorporated in candidate",
+      "metadata_and_head_unchanged_since_initial_audit": true,
+      "evidence_commit_ancestry": {}
     }
   ],
-  "scope": "Audited language/runtime release; full NanoISA-only bootstrap and backend parity remain unfinished."
+  "candidate_test_locations": {
+    "test_array_globals": 3142,
+    "test_scalar_globals": 3202,
+    "test_wide_direct_calls": 3653,
+    "test_tagged_string_array_writes": 5264
+  },
+  "new_release_scoped_work": [],
+  "remaining_architecture_scope": "Full NanoISA-only bootstrap and full backend parity remain outside audited language/runtime release completion; known PUSH_F64 gap is unchanged.",
+  "scope_limit": "Static review and ancestry verification only; no new full-suite execution or final release claim."
 }

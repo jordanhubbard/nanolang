@@ -52,7 +52,7 @@ Laboratory frontends do not establish a distributed production runtime.
 
 ## Release review
 
-On 2026-09-16 I reviewed all 36 open pull requests and zero open issues by title,
+On 2026-09-16 I reviewed all 40 open pull requests and zero open issues by title,
 body, labels, milestone, ancestry and relevant diffs. Only the candidate PR #336
 explicitly named this release in its metadata. Thirteen open PR heads already
 occurred in the candidate's ancestry. Repeated fleet integration branches need
@@ -70,8 +70,17 @@ branches. My source-snapshot boundaries remain in
 
 ## Validation checkpoint — 2026-09-16
 
-On Linux ARM64, focused finalization runs passed 1,739 native translator checks,
-1,073 shape checks, 272,379 VM checks, and a 242-program example sweep.
+My bounded finalization checkpoints passed 1,739 native translator checks,
+1,073 shape checks, 272,403 VM checks, 89 VM codegen checks and 175
+verified/equivalent programs. A clean bootstrap passed at `4373abc5`. Darwin
+passed 14 effect tests, 49 scoping checks and 39 executable guide snippets.
+An ownership ASan/UBSan run exercised 52,000 activations. Native and VM effect
+execution are implemented; these checks cover their tested boundaries.
+Strict Linux ARM64 acceptance passed all 185 selected native example artifacts
+with unchanged selection and exclusions, plus five regression compilations from
+root and examples working directories. The OPL and NanoAmp fixture repairs are
+`b9c9854d` and `8b8822bd`. An earlier 242-program example sweep remains historical
+evidence. These example checks do not establish the final full-suite gate.
 The native translator and shape suites also passed their ASan/UBSan gate with
 leak detection disabled. Native compiler acceptance passed 24 tests, and the
 ordinary bootstrap passed its smoke checks. The native translator checkpoint
@@ -88,14 +97,13 @@ semantic correctness.
 
 [The integration evidence](evidence/main-reconciliation-pr334-linux.md) records
 commands, revisions, fixes and limitations. Final clean-tree tests, platform CI,
-and release acceptance must establish the exact commit to tag. Native and VM
-effect execution repairs remain in progress at this checkpoint; I make no
-success claim for them here. No 5.0 tag or GitHub release is established by
-this document.
+and release acceptance are mandatory gates for the exact commit to tag. This
+document records bounded checkpoints; the release evidence must identify that
+commit and its completed gates before tagging.
 
 ## Presentation
 
-My repository contains a regenerated local 5.0 candidate deck and narrative.
+My repository contains a regenerated local 5.0 release-edition deck and narrative.
 They describe the language/runtime release boundary and unfinished architecture.
 The existing Google links still identify the published 4.5 edition; local
 regeneration does not update those external artifacts. Their status and existing
