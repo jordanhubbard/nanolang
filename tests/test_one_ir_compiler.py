@@ -315,6 +315,42 @@ class OneIrCompiler(unittest.TestCase):
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
+    def test_projected_array_length_uses_runtime_storage_tag(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for case in ("int", "bool", "string", "record", "empty", "bad_tag", "bad_width", "null", "record_get", "record_set"):
+                with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-projected-length-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    helper = ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nARR_LEN\nRET\n.end\n"
+                    text = ".entry main\n" + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} struct\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    storage, member, tag = ("nsarr_s", "sa", 5) if case == "string" else ("nrarr_s", "ra", 6) if case.startswith("record") else ("narr_s", "a", 10 if case == "bool" else 3)
+                    initial = 0 if case == "empty" else 3
+                    setup = f"{storage} a = {{.len = {initial}}}; nrec_t r = {{.n = 1}}; r.k[0] = {tag}; r.{member}[0] = &a;"
+                    if case == "bad_tag":
+                        setup += "r.k[0] = 0;"
+                    elif case == "bad_width":
+                        setup += "r.n = 0;"
+                    elif case == "null":
+                        setup += "r.a[0] = NULL;"
+                    body = setup + f"if (nl_length(r) != {initial}) return 1; a.len = 5; return nl_length(r) != 5 || r.k[0] != {tag};"
+                    if case in ("record_get", "record_set"):
+                        operation = "nvalue_array_get((nmap_value){7, 6, (char *)&a}, 0)" if case == "record_get" else "nvalue_array_set((nmap_value){7, 6, (char *)&a}, 0, (nmap_value){1, 0, NULL})"
+                        body = setup + f"if (nl_length(r) != {initial}) return 1; (void){operation}; return 0;"
+                    source.write_text(source.read_text().replace("int main(", "int generated_main(") + f"\nint main(void) {{ {body} }}\n")
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    if case in ("bad_tag", "bad_width", "null", "record_get", "record_set"):
+                        result = subprocess.run([binary], capture_output=True, timeout=10)
+                        self.assertLess(result.returncode, 0, "I trap an invalid projected array")
+                    else:
+                        self.run_checked([binary])
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

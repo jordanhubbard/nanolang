@@ -337,11 +337,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   Normal and fresh ASan/UBSan suites pass 1,670 AOT and 1,073
                   shape checks; full compiler emission reaches the next failure
                   below. Evidence: `docs/evidence/aot-nominal-scalar-fields.md`.
-                - [ ] I resolve `parser_get_identifier_count` (192), whose
+                - [x] I resolve `parser_get_identifier_count` (192), whose
                   record-field-10 projection reaches `ARR_LEN` without an
                   array representation. I preserve runtime element tags rather
                   than guessing storage. MAC
                   `task_9a2a87fb80d94386b096a7b01ec7eaaf`.
+                  Twenty runtime-storage, alias and rejection cases pass.
+                  Normal and fresh ASan/UBSan suites pass 1,670 AOT and 1,073
+                  shape checks. Evidence:
+                  `docs/evidence/aot-projected-array-length.md`.
+                - [ ] I resolve the next emitted record projection in
+                  `typecheck_parser` (339), where `AGG_GET` receives a
+                  non-record representation. I identify its exact operand,
+                  preserve nested field checks and rerun compiler acceptance.
+                  MAC `task_f682c0c61d354890a80c28b3ed32918f`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

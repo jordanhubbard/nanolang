@@ -1144,6 +1144,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_ARR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+            /* Length determines the container, not its element storage. */
+            if (v.kind == NVM2C_VK_UNK && !shape_type(b, v.shape, NVM_SHAPE_ARRAY)) return 0;
             if (v.kind == NVM2C_VK_RARR) {
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
             } else if (v.kind == NVM2C_VK_SARR) {
@@ -3137,6 +3139,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             uint8_t resolved = resolved_shape_kind(b, b->shape_outputs[idx][start]);
             if (!shape_ok(b)) goto done;
+            if (resolved == NVM2C_VK_UNK &&
+                nvm_shape_kind(&b->shapes, b->shape_outputs[idx][start]) == NVM_SHAPE_ARRAY) {
+                /* I retain the record's runtime array storage tag instead of
+                 * defaulting an unresolved element shape to integer storage. */
+                nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != 3 && r[%d].k[%u] != 10 && r[%d].k[%u] != 5 && r[%d].k[%u] != 6) abort();\n",
+                             rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
+                char expr[384];
+                snprintf(expr, sizeof expr,
+                         "(nmap_value){7, r[%d].k[%u], (char *)(r[%d].k[%u] == 5 ? (void *)r[%d].sa[%u] : r[%d].k[%u] == 6 ? (void *)r[%d].ra[%u] : (void *)r[%d].a[%u])}",
+                         rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi,
+                         rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
+                stack_push_value(b, &st, expr);
+                break;
+            }
             if (resolved != NVM2C_VK_UNK) st.rec_k[rec][fi] = resolved;
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
             if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
@@ -3764,8 +3781,10 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    if (a.kind != 7 || !a.text) abort();\n"
         "    if (a.integer == 3 || a.integer == 10) return (int64_t)((narr_t)a.text)->len;\n"
         "    if (a.integer == 5) return (int64_t)((nsarr_t)a.text)->len;\n"
+        "    if (a.integer == 6) return (int64_t)((nrarr_t)a.text)->len;\n"
         "    abort();\n}\n"
         "static inline nmap_value nvalue_array_get(nmap_value a, int64_t index) {\n"
+        "    if (a.integer == 6) abort();\n"
         "    uint32_t at = (uint32_t)index;\n"
         "    if (at >= (uint64_t)nvalue_array_len(a)) return (nmap_value){0, 0, NULL};\n");
     nvm2c_printf(b,
@@ -3775,6 +3794,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         string_get ? "nsarr_get((nsarr_t)a.text, at)" : "((nsarr_t)a.text)->data[at]");
     nvm2c_puts(b,
         "static inline nmap_value nvalue_array_set(nmap_value a, int64_t index, nmap_value value) {\n"
+        "    if (a.integer == 6) abort();\n"
         "    uint32_t at = (uint32_t)index;\n"
         "    if (at >= (uint64_t)nvalue_array_len(a)) return a;\n"
         "    if (a.integer == 3) ((narr_t)a.text)->data[at] = nvalue_require_int(value);\n"
@@ -3791,6 +3811,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
     nvm2c_puts(b, "    abort();\n}\n");
     if (printing) nvm2c_puts(b,
         "static inline void nvalue_array_print(nmap_value a) {\n"
+        "    if (a.integer == 6) abort();\n"
         "    int64_t length = nvalue_array_len(a); fputc('[', stdout);\n"
         "    for (int64_t i = 0; i < length; ++i) {\n"
         "        if (i) fputs(\", \", stdout);\n"
@@ -4295,6 +4316,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                                        fn->code_length - pc, &ins);
             if (!size) { nvm2c_fail(&b, "I cannot decode packed field shapes"); goto fail; }
             NvmShapeId shape = b.shape_outputs[f][pc];
+            if (ins.opcode == OP_AGG_GET && shape &&
+                nvm_shape_kind(&b.shapes, shape) == NVM_SHAPE_ARRAY &&
+                resolved_shape_kind(&b, shape) == NVM2C_VK_UNK) b.has_maps = 1;
             if (ins.opcode == OP_AGG_PACK && shape) {
                 for (uint16_t field = 0; field < ins.operands[3].u16; ++field) {
                     if (resolved_shape_kind(&b, nvm_shape_lookup(&b.shapes, shape, field)) == NVM2C_VK_UNK) {
