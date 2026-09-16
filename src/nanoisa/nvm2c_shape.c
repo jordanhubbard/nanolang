@@ -50,7 +50,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_RECORD)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_MAP)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -82,6 +82,7 @@ NvmShapeKind nvm_shape_kind(NvmShapeGraph *g, NvmShapeId id) {
 
 static int allows_edge(NvmShapeKind kind, uint32_t index) {
     return kind == NVM_SHAPE_UNKNOWN || kind == NVM_SHAPE_RECORD ||
+           (kind == NVM_SHAPE_MAP && index < 2) ||
            (kind == NVM_SHAPE_ARRAY && index == 0);
 }
 

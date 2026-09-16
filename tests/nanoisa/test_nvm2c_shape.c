@@ -124,7 +124,31 @@ static void test_lookup_without_constraints(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_map_shapes(void) {
+    for (int conflict = 0; conflict < 2; ++conflict) {
+        NvmShapeGraph g = {0};
+        NvmShapeId maps[2] = {nvm_shape_new(&g, NVM_SHAPE_MAP), nvm_shape_new(&g, NVM_SHAPE_MAP)};
+        for (int i = 0; i < 2; ++i) {
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, maps[i], 0), nvm_shape_new(&g, NVM_SHAPE_STRING)));
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, maps[i], 1),
+                nvm_shape_new(&g, conflict && i ? NVM_SHAPE_STRING : NVM_SHAPE_INT)));
+        }
+        CHECK(nvm_shape_unify(&g, maps[0], maps[1]) == !conflict);
+        if (!conflict) {
+            CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, maps[0], 0)) == NVM_SHAPE_STRING);
+            CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, maps[0], 1)) == NVM_SHAPE_INT);
+            CHECK(!nvm_shape_child(&g, maps[0], 2));
+            CHECK(g.error != NULL);
+        }
+        nvm_shape_destroy(&g);
+    }
+    NvmShapeGraph g = {0};
+    CHECK(!nvm_shape_unify(&g, nvm_shape_new(&g, NVM_SHAPE_MAP), nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_map_shapes();
     test_lookup_without_constraints();
     test_cycles_and_shared_children();
     test_deep_graph(0);

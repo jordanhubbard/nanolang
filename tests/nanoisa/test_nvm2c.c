@@ -2775,7 +2775,7 @@ static void test_nested_record_values(void) {
 }
 
 static void test_unsupported_classifier_instructions(void) {
-    const uint8_t opcodes[] = {OP_HM_NEW, OP_HM_SET, OP_HM_GET, OP_PUSH_F64,
+    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_HM_GET, OP_PUSH_F64,
         OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
         OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
@@ -2798,7 +2798,51 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_emitted_map_flow(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[4096];
+        snprintf(source, sizeof source, ".string key \"name\"\n.string value \"text\"\n.entry main\n"
+            ".function main 0 2 0 int 1\nCALL make\nDUP\nSTORE_LOCAL 0\nPUSH_I64 3\nCALL relay\n"
+            "PUSH_BOOL %d\nJMP_FALSE alternate\nPUSH_STR key\n%s\nHM_SET\nJMP joined\n"
+            "alternate:\nPUSH_STR key\n%s\nHM_SET\njoined:\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_HAS\nASSERT\nLOAD_LOCAL 1\nPUSH_STR key\n%s\nCALL put\nPOP\n"
+            "LOAD_LOCAL 0\nHM_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 1\nPUSH_STR key\nHM_DELETE\nPOP\nLOAD_LOCAL 0\nPUSH_STR key\nHM_HAS\nBOOL_NOT\nASSERT\n"
+            "LOAD_LOCAL 0\nHM_LEN\nRET\n.end\n"
+            ".function make 0 0 0 hashmap 1\nHM_NEW 5 %d\nRET\n.end\n"
+            ".function relay 2 2 0 hashmap 1\nLOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_FALSE recurse\nLOAD_LOCAL 0\nRET\n"
+            "recurse:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\nTAIL_CALL relay\n.end\n"
+            ".function put 3 3 0 hashmap 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nHM_SET\nRET\n.end\n",
+            strings, strings ? "PUSH_STR value" : "PUSH_I64 42",
+            strings ? "PUSH_STR value" : "PUSH_I64 17", strings ? "PUSH_STR value" : "PUSH_I64 99",
+            strings ? 5 : 1);
+        NvmModule *m = assemble_ok(source, "emitted map flow");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I emit map types through forward calls and branches");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve map aliases through mutation, replacement, deletion and tail recursion");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *invalid[] = {"HM_NEW 1 1\nPOP\n", "HM_NEW 5 3\nPOP\n",
+        "HM_NEW 5 1\nPUSH_STR key\nPUSH_STR key\nHM_SET\nPOP\n",
+        "HM_NEW 5 1\nPUSH_I64 1\nHM_HAS\nPOP\n"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        char source[512], error[256] = {0};
+        snprintf(source, sizeof source, ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n%sPUSH_I64 0\nRET\n.end\n", invalid[i]);
+        NvmModule *m = assemble_ok(source, "invalid map types");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "map"), "I reject unsupported or conflicting map types");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_native_map_runtime(void) {
+    test_emitted_map_flow();
     const char *source =
         "#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <assert.h>\n"
 #include "../../src/nanoisa/nvm2c_map_runtime.inc"
