@@ -36,11 +36,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       publications while I validate this release; it does not repair the hub.
 
 
-- [ ] **Native float integration after main PR #357.** I preserve float
+- [x] **Native float integration after main PR #357.** I preserve float
       comparison capability with distinct value and shape tags, preserve VM tag
       ordering and typed return boundaries, and verify local/call
       transport alongside existing arrays and booleans.
-      MAC `task_da116ced2b104050b956a3526ae473e8`.
+      MAC `task_da116ced2b104050b956a3526ae473e8`. My focused gate passes
+      1,761 translator and 1,076 shape checks, including nonfinite constants.
+      Float arithmetic and result/aggregate parity remain outside this repair.
 
 - [ ] **General native call-order audit after this release.** I compare
       other C-seed multi-argument calls against interpreter and VM ordering
@@ -285,7 +287,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [ ] **5.0 finalization on sparky.** I finish the user-authorized release
       from integration checkpoint `5cf21fc1`, preserving its audited contracts.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
-      - [x] I reconcile main through `feb298be`, including affine rejection,
+      - [x] I reconcile main through `7b982db3`, including affine rejection,
         lexical bindings, native allocation lifetimes and path normalization.
       - [x] I deduplicate merged filter predicate declarations while retaining
         both branches' literal, variable and empty-result assertions.

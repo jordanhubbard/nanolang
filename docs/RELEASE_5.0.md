@@ -64,16 +64,21 @@ On 2026-09-16 I reviewed the open pull requests and issues by title, body,
 labels, milestone, ancestry and relevant diffs. Only candidate PR #336 explicitly
 named this release in its metadata. My refreshed
 [scope snapshot](RELEASE_5.0_SCOPE.json) records the reviewed heads, dispositions
-and candidate revision after main incorporated PR #353. Superseded PR closure
+and candidate revision after main incorporated PRs #353 and #357. Superseded PR closure
 remains conditional on #336 landing with accepted gates and unchanged heads.
 The snapshot is a dated review; the published release evidence must also record
 the final queue check.
 
-I preserve unfinished native AOT parity work. Floating-point comparison branches
-still add `PUSH_F64`, which this candidate rejects. Array-read branches also add
+I incorporate `PUSH_F64`, numeric comparisons, float locals and direct/tail-call
+argument transport from the reconciled comparison work. Exact-bit constants
+preserve nonfinite inputs, and comparisons retain NanoVM equality and ordering.
+This does not establish float arithmetic, float result or aggregate parity.
+The focused reconciliation passes 1,761 translator and 1,076 shape checks;
+[its evidence](evidence/main-reconciliation-pr357.md) states the tested limits.
+
+I preserve unfinished native AOT parity work. Array-read branches also add
 `CAST_BOOL` and, in some branches, `PUSH_VOID`; their common missing-read repairs
-alone do not justify closing those branches as superseded. These are retained
-follow-ups, not claims of full AOT parity.
+alone do not justify closing those branches as superseded.
 I preserve the newer tagged and owned representations when reconciling older
 branches. My source-snapshot boundaries remain in
 [the snapshot record](SOURCE_SNAPSHOT_EVIDENCE.md).

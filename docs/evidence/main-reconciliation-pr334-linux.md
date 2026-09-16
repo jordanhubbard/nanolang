@@ -332,3 +332,15 @@ and array opcode work stays separate from this release and is resumed afterward.
 The final validation record is attached to the GitHub release after the exact
 candidate passes clean full-suite and hosted checks; these focused results do
 not replace those gates.
+
+
+At `86f1f3d2`, I reconcile the subsequently admitted main PR #357. Distinct
+float value and shape tags retain boolean-array identity. Exact-bit constants,
+numeric comparison and local/direct-tail-call argument transport pass 1,761
+translator and 1,076 shape checks. I preserve VM cross-tag ordering and typed
+return boundaries; float arithmetic and result/aggregate parity remain separate.
+[The focused evidence](main-reconciliation-pr357.md) records these limits.
+The local full run at `3726aa93` was deliberately interrupted after its clean
+build passed because this production change requires a fresh combined gate.
+A MAC stop did not fence the already admitted merge; I record that follow-up
+and temporarily make the other reviewed PRs drafts while validating the release.
