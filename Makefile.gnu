@@ -2177,7 +2177,7 @@ test-verify-all-programs: nano_virt nano_vm test-verify-only
 	@bash tests/test_verify_all_programs.sh
 
 .PHONY: test-vm-examples
-test-vm-examples: nano_virt nano_vm $(COMPILER_C) test-dispatch-callbacks test-mixer-callbacks
+test-vm-examples: nano_virt nano_vm $(COMPILER) test-dispatch-callbacks test-mixer-callbacks
 	@python3 tests/test_vm_example_reporting.py
 	@bash tests/test_vm_examples_coverage.sh
 
