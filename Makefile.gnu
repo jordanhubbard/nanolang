@@ -426,8 +426,16 @@ test-verifier: test-verifier-cleanup
 test-nvm2c-sanitizers:
 	@python3 scripts/run_nvm2c_sanitizers.py --make "$(MAKE)" --cc "$(CC)"
 
+# I provide the native host ABI required by artifact-backed array operations.
+# A relocatable object retains exports even when only a dlopened module uses them.
+AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(OBJ_DIR)/runtime/gc_struct.o
+.PHONY: nvm2c-runtime
+nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
+$(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(CC) -r -nostdlib -o $@ $(AOT_RUNTIME_OBJECTS)
+
 .PHONY: test-one-ir-compiler
-test-one-ir-compiler: nano_virt nvm2c nanoisa_dump nano_vm
+test-one-ir-compiler: nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
 	@python3 -m unittest tests.test_one_ir_compiler
 
 .PHONY: test-nvm2c-shapes

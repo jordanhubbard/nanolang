@@ -393,7 +393,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   ASan/UBSan suites pass 1,670 AOT and 1,073 shape checks.
                   Full compiler acceptance advances to the runtime failure below.
                   Evidence: `docs/evidence/aot-generic-array-parameters.md`.
-                - [ ] I resolve the native compiler's runtime abort while
+                - [x] I resolve the native compiler's artifact-loading abort while
                   compiling `examples/language/nl_hello.nano`. Native C emission,
                   strict C11 compilation and `--help` pass; compiling a program
                   does not. I trace the failing runtime check, add a regression
@@ -402,6 +402,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   I traced the abort to `dlopen` in the `path_canonical` adapter:
                   my standard-library artifact requires the missing host symbol
                   `dyn_array_get_string`. Fresh compiler emission reproduces it.
+                  I provide an explicit AOT host-runtime link target using my
+                  existing array and GC implementation, test real standard-
+                  library loading and owned walk-result release, and document
+                  native link flags before retrying compiler execution.
+                  My real-artifact regression passes loading, copied filename
+                  access after foreign release and balanced GC object counts.
+                  GC regressions pass; full compiler acceptance passes 16 of 17
+                  methods and advances to the parser failure below. Evidence:
+                  `docs/evidence/aot-host-runtime-linkage.md`.
+                - [ ] I preserve token record-field tags in native compiler
+                  execution. With the host runtime linked, hello compilation
+                  reaches `parser_is_at_end` and aborts on field zero's expected
+                  storage kind 2. I trace construction and projection, retain
+                  validation and rerun compiler acceptance. MAC
+                  `task_45fedd409e1447089dad970396b0a075`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

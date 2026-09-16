@@ -9,6 +9,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
+                *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else [])]
 
 
 class OneIrCompiler(unittest.TestCase):
@@ -67,13 +69,52 @@ class OneIrCompiler(unittest.TestCase):
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
             self.assertNotIn("nano_vm", source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
-                              source, "-o", compiler,
-                              *(["-ldl"] if sys.platform.startswith("linux") else [])], timeout=240)
+                              source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
             self.assertIn(b"Compiler", help_output)
             hello = work / "hello"
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
+
+    def test_real_std_artifact_uses_host_runtime(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        with tempfile.TemporaryDirectory(prefix="nano-aot-host-runtime-") as tmp:
+            work = Path(tmp)
+            directory = work / "files"
+            directory.mkdir()
+            (directory / "one").write_text("payload")
+            library = work / ("std.dylib" if sys.platform == "darwin" else "std.so")
+            shared_flags = ["-dynamiclib", "-undefined", "dynamic_lookup"] if sys.platform == "darwin" else ["-shared"]
+            self.run_checked([cc, "-std=c11", "-fPIC", *shared_flags,
+                              ROOT / "modules/std/fs.c", ROOT / "modules/std/process.c", "-o", library])
+            assembly, module, source = (work / name for name in ("input.nasm", "input.nvm", "input.c"))
+            assembly.write_text(
+                f'.import "{library}" "path_canonical" string string\n'
+                f'.import "{library}" "fs_walkdir" array string\n'
+                '.import_kind 0 artifact\n.import_kind 1 artifact\n'
+                f'.string root "{directory}"\n.entry main\n'
+                '.function main 0 1 0 int 1\n'
+                'PUSH_STR root\nCALL_EXTERN 0\nCALL_EXTERN 1\nSTORE_LOCAL 0\n'
+                'LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 1\nEQ\nASSERT\n'
+                'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nSTR_LEN\nRET\n.end\n')
+            self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+            missing = work / "missing-runtime"
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source,
+                              "-o", missing, *(["-ldl"] if sys.platform.startswith("linux") else [])])
+            failed = subprocess.run([missing], capture_output=True, timeout=10)
+            self.assertLess(failed.returncode, 0, "I require the foreign artifact's host ABI")
+            generated = source.read_text().replace("int main(", "int generated_main(")
+            source.write_text(generated + '\n#include "runtime/gc.h"\n'
+                              'int main(void) { gc_init(); size_t before = gc_get_stats().num_objects; '
+                              'int result = generated_main(0, NULL); '
+                              f'if (result != {len(str((directory / "one").resolve()))} || gc_get_stats().num_objects != before) return 1; '
+                              'gc_shutdown(); return 0; }\n')
+            binary = work / "with-runtime"
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "src",
+                              source, *HOST_RUNTIME, "-o", binary])
+            self.run_checked([binary])
 
     def test_projected_optional_arguments(self):
         cc = shutil.which("cc")
