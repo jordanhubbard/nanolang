@@ -1511,6 +1511,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [x] I preserve ordinary module inference context while assigning
+            source identity to native effect capture bindings. An importer of
+            `src_nano/compiler/error_messages.nano` compiles and runs, and my ten
+            native effect checks pass. MAC
+            `task_7ecadba95e9445098841f83707a1d7c6`.
           - [x] I classify perform, handle, and await as value expressions in
             my shared parser and verify native handler captures, nesting,
             lexical return, and cleanup. I register imported effect declarations

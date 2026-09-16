@@ -3835,6 +3835,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                              item->as.function.params[j].type_info,
                              false, dummy_val);
                 Symbol *located_param = &env->symbols[env->symbol_count - 1];
+                if (native_effect_program) located_param->def_file = g_source_file_for_line_directives;
                 located_param->def_line = item->line;
                 located_param->def_column = item->column;
                 if (item->as.function.body) {
@@ -4716,8 +4717,6 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     }
 
     /* Set source file for #line directive emission */
-    const char *saved_environment_file = env_current_file(env);
-    env_set_current_file(env, input_file);
     g_source_file_for_line_directives = input_file;
 
     /* Clear and collect headers from imported modules */
@@ -4889,6 +4888,5 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     char *result = sb->buffer;
     free(sb);
-    env_set_current_file(env, saved_environment_file);
     return result;
 }

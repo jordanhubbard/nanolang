@@ -3946,6 +3946,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             Symbol *emitted_binding = &env->symbols[env->symbol_count - 1];
             emitted_binding->def_line = stmt->line;
             emitted_binding->def_column = stmt->column;
+            if (native_effect_program) emitted_binding->def_file = g_source_file_for_line_directives;
             emitted_binding->scope_end_line = scope_end_line;
             emitted_binding->scope_end_column = scope_end_column;
             free(emitted_binding->struct_type_name);
@@ -4470,6 +4471,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
             env_define_var_with_type_info(env, expr->as.handle_expr.handler_param_names[h][p], op->params[p].type, op->params[p].element_type, op->params[p].type_info, true, value);
             Symbol *parameter = &env->symbols[env->symbol_count - 1];
             parameter->struct_type_name = op->params[p].struct_type_name ? strdup(op->params[p].struct_type_name) : NULL;
+            parameter->def_file = g_source_file_for_line_directives;
             parameter->def_line = handler_body->line;
             parameter->def_column = handler_body->column;
             parameter->scope_end_line = handler_body->scope_end_line;
