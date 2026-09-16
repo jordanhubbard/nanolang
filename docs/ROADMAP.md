@@ -45,6 +45,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       C-backend tests pass seven cases. The quick gate passes all 17 language
       cases and all 242 eligible VM examples, then reaches the known affine
       rejection gap below. Evidence: `docs/evidence/scalar-filter-dispatch.md`.
+- [x] **Self-hosted ownership observation.** I keep scalar field reads from
+      consuming their enclosing resource and still diagnose observations of
+      moved owners. I replace the old fake-close positive fixture with an
+      unresolved-callee rejection and add contract-valid source-only probes.
+      Fresh Stage 1 and Stage 2 pass all ten cases each; compiler acceptance
+      passes 21 methods and the language suite passes 17 cases. The C seed
+      still fails seven rejections. Evidence:
+      `docs/evidence/affine-observation-boundary.md`. Remaining contract work:
+      MAC `task_c60a8d2e14b7494f8875e75b16e9b087`.
 - [ ] **Release gate — C-seed affine rejection parity.** I resolve the
       existing ownership task's two reproduced failures before release:
       unresolved resources must be rejected and use-after-move must carry a
@@ -52,6 +61,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       outstanding recovery branch, preserve prior artifacts on rejection and
       rerun all three frontend cases and `make test-quick`. MAC
       `task_91ae827be4154eaa8f22698aeecc8cf1`.
+      My recovery review also finds that the legacy positive `close_file`
+      only reads a scalar field, while the self-hosted checker treats that read
+      as moving the entire owner. I add declaration/return-only conformance
+      probes that need no invented terminal operation, including parameter
+      obligations, field observations, and owner counts beyond 256. The
+      normative contract remains unchanged; the old nine-case smoke result
+      is not conformance evidence.
+      The previous task is now terminal `failed`; I continue under replacement
+      `task_c60a8d2e14b7494f8875e75b16e9b087`. My new source-only probes use an
+      explicitly foreign consuming boundary and do not claim runtime cleanup.
+      I also audit `test_resource_tracking.nano` and `test_affine_integration.nano`:
+      their print-only close helpers and direct nested-field consumption do not
+      establish the normative terminal-operation and whole-owner rules.
 - [ ] **Current-main release reconciliation.** I review and integrate the eight
       newer main commits through `b37136cc` (PR #297), including recursive-array
       C-seed/self-hosted fixes and SDL header metadata. I preserve the integration

@@ -100,6 +100,45 @@ shadow resource_find {
     assert (== (resource_find states "file") 0)
 }
 
+fn resource_observe_place(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string) -> array<ResourceState> {
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser node_id)
+        return (resource_observe_place parser field.object field.object_type states diags file_name)
+    }
+    if (== node_type ParseNodeType.PNODE_CALL) {
+        return (resource_move_identifier parser node_id node_type states diags file_name)
+    }
+    if (!= node_type ParseNodeType.PNODE_IDENTIFIER) { return states }
+    let id: ASTIdentifier = (parser_get_identifier parser node_id)
+    let index: int = (resource_find states id.name)
+    if (>= index 0) {
+        let state: ResourceState = (at states index)
+        if state.moved {
+            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0035" (+ "I cannot observe `" (+ id.name "` after its ownership was moved.")) (Diagnostics.diag_location file_name id.line id.column))
+            (Diagnostics.diag_list_add diags diag)
+        }
+    }
+    return states
+}
+
+shadow resource_observe_place {
+    let tokens: List<LexerToken> = (tokenize_string "fn probe(file: FileHandle) -> int { return file.fd }" "observe.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "observe.nano")
+    let ret: ASTReturn = (parser_get_return parser 0)
+    let states: array<ResourceState> = [ResourceState { name: "file", type_name: "FileHandle", moved: false, line: 1, column: 1 }]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let observed: array<ResourceState> = (resource_observe_place parser ret.value ret.value_type states diags "observe.nano")
+    assert (== (array_length observed) 1)
+    let observed_state: ResourceState = (at observed 0)
+    assert (not observed_state.moved)
+    assert (== (Diagnostics.diag_list_count diags) 0)
+    let moved: array<ResourceState> = [ResourceState { name: "file", type_name: "FileHandle", moved: true, line: 1, column: 1 }]
+    let rejected: array<ResourceState> = (resource_observe_place parser ret.value ret.value_type moved diags "observe.nano")
+    let rejected_state: ResourceState = (at rejected 0)
+    assert rejected_state.moved
+    assert (== (Diagnostics.diag_list_count diags) 1)
+}
+
 fn resource_move_identifier(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string) -> array<ResourceState> {
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser node_id)
@@ -117,7 +156,7 @@ fn resource_move_identifier(parser: Parser, node_id: int, node_type: int, states
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser node_id)
-        return (resource_move_identifier parser field.object field.object_type states diags file_name)
+        return (resource_observe_place parser field.object field.object_type states diags file_name)
     } else { (print "") }
     if (!= node_type ParseNodeType.PNODE_IDENTIFIER) { return states } else { (print "") }
     let id: ASTIdentifier = (parser_get_identifier parser node_id)

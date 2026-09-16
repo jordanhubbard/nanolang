@@ -1,3 +1,4 @@
+# I reject this apparent close: reading fd does not resolve the owned parameter.
 resource struct FileHandle {
     fd: int
 }

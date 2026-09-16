@@ -2748,6 +2748,10 @@ test-make-header-dependencies:
 test-affine-selfhost: bootstrap
 	@bash tests/test_affine_selfhost.sh
 
+.PHONY: test-affine-contract-boundaries
+test-affine-contract-boundaries: bootstrap
+	@python3 -m unittest tests.test_affine_contract_boundaries
+
 .PHONY: test-pt2-audio
 # Regression test: pt2_audio must render non-silent samples (previously it just
 # memset the output buffer and never called paulaGenerateSamples). Compiles the
