@@ -1251,7 +1251,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     nvm2c_puts(b, "    (void)a;\n");
     nvm2c_printf(b, "    nsarr_t sa[%d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)sa;\n");
-    nvm2c_printf(b, "    nrec_t r[%d] = {0};\n", NVM2C_MAX_TEMPS);
+    /* Reserve a fixed-width count, then patch it with this function's high
+     * water mark after translation. This keeps record storage automatic and
+     * recursion-safe without charging every call for the global limit. */
+    size_t rec_count_offset = b->len + strlen("    nrec_t r[");
+    nvm2c_printf(b, "    nrec_t r[%03d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)r;\n");
     nvm2c_printf(b, "    nrarr_t ra[%d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)ra;\n");
@@ -2156,6 +2160,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     if (!terminated) {
         nvm2c_fail(b, "function %u: falls off the end without RET or HALT", idx);
         goto done;
+    }
+    {
+        char count[4];
+        unsigned rec_count = (unsigned)(st.next_rec > 0 ? st.next_rec : 1);
+        count[0] = (char)('0' + rec_count / 100);
+        count[1] = (char)('0' + rec_count / 10 % 10);
+        count[2] = (char)('0' + rec_count % 10);
+        count[3] = '\0';
+        memcpy(b->data + rec_count_offset, count, 3);
     }
     nvm2c_puts(b, "}\n\n");
 
