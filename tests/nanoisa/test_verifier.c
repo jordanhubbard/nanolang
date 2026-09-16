@@ -336,8 +336,8 @@ static void test_implicit_return_shape_is_checked(void) {
 
 static void test_implicit_return_shape_releases_ownership_state(void) {
     const char *test_name = "return shape: implicit rejection releases ownership state";
-    /* I check rejection after ownership propagation. The allocation-counted
-     * test_verifier_cleanup probe checks cleanup for this instruction path. */
+    /* Exercise ownership propagation before the wrong result count rejects the
+     * implicit return. Leak sanitizers cover the verifier-state cleanup. */
     uint8_t code[64];
     uint32_t n = 0;
     n += emit(code + n, OP_PUSH_I64, (int64_t)7);
@@ -1620,61 +1620,9 @@ static void test_verify_one_function(void) {
     PASS(test_name);
 }
 
-static void test_alternate_return_target_passes(void) {
-    const char *test_name = "nvm_verify: a branch may target code after another return";
-    uint8_t code[32];
-    uint32_t off = emit(code, OP_PUSH_BOOL, 1);
-    off += emit(code + off, OP_JMP_TRUE, (int32_t)6);
-    off += emit(code + off, OP_RET);
-    off += emit(code + off, OP_RET);
-    NvmModule *mod = make_simple_module(code, off, 0, 0);
-    NvmVerifyResult result = nvm_verify(mod);
-    ASSERT(result.ok, result.error_msg);
-    nvm_module_free(mod);
-    PASS(test_name);
-}
-
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
-static void test_effect_handler_verification(void) {
-    const char *test_name = "effect handler operands and separately rooted arm stacks";
-    uint8_t code[128];
-    uint32_t n = 0;
-    n += emit(code + n, OP_HANDLER_PUSH, (uint32_t)0, (int32_t)14, 0, 1);
-    n += emit(code + n, OP_RET);
-    n += emit(code + n, OP_PUSH_VOID);
-    n += emit(code + n, OP_EFFECT_RESUME);
-    NvmModule *mod = make_simple_module(code, n, 1, 0);
-    ASSERT(nvm_verify(mod).ok, "I verify a handler arm from its own empty stack");
-    mod->code[14] = OP_POP;
-    ASSERT(!nvm_verify(mod).ok, "I reject underflow inside an otherwise unreachable handler arm");
-    mod->code[14] = OP_PUSH_VOID;
-    mod->functions[0].local_count = 0;
-    ASSERT(!nvm_verify(mod).ok, "I reject handler parameters outside the lexical frame");
-    mod->functions[0].local_count = 1;
-    mod->code[1] = 1;
-    ASSERT(!nvm_verify(mod).ok, "I reject invalid operation string indices");
-    nvm_module_free(mod);
-
-    n = 0;
-    n += emit(code + n, OP_PERFORM, (uint32_t)0, 1);
-    n += emit(code + n, OP_POP);
-    n += emit(code + n, OP_RET);
-    mod = make_simple_module(code, n, 0, 0);
-    ASSERT(!nvm_verify(mod).ok, "I reject missing perform arguments");
-    nvm_module_free(mod);
-    n = 0;
-    n += emit(code + n, OP_PUSH_VOID);
-    n += emit(code + n, OP_PUSH_VOID);
-    n += emit(code + n, OP_EFFECT_RESUME);
-    mod = make_simple_module(code, n, 0, 0);
-    ASSERT(!nvm_verify(mod).ok, "I reject extra values when resuming");
-    nvm_module_free(mod);
-    PASS(test_name);
-}
-
 int main(void) {
-    test_effect_handler_verification();
     printf("\n[verifier] NanoVM bytecode verifier tests...\n\n");
 
     test_null_module();
@@ -1741,7 +1689,6 @@ int main(void) {
     test_stack_underflow();
     test_incompatible_branch_stack_heights();
     test_compatible_branch_stack_heights();
-    test_alternate_return_target_passes();
     test_verify_one_function();
     test_call_module_linked_valid();
     test_call_module_shape_mismatch_fails();

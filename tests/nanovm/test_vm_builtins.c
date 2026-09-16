@@ -19,13 +19,15 @@ char **g_argv = NULL;
 static int s_fail_fclose = 0;
 static int s_fail_fwrite = 0;
 static int s_fclose_calls = 0;
-int nano_test_fclose(FILE *stream) {
+int __real_fclose(FILE *stream);
+size_t __real_fwrite(const void *ptr, size_t size, size_t count, FILE *stream);
+int __wrap_fclose(FILE *stream) {
     s_fclose_calls++;
-    int result = fclose(stream);
+    int result = __real_fclose(stream);
     return s_fail_fclose ? EOF : result;
 }
-size_t nano_test_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
-    return s_fail_fwrite ? 0 : fwrite(ptr, size, count, stream);
+size_t __wrap_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
+    return s_fail_fwrite ? 0 : __real_fwrite(ptr, size, count, stream);
 }
 
 /* ── Test runner ─────────────────────────────────────────────────────────── */
@@ -65,87 +67,6 @@ static void test_vm_file_write_read(void) {
            "read content should match written content");
     free(content);
     unlink(path);
-    PASS(test_name);
-}
-
-static void test_vm_file_read_bytes(void) {
-    const char *test_name = "vm_file_read_bytes: binary, empty and failed reads";
-    char *path = vm_mktemp("nano-byte-read-");
-    ASSERT(path && *path, "temporary file creation");
-    FILE *file = fopen(path, "wb");
-    ASSERT(file != NULL, "open binary fixture");
-    unsigned char data[8193];
-    for (size_t i = 0; i < sizeof(data); i++) data[i] = (unsigned char)i;
-    ASSERT(fwrite(data, 1, sizeof(data), file) == sizeof(data), "write binary fixture");
-    ASSERT(fclose(file) == 0, "close binary fixture");
-    DynArray *bytes = vm_file_read_bytes(path);
-    ASSERT(bytes && bytes->elem_type == ELEM_U8, "byte-typed result");
-    ASSERT(bytes->length == sizeof(data), "complete binary length");
-    for (size_t i = 0; i < sizeof(data); i++)
-        ASSERT(dyn_array_get_u8(bytes, (int64_t)i) == data[i], "binary byte preserved");
-    ASSERT(vm_file_write(path, "ABC") == 0, "write text fixture");
-    char *text = vm_string_from_bytes(vm_file_read_bytes(path));
-    ASSERT(text && !strcmp(text, "ABC"), "byte-typed string conversion");
-    free(text);
-    ASSERT(vm_file_write(path, "") == 0, "truncate fixture");
-    bytes = vm_file_read_bytes(path);
-    ASSERT(bytes && bytes->elem_type == ELEM_U8 && bytes->length == 0, "empty file");
-    ASSERT(unlink(path) == 0, "remove fixture");
-    bytes = vm_file_read_bytes(path);
-    ASSERT(bytes && bytes->elem_type == ELEM_U8 && bytes->length == 0, "missing file");
-    bytes = vm_file_read_bytes(NULL);
-    ASSERT(bytes && bytes->length == 0, "null path");
-    bytes = vm_file_read_bytes("/");
-    ASSERT(bytes && bytes->length == 0, "directory read failure");
-    free(path);
-    PASS(test_name);
-}
-
-static void test_vm_trim_edges(void) {
-    const char *test_name = "vm_str_trim_left/right: exact edge whitespace";
-    const char *inputs[] = {NULL, "", " \t\r\n", " \tcafé\r\n", "\vcafé\f", "\xc2\xa0" "café" "\xc2\xa0"};
-    const char *left[] = {"", "", "", "café\r\n", "\vcafé\f", "\xc2\xa0" "café" "\xc2\xa0"};
-    const char *right[] = {"", "", "", " \tcafé", "\vcafé\f", "\xc2\xa0" "café" "\xc2\xa0"};
-    for (size_t i = 0; i < sizeof(inputs) / sizeof(inputs[0]); i++) {
-        char *l = vm_str_trim_left(inputs[i]);
-        char *r = vm_str_trim_right(inputs[i]);
-        ASSERT(l && r, "trim allocation");
-        ASSERT(!strcmp(l, left[i]) && !strcmp(r, right[i]), "exact trimmed edge");
-        free(l);
-        free(r);
-    }
-    PASS(test_name);
-}
-
-static void test_vm_str_join(void) {
-    const char *test_name = "vm_str_join: sized allocation and invalid arrays";
-    DynArray *parts = dyn_array_new(ELEM_STRING);
-    ASSERT(parts != NULL, "array allocation");
-    char *joined = vm_str_join(parts, ",");
-    ASSERT(joined && !strcmp(joined, ""), "empty result");
-    free(joined);
-    char word[5001];
-    memset(word, 'x', sizeof(word) - 1);
-    word[sizeof(word) - 1] = '\0';
-    dyn_array_push_string(parts, word);
-    dyn_array_push_string(parts, "");
-    dyn_array_push_string(parts, word);
-    joined = vm_str_join(parts, "--");
-    ASSERT(joined && strlen(joined) == 10004, "long result length");
-    ASSERT(!memcmp(joined, word, 5000) && !memcmp(joined + 5000, "----", 4) &&
-           !strcmp(joined + 5004, word), "long result bytes");
-    free(joined);
-    ASSERT(vm_str_join(NULL, ",") == NULL, "null array rejected");
-    ASSERT(vm_str_join(parts, NULL) == NULL, "null delimiter rejected");
-    DynArray invalid = *parts;
-    invalid.elem_type = ELEM_INT;
-    ASSERT(vm_str_join(&invalid, ",") == NULL, "wrong element type rejected");
-    invalid = *parts;
-    invalid.length = -1;
-    ASSERT(vm_str_join(&invalid, ",") == NULL, "negative length rejected");
-    invalid = *parts;
-    invalid.data = NULL;
-    ASSERT(vm_str_join(&invalid, ",") == NULL, "missing storage rejected");
     PASS(test_name);
 }
 
@@ -201,15 +122,6 @@ static void test_vm_str_index_of(void) {
     ASSERT(pos == 6, "world should be at position 6");
     int64_t notfound = vm_str_index_of("hello", "xyz");
     ASSERT(notfound == -1, "not found should return -1");
-    ASSERT(vm_str_index_of("abc", "") == 0, "I find an empty needle at the start");
-    ASSERT(vm_str_index_of(NULL, "a") == -1, "I reject a null haystack");
-    ASSERT(vm_str_index_of("a", NULL) == -1, "I reject a null needle");
-    ASSERT(vm_str_last_index_of("ababa", "aba") == 2, "I include overlapping matches");
-    ASSERT(vm_str_last_index_of("abc", "") == 3, "I find an empty last needle at the end");
-    ASSERT(vm_str_last_index_of("", "") == 0, "I search an empty string");
-    ASSERT(vm_str_last_index_of("a", "ab") == -1, "I reject a longer needle");
-    ASSERT(vm_str_last_index_of("abc", NULL) == -1, "I reject a null needle");
-    ASSERT(vm_str_last_index_of(NULL, "a") == -1, "I reject a null haystack");
     PASS(test_name);
 }
 
@@ -278,34 +190,6 @@ static void test_vm_process_run(void) {
     const char *test_name = "vm_process_run: echo command";
     DynArray *result = vm_process_run("echo hello");
     ASSERT(result != NULL, "vm_process_run should return non-NULL");
-    ASSERT(!strcmp(dyn_array_get_string(result, 0), "0"), "exit status");
-    ASSERT(!strcmp(dyn_array_get_string(result, 1), "hello\n"), "captured output");
-    char command[10064];
-    memset(command, ' ', 10000);
-    memcpy(command, ": ", 2);
-    strcpy(command + 10000, "; printf out; printf err >&2; exit 7");
-    result = vm_process_run(command);
-    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "7"), "long command status");
-    ASSERT(!strcmp(dyn_array_get_string(result, 1), "out"), "long command stdout");
-    ASSERT(!strcmp(dyn_array_get_string(result, 2), "err"), "long command stderr");
-    result = vm_process_run("kill -TERM $$");
-    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "-1"), "signal status");
-    result = vm_process_run("printf '\\000'");
-    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "-1"), "reject binary capture");
-    result = vm_process_run(NULL);
-    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "-1"), "reject null command");
-    long limit = sysconf(_SC_ARG_MAX);
-    ASSERT(limit > 0 && limit < 16 * 1024 * 1024, "bounded host argument limit");
-    char *oversized = malloc((size_t)limit + 2);
-    ASSERT(oversized, "allocate oversized command");
-    memset(oversized, ' ', (size_t)limit + 1);
-    memcpy(oversized, "printf UNEXPECTED;", 18);
-    oversized[limit + 1] = '\0';
-    result = vm_process_run(oversized);
-    free(oversized);
-    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "127"), "reject host argument overflow");
-    ASSERT(!*dyn_array_get_string(result, 1), "do not execute a truncated command prefix");
-    ASSERT(strstr(dyn_array_get_string(result, 2), "could not execute"), "exec failure diagnostic");
     (void)result; /* no dyn_array_free */
     PASS(test_name);
 }
@@ -319,26 +203,18 @@ static void test_vm_file_write_null(void) {
 
 static void test_vm_file_write_close_failure(void) {
     const char *test_name = "vm_file_write: close failure returns error";
-    char path[] = "/tmp/test_vm_builtins_close_failure.XXXXXX";
-    int fd = mkstemp(path);
-    ASSERT(fd >= 0, "I create a private file fixture");
-    ASSERT(close(fd) == 0, "I close the fixture descriptor");
+    const char *path = "/tmp/test_vm_builtins_close_failure.txt";
     s_fail_fclose = 1;
-    s_fclose_calls = 0;
     int64_t rc = vm_file_write(path, "content");
     s_fail_fclose = 0;
     unlink(path);
     ASSERT(rc == -1, "close failure should return -1");
-    ASSERT(s_fclose_calls == 1, "I close the stream exactly once");
     PASS(test_name);
 }
 
 static void test_vm_file_write_failure_closes_stream(void) {
     const char *test_name = "vm_file_write: write failure closes stream";
-    char path[] = "/tmp/test_vm_builtins_write_failure.XXXXXX";
-    int fd = mkstemp(path);
-    ASSERT(fd >= 0, "I create a private file fixture");
-    ASSERT(close(fd) == 0, "I close the fixture descriptor");
+    const char *path = "/tmp/test_vm_builtins_write_failure.txt";
     s_fail_fwrite = 1;
     s_fclose_calls = 0;
     int64_t rc = vm_file_write(path, "content");
@@ -351,47 +227,7 @@ static void test_vm_file_write_failure_closes_stream(void) {
 
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
-static void test_vm_format(void) {
-    const char *test_name = "vm_format: substitutions, literals and invalid arrays";
-    DynArray *args = dyn_array_new(ELEM_STRING);
-    ASSERT(args, "allocate arguments");
-    char *result = vm_format("%s %% %q %", args);
-    ASSERT(result && !strcmp(result, "%s %% %q %"), "missing substitutions stay literal");
-    free(result);
-    dyn_array_push_string(args, "é🙂");
-    dyn_array_push_string(args, "42");
-    result = vm_format("%%s/%d/%f", args);
-    ASSERT(result && !strcmp(result, "%é🙂/42/%f"), "scan placeholders, not printf escapes");
-    free(result);
-    result = vm_format("", args);
-    ASSERT(result && !*result, "ignore extra arguments");
-    free(result);
-    char long_part[8193];
-    memset(long_part, 'x', sizeof(long_part) - 1);
-    long_part[sizeof(long_part) - 1] = '\0';
-    dyn_array_push_string(args, long_part);
-    result = vm_format("%s%d%g", args);
-    ASSERT(result && strlen(result) == strlen("é🙂42") + 8192, "long result is not truncated");
-    ASSERT(!strcmp(result + strlen("é🙂42"), long_part), "long substitution bytes");
-    free(result);
-    ASSERT(!vm_format(NULL, args) && !vm_format("x", NULL), "reject null inputs");
-    DynArray malformed = *args;
-    malformed.elem_type = ELEM_INT;
-    ASSERT(!vm_format("x", &malformed), "reject wrong element type");
-    malformed = *args;
-    malformed.length = -1;
-    ASSERT(!vm_format("x", &malformed), "reject negative length");
-    malformed = *args;
-    malformed.data = NULL;
-    ASSERT(!vm_format("x", &malformed), "reject missing storage");
-    PASS(test_name);
-}
-
 int main(void) {
-    test_vm_format();
-    test_vm_str_join();
-    test_vm_trim_edges();
-    test_vm_file_read_bytes();
     printf("\n[vm_builtins] NanoVM built-in function tests...\n\n");
 
     test_vm_getcwd();

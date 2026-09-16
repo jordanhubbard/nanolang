@@ -11,14 +11,9 @@ garbage collected.
 
 ## Current Boundary
 
-My C frontend recognizes `resource struct` and runs a function ownership pass
-with parameter obligations, lexical owner storage, branch joins and loop-edge
-checks. My lexical lookup repair and self-hosted recursive flow pass now pass
-the shared bounded ownership matrix on all three compiler stages. I record
-that boundary in `evidence/affine-selfhost-flow.md`; it does not establish the
-complete contract. My self-hosted classifier now follows named record fields
-and union payloads to a least fixed point; generic substitution and module-owned
-nominal identity remain incomplete.
+The C frontend currently recognizes `resource struct` and performs limited,
+per-identifier state tracking. It has isolated positive and negative tests.
+That does not establish path-sensitive ownership.
 
 The self-hosted frontend does not yet implement this complete contract. Neither
 frontend currently demonstrates all of the cases in the conformance matrix

@@ -70,12 +70,9 @@ struct EffectHandlerFrame {
     ASTNode              **handler_bodies;
     char                 **handler_op_names;
     char                 **handler_param_names;
-    char                ***handler_param_groups; /* unqualified handler parameters */
-    int                   *handler_param_counts;
     int                    handler_count;
     EffectHandlerFrame    *outer;   /* enclosing handler (for nested handle) */
     Environment           *env;    /* environment captured at handle site */
-    const void            *return_target; /* lexical function activation */
 };
 
 /* ── Runtime handler stack (global, used by interpreter) ─────────────────── */

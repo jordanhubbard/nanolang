@@ -15,8 +15,6 @@ shadow open_file {
 }
 
 fn close_file(f: FileHandle) -> void {
-    let FileHandle { fd } = f
-    assert (>= fd 0)
     (println "File closed")
 }
 

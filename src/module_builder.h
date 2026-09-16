@@ -16,12 +16,6 @@
 
 // Module build metadata structure (from module.json)
 typedef struct {
-    char *function_name;
-    char *adapter_symbol;
-    bool worker_thread;
-} ModuleCallbackAdapter;
-
-typedef struct {
     char *name;
     char *version;
     char *description;
@@ -113,14 +107,11 @@ typedef struct {
     // without exporting symbols that would clash with other modules.
     char **shared_c_sources;
     size_t shared_c_sources_count;
-    ModuleCallbackAdapter *callback_adapters;
-    size_t callback_adapters_count;
 } ModuleBuildMetadata;
 
 // Build information for tracking
 typedef struct {
     char *object_file;      // Path to compiled .o file
-    char *module_dir;       // Physical directory identifying this foreign module
     char **link_flags;      // All flags needed for linking
     size_t link_flags_count;
     char **compile_flags;   // Compile flags (include paths, defines)
@@ -159,6 +150,16 @@ char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t 
 
 // Check if module needs rebuild
 bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta);
+
+// Update the on-disk content-hash cache after a successful build
+// (called automatically by module_build; also callable manually)
+void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta);
+
+// Resolve and hash one native source. Zero is never a successful digest.
+bool module_hash_native_source(const char *module_dir, const char *source, uint64_t *hash_out);
+
+// Return whether native source contents match the recorded cache.
+bool module_source_hashes_match(const char *module_dir, ModuleBuildMetadata *meta);
 
 // Get module build directory path (honors NANO_BUILD_CACHE)
 char* module_get_build_dir(const char *module_dir);

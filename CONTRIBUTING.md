@@ -43,20 +43,12 @@ the unimplemented boundary on my roadmap. A frontend accepting syntax is not
 evidence that the generated code executes it correctly.
 
 My normal compilation paths run shadows before publishing output. The C seed
-uses a supervised interpreter child for ordinary shadows and the shared VM
-bridge for imported callback shadows; the bytecode CLI runs a separate verified
+uses a supervised interpreter child; the bytecode CLI runs a separate verified
 test module in NanoVM; the self-hosted native driver uses a separate test
 executable. Dependency shadows run by default, with an explicit root-only
 opt-out. Source-only C emission does not execute shadows. These supervised
 processes have deadlines, but are not security sandboxes. See
 `docs/CANONICAL_STYLE.md` for the current flags and boundaries.
-
-My shadow deadline defaults to 10 seconds. Instrumented bootstrap jobs can set
-`NANO_SHADOW_TIMEOUT_SECONDS` to an integer from 1 through 300; invalid values
-fail before executing shadows. My sanitizer bootstrap uses 60 seconds. This
-changes only the execution budget: successful completion and every assertion
-remain required before I publish output. The parent still enforces the deadline
-if foreign code cancels the child alarm.
 
 Before calling a feature complete, compare actual results and failure behavior
 across the supported paths. Passing one path does not establish the others.

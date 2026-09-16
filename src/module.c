@@ -1,7 +1,6 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
 #include "nanolang.h"
 #include "module_builder.h"
-#include "shell_path.h"
 #include "stdlib_runtime.h"
 #include <sys/stat.h>
 #include <unistd.h>
@@ -42,33 +41,24 @@ static void init_module_cache(void) {
     }
 }
 
-static int cached_module_index(const char *module_path) {
-    if (!module_cache || !module_path) return -1;
+static bool is_module_cached(const char *module_path) {
+    if (!module_cache) return false;
     for (int i = 0; i < module_cache->count; i++) {
         if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
-            return i;
+            return true;
         }
     }
-    char *canonical = realpath(module_path, NULL);
-    if (!canonical) return -1;
-    int found = -1;
-    for (int i = 0; i < module_cache->count; i++) {
-        if (strcmp(module_cache->loaded_paths[i], canonical) == 0) {
-            found = i;
-            break;
-        }
-    }
-    free(canonical);
-    return found;
-}
-
-static bool is_module_cached(const char *module_path) {
-    return cached_module_index(module_path) >= 0;
+    return false;
 }
 
 ASTNode *get_cached_module_ast(const char *module_path) {
-    int index = cached_module_index(module_path);
-    return index < 0 ? NULL : module_cache->loaded_asts[index];
+    if (!module_cache) return NULL;
+    for (int i = 0; i < module_cache->count; i++) {
+        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
+            return module_cache->loaded_asts[i];
+        }
+    }
+    return NULL;
 }
 
 static void cache_module(const char *module_path) {
@@ -82,8 +72,7 @@ static void cache_module(const char *module_path) {
         module_cache->loaded_asts = realloc(module_cache->loaded_asts,
                                             sizeof(ASTNode*) * module_cache->capacity);
     }
-    char *key = realpath(module_path, NULL);
-    module_cache->loaded_paths[module_cache->count] = key ? key : strdup(module_path);
+    module_cache->loaded_paths[module_cache->count] = strdup(module_path);
     module_cache->loaded_asts[module_cache->count] = NULL;  /* Set later */
     module_cache->count++;
 }
@@ -92,10 +81,11 @@ static void cache_module_with_ast(const char *module_path, ASTNode *ast) {
     init_module_cache();
     
     /* Check if already cached - if so, update AST */
-    int index = cached_module_index(module_path);
-    if (index >= 0) {
-        module_cache->loaded_asts[index] = ast;
-        return;
+    for (int i = 0; i < module_cache->count; i++) {
+        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
+            module_cache->loaded_asts[i] = ast;
+            return;
+        }
     }
     
     /* Not cached yet - add new entry */
@@ -106,8 +96,7 @@ static void cache_module_with_ast(const char *module_path, ASTNode *ast) {
         module_cache->loaded_asts = realloc(module_cache->loaded_asts,
                                             sizeof(ASTNode*) * module_cache->capacity);
     }
-    char *key = realpath(module_path, NULL);
-    module_cache->loaded_paths[module_cache->count] = key ? key : strdup(module_path);
+    module_cache->loaded_paths[module_cache->count] = strdup(module_path);
     module_cache->loaded_asts[module_cache->count] = ast;
     module_cache->count++;
 }
@@ -565,16 +554,6 @@ static char *module_name_from_path(const char *module_path) {
     return strdup(module_path);
 }
 
-/* I return an owned module name for checking or emitting one imported program. */
-char *module_program_name(ASTNode *program, const char *module_path) {
-    if (!program || program->type != AST_PROGRAM) return NULL;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_MODULE_DECL) return strdup(item->as.module_decl.name);
-    }
-    return module_name_from_path(module_path);
-}
-
 static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
     if (!env || !func_name) {
         return NULL;
@@ -653,16 +632,9 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         return NULL;
     }
     
-    /* I register aliases in their importer's context, before checking its body. */
-    char *saved_current_module = env->current_module;
-    char *module_name = module_name_from_path(module_path);
-    env->current_module = module_name;
-
     /* Process imports first - modules may depend on symbols from imported modules */
     if (!process_imports(module_ast, env, modules_to_track, module_path)) {
         fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
-        env->current_module = saved_current_module;
-        free(module_name);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
@@ -670,28 +642,28 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Type check module (without requiring main) */
-    /* I must not merge distinct files into one public introspection identity.
-     * Imports are resolved first so this also catches a parent/child clash. */
-    char *identity = module_program_name(module_ast, module_path);
-    for (int i = 0; identity && module_cache && i < module_cache->count; i++) {
-        if (!module_cache->loaded_asts[i] ||
-            strcmp(module_cache->loaded_paths[i], module_path) == 0) continue;
-        char *other = module_program_name(module_cache->loaded_asts[i],
-                                          module_cache->loaded_paths[i]);
-        bool duplicate = other && strcmp(identity, other) == 0;
-        free(other);
-        if (duplicate) {
-            fprintf(stderr, "Error: I reject ambiguous module introspection identity: %s\n", identity);
-            free(identity);
-            env->current_module = saved_current_module;
-            free(module_name);
-            free_ast(module_ast);
-            free_tokens(tokens, token_count);
-            free(source);
-            return NULL;
-        }
+    /* Save current module context before processing imported module */
+    char *saved_current_module = env->current_module;
+    
+    /* Extract module name from path for function tagging */
+    /* e.g., "modules/sdl/sdl.nano" -> "sdl" */
+    char *module_name = NULL;
+    const char *last_slash = strrchr(module_path, '/');
+    const char *last_dot = strrchr(module_path, '.');
+    if (last_slash && last_dot && last_dot > last_slash) {
+        size_t name_len = last_dot - (last_slash + 1);
+        module_name = strndup(last_slash + 1, name_len);
+    } else if (last_slash) {
+        module_name = strdup(last_slash + 1);
+    } else if (last_dot) {
+        size_t name_len = last_dot - module_path;
+        module_name = strndup(module_path, name_len);
+    } else {
+        module_name = strdup(module_path);
     }
-    free(identity);
+    
+    env->current_module = module_name;  /* Set module context for function tagging */
+    
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
     
@@ -774,8 +746,6 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
                             }
                             
                             Symbol *sym = &env->symbols[env->symbol_count++];
-                            memset(sym, 0, sizeof(*sym));
-                            sym->is_global = true;
                             sym->name = strdup(constants[j].name);
                             sym->type = constants[j].type;
                             sym->struct_type_name = NULL;
@@ -827,11 +797,7 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
 
 /* Public wrapper for load_module that uses cache */
 ASTNode *load_module(const char *module_path, Environment *env) {
-    if (!module_path) return NULL;
-    char *canonical = realpath(module_path, NULL);
-    ASTNode *program = load_module_internal(canonical ? canonical : module_path, env, true, NULL);
-    free(canonical);
-    return program;
+    return load_module_internal(module_path, env, true, NULL);
 }
 
 /* Load module from a package file */
@@ -888,26 +854,8 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
     return module_ast;
 }
 
-static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
-
-/* I apply an explicit module declaration before registering its import aliases. */
-bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
-    if (!program || program->type != AST_PROGRAM || !env) return false;
-    char *saved_owner = env->current_module;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_MODULE_DECL) {
-            env->current_module = item->as.module_decl.name;
-            break;
-        }
-    }
-    bool ok = process_imports_owned(program, env, modules, current_file);
-    env->current_module = saved_owner;
-    return ok;
-}
-
 /* Process imports in a program */
-static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM) {
         return false;
     }
@@ -935,14 +883,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 }
                 free(unpacked_dirs);
                 return false;
-            }
-
-            /* I identify an existing imported file once, independent of spelling.
-             * Dependencies of a symlinked file belong to its target directory. */
-            char *canonical_path = realpath(module_path, NULL);
-            if (canonical_path) {
-                free(module_path);
-                module_path = canonical_path;
             }
             
             ASTNode *module_ast = NULL;
@@ -989,8 +929,8 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 module_ast = load_module_internal(module_path, env, true, modules);
             }
             
-            /* I return an AST for a completed cached load. A NULL AST is a
-             * failure, even when a loading marker remains in the cache. */
+            /* Completed cached loads return their AST. A NULL result is always
+             * a failed load, even if its in-progress cache marker remains. */
             if (module_ast == NULL) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to load module '%s'\n",
                         item->line, item->column, module_path);
@@ -1008,15 +948,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 module_list_add(modules, module_path);
             }
 
-            /* If module was already cached and returned NULL, try to grab cached AST for alias handling */
-            if (module_ast == NULL) {
-                module_ast = get_cached_module_ast(module_path);
-                if (!module_ast) {
-                    free(module_path);
-                    continue;
-                }
-            }
-            
             char *orig_module_name = NULL;
             for (int j = 0; j < module_ast->as.program.count; j++) {
                 ASTNode *node = module_ast->as.program.items[j];
@@ -1060,13 +991,11 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 }
                 
                 /* Register the namespace */
-                char *inferred_name = orig_module_name ? NULL : module_name_from_path(module_path);
-                env_register_namespace(env, module_alias, orig_module_name ? orig_module_name : inferred_name,
+                env_register_namespace(env, module_alias, orig_module_name,
                                       func_names, func_count,
                                       struct_names, struct_count,
                                       enum_names, enum_count,
                                       union_names, union_count);
-                free(inferred_name);
             }
 
             /* Apply import aliases for selective imports: from "module" import foo as bar */
@@ -1155,7 +1084,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     env_define_var(env, module_item->as.let.name, 
                                    module_item->as.let.var_type, 
                                    false, val);
-                    env->symbols[env->symbol_count - 1].is_global = true;
                     continue;
                 }
                 
@@ -1192,7 +1120,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
 }
 
 /* Compile a single module to an object file */
-
 bool compile_module_to_object(const char *module_path,
                               const char *output_obj,
                               Environment *env,
@@ -1262,15 +1189,7 @@ bool compile_module_to_object(const char *module_path,
         saved_main->is_extern = true;
     }
 
-    char *saved_module_context = module_env->current_module;
-    module_env->current_module = module_name;
-    for (int i = 0; i < module_ast->as.program.count; i++) {
-        ASTNode *item = module_ast->as.program.items[i];
-        if (item->type == AST_MODULE_DECL && item->as.module_decl.name)
-            module_env->current_module = item->as.module_decl.name;
-    }
     char *c_code = transpile_to_c(module_ast, module_env, module_path);
-    module_env->current_module = saved_module_context;
 
     if (saved_main) {
         saved_main->is_extern = saved_main_is_extern;
@@ -1309,30 +1228,13 @@ bool compile_module_to_object(const char *module_path,
         free_module_metadata(meta);
     }
     
-    /* Private siblings keep concurrent builds separate and rename on the same
-     * filesystem. A failed compiler must not truncate a published object. */
-    char build_dir[1024];
-    /* I keep user-controlled basenames out of the compiler's __FILE__ path.
-     * Quotes and control characters are valid source filename bytes, but GCC
-     * can mis-expand them when an assert references generated source. Only
-     * the private stem changes: publication still renames beside output_obj. */
-    const char *output_slash = strrchr(output_obj, '/');
-    size_t parent_length = output_slash ? (size_t)(output_slash - output_obj) + 1 : 0;
-    int path_length = parent_length < sizeof(build_dir)
-        ? snprintf(build_dir, sizeof(build_dir), "%.*s.nano-module-XXXXXX",
-                   (int)parent_length, output_obj) : -1;
-    bool have_build_dir = path_length >= 0 && (size_t)path_length < sizeof(build_dir) &&
-                          mkdtemp(build_dir) != NULL;
-    char temp_c_file[1040] = "";
-    char temp_obj_file[1040] = "";
-    if (have_build_dir) {
-        snprintf(temp_c_file, sizeof(temp_c_file), "%s/source.c", build_dir);
-        snprintf(temp_obj_file, sizeof(temp_obj_file), "%s/object.o", build_dir);
-    }
-    FILE *c_file = have_build_dir ? fopen(temp_c_file, "w") : NULL;
+    /* Write C code to temporary file */
+    char temp_c_file[512];
+    snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_obj);
+    
+    FILE *c_file = fopen(temp_c_file, "w");
     if (!c_file) {
-        fprintf(stderr, "I could not create private module source for '%s'.\n", output_obj);
-        if (have_build_dir) rmdir(build_dir);
+        fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
         free(c_code);
         /* Don't free AST - it's owned by the cache */
         clear_module_cache();
@@ -1341,18 +1243,8 @@ bool compile_module_to_object(const char *module_path,
         return false;
     }
     
-    bool source_written = fputs(c_code, c_file) >= 0;
-    if (fclose(c_file) != 0) source_written = false;
-    if (!source_written) {
-        fprintf(stderr, "I could not finish writing module source '%s'.\n", temp_c_file);
-        remove(temp_c_file);
-        rmdir(build_dir);
-        free(c_code);
-        clear_module_cache();
-        module_cache = saved_cache;
-        free_environment(module_env);
-        return false;
-    }
+    fprintf(c_file, "%s", c_code);
+    fclose(c_file);
     
     if (verbose) {
         printf("✓ Generated module C code: %s\n", temp_c_file);
@@ -1443,7 +1335,6 @@ bool compile_module_to_object(const char *module_path,
 
     char compile_cmd[4096];
     char inherited_flags[2048] = "";
-    bool arguments_valid = true;
     const char *root = get_project_root();
 
     for (size_t i = 0; i < extra_compile_flags_count; i++) {
@@ -1455,8 +1346,6 @@ bool compile_module_to_object(const char *module_path,
                 strcat(inherited_flags, " ");
             }
             strcat(inherited_flags, extra_compile_flags[i]);
-        } else {
-            arguments_valid = false;
         }
     }
 
@@ -1470,33 +1359,22 @@ bool compile_module_to_object(const char *module_path,
         const char *resolved = realpath(module_path, abs_module_path);
         const char *path_to_use = resolved ? abs_module_path : module_path;
         char *mp_copy = strdup(path_to_use);
-        if (!mp_copy) arguments_valid = false;
-        char *last_slash = mp_copy ? strrchr(mp_copy, '/') : NULL;
+        char *last_slash = strrchr(mp_copy, '/');
         if (last_slash) {
             *last_slash = '\0';
-            int written = mp_copy[0] == '/' ?
-                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy) :
+            if (mp_copy[0] == '/') {
+                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy);
+            } else {
                 snprintf(module_dir, sizeof(module_dir), "-I%s/%s", root, mp_copy);
-            if (written < 0 || (size_t)written >= sizeof(module_dir)) arguments_valid = false;
+            }
         }
         free(mp_copy);
     }
 
-    char *quoted_root = module_quote_path(root);
-    char *quoted_module = module_dir[0] ? module_quote_path(module_dir) : strdup("");
-    char *quoted_object = module_quote_path(temp_obj_file);
-    char *quoted_source = module_quote_path(temp_c_file);
-    arguments_valid = arguments_valid && quoted_root && quoted_module && quoted_object && quoted_source;
-    compile_cmd[0] = '\0';
-    int command_length = arguments_valid ? snprintf(compile_cmd, sizeof(compile_cmd),
+    snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
-            cc, quoted_root, quoted_root, quoted_root, quoted_root, quoted_root,
-            quoted_root, quoted_root, quoted_root, quoted_root,
-            quoted_module, sdl_flags, inherited_flags, quoted_object, quoted_source) : -1;
-    free(quoted_root);
-    free(quoted_module);
-    free(quoted_object);
-    free(quoted_source);
+            cc, root, root, root, root, root, root, root, root, root,
+            module_dir, sdl_flags, inherited_flags, output_obj, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
@@ -1505,37 +1383,17 @@ bool compile_module_to_object(const char *module_path,
     /* Compile and capture errors */
     char error_cmd[sizeof(compile_cmd) + sizeof(" 2>&1")];
     snprintf(error_cmd, sizeof(error_cmd), "%s 2>&1", compile_cmd);
-    FILE *pipe = command_length >= 0 && (size_t)command_length < sizeof(compile_cmd) ?
-                 popen(error_cmd, "r") : NULL;
+    FILE *pipe = popen(error_cmd, "r");
     char error_output[4096] = {0};
-    if (command_length < 0 || (size_t)command_length >= sizeof(compile_cmd))
-        snprintf(error_output, sizeof(error_output), "I could not represent all module compiler arguments.");
-    int result = -1;
     if (pipe) {
-        /* I retain a bounded diagnostic prefix but drain the entire pipe so
-         * a verbose child cannot block while I wait for its exit status. */
-        char chunk[4096];
-        size_t retained = 0;
-        size_t bytes_read;
-        while ((bytes_read = fread(chunk, 1, sizeof(chunk), pipe)) > 0) {
-            size_t available = sizeof(error_output) - 1 - retained;
-            size_t copied = bytes_read < available ? bytes_read : available;
-            memcpy(error_output + retained, chunk, copied);
-            retained += copied;
-        }
-        error_output[retained] = '\0';
-        bool read_failed = ferror(pipe) != 0;
-        result = pclose(pipe);
-        if (read_failed) result = -1;
-    }
-    if (result == 0 && rename(temp_obj_file, output_obj) != 0) {
-        snprintf(error_output, sizeof(error_output),
-                 "I could not publish the module object: %s", strerror(errno));
-        result = -1;
+        size_t bytes_read = fread(error_output, 1, sizeof(error_output) - 1, pipe);
+        error_output[bytes_read] = '\0';
+        pclose(pipe);
     }
     
+    int result = system(compile_cmd);
+    
     if (result != 0) {
-        remove(temp_obj_file);
         fprintf(stderr, "Error: Failed to compile module '%s' to object file\n", module_path);
         assert(error_output != NULL);
         if (safe_strlen(error_output) > 0) {
@@ -1554,7 +1412,6 @@ bool compile_module_to_object(const char *module_path,
     /* Clean up temporary C file */
     if (!verbose) {
         remove(temp_c_file);
-        rmdir(build_dir);
     } else {
         printf("✓ Compiled module to object file: %s\n", output_obj);
         printf("  C source kept at: %s\n", temp_c_file);
@@ -1623,13 +1480,13 @@ static char* get_module_dir(const char *module_path) {
 }
 
 /* Compile all modules in the list to object files using the module builder */
-bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_buffer, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose) {
-    if (!modules || !module_objs_buffer) {
+bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose) {
+    if (!modules || !module_objs_buffer || buffer_size == 0) {
         return false;
     }
     
     /* Initialize buffers */
-    *module_objs_buffer = NULL;
+    module_objs_buffer[0] = '\0';
     if (compile_flags_buffer && compile_flags_buffer_size > 0) {
         compile_flags_buffer[0] = '\0';
     }
@@ -1679,25 +1536,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                 printf("[Modules] Building C module '%s' (%s)\n", meta->name, module_dir);
             }
             
-            /* I pin one generation per physical foreign module for this link.
-             * Different .nano files in that directory still compile separately. */
-            ModuleBuildInfo *info = NULL;
-            char *physical_dir = realpath(meta->module_dir, NULL);
-            for (int j = 0; physical_dir && j < build_info_count; j++) {
-                if (build_infos[j]->module_dir &&
-                    strcmp(build_infos[j]->module_dir, physical_dir) == 0) {
-                    info = build_infos[j];
-                    break;
-                }
-            }
-            free(physical_dir);
-            if (!info) {
-                info = module_build(builder, meta);
-                if (info) {
-                    build_infos[build_info_count++] = info;
-                    c_modules_built++;
-                }
-            }
+            ModuleBuildInfo *info = module_build(builder, meta);
             if (!info) {
                 fprintf(stderr, "Error: Failed to build module '%s'\n", meta->name);
                 module_metadata_free(meta);
@@ -1710,6 +1549,9 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                 return false;
             }
             
+            build_infos[build_info_count++] = info;
+            c_modules_built++;
+
             /* 
              * IMPORTANT: If the module ALSO has a .nano file with implementations 
              * (not just externs), we must compile it too!
@@ -1759,14 +1601,25 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                     return false;
                 }
                 
-                if (!module_append_unique_object(module_objs_buffer, nano_obj)) {
-                    fprintf(stderr, "I could not represent all module object paths.\n");
-                    module_metadata_free(meta);
-                    free(module_dir);
-                    module_builder_free(builder);
-                    for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
-                    free(build_infos);
-                    return false;
+                /* Check if this object file is already in the buffer (avoid duplicates) */
+                bool already_added = false;
+                if (module_objs_buffer[0] != '\0') {
+                    char *found = strstr(module_objs_buffer, nano_obj);
+                    if (found) {
+                        /* Verify it's a complete match, not a substring */
+                        size_t nano_obj_len = strlen(nano_obj);
+                        if ((found == module_objs_buffer || found[-1] == ' ') &&
+                            (found[nano_obj_len] == '\0' || found[nano_obj_len] == ' ')) {
+                            already_added = true;
+                        }
+                    }
+                }
+                
+                if (!already_added && strlen(module_objs_buffer) + strlen(nano_obj) + 2 < buffer_size) {
+                    if (module_objs_buffer[0] != '\0') {
+                        strcat(module_objs_buffer, " ");
+                    }
+                    strcat(module_objs_buffer, nano_obj);
                 }
             }
             
@@ -1829,13 +1682,25 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             
             nanolang_compiled++;
             
-            if (!module_append_unique_object(module_objs_buffer, obj_file)) {
-                fprintf(stderr, "I could not represent all module object paths.\n");
-                free(module_dir);
-                module_builder_free(builder);
-                for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
-                free(build_infos);
-                return false;
+            /* Add to module_objs buffer (check for duplicates) */
+            bool already_added = false;
+            if (module_objs_buffer[0] != '\0') {
+                char *found = strstr(module_objs_buffer, obj_file);
+                if (found) {
+                    /* Verify it's a complete match, not a substring */
+                    size_t obj_file_len = strlen(obj_file);
+                    if ((found == module_objs_buffer || found[-1] == ' ') &&
+                        (found[obj_file_len] == '\0' || found[obj_file_len] == ' ')) {
+                        already_added = true;
+                    }
+                }
+            }
+            
+            if (!already_added && strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
+                if (module_objs_buffer[0] != '\0') {
+                    strcat(module_objs_buffer, " ");
+                }
+                strcat(module_objs_buffer, obj_file);
             }
         }
         
@@ -1890,14 +1755,11 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                 continue;
             }
             
-            if (!module_append_fragment(module_objs_buffer, link_flags[i])) {
-                fprintf(stderr, "I could not allocate the complete module link closure.\n");
-                for (size_t k = i; k < link_flags_count; k++) free(link_flags[k]);
-                free(link_flags);
-                for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
-                free(build_infos);
-                module_builder_free(builder);
-                return false;
+            if (strlen(module_objs_buffer) + strlen(link_flags[i]) + 2 < buffer_size) {
+                if (module_objs_buffer[0] != '\0') {
+                    strcat(module_objs_buffer, " ");
+                }
+                strcat(module_objs_buffer, link_flags[i]);
             }
             free(link_flags[i]);
         }
@@ -1941,14 +1803,6 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                         strcat(compile_flags_buffer, " ");
                     }
                     strcat(compile_flags_buffer, compile_flags[i]);
-                } else {
-                    fprintf(stderr, "I could not represent all module compile flags.\n");
-                    for (size_t k = i; k < compile_flags_count; k++) free(compile_flags[k]);
-                    free(compile_flags);
-                    for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
-                    free(build_infos);
-                    module_builder_free(builder);
-                    return false;
                 }
                 free(compile_flags[i]);
             }

@@ -4,13 +4,12 @@
 set -e
 
 TESTS_DIR="tests/selfhost"
-NANOC="${NANOLANG_SELFHOST_COMPILER:-${NANOC:-./bin/nanoc_stage1}}"
+NANOC="${NANOC:-./bin/nanoc}"
 LOG_DIR=".test_output/selfhost"
 mkdir -p "$LOG_DIR"
 
 echo "========================================"
 echo "SELF-HOSTED COMPILER TEST SUITE"
-echo "Compiler: $NANOC"
 echo "========================================"
 echo ""
 
@@ -26,7 +25,6 @@ test_arithmetic_ops.nano
 test_comparison_ops.nano
 test_logical_ops.nano
 test_while_loops.nano
-test_loop_control.nano
 test_recursion.nano
 test_function_calls.nano
 test_returned_function_calls.nano
@@ -34,7 +32,6 @@ test_nested_array_indexing.nano
 test_let_set.nano
 test_if_else.nano
 test_match_bindings.nano
-test_match_expression_blocks.nano
 test_infix_ops.nano
 "
 
@@ -62,7 +59,7 @@ for test in $TESTS; do
     
     # Compile (timeout to avoid nanoc infinite loops)
     COMPILE_LOG="$LOG_DIR/$(basename "$test" .nano).compile.log"
-    if perl -e 'alarm 60; exec @ARGV' "$NANOC" "$TEST_PATH" -o "$TEST_BIN" > "$COMPILE_LOG" 2>&1; then
+    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > "$COMPILE_LOG" 2>&1; then
         # Run
         if [ "$test" = "test_returned_function_calls.nano" ]; then
             OUTPUT=$(perl -e 'alarm 60; exec @ARGV' $TEST_BIN 2>&1) || OUTPUT_STATUS=$?
@@ -96,7 +93,7 @@ for test in $NEGATIVE_TESTS; do
 
     printf "Testing %-30s ... " "$test"
 
-    if perl -e 'alarm 60; exec @ARGV' "$NANOC" "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
         echo "❌ FAIL (expected compilation error)"
         FAILED=$((FAILED + 1))
         if [ -f "$TEST_BIN" ]; then
@@ -110,17 +107,7 @@ done
 
 echo ""
 echo "========================================"
-if NANOLANG_SELFHOST_COMPILER="$NANOC" python3 tests/test_selfhost_import_paths.py; then
-    PASSED=$((PASSED + 1))
-else
-    FAILED=$((FAILED + 1))
-fi
-if NANOLANG_SELFHOST_COMPILER="$NANOC" python3 tests/test_selfhost_cli.py; then
-    PASSED=$((PASSED + 1))
-else
-    FAILED=$((FAILED + 1))
-fi
-echo "Results: $PASSED passed, $FAILED failed (including import-path and CLI suites)"
+echo "Results: $PASSED passed, $FAILED failed"
 echo "========================================"
 
 # Cleanup intermediate test binaries

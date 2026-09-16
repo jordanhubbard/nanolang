@@ -31,7 +31,6 @@ fn test_format_no_args() -> bool {
 }
 
 fn main() -> int {
-    assert (format_edges)
     let mut passed: int = 0
     let mut failed: int = 0
 
@@ -83,25 +82,3 @@ fn main() -> int {
 
     return failed
 }
-
-fn format_edges() -> bool {
-    assert (== (format "") "")
-    assert (== (format "%s/%d" "é🙂") "é🙂/%d")
-    assert (== (format "%%s %q %" "value") "%value %q %")
-    assert (== (format "%f %g %s" 3.14 2.5 true) "3.14 2.5 true")
-    assert (== (format "%s" "" 42) "")
-    let mut long_part: string = "x"
-    while (< (str_length long_part) 8192) {
-        set long_part (str_concat long_part long_part)
-    }
-    assert (== (format "[%s]" long_part) (str_concat "[" (str_concat long_part "]")))
-    return true
-}
-
-shadow test_format_string { assert (test_format_string) }
-shadow test_format_int { assert (test_format_int) }
-shadow test_format_float { assert (test_format_float) }
-shadow test_format_multiple { assert (test_format_multiple) }
-shadow test_format_no_args { assert (test_format_no_args) }
-shadow format_edges { assert (format_edges) }
-shadow main { assert (== (main) 0) }

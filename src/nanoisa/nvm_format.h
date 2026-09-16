@@ -126,33 +126,11 @@ typedef struct {
  * by every backend rather than being silently truncated by whichever path
  * happens to have the smallest hand-rolled array.
  *
- * Calls above the small dispatch-table range use typed libffi dispatch.
+ * The value is the maximum arity the FFI dispatch tables provide
+ * (see FFI_Fn0..FFI_Fn10 / FFI_DFn0..FFI_DFn10 in src/nanovm/vm_ffi.c).
  * ======================================================================== */
 
-#define NANO_MAX_FFI_ARGS 16
-
-#define NVM_CALLBACK_ABI_RETAINED_V1 1u
-#define NVM_CALLBACK_NO_PARAMETER UINT16_MAX
-typedef enum {
-    NVM_FOREIGN_OWNER_THREAD = 0,
-    NVM_FOREIGN_WORKER_THREAD = 1
-} NvmForeignExecution;
-
-/* I store callback shapes inline in my execution module; the v2 wire form
- * references SIGNATURES. A NO_PARAMETER record specifies a wait/release
- * adapter's execution policy without claiming a callback argument. */
-typedef struct {
-    uint32_t import_idx;
-    uint32_t adapter_name_idx;
-    uint16_t parameter_idx;
-    uint8_t abi_version;
-    uint8_t execution;
-    uint16_t param_count;
-    uint8_t return_tag;
-    uint8_t param_tags[NANO_MAX_FFI_ARGS];
-} NvmCallbackContract;
-
-bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result);
+#define NANO_MAX_FFI_ARGS 10
 
 /* ========================================================================
  * Import Entry (serialized in IMPORTS section)
@@ -165,11 +143,11 @@ typedef enum {
 } NvmImportKind;
 
 typedef struct {
-    uint32_t module_name_idx;   /* Logical module, or absolute artifact path */
+    uint32_t module_name_idx;   /* String pool index */
     uint32_t function_name_idx; /* String pool index */
     uint16_t param_count;
     uint8_t  return_type;       /* NanoValueTag */
-    uint8_t  kind;              /* NvmImportKind; nonzero requires v2 wire format */
+    uint8_t  kind;              /* NvmImportKind */
     /* Followed by param_count bytes of param type tags */
 } NvmImportEntry;
 
@@ -224,7 +202,6 @@ typedef struct {
 
     /* Function table */
     NvmFunctionEntry *functions;
-    uint8_t **function_param_types; /* Owned tags; NULL entry means unknown. */
     uint32_t function_count;
     uint32_t function_capacity;
 
@@ -244,9 +221,6 @@ typedef struct {
     /* Import table */
     NvmImportEntry *imports;
     uint8_t **import_param_types; /* param type arrays, one per import */
-    NvmCallbackContract *callback_contracts;
-    uint32_t callback_contract_count;
-    uint32_t callback_contract_capacity;
     uint32_t import_count;
     uint32_t import_capacity;
 
@@ -274,20 +248,12 @@ NvmModule *nvm_module_new(void);
 /* Free a module and all its data */
 void nvm_module_free(NvmModule *mod);
 
-/* I return a deduplicated string index, or UINT32_MAX on allocation/input
- * failure. Existing entries remain usable after failed growth. */
+/* Add a string to the string pool. Returns the string index.
+ * Deduplicates: returns existing index if string already present. */
 uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length);
 
 /* Add a function entry. Returns the function index. */
-/* I return UINT32_MAX on failure; entry may borrow an existing table entry. */
 uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry);
-/* I copy exact-arity tags transactionally; failure leaves the old tags intact.
- * TAG_VOID explicitly means unknown, not a callback-compatible scalar. */
-bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
-                                  const uint8_t *tags, uint16_t count);
-/* I append in (import_idx, parameter_idx) order and fail transactionally. */
-bool nvm_add_callback_contract(NvmModule *mod, const NvmCallbackContract *contract);
-bool nvm_callback_contracts_valid(const NvmModule *mod);
 
 /* Append bytecode to the code section. Returns the byte offset where it was written. */
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);
@@ -314,8 +280,7 @@ bool nvm_validate_header(const NvmHeader *header);
 /* Compute CRC32 over a byte range */
 uint32_t nvm_crc32(const uint8_t *data, uint32_t size);
 
-/* I return the import index, or UINT32_MAX on allocation failure; existing
- * entries and their parameter arrays remain usable after failed growth. */
+/* Add an import entry. Returns the import table index. */
 uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
                         uint32_t function_name_idx, uint16_t param_count,
                         uint8_t return_type, const uint8_t *param_types);

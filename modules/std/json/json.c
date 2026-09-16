@@ -6,8 +6,6 @@
 
 #include "cJSON.h"
 
-NANO_EXPORT_ARRAY_ABI(nl_json_object_keys);
-
 static char* nl_strdup_or_empty(const char* s) {
     if (!s) s = "";
     char* out = strdup(s);

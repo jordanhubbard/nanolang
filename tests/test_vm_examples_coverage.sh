@@ -7,9 +7,9 @@
 #
 #   1. The VM source list was assembled from the native build's variables,
 #      which filter on host library availability (SDL2, ncurses, OpenGL,
-#      MuJoCo, Bullet, libuv, libreadline). I now execute dependency shadows
-#      during compilation, including their foreign calls; those libraries must
-#      be installed. An example that is never attempted cannot be skipped,
+#      MuJoCo, Bullet, libuv, libreadline). nano_virt links nothing -- FFI is
+#      resolved at run time by nano_vm's co-process loader -- so those filters
+#      only hid examples. An example that is never attempted cannot be skipped,
 #      so the counter stayed at zero.
 #   2. Nine examples crashed nano_virt outright with SIGSEGV rather than
 #      reporting an error.
@@ -25,13 +25,6 @@ set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
-export PATH="$REPO_ROOT/tests/fixtures/offline_mac:$PATH"
-
-# I apply an opt-in budget only inside this example gate. My supervisor
-# validates the value; other suite processes retain their original deadline.
-if [ "${NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS+x}" = x ]; then
-    export NANO_SHADOW_TIMEOUT_SECONDS="$NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS"
-fi
 
 VM_COMPILER="bin/nano_virt"
 EXAMPLES_DIR="examples"
@@ -119,24 +112,18 @@ skipped=0
 while read -r src; do
     [ -n "$src" ] || continue
     log="$work_dir/build.log"
-    if ("$REPO_ROOT/$VM_COMPILER" "$EXAMPLES_DIR/$src" --emit-nvm \
+    if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$VM_COMPILER" "$src" --emit-nvm \
             -o "$work_dir/out.nvm") > "$log" 2>&1; then
         continue
-    else
-        rc=$?
     fi
+    rc=$?
     reason=$(grep -m1 '^error:' "$log" | sed 's/^error: //')
-    if [ -z "$reason" ]; then
-        reason=$(sed -n '/[^[:space:]]/ { p; q; }' "$log")
-    fi
     if [ -z "$reason" ]; then
         if [ "$rc" -gt 128 ]; then
             reason="nano_virt died on signal $((rc - 128)) with no diagnostic"
         else
             reason="nano_virt exited $rc with no diagnostic"
         fi
-    else
-        reason="exit $rc: $reason"
     fi
     skipped_list="$skipped_list
        $src: $reason"
@@ -167,7 +154,7 @@ now_compiles=""
 while read -r src; do
     [ -n "$src" ] || continue
     [ -f "$EXAMPLES_DIR/$src" ] || continue
-    if ("$REPO_ROOT/$VM_COMPILER" "$EXAMPLES_DIR/$src" --emit-nvm \
+    if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$VM_COMPILER" "$src" --emit-nvm \
             -o "$work_dir/out.nvm") > /dev/null 2>&1; then
         now_compiles="$now_compiles
        $src"
@@ -199,7 +186,7 @@ else
     while read -r src; do
         [ -n "$src" ] || continue
         [ -f "$EXAMPLES_DIR/$src" ] || continue
-        if ("$REPO_ROOT/$NATIVE_COMPILER" "$EXAMPLES_DIR/$src" \
+        if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$NATIVE_COMPILER" "$src" \
                 -o "$work_dir/out_native") > /dev/null 2>&1; then
             native_ok="$native_ok
        $src"

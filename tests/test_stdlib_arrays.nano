@@ -47,13 +47,6 @@ fn test_array_sort() -> int {
 
 shadow test_array_sort {
     assert (== (test_array_sort) 0)
-    let original: array<int> = [3, -1, 3, 0]
-    let sorted: array<int> = (array_sort original)
-    assert (== (array_length sorted) 4)
-    assert (== (at sorted 0) -1)
-    assert (== (at sorted 1) 0)
-    assert (== (at sorted 2) 3)
-    assert (== (at original 0) 3)
 }
 
 fn test_array_reverse() -> int {
@@ -95,12 +88,6 @@ fn test_array_reverse() -> int {
 
 shadow test_array_reverse {
     assert (== (test_array_reverse) 0)
-    let original: array<string> = ["a", "b", "c"]
-    let reversed: array<string> = (array_reverse original)
-    assert (== (array_length reversed) 3)
-    assert (== (at reversed 0) "c")
-    assert (== (at reversed 2) "a")
-    assert (== (at original 0) "a")
 }
 
 fn test_array_contains() -> int {
@@ -132,10 +119,6 @@ fn test_array_contains() -> int {
 
 shadow test_array_contains {
     assert (== (test_array_contains) 0)
-    assert (array_contains [1, 2, 3] 2)
-    assert (not (array_contains [1, 2, 3] 4))
-    let empty: array<int> = []
-    assert (not (array_contains empty 0))
 }
 
 fn test_array_index_of() -> int {
@@ -171,63 +154,12 @@ fn test_array_index_of() -> int {
 
 shadow test_array_index_of {
     assert (== (test_array_index_of) 0)
-    assert (== (array_index_of [2, 1, 2] 2) 0)
-    assert (== (array_index_of [2, 1, 2] 9) -1)
-    let empty: array<int> = []
-    assert (== (array_index_of empty 0) -1)
-}
-
-fn test_literal_arrays() -> int {
-    let float_source: array<float> = [2.5, -1.5, 0.0]
-    let sorted_floats: array<float> = (array_sort float_source)
-    assert (== (at sorted_floats 0) -1.5)
-    assert (== (at sorted_floats 2) 2.5)
-    assert (== (at float_source 0) 2.5)
-    let sorted_words: array<string> = (array_sort ["z", "a", "café"])
-    assert (== (at sorted_words 0) "a")
-    assert (== (at sorted_words 2) "z")
-    let sorted_flags: array<bool> = (array_sort [true, false, true])
-    assert (not (at sorted_flags 0))
-    assert (at sorted_flags 2)
-    let original: array<int> = [3, -1, 3, 0]
-    let sorted: array<int> = (array_sort original)
-    assert (== (array_length sorted) 4)
-    assert (== (at sorted 0) -1)
-    assert (== (at original 0) 3)
-    let words: array<string> = ["a", "b", "c"]
-    let reversed: array<string> = (array_reverse words)
-    assert (== (array_length reversed) 3)
-    assert (== (at reversed 0) "c")
-    assert (== (at words 0) "a")
-    let floats: array<float> = (array_reverse [1.5, 2.5])
-    assert (== (at floats 0) 2.5)
-    let flags: array<bool> = (array_reverse [true, false])
-    assert (not (at flags 0))
-    assert (at flags 1)
-    assert (array_contains original -1)
-    assert (not (array_contains original 9))
-    assert (== (array_index_of original 3) 0)
-    assert (== (array_index_of original 9) -1)
-    let empty: array<int> = []
-    assert (== (array_length (array_sort empty)) 0)
-    assert (not (array_contains empty 0))
-    assert (== (array_index_of empty 0) -1)
-    return 0
-}
-
-shadow test_literal_arrays {
-    assert (== (test_literal_arrays) 0)
 }
 
 fn main() -> int {
-    assert (== (test_literal_arrays) 0)
     let r1: int = (test_array_sort)
     let r2: int = (test_array_reverse)
     let r3: int = (test_array_contains)
     let r4: int = (test_array_index_of)
     return (+ (+ (+ r1 r2) r3) r4)
-}
-
-shadow main {
-    assert (== (main) 0)
 }

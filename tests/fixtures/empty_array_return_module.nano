@@ -1,7 +1,0 @@
-pub fn flags(values: array<bool>) -> array<bool> {
-    return (array_push values true)
-}
-shadow flags {
-    let values: array<bool> = (flags [])
-    assert (at values 0)
-}

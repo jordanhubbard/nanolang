@@ -475,7 +475,7 @@ pub fn opl_compile_ast(ast: Json) -> Json {
 }
 
 shadow opl_compile_ast {
-    let src: string = (read (opl_bundle_path "examples/opl/bundle/EXAMPLES.opl"))
+    let src: string = (read "examples/opl/bundle/EXAMPLES.opl")
     let pr: OplParseResult = (opl_parse src)
     assert pr.ok
     let plan: Json = (opl_compile_ast pr.ast)

@@ -258,6 +258,53 @@ int64_t nl_img_create_texture_from_pixels(SDL_Renderer* renderer, int64_t width,
 }
 
 /* ============================================================================
+ * Batch Operations
+ * ============================================================================ */
+
+/* Load multiple icons into an array (batch loading) */
+void* nl_img_load_icon_batch(SDL_Renderer* renderer, const char** files, int64_t count) {
+    if (!renderer || !files || count <= 0) {
+        return NULL;
+    }
+    
+    int64_t* textures = (int64_t*)malloc(sizeof(int64_t) * count);
+    if (!textures) {
+        return NULL;
+    }
+    
+    for (int64_t i = 0; i < count; i++) {
+        if (files[i]) {
+            SDL_Texture* tex = IMG_LoadTexture(renderer, files[i]);
+            textures[i] = (int64_t)tex;
+            if (!tex) {
+                fprintf(stderr, "nl_img_load_icon_batch: Failed to load '%s': %s\n",
+                        files[i], IMG_GetError());
+            }
+        } else {
+            textures[i] = 0;
+        }
+    }
+    
+    return (void*)textures;
+}
+
+/* Destroy multiple textures (batch cleanup) */
+void nl_img_destroy_texture_batch(int64_t* textures, int64_t count) {
+    if (!textures) {
+        return;
+    }
+    
+    for (int64_t i = 0; i < count; i++) {
+        SDL_Texture* tex = (SDL_Texture*)textures[i];
+        if (tex) {
+            SDL_DestroyTexture(tex);
+        }
+    }
+    
+    free(textures);
+}
+
+/* ============================================================================
  * Utility Functions
  * ============================================================================ */
 
@@ -302,4 +349,16 @@ int64_t nl_img_can_load(const char* file) {
     
     SDL_RWclose(rw);
     return (int64_t)is_valid;
+}
+
+/* Get supported image format extensions as array */
+void* nl_img_get_supported_formats(void) {
+    /* This would return a NanoLang array, but for now return a static list */
+    static const char* formats[] = {
+        "png", "jpg", "jpeg", "bmp", "gif", "tif", "tiff",
+        "webp", "pcx", "tga", "pnm", "xpm", "xcf", "svg",
+        NULL
+    };
+    
+    return (void*)formats;
 }

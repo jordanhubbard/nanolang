@@ -5,7 +5,7 @@ set -u
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-COMPILER="$REPO_ROOT/bin/nanoc_c"
+COMPILER="bin/nanoc_c"
 TIMEOUT_SECONDS="${EXAMPLE_REGRESSION_TIMEOUT:-20}"
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/example_regressions.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
@@ -20,14 +20,13 @@ export NANO_MODULE_PATH="${NANO_MODULE_PATH:-$REPO_ROOT/modules}"
 failures=0
 compile_example() {
     local source="$1"
-    local directory="${2:-$REPO_ROOT}"
     local name="${source##*/}"
     name="${name%.nano}"
     local log="$work_dir/$name.log"
 
     echo "Compiling $source..."
-    if (cd "$directory" && perl -e "alarm $TIMEOUT_SECONDS; exec @ARGV" \
-            "$COMPILER" "$source" -o "$work_dir/$name") >"$log" 2>&1; then
+    if perl -e "alarm $TIMEOUT_SECONDS; exec @ARGV" \
+            "$COMPILER" "$source" -o "$work_dir/$name" >"$log" 2>&1; then
         echo "  ✓ $source"
         return
     else
@@ -47,9 +46,6 @@ compile_example() {
 
 compile_example examples/graphics/sdl_game_of_life.nano
 compile_example examples/audio/sdl_nanoamp.nano
-compile_example audio/sdl_nanoamp.nano "$REPO_ROOT/examples"
-compile_example examples/opl/opl_cli.nano
-compile_example opl/opl_cli.nano "$REPO_ROOT/examples"
 
 if [ "$failures" -ne 0 ]; then
     echo "ERROR: $failures example regression(s) failed"

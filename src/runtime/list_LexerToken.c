@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "list_capacity.h"
 #include "../generated/compiler_schema.h"
 
 /* Note: The actual struct nl_LexerToken definition must be included */
@@ -13,8 +12,18 @@
 
 /* Helper: Ensure the list has enough capacity */
 static void ensure_capacity_LexerToken(List_LexerToken *list, int min_capacity) {
-    int new_capacity = nl_list_grown_capacity(list->capacity, min_capacity, sizeof(*list->data));
-    if (new_capacity == list->capacity) return;
+    if (list->capacity >= min_capacity) {
+        return;
+    }
+    
+    int new_capacity = list->capacity;
+    if (new_capacity == 0) {
+        new_capacity = INITIAL_CAPACITY;
+    }
+    
+    while (new_capacity < min_capacity) {
+        new_capacity *= GROWTH_FACTOR;
+    }
     
     struct nl_LexerToken *new_data = realloc(list->data, sizeof(struct nl_LexerToken) * new_capacity);
     if (!new_data) {
@@ -33,15 +42,14 @@ List_LexerToken* nl_list_LexerToken_new(void) {
 
 /* Create a new list with specified initial capacity */
 List_LexerToken* nl_list_LexerToken_with_capacity(int capacity) {
-    nl_list_validate_capacity(capacity, sizeof(*((List_LexerToken *)0)->data));
     List_LexerToken *list = malloc(sizeof(List_LexerToken));
     if (!list) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = capacity ? malloc(sizeof(*list->data) * (size_t)capacity) : NULL;
-    if (capacity && !list->data) {
+    list->data = malloc(sizeof(struct nl_LexerToken) * capacity);
+    if (!list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
     }
@@ -54,7 +62,7 @@ List_LexerToken* nl_list_LexerToken_with_capacity(int capacity) {
 
 /* Append an element to the end of the list */
 void nl_list_LexerToken_push(List_LexerToken *list, struct nl_LexerToken value) {
-    ensure_capacity_LexerToken(list, nl_list_next_length(list->length));
+    ensure_capacity_LexerToken(list, list->length + 1);
     list->data[list->length] = value;
     list->length++;
 }
@@ -78,7 +86,7 @@ void nl_list_LexerToken_insert(List_LexerToken *list, int index, struct nl_Lexer
         exit(1);
     }
     
-    ensure_capacity_LexerToken(list, nl_list_next_length(list->length));
+    ensure_capacity_LexerToken(list, list->length + 1);
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 

@@ -19,7 +19,6 @@
 #define LINK_ENTRY_BYTES     16
 #define METADATA_ENTRY_BYTES 8
 #define DEBUG_ENTRY_BYTES    16
-#define CALLBACK_ENTRY_BYTES 16
 
 static void wr32(uint8_t *p, uint32_t v) {
     p[0] = (uint8_t)v;         p[1] = (uint8_t)(v >> 8);
@@ -101,64 +100,6 @@ NvmV2Result nvm_v2_imports_encode(const NvmV2Imports *i,
 }
 
 /* ── LINKS ──────────────────────────────────────────────────────────────── */
-
-NvmV2Result nvm_v2_callbacks_decode(const uint8_t *data, size_t size, NvmV2Callbacks *out) {
-    out->items = NULL; out->count = 0;
-    NvmV2Cursor cursor; nvm_v2_cursor_init(&cursor, data, size);
-    uint32_t count;
-    NvmV2Result r = read_count(&cursor, size, CALLBACK_ENTRY_BYTES, &count);
-    if (r != NVM_V2_OK) return r;
-    if (size - cursor.pos != (size_t)count * CALLBACK_ENTRY_BYTES) return NVM_V2_ERR_SECTION_RANGE;
-    NvmV2Callback *items = count ? calloc(count, sizeof(*items)) : NULL;
-    if (count && !items) return NVM_V2_ERR_TRUNCATED;
-    for (uint32_t i = 0; i < count; i++) {
-        NvmV2Callback *c = &items[i];
-        if ((r = nvm_v2_u32(&cursor, &c->import_idx)) != NVM_V2_OK ||
-            (r = nvm_v2_u16(&cursor, &c->parameter_idx)) != NVM_V2_OK ||
-            (r = nvm_v2_u8(&cursor, &c->abi_version)) != NVM_V2_OK ||
-            (r = nvm_v2_u8(&cursor, &c->execution)) != NVM_V2_OK ||
-            (r = nvm_v2_u32(&cursor, &c->signature_idx)) != NVM_V2_OK ||
-            (r = nvm_v2_u32(&cursor, &c->adapter_name_idx)) != NVM_V2_OK) goto fail;
-        if (c->abi_version != NVM_CALLBACK_ABI_RETAINED_V1 || c->execution > NVM_FOREIGN_WORKER_THREAD) {
-            r = NVM_V2_ERR_RESERVED_FLAGS; goto fail;
-        }
-        if (i && (c->import_idx < items[i - 1].import_idx ||
-            (c->import_idx == items[i - 1].import_idx && c->parameter_idx <= items[i - 1].parameter_idx))) {
-            r = NVM_V2_ERR_INDEX_RANGE; goto fail;
-        }
-    }
-    out->items = items; out->count = count;
-    return NVM_V2_OK;
-fail:
-    free(items);
-    return r;
-}
-
-void nvm_v2_callbacks_free(NvmV2Callbacks *callbacks) {
-    if (!callbacks) return;
-    free(callbacks->items);
-    callbacks->items = NULL; callbacks->count = 0;
-}
-
-size_t nvm_v2_callbacks_encoded_size(const NvmV2Callbacks *callbacks) {
-    return 4 + (size_t)callbacks->count * CALLBACK_ENTRY_BYTES;
-}
-
-NvmV2Result nvm_v2_callbacks_encode(const NvmV2Callbacks *callbacks, uint8_t *out, size_t size) {
-    size_t need = nvm_v2_callbacks_encoded_size(callbacks);
-    if (size < need) return NVM_V2_ERR_TRUNCATED;
-    wr32(out, callbacks->count);
-    for (uint32_t i = 0; i < callbacks->count; i++) {
-        const NvmV2Callback *c = &callbacks->items[i];
-        uint8_t *p = out + 4 + (size_t)i * CALLBACK_ENTRY_BYTES;
-        wr32(p, c->import_idx);
-        p[4] = (uint8_t)c->parameter_idx; p[5] = (uint8_t)(c->parameter_idx >> 8);
-        p[6] = c->abi_version; p[7] = c->execution;
-        wr32(p + 8, c->signature_idx);
-        wr32(p + 12, c->adapter_name_idx);
-    }
-    return NVM_V2_OK;
-}
 
 NvmV2Result nvm_v2_links_decode(const uint8_t *data, size_t size,
                                 NvmV2Links *out) {

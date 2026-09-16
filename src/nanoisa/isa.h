@@ -14,8 +14,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define NVM_MAX_GLOBALS 4096
-
 /* ========================================================================
  * Value Type Tags
  * Each value on the stack carries a 1-byte type tag.
@@ -178,10 +176,6 @@ typedef enum {
     OP_PRINT      = 0xA0,   /* pop value, print to stdout (no newline) */
     OP_ASSERT     = 0xA1,   /* pop bool, abort if false */
     OP_DEBUG_LINE = 0xA2,   /* operand: u32 source line number */
-    OP_HANDLER_PUSH = 0xa5, /* operation:u32 target:i32 params_start:u16 argc:u16 */
-    OP_HANDLER_POP = 0xa6, /* count:u16; remove this frame's handlers */
-    OP_PERFORM = 0xa7, /* operation:u32 argc:u16; args -> one result */
-    OP_EFFECT_RESUME = 0xa8, /* result -> suspended perform continuation */
     OP_HALT       = 0xA3,   /* stop execution */
     OP_PRINTLN    = 0xA4,   /* pop value, print to stdout with newline */
 

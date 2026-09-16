@@ -72,6 +72,7 @@ Environment *create_environment(void) {
     
     env->builtins_registered = false;
     env->effect_registry = NULL;
+    env->checking_types = false;
 
     return env;
 }
@@ -223,8 +224,6 @@ void free_environment(Environment *env) {
     /* Free namespaces */
     for (int i = 0; i < env->namespace_count; i++) {
         free(env->namespaces[i].alias);
-        free(env->namespaces[i].owner_module);
-        free(env->namespaces[i].module_name);
         for (int j = 0; j < env->namespaces[i].function_count; j++) {
             free(env->namespaces[i].function_names[j]);
         }
@@ -296,10 +295,6 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
-    if (value.type == VAL_STRUCT && value.as.struct_val) {
-        StructValue *sv = value.as.struct_val;
-        value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
-    }
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
@@ -313,15 +308,13 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.type_info = type_info;  /* Store full type info for complex types (tuples, etc.) */
     sym.is_mut = is_mut;
     sym.value = value;
-    sym.is_global = false;
     sym.is_used = false;  /* Initialize as unused */
     sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
     sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */
     sym.from_c_header = false;  /* Not from C header (normal nanolang variable) */
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
-    sym.scope_end_line = 0;
-    sym.scope_end_column = 0;
+    sym.checker_visible = true;
     sym.def_file = env->current_file;   /* NULL when no file is in scope */
 
     /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
@@ -405,6 +398,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         Symbol *sym = &env->symbols[i];
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
+        if (env->checking_types && !sym->checker_visible) continue;
 
         int sline = sym->def_line;
         int scol = sym->def_column;
@@ -428,9 +422,6 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 
         if (sline > line) continue;
         if (sline == line && column > 0 && scol > column) continue;
-        if (sym->scope_end_line > 0 &&
-            (line > sym->scope_end_line ||
-             (line == sym->scope_end_line && column >= sym->scope_end_column))) continue;
 
         return sym;
     }
@@ -440,11 +431,9 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         Symbol *sym = &env->symbols[i];
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
+        if (env->checking_types && !sym->checker_visible) continue;
 
         if (sym->def_line > 0) continue;
-        if (sym->scope_end_line > 0 &&
-            (line > sym->scope_end_line ||
-             (line == sym->scope_end_line && column >= sym->scope_end_column))) continue;
 
         best_unknown = sym;
         break;
@@ -457,12 +446,6 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
-        /* I copy before releasing the old binding, including self-assignment
-         * and a record field borrowed from that binding. */
-        if (value.type == VAL_STRUCT && value.as.struct_val) {
-            StructValue *sv = value.as.struct_val;
-            value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
-        }
         env_free_value(sym->value);
         sym->value = value;
 
@@ -529,11 +512,6 @@ void env_define_function(Environment *env, Function func) {
     }
 }
 
-static bool namespace_owned_by(const ModuleNamespace *ns, const char *owner) {
-    return (!ns->owner_module && !owner) ||
-           (ns->owner_module && owner && strcmp(ns->owner_module, owner) == 0);
-}
-
 /* Get function */
 Function *env_get_function(Environment *env, const char *name) {
     if (!name) {
@@ -554,8 +532,7 @@ Function *env_get_function(Environment *env, const char *name) {
         
         /* Find namespace */
         for (int i = 0; i < env->namespace_count; i++) {
-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 /* Check if function is in this namespace */
                 for (int j = 0; j < env->namespaces[i].function_count; j++) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
@@ -563,10 +540,9 @@ Function *env_get_function(Environment *env, const char *name) {
                         const char *orig_mod = env->namespaces[i].module_name;
                         for (int k = 0; k < env->function_count; k++) {
                             if (safe_strcmp(env->functions[k].name, func_name) == 0) {
-                                /* I bind a qualified name only to its namespace owner. */
-                                if ((!orig_mod && !env->functions[k].module_name) ||
-                                    (orig_mod && env->functions[k].module_name &&
-                                     strcmp(env->functions[k].module_name, orig_mod) == 0)) {
+                                /* If module name matches, or if one is NULL (global/builtin) */
+                                if (!orig_mod || !env->functions[k].module_name ||
+                                    strcmp(env->functions[k].module_name, orig_mod) == 0) {
                                     return &env->functions[k];
                                 }
                             }
@@ -605,12 +581,11 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* Check user-defined functions */
     /* First pass: prefer functions in the current module */
-    {
+    if (env->current_module) {
         for (int i = 0; i < env->function_count; i++) {
             if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
-                if ((!env->current_module && !env->functions[i].module_name) ||
-                    (env->current_module && env->functions[i].module_name &&
-                     strcmp(env->functions[i].module_name, env->current_module) == 0)) {
+                if (env->functions[i].module_name && 
+                    strcmp(env->functions[i].module_name, env->current_module) == 0) {
                     return &env->functions[i];
                 }
             }
@@ -711,7 +686,6 @@ Value create_array(ValueType elem_type, int length, int capacity) {
         case VAL_FLOAT:  elem_size = sizeof(double); break;
         case VAL_BOOL:   elem_size = sizeof(bool); break;
         case VAL_STRING: elem_size = sizeof(char*); break;
-        case VAL_ARRAY:  elem_size = sizeof(Value); break;
         default:         elem_size = sizeof(void*); break;
     }
     v.as.array_val->data = calloc(v.as.array_val->capacity, elem_size);
@@ -741,10 +715,6 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
         if (field_values[i].type == VAL_STRING) {
             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
             v.as.struct_val->field_values[i] = create_string(src);
-        } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
-            StructValue *nested = field_values[i].as.struct_val;
-            v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
-                nested->field_names, nested->field_values, nested->field_count);
         } else {
             v.as.struct_val->field_values[i] = field_values[i];
         }
@@ -776,17 +746,7 @@ Value create_union(const char *union_name, int variant_index, const char *varian
         /* Allocate and copy field values */
         v.as.union_val->field_values = malloc(sizeof(Value) * field_count);
         for (int i = 0; i < field_count; i++) {
-            /* My payload outlives the constructing function's local strings. */
-            if (field_values[i].type == VAL_STRING) {
-                v.as.union_val->field_values[i] = create_string(
-                    field_values[i].as.string_val ? field_values[i].as.string_val : "");
-            } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
-                StructValue *nested = field_values[i].as.struct_val;
-                v.as.union_val->field_values[i] = create_struct(nested->struct_name,
-                    nested->field_names, nested->field_values, nested->field_count);
-            } else {
-                v.as.union_val->field_values[i] = field_values[i];
-            }
+            v.as.union_val->field_values[i] = field_values[i];
         }
     } else {
         v.as.union_val->field_names = NULL;
@@ -835,8 +795,7 @@ StructDef *env_get_struct(Environment *env, const char *name) {
         
         /* Find namespace */
         for (int i = 0; i < env->namespace_count; i++) {
-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 /* Check if struct is in this namespace */
                 for (int j = 0; j < env->namespaces[i].struct_count; j++) {
                     if (strcmp(env->namespaces[i].struct_names[j], type_name) == 0) {
@@ -929,8 +888,7 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         const char *type_name = dot + 1;
         
         for (int i = 0; i < env->namespace_count; i++) {
-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].enum_count; j++) {
                     if (strcmp(env->namespaces[i].enum_names[j], type_name) == 0) {
                         /* Look up the actual enum by its original name AND module name */
@@ -1018,8 +976,7 @@ UnionDef *env_get_union(Environment *env, const char *name) {
         const char *type_name = dot + 1;
         
         for (int i = 0; i < env->namespace_count; i++) {
-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].union_count; j++) {
                     if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
                         /* Look up the actual union by its original name AND module name */
@@ -1557,8 +1514,7 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     
     /* Check if alias already exists */
     for (int i = 0; i < env->namespace_count; i++) {
-        if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-            strcmp(env->namespaces[i].alias, alias) == 0) {
+        if (strcmp(env->namespaces[i].alias, alias) == 0) {
             /* Namespace already registered */
             return;
         }
@@ -1573,7 +1529,6 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     /* Register the namespace */
     ModuleNamespace *ns = &env->namespaces[env->namespace_count++];
     ns->alias = strdup(alias);
-    ns->owner_module = env->current_module ? strdup(env->current_module) : NULL;
     ns->module_name = module_name ? strdup(module_name) : NULL;
     ns->function_names = function_names;
     ns->function_count = function_count;

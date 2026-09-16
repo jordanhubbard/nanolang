@@ -1,22 +1,5 @@
 # Boolean scalar tags
 
-## Integration status, 2026-09-16
-
-I retain the original implementation checkpoint below as historical evidence.
-Its unsupported-global and uninitialized-local boundaries no longer describe
-my release candidate: I now preserve tagged void locals and support native
-global storage. The old check counts and MAC availability observation apply
-only to that checkpoint.
-
-I reconciled main commit `feb298be` (PR #353) with release `0ec585e8`.
-My release already contained its boolean shape and tag implementation, along
-with stronger tagged storage and dynamic representation handling. I retained
-those implementations and added the incoming compact scalar-tag regression,
-including the missing-map-value versus integer-zero assertion. I retained the
-larger existing boolean producer, conversion and shape test matrices.
-
-## Original implementation checkpoint
-
 I now distinguish boolean and integer representation facts even though both
 use C integer temporary storage. My shape graph also keeps the two kinds
 distinct. Boolean constants, comparisons, predicates, map presence checks and

@@ -17,7 +17,7 @@ shadow double {
 }
 ```
 
-During ordinary compilation I run dependency shadows before root shadows. My C seed uses a supervised interpreter child, selecting the shared VM bridge for imported callback shadows. My bytecode CLI executes a separate verified test module; my self-hosted native driver uses a separate test executable. `--root-shadows-only` narrows the selection. Source-only C emission does not run shadows. Deadlines supervise execution; they are not a security sandbox. A shadow tests the cases it executes; it does not prove the function for every input.
+During ordinary compilation I execute shadows in the host interpreter. Generated native programs also contain their shadow harness. A shadow tests the cases it executes; it does not prove the function for every input.
 
 Compiler enforcement and project policy differ:
 

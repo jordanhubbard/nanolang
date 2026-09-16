@@ -331,7 +331,7 @@ let handle: opaque = (null_opaque)
 
 ---
 
-## String Operations (20)
+## String Operations (19)
 
 ### `str_length(s: string) -> int`
 I return the length of a string in bytes.
@@ -423,17 +423,6 @@ I return the byte index of the first occurrence of `needle` in `haystack`, or `-
 (str_index_of "hello" "x")           # Returns -1
 ```
 
-### `str_last_index_of(haystack: string, needle: string) -> int`
-I return the byte index of the last occurrence, including overlapping matches,
-or `-1` when no match exists. An empty needle matches at the byte length.
-I search NUL-terminated strings, not Unicode character positions.
-
-```nano
-(str_last_index_of "ababa" "aba") # Returns 2
-(str_last_index_of "abc" "")      # Returns 3
-(str_last_index_of "abc" "x")     # Returns -1
-```
-
 ### `str_trim(s: string) -> string`
 I return a copy of `s` with leading and trailing whitespace (space, tab, newline, carriage return) removed.
 
@@ -505,14 +494,6 @@ set parts (array_push parts "c")
 
 ### `format(template: string, args: any...) -> string`
 I am variadic. I substitute each `%s`, `%d`, `%f`, or `%g` placeholder in `template` with the next argument, converted to its string form. I copy any placeholder left over after the arguments run out verbatim, and I require at least the template argument.
-
-My C-seed and NanoVirt frontends reject a non-string template during
-typechecking. My VM converts arguments to strings and calls a runtime scanner
-through a fixed string-array ABI. This is interpolation, not printf: `%f`
-does not request fixed decimal precision, and `%%` has no special escape rule.
-I evaluate extra arguments but do not substitute them after the template ends.
-Cross-backend conversion parity remains unfinished: whole floats have different
-decimal suffixes, and aggregate substitutions lack a consistent contract.
 
 ```nano
 (format "Hello, %s!" "world")            # Returns "Hello, world!"
@@ -622,11 +603,6 @@ I convert a lowercase letter code to uppercase. I leave non-letters unchanged.
 
 ### `at(arr: array<T>, index: int) -> T`
 I return the element at the specified 0-based index. I perform bounds-checking and terminate with an error if the index is out of bounds.
-
-My C-seed and NanoVirt frontends require exactly two arguments: an array and
-an integer index (`int` or `u8`). I reject strings, floats and booleans as
-indices during typechecking, before publishing native or bytecode output.
-The same rule applies to `array_get`.
 
 ```nano
 let nums: array<int> = [1, 2, 3, 4, 5]
@@ -751,12 +727,7 @@ let sum: int = (array_fold nums 0 add)
 ```
 
 ### `array_sort(arr: array<T>) -> array<T>`
-I return a new array, leaving the source unchanged. My C-seed interpreter,
-native emitter and VM share scalar ordering: `int`, `u8` and `float` ascend,
-`false` precedes `true`, and strings compare bytewise. Float NaNs sort last;
-equal elements have no stable-order guarantee. My runtime rejects unsupported
-element layouts instead of returning an unsorted copy. Complete compile-time
-diagnostics and self-hosted-driver parity remain separate acceptance work.
+I return a new array with the elements sorted in ascending order. I sort arrays of `int`; I return an unmodified copy for other element types.
 
 ```nano
 let nums: array<int> = [3, 1, 2]
@@ -1043,33 +1014,18 @@ let r2: Result<float, string> = (result_and_then r safe_sqrt)
 ## File I/O (8)
 
 ### `file_read(path: string) -> string`
-
-I read text without seeking. My C-seed interpreter, native helper, VM bridge
-and `std/fs.read` share the reader. Open, read and close failures return empty
-text, as does embedded NUL data that my current string API cannot represent
-without truncation. Use `file_read_bytes` for binary input. Empty files and
-these failures are not distinguishable through this API. I do not impose a
-size limit or read deadline, or validate UTF-8. Foreign-string ownership remains
-a separate runtime boundary.
+I read the entire contents of a file and return them as a string. I return an empty string on error.
 
 ```nano
-module "modules/std/fs.nano" as fs
-let content: string = (fs.read "data.txt")
+let content: string = (file_read "data.txt")
 (println content)
 ```
 
-I expose the public wrapper as `fs.read`; `file_read` is its foreign boundary.
-
-### `file_read_bytes(path: string) -> array<u8>`
-
-I read binary contents into byte-typed storage, including zero bytes. My C-seed
-interpreter, native emitter and VM bridge share a streaming reader that does
-not seek. An open, read or close failure returns an empty array; a read or close
-failure discards partial contents. Empty files and failures are therefore not
-distinguishable through this API. I do not impose a size limit or read deadline.
+### `file_read_bytes(path: string) -> array<int>`
+I read file contents as an array of byte values (0–255). I recommend this for binary files.
 
 ```nano
-let data: array<u8> = (file_read_bytes "image.png")
+let data: array<int> = (file_read_bytes "image.png")
 let size: int = (array_length data)
 ```
 
@@ -1303,21 +1259,12 @@ let status: int = (setenv "MY_VAR" "my_value")
 ```
 
 ### `process_run(command: string) -> array<string>`
-I execute shell code through `/bin/sh -c` and return exactly three strings:
-`[exit_code, stdout, stderr]`. I preserve complete text streams, including
-newlines. My module, interpreter, native and VM paths share file-backed capture
-so one full output pipe cannot block draining the other. Commands are passed
-without a fixed-size command buffer; the host's argument limit still applies.
-Shell launch failure returns `127`; capture failures and signal termination
-return `-1`. I reject embedded NUL output rather than silently truncating it.
-I do not impose a command deadline or output-storage quota here. This API
-executes shell syntax; callers must quote untrusted arguments as data.
+I execute a command and return its output as an array of strings. The first element is the exit code as a string, and subsequent elements are lines of stdout.
 
 ```nano
 let result: array<string> = (process_run "echo hello")
 let code: string = (at result 0)     # "0" (exit code)
-let output: string = (at result 1)   # "hello\n"
-let errors: string = (at result 2)   # ""
+let line: string = (at result 1)     # "hello"
 ```
 
 ---

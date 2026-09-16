@@ -74,39 +74,3 @@ Three files serve different jobs:
 | `module.manifest.json` | Discovery metadata, stability, capabilities, and examples |
 
 `module.json` stays build metadata. Isolation, restart, budgets, and required capabilities live on `module.manifest.json` in a portable `nsi` block. See [Secure Runtime](08_secure_runtime.md) and the generated [module inventory](../generated/modules.md) for what exists now.
-
-For Clang and GCC C builds admitted to my retained-input path, failed capture
-stops the build before final object compilation. GCC must retain assembler reads
-as well as preprocessed C; Clang's external-assembler mode has the same rule.
-I preserve the previous successful generation and report capture diagnostics.
-Check missing inputs, assembler support, and tool failures before retrying.
-On supported Linux GNU assembler versions, macro reads can require my installed
-`nano_as_capture.so` beside the driver. `NANO_AS_CAPTURE_HELPER` selects another
-copy; a missing helper is a build failure when literal capture cannot suffice.
-I admit literal assembler include paths through `-Wa,-I,dir`, `-Wa,-Idir`,
-`-Xassembler -I -Xassembler dir`, and `-Xassembler -Idir`. I preserve their
-order across package, common, and platform C flags. Paired forms can occupy
-one fragment or adjacent entries in the same flag group; I join literal
-fragments before selecting compiler phases, regardless of argument-list size.
-Quote paths containing spaces; use `-Xassembler` for paths containing commas.
-I do not rebase `-I` operands forwarded to the assembler or linker as C header
-paths. I keep these arguments out of separate C preprocessing and link-only
-jobs. Integrated Clang capture
-preserves the native driver's C-header search order as well as assembler
-lookup. This does not admit arbitrary `-Wa` options or extend the supported
-compiler/assembler versions.
-For supported GNU assemblers, I also capture alternate-macro inputs selected
-by `-Wa,--alternate` or `-Xassembler --alternate`, including combinations with
-assembler include paths. I keep this grammar selector in assembler phases,
-not separate C preprocessing or link-only jobs. Apple Clang rejects this GNU
-option; admitting its spelling does not add support to that backend.
-With GCC or Clang's explicit external-assembler mode, I also retain `.s` and
-`.S` sources alongside C sources, including shared-only assembler inputs.
-I copy raw `.s` bytes without preprocessing where the driver treats them as
-raw. Apple Clang preprocesses lowercase `.s` too; I preserve that default.
-I preprocess `.S` as assembler, then apply the selected assembler's capture
-path. Raw roots get explicit
-dependency records; nested assembler reads remain part of capture evidence.
-Integrated-Clang assembler translation-unit capture remains unfinished.
-Source and flag modes outside this path retain their existing compatibility
-behavior; they have no retained-input guarantee.

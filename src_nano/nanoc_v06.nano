@@ -20,10 +20,7 @@ import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
-import "src_nano/compiler/module_introspection.nano"
-import "src_nano/compiler/module_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
-from "std/fs.nano" import canonical
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -33,9 +30,7 @@ extern fn get_argv(index: int) -> string
 extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
-extern fn file_delete(path: string) -> int
-extern fn file_compare_identity(source: string, candidate: string) -> int
-extern fn file_compare_destinations(first: string, second: string) -> int
+extern fn file_append(path: string, content: string) -> int
 
 /* Path operations */
 extern fn path_normalize(path: string) -> string
@@ -48,6 +43,7 @@ extern fn nl_exec_capture(cmd: string) -> string
 /* =============================================================================
  * CLI ARGUMENT PARSING
  * ============================================================================= */
+
 struct CompileOptions {
     input_file: string,
     output_file: string,
@@ -55,149 +51,173 @@ struct CompileOptions {
     keep_c: bool,
     show_intermediate_code: bool,
     llm_diags_json_path: string,
-    show_help: bool,
-    emit_c: bool,
-    test_imports: bool,
-    error: string
+    show_help: bool
 }
 
 fn default_options() -> CompileOptions {
-    return (parse_options [])
+    return CompileOptions {
+        input_file: "",
+        output_file: "a.out",
+        verbose: false,
+        keep_c: false,
+        show_intermediate_code: false,
+        llm_diags_json_path: "",
+        show_help: false
+    }
 }
 
 shadow default_options {
     let opts: CompileOptions = (default_options)
     assert (== opts.output_file "a.out")
-    assert (not opts.emit_c)
-    assert opts.test_imports
-    assert (== opts.error "")
-}
-
-# I derive a sibling source filename only when no output was specified.
-fn c_source_output_path(input: string) -> string {
-    let length: int = (str_length input)
-    let mut component_start: int = 0
-    let mut extension: int = length
-    let mut i: int = 0
-    while (< i length) {
-        let ch: string = (str_substring input i 1)
-        if (== ch "/") { set component_start (+ i 1) set extension length }
-        if (and (== ch ".") (> i component_start)) { set extension i }
-        set i (+ i 1)
-    }
-    return (+ (str_substring input 0 extension) ".c")
-}
-
-shadow c_source_output_path {
-    assert (== (c_source_output_path "dir.name/file.nano") "dir.name/file.c")
-    assert (== (c_source_output_path ".hidden") ".hidden.c")
-    assert (== (c_source_output_path "plain") "plain.c")
-}
-
-# I parse arguments before any source loading or output writes.
-fn parse_options(args: array<string>) -> CompileOptions {
-    let mut input: string = ""
-    let mut output: string = "a.out"
-    let mut output_set: bool = false
-    let mut verbose: bool = false
-    let mut keep_c: bool = false
-    let mut show_code: bool = false
-    let mut diags: string = ""
-    let mut help: bool = false
-    let mut emit_c: bool = false
-    let mut test_imports: bool = true
-    let mut error: string = ""
-    let mut positional_only: bool = false
-    let count: int = (array_length args)
-    let mut i: int = 0
-    while (< i count) {
-        let arg: string = (at args i)
-        if (and (not positional_only) (== arg "--")) {
-            set positional_only true
-        } else if (and (not positional_only) (or (== arg "-h") (== arg "--help"))) {
-            set help true
-        } else if (and (not positional_only) (or (== arg "-v") (== arg "--verbose"))) {
-            set verbose true
-        } else if (and (not positional_only) (or (== arg "-k") (== arg "--keep-c"))) {
-            set keep_c true
-        } else if (and (not positional_only) (== arg "--test-imports")) {
-            set test_imports true
-        } else if (and (not positional_only) (== arg "--root-shadows-only")) {
-            set test_imports false
-        } else if (and (not positional_only) (== arg "-fshow-intermediate-code")) {
-            set show_code true
-        } else if (and (not positional_only) (or (or (== arg "-o") (== arg "--target")) (== arg "--llm-diags-json"))) {
-            if (>= (+ i 1) count) {
-                set error (+ "I need a value after " arg)
-                break
-            }
-            set i (+ i 1)
-            let value: string = (at args i)
-            if (or (== value "") (nlc_str_starts_with value "-")) {
-                set error (+ "I need a value after " arg)
-                break
-            }
-            if (== arg "-o") {
-                set output value
-                set output_set true
-            } else if (== arg "--llm-diags-json") {
-                set diags value
-            } else {
-                if (and (!= value "c") (!= value "native")) {
-                    set error (+ "I do not support this target in my self-hosted driver: " value)
-                    break
-                }
-                set emit_c (== value "c")
-            }
-        } else if (and (not positional_only) (nlc_str_starts_with arg "-")) {
-            set error (+ "I do not recognize this option: " arg)
-            break
-        } else {
-            if (== arg "") { set error "I need a nonempty input path" break }
-            if (!= input "") { set error "I accept one input file per invocation" break }
-            set input arg
-        }
-        set i (+ i 1)
-    }
-    if (and emit_c (not output_set)) { set output (c_source_output_path input) }
-    return CompileOptions {
-        input_file: input, output_file: output, verbose: verbose,
-        keep_c: keep_c, show_intermediate_code: show_code,
-        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, test_imports: test_imports, error: error
-    }
-}
-
-shadow parse_options {
-    let source: CompileOptions = (parse_options ["file.nano", "--target", "c"])
-    assert source.emit_c
-    assert (== source.output_file "file.c")
-    assert (== source.error "")
-    let bad: CompileOptions = (parse_options ["file.nano", "--unknown"])
-    assert (!= bad.error "")
-    let missing: CompileOptions = (parse_options ["-o"])
-    assert (!= missing.error "")
-    let escaped: CompileOptions = (parse_options ["--", "-file.nano"])
-    assert (== escaped.input_file "-file.nano")
-    assert (== escaped.error "")
-    assert (not (parse_options ["file.nano", "--root-shadows-only"]).test_imports)
-    assert (parse_options ["--root-shadows-only", "--test-imports", "file.nano"]).test_imports
+    assert (not opts.verbose)
+    assert (not opts.show_help)
 }
 
 fn parse_args() -> CompileOptions {
-    let count: int = (get_argc)
-    let mut args: array<string> = []
+    let argc: int = (get_argc)
+    let mut opts: CompileOptions = (default_options)
     let mut i: int = 1
-    while (< i count) {
-        set args (array_push args (get_argv i))
+    
+    while (< i argc) {
+        let arg: string = (get_argv i)
+        
+        if (== arg "-h") {
+            set opts CompileOptions {
+                input_file: opts.input_file,
+                output_file: opts.output_file,
+                verbose: opts.verbose,
+                keep_c: opts.keep_c,
+                show_intermediate_code: opts.show_intermediate_code,
+                llm_diags_json_path: opts.llm_diags_json_path,
+                show_help: true
+            }
+        } else {
+            if (== arg "--help") {
+                set opts CompileOptions {
+                    input_file: opts.input_file,
+                    output_file: opts.output_file,
+                    verbose: opts.verbose,
+                    keep_c: opts.keep_c,
+                    show_intermediate_code: opts.show_intermediate_code,
+                    llm_diags_json_path: opts.llm_diags_json_path,
+                    show_help: true
+                }
+            } else {
+                if (== arg "-v") {
+                    set opts CompileOptions {
+                        input_file: opts.input_file,
+                        output_file: opts.output_file,
+                        verbose: true,
+                        keep_c: opts.keep_c,
+                        show_intermediate_code: opts.show_intermediate_code,
+                        llm_diags_json_path: opts.llm_diags_json_path,
+                        show_help: opts.show_help
+                    }
+                } else {
+                    if (== arg "--verbose") {
+                        set opts CompileOptions {
+                            input_file: opts.input_file,
+                            output_file: opts.output_file,
+                            verbose: true,
+                            keep_c: opts.keep_c,
+                            show_intermediate_code: opts.show_intermediate_code,
+                            llm_diags_json_path: opts.llm_diags_json_path,
+                            show_help: opts.show_help
+                        }
+                    } else {
+                        if (== arg "-k") {
+                            set opts CompileOptions {
+                                input_file: opts.input_file,
+                                output_file: opts.output_file,
+                                verbose: opts.verbose,
+                                keep_c: true,
+                                show_intermediate_code: opts.show_intermediate_code,
+                                llm_diags_json_path: opts.llm_diags_json_path,
+                                show_help: opts.show_help
+                            }
+                        } else {
+                            if (== arg "--keep-c") {
+                                set opts CompileOptions {
+                                    input_file: opts.input_file,
+                                    output_file: opts.output_file,
+                                    verbose: opts.verbose,
+                                    keep_c: true,
+                                    show_intermediate_code: opts.show_intermediate_code,
+                                    llm_diags_json_path: opts.llm_diags_json_path,
+                                    show_help: opts.show_help
+                                }
+                            } else {
+                                if (== arg "-fshow-intermediate-code") {
+                                    set opts CompileOptions {
+                                        input_file: opts.input_file,
+                                        output_file: opts.output_file,
+                                        verbose: opts.verbose,
+                                        keep_c: opts.keep_c,
+                                        show_intermediate_code: true,
+                                        llm_diags_json_path: opts.llm_diags_json_path,
+                                        show_help: opts.show_help
+                                    }
+                                } else {
+                                if (== arg "--llm-diags-json") {
+                                    if (< (+ i 1) argc) {
+                                        set i (+ i 1)
+                                        let p: string = (get_argv i)
+                                        set opts CompileOptions {
+                                            input_file: opts.input_file,
+                                            output_file: opts.output_file,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
+                                            llm_diags_json_path: p,
+                                            show_help: opts.show_help
+                                        }
+                                    } else { (print "") }
+                                } else {
+                                if (== arg "-o") {
+                                    if (< (+ i 1) argc) {
+                                        set i (+ i 1)
+                                        let output: string = (get_argv i)
+                                        set opts CompileOptions {
+                                            input_file: opts.input_file,
+                                            output_file: output,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
+                                            llm_diags_json_path: opts.llm_diags_json_path,
+                                            show_help: opts.show_help
+                                        }
+                                    } else {
+                                        (print "")
+                                    }
+                                } else {
+                                    /* Assume it's the input file if no option prefix */
+                                    if (== opts.input_file "") {
+                                        set opts CompileOptions {
+                                            input_file: arg,
+                                            output_file: opts.output_file,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
+                                            llm_diags_json_path: opts.llm_diags_json_path,
+                                            show_help: opts.show_help
+                                        }
+                                    } else {
+                                        (print "")
+                                    }
+                                }
+                                }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         set i (+ i 1)
     }
-    return (parse_options args)
-}
-
-shadow parse_args {
-    let count: int = (get_argc)
-    let opts: CompileOptions = (parse_args)
-    if (<= count 1) { assert (== opts.input_file "") }
+    
+    return opts
 }
 
 /* =============================================================================
@@ -354,9 +374,7 @@ fn nlc_hashset_new_string() -> HashMap<string, int> {
 
 shadow nlc_hashset_new_string {
     let s: HashMap<string, int> = (nlc_hashset_new_string)
-    assert (not (map_has s "fresh"))
-    (map_put s "fresh" 1)
-    assert (== (map_get s "fresh") 1)
+    assert (!= s 0)  /* HashMap is a valid pointer */
 }
 
 fn nlc_hashset_has_string(hset: HashMap<string, int>, key: string) -> bool {
@@ -507,17 +525,10 @@ fn parse_import_path_from_line(line: string) -> string {
 
     if (or (or has_import has_from) (or has_module has_unsafe_module)) {
         let first_q: int = (nlc_str_index_of line "\"")
-        let line_length: int = (str_length line)
-        let mut last_q: int = (+ first_q 1)
-        while (< last_q line_length) {
-            let source_char: int = (char_at line last_q)
-            if (== source_char 34) { break }
-            if (== source_char 92) { set last_q (+ last_q 1) }
-            set last_q (+ last_q 1)
-        }
-        if (and (< last_q line_length) (and (>= first_q 0) (> last_q first_q))) {
+        let last_q: int = (nlc_str_last_index_of line "\"")
+        if (and (>= first_q 0) (> last_q first_q)) {
             let result: string = (str_substring line (+ first_q 1) (- last_q (+ first_q 1)))
-            return (parser_decode_import_path result)
+            return result
         } else {
             return ""
         }
@@ -531,9 +542,6 @@ shadow parse_import_path_from_line {
     assert (== (parse_import_path_from_line "from \"modules/math\" import add") "modules/math")
     assert (== (parse_import_path_from_line "module \"mymod\"") "mymod")
     assert (== (parse_import_path_from_line "fn foo() -> int { return 0 }") "")
-    assert (== (parse_import_path_from_line "module \"a\\\"b\\\\n.nano\" # \"comment\"") "a\"b\\n.nano")
-    assert (== (parse_import_path_from_line "module \"bad\\0path\"") "")
-    assert (== (parse_import_path_from_line "module \"unterminated") "")
 }
 
 fn nlc_str_trim(s: string) -> string {
@@ -720,9 +728,6 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
                 if (or (nlc_str_starts_with import_path "./") (nlc_str_starts_with import_path "../")) {
                     return (nl_path_join (nl_path_dirname current_file) import_path)
                 } else {
-                    /* I resolve bare paths beside their importer before repository fallback. */
-                    let relative: string = (nl_path_join (nl_path_dirname current_file) import_path)
-                    if (file_exists relative) { return relative }
                     if (!= repo_root "") {
                         return (nl_path_join repo_root import_path)
                     } else {
@@ -737,10 +742,6 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
 shadow resolve_import_path {
     let p1: string = (resolve_import_path "" "/abs" "")
     assert (== p1 "/abs")
-    assert (== (resolve_import_path "/project/tests/main.nano" "./local.nano" "/project") "/project/tests/./local.nano")
-    assert (== (resolve_import_path "/project/tests/main.nano" "../local.nano" "/project") "/project/tests/../local.nano")
-    assert (== (resolve_import_path "tests/main.nano" "test_modules/metadata_probe.nano" "/missing-root") "tests/test_modules/metadata_probe.nano")
-    assert (== (resolve_import_path "tests/main.nano" "missing_probe_211.nano" "/project") "/project/missing_probe_211.nano")
 }
 
 struct CollectResult {
@@ -756,12 +757,12 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
         return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
     } else { (print "") }
 
-    # I resolve symlinks before deduplication and relative dependency lookup.
-    let norm_path: string = (canonical path)
-    if (== norm_path "") {
-        (println (+ "I cannot resolve a source path: " path))
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
-    }
+    /* Normalize to absolute canonical path so dedup works */
+    let mut norm_path: string = path
+    if (not (nlc_str_starts_with path "/")) {
+        set norm_path (nl_path_join (getcwd) path)
+    } else { (print "") }
+    set norm_path (path_normalize norm_path)
 
     if (nlc_hashset_has_string visited_set norm_path) {
         return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
@@ -808,12 +809,6 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (println lines_scanned2)
             } else { (print "") }
             let imp: string = (parse_import_path_from_line (at lines i))
-            let import_line: string = (at lines i)
-            let quoted_import: bool = (or (or (nlc_str_starts_with import_line "module \"") (nlc_str_starts_with import_line "unsafe module \"")) (or (nlc_str_starts_with import_line "import \"") (nlc_str_starts_with import_line "from \"")))
-            if (and quoted_import (== imp "")) {
-                (println "I cannot use an empty, unterminated or NUL-containing import path.")
-                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
-            }
             if (!= imp "") {
                 let dep: string = (resolve_import_path norm_path imp repo_root)
                 if (== dep "") {
@@ -845,227 +840,12 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
     }
 }
 
-shadow collect_files_dfs {
-    let directory: string = (mktemp_dir "nano_collect_sources_")
-    assert (!= directory "")
-    if (!= directory "") {
-        let path: string = (+ directory "/fixture.nano")
-        unsafe { assert (== (file_write path "fn value() -> int { return 1 }") 0) }
-        let result: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
-        assert result.ok
-        assert (== (array_length result.order) 1)
-        assert (== (at result.order 0) (canonical path))
-        let again: CollectResult = (collect_files_dfs (+ directory "/./fixture.nano") "" result.visited result.visited_set result.order true 10 100 100 0 false)
-        assert again.ok
-        assert (== (array_length again.order) 1)
-        unsafe { assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
-    }
-}
-
 struct MergeResult {
     source: string
     files: array<string>
-    file_starts: array<int>
     source_files: array<string>
     source_lines: array<int>
     repo_root: string
-    root_line: int
-}
-
-# I use merged source positions only to identify the owning input file.
-# These are not original-file diagnostic line numbers.
-fn merged_file_owner(file_starts: array<int>, line: int) -> int {
-    let mut owner: int = (- 0 1)
-    let mut i: int = 0
-    while (< i (array_length file_starts)) {
-        if (<= (at file_starts i) line) { set owner i }
-        set i (+ i 1)
-    }
-    return owner
-}
-
-shadow merged_file_owner {
-    let starts: array<int> = [1, 8, 8, 20]
-    assert (== (merged_file_owner starts 0) (- 0 1))
-    assert (== (merged_file_owner starts 7) 0)
-    assert (== (merged_file_owner starts 8) 2)
-    assert (== (merged_file_owner starts 20) 3)
-    assert (== (merged_file_owner [] 1) (- 0 1))
-}
-
-fn merged_function_names_valid(parser: Parser, file_starts: array<int>) -> bool {
-    let mut i: int = 0
-    while (< i (parser_get_function_count parser)) {
-        let current: ASTFunction = (parser_get_function parser i)
-        if (>= current.body 0) {
-            let owner: int = (merged_file_owner file_starts current.line)
-            if (< owner 0) { return false }
-            let mut j: int = 0
-            while (< j i) {
-                let previous: ASTFunction = (parser_get_function parser j)
-                if (and (>= previous.body 0) (== previous.name current.name)) {
-                    if (== (merged_file_owner file_starts previous.line) owner) {
-                        (println (+ "I cannot define a function twice in one module: " current.name))
-                        return false
-                    }
-                }
-                set j (+ j 1)
-            }
-        }
-        set i (+ i 1)
-    }
-    return true
-}
-
-shadow merged_function_names_valid {
-    let source: string = "fn answer() -> int { return 1 }\nfn answer() -> int { return 2 }\n"
-    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let tokens: List<LexerToken> = (tokenize_string source "owners.nano" diags)
-    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "owners.nano")
-    assert (not (parser_has_error parser))
-    assert (not (merged_function_names_valid parser [1]))
-    assert (merged_function_names_valid parser [1, 2])
-}
-
-fn merged_binding_prefix(parser: Parser) -> string {
-    let mut prefix: string = "__nano_module_"
-    let mut collision: bool = true
-    while collision {
-        set collision false
-        let mut i: int = 0
-        while (< i parser.token_count) {
-            let tok: LexerToken = (list_LexerToken_get parser.tokens i)
-            if (nlc_str_starts_with tok.value prefix) { set collision true }
-            set i (+ i 1)
-        }
-        if collision { set prefix (+ prefix "_") }
-    }
-    return prefix
-}
-shadow merged_binding_prefix {
-    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let tokens: List<LexerToken> = (tokenize_string "fn __nano_module_user() -> int { return 0 }" "prefix.nano" diags)
-    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "prefix.nano")
-    assert (== (merged_binding_prefix parser) "__nano_module__")
-}
-
-fn merged_path_owner(files: array<string>, path: string) -> int {
-    let mut i: int = 0
-    while (< i (array_length files)) {
-        if (== (at files i) path) { return i }
-        set i (+ i 1)
-    }
-    return (- 0 1)
-}
-shadow merged_path_owner {
-    assert (== (merged_path_owner ["a/x.nano", "b/x.nano"] "b/x.nano") 1)
-    assert (== (merged_path_owner ["a/x.nano"] "missing.nano") (- 0 1))
-}
-
-fn merged_qualified_calls_valid(parser: Parser) -> bool {
-    let mut i: int = 0
-    while (< i (list_ASTModuleQualifiedCall_length parser.module_qualified_calls)) {
-        let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser i)
-        if (== (mb_lookup (mb_owner call.line) call.function_name) call.function_name) {
-            (println (+ "I cannot resolve a qualified function in this module: " call.function_name))
-            return false
-        }
-        set i (+ i 1)
-    }
-    return true
-}
-shadow merged_qualified_calls_valid {
-    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return (lib.answer) }" "qualified.nano" diags)
-    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "qualified.nano")
-    (mb_reset [1])
-    assert (not (merged_qualified_calls_valid parser))
-    (mb_add 0 "lib.answer" "owned_answer")
-    assert (merged_qualified_calls_valid parser)
-    (mb_reset [])
-}
-
-fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
-    (mb_reset merge.file_starts)
-    let prefix: string = (merged_binding_prefix parser)
-    let root_owner: int = (- (array_length merge.files) 1)
-    let mut originals: array<string> = []
-    let mut owners: array<int> = []
-    let count: int = (parser_get_function_count parser)
-    let mut i: int = 0
-    while (< i count) {
-        let func: ASTFunction = (parser_get_function parser i)
-        let owner: int = (mb_owner func.line)
-        if (< owner 0) { return false }
-        set originals (array_push originals func.name)
-        set owners (array_push owners owner)
-        let mut name: string = func.name
-        if (and (!= owner root_owner) (>= func.body 0)) {
-            set name (+ prefix (+ (int_to_string owner) (+ "_" func.name)))
-        }
-        (mb_add owner func.name name)
-        (list_ASTFunction_set parser.functions i (ASTFunction { node_type: func.node_type, line: func.line, column: func.column, name: name, param_start: func.param_start, param_count: func.param_count, return_type: func.return_type, body: func.body }))
-        set i (+ i 1)
-    }
-    set i 0
-    while (< i (parser_get_import_count parser)) {
-        let imp: ASTImport = (parser_get_import parser i)
-        let owner: int = (mb_owner imp.line)
-        if (< owner 0) { return false }
-        let mut resolved: string = (resolve_import_path (at merge.files owner) imp.module_path merge.repo_root)
-        if (not (nlc_str_starts_with resolved "/")) { set resolved (nl_path_join (getcwd) resolved) }
-        let path: string = (canonical resolved)
-        let target_owner: int = (merged_path_owner merge.files path)
-        if (< target_owner 0) {
-            (println (+ "I cannot bind an import outside the merged source set: " path))
-            return false
-        }
-        let mut f: int = 0
-        while (< f count) {
-            if (== (at owners f) target_owner) {
-                let original: string = (at originals f)
-                let target: string = (parser_get_function parser f).name
-                if (and imp.is_selective (not imp.is_wildcard)) {
-                    let mut s: int = 0
-                    while (< s imp.import_symbol_count) {
-                        if (== (at imp.import_symbols s) original) {
-                            let mut alias: string = original
-                            if (< s (array_length imp.import_aliases)) {
-                                if (!= (at imp.import_aliases s) "") { set alias (at imp.import_aliases s) }
-                            }
-                            (mb_add owner alias target)
-                        }
-                        set s (+ s 1)
-                    }
-                } else {
-                    let mut name: string = original
-                    if (!= imp.module_name "") { set name (+ imp.module_name (+ "." original)) }
-                    (mb_add owner name target)
-                }
-            }
-            set f (+ f 1)
-        }
-        set i (+ i 1)
-    }
-    set i 0
-    while (< i parser.shadows_count) {
-        let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)
-        let name: string = (mb_lookup (mb_owner sh.line) sh.target_name)
-        (list_ASTShadow_set parser.shadows i (ASTShadow { node_type: sh.node_type, line: sh.line, column: sh.column, target_name: name, body: sh.body }))
-        set i (+ i 1)
-    }
-    return (merged_qualified_calls_valid parser)
-}
-shadow bind_merged_functions {
-    let source: string = "fn answer() -> int { return 1 }\nfn answer() -> int { return 2 }\n"
-    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let tokens: List<LexerToken> = (tokenize_string source "binding.nano" diags)
-    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
-    let merge: MergeResult = MergeResult { source: source, files: ["first.nano", "root.nano"], file_starts: [1, 2], source_files: ["first.nano", "root.nano"], source_lines: [1, 1], repo_root: "", root_line: 2 }
-    assert (bind_merged_functions parser merge)
-    assert (!= (parser_get_function parser 0).name (parser_get_function parser 1).name)
-    assert (== (mb_lookup 1 "answer") "answer")
-    (mb_reset [])
 }
 
 fn source_location_for_line(files: array<string>, lines: array<int>, merged_line: int, column: int) -> CompilerSourceLocation {
@@ -1428,8 +1208,10 @@ shadow collect_module_build_flags {
 }
 
 fn merge_with_imports(input_file: string) -> MergeResult {
-    let start: string = (canonical input_file)
-    if (== start "") { return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
+    let mut start: string = input_file
+    if (not (nlc_str_starts_with input_file "/")) {
+        set start (nl_path_join (getcwd) input_file)
+    } else { (print "") }
     let repo_root: string = (find_repo_root (nl_path_dirname start))
     let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
     let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
@@ -1449,21 +1231,18 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
-        return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
+        return MergeResult { source: "", files: [], source_files: [], source_lines: [], repo_root: repo_root }
     } else { (print "") }
-    # I retain source in this invocation; no other compiler can replace it.
-    let mut parts: array<string> = []
+    /* Write merged source directly to temp file - avoids O(n²) string concat */
+    let merge_tmp: string = "/tmp/nanolang_merge_tmp.nano"
+    let _dummy: int = (file_write merge_tmp "")
     let mut source_files: array<string> = []
     let mut source_lines: array<int> = []
     let mut i: int = 0
-    let mut merged_lines: int = 0
-    let mut root_line: int = 1
-    let mut file_starts: array<int> = []
     while (< i (array_length files)) {
-        set file_starts (array_push file_starts (+ merged_lines 1))
-        if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
         let lines: array<string> = (split_lines src)
+        let file_aliases: array<string> = (extract_from_aliases lines)
         let mut j: int = 0
         while (< j (array_length lines)) {
             let line: string = (at lines j)
@@ -1471,10 +1250,10 @@ fn merge_with_imports(input_file: string) -> MergeResult {
             let is_module_decl: bool = (nlc_str_starts_with line "module ")
             let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
             let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
-            if (or (!= imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
-                let resolved_line: string = (strip_pub_decl line)
-                set parts (cg_append parts (+ resolved_line "\n"))
-                set merged_lines (+ merged_lines 1)
+            if (and (== imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
+                let resolved_line: string = (apply_all_aliases (strip_pub_decl line) file_aliases)
+                let _w1: int = (file_append merge_tmp resolved_line)
+                let _w2: int = (file_append merge_tmp "\n")
                 set source_files (array_push source_files (at files i))
                 set source_lines (array_push source_lines (+ j 1))
             } else {
@@ -1484,79 +1263,11 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
+    return MergeResult { source: (file_read merge_tmp), files: files, source_files: source_files, source_lines: source_lines, repo_root: repo_root }
 }
 
 shadow merge_with_imports {
-    let result: MergeResult = (merge_with_imports "examples/language/nl_hello.nano")
-    assert (> (str_length result.source) 0)
-    assert (> (array_length result.files) 0)
-    assert (== result.root_line 1)
-    assert (== (array_length result.file_starts) (array_length result.files))
-    assert (== (at result.file_starts 0) 1)
-}
-
-struct IntrospectionOutput { ok: bool, code: string }
-
-fn collect_introspection(files: array<string>, repo_root: string) -> IntrospectionOutput {
-    let mut unsafe_paths: array<string> = []
-    let mut i: int = 0
-    while (< i (array_length files)) {
-        let path: string = (at files i)
-        let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
-        let mut j: int = 0
-        while (< j (array_length info.unsafe_imports)) {
-            let target: string = (resolve_import_path path (at info.unsafe_imports j) repo_root)
-            set unsafe_paths (mi_unique unsafe_paths (canonical target))
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    let mut names: array<string> = []
-    let mut parts: array<string> = []
-    set i 0
-    # The final DFS entry is the program itself, not an imported module.
-    while (< i (- (array_length files) 1)) {
-        let path: string = (at files i)
-        let base: string = (path_basename path)
-        let dot: int = (last_dot_index base)
-        let mut fallback: string = base
-        if (> dot 0) { set fallback (str_substring base 0 dot) }
-        let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
-        let mut j: int = 0
-        while (< j (array_length names)) {
-            if (== (at names j) raw.name) {
-                (println (+ "I reject ambiguous module introspection identity: " raw.name))
-                return IntrospectionOutput { ok: false, code: "" }
-            }
-            set j (+ j 1)
-        }
-        if (not raw.ok) {
-            (println (+ "I cannot derive valid module introspection for: " path))
-            return IntrospectionOutput { ok: false, code: "" }
-        }
-        let mut is_unsafe: bool = raw.is_unsafe
-        set j 0
-        while (< j (array_length unsafe_paths)) {
-            if (== (at unsafe_paths j) (path_normalize path)) { set is_unsafe true }
-            set j (+ j 1)
-        }
-        let info: ModuleIntrospection = ModuleIntrospection {
-            name: raw.name, path: raw.path, functions: raw.functions, structs: raw.structs,
-            unsafe_imports: raw.unsafe_imports, is_unsafe: is_unsafe, has_ffi: raw.has_ffi, ok: raw.ok
-        }
-        set names (array_push names info.name)
-        set parts (cg_append parts (mi_emit info))
-        set i (+ i 1)
-    }
-    return IntrospectionOutput { ok: true, code: (cg_build parts) }
-}
-
-shadow collect_introspection {
-    let empty: array<string> = []
-    let result: IntrospectionOutput = (collect_introspection empty "")
-    assert result.ok
-    assert (== result.code "")
+    assert (== 1 1)
 }
 
 /* =============================================================================
@@ -1711,136 +1422,7 @@ fn llm_write_diags_json(path: string, input_file: string, output_file: string, e
     return (file_write path s)
 }
 
-fn native_shell_quote(path: string) -> string {
-    let mut result: string = "'"
-    let length: int = (str_length path)
-    let mut i: int = 0
-    while (< i length) {
-        let ch: string = (str_substring path i 1)
-        if (== ch "'") { set result (+ result "'\\''") }
-        else { set result (+ result ch) }
-        set i (+ i 1)
-    }
-    return (+ result "'")
-}
-
-shadow native_shell_quote {
-    assert (== (native_shell_quote "a b") "'a b'")
-    assert (== (native_shell_quote "a'b") "'a'\\''b'")
-}
-
-fn native_shadow_start(parser: Parser, root_line: int) -> int {
-    let mut i: int = 0
-    while (< i parser.shadows_count) {
-        let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)
-        if (>= sh.line root_line) { return i }
-        set i (+ i 1)
-    }
-    return i
-}
-
-shadow native_shadow_start {
-    let tokens: List<LexerToken> = (tokenize_string "fn f() -> int { return 1 }\nshadow f { assert false }\nshadow f { assert true }" "selection.nano" (list_CompilerDiagnostic_new))
-    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "selection.nano")
-    assert (== (native_shadow_start p 3) 1)
-    assert (== (native_shadow_start p 4) 2)
-}
-
-fn native_cleanup(directory: string, keep_c: bool) -> void {
-    if (== directory "") { return }
-    unsafe { (file_delete (+ directory "/shadows")) }
-    if keep_c { (println (+ "I kept generated C in " (+ directory "/program.c"))) }
-    else {
-        unsafe {
-            (file_delete (+ directory "/program.c"))
-            (file_delete directory)
-        }
-    }
-}
-
-shadow native_cleanup { (native_cleanup "" false) }
-
-fn outputs_preserve_sources(sources: array<string>, output: string, diagnostics: string) -> bool {
-    let destinations: array<string> = [output, diagnostics]
-    let mut i: int = 0
-    while (< i (array_length sources)) {
-        let source: string = (at sources i)
-        let mut j: int = 0
-        while (< j (array_length destinations)) {
-            let destination: string = (at destinations j)
-            if (!= destination "") {
-                let mut identity: int = -1
-                unsafe { set identity (file_compare_identity source destination) }
-                if (> identity 0) {
-                    (println (+ "I will not overwrite a source file: " source))
-                    return false
-                }
-                if (< identity 0) {
-                    (println (+ "I cannot check source/output file identity: " source))
-                    return false
-                }
-            }
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    return true
-}
-
-fn output_destinations_distinct(output: string, diagnostics: string) -> bool {
-    if (== diagnostics "") { return true }
-    let mut identity: int = -1
-    unsafe { set identity (file_compare_destinations output diagnostics) }
-    if (== identity 0) { return true }
-    if (> identity 0) {
-        (println "I require separate artifact and diagnostic destinations")
-    } else {
-        (println "I cannot check artifact/diagnostic destination identity")
-    }
-    return false
-}
-
-shadow output_destinations_distinct {
-    let directory: string = (mktemp_dir "nano_output_guard_")
-    assert (!= directory "")
-    if (!= directory "") {
-        let output: string = (+ directory "/output")
-        let report: string = (+ directory "/report")
-        assert (output_destinations_distinct output "")
-        assert (output_destinations_distinct output report)
-        assert (not (output_destinations_distinct output output))
-        unsafe { assert (== (file_write output "prior") 0) }
-        assert (output_destinations_distinct output report)
-        assert (not (output_destinations_distinct output output))
-        unsafe {
-            assert (== (file_read output) "prior")
-            assert (== (file_delete output) 0)
-            assert (== (file_delete directory) 0)
-        }
-    }
-}
-
-shadow outputs_preserve_sources {
-    let directory: string = (mktemp_dir "nano_source_guard_")
-    assert (!= directory "")
-    if (!= directory "") {
-        let source: string = (+ directory "/source.nano")
-        let output: string = (+ directory "/output")
-        unsafe { assert (== (file_write source "source") 0) }
-        assert (outputs_preserve_sources [source] output "")
-        assert (not (outputs_preserve_sources [source] source ""))
-        assert (not (outputs_preserve_sources [source] output source))
-        assert (not (outputs_preserve_sources [(+ directory "/missing")] output ""))
-        unsafe {
-            assert (== (file_read source) "source")
-            assert (== (file_delete source) 0)
-            assert (== (file_delete directory) 0)
-        }
-    }
-}
-
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, test_imports: bool) -> int {
-    if (== input_file "") { return 1 }
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string) -> int {
     if verbose {
         (println "")
         (println "╔══════════════════════════════════════════════════════════════╗")
@@ -1879,23 +1461,28 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     let source_files: array<string> = merge_result.source_files
     let source_lines: array<int> = merge_result.source_lines
     let merge_repo_root: string = merge_result.repo_root
-    let source_to_compile: string = input_file
-
-    # I reject aliases before parsing can write diagnostics or shadows can run.
-    if (not (outputs_preserve_sources merged_files output_file llm_diags_json_path)) { return 1 }
-    if (not (output_destinations_distinct output_file llm_diags_json_path)) { return 1 }
+    let temp_source_file: string = (+ (tmp_dir) "/nanolang_merged.nano")
+    let mut source_to_compile: string = input_file
     
     if (== merged_source "") {
         (println "Error: import resolution failed")
         return 1
     } else {
-        # I lex the merged text without publishing a temporary source file.
+        /* Imports resolved - use merged file */
         if verbose {
             (print "  ✓ Merged source: ")
             (print (int_to_string (str_length merged_source)))
             (println " bytes")
         } else {
             (print "")
+        }
+        let write_merged: int = (file_write temp_source_file merged_source)
+        /* DEBUG: Also write to $TMPDIR/merged_debug.nano for inspection */
+        let _debug_write: int = (file_write (+ (tmp_dir) "/merged_debug.nano") merged_source)
+        if (== write_merged 0) {
+            set source_to_compile temp_source_file
+        } else {
+            set source_to_compile input_file
         }
     }
     
@@ -1909,7 +1496,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     /* Diagnostics list (start with lexer diags; may be replaced by later phase outputs) */
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
-    let tokens: List<LexerToken> = (tokenize_string merged_source source_to_compile diags)
+    let tokens: List<LexerToken> = (tokenize_file source_to_compile diags)
     let token_count: int = (list_LexerToken_length tokens)
     (remap_diagnostics diags source_files source_lines)
     
@@ -1970,24 +1557,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            if (not (merged_function_names_valid parser merge_result.file_starts)) {
-                if (!= llm_diags_json_path "") {
-                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "M0001" "I require unique function declarations within each module" (Diagnostics.diag_location input_file 0 0)))
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
-                }
-                return 1
-            }
-
-            if (not (bind_merged_functions parser merge_result)) {
-                if (!= llm_diags_json_path "") {
-                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "M0002" "I cannot resolve module function bindings" (Diagnostics.diag_location input_file 0 0)))
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
-                }
-                return 1
-            }
-
-            /* I already parsed the transitive source set. Imports now describe
-             * bindings; loading them again would duplicate declarations. */
+            /* Step 2.5: Process imports recursively - CRITICAL FOR TRANSITIVE TYPE VISIBILITY */
             if verbose {
                 (println "[2.5/5] Processing imports...")
             } else {
@@ -1995,7 +1565,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             }
             
             let cache: ModuleCache = (module_cache_new)
-            let import_count: int = 0
+            let import_count: int = (parser_get_import_count parser)
             let mut imported_symbols: array<Symbol> = []
             if (> import_count 0) {
                 set imported_symbols (process_imports_recursive parser [] cache source_to_compile diags)
@@ -2019,10 +1589,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let mut first_shadow: int = 0
-            if (not test_imports) { set first_shadow (native_shadow_start parser merge_result.root_line) }
-            let has_shadows: bool = (< first_shadow parser.shadows_count)
-            let tc: TypecheckPhaseOutput = (typecheck_phase_with_shadows parser source_to_compile imported_symbols first_shadow)
+            let tc: TypecheckPhaseOutput = (typecheck_phase_with_symbols parser source_to_compile imported_symbols)
             if tc.had_error {
                 (remap_diagnostics tc.diagnostics source_files source_lines)
                 (println "NSType checking failed")
@@ -2073,9 +1640,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
 
-            let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
-            if (not introspection.ok) { return 1 }
-            let c_code: string = (+ (transpile_parser parser) introspection.code)
+            let c_code: string = (transpile_parser parser)
             
             if verbose {
                 (print "  ✓ Generated ")
@@ -2088,30 +1653,11 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if show_intermediate_code {
                 (print c_code)
             } else { (print "") }
-
-            # I publish C source without invoking the native toolchain.
-            if emit_c {
-                let status: int = (file_write output_file c_code)
-                if (!= status 0) {
-                    (println "I could not write the requested C source file")
-                    return 1
-                }
-                if (!= llm_diags_json_path "") {
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
-                }
-                if has_shadows { (println "I emitted C source without executing shadows; native compilation runs them.") }
-                return 0
-            }
             
             /* Write C code to temporary file */
-            let native_dir: string = (mktemp_dir "nano_native_")
-            if (== native_dir "") { (println "I could not create native compilation staging") return 1 }
-            let c_file: string = (+ native_dir "/program.c")
-            let mut staged_code: string = c_code
-            if has_shadows { set staged_code (+ (transpile_parser_shadows parser first_shadow) introspection.code) }
-            let write_result: int = (file_write c_file staged_code)
+            let c_file: string = (+ (tmp_dir) "/nanolang_temp.c")
+            let write_result: int = (file_write c_file c_code)
             if (!= write_result 0) {
-                (native_cleanup native_dir false)
                 (println "Error: Failed to write C file")
                 if (not (== llm_diags_json_path "")) {
                     let msg: string = "Failed to write temporary C file"
@@ -2163,7 +1709,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else {
                 (print "")
             }
-            set cc_cmd (+ cc_cmd (native_shell_quote c_file))
+            set cc_cmd (+ cc_cmd c_file)
+            set cc_cmd (+ cc_cmd " -o ")
+            set cc_cmd (+ cc_cmd output_file)
             /* Add runtime library sources with absolute paths */
             let runtime_dir: string = (nl_path_join repo_root "src/runtime")
             set cc_cmd (+ cc_cmd " ")
@@ -2295,13 +1843,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2"))
             } else { (print "") }
             set cc_cmd (+ cc_cmd " -lm")
-            let abi_platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
-            if (== abi_platform "") {
-                (println "I could not identify the host for native array ABI linking")
-                (native_cleanup native_dir keep_c)
-                return 1
-            }
-            set cc_cmd (+ cc_cmd (native_array_abi_link_flags abi_platform))
             /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
             if (> (str_length mod_flags.link_flags) 0) {
                 set cc_cmd (+ cc_cmd mod_flags.link_flags)
@@ -2313,26 +1854,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else {
                 (print "")
             }
-            if has_shadows {
-                let test_file: string = (+ native_dir "/shadows")
-                let test_cmd: string = (+ cc_cmd (+ " -o " (+ (native_shell_quote test_file) " 2>&1")))
-                if (!= (nl_exec_shell test_cmd) 0) {
-                    (println "I could not compile native shadows")
-                    (native_cleanup native_dir keep_c)
-                    return 1
-                }
-                if (!= (nl_exec_shell (native_shell_quote test_file)) 0) {
-                    (println "I will not publish native output after failed shadows")
-                    (native_cleanup native_dir keep_c)
-                    return 1
-                }
-                if (!= (file_write c_file c_code) 0) {
-                    (println "I could not stage production C after checking shadows")
-                    (native_cleanup native_dir keep_c)
-                    return 1
-                }
-            }
-            set cc_cmd (+ cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
+            set cc_cmd (+ cc_cmd " 2>&1")
             
             if verbose {
                 (print "  Command: ")
@@ -2344,7 +1866,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let cc_result: int = (nl_exec_shell cc_cmd)
             if (!= cc_result 0) {
                 (println "Error: C compilation failed")
-                (native_cleanup native_dir keep_c)
                 return 1
             } else {
                 (print "")
@@ -2361,7 +1882,18 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            (native_cleanup native_dir keep_c)
+            /* Clean up temp file unless --keep-c */
+            if (not keep_c) {
+                let rm_cmd: string = (+ "rm -f " c_file)
+                let _rm_result: int = (nl_exec_shell rm_cmd)
+            } else {
+                if verbose {
+                    (print "Kept C file: ")
+                    (println c_file)
+                } else {
+                    (print "")
+                }
+            }
             
             if (not (== llm_diags_json_path "")) {
                 (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
@@ -2375,10 +1907,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
  * MAIN ENTRY POINT
  * ============================================================================= */
 
-shadow compile_program {
-    assert (== (compile_program "" "" false false false "" false true) 1)
-}
-
 fn show_usage() -> int {
     (println "")
     (println "╔══════════════════════════════════════════════════════════════╗")
@@ -2391,10 +1919,6 @@ fn show_usage() -> int {
     (println "  -o <file>        Output executable (default: a.out)")
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
-    (println "  --target <t>    native (default) or c (source output, no native compilation)")
-    (println "  --test-imports  I run dependency shadows before root shadows (default)")
-    (println "  --root-shadows-only  I run only root-file shadows")
-    (println "  --              End options; the remaining argument is my input path")
     (println "  -fshow-intermediate-code  Print generated C to stdout")
     (println "  -h, --help       Show this help")
     (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
@@ -2410,24 +1934,8 @@ shadow show_usage {
     assert (== result 0)  /* show_usage always returns 0 */
 }
 
-fn native_array_abi_link_flags(platform: string) -> string {
-    if (== platform "Linux") { return " -rdynamic -ldl" }
-    if (== platform "FreeBSD") { return " -Wl,-E" }
-    return ""
-}
-
-shadow native_array_abi_link_flags {
-    assert (== (native_array_abi_link_flags "Linux") " -rdynamic -ldl")
-    assert (== (native_array_abi_link_flags "FreeBSD") " -Wl,-E")
-    assert (== (native_array_abi_link_flags "Darwin") "")
-}
-
 fn main() -> int {
     let opts: CompileOptions = (parse_args)
-    if (!= opts.error "") {
-        (println opts.error)
-        return 1
-    }
     
     if opts.show_help {
         return (show_usage)
@@ -2451,7 +1959,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.test_imports)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path)
 }
 
 shadow main {

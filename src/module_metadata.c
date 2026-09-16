@@ -1,5 +1,4 @@
 #include "nanolang.h"
-#include "module_symbol.h"
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -254,13 +253,30 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     
     APPEND("/* Module metadata - automatically generated */\n");
     char temp[2048];
+    snprintf(temp, sizeof(temp), "/* Module: %s */\n\n", meta->module_name);
+    APPEND(temp);
     APPEND("#include \"nanolang.h\"\n\n");
 
     /* Derive a C-safe, per-module identifier suffix so the exported metadata
      * symbol does not collide when several module objects are linked into a
      * single binary (previously every module exported `_module_metadata`,
      * causing multiple-definition link errors). */
-    const char *module_ident = module_symbol_suffix(meta->module_name ? meta->module_name : "unknown");
+    char module_ident[256];
+    {
+        const char *src = meta->module_name ? meta->module_name : "unknown";
+        size_t oi = 0;
+        for (size_t si = 0; src[si] && oi < sizeof(module_ident) - 1; si++) {
+            char ch = src[si];
+            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+                (ch >= '0' && ch <= '9')) {
+                module_ident[oi++] = ch;
+            } else {
+                module_ident[oi++] = '_';
+            }
+        }
+        if (oi == 0) module_ident[oi++] = '_';
+        module_ident[oi] = '\0';
+    }
     
     /* Count and declare FunctionSignature arrays */
     int fn_sig_count = count_function_signatures(meta);
@@ -447,12 +463,10 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     APPEND("}\n\n");
     
     /* Export metadata accessor (per-module symbol name to avoid link clashes) */
-    APPEND("ModuleMetadata _module_metadata_");
-    APPEND(module_ident);
-    APPEND(" = {\n");
-    APPEND("    .module_name = ");
-    APPEND(module_c_literal(meta->module_name));
-    APPEND(",\n");
+    snprintf(temp, sizeof(temp), "ModuleMetadata _module_metadata_%s = {\n", module_ident);
+    APPEND(temp);
+    snprintf(temp, sizeof(temp), "    .module_name = \"%s\",\n", meta->module_name);
+    APPEND(temp);
     snprintf(temp, sizeof(temp), "    .function_count = %d,\n", meta->function_count);
     APPEND(temp);
     APPEND("    .functions = _module_functions,\n");
@@ -481,21 +495,17 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
             ConstantDef *c = &meta->constants[i];
             const char *cname = c->name ? c->name : "unnamed";
             if (c->type == TYPE_INT) {
-                APPEND("static const int64_t _module_const_");
-                APPEND(module_ident);
-                APPEND("_");
-                APPEND(cname);
-                snprintf(temp, sizeof(temp), " = %lldLL;\n", (long long)c->value);
+                snprintf(temp, sizeof(temp),
+                         "static const int64_t _module_const_%s_%s = %lldLL;\n",
+                         module_ident, cname, (long long)c->value);
                 APPEND(temp);
             } else if (c->type == TYPE_FLOAT) {
                 /* Reconstruct float from int64 bit pattern */
                 union { double d; int64_t i; } u;
                 u.i = c->value;
-                APPEND("static const double _module_const_");
-                APPEND(module_ident);
-                APPEND("_");
-                APPEND(cname);
-                snprintf(temp, sizeof(temp), " = %g;\n", u.d);
+                snprintf(temp, sizeof(temp),
+                         "static const double _module_const_%s_%s = %g;\n",
+                         module_ident, cname, u.d);
                 APPEND(temp);
             }
         }
@@ -548,3 +558,4 @@ bool deserialize_module_metadata_from_c(const char *c_code, ModuleMetadata **met
     *meta_out = NULL;
     return false;
 }
+

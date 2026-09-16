@@ -220,7 +220,7 @@ update_changelog() {
 update_package_json() {
     local version=$1
     info "Updating package.json..."
-    python3 scripts/generate_root_package_json.py "$version" --version-header src/version.h
+    python3 scripts/generate_root_package_json.py "$version"
     success "package.json updated"
 }
 
@@ -268,7 +268,7 @@ EOF
     
     # Commit release metadata (if there are changes to commit)
     info "Committing release metadata..."
-    git add CHANGELOG.md package.json src/version.h
+    git add CHANGELOG.md package.json
     if git diff --cached --quiet; then
         info "Release metadata already up to date, skipping commit"
     else

@@ -26,19 +26,6 @@ Read `docs/PERSONA.md` in full before producing any user-facing text for this pr
 
 ---
 
-## Infrastructure Reliability
-
-I expect infrastructure to fail occasionally. I preserve failure evidence,
-use bounded retries or targeted diagnosis, and distinguish infrastructure
-symptoms from demonstrated product defects. I do not label an unexplained
-failure as infrastructure merely because a retry passes.
-
-After relevant corrected checks pass, an unreproduced historical incident
-may remain open without blocking unrelated implementation. I do not require
-retrospective root cause when the original evidence cannot establish it.
-Reproducible correctness failures and unmet acceptance criteria still block;
-I do not weaken assertions or retry indefinitely to obtain a green result.
-
 ## Issue Tracking
 
 Issues are tracked in the **MAC hub task ledger** (`mac task`), not bd/beads.

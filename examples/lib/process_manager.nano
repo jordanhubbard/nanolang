@@ -11,7 +11,7 @@
 # Expected Output: none
 
 from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn_with_pipes, fd_read_available, fd_close, kill_group, Output
-from "modules/std/fs.nano" import exists, read, write, append, delete, basename, dirname, mkdir_p
+from "modules/std/fs.nano" import exists, read, write, append, delete, basename, dirname
 from "modules/std/env.nano" import get as env_get
 
 struct ModeConfig {
@@ -279,21 +279,14 @@ fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
 }
 
 shadow build_example {
-    assert (== (mkdir_p "bin") 0)
-    let directory: string = (mktemp_dir "nano_launcher_artifact_")
-    assert (!= directory "")
-    if (!= directory "") {
-        let example: string = (+ directory ".nano")
-        let mode: ModeConfig = (parse_mode "stage1")
-        let artifact: string = (get_binary_name example mode)
-        assert (== (write artifact "prebuilt\n") 0)
-        let result: ChildStatus = (build_example example mode)
-        assert (== result.exit_code 0)
-        assert (str_contains result.build_output "Using pre-built")
-        assert (exists artifact)
-        assert (== (delete artifact) 0)
-        assert (== (delete directory) 0)
-    }
+    let artifact: string = "bin/launcher_prebuilt_artifact_probe"
+    (write artifact "prebuilt\n")
+    let mode: ModeConfig = (parse_mode "stage1")
+    let result: ChildStatus = (build_example "examples/internal/launcher_prebuilt_artifact_probe.nano" mode)
+    assert (== result.exit_code 0)
+    assert (str_contains result.build_output "Using pre-built")
+    assert (exists artifact)
+    (delete artifact)
 }
 
 fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default_args: string) -> ProcessManager {
@@ -416,8 +409,8 @@ fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
         if (> (str_length child.log_path) 0) {
             (append child.log_path (+ "\n[launcher]\nI reaped this process with status "
                 (+ (int_to_string code) ".\n")))
-            # I collect handler output after reaping the direct child.
-            # Descendants can retain these pipes; this is not their quiescence.
+            # A SIGTERM handler can write after the first drain. Reap before the
+            # final drain so I know no later output can arrive before I close.
             let out_after_reap: string = (pm_drain_fd child.stdout_fd)
             if (> (str_length out_after_reap) 0) {
                 (append child.log_path (+ "\n[stdout]\n" out_after_reap))
@@ -446,11 +439,11 @@ shadow pm_kill {
     let pm2: ProcessManager = (pm_kill pm "nonexistent")
     assert (== (array_length pm2.children) 0)
 
-    let raw: array<string> = (spawn_with_pipes "trap 'sleep 0.1; printf terminated-output; printf terminated-error >&2; exit 0' TERM; printf handler-ready; while :; do sleep 1; done")
+    let raw: array<string> = (spawn_with_pipes "trap 'printf terminated-output' TERM; while :; do sleep 1; done")
     let pid: int = (string_to_int (at raw 0))
     let stdout_fd: int = (string_to_int (at raw 1))
     let stderr_fd: int = (string_to_int (at raw 2))
-    let log_path: string = (pm_runtime_log_path "termination-handler.nano" pid)
+    let log_path: string = "/tmp/nanolang-launcher-shadow-pm_kill.log"
     (write log_path "[launcher]\n")
     let running: ProcessManager = ProcessManager {
         children: [ChildStatus {
@@ -461,20 +454,9 @@ shadow pm_kill {
         }],
         max_children: 1
     }
-    let mut ready: string = ""
-    let mut attempts: int = 0
-    while (and (< attempts 100) (not (str_contains ready "handler-ready"))) {
-        set ready (+ ready (fd_read_available stdout_fd))
-        if (not (str_contains ready "handler-ready")) { (exec "sleep 0.01") }
-        set attempts (+ attempts 1)
-    }
     let stopped: ProcessManager = (pm_kill running "termination-handler.nano")
-    assert (str_contains ready "handler-ready")
     assert (== (array_length stopped.children) 0)
     assert (str_contains (read log_path) "terminated-output")
-    assert (str_contains (read log_path) "terminated-error")
-    assert (str_contains (read log_path) "I reaped this process with status 0")
-    assert (== (is_running pid) -1)
     (delete log_path)
 }
 

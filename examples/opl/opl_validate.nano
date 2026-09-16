@@ -439,7 +439,7 @@ shadow opl_validate {
 
     let r4: Json = (opl_validate "agent a {
   uses web.search
-  assert null else \"x\"
+  assert null else "x"
 }
 ")
     assert (not (as_bool (get r4 "ok")))

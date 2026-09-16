@@ -281,7 +281,7 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
         uint32_t successor_count = 0;
         uint8_t opcode = instr->opcode;
         if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
-                || opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH) {
+                || opcode == OP_MATCH_TAG) {
             uint32_t base = mod->functions[fn_idx].code_offset;
             uint32_t target = di->resolved_target;
             if (target >= base) {
@@ -297,17 +297,16 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
             }
         }
         if (opcode != OP_JMP && opcode != OP_RET && opcode != OP_TAIL_CALL
-                && opcode != OP_HALT && opcode != OP_EFFECT_RESUME && index + 1 < n) {
+                && opcode != OP_HALT && index + 1 < n) {
             successors[successor_count++] = index + 1;
         }
 
         for (uint32_t i = 0; i < successor_count; i++) {
             uint32_t s = successors[i];
-            uint16_t successor_depth = opcode == OP_HANDLER_PUSH && i == 0 ? 0 : nd;
             uint8_t *dst = state + (size_t)s * slots;
             if (!seen[s]) {
                 memcpy(dst, next, slots);
-                depth[s] = successor_depth;
+                depth[s] = nd;
                 seen[s] = true;
                 if (!queued[s]) {
                     queued[s] = true;
@@ -321,7 +320,7 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
              * in generated code, and the value simply is not statically
              * known there. */
             bool changed = false;
-            uint16_t common = depth[s] < successor_depth ? depth[s] : successor_depth;
+            uint16_t common = depth[s] < nd ? depth[s] : nd;
             for (uint16_t k = 0; k < common; k++) {
                 uint8_t merged = join(dst[k], next[k]);
                 if (merged != dst[k]) { dst[k] = merged; changed = true; }

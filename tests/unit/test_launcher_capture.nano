@@ -109,9 +109,9 @@ shadow poll_captured_child {
 
 fn kill_captures_and_reaps() -> string {
     let example: string = "examples/internal/launcher_kill_probe.nano"
-    # I replace the shell so wait observes sleep's signal status directly.
-    # A shell waiting for a separate sleep can instead exit normally with 143.
-    let raw: array<string> = (spawn_with_pipes "printf 'pre-kill-output\\n'; exec sleep 30")
+    # /bin/echo (not the shell builtin) exits immediately, so its bytes reach
+    # the pipe before the child parks in sleep.
+    let raw: array<string> = (spawn_with_pipes "/bin/echo pre-kill-output; sleep 5")
     let pid: int = (string_to_int (at raw 0))
     assert (> pid 0)
     let log_path: string = (pm_runtime_log_path example pid)

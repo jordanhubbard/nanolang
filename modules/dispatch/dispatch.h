@@ -1,12 +1,16 @@
-/* I expose two explicit boundaries over Apple libdispatch: plain C function
- * pointers for native callers, and retained handles for bytecode callbacks.
- * My implementation uses Blocks internally; callers need no Blocks syntax.
+/* dispatch.h — NanoLang dispatch module C API
+ *
+ * Thin wrappers over libdispatch. Exposed to NanoLang via opaque types.
+ * All callback parameters use C function pointer type `void (*)(void)` so
+ * that NanoLang's generated `FnType_N` typedefs (which are C function
+ * pointers) can be passed directly without any Blocks extension on the
+ * caller side.  dispatch.c wraps them in Clang Blocks before handing off
+ * to the GCD API (requires -fblocks, macOS/Linux libdispatch).
  */
 #ifndef NL_DISPATCH_H
 #define NL_DISPATCH_H
 
 #include <stdint.h>
-#include "../../src/runtime/nano_callback.h"
 
 /* NanoLang opaque type typedefs — must match transpiler.nano's is_opaque_type list */
 #ifndef NL_DISPATCH_TYPES_DECLARED
@@ -30,8 +34,7 @@ void* nl_queue_serial(const char* label);
 /** Create a concurrent queue (tasks may run in parallel). */
 void* nl_queue_concurrent(const char* label);
 
-/** I drain accepted work, including timers, then release the queue. Callers
- * must stop submitting first and must not destroy a queue from its own task. */
+/** Destroy (drain + release) a queue. */
 void nl_queue_destroy(void* q);
 
 /* ---------- Dispatch primitives ---------- */
@@ -65,15 +68,6 @@ int nl_group_wait_ns(void* g, int64_t timeout_ns);
 
 /** 1 when this host implements libdispatch; 0 on the stub backend. */
 int nl_dispatch_available(void);
-
-/* I use retained handles at the bytecode boundary, not C function pointers. */
-void nl_queue_async_retained(void *q, NanoCallbackV1 *callback);
-void nl_queue_sync_retained(void *q, NanoCallbackV1 *callback);
-void nl_queue_barrier_async_retained(void *q, NanoCallbackV1 *callback);
-void nl_queue_after_ns_retained(void *q, int64_t ns, NanoCallbackV1 *callback);
-void nl_group_async_retained(void *g, void *q, NanoCallbackV1 *callback);
-void nl_group_notify_retained(void *g, void *q, NanoCallbackV1 *callback);
-int64_t nl_group_wait_ns_retained(void *g, int64_t ns);
 
 #ifdef __cplusplus
 }

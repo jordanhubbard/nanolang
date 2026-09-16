@@ -1,7 +1,6 @@
 #include "nanolang.h"
 #include "utf8.h"
 #include "diag_id.h"
-#include <limits.h>
 
 /* Forward declaration for mutual recursion with lex_fstring */
 Token *tokenize(const char *source, int *token_count);
@@ -128,7 +127,7 @@ static void emit_fstring_expr(Token **tokens, int *count, int *capacity,
         emit_token(tokens, count, capacity, sub_tokens[k].token_type,
                    sub_tokens[k].value, line, column);
     }
-    free_tokens(sub_tokens, sub_count);
+    free(sub_tokens);
     emit_token(tokens, count, capacity, TOKEN_RPAREN, NULL, line, column);
 }
 
@@ -143,33 +142,17 @@ static int lex_fstring(const char *source, int *pos,
     int i = *pos + 2;  /* skip f" */
 
     /* Collect parts: (start, end, is_expr) triples in parallel arrays */
-    /* I grow part storage before a scan iteration can append up to two parts. */
+    /* Max 64 parts for simplicity; realloc would be needed for more */
     int max_parts = 64;
     int *part_starts  = malloc(sizeof(int) * max_parts);
     int *part_ends    = malloc(sizeof(int) * max_parts);
     int *part_is_expr = malloc(sizeof(int) * max_parts);
     int n_parts = 0;
-    if (!part_starts || !part_ends || !part_is_expr) goto allocation_failed;
 
     int part_start = i;
     int found_end = 0;
 
     while (source[i] != '\0' && !found_end) {
-        if (n_parts > max_parts - 2) {
-            if (max_parts > INT_MAX / 2) goto allocation_failed;
-            int next = max_parts * 2;
-            if ((size_t)next > SIZE_MAX / sizeof(int)) goto allocation_failed;
-            int *grown = realloc(part_starts, sizeof(int) * (size_t)next);
-            if (!grown) goto allocation_failed;
-            part_starts = grown;
-            grown = realloc(part_ends, sizeof(int) * (size_t)next);
-            if (!grown) goto allocation_failed;
-            part_ends = grown;
-            grown = realloc(part_is_expr, sizeof(int) * (size_t)next);
-            if (!grown) goto allocation_failed;
-            part_is_expr = grown;
-            max_parts = next;
-        }
         if (source[i] == '"') {
             /* Closing quote: save trailing static part */
             if (i > part_start) {
@@ -282,11 +265,6 @@ static int lex_fstring(const char *source, int *pos,
     free(part_starts); free(part_ends); free(part_is_expr);
     *pos = i;
     return 1;
-allocation_failed:
-    free(part_starts); free(part_ends); free(part_is_expr);
-    fprintf(stderr, "I could not allocate f-string parts at line %d.\n", line);
-    s_lex_id = NL_DIAG_LEX_FSTRING;
-    return 0;
 }
 
 /* Tokenize the source code */

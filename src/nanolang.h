@@ -158,7 +158,6 @@ struct Value {
     bool is_return;  /* Flag to propagate return statements through control flow */
     bool is_break;   /* Flag to propagate break statements through control flow */
     bool is_continue;/* Flag to propagate continue statements through control flow */
-    const void *return_target; /* Borrowed active interpreter call; valid only with is_return. */
     union {
         long long int_val;
         double float_val;
@@ -258,12 +257,6 @@ struct ASTNode {
     ASTNodeType type;
     int line;
     int column;
-    /* Closing brace for parsed lexical blocks; zero for unlocated nodes. */
-    int scope_end_line;
-    int scope_end_column;
-    /* I borrow the hoisted anonymous declaration at its lexical expression.
-     * The program owns that declaration; this link does not own or free it. */
-    ASTNode *lambda_definition;
     union {
         long long number;
         double float_val;
@@ -304,10 +297,6 @@ struct ASTNode {
             TypeInfo *type_info;     /* For generic types: Result<int, string>, List<Point>, etc. */
             bool is_mut;
             ASTNode *value;
-            bool is_destructure;
-            bool is_destructure_projection;
-            int destructure_count;
-            char **destructure_names;
         } let;
         struct {
             char *name;
@@ -351,7 +340,6 @@ struct ASTNode {
             TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: stores element types */
             ASTNode *body;
             bool is_extern;  /* Mark external C functions */
-            bool is_anonymous; /* I instantiate this declaration at its expression. */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
             bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
@@ -439,8 +427,6 @@ struct ASTNode {
             ASTNode **arm_bodies;
             ASTNode **guard_exprs;  /* Per-arm guard: NULL if no guard, or boolean expression */
             char *union_type_name;  /* Filled during typechecking */
-            Type result_type;       /* Checked arm value, independent of function return */
-            bool result_type_checked;
         } match_expr;
         /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */
         struct {
@@ -543,12 +529,11 @@ struct ASTNode {
             int       handler_count;
         } effect_handler;
 
-        /* AST_EFFECT_OP: perform Foo.op(args...) */
+        /* AST_EFFECT_OP: perform Foo.op arg */
         struct {
             char    *effect_name;
             char    *op_name;
-            ASTNode **args;
-            int arg_count;
+            ASTNode *arg;
         } effect_op;
 
         /* AST_ASYNC_FN — async function declaration (wraps a normal function node) */
@@ -579,15 +564,13 @@ typedef struct {
     TypeInfo *type_info;     /* For complex types (tuples, generics, etc.) - full type information */
     bool is_mut;
     Value value;
-    bool is_global;     /* Top-level binding, not a retained function local */
     bool is_used;        /* Track if variable is ever used (for warnings) */
     bool is_resource;    /* True if this variable's type is a resource type */
     ResourceUseState resource_state;  /* For resource types: track usage state */
     bool from_c_header;  /* True if this constant was loaded from a C header #define */
     int def_line;        /* Line where variable was defined */
     int def_column;      /* Column where variable was defined */
-    int scope_end_line;  /* Exclusive source bound; zero for unbounded symbols */
-    int scope_end_column;
+    bool checker_visible; /* False after the lexical checker scope exits. */
     /* Source file the definition came from, or NULL for symbols with no file
      * (builtins, and anything registered without a location).
      *
@@ -725,7 +708,6 @@ typedef struct {
 /* Module namespace for import aliases */
 typedef struct {
     char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
-    char *owner_module;        /* Declaring module; NULL is the root namespace. */
     char *module_name;         /* Original module name */
     char **function_names;     /* Functions from this module */
     int function_count;
@@ -826,6 +808,7 @@ typedef struct {
     /* File whose code is being processed; stamped onto definitions and used to
      * keep source-position lookups inside one file. Borrowed, not owned. */
     const char *current_file;
+    bool checking_types; /* Restrict source lookups to active lexical scopes. */
 } Environment;
 
 /* Function declarations */
@@ -854,18 +837,12 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
-bool ast_is_value_expression(ASTNodeType type);
-bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
 void free_ast(ASTNode *node);
 
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
-bool type_check_root_shadows(ASTNode *program, Environment *env);
-/* I borrow checked callback metadata for map result allocation during lowering. */
-Type map_transform_result_type(ASTNode *callback, Environment *env);
-Type filter_predicate_element_type(ASTNode *callback, Environment *env);
 void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 
@@ -949,7 +926,6 @@ Value create_int(long long val);
 Value create_float(double val);
 Value create_bool(bool val);
 Value create_string(const char *val);
-char *nl_unescape_string(const char *raw);
 Value create_void(void);
 Value create_array(ValueType elem_type, int length, int capacity);
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count);
@@ -974,11 +950,6 @@ typedef struct {
     int capacity;
 } ModuleList;
 
-bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *modules,
-                             const char *input_file, bool include_imports);
-bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
-                            const char *input_file, bool include_imports, bool verbose);
-
 ModuleList *create_module_list(void);
 void free_module_list(ModuleList *list);
 void module_list_add(ModuleList *list, const char *module_path);
@@ -988,7 +959,6 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 ASTNode *load_module(const char *module_path, Environment *env);
 ASTNode *load_module_from_package(const char *package_path, Environment *env, char *temp_dir_out, size_t temp_dir_size);
 ASTNode *get_cached_module_ast(const char *module_path);
-char *module_program_name(ASTNode *program, const char *module_path);
 int64_t module_get_import_count(const char *module_path);
 const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);
@@ -1000,8 +970,7 @@ bool compile_module_to_object(const char *module_path,
                               bool verbose,
                               char **extra_compile_flags,
                               size_t extra_compile_flags_count);
-/* I return an owned module object fragment; callers free it on success or failure. */
-bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_buffer, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
+bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
 
 /* Module metadata for serialization */
 typedef struct {

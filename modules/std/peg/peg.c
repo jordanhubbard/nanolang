@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-NANO_EXPORT_ARRAY_ABI(nl_peg_captures);
-
 typedef enum {
     N_LITERAL,
     N_DOT,
@@ -61,7 +59,6 @@ typedef struct {
     CaptureSpan *spans;
     int64_t count;
     int64_t cap;
-    bool failed;
 } CaptureState;
 
 typedef struct {
@@ -72,7 +69,6 @@ static void cap_init(CaptureState *cs) {
     cs->spans = NULL;
     cs->count = 0;
     cs->cap = 0;
-    cs->failed = false;
 }
 
 static void cap_free(CaptureState *cs) {
@@ -83,18 +79,16 @@ static void cap_free(CaptureState *cs) {
 }
 
 static void cap_push(CaptureState *cs, int64_t start, int64_t end) {
-    if (cs->failed) return;
     if (cs->count >= cs->cap) {
-        if (cs->cap > INT64_MAX / 2) { cs->failed = true; return; }
         int64_t new_cap = cs->cap == 0 ? 8 : cs->cap * 2;
-        if ((uint64_t)new_cap > SIZE_MAX / sizeof(CaptureSpan)) {
-            cs->failed = true;
-            return;
+        if (new_cap > INT64_MAX / (int64_t)sizeof(CaptureSpan)) {
+            fprintf(stderr, "Error: PEG capture overflow\n");
+            exit(1);
         }
         CaptureSpan *ns = (CaptureSpan*)realloc(cs->spans, (size_t)new_cap * sizeof(CaptureSpan));
         if (!ns) {
-            cs->failed = true;
-            return;
+            fprintf(stderr, "Error: Out of memory in PEG captures\n");
+            exit(1);
         }
         cs->spans = ns;
         cs->cap = new_cap;
@@ -655,7 +649,8 @@ int64_t nl_peg_match(void* peg_ptr, const char* input) {
 
 DynArray* nl_peg_captures(void* peg_ptr, const char* input) {
     PEG *peg = (PEG*)peg_ptr;
-    if (!peg || !peg->root || !input) return dyn_array_new(ELEM_STRING);
+    DynArray *out_arr = dyn_array_new(ELEM_STRING);
+    if (!peg || !peg->root || !input) return out_arr;
 
     int64_t in_len = (int64_t)strnlen(input, 1024ULL * 1024ULL);
     CaptureState caps;
@@ -663,14 +658,11 @@ DynArray* nl_peg_captures(void* peg_ptr, const char* input) {
 
     int64_t out_pos = 0;
     bool ok = match_node(peg->root, input, in_len, 0, &out_pos, &caps);
-    if (caps.failed) { cap_free(&caps); return NULL; }
     if (!(ok && out_pos == in_len)) {
         cap_free(&caps);
-        return dyn_array_new(ELEM_STRING);
+        return out_arr;
     }
 
-    DynArray *out_arr = dyn_array_new_with_capacity(ELEM_STRING, caps.count);
-    if (!out_arr) { cap_free(&caps); return NULL; }
     for (int64_t i = 0; i < caps.count; i++) {
         int64_t s = caps.spans[i].start;
         int64_t e = caps.spans[i].end;
@@ -679,13 +671,7 @@ DynArray* nl_peg_captures(void* peg_ptr, const char* input) {
         if (e > in_len) e = in_len;
         int64_t n = e - s;
         char *buf = (char*)malloc((size_t)n + 1);
-        if (!buf) {
-            for (int64_t j = 0; j < out_arr->length; ++j)
-                free((void *)dyn_array_get_string(out_arr, j));
-            gc_release(out_arr);
-            cap_free(&caps);
-            return NULL;
-        }
+        if (!buf) continue;
         memcpy(buf, input + s, (size_t)n);
         buf[n] = '\0';
         dyn_array_push_string(out_arr, buf);

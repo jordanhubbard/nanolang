@@ -504,18 +504,6 @@
         [
           "is_mut",
           "bool"
-        ],
-        [
-          "is_destructure",
-          "bool"
-        ],
-        [
-          "is_destructure_projection",
-          "bool"
-        ],
-        [
-          "destructure_names",
-          "array<string>"
         ]
       ],
       "emit_c": true

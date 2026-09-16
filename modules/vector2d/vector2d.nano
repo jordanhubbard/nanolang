@@ -140,8 +140,8 @@ pub fn vec_normalize(v: Vector2D) -> Vector2D {
 shadow vec_normalize {
     let v: Vector2D = (vec_new 3.0 4.0)
     let n: Vector2D = (vec_normalize v)
-    assert (and (> n.x 0.599999999) (< n.x 0.600000001))
-    assert (and (> n.y 0.799999999) (< n.y 0.800000001))
+    assert (== n.x 0.6)
+    assert (== n.y 0.8)
     
     let zero: Vector2D = (vec_zero)
     let norm_zero: Vector2D = (vec_normalize zero)
@@ -249,3 +249,4 @@ shadow vec_reflect {
     assert (== reflected.x 1.0)
     assert (== reflected.y 1.0)
 }
+

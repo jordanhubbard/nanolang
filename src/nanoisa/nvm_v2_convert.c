@@ -15,9 +15,9 @@
  *    must deduplicate exactly -- if two identically-shaped callables get
  *    different indices, comparing signature indices stops meaning "same type",
  *    which is the property the verifier is meant to gain from v2.
- *  - Legacy producers can omit function parameter types. I preserve typed
- *    producers' declarations and retain TAG_VOID placeholders only where
- *    types are unknown. I derive max_stack when verification succeeds.
+ *  - v1 records neither function parameter types nor max_stack. Rather than
+ *    guess, the bridge emits TAG_VOID placeholder parameter tags and a
+ *    max_stack of 0; a v2-native producer supplies the real values.
  *
  * Constant payloads and import tag arrays alias the source NvmModule, so it
  * must outlive the NvmV2Module the bridge produces.
@@ -57,11 +57,9 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
-    if (!nvm_callback_contracts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
 
     const uint32_t n_fn = mod->function_count;
     const uint32_t n_im = mod->import_count;
-    const uint32_t n_cb = mod->callback_contract_count;
     const uint32_t n_lk = mod->module_ref_count;
     const uint32_t n_db = mod->debug_count;
     const bool has_source = mod->source_file_idx != 0 &&
@@ -94,16 +92,13 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         pool_cap += (size_t)mod->functions[i].arity + mod->functions[i].result_count;
     for (uint32_t i = 0; i < n_im; i++)
         pool_cap += (size_t)mod->imports[i].param_count + 1u;
-    for (uint32_t i = 0; i < n_cb; i++)
-        pool_cap += (size_t)mod->callback_contracts[i].param_count + 1u;
 
     uint8_t *pool = pool_cap ? calloc(pool_cap, 1) : NULL;
     if (pool_cap && !pool) goto oom;
     out->owned_tags = pool;
     size_t pool_used = 0;
 
-    if ((uint64_t)n_fn + n_im + n_cb > UINT32_MAX) goto oom;
-    uint32_t sig_cap = n_fn + n_im + n_cb;
+    uint32_t sig_cap = n_fn + n_im;
     NvmV2Signature *sigs = sig_cap ? calloc(sig_cap, sizeof *sigs) : NULL;
     if (sig_cap && !sigs) goto oom;
     out->signatures.items = sigs;
@@ -118,11 +113,9 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         const NvmFunctionEntry *f = &mod->functions[i];
         size_t mark = pool_used;
 
-        /* I retain producer-declared tags. Legacy producers leave the zeroed
-         * TAG_VOID placeholders; I do not invent a signature for them. */
+        /* Parameter tags are TAG_VOID placeholders: v1 does not record them,
+         * and the pool is already zeroed, so this only reserves the bytes. */
         const uint8_t *ptags = f->arity ? pool + pool_used : NULL;
-        if (f->arity && mod->function_param_types && mod->function_param_types[i])
-            memcpy(pool + pool_used, mod->function_param_types[i], f->arity);
         pool_used += f->arity;
 
         const uint8_t *rtags = NULL;
@@ -182,32 +175,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
                                                   &pool_used, mark);
         ims[i].module_name_idx = im->module_name_idx;
         ims[i].symbol_name_idx = im->function_name_idx;
-        ims[i].kind            = mod->imports[i].kind;
-    }
-
-    out->callbacks.items = n_cb ? calloc(n_cb, sizeof(*out->callbacks.items)) : NULL;
-    if (n_cb && !out->callbacks.items) goto oom;
-    out->callbacks.count = n_cb;
-    for (uint32_t i = 0; i < n_cb; i++) {
-        const NvmCallbackContract *c = &mod->callback_contracts[i];
-        NvmV2Callback *wire = &out->callbacks.items[i];
-        wire->import_idx = c->import_idx;
-        wire->adapter_name_idx = c->adapter_name_idx;
-        wire->parameter_idx = c->parameter_idx;
-        wire->abi_version = c->abi_version;
-        wire->execution = c->execution;
-        wire->signature_idx = NVM_V2_NO_INDEX;
-        if (c->parameter_idx != NVM_CALLBACK_NO_PARAMETER) {
-            size_t mark = pool_used;
-            const uint8_t *params = c->param_count ? pool + pool_used : NULL;
-            if (c->param_count) memcpy(pool + pool_used, c->param_tags, c->param_count);
-            pool_used += c->param_count;
-            uint16_t result_count = c->return_tag != TAG_VOID;
-            const uint8_t *results = result_count ? pool + pool_used : NULL;
-            if (result_count) pool[pool_used++] = c->return_tag;
-            NvmV2Signature signature = {c->param_count, result_count, params, results};
-            wire->signature_idx = intern_signature(&out->signatures, &signature, &pool_used, mark);
-        }
+        ims[i].kind            = NVM_V2_IMPORT_FFI;
     }
 
     /* LINKS: a v1 module ref names a dependency, not a symbol or a call shape,
@@ -351,52 +319,16 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         e.upvalue_count = f->upvalue_count;
         e.result_count  = (uint8_t)s->result_count;
         e.result_tag    = s->result_count ? s->result_tags[0] : TAG_VOID;
-        uint32_t index = nvm_add_function(mod, &e);
-        if (index == UINT32_MAX ||
-            !nvm_set_function_param_types(mod, index, s->param_tags, s->param_count)) {
-            nvm_module_free(mod);
-            return NVM_V2_ERR_TRUNCATED;
-        }
+        nvm_add_function(mod, &e);
     }
 
     for (uint32_t i = 0; i < m->imports.count; i++) {
         const NvmV2Import *im = &m->imports.items[i];
         const NvmV2Signature *s = &m->signatures.items[im->signature_idx];
         uint8_t ret = s->result_count ? s->result_tags[0] : TAG_VOID;
-        uint32_t index = nvm_add_import(mod, im->module_name_idx, im->symbol_name_idx,
-                                       s->param_count, ret, s->param_tags);
-        if (index == UINT32_MAX) {
-            nvm_module_free(mod);
-            return NVM_V2_ERR_TRUNCATED;
-        }
-        mod->imports[index].kind = im->kind;
+        nvm_add_import(mod, im->module_name_idx, im->symbol_name_idx,
+                       s->param_count, ret, s->param_tags);
     }
-
-    for (uint32_t i = 0; i < m->callbacks.count; i++) {
-        const NvmV2Callback *wire = &m->callbacks.items[i];
-        NvmCallbackContract c = {0};
-        c.import_idx = wire->import_idx;
-        c.adapter_name_idx = wire->adapter_name_idx;
-        c.parameter_idx = wire->parameter_idx;
-        c.abi_version = wire->abi_version;
-        c.execution = wire->execution;
-        if (c.parameter_idx != NVM_CALLBACK_NO_PARAMETER) {
-            if (wire->signature_idx >= m->signatures.count) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
-            const NvmV2Signature *s = &m->signatures.items[wire->signature_idx];
-            if (s->param_count > NANO_MAX_FFI_ARGS || s->result_count > 1) {
-                nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE;
-            }
-            c.param_count = s->param_count;
-            c.return_tag = s->result_count ? s->result_tags[0] : TAG_VOID;
-            if (s->param_count) memcpy(c.param_tags, s->param_tags, s->param_count);
-        } else if (wire->signature_idx != NVM_V2_NO_INDEX) {
-            nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE;
-        }
-        if (!nvm_add_callback_contract(mod, &c)) {
-            nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE;
-        }
-    }
-    if (!nvm_callback_contracts_valid(mod)) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
 
     for (uint32_t i = 0; i < m->links.count; i++)
         nvm_add_module_ref(mod, m->links.items[i].module_name_idx);

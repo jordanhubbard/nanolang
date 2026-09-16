@@ -1,5 +1,4 @@
 /* Test: temporary file and directory operations */
-from "modules/std/fs.nano" import exists, write, read, delete
 fn main() -> int {
     return 0
 }
@@ -10,14 +9,14 @@ shadow main {
 
     let path = (mktemp "nanolang_test_")
     assert (!= path "")
-    assert (exists path)
-    assert (== (write path "hello") 0)
-    let s = (read path)
+    assert (== (file_exists path) true)
+    assert (== (file_write path "hello") 0)
+    let s = (file_read path)
     assert (== s "hello")
-    assert (== (delete path) 0)
+    assert (== (file_remove path) 0)
 
     let dpath = (mktemp_dir "nanolang_dir_")
     assert (!= dpath "")
-    assert (exists dpath)
-    assert (== (delete dpath) 0)
+    assert (== (dir_exists dpath) true)
+    assert (== (dir_remove dpath) 0)
 }

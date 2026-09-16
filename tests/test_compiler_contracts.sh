@@ -187,10 +187,4 @@ else
     fail "--bench-json response contract"
 fi
 
-if python3 "$SCRIPT_DIR/test_compiler_destinations.py" "$COMPILER"; then
-    pass "artifact and diagnostic destinations remain separate"
-else
-    fail "artifact and diagnostic destination contract"
-fi
-
 test "$failures" -eq 0

@@ -460,8 +460,8 @@ static void walk_node(EffectCtx *ctx, ASTNode *node, Environment *env) {
             return;
         case AST_EFFECT_OP:
             effect_check_perform(ctx, node);
-            for (int i = 0; i < node->as.effect_op.arg_count; i++)
-                walk_node(ctx, node->as.effect_op.args[i], env);
+            if (node->as.effect_op.arg)
+                walk_node(ctx, node->as.effect_op.arg, env);
             return;
         case AST_PROGRAM:
             for (int i = 0; i < node->as.program.count; i++)

@@ -21,9 +21,7 @@ static void usage(FILE *out) {
             "I do not embed nano_vm. I am not a NanoLang compiler phase.\n"
             "Usage: nvm2c <file.nvm> [-o out.c]\n"
             "       nvm2c --help\n"
-            "Without -o I write C to stdout.\n"
-            "For native array/GC artifact imports, link bin/nano_aot_runtime.o\n"
-            "from make nvm2c-runtime; see docs/AOT_RUNTIME.md for host export flags.\n");
+            "Without -o I write C to stdout.\n");
 }
 
 int main(int argc, char **argv) {

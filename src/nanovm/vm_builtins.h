@@ -12,7 +12,6 @@
 char *vm_getcwd(void);
 int64_t vm_chdir(const char *path);
 char *vm_file_read(const char *path);
-DynArray *vm_file_read_bytes(const char *path);
 int64_t vm_file_write(const char *path, const char *content);
 int64_t vm_file_exists(const char *path);
 int64_t vm_dir_exists(const char *path);
@@ -25,16 +24,10 @@ char *vm_getenv(const char *name);
 int64_t vm_setenv(const char *name, const char *value);
 
 /* String */
-char *vm_str_trim_left(const char *str);
-char *vm_str_trim_right(const char *str);
-char *vm_str_join(DynArray *parts, const char *separator);
-char *vm_format(const char *template, DynArray *arguments);
 int64_t vm_str_index_of(const char *haystack, const char *needle);
-int64_t vm_str_last_index_of(const char *haystack, const char *needle);
 char *vm_string_from_char(int64_t code);
 
 /* Binary string */
-DynArray *vm_array_sort(DynArray *array);
 DynArray *vm_bytes_from_string(const char *str);
 char *vm_string_from_bytes(DynArray *arr);
 
@@ -55,5 +48,7 @@ int64_t vm_bstr_validate_utf8(const char *str);
 
 /* Process */
 DynArray *vm_process_run(const char *cmd);
+char *vm_exec_capture(const char *cmd);
+int64_t vm_exec_last_status(void);
 
 #endif /* NANOVM_BUILTINS_H */

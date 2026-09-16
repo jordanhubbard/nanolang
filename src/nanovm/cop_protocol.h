@@ -36,14 +36,14 @@ typedef enum {
 
 /* Wire Header (same 8-byte format as VmdMsgHeader) */
 typedef struct {
-    uint8_t  version;       /* COP_PROTO_VERSION */
+    uint8_t  version;       /* 1 */
     uint8_t  msg_type;      /* CopMsgType */
     uint16_t reserved;      /* Must be 0 */
     uint32_t payload_len;   /* Bytes following this header */
 } __attribute__((packed)) CopMsgHeader;
 
 #define COP_HEADER_SIZE 8
-#define COP_PROTO_VERSION 2
+#define COP_PROTO_VERSION 1
 #define COP_MAX_PAYLOAD (16 * 1024 * 1024)  /* 16 MB max for FFI payloads */
 
 /* ========================================================================
@@ -67,27 +67,6 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
  * heap is needed for allocating strings. */
 uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
                                NanoValue *out, VmHeap *heap);
-
-/* Versioned call envelope: arguments, optionally followed by the result.
- * Top-level array aliases use bounded backward references. Supported arrays
- * contain scalar/string elements, matching the in-process foreign boundary.
- * Decode owns each output reference; failure clears/releases every output.
- * Single-call mailbox and version-2 pipe transports use this envelope. */
-uint32_t cop_encode_call_values(const NanoValue *values, uint8_t count,
-                                uint8_t *buf, uint32_t size);
-bool cop_decode_call_values(const uint8_t *buf, uint32_t size, NanoValue *values,
-                            uint8_t count, VmHeap *heap);
-/* Reply contains argc argument snapshots followed by one result. I validate
- * all snapshots and alias relationships before swapping any original storage.
- * Native side effects cannot be rolled back if a reply fails validation. */
-bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
-                          uint8_t argc, NanoValue *result, VmHeap *heap);
-/* Execute a version-2 pipe request: little-endian import(u32), argc(u16),
- * call envelope. On success the caller owns *reply and must free it. */
-bool cop_execute_request(const uint8_t *request, uint32_t size,
-                          const NvmModule *module, VmHeap *heap,
-                          uint8_t **reply, uint32_t *reply_size,
-                          char *error, size_t error_size);
 
 /* ========================================================================
  * Shared-Memory Mailbox (fast path)
@@ -124,7 +103,7 @@ typedef struct CopMailbox {
     uint8_t  req_data[COP_MAILBOX_SLOT_SIZE];
 
     /* Response slot — written by child, read by parent */
-    uint8_t  resp_is_error;          /* 0=result, 1=error string, 2=pipe spill */
+    uint8_t  resp_is_error;          /* 0=result, 1=error string */
     uint8_t  _pad[3];
     uint8_t  resp_data_size[4];
     /* Batch mode response: number of serialized results packed in resp_data.
@@ -163,7 +142,6 @@ static inline uint64_t cop_get_u64(const uint8_t *p) {
  * address space.  module is the NvmModule whose imports are served. */
 void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                     int sig_in_fd, int sig_out_fd,
-                    int data_in_fd, int data_out_fd,
                     const NvmModule *module);
 
 /* Batch request descriptor: one host call in a coalesced batch.
@@ -190,13 +168,5 @@ bool cop_recv_payload(int fd, void *buf, uint32_t len);
 
 /* Send a simple message (no payload). */
 bool cop_send_simple(int fd, CopMsgType type);
-
-/* I bound the entire parent exchange by one monotonic deadline. These owned
- * pipe endpoints must not be used concurrently. On success the caller owns
- * *reply; on failure it must close/reset the channel (a frame may be partial). */
-bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
-                   int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size);
-/* send_fd == -1 receives an already-computed spill reply without sending. */
-int64_t cop_now_ms(void);
 
 #endif /* NANOVM_COP_PROTOCOL_H */

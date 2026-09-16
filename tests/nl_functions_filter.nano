@@ -57,8 +57,6 @@ fn positive_float(x: float) -> bool {
 
 shadow positive_float {
     assert (positive_float 1.5)
-    assert (positive_float 2.5)
-    assert (not (positive_float 0.0))
     assert (not (positive_float -1.5))
 }
 
@@ -136,71 +134,7 @@ shadow pipeline_filter_map_reduce {
     assert (== (pipeline_filter_map_reduce) 12)
 }
 
-fn nonempty_text(value: string) -> bool { return (> (str_length value) 0) }
-shadow nonempty_text {
-    assert (nonempty_text "value")
-    assert (not (nonempty_text ""))
-}
-
-fn keep_true(value: bool) -> bool { return value }
-shadow keep_true {
-    assert (keep_true true)
-    assert (not (keep_true false))
-}
-
 fn main() -> int {
-    assert (== (filter_scalar_literals) 5)
-    assert (== (filter_scalar_variables) 3)
-    assert (== (filter_empty_bool_result) 0)
-    # I execute callback checks in the native program as well as in shadows.
-    let evens: array<int> = (filter_basic)
-    assert (== (array_length evens) 3)
-    assert (== (at evens 2) 6)
-    assert (== (filter_empty_returns_empty) 0)
-    assert (== (pipeline_filter_map_reduce) 12)
-    let floats: array<float> = [0.0, 2.5]
-    let positive: array<float> = (filter floats positive_float)
-    assert (== (array_length positive) 1)
-    assert (== (at positive 0) 2.5)
-    assert (== (array_length floats) 2)
-    let rejected: array<float> = (filter [0.0, -1.0] positive_float)
-    assert (== (array_length rejected) 0)
-    let appended: array<float> = (array_push rejected 3.5)
-    assert (== (at appended 0) 3.5)
-    let empty: array<float> = []
-    let from_empty: array<float> = (filter empty positive_float)
-    let filled: array<float> = (array_push from_empty 4.5)
-    assert (== (at filled 0) 4.5)
-    assert (== (array_length empty) 0)
-    let words: array<string> = ["", "value"]
-    let nonempty: array<string> = (filter words nonempty_text)
-    assert (== (array_length nonempty) 1)
-    assert (== (at nonempty 0) "value")
-    let flags: array<bool> = (filter [false, true, false, true] keep_true)
-    assert (== (array_length flags) 2)
-    assert (at flags 0)
-    assert (at flags 1)
-    let kept_flags: array<bool> = (filter flags keep_true)
-    assert (== (array_length kept_flags) 2)
-    let no_flags: array<bool> = (filter [false] keep_true)
-    let one_flag: array<bool> = (array_push no_flags true)
-    assert (at one_flag 0)
-    let literal_words: array<string> = (filter ["", "kept"] nonempty_text)
-    assert (== (at literal_words 0) "kept")
-    let no_words: array<string> = (filter [""] nonempty_text)
-    let one_word: array<string> = (array_push no_words "added")
-    assert (== (at one_word 0) "added")
-    let literal_ints: array<int> = (filter [1, 2] is_even)
-    assert (== (at literal_ints 0) 2)
-    let empty_flags: array<bool> = (filter [] keep_true)
-    let filled_flags: array<bool> = (array_push empty_flags true)
-    assert (at filled_flags 0)
-    let empty_words: array<string> = (filter [] nonempty_text)
-    let filled_words: array<string> = (array_push empty_words "typed")
-    assert (== (at filled_words 0) "typed")
-    let empty_floats: array<float> = (filter [] positive_float)
-    let filled_floats: array<float> = (array_push empty_floats 1.5)
-    assert (== (at filled_floats 0) 1.5)
     (println "nl_functions_filter: All filter tests passed!")
     return 0
 }

@@ -94,23 +94,76 @@ static bool handle_init(int in_fd, uint32_t payload_len) {
 }
 
 static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
-    if (payload_len > COP_MAX_PAYLOAD) return false;
-    uint8_t *payload = malloc(payload_len ? payload_len : 1);
+    uint8_t *payload = malloc(payload_len);
     if (!payload) return false;
     if (!cop_recv_payload(in_fd, payload, payload_len)) {
         free(payload);
         return false;
     }
-    uint8_t *reply = NULL;
-    uint32_t reply_size = 0;
-    char error[256] = {0};
-    bool ok = cop_execute_request(payload, payload_len, g_module, &g_heap,
-                                  &reply, &reply_size, error, sizeof error);
+
+    /* Parse: u32 import_idx + u16 argc + serialized args */
+    if (payload_len < 6) {
+        free(payload);
+        cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, "bad request", 11);
+        return true;
+    }
+
+    uint32_t import_idx;
+    uint16_t argc;
+    import_idx = cop_get_u32(payload);
+    argc = cop_get_u16(payload + 4);
+
+    NanoValue args[NANO_MAX_FFI_ARGS] = {0};
+    uint32_t pos = 6;
+    for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS; i++) {
+        uint32_t consumed = cop_deserialize_value(payload + pos, payload_len - pos,
+                                                   &args[i], &g_heap);
+        if (consumed == 0) {
+            free(payload);
+            cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, "bad arg", 7);
+            return true;
+        }
+        pos += consumed;
+    }
     free(payload);
-    bool sent = ok ? cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, reply, reply_size)
-                   : cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, error, (uint32_t)strlen(error));
-    free(reply);
-    return sent;
+
+    /* Call the C function */
+    NanoValue result;
+    char error_msg[256] = {0};
+    if (!vm_ffi_call(g_module, import_idx, args, argc, &result, &g_heap,
+                     error_msg, sizeof(error_msg))) {
+        uint32_t err_len = (uint32_t)strlen(error_msg);
+        cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, error_msg, err_len);
+    } else {
+        /* Serialize and send result.
+         * Use a small stack buffer for simple values, dynamically
+         * allocate for large results (arrays, deeply nested structs). */
+        uint8_t stack_buf[4096];
+        uint32_t result_len = cop_serialize_value(&result, stack_buf, sizeof(stack_buf));
+        if (result_len > 0) {
+            cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, stack_buf, result_len);
+        } else {
+            /* Stack buffer too small — retry with a larger heap buffer */
+            uint32_t big_size = 1024 * 1024;  /* 1 MB */
+            uint8_t *big_buf = malloc(big_size);
+            if (big_buf) {
+                result_len = cop_serialize_value(&result, big_buf, big_size);
+                cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, big_buf, result_len);
+                free(big_buf);
+            } else {
+                cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR,
+                         "OOM serializing result", 22);
+            }
+        }
+        vm_release(&g_heap, result);
+    }
+
+    /* Release deserialized args */
+    for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS; i++) {
+        vm_release(&g_heap, args[i]);
+    }
+
+    return true;
 }
 
 int main(void) {
