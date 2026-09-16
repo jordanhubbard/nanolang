@@ -435,6 +435,59 @@ static void test_str_concat_len_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_string_storage_is_owned_checked_and_unbounded(void) {
+    const char *src =
+        ".string value \"0123456789abcdef\"\n"
+        ".entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "  PUSH_STR value\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 13\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE done\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  STR_CONCAT\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  LOAD_LOCAL 0\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 131072\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "large string concatenation fixture");
+    CHECK(m != NULL, "large string concatenation fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits owned string storage");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "nstr_arena") == NULL,
+              "generated strings do not use a fixed arena");
+        CHECK(strstr(c, "if (!owned) abort();") != NULL,
+              "generated string allocation checks failure");
+        CHECK(strstr(c, "if (nb > SIZE_MAX - na) abort();") != NULL,
+              "generated concatenation checks length overflow");
+        CHECK(strstr(c, "nstr_free_all();") != NULL,
+              "generated main releases owned strings");
+        CHECK(compile_and_run(c, &status) == 0,
+              "large concatenation generated C compiles and runs");
+        CHECK(status == 1,
+              "concatenation grows beyond the former 65,536-byte limit");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_greeting_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -2534,6 +2587,7 @@ int main(int argc, char **argv) {
     test_cast_int_updates_classifier_stack();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
+    test_string_storage_is_owned_checked_and_unbounded();
     test_greeting_runs_without_nano_vm();
     test_glue_runs_without_nano_vm();
     test_arr_set_is_refused();
