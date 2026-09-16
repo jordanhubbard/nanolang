@@ -13,12 +13,16 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 WRAPPER = r'''import os, pathlib, sys, json, time
 args = sys.argv[1:]
-if "-c" in args and any("single_invocation_probe" in arg for arg in args):
+if "-c" in args and pathlib.Path(args[-1]).name == "source.c":
     log = pathlib.Path(os.environ["PROBE_LOG"])
     first = not log.exists()
     with log.open("a") as stream:
         stream.write("compile\n")
     mode = os.environ["PROBE_MODE"]
+    if mode == "escaped_filename":
+        source = pathlib.Path(args[-1])
+        assert source.parent.name.startswith(".nano-module-")
+        assert all(32 <= ord(character) < 127 and character not in '\\"' for character in str(source))
     if mode == "missing":
         sys.exit(0)
     if mode == "partial":
@@ -79,8 +83,9 @@ class ModuleCompileInvocation(unittest.TestCase):
                 module_relative = parent + "/single_invocation_probe.nano"
             (path / module_relative).write_text(
                 "module single_invocation_probe\n"
-                "pub fn answer() -> int { return 42 }\n"
-                "shadow answer { assert (== (answer) 42) }\n")
+                + ("pub fn answer() -> int { let value: int = 42 assert (== value 42) return value }\n"
+                   if mode == "escaped_filename" else "pub fn answer() -> int { return 42 }\n")
+                + "shadow answer { assert (== (answer) 42) }\n")
             import_path = json.dumps(module_relative, ensure_ascii=False)
             if mode == "nul_path":
                 import_path = '"single_invocation_probe.nano\\0ignored"'
