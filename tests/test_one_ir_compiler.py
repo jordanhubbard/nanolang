@@ -461,6 +461,58 @@ class OneIrCompiler(unittest.TestCase):
                         result = subprocess.run([binary, invalid], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I retain projected array tag and bounds checks")
 
+    def test_generic_array_parameters_keep_runtime_tags(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for tail in (False, True):
+                for tag in ("int", "bool", "string"):
+                    with self.subTest(reverse=reverse, tail=tail, tag=tag), tempfile.TemporaryDirectory(prefix="nano-generic-array-param-") as tmp:
+                        work = Path(tmp)
+                        assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                        element_tag = {"int": 1, "bool": 4, "string": 5}[tag]
+                        blocks = [
+                            ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
+                            f".function probe 1 2 0 bool 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nPUSH_I64 0\nARR_GET\nTYPE_CHECK {element_tag}\nRET\n.end\n",
+                            ".function forward 1 1 0 bool 1\nLOAD_LOCAL 0\n" + ("TAIL_CALL probe\n" if tail else "CALL probe\nRET\n") + ".end\n",
+                            ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nARR_LEN\nRET\n.end\n",
+                        ]
+                        if reverse:
+                            blocks.reverse()
+                        text = ".entry main\n" + "".join(blocks)
+                        text += "".join(f".parameters {i} array\n" for i, block in enumerate(blocks) if not block.startswith(".function main"))
+                        assembly.write_text(text)
+                        self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                        self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                        storage_kind = {"int": 3, "bool": 10, "string": 5}[tag]
+                        setup = 'const char *data[] = {"one", "two"}; nsarr_s a = {.data = data, .len = 2};' if tag == "string" else "int64_t data[] = {1, 0}; narr_s a = {.data = data, .len = 2};"
+                        body = setup + f"nmap_value value = {{7, {storage_kind}, (char *)&a}};"
+                        body += "if (argc > 1) { if (argv[1][0] == 't') value.kind = 1; else if (argv[1][0] == 'n') value.text = NULL; else value.integer = 99; }"
+                        body += f"if (nl_length(value) != 2 || !nl_forward(value)) return 1; a.len = 1; return nl_length(value) != 1 || value.integer != {storage_kind};"
+                        generated = source.read_text().replace("int main(", "int generated_main(")
+                        source.write_text(generated + f"\nint main(int argc, char **argv) {{ {body} }}\n")
+                        self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                        self.run_checked([binary])
+                        for invalid in ("tag", "null", "storage"):
+                            rejected = subprocess.run([binary, invalid], capture_output=True, timeout=10)
+                            self.assertLess(rejected.returncode, 0, "I trap an invalid generic array descriptor")
+
+    def test_uncalled_functions_are_warning_clean_not_executed(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            with self.subTest(reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-uncalled-native-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                unused = ".function unused 0 0 0 int 1\nPUSH_BOOL 0\nASSERT\nPUSH_I64 42\nRET\n.end\n"
+                assembly.write_text(".entry main\n" + (unused + main if reverse else main + unused))
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([binary])
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

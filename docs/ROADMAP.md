@@ -377,10 +377,31 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   1,670 AOT and 1,073 shape checks. Full compiler emission
                   advances to the failure below. Evidence:
                   `docs/evidence/aot-projected-array-reads.md`.
-                - [ ] I resolve the array parameter's emitted storage in
+                - [x] I resolve the array parameter's emitted storage in
                   `gen_call` (440), preserving its runtime element tags when
                   native element storage is unresolved. I rerun full compiler
                   acceptance. MAC `task_9c768255d97544cc9e850ef547b90fc3`.
+                  I delay the unknown-to-integer fallback until shapes resolve.
+                  Forty-eight generic-array execution and rejection cases pass.
+                  Evidence: `docs/evidence/aot-generic-array-parameters.md`.
+                - [x] I keep retained generated functions warning-clean under
+                  strict C11 compilation without invoking uncalled helpers or
+                  weakening compiler flags. I rerun native compiler acceptance.
+                  MAC `task_cd4036cffef64fd8a046f88153564b69`.
+                  Two function orders pass strict C11 compilation and execution
+                  without invoking the trapping helper. Normal and fresh
+                  ASan/UBSan suites pass 1,670 AOT and 1,073 shape checks.
+                  Full compiler acceptance advances to the runtime failure below.
+                  Evidence: `docs/evidence/aot-generic-array-parameters.md`.
+                - [ ] I resolve the native compiler's runtime abort while
+                  compiling `examples/language/nl_hello.nano`. Native C emission,
+                  strict C11 compilation and `--help` pass; compiling a program
+                  does not. I trace the failing runtime check, add a regression
+                  and rerun end-to-end acceptance. MAC
+                  `task_fca5000374ef49988da33e5617e703b8`.
+                  I traced the abort to `dlopen` in the `path_canonical` adapter:
+                  my standard-library artifact requires the missing host symbol
+                  `dyn_array_get_string`. Fresh compiler emission reproduces it.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

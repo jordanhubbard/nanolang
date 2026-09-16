@@ -1561,7 +1561,6 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     for (i = 0; i < nloc; i++) {
         if (i < fn->arity &&
             !merge_parameter(b, facts, &facts->parameters[(size_t)idx * b->local_width + i], local_kind[i])) return 0;
-        if (facts->final && local_kind[i] == NVM2C_VK_UNK) local_kind[i] = NVM2C_VK_INT;
     }
     return 1;
 }
@@ -4311,6 +4310,16 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             size_t at = (size_t)f * b.local_width + l;
             uint8_t resolved = resolved_shape_kind(&b, b.shape_locals[at]);
             if (resolved != NVM2C_VK_UNK) kinds[at] = resolved;
+            else if (kinds[at] == NVM2C_VK_UNK && b.shape_locals[at] &&
+                     nvm_shape_kind(&b.shapes, b.shape_locals[at]) == NVM_SHAPE_ARRAY) {
+                /* An array container with unresolved element storage uses the
+                 * existing tagged handle ABI, including parameters and copies. */
+                kinds[at] = NVM2C_VK_VALUE;
+                b.has_maps = 1;
+            }
+            /* I choose the scalar fallback only after aggregate shapes have
+             * had their chance to determine the local representation. */
+            if (kinds[at] == NVM2C_VK_UNK) kinds[at] = NVM2C_VK_INT;
         }
     }
     if (!shape_ok(&b)) goto fail;
@@ -4655,6 +4664,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "int main(int argc, char **argv) {\n"
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
+        /* I retain every translated function without executing uncalled ones.
+         * Standard C references keep strict unused-function warnings clean. */
+        for (uint32_t i = 0; i < mod->function_count; ++i) {
+            char name[64];
+            fn_c_name(mod, i, name, sizeof name);
+            nvm2c_printf(&b, "    (void)%s;\n", name);
+        }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
             "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_cast_int; (void)nvalue_equal;\n"
