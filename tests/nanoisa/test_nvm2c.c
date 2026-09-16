@@ -2448,6 +2448,68 @@ static void test_cli_refuses_call_extern(const char *cli) {
           "CLI refusal names the FFI path");
 }
 
+static NvmModule *make_local_count_fixture(uint16_t arity, uint16_t local_count) {
+    NvmModule *m = nvm_module_new();
+    if (!m) return NULL;
+    uint32_t name = nvm_add_string(m, "main", 4);
+    uint8_t code[] = {
+        OP_PUSH_I64, 7, 0, 0, 0, 0, 0, 0, 0,
+        OP_STORE_LOCAL, 0xff, 0x03,
+        OP_LOAD_LOCAL, 0xff, 0x03,
+        OP_RET
+    };
+    if (local_count < 1024) {
+        code[10] = 0;
+        code[11] = 0;
+        code[13] = 0;
+        code[14] = 0;
+    }
+    nvm_append_code(m, code, sizeof code);
+    NvmFunctionEntry fn;
+    memset(&fn, 0, sizeof fn);
+    fn.name_idx = name;
+    fn.arity = arity;
+    fn.local_count = local_count;
+    fn.code_length = sizeof code;
+    fn.result_tag = TAG_INT;
+    fn.result_count = 1;
+    nvm_add_function(m, &fn);
+    m->header.entry_point = 0;
+    m->header.flags = NVM_FLAG_HAS_MAIN;
+    return m;
+}
+
+static void test_1024_locals_compile_and_run(void) {
+    NvmModule *m = make_local_count_fixture(0, 1024);
+    CHECK(m != NULL, "1024-local fixture allocates");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "nvm2c accepts NanoVirt's 1024-local limit");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "1024-local generated C compiles and runs");
+        CHECK(status == 7, "highest valid local preserves its value");
+    } else {
+        printf("    nvm2c error: %s\n", err);
+    }
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_arity_exceeding_locals_is_refused(void) {
+    NvmModule *m = make_local_count_fixture(2, 1);
+    CHECK(m != NULL, "malformed arity fixture allocates");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "arity greater than local_count is refused");
+    CHECK(strstr(err, "arity exceeds local_count") != NULL,
+          "malformed arity error names the violated relation");
+    free(c);
+    nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_record_result_crosses_direct_call();
@@ -2510,6 +2572,8 @@ int main(int argc, char **argv) {
     test_choose_else_runs_without_nano_vm();
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
+    test_1024_locals_compile_and_run();
+    test_arity_exceeding_locals_is_refused();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);
