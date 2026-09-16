@@ -867,8 +867,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            if (lhs.kind != NVM2C_VK_VALUE && rhs.kind != NVM2C_VK_VALUE &&
-                (lhs.kind != NVM2C_VK_INT || rhs.kind != NVM2C_VK_INT)) {
+            if (lhs.kind == NVM2C_VK_UNK && rhs.kind != NVM2C_VK_UNK) {
+                if (!mark_origin(b, facts, local_kind, nloc, lhs.origin, rhs.kind)) return 0;
+                lhs.kind = rhs.kind;
+            }
+            if (rhs.kind == NVM2C_VK_UNK && lhs.kind != NVM2C_VK_UNK) {
+                if (!mark_origin(b, facts, local_kind, nloc, rhs.origin, lhs.kind)) return 0;
+                rhs.kind = lhs.kind;
+            }
+            if (lhs.kind == NVM2C_VK_STR && rhs.kind == NVM2C_VK_STR) {
                 if (!mark_str_origin(b, facts, local_kind, nloc, lhs.origin) ||
                     !mark_str_origin(b, facts, local_kind, nloc, rhs.origin)) return 0;
             }
