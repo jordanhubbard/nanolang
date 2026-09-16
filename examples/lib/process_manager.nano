@@ -11,7 +11,7 @@
 # Expected Output: none
 
 from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn_with_pipes, fd_read_available, fd_close, kill_group, Output
-from "modules/std/fs.nano" import exists, read, write, append, delete, basename, dirname
+from "modules/std/fs.nano" import exists, read, write, append, delete, basename, dirname, mkdir_p
 from "modules/std/env.nano" import get as env_get
 
 struct ModeConfig {
@@ -279,14 +279,21 @@ fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
 }
 
 shadow build_example {
-    let artifact: string = "bin/launcher_prebuilt_artifact_probe"
-    (write artifact "prebuilt\n")
-    let mode: ModeConfig = (parse_mode "stage1")
-    let result: ChildStatus = (build_example "examples/internal/launcher_prebuilt_artifact_probe.nano" mode)
-    assert (== result.exit_code 0)
-    assert (str_contains result.build_output "Using pre-built")
-    assert (exists artifact)
-    (delete artifact)
+    assert (== (mkdir_p "bin") 0)
+    let directory: string = (mktemp_dir "nano_launcher_artifact_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let example: string = (+ directory ".nano")
+        let mode: ModeConfig = (parse_mode "stage1")
+        let artifact: string = (get_binary_name example mode)
+        assert (== (write artifact "prebuilt\n") 0)
+        let result: ChildStatus = (build_example example mode)
+        assert (== result.exit_code 0)
+        assert (str_contains result.build_output "Using pre-built")
+        assert (exists artifact)
+        assert (== (delete artifact) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default_args: string) -> ProcessManager {
