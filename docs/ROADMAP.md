@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Native float integration after main PR #357.** I preserve float
+      comparison capability with distinct value and shape tags, retain dynamic
+      mismatch traps and typed return boundaries, and verify local/call
+      transport alongside existing arrays and booleans.
+      MAC `task_da116ced2b104050b956a3526ae473e8`.
+
 - [ ] **General native call-order audit after this release.** I compare
       other C-seed multi-argument calls against interpreter and VM ordering
       before claiming general parity. The documented self-hosted computed-call
