@@ -1946,6 +1946,10 @@ static uint32_t effect_operation(CG *cg, const char *effect, const char *operati
     return index;
 }
 
+static ASTNode *bytecode_declaration(ASTNode *node) {
+    return node && node->type == AST_ASYNC_FN ? node->as.async_fn.function : node;
+}
+
 static void compile_expr(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
@@ -2031,6 +2035,11 @@ static void compile_expr(CG *cg, ASTNode *node) {
     case AST_EFFECT_OP:
         for (int i = 0; i < node->as.effect_op.arg_count; i++) compile_expr(cg, node->as.effect_op.args[i]);
         emit_op(cg, OP_PERFORM, effect_operation(cg, node->as.effect_op.effect_name, node->as.effect_op.op_name), node->as.effect_op.arg_count);
+        break;
+
+    case AST_AWAIT:
+        /* My scalar async contract is synchronous; I do not create promises. */
+        compile_expr(cg, node->as.await_expr.expr);
         break;
 
     case AST_NUMBER:
@@ -3356,6 +3365,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_EFFECT_OP:
     case AST_MATCH:
     case AST_TRY_OP:
+    case AST_AWAIT:
         compile_expr(cg, node);
         if (expr_leaves_value(cg, node))
             emit_op(cg, OP_POP);
@@ -3610,7 +3620,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     int main_fn_idx = -1;
 
     for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        ASTNode *item = bytecode_declaration(program->as.program.items[i]);
 
         if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
             const char *name = item->as.function.name;
@@ -3721,7 +3731,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 /* Register ALL module functions (public + private) so internal
                  * calls within module functions resolve correctly. */
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
-                    ASTNode *mitem = mod_ast->as.program.items[m];
+                    ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
 
                     /* Register all non-extern functions as bytecode functions */
                     if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
@@ -3948,7 +3958,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
             if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
             for (int m = 0; m < mod_ast->as.program.count; m++) {
-                ASTNode *mitem = mod_ast->as.program.items[m];
+                ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
 
                 if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
                     const char *fname = mitem->as.function.name;
@@ -4114,7 +4124,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
                 if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
-                    ASTNode *mitem = mod_ast->as.program.items[m];
+                    ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                     if (mitem->type == AST_LET) {
                         compile_expr(&cg, mitem->as.let.value);
                         int16_t gslot = global_find(&cg, mitem->as.let.name);
@@ -4127,7 +4137,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
         /* Then initialize program globals */
         for (int i = 0; i < program->as.program.count; i++) {
-            ASTNode *item = program->as.program.items[i];
+            ASTNode *item = bytecode_declaration(program->as.program.items[i]);
             if (item->type == AST_LET) {
                 compile_expr(&cg, item->as.let.value);
                 int16_t gslot = global_find(&cg, item->as.let.name);
@@ -4157,7 +4167,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     const char *outer_file = env_current_file(env);
     env_set_current_file(env, input_file);
     for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        ASTNode *item = bytecode_declaration(program->as.program.items[i]);
         if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
             compile_function(&cg, item);
             if (cg.had_error) break;
@@ -4172,7 +4182,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
 
             env_set_current_file(env, modules->module_paths[mi]);
             for (int m = 0; m < mod_ast->as.program.count; m++) {
-                ASTNode *mitem = mod_ast->as.program.items[m];
+                ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                 if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
                     compile_function(&cg, mitem);
                     if (cg.had_error) break;

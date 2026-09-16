@@ -102,3 +102,30 @@ support. I keep every example in compilation coverage.
 
 I add resource_flow.o to the packaged interpreter link. All five wrapper
 unit cases and seven wrapper integration methods pass on Linux.
+
+## Example and instrumentation follow-up
+
+All 242 eligible examples compile to bytecode on Linux after I install the
+required libuv, Bullet and GLUT development libraries, preserve C++ driver
+language during retained-input replay, and run boids force passes sequentially
+where dispatch is unavailable. I retain all six existing intentionally invalid
+or non-program exclusions; I add none. Boids' one-frame shadows also execute
+through the C compiler on Linux.
+
+The cache-publication suite passes 55 methods with eight platform-specific
+skips. C++ language/reuse/header-invalidation acceptance passes on Linux and
+Darwin. Its Clang fixture explicitly disables the driver's deprecated .c-as-C++
+compatibility warning: diagnostics deliberately withhold reuse evidence, so
+warning-bearing production inputs continue to rebuild safely.
+
+On Darwin, the sentence example finds its bundled dictionary when built from
+examples/ and completes both compilation shadows and execution. I retain the
+10-second shadow deadline. The coprocessor protocol passes 35 checks, and its
+changed diagnostic copies compile under strict GCC with ASan/UBSan.
+
+Scalar async declarations now retain their function identity in bytecode and
+scalar await evaluates its operand synchronously. The async fixture executes
+successfully. My valid-resource fixture explicitly destructures its owned
+parameter and also passes executed bytecode acceptance. These checks do not
+establish promise scheduling or dynamic effect handlers; effect execution is
+still a separate failing release gate under active implementation.

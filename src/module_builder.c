@@ -4007,7 +4007,8 @@ static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const c
     return ok;
 }
 
-/* I lower retained C, but copy already-preprocessed assembler without changing
+/* I let the selected driver interpret retained .i input as C or C++; forcing
+ * cpp-output would override a C++ driver. I copy preprocessed assembler without changing
  * its grammar. The destination is always private to this capture. */
 static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefix,
                                     const char *input, const char *output, size_t group, size_t index) {
@@ -4017,7 +4018,7 @@ static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefi
         return module_capture_assembly_file(&copy, input, output, false, 0);
     }
     char command[8192] = {0};
-    return module_build_append(command, sizeof(command), "%s%s -x cpp-output", prefix,
+    return module_build_append(command, sizeof(command), "%s%s", prefix,
                                group ? " -fvisibility=hidden" : "") &&
         module_append_path_flag(command, sizeof(command), "", input) &&
         module_append_path_flag(command, sizeof(command), "-o ", output) && !system(command);
@@ -4943,8 +4944,8 @@ static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFl
                                    descriptor ? named_input : snapshot, snapshot, false);
     }
     command[0] = 0;
-    return module_build_append(command, capacity, "%s%s -x %s", prefix,
-                            group && !assembly ? " -fvisibility=hidden" : "", assembly ? "assembler" : "cpp-output") &&
+    return module_build_append(command, capacity, "%s%s%s", prefix,
+                            group && !assembly ? " -fvisibility=hidden" : "", assembly ? " -x assembler" : "") &&
         module_append_path_flag(command, capacity, "", snapshot) &&
         module_append_path_flag(command, capacity, "-o ", object);
 }

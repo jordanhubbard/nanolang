@@ -569,6 +569,38 @@ int64_t nano_build_answer(void) {
                                                       "--run", env=env, cwd=directory)
                 self.assertEqual(result.returncode, 44, (result.stdout, result.stderr))
 
+    def test_cpp_driver_retains_language_and_header_invalidation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-cpp-retained-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["c_compiler"] = "c++"
+            version = subprocess.run(["c++", "--version"], capture_output=True, check=True)
+            if b"clang" in version.stdout:
+                # Clang warns about .c input to a C++ driver. Diagnostics
+                # deliberately withhold cache evidence; I isolate language
+                # replay here with that compatibility warning acknowledged.
+                metadata["cflags"] = ["-Wno-deprecated"]
+            manifest.write_text(json.dumps(metadata))
+            header = module / "answer.h"
+            header.write_text("#define ANSWER 42\n")
+            (module / "answer.c").write_text(
+                '#include <cstdint>\n#include "answer.h"\n'
+                'template<class T> T identity(T value) { return value; }\n'
+                'extern "C" int64_t nano_build_answer() { return identity(ANSWER); }\n')
+            self.probe_path("build", module, env, timeout=30)
+            generation = self.probe_path("directory", module, env)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            self.probe_path("build", module, env, timeout=30)
+            self.assertEqual(self.probe_path("directory", module, env), generation, self.last_build_diagnostics)
+            old = header.stat()
+            header.write_text("#define ANSWER 43\n")
+            os.utime(header, ns=(old.st_atime_ns, old.st_mtime_ns))
+            self.probe_path("build", module, env, timeout=30)
+            self.assertNotEqual(self.probe_path("directory", module, env), generation)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 43)
+
     def test_transitive_system_header_invalidates_cache(self):
         with tempfile.TemporaryDirectory(prefix="nano-system-deps-") as tmp:
             directory = Path(tmp)

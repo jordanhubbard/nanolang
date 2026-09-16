@@ -607,7 +607,7 @@ static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
             mailbox->resp_is_error = 1;
             cop_put_u32(mailbox->resp_data_size, wpos);
             cop_put_u32(mailbox->resp_batch_count, done);
-            strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
+            snprintf(mailbox->resp_error, sizeof(mailbox->resp_error), "%s", errmsg);
             mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             return;
         }
@@ -759,7 +759,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                 mailbox->resp_is_error  = 1;
                 cop_put_u32(mailbox->resp_data_size, 0);
                 cop_put_u32(mailbox->resp_batch_count, 0);
-                strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
+                snprintf(mailbox->resp_error, sizeof(mailbox->resp_error), "%s", errmsg);
                 mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             } else {
                 mailbox->resp_is_error  = spill ? 2 : 0;

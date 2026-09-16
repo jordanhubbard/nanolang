@@ -28,13 +28,31 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Sentence dictionary build paths.** I find my bundled dictionary from
+      both the repository and examples directories, preserving the shadow
+      deadline and explicit dictionary override. MAC `task_a212d46b307b443db949733ed336ba60`.
+
+- [x] **Coprocessor diagnostic portability.** I copy error text with bounded,
+      terminated formatting under strict GCC sanitizer builds.
+      MAC `task_6dfbada4bccb4bc4a330ecbcf38dc9e6`.
+
+- [ ] **Verifier corpus completion.** I lower supported async and effect
+      forms consistently, and make my valid-resource fixture explicitly
+      consume its destructor parameter. I retain all 175 selected programs.
+      MAC `task_2f10710beeee47138abb2a2489dd5ef8`.
+
+- [x] **Retained C++ module inputs.** I preserve the selected driver language
+      when replaying preprocessed module sources. I verify cache reuse and
+      invalidation and compile my Bullet examples. MAC `task_15fa0efcbcc14c11b6a102e3fb3b8e4f`.
+
 - [x] **Module-object callback declarations.** I use the full callback
       signature when compiling a module object, including integer returns
       and parameters. Darwin Clang rejects the old void callback placeholder.
       MAC `task_2883edb70fb348778b7193a52bd83c8a`.
 
-- [ ] **Dispatch host availability.** I honor my existing availability query
-      in dependency shadows and the API lesson. I retain every example in
+- [x] **Dispatch host availability.** I honor my existing availability query
+      in dependency shadows and the API lesson. I run the boids force passes
+      sequentially on hosts without dispatch. I retain every example in
       compilation coverage, verify unavailable stubs on Linux, and execute
       concurrency acceptance on Darwin. MAC `task_a960cfd36ffa408288941efab82df6fa`.
 
