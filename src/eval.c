@@ -1199,6 +1199,48 @@ static Value create_dyn_array(DynArray *arr) {
     return val;
 }
 
+static DynArray *static_array_to_dyn_array(Array *source) {
+    if (!source) return NULL;
+
+    ElementType elem_type;
+    switch (source->element_type) {
+        case VAL_INT: elem_type = ELEM_INT; break;
+        case VAL_FLOAT: elem_type = ELEM_FLOAT; break;
+        case VAL_BOOL: elem_type = ELEM_BOOL; break;
+        case VAL_STRING: elem_type = ELEM_STRING; break;
+        case VAL_ARRAY: elem_type = ELEM_ARRAY; break;
+        default: return NULL;
+    }
+
+    DynArray *result = dyn_array_new_with_capacity(elem_type, source->length);
+    if (!result) return NULL;
+    for (int i = 0; i < source->length; i++) {
+        switch (source->element_type) {
+            case VAL_INT:
+                dyn_array_push_int(result, ((long long *)source->data)[i]);
+                break;
+            case VAL_FLOAT:
+                dyn_array_push_float(result, ((double *)source->data)[i]);
+                break;
+            case VAL_BOOL:
+                dyn_array_push_bool(result, ((bool *)source->data)[i]);
+                break;
+            case VAL_STRING:
+                dyn_array_push_string_copy(result, ((char **)source->data)[i]);
+                break;
+            case VAL_ARRAY: {
+                DynArray *nested = static_array_to_dyn_array(((Array **)source->data)[i]);
+                if (!nested) return NULL;
+                dyn_array_push_array(result, nested);
+                break;
+            }
+            default:
+                return NULL;
+        }
+    }
+    return result;
+}
+
 /* Helper to map ValueType to ElementType */
 static ElementType value_type_to_elem_type(ValueType vtype) {
     switch (vtype) {
@@ -1206,6 +1248,7 @@ static ElementType value_type_to_elem_type(ValueType vtype) {
         case VAL_FLOAT: return ELEM_FLOAT;
         case VAL_BOOL: return ELEM_BOOL;
         case VAL_STRING: return ELEM_STRING;
+        case VAL_ARRAY:
         case VAL_DYN_ARRAY: return ELEM_ARRAY;  /* Nested arrays */
         case VAL_STRUCT:
         case VAL_GC_STRUCT: return ELEM_STRUCT;  /* Structs */
@@ -1242,6 +1285,16 @@ static Value builtin_array_push(Value *args) {
             case VAL_DYN_ARRAY:
                 dyn_array_push_array(arr, args[1].as.dyn_array_val);
                 break;
+            case VAL_ARRAY: {
+                DynArray *nested = static_array_to_dyn_array(args[1].as.array_val);
+                if (!nested) {
+                    fprintf(stderr, "Error: Unsupported array element type\n");
+                    gc_release(arr);
+                    return create_void();
+                }
+                dyn_array_push_array(arr, nested);
+                break;
+            }
             case VAL_STRUCT: {
                 Value copy = create_struct(args[1].as.struct_val->struct_name,
                     args[1].as.struct_val->field_names,
@@ -1294,6 +1347,15 @@ static Value builtin_array_push(Value *args) {
         case VAL_DYN_ARRAY:
             dyn_array_push_array(arr, args[1].as.dyn_array_val);
             break;
+        case VAL_ARRAY: {
+            DynArray *nested = static_array_to_dyn_array(args[1].as.array_val);
+            if (!nested) {
+                fprintf(stderr, "Error: Unsupported array element type\n");
+                return create_void();
+            }
+            dyn_array_push_array(arr, nested);
+            break;
+        }
         case VAL_STRUCT: {
             Value copy = create_struct(args[1].as.struct_val->struct_name,
                 args[1].as.struct_val->field_names,
