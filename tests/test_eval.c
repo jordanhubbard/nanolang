@@ -23,6 +23,20 @@
 #include <time.h>
 #include <unistd.h>
 
+/* Only the test-specific eval object redirects this clock call. Other tests
+ * use the host clock unless this deterministic epoch fixture is active. */
+static int s_epoch_clock_active;
+static int s_epoch_clock_calls;
+static clockid_t s_epoch_clock_id;
+static struct timespec s_epoch_clock_value;
+int nano_test_clock_gettime(clockid_t clock_id, struct timespec *result) {
+    if (!s_epoch_clock_active) return clock_gettime(clock_id, result);
+    s_epoch_clock_calls++;
+    s_epoch_clock_id = clock_id;
+    *result = s_epoch_clock_value;
+    return 0;
+}
+
 static int s_fail_fwrite;
 static int s_fail_fclose;
 static int s_fclose_calls;
@@ -2346,11 +2360,25 @@ void test_eval_epoch_milliseconds(void) {
         "fn now() -> int { unsafe { return (nl_get_time_ms) } }\n"
         "fn main() -> int { return 0 }\n"
         "shadow now { assert (> (now) 0) }\n"));
-    long long before = (long long)time(NULL) * 1000LL;
-    Value result = call_function("now", NULL, 0, ctx.env);
-    long long after = (long long)time(NULL) * 1000LL + 999LL;
-    ASSERT(result.type == VAL_INT);
-    ASSERT(result.as.int_val >= before && result.as.int_val <= after);
+    const struct { time_t seconds; long nanoseconds; long long expected; } cases[] = {
+        {0, 0, 0},
+        {1700000000, 999999, 1700000000000LL},
+        {1700000000, 1000000, 1700000000001LL},
+        {1700000000, 999999999, 1700000000999LL},
+        {1700000001, 0, 1700000001000LL},
+    };
+    s_epoch_clock_active = 1;
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        s_epoch_clock_value.tv_sec = cases[i].seconds;
+        s_epoch_clock_value.tv_nsec = cases[i].nanoseconds;
+        s_epoch_clock_calls = 0;
+        Value result = call_function("now", NULL, 0, ctx.env);
+        ASSERT_EQ(s_epoch_clock_calls, 1);
+        ASSERT_EQ(s_epoch_clock_id, CLOCK_REALTIME);
+        ASSERT(result.type == VAL_INT);
+        ASSERT_EQ(result.as.int_val, cases[i].expected);
+    }
+    s_epoch_clock_active = 0;
     run_ctx_free(&ctx);
 }
 
