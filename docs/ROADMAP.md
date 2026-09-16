@@ -36,7 +36,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 - [ ] **Darwin launcher StringBuilder linkage.** I retain the runtime symbols
       referenced by imported StringBuilder objects in strict native builds,
-      preserving transitive link dependencies and cache identity.
+      preserving transitive link dependencies and cache identity. I replace
+      the silently truncating 2,048-byte closure buffer with complete checked
+      accumulation and test a link closure that exceeds the old limit.
       MAC `task_7c505ffcb1f3464aa8cda8fb461dc4ee`.
 
 - [ ] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
