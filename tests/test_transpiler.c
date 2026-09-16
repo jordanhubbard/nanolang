@@ -68,9 +68,23 @@ static void test_single_append_larger_than_initial_capacity(void) {
     free(builder);
 }
 
+static void test_generated_file_writers_report_failures(void) {
+    StringBuilder *builder = sb_create();
+    ASSERT(builder != NULL);
+    generate_file_operations(builder);
+
+    ASSERT(strstr(builder->buffer, "int write_failed = fputs(content, f) == EOF;") != NULL);
+    ASSERT(strstr(builder->buffer, "int close_failed = fclose(f) == EOF;") != NULL);
+    ASSERT(strstr(builder->buffer, "return write_failed || close_failed ? -1 : 0;") != NULL);
+
+    free(builder->buffer);
+    free(builder);
+}
+
 int main(void) {
     test_append_sequence_across_growth_boundaries();
     test_single_append_larger_than_initial_capacity();
+    test_generated_file_writers_report_failures();
     printf("StringBuilder boundary tests passed\n");
     return 0;
 }
