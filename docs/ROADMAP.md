@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Main PRs #338 and #340 reconciliation.** I retain dynamic native
+      storage and bounded call formatting, import string-array write
+      regressions, and rerun AOT acceptance. My existing wide-call fixture
+      already covers the incoming ordinary and tail calls.
+      MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
+
 - [x] **Packaged runtime instrumentation.** I retain build instrumentation
       flags when linking standalone and daemon wrappers, and test against
       actual coverage objects. MAC `task_2da82432bba24a13b05e693fc2c55e83`.

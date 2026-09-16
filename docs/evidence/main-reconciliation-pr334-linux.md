@@ -138,3 +138,13 @@ without creating coverage output in a private directory removed before program
 execution. In a separate checkout built with real gcov instrumentation, all
 five wrapper unit cases and seven publication methods pass, including literal
 paths, overlapping failure, preserved destinations and staging cleanup.
+
+## Main through PR #340
+
+I reconcile main 2711c6eb while retaining dynamic native storage and the
+existing checked direct-call formatter. The incoming wide-call test is byte
+for byte identical to my existing fixture. I import both string-array write
+regressions, preserving alias writes and invalid-payload rejection. Recursive
+shape validation rejects the invalid payload before the older runtime-kind
+check, so that diagnostic assertion follows the retained implementation.
+The combined translator suite passes 1,739 checks and 1,073 shape checks.
