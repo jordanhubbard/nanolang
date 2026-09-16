@@ -6622,6 +6622,7 @@ register_function_pass1:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+            check_resource_function(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
             if (item->as.function.is_pure) {
