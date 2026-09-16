@@ -2031,6 +2031,97 @@ static void test_array_result_kinds_cross_calls(void) {
     nvm_module_free(m);
 }
 
+static void test_array_growth_has_no_process_wide_arena_limit(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 70000\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE done\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 70000\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "large array growth fixture");
+    CHECK(m != NULL, "large array growth fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits unbounded array growth");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "narr_arena") == NULL,
+              "integer arrays do not share a fixed process-wide arena");
+        CHECK(compile_and_run(c, &status) == 0,
+              "large array growth C compiles and runs");
+        CHECK(status == 1, "an array grows past the former 65,536-element limit");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_string_array_growth_has_no_process_wide_arena_limit(void) {
+    const char *src =
+        ".string value \"x\"\n"
+        ".entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 5\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 70000\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE done\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR value\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 70000\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "large string array growth fixture");
+    CHECK(m != NULL, "large string array growth fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits unbounded string array growth");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "nsarr_arena") == NULL,
+              "string arrays do not share a fixed process-wide arena");
+        CHECK(compile_and_run(c, &status) == 0,
+              "large string array growth C compiles and runs");
+        CHECK(status == 1, "a string array grows past the former 65,536-element limit");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2462,6 +2553,8 @@ int main(int argc, char **argv) {
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
     test_array_result_kinds_cross_calls();
+    test_array_growth_has_no_process_wide_arena_limit();
+    test_string_array_growth_has_no_process_wide_arena_limit();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();

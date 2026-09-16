@@ -1425,6 +1425,10 @@ Compiler product:
       direct calls, tail calls, recursion, empty arrays, and returns, then
       emits matching native signatures while preserving record arrays.
       `make test-nvm2c` (323 passed).
+- [x] `nvm2c` grows integer and string arrays in place instead of exhausting
+      a fixed process-wide arena through quadratic copies. Native compiler
+      workloads can push beyond the old 65,536-element cumulative limit.
+      `make test-nvm2c`.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
