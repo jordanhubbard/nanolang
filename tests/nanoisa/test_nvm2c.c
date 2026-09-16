@@ -4267,6 +4267,59 @@ static void test_classifier_unreachable_and_invalid_joins(void) {
     }
 }
 
+static void test_map_aggregate_fields(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        for (int nested = 0; nested < 2; ++nested) {
+            for (int variant = 0; variant < 2; ++variant) {
+                for (int forward = 0; forward < 2; ++forward) {
+                    char source[4096], entry[2048], worker[512];
+                    const char *value = strings ? "PUSH_STR text\n" : "PUSH_I64 42\n";
+                    snprintf(worker, sizeof worker,
+                        ".function wrap 1 1 0 %s 1\nLOAD_LOCAL 0\nAGG_PACK %d 0 0 1\n%sRET\n.end\n",
+                        variant && !nested ? "union" : "struct",
+                        variant, nested ? "AGG_PACK 0 1 0 1\n" : "");
+                    snprintf(entry, sizeof entry,
+                        ".function main 0 3 0 int 1\nHM_NEW 5 %d\nSTORE_LOCAL 0\n"
+                        "LOAD_LOCAL 0\nCALL wrap\nSTORE_LOCAL 1\n"
+                        "LOAD_LOCAL 1\n%sAGG_GET 0\nSTORE_LOCAL 2\n"
+                        "LOAD_LOCAL 2\nHM_LEN\nPUSH_I64 0\nEQ\nASSERT\n"
+                        "LOAD_LOCAL 2\nPUSH_STR key\n%sHM_SET\nPOP\n"
+                        "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\n%sEQ\nASSERT\n"
+                        "LOAD_LOCAL 1\n%sAGG_GET 0\nPUSH_STR key\nHM_GET\n%sEQ\nASSERT\n"
+                        "PUSH_I64 0\nRET\n.end\n",
+                        strings ? 5 : 1, nested ? "AGG_GET 0\n" : "", value, value,
+                        nested ? "AGG_GET 0\n" : "", value);
+                    snprintf(source, sizeof source,
+                        ".string key \"key\"\n.string text \"value\"\n.types 2 1 1\n.entry main\n%s%s",
+                        forward ? entry : worker, forward ? worker : entry);
+                    NvmModule *m = assemble_ok(source, "map aggregate fields");
+                    if (!m) continue;
+                    char *c = emit_or_fail(m, "I retain map fields through aggregate returns");
+                    if (c) {
+                        int status = -1;
+                        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                              "I retain map identity across nested aggregate copies and mutation");
+                        free(c);
+                    }
+                    nvm_module_free(m);
+                }
+            }
+        }
+    }
+    NvmModule *bad = assemble_ok(
+        ".string key \"key\"\n.string text \"wrong\"\n.types 1 0 0\n.entry main\n"
+        ".function main 0 0 0 int 1\nHM_NEW 5 1\nAGG_PACK 0 0 0 1\n"
+        "AGG_GET 0\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPOP\nPUSH_I64 0\nRET\n.end\n",
+        "incompatible nested map values");
+    if (bad) {
+        char err[512];
+        char *c = nvm2c_emit(bad, err, sizeof err);
+        CHECK(c == NULL, "I reject incompatible values after map field extraction");
+        free(c);
+        nvm_module_free(bad);
+    }
+}
+
 static void test_tagged_host_arguments(void) {
     for (int integer = 0; integer < 2; ++integer) {
         for (int value = 0; value < 4; ++value) {
@@ -4933,6 +4986,7 @@ static void test_module_initializer(void) {
 }
 
 int main(int argc, char **argv) {
+    test_map_aggregate_fields();
     test_tagged_host_arguments();
     test_generic_ordering();
     test_boolean_tags();

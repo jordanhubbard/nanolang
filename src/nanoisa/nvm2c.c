@@ -1260,7 +1260,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
                     v.kind != NVM2C_VK_ARR && v.kind != NVM2C_VK_SARR &&
                     v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC && v.kind != NVM2C_VK_VALUE &&
-                    v.kind != NVM2C_VK_BOOL &&
+                    v.kind != NVM2C_VK_BOOL && v.kind != NVM2C_VK_MAP &&
                     !(v.kind == NVM2C_VK_UNK && !facts->final)) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     return 0;
@@ -1294,7 +1294,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot field = {0};
             field.kind = fk;
             field.origin = -1;
-            if (fk == NVM2C_VK_RARR || fk == NVM2C_VK_REC || fk == NVM2C_VK_UNK) {
+            if (fk == NVM2C_VK_RARR || fk == NVM2C_VK_REC || fk == NVM2C_VK_MAP || fk == NVM2C_VK_UNK) {
                 /* A flat parent vector describes this field's representation,
                  * not the representations inside its nested elements. */
                 field.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
@@ -2993,7 +2993,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
                     vk != NVM2C_VK_ARR && vk != NVM2C_VK_SARR &&
-                    vk != NVM2C_VK_RARR && vk != NVM2C_VK_REC && vk != NVM2C_VK_VALUE && vk != NVM2C_VK_BOOL) {
+                    vk != NVM2C_VK_RARR && vk != NVM2C_VK_REC && vk != NVM2C_VK_VALUE &&
+                    vk != NVM2C_VK_BOOL && vk != NVM2C_VK_MAP) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     goto done;
                 }
@@ -3030,6 +3031,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         nvm2c_printf(b, "    r[%d].ra[%d] = ra[%d];\n", r, ei, elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_REC) {
                         nvm2c_printf(b, "    r[%d].rec[%d] = nrec_snapshot(r[%d]);\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_MAP) {
+                        nvm2c_printf(b, "    r[%d].m[%d] = m[%d];\n", r, ei, elems[ei]);
                     } else {
                         nvm2c_printf(b, "    r[%d].f[%d] = t[%d];\n", r, ei, elems[ei]);
                     }
@@ -3077,6 +3080,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                              rec, (unsigned)fi, NVM2C_VK_STR, rec, (unsigned)fi,
                              rec, (unsigned)fi, rec, (unsigned)fi);
                     stack_push_value(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_MAP) {
+                    snprintf(expr, sizeof expr, "r[%d].m[%u]", rec, (unsigned)fi);
+                    stack_push_map(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_REC) {
                     nvm2c_printf(b, "    if (!r[%d].rec[%u]) abort();\n", rec, (unsigned)fi);
                     snprintf(expr, sizeof expr, "*r[%d].rec[%u]", rec, (unsigned)fi);
@@ -4290,8 +4296,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
         nvm2c_printf(&b,
-            "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind; };\n",
+            "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind;",
             b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
+        if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
+        nvm2c_puts(&b, " };\n");
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
             "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");

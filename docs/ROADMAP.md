@@ -194,12 +194,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   `task_f6b888111b8246f89843e1f945d80936`. Normal and fresh
                   ASan/UBSan suites pass 1,476 AOT and 994 shape checks.
                   Evidence: `docs/evidence/aot-tagged-host-arguments.md`.
-                - [ ] I retain the compiler's nested aggregate field shapes
+                - [x] I retain the compiler's nested aggregate field shapes
                   through `AGG_PACK`. Full compiler acceptance now reaches
                   function 599, `collect_files_dfs`, whose packed result has a
                   hashmap field. I test recursive packing and invalid
                   layouts before rerunning compiler acceptance. MAC
-                  `task_f8e9b2d46ce3470f81ed8b06acbea7ed`.
+                  `task_f8e9b2d46ce3470f81ed8b06acbea7ed`. Normal and fresh
+                  ASan/UBSan runs pass 1,509 AOT and 994 shape checks. Evidence:
+                  `docs/evidence/aot-map-aggregate-fields.md`.
+                - [ ] I reconcile tagged string fields across compiler call
+                  shapes without accepting incompatible payloads. After map
+                  field support, `check_function` (333), offset 351, conflicts
+                  at field 3 of parameter 5 of `symbol_new` (301): string
+                  versus tagged value. I test both function orders and actual
+                  runtime values. MAC `task_ad09fe6dbbb24d5781e970dca9db299a`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
