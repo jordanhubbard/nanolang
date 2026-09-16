@@ -1536,6 +1536,87 @@ static void test_via_at_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_array_get_void_consumers(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n  ARR_LITERAL 1 1\n  PUSH_I64 -1\n  ARR_GET\n"
+        "  TYPE_CHECK 0\n"
+        "  PUSH_I64 7\n  ARR_LITERAL 1 1\n  PUSH_I64 4294967295\n  ARR_GET\n"
+        "  CAST_BOOL\n  I64_ADD\n"
+        "  PUSH_I64 7\n  ARR_LITERAL 1 1\n  PUSH_I64 9\n  ARR_GET\n  POP\n"
+        "  RET\n.end\n";
+    NvmModule *m = assemble_ok(src, "ARR_GET void consumers fixture");
+    CHECK(m != NULL, "ARR_GET void consumers fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits tagged out-of-bounds array reads");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "return (nmap_value){128, 0, NULL}") != NULL,
+              "out-of-bounds array reads preserve void");
+        CHECK(compile_and_run(c, &status) == 0, "void consumers C compiles and runs");
+        CHECK(status == 1, "POP, TYPE_CHECK, and CAST_BOOL consume void correctly");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_array_get_uint32_narrowing(void) {
+    const char *src =
+        ".entry 0\n.function main 0 0 0 int 1\n"
+        "  PUSH_I64 23\n  ARR_LITERAL 1 1\n  PUSH_I64 4294967296\n  ARR_GET\n"
+        "  CAST_INT\n  RET\n.end\n";
+    NvmModule *m = assemble_ok(src, "ARR_GET uint32 narrowing fixture");
+    CHECK(m != NULL, "ARR_GET uint32 narrowing fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits uint32-narrowed array indexing");
+    if (c) {
+        int status = -1;
+        CHECK(strstr(c, "uint32_t narrowed = (uint32_t)idx") != NULL,
+              "array index is narrowed like NanoVM");
+        CHECK(compile_and_run(c, &status) == 0, "narrowed index C compiles and runs");
+        CHECK(status == 23, "2^32 narrows to array index zero");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_array_get_void_typed_use_aborts(void) {
+    const char *src =
+        ".entry 0\n.function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n  ARR_LITERAL 1 1\n  PUSH_I64 9\n  ARR_GET\n"
+        "  CAST_INT\n  RET\n.end\n";
+    NvmModule *m = assemble_ok(src, "ARR_GET typed void fixture");
+    CHECK(m != NULL, "ARR_GET typed void fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits typed consumption of ARR_GET");
+    if (c) {
+        int status = 0;
+        CHECK(compile_and_run(c, &status) == 0, "typed void C compiles and runs");
+        CHECK(status != 0, "CAST_INT rejects void instead of inventing zero");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_string_array_get_void_cast_aborts(void) {
+    const char *src =
+        ".string hi \"hi\"\n.entry 0\n.function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n  ARR_LITERAL 5 1\n  PUSH_I64 -1\n  ARR_GET\n"
+        "  CAST_STRING\n  STR_LEN\n  RET\n.end\n";
+    NvmModule *m = assemble_ok(src, "string ARR_GET typed void fixture");
+    CHECK(m != NULL, "string ARR_GET typed void fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits string-array void consumption");
+    if (c) {
+        int status = 0;
+        CHECK(compile_and_run(c, &status) == 0, "string typed void C compiles and runs");
+        CHECK(status != 0, "CAST_STRING rejects void instead of inventing an empty string");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_slen_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -2716,6 +2797,10 @@ int main(int argc, char **argv) {
     test_diff_runs_without_nano_vm();
     test_eq_array_is_refused();
     test_via_at_runs_without_nano_vm();
+    test_array_get_void_consumers();
+    test_array_get_uint32_narrowing();
+    test_array_get_void_typed_use_aborts();
+    test_string_array_get_void_cast_aborts();
     test_slen_runs_without_nano_vm();
     test_slice_runs_without_nano_vm();
     test_str_substr_array_is_refused();
