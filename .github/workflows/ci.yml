@@ -66,6 +66,7 @@ jobs:
             sdl2_mixer \
             sdl2_ttf \
             utf8proc \
+            glfw glew \
             gforth
 
       - name: Install Python dependencies

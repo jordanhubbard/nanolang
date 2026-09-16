@@ -64,6 +64,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       freeglut when my strict job selects the complete OpenGL example set.
       I preserve strict selection and the ban on implicit package installation.
       MAC `task_d7e811304f2a4669bfcce7a4a89198eb`.
+      - [x] I also declare GLFW/GLEW for the full Darwin job, whose native
+        GLUT-framework regression compiles the same OpenGL fixture.
 
 - [x] **Darwin recursive test discovery.** I enumerate nested and root test
       fixtures on the default Bash without globstar, and reject empty negative
@@ -228,9 +230,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       bytecode tools before the foreign-path regression, including from a
       clean tree. MAC `task_82ee0874f7894e23add656e651843c4d`.
 
-- [ ] **GCC VM allocation fixtures.** I match the stack-count assertion to
-      its unsigned runtime type and rerun allocation-failure acceptance and
-      the full release gate. MAC `task_ecf93f572e624145baff78bb3a8a2345`.
+- [x] **GCC VM allocation fixtures.** I match the stack-count assertion to
+      its unsigned runtime type and pass allocation-failure acceptance. The
+      full release gate is tracked separately under finalization. MAC `task_ecf93f572e624145baff78bb3a8a2345`.
 
 - [x] **Parenthesized parser release acceptance.** I reproduce and repair
       the explicit parser node-kind mismatch in the quick gate, preserving
