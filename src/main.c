@@ -687,7 +687,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     }
 
     /* Compile modules early so extern C functions are available for shadow tests (via FFI). */
-    char module_objs[2048] = "";
+    char *module_objs = NULL;
     char module_compile_flags[2048] = "";
 
     /* Enable structured JSON diagnostics when the caller requested them via
@@ -1101,7 +1101,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4.5: Build imported modules (object + shared libs) */
     if (modules->count > 0) {
-        if (!compile_modules(modules, env, module_objs, sizeof(module_objs),
+        if (!compile_modules(modules, env, &module_objs,
                              module_compile_flags, sizeof(module_compile_flags),
                              opts->verbose)) {
             fprintf(stderr, "Error: Failed to compile modules\n");
@@ -1115,6 +1115,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
             llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
             nl_list_CompilerDiagnostic_free(diags);
+            free(module_objs);
             return 1;
         }
     }
@@ -1171,6 +1172,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         unsetenv("NANO_LLM_SHADOW_JSON");
+        free(module_objs);
         return 1;
     }
     if (opts->verbose) printf("✓ Shadow tests passed\n");
@@ -1211,6 +1213,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
+        free(module_objs);
         return 1;
     }
     
@@ -1271,6 +1274,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
+        free(module_objs);
         return 1;
     }
 
@@ -1348,8 +1352,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Add module compile flags (include paths from pkg-config) */
     if (module_compile_flags[0] != '\0') {
-        strncat(include_flags, " ", sizeof(include_flags) - strlen(include_flags) - 1);
-        strncat(include_flags, module_compile_flags, sizeof(include_flags) - strlen(include_flags) - 1);
+        size_t used = strlen(include_flags);
+        int written = snprintf(include_flags + used, sizeof(include_flags) - used,
+                               " %s", module_compile_flags);
+        include_paths_valid = written >= 0 && (size_t)written < sizeof(include_flags) - used && include_paths_valid;
     }
     
     /* Build library path flags */
@@ -1693,9 +1699,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char *quoted_temp_source = module_quote_path(temp_c_file);
     int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs, runtime_files, lib_path_flags, lib_flags) : -1;
+            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags) : -1;
     free(quoted_output);
     free(quoted_temp_source);
+    free(module_objs);
     
     if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
         human_diag(NL_DIAG_CC_CMD);
