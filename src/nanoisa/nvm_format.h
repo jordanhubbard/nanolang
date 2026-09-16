@@ -136,11 +136,18 @@ typedef struct {
  * Import Entry (serialized in IMPORTS section)
  * ======================================================================== */
 
+typedef enum {
+    NVM_IMPORT_FFI = 0,
+    NVM_IMPORT_COPROCESS = 1,
+    NVM_IMPORT_ARTIFACT = 2
+} NvmImportKind;
+
 typedef struct {
     uint32_t module_name_idx;   /* String pool index */
     uint32_t function_name_idx; /* String pool index */
     uint16_t param_count;
     uint8_t  return_type;       /* NanoValueTag */
+    uint8_t  kind;              /* NvmImportKind */
     /* Followed by param_count bytes of param type tags */
 } NvmImportEntry;
 

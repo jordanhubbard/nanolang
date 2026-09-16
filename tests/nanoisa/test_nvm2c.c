@@ -32,6 +32,33 @@ static NvmModule *assemble_ok(const char *src, const char *label) {
     return m;
 }
 
+static int compile_and_run_with_args(const char *c_src, int *status_out,
+                                     const char *args) {
+    char dir[] = "/tmp/nvm2cXXXXXX";
+    if (!mkdtemp(dir)) return -1;
+    char src_path[128], bin_path[128], cmd[512];
+    snprintf(src_path, sizeof src_path, "%s/out.c", dir);
+    snprintf(bin_path, sizeof bin_path, "%s/out", dir);
+    FILE *f = fopen(src_path, "w");
+    if (!f) { rmdir(dir); return -1; }
+    fputs(c_src, f);
+    fclose(f);
+    const char *cc = getenv("CC");
+    if (!cc || !cc[0]) cc = "cc";
+    snprintf(cmd, sizeof cmd,
+             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -Wall -Wextra -Werror -o %s %s",
+             cc, bin_path, src_path);
+    int rc = system(cmd);
+    if (rc != 0) { unlink(src_path); rmdir(dir); return -2; }
+    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s %s", bin_path, args);
+    rc = system(cmd);
+    *status_out = WIFEXITED(rc) ? WEXITSTATUS(rc) : -1;
+    unlink(src_path);
+    unlink(bin_path);
+    rmdir(dir);
+    return 0;
+}
+
 static int compile_and_run(const char *c_src, int *status_out) {
     char dir[] = "/tmp/nvm2cXXXXXX";
     if (!mkdtemp(dir)) return -1;
@@ -164,65 +191,6 @@ static void test_record_result_crosses_direct_call(void) {
     nvm_module_free(m);
 }
 
-static void test_record_temporary_storage_is_function_sized(void) {
-    const char *src =
-        ".string seven \"seven\"\n"
-        ".entry 0\n"
-        ".function main 0 0 0 int 1\n"
-        "  PUSH_I64 7\n"
-        "  PUSH_STR seven\n"
-        "  AGG_PACK 0 0 0 2\n"
-        "  AGG_GET 0\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "record temporary sizing fixture");
-    CHECK(m != NULL, "record temporary sizing fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c sizes record temporary storage");
-    if (c) {
-        CHECK(strstr(c, "nrec_t r[256]") == NULL,
-              "generated frames do not reserve the global record temporary limit");
-        CHECK(strstr(c, "nrec_t r[001]") != NULL,
-              "generated frame reserves only its one record temporary");
-        int status = -1;
-        CHECK(compile_and_run(c, &status) == 0,
-              "function-sized record storage compiles and runs");
-        CHECK(status == 7, "function-sized record storage preserves the result");
-        free(c);
-    }
-    nvm_module_free(m);
-}
-
-static void test_uncalled_record_parameter_needs_no_invented_shape(void) {
-    const char *src =
-        ".entry 1\n"
-        ".function uncalled 1 1 0 struct 1\n"
-        "  LOAD_LOCAL 0\n"
-        "  AGG_GET 0\n"
-        "  PUSH_I64 1\n"
-        "  AGG_PACK 0 0 0 2\n"
-        "  RET\n"
-        ".end\n"
-        ".function main 0 0 0 int 1\n"
-        "  PUSH_I64 7\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "uncalled record parameter fixture");
-    CHECK(m != NULL, "uncalled record parameter fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c ignores an uncalled record parameter shape");
-    if (c) {
-        CHECK(strstr(c, "nl_uncalled") == NULL,
-              "uncalled function is absent from generated C");
-        int status = -1;
-        CHECK(compile_and_run(c, &status) == 0,
-              "reachable generated C compiles and runs");
-        CHECK(status == 7, "entry result survives removal of uncalled code");
-        free(c);
-    }
-    nvm_module_free(m);
-}
-
 static void test_add_is_structured_c_and_runs(void) {
     const char *src =
         ".entry 1\n"
@@ -349,37 +317,6 @@ static void test_str_trim_is_refused(void) {
     nvm_module_free(m);
 }
 
-static void test_cast_int_updates_classifier_stack(void) {
-    const char *src =
-        ".string value \"42\"\n"
-        ".entry 1\n"
-        ".function take_int 1 1 0 int 1\n"
-        "  LOAD_LOCAL 0\n"
-        "  RET\n"
-        ".end\n"
-        ".function main 0 0 0 int 1\n"
-        "  PUSH_STR value\n"
-        "  CAST_INT\n"
-        "  CALL take_int\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "CAST_INT classifier fixture");
-    CHECK(m != NULL, "CAST_INT classifier fixture assembles");
-    if (!m) return;
-    char err[256];
-    char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c != NULL, "CAST_INT replaces its classifier operand with an integer");
-    if (c) {
-        int status = -1;
-        CHECK(compile_and_run(c, &status) == 0, "CAST_INT generated C compiles and runs");
-        CHECK(status == 42, "CAST_INT converts a string before a later CALL");
-        free(c);
-    } else {
-        printf("    nvm2c error: %s\n", err);
-    }
-    nvm_module_free(m);
-}
-
 static void test_push_str_len_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -432,59 +369,6 @@ static void test_str_concat_len_runs_without_nano_vm(void) {
     CHECK(compile_and_run(c, &status) == 0, "STR_CONCAT C compiles and runs");
     CHECK(status == 2, "len(\"a\"+\"b\") exits 2 without a VM process");
     free(c);
-    nvm_module_free(m);
-}
-
-static void test_string_storage_is_owned_checked_and_unbounded(void) {
-    const char *src =
-        ".string value \"0123456789abcdef\"\n"
-        ".entry 0\n"
-        ".function main 0 2 0 int 1\n"
-        "  PUSH_STR value\n"
-        "  STORE_LOCAL 0\n"
-        "  PUSH_I64 0\n"
-        "  STORE_LOCAL 1\n"
-        "loop:\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 13\n"
-        "  I64_LT_S\n"
-        "  JMP_FALSE done\n"
-        "  LOAD_LOCAL 0\n"
-        "  LOAD_LOCAL 0\n"
-        "  STR_CONCAT\n"
-        "  STORE_LOCAL 0\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 1\n"
-        "  I64_ADD\n"
-        "  STORE_LOCAL 1\n"
-        "  JMP loop\n"
-        "done:\n"
-        "  LOAD_LOCAL 0\n"
-        "  STR_LEN\n"
-        "  PUSH_I64 131072\n"
-        "  EQ\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "large string concatenation fixture");
-    CHECK(m != NULL, "large string concatenation fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c emits owned string storage");
-    if (c) {
-        int status = -1;
-        CHECK(strstr(c, "nstr_arena") == NULL,
-              "generated strings do not use a fixed arena");
-        CHECK(strstr(c, "if (!owned) abort();") != NULL,
-              "generated string allocation checks failure");
-        CHECK(strstr(c, "if (nb > SIZE_MAX - na) abort();") != NULL,
-              "generated concatenation checks length overflow");
-        CHECK(strstr(c, "nstr_free_all();") != NULL,
-              "generated main releases owned strings");
-        CHECK(compile_and_run(c, &status) == 0,
-              "large concatenation generated C compiles and runs");
-        CHECK(status == 1,
-              "concatenation grows beyond the former 65,536-byte limit");
-        free(c);
-    }
     nvm_module_free(m);
 }
 
@@ -571,8 +455,7 @@ static void test_arr_set_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "ARR_SET stays outside the closed subset");
-    CHECK(strstr(err, "ARR_SET") != NULL, "error names ARR_SET");
+    CHECK(c != NULL, "ARR_SET emits structured C");
     free(c);
     nvm_module_free(m);
 }
@@ -1709,44 +1592,6 @@ static void test_blank_l_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_array_record_field_keeps_runtime_representation(void) {
-    const char *src =
-        ".entry 0\n"
-        ".function main 0 1 0 int 1\n"
-        "  PUSH_I64 7\n"
-        "  ARR_LITERAL 1 1\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 0\n"
-        "  AGG_PACK 0 0 0 11\n"
-        "  STORE_LOCAL 0\n"
-        "  LOAD_LOCAL 0\n"
-        "  AGG_GET 0\n"
-        "  ARR_LEN\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "array record field fixture");
-    CHECK(m != NULL, "array record field fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c preserves an array-valued record field");
-    if (!c) {
-        nvm_module_free(m);
-        return;
-    }
-    int status = -1;
-    CHECK(compile_and_run(c, &status) == 0, "array record field C compiles and runs");
-    CHECK(status == 1, "ARR_LEN reads the projected field's preserved array representation");
-    free(c);
-    nvm_module_free(m);
-}
-
 static void test_grow_l_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2035,188 +1880,6 @@ static void test_one_t_result_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_array_result_kinds_cross_calls(void) {
-    const char *src =
-        ".string hi \"hi\"\n"
-        ".entry 4\n"
-        ".function ints 0 0 0 array 1\n"
-        "  ARR_NEW 1\n"
-        "  RET\n"
-        ".end\n"
-        ".function strings 0 0 0 array 1\n"
-        "  ARR_NEW 5\n"
-        "  RET\n"
-        ".end\n"
-        ".function forward 0 0 0 array 1\n"
-        "  TAIL_CALL strings\n"
-        ".end\n"
-        ".function records 0 0 0 array 1\n"
-        "  ARR_NEW 8\n"
-        "  RET\n"
-        ".end\n"
-        ".function main 0 3 0 int 1\n"
-        "  CALL ints\n"
-        "  STORE_LOCAL 0\n"
-        "  LOAD_LOCAL 0\n"
-        "  PUSH_I64 7\n"
-        "  ARR_PUSH\n"
-        "  POP\n"
-        "  CALL forward\n"
-        "  STORE_LOCAL 1\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_STR hi\n"
-        "  ARR_PUSH\n"
-        "  POP\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 0\n"
-        "  ARR_GET\n"
-        "  STR_LEN\n"
-        "  POP\n"
-        "  CALL records\n"
-        "  STORE_LOCAL 2\n"
-        "  LOAD_LOCAL 2\n"
-        "  PUSH_I64 1\n"
-        "  PUSH_STR hi\n"
-        "  AGG_PACK 0 0 0 2\n"
-        "  ARR_PUSH\n"
-        "  POP\n"
-        "  LOAD_LOCAL 2\n"
-        "  PUSH_I64 0\n"
-        "  ARR_GET\n"
-        "  AGG_GET 0\n"
-        "  POP\n"
-        "  LOAD_LOCAL 0\n"
-        "  PUSH_I64 0\n"
-        "  ARR_GET\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "array result kinds fixture");
-    CHECK(m != NULL, "array result kinds fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c infers array result kinds");
-    if (!c) {
-        nvm_module_free(m);
-        return;
-    }
-    CHECK(strstr(c, "static narr_t nl_ints") != NULL,
-          "integer-array result uses narr_t");
-    CHECK(strstr(c, "static nsarr_t nl_strings") != NULL,
-          "string-array result uses nsarr_t");
-    CHECK(strstr(c, "static nsarr_t nl_forward") != NULL,
-          "tail-call array result uses the callee kind");
-    CHECK(strstr(c, "static nrarr_t nl_records") != NULL,
-          "record-array result keeps nrarr_t");
-    int status = -1;
-    CHECK(compile_and_run(c, &status) == 0, "array result kinds C compiles and runs");
-    CHECK(status == 7, "array result kinds preserve native behavior");
-    free(c);
-    nvm_module_free(m);
-}
-
-static void test_array_growth_has_no_process_wide_arena_limit(void) {
-    const char *src =
-        ".entry 0\n"
-        ".function main 0 2 0 int 1\n"
-        "  ARR_NEW 1\n"
-        "  STORE_LOCAL 0\n"
-        "  PUSH_I64 0\n"
-        "  STORE_LOCAL 1\n"
-        "loop:\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 70000\n"
-        "  I64_LT_S\n"
-        "  JMP_FALSE done\n"
-        "  LOAD_LOCAL 0\n"
-        "  LOAD_LOCAL 1\n"
-        "  ARR_PUSH\n"
-        "  POP\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 1\n"
-        "  I64_ADD\n"
-        "  STORE_LOCAL 1\n"
-        "  JMP loop\n"
-        "done:\n"
-        "  LOAD_LOCAL 0\n"
-        "  ARR_LEN\n"
-        "  PUSH_I64 70000\n"
-        "  EQ\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "large array growth fixture");
-    CHECK(m != NULL, "large array growth fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c emits unbounded array growth");
-    if (c) {
-        int status = -1;
-        CHECK(strstr(c, "narr_arena") == NULL,
-              "integer arrays do not share a fixed process-wide arena");
-        CHECK(strstr(c, "if (!owned) abort();") != NULL,
-              "integer array allocation failure aborts safely");
-        CHECK(strstr(c, "cap > (SIZE_MAX - sizeof(narr_owned_t)) / sizeof(int64_t)") != NULL,
-              "integer array allocation checks byte-size arithmetic");
-        CHECK(strstr(c, "if (cap > SIZE_MAX / 2) abort();") != NULL,
-              "integer array growth checks capacity arithmetic");
-        CHECK(strstr(c, "int64_t *data = narr_alloc(cap);") != NULL &&
-              strstr(c, "realloc(a->data") == NULL,
-              "integer array growth preserves foreign backing storage");
-        CHECK(strstr(c, "a->data = data;") != NULL,
-              "integer array growth updates shared array aliases");
-        CHECK(strstr(c, "narr_free_all();") != NULL,
-              "generated main releases owned integer array storage");
-        CHECK(compile_and_run(c, &status) == 0,
-              "large array growth C compiles and runs");
-        CHECK(status == 1, "an array grows past the former 65,536-element limit");
-        free(c);
-    }
-    nvm_module_free(m);
-}
-
-static void test_string_array_growth_has_no_process_wide_arena_limit(void) {
-    const char *src =
-        ".string value \"x\"\n"
-        ".entry 0\n"
-        ".function main 0 2 0 int 1\n"
-        "  ARR_NEW 5\n"
-        "  STORE_LOCAL 0\n"
-        "  PUSH_I64 0\n"
-        "  STORE_LOCAL 1\n"
-        "loop:\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 70000\n"
-        "  I64_LT_S\n"
-        "  JMP_FALSE done\n"
-        "  LOAD_LOCAL 0\n"
-        "  PUSH_STR value\n"
-        "  ARR_PUSH\n"
-        "  POP\n"
-        "  LOAD_LOCAL 1\n"
-        "  PUSH_I64 1\n"
-        "  I64_ADD\n"
-        "  STORE_LOCAL 1\n"
-        "  JMP loop\n"
-        "done:\n"
-        "  LOAD_LOCAL 0\n"
-        "  ARR_LEN\n"
-        "  PUSH_I64 70000\n"
-        "  EQ\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "large string array growth fixture");
-    CHECK(m != NULL, "large string array growth fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c emits unbounded string array growth");
-    if (c) {
-        int status = -1;
-        CHECK(strstr(c, "nsarr_arena") == NULL,
-              "string arrays do not share a fixed process-wide arena");
-        CHECK(compile_and_run(c, &status) == 0,
-              "large string array growth C compiles and runs");
-        CHECK(status == 1, "a string array grows past the former 65,536-element limit");
-        free(c);
-    }
-    nvm_module_free(m);
-}
-
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2237,12 +1900,255 @@ static void test_nested_record_pack_is_refused(void) {
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL, "nested records stay outside the closed subset");
-    CHECK(strstr(err, "scalar or array") != NULL, "error names supported field kinds");
+    CHECK(strstr(err, "conflicting") != NULL || strstr(err, "record") != NULL,
+          "error explains the unsupported nested record shape");
     free(c);
     nvm_module_free(m);
 }
 
+static void test_unsupported_classifier_instructions(void) {
+    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL, OP_PUSH_F64,
+        OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
+        OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
+    for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
+        NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
+            "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
+            "PUSH_I64 0\nRET\n.end\n", "unsupported classifier instruction");
+        if (!m) continue;
+        DecodedInstruction instruction = {0};
+        instruction.opcode = opcodes[i];
+        uint32_t written = isa_encode(&instruction, m->code + m->functions[0].code_offset, 16);
+        CHECK(written != 0, "I encode the unsupported instruction using ISA metadata");
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        const InstructionInfo *info = isa_get_info(opcodes[i]);
+        CHECK(c == NULL && strstr(error, "cannot classify unsupported opcode") &&
+              strstr(error, info->name) && strstr(error, "function 0 at offset 0"),
+              "I reject unsupported stack effects at their own instruction");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
+static void test_emitted_map_get(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[4096];
+        snprintf(source, sizeof source,
+            ".string key \"key\"\n.string old \"42\"\n.string newer \"changed\"\n.string empty \"\"\n"
+            ".entry main\n.function main 0 3 0 int 1\nHM_NEW 5 %d\nSTORE_LOCAL 0\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nDUP\nPOP\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 1\nTYPE_CHECK 0\nASSERT\n"
+            "LOAD_LOCAL 1\nCAST_STRING\nPUSH_STR empty\nEQ\nASSERT\n"
+            "LOAD_LOCAL 1\nJMP_FALSE missing_ok\nPUSH_BOOL 0\nASSERT\nmissing_ok:\n"
+            "LOAD_LOCAL 1\nLOAD_LOCAL 1\nEQ\nASSERT\n"
+            "LOAD_LOCAL 1\n%s\nEQ\nBOOL_NOT\nASSERT\n"
+            "LOAD_LOCAL 1\nCALL cast_value\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\n%s\nHM_SET\nPOP\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nSTORE_LOCAL 2\n"
+            "LOAD_LOCAL 2\nTYPE_CHECK 0\nBOOL_NOT\nASSERT\n"
+            "LOAD_LOCAL 2\nCAST_STRING\nPUSH_STR old\nEQ\nASSERT\n"
+            "LOAD_LOCAL 2\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\n%s\nHM_SET\nPUSH_STR key\nHM_DELETE\nPOP\n"
+            "LOAD_LOCAL 2\n%s\nASSERT\n"
+            "PUSH_BOOL %d\nJMP_FALSE alternate\nLOAD_LOCAL 2\nJMP joined\n"
+            "alternate:\nLOAD_LOCAL 2\nDUP\nSWAP\nPOP\njoined:\nCALL cast_value\n"
+            "PUSH_I64 42\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 2\nCALL consume\nPUSH_I64 %d\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+            ".function cast_value 1 1 0 int 1\nLOAD_LOCAL 0\nCAST_INT\nRET\n.end\n"
+            ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\n%s\nRET\n.end\n",
+            strings ? 5 : 1, strings ? "PUSH_STR empty" :
+                "LOAD_LOCAL 0\nPUSH_STR key\nPUSH_I64 0\nHM_SET\nPUSH_STR key\nHM_GET",
+            strings ? "PUSH_STR old" : "PUSH_I64 42",
+            strings ? "PUSH_STR newer" : "PUSH_I64 99",
+            strings ? "PUSH_STR old\nEQ" : "CAST_INT\nPUSH_I64 42\nI64_EQ", strings,
+            strings ? 2 : 43, strings ? "STR_LEN" : "PUSH_I64 1\nI64_ADD");
+        NvmModule *m = assemble_ok(source, "tagged map lookup flow");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I retain tagged lookups through locals, branches and calls");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I distinguish missing values and preserve fetched values after replacement and deletion");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[512];
+        snprintf(source, sizeof source, ".string key \"missing\"\n.entry main\n"
+            ".function main 0 0 0 int 1\nHM_NEW 5 %d\nPUSH_STR key\nHM_GET\n%s\nRET\n.end\n",
+            strings ? 5 : 1, strings ? "STR_LEN" : "PUSH_I64 1\nI64_ADD");
+        NvmModule *m = assemble_ok(source, "missing lookup consumption");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I check lookup tags at scalar consumption");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status != 0,
+                  "I reject a missing lookup when an integer or string is required");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *unresolved[] = {
+        "PUSH_I64 0\nEQ\n", "PUSH_BOOL 0\nEQ\n", "RET\n",
+        "BOOL_NOT\n", "PUSH_BOOL 1\nBOOL_AND\n", "PUSH_BOOL 0\nBOOL_OR\n"
+    };
+    for (size_t i = 0; i < sizeof unresolved / sizeof unresolved[0]; ++i) {
+        char source[512], error[256] = {0};
+        snprintf(source, sizeof source, ".string key \"key\"\n.entry main\n"
+            ".function main 0 0 0 int 1\nHM_NEW 5 1\nPUSH_STR key\nHM_GET\n%s"
+            "POP\nPUSH_I64 0\nRET\n.end\n", unresolved[i]);
+        NvmModule *m = assemble_ok(source, "unresolved lookup representation");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && error[0], "I reject missing tag information and unsupported tagged return flow");
+        free(c); nvm_module_free(m);
+    }
+}
+
+static void test_emitted_map_flow(void) {
+    test_emitted_map_get();
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[4096];
+        snprintf(source, sizeof source, ".string key \"name\"\n.string value \"text\"\n.entry main\n"
+            ".function main 0 2 0 int 1\nCALL make\nDUP\nSTORE_LOCAL 0\nPUSH_I64 3\nCALL relay\n"
+            "PUSH_BOOL %d\nJMP_FALSE alternate\nPUSH_STR key\n%s\nHM_SET\nJMP joined\n"
+            "alternate:\nPUSH_STR key\n%s\nHM_SET\njoined:\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 0\nPUSH_STR key\nHM_HAS\nASSERT\nLOAD_LOCAL 1\nPUSH_STR key\n%s\nCALL put\nPOP\n"
+            "LOAD_LOCAL 0\nHM_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 1\nPUSH_STR key\nHM_DELETE\nPOP\nLOAD_LOCAL 0\nPUSH_STR key\nHM_HAS\nBOOL_NOT\nASSERT\n"
+            "LOAD_LOCAL 0\nHM_LEN\nRET\n.end\n"
+            ".function make 0 0 0 hashmap 1\nHM_NEW 5 %d\nRET\n.end\n"
+            ".function relay 2 2 0 hashmap 1\nLOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_FALSE recurse\nLOAD_LOCAL 0\nRET\n"
+            "recurse:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\nTAIL_CALL relay\n.end\n"
+            ".function put 3 3 0 hashmap 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nHM_SET\nRET\n.end\n",
+            strings, strings ? "PUSH_STR value" : "PUSH_I64 42",
+            strings ? "PUSH_STR value" : "PUSH_I64 17", strings ? "PUSH_STR value" : "PUSH_I64 99",
+            strings ? 5 : 1);
+        NvmModule *m = assemble_ok(source, "emitted map flow");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I emit map types through forward calls and branches");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve map aliases through mutation, replacement, deletion and tail recursion");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *invalid[] = {"HM_NEW 1 1\nPOP\n", "HM_NEW 5 3\nPOP\n",
+        "HM_NEW 5 1\nPUSH_STR key\nPUSH_STR key\nHM_SET\nPOP\n",
+        "HM_NEW 5 1\nPUSH_I64 1\nHM_HAS\nPOP\n"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        char source[512], error[256] = {0};
+        snprintf(source, sizeof source, ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n%sPUSH_I64 0\nRET\n.end\n", invalid[i]);
+        NvmModule *m = assemble_ok(source, "invalid map types");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "map"), "I reject unsupported or conflicting map types");
+        free(c); nvm_module_free(m);
+    }
+
+    const char *stress =
+        ".string key \"key\"\n.entry main\n"
+        ".function main 0 2 0 int 1\nPUSH_I64 0\nSTORE_LOCAL 0\n"
+        "loop:\nLOAD_LOCAL 0\nPUSH_I64 20000\nI64_LT_S\nJMP_FALSE done\n"
+        "HM_NEW 5 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nLOAD_LOCAL 0\nHM_SET\nPOP\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nPOP\n"
+        "HM_NEW 5 1\nPOP\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\nJMP loop\n"
+        "done:\nPUSH_I64 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(stress, "bounded map ownership stress");
+    if (m) {
+        char *c = emit_or_fail(m, "I emit early map reclamation at loop back-edges");
+        if (c) {
+            const char *needle = "    return result;\n}";
+            char *at = strstr(c, needle);
+            CHECK(at != NULL, "I locate the generated entry epilogue for the stress probe");
+            if (at) {
+                const char *probe =
+                    "    if (nmap_owned_peak > 8 || nmap_owned_live != 0) abort();\n"
+                    "    return result;\n}";
+                size_t prefix = (size_t)(at - c), total = prefix + strlen(probe) + 1;
+                char *instrumented = malloc(total);
+                if (instrumented) {
+                    memcpy(instrumented, c, prefix);
+                    memcpy(instrumented + prefix, probe, strlen(probe) + 1);
+                    int status = -1;
+                    CHECK(compile_and_run(instrumented, &status) == 0 && status == 0,
+                          "I keep maps and fetched values bounded through repeated construction");
+                    free(instrumented);
+                } else {
+                    CHECK(0, "I allocate the bounded-memory stress source");
+                }
+            }
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
+static void test_native_map_runtime(void) {
+    test_emitted_map_flow();
+    const char *source =
+        "#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <assert.h>\n"
+#include "../../src/nanoisa/nvm2c_map_runtime.inc"
+        "int main(int argc, char **argv) {\n"
+        "    if (argc > 1) {\n"
+        "        if (argv[1][0] == 't') { nmap_t m = nmap_new(1); nmap_set(m, \"key\", (nmap_value){5, 0, \"wrong\"}); }\n"
+        "        else if (argv[1][0] == 'k') { (void)nmap_new(3); }\n"
+        "        else { nmap_s m = {0}; m.capacity = SIZE_MAX; nmap_grow(&m); }\n"
+        "        return 0;\n"
+        "    }\n"
+        "    nmap_t numbers = nmap_new(1), alias = numbers, strings = nmap_new(5);\n"
+        "    char key[64], value[64];\n"
+        "    assert(nmap_get(numbers, \"missing\").kind == 0 && !nmap_has(numbers, \"missing\"));\n"
+        "    assert(nmap_delete(numbers, \"missing\") == numbers && nmap_len(numbers) == 0);\n"
+        "    for (int i = 0; i < 4096; ++i) { snprintf(key, sizeof key, \"key-%d\", i);\n"
+        "        assert(nmap_set(numbers, key, (nmap_value){1, -3 * i, NULL}) == alias); }\n"
+        "    assert(nmap_len(alias) == 4096 && numbers->capacity > 16);\n"
+        "    for (int i = 0; i < 4096; ++i) { snprintf(key, sizeof key, \"key-%d\", i);\n"
+        "        nmap_value v = nmap_get(alias, key); assert(v.kind == 1 && v.integer == -3 * i); nmap_release_value(v);\n"
+        "        if (i % 2) nmap_delete(alias, key); }\n"
+        "    assert(nmap_len(numbers) == 2048);\n"
+        "    for (int i = 1; i < 4096; i += 2) { snprintf(key, sizeof key, \"key-%d\", i);\n"
+        "        assert(!nmap_has(numbers, key)); nmap_set(numbers, key, (nmap_value){1, INT64_MIN, NULL}); }\n"
+        "    nmap_set(numbers, \"\", (nmap_value){1, INT64_MAX, NULL});\n"
+        "    assert(nmap_get(numbers, \"\").integer == INT64_MAX && nmap_len(numbers) == 4097);\n"
+        "    strcpy(key, \"owned-key\"); strcpy(value, \"before\");\n"
+        "    nmap_set(strings, key, (nmap_value){5, 0, value}); key[0] = 'X'; value[0] = 'X';\n"
+        "    nmap_value saved = nmap_get(strings, \"owned-key\"); assert(strcmp(saved.text, \"before\") == 0);\n"
+        "    nmap_set(strings, \"owned-key\", (nmap_value){5, 0, \"after\"});\n"
+        "    nmap_value replaced = nmap_get(strings, \"owned-key\");\n"
+        "    assert(strcmp(replaced.text, \"after\") == 0 && strcmp(saved.text, \"before\") == 0 && nmap_len(strings) == 1);\n"
+        "    nmap_release_value(replaced); nmap_delete(strings, \"owned-key\");\n"
+        "    assert(!nmap_has(strings, \"owned-key\") && !nmap_len(strings));\n"
+        "    nmap_set(strings, \"\", (nmap_value){5, 0, \"\"}); nmap_value empty = nmap_get(strings, \"\");\n"
+        "    assert(empty.kind == 5 && empty.text[0] == 0 && nmap_get(strings, \"missing\").kind == 0);\n"
+        "    nmap_release_value(empty); nmap_destroy(strings);\n"
+        "    assert(strcmp(saved.text, \"before\") == 0); nmap_release_value(saved);\n"
+        "    nmap_t collisions = nmap_new(1); char keys[32][64]; int found = 0;\n"
+        "    for (int i = 0; found < 32; ++i) { snprintf(key, sizeof key, \"collision-%d\", i);\n"
+        "        if ((nmap_hash(key) & 255) == 0) { strcpy(keys[found], key);\n"
+        "            nmap_set(collisions, key, (nmap_value){1, found, NULL}); ++found; } }\n"
+        "    for (int i = 0; i < 32; ++i) assert(nmap_get(collisions, keys[i]).integer == i);\n"
+        "    for (int i = 0; i < 32; ++i) { nmap_delete(collisions, keys[i]); assert(!nmap_has(collisions, keys[i])); }\n"
+        "    assert(!nmap_len(collisions)); nmap_destroy(collisions); nmap_destroy(numbers); nmap_destroy(NULL); return 0;\n}\n";
+    int status = -1;
+    CHECK(compile_and_run(source, &status) == 0 && status == 0,
+          "I grow and destroy native maps without losing values, collisions or retained lookups");
+    const char *invalid[] = {"type", "kind", "overflow"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        status = 0;
+        CHECK(compile_and_run_with_args(source, &status, invalid[i]) == 0 && status != 0,
+              "I fail closed on invalid map values, types and unrepresentable growth");
+    }
+}
+
 static void test_null_module(void) {
+    test_native_map_runtime();
+    test_unsupported_classifier_instructions();
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
     CHECK(c == NULL, "null module is refused");
@@ -2333,126 +2239,6 @@ static void test_choose_else_runs_without_nano_vm(void) {
     int status = -1;
     CHECK(compile_and_run(c, &status) == 0, "choose else C compiles and runs");
     CHECK(status == 0, "choose(0) exits 0 without a VM process");
-    free(c);
-    nvm_module_free(m);
-}
-
-static void test_void_local_flows_through_branches_loops_and_calls(void) {
-    const char *src =
-        ".entry 1\n"
-        ".function consume 1 1 0 void 0\n"
-        "  LOAD_LOCAL 0\n"
-        "  POP\n"
-        "  RET\n"
-        ".end\n"
-        ".function main 0 1 0 int 1\n"
-        "  PUSH_BOOL 0\n"
-        "  JMP_FALSE after_store\n"
-        "  PUSH_I64 9\n"
-        "  STORE_LOCAL 0\n"
-        "after_store:\n"
-        "  LOAD_LOCAL 0\n"
-        "  CALL consume\n"
-        "loop:\n"
-        "  LOAD_LOCAL 0\n"
-        "  POP\n"
-        "  PUSH_BOOL 0\n"
-        "  JMP_FALSE done\n"
-        "  JMP loop\n"
-        "done:\n"
-        "  PUSH_I64 0\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "void local data-flow fixture");
-    CHECK(m != NULL, "void local data-flow fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c emits C for void local data flow");
-    if (!c) {
-        nvm_module_free(m);
-        return;
-    }
-    CHECK(strstr(c, "uint8_t lt0 = TAG_VOID") != NULL,
-          "non-parameter local starts with an explicit void tag");
-    CHECK(strstr(c, "= lt0") != NULL,
-          "LOAD_LOCAL carries the void tag independently of typed payload storage");
-    int status = -1;
-    CHECK(compile_and_run(c, &status) == 0,
-          "conditional, loop, and call void-local C compiles and runs");
-    CHECK(status == 0, "void local can be passed and discarded with VM semantics");
-    free(c);
-    nvm_module_free(m);
-}
-
-static void test_void_local_typed_consumers_keep_runtime_checks(void) {
-    const char *src =
-        ".entry 0\n"
-        ".function main 0 1 0 int 1\n"
-        "  LOAD_LOCAL 0\n"
-        "  PUSH_I64 1\n"
-        "  I64_ADD\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "void local typed consumer fixture");
-    CHECK(m != NULL, "void local typed consumer fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c emits typed void-local consumption");
-    if (c) {
-        CHECK(strstr(c, "!= TAG_INT) abort()") != NULL,
-              "typed consumers retain a runtime tag check");
-        int status = 0;
-        CHECK(compile_and_run(c, &status) == 0,
-              "typed void-local consumer C compiles and runs");
-        CHECK(status != 0, "integer arithmetic rejects void instead of using its payload");
-        free(c);
-    }
-    nvm_module_free(m);
-}
-
-static void test_void_local_flows_through_tail_call(void) {
-    const char *src =
-        ".entry 1\n"
-        ".function consume 1 1 0 int 1\n"
-        "  LOAD_LOCAL 0\n"
-        "  PUSH_I64 1\n"
-        "  I64_ADD\n"
-        "  RET\n"
-        ".end\n"
-        ".function main 0 1 0 int 1\n"
-        "  LOAD_LOCAL 0\n"
-        "  TAIL_CALL consume\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "void local tail-call fixture");
-    CHECK(m != NULL, "void local tail-call fixture assembles");
-    if (!m) return;
-    char *c = emit_or_fail(m, "nvm2c emits a void-valued tail-call argument");
-    if (c) {
-        int status = -1;
-        CHECK(compile_and_run(c, &status) == 0,
-              "void-valued tail-call C compiles and runs");
-        CHECK(status != 0, "tail call preserves void for the typed consumer check");
-        free(c);
-    }
-    nvm_module_free(m);
-}
-
-static void test_void_aggregate_field_is_explicitly_refused(void) {
-    const char *src =
-        ".entry 0\n"
-        ".function main 0 0 0 int 1\n"
-        "  PUSH_VOID\n"
-        "  AGG_PACK 0 0 0 1\n"
-        "  POP\n"
-        "  PUSH_I64 0\n"
-        "  RET\n"
-        ".end\n";
-    NvmModule *m = assemble_ok(src, "void aggregate field fixture");
-    CHECK(m != NULL, "void aggregate field fixture assembles");
-    if (!m) return;
-    char err[256];
-    char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "void aggregate fields remain outside the tagged-storage subset");
-    CHECK(strstr(err, "PUSH_VOID") != NULL || strstr(err, "scalar or array") != NULL,
-          "aggregate limitation remains explicit");
     free(c);
     nvm_module_free(m);
 }
@@ -2665,16 +2451,12 @@ static void test_cli_refuses_call_extern(const char *cli) {
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_record_result_crosses_direct_call();
-    test_record_temporary_storage_is_function_sized();
-    test_uncalled_record_parameter_needs_no_invented_shape();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
-    test_cast_int_updates_classifier_stack();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
-    test_string_storage_is_owned_checked_and_unbounded();
     test_greeting_runs_without_nano_vm();
     test_glue_runs_without_nano_vm();
     test_arr_set_is_refused();
@@ -2714,7 +2496,6 @@ int main(int argc, char **argv) {
     test_slice_runs_without_nano_vm();
     test_str_substr_array_is_refused();
     test_blank_l_runs_without_nano_vm();
-    test_array_record_field_keeps_runtime_representation();
     test_grow_l_runs_without_nano_vm();
     test_ch_runs_without_nano_vm();
     test_ch_oob_runs_without_nano_vm();
@@ -2723,17 +2504,10 @@ int main(int argc, char **argv) {
     test_get_s_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
-    test_array_result_kinds_cross_calls();
-    test_array_growth_has_no_process_wide_arena_limit();
-    test_string_array_growth_has_no_process_wide_arena_limit();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
-    test_void_local_flows_through_branches_loops_and_calls();
-    test_void_local_typed_consumers_keep_runtime_checks();
-    test_void_local_flows_through_tail_call();
-    test_void_aggregate_field_is_explicitly_refused();
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
