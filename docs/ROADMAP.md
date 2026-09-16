@@ -28,6 +28,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
+      instrumented objects instead of reusing normal objects when only `CC`
+      changes. I test warm-cache behavior before claiming translator coverage.
+      MAC `task_f3df199b025042e0b1d83484cd104ed3`.
 - [x] **Chronicle branch reconciliation.** I review main `1a5fed53` and
       worker `633acda1`, retain their identical README chronology update, and
       integrate both histories without replacing compiler work. I verify the
@@ -88,6 +92,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             - [ ] I connect those facts to classification and C emission,
               preserve record-array element shapes, and pass full compiler
               acceptance. A standalone graph test does not complete this gate.
+              - [x] I attach persistent shape variables to production
+                classifier values, locals, parameters, results and joins,
+                checking compatibility alongside existing representation facts.
+                My AOT suite passes 1,048 checks normally and with translator/
+                graph ASan/UBSan instrumentation; 952 graph checks pass.
+                Evidence: `docs/evidence/aot-production-shape-constraints.md`.
           - [x] I separate record and record-array temporary field facts;
             their independent indices must not overwrite each other. I test
             live string-record arrays across scalar record construction and

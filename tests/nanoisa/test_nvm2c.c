@@ -3200,6 +3200,55 @@ static void test_classifier_deep_stack(void) {
     }
 }
 
+static void test_shared_code_shape_scopes(void) {
+    const char *source =
+        ".string text \"hello\"\n.entry main\n"
+        ".function read_int 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n"
+        ".function read_string 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 0 0 1\nCALL read_int\nPOP\n"
+        "PUSH_STR text\nAGG_PACK 0 0 0 1\nCALL read_string\nSTR_LEN\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "shared bytecode shape scopes");
+    if (!m) return;
+    m->functions[1].code_offset = m->functions[0].code_offset;
+    m->functions[1].code_length = m->functions[0].code_length;
+    char *c = emit_or_fail(m, "shared bytecode shape scopes");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 5,
+              "I keep function shapes independent when bytecode ranges overlap");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
+static void test_record_array_alias_shapes(void) {
+    for (int conflict = 0; conflict < 2; ++conflict) {
+        char source[2048];
+        strcpy(source, ".string text \"wrong\"\n.entry main\n.function main 0 2 0 int 1\n"
+                       "ARR_NEW 8\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nSTORE_LOCAL 1\n"
+                       "LOAD_LOCAL 0\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\nPOP\nLOAD_LOCAL 1\n");
+        strcat(source, conflict ? "PUSH_STR text\n" : "PUSH_I64 2\n");
+        strcat(source, "AGG_PACK 0 0 0 1\nARR_PUSH\nPOP\nLOAD_LOCAL 0\n"
+                       "PUSH_I64 1\nARR_GET\nAGG_GET 0\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, "record-array alias shapes");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        if (conflict) {
+            CHECK(c == NULL && strstr(error, "shape"), "I reject incompatible fields inserted through array aliases");
+        } else {
+            CHECK(c != NULL, "I accept compatible record-array aliases");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 2,
+                      "I preserve mutations through compatible aliases");
+            }
+        }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_valued_record_fields(void) {
     for (int strings = 0; strings < 2; ++strings) {
         for (int empty = 0; empty < 2; ++empty) {
@@ -3775,6 +3824,8 @@ int main(int argc, char **argv) {
     test_classifier_deep_stack();
     test_wide_aggregate_calls();
     test_array_valued_record_fields();
+    test_record_array_alias_shapes();
+    test_shared_code_shape_scopes();
     test_emitter_deep_stacks();
     test_emitter_many_temporaries();
     test_record_array_fact_namespaces();

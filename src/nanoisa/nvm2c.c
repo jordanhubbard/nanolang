@@ -9,6 +9,7 @@
 #include "nvm2c.h"
 #include "isa.h"
 #include "utf8.h"
+#include "nvm2c_shape.h"
 
 #include <stdarg.h>
 #include <limits.h>
@@ -42,6 +43,12 @@ typedef struct {
     size_t record_width;
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
+    NvmShapeGraph shapes;
+    NvmShapeId *shape_locals, *shape_results, **shape_outputs;
+    NvmShapeId *shape_current;
+    int shape_generic_array;
+    int track_shapes;
+    uint8_t shape_opcode;
 } Nvm2cBuf;
 
 static void nvm2c_fail(Nvm2cBuf *b, const char *fmt, ...) {
@@ -295,6 +302,7 @@ typedef struct {
     uint8_t kind;
     int origin;
     uint8_t *rec_k;
+    NvmShapeId shape;
 } Nvm2cSimSlot;
 
 typedef struct {
@@ -338,12 +346,66 @@ static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uin
     return 1;
 }
 
+static int shape_ok(Nvm2cBuf *b) {
+    if (b->shapes.error) {
+        const InstructionInfo *info = isa_get_info(b->shape_opcode);
+        nvm2c_fail(b, "I found invalid aggregate shape constraints during %s: %s",
+                   info ? info->name : "classification", b->shapes.error);
+    }
+    return !b->failed;
+}
+
+static NvmShapeId shape_variable(Nvm2cBuf *b, NvmShapeId *slot) {
+    if (!b->track_shapes) return 0;
+    if (!*slot) *slot = nvm_shape_new(&b->shapes, NVM_SHAPE_UNKNOWN);
+    shape_ok(b);
+    return *slot;
+}
+
+static int shape_type(Nvm2cBuf *b, NvmShapeId id, NvmShapeKind kind) {
+    if (!b->track_shapes) return 1;
+    if (kind == NVM_SHAPE_UNKNOWN) return shape_ok(b);
+    if (nvm_shape_kind(&b->shapes, id) != kind) {
+        NvmShapeId typed = nvm_shape_new(&b->shapes, kind);
+        nvm_shape_unify(&b->shapes, id, typed);
+    }
+    return shape_ok(b);
+}
+
+static int shape_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
+    if (!b->track_shapes) return 1;
+    if (kind == NVM2C_VK_UNK) return shape_ok(b);
+    if (kind == NVM2C_VK_INT) return shape_type(b, id, NVM_SHAPE_INT);
+    if (kind == NVM2C_VK_STR) return shape_type(b, id, NVM_SHAPE_STRING);
+    if (kind == NVM2C_VK_REC) return shape_type(b, id, NVM_SHAPE_RECORD);
+    if (!shape_type(b, id, NVM_SHAPE_ARRAY)) return 0;
+    if (b->shape_generic_array) return 1;
+    NvmShapeId element = nvm_shape_child(&b->shapes, id, 0);
+    return shape_type(b, element, kind == NVM2C_VK_RARR ? NVM_SHAPE_RECORD :
+                                kind == NVM2C_VK_SARR ? NVM_SHAPE_STRING : NVM_SHAPE_INT);
+}
+
+static int shape_equal(Nvm2cBuf *b, NvmShapeId a, NvmShapeId c) {
+    if (!b->track_shapes) return 1;
+    nvm_shape_unify(&b->shapes, a, c);
+    return shape_ok(b);
+}
+
+static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
+    if (!b->track_shapes) return 0;
+    NvmShapeId child = nvm_shape_child(&b->shapes, parent, index);
+    shape_ok(b);
+    return child;
+}
+
 static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
                          Nvm2cSimSlot slot) {
     if ((size_t)*sp >= b->sim_stack_capacity) {
         nvm2c_fail(b, "function %u: operand stack overflow", idx);
         return 0;
     }
+    if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
+    if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     stk[*sp] = slot;
     if (!stk[*sp].rec_k) stk[*sp].rec_k = b->default_fields;
     (*sp)++;
@@ -409,6 +471,10 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
         return 0;
     }
     for (int i = 0; i < sp; i++) {
+        if (b->track_shapes && !nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape)) {
+            nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
+            return 0;
+        }
         int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
         if (join->slots[i].kind == NVM2C_VK_UNK) {
             join->slots[i] = stack[i];
@@ -447,6 +513,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                                   Nvm2cFacts *facts, Nvm2cSimSlot *stk) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
+    b->track_shapes = facts->final;
     uint16_t i;
     memset(local_kind, NVM2C_VK_UNK, nloc);
     memset(rec_fields, NVM2C_VK_UNK, (size_t)nloc * b->record_width);
@@ -483,6 +550,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             terminated = 0;
         }
 
+        b->shape_current = facts->final ? &b->shape_outputs[idx][start] : NULL;
+        b->shape_opcode = ins.opcode;
+        b->shape_generic_array = !(ins.opcode == OP_ARR_LITERAL || ins.opcode == OP_CALL_EXTERN ||
+            (ins.opcode == OP_ARR_NEW && ins.operands[0].u8 != TAG_INT));
         switch (ins.opcode) {
         case OP_NOP:
             break;
@@ -538,6 +609,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             memset(&loaded, 0, sizeof loaded);
             loaded.kind = local_kind[slot];
             loaded.origin = (int)slot;
+            loaded.shape = shape_variable(b, &b->shape_locals[(size_t)idx * NVM2C_MAX_LOCALS + slot]);
             if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR) {
                 loaded.rec_k = sim_fields(b, rec_fields + (size_t)slot * b->record_width, 0);
                 if (!loaded.rec_k) return 0;
@@ -553,6 +625,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+            if (!shape_equal(b, v.shape, shape_variable(b, &b->shape_locals[(size_t)idx * NVM2C_MAX_LOCALS + slot]))) return 0;
             if (v.kind == NVM2C_VK_STR) {
                 local_kind[slot] = NVM2C_VK_STR;
             } else if (v.kind == NVM2C_VK_ARR) {
@@ -731,6 +804,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             (void)ix;
+            NvmShapeId element_shape = shape_child(b, arr.shape, 0);
+            if (!shape_equal(b, shape_variable(b, b->shape_current), element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
@@ -808,6 +883,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, -1)) return 0;
             }
+            if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape) ||
+                !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
         }
         case OP_AGG_PACK: {
@@ -817,6 +894,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             memset(&packed, 0, sizeof packed);
             packed.kind = NVM2C_VK_REC;
             packed.origin = -1;
+            packed.shape = shape_variable(b, b->shape_current);
+            if (!shape_type(b, packed.shape, NVM_SHAPE_RECORD)) return 0;
             packed.rec_k = sim_fields(b, NULL, NVM2C_VK_INT);
             if (!packed.rec_k) return 0;
             if (count > b->record_width) {
@@ -833,6 +912,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     return 0;
                 }
                 packed.rec_k[count - 1 - ai] = v.kind;
+                if (!shape_equal(b, shape_child(b, packed.shape, count - 1 - ai), v.shape)) return 0;
             }
             if (!sim_push_slot(b, idx, stk, &sp, packed)) return 0;
             break;
@@ -855,6 +935,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             fk = rec.rec_k[fi];
+            if (!shape_equal(b, shape_variable(b, b->shape_current),
+                             shape_child(b, rec.shape, fi))) return 0;
             if (!sim_push(b, idx, stk, &sp, fk, -1)) return 0;
             break;
         }
@@ -875,6 +957,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 size_t at = (size_t)callee * NVM2C_MAX_LOCALS + i - 1;
                 if (!merge_fact(b, facts, &facts->parameters[at], arg.kind)) return 0;
+                if (!shape_equal(b, arg.shape, shape_variable(b, &b->shape_locals[at]))) return 0;
                 if (arg.kind == NVM2C_VK_UNK) {
                     mark_origin(local_kind, nloc, arg.origin, facts->parameters[at]);
                 }
@@ -902,6 +985,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
                 if (!merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                   facts->results + (size_t)callee * b->record_width)) return 0;
+            }
+            if (ins.opcode == OP_CALL && cf->result_count == 1 && sp > 0) {
+                if (!shape_equal(b, stk[sp - 1].shape, shape_variable(b, &b->shape_results[callee]))) return 0;
+            } else if (ins.opcode == OP_TAIL_CALL && cf->result_count == 1) {
+                if (!shape_equal(b, shape_variable(b, &b->shape_results[idx]),
+                                 shape_variable(b, &b->shape_results[callee]))) return 0;
             }
             break;
         }
@@ -951,6 +1040,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
                 }
+                NvmShapeKind declared = fn->result_tag == TAG_STRING ? NVM_SHAPE_STRING :
+                    fn->result_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
+                    (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
+                if (!shape_type(b, v.shape, declared) ||
+                    !shape_equal(b, v.shape, shape_variable(b, &b->shape_results[idx]))) return 0;
             }
             break;
         }
@@ -1023,6 +1117,13 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     for (size_t pc = 0; pc <= length; pc++) {
         if (targets[pc] && !starts[pc]) {
             nvm2c_fail(b, "I found a jump to a non-instruction boundary in function %u", idx);
+            goto done;
+        }
+    }
+    if (facts->final && !b->shape_outputs[idx]) {
+        b->shape_outputs[idx] = calloc(length ? length : 1, sizeof(NvmShapeId));
+        if (!b->shape_outputs[idx]) {
+            nvm2c_fail(b, "I cannot allocate function instruction shapes");
             goto done;
         }
     }
@@ -3043,14 +3144,26 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         return NULL;
     }
     size_t fact_size = (size_t)mod->function_count * per_function;
+    size_t shape_code_count = mod->code_size;
+    size_t shape_local_count = (size_t)mod->function_count * NVM2C_MAX_LOCALS;
+    if (shape_code_count > SIZE_MAX / sizeof(NvmShapeId) || shape_local_count > SIZE_MAX / sizeof(NvmShapeId)) {
+        nvm2c_fail(&b, "I cannot allocate this many instruction shapes");
+        return NULL;
+    }
+    b.shape_locals = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS, sizeof(NvmShapeId));
+    b.shape_results = calloc(mod->function_count, sizeof(NvmShapeId));
+    b.shape_outputs = calloc(mod->function_count, sizeof *b.shape_outputs);
     uint8_t *inference = malloc(fact_size);
     uint8_t *kinds = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference) {
+    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs) {
         free(inference);
         free(kinds);
         free(rec_fields);
+        free(b.shape_locals);
+        free(b.shape_results);
+        free(b.shape_outputs);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
@@ -3340,12 +3453,22 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(kinds);
     free(rec_fields);
     free(inference);
+    nvm_shape_destroy(&b.shapes);
+    free(b.shape_locals);
+    free(b.shape_results);
+    for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
+    free(b.shape_outputs);
     return b.data;
 
 fail:
     free(kinds);
     free(rec_fields);
     free(inference);
+    nvm_shape_destroy(&b.shapes);
+    free(b.shape_locals);
+    free(b.shape_results);
+    for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
+    free(b.shape_outputs);
     free(b.data);
     return NULL;
 }
