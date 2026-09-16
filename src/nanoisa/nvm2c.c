@@ -1919,6 +1919,30 @@ static void scalar_value_expression(Nvm2cBuf *b, char *out, size_t size, uint8_t
     else nvm2c_fail(b, "I require a tagged or scalar array element");
 }
 
+/* I publish only live operand slots, not stale high-water temporaries. Caller
+ * snapshots stay registered while callees run; mutable aggregates are traced
+ * from their current contents at collection time. */
+static const char *stack_array_name(uint8_t kind);
+static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
+                           const NvmFunctionEntry *fn, const uint8_t *kinds,
+                           uint32_t idx) {
+    if (!b->has_maps) return;
+    nvm2c_puts(b, "    nroots.live.count = 0;\n");
+    for (uint16_t i = 0; i < fn->local_count; ++i) {
+        uint8_t k = fn_local_kind(b, kinds, idx, i);
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || integer_array_storage(k)) continue;
+        nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %sl%u);\n", k,
+                     k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "", i);
+    }
+    for (int i = 0; i < st->sp; ++i) {
+        uint8_t k = st->kinds[i];
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || integer_array_storage(k)) continue;
+        nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %s%s[%d]);\n", k,
+                     k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "",
+                     stack_array_name(k), st->slots[i]);
+    }
+}
+
 static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
     uint8_t input_kind = strcmp(op, "&&") == 0 || strcmp(op, "||") == 0 ? NVM2C_VK_BOOL : NVM2C_VK_INT;
     int rhs = stack_pop_expect(b, st, input_kind, "binary op rhs");
@@ -2283,6 +2307,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
      * syntactically referenced without executing an extra jump. */
     nvm2c_puts(b, "    if (0) goto L_return;\n");
     if (has_self_tail) nvm2c_puts(b, "    if (0) goto L_tco;\nL_tco: ;\n");
+    if (b->has_maps && has_self_tail) {
+        emit_map_roots(b, &st, fn, kinds, idx);
+        nvm2c_puts(b, "    nmap_collect();\n");
+    }
 
     while (pc < remaining) {
         size_t start = pc;
@@ -3263,6 +3291,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
+            emit_map_roots(b, &st, fn, kinds, idx);
             char call[NVM2C_CALL_SIZE];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
@@ -3295,6 +3324,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         case OP_TAIL_CALL: {
             uint32_t callee = ins.operands[0].u32;
+            emit_map_roots(b, &st, fn, kinds, idx);
             if (callee >= mod->function_count) {
                 nvm2c_fail(b, "function %u: TAIL_CALL target %u is out of range", idx, callee);
                 goto done;
@@ -3332,6 +3362,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &tgt)) {
                 goto done;
             }
+            if (b->has_maps && tgt <= start) {
+                emit_map_roots(b, &st, fn, kinds, idx);
+                nvm2c_puts(b, "    nmap_collect();\n");
+            }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
             nvm2c_printf(b, "    goto L_%zu;\n", tgt);
             terminated = 1;
@@ -3345,6 +3379,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             nvm2c_printf(b, "    if (!t[%d]) {\n", cond);
+            if (b->has_maps && tgt <= start) {
+                emit_map_roots(b, &st, fn, kinds, idx);
+                nvm2c_puts(b, "    nmap_collect();\n");
+            }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
             nvm2c_printf(b, "    goto L_%zu;\n    }\n", tgt);
             break;
@@ -3471,6 +3509,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         goto done;
     }
     nvm2c_puts(b, "L_return:\n    free(r);\n");
+    if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; free(nroots.live.items);\n");
     nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     /* I emit the body once, then insert declarations using its actual
@@ -3505,7 +3544,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         if (b->has_maps) {
             int extra = snprintf(declarations + count, sizeof declarations - (size_t)count,
-                                 "    nmap_value v[%d] = {0}; (void)v;\n",
+                                 "    nmap_value v[%d] = {0}; (void)v;\n"
+                                 "    nroot_frame nroots = {0}; nroots.prev = nroot_head; nroot_head = &nroots;\n",
                                  st.next_value ? st.next_value : 1);
             if (extra < 0 || (size_t)extra >= sizeof declarations - (size_t)count) {
                 nvm2c_fail(b, "I cannot format tagged temporary declarations"); goto done;
@@ -4726,15 +4766,17 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
 #include "nvm2c_map_runtime.inc"
             );
             nvm2c_puts(&b,
-                "typedef struct nmap_owned { nmap_t map; struct nmap_owned *next; } nmap_owned;\n"
+                "typedef struct nmap_owned { nmap_t map; struct nmap_owned *next; unsigned marked; } nmap_owned;\n"
                 "static nmap_owned *nmap_owned_head;\n"
-                "typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; } nvalue_owned;\n"
+                "typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; unsigned marked; } nvalue_owned;\n"
                 "static nvalue_owned *nvalue_owned_head;\n"
+                "static size_t nmap_owned_live, nmap_owned_peak;\n"
                 "static nmap_value nmap_owned_get(nmap_t map, const char *key) {\n"
                 "    nmap_value value = nmap_get(map, key);\n"
                 "    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);\n"
                 "        if (!owner) { nmap_release_value(value); abort(); }\n"
-                "        *owner = (nvalue_owned){value, nvalue_owned_head}; nvalue_owned_head = owner; }\n"
+                "        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;\n"
+                "        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }\n"
                 "    return value;\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
                 "    if (value.kind != 1) abort();\n    return value.integer;\n}\n"
@@ -4759,12 +4801,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static nmap_t nmap_owned_new(uint8_t kind) {\n"
                 "    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);\n"
                 "    if (!owner) { nmap_destroy(map); abort(); }\n"
-                "    *owner = (nmap_owned){map, nmap_owned_head}; nmap_owned_head = owner; return map;\n}\n"
+                "    *owner = (nmap_owned){map, nmap_owned_head, 0}; nmap_owned_head = owner;\n"
+                "    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;\n"
+                "    return map;\n}\n"
                 "static void nmap_release_owned(void) {\n"
                 "    while (nvalue_owned_head) { nvalue_owned *owner = nvalue_owned_head;\n"
-                "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); free(owner); }\n"
+                "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); free(owner); --nmap_owned_live; }\n"
                 "    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;\n"
-                "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); }\n}\n");
+                "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); --nmap_owned_live; }\n}\n");
         }
         if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
         emit_walk_adapters(&b, mod);
@@ -4779,6 +4823,18 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
             "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
+        if (b.has_maps) {
+            nvm2c_puts(&b,
+#include "nvm2c_map_roots.inc"
+            );
+            nvm2c_puts(&b, "static void nmap_collect(void) {\n    nroot_list work = {0};\n"
+                "    for (nroot_frame *f = nroot_head; f; f = f->prev)\n"
+                "        for (size_t i = 0; i < f->live.count; ++i)\n"
+                "            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);\n");
+            if (b.global_count) nvm2c_printf(&b,
+                "    for (size_t i = 0; i < %zu; ++i) nroot_value(&work, nglobal[i]);\n", b.global_count);
+            nvm2c_puts(&b, "    nroot_trace(&work); free(work.items); nmap_sweep();\n}\n");
+        }
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
             "static nrec_owned *nrec_owned_head;\n"
@@ -4863,7 +4919,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_cast_int; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
-            "    (void)nmap_has; (void)nmap_len; (void)nmap_delete;\n");
+            "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n");
         if (b.has_string_arrays) nvm2c_puts(&b,
             "    (void)nsarr_new; (void)nsarr_reserve; (void)nsarr_copy_string;\n");
         if (b.has_integer_arrays) nvm2c_puts(&b,

@@ -437,7 +437,7 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_map_lifetimes
 
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)

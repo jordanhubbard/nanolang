@@ -248,6 +248,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         process-wide reclamation. I reproduce these lifetimes and verify
         bounded loop allocation without freeing reachable values.
         MAC `task_d3310bef8bd541ba9e1e267ee213eb9e`.
+        - [x] I reproduce a caller-map use-after-free under ASan at PR #303's
+          head and replace current-frame-only collection with registered live
+          frames, globals and iterative aggregate tracing. I test caller
+          locals/operands, strings, arrays, nested records, mutable edges,
+          backward conditional branches and 20,000 self-tail restarts. My
+          focused tests require at most 16 live map/string owners and zero
+          after entry cleanup. Remaining PR ancestry reconciliation stays open.
+          Evidence: `docs/evidence/native-map-root-lifetimes.md`.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure
