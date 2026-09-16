@@ -4769,6 +4769,113 @@ static void test_self_tail_rejects_malformed_calls(void) {
     }
 }
 
+static void test_boolean_arrays(void) {
+    NvmModule *raw = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_BOOL 1\nARR_LITERAL 4 1\n"
+        "PUSH_I64 0\nARR_GET\nTYPE_CHECK 4\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        "boolean array without tagged runtime");
+    if (raw) {
+        char *c = emit_or_fail(raw, "I emit raw boolean arrays without a global runtime dependency");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I retain a boolean literal element tag without globals");
+            free(c);
+        }
+        nvm_module_free(raw);
+    }
+    NvmModule *printed = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_BOOL 1\nPUSH_BOOL 0\nARR_LITERAL 4 2\n"
+        "STORE_GLOBAL 0\nLOAD_GLOBAL 0\nPRINTLN\nPUSH_I64 0\nRET\n.end\n",
+        "tagged boolean array printing");
+    if (printed) {
+        char *c = emit_or_fail(printed, "I emit boolean array printing with retained tags");
+        if (c) {
+            int status = -1; char output[128];
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 &&
+                  status == 0 && strcmp(output, "[true, false]\n") == 0,
+                  "I print boolean elements as booleans rather than integer storage");
+            free(c);
+        }
+        nvm_module_free(printed);
+    }
+    const char *constructors[] = {
+        "ARR_NEW 4\nPUSH_BOOL 0\nARR_PUSH\n",
+        "ARR_LITERAL 4 0\nPUSH_BOOL 0\nARR_PUSH\n",
+        "PUSH_BOOL 0\nARR_LITERAL 4 1\n"
+    };
+    for (int constructor = 0; constructor < 3; ++constructor) {
+        for (int before = 0; before < 2; ++before) {
+            for (int tail = 0; tail < 2; ++tail) {
+                char source[4096], entry[3072], worker[512];
+                snprintf(worker, sizeof worker,
+                    ".function relay 1 1 0 array 1\nLOAD_LOCAL 0\n%s\n.end\n"
+                    ".function identity 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n",
+                    tail ? "TAIL_CALL identity" : "CALL identity\nRET");
+                snprintf(entry, sizeof entry,
+                    ".function main 0 2 0 int 1\n%sDUP\nSTORE_LOCAL 0\nCALL relay\n"
+                    "AGG_PACK 0 0 0 1\nAGG_GET 0\nSTORE_LOCAL 1\n"
+                    "LOAD_LOCAL 1\nPUSH_I64 0\nARR_GET\nTYPE_CHECK 4\nASSERT\n"
+                    "LOAD_LOCAL 1\nPUSH_I64 0\nPUSH_BOOL 1\nARR_SET\nPOP\n"
+                    "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nASSERT\n"
+                    "LOAD_LOCAL 0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_BOOL 0\nARR_PUSH\nPOP\n"
+                    "LOAD_GLOBAL 0\nPUSH_I64 1\nARR_GET\nTYPE_CHECK 4\nASSERT\n"
+                    "LOAD_GLOBAL 0\nPUSH_I64 1\nPUSH_BOOL 1\nARR_SET\nPOP\n"
+                    "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nASSERT\n"
+                    "LOAD_GLOBAL 0\nPUSH_I64 99\nARR_GET\nTYPE_CHECK 0\nASSERT\n"
+                    "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 2\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                    constructors[constructor]);
+                snprintf(source, sizeof source, ".types 1 0 0\n.entry main\n%s%s",
+                         before ? worker : entry, before ? entry : worker);
+                NvmModule *m = assemble_ok(source, "boolean arrays across native boundaries");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I preserve distinct boolean array representations");
+                if (c) {
+                    int status = -1;
+                    CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                          "I retain boolean tags, aliases and mutation through calls, fields and globals");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+    const char *bad[] = {
+        "PUSH_I64 1\nARR_LITERAL 4 1\n",
+        "PUSH_BOOL 1\nARR_LITERAL 1 1\n",
+        "ARR_NEW 4\nPUSH_I64 1\nARR_PUSH\n",
+        "ARR_NEW 1\nPUSH_BOOL 1\nARR_PUSH\n",
+        "PUSH_BOOL 1\nARR_LITERAL 4 1\nPUSH_I64 0\nPUSH_I64 0\nARR_SET\n",
+        "PUSH_I64 1\nARR_LITERAL 1 1\nPUSH_I64 0\nPUSH_BOOL 0\nARR_SET\n"
+    };
+    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i) {
+        char source[1024], error[512];
+        snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%sPOP\nPUSH_I64 0\nRET\n.end\n", bad[i]);
+        NvmModule *m = assemble_ok(source, "incompatible boolean array elements");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL, "I reject integer/boolean array element substitution");
+        free(c); nvm_module_free(m);
+    }
+    for (int set = 0; set < 2; ++set) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".entry main\n.function main 0 0 0 int 1\nPUSH_BOOL 1\nARR_LITERAL 4 1\nSTORE_GLOBAL 0\n"
+            "LOAD_GLOBAL 0\n%sPUSH_I64 1\n%s\nPOP\nPUSH_I64 0\nRET\n.end\n",
+            set ? "PUSH_I64 0\n" : "", set ? "ARR_SET" : "ARR_PUSH");
+        NvmModule *m = assemble_ok(source, "tagged boolean array wrong element");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I defer dynamic boolean element checks to consumption");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && (status == -1 || status == 134),
+                  "I trap wrong-tag writes through tagged boolean arrays");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_set_aliases_bounds_and_types(void) {
     for (int before = 0; before < 2; ++before) {
         for (int wrong = 0; wrong < 2; ++wrong) {
@@ -5093,6 +5200,7 @@ static void test_module_initializer(void) {
 }
 
 int main(int argc, char **argv) {
+    test_boolean_arrays();
     test_map_aggregate_fields();
     test_tagged_host_arguments();
     test_generic_ordering();

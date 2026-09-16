@@ -240,12 +240,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     and reject incompatible nested fields. Normal and fresh
                     ASan/UBSan runs pass 1,534 AOT and 994 shape checks. Evidence:
                     `docs/evidence/aot-late-array-update-fields.md`.
-                - [ ] I preserve boolean element tags in native arrays.
+                - [x] I preserve boolean element tags in native arrays.
                   `typecheck_local_lets` (305), offset 41, appends a boolean to
                   an explicitly boolean empty array and conflicts in the shape
                   graph. I test literals, append, get/set, calls and tagged
                   values without conflating boolean and integer tags. MAC
                   `task_4fb63e3486c4404fa2f8b9e5ee8124a9`.
+                  Normal and fresh ASan/UBSan runs pass 1,572 AOT and 994 shape
+                  checks. Evidence: `docs/evidence/aot-boolean-arrays.md`.
+                - [ ] I resolve the recursive shape conflict in `env_get_type`
+                  (311), offset 273, at a tail call after boolean-array support.
+                  I trace source/result fields and test compatible optional
+                  records without accepting incompatible payloads. MAC
+                  `task_d1cdf01edf9040b2885cb31134688288`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
