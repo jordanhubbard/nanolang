@@ -1344,9 +1344,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
-                } else if (facts->parameters[at] == NVM2C_VK_VALUE && arg.kind == NVM2C_VK_STR) {
-                    if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL) ||
-                        !shape_equal(b, arg.shape, shape_child(b, parameter, 0))) return 0;
+                } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
+                           (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_UNK)) {
+                    /* A projected field can resolve after flat classification.
+                     * Its storage conversion must wait for those graph facts. */
+                    if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL)) return 0;
+                    if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
                 } else if (!shape_equal(b, arg.shape, parameter)) return 0;
                 if (arg.kind == NVM2C_VK_UNK) {
                     mark_origin(local_kind, nloc, arg.origin, facts->parameters[at]);
