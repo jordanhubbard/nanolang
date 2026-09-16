@@ -36,7 +36,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [ ] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
       MAC `task_5e530abdfdd3459c978149ae4b25f80f`.
 
-- [ ] **Imported fixture discovery.** I keep imported empty-array-return coverage while distinguishing module fixtures from standalone programs.
+- [x] **Imported fixture discovery.** I keep imported empty-array-return coverage while distinguishing module fixtures from standalone programs.
       MAC `task_853ace7b4ef841a6adf345f069bd54cd`.
 
 - [x] **Main PRs #346 and #350 reconciliation.** I preserve my broader
@@ -44,7 +44,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       integrating new main ancestry and reviewing its globals regressions.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
 
-- [ ] **Stable full-suite compiler selection.** I pin the compiler requested
+- [x] **Stable full-suite compiler selection.** I pin the compiler requested
       by my test entry point even when bootstrap changes the installed symlink.
       I also propagate that selection into the negative-contract runner, which
       otherwise follows the mutated symlink. My C-reference suite must execute
@@ -125,7 +125,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       terminated formatting under strict GCC sanitizer builds.
       MAC `task_6dfbada4bccb4bc4a330ecbcf38dc9e6`.
 
-- [ ] **Verifier corpus completion.** I lower supported async and effect
+- [x] **Verifier corpus completion.** I lower supported async and effect
       forms consistently, and make my valid-resource fixture explicitly
       consume its destructor parameter. I retain all 175 selected programs.
       MAC `task_2f10710beeee47138abb2a2489dd5ef8`.
@@ -155,8 +155,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 - [x] **Imported native callback shadows.** I execute foreign callback tests
       through a supported ABI with owner-thread safety. My Darwin strict
-      examples currently fail because the tree interpreter cannot marshal
-      dispatch function arguments. I retain dependency shadow execution.
+      examples previously failed because the tree interpreter could not marshal
+      dispatch function arguments. My shared VM bridge now passes the focused
+      Darwin callback checks while retaining dependency shadows.
       MAC `task_ae64b91721834616ae8979c76b6b09df`.
 
 - [x] **Lifted callback lexical captures.** I retain source-bounded symbols
@@ -1547,9 +1548,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         reports 173 selected, 157 identical, 16 failed, zero skipped. The gate
         correctly fails; the formerly hidden corpus failures remain below.
         MAC `task_31ecd1c81d6740d0e856a117ce786b6a`.
-      - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
-        dispatch corpus; exclusions require evidence of an intentional fixture
-        contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+      - [x] I resolve the 16 compilation/shadow failures exposed by the strict
+        dispatch corpus. My expanded corpus passes all 175 verified and
+        equivalent programs with zero exclusions. The broader effect lifecycle
+        obligations below retain their independent unfinished scope.
+        MAC `task_a954001005513e9f99272f3b6275f817`.
         - [x] I infer an unqualified handler from all its operation names,
           requiring one unique effect rather than declaration-order selection.
           I reject duplicate clauses and incorrect handler parameter counts.
@@ -1604,7 +1607,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             Parser, typechecker, effects and evaluator gates pass. This does
             not complete perform argument/result compatibility or dispatch.
             MAC `task_0e712110ced84d10b47bd50d54d434b3`.
-          - [ ] I preserve handler capture identity in VM lowering. Existing
+          - [x] I preserve handler capture identity in VM lowering. Existing
             CLOSURE_NEW copies captured values and STORE_UPVALUE updates only
             that copy; lowering handlers directly to those closures would not
             preserve interpreter mutations of enclosing locals. I require
@@ -1614,12 +1617,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             checking and interpreter dispatch. I evaluate every argument before
             introducing handler bindings, test zero and multiple arguments,
             and preserve nested expression arguments and source order. Native
-            stub signatures must remain consistent until real dispatch lands.
+            signatures remain consistent with the implemented dispatch ABI.
             Parser, typechecker, effects, interpreter and transpiler gates pass.
             The required cross-backend gate now also checks ordered multiple
             arguments, caller-name shadowing and zero arguments. Both native
-            cases compile but fail executed assertions; VM dispatch remains
-            unsupported. MAC `task_36491565f7db6038fb0b1591f6164c36`.
+            and VM cases pass real shadows and executed assertions. Native
+            foreign-return boundaries and unsupported nvm2c effect opcodes
+            remain explicit. MAC `task_36491565f7db6038fb0b1591f6164c36`.
           - [x] I resolve performs through the frontend effect declarations,
             reject unknown operations and incorrect scalar arguments/arity,
             and report the operation's declared result type in expressions.
@@ -1629,21 +1633,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             diagnostic and no artifact publication. This checks scalar base
             types, not full nominal/aggregate signature compatibility.
             MAC `task_6a559f3c44e2f1decb45662b2d81e8df`.
-          The native unqualified-handler emitter currently evaluates only the
-          handled body and ignores its handlers; VM emission rejects these
-          nodes. Frontend inference tests do not establish runtime handlers.
-          I require `test-effect-execution` to compile with real shadows and
-          execute an operation that changes handler state on both backends.
-          This acceptance gate remains red until dispatch is implemented.
-          At the initial run, native compilation fails the real handler shadow
-          and NanoVirt rejects the effect operation during shadow compilation.
-          I do not count the older `assert true` fixtures as dispatch evidence.
+          My initial native emitter ignored handlers and NanoVirt rejected
+          effect operations. Both now execute synchronous handlers, captures,
+          ordered arguments and lexical returns. `test-effect-execution` runs
+          real shadows and state-changing operations on both backends; the
+          native and VM evidence records their cleanup and foreign boundaries.
+          General interpreter propagation remains separate work below.
           - [x] I connect unqualified handler ASTs to interpreter frames for
             single-argument operations. Interpreter/effects unit gates pass.
             Executed tests check state changes, nearest-handler precedence,
             restoration of the outer handler and an empty stack after repeated
-            calls. Native acceptance now passes shadows but fails C compilation
-            on a void-valued local; VM shadows still reject the operation.
+            calls. Native and VM acceptance now pass real shadows and execution;
+            my initial void-local and rejected-operation failures are repaired.
           - [ ] I complete operation argument/result handling and control-flow
             rules across backends. My creator chose: a handler-arm `return`
             exits the function containing the handler; the final expression
@@ -2604,7 +2605,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         allocation-failure checks, and deterministic queued cancellation.
         Both binaries pass ASan/UBSan and TSan on Darwin arm64. This is the
         handle runtime, not completed VM or native-adapter integration.
-      - [ ] I carry callback signatures and adapter contracts through the
+      - [x] I carry callback signatures and adapter contracts through the
         compiler, serialized imports, loader, and verifier; absent contracts
         fail closed rather than inferring behavior from symbol names.
         - [x] I parse strict `callback_adapters` manifest entries, retain
@@ -2643,7 +2644,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           MAC `task_63005c07d487b97ee55756fb3373bef7`. NanoVirt passes 64
           checks, the v2 bridge 295, and the verifier 93. Typechecker tests
           include rejected nested return and loop-control violations.
-      - [ ] I connect owner-thread callback execution to suspended VM
+      - [x] I connect owner-thread callback execution to suspended VM
         activations, preserve captures/globals, pump during foreign waits,
         and propagate errors without racing the heap or corrupting frames.
         - [x] I retain callable module identity across linked-module returns
