@@ -874,8 +874,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
             if (ins.opcode == OP_BOOL_AND || ins.opcode == OP_BOOL_OR) {
-                mark_origin(local_kind, nloc, rhs.origin, NVM2C_VK_BOOL);
-                mark_origin(local_kind, nloc, lhs.origin, NVM2C_VK_BOOL);
+                if (!mark_origin(b, facts, local_kind, nloc, rhs.origin, NVM2C_VK_BOOL) ||
+                    !mark_origin(b, facts, local_kind, nloc, lhs.origin, NVM2C_VK_BOOL)) return 0;
             }
             (void)rhs;
             (void)lhs;
@@ -887,7 +887,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_BOOL_NOT: {
             Nvm2cSimSlot x;
             if (!sim_pop(b, idx, stk, &sp, &x)) return 0;
-            if (ins.opcode == OP_BOOL_NOT) mark_origin(local_kind, nloc, x.origin, NVM2C_VK_BOOL);
+            if (ins.opcode == OP_BOOL_NOT &&
+                !mark_origin(b, facts, local_kind, nloc, x.origin, NVM2C_VK_BOOL)) return 0;
             (void)x;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -3076,7 +3077,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
-            char call[768];
+            char call[8192];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
             }
@@ -3123,7 +3124,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 terminated = 1;
                 break;
             }
-            char call[768];
+            char call[8192];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
             }

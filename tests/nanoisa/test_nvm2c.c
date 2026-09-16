@@ -1248,6 +1248,7 @@ static void test_has_hi_then_runs_without_nano_vm(void) {
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR hi\n"
         "  CALL has_hi\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "has_hi then fixture");
@@ -1280,6 +1281,7 @@ static void test_has_hi_else_runs_without_nano_vm(void) {
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR no\n"
         "  CALL has_hi\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "has_hi else fixture");
@@ -1435,6 +1437,7 @@ static void test_same_then_runs_without_nano_vm(void) {
         "  PUSH_STR hi\n"
         "  PUSH_STR hi\n"
         "  CALL same\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "same then fixture");
@@ -1468,6 +1471,7 @@ static void test_same_else_runs_without_nano_vm(void) {
         "  PUSH_STR hi\n"
         "  PUSH_STR no\n"
         "  CALL same\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "same else fixture");
@@ -1501,6 +1505,7 @@ static void test_diff_runs_without_nano_vm(void) {
         "  PUSH_STR hi\n"
         "  PUSH_STR no\n"
         "  CALL diff\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "diff fixture");
@@ -1528,6 +1533,7 @@ static void test_eq_array_is_refused(void) {
         "  PUSH_I64 1\n"
         "  ARR_LITERAL 1 1\n"
         "  EQ\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "EQ array fixture");
@@ -1621,6 +1627,7 @@ static void test_slice_runs_without_nano_vm(void) {
         "  CALL slice\n"
         "  PUSH_STR h\n"
         "  EQ\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "slice fixture");
@@ -1765,7 +1772,7 @@ static void test_ch_oob_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
         ".entry 1\n"
-        ".function miss 0 0 0 int 1\n"
+        ".function miss 0 0 0 bool 1\n"
         "  PUSH_STR hi\n"
         "  PUSH_I64 9\n"
         "  STR_CHAR_AT\n"
@@ -1775,6 +1782,7 @@ static void test_ch_oob_runs_without_nano_vm(void) {
         ".end\n"
         ".function main 0 0 0 int 1\n"
         "  CALL miss\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "STR_CHAR_AT oob fixture");
@@ -2151,7 +2159,7 @@ static void test_emitted_map_get(void) {
         nvm_module_free(m);
     }
     const char *unresolved[] = {
-        "PUSH_I64 0\nEQ\n", "PUSH_BOOL 0\nEQ\n", "RET\n",
+        "RET\n",
         "BOOL_NOT\n", "PUSH_BOOL 1\nBOOL_AND\n", "PUSH_BOOL 0\nBOOL_OR\n"
     };
     for (size_t i = 0; i < sizeof unresolved / sizeof unresolved[0]; ++i) {
