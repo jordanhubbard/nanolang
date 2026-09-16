@@ -3570,6 +3570,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 /* Internal implementation - do not call directly */
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt);
 
+static void hide_checker_symbols(Environment *env, int first) {
+    if (!env) return;
+    for (int i = first; i < env->symbol_count; i++) {
+        env->symbols[i].checker_visible = false;
+    }
+}
+
 /* Check statement and return its type (for blocks) (wrapper with recursion depth tracking) */
 static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
     if (!stmt) return TYPE_VOID;
@@ -4084,6 +4091,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_FOR: {
+            int scope_start = tc->env->symbol_count;
             /* Determine loop variable type from iterable */
             Type iter_type = check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
@@ -4094,7 +4102,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* Look up array variable to get element type */
                 ASTNode *rng = stmt->as.for_stmt.range_expr;
                 if (rng && rng->type == AST_IDENTIFIER) {
-                    Symbol *arr_sym = env_get_var(tc->env, rng->as.identifier);
+                    Symbol *arr_sym = env_get_var_visible_at(tc->env, rng->as.identifier,
+                                                             rng->line, rng->column);
                     if (arr_sym && arr_sym->element_type != TYPE_UNKNOWN) {
                         loop_var_type = arr_sym->element_type;
                     }
@@ -4108,7 +4117,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* Look up list variable to get element type */
                 ASTNode *rng = stmt->as.for_stmt.range_expr;
                 if (rng && rng->type == AST_IDENTIFIER) {
-                    Symbol *list_sym = env_get_var(tc->env, rng->as.identifier);
+                    Symbol *list_sym = env_get_var_visible_at(tc->env, rng->as.identifier,
+                                                              rng->line, rng->column);
                     if (list_sym && list_sym->element_type != TYPE_UNKNOWN) {
                         loop_var_type = list_sym->element_type;
                     }
@@ -4136,6 +4146,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             tc->loop_depth++;
             check_statement(tc, stmt->as.for_stmt.body);
             tc->loop_depth--;
+            hide_checker_symbols(tc->env, scope_start);
 
             /* DON'T restore environment - transpiler needs loop variable symbols! */
             /* The old code removed loop variables after typechecking:
@@ -4212,6 +4223,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_BLOCK: {
+            int scope_start = tc->env->symbol_count;
             Type last_type = TYPE_VOID;
             bool returned = false;
             for (int i = 0; i < stmt->as.block.count; i++) {
@@ -4223,6 +4235,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 last_type = check_statement(tc, s);
                 if (s->type == AST_RETURN) returned = true;
             }
+            hide_checker_symbols(tc->env, scope_start);
             return last_type;
         }
 
@@ -4280,6 +4293,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_UNSAFE_BLOCK: {
+            int scope_start = tc->env->symbol_count;
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
             tc->in_unsafe_block = true;
@@ -4291,6 +4305,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Restore previous unsafe state */
             tc->in_unsafe_block = prev_unsafe;
+            hide_checker_symbols(tc->env, scope_start);
             return TYPE_VOID;
         }
 
@@ -4461,6 +4476,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                int scope_start = tc->env->symbol_count;
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
@@ -4500,6 +4516,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 } else {
                     check_expression(arm, tc->env);
                 }
+
+                hide_checker_symbols(tc->env, scope_start);
 
                 /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
                  * later when it re-typechecks expressions for code generation. Match arm bindings need
@@ -4589,12 +4607,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
                 /* Type-check the function body */
                 if (stmt->as.function.body) {
+                    int scope_start = tc->env->symbol_count;
                     for (int p = 0; p < stmt->as.function.param_count; p++) {
                         Value dummy_val = {0};
                         env_define_var(tc->env, stmt->as.function.params[p].name,
                                       stmt->as.function.params[p].type, true, dummy_val);
                     }
                     check_statement(tc, stmt->as.function.body);
+                    hide_checker_symbols(tc->env, scope_start);
                 }
             }
             return TYPE_VOID;
@@ -5812,6 +5832,7 @@ bool type_check(ASTNode *program, Environment *env) {
     }
 
     g_typecheck_error_count = 0;
+    env->checking_types = true;
 
     TypeChecker tc;
     tc.env = env;
@@ -6689,6 +6710,7 @@ register_function_pass1:;
         tc.has_error = true;
     }
 
+    env->checking_types = false;
     return !tc.has_error && g_typecheck_error_count == 0;
 }
 
@@ -6700,6 +6722,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
     }
 
     g_typecheck_error_count = 0;
+    env->checking_types = true;
 
     TypeChecker tc;
     tc.env = env;
@@ -7371,5 +7394,6 @@ register_function_pass2:;
     /* Note: Modules don't require a main function */
     /* Main function check is skipped for modules */
 
+    env->checking_types = false;
     return !tc.has_error && g_typecheck_error_count == 0;
 }
