@@ -898,7 +898,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 for (size_t f = 0; f < b->record_width; ++f) {
                     if (arr.rec_k[f] != NVM2C_VK_UNK && val.rec_k[f] != NVM2C_VK_UNK &&
                         arr.rec_k[f] != val.rec_k[f]) {
-                        nvm2c_fail(b, "ARR_PUSH record field representation mismatch");
+                        nvm2c_fail(b, "ARR_PUSH record field representation mismatch "
+                                      "(function %u, offset %zu, field %zu: %s versus %s)",
+                                   idx, start, f, c_local_type(arr.rec_k[f]), c_local_type(val.rec_k[f]));
                         return 0;
                     }
                 }
@@ -1043,7 +1045,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
-                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_RARR, -1)) return 0;
+                    Nvm2cSimSlot result = {0};
+                    result.kind = NVM2C_VK_RARR;
+                    result.origin = -1;
+                    result.rec_k = sim_fields(b, facts->results + (size_t)callee * b->record_width, 0);
+                    if (!result.rec_k || !sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 } else if (result_is_i64(cf)) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
                 } else if (cf->result_count == 1 &&
@@ -1056,7 +1062,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!result.rec_k) return 0;
                     if (!sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 }
-            } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
+            } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION || cf->result_tag == TAG_ARRAY) {
                 if (!merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                   facts->results + (size_t)callee * b->record_width)) return 0;
             }
@@ -1108,6 +1114,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     mark_str_origin(local_kind, nloc, v.origin);
                 } else if (fn->result_tag == TAG_ARRAY) {
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
+                    if (v.kind == NVM2C_VK_RARR &&
+                        !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
+                                      v.rec_k)) return 0;
                 } else if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) {
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_REC);
                     if (v.kind == NVM2C_VK_REC &&
@@ -2476,7 +2485,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                 stack_push_str(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
-                stack_push_rarr(b, &st, call);
+                int result = stack_push_rarr(b, &st, call);
+                if (result >= 0) memcpy(st.rarr_k[result], result_fields + (size_t)callee * b->record_width,
+                                       b->record_width);
             } else if (cf->result_count == 1 &&
                        (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION)) {
                 int result = stack_push_rec(b, &st, call);

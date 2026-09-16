@@ -114,16 +114,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   conflict. Evidence: `docs/evidence/aot-cast-int.md`.
                 - [x] I preserve explicitly constructed record-array kinds
                   while nested element facts remain unknown. Function 170 at
-                  offset 925 currently passes inferred `narr_t` to parameter 1
+                  offset 925 previously passed inferred `narr_t` to parameter 1
                   of function 141, which requires `nrarr_t`.
                   I keep unknown element facts unknown and stop `ARR_LEN`
                   from guessing integer elements. Normal and sanitizer suites
                   pass 1,065 AOT and 965 graph checks. Evidence:
                   `docs/evidence/aot-delayed-array-facts.md`.
-                - [ ] I propagate record-array result field facts through
+                - [x] I propagate record-array result field facts through
                   calls and returns instead of supplying integer defaults.
-                  Compiler acceptance now fails at function 253 offset 935,
-                  where a resource name is inferred as an integer.
+                  Normal and tail-return regressions preserve mixed fields.
+                  The sanitizer suite passes 1,070 AOT and 965 graph checks.
+                  Evidence: `docs/evidence/aot-record-array-return-fields.md`.
+                - [ ] I resolve the next compiler field conflict without
+                  weakening compatibility checks: function 264 offset 60,
+                  `ARR_PUSH` field 0 has string versus integer facts.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.

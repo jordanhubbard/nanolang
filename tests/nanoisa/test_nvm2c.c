@@ -3382,7 +3382,48 @@ static void test_delayed_array_element_facts(void) {
     }
 }
 
+static void test_record_array_return_fields(void) {
+    for (int tail = 0; tail < 2; ++tail) {
+        char source[4096];
+        strcpy(source, ".string text \"hello\"\n.entry main\n"
+            ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n"
+            ".function main 0 1 0 int 1\nPUSH_I64 3\nCALL relay\nSTORE_LOCAL 0\n"
+            "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 1\nPUSH_I64 42\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nCALL length\nRET\n.end\n"
+            ".function relay 1 1 0 array 1\nLOAD_LOCAL 0\nPUSH_I64 0\nI64_EQ\nJMP_FALSE recurse\n");
+        strcat(source, tail ? "TAIL_CALL make\n" : "CALL make\nRET\n");
+        strcat(source, "recurse:\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\n");
+        strcat(source, tail ? "TAIL_CALL relay\n" : "CALL relay\nRET\n");
+        strcat(source, ".end\n.function make 0 0 0 array 1\nARR_NEW 8\nPUSH_STR text\n"
+            "PUSH_I64 42\nAGG_PACK 0 0 0 2\nARR_PUSH\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, "record-array return field propagation");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I infer returned element fields across forward and recursive calls");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 5,
+                  "I preserve mixed element fields through normal and tail returns");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *conflict = ".string text \"hello\"\n.entry main\n"
+        ".function make 1 1 0 array 1\nLOAD_LOCAL 0\nJMP_FALSE alternate\n"
+        "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\nRET\n"
+        "alternate:\nARR_NEW 8\nPUSH_I64 7\nAGG_PACK 0 0 0 1\nARR_PUSH\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_BOOL 1\nCALL make\nARR_LEN\nRET\n.end\n";
+    NvmModule *m = assemble_ok(conflict, "conflicting record-array return fields");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "conflicting"), "I reject incompatible element fields across return paths");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_valued_record_fields(void) {
+    test_record_array_return_fields();
     test_delayed_array_element_facts();
     test_record_array_fields();
     for (int strings = 0; strings < 2; ++strings) {
