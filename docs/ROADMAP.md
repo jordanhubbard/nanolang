@@ -125,9 +125,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   Normal and tail-return regressions preserve mixed fields.
                   The sanitizer suite passes 1,070 AOT and 965 graph checks.
                   Evidence: `docs/evidence/aot-record-array-return-fields.md`.
-                - [ ] I resolve the next compiler field conflict without
+                - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
+                  I preserve explicit record-array literal tags and element
+                  fields, including empty literals, with execution and
+                  incompatible-element tests before compiler acceptance.
+                  Unresolved local field vectors also remain unknown rather
+                  than defaulting to integer. The normal suite passes 1,080
+                  AOT and 965 graph checks. Evidence:
+                  `docs/evidence/aot-record-array-literals.md`.
+                - [ ] I diagnose and implement the compiler's hashmap opcode
+                  requirements. Acceptance now stops at function 267
+                  (`build_field_metadata_index`) with operand-stack underflow.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.

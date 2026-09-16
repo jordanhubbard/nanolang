@@ -3422,7 +3422,57 @@ static void test_record_array_return_fields(void) {
     }
 }
 
+static void test_record_array_literals(void) {
+    const char *delayed = ".string text \"hello\"\n.entry main\n"
+        ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n"
+        ".function main 0 1 0 int 1\nCALL make\nAGG_GET 0\nPUSH_I64 0\nARR_GET\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nAGG_GET 0\nCALL length\nRET\n.end\n"
+        ".function make 0 0 0 struct 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\n"
+        "AGG_PACK 0 0 0 1\nRET\n.end\n";
+    NvmModule *delayed_module = assemble_ok(delayed, "delayed nested record local facts");
+    if (delayed_module) {
+        char *c = emit_or_fail(delayed_module, "I do not invent integer fields for an unresolved local");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 5,
+                  "I resolve nested element fields through locals after a forward call");
+            free(c);
+        }
+        nvm_module_free(delayed_module);
+    }
+    const char *cases[] = {
+        "ARR_LITERAL 8 0\nARR_LEN\nRET\n",
+        "PUSH_STR text\nPUSH_I64 17\nAGG_PACK 0 0 0 2\n"
+        "PUSH_STR text\nPUSH_I64 42\nAGG_PACK 0 0 0 2\nARR_LITERAL 8 2\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 1\nPUSH_I64 17\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nAGG_GET 0\nSTR_LEN\nRET\n",
+        "ARR_LITERAL 8 0\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nSTR_LEN\nRET\n",
+        "PUSH_I64 1\nARR_LITERAL 8 1\nPOP\nPUSH_I64 0\nRET\n",
+        "PUSH_STR text\nAGG_PACK 0 0 0 1\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 2\nPOP\nPUSH_I64 0\nRET\n"
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        char source[4096], error[256] = {0};
+        snprintf(source, sizeof source, ".string text \"hello\"\n.entry main\n.function main 0 1 0 int 1\n%s.end\n", cases[i]);
+        NvmModule *m = assemble_ok(source, "record-array literal");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        if (i >= 3) CHECK(c == NULL && strstr(error, "record-array literal"), "I reject invalid record-array literal elements");
+        else {
+            CHECK(c != NULL, "I translate explicitly tagged record-array literals");
+            if (!c) fprintf(stderr, "    record literal: %s\n", error);
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == (i ? 5 : 0),
+                      "I preserve empty literals, record fields and literal element order");
+            }
+        }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_valued_record_fields(void) {
+    test_record_array_literals();
     test_record_array_return_fields();
     test_delayed_array_element_facts();
     test_record_array_fields();

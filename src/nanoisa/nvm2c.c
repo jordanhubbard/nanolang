@@ -806,6 +806,34 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             uint8_t tag = ins.operands[0].u8;
             uint16_t count = ins.operands[1].u16;
             uint16_t ai;
+            if (tag == TAG_STRUCT) {
+                Nvm2cSimSlot array = {0};
+                array.kind = NVM2C_VK_RARR;
+                array.origin = -1;
+                array.shape = shape_variable(b, b->shape_current);
+                array.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!array.rec_k || !shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
+                NvmShapeId element = shape_child(b, array.shape, 0);
+                if (!shape_type(b, element, NVM_SHAPE_RECORD)) return 0;
+                for (ai = 0; ai < count; ++ai) {
+                    Nvm2cSimSlot value;
+                    if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+                    if (value.kind != NVM2C_VK_REC && value.kind != NVM2C_VK_UNK) {
+                        nvm2c_fail(b, "I require record elements in a record-array literal");
+                        return 0;
+                    }
+                    if (value.kind == NVM2C_VK_REC) for (size_t f = 0; f < b->record_width; ++f) {
+                        if (array.rec_k[f] == NVM2C_VK_UNK) array.rec_k[f] = value.rec_k[f];
+                        else if (value.rec_k[f] != NVM2C_VK_UNK && array.rec_k[f] != value.rec_k[f]) {
+                            nvm2c_fail(b, "I found conflicting record-array literal field representations");
+                            return 0;
+                        }
+                    }
+                    if (!shape_equal(b, element, value.shape)) return 0;
+                }
+                if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
+                break;
+            }
             for (ai = 0; ai < count; ai++) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -1210,7 +1238,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
     }
-    b->default_fields = sim_fields(b, NULL, NVM2C_VK_INT);
+    b->default_fields = sim_fields(b, NULL, NVM2C_VK_UNK);
     if (!b->default_fields) goto done;
     ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack);
 done:
@@ -2217,8 +2245,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 ekind = NVM2C_VK_INT;
             } else if (tag == TAG_STRING) {
                 ekind = NVM2C_VK_STR;
+            } else if (tag == TAG_STRUCT) {
+                ekind = NVM2C_VK_REC;
             } else {
-                nvm2c_fail(b, "function %u: ARR_LITERAL only supports int or string elements", idx);
+                nvm2c_fail(b, "function %u: ARR_LITERAL only supports int, string or record elements", idx);
                 goto done;
             }
             if ((size_t)count > st.capacity) {
@@ -2228,6 +2258,18 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             for (ei = (int)count - 1; ei >= 0; ei--) {
                 elems[ei] = stack_pop_expect(b, &st, ekind, "ARR_LITERAL");
                 if (b->failed) goto done;
+            }
+            if (tag == TAG_STRUCT) {
+                int result = stack_push_rarr(b, &st, "nrarr_new()");
+                if (result < 0 || b->failed) goto done;
+                memset(st.rarr_k[result], NVM2C_VK_UNK, b->record_width);
+                for (ei = 0; ei < (int)count; ++ei) {
+                    nvm2c_printf(b, "    ra[%d] = nrarr_push(ra[%d], r[%d]);\n", result, result, elems[ei]);
+                    for (size_t f = 0; f < b->record_width; ++f)
+                        if (st.rec_k[elems[ei]][f] != NVM2C_VK_UNK)
+                            st.rarr_k[result][f] = st.rec_k[elems[ei]][f];
+                }
+                break;
             }
             int result = tag == TAG_STRING ? stack_push_sarr(b, &st, "0")
                                            : stack_push_arr(b, &st, "0");
@@ -3360,7 +3402,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
         int need_sarr = need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR);
-        int need_rarr = module_has_array_constructor(mod, kinds, NVM2C_VK_RARR) ||
+        int need_rarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT);
+        int need_rarr = need_rarr_lit || module_has_array_constructor(mod, kinds, NVM2C_VK_RARR) ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
@@ -3548,8 +3591,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
-        if (need_rarr) emit_nrarr_helpers(&b, module_has_opcode(mod, OP_ARR_NEW),
-                                         need_arr_push, need_arr_get);
+        if (need_rarr) emit_nrarr_helpers(&b, need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
+                                         need_rarr_lit || need_arr_push, need_arr_get);
     }
 
     {
@@ -3591,6 +3634,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
+        if (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT)) nvm2c_puts(&b, "    (void)nrarr_push;\n");
         for (uint32_t i = 0; i < mod->import_count; ++i) {
             const Nvm2cHost *host = import_host(mod, i);
             if (host && host->result == TAG_ARRAY)
