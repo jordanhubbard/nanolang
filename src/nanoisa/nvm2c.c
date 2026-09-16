@@ -27,6 +27,7 @@
 #define NVM2C_VK_REC 4
 #define NVM2C_VK_SARR 5
 #define NVM2C_VK_RARR 6
+#define NVM2C_VK_FLOAT 7
 
 typedef struct {
     char *data;
@@ -138,6 +139,7 @@ static int result_is_i64(const NvmFunctionEntry *fn) {
 }
 
 static const char *c_local_type(uint8_t kind) {
+    if (kind == NVM2C_VK_FLOAT) return "double";
     if (kind == NVM2C_VK_STR) return "const char *";
     if (kind == NVM2C_VK_ARR) return "narr_t";
     if (kind == NVM2C_VK_SARR) return "nsarr_t";
@@ -291,6 +293,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_PUSH_BOOL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
+        case OP_PUSH_F64:
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
+            break;
         case OP_PUSH_STR:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
@@ -356,6 +361,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             if (v.kind == NVM2C_VK_STR) {
                 local_kind[slot] = NVM2C_VK_STR;
+            } else if (v.kind == NVM2C_VK_FLOAT) {
+                local_kind[slot] = NVM2C_VK_FLOAT;
             } else if (v.kind == NVM2C_VK_ARR) {
                 local_kind[slot] = NVM2C_VK_ARR;
             } else if (v.kind == NVM2C_VK_SARR) {
@@ -465,11 +472,23 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_EQ:
-        case OP_NE: {
+        case OP_NE:
+        case OP_LT:
+        case OP_LE:
+        case OP_GT:
+        case OP_GE: {
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            if (lhs.kind != NVM2C_VK_INT || rhs.kind != NVM2C_VK_INT) {
+            if (lhs.kind == NVM2C_VK_UNK && rhs.kind != NVM2C_VK_UNK) {
+                if (!mark_origin(b, local_kind, nloc, lhs.origin, rhs.kind)) return 0;
+                lhs.kind = rhs.kind;
+            }
+            if (rhs.kind == NVM2C_VK_UNK && lhs.kind != NVM2C_VK_UNK) {
+                if (!mark_origin(b, local_kind, nloc, rhs.origin, lhs.kind)) return 0;
+                rhs.kind = lhs.kind;
+            }
+            if (lhs.kind == NVM2C_VK_STR && rhs.kind == NVM2C_VK_STR) {
                 if (!mark_str_origin(b, local_kind, nloc, lhs.origin) ||
                     !mark_str_origin(b, local_kind, nloc, rhs.origin)) return 0;
             }
@@ -750,6 +769,7 @@ typedef struct {
     int next_sarr;
     int next_rec;
     int next_rarr;
+    int next_float;
 } Nvm2cStack;
 
 static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -784,6 +804,19 @@ static int stack_push_str(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
     st->kinds[st->sp] = NVM2C_VK_STR;
     st->sp++;
     return s;
+}
+
+static int stack_push_float(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
+    if (st->sp >= NVM2C_MAX_STACK || st->next_float >= NVM2C_MAX_TEMPS) {
+        nvm2c_fail(b, "too many float temporaries");
+        return -1;
+    }
+    int f = st->next_float++;
+    nvm2c_printf(b, "    f[%d] = %s;\n", f, rhs);
+    st->slots[st->sp] = f;
+    st->kinds[st->sp] = NVM2C_VK_FLOAT;
+    st->sp++;
+    return f;
 }
 
 static int stack_push_arr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -871,6 +904,7 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
     if (got != kind) {
         const char *want = "int";
         if (kind == NVM2C_VK_STR) want = "string";
+        else if (kind == NVM2C_VK_FLOAT) want = "float";
         else if (kind == NVM2C_VK_ARR) want = "array";
         else if (kind == NVM2C_VK_SARR) want = "string array";
         else if (kind == NVM2C_VK_REC) want = "record";
@@ -905,6 +939,7 @@ static void stack_keep_high_water(Nvm2cStack *st, const Nvm2cStack *other) {
     if (other->next_sarr > st->next_sarr) st->next_sarr = other->next_sarr;
     if (other->next_rec > st->next_rec) st->next_rec = other->next_rec;
     if (other->next_rarr > st->next_rarr) st->next_rarr = other->next_rarr;
+    if (other->next_float > st->next_float) st->next_float = other->next_float;
 }
 
 static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
@@ -928,6 +963,8 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
         if (joins[tgt].slots[i] == st->slots[i]) continue;
         if (st->kinds[i] == NVM2C_VK_STR) {
             nvm2c_printf(b, "    s[%d] = s[%d];\n", joins[tgt].slots[i], st->slots[i]);
+        } else if (st->kinds[i] == NVM2C_VK_FLOAT) {
+            nvm2c_printf(b, "    f[%d] = f[%d];\n", joins[tgt].slots[i], st->slots[i]);
         } else if (st->kinds[i] == NVM2C_VK_ARR) {
             nvm2c_printf(b, "    a[%d] = a[%d];\n", joins[tgt].slots[i], st->slots[i]);
         } else if (st->kinds[i] == NVM2C_VK_SARR) {
@@ -994,6 +1031,8 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
         if (a) pos += (size_t)snprintf(call + pos, call_sz - pos, ", ");
         if (argk[a] == NVM2C_VK_STR) {
             pos += (size_t)snprintf(call + pos, call_sz - pos, "s[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_FLOAT) {
+            pos += (size_t)snprintf(call + pos, call_sz - pos, "f[%d]", args[a]);
         } else if (argk[a] == NVM2C_VK_ARR) {
             pos += (size_t)snprintf(call + pos, call_sz - pos, "a[%d]", args[a]);
         } else if (argk[a] == NVM2C_VK_SARR) {
@@ -1041,6 +1080,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_printf(b, "    %s l%u = a%u;\n", c_local_type(lk), (unsigned)i, (unsigned)i);
         } else if (lk == NVM2C_VK_STR) {
             nvm2c_printf(b, "    const char *l%u = \"\";\n", (unsigned)i);
+        } else if (lk == NVM2C_VK_FLOAT) {
+            nvm2c_printf(b, "    double l%u = 0.0;\n", (unsigned)i);
         } else if (lk == NVM2C_VK_ARR) {
             nvm2c_printf(b, "    narr_t l%u = {0};\n", (unsigned)i);
         } else if (lk == NVM2C_VK_SARR) {
@@ -1056,6 +1097,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     nvm2c_printf(b, "    int64_t t[%d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)t;\n");
+    nvm2c_printf(b, "    double f[%d] = {0};\n", NVM2C_MAX_TEMPS);
+    nvm2c_puts(b, "    (void)f;\n");
     nvm2c_printf(b, "    const char *s[%d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)s;\n");
     nvm2c_printf(b, "    narr_t a[%d] = {0};\n", NVM2C_MAX_TEMPS);
@@ -1165,6 +1208,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, rhs);
             break;
         }
+        case OP_PUSH_F64: {
+            char rhs[64];
+            snprintf(rhs, sizeof rhs, "%.17g", ins.operands[0].f64);
+            stack_push_float(b, &st, rhs);
+            break;
+        }
         case OP_PUSH_BOOL: {
             char rhs[8];
             snprintf(rhs, sizeof rhs, "%dLL", ins.operands[0].u8 ? 1 : 0);
@@ -1211,6 +1260,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (k == NVM2C_VK_STR) {
                     snprintf(rhs, sizeof rhs, "s[%d]", src);
                     stack_push_str(b, &st, rhs);
+                } else if (k == NVM2C_VK_FLOAT) {
+                    snprintf(rhs, sizeof rhs, "f[%d]", src);
+                    stack_push_float(b, &st, rhs);
                 } else if (k == NVM2C_VK_ARR) {
                     snprintf(rhs, sizeof rhs, "a[%d]", src);
                     stack_push_arr(b, &st, rhs);
@@ -1292,6 +1344,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             snprintf(rhs, sizeof rhs, "l%u", (unsigned)slot);
             if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_STR) {
                 stack_push_str(b, &st, rhs);
+            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_FLOAT) {
+                stack_push_float(b, &st, rhs);
             } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_ARR) {
                 stack_push_arr(b, &st, rhs);
             } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_SARR) {
@@ -1325,6 +1379,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 if (expect == NVM2C_VK_STR) {
                     nvm2c_printf(b, "    l%u = s[%d];\n", (unsigned)slot, t);
+                } else if (expect == NVM2C_VK_FLOAT) {
+                    nvm2c_printf(b, "    l%u = f[%d];\n", (unsigned)slot, t);
                 } else if (expect == NVM2C_VK_ARR) {
                     nvm2c_printf(b, "    l%u = a[%d];\n", (unsigned)slot, t);
                 } else if (expect == NVM2C_VK_SARR) {
@@ -1384,25 +1440,44 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             emit_binop(b, &st, "==");
             break;
         case OP_EQ:
-        case OP_NE: {
+        case OP_NE:
+        case OP_LT:
+        case OP_LE:
+        case OP_GT:
+        case OP_GE: {
             uint8_t rk = NVM2C_VK_INT;
             uint8_t lk = NVM2C_VK_INT;
             int rhs = stack_pop_kind(b, &st, &rk);
             int lhs = stack_pop_kind(b, &st, &lk);
             if (b->failed) goto done;
+            const char *op = ins.opcode == OP_EQ ? "==" :
+                ins.opcode == OP_NE ? "!=" : ins.opcode == OP_LT ? "<" :
+                ins.opcode == OP_LE ? "<=" : ins.opcode == OP_GT ? ">" : ">=";
             if (lk == NVM2C_VK_INT && rk == NVM2C_VK_INT) {
                 char expr[64];
-                snprintf(expr, sizeof expr, "t[%d] %s t[%d]",
-                         lhs, ins.opcode == OP_EQ ? "==" : "!=", rhs);
+                snprintf(expr, sizeof expr, "t[%d] %s t[%d]", lhs, op, rhs);
+                stack_push_temp(b, &st, expr);
+            } else if (lk == NVM2C_VK_FLOAT && rk == NVM2C_VK_FLOAT) {
+                char expr[64];
+                snprintf(expr, sizeof expr, "f[%d] %s f[%d]", lhs, op, rhs);
+                stack_push_temp(b, &st, expr);
+            } else if (lk == NVM2C_VK_INT && rk == NVM2C_VK_FLOAT) {
+                char expr[80];
+                snprintf(expr, sizeof expr, "(double)t[%d] %s f[%d]", lhs, op, rhs);
+                stack_push_temp(b, &st, expr);
+            } else if (lk == NVM2C_VK_FLOAT && rk == NVM2C_VK_INT) {
+                char expr[80];
+                snprintf(expr, sizeof expr, "f[%d] %s (double)t[%d]", lhs, op, rhs);
                 stack_push_temp(b, &st, expr);
             } else if (lk == NVM2C_VK_STR && rk == NVM2C_VK_STR) {
                 char expr[192];
                 snprintf(expr, sizeof expr,
                          "(int64_t)(strcmp(s[%d] ? s[%d] : \"\", s[%d] ? s[%d] : \"\") %s 0)",
-                         lhs, lhs, rhs, rhs, ins.opcode == OP_EQ ? "==" : "!=");
+                         lhs, lhs, rhs, rhs, op);
                 stack_push_temp(b, &st, expr);
             } else {
-                nvm2c_fail(b, "function %u: EQ/NE of mixed or non-string values is refused", idx);
+                nvm2c_fail(b, "function %u: %s has incompatible operand types",
+                           idx, isa_get_info(ins.opcode)->name);
                 goto done;
             }
             break;
