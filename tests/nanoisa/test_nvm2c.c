@@ -1597,6 +1597,44 @@ static void test_blank_l_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_array_record_field_keeps_runtime_representation(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  AGG_PACK 0 0 0 11\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "array record field fixture");
+    CHECK(m != NULL, "array record field fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c preserves an array-valued record field");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "array record field C compiles and runs");
+    CHECK(status == 1, "ARR_LEN reads the projected field's preserved array representation");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_grow_l_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -1983,7 +2021,7 @@ static void test_nested_record_pack_is_refused(void) {
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL, "nested records stay outside the closed subset");
-    CHECK(strstr(err, "int or string") != NULL, "error names int or string fields");
+    CHECK(strstr(err, "scalar or array") != NULL, "error names supported field kinds");
     free(c);
     nvm_module_free(m);
 }
@@ -2383,6 +2421,7 @@ int main(int argc, char **argv) {
     test_slice_runs_without_nano_vm();
     test_str_substr_array_is_refused();
     test_blank_l_runs_without_nano_vm();
+    test_array_record_field_keeps_runtime_representation();
     test_grow_l_runs_without_nano_vm();
     test_ch_runs_without_nano_vm();
     test_ch_oob_runs_without_nano_vm();

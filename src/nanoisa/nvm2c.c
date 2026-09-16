@@ -18,7 +18,7 @@
 #define NVM2C_MAX_STACK  64
 #define NVM2C_MAX_LOCALS 256
 #define NVM2C_MAX_TEMPS  256
-#define NVM2C_MAX_REC_FIELDS 8
+#define NVM2C_MAX_REC_FIELDS 64
 
 #define NVM2C_VK_INT 0
 #define NVM2C_VK_STR 1
@@ -188,6 +188,7 @@ static void emit_c_string_lit(Nvm2cBuf *b, const char *s, uint32_t len) {
 typedef struct {
     uint8_t kind;
     int origin;
+    int origin_field;
     uint8_t rec_k[NVM2C_MAX_REC_FIELDS];
 } Nvm2cSimSlot;
 
@@ -208,6 +209,7 @@ static int sim_push(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     memset(&slot, 0, sizeof slot);
     slot.kind = kind;
     slot.origin = origin;
+    slot.origin_field = -1;
     return sim_push_slot(b, idx, stk, sp, slot);
 }
 
@@ -237,15 +239,27 @@ static int merge_kind(Nvm2cBuf *b, uint8_t *dst, uint8_t kind, const char *what)
 }
 
 static int mark_origin(Nvm2cBuf *b, uint8_t *local_kind, uint16_t nloc,
-                       int origin, uint8_t kind) {
+                        int origin, uint8_t kind) {
     if (origin >= 0 && (uint16_t)origin < nloc) {
         return merge_kind(b, &local_kind[origin], kind, "local");
     }
     return 1;
 }
 
-static int mark_str_origin(Nvm2cBuf *b, uint8_t *local_kind, uint16_t nloc, int origin) {
-    return mark_origin(b, local_kind, nloc, origin, NVM2C_VK_STR);
+static int mark_slot_origin(Nvm2cBuf *b, uint8_t *local_kind, uint8_t *rec_fields,
+                            uint16_t nloc, Nvm2cSimSlot slot, uint8_t kind) {
+    if (slot.origin >= 0 && (uint16_t)slot.origin < nloc && slot.origin_field >= 0) {
+        return merge_kind(b, rec_fields +
+                          (size_t)slot.origin * NVM2C_MAX_REC_FIELDS + slot.origin_field,
+                          kind, "record field");
+    }
+    return mark_origin(b, local_kind, nloc, slot.origin, kind);
+}
+
+static int mark_slot_str_origin(Nvm2cBuf *b, uint8_t *local_kind,
+                                uint8_t *rec_fields, uint16_t nloc,
+                                Nvm2cSimSlot slot) {
+    return mark_slot_origin(b, local_kind, rec_fields, nloc, slot, NVM2C_VK_STR);
 }
 
 static const uint8_t *fn_rec_k_const(const uint8_t *tab, uint32_t fn, uint16_t slot) {
@@ -348,6 +362,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             memset(&loaded, 0, sizeof loaded);
             loaded.kind = local_kind[slot];
             loaded.origin = (int)slot;
+            loaded.origin_field = -1;
             if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR) {
                 memcpy(loaded.rec_k, rec_fields + (size_t)slot * NVM2C_MAX_REC_FIELDS,
                        NVM2C_MAX_REC_FIELDS);
@@ -424,7 +439,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_STR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-            if (!mark_str_origin(b, local_kind, nloc, v.origin)) return 0;
+            if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, v)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -432,8 +447,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            if (!mark_str_origin(b, local_kind, nloc, rhs.origin) ||
-                !mark_str_origin(b, local_kind, nloc, lhs.origin)) return 0;
+            if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, rhs) ||
+                !mark_slot_str_origin(b, local_kind, rec_fields, nloc, lhs)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
@@ -444,7 +459,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)len;
             (void)start;
-            if (!mark_str_origin(b, local_kind, nloc, s.origin)) return 0;
+            if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, s)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
@@ -452,8 +467,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             Nvm2cSimSlot needle, hay;
             if (!sim_pop(b, idx, stk, &sp, &needle)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &hay)) return 0;
-            if (!mark_str_origin(b, local_kind, nloc, needle.origin) ||
-                !mark_str_origin(b, local_kind, nloc, hay.origin)) return 0;
+            if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, needle) ||
+                !mark_slot_str_origin(b, local_kind, rec_fields, nloc, hay)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -462,7 +477,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
             (void)ix;
-            if (!mark_str_origin(b, local_kind, nloc, s.origin)) return 0;
+            if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, s)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -486,8 +501,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
             if (lhs.kind != NVM2C_VK_INT || rhs.kind != NVM2C_VK_INT) {
-                if (!mark_str_origin(b, local_kind, nloc, lhs.origin) ||
-                    !mark_str_origin(b, local_kind, nloc, rhs.origin)) return 0;
+                if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, lhs) ||
+                    !mark_slot_str_origin(b, local_kind, rec_fields, nloc, rhs)) return 0;
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -528,11 +543,14 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             if (v.kind == NVM2C_VK_RARR) {
-                if (!mark_origin(b, local_kind, nloc, v.origin, NVM2C_VK_RARR)) return 0;
+                if (!mark_slot_origin(b, local_kind, rec_fields, nloc, v,
+                                      NVM2C_VK_RARR)) return 0;
             } else if (v.kind == NVM2C_VK_SARR) {
-                if (!mark_origin(b, local_kind, nloc, v.origin, NVM2C_VK_SARR)) return 0;
+                if (!mark_slot_origin(b, local_kind, rec_fields, nloc, v,
+                                      NVM2C_VK_SARR)) return 0;
             } else {
-                if (!mark_origin(b, local_kind, nloc, v.origin, NVM2C_VK_ARR)) return 0;
+                if (!mark_slot_origin(b, local_kind, rec_fields, nloc, v,
+                                      NVM2C_VK_ARR)) return 0;
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -544,17 +562,21 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             (void)ix;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;
-                if (!mark_origin(b, local_kind, nloc, arr.origin, NVM2C_VK_RARR)) return 0;
+                if (!mark_slot_origin(b, local_kind, rec_fields, nloc, arr,
+                                      NVM2C_VK_RARR)) return 0;
                 memset(&rec, 0, sizeof rec);
                 rec.kind = NVM2C_VK_REC;
                 rec.origin = -1;
+                rec.origin_field = -1;
                 memcpy(rec.rec_k, arr.rec_k, NVM2C_MAX_REC_FIELDS);
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             } else if (arr.kind == NVM2C_VK_SARR) {
-                if (!mark_origin(b, local_kind, nloc, arr.origin, NVM2C_VK_SARR)) return 0;
+                if (!mark_slot_origin(b, local_kind, rec_fields, nloc, arr,
+                                      NVM2C_VK_SARR)) return 0;
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             } else {
-                if (!mark_origin(b, local_kind, nloc, arr.origin, NVM2C_VK_ARR)) return 0;
+                if (!mark_slot_origin(b, local_kind, rec_fields, nloc, arr,
+                                      NVM2C_VK_ARR)) return 0;
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             }
             break;
@@ -590,6 +612,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             memset(&packed, 0, sizeof packed);
             packed.kind = NVM2C_VK_REC;
             packed.origin = -1;
+            packed.origin_field = -1;
             if (count > NVM2C_MAX_REC_FIELDS) {
                 nvm2c_fail(b, "function %u: AGG_PACK has too many fields", idx);
                 return 0;
@@ -597,8 +620,10 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             for (ai = 0; ai < count; ai++) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-                if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR) {
-                    nvm2c_fail(b, "function %u: AGG_PACK fields must be int or string", idx);
+                if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
+                    v.kind != NVM2C_VK_ARR && v.kind != NVM2C_VK_SARR &&
+                    v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_UNK) {
+                    nvm2c_fail(b, "function %u: AGG_PACK fields must be scalar or array values", idx);
                     return 0;
                 }
                 packed.rec_k[count - 1 - ai] = v.kind;
@@ -617,10 +642,14 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 return 0;
             }
             fk = rec.rec_k[fi];
-            if (fk != NVM2C_VK_STR) {
-                fk = NVM2C_VK_INT;
+            {
+                Nvm2cSimSlot field;
+                memset(&field, 0, sizeof field);
+                field.kind = fk;
+                field.origin = rec.origin;
+                field.origin_field = (int)fi;
+                if (!sim_push_slot(b, idx, stk, &sp, field)) return 0;
             }
-            if (!sim_push(b, idx, stk, &sp, fk, -1)) return 0;
             break;
         }
         case OP_CALL:
@@ -654,7 +683,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     Nvm2cSimSlot result;
                     memset(&result, 0, sizeof result);
                     result.kind = result_kinds[callee];
-                    result.origin = -1;
+                result.origin = -1;
+                result.origin_field = -1;
                     if (result.kind == NVM2C_VK_RARR) {
                         memcpy(result.rec_k, result_fields +
                                (size_t)callee * NVM2C_MAX_REC_FIELDS,
@@ -667,6 +697,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     memset(&result, 0, sizeof result);
                     result.kind = NVM2C_VK_REC;
                     result.origin = -1;
+                    result.origin_field = -1;
                     memcpy(result.rec_k, result_fields +
                            (size_t)callee * NVM2C_MAX_REC_FIELDS,
                            NVM2C_MAX_REC_FIELDS);
@@ -701,7 +732,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         nvm2c_fail(b, "function %u: string return requires a string value", idx);
                         return 0;
                     }
-                    if (!mark_str_origin(b, local_kind, nloc, v.origin)) return 0;
+                    if (!mark_slot_str_origin(b, local_kind, rec_fields, nloc, v)) return 0;
                 } else if (fn->result_tag == TAG_ARRAY) {
                     uint16_t fi;
                     if (v.kind != NVM2C_VK_ARR && v.kind != NVM2C_VK_SARR &&
@@ -1818,8 +1849,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 uint8_t vk = NVM2C_VK_INT;
                 elems[ei] = stack_pop_kind(b, &st, &vk);
                 if (b->failed) goto done;
-                if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR) {
-                    nvm2c_fail(b, "function %u: AGG_PACK fields must be int or string", idx);
+                if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
+                    vk != NVM2C_VK_ARR && vk != NVM2C_VK_SARR &&
+                    vk != NVM2C_VK_RARR) {
+                    nvm2c_fail(b, "function %u: AGG_PACK fields must be scalar or array values", idx);
                     goto done;
                 }
                 fkind[ei] = vk;
@@ -1839,9 +1872,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     st.rec_k[r][ei] = fkind[ei];
                     if (fkind[ei] == NVM2C_VK_STR) {
                         nvm2c_printf(b, "    r[%d].s[%d] = s[%d];\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_ARR) {
+                        nvm2c_printf(b, "    r[%d].a[%d] = a[%d];\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_SARR) {
+                        nvm2c_printf(b, "    r[%d].sa[%d] = sa[%d];\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_RARR) {
+                        nvm2c_printf(b, "    r[%d].ra[%d] = ra[%d];\n", r, ei, elems[ei]);
                     } else {
                         nvm2c_printf(b, "    r[%d].f[%d] = t[%d];\n", r, ei, elems[ei]);
                     }
+                    nvm2c_printf(b, "    r[%d].k[%d] = %u;\n", r, ei,
+                                  (unsigned)fkind[ei]);
                 }
                 st.slots[st.sp] = r;
                 st.kinds[st.sp] = NVM2C_VK_REC;
@@ -1863,6 +1904,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
                     snprintf(expr, sizeof expr, "r[%d].s[%u]", rec, (unsigned)fi);
                     stack_push_str(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_ARR) {
+                    snprintf(expr, sizeof expr, "r[%d].a[%u]", rec, (unsigned)fi);
+                    stack_push_arr(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_SARR) {
+                    snprintf(expr, sizeof expr, "r[%d].sa[%u]", rec, (unsigned)fi);
+                    stack_push_sarr(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_RARR) {
+                    snprintf(expr, sizeof expr, "r[%d].ra[%u]", rec, (unsigned)fi);
+                    stack_push_rarr(b, &st, expr);
                 } else {
                     snprintf(expr, sizeof expr, "r[%d].f[%u]", rec, (unsigned)fi);
                     stack_push_temp(b, &st, expr);
@@ -2453,14 +2503,17 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef struct { int64_t *data; size_t len; } narr_s;\n"
             "typedef narr_s *narr_t;\n"
             "typedef struct { const char **data; size_t len; } nsarr_s;\n"
-            "typedef nsarr_s *nsarr_t;\n");
+            "typedef nsarr_s *nsarr_t;\n"
+            "typedef struct nrarr_s nrarr_s;\n"
+            "typedef nrarr_s *nrarr_t;\n");
         nvm2c_printf(&b,
-            "typedef struct { int64_t f[%d]; const char *s[%d]; uint16_t n; } nrec_t;\n",
-            NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
+            "typedef struct { int64_t f[%d]; const char *s[%d]; narr_t a[%d]; "
+            "nsarr_t sa[%d]; nrarr_t ra[%d]; uint8_t k[%d]; uint16_t n; } nrec_t;\n",
+            NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS,
+            NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
-            "typedef struct { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; } nrarr_s;\n"
-            "typedef nrarr_s *nrarr_t;\n\n");
+            "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
         if (need_concat || need_cast_string || need_substr) emit_nstr_arena(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
