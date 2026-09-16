@@ -102,6 +102,8 @@ jobs:
         run: make stage3
 
       - name: Run test suite
+        env:
+          NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
         run: make test
 
       - name: Run test suite with JUnit XML output
