@@ -1,3 +1,4 @@
+#include "runtime/shadow_timeout.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
 #include "colors.h"
@@ -472,6 +473,8 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
             return false;
         }
     }
+    int shadow_seconds = nl_shadow_timeout_seconds(10);
+    if (shadow_seconds < 0) return false;
     int completion[2];
     if (pipe(completion) != 0) {
         fprintf(stderr, "I cannot create the shadow completion channel.\n");
@@ -491,7 +494,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         close(completion[0]);
         /* I isolate compiler state, not host authority. */
         signal(SIGALRM, SIG_DFL);
-        alarm(10);
+        alarm((unsigned)shadow_seconds);
         if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
         int callback_status = check_callback_shadows(program, env, modules, input,
                                                      opts->test_imports);
@@ -531,8 +534,8 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         waited = waitpid(child, &status, WNOHANG);
         if (waited == child || (waited < 0 && errno != EINTR)) break;
         clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
-        timed_out = !clock_failed && (now.tv_sec - start.tv_sec > 10 ||
-            (now.tv_sec - start.tv_sec == 10 && now.tv_nsec >= start.tv_nsec));
+        timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
+            (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
         if (clock_failed || timed_out) {
             kill(child, SIGKILL);
             do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
@@ -552,7 +555,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         if (clock_failed)
             fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
         else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
-            fprintf(stderr, "I stopped shadow execution after 10 seconds.\n");
+            fprintf(stderr, "I stopped shadow execution after %d seconds.\n", shadow_seconds);
         else
             fprintf(stderr, "I will not publish output after failed shadow execution.\n");
         return false;

@@ -112,6 +112,8 @@ jobs:
           fail-on-error: false
 
       - name: Run negative tests
+        env:
+          NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
 
       - name: Validate user guide snippets
@@ -328,6 +330,9 @@ jobs:
             libutf8proc-dev
 
       - name: Build with AddressSanitizer
+        # Instrumented bootstrap shadows retain a finite execution deadline.
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
@@ -335,6 +340,8 @@ jobs:
           make sanitize
 
       - name: Complete 3-stage bootstrap with sanitizers
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
@@ -346,6 +353,8 @@ jobs:
           make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
 
       - name: Run negative tests with sanitizers
+        env:
+          NANOLANG_COMPILER: ./bin/nanoc_c
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           bash tests/run_negative_tests.sh
@@ -414,6 +423,8 @@ jobs:
         run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
 
       - name: Run negative tests
+        env:
+          NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
 
       - name: Show error logs on failure
