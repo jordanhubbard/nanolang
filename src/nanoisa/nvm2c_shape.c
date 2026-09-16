@@ -15,7 +15,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float"};
     return names[kind];
 }
 
@@ -58,7 +58,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_BOOL)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_FLOAT)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
