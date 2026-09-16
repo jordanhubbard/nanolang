@@ -199,6 +199,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       translator checks and 1,073 shape checks, including fresh ASan/UBSan
       translation tests. Main ancestry is still unmerged. Evidence:
       `docs/evidence/main-reconciliation-pr313.md`.
+      I now reconcile nine main commits through `5c358000` (PR #315), retaining
+      my owned/growing native arrays, tagged values, dynamic record shapes and
+      `Value`-backed interpreter nested arrays. I import the seven incoming
+      native regression functions and preserve the filesystem/shadow cases.
+      For write failure tests I compile dedicated production objects with
+      test-only stdio substitution instead of GNU linker wrapping. I run the
+      affected suites, bootstrap and quick gate before completing this merge.
 - [ ] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure
