@@ -431,6 +431,28 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   rerun acceptance without merely raising the stack limit. I also
                   reconcile the full suite's SIGABRT with standalone SIGSEGV.
                   MAC `task_e81212c768d148639429d1d2be9f826d`.
+                  - [x] I allocate record temporary pools per invocation and
+                    snapshot returns before freeing them. I check ordinary,
+                    self-tail and cross-tail calls under a 2 MiB stack cap,
+                    allocation balance and allocation failure.
+                    Normal and fresh ASan/UBSan suites pass 1,670 AOT and
+                    1,073 shape checks; compiler acceptance passes 18 of 19
+                    methods. Evidence: `docs/evidence/aot-scoped-record-temporaries.md`.
+                  - [ ] I reduce residual record-local and by-value argument
+                    frames. Scoped temporary pools alone leave megabyte-scale
+                    frames in `parse_primary` and `generate_expression`. I add
+                    deep-expression coverage before claiming general recursion
+                  space bounds. MAC `task_ec6559ac267b475daec33dd711c34ec1`.
+                  - [x] I explain the differing signals: this host's `make`
+                    raises recipe stack limits from 8,176 to 65,520 KiB. The
+                    larger-stack run reaches the fixed string-array arena abort;
+                    direct runs exhausted the old record-temporary stack pools.
+                - [ ] I replace the fixed string-array growth arena with checked
+                  owned capacity growth. Native compiler execution now reaches
+                  `cg_append` and exhausts `nsarr_arena` in `nsarr_push` while
+                  emitting the C runtime. I preserve aliases, test sustained
+                  append and allocation failure, and rerun compiler acceptance.
+                  MAC `task_7b8691dd087e48ea9afdeb89ddcf4640`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

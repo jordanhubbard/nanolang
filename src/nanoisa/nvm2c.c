@@ -2257,6 +2257,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     int terminated = 0;
     /* A decoded self-tail instruction may be unreachable. Keep its label
      * syntactically referenced without executing an extra jump. */
+    nvm2c_puts(b, "    if (0) goto L_return;\n");
     if (has_self_tail) nvm2c_puts(b, "    if (0) goto L_tco;\nL_tco: ;\n");
 
     while (pc < remaining) {
@@ -3295,9 +3296,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (fn->result_count == 1 &&
                 (result_is_i64(fn) || fn->result_tag == TAG_STRING ||
                  fn->result_tag == TAG_ARRAY || fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP)) {
-                nvm2c_printf(b, "    return %s;\n", call);
+                nvm2c_printf(b, "    nresult = %s;\n    goto L_return;\n", call);
             } else {
-                nvm2c_printf(b, "    %s;\n    return;\n", call);
+                nvm2c_printf(b, "    %s;\n    goto L_return;\n", call);
             }
             terminated = 1;
             break;
@@ -3332,7 +3333,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
                     goto done;
                 }
-                nvm2c_printf(b, "    return t[%d];\n", t);
+                nvm2c_printf(b, "    nresult = t[%d];\n    goto L_return;\n", t);
             } else if (fn->result_count == 1 && fn->result_tag == TAG_STRING) {
                 int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "RET");
                 if (b->failed) goto done;
@@ -3340,12 +3341,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
                     goto done;
                 }
-                nvm2c_printf(b, "    return s[%d];\n", s);
+                nvm2c_printf(b, "    nresult = s[%d];\n    goto L_return;\n", s);
             } else if (fn->result_count == 1 && fn->result_tag == TAG_HASHMAP) {
                 int map = stack_pop_expect(b, &st, NVM2C_VK_MAP, "RET");
                 if (b->failed) goto done;
                 if (st.sp) { nvm2c_fail(b, "I cannot return a map with extra stack values"); goto done; }
-                nvm2c_printf(b, "    return m[%d];\n", map);
+                nvm2c_printf(b, "    nresult = m[%d];\n    goto L_return;\n", map);
             } else if (fn->result_count == 1 && fn->result_tag == TAG_ARRAY) {
                 int a = stack_pop_expect(b, &st, b->array_results[idx], "RET");
                 if (b->failed) goto done;
@@ -3353,7 +3354,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
                     goto done;
                 }
-                nvm2c_printf(b, "    return %s[%d];\n", stack_array_name(b->array_results[idx]), a);
+                nvm2c_printf(b, "    nresult = %s[%d];\n    goto L_return;\n", stack_array_name(b->array_results[idx]), a);
             } else if (fn->result_count == 1 &&
                        (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION)) {
                 int record = stack_pop_expect(b, &st, NVM2C_VK_REC, "RET");
@@ -3362,25 +3363,25 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_fail(b, "I cannot return an aggregate with extra stack values");
                     goto done;
                 }
-                nvm2c_printf(b, "    if (r[%d].kind != %u) abort();\n    return r[%d];\n",
+                nvm2c_printf(b, "    if (r[%d].kind != %u) abort();\n    nresult = r[%d];\n    goto L_return;\n",
                              record, fn->result_tag == TAG_STRUCT ? AGG_RECORD : AGG_VARIANT, record);
             } else {
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: void RET leaves extra stack values", idx);
                     goto done;
                 }
-                nvm2c_puts(b, "    return;\n");
+                nvm2c_puts(b, "    goto L_return;\n");
             }
             terminated = 1;
             break;
         case OP_HALT:
             if (result_is_i64(fn) && st.sp == 1) {
-                nvm2c_printf(b, "    return t[%d];\n",
+                nvm2c_printf(b, "    nresult = t[%d];\n    goto L_return;\n",
                              stack_pop_expect(b, &st, fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT, "HALT"));
             } else if (st.sp == 0 && (fn->result_count == 0 || fn->result_tag == TAG_VOID)) {
-                nvm2c_puts(b, "    return;\n");
+                nvm2c_puts(b, "    goto L_return;\n");
             } else if (st.sp == 0 && result_is_i64(fn)) {
-                nvm2c_puts(b, "    return 0;\n");
+                nvm2c_puts(b, "    nresult = 0;\n    goto L_return;\n");
             } else {
                 nvm2c_fail(b, "function %u: HALT with unexpected stack height %d", idx, st.sp);
                 goto done;
@@ -3445,10 +3446,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         nvm2c_fail(b, "function %u: falls off the end without RET or HALT", idx);
         goto done;
     }
-    nvm2c_puts(b, "}\n\n");
+    nvm2c_puts(b, "L_return:\n    free(r);\n");
+    nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     /* I emit the body once, then insert declarations using its actual
-     * high-water counts. Unused kinds get one slot to remain valid C11. */
+     * high-water counts. Record storage belongs to this invocation and is
+     * released after a return snapshot. Self-tail restarts reuse the allocation. */
     {
         char declarations[1024];
         int count = snprintf(declarations, sizeof declarations,
@@ -3456,16 +3459,25 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             "    const char *s[%d] = {0}; (void)s;\n"
             "    narr_t a[%d] = {0}; (void)a;\n"
             "    nsarr_t sa[%d] = {0}; (void)sa;\n"
-            "    nrec_t r[%d] = {0}; (void)r;\n"
+            "    nrec_t *r = %d ? calloc(%d, sizeof *r) : NULL;\n"
+            "    if (%d && !r) abort();\n"
             "    nrarr_t ra[%d] = {0}; (void)ra;\n"
             "    nmap_t m[%d] = {0}; (void)m;\n",
             st.next_temp ? st.next_temp : 1, st.next_str ? st.next_str : 1,
             st.next_arr ? st.next_arr : 1, st.next_sarr ? st.next_sarr : 1,
-            st.next_rec ? st.next_rec : 1, st.next_rarr ? st.next_rarr : 1,
+            st.next_rec, st.next_rec, st.next_rec, st.next_rarr ? st.next_rarr : 1,
             st.next_map ? st.next_map : 1);
         if (count < 0 || (size_t)count >= sizeof declarations) {
             nvm2c_fail(b, "I cannot format temporary declarations");
             goto done;
+        }
+        if (strcmp(rt, "void")) {
+            int extra = snprintf(declarations + count, sizeof declarations - (size_t)count,
+                                 "    %s nresult = {0};\n", rt);
+            if (extra < 0 || (size_t)extra >= sizeof declarations - (size_t)count) {
+                nvm2c_fail(b, "I cannot format the return snapshot"); goto done;
+            }
+            count += extra;
         }
         if (b->has_maps) {
             int extra = snprintf(declarations + count, sizeof declarations - (size_t)count,
@@ -4450,7 +4462,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b,
             "/* Generated by nvm2c from NanoISA. Not a VM wrapper. */\n"
             "#include <stddef.h>\n"
-            "#include <stdint.h>\n");
+            "#include <stdint.h>\n#include <stdlib.h>\n");
         if (mod->import_count) {
             nvm2c_puts(&b,
                 "#include <stdlib.h>\n#include <string.h>\n#include <unistd.h>\n"

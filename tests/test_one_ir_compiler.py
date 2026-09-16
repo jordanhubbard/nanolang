@@ -576,6 +576,54 @@ int main(int argc, char **argv) {
                         rejected = subprocess.run([binary, str(which)], capture_output=True, timeout=10)
                         self.assertLess(rejected.returncode, 0, "I reject unsupported projected storage")
 
+    def test_record_temporaries_have_scoped_heap_storage(self):
+        import resource
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        def bounded_stack():
+            _, hard = resource.getrlimit(resource.RLIMIT_STACK)
+            resource.setrlimit(resource.RLIMIT_STACK, (2 * 1024 * 1024, hard))
+        for mode in ("ordinary", "self_tail", "cross_tail"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix="nano-record-frame-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                recursive = "CALL walk\nRET\n" if mode == "ordinary" else "TAIL_CALL " + ("walk" if mode == "self_tail" else "forward") + "\n"
+                assembly.write_text(
+                    '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
+                    '.function wide 0 0 0 struct 1\n' + 'PUSH_I64 0\n' * 75 + 'AGG_PACK 0 0 0 75\nRET\n.end\n'
+                    '.function walk 2 2 0 struct 1\n' + 'LOAD_LOCAL 0\nPOP\n' * 300 +
+                    'LOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_FALSE recurse\nLOAD_LOCAL 0\nRET\n'
+                    'recurse:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\n' + recursive + '.end\n'
+                    '.function forward 2 2 0 struct 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nTAIL_CALL walk\n.end\n'
+                    '.parameters 2 struct int\n.parameters 3 struct int\n')
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                generated = source.read_text().replace("int main(", "int generated_main(")
+                source.write_text('''#include <stdlib.h>
+static size_t live, peak;
+static int fail_allocation;
+static void *tracked_calloc(size_t n, size_t size) {
+    if (fail_allocation) return NULL;
+    void *p = calloc(n, size); if (p) { ++live; if (live > peak) peak = live; } return p;
+}
+static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
+#define calloc tracked_calloc
+#define free tracked_free
+''' + generated + '''
+int main(int argc, char **argv) {
+    (void)argv; fail_allocation = argc > 1;
+    nrec_t input = {.n = 75}; input.f[0] = 24;
+    for (int i = 0; i < 10; ++i) {
+        nrec_t result = nl_walk(input, 12);
+        if (result.n != 75 || result.f[0] != 24 || live) return 1;
+    }
+''' + ('if (peak != 1) return 2;\n' if mode == "self_tail" else 'if (peak < 13) return 2;\n') + 'return 0;\n}\n')
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+                result = subprocess.run([binary], capture_output=True, timeout=30, preexec_fn=bounded_stack)
+                self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+                failed = subprocess.run([binary, "fail"], capture_output=True, timeout=10)
+                self.assertLess(failed.returncode, 0, "I fail closed when a record frame cannot be allocated")
+
     def test_uncalled_functions_are_warning_clean_not_executed(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

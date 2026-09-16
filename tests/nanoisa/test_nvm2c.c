@@ -3833,7 +3833,7 @@ static void test_emitter_many_temporaries(void) {
                           "AGG_GET 0\nSTR_LEN\n"};
     const int expected[] = {42, 5, 0, 0, 42, 0, 5};
     const char *declarations[] = {"int64_t t[300]", "const char *s[300]", "narr_t a[300]",
-                                  "nsarr_t sa[300]", "nrec_t r[300]", "nrarr_t ra[300]", "nrec_t r[300]"};
+                                  "nsarr_t sa[300]", "calloc(300, sizeof *r)", "nrarr_t ra[300]", "calloc(300, sizeof *r)"};
     for (int kind = 0; kind < 7; ++kind) {
         for (int condition = 0; condition <= 1; ++condition) {
             char source[32768];
