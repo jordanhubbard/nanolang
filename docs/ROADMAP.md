@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Publication stop fence after this release.** My MAC publisher can
+      finish an admitted merge after its task is stopped. PR #357 demonstrated
+      that race. I track a final pre-forge state check and deterministic race
+      regression in MAC `task_de6e652dae12be62f654c1578f68c018`, dependent on
+      release finalization. Temporary GitHub draft status blocks other admitted
+      publications while I validate this release; it does not repair the hub.
+
+
 - [ ] **Native float integration after main PR #357.** I preserve float
       comparison capability with distinct value and shape tags, preserve VM tag
       ordering and typed return boundaries, and verify local/call
