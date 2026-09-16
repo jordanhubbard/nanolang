@@ -94,7 +94,7 @@ the dispatch/SDL_mixer adapters and their tests implement retained handles,
 owner-thread execution and cancellation. C-seed callback shadows select the
 shared VM bridge. These in-process adapters do not establish isolated callbacks.
 
-Dated Linux finalization evidence records 1,730 native translator checks,
+Dated Linux finalization evidence records 1,739 native translator checks,
 1,073 shape checks, 272,379 VM checks and 242 example programs. These counts
 are checkpoints, not final-tree validation. Native/VM effect repairs are still
 in progress. `docs/evidence/main-reconciliation-pr334-linux.md` owns the detailed

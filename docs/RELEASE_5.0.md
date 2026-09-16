@@ -70,11 +70,19 @@ branches. My source-snapshot boundaries remain in
 
 ## Validation checkpoint — 2026-09-16
 
-On Linux ARM64, focused finalization runs passed 1,730 native translator checks,
+On Linux ARM64, focused finalization runs passed 1,739 native translator checks,
 1,073 shape checks, 272,379 VM checks, and a 242-program example sweep.
 The native translator and shape suites also passed their ASan/UBSan gate with
 leak detection disabled. Native compiler acceptance passed 24 tests, and the
-ordinary bootstrap passed its smoke checks. These are dated results from the
+ordinary bootstrap passed its smoke checks. The native translator checkpoint
+at `b21fbeed` reconciles main through PR #340 (`2711c6eb`) and retains both
+PR #338 string-array regressions. Coverage-wrapper tests passed five unit and
+seven integration cases against real gcov objects. The Linux cache-publication
+run passed 55 methods with eight platform skips. The Darwin C++ fixture passed
+compilation, reuse and header invalidation; its deprecated `.c`-as-C++ warning
+is acknowledged for that fixture, not described as warning-free.
+
+These are dated results from the
 integration work, not fresh validation of every subsequent commit or proof of
 semantic correctness.
 

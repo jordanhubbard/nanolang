@@ -7,6 +7,8 @@ my existing visual design and Google publication IDs. Slide 15 and the new
 narrative section distinguish the audited language/runtime contract from
 unfinished NanoISA-only bootstrap, backend parity and production isolation.
 I corrected the callback status and retained dated test counts as checkpoints.
+The later `b21fbeed` checkpoint raises the native translator count to 1,739;
+I rebuilt the narrative and rechecked its changed page after that update.
 Native and VM effect repairs and final integrated acceptance remain pending.
 
 The portable pair verifier accepts 16 slides and 35 narrative headings with
@@ -22,8 +24,8 @@ about Google or Microsoft Office rendering.
 I have not uploaded either member. The Google URLs still refer to the 4.5
 edition. Accepted local artifact SHA-256 hashes:
 
-- PPTX: `7dd9a794a342501eb4142f59df5738b603f5d3f9e4d86eddeeccb46953704bb8`
-- DOCX: `9616070f7048d91f12d138a53fe816fef851971b43b544d3f6aef35169819669`
+- PPTX: `66b247e2f0980da3d27733912825e3607986caedff1e76b670ae1d0d91c823c1`
+- DOCX: `f0437d47f472f4109e342ece48f64af97a7be98ad47c652611ed6c812e66c9b9`
 
 ## 5.0 local visual acceptance
 
