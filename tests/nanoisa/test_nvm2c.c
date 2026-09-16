@@ -1879,7 +1879,89 @@ static void test_nested_record_pack_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_unsupported_classifier_instructions(void) {
+    const uint8_t opcodes[] = {OP_HM_NEW, OP_HM_SET, OP_HM_GET, OP_PUSH_F64,
+        OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
+        OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
+    for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
+        NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
+            "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
+            "PUSH_I64 0\nRET\n.end\n", "unsupported classifier instruction");
+        if (!m) continue;
+        DecodedInstruction instruction = {0};
+        instruction.opcode = opcodes[i];
+        uint32_t written = isa_encode(&instruction, m->code + m->functions[0].code_offset, 16);
+        CHECK(written != 0, "I encode the unsupported instruction using ISA metadata");
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        const InstructionInfo *info = isa_get_info(opcodes[i]);
+        CHECK(c == NULL && strstr(error, "cannot classify unsupported opcode") &&
+              strstr(error, info->name) && strstr(error, "function 0 at offset 0"),
+              "I reject unsupported stack effects at their own instruction");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
+static void test_native_map_runtime(void) {
+    const char *source =
+        "#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <assert.h>\n"
+#include "../../src/nanoisa/nvm2c_map_runtime.inc"
+        "int main(int argc, char **argv) {\n"
+        "    if (argc > 1) {\n"
+        "        if (argv[1][0] == 't') { nmap_t m = nmap_new(1); nmap_set(m, \"key\", (nmap_value){5, 0, \"wrong\"}); }\n"
+        "        else if (argv[1][0] == 'k') { (void)nmap_new(3); }\n"
+        "        else { nmap_s m = {0}; m.capacity = SIZE_MAX; nmap_grow(&m); }\n"
+        "        return 0;\n"
+        "    }\n"
+        "    nmap_t numbers = nmap_new(1), alias = numbers, strings = nmap_new(5);\n"
+        "    char key[64], value[64];\n"
+        "    assert(nmap_get(numbers, \"missing\").kind == 0 && !nmap_has(numbers, \"missing\"));\n"
+        "    assert(nmap_delete(numbers, \"missing\") == numbers && nmap_len(numbers) == 0);\n"
+        "    for (int i = 0; i < 4096; ++i) { snprintf(key, sizeof key, \"key-%d\", i);\n"
+        "        assert(nmap_set(numbers, key, (nmap_value){1, -3 * i, NULL}) == alias); }\n"
+        "    assert(nmap_len(alias) == 4096 && numbers->capacity > 16);\n"
+        "    for (int i = 0; i < 4096; ++i) { snprintf(key, sizeof key, \"key-%d\", i);\n"
+        "        nmap_value v = nmap_get(alias, key); assert(v.kind == 1 && v.integer == -3 * i); nmap_release_value(v);\n"
+        "        if (i % 2) nmap_delete(alias, key); }\n"
+        "    assert(nmap_len(numbers) == 2048);\n"
+        "    for (int i = 1; i < 4096; i += 2) { snprintf(key, sizeof key, \"key-%d\", i);\n"
+        "        assert(!nmap_has(numbers, key)); nmap_set(numbers, key, (nmap_value){1, INT64_MIN, NULL}); }\n"
+        "    nmap_set(numbers, \"\", (nmap_value){1, INT64_MAX, NULL});\n"
+        "    assert(nmap_get(numbers, \"\").integer == INT64_MAX && nmap_len(numbers) == 4097);\n"
+        "    strcpy(key, \"owned-key\"); strcpy(value, \"before\");\n"
+        "    nmap_set(strings, key, (nmap_value){5, 0, value}); key[0] = 'X'; value[0] = 'X';\n"
+        "    nmap_value saved = nmap_get(strings, \"owned-key\"); assert(strcmp(saved.text, \"before\") == 0);\n"
+        "    nmap_set(strings, \"owned-key\", (nmap_value){5, 0, \"after\"});\n"
+        "    nmap_value replaced = nmap_get(strings, \"owned-key\");\n"
+        "    assert(strcmp(replaced.text, \"after\") == 0 && strcmp(saved.text, \"before\") == 0 && nmap_len(strings) == 1);\n"
+        "    nmap_release_value(replaced); nmap_delete(strings, \"owned-key\");\n"
+        "    assert(!nmap_has(strings, \"owned-key\") && !nmap_len(strings));\n"
+        "    nmap_set(strings, \"\", (nmap_value){5, 0, \"\"}); nmap_value empty = nmap_get(strings, \"\");\n"
+        "    assert(empty.kind == 5 && empty.text[0] == 0 && nmap_get(strings, \"missing\").kind == 0);\n"
+        "    nmap_release_value(empty); nmap_destroy(strings);\n"
+        "    assert(strcmp(saved.text, \"before\") == 0); nmap_release_value(saved);\n"
+        "    nmap_t collisions = nmap_new(1); char keys[32][64]; int found = 0;\n"
+        "    for (int i = 0; found < 32; ++i) { snprintf(key, sizeof key, \"collision-%d\", i);\n"
+        "        if ((nmap_hash(key) & 255) == 0) { strcpy(keys[found], key);\n"
+        "            nmap_set(collisions, key, (nmap_value){1, found, NULL}); ++found; } }\n"
+        "    for (int i = 0; i < 32; ++i) assert(nmap_get(collisions, keys[i]).integer == i);\n"
+        "    for (int i = 0; i < 32; ++i) { nmap_delete(collisions, keys[i]); assert(!nmap_has(collisions, keys[i])); }\n"
+        "    assert(!nmap_len(collisions)); nmap_destroy(collisions); nmap_destroy(numbers); nmap_destroy(NULL); return 0;\n}\n";
+    int status = -1;
+    CHECK(compile_and_run(source, &status) == 0 && status == 0,
+          "I grow and destroy native maps without losing values, collisions or retained lookups");
+    const char *invalid[] = {"type", "kind", "overflow"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        status = 0;
+        CHECK(compile_and_run_with_args(source, &status, invalid[i]) == 0 && status != 0,
+              "I fail closed on invalid map values, types and unrepresentable growth");
+    }
+}
+
 static void test_null_module(void) {
+    test_native_map_runtime();
+    test_unsupported_classifier_instructions();
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
     CHECK(c == NULL, "null module is refused");

@@ -31,6 +31,452 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I allow explicit compiler selection and retain compilation diagnostics
       in the acceptance runner. Remaining Stage 2 failures are tracked below.
       MAC `task_b2c8c93fb14a4f089573edec76b99aab`.
+- [x] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
+      instrumented objects instead of reusing normal objects when only `CC`
+      changes. I test warm-cache behavior before claiming translator coverage.
+      MAC `task_f3df199b025042e0b1d83484cd104ed3`. My warm-cache run passes
+      1,048 AOT and 952 shape checks with fresh instrumented objects, leaving
+      normal translator artifacts unchanged. Evidence:
+      `docs/evidence/aot-sanitizer-build-isolation.md`.
+- [x] **Chronicle branch reconciliation.** I review main `1a5fed53` and
+      worker `633acda1`, retain their identical README chronology update, and
+      integrate both histories without replacing compiler work. I verify the
+      merged diff and record ancestry under release task
+      `task_cffdafd16e641ac417ccfddb962534b9`. Both heads are ancestors;
+      source and tests are unchanged. Evidence:
+      `docs/evidence/chronicle-branch-reconciliation.md`.
+- [x] **AOT temporary directories.** I adapt `vm_mktemp_dir` with checked
+      template allocation and exclusive creation. I test unique, independent
+      paths and failure inside private roots before compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 913 checks. Compiler acceptance clears imports and
+      stops at function 18's `ARR_NEW` element kind. Evidence:
+      `docs/evidence/aot-temporary-directories.md`.
+- [ ] **Compiler AOT array shapes.** I identify the full compiler's array
+      element shapes and support their construction and data flow without
+      guessing a scalar representation. I verify complete compiler execution.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      - [x] I construct explicitly tagged struct arrays and reject incompatible
+        record-field representations on append instead of overwriting facts.
+        My AOT suite passes 922 checks; evidence:
+        `docs/evidence/aot-tagged-record-arrays.md`.
+      - [ ] I complete compiler stack and array/aggregate shape support through
+        full compiler acceptance. Function 20 (`parser_init_ast_lists`) now
+        reaches unsupported array-valued fields in its 75-field aggregate.
+        - [x] I allocate classifier stacks and branch snapshots from checked
+          function bounds. My AOT suite passes 924 checks, including deep
+          branch snapshots and incompatible heights. Compiler acceptance now
+          reaches the 75-field aggregate limit; emitter storage and aggregate
+          limits remain separate. Evidence:
+          `docs/evidence/aot-dynamic-classifier-stack.md`.
+        - [x] I allocate emitter operand storage and independent branch
+          snapshots dynamically, including array-literal scratch storage and
+          output. Both 75-value branch paths and 200-element integer/string
+          literals execute correctly; 936 AOT checks pass. Evidence:
+          `docs/evidence/aot-dynamic-emitter-stack.md`.
+        - [ ] I remove fixed temporary-count limits and support the compiler's
+          aggregate widths and array-valued fields without guessing their
+          representation. I require full compiler translation and execution.
+          - [x] I derive record field width from decoded module construction,
+            use checked dynamic classifier/emitter facts, and emit matching
+            value-copy record storage. I test wide mixed-field records through
+            calls and branches before enabling array-valued fields. My normal
+            and translator-instrumented AddressSanitizer suites each pass
+            1,029 checks. Evidence: `docs/evidence/aot-module-record-width.md`.
+          - [x] I preserve integer-array and string-array field representations
+            through record packing, calls, locals and extraction, with tests
+            for empty/nonempty arrays and copied records. Record-array fields
+            still require nested shape facts before full compiler acceptance.
+            My AOT suite passes 1,043 checks. Evidence:
+            `docs/evidence/aot-scalar-array-fields.md`.
+          - [ ] I carry recursive aggregate shape constraints through AOT
+            calls and joins. MAC `task_9c850e94e5a74b6f8941622e2872af23`.
+            - [x] I verify a dynamic, cycle-safe shape constraint graph with
+              deep nesting, recursive records, shared children and conflicts.
+              Its 952 checks pass normally and under ASan/UBSan. Evidence:
+              `docs/evidence/aot-shape-constraints.md`.
+            - [ ] I connect those facts to classification and C emission,
+              preserve record-array element shapes, and pass full compiler
+              acceptance. A standalone graph test does not complete this gate.
+              - [x] I preserve nested record values using immutable snapshots
+                whose lifetime outlasts returning functions, release owned
+                snapshots after entry returns, and test calls, copies and
+                repeated construction under sanitizers.
+                My sanitizer suite passes 1,057 AOT and 965 graph checks.
+                Compiler acceptance now reaches conflicting inferred field
+                kinds rather than unsupported nested storage. Evidence:
+                `docs/evidence/aot-nested-record-values.md`.
+              - [ ] I resolve the compiler's conflicting nested-field
+                inference with function/instruction diagnostics and focused
+                regressions before relying on those shapes for reclamation.
+                - [x] I implement `CAST_INT` stack effects and emission;
+                  skipping it currently misclassifies a parsed tuple index as
+                  a string. I test conversion boundaries and mixed call sites.
+                  The sanitizer suite passes 1,060 AOT and 965 graph checks.
+                  Compiler acceptance advances to function 170's array-kind
+                  conflict. Evidence: `docs/evidence/aot-cast-int.md`.
+                - [x] I preserve explicitly constructed record-array kinds
+                  while nested element facts remain unknown. Function 170 at
+                  offset 925 previously passed inferred `narr_t` to parameter 1
+                  of function 141, which requires `nrarr_t`.
+                  I keep unknown element facts unknown and stop `ARR_LEN`
+                  from guessing integer elements. Normal and sanitizer suites
+                  pass 1,065 AOT and 965 graph checks. Evidence:
+                  `docs/evidence/aot-delayed-array-facts.md`.
+                - [x] I propagate record-array result field facts through
+                  calls and returns instead of supplying integer defaults.
+                  Normal and tail-return regressions preserve mixed fields.
+                  The sanitizer suite passes 1,070 AOT and 965 graph checks.
+                  Evidence: `docs/evidence/aot-record-array-return-fields.md`.
+                - [x] I resolve the next compiler field conflict without
+                  weakening compatibility checks: function 264 offset 60,
+                  `ARR_PUSH` field 0 has string versus integer facts.
+                  I preserve explicit record-array literal tags and element
+                  fields, including empty literals, with execution and
+                  incompatible-element tests before compiler acceptance.
+                  Unresolved local field vectors also remain unknown rather
+                  than defaulting to integer. The normal suite passes 1,080
+                  AOT and 965 graph checks. Evidence:
+                  `docs/evidence/aot-record-array-literals.md`.
+                - [ ] I diagnose and implement the compiler's hashmap opcode
+                  requirements. Acceptance now stops at function 267
+                  (`build_field_metadata_index`) with operand-stack underflow.
+                  - [x] I implement reusable emitted map storage with checked
+                    growth, owned keys/values, missing-key results, replacement,
+                    deletion and retained lookup values; test both integer and
+                    string maps. Normal and sanitizer suites pass 1,106 AOT
+                    and 965 graph checks. Evidence:
+                    `docs/evidence/aot-map-storage.md`.
+                  - [ ] I connect map storage to classification and emission,
+                    preserving value kinds, missing-key tags and ownership
+                    through locals, branches, calls and returns. Storage tests
+                    alone do not implement `HM_NEW` or complete acceptance.
+                - [ ] I audit classifier opcode coverage against emission
+                  and verifier stack effects, explicitly handling or rejecting
+                  each opcode instead of silently skipping unknown effects.
+                  MAC `task_f90db79b0f464637a18486c44262c4d3`.
+                  - [x] I reject unimplemented classifier instructions at
+                    their own offsets, check classifier/emitter case parity,
+                    and test representative unsupported instruction families.
+                    Normal and sanitizer suites pass 1,102 AOT and 965 graph
+                    checks, plus the opcode case-parity test. Compiler
+                    acceptance now names `HM_NEW` at function 267 offset 0.
+                    Evidence: `docs/evidence/aot-opcode-coverage.md`.
+              - [ ] I reclaim unreachable nested-record snapshots during
+                long-running execution, with bounded-live-state stress tests
+                and alias-safe destruction. Entry-return cleanup alone does
+                not bound retained memory. MAC
+                `task_d152cc3913f248fb8d1483210e60f00b`.
+              - [x] I store record-array fields by reference and preserve
+                their element shapes through packing, calls, extraction and
+                aliases; I test empty arrays and mixed-field elements.
+                Normal and sanitizer suites pass 1,055 AOT checks and 965
+                graph checks. Compiler acceptance advances from function 20
+                to function 100's nested record packing. Evidence:
+                `docs/evidence/aot-record-array-fields.md`.
+              - [x] I read resolved field representations from the graph
+                during emission without creating new constraints; I test
+                missing edges, aliases and existing extraction behavior.
+                Normal and sanitizer runs pass 1,048 AOT and 965 graph
+                checks. Nested storage remains unfinished. Evidence:
+                `docs/evidence/aot-resolved-field-emission.md`.
+              - [x] I attach persistent shape variables to production
+                classifier values, locals, parameters, results and joins,
+                checking compatibility alongside existing representation facts.
+                My AOT suite passes 1,048 checks normally and with translator/
+                graph ASan/UBSan instrumentation; 952 graph checks pass.
+                Evidence: `docs/evidence/aot-production-shape-constraints.md`.
+          - [x] I separate record and record-array temporary field facts;
+            their independent indices must not overwrite each other. I test
+            live string-record arrays across scalar record construction and
+            the reverse collision, directly and through both branch paths.
+            My AOT suite passes 1,010 checks. MAC
+            `task_3673443775f2477c94688b1021d6102a`; evidence:
+            `docs/evidence/aot-record-fact-namespaces.md`.
+          - [x] I size generated temporary arrays to actual high-water counts,
+            allocate emitter record facts and snapshots dynamically, and test
+            more than 256 temporaries. I check output-growth arithmetic before
+            inserting the resulting declarations. My AOT suite passes 992
+            checks; evidence: `docs/evidence/aot-dynamic-temporaries.md`.
+          - [x] I select array constructors from emitted representations,
+            including direct stack construction without locals and legacy
+            inferred array kinds; strict generated-C compilation passes.
+- [x] **AOT byte-character conversion.** I preserve the existing C-byte
+      `vm_string_from_char` contract, including zero-byte empty text and
+      independent storage. I test integer boundaries before compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      - [x] I emit `INT64_MIN` without an out-of-range positive C literal;
+        strict C compilation and the signed-extrema arithmetic case pass.
+      My AOT suite passes 904 checks. Compiler acceptance remains failing at
+      `vm_mktemp_dir` (import 34). Evidence: `docs/evidence/aot-byte-character.md`.
+- [x] **AOT shell execution.** I adapt the exact `nl_exec_shell` builtin
+      contract, preserving raw system status. I test success, nonzero exit and
+      signature rejection before rerunning compiler acceptance.
+      I also preserve bounded capture/draining with independent result storage.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 842 checks. Compiler acceptance still fails at
+      `vm_string_from_char` (import 32). Evidence: `docs/evidence/aot-shell-capture.md`.
+- [x] **AOT lexical normalization.** I normalize builtin paths without
+      fixed component/output limits, preserving relative parents and roots.
+      I test long paths and rerun compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 828 checks. Compiler acceptance still fails at
+      `nl_exec_shell` (import 25). Evidence: `docs/evidence/aot-builtin-normalize.md`.
+- [x] **Native normalization bounds.** I replace module path truncation and
+      generated-native `parts[512]` overflow on leading parents with checked
+      dynamic storage. I test both paths beyond their old limits.
+      MAC `task_82bd388637824cc889b12204d226e75b`.
+      - [x] I use checked dynamic storage for public `path_normalize` and
+        generated `nl_os_path_normalize`, with 700-component/parent and
+        5,000-byte tests. Evidence: `docs/evidence/native-normalization.md`.
+      - [x] I remove the remaining bounded normalization/token/output buffers
+        inside `path_relpath`; public normalization does not fix this caller.
+        Long shared-prefix and 4,504-byte result tests pass. Evidence:
+        `docs/evidence/dynamic-relative-paths.md`.
+- [x] **Relative-path anchors.** I define and verify dot, mixed-root and
+      unresolved-parent behavior rather than treating all normalized components
+      as interchangeable. MAC `task_64696231d8984732a5a1e1c319ca043b`.
+      I anchor relative inputs to one dynamically read working directory;
+      reconstruction, long-cwd and unavailable-cwd cases pass. Evidence:
+      `docs/evidence/relative-path-anchors.md`.
+- [x] **AOT identity checks.** I preserve file/destination identity semantics
+      for builtin imports, including hard links, missing paths and failed
+      lookups. I test absent-destination probe cleanup in private directories.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 822 checks. Compiler acceptance remains failing at
+      builtin `path_normalize` (import 24). Evidence:
+      `docs/evidence/aot-builtin-identity.md`.
+- [x] **AOT filesystem predicates.** I adapt builtin file/directory existence
+      checks with exact signatures and exercise files, directories, missing
+      paths and followed/broken links. I rerun compiler acceptance.
+      I also adapt builtin removal/rename and test only private targets.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 807 checks. Compiler acceptance still fails at
+      builtin `file_compare_identity` (import 22). Evidence:
+      `docs/evidence/aot-filesystem-basic.md`.
+- [x] **AOT builtin text writer.** I preserve both string arguments and
+      return failure on short writes or failed close. I exercise generated
+      executables and rerun compiler acceptance before completing this item.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 771 checks. Compiler acceptance still fails at
+      import 20 (`file_exists`). Evidence: `docs/evidence/aot-builtin-text-writer.md`.
+- [x] **Text write error parity.** I fix interpreter and generated-native
+      writes/appends that ignore write errors, and VM/module writers that
+      ignore close errors. I require injected short-write and close failures
+      across these paths, not only successful regular-file writes.
+      MAC `task_46cb33d875724130a6f767d998f3014b`.
+      Seven production-body fault probes, 771 AOT checks and the text-file
+      integration regression pass. Evidence:
+      `docs/evidence/text-write-error-parity.md`.
+- [x] **AOT builtin text reader.** I preserve streaming text reads, empty
+      results on I/O errors and embedded-NUL rejection in generated C. I test
+      real files and keep builtin and artifact bindings distinct.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 752 checks, including FIFO and injected I/O errors.
+      Compiler acceptance remains failing at builtin `file_write` (import 19).
+      Evidence: `docs/evidence/aot-builtin-text-reader.md`.
+- [x] **AOT scalar filesystem imports.** I adapt the known filesystem
+      string, boolean and integer contracts through exact artifact bindings,
+      preserving argument order and native return widths. I execute real
+      library tests and rerun full compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 710 checks; full compiler acceptance remains failing
+      at builtin import 18 (`file_read`). Evidence:
+      `docs/evidence/aot-scalar-filesystem.md`.
+- [x] **AOT owned filesystem adapter.** I bind `fs_walkdir` to its absolute
+      artifact path, check its array ABI and release entry point, copy returned
+      strings into AOT storage, then release the foreign result. I test exact
+      binding and failure cases before using it in compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 647 checks. Compiler acceptance now stops at
+      `path_normalize`; remaining adapters stay open under the same task.
+      Evidence: `docs/evidence/aot-owned-walk-adapter.md`.
+- [x] **Owned walk-result release.** I add an opt-in C release operation for
+      unmodified, exclusively owned `fs_walkdir` results, freeing their copied
+      strings before the array. Existing callers retain current behavior.
+      I test escaped copies and shared-array refusal before AOT adapter use.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My release probe and directory-walk gate pass (one host-limit skip).
+      Evidence: `docs/evidence/walk-result-release.md`. AOT adaptation remains open.
+- [x] **AOT artifact boundary diagnostics.** I distinguish unsupported exact
+      artifact imports from builtin ABI mismatches and pin the filesystem-array
+      boundary against name-only rebinding. This does not implement the native
+      array adapter. MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      The AOT suite passes 617 checks; One-IR acceptance still fails at the
+      artifact adapter. Evidence: `docs/evidence/aot-artifact-boundary.md`.
+- [x] **One-IR compiler execution baseline.** I exercise the current full
+      compiler through bytecode emission, AOT C translation, native compilation
+      and a compiled hello program. I retain bounded subprocess groups and
+      exact output checks. The 75-commit `8299138f` branch remains unmerged
+      until its useful changes are reconciled with current safety contracts.
+      Release parent MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+      `make test-one-ir-compiler` now exposes the first blocker: compiler
+      bytecode emits, but `nvm2c` refuses the `fs_walkdir` import's host ABI.
+      Execution acceptance remains failing under MAC
+      `task_419c47bdc8fc42e4b52eb6af1a0e9a71`. Evidence:
+      `docs/evidence/one-ir-compiler-baseline.md`.
+- [x] **Union resource propagation.** I propagate ownership obligations
+      through named union payloads and mixed record/union cycles, preserving
+      module-owned lookup. I require classifier tests; generic substitution,
+      tuples and control-flow enforcement remain open. MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`.
+      Record/union classifier checks pass; evidence:
+      `docs/evidence/union-resource-classification.md`.
+- [x] **Nested-record resource classification.** I classify ordinary records
+      containing resource records without recursive depth limits, including
+      cycles. I test deep graphs and keep full path-sensitive ownership and
+      union/tuple/collection propagation separate. MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`.
+      The dedicated unit gate passes cyclic, 300-record and module-owned
+      field cases. Evidence: `docs/evidence/resource-classification.md`.
+- [x] **Affine parity gate coverage.** I test positive execution and both
+      existing ownership rejections on the C seed as well as both bootstrap
+      stages. Rejections must carry ownership diagnostics and preserve prior
+      output. I replace the predictable temporary path with private fixtures.
+      Passing the old gate did not establish C-seed rejection parity.
+      The corrected gate fails two C-seed cases: unresolved ownership is
+      accepted, and use-after-move fails only a shadow assertion. Both bootstrap
+      stages pass the limited cases. Checker acceptance remains open under MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`; evidence:
+      `docs/evidence/affine-parity-baseline.md`.
+- [x] **Affine contract branch reconciliation.** I retain the current
+      contract, which matches `a08341e5`, and reconcile that head plus the older
+      `cb99b86e` contract. This records design ancestry, not implementation
+      conformance; the C-seed recovery prototype remains under review.
+      MAC `task_4ac22044ffda9f93b336a85573293bc2`.
+      Both changed documents match exactly; evidence:
+      `docs/evidence/affine-contract-branch-reconciliation.md`.
+- [x] **Compact-schema branch reconciliation.** I retain the compact operand
+      aliases and tests already integrated by PR #139 while reconciling
+      `09187898`. I clarify that schema checks do not establish runtime compact
+      encoding support and require the schema gate. MAC
+      `task_b7c534c9150ee4bb4b8bca62b37b50dd`.
+      Schema generation is current and 33 tests pass. Evidence:
+      `docs/evidence/compact-schema-branch-reconciliation.md`.
+- [x] **Assembler snapshot branch reconciliation.** I verify that `24ac886b`
+      exactly matches integrated tree `dfa1aca3`, retain newer capture rules,
+      and rerun its include-phase, restored-input and search-order tests.
+      MAC `task_92e6817607cf4071ab614289911a9a41`.
+      Three tests pass in 263.852 seconds. Evidence and remaining-head inventory:
+      `docs/evidence/assembler-branch-reconciliation.md`.
+- [x] **Wrapper-publication branch reconciliation.** I retain the staged
+      publication implementation already integrated from `c56c6e7e`, including
+      newer callback/array link dependencies, while reconciling `df031115`.
+      I require wrapper unit and adversarial publication tests. MAC
+      `task_0750c33a06a14dd39baf4d3e77e37a0d`.
+      Five unit tests and seven publication methods pass. Evidence:
+      `docs/evidence/wrapper-branch-reconciliation.md`.
+- [x] **VM shadow completion handshake.** I reject foreign `exit(0)` before
+      shadow execution returns, preserving prior bytecode. I require a private
+      close-on-exec completion channel as well as a successful child status.
+      MAC `task_9d9eefa909be4990be0151bed7439953`; both early-exit regression
+      cases fail before the fix, then all 40 bytecode-shadow methods pass.
+      Evidence: `docs/evidence/vm-shadow-branch-reconciliation.md`.
+- [x] **VM-shadow worker reconciliation.** I compare `a1399362` with my
+      current graph-wide shadows, typed math lowering and signature checks.
+      I retain dependency shadows by default and current publication guards,
+      and require the complete bytecode-shadow test module before recording
+      ancestry. MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **PR #295 reconciliation.** I integrate main's verifier cleanup and
+      ownership-propagation regression while retaining my allocation-counted
+      rejection tests and unknown-effect cleanup. I require schema and verifier
+      gates before recording the reviewed worker head as ancestry. MAC
+      `task_69dab2ee6f1a4c96845ba7139cfc360f`.
+      Schema, 95 verifier tests and allocation-counted checks pass, including
+      the new retain/release path. Evidence: `docs/evidence/pr-295-reconciliation.md`.
+- [x] **Record-alias branch reconciliation.** I retain recursive record
+      copies before binding replacement rather than restore symbol-scan
+      reference counts from `9698ce08`. I retain its direct-call alias
+      regression alongside current nested-record shadows and run evaluator
+      and environment gates. MAC `task_1ac1c2fd6bc04b5e81932553901b0d4b`.
+      Bootstrap, evaluator and 32 environment checks pass. Evidence:
+      `docs/evidence/record-alias-branch-reconciliation.md`.
+- [x] **Bootstrap branch reconciliation.** I retain behavioral invalidation
+      checks and direct self-hosted stage dependencies while reconciling
+      `d152181d`. I expose the existing suite as `test-bootstrap-dependencies`
+      and run it from quick and full test entry points. MAC
+      `task_85191b435c95480d9db52e3671d1e740`.
+      Eight behavioral tests pass in 17.126 seconds. Evidence:
+      `docs/evidence/bootstrap-branch-reconciliation.md`.
+- [x] **String-search branch reconciliation.** I retain my shared byte-offset
+      search implementation and broader source fixtures while reconciling
+      `07d38702`. I retain its missing first-search null-needle assertion and
+      require runtime units, native stages, emitted C and VM execution.
+      All focused gates pass; evidence:
+      `docs/evidence/string-search-branch-reconciliation.md`.
+      MAC `task_a9b152cf5299491694d96a2385527e98`.
+- [x] **FFI argument branch reconciliation.** I retain current ABI handling
+      and the shared foreign-argument ceiling while reconciling the older
+      float-refusal and execution-path argument-limit branches. I require
+      mixed-signature execution, VM over-limit rejection and protocol gates;
+      I do not restore the obsolete ten-argument dispatch limit or float ban.
+      Evidence: `docs/evidence/ffi-argument-branch-reconciliation.md`.
+      Release parent MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+- [x] **Verifier branch reconciliation and rejection cleanup.** I retain
+      current signature-aware stack propagation and valid alternate paths after
+      returns while reconciling the older stack/range/container heads. I fix
+      unfreed verifier work arrays on rejection and require allocation-counted
+      failure tests plus schema, verifier and container gates. MAC
+      `task_69dab2ee6f1a4c96845ba7139cfc360f`.
+      Allocation-counted rejection/failure/success checks pass, along with
+      94 verifier tests, 2632 NanoISA checks, 29 v2 container checks and schema
+      verification. I retain both old heads in ancestry without restoring
+      their weaker stack or terminator policy. Evidence:
+      `docs/evidence/verifier-branch-reconciliation.md`.
+- [ ] **Full branch inventory and reconciliation.** I inspect local-only and
+      remote heads, not just open PRs. At `1c7105a1`, 21 heads remain outside
+      integration ancestry. Six contain only patch-equivalent commits already
+      in history; I reconcile those without source replacement. The other 15
+      require content review, including affine ownership, verifier/FFI work,
+      lease snapshots and the 75-commit 4.6 frontend branch. Evidence:
+      `docs/evidence/branch-inventory-1c7105a1.json`. Release parent MAC
+      `task_cffdafd16e641ac417ccfddb962534b9` remains open.
+      - [x] I retain the six patch-equivalent heads as merge ancestors without
+        source replacement. Current verifier and co-process protocol gates
+        pass. Evidence: `docs/evidence/patch-equivalent-branches.md`.
+- [x] **PR #269 reconciliation.** I retain my converged AOT call facts and
+      stronger aggregate rejection checks while reconciling the older flat
+      record/variant patch. I require the structured-C suite and keep declared
+      layouts, nested fields and linked aggregate metadata open under MAC
+      `task_a4fde0d59ad24fe18c285a76ad58c176`.
+      The suite passes 609 checks, including an added integer/record parameter
+      conflict with an unused argument. I retain production code unchanged.
+      Evidence: `docs/evidence/pr-269-reconciliation.md`.
+- [x] **PR #267 reconciliation.** I compare its actual external-capture
+      failure patch with my newer fail-closed implementation, retain current
+      diagnostics and expanded recovery checks, and verify concurrent compiler
+      isolation plus cold/warm capture failure before merging its ancestry.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      Its base is already integrated and my newer implementation subsumes the
+      patch. Six isolation/capture methods pass in 114.378 seconds; I retain
+      current source unchanged. Evidence: `docs/evidence/pr-267-reconciliation.md`.
+- [x] **Release-gate string documentation.** I document `str_last_index_of`
+      and reconcile the string section count with the builtin registry.
+      `tests/check_stdlib_docs.sh` passes for all 156 builtins.
+- [x] **MAC shell argument safety.** I quote ledger arguments as data and
+      test metacharacters against a fake CLI; titles must not execute shell code.
+      Native and VM compilation, dependency/root shadows and execution pass
+      exact-argument checks for quotes, substitutions, newlines, Unicode and
+      option-like values across create, close, show and list. No live ledger
+      writes occur in these tests. Positional data follows `--`; the raw
+      `exec_command` API intentionally remains a shell-code execution API.
+      MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
+- [x] **Process command length.** I reject or safely accommodate commands beyond
+      the process runner's fixed command buffer, with boundary tests.
+      My module runner already uses direct shell invocation and file-backed
+      capture. I share that implementation with the VM builtin, interpreter
+      and generated native helper; the latter two currently drain pipes
+      sequentially. I test long commands and simultaneous stdout/stderr.
+      All four paths now share `runtime/process_capture.h`, eliminating the
+      VM's 4096-byte command buffer and sequential-pipe readers. Native/VM
+      builtin and module tests pass 16 KiB commands and 128 KiB per stream.
+      VM tests reject commands beyond the host argument limit without running
+      a truncated prefix, and check signal status, null input and NUL output.
+      Interpreter, transpiler and MAC boundary gates pass. Strict dispatch
+      remains 175 selected, 172 identical, three failures and zero skipped.
+      Command deadlines, output quotas and array/string ownership remain
+      separate runtime boundaries; this does not establish process isolation.
+      MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
 
 - [ ] **Explicit Stage 2 acceptance.** I close parse failures in the loop,
       recursion, let/set and infix fixtures, and preserve the inferred result
