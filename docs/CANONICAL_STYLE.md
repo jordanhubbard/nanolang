@@ -410,10 +410,30 @@ passes the same bounded flow matrix, including short-circuit consumption and
 hidden outer obligations. Its classifier propagates ownership through named
 record fields and union payloads; generic substitution and module identity
 remain incomplete. Resource match payloads, captures,
-borrows and whole-owner destructuring still need lowering; some forms are
+and borrows still need lowering; some forms are
 rejected pending that work. Neither checker establishes the complete ownership
 contract. Passing the shared flow gate is not full conformance, and successful
 compilation does not establish runtime cleanup.
+
+I support complete record patterns in local blocks:
+
+```nano
+fn handle_number(file: FileHandle) -> int {
+    let FileHandle { fd } = file
+    return fd
+}
+shadow handle_number {
+    assert (== (handle_number FileHandle { fd: 42 }) 42)
+}
+```
+
+I evaluate the initializer once, require the named record type and every field
+exactly once, and move the source. Resource-bearing fields become new ownership
+obligations; ordinary fields remain GC values. I reject omitted, duplicate and
+unknown fields, `..`, ordinary partial resource-field moves and use of the
+source afterward. I test native and VM shadows and execution, including unsafe
+block scopes, nested resources, empty records and ordinary array fields.
+This example dismantles a simulated handle; it does not close an OS file.
 
 **Policy:** annotate resource locals explicitly, give ownership to exactly one
 scope, pass the resource once to its cleanup function, and never use it

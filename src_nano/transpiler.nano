@@ -6992,17 +6992,19 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
                             if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
                                 let ub: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
                                 let mut ub_parts: array<string> = []
-                                let mut ub_env: GenEnv = env
+                                set ub_parts (cg_append ub_parts (+ (gen_indent indent) "{\n"))
+                                let mut ub_env: GenEnv = (genenv_copy env)
                                 let mut ub_i: int = 0
                                 let ub_count: int = (list_ASTStmtRef_length ub.statements)
                                 while (< ub_i ub_count) {
                                     let ub_stmt: ASTStmtRef = (list_ASTStmtRef_get ub.statements ub_i)
-                                    let ub_res: StmtGenResult = (generate_statement parser ub_stmt indent ub_env return_type)
+                                    let ub_res: StmtGenResult = (generate_statement parser ub_stmt (+ indent 1) ub_env return_type)
                                     set ub_parts (cg_append ub_parts ub_res.code)
                                     set ub_env ub_res.env
                                     set ub_i (+ ub_i 1)
                                 }
-                                return StmtGenResult { code: (cg_build ub_parts), env: ub_env }
+                                set ub_parts (cg_append ub_parts (+ (gen_indent indent) "}\n"))
+                                return StmtGenResult { code: (cg_build ub_parts), env: env }
                             } else {
                             if (== stmt.node_type ParseNodeType.PNODE_BREAK) {
                                 let mut break_parts: array<string> = []
@@ -7604,6 +7606,29 @@ shadow is_let_in_block {
 
 /* Check if a let is a function parameter, inside a function body, or inside a shadow block */
 fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
+    let mut block_index: int = 0
+    while (< block_index (list_ASTBlock_length parser.blocks)) {
+        let block: ASTBlock = (parser_get_block parser block_index)
+        let mut statement: int = 0
+        while (< statement (list_ASTStmtRef_length block.statements)) {
+            let item: ASTStmtRef = (list_ASTStmtRef_get block.statements statement)
+            if (and (== item.node_type ParseNodeType.PNODE_LET) (== item.node_id let_idx)) { return true }
+            set statement (+ statement 1)
+        }
+        set block_index (+ block_index 1)
+    }
+    # Every unsafe block is lexical, never a top-level declaration container.
+    let mut unsafe_index: int = 0
+    while (< unsafe_index (list_ASTUnsafeBlock_length parser.unsafe_blocks)) {
+        let block: ASTUnsafeBlock = (parser_get_unsafe_block parser unsafe_index)
+        let mut statement: int = 0
+        while (< statement (list_ASTStmtRef_length block.statements)) {
+            let item: ASTStmtRef = (list_ASTStmtRef_get block.statements statement)
+            if (and (== item.node_type ParseNodeType.PNODE_LET) (== item.node_id let_idx)) { return true }
+            set statement (+ statement 1)
+        }
+        set unsafe_index (+ unsafe_index 1)
+    }
     let func_count: int = (parser_get_function_count parser)
     let mut fi: int = 0
     while (< fi func_count) {
@@ -7611,33 +7636,20 @@ fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
         if (and (>= let_idx func.param_start) (< let_idx (+ func.param_start func.param_count))) {
             return true
         } else { (print "") }
-        if (>= func.body 0) {
-            if (is_let_in_block parser func.body let_idx) {
-                return true
-            } else { (print "") }
-        } else { (print "") }
         set fi (+ fi 1)
-    }
-    /* Also check shadow blocks */
-    let shd_count: int = parser.shadows_count
-    let mut si: int = 0
-    while (< si shd_count) {
-        let shd: ASTShadow = (list_ASTShadow_get parser.shadows si)
-        if (>= shd.body 0) {
-            if (is_let_in_block parser shd.body let_idx) {
-                return true
-            } else { (print "") }
-        } else { (print "") }
-        set si (+ si 1)
     }
     return false
 }
 
 shadow is_let_in_function {
-    let src: string = "fn main() -> int { let x: int = 1 return x }"
+    let src: string = "let global: int = 9 fn main() -> int { let x: int = 1 unsafe { let y: int = 2 if true { let z: int = 3 } } return x } shadow main { unsafe { let s: int = 4 } }"
     let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
-    assert (is_let_in_function p 0)
+    assert (not (is_let_in_function p 0))
+    assert (is_let_in_function p 1)
+    assert (is_let_in_function p 2)
+    assert (is_let_in_function p 3)
+    assert (is_let_in_function p 4)
 }
 
 /* Extract a C literal string for a global let's initial value.

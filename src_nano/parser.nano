@@ -3236,7 +3236,10 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         var_type: var_type,
         value: value_id,
         value_type: value_type,
-        is_mut: is_mut
+        is_mut: is_mut,
+        is_destructure: false,
+        is_destructure_projection: false,
+        destructure_names: []
     }
     let node_id: int = p.lets_count
     (list_ASTLet_push p.lets node)
@@ -4697,7 +4700,91 @@ shadow expr_kind_to_pnode {
     assert (== (expr_kind_to_pnode 6) ParseNodeType.PNODE_FLOAT)
 }
 
+fn parser_starts_owned_pattern(p: Parser) -> bool {
+    if (!= (parser_peek p 0) (token_let)) { return false }
+    let mut offset: int = 1
+    if (== (parser_peek p offset) (token_mut)) { set offset 2 }
+    return (and (== (parser_peek p offset) (token_identifier)) (== (parser_peek p (+ offset 1)) (token_lbrace)))
+}
+
+shadow parser_starts_owned_pattern {
+    let tokens: List<LexerToken> = (tokenize_string "let Box { item } = box" "pattern.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parser_new tokens (list_LexerToken_length tokens) "pattern.nano")
+    assert (parser_starts_owned_pattern p)
+}
+
+fn parser_mark_owned(p: Parser, idx: int, whole: bool, projection: bool, names: array<string>) -> Parser {
+    let old: ASTLet = (parser_get_let p idx)
+    let marked: ASTLet = ASTLet { node_type: old.node_type, line: old.line, column: old.column,
+        name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
+        is_mut: old.is_mut, is_destructure: whole, is_destructure_projection: projection,
+        destructure_names: names }
+    (list_ASTLet_set p.lets idx marked)
+    return p
+}
+
+shadow parser_mark_owned {
+    let p: Parser = (parser_store_let (parser_init_ast_lists) "owner" "Box" -1 -1 false 1 1)
+    let marked: Parser = (parser_mark_owned p 0 true false ["item"])
+    let binding: ASTLet = (parser_get_let marked 0)
+    assert binding.is_destructure
+    assert (== (array_length binding.destructure_names) 1)
+}
+
+fn parse_owned_pattern(p: Parser, stmts: List<ASTStmtRef>) -> Parser {
+    let start: LexerToken = (parser_current p)
+    let mut cursor: Parser = (parser_advance p)
+    let mut is_mut: bool = false
+    if (== (parser_peek cursor 0) (token_mut)) { set is_mut true set cursor (parser_advance cursor) }
+    let type_token: LexerToken = (parser_current cursor)
+    set cursor (parser_expect (parser_advance cursor) (token_lbrace))
+    let mut names: array<string> = []
+    while (and (not (parser_has_error cursor)) (!= (parser_peek cursor 0) (token_rbrace))) {
+        if (!= (parser_peek cursor 0) (token_identifier)) { return (parser_with_error cursor true) }
+        let name: LexerToken = (parser_current cursor)
+        set names (array_push names name.value)
+        set cursor (parser_advance cursor)
+        if (!= (parser_peek cursor 0) (token_rbrace)) { set cursor (parser_expect cursor (token_comma)) }
+    }
+    set cursor (parser_expect cursor (token_rbrace))
+    set cursor (parser_expect cursor (token_assign))
+    if (parser_has_error cursor) { return cursor }
+    set cursor (parse_expression cursor)
+    if (parser_has_error cursor) { return cursor }
+    let temporary: string = (+ "__owned$" (int_to_string cursor.lets_count))
+    set cursor (parser_store_let cursor temporary type_token.value cursor.last_expr_node_id cursor.last_expr_node_type false start.line start.column)
+    let owner_id: int = cursor.last_expr_node_id
+    set cursor (parser_mark_owned cursor owner_id true false names)
+    (list_ASTStmtRef_push stmts ASTStmtRef { node_id: owner_id, node_type: ParseNodeType.PNODE_LET })
+    let mut i: int = 0
+    while (< i (array_length names)) {
+        set cursor (parser_store_identifier cursor temporary start.line start.column)
+        set cursor (parser_store_field_access cursor cursor.last_expr_node_id cursor.last_expr_node_type (at names i) start.line start.column)
+        set cursor (parser_store_let cursor (at names i) "" cursor.last_expr_node_id cursor.last_expr_node_type is_mut start.line start.column)
+        let field_id: int = cursor.last_expr_node_id
+        set cursor (parser_mark_owned cursor field_id false true [])
+        (list_ASTStmtRef_push stmts ASTStmtRef { node_id: field_id, node_type: ParseNodeType.PNODE_LET })
+        set i (+ i 1)
+    }
+    return cursor
+}
+
+shadow parse_owned_pattern {
+    let tokens: List<LexerToken> = (tokenize_string "let Box { item } = box" "pattern.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parser_new tokens (list_LexerToken_length tokens) "pattern.nano")
+    let statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    let parsed: Parser = (parse_owned_pattern p statements)
+    assert (not (parser_has_error parsed))
+    assert (== (list_ASTStmtRef_length statements) 2)
+    let projected: ASTLet = (parser_get_let parsed 1)
+    assert projected.is_destructure_projection
+}
+
 fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
+    if (parser_has_error p) { return p }
+    if (parser_starts_owned_pattern p) {
+        return (parse_block_recursive (parse_owned_pattern p stmts) stmts start_line start_column)
+    }
     if (parser_has_error p) {
         return p
     } else {
@@ -4887,6 +4974,10 @@ shadow parser_store_unsafe_block {
 
 /* Parse unsafe block recursively */
 fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
+    if (parser_has_error p) { return p }
+    if (parser_starts_owned_pattern p) {
+        return (parse_unsafe_block_recursive (parse_owned_pattern p stmts) stmts start_line start_column)
+    }
     if (parser_has_error p) {
         return p
     } else {
@@ -7699,7 +7790,10 @@ pub fn parser_set_let_var_type(p: Parser, idx: int, var_type: string) -> Parser 
         var_type: var_type,
         value: old.value,
         value_type: old.value_type,
-        is_mut: old.is_mut
+        is_mut: old.is_mut,
+        is_destructure: old.is_destructure,
+        is_destructure_projection: old.is_destructure_projection,
+        destructure_names: old.destructure_names
     }
     (list_ASTLet_set p.lets idx updated)
     return p

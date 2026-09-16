@@ -2672,7 +2672,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                           j, sdef->field_names[j]);
             }
         }
-        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "    return \"\";\n");
         sb_append(sb, "}\n\n");
         
         /* Function: __reflect_<StructName>_field_type(index) -> string */
@@ -2712,7 +2712,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                 sb_appendf(sb, "    else if (index == %d) { return \"%s\"; }\n", j, type_str);
             }
         }
-        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "    return \"\";\n");
         sb_append(sb, "}\n\n");
         
         /* Function: __reflect_<StructName>_has_field(name) -> bool */
@@ -2726,7 +2726,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                           sdef->field_names[j]);
             }
         }
-        sb_append(sb, "    else { return 0; }\n");
+        sb_append(sb, "    return 0;\n");
         sb_append(sb, "}\n\n");
         
         /* Function: __reflect_<StructName>_field_type_by_name(name) -> string */
@@ -2767,7 +2767,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                           sdef->field_names[j], type_str);
             }
         }
-        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "    return \"\";\n");
         sb_append(sb, "}\n\n");
     }
     

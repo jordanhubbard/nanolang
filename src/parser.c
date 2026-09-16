@@ -150,6 +150,7 @@ static void add_lambda_function(Stage1Parser *p, ASTNode *fn_node) {
 static ASTNode *parse_statement(Stage1Parser *p);
 static ASTNode *parse_expression(Stage1Parser *p);
 static ASTNode *parse_block(Stage1Parser *p);
+static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count, int *capacity);
 static ASTNode *parse_struct_def(Stage1Parser *p);
 static ASTNode *parse_enum_def(Stage1Parser *p);
 static ASTNode *parse_union_def(Stage1Parser *p);
@@ -1586,6 +1587,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     statements = realloc(statements, sizeof(ASTNode*) * capacity);
                 }
 
+                if (parse_record_bindings(p, &statements, &count, &capacity)) continue;
                 ASTNode *stmt = parse_statement(p);
                 if (stmt) {
                     statements[count++] = stmt;
@@ -2807,6 +2809,79 @@ static ASTNode *parse_expression(Stage1Parser *p) {
 }
 
 /* Parse block */
+/* I lower a complete owned pattern into one evaluated temporary and projections.
+ * Only parser-created nodes carry the ownership markers; names cannot forge them. */
+static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count, int *capacity) {
+    int offset = 1;
+    if (!match(p, TOKEN_LET)) return false;
+    Token *next = peek_token(p, offset);
+    bool is_mut = next && next->token_type == TOKEN_MUT;
+    if (is_mut) offset++;
+    Token *type = peek_token(p, offset);
+    Token *brace = peek_token(p, offset + 1);
+    if (!type || !brace || type->token_type != TOKEN_IDENTIFIER || brace->token_type != TOKEN_LBRACE)
+        return false;
+    Token *start = current_token(p);
+    char temporary[64];
+    snprintf(temporary, sizeof temporary, "__owned$%d", p->pos);
+    ASTNode *owner = create_node(AST_LET, start->line, start->column);
+    owner->as.let.name = strdup(temporary);
+    owner->as.let.var_type = TYPE_STRUCT;
+    owner->as.let.type_name = strdup(type->value);
+    owner->as.let.is_destructure = true;
+    for (int i = 0; i < offset + 2; i++) advance(p);
+    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            parser_error(p, start->line, start->column, "I require every field name in an owned record pattern.\n");
+            free_ast(owner);
+            return true;
+        }
+        int n = owner->as.let.destructure_count;
+        char **names = realloc(owner->as.let.destructure_names, sizeof(*names) * (size_t)(n + 1));
+        if (!names) { fprintf(stderr, "I cannot allocate an owned record pattern.\n"); exit(1); }
+        owner->as.let.destructure_names = names;
+        names[n] = strdup(current_token(p)->value);
+        if (!names[n]) { fprintf(stderr, "I cannot allocate an owned field name.\n"); exit(1); }
+        owner->as.let.destructure_count++;
+        advance(p);
+        if (!match(p, TOKEN_RBRACE) && !expect(p, TOKEN_COMMA, "I require ',' between owned field names")) {
+            free_ast(owner);
+            return true;
+        }
+    }
+    if (!expect(p, TOKEN_RBRACE, "I require '}' after the owned pattern") ||
+        !expect(p, TOKEN_ASSIGN, "I require '=' after the owned pattern")) {
+        free_ast(owner);
+        return true;
+    }
+    owner->as.let.value = parse_expression(p);
+    if (!owner->as.let.value) { free_ast(owner); return true; }
+    int needed = *count + owner->as.let.destructure_count + 1;
+    if (needed > *capacity) {
+        ASTNode **grown = realloc(*items, sizeof(**items) * (size_t)needed);
+        if (!grown) { fprintf(stderr, "I cannot allocate owned pattern bindings.\n"); exit(1); }
+        *items = grown;
+        *capacity = needed;
+    }
+    (*items)[(*count)++] = owner;
+    for (int i = 0; i < owner->as.let.destructure_count; i++) {
+        ASTNode *ref = create_node(AST_IDENTIFIER, start->line, start->column);
+        ref->as.identifier = strdup(temporary);
+        ASTNode *field = create_node(AST_FIELD_ACCESS, start->line, start->column);
+        field->as.field_access.object = ref;
+        field->as.field_access.field_name = strdup(owner->as.let.destructure_names[i]);
+        ASTNode *binding = create_node(AST_LET, start->line, start->column);
+        binding->as.let.name = strdup(owner->as.let.destructure_names[i]);
+        binding->as.let.var_type = TYPE_UNKNOWN;
+        binding->as.let.element_type = TYPE_UNKNOWN;
+        binding->as.let.is_mut = is_mut;
+        binding->as.let.is_destructure_projection = true;
+        binding->as.let.value = field;
+        (*items)[(*count)++] = binding;
+    }
+    return true;
+}
+
 static ASTNode *parse_block(Stage1Parser *p) {
     /* Recursion depth guard */
     p->recursion_depth++;
@@ -2867,6 +2942,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             statements = realloc(statements, sizeof(ASTNode*) * capacity);
         }
 
+        if (parse_record_bindings(p, &statements, &count, &capacity)) continue;
         /* Check for tuple destructuring: let [mut] (names) = expr */
         bool is_tuple_destr = false;
         bool td_is_mut = false;
@@ -3244,6 +3320,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                     statements = realloc(statements, sizeof(ASTNode*) * capacity);
                 }
 
+                if (parse_record_bindings(p, &statements, &count, &capacity)) continue;
                 ASTNode *stmt = parse_statement(p);
                 if (stmt) {
                     statements[count++] = stmt;
@@ -5747,6 +5824,9 @@ void free_ast(ASTNode *node) {
             free(node->as.array_literal.elements);
             break;
         case AST_LET:
+            for (int i = 0; i < node->as.let.destructure_count; i++)
+                free(node->as.let.destructure_names[i]);
+            free(node->as.let.destructure_names);
             free(node->as.let.name);
             if (node->as.let.type_name) {
                 free(node->as.let.type_name);

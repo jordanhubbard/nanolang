@@ -304,6 +304,10 @@ struct ASTNode {
             TypeInfo *type_info;     /* For generic types: Result<int, string>, List<Point>, etc. */
             bool is_mut;
             ASTNode *value;
+            bool is_destructure;
+            bool is_destructure_projection;
+            int destructure_count;
+            char **destructure_names;
         } let;
         struct {
             char *name;

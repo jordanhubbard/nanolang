@@ -2754,7 +2754,7 @@ test-make-header-dependencies:
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
 
 .PHONY: test-affine-selfhost
-test-affine-selfhost: bootstrap
+test-affine-selfhost: bootstrap nano_virt nano_vm
 	@bash tests/test_affine_selfhost.sh
 
 .PHONY: test-affine-contract-boundaries

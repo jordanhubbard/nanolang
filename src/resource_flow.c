@@ -282,10 +282,12 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         case AST_LET: {
             const char *type = node->as.let.type_name ? node->as.let.type_name : own_type(flow, node->as.let.value);
             own_metadata(flow, node, node->as.let.var_type, type, node->as.let.type_info);
-            unsigned result = own_node(flow, node->as.let.value, true);
+            unsigned result = node->as.let.is_destructure_projection ? OWN_NEXT : own_node(flow, node->as.let.value, true);
             FunctionSignature *signature = node->as.let.fn_sig ? node->as.let.fn_sig : own_signature(flow, node->as.let.value);
-            if ((result & OWN_NEXT) && own_add(flow, node, node->as.let.name, type))
+            if ((result & OWN_NEXT) && own_add(flow, node, node->as.let.name, type)) {
                 flow->bindings[flow->count - 1].signature = signature;
+                if (node->as.let.is_destructure) flow->bindings[flow->count - 1].moved = true;
+            }
             return result;
         }
         case AST_SET: {

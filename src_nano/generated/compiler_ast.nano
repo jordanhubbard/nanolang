@@ -99,7 +99,10 @@ extern struct ASTLet {
     var_type: string,
     value: int,
     value_type: int,
-    is_mut: bool
+    is_mut: bool,
+    is_destructure: bool,
+    is_destructure_projection: bool,
+    destructure_names: array<string>
 }
 
 extern struct ASTSet {

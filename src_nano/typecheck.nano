@@ -280,6 +280,22 @@ shadow resource_loop_edge {
 
 fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>) -> string {
     if (< node_id 0) { return "" }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser node_id)
+        let owner: string = (resource_value_type parser field.object field.object_type states)
+        let mut i: int = 0
+        while (< i (parser_get_struct_def_count parser)) {
+            let record: ASTStruct = (parser_get_struct_def parser i)
+            if (== record.name owner) {
+                let mut j: int = 0
+                while (< j (array_length record.field_names)) {
+                    if (== (at record.field_names j) field.field_name) { return (at record.field_types j) }
+                    set j (+ j 1)
+                }
+            }
+            set i (+ i 1)
+        }
+    }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
         let index: int = (resource_find states id.name)
@@ -382,10 +398,12 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         let mut nominal: string = binding.var_type
         if (or (== nominal "") (== nominal "unknown")) { set nominal (resource_value_type parser binding.value binding.value_type states) }
         (resource_check_annotation parser nominal diags file_name binding.line binding.column)
-        set flow (resource_flow_node parser binding.value binding.value_type states true loop_entry diags file_name)
+        if (not binding.is_destructure_projection) {
+            set flow (resource_flow_node parser binding.value binding.value_type states true loop_entry diags file_name)
+        }
         if flow.next {
             let updated: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
-            return ResourceFlow { states: (array_push updated ResourceState { name: binding.name, type_name: nominal, moved: false, line: binding.line, column: binding.column }), next: true }
+            return ResourceFlow { states: (array_push updated ResourceState { name: binding.name, type_name: nominal, moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
         }
         return flow
     }
@@ -440,6 +458,9 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser node_id)
+        if (and move (resource_type_is_declared parser (resource_value_type parser node_id node_type states))) {
+            (resource_flow_error diags file_name field.line field.column "I cannot partially move a resource field")
+        }
         return (resource_flow_node parser field.object field.object_type states false loop_entry diags file_name)
     }
     if (== node_type ParseNodeType.PNODE_CALL) {
@@ -3554,7 +3575,42 @@ shadow array_elem_type_from_array_decl {
  * 
  * Returns: Updated symbols array with the new variable
  */
+fn owned_pattern_complete(parser: Parser, binding: ASTLet) -> bool {
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let record: ASTStruct = (parser_get_struct_def parser i)
+        if (== record.name binding.var_type) {
+            if (!= (array_length record.field_names) (array_length binding.destructure_names)) { return false }
+            let mut field: int = 0
+            while (< field (array_length binding.destructure_names)) {
+                let name: string = (at binding.destructure_names field)
+                if (not (resource_name_in record.field_names name)) { return false }
+                let mut previous: int = 0
+                while (< previous field) {
+                    if (== name (at binding.destructure_names previous)) { return false }
+                    set previous (+ previous 1)
+                }
+                set field (+ field 1)
+            }
+            return true
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow owned_pattern_complete {
+    let parsed: Parser = (resource_test_parser "struct Box { item: int } fn unpack(box: Box) -> int { let Box { item } = box return item }")
+    assert (owned_pattern_complete parsed (parser_get_let parsed 1))
+    let bad: Parser = (resource_test_parser "struct Box { item: int } fn unpack(box: Box) -> int { let Box {} = box return 0 }")
+    assert (not (owned_pattern_complete bad (parser_get_let bad 1)))
+}
+
 fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    if (and let_node.is_destructure (not (owned_pattern_complete parser let_node))) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require every record field exactly once in an owned pattern." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+        return symbols
+    }
     # Allow variable redefinition (shadowing) to match C reference compiler behavior.
     # Shadow tests commonly reuse names (e.g., `let result` across multiple asserts).
 

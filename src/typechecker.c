@@ -3874,6 +3874,28 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
+            if (stmt->as.let.is_destructure) {
+                StructDef *record = env_get_struct(tc->env, stmt->as.let.type_name);
+                bool complete = record && record->field_count == stmt->as.let.destructure_count;
+                Type actual_type = check_expression(stmt->as.let.value, tc->env);
+                const char *actual_name = get_struct_type_name(stmt->as.let.value, tc->env);
+                if (actual_type != TYPE_STRUCT || !actual_name ||
+                    env_get_struct(tc->env, actual_name) != record) complete = false;
+                for (int i = 0; complete && i < stmt->as.let.destructure_count; i++) {
+                    const char *name = stmt->as.let.destructure_names[i];
+                    bool found = false;
+                    for (int j = 0; j < record->field_count; j++)
+                        if (strcmp(name, record->field_names[j]) == 0) found = true;
+                    for (int j = 0; j < i; j++)
+                        if (strcmp(name, stmt->as.let.destructure_names[j]) == 0) found = false;
+                    complete = found;
+                }
+                if (!complete) {
+                    fprintf(stderr, "I require every record field exactly once in an owned pattern at line %d.\n", stmt->line);
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+            }
             /* INVARIANT (bead nl-ico): declared_type is a local working copy
              * of stmt->as.let.var_type. Any place that reclassifies the
              * inferred/declared type (struct→union, struct→enum, etc.) must
@@ -3893,15 +3915,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 Type inferred = check_expression(stmt->as.let.value, tc->env);
                 stmt->as.let.var_type = inferred;
                 declared_type = inferred;
-                /* Infer element type for array literals */
+                /* Preserve array representation for fields, aliases and calls too. */
                 if (inferred == TYPE_ARRAY && stmt->as.let.element_type == TYPE_UNKNOWN) {
-                    if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
-                        ASTNode *alit = stmt->as.let.value;
-                        if (alit->as.array_literal.element_count > 0) {
-                            stmt->as.let.element_type = check_expression(alit->as.array_literal.elements[0], tc->env);
-                            alit->as.array_literal.element_type = stmt->as.let.element_type;
-                        }
-                    }
+                    stmt->as.let.element_type = infer_array_element_type(stmt->as.let.value, tc->env);
                 }
                 /* Infer struct/union type_name from expression where possible */
                 if ((inferred == TYPE_STRUCT || inferred == TYPE_UNION) && !stmt->as.let.type_name) {

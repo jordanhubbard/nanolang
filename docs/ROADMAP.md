@@ -123,6 +123,29 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       then give the simulated demo an honest terminal operation. I do not
       waive the obligation or exclude the example. MAC
       `task_826838b808f340968c526f849276b913`.
+      The nested runtime fixture also exposes unsafe-block locals being emitted
+      as globals by my self-hosted emitter. I keep their lexical ownership and
+      emit them only in their block, testing native shadows and execution.
+      MAC `task_44c3da4d710e4a939c8879b9b5ecd15e`. I also reject ordinary partial
+      resource-field moves; only parser-marked complete projections transfer
+      those field obligations after whole-owner destruction.
+      My VM shadow test also exposes local names surviving block exit. I retain
+      bytecode slots but retire their lexical names and bound their emitted
+      type metadata for ordinary and unsafe blocks. MAC
+      `task_414223eec172441b88619f5e9744c5c1`. Pattern checking also requires the
+      initializer's nominal record identity, not just matching field shapes.
+      My expanded runtime cases expose missing array element metadata on
+      inferred field bindings and orphan `else` branches in empty-record
+      reflection helpers. I preserve field-derived array types and emit valid
+      zero-field fallbacks, then exercise both cases on all four compilers.
+      MAC `task_4f76b90bc54d47b5b4de531930869431` and
+      `task_94d61370acb44862a22b716ad0aa5ef8`.
+      The 12-method record-pattern matrix passes native and VM shadows and
+      execution on all four compiler paths, including the three repaired
+      simulated-resource fixtures. A fresh bootstrap, 74 VM code-generation
+      tests, C frontend/evaluator suites and 21 compiler-to-native methods
+      pass. Evidence: `docs/evidence/owned-record-patterns.md`. The broader
+      ownership contract and release gate remain open.
       My broader quick gate stops at GLUT native compilation: source-aware
       emitter lookup selects retained declaration placeholders instead of
       imported constant values, leaving `GL_LIGHT0` and related names undefined

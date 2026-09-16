@@ -3114,9 +3114,19 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_BLOCK: {
+        uint16_t local_start = cg->local_count;
+        int symbol_start = cg->env->symbol_count;
         for (int i = 0; i < node->as.block.count; i++) {
             compile_stmt(cg, node->as.block.statements[i]);
             if (!stmt_falls_through(node->as.block.statements[i])) break;
+        }
+        for (uint16_t i = local_start; i < cg->local_count; i++) cg->locals[i].name = "";
+        for (int i = symbol_start; i < cg->env->symbol_count; i++) {
+            Symbol *symbol = &cg->env->symbols[i];
+            if (!symbol->scope_end_line) {
+                symbol->scope_end_line = node->scope_end_line;
+                symbol->scope_end_column = node->scope_end_column;
+            }
         }
         break;
     }
@@ -3253,9 +3263,19 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         break;
 
     case AST_UNSAFE_BLOCK: {
+        uint16_t local_start = cg->local_count;
+        int symbol_start = cg->env->symbol_count;
         for (int i = 0; i < node->as.unsafe_block.count; i++) {
             compile_stmt(cg, node->as.unsafe_block.statements[i]);
             if (!stmt_falls_through(node->as.unsafe_block.statements[i])) break;
+        }
+        for (uint16_t i = local_start; i < cg->local_count; i++) cg->locals[i].name = "";
+        for (int i = symbol_start; i < cg->env->symbol_count; i++) {
+            Symbol *symbol = &cg->env->symbols[i];
+            if (!symbol->scope_end_line) {
+                symbol->scope_end_line = node->scope_end_line;
+                symbol->scope_end_column = node->scope_end_column;
+            }
         }
         break;
     }
