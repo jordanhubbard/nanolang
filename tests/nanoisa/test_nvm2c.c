@@ -3249,7 +3249,47 @@ static void test_record_array_alias_shapes(void) {
     }
 }
 
+static void test_record_array_fields(void) {
+    for (int empty = 0; empty < 2; ++empty) {
+        char source[4096];
+        snprintf(source, sizeof source, ".string text \"hello\"\n.entry main\n"
+            ".function wrap 1 1 0 struct 1\nLOAD_LOCAL 0\nPUSH_BOOL %d\nJMP_FALSE alternate\n"
+            "AGG_PACK 0 0 0 1\nJMP joined\nalternate:\nAGG_PACK 0 0 0 1\njoined:\nRET\n.end\n"
+            ".function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n"
+            ".function main 0 2 0 int 1\nARR_NEW 8\nSTORE_LOCAL 0\nLOAD_LOCAL 0\n", empty);
+        if (!empty) strcat(source, "PUSH_STR text\nPUSH_I64 42\nAGG_PACK 0 0 0 2\nARR_PUSH\n");
+        strcat(source, "CALL wrap\nCALL relay\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nAGG_GET 0\n");
+        if (empty) strcat(source, "ARR_LEN\nRET\n.end\n");
+        else strcat(source, "PUSH_I64 0\nARR_GET\nAGG_GET 0\nSTR_LEN\nPUSH_I64 5\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 1\nAGG_GET 0\nPUSH_STR text\nPUSH_I64 17\nAGG_PACK 0 0 0 2\nARR_PUSH\nPOP\n"
+            "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 2\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 1\nAGG_GET 0\nPUSH_I64 1\nARR_GET\nAGG_GET 1\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, "record-array fields");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "record-array fields");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile record-array fields through calls");
+            CHECK(status == (empty ? 0 : 17), "I preserve mixed element shapes and shared array mutations");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *conflict = ".string text \"wrong\"\n.entry main\n.function main 0 1 0 int 1\n"
+        "ARR_NEW 8\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nAGG_GET 0\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\nPOP\nPUSH_I64 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(conflict, "conflicting nested array element");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I reject conflicting elements through extracted array fields");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_valued_record_fields(void) {
+    test_record_array_fields();
     for (int strings = 0; strings < 2; ++strings) {
         for (int empty = 0; empty < 2; ++empty) {
             char source[4096], line[256];
@@ -3287,7 +3327,7 @@ static void test_array_valued_record_fields(void) {
     const char *invalid[] = {
         ".entry main\n.function wrap 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
         ".function main 0 0 0 int 1\nARR_NEW 1\nCALL wrap\nPOP\nARR_NEW 5\nCALL wrap\nPOP\nPUSH_I64 0\nRET\n.end\n",
-        ".entry main\n.function main 0 0 0 int 1\nARR_NEW 8\nAGG_PACK 0 0 0 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nAGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
     };
     for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
         NvmModule *m = assemble_ok(invalid[i], "unsupported array field shape");

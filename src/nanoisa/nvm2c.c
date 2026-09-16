@@ -929,6 +929,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
                 if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
                     v.kind != NVM2C_VK_ARR && v.kind != NVM2C_VK_SARR &&
+                    v.kind != NVM2C_VK_RARR &&
                     !(v.kind == NVM2C_VK_UNK && !facts->final)) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     return 0;
@@ -959,7 +960,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             fk = rec.rec_k[fi];
             if (!shape_equal(b, shape_variable(b, b->shape_current),
                              shape_child(b, rec.shape, fi))) return 0;
-            if (!sim_push(b, idx, stk, &sp, fk, -1)) return 0;
+            Nvm2cSimSlot field = {0};
+            field.kind = fk;
+            field.origin = -1;
+            if (fk == NVM2C_VK_RARR || fk == NVM2C_VK_REC) {
+                /* A flat parent vector describes this field's representation,
+                 * not the representations inside its nested elements. */
+                field.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!field.rec_k) return 0;
+            }
+            if (!sim_push_slot(b, idx, stk, &sp, field)) return 0;
             break;
         }
         case OP_CALL:
@@ -2287,7 +2297,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 elems[ei] = stack_pop_kind(b, &st, &vk);
                 if (b->failed) goto done;
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
-                    vk != NVM2C_VK_ARR && vk != NVM2C_VK_SARR) {
+                    vk != NVM2C_VK_ARR && vk != NVM2C_VK_SARR && vk != NVM2C_VK_RARR) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     goto done;
                 }
@@ -2315,6 +2325,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         nvm2c_printf(b, "    r[%d].a[%d] = a[%d];\n", r, ei, elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_SARR) {
                         nvm2c_printf(b, "    r[%d].sa[%d] = sa[%d];\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_RARR) {
+                        nvm2c_printf(b, "    r[%d].ra[%d] = ra[%d];\n", r, ei, elems[ei]);
                     } else {
                         nvm2c_printf(b, "    r[%d].f[%d] = t[%d];\n", r, ei, elems[ei]);
                     }
@@ -2345,7 +2357,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t resolved = resolved_shape_kind(b, b->shape_outputs[idx][start]);
             if (!shape_ok(b)) goto done;
             if (resolved != NVM2C_VK_UNK) st.rec_k[rec][fi] = resolved;
-            if (st.rec_k[rec][fi] == NVM2C_VK_REC || st.rec_k[rec][fi] == NVM2C_VK_RARR) {
+            if (st.rec_k[rec][fi] == NVM2C_VK_REC) {
                 nvm2c_fail(b, "I need nested aggregate storage for this resolved field shape");
                 goto done;
             }
@@ -2363,6 +2375,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_SARR) {
                     snprintf(expr, sizeof expr, "r[%d].sa[%u]", rec, (unsigned)fi);
                     stack_push_sarr(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_RARR) {
+                    snprintf(expr, sizeof expr, "r[%d].ra[%u]", rec, (unsigned)fi);
+                    int array = stack_push_rarr(b, &st, expr);
+                    if (array >= 0) {
+                        NvmShapeId element = nvm_shape_lookup(&b->shapes, b->shape_outputs[idx][start], 0);
+                        for (size_t f = 0; f < b->record_width; ++f) {
+                            NvmShapeId child = element ? nvm_shape_lookup(&b->shapes, element, (uint32_t)f) : 0;
+                            st.rarr_k[array][f] = resolved_shape_kind(b, child);
+                        }
+                        if (!shape_ok(b)) goto done;
+                    }
                 } else {
                     snprintf(expr, sizeof expr, "r[%d].f[%u]", rec, (unsigned)fi);
                     stack_push_temp(b, &st, expr);
@@ -3387,13 +3410,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef nsarr_s *nsarr_t;\n");
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
+        nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_printf(&b,
-            "typedef struct { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; uint8_t k[%zu]; uint16_t n, tag; uint8_t kind; } nrec_t;\n",
-            b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
+            "typedef struct { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; uint8_t k[%zu]; uint16_t n, tag; uint8_t kind; } nrec_t;\n",
+            b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
-            "typedef struct { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; } nrarr_s;\n"
-            "typedef nrarr_s *nrarr_t;\n\n");
+            "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
         if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);

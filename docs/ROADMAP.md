@@ -95,6 +95,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             - [ ] I connect those facts to classification and C emission,
               preserve record-array element shapes, and pass full compiler
               acceptance. A standalone graph test does not complete this gate.
+              - [x] I store record-array fields by reference and preserve
+                their element shapes through packing, calls, extraction and
+                aliases; I test empty arrays and mixed-field elements.
+                Normal and sanitizer suites pass 1,055 AOT checks and 965
+                graph checks. Compiler acceptance advances from function 20
+                to function 100's nested record packing. Evidence:
+                `docs/evidence/aot-record-array-fields.md`.
               - [x] I read resolved field representations from the graph
                 during emission without creating new constraints; I test
                 missing edges, aliases and existing extraction behavior.
