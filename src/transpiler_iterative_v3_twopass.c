@@ -476,8 +476,28 @@ static const char *map_function_name(const char *name, Environment *env) {
     return name;
 }
 
+static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
+    if (!expr) return NULL;
+    if (expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var(env, expr->as.identifier);
+        return sym && sym->type == TYPE_ARRAY ? sym->type_info : NULL;
+    }
+    if (expr->type == AST_CALL && expr->as.call.name &&
+        strcmp(expr->as.call.name, "at") == 0 &&
+        expr->as.call.arg_count == 2) {
+        const TypeInfo *array = array_expr_type_info(expr->as.call.args[0], env);
+        return array && array->base_type == TYPE_ARRAY ? array->element_type : NULL;
+    }
+    return NULL;
+}
+
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+
+    const TypeInfo *info = array_expr_type_info(array_expr, env);
+    if (info && info->base_type == TYPE_ARRAY && info->element_type) {
+        return info->element_type->base_type;
+    }
 
     if (array_expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var(env, array_expr->as.identifier);
@@ -3802,7 +3822,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             
             /* Register in environment */
             env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
-                                         stmt->as.let.element_type, NULL, stmt->as.let.is_mut, create_void());
+                                         stmt->as.let.element_type,
+                                         stmt->as.let.var_type == TYPE_ARRAY ? stmt->as.let.type_info : NULL,
+                                         stmt->as.let.is_mut, create_void());
 
             /* Track variable for GC cleanup if needed */
             scope_add_var(scopes, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.type_name, env);

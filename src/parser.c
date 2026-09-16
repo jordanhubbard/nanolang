@@ -862,14 +862,18 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             advance(p);  /* consume '<' */
             
             /* Parse element type - save struct name if it's array<StructName> */
-            Type element_type = parse_type_with_element(p, NULL, type_param_name_out, NULL, NULL);
+            TypeInfo *nested_info = NULL;
+            Type element_type = parse_type_with_element(p, NULL, type_param_name_out, NULL,
+                                                       type_info_out ? &nested_info : NULL);
             if (element_type == TYPE_UNKNOWN) {
+                free_type_info(nested_info);
                 return TYPE_UNKNOWN;
             }
             
             if (current_token(p)->token_type != TOKEN_GT) {
                 parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected '>' after array element type\n", 
                         current_token(p)->line, current_token(p)->column);
+                free_type_info(nested_info);
                 return TYPE_UNKNOWN;
             }
             advance(p);  /* consume '>' */
@@ -884,10 +888,13 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 TypeInfo *info = calloc(1, sizeof(TypeInfo));
                 info->base_type = TYPE_ARRAY;
                 
-                TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
-                elem_info->base_type = element_type;
-                if (type_param_name_out && *type_param_name_out) {
-                    elem_info->generic_name = strdup(*type_param_name_out);
+                TypeInfo *elem_info = nested_info;
+                if (!elem_info) {
+                    elem_info = calloc(1, sizeof(TypeInfo));
+                    elem_info->base_type = element_type;
+                    if (type_param_name_out && *type_param_name_out) {
+                        elem_info->generic_name = strdup(*type_param_name_out);
+                    }
                 }
                 
                 info->element_type = elem_info;
