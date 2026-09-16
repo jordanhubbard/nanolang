@@ -6810,6 +6810,7 @@ register_function_pass1:;
             /* Preserve struct/union type name metadata for globals */
             Symbol *sym = env_get_var(env, item->as.let.name);
             if (sym) {
+                sym->is_global = true;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }
@@ -7512,6 +7513,7 @@ register_function_pass2:;
             /* Preserve struct/union type name metadata for globals */
             Symbol *sym = env_get_var(env, item->as.let.name);
             if (sym) {
+                sym->is_global = true;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }

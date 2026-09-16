@@ -844,6 +844,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_IDENTIFIER: {
             /* Check for constant inlining */
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
+            /* I prefer the latest global value over its older declaration
+             * placeholder, but never over a visible local shadow. */
+            if (!sym || sym->is_global) {
+                for (int i = env->symbol_count - 1; i >= 0; --i) {
+                    Symbol *global = &env->symbols[i];
+                    if (global->is_global && global->name &&
+                        strcmp(global->name, expr->as.identifier) == 0) {
+                        sym = global;
+                        break;
+                    }
+                }
+            }
             if (sym && sym->type == TYPE_VOID) {
                 emit_literal(list, "((void)0)");
                 break;
@@ -3792,27 +3804,41 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
             
             /* Register in environment */
+            Symbol *checked_binding = NULL;
+            for (int i = env->symbol_count - 1; i >= 0; --i) {
+                Symbol *candidate = &env->symbols[i];
+                if (candidate->name && strcmp(candidate->name, stmt->as.let.name) == 0 &&
+                    candidate->def_line == stmt->line && candidate->def_column == stmt->column &&
+                    (!candidate->def_file || !env->current_file ||
+                     strcmp(candidate->def_file, env->current_file) == 0)) {
+                    checked_binding = candidate;
+                    break;
+                }
+            }
+            int scope_end_line = checked_binding ? checked_binding->scope_end_line : 0;
+            int scope_end_column = checked_binding ? checked_binding->scope_end_column : 0;
+            const char *nominal = stmt->as.let.type_name ? stmt->as.let.type_name :
+                (checked_binding ? checked_binding->struct_type_name : NULL);
+            char *owned_nominal = nominal ? strdup(nominal) : NULL;
+            if (nominal && !owned_nominal) {
+                fprintf(stderr, "I cannot allocate declaration type metadata.\n");
+                exit(1);
+            }
             env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
                                          stmt->as.let.element_type,
-                                         stmt->as.let.var_type == TYPE_ARRAY ? stmt->as.let.type_info : NULL,
+                                         stmt->as.let.type_info,
                                          stmt->as.let.is_mut, create_void());
+            Symbol *emitted_binding = &env->symbols[env->symbol_count - 1];
+            emitted_binding->def_line = stmt->line;
+            emitted_binding->def_column = stmt->column;
+            emitted_binding->scope_end_line = scope_end_line;
+            emitted_binding->scope_end_column = scope_end_column;
+            free(emitted_binding->struct_type_name);
+            emitted_binding->struct_type_name = owned_nominal;
 
             /* Track variable for GC cleanup if needed */
             scope_add_var(scopes, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.type_name, env);
 
-            /* For array<struct>, set struct_type_name so array_push can find it */
-            if (stmt->as.let.var_type == TYPE_ARRAY &&
-                stmt->as.let.element_type == TYPE_STRUCT &&
-                stmt->as.let.type_name) {
-                Symbol *sym = env_get_var(env, stmt->as.let.name);
-                if (sym) {
-                    sym->struct_type_name = strdup(stmt->as.let.type_name);
-                    if (!sym->struct_type_name) {
-                        fprintf(stderr, "Error: Out of memory duplicating struct type name\n");
-                        exit(1);
-                    }
-                }
-            }
             break;
         }
         

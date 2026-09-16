@@ -575,6 +575,7 @@ typedef struct {
     TypeInfo *type_info;     /* For complex types (tuples, generics, etc.) - full type information */
     bool is_mut;
     Value value;
+    bool is_global;     /* Top-level binding, not a retained function local */
     bool is_used;        /* Track if variable is ever used (for warnings) */
     bool is_resource;    /* True if this variable's type is a resource type */
     ResourceUseState resource_state;  /* For resource types: track usage state */

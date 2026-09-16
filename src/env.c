@@ -313,6 +313,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.type_info = type_info;  /* Store full type info for complex types (tuples, etc.) */
     sym.is_mut = is_mut;
     sym.value = value;
+    sym.is_global = false;
     sym.is_used = false;  /* Initialize as unused */
     sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
     sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */

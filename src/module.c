@@ -774,6 +774,8 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
                             }
                             
                             Symbol *sym = &env->symbols[env->symbol_count++];
+                            memset(sym, 0, sizeof(*sym));
+                            sym->is_global = true;
                             sym->name = strdup(constants[j].name);
                             sym->type = constants[j].type;
                             sym->struct_type_name = NULL;
@@ -1153,6 +1155,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     env_define_var(env, module_item->as.let.name, 
                                    module_item->as.let.var_type, 
                                    false, val);
+                    env->symbols[env->symbol_count - 1].is_global = true;
                     continue;
                 }
                 

@@ -100,6 +100,27 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       21 native compiler methods. The ownership gate now has 26 failing
       subcases, all self-hosted. Evidence:
       `docs/evidence/lexical-scope-boundaries.md`.
+      I replace the self-hosted top-level ownership scan with recursive flow
+      checking: independent branch states, lexical ordinary-name masking,
+      parameter/local obligations, reachable exits, assignment and loop edges.
+      I retain the shared positive/negative matrix and add helper shadows;
+      declaration classification and unsupported lowering remain explicit work.
+      My rebuilt C seed, Stage 1 and Stage 2 pass the expanded 18-method
+      frontend/flow matrix. I retain the full ownership item as open; the
+      bounded cases do not establish recursive self-hosted classification,
+      borrows, captures or ownership facts in NanoISA. Evidence:
+      `docs/evidence/affine-selfhost-flow.md`.
+      My broader quick gate stops at GLUT native compilation: source-aware
+      emitter lookup selects retained declaration placeholders instead of
+      imported constant values, leaving `GL_LIGHT0` and related names undefined
+      in generated C. I distinguish global bindings explicitly, preserve local
+      shadow precedence, and test imported constants before rerunning the gate.
+      MAC `task_c4064660752d4717a8284da8388a43b2`. I also zero-initialize symbols
+      created directly from C headers so new scope metadata cannot contain
+      uninitialized bounds.
+      I preserve each emitted local's nominal type rather than inheriting a
+      different function's same-named binding. Ten lexical/global regression
+      methods, a fresh bootstrap and 21 compiler-to-native methods pass.
       My C-seed flow checkpoint passes the allocation-failure sanitizer fixture,
       bootstrap smoke, resource classification and 21 native compiler methods.
       The expanded ownership gate still has 27 failing subcases, including

@@ -142,6 +142,24 @@ class AffineContractBoundaries(unittest.TestCase):
     (factory)
 }""", False)
 
+    def test_short_circuit_consumption(self):
+        declaration = "extern fn consume_flag(owned: FileHandle) -> bool\n"
+        self.check_case("conditional_move", declaration + """fn probe(file: FileHandle, gate: bool) -> void {
+    unsafe { let condition: bool = (and gate (consume_flag file)) }
+    unsafe { (consume_handle file) }
+}""", False)
+        self.check_case("unconditional_left_move", declaration + """fn probe(file: FileHandle, gate: bool) -> void {
+    unsafe { let condition: bool = (and (consume_flag file) gate) }
+}""", True)
+
+    def test_hidden_outer_owner_still_has_obligation(self):
+        self.check_case("hidden_owner", """fn probe(file: FileHandle) -> void {
+    if true {
+        let file: FileHandle = FileHandle { fd: 2 }
+        unsafe { (consume_handle file) }
+    }
+}""", False)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,9 +13,10 @@ garbage collected.
 
 My C frontend recognizes `resource struct` and runs a function ownership pass
 with parameter obligations, lexical owner storage, branch joins and loop-edge
-checks. My expanded tests still expose a lexical type-lookup failure and
-self-hosted flow gaps. I record the tested boundary in
-`evidence/affine-c-seed-flow.md`; it does not establish the complete contract.
+checks. My lexical lookup repair and self-hosted recursive flow pass now pass
+the shared bounded ownership matrix on all three compiler stages. I record
+that boundary in `evidence/affine-selfhost-flow.md`; it does not establish the
+complete contract or recursive self-hosted resource classification.
 
 The self-hosted frontend does not yet implement this complete contract. Neither
 frontend currently demonstrates all of the cases in the conformance matrix

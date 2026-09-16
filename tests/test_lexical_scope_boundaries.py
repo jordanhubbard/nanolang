@@ -8,10 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class LexicalScopeBoundaries(unittest.TestCase):
-    def compile_case(self, source, accepted, native=False):
+    def compile_case(self, source, accepted, native=False, imported=None):
         with tempfile.TemporaryDirectory(prefix="nano-lexical-scope-") as tmp:
             path = Path(tmp) / "case.nano"
             output = Path(tmp) / ("program" if native else "case.c")
+            if imported is not None:
+                module = Path(tmp) / "constants.nano"
+                module.write_text(imported)
+                source = source.replace("IMPORT_PATH", str(module))
             path.write_text(source)
             output.write_bytes(b"prior artifact")
             command = [str(ROOT / "bin/nanoc_c"), str(path), "-o", str(output)]
@@ -120,6 +124,33 @@ fn main() -> int {
     assert (== (read_value values) "value")
     return 0
 }
+shadow main { assert (== (main) 0) }
+''', True, native=True)
+
+    def test_imported_constants_keep_local_and_global_shadowing(self):
+        for root_shadow in (False, True):
+            with self.subTest(root_shadow=root_shadow):
+                declaration = "let VALUE: int = 19\n" if root_shadow else ""
+                expected = 19 if root_shadow else 7
+                source = 'module "IMPORT_PATH"\n' + declaration + '''fn probe() -> int {
+    if true { let VALUE: float = 2.5 assert (== VALUE 2.5) }
+    return VALUE
+}
+shadow probe { assert (== (probe) EXPECTED) }
+fn main() -> int { assert (== (probe) EXPECTED) return 0 }
+shadow main { assert (== (main) 0) }
+'''
+                self.compile_case(source.replace("EXPECTED", str(expected)), True, native=True,
+                                  imported="\n" * 80 + "let VALUE: int = 7\n")
+
+    def test_same_named_record_locals_keep_nominal_type(self):
+        self.compile_case('''struct Left { number: int }
+struct Right { flag: bool }
+fn first() -> int { let item: Left = Left { number: 7 } return item.number }
+shadow first { assert (== (first) 7) }
+fn second() -> bool { let item: Right = Right { flag: true } return item.flag }
+shadow second { assert (second) }
+fn main() -> int { assert (== (first) 7) assert (second) return 0 }
 shadow main { assert (== (main) 0) }
 ''', True, native=True)
 
