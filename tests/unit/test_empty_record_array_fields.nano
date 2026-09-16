@@ -1,5 +1,5 @@
 # I retain declared element representations when record fields start empty.
-module "empty_array_return_module.nano" as imported
+module "../fixtures/empty_array_return_module.nano" as imported
 struct Item { value: int }
 struct Store {
     items: array<Item>,
