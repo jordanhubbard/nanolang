@@ -3832,7 +3832,9 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 /* Preserve element_type for array parameters */
                 env_define_var_with_type_info(env, item->as.function.params[j].name,
                              item->as.function.params[j].type, item->as.function.params[j].element_type, 
-                             NULL, false, dummy_val);
+                             item->as.function.params[j].type == TYPE_ARRAY ?
+                                 item->as.function.params[j].type_info : NULL,
+                             false, dummy_val);
                 
                 /* For array<Struct> parameters, set struct_type_name */
                 if (item->as.function.params[j].type == TYPE_ARRAY && 

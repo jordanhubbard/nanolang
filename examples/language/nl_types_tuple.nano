@@ -292,6 +292,8 @@ fn double(x: int) -> int {
 
 shadow double {
     assert (== (double 0) 0)
+    assert (== (double 1) 2)
+    assert (== (double 5) 10)
     assert (== (double -3) -6)
 }
 
@@ -331,6 +333,18 @@ shadow fib_step {
     let next: (int, int) = (fib_step (2, 3))
     assert (== next.0 3)
     assert (== next.1 5)
+    # (0,1) -> (1,1)
+    let s1: (int, int) = (fib_step (0, 1))
+    assert (== s1.0 1)
+    assert (== s1.1 1)
+    # (1,1) -> (1,2)
+    let s2: (int, int) = (fib_step (1, 1))
+    assert (== s2.0 1)
+    assert (== s2.1 2)
+    # (1,2) -> (2,3)
+    let s3: (int, int) = (fib_step (1, 2))
+    assert (== s3.0 2)
+    assert (== s3.1 3)
 }
 
 # @pure

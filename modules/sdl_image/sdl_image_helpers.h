@@ -2,8 +2,8 @@
 #define SDL_IMAGE_HELPERS_H
 
 #include <stdint.h>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "../../src/runtime/dyn_array.h"
 
 /* Basic loading helpers */

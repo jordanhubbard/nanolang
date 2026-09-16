@@ -28,11 +28,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Self-hosted literal filter dispatch.** I infer direct literal array
+      element types before choosing a native filter helper, including the
+      boolean callback ABI. My fresh Stage 2 selects the integer helper for
+      float and boolean literals in `tests/nl_functions_filter.nano`, stopping
+      `make test-quick` at 16 passing cases and one compilation failure. I test
+      all scalar literal/variable paths and empty-result representation, then
+      rerun the gate. MAC `task_ac94d5cc420e481a896d5f1a2d37f595`.
 - [ ] **Current-main release reconciliation.** I review and integrate the eight
       newer main commits through `b37136cc` (PR #297), including recursive-array
       C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
       branch's compiler/runtime work, verify affected gates and record ancestry
       before release. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+      My merge preserves both histories and passes the focused gates; the
+      broader quick gate exposes the filter blocker above. Evidence:
+      `docs/evidence/main-reconciliation-pr297.md`.
 - [x] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
       instrumented objects instead of reusing normal objects when only `CC`
       changes. I test warm-cache behavior before claiming translator coverage.
@@ -2349,6 +2359,49 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       Release tests use an offline fixture so shadows cannot mutate a live
       task ledger. MAC `task_5f807ded474a473ca5776018c32c636f`.
 
+- [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
+      type metadata while parsing and registering locals and parameters, then
+      select the correct getter at each nested `at`. The C seed passes all
+      16 native acceptance cases; the nested-array case also passes Stage 2.
+      I allow explicit compiler selection and retain compilation diagnostics
+      in the acceptance runner. Remaining Stage 2 failures are tracked below.
+      MAC `task_b2c8c93fb14a4f089573edec76b99aab`.
+
+- [x] **Explicit Stage 2 acceptance.** I reconcile the earlier main-only
+      result (11 of 16 cases) with my integration compiler. Fresh Stage 2
+      selection passes all 20 runner checks, including loop, recursion,
+      let/set, infix, match, import-path and CLI cases. I retain that earlier
+      failure history without presenting it as my current result. Evidence:
+      `docs/evidence/main-reconciliation-pr297.md`.
+      MAC `task_4d134cb7dd9c401c9aa8926cddbdeef3`.
+
+- [ ] **Nested-array shadow evaluation.** I support nested dynamic arrays
+      in the C evaluator so native nested-array regression programs can also
+      execute their full behavior inside shadows. The current evaluator
+      rejects those arrays with `Unsupported array element type`.
+      MAC `task_23e8d93323aa4af392384aa096189509`.
+
+- [x] **Local hook migration.** I preserve and disable retired Beads shim
+      hooks in this checkout so commits no longer invoke the removed ledger.
+      MAC `task_a6600695ae154212a97e1b012c0dff20`.
+
+- [x] **Local integration recovery.** I finish the interrupted rebase onto
+      current main, preserve applicable compiler, module-header and shadow
+      changes, and retain upstream removals. `make test-quick` and
+      `make test-c-backend` pass; both changed examples compile and run
+      with the C seed and rebuilt Stage 2. SDL helper headers pass a C
+      syntax check. Native bootstrap binaries differ; I claim passing
+      smoke and parity checks, not a fixed point.
+      MAC `task_52371d21b5174f2aba3acc13074d28f0`.
+
+- [x] **5.0 / self-hosted nested-array indexing.** I preserve every remaining
+      array level while inferring and emitting nested `at` calls, and test both
+      intermediate array values and the scalar value through native execution.
+      MAC `task_f32d71bbad07448c8656843015e72ef3`.
+- [x] **Interpreter reliability.** I return an owned string from record field
+      access so call-frame cleanup cannot free record-owned storage. Evaluator
+      coverage checks direct returns, local reassignment, 100 repeated reads,
+      and shadow execution. MAC `task_de992b992c064ceb917bda531312f531`.
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
       System / conflicting Forth-IDE work unmerged. I do not merge MAC lease

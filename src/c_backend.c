@@ -1084,7 +1084,11 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
     for (int i = 0; i < count; i++) {
         ASTNode *n = items[i];
         if (!n || n->type != AST_FUNCTION) continue;
-        if (n->as.function.is_extern) continue;
+        /* Emit prototypes for both regular and extern functions.
+         * Without this, extern fn declarations (e.g. fs_mkdir_p, path_relpath,
+         * file_copy, dir_copy) have no C prototype visible to the compiler,
+         * causing -Wimplicit-function-declaration and the cascading
+         * -Wint-conversion errors that follow from the defaulted int return. */
         Type ret = n->as.function.return_type;
         const char *ret_str;
         static char sbuf[128];
