@@ -131,6 +131,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
       branch's compiler/runtime work, verify affected gates and record ancestry
       before release. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+      Six further commits through `19afddf5` add nested-array evaluation,
+      relative-path anchoring, write/close failure reporting and AOT signature,
+      void-local and opcode-classification changes. I review their overlap
+      with my integration runtime before merging and rerun affected gates.
+- [ ] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
+      GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
+      those flags before tests can run. I preserve injected write/close failure
+      coverage with portable test instrumentation, then run the affected
+      interpreter, VM builtin and filesystem suites. MAC
+      `task_d53cd80b7ac548d6accd9ddbd94817f1`.
+      My integration branch already has a shared writer helper and a portable
+      production-body probe for seven wrappers; `tests/test_file_write.py`
+      passes on Darwin. I must preserve that coverage and reconcile the new
+      test targets, not replace the helper with duplicated write logic.
       My merge preserves both histories and passes the focused gates. The
       filter blocker is repaired; the broader quick gate now reaches the
       existing affine rejection gap above. Initial merge evidence:
