@@ -215,6 +215,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   cross-function mutation/ownership. I test uninitialized
                   values and full compiler acceptance. MAC
                   `task_bcc4271b0de244c2810c09e004f6cd2e`.
+                  - [x] I invoke the module's zero-argument `__init__` before
+                    entry, matching VM startup. I test call order, discarded
+                    initializer results, initializer failure, invalid arity
+                    and an initializer that is also the entry point. Normal
+                    and sanitizer suites pass 1,176 AOT and 990 shape checks.
+                    Evidence: `docs/evidence/aot-module-initializer.md`.
+                  - [ ] I preserve void-before-store, boolean versus integer
+                    tags, and empty-array element inference across global
+                    initialization and later stores. My compiler's fourteen
+                    globals include booleans, strings and arrays; scalar-only
+                    storage does not satisfy its requirements.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.

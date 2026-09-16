@@ -4315,7 +4315,67 @@ static void test_string_edges_run_as_native_c(void) {
     }
 }
 
+static void test_module_initializer(void) {
+    const char *tags[] = {"void 0", "int 1", "string 1", "hashmap 1"};
+    const char *results[] = {"", "PUSH_I64 99\n", "PUSH_STR init\n", "HM_NEW 5 1\n"};
+    const char *entry = ".function main 0 0 0 int 1\nPUSH_STR entry\nPRINTLN\nPUSH_I64 7\nRET\n.end\n";
+    for (int before = 0; before < 2; ++before) {
+        for (size_t kind = 0; kind < sizeof tags / sizeof tags[0]; ++kind) {
+            char initializer[256], source[1024];
+            snprintf(initializer, sizeof initializer,
+                ".function __init__ 0 0 0 %s\nPUSH_STR init\nPRINTLN\n%sRET\n.end\n", tags[kind], results[kind]);
+            snprintf(source, sizeof source, ".string init \"init\"\n.string entry \"entry\"\n.entry main\n%s%s",
+                     before ? initializer : entry, before ? entry : initializer);
+            NvmModule *m = assemble_ok(source, "module initializer ordering");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I emit module initializer calls before entry");
+            if (c) {
+                int status = -1;
+                char output[64];
+                CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 && status == 7 &&
+                      strcmp(output, "init\nentry\n") == 0,
+                      "I run the initializer first and discard its result, independently of definition order");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    const char *programs[] = {
+        ".string init \"init\"\n.string entry \"entry\"\n.entry main\n"
+        ".function main 0 0 0 int 1\nPUSH_STR entry\nPRINTLN\nPUSH_I64 0\nRET\n.end\n"
+        ".function __init__ 0 0 0 void 0\nPUSH_STR init\nPRINTLN\nPUSH_BOOL 0\nASSERT\nRET\n.end\n",
+        ".string init \"init\"\n.entry __init__\n.function __init__ 0 0 0 int 1\n"
+        "PUSH_STR init\nPRINTLN\nPUSH_I64 0\nRET\n.end\n"
+    };
+    for (int same_entry = 0; same_entry < 2; ++same_entry) {
+        NvmModule *m = assemble_ok(programs[same_entry], "initializer failure and entry identity");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I preserve initializer failure and entry identity semantics");
+        if (c) {
+            int status = -1;
+            char output[64];
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 &&
+                  (same_entry ? status == 0 : status != 0) &&
+                  strcmp(output, same_entry ? "init\ninit\n" : "init\n") == 0,
+                  "I do not enter after initializer failure and do not skip a distinct entry invocation");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    NvmModule *m = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+        ".function __init__ 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n", "invalid initializer arity");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "zero-argument module initializer"),
+              "I reject an initializer that requires arguments");
+        free(c); nvm_module_free(m);
+    }
+}
+
 int main(int argc, char **argv) {
+    test_module_initializer();
     test_self_tail_restart_preserves_values();
     test_self_tail_rejects_malformed_calls();
     test_array_set_aliases_bounds_and_types();

@@ -4024,6 +4024,20 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (host && strcmp(host->c_name, "nhost_artifact") == 0)
                 nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);
         }
+        /* I mirror vm_execute: the first named initializer runs before entry,
+         * even when that same function is also the entry point. */
+        for (uint32_t i = 0; i < mod->function_count; ++i) {
+            const char *name = nvm_get_string(mod, mod->functions[i].name_idx);
+            if (name && strcmp(name, "__init__") == 0) {
+                if (mod->functions[i].arity != 0) {
+                    nvm2c_fail(&b, "I require a zero-argument module initializer"); goto fail;
+                }
+                char initializer[64];
+                fn_c_name(mod, i, initializer, sizeof initializer);
+                nvm2c_printf(&b, "    (void)%s();\n", initializer);
+                break;
+            }
+        }
         nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
