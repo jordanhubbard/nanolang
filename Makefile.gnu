@@ -852,6 +852,17 @@ $(OBJ_DIR)/nanovirt/wrapper_gen.o: $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)
 $(OBJ_DIR)/nanovirt:
 	mkdir -p $(OBJ_DIR)/nanovirt
 
+# I check repeated VM effect unwinds separately from compiler allocation
+# lifetimes, so the runtime harness can run with LeakSanitizer enabled.
+.PHONY: test-vm-effect-ownership
+test-vm-effect-ownership: nano_virt
+	ASAN_OPTIONS=detect_leaks=0 ./bin/nano_virt tests/nanovirt/fixtures/effect_owned_strings.nano --emit-nvm -o $(OBJ_DIR)/effect_owned_strings.nvm
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_effect_ownership tests/nanovm/test_effect_ownership.c \
+		$(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_effect_ownership $(OBJ_DIR)/effect_owned_strings.nvm
+
+test-units: test-vm-effect-ownership
+
 .PHONY: test-nanovirt
 test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVirt codegen tests..."

@@ -2026,7 +2026,52 @@ static void test_unhandled_effect_traps(void) {
     TEST_PASS();
 }
 
+static void test_effect_recursive_owned_strings(void) {
+    const char *source =
+        "effect Text { text : string int -> string }\n"
+        "fn send(s: string, n: int) -> string { return perform Text.text(s n) }\n"
+        "fn exercise() -> string {\n"
+        " let mut saved: string = \"initial\"\n"
+        " let result = handle { (send \"a\" 12) } with { text s n -> {\n"
+        "   let own: string = (+ s \"x\")\n"
+        "   set saved own\n"
+        "   if (> n 0) { let child = (send own (- n 1)) assert (> (str_length child) 0) }\n"
+        "   own\n"
+        " } }\n"
+        " assert (== (str_length saved) 14)\n"
+        " return result\n"
+        "}\n"
+        "fn leave() -> string {\n"
+        " let mut saved: string = \"initial\"\n"
+        " let result = handle { (send \"a\" 12) } with { text s n -> {\n"
+        "   let own: string = (+ s \"x\")\n"
+        "   set saved own\n"
+        "   if (> n 0) { let child = (send own (- n 1)) }\n"
+        "   return saved\n"
+        " } }\n"
+        " return result\n"
+        "}\n"
+        "fn main() -> int {\n"
+        " let mut total: int = 0\n"
+        " for i in (range 0 20) {\n"
+        "   let resumed = (exercise)\n"
+        "   let escaped = (leave)\n"
+        "   assert (== resumed \"ax\")\n"
+        "   assert (== (str_length escaped) 14)\n"
+        "   set total (+ total (str_length escaped))\n"
+        " }\n"
+        " return total\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I retain owned strings through recursive resumption and lexical exit");
+    ASSERT_INT(tr.result.as.i64, 280);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
 int main(void) {
+    test_effect_recursive_owned_strings();
     test_unhandled_effect_traps();
     test_handler_observes_perform();
     test_lexical_return_and_final_expression();

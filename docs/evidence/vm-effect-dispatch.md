@@ -50,3 +50,48 @@ it does not compare either one against the native backend. The second checks
 compilation with shadows and bytecode verification, not every runtime input.
 The initial dispatch run found only the already corrected scalar async and
 resource-fixture defects. I added no corpus exclusions.
+
+## My effect ownership sanitizer audit
+
+I built fresh objects under `/tmp/nanolang-vm-effects-asan-o2` with GCC,
+`-O2 -fno-omit-frame-pointer -fsanitize=address,undefined`. My 89 codegen cases
+passed with ASan and UBSan. Leak detection was disabled for that compiler-facing
+suite; it does not establish frontend allocation cleanup.
+
+I separately ran `test-vm-effect-ownership` with
+`ASAN_OPTIONS=detect_leaks=1:abort_on_error=1` and
+`UBSAN_OPTIONS=halt_on_error=1`. My runtime harness loads already compiled
+bytecode, then performs 100 invocations. Each invocation makes 20 pairs of
+recursive owned-string calls: one resumes normally, the other returns from the
+handler's lexical function through the suspended callers. Each path reaches 13
+handler activations. The test checks returned strings through their consuming
+program, empty frame/handler/operand stacks, and the initial live-object count
+after cycle collection on every invocation. ASan, UBSan and LeakSanitizer report
+no errors. I retain the fixture and harness under `tests/nanovirt/fixtures/` and
+`tests/nanovm/test_effect_ownership.c`.
+
+I reproduce the runtime gate with:
+
+```sh
+ASAN_OPTIONS=detect_leaks=1:abort_on_error=1 UBSAN_OPTIONS=halt_on_error=1 \
+make -j8 test-vm-effect-ownership OBJ_DIR=/tmp/nanolang-vm-effects-asan-o2 \
+  CFLAGS='-Wall -Wextra -Werror -std=c99 -g -O2 -fno-omit-frame-pointer -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined' \
+  LDFLAGS='-fsanitize=address,undefined -lm -lcrypto -lffi -rdynamic'
+```
+
+The gate disables leak detection only while compiling its source fixture;
+LeakSanitizer remains enabled for the runtime harness. My first `-O1` build
+stopped on GCC's fortified `vsnprintf` null-format warning in unchanged
+`src/nanocore_export.c`; I did not weaken `-Werror` or change that code. The fresh
+`-O2` build passed.
+
+My static review checks these lifetime assumptions: registration owners come
+from the current frame count, never bytecode-supplied frame indices; an effect
+activation points strictly backward to a live lexical owner; ordinary calls
+clear that linkage; lexical return releases suspended stack values and owned
+callables before pruning registrations; resumption removes only its temporary
+activation; and external callable entry excludes older handlers below its
+activation boundary. The verifier and runtime guard operation indices,
+parameter slots, argument counts and resumption shape. Malformed arm targets
+are rejected by decoding or verification before verified execution. These are
+reviewed invariants and tested cases, not a formal ownership proof.
