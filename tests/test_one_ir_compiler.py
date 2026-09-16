@@ -426,6 +426,41 @@ class OneIrCompiler(unittest.TestCase):
                     rejected = subprocess.run([binary, "bad-tag"], capture_output=True, timeout=10)
                     self.assertLess(rejected.returncode, 0, "I trap a non-string field before its consumer")
 
+    def test_projected_array_reads_constrain_container(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for tag in ("int", "bool", "string", "record"):
+                with self.subTest(reverse=reverse, tag=tag), tempfile.TemporaryDirectory(prefix="nano-array-consumer-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    result_tag = "int" if tag == "record" else tag
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    helper = f".function read 1 1 0 {result_tag} 1\nLOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 0\nARR_GET\n" + ("AGG_GET 0\n" if tag == "record" else "") + "RET\n.end\n"
+                    text = ".entry main\n" + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} struct\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    if tag == "string":
+                        setup = 'const char *data[] = {"hello"}; nsarr_s a = {.data = data, .len = 1}; r.k[0] = 5; r.sa[0] = &a;'
+                        check = 'strcmp(nl_read(r), "hello") == 0'
+                    elif tag == "record":
+                        setup = "nrarr_s a = {.len = 1}; a.data[0].n = 1; a.data[0].f[0] = 42; r.k[0] = 6; r.ra[0] = &a;"
+                        check = "nl_read(r) == 42"
+                    else:
+                        value = 1 if tag == "bool" else 42
+                        setup = f"int64_t data[] = {{{value}}}; narr_s a = {{.data = data, .len = 1}}; r.k[0] = {10 if tag == 'bool' else 3}; r.a[0] = &a;"
+                        check = f"nl_read(r) == {value}"
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    wrong_storage = 3 if tag in ("bool", "string") else 10 if tag == "int" else 5
+                    source.write_text(generated + f'\nint main(int argc, char **argv) {{ nrec_t r = {{.n = 1}}; {setup} if (argc > 1) {{ if (argv[1][0] == \'t\') r.k[0] = 0; else if (argv[1][0] == \'s\') r.k[0] = {wrong_storage}; else a.len = 0; }} return !({check}); }}\n')
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+                    for invalid in ("tag", "storage", "bounds"):
+                        result = subprocess.run([binary, invalid], capture_output=True, timeout=10)
+                        self.assertLess(result.returncode, 0, "I retain projected array tag and bounds checks")
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

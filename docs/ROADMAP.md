@@ -364,11 +364,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   pass. Normal and fresh ASan/UBSan suites pass 1,670 AOT and
                   1,073 shape checks; full compiler emission advances below.
                   Evidence: `docs/evidence/aot-string-consumer-shapes.md`.
-                - [ ] I resolve projected array reads in `genenv_get_mut`
+                - [x] I resolve projected array reads in `genenv_get_mut`
                   (410), preserving the container shape as well as the boolean
                   element representation, runtime tags and bounds. I rerun full
                   compiler acceptance. MAC
                   `task_3b10cd3d807f44d8bf04a5128b697932`.
+                  I include array kinds resolved through instruction shapes in
+                  native runtime-helper selection, not only local variables and
+                  explicit array constructors.
+                  Eight native reads and twenty-four storage/tag/bounds
+                  rejection cases pass. Normal and fresh ASan/UBSan suites pass
+                  1,670 AOT and 1,073 shape checks. Full compiler emission
+                  advances to the failure below. Evidence:
+                  `docs/evidence/aot-projected-array-reads.md`.
+                - [ ] I resolve the array parameter's emitted storage in
+                  `gen_call` (440), preserving its runtime element tags when
+                  native element storage is unresolved. I rerun full compiler
+                  acceptance. MAC `task_9c768255d97544cc9e850ef547b90fc3`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

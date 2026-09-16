@@ -66,6 +66,7 @@ typedef struct {
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
+    uint16_t array_shape_kinds;
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
     NvmShapeGraph shapes;
@@ -1169,6 +1170,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
                 break;
             }
+            if (!shape_type(b, arr.shape, NVM_SHAPE_ARRAY)) return 0;
             NvmShapeId element_shape = shape_child(b, arr.shape, 0);
             if (!shape_equal(b, shape_variable(b, b->shape_current), element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
@@ -4323,6 +4325,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                                        fn->code_length - pc, &ins);
             if (!size) { nvm2c_fail(&b, "I cannot decode packed field shapes"); goto fail; }
             NvmShapeId shape = b.shape_outputs[f][pc];
+            uint8_t resolved = resolved_shape_kind(&b, shape);
+            if (integer_array_storage(resolved) || resolved == NVM2C_VK_SARR || resolved == NVM2C_VK_RARR)
+                b.array_shape_kinds |= (uint16_t)(1u << resolved);
             if (ins.opcode == OP_AGG_GET && shape &&
                 nvm_shape_kind(&b.shapes, shape) == NVM_SHAPE_ARRAY &&
                 resolved_shape_kind(&b, shape) == NVM2C_VK_UNK) b.has_maps = 1;
@@ -4362,12 +4367,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_BOOL);
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_new || need_iarr_lit ||
+            (b.array_shape_kinds & ((1u << NVM2C_VK_ARR) | (1u << NVM2C_VK_BARR))) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_ARR) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_BARR);
         int need_sarr = need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
+            (b.array_shape_kinds & (1u << NVM2C_VK_SARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_SARR);
         int need_rarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT);
         int need_rarr = need_rarr_lit || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_RARR) ||
+            (b.array_shape_kinds & (1u << NVM2C_VK_RARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
