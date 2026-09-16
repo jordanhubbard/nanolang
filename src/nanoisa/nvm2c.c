@@ -145,12 +145,14 @@ static void fn_c_name(const NvmModule *mod, uint32_t idx, char *out, size_t n) {
     }
 }
 
-static const char *c_result_type(const NvmFunctionEntry *fn) {
+static const char *c_local_type(uint8_t kind);
+
+static const char *c_result_type(const NvmFunctionEntry *fn, uint8_t array_kind) {
     if (fn->result_count == 0 || fn->result_tag == TAG_VOID) return "void";
     if (fn->result_count != 1) return NULL;
     if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
     if (fn->result_tag == TAG_STRING) return "const char *";
-    if (fn->result_tag == TAG_ARRAY) return "nrarr_t";
+    if (fn->result_tag == TAG_ARRAY) return c_local_type(array_kind);
     if (fn->result_tag == TAG_HASHMAP) return "nmap_t";
     if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) return "nrec_t";
     return NULL;
@@ -1042,6 +1044,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 /* Missing element facts cannot erase a constructor's known
                  * array kind or invent an integer-array representation. */
                 Nvm2cSimSlot pushed = arr;
+                if (arr.kind == NVM2C_VK_SARR)
+                    mark_str_origin(local_kind, nloc, val.origin);
                 pushed.origin = -1;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
             } else if (val.kind == NVM2C_VK_REC) {
@@ -1055,12 +1059,22 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 pushed.origin = -1;
                 pushed.rec_k = val.rec_k;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
-            } else if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {
+            } else if (val.kind == NVM2C_VK_STR) {
+                Nvm2cSimSlot pushed = arr;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
-            } else {
+                pushed.kind = NVM2C_VK_SARR;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else if (arr.kind == NVM2C_VK_SARR) {
+                nvm2c_fail(b, "function %u: ARR_PUSH string array requires a string value", idx);
+                return 0;
+            } else if (val.kind == NVM2C_VK_INT || val.kind == NVM2C_VK_UNK) {
+                Nvm2cSimSlot pushed = arr;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, -1)) return 0;
+                pushed.kind = NVM2C_VK_ARR;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else {
+                nvm2c_fail(b, "function %u: ARR_PUSH type mismatch", idx);
+                return 0;
             }
             if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape) ||
                 !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
@@ -1226,7 +1240,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (fn->result_tag == TAG_STRING) {
                     mark_str_origin(local_kind, nloc, v.origin);
                 } else if (fn->result_tag == TAG_ARRAY) {
-                    mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
+                    mark_origin(local_kind, nloc, v.origin, v.kind);
                     if (v.kind == NVM2C_VK_RARR &&
                         !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
@@ -1356,7 +1370,7 @@ done:
 static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                            const uint8_t *kinds) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
-    const char *rt = c_result_type(fn);
+    const char *rt = c_result_type(fn, resolved_shape_kind(b, b->shape_results[idx]));
     if (!rt) {
         nvm2c_fail(b, "function %u: only void or a single supported value result is supported",
                    idx);
@@ -1838,7 +1852,7 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
         return 0;
     }
     const NvmFunctionEntry *cf = &mod->functions[callee];
-    if (c_result_type(cf) == NULL) {
+    if (c_result_type(cf, NVM2C_VK_RARR) == NULL) {
         nvm2c_fail(b, "function %u: CALL target %u has an unsupported result", idx, callee);
         return 0;
     }
@@ -1887,7 +1901,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                const uint8_t *kinds, const uint8_t *rec_fields,
                                const uint8_t *result_fields) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
-    const char *rt = c_result_type(fn);
+    uint8_t result_kind = resolved_shape_kind(b, b->shape_results[idx]);
+    const char *rt = c_result_type(fn, result_kind);
     if (!rt || b->failed) return;
 
     char name[64];
@@ -2828,9 +2843,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             } else if (cf->result_count == 1 && cf->result_tag == TAG_HASHMAP) {
                 stack_push_map(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
-                int result = stack_push_rarr(b, &st, call);
-                if (result >= 0) memcpy(st.rarr_k[result], result_fields + (size_t)callee * b->record_width,
-                                       b->record_width);
+                uint8_t kind = resolved_shape_kind(b, b->shape_results[callee]);
+                if (kind == NVM2C_VK_ARR) stack_push_arr(b, &st, call);
+                else if (kind == NVM2C_VK_SARR) stack_push_sarr(b, &st, call);
+                else {
+                    int result = stack_push_rarr(b, &st, call);
+                    if (result >= 0) memcpy(st.rarr_k[result], result_fields + (size_t)callee * b->record_width,
+                                           b->record_width);
+                }
             } else if (cf->result_count == 1 &&
                        (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION)) {
                 int result = stack_push_rec(b, &st, call);
@@ -2924,13 +2944,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (st.sp) { nvm2c_fail(b, "I cannot return a map with extra stack values"); goto done; }
                 nvm2c_printf(b, "    return m[%d];\n", map);
             } else if (fn->result_count == 1 && fn->result_tag == TAG_ARRAY) {
-                int a = stack_pop_expect(b, &st, NVM2C_VK_RARR, "RET");
+                int a = stack_pop_expect(b, &st, result_kind, "RET");
                 if (b->failed) goto done;
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
                     goto done;
                 }
-                nvm2c_printf(b, "    return ra[%d];\n", a);
+                nvm2c_printf(b, "    return %s[%d];\n",
+                             result_kind == NVM2C_VK_ARR ? "a" :
+                             result_kind == NVM2C_VK_SARR ? "sa" : "ra", a);
             } else if (fn->result_count == 1 &&
                        (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION)) {
                 int record = stack_pop_expect(b, &st, NVM2C_VK_REC, "RET");
