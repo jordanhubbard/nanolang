@@ -4136,7 +4136,26 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             }
         }
         if (facts.final) break;
-        if (!facts.changed) facts.final = 1;
+        if (!facts.changed) {
+            /* I use declarations only after caller facts converge. An
+             * observed tagged argument keeps its checked representation;
+             * an unused parameter still has its declared scalar/record type.
+             * An array tag alone does not determine its element storage. */
+            for (uint32_t f = 0; f < mod->function_count; ++f) {
+                const uint8_t *tags = mod->function_param_types ? mod->function_param_types[f] : NULL;
+                if (!tags) continue;
+                for (uint16_t p = 0; p < mod->functions[f].arity; ++p) {
+                    uint8_t *kind = &facts.parameters[(size_t)f * b.local_width + p];
+                    if (*kind != NVM2C_VK_UNK) continue;
+                    uint8_t declared = tags[p] == TAG_INT ? NVM2C_VK_INT :
+                        tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :
+                        tags[p] == TAG_STRING ? NVM2C_VK_STR :
+                        (tags[p] == TAG_STRUCT || tags[p] == TAG_UNION) ? NVM2C_VK_REC : NVM2C_VK_UNK;
+                    if (declared != NVM2C_VK_UNK) { *kind = declared; facts.changed = 1; }
+                }
+            }
+            if (!facts.changed) facts.final = 1;
+        }
     }
 
     if (!nvm_shape_solve_conversions(&b.shapes)) {

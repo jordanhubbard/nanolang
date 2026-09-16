@@ -313,11 +313,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                       cases are rejected. Full compiler conversion solving now
                       passes; its later packed-field failure remains below.
                       Evidence: `docs/evidence/aot-inferred-record-string-fields.md`.
-                - [ ] I resolve `type_from_kind` (260), offset 165, where
+                - [x] I resolve `type_from_kind` (260), offset 165, where
                   `AGG_PACK` field 0 remains unresolved after inferred record
                   string facts become directed flows. I retain exact payload
                   checks and rerun full compiler acceptance. MAC
                   `task_041fdf3407774b93a24bbaaa30a7bbb9`.
+                  I use supported parameter declarations only after caller
+                  inference converges. Eight native ABI cases and six tagged
+                  argument cases pass; eight missing-declaration cases reject.
+                  Normal and fresh ASan/UBSan suites pass 1,670 AOT and 1,073
+                  shape checks. Full compiler acceptance reaches the next
+                  failure below. Evidence:
+                  `docs/evidence/aot-declared-parameter-fallback.md`.
+                - [ ] I resolve the uncalled `codegen_next_temp` (362), offset
+                  28, whose packed field 0 lacks a record-field shape. I inspect
+                  available layout metadata and uncalled-function handling
+                  without inventing field types. MAC
+                  `task_8aaa3f722ce34624a4bb8a16283afa2b`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

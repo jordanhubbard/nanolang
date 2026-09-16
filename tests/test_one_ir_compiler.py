@@ -226,6 +226,58 @@ class OneIrCompiler(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(b"shape", result.stderr)
 
+    def test_declared_parameter_resolves_unused_packed_field(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for tag in ("int", "bool", "string", "struct"):
+            for reverse in (False, True):
+                with self.subTest(tag=tag, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-declared-field-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    helper = ".function pack 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+                    text = ".entry main\n" + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} {tag}\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    # Keep pack uncalled in NanoISA, then exercise its declared
+                    # ABI from a C harness without supplying inference facts.
+                    argument, check = {
+                        "int": ("42", "r.k[0] == 0 && r.f[0] == 42"),
+                        "bool": ("1", "r.k[0] == 9 && r.f[0] == 1"),
+                        "string": ('"hello"', 'r.k[0] == 1 && strcmp(r.s[0], "hello") == 0'),
+                        "struct": ("(nrec_t){0}", "r.k[0] == 4 && r.rec[0] && r.rec[0]->n == 0"),
+                    }[tag]
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_pack({argument}); return !(r.n == 1 && {check}); }}\n")
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+                    assembly.write_text(text.split(".parameters", 1)[0])
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    result = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source], capture_output=True, timeout=30)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(b"cannot resolve AGG_PACK field 0", result.stderr)
+
+    def test_declared_parameters_keep_observed_tags(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for tag in ("int", "bool", "string"):
+            for reverse in (False, True):
+                with self.subTest(tag=tag, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-declared-tagged-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = ".function main 0 0 0 int 1\nLOAD_GLOBAL 0\nCALL absent\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+                    helper = ".function absent 1 1 0 bool 1\nLOAD_LOCAL 0\nTYPE_CHECK 0\nRET\n.end\n"
+                    text = ".entry main\n" + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} {tag}\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nano_vm", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
