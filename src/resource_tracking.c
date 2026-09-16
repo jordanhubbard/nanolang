@@ -138,3 +138,263 @@ void check_resource_leaks(Environment *env, bool *has_error) {
         }
     }
 }
+
+typedef struct {
+    const char *name;
+    bool moved;
+    int line;
+    int column;
+} OwnershipPlace;
+
+typedef struct {
+    OwnershipPlace *places;
+    size_t count;
+    size_t capacity;
+    size_t required_start;
+    bool reachable;
+    bool return_resource;
+} OwnershipState;
+
+static int ownership_find(const OwnershipState *state, const char *name) {
+    for (size_t i = state->count; i > 0; i--)
+        if (strcmp(state->places[i - 1].name, name) == 0) return (int)(i - 1);
+    return -1;
+}
+
+static bool ownership_add(OwnershipState *state, const char *name, int line, int column) {
+    if (state->count == state->capacity) {
+        size_t capacity = state->capacity ? state->capacity * 2 : 16;
+        OwnershipPlace *places = realloc(state->places, capacity * sizeof(*places));
+        if (!places) return false;
+        state->places = places;
+        state->capacity = capacity;
+    }
+    state->places[state->count++] = (OwnershipPlace){name, false, line, column};
+    return true;
+}
+
+static bool ownership_clone(OwnershipState *out, const OwnershipState *in) {
+    memset(out, 0, sizeof(*out));
+    out->reachable = in->reachable;
+    out->required_start = in->required_start;
+    out->return_resource = in->return_resource;
+    if (!in->count) return true;
+    out->places = malloc(in->count * sizeof(*out->places));
+    if (!out->places) return false;
+    memcpy(out->places, in->places, in->count * sizeof(*out->places));
+    out->count = out->capacity = in->count;
+    return true;
+}
+
+static void ownership_error(bool *has_error, int line, int column,
+                            const char *kind, const char *name) {
+    fprintf(stderr, "Error E0035 at line %d, column %d: I cannot %s resource `%s` after its ownership was moved.\n",
+            line, column, kind, name);
+    *has_error = true;
+}
+
+static void ownership_observe(ASTNode *expr, OwnershipState *state, bool *has_error);
+
+static void ownership_move(ASTNode *expr, OwnershipState *state, bool *has_error) {
+    if (!expr) return;
+    if (expr->type == AST_IDENTIFIER) {
+        int index = ownership_find(state, expr->as.identifier);
+        if (index < 0) return;
+        if (state->places[index].moved)
+            ownership_error(has_error, expr->line, expr->column, "move", expr->as.identifier);
+        else
+            state->places[index].moved = true;
+        return;
+    }
+    if (expr->type == AST_FIELD_ACCESS) {
+        ASTNode *object = expr->as.field_access.object;
+        if (object && object->type == AST_IDENTIFIER && ownership_find(state, object->as.identifier) >= 0) {
+            fprintf(stderr, "Error E0037 at line %d, column %d: I cannot move a field from live resource `%s`; move or destructure the whole value.\n",
+                    expr->line, expr->column, object->as.identifier);
+            *has_error = true;
+            return;
+        }
+    }
+    ownership_observe(expr, state, has_error);
+}
+
+static void ownership_observe(ASTNode *expr, OwnershipState *state, bool *has_error) {
+    if (!expr) return;
+    switch (expr->type) {
+        case AST_IDENTIFIER: {
+            int index = ownership_find(state, expr->as.identifier);
+            if (index >= 0 && state->places[index].moved)
+                ownership_error(has_error, expr->line, expr->column, "use", expr->as.identifier);
+            break;
+        }
+        case AST_CALL:
+            if (expr->as.call.func_expr) ownership_observe(expr->as.call.func_expr, state, has_error);
+            for (int i = 0; i < expr->as.call.arg_count; i++)
+                ownership_move(expr->as.call.args[i], state, has_error);
+            break;
+        case AST_MODULE_QUALIFIED_CALL:
+            for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++)
+                ownership_move(expr->as.module_qualified_call.args[i], state, has_error);
+            break;
+        case AST_FIELD_ACCESS:
+            ownership_observe(expr->as.field_access.object, state, has_error);
+            break;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < expr->as.prefix_op.arg_count; i++)
+                ownership_observe(expr->as.prefix_op.args[i], state, has_error);
+            break;
+        case AST_ARRAY_LITERAL:
+            for (int i = 0; i < expr->as.array_literal.element_count; i++)
+                ownership_observe(expr->as.array_literal.elements[i], state, has_error);
+            break;
+        case AST_STRUCT_LITERAL:
+            if (expr->as.struct_literal.spread_source)
+                ownership_move(expr->as.struct_literal.spread_source, state, has_error);
+            for (int i = 0; i < expr->as.struct_literal.field_count; i++)
+                ownership_move(expr->as.struct_literal.field_values[i], state, has_error);
+            break;
+        case AST_TUPLE_LITERAL:
+            for (int i = 0; i < expr->as.tuple_literal.element_count; i++)
+                ownership_move(expr->as.tuple_literal.elements[i], state, has_error);
+            break;
+        case AST_TUPLE_INDEX:
+            ownership_observe(expr->as.tuple_index.tuple, state, has_error);
+            break;
+        case AST_UNION_CONSTRUCT:
+            for (int i = 0; i < expr->as.union_construct.field_count; i++)
+                ownership_move(expr->as.union_construct.field_values[i], state, has_error);
+            break;
+        case AST_TRY_OP:
+            ownership_observe(expr->as.try_op.operand, state, has_error);
+            break;
+        default:
+            break;
+    }
+}
+
+static void ownership_unresolved(const OwnershipState *state, size_t start,
+                                 int line, int column, bool *has_error) {
+    if (!state->reachable) return;
+    for (size_t i = start; i < state->count; i++) {
+        if (!state->places[i].moved) {
+            fprintf(stderr, "Error E0036 at line %d, column %d: I require resource `%s` to be moved or consumed before scope exit.\n",
+                    line, column, state->places[i].name);
+            *has_error = true;
+        }
+    }
+}
+
+static void ownership_statement(Environment *env, ASTNode *stmt,
+                                OwnershipState *state, bool *has_error) {
+    if (!stmt || !state->reachable) return;
+    switch (stmt->type) {
+        case AST_BLOCK:
+            for (int i = 0; i < stmt->as.block.count && state->reachable; i++)
+                ownership_statement(env, stmt->as.block.statements[i], state, has_error);
+            break;
+        case AST_LET:
+            if ((stmt->as.let.var_type == TYPE_STRUCT || stmt->as.let.var_type == TYPE_UNION) &&
+                is_resource_type(env, stmt->as.let.type_name)) {
+                ownership_move(stmt->as.let.value, state, has_error);
+                if (
+                !ownership_add(state, stmt->as.let.name, stmt->line, stmt->column)) {
+                    fprintf(stderr, "I cannot allocate ownership state for `%s`\n", stmt->as.let.name);
+                    *has_error = true;
+                }
+            } else ownership_observe(stmt->as.let.value, state, has_error);
+            break;
+        case AST_SET: {
+            int index = ownership_find(state, stmt->as.set.name);
+            if (index >= 0 && !state->places[index].moved) {
+                fprintf(stderr, "Error E0038 at line %d, column %d: I cannot overwrite live resource `%s`.\n",
+                        stmt->line, stmt->column, stmt->as.set.name);
+                *has_error = true;
+            }
+            ownership_move(stmt->as.set.value, state, has_error);
+            if (index >= 0) state->places[index].moved = false;
+            break;
+        }
+        case AST_RETURN:
+            if (state->return_resource) ownership_move(stmt->as.return_stmt.value, state, has_error);
+            else ownership_observe(stmt->as.return_stmt.value, state, has_error);
+            ownership_unresolved(state, state->required_start, stmt->line, stmt->column, has_error);
+            state->reachable = false;
+            break;
+        case AST_IF: {
+            ownership_observe(stmt->as.if_stmt.condition, state, has_error);
+            OwnershipState then_state, else_state;
+            if (!ownership_clone(&then_state, state) || !ownership_clone(&else_state, state)) {
+                fprintf(stderr, "I cannot allocate ownership branch state\n");
+                *has_error = true;
+                free(then_state.places); free(else_state.places);
+                break;
+            }
+            ownership_statement(env, stmt->as.if_stmt.then_branch, &then_state, has_error);
+            ownership_statement(env, stmt->as.if_stmt.else_branch, &else_state, has_error);
+            if (!then_state.reachable) {
+                free(state->places); *state = else_state; memset(&else_state, 0, sizeof(else_state));
+            } else if (!else_state.reachable) {
+                free(state->places); *state = then_state; memset(&then_state, 0, sizeof(then_state));
+            } else {
+                size_t common = then_state.count < else_state.count ? then_state.count : else_state.count;
+                for (size_t i = 0; i < common; i++) {
+                    if (then_state.places[i].moved != else_state.places[i].moved) {
+                        fprintf(stderr, "Error E0039 at line %d, column %d: Resource `%s` has incompatible ownership states across branches.\n",
+                                stmt->line, stmt->column, then_state.places[i].name);
+                        *has_error = true;
+                    }
+                    state->places[i].moved = then_state.places[i].moved;
+                }
+            }
+            free(then_state.places); free(else_state.places);
+            break;
+        }
+        case AST_WHILE: {
+            ownership_observe(stmt->as.while_stmt.condition, state, has_error);
+            OwnershipState body;
+            if (!ownership_clone(&body, state)) { *has_error = true; break; }
+            ownership_statement(env, stmt->as.while_stmt.body, &body, has_error);
+            if (body.reachable) {
+                size_t common = body.count < state->count ? body.count : state->count;
+                for (size_t i = 0; i < common; i++)
+                    if (body.places[i].moved != state->places[i].moved) {
+                        fprintf(stderr, "Error E0040 at line %d, column %d: Loop changes ownership of outer resource `%s`.\n",
+                                stmt->line, stmt->column, state->places[i].name);
+                        *has_error = true;
+                    }
+                ownership_unresolved(&body, state->count, stmt->line, stmt->column, has_error);
+            }
+            free(body.places);
+            break;
+        }
+        default:
+            ownership_observe(stmt, state, has_error);
+            break;
+    }
+}
+
+void check_resource_function(Environment *env, ASTNode *function, bool *has_error) {
+    if (!function || function->type != AST_FUNCTION || function->as.function.is_extern ||
+        !function->as.function.body) return;
+    OwnershipState state = {.reachable = true};
+    state.return_resource = (function->as.function.return_type == TYPE_STRUCT ||
+                             function->as.function.return_type == TYPE_UNION) &&
+                            is_resource_type(env, function->as.function.return_struct_type_name);
+    for (int i = 0; i < function->as.function.param_count; i++) {
+        Parameter *param = &function->as.function.params[i];
+        if ((param->type == TYPE_STRUCT || param->type == TYPE_UNION) &&
+            is_resource_type(env, param->struct_type_name) &&
+            !ownership_add(&state, param->name, function->line, function->column)) {
+            *has_error = true;
+            free(state.places);
+            return;
+        }
+    }
+    /* By-value parameters arrived through a consuming call boundary. The
+     * caller transfer is checked here; terminal foreign/resource APIs remain
+     * the boundary that discharges the callee-side obligation. */
+    state.required_start = state.count;
+    ownership_statement(env, function->as.function.body, &state, has_error);
+    ownership_unresolved(&state, state.required_start, function->line, function->column, has_error);
+    free(state.places);
+}
