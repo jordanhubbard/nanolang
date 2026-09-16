@@ -297,6 +297,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   I identify the originating constraints, retain exact consumer
                   checks and rerun compiler acceptance. MAC
                   `task_146d0626844a4b958bfe0e8697226185`.
+                  - [x] I retain all incoming record-local field facts across
+                    branch assignments and inference passes. I test both branch
+                    outcomes and function orders, and rerun my AOT gates.
+                    Normal and fresh ASan/UBSan runs each pass 1,670 AOT and
+                    1,073 shape checks. Evidence:
+                    `docs/evidence/aot-branch-record-fields.md`.
+                  - [ ] I resolve the remaining conversion from `env_get_type`
+                    (311), offset 268, after fixing the local-27 join in
+                    `check_statement_list` (331), offset 1020. I preserve exact
+                    payload constraints and establish full compiler acceptance.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

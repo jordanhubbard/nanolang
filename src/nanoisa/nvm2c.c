@@ -719,7 +719,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     memset(rec_fields, NVM2C_VK_UNK, (size_t)nloc * b->record_width);
     memcpy(local_kind, facts->parameters + (size_t)idx * b->local_width, fn->arity);
     memcpy(rec_fields, facts->fields + (size_t)idx * b->local_width * b->record_width,
-           (size_t)fn->arity * b->record_width);
+           (size_t)nloc * b->record_width);
 
     if (fn->code_offset > mod->code_size ||
         fn->code_length > mod->code_size - fn->code_offset) {
@@ -860,8 +860,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 local_kind[slot] = NVM2C_VK_SARR;
             } else if (v.kind == NVM2C_VK_REC) {
                 local_kind[slot] = NVM2C_VK_REC;
+                /* I retain every incoming record field across branches and
+                 * inference passes, not just the last textual assignment. */
+                uint8_t *fields = facts->fields +
+                    ((size_t)idx * b->local_width + slot) * b->record_width;
+                if (!merge_record_results(b, facts, fields, v.rec_k)) return 0;
                 memcpy(rec_fields + (size_t)slot * b->record_width,
-                       v.rec_k, b->record_width);
+                       fields, b->record_width);
             } else if (v.kind == NVM2C_VK_RARR || v.kind == NVM2C_VK_MAP) {
                 local_kind[slot] = v.kind;
                 memcpy(rec_fields + (size_t)slot * b->record_width,

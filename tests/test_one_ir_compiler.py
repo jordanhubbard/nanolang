@@ -158,6 +158,33 @@ class OneIrCompiler(unittest.TestCase):
                             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                             self.run_checked([binary])
 
+    def test_branch_record_fields_survive_later_assignments(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for taken in (False, True):
+                with self.subTest(reverse=reverse, taken=taken), tempfile.TemporaryDirectory(prefix="nano-branch-record-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = (
+                        ".function main 0 1 0 int 1\nCALL present\nSTORE_LOCAL 0\n"
+                        f"PUSH_BOOL {int(taken)}\nJMP_FALSE present_branch\n"
+                        "CALL missing\nSTORE_LOCAL 0\nJMP joined\npresent_branch:\n"
+                        "CALL present\nSTORE_LOCAL 0\njoined:\nLOAD_LOCAL 0\nCALL absent\n"
+                        f"PUSH_BOOL {int(taken)}\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+                    )
+                    helpers = (
+                        ".function present 0 0 0 struct 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+                        ".function missing 0 0 0 struct 1\nLOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+                        ".function absent 1 1 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\nTYPE_CHECK 0\nRET\n.end\n"
+                    )
+                    assembly.write_text('.string text "present"\n.entry main\n' + (helpers + main if reverse else main + helpers))
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nano_vm", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
