@@ -1692,6 +1692,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
+            /* I evaluate array search inputs once, in source order. C does not
+             * order arguments to an ordinary call, even when my helper is pure. */
+            else if ((strcmp(func_name, "array_index_of") == 0 ||
+                      strcmp(func_name, "array_contains") == 0) &&
+                     expr->as.call.arg_count == 2) {
+                emit_literal(list, "({ __auto_type __nl_search_array = ");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "; __auto_type __nl_search_needle = ");
+                build_expr(list, expr->as.call.args[1], env);
+                emit_formatted(list, "; nl_%s(__nl_search_array, __nl_search_needle); })", func_name);
+            }
+
             /* Special handling for filter() - compiled lowering */
             else if (strcmp(func_name, "filter") == 0 && expr->as.call.arg_count == 2) {
                 /* filter(array<T>, fn(T)->bool) -> array<T>
