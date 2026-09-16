@@ -2732,8 +2732,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "#include <stddef.h>\n"
             "#include <stdint.h>\n"
             "#include <stdlib.h>\n"
-            "enum { TAG_VOID = 0, TAG_INT = 1, TAG_BOOL = 3, TAG_STRING = 5, "
-            "TAG_ARRAY = 6, TAG_STRUCT = 7 };\n");
+            "enum { TAG_VOID = 0, TAG_INT = 1, TAG_FLOAT = 3, TAG_BOOL = 4, "
+            "TAG_STRING = 5, TAG_ARRAY = 7, TAG_STRUCT = 8 };\n");
         if (need_print || need_cast_string) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
