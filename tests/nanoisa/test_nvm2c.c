@@ -1798,6 +1798,43 @@ static void test_get_s_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_record_string_field_stored_in_local(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function field_len 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  CALL field_len\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "record string local fixture");
+    CHECK(m != NULL, "record string local fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for a stored record string field");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "const char *l1") != NULL,
+          "record string field keeps the destination local's string shape");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0,
+          "stored record string field C compiles and runs");
+    CHECK(status == 2, "stored record string field keeps its runtime value");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_grow_t_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -2389,6 +2426,7 @@ int main(int argc, char **argv) {
     test_blank_s_runs_without_nano_vm();
     test_grow_s_runs_without_nano_vm();
     test_get_s_runs_without_nano_vm();
+    test_record_string_field_stored_in_local();
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
     test_array_result_kinds_cross_calls();

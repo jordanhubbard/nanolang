@@ -24,6 +24,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **5.0 / native record-field local inference.** I preserve a string
+      record field's source shape when `AGG_GET` feeds `STORE_LOCAL`, including
+      when the field shape arrives through a direct-call parameter, and cover
+      the emitted C and runtime value in the nvm2c regression suite.
+      MAC `task_34d2d9345d584ff78fab59261eb112d6`.
+
 - [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
       type metadata while parsing and registering locals and parameters, then
       select the correct getter at each nested `at`. The C seed passes all

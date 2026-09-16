@@ -616,8 +616,11 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_fail(b, "function %u: AGG_GET field is out of range", idx);
                 return 0;
             }
-            fk = rec.rec_k[fi];
-            if (fk != NVM2C_VK_STR) {
+            /* A parameter's record shape can arrive from a caller on a later
+             * classification pass. Do not turn its zeroed scratch fields into
+             * integers before that shape has propagated. */
+            fk = rec.kind == NVM2C_VK_UNK ? NVM2C_VK_UNK : rec.rec_k[fi];
+            if (fk != NVM2C_VK_STR && fk != NVM2C_VK_UNK) {
                 fk = NVM2C_VK_INT;
             }
             if (!sim_push(b, idx, stk, &sp, fk, -1)) return 0;
