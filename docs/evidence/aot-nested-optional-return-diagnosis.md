@@ -1,5 +1,10 @@
 # My nested optional return conflict
 
+This records my initial failure. The minimized fixture now passes through
+directed conversion; current evidence is in
+`docs/evidence/aot-directed-storage-conversions.md`. Full compiler acceptance
+remains open at a later local-assignment conflict.
+
 I reduced the full compiler's `env_get_type` tail-call conflict to four small
 functions in `tests/nanoisa/fixtures/nested_optional_returns.nasm`. Each return
 contains a record inside another record. One inner field contains a string;

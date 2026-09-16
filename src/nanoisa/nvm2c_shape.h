@@ -17,11 +17,14 @@ typedef enum {
     NVM_SHAPE_BOOL
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
+typedef struct { NvmShapeId source, target; } NvmShapeConversion;
 typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
     const char *error;
     char error_detail[160];
+    NvmShapeConversion *conversions;
+    size_t conversion_count, conversion_capacity;
 } NvmShapeGraph;
 
 void nvm_shape_destroy(NvmShapeGraph *graph);
@@ -33,5 +36,9 @@ NvmShapeId nvm_shape_child(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
  * means unconstrained. Root path compression may still update parent links. */
 NvmShapeId nvm_shape_lookup(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
 int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
+/* Storage conversion does not equate source and destination nodes. I solve
+ * these directed constraints after collecting the module's exact shapes. */
+int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

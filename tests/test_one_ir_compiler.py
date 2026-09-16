@@ -78,16 +78,25 @@ class OneIrCompiler(unittest.TestCase):
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
-        with tempfile.TemporaryDirectory(prefix="nano-nested-optional-") as tmp:
-            work = Path(tmp)
-            module, source, binary = (work / name for name in ("input.nvm", "input.c", "input"))
-            self.run_checked([ROOT / "bin/nanoisa", "asm",
-                              ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm",
-                              "-o", module])
-            self.run_checked([ROOT / "bin/nano_vm", module])
-            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
-            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
-            self.run_checked([binary])
+        fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
+        for tail in (False, True):
+            for reverse in (False, True):
+                with self.subTest(tail=tail, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-nested-optional-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    text = fixture
+                    if not tail:
+                        text = text.replace("TAIL_CALL present", "CALL present\n  RET")
+                        text = text.replace("TAIL_CALL missing", "CALL missing\n  RET")
+                    if reverse:
+                        header, *functions = text.split(".function ")
+                        text = header + "".join(".function " + block for block in reversed(functions))
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nano_vm", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
 
 
 if __name__ == "__main__":

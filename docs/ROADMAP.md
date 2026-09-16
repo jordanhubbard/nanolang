@@ -258,10 +258,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     The VM executes it; native translation rejects it. I add
                     that fixture to the compiler acceptance gate and report
                     conflicting shape kinds and node IDs in diagnostics.
-                  - [ ] I implement recursive storage conversion without
+                  - [x] I implement recursive storage conversion without
                     merging a present string node into its optional wrapper.
                     I test shared payload nodes, call order, recursive graphs
                     and incompatible payloads before clearing the regression.
+                    The nested acceptance fixture passes in four call/order
+                    combinations. Normal and fresh ASan/UBSan suites pass
+                    1,572 AOT and 1,073 shape checks. Evidence:
+                    `docs/evidence/aot-directed-storage-conversions.md`.
+                - [ ] I resolve local record storage joins in
+                  `check_match_expr` (319), offset 650. After recursive return
+                  conversion, `STORE_LOCAL` still equates optional and string
+                  field representations. I test branch and assignment order,
+                  source preservation and incompatible payload rejection. MAC
+                  `task_0557eb72ec60494983314ecb11a31a36`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

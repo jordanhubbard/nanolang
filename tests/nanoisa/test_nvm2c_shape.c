@@ -147,7 +147,66 @@ static void test_map_shapes(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_directed_conversions(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        for (int conflict = 0; conflict < 2; ++conflict) {
+            NvmShapeGraph g = {0};
+            NvmShapeId plain = recursive_record(&g), maybe = recursive_record(&g);
+            NvmShapeId result = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+            NvmShapeId text = nvm_shape_new(&g, NVM_SHAPE_STRING);
+            NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, plain, 1), text));
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, maybe, 1), optional));
+            NvmShapeId payload = conflict ? nvm_shape_new(&g, NVM_SHAPE_INT) : text;
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0), payload));
+            CHECK(nvm_shape_convert(&g, reverse ? maybe : plain, result));
+            CHECK(nvm_shape_convert(&g, reverse ? plain : maybe, result));
+            CHECK(nvm_shape_solve_conversions(&g) == !conflict);
+            if (!conflict) {
+                CHECK(nvm_shape_kind(&g, text) == NVM_SHAPE_STRING);
+                CHECK(nvm_shape_kind(&g, optional) == NVM_SHAPE_OPTIONAL);
+                CHECK(nvm_shape_root(&g, nvm_shape_child(&g, optional, 0)) == nvm_shape_root(&g, text));
+                NvmShapeId field = nvm_shape_child(&g, result, 1);
+                CHECK(nvm_shape_kind(&g, field) == NVM_SHAPE_OPTIONAL);
+                CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, field, 0)) == NVM_SHAPE_STRING);
+                CHECK(nvm_shape_root(&g, field) != nvm_shape_root(&g, nvm_shape_child(&g, field, 0)));
+                NvmShapeId array = nvm_shape_child(&g, result, 0);
+                CHECK(nvm_shape_root(&g, nvm_shape_child(&g, array, 0)) == nvm_shape_root(&g, result));
+                size_t count = g.count;
+                CHECK(nvm_shape_solve_conversions(&g));
+                CHECK(g.count == count);
+            }
+            nvm_shape_destroy(&g);
+            CHECK(g.conversions == NULL && g.conversion_count == 0);
+        }
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId exact = nvm_shape_new(&g, NVM_SHAPE_STRING);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_convert(&g, optional, exact));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(strstr(g.error, "exactly constrained") != NULL);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId first = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId second = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId third = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_convert(&g, second, third));
+        CHECK(nvm_shape_convert(&g, first, second));
+        CHECK(nvm_shape_unify(&g, first, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, first, 0), nvm_shape_new(&g, NVM_SHAPE_BOOL)));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, third, 0)) == NVM_SHAPE_BOOL);
+        CHECK(nvm_shape_root(&g, first) != nvm_shape_root(&g, second));
+        nvm_shape_destroy(&g);
+    }
+}
+
 int main(void) {
+    test_directed_conversions();
     {
         NvmShapeGraph g = {0};
         NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);

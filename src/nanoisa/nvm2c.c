@@ -483,20 +483,14 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
 static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result,
                                const uint8_t *source_fields, const uint8_t *result_fields) {
     if (!b->track_shapes) return 1;
-    int optional = 0;
-    for (size_t i = 0; i < b->record_width; ++i)
-        if (result_fields[i] == NVM2C_VK_VALUE) optional = 1;
-    if (!optional) return shape_equal(b, source, result);
     if (!shape_type(b, source, NVM_SHAPE_RECORD) || !shape_type(b, result, NVM_SHAPE_RECORD)) return 0;
     for (size_t i = 0; i < b->record_width; ++i) {
+        if (source_fields[i] == NVM2C_VK_UNK && result_fields[i] == NVM2C_VK_UNK) continue;
         NvmShapeId from = shape_child(b, source, (uint32_t)i);
         NvmShapeId to = shape_child(b, result, (uint32_t)i);
         if (!shape_kind(b, from, source_fields[i]) || !shape_kind(b, to, result_fields[i])) return 0;
-        if (source_fields[i] == NVM2C_VK_STR && result_fields[i] == NVM2C_VK_VALUE) {
-            if (!shape_equal(b, from, shape_child(b, to, 0))) return 0;
-        } else if (!shape_equal(b, from, to)) return 0;
     }
-    return 1;
+    return nvm_shape_convert(&b->shapes, source, result) && shape_ok(b);
 }
 
 static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
@@ -4108,6 +4102,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (facts.final) break;
         if (!facts.changed) facts.final = 1;
+    }
+
+    if (!nvm_shape_solve_conversions(&b.shapes)) {
+        nvm2c_fail(&b, "I cannot solve aggregate storage shape conversions: %s", b.shapes.error);
+        goto fail;
     }
 
     for (uint32_t f = 0; f < mod->function_count; ++f)
