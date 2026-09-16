@@ -326,7 +326,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool
         "runtime/list_ASTMatch.o", "runtime/list_ASTImport.o",
         "runtime/list_ASTOpaqueType.o", "runtime/list_ASTTupleLiteral.o",
         "runtime/list_ASTTupleIndex.o",
-        "runtime/token_helpers.o", "runtime/gc.o", "runtime/dyn_array.o",
+        "runtime/token_helpers.o", "runtime/gc.o", "runtime/effect_runtime.o", "runtime/dyn_array.o",
         "runtime/gc_struct.o", "runtime/nl_string.o", "runtime/ffi_loader.o",
         "runtime/module_build_dir.o", "runtime/cli.o", "runtime/regex.o", NULL
     };

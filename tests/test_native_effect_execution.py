@@ -1,6 +1,7 @@
 """I exercise native handler captures, nesting, and dynamic frame lifetimes."""
 from pathlib import Path
 import os
+import json
 import shlex
 import subprocess
 import tempfile
@@ -39,6 +40,31 @@ class NativeEffectExecution(unittest.TestCase):
             built = subprocess.run(command, capture_output=True, timeout=30)
             self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
             run = subprocess.run([str(output)], capture_output=True, timeout=10)
+            self.assertEqual(run.returncode, 0, run.stderr.decode(errors="replace"))
+
+    def test_wrapper_exports_native_effect_state_to_foreign_modules(self):
+        with tempfile.TemporaryDirectory(prefix="nano-wrapper-effects-") as tmp:
+            directory = Path(tmp)
+            (directory / "probe.nano").write_text("pub extern fn probe_effect_state() -> int\n")
+            (directory / "probe.c").write_text(
+                '#include "runtime/effect_runtime.h"\n'
+                'int64_t probe_effect_state(void) { return nl_effect_top == NULL ? 1 : 0; }\n')
+            (directory / "module.json").write_text(json.dumps({
+                "name": "effect_probe", "c_sources": ["probe.c"],
+                "cflags": ["-I" + str(ROOT / "src")]}))
+            source = directory / "main.nano"
+            source.write_text('''
+module "probe.nano" as Probe
+fn main() -> int {
+ unsafe { assert (== (Probe.probe_effect_state) 1) }
+ return 0
+}
+shadow main { assert true }
+''')
+            output = directory / "wrapper"
+            built = subprocess.run([str(ROOT / "bin/nano_virt"), str(source), "-o", str(output)], cwd=ROOT, capture_output=True, timeout=60)
+            self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+            run = subprocess.run([str(output)], cwd=ROOT, capture_output=True, timeout=10)
             self.assertEqual(run.returncode, 0, run.stderr.decode(errors="replace"))
 
     def test_imported_perform_reaches_callers_handler(self):
