@@ -28,9 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Darwin user-guide parser shadow.** I reproduce the failed temporary
-      snippet fixture in my guide checker and retain shadow execution and all
-      snippet checks while repairing its cause. MAC `task_3f227591ba94400a831005e1eec376f5`.
+- [ ] **Interpreter union string lifetime.** I give returned union string
+      fields their own lifetime instead of borrowing a callee local. Darwin
+      exposes the dangling Result payload in my user-guide checker. I retain
+      all shadows and test returned payloads directly.
+      MAC `task_3f227591ba94400a831005e1eec376f5`.
 
 - [ ] **Imported effect declarations.** I register imported effect signatures
       before checking module functions, and execute a handler across the module
