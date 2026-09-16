@@ -28,12 +28,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Main PRs #346 and #350 reconciliation.** I preserve my broader
+- [ ] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
+      MAC `task_5e530abdfdd3459c978149ae4b25f80f`.
+
+- [ ] **Imported fixture discovery.** I keep imported empty-array-return coverage while distinguishing module fixtures from standalone programs.
+      MAC `task_853ace7b4ef841a6adf345f069bd54cd`.
+
+- [x] **Main PRs #346 and #350 reconciliation.** I preserve my broader
       tagged global semantics, ownership and checked call formatting while
       integrating new main ancestry and reviewing its globals regressions.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
 
-- [ ] **Stable full-suite compiler selection.** I pin the compiler requested
+- [x] **Stable full-suite compiler selection.** I pin the compiler requested
       by my test entry point even when bootstrap changes the installed symlink.
       My C-reference suite must execute that compiler; the explicit self-hosted
       suite must retain its own compiler. I test the link-mutation case.
