@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Coverage VM example shadow budget.** I allow a finite explicit
+      budget for instrumented VM-example compiler children while preserving
+      normal and deadline-regression behavior elsewhere in the full suite.
+      I verify the pi example and keep every shadow assertion.
+      MAC `task_840c38c505ae425da92124a08cccc1ce`.
+
 - [x] **Full CI VM example dependencies.** I install the foreign libraries
       required by dependency shadows in all 244 eligible VM examples for full
       Linux/Darwin and coverage jobs. I retain every eligible source and all
