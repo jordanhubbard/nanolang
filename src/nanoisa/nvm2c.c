@@ -18,6 +18,10 @@
 #include <string.h>
 
 #define NVM2C_MAX_LOCALS 1024
+#define NVM2C_MAX_STACK  NVM2C_MAX_LOCALS
+#define NVM2C_MAX_TEMPS  256
+#define NVM2C_MAX_REC_FIELDS 64
+#define NVM2C_CALL_SIZE (64 + NVM2C_MAX_LOCALS * 20 + 2)
 
 #define NVM2C_VK_INT 0
 #define NVM2C_VK_STR 1
@@ -1854,32 +1858,49 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
     char cname[64];
     fn_c_name(mod, callee, cname, sizeof cname);
     size_t pos = 0;
-    pos += (size_t)snprintf(call + pos, call_sz - pos, "%s(", cname);
+    int n = snprintf(call, call_sz, "%s(", cname);
+    if (n < 0 || (size_t)n >= call_sz) {
+        nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
+        return 0;
+    }
+    pos = (size_t)n;
     for (uint16_t a = 0; a < cf->arity; a++) {
-        if (a) pos += (size_t)snprintf(call + pos, call_sz - pos, ", ");
-        if (argk[a] == NVM2C_VK_STR) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "s[%d]", args[a]);
-        } else if (argk[a] == NVM2C_VK_ARR) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "a[%d]", args[a]);
-        } else if (argk[a] == NVM2C_VK_SARR) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "sa[%d]", args[a]);
-        } else if (argk[a] == NVM2C_VK_REC) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "r[%d]", args[a]);
-        } else if (argk[a] == NVM2C_VK_RARR) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "ra[%d]", args[a]);
-        } else if (argk[a] == NVM2C_VK_MAP) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "m[%d]", args[a]);
-        } else if (argk[a] == NVM2C_VK_VALUE) {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "v[%d]", args[a]);
-        } else {
-            pos += (size_t)snprintf(call + pos, call_sz - pos, "t[%d]", args[a]);
+        if (a) {
+            n = snprintf(call + pos, call_sz - pos, ", ");
+            if (n < 0 || (size_t)n >= call_sz - pos) {
+                nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
+                return 0;
+            }
+            pos += (size_t)n;
         }
-        if (pos >= call_sz) {
+        if (argk[a] == NVM2C_VK_STR) {
+            n = snprintf(call + pos, call_sz - pos, "s[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_ARR) {
+            n = snprintf(call + pos, call_sz - pos, "a[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_SARR) {
+            n = snprintf(call + pos, call_sz - pos, "sa[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_REC) {
+            n = snprintf(call + pos, call_sz - pos, "r[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_RARR) {
+            n = snprintf(call + pos, call_sz - pos, "ra[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_MAP) {
+            n = snprintf(call + pos, call_sz - pos, "m[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_VALUE) {
+            n = snprintf(call + pos, call_sz - pos, "v[%d]", args[a]);
+        } else {
+            n = snprintf(call + pos, call_sz - pos, "t[%d]", args[a]);
+        }
+        if (n < 0 || (size_t)n >= call_sz - pos) {
             nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
             return 0;
         }
+        pos += (size_t)n;
     }
-    snprintf(call + pos, call_sz - pos, ")");
+    n = snprintf(call + pos, call_sz - pos, ")");
+    if (n < 0 || (size_t)n >= call_sz - pos) {
+        nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
+        return 0;
+    }
     return 1;
 }
 
@@ -2816,7 +2837,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
-            char call[768];
+            char call[NVM2C_CALL_SIZE];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
             }
@@ -2857,7 +2878,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 terminated = 1;
                 break;
             }
-            char call[768];
+            char call[NVM2C_CALL_SIZE];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
             }

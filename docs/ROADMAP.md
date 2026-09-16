@@ -1903,6 +1903,9 @@ Compiler product:
 - [x] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
       without `nano_vm`. Nested records stay refused.
       `make test-nvm2c` (306 passed).
+- [x] I bound every append while formatting native direct calls and size the
+      call expression for the full supported arity. Wide ordinary and tail
+      calls pass the focused `nvm2c` sanitizer test.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

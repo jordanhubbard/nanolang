@@ -174,3 +174,4 @@ site/
 /tests/test_nsi_shm
 /tests/test_nsi_fabric
 /tests/nsi_client_bin
+tests/nanoisa/test_nvm2c
