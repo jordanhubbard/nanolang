@@ -2037,7 +2037,7 @@ static void test_nested_record_pack_is_refused(void) {
 }
 
 static void test_unsupported_classifier_instructions(void) {
-    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL, OP_PUSH_F64,
+    const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL,
         OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
         OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {

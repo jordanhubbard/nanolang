@@ -832,16 +832,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
             if (lhs.kind == NVM2C_VK_UNK && rhs.kind != NVM2C_VK_UNK) {
-                if (!mark_origin(b, local_kind, nloc, lhs.origin, rhs.kind)) return 0;
+                mark_origin(local_kind, nloc, lhs.origin, rhs.kind);
                 lhs.kind = rhs.kind;
             }
             if (rhs.kind == NVM2C_VK_UNK && lhs.kind != NVM2C_VK_UNK) {
-                if (!mark_origin(b, local_kind, nloc, rhs.origin, lhs.kind)) return 0;
+                mark_origin(local_kind, nloc, rhs.origin, lhs.kind);
                 rhs.kind = lhs.kind;
             }
             if (lhs.kind == NVM2C_VK_STR && rhs.kind == NVM2C_VK_STR) {
-                if (!mark_str_origin(b, local_kind, nloc, lhs.origin) ||
-                    !mark_str_origin(b, local_kind, nloc, rhs.origin)) return 0;
+                mark_str_origin(local_kind, nloc, lhs.origin);
+                mark_str_origin(local_kind, nloc, rhs.origin);
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -1475,7 +1475,7 @@ static int stack_push_str(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 }
 
 static int stack_push_float(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK || st->next_float >= NVM2C_MAX_TEMPS) {
+    if ((size_t)st->sp >= st->capacity || (size_t)st->next_float >= st->capacity) {
         nvm2c_fail(b, "too many float temporaries");
         return -1;
     }
