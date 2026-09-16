@@ -24,6 +24,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **5.0 / native translation local capacity.** I accept valid NanoISA
+      functions with up to 1024 locals in `nvm2c`, size inference storage from
+      the locals functions actually declare, reject malformed arity, and test
+      both boundaries. MAC `task_183123ca3822426499719b042132b49f`.
+
 - [ ] **Stage 2 scalar filter parity.** I infer the element type of literal and
       variable array expressions when lowering `filter`, use a boolean-specific
       callback ABI, preserve typed empty results, and test int, float, string,
