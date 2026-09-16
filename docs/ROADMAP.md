@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Main PRs #346 and #350 reconciliation.** I preserve my broader
+      tagged global semantics, ownership and checked call formatting while
+      integrating new main ancestry and reviewing its globals regressions.
+      MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
+
 - [ ] **Stable full-suite compiler selection.** I pin the compiler requested
       by my test entry point even when bootstrap changes the installed symlink.
       My C-reference suite must execute that compiler; the explicit self-hosted
