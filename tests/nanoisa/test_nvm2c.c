@@ -416,7 +416,8 @@ static void test_real_walk_artifact(void) {
                      "PUSH_STR a\n%sCALL_EXTERN 0\n%s%s\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
                      item->a, item->z, item->expected, item->name, item->type,
                      item->argc == 2 ? "string" : "", item->argc == 2 ? "PUSH_STR z\n" : "",
-                     strcmp(item->type, "string") == 0 ? "PUSH_STR " : "PUSH_I64 ",
+                     strcmp(item->type, "string") == 0 ? "PUSH_STR " :
+                     strcmp(item->type, "bool") == 0 ? "PUSH_BOOL " : "PUSH_I64 ",
                      strcmp(item->type, "string") == 0 ? "expected" : item->expected);
             NvmModule *module = assemble_ok(assembly, item->name);
             if (!module) continue;
@@ -1959,6 +1960,7 @@ static void test_has_hi_then_runs_without_nano_vm(void) {
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR hi\n"
         "  CALL has_hi\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "has_hi then fixture");
@@ -1991,6 +1993,7 @@ static void test_has_hi_else_runs_without_nano_vm(void) {
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR no\n"
         "  CALL has_hi\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "has_hi else fixture");
@@ -2181,6 +2184,7 @@ static void test_same_then_runs_without_nano_vm(void) {
         "  PUSH_STR hi\n"
         "  PUSH_STR hi\n"
         "  CALL same\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "same then fixture");
@@ -2214,6 +2218,7 @@ static void test_same_else_runs_without_nano_vm(void) {
         "  PUSH_STR hi\n"
         "  PUSH_STR no\n"
         "  CALL same\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "same else fixture");
@@ -2247,6 +2252,7 @@ static void test_diff_runs_without_nano_vm(void) {
         "  PUSH_STR hi\n"
         "  PUSH_STR no\n"
         "  CALL diff\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "diff fixture");
@@ -2274,6 +2280,7 @@ static void test_eq_array_is_refused(void) {
         "  PUSH_I64 1\n"
         "  ARR_LITERAL 1 1\n"
         "  EQ\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "EQ array fixture");
@@ -2367,6 +2374,7 @@ static void test_slice_runs_without_nano_vm(void) {
         "  CALL slice\n"
         "  PUSH_STR h\n"
         "  EQ\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "slice fixture");
@@ -2511,7 +2519,7 @@ static void test_ch_oob_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
         ".entry 1\n"
-        ".function miss 0 0 0 int 1\n"
+        ".function miss 0 0 0 bool 1\n"
         "  PUSH_STR hi\n"
         "  PUSH_I64 9\n"
         "  STR_CHAR_AT\n"
@@ -2521,6 +2529,7 @@ static void test_ch_oob_runs_without_nano_vm(void) {
         ".end\n"
         ".function main 0 0 0 int 1\n"
         "  CALL miss\n"
+        "  CAST_INT\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "STR_CHAR_AT oob fixture");
@@ -3002,7 +3011,7 @@ static void test_emitted_map_get(void) {
         nvm_module_free(m);
     }
     const char *unresolved[] = {
-        "PUSH_I64 0\nEQ\n", "PUSH_BOOL 0\nEQ\n", "RET\n",
+        "RET\n",
         "BOOL_NOT\n", "PUSH_BOOL 1\nBOOL_AND\n", "PUSH_BOOL 0\nBOOL_OR\n"
     };
     for (size_t i = 0; i < sizeof unresolved / sizeof unresolved[0]; ++i) {
@@ -4012,7 +4021,7 @@ static void test_loop_carried_stack(void) {
 static void test_variant_tags_and_payloads(void) {
     const char *bodies[] = {
         "AGG_PACK 1 0 0 0\nAGG_TAG\nRET\n",
-        "AGG_PACK 1 0 65535 0\nAGG_TAG\nPUSH_I64 65535\nI64_EQ\nRET\n",
+        "AGG_PACK 1 0 65535 0\nAGG_TAG\nPUSH_I64 65535\nI64_EQ\nCAST_INT\nRET\n",
         "PUSH_I64 42\nAGG_PACK 1 0 7 1\nDUP\nAGG_TAG\nPUSH_I64 7\nI64_EQ\nASSERT\nAGG_GET 0\nRET\n",
         "PUSH_STR payload\nAGG_PACK 1 0 9 1\nDUP\nAGG_TAG\nPUSH_I64 9\nI64_EQ\nASSERT\nAGG_GET 0\nSTR_LEN\nRET\n",
         "PUSH_I64 42\nRET\nJMP dead\ndead:\nPOP\nJMP end\nend:\n"
@@ -4315,6 +4324,134 @@ static void test_string_edges_run_as_native_c(void) {
     }
 }
 
+static void test_local_initialization_guard(void) {
+    const char *bad[] = {
+        "LOAD_LOCAL 0\nTYPE_CHECK 0\nPOP\nPUSH_I64 0\nRET\n",
+        "PUSH_BOOL 0\nJMP_FALSE joined\nPUSH_BOOL 1\nSTORE_LOCAL 0\njoined:\n"
+        "LOAD_LOCAL 0\nTYPE_CHECK 4\nPOP\nPUSH_I64 0\nRET\n",
+        "loop:\nLOAD_LOCAL 0\nPOP\nPUSH_BOOL 1\nSTORE_LOCAL 0\nPUSH_BOOL 0\nJMP_FALSE done\n"
+        "JMP loop\ndone:\nPUSH_I64 0\nRET\n"
+    };
+    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i) {
+        char source[1024], error[256] = {0};
+        snprintf(source, sizeof source, ".entry main\n.function main 0 1 0 int 1\n%s.end\n", bad[i]);
+        NvmModule *m = assemble_ok(source, "possibly uninitialized local");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "possibly uninitialized local 0"),
+              "I refuse to turn void-before-store into a native zero or scalar tag");
+        free(c); nvm_module_free(m);
+    }
+    for (int arm = 0; arm < 2; ++arm) {
+        char source[1024];
+        snprintf(source, sizeof source, ".entry main\n.function main 0 2 0 int 1\n"
+            "PUSH_BOOL %d\nJMP_FALSE alternate\nPUSH_BOOL 1\nSTORE_LOCAL 0\nJMP joined\n"
+            "alternate:\nPUSH_BOOL 0\nSTORE_LOCAL 0\njoined:\nPUSH_I64 0\nSTORE_LOCAL 1\n"
+            "loop:\nLOAD_LOCAL 0\nTYPE_CHECK 4\nASSERT\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\n"
+            "STORE_LOCAL 1\nLOAD_LOCAL 1\nPUSH_I64 3\nI64_LT_S\nJMP_FALSE done\nJMP loop\n"
+            "done:\nPUSH_I64 0\nRET\n.end\n", arm);
+        NvmModule *m = assemble_ok(source, "definitely initialized branch and loop locals");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I accept initialization on every incoming path");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I retain initialized local facts through branch intersections and loop backedges");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    NvmModule *m = assemble_ok(
+        ".entry main\n.function main 0 1 0 int 1\nPUSH_I64 0\nRET\nLOAD_LOCAL 0\nPOP\n.end\n",
+        "unreachable local read");
+    if (m) {
+        char *c = emit_or_fail(m, "I ignore unreachable uninitialized local reads");
+        free(c); nvm_module_free(m);
+    }
+}
+
+static void test_boolean_tags(void) {
+    test_local_initialization_guard();
+    const char *producers[] = {
+        "PUSH_I64 1\nPUSH_I64 2\nI64_EQ\n", "PUSH_I64 1\nPUSH_I64 2\nI64_NE\n",
+        "PUSH_I64 1\nPUSH_I64 2\nI64_LT_S\n", "PUSH_I64 1\nPUSH_I64 2\nI64_LE_S\n",
+        "PUSH_I64 1\nPUSH_I64 2\nI64_GT_S\n", "PUSH_I64 1\nPUSH_I64 2\nI64_GE_S\n",
+        "PUSH_BOOL 1\nPUSH_BOOL 0\nBOOL_AND\n", "PUSH_BOOL 1\nPUSH_BOOL 0\nBOOL_OR\n",
+        "PUSH_STR text\nPUSH_STR part\nSTR_STARTS_WITH\n",
+        "PUSH_STR text\nPUSH_STR part\nSTR_ENDS_WITH\n",
+        "PUSH_STR text\nPUSH_STR part\nSTR_CONTAINS\n",
+        "PUSH_I64 1\nTYPE_CHECK 1\n"
+    };
+    char producer_source[4096] = ".string text \"abc\"\n.string part \"a\"\n.entry main\n.function main 0 0 0 int 1\n";
+    for (size_t i = 0; i < sizeof producers / sizeof producers[0]; ++i) {
+        strcat(producer_source, producers[i]);
+        strcat(producer_source, "TYPE_CHECK 4\nASSERT\n");
+    }
+    strcat(producer_source, "PUSH_I64 0\nRET\n.end\n");
+    NvmModule *producer_module = assemble_ok(producer_source, "boolean-producing instructions");
+    if (producer_module) {
+        char *c = emit_or_fail(producer_module, "I assign boolean tags to predicates and comparisons");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve boolean result tags for integer, boolean and string predicates");
+            free(c);
+        }
+        nvm_module_free(producer_module);
+    }
+    const char *source =
+        ".string key \"key\"\n.string yes \"true\"\n.string no \"false\"\n.entry main\n"
+        ".function main 0 2 0 int 1\nPUSH_BOOL 1\nCALL relay\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nTYPE_CHECK 4\nASSERT\nLOAD_LOCAL 0\nTYPE_CHECK 1\nBOOL_NOT\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_I64 1\nEQ\nBOOL_NOT\nASSERT\nPUSH_I64 1\nLOAD_LOCAL 0\nNE\nASSERT\n"
+        "LOAD_LOCAL 0\nCAST_STRING\nPUSH_STR yes\nEQ\nASSERT\n"
+        "LOAD_LOCAL 0\nBOOL_NOT\nCAST_STRING\nPUSH_STR no\nEQ\nASSERT\n"
+        "LOAD_LOCAL 0\nCAST_INT\nTYPE_CHECK 1\nASSERT\n"
+        "LOAD_LOCAL 0\nCALL pack\nAGG_GET 0\nTYPE_CHECK 4\nASSERT\n"
+        "LOAD_LOCAL 0\nPRINTLN\nLOAD_LOCAL 0\nBOOL_NOT\nPRINTLN\n"
+        "HM_NEW 5 1\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nPUSH_STR key\nHM_GET\nPUSH_BOOL 0\nEQ\nBOOL_NOT\nASSERT\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nPUSH_I64 1\nHM_SET\nPUSH_STR key\nHM_GET\nDUP\n"
+        "PUSH_BOOL 1\nEQ\nBOOL_NOT\nASSERT\nPUSH_I64 1\nEQ\nASSERT\n"
+        "LOAD_LOCAL 1\nPUSH_STR key\nHM_HAS\nTYPE_CHECK 4\nASSERT\n"
+        "PUSH_BOOL 1\nPUSH_BOOL 0\nJMP_FALSE alternate\nBOOL_NOT\nJMP joined\n"
+        "alternate:\nDUP\nSWAP\nPOP\njoined:\nTYPE_CHECK 4\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+        ".function relay 1 1 0 bool 1\nLOAD_LOCAL 0\nTAIL_CALL identity\n.end\n"
+        ".function identity 1 1 0 bool 1\nLOAD_LOCAL 0\nRET\n.end\n"
+        ".function pack 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "boolean runtime tags");
+    if (m) {
+        char *c = emit_or_fail(m, "I preserve boolean tags across scalar and aggregate data flow");
+        if (c) {
+            int status = -1;
+            char output[64];
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 && status == 0 &&
+                  strcmp(output, "true\nfalse\n") == 0,
+                  "I distinguish bool from int in equality, casts, printing, calls, joins and record fields");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *bad[] = {
+        "PUSH_BOOL 1\nRET\n",
+        "PUSH_BOOL 1\nCALL add_int\nRET\n",
+        "PUSH_I64 1\nCALL negate_bool\nCAST_INT\nRET\n",
+        "PUSH_I64 1\nPUSH_BOOL 1\nCALL both_bool\nCAST_INT\nRET\n",
+        "HM_NEW 5 1\nPUSH_STR key\nPUSH_BOOL 1\nHM_SET\nPOP\nPUSH_I64 0\nRET\n"
+    };
+    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i) {
+        char assembly[1024], error[256] = {0};
+        snprintf(assembly, sizeof assembly, ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n%s.end\n"
+            ".function add_int 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nRET\n.end\n"
+            ".function negate_bool 1 1 0 bool 1\nLOAD_LOCAL 0\nBOOL_NOT\nRET\n.end\n"
+            ".function both_bool 2 2 0 bool 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nBOOL_AND\nRET\n.end\n", bad[i]);
+        m = assemble_ok(assembly, "invalid implicit boolean conversion");
+        if (!m) continue;
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && error[0], "I reject implicit boolean/integer conversion at typed boundaries");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_module_initializer(void) {
     const char *tags[] = {"void 0", "int 1", "string 1", "hashmap 1"};
     const char *results[] = {"", "PUSH_I64 99\n", "PUSH_STR init\n", "HM_NEW 5 1\n"};
@@ -4375,6 +4512,7 @@ static void test_module_initializer(void) {
 }
 
 int main(int argc, char **argv) {
+    test_boolean_tags();
     test_module_initializer();
     test_self_tail_restart_preserves_values();
     test_self_tail_rejects_malformed_calls();

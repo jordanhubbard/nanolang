@@ -183,6 +183,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                         insertion. I do not infer a runtime tag from their
                         shared C integer representation. MAC
                         `task_811f280202174ac88a501ca3281d5e58`.
+                        - [x] I give booleans distinct scalar and shape facts
+                          through producers, locals, calls, returns and record
+                          fields. I test tag inspection, mixed equality,
+                          casts and refusal at integer-only boundaries.
+                          Normal and sanitizer suites pass 1,191 AOT and 994
+                          shape checks. Evidence:
+                          `docs/evidence/aot-boolean-tags.md`.
+                      - [ ] I preserve void-valued local reads before stores,
+                        including conditional and loop paths. Until native
+                        storage carries that tag, I reject potentially
+                        uninitialized reads rather than inventing zero values.
+                        MAC `task_288b833c300d40d18f6204c0cccba24f`.
+                        - [x] I reject potentially uninitialized native local
+                          reads using a control-flow definite-assignment
+                          worklist, with branch, backedge and dead-code tests.
+                          This is a guard, not void-valued local support.
+                          Evidence: `docs/evidence/aot-boolean-tags.md`.
                       - [x] I reconcile ordinary and optional string arguments
                         at function boundaries, including forward calls and
                         tail calls. I preserve the present-value shape and
