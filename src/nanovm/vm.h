@@ -66,6 +66,8 @@ typedef struct {
  * ======================================================================== */
 
 typedef struct {
+    uint32_t effect_owner; /* One-based lexical owner for handler activations. */
+    uint16_t effect_local_start;
     uint32_t fn_idx;          /* Function table index */
     uint32_t return_ip;       /* Instruction pointer to return to */
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
@@ -108,6 +110,12 @@ typedef enum {
  * VM State
  * ======================================================================== */
 
+typedef struct {
+    const NvmModule *module;
+    uint32_t operation, target, owner;
+    uint16_t parameter_start, parameter_count;
+} VmEffectHandler;
+
 typedef struct VmState {
     /* Module being executed */
     const NvmModule *module;
@@ -136,6 +144,8 @@ typedef struct VmState {
     /* Call stack */
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
+    VmEffectHandler handlers[VM_MAX_FRAMES];
+    uint32_t handler_count;
     uint32_t activation_floor; /* RET stops before resuming a suspended caller. */
     pthread_t owner_thread;
     NanoCallbackRuntime *callbacks;

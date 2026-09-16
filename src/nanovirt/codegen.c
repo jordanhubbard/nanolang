@@ -135,6 +135,8 @@ struct CG {
     /* Loop context stack */
     LoopCtx loops[MAX_LOOP_DEPTH];
     int loop_depth;
+    int effect_depth;
+    int handler_loop_floor;
 
     /* Type definitions (populated in pass 1) */
     CgStructDef structs[MAX_STRUCT_DEFS];
@@ -681,6 +683,8 @@ static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
 static void compile_nested_function(CG *cg, ASTNode *node);
 static bool stmt_falls_through(ASTNode *node);
+static bool expr_leaves_value(CG *cg, ASTNode *node);
+static void bind_parameter_type(CG *cg, const Parameter *param, int line);
 
 static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
                                  bool want_float) {
@@ -1908,6 +1912,40 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     return false;
 }
 
+/* Effect bodies and arms have expression-block semantics: a final value
+ * resumes the perform, whereas an explicit return exits the lexical function. */
+static void compile_effect_block(CG *cg, ASTNode *body) {
+    bool value = false;
+    if (body->type == AST_BLOCK) {
+        uint16_t bindings = cg->local_binding_count;
+        for (int i = 0; i < body->as.block.count; i++) {
+            ASTNode *statement = body->as.block.statements[i];
+            value = i == body->as.block.count - 1 && ast_is_value_expression(statement->type);
+            if (value) {
+                compile_expr(cg, statement);
+                value = expr_leaves_value(cg, statement);
+            } else compile_stmt(cg, statement);
+            if (!stmt_falls_through(statement)) break;
+        }
+        cg->local_binding_count = bindings;
+    } else {
+        compile_expr(cg, body);
+        value = expr_leaves_value(cg, body);
+    }
+    if (!value) emit_op(cg, OP_PUSH_VOID);
+}
+
+static uint32_t effect_operation(CG *cg, const char *effect, const char *operation) {
+    if (!effect || !operation) { cg_error(cg, 0, "I require a resolved effect operation."); return 0; }
+    size_t length = strlen(effect) + strlen(operation) + 2;
+    char *name = malloc(length);
+    if (!name) { cg_error(cg, 0, "I cannot allocate an effect name."); return 0; }
+    snprintf(name, length, "%s.%s", effect, operation);
+    uint32_t index = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+    free(name);
+    return index;
+}
+
 static ASTNode *bytecode_declaration(ASTNode *node) {
     return node && node->type == AST_ASYNC_FN ? node->as.async_fn.function : node;
 }
@@ -1916,6 +1954,89 @@ static void compile_expr(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
     switch (node->type) {
+    case AST_EFFECT_HANDLER: {
+        ASTNode normalized = *node;
+        int count = node->as.effect_handler.handler_count;
+        if (count <= 0 || count > 1024) { cg_error(cg, node->line, "I require bounded, nonempty handlers."); break; }
+        int *counts = calloc((size_t)count, sizeof(*counts));
+        char ***parameters = calloc((size_t)count, sizeof(*parameters));
+        if (!counts || !parameters) { free(counts); free(parameters); cg_error(cg, node->line, "I cannot allocate handler parameters."); break; }
+        for (int i = 0; i < count; i++) {
+            counts[i] = node->as.effect_handler.handler_param_names[i] ? 1 : 0;
+            parameters[i] = &node->as.effect_handler.handler_param_names[i];
+        }
+        normalized.type = AST_HANDLE_EXPR;
+        normalized.as.handle_expr.body = node->as.effect_handler.body;
+        normalized.as.handle_expr.effect_name = node->as.effect_handler.effect_name;
+        normalized.as.handle_expr.handler_count = count;
+        normalized.as.handle_expr.handler_op_names = node->as.effect_handler.handler_op_names;
+        normalized.as.handle_expr.handler_param_names = parameters;
+        normalized.as.handle_expr.handler_param_counts = counts;
+        normalized.as.handle_expr.handler_bodies = node->as.effect_handler.handler_bodies;
+        compile_expr(cg, &normalized);
+        free(counts); free(parameters);
+        break;
+    }
+    case AST_HANDLE_EXPR: {
+        int count = node->as.handle_expr.handler_count;
+        if (count <= 0 || count > 1024) { cg_error(cg, node->line, "I require bounded, nonempty handlers."); break; }
+        uint32_t *patches = calloc((size_t)count, sizeof(*patches));
+        uint16_t *starts = calloc((size_t)count, sizeof(*starts));
+        if (!patches || !starts) { free(patches); free(starts); cg_error(cg, node->line, "I cannot allocate handlers."); break; }
+        uint16_t outer_bindings = cg->local_binding_count;
+        /* Reserve each arm's parameter slots before lowering its body. */
+        for (int i = 0; i < count; i++) {
+            starts[i] = cg->local_count;
+            int argc = node->as.handle_expr.handler_param_counts[i];
+            for (int j = 0; j < argc; j++) local_add(cg, "", node->line);
+            cg->local_binding_count = outer_bindings;
+            patches[i] = emit_op(cg, OP_HANDLER_PUSH,
+                effect_operation(cg, node->as.handle_expr.effect_name, node->as.handle_expr.handler_op_names[i]),
+                (int32_t)0, (int)starts[i], argc);
+        }
+        if (cg->had_error) { free(patches); free(starts); break; }
+        cg->effect_depth++;
+        compile_effect_block(cg, node->as.handle_expr.body);
+        emit_op(cg, OP_HANDLER_POP, count);
+        uint32_t skip = emit_op(cg, OP_JMP, (int32_t)0);
+        for (int i = 0; i < count && !cg->had_error; i++) {
+            patch_jump(cg, patches[i] + 5, patches[i], cg->code_size);
+            int argc = node->as.handle_expr.handler_param_counts[i];
+            int symbol_start = cg->env->symbol_count;
+            EffectDef *effect = env_get_effect(cg->env, node->as.handle_expr.effect_name);
+            EffectOp *operation = effect ? effect_get_op(effect, node->as.handle_expr.handler_op_names[i]) : NULL;
+            if (!operation || operation->param_count != argc) {
+                cg_error(cg, node->line, "I require a resolved handler signature."); break;
+            }
+            for (int j = 0; j < argc; j++) {
+                Local *local = &cg->locals[cg->local_binding_count++];
+                local->name = node->as.handle_expr.handler_param_names[i][j];
+                local->slot = starts[i] + j;
+                local->struct_type = operation->params[j].struct_type_name;
+                Parameter parameter = operation->params[j];
+                parameter.name = local->name;
+                bind_parameter_type(cg, &parameter, node->as.handle_expr.handler_bodies[i]->line);
+            }
+            /* An arm may loop locally; it cannot jump into a suspended
+             * caller's lexical loop without unwinding the effect activation. */
+            int saved_loop_floor = cg->handler_loop_floor;
+            cg->handler_loop_floor = cg->loop_depth;
+            compile_effect_block(cg, node->as.handle_expr.handler_bodies[i]);
+            cg->handler_loop_floor = saved_loop_floor;
+            emit_op(cg, OP_EFFECT_RESUME);
+            cg->env->symbol_count = symbol_start;
+            cg->local_binding_count = outer_bindings;
+        }
+        cg->effect_depth--;
+        if (!cg->had_error) patch_jump(cg, skip + 1, skip, cg->code_size);
+        free(patches); free(starts);
+        break;
+    }
+    case AST_EFFECT_OP:
+        for (int i = 0; i < node->as.effect_op.arg_count; i++) compile_expr(cg, node->as.effect_op.args[i]);
+        emit_op(cg, OP_PERFORM, effect_operation(cg, node->as.effect_op.effect_name, node->as.effect_op.op_name), node->as.effect_op.arg_count);
+        break;
+
     case AST_AWAIT:
         /* My scalar async contract is synchronous; I do not create promises. */
         compile_expr(cg, node->as.await_expr.expr);
@@ -2703,6 +2824,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     Type saved_return_element_type = cg->current_return_element_type;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
     int saved_loop_depth = cg->loop_depth;
+    int saved_effect_depth = cg->effect_depth;
+    int saved_handler_loop_floor = cg->handler_loop_floor;
     uint16_t saved_upvalue_count = cg->upvalue_count;
     CG *saved_parent = cg->parent;
 
@@ -2723,6 +2846,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->local_binding_count = 0;
     cg->param_count = (uint16_t)node->as.function.param_count;
     cg->loop_depth = 0;
+    cg->effect_depth = 0;
+    cg->handler_loop_floor = 0;
     cg->upvalue_count = 0;
     cg->current_fn_idx = (uint32_t)fn_idx;
     cg->current_return_element_type = node->as.function.return_element_type;
@@ -2781,6 +2906,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->current_return_element_type = saved_return_element_type;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
     cg->loop_depth = saved_loop_depth;
+    cg->effect_depth = saved_effect_depth;
+    cg->handler_loop_floor = saved_handler_loop_floor;
     /* Resolving a grandchild's free variable can add a capture to this
      * suspended parent. I keep those additions when resuming its compilation. */
     memcpy(cg->upvalues, st->parent_snapshot.upvalues, sizeof(cg->upvalues));
@@ -2820,7 +2947,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
  * mirrored. An identifier also loads a value, including a stored void value. */
 static bool expr_leaves_value(CG *cg, ASTNode *node) {
     if (!node) return false;
-    if (node->type == AST_MATCH || node->type == AST_IDENTIFIER) return true;
+    if (node->type == AST_MATCH || node->type == AST_IDENTIFIER || node->type == AST_HANDLE_EXPR || node->type == AST_EFFECT_HANDLER || node->type == AST_EFFECT_OP) return true;
     return check_expression(node, cg->env) != TYPE_VOID;
 }
 
@@ -3156,7 +3283,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             value->as.array_literal.element_type = cg->current_return_element_type;
         }
         if (node->as.return_stmt.value
-                && compile_tail_call(cg, node->as.return_stmt.value)) {
+                && cg->effect_depth == 0 && compile_tail_call(cg, node->as.return_stmt.value)) {
             break;
         }
         if (node->as.return_stmt.value) {
@@ -3170,7 +3297,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_BREAK: {
-        if (cg->loop_depth == 0) {
+        if (cg->loop_depth <= cg->handler_loop_floor) {
             cg_error(cg, node->line, "break outside loop");
             break;
         }
@@ -3188,7 +3315,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_CONTINUE: {
-        if (cg->loop_depth == 0) {
+        if (cg->loop_depth <= cg->handler_loop_floor) {
             cg_error(cg, node->line, "continue outside loop");
             break;
         }
@@ -3233,6 +3360,9 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_TUPLE_LITERAL:
     case AST_TUPLE_INDEX:
     case AST_UNION_CONSTRUCT:
+    case AST_EFFECT_HANDLER:
+    case AST_HANDLE_EXPR:
+    case AST_EFFECT_OP:
     case AST_MATCH:
     case AST_TRY_OP:
     case AST_AWAIT:
@@ -3358,6 +3488,8 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     cg->local_binding_count = 0;
     cg->param_count = (uint16_t)fn_node->as.function.param_count;
     cg->loop_depth = 0;
+    cg->effect_depth = 0;
+    cg->handler_loop_floor = 0;
     cg->upvalue_count = 0;
     cg->current_fn_idx = (uint32_t)fn_idx;
     cg->current_return_element_type = fn_node->as.function.return_element_type;

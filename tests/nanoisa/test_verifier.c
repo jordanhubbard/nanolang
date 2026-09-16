@@ -1636,7 +1636,45 @@ static void test_alternate_return_target_passes(void) {
 
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
+static void test_effect_handler_verification(void) {
+    const char *test_name = "effect handler operands and separately rooted arm stacks";
+    uint8_t code[128];
+    uint32_t n = 0;
+    n += emit(code + n, OP_HANDLER_PUSH, (uint32_t)0, (int32_t)14, 0, 1);
+    n += emit(code + n, OP_RET);
+    n += emit(code + n, OP_PUSH_VOID);
+    n += emit(code + n, OP_EFFECT_RESUME);
+    NvmModule *mod = make_simple_module(code, n, 1, 0);
+    ASSERT(nvm_verify(mod).ok, "I verify a handler arm from its own empty stack");
+    mod->code[14] = OP_POP;
+    ASSERT(!nvm_verify(mod).ok, "I reject underflow inside an otherwise unreachable handler arm");
+    mod->code[14] = OP_PUSH_VOID;
+    mod->functions[0].local_count = 0;
+    ASSERT(!nvm_verify(mod).ok, "I reject handler parameters outside the lexical frame");
+    mod->functions[0].local_count = 1;
+    mod->code[1] = 1;
+    ASSERT(!nvm_verify(mod).ok, "I reject invalid operation string indices");
+    nvm_module_free(mod);
+
+    n = 0;
+    n += emit(code + n, OP_PERFORM, (uint32_t)0, 1);
+    n += emit(code + n, OP_POP);
+    n += emit(code + n, OP_RET);
+    mod = make_simple_module(code, n, 0, 0);
+    ASSERT(!nvm_verify(mod).ok, "I reject missing perform arguments");
+    nvm_module_free(mod);
+    n = 0;
+    n += emit(code + n, OP_PUSH_VOID);
+    n += emit(code + n, OP_PUSH_VOID);
+    n += emit(code + n, OP_EFFECT_RESUME);
+    mod = make_simple_module(code, n, 0, 0);
+    ASSERT(!nvm_verify(mod).ok, "I reject extra values when resuming");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 int main(void) {
+    test_effect_handler_verification();
     printf("\n[verifier] NanoVM bytecode verifier tests...\n\n");
 
     test_null_module();

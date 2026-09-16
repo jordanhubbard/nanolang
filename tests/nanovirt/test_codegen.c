@@ -1786,7 +1786,257 @@ static void test_anonymous_callback_captures_lexical_array(void) {
     TEST_PASS();
 }
 
+static void test_handler_observes_perform(void) {
+    const char *source =
+        "\n"
+        "effect Recorder { emit : int -> void }\n"
+        "let mut recorded: int = 0\n"
+        "\n"
+        "fn send(value: int) -> void {\n"
+        "    perform Recorder.emit(value)\n"
+        "}\n"
+        "\n"
+        "fn exercise() -> int {\n"
+        "    set recorded 0\n"
+        "    let ignored = handle { (send 7) } with {\n"
+        "        emit value -> { set recorded value }\n"
+        "    }\n"
+        "    return recorded\n"
+        "}\n"
+        "\n"
+        "shadow send { assert (== (exercise) 7) }\n"
+        "shadow exercise { assert (== (exercise) 7) }\n"
+        "fn main() -> int {\n"
+        "    assert (== (exercise) 7)\n"
+        "    (println \"I dispatched the effect.\")\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 0);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_lexical_return_and_final_expression(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "let mut trace: int = 0\n"
+        "fn send() -> int {\n"
+        "    let x = perform Ask.ask(7)\n"
+        "    set trace (+ trace 1)\n"
+        "    return (+ x 10)\n"
+        "}\n"
+        "fn leave() -> int {\n"
+        "    let x = handle { (send) } with { ask n -> { return n } }\n"
+        "    set trace 100\n"
+        "    return x\n"
+        "}\n"
+        "fn resume_value() -> int {\n"
+        "    let x = handle { (send) } with { ask n -> { (+ n 1) } }\n"
+        "    return (+ x 100)\n"
+        "}\n"
+        "fn exercise() -> int {\n"
+        "    set trace 0\n"
+        "    let left = (leave)\n"
+        "    assert (== trace 0)\n"
+        "    let resumed = (resume_value)\n"
+        "    assert (== trace 1)\n"
+        "    return (+ left resumed)\n"
+        "}\n"
+        "shadow send { assert (== (exercise) 125) }\n"
+        "shadow leave { assert (== (exercise) 125) }\n"
+        "shadow resume_value { assert (== (exercise) 125) }\n"
+        "shadow exercise { assert (== (exercise) 125) }\n"
+        "fn main() -> int {\n"
+        "    assert (== (exercise) 125)\n"
+        "    (println \"I dispatched the effect.\")\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 0);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_ordered_multiple_and_zero_arguments(void) {
+    const char *source =
+        "\n"
+        "effect Recorder { pair : int int -> void, tick : void -> void }\n"
+        "let mut trace: int = 0\n"
+        "let mut recorded: int = 0\n"
+        "fn argument(value: int) -> int { set trace (+ (* trace 10) value) return value }\n"
+        "fn exercise() -> int {\n"
+        "    set trace 0 set recorded 0\n"
+        "    let first: int = 9\n"
+        "    let ignored = handle { perform Recorder.pair((argument 1) (+ first (argument 2))) } with {\n"
+        "        pair first second -> { set recorded (+ (* first 100) second) }\n"
+        "    }\n"
+        "    let ticked = handle { perform Recorder.tick() } with {\n"
+        "        tick -> { set recorded (+ recorded 1000) }\n"
+        "    }\n"
+        "    return (+ (* trace 10000) recorded)\n"
+        "}\n"
+        "shadow argument { assert (== (exercise) 121111) }\n"
+        "shadow exercise { assert (== (exercise) 121111) }\n"
+        "fn main() -> int {\n"
+        "    assert (== (exercise) 121111)\n"
+        "    (println \"I dispatched the effect.\")\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 0);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_lexical_locals(void) {
+    const char *source =
+        "\n"
+        "effect Change { change : int -> int }\n"
+        "fn send(n: int) -> int { return perform Change.change(n) }\n"
+        "fn main() -> int {\n"
+        " let mut state: int = 3\n"
+        " let result = handle { (+ 20 (send 4)) } with { change n -> { set state (+ state n) state } }\n"
+        " return (+ (* state 100) result)\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 727);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_nested_handlers(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "fn send(n: int) -> int { return perform Ask.ask(n) }\n"
+        "fn inner() -> int {\n"
+        " let result = handle { (send 2) } with { ask n -> { (+ n 10) } }\n"
+        " return (+ (* result 1000) (send 3))\n"
+        "}\n"
+        "fn main() -> int {\n"
+        " return handle { (inner) } with { ask n -> { (+ n 100) } }\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 12103);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_recursive_parameters(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "fn send(n: int) -> int { return perform Ask.ask(n) }\n"
+        "fn main() -> int {\n"
+        " let result = handle { (send 3) } with { ask n -> {\n"
+        "   let mut child: int = 0\n"
+        "   if (> n 0) { set child (send (- n 1)) }\n"
+        "   (+ n child)\n"
+        " } }\n"
+        " return result\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 6);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_float_signature(void) {
+    const char *source =
+        "\n"
+        "effect Scale { scale : float -> float }\n"
+        "fn send(n: float) -> float { return perform Scale.scale(n) }\n"
+        "fn main() -> int {\n"
+        " let result = handle { (send 1.5) } with { scale n -> { (* n 2.0) } }\n"
+        " assert (== result 3.0)\n"
+        " return 17\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 17);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_local_string_ownership(void) {
+    const char *source =
+        "\n"
+        "effect Text { replace : string -> string }\n"
+        "fn send(n: string) -> string { return perform Text.replace(n) }\n"
+        "fn main() -> int {\n"
+        " let mut text: string = \"old\"\n"
+        " let result = handle { (send \"new\") } with { replace n -> { set text (+ n \"!\") text } }\n"
+        " assert (== text \"new!\")\n"
+        " assert (== result \"new!\")\n"
+        " return 19\n"
+        "}\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 19);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_effect_recursive_lexical_return(void) {
+    const char *source =
+        "\n"
+        "effect Ask { ask : int -> int }\n"
+        "fn send(n: int) -> int { return (+ 100 (perform Ask.ask(n))) }\n"
+        "fn leave() -> int {\n"
+        " return (+ 1000 (handle { (send 3) } with { ask n -> {\n"
+        "   if (> n 0) { let ignored = (send (- n 1)) }\n"
+        "   return (+ n 7)\n"
+        " } }))\n"
+        "}\n"
+        "fn main() -> int { return (leave) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "I require successful effect execution");
+    ASSERT_INT(tr.result.as.i64, 7);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
+static void test_unhandled_effect_traps(void) {
+    TestResult tr = compile_and_run(
+        "effect Ask { ask : int -> int }\n"
+        "fn main() -> int { return perform Ask.ask(1) }\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_ERR_TYPE_ERROR, "I trap an unhandled effect");
+    nvm_module_free(tr.module);
+    TEST_PASS();
+}
+
 int main(void) {
+    test_unhandled_effect_traps();
+    test_handler_observes_perform();
+    test_lexical_return_and_final_expression();
+    test_ordered_multiple_and_zero_arguments();
+    test_effect_lexical_locals();
+    test_effect_nested_handlers();
+    test_effect_recursive_parameters();
+    test_effect_float_signature();
+    test_effect_local_string_ownership();
+    test_effect_recursive_lexical_return();
     test_anonymous_callback_captures_lexical_array();
     test_empty_array_return_tags();
     test_array_search_types();
