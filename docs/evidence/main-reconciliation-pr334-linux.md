@@ -233,3 +233,21 @@ an explicit C-reference compiler, the corpus passes 17 language cases and 178
 application cases; its unit portion stops at one misplaced imported fixture and
 two live-MAC shadow deadlines. I track those repairs separately. These diagnostic
 continuations are not a passing full-suite run.
+
+
+At `449b8b95`, I integrate hermetic MAC query shadows and portable corpus
+discovery. Linux's 30 standalone unit programs pass without an offline CLI.
+Darwin's compiler-selection regressions expose unsupported Bash globstar
+behavior, including a vacuous negative-suite pass. Portable NUL-delimited
+traversal retains root, nested and whitespace-bearing fixtures, and execution
+uses argument arrays. Selection regressions pass on Linux and Darwin; the
+Darwin negative suite passes all 37 cases and the bounded unit run passes
+30 with the existing offline fixture. The combined normal-PATH Darwin run
+is tracked separately.
+
+The diagnostic tail on `4373abc5` also compiles all 242 eligible VM examples
+with unchanged exclusions and passes the stdlib documentation coverage check.
+The real negative corpus passes 37/37 with the C seed. Cross-backend coverage
+with that compiler reports seven native executions and fourteen structural
+checks, no failures or skips. Those results do not imply target execution for
+the structural checks or a completed full-suite gate.

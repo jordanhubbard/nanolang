@@ -28,7 +28,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Darwin recursive test discovery.** I enumerate nested and root test
+- [x] **Darwin recursive test discovery.** I enumerate nested and root test
       fixtures on the default Bash without globstar, and reject empty negative
       coverage rather than reporting a vacuous pass. I preserve argument
       boundaries when discovered fixtures contain whitespace.
@@ -44,6 +44,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [ ] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
       sanitizer-build deadline without dropping shadows or instrumentation,
       and test an explicit bounded budget when the workload requires it.
+      My bounded parser and one/sixty-second instrumented probes pass; the
+      updated sanitizer CI remains the acceptance gate.
       MAC `task_6a2f75e259e84f09bbec61554b9ff9a7`.
 
 - [x] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.
