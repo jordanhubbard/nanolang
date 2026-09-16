@@ -56,6 +56,7 @@ typedef struct {
     size_t sim_stack_capacity;
     size_t record_width;
     int has_maps;
+    size_t global_count;
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
     NvmShapeGraph shapes;
@@ -783,6 +784,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &y)) return 0;
             if (!sim_push_slot(b, idx, stk, &sp, x)) return 0;
             if (!sim_push_slot(b, idx, stk, &sp, y)) return 0;
+            break;
+        }
+        case OP_LOAD_GLOBAL:
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+            break;
+        case OP_STORE_GLOBAL: {
+            Nvm2cSimSlot value;
+            if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_BOOL &&
+                value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_VALUE &&
+                !(value.kind == NVM2C_VK_UNK && !facts->final)) {
+                nvm2c_fail(b, "I cannot yet store an aggregate or unresolved global in function %u at offset %zu", idx, start);
+                return 0;
+            }
             break;
         }
         case OP_LOAD_LOCAL: {
@@ -1745,10 +1760,10 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
 static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
     if (st->sp && st->kinds[st->sp - 1] == NVM2C_VK_VALUE) {
         int value = stack_pop(b, st);
-        char expression[112];
+        char expression[192];
         snprintf(expression, sizeof expression,
-                 "(v[%d].kind == 5 || (v[%d].kind == 1 && v[%d].integer != 0))",
-                 value, value, value);
+                 "(v[%d].kind == 5 || ((v[%d].kind == 1 || v[%d].kind == 4) && v[%d].integer != 0))",
+                 value, value, value, value);
         stack_push_temp(b, st, expression);
     }
     if (st->sp && st->kinds[st->sp - 1] == NVM2C_VK_BOOL)
@@ -1757,10 +1772,6 @@ static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
 }
 
 static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
-    if ((strcmp(op, "&&") == 0 || strcmp(op, "||") == 0) && st->sp >= 2 &&
-        (st->kinds[st->sp - 1] == NVM2C_VK_VALUE || st->kinds[st->sp - 2] == NVM2C_VK_VALUE)) {
-        nvm2c_fail(b, "I cannot use an optional integer or string as a boolean"); return;
-    }
     uint8_t input_kind = strcmp(op, "&&") == 0 || strcmp(op, "||") == 0 ? NVM2C_VK_BOOL : NVM2C_VK_INT;
     int rhs = stack_pop_expect(b, st, input_kind, "binary op rhs");
     int lhs = stack_pop_expect(b, st, input_kind, "binary op lhs");
@@ -1771,9 +1782,6 @@ static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
 }
 
 static void emit_unop(Nvm2cBuf *b, Nvm2cStack *st, const char *prefix) {
-    if (strcmp(prefix, "!") == 0 && st->sp && st->kinds[st->sp - 1] == NVM2C_VK_VALUE) {
-        nvm2c_fail(b, "I cannot use an optional integer or string as a boolean"); return;
-    }
     int x = stack_pop_expect(b, st, strcmp(prefix, "!") == 0 ? NVM2C_VK_BOOL : NVM2C_VK_INT, "unary op");
     if (b->failed) return;
     char expr[64];
@@ -2270,6 +2278,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 } else {
                     nvm2c_printf(b, "    printf(\"%%lld\", (long long)t[%d]);\n", slot);
                 }
+            } else if (k == NVM2C_VK_VALUE) {
+                nvm2c_printf(b, "    if (v[%d].kind == 1) printf(\"%%lld\", (long long)v[%d].integer);\n", slot, slot);
+                nvm2c_printf(b, "    else if (v[%d].kind == 4) fputs(v[%d].integer ? \"true\" : \"false\", stdout);\n", slot, slot);
+                nvm2c_printf(b, "    else if (v[%d].kind == 5) fputs(v[%d].text, stdout);\n", slot, slot);
+                nvm2c_puts(b, "    else fputs(\"void\", stdout);\n");
+                if (nl) nvm2c_puts(b, "    fputc('\\n', stdout);\n");
             } else if (k == NVM2C_VK_BOOL) {
                 nvm2c_printf(b, "    fputs(t[%d] ? \"true\" : \"false\", stdout);\n", slot);
                 if (nl) nvm2c_puts(b, "    fputc('\\n', stdout);\n");
@@ -2300,6 +2314,27 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             st.slots[st.sp] = y;
             st.kinds[st.sp] = ky;
             st.sp++;
+            break;
+        }
+        case OP_LOAD_GLOBAL: {
+            char expression[64];
+            snprintf(expression, sizeof expression, "nglobal[%u]", ins.operands[0].u32);
+            stack_push_value(b, &st, expression);
+            break;
+        }
+        case OP_STORE_GLOBAL: {
+            uint8_t kind;
+            int value = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            unsigned slot = ins.operands[0].u32;
+            if (kind == NVM2C_VK_VALUE)
+                nvm2c_printf(b, "    nglobal[%u] = v[%d];\n", slot, value);
+            else if (kind == NVM2C_VK_STR)
+                nvm2c_printf(b, "    nglobal[%u] = (nmap_value){5, 0, (char *)s[%d]};\n", slot, value);
+            else if (kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL)
+                nvm2c_printf(b, "    nglobal[%u] = (nmap_value){%u, t[%d], NULL};\n", slot,
+                             kind == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT, value);
+            else { nvm2c_fail(b, "I cannot yet emit an aggregate global store"); goto done; }
             break;
         }
         case OP_LOAD_LOCAL: {
@@ -2554,10 +2589,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (st.sp && st.kinds[st.sp - 1] == NVM2C_VK_VALUE) {
                 int value = stack_pop(b, &st);
-                char expression[160];
+                char expression[240];
                 snprintf(expression, sizeof expression,
-                    "(v[%d].kind == 5 ? v[%d].text : v[%d].kind == 1 ? nstr_from_i64(v[%d].integer) : \"\")",
-                    value, value, value, value);
+                    "(v[%d].kind == 5 ? v[%d].text : v[%d].kind == 1 ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
+                    value, value, value, value, value, value);
                 stack_push_str(b, &st, expression);
                 break;
             }
@@ -3804,6 +3839,16 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 b.record_width = ins.operands[3].u16;
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
                 ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET) b.has_maps = 1;
+            if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
+                size_t slot = ins.operands[0].u32;
+                if (slot >= NVM_MAX_GLOBALS) {
+                    nvm2c_fail(&b, "I cannot access global %zu in function %u at offset %zu: limit %u",
+                               slot, f, pc, NVM_MAX_GLOBALS);
+                    return NULL;
+                }
+                if (b.global_count <= slot) b.global_count = slot + 1;
+                b.has_maps = 1; /* Globals share the tagged scalar runtime. */
+            }
             pc += n;
         }
     }
@@ -4066,7 +4111,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static inline const char *nvalue_require_string(nmap_value value) {\n"
                 "    if (value.kind != 5) abort();\n    return value.text;\n}\n"
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
-                "    return value.kind == 1 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
+                "    return value.kind == 1 || value.kind == 4 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
                 "static inline int nvalue_equal(nmap_value a, nmap_value b) {\n"
                 "    if (a.kind != b.kind) return 0;\n"
                 "    return a.kind == 0 || (a.kind == 1 || a.kind == 4 ? a.integer == b.integer : strcmp(a.text, b.text) == 0);\n}\n"
@@ -4080,6 +4125,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;\n"
                 "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); }\n}\n");
         }
+        if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");

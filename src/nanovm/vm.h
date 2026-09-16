@@ -22,7 +22,7 @@
 
 #define VM_STACK_INITIAL    4096
 #define VM_MAX_FRAMES       1024
-#define VM_MAX_GLOBALS      4096
+#define VM_MAX_GLOBALS      NVM_MAX_GLOBALS
 #define VM_PROFILE_TRIPLES  4096
 
 typedef struct {

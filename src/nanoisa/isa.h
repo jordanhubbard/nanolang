@@ -14,6 +14,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#define NVM_MAX_GLOBALS 4096
+
 /* ========================================================================
  * Value Type Tags
  * Each value on the stack carries a 1-byte type tag.

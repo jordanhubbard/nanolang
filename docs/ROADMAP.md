@@ -218,6 +218,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                         extraction, returned record facts and compatible
                         ordinary/optional field joins. I retain missing tags
                         and owned lookup strings instead of unboxing on pack.
+                        - [ ] I reconcile ordinary and tagged record argument
+                          fields at call boundaries. With scalar global loads
+                          enabled, compiler acceptance reaches function 323
+                          offset 1761 and conflicts on field 1 of parameter 0
+                          of function 274. I preserve source representations
+                          while widening the callee's field storage.
                         - [x] I carry consistently tagged fields through
                           records, nested snapshots and returned record
                           arrays. I defer unresolved projection validation
@@ -250,6 +256,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     initialization and later stores. My compiler's fourteen
                     globals include booleans, strings and arrays; scalar-only
                     storage does not satisfy its requirements.
+                    - [x] I first carry tagged scalar global loads and stores
+                      through initialization, cross-function mutation and
+                      saved values. I check slot bounds and retain void before
+                      assignment. Aggregate storage and array inference remain
+                      required for the full compiler. Normal and sanitizer
+                      suites pass 1,241 AOT and 994 shape checks; all 95
+                      verifier tests pass. Evidence:
+                      `docs/evidence/aot-scalar-globals.md`.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.

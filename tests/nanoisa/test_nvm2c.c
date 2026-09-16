@@ -2785,7 +2785,7 @@ static void test_nested_record_values(void) {
 
 static void test_unsupported_classifier_instructions(void) {
     const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES, OP_CAST_BOOL, OP_PUSH_F64,
-        OP_PUSH_VOID, OP_LOAD_GLOBAL, OP_STORE_GLOBAL, OP_CAST_FLOAT,
+        OP_PUSH_VOID, OP_CAST_FLOAT,
         OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
         NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
@@ -2988,7 +2988,97 @@ static void test_tagged_scalar_returns(void) {
     }
 }
 
+static void test_scalar_globals(void) {
+    const char *source =
+        ".string text \"saved\"\n.string yes \"true\"\n.entry main\n"
+        ".function main 0 1 0 int 1\n"
+        "LOAD_GLOBAL 4095\nTYPE_CHECK 0\nASSERT\n"
+        "LOAD_GLOBAL 0\nTYPE_CHECK 4\nASSERT\nCALL get_bool\nASSERT\n"
+        "LOAD_GLOBAL 0\nCAST_INT\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+        "LOAD_GLOBAL 0\nCAST_STRING\nPUSH_STR yes\nEQ\nASSERT\n"
+        "LOAD_GLOBAL 0\nBOOL_NOT\nBOOL_NOT\nASSERT\n"
+        "LOAD_GLOBAL 0\nPUSH_BOOL 1\nBOOL_AND\nASSERT\n"
+        "LOAD_GLOBAL 0\nPUSH_BOOL 0\nBOOL_OR\nASSERT\n"
+        "LOAD_GLOBAL 0\nPUSH_I64 1\nEQ\nBOOL_NOT\nASSERT\n"
+        "PUSH_BOOL 0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nJMP_FALSE false_ok\nPUSH_BOOL 0\nASSERT\nfalse_ok:\n"
+        "PUSH_STR text\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nSTORE_LOCAL 0\n"
+        "CALL mutate\nLOAD_GLOBAL 0\nPUSH_I64 42\nI64_EQ\nASSERT\n"
+        "LOAD_LOCAL 0\nPUSH_STR text\nEQ\nASSERT\n"
+        "LOAD_GLOBAL 4095\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nTYPE_CHECK 0\nASSERT\n"
+        "PUSH_I64 7\nSTORE_GLOBAL 4095\nLOAD_GLOBAL 4095\nPUSH_I64 7\nI64_EQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n"
+        ".function __init__ 0 0 0 void 0\nLOAD_GLOBAL 0\nTYPE_CHECK 0\nASSERT\n"
+        "PUSH_BOOL 1\nSTORE_GLOBAL 0\nRET\n.end\n"
+        ".function mutate 0 0 0 void 0\nPUSH_I64 42\nSTORE_GLOBAL 0\nRET\n.end\n"
+        ".function get_bool 0 0 0 bool 1\nLOAD_GLOBAL 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "tagged scalar globals");
+    if (m) {
+        char *c = emit_or_fail(m, "I emit map-free tagged globals with checked scalar consumption");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I retain global tags, initialization, cross-function mutation and saved values");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *consumers[] = {"RET", "BOOL_NOT\nCAST_INT\nRET", "STR_LEN\nRET"};
+    for (size_t i = 0; i < sizeof consumers / sizeof consumers[0]; ++i) {
+        char program[256];
+        snprintf(program, sizeof program, ".entry main\n.function main 0 0 0 int 1\nLOAD_GLOBAL 0\n%s\n.end\n", consumers[i]);
+        m = assemble_ok(program, "uninitialized global consumption");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I keep uninitialized globals void until consumption");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status == -1,
+                  "I trap void at typed global consumers");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const uint32_t invalid[] = {4096, 65536, UINT32_MAX};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        for (int store = 0; store < 2; ++store) {
+            m = assemble_ok(store ?
+                ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nSTORE_GLOBAL 0\nPUSH_I64 0\nRET\n.end\n" :
+                ".entry main\n.function main 0 0 0 int 1\nLOAD_GLOBAL 0\nPOP\nPUSH_I64 0\nRET\n.end\n", "global bounds fixture");
+            if (!m) continue;
+            size_t operand = m->functions[0].code_offset + (store ? 10 : 1);
+            for (unsigned j = 0; j < 4; ++j) m->code[operand + j] = (uint8_t)(invalid[i] >> (8 * j));
+            char error[256] = {0};
+            char *c = nvm2c_emit(m, error, sizeof error);
+            CHECK(c == NULL && strstr(error, "global"), "I reject full-width out-of-range global operands before emission");
+            free(c); nvm_module_free(m);
+        }
+    }
+    m = assemble_ok(
+        ".string key \"key\"\n.string text \"kept\"\n.entry main\n"
+        ".function main 0 1 0 int 1\nLOAD_GLOBAL 0\nPRINTLN\n"
+        "PUSH_BOOL 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPRINTLN\n"
+        "PUSH_I64 42\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPRINTLN\n"
+        "HM_NEW 5 5\nPUSH_STR key\nPUSH_STR text\nHM_SET\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nSTORE_GLOBAL 0\n"
+        "LOAD_LOCAL 0\nPUSH_STR key\nHM_DELETE\nPOP\n"
+        "LOAD_GLOBAL 0\nPRINTLN\nLOAD_GLOBAL 0\nSTORE_GLOBAL 1\n"
+        "PUSH_I64 0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 1\nPUSH_STR text\nEQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n", "retained global strings and printing");
+    if (m) {
+        char *c = emit_or_fail(m, "I retain lookup strings saved in globals after deletion and overwrite");
+        if (c) {
+            char output[128] = {0};
+            int status = -1;
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 && status == 0 &&
+                  strcmp(output, "void\ntrue\n42\nkept\n") == 0,
+                  "I print global scalar tags and preserve saved string aliases");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_emitted_map_get(void) {
+    test_scalar_globals();
     test_tagged_scalar_returns();
     test_mixed_lookup_arguments();
     for (int strings = 0; strings < 2; ++strings) {
@@ -3060,7 +3150,12 @@ static void test_emitted_map_get(void) {
         NvmModule *m = assemble_ok(source, "unresolved lookup representation");
         if (!m) continue;
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && error[0], "I reject missing tag information and unsupported tagged return flow");
+        CHECK(c != NULL, "I emit checked boolean consumption of tagged values");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status == -1,
+                  "I trap when a boolean operation consumes a missing value");
+        }
         free(c); nvm_module_free(m);
     }
 }
