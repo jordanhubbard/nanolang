@@ -22,7 +22,7 @@ I transpile to C when you need native performance. NanoISA is my verified byteco
 - [NanoLang 5.0](docs/RELEASE_5.0.md) - Language-contract changes, dependency shadows by default, module/cache hardening, and explicit unfinished runtime boundaries.
 - [NanoLang 4.5](docs/RELEASE_4.5.md) - Previous public cut covering 4.1–4.5: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
 - [NanoLang 4.0](docs/RELEASE_4.0.md) - NanoISA v2, the verifier, and measured dispatch.
-- [Developer overview](docs/presentation/README.md) - Historical 4.5 slides and narrative; not a 5.0 implementation claim.
+- [Developer overview](docs/presentation/README.md) - Local 5.0 candidate deck and narrative; published Google artifacts remain the 4.5 edition.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start

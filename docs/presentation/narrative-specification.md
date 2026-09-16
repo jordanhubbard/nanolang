@@ -44,10 +44,11 @@ an outstanding limitation. Full runtime isolation and backend parity remain open
    7.3. NSI, capabilities, and POSIX fabric
    7.4. Isolated Nano Emacs walker
    7.5. Effects, policy, journal, and provenance
-8. What I have not done
-9. How to work on me
-   9.1. Read the source and roadmap
-   9.2. Run the gates
+8. My 5.0 candidate contract
+9. What I have not done
+10. How to work on me
+   10.1. Read the source and roadmap
+   10.2. Run the gates
 
 ## Style
 

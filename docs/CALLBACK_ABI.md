@@ -24,7 +24,7 @@ interning, and table growth. Allocation-failure tests check transactional
 growth and updates, including a source entry borrowed from the growing table.
 They pass ASan/UBSan with leak detection disabled on Darwin.
 
-The 64-check NanoVirt suite includes reused parameter names across nested
+The earlier 64-check NanoVirt checkpoint includes reused parameter names across nested
 functions, distinct nested result types, a void capturing closure, and a
 tail-position call that must preserve captures. Typechecker tests reject a
 nested result of the wrong type and a nested `break` targeting the outer
@@ -37,6 +37,11 @@ canonical assembly round trips, and allocation failure. The FFI suite passes
 co-process launch. My bytecode compiler now binds manifest contracts to loaded
 declarations, and my VM host dispatches their explicit adapters. Metadata alone does
 not authorize the old calling convention.
+
+My 2026-09-16 Linux finalization checkpoint passes 272,379 VM checks. My C
+seed now routes imported callback shadows through the shared VM bridge; it
+does not cast bytecode indices to C function pointers. Final release acceptance
+still needs the exact integrated revision and all platform gates.
 
 ## Module manifests
 
@@ -187,8 +192,9 @@ stack relocation while borrowing caller stack values. Linked-module tests
 exercise returned functions, returned closures, and a root callable passed into
 a dependency. This establishes activation and target identity for those cases;
 retained-handle execution and automatic foreign-call pumping use this activation
-mechanism. Dispatch-module adapters remain unfinished.
-The 272359-check VM suite and stack-allocation failure tests pass ASan/UBSan
+mechanism. My dispatch-module adapters are implemented in the integration
+described below; this activation checkpoint preceded that work.
+At that Darwin checkpoint, the 272359-check VM suite and stack-allocation failure tests passed ASan/UBSan
 on Darwin with leak detection disabled. I disable inlining in the sanitized
 VM harness: its optimized `main` otherwise inlines enough large stack-based
 VM fixtures to overflow before tests begin. The ordinary optimized suite

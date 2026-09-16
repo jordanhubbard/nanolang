@@ -65,7 +65,8 @@ retain/release instructions, not object identity or complete source ownership.
 Unknown operand types are not proved safe. Current boundaries are recorded in
 `CONTRIBUTING.md`, `docs/CANONICAL_STYLE.md` and the open roadmap.
 
-What remains is later work and is labelled as such. Module signing is 5.0.
+What remains is roadmap work and is labelled as such. Module signing is
+unimplemented; the 5.0 release number does not establish it.
 LLVM and WebAssembly return only as NanoISA translators. I do not claim a
 Forth Standard System, GNU Emacs, a kernel, or that the system is
 internationalized. The trap journal is a tested library, not a hook on
@@ -84,3 +85,17 @@ processes have deadlines, not security sandboxing. `make test-language-claims`
 checks the compiler observations; formal correspondence remains separate.
 The shared nonnegative-input `examples/gcd.nano` demonstrates executable assertions,
 not a theorem for every integer. Artifact tests extract and compile its text.
+
+## 5.0 candidate checkpoint — 2026-09-16
+
+I use `docs/RELEASE_5.0.md` and `docs/CALLBACK_ABI.md` for current contract
+and callback claims. `src/runtime/callback_runtime.c`, `src/nanovm/vm_callback.c`,
+the dispatch/SDL_mixer adapters and their tests implement retained handles,
+owner-thread execution and cancellation. C-seed callback shadows select the
+shared VM bridge. These in-process adapters do not establish isolated callbacks.
+
+Dated Linux finalization evidence records 1,730 native translator checks,
+1,073 shape checks, 272,379 VM checks and 242 example programs. These counts
+are checkpoints, not final-tree validation. Native/VM effect repairs are still
+in progress. `docs/evidence/main-reconciliation-pr334-linux.md` owns the detailed
+integration evidence. Full NanoISA-only bootstrap and backend parity remain open.
