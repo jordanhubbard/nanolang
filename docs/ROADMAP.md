@@ -35,7 +35,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 - [ ] **Repaired OPL VM coverage.** I include the now-compilable OPL codegen
       and compiler fixtures in example coverage, preserving the check that
-      every remaining exclusion really requires exclusion.
+      every remaining exclusion really requires exclusion. I also provide
+      the compiler alias invoked by shadows from the standalone test target.
       MAC `task_0afb69d3691b416cbd1659b2600d9cdc`.
 
 - [ ] **Sanitized FFI generation identity.** I diagnose duplicate ABI-metadata
