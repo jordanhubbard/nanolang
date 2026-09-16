@@ -178,6 +178,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   types and test checked native comparison instead of assuming
                   every comparison has integer operands. MAC
                   `task_dc171e3db9cb497c981d7f06621baa5d`.
+                  - [x] I lower `LT`, `LE`, `GT` and `GE` for native integers,
+                    booleans, strings, tagged values, arrays and maps using
+                    value/tag ordering. I retain boolean result tags. Normal
+                    and fresh ASan/UBSan suites pass 1,444 AOT and 994 shape
+                    checks. Float, enum and erased nominal-tag comparisons
+                    remain outside this native subset. Evidence:
+                    `docs/evidence/aot-generic-ordering.md`.
+                - [ ] I preserve tagged argument storage while checking exact
+                  host-call parameter tags at consumption. Fresh compiler
+                  translation reaches function 569, `exists`, at import 29
+                  (`vm_file_exists`, string parameter, bool result), where the
+                  classifier rejects an argument-kind mismatch. I test valid,
+                  missing and wrong tags without weakening the host ABI. MAC
+                  `task_f6b888111b8246f89843e1f945d80936`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

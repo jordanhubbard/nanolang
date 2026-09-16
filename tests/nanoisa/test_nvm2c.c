@@ -4267,6 +4267,50 @@ static void test_classifier_unreachable_and_invalid_joins(void) {
     }
 }
 
+static void test_generic_ordering(void) {
+    const char *ops[] = {"LT", "LE", "GT", "GE"};
+    const struct { const char *values; int order; } cases[] = {
+        {"PUSH_I64 -9223372036854775808\nPUSH_I64 9223372036854775807", -1},
+        {"PUSH_I64 42\nPUSH_I64 -1", 1},
+        {"PUSH_I64 42\nPUSH_I64 42", 0},
+        {"PUSH_BOOL 0\nPUSH_BOOL 1", -1},
+        {"PUSH_BOOL 1\nPUSH_BOOL 1", 0},
+        {"PUSH_I64 999\nPUSH_BOOL 0", -1},
+        {"PUSH_STR high\nPUSH_STR low", 1},
+        {"PUSH_STR low\nPUSH_STR low", 0},
+        {"PUSH_STR low\nPUSH_STR high", -1},
+        {"PUSH_STR low\nPUSH_BOOL 1", 1},
+        {"LOAD_GLOBAL 0\nPUSH_I64 -9", -1},
+        {"PUSH_I64 42\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_I64 40", 1},
+        {"PUSH_STR low\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_STR high", -1},
+        {"ARR_LITERAL 1 0\nARR_LITERAL 5 0", 0},
+        {"ARR_LITERAL 1 0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nARR_LITERAL 5 0", 0},
+        {"ARR_LITERAL 1 0\nPUSH_STR high", 1},
+        {"HM_NEW 5 1\nHM_NEW 5 5", 0},
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        for (int op = 0; op < 4; ++op) {
+            int yes = op == 0 ? cases[i].order < 0 : op == 1 ? cases[i].order <= 0 :
+                      op == 2 ? cases[i].order > 0 : cases[i].order >= 0;
+            char source[1024];
+            snprintf(source, sizeof source,
+                ".string low \"a\"\n.string high \"z\"\n.entry main\n.function main 0 0 0 int 1\n"
+                "%s\n%s\nDUP\nTYPE_CHECK 4\nASSERT\n%sASSERT\nPUSH_I64 0\nRET\n.end\n",
+                cases[i].values, ops[op], yes ? "" : "BOOL_NOT\n");
+            NvmModule *m = assemble_ok(source, "generic ordered values");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I preserve generic comparison tag and value rules");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I order supported native values and retain boolean results");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+}
+
 static void test_classifier_local_bounds(void) {
     const unsigned counts[] = {1, 257, 512, 1024};
     for (size_t i = 0; i < sizeof counts / sizeof counts[0]; ++i) {
@@ -4858,6 +4902,7 @@ static void test_module_initializer(void) {
 }
 
 int main(int argc, char **argv) {
+    test_generic_ordering();
     test_boolean_tags();
     test_module_initializer();
     test_self_tail_restart_preserves_values();

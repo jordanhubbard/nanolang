@@ -35,6 +35,7 @@ static int boolean_result(uint8_t opcode) {
     switch (opcode) {
     case OP_PUSH_BOOL: case OP_BOOL_AND: case OP_BOOL_OR: case OP_BOOL_NOT:
     case OP_EQ: case OP_NE: case OP_I64_EQ: case OP_I64_NE:
+    case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
     case OP_STR_STARTS_WITH: case OP_STR_ENDS_WITH: case OP_STR_CONTAINS:
     case OP_HM_HAS: case OP_TYPE_CHECK: return 1;
@@ -981,11 +982,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             break;
         }
         case OP_EQ:
+        case OP_LT: case OP_LE: case OP_GT: case OP_GE:
         case OP_NE: {
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            /* Equality observes tags; it does not require equal operand kinds. */
+            /* Generic comparison observes tags, not equal operand kinds. */
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -2529,6 +2531,31 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_LT: case OP_LE: case OP_GT: case OP_GE: {
+            uint8_t rk, lk;
+            int rhs = stack_pop_kind(b, &st, &rk);
+            int lhs = stack_pop_kind(b, &st, &lk);
+            if (b->failed) goto done;
+            char left[96], right[96], expression[320];
+            uint8_t pair[2] = {lk, rk};
+            int slots[2] = {lhs, rhs};
+            char *boxed[2] = {left, right};
+            for (int side = 0; side < 2; ++side) {
+                uint8_t kind = pair[side];
+                if (kind == NVM2C_VK_ARR || kind == NVM2C_VK_SARR || kind == NVM2C_VK_RARR)
+                    snprintf(boxed[side], 96, "(nmap_value){%u, 0, NULL}", TAG_ARRAY);
+                else if (kind == NVM2C_VK_MAP)
+                    snprintf(boxed[side], 96, "(nmap_value){%u, 0, NULL}", TAG_HASHMAP);
+                else if (kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL || kind == NVM2C_VK_STR || kind == NVM2C_VK_VALUE)
+                    scalar_value_expression(b, boxed[side], 96, kind, slots[side]);
+                else { nvm2c_fail(b, "I require preserved operand tags for generic comparison"); goto done; }
+            }
+            const char *op = ins.opcode == OP_LT ? "<" : ins.opcode == OP_LE ? "<=" :
+                             ins.opcode == OP_GT ? ">" : ">=";
+            snprintf(expression, sizeof expression, "(nvalue_compare(%s, %s) %s 0)", left, right, op);
+            stack_push_bool(b, &st, expression);
+            break;
+        }
         case OP_I64_NE:
             emit_binop(b, &st, "!=");
             break;
@@ -3948,6 +3975,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 b.record_width = ins.operands[3].u16;
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
                 ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET) b.has_maps = 1;
+            if (ins.opcode == OP_LT || ins.opcode == OP_LE || ins.opcode == OP_GT || ins.opcode == OP_GE)
+                b.has_maps = 1; /* I retain runtime tags for generic ordering. */
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
                 size_t slot = ins.operands[0].u32;
                 if (slot >= NVM_MAX_GLOBALS) {
@@ -4230,6 +4259,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (a.kind != b.kind) return 0;\n"
                 "    if (a.kind == 7) return a.text == b.text;\n"
                 "    return a.kind == 0 || (a.kind == 1 || a.kind == 4 ? a.integer == b.integer : strcmp(a.text, b.text) == 0);\n}\n"
+                "static inline int nvalue_compare(nmap_value a, nmap_value b) {\n"
+                "    if (a.kind != b.kind) return (int)a.kind - (int)b.kind;\n"
+                "    if (a.kind == 1 || a.kind == 4) return (a.integer > b.integer) - (a.integer < b.integer);\n"
+                "    if (a.kind == 5) {\n"
+                "        if (a.text == b.text) return 0;\n"
+                "        if (!a.text) return -1; if (!b.text) return 1;\n"
+                "        return strcmp(a.text, b.text);\n    }\n"
+                "    return 0;\n}\n"
                 "static nmap_t nmap_owned_new(uint8_t kind) {\n"
                 "    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);\n"
                 "    if (!owner) { nmap_destroy(map); abort(); }\n"
@@ -4334,6 +4371,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
             "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_cast_int; (void)nvalue_equal;\n"
+            "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
