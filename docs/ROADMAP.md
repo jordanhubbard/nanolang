@@ -307,6 +307,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     (311), offset 268, after fixing the local-27 join in
                     `check_statement_list` (331), offset 1020. I preserve exact
                     payload constraints and establish full compiler acceptance.
+                    - [x] I represent inferred record-string field facts as
+                      directed flows at record boundaries and projections.
+                      Four VM/native cases pass and four incompatible payload
+                      cases are rejected. Full compiler conversion solving now
+                      passes; its later packed-field failure remains below.
+                      Evidence: `docs/evidence/aot-inferred-record-string-fields.md`.
+                - [ ] I resolve `type_from_kind` (260), offset 165, where
+                  `AGG_PACK` field 0 remains unresolved after inferred record
+                  string facts become directed flows. I retain exact payload
+                  checks and rerun full compiler acceptance. MAC
+                  `task_041fdf3407774b93a24bbaaa30a7bbb9`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

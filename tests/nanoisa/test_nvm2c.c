@@ -4615,7 +4615,8 @@ static void test_aggregate_runtime_kind_checks(void) {
         if (i == 1) {
             char error[256];
             char *rejected = nvm2c_emit(m, error, sizeof error);
-            CHECK(rejected == NULL && strstr(error, "RET") != NULL,
+            CHECK(rejected == NULL && (strstr(error, "RET") != NULL ||
+                  strstr(error, "cannot convert aggregate storage string to int") != NULL),
                   "I reject a known string field returned as an integer before execution");
             free(rejected);
             nvm_module_free(m);

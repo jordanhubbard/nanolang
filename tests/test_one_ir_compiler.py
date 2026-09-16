@@ -185,6 +185,47 @@ class OneIrCompiler(unittest.TestCase):
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
+    def test_projected_record_arguments(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
+        header, functions = fixture.split(".function main", 1)
+        producers = ".function choose" + functions.split(".function choose", 1)[1]
+        for reverse in (False, True):
+            for tail in (False, True):
+                with self.subTest(reverse=reverse, tail=tail), tempfile.TemporaryDirectory(prefix="nano-projected-record-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = (
+                        ".function main 0 0 0 int 1\nPUSH_STR text\nAGG_PACK 0 0 0 1\nCALL absent\nBOOL_NOT\nASSERT\n"
+                        "PUSH_BOOL 1\nCALL choose\nCALL project\nBOOL_NOT\nASSERT\n"
+                        "PUSH_BOOL 0\nCALL choose\nCALL project\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+                    )
+                    helpers = (
+                        ".function absent 1 1 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\nTYPE_CHECK 0\nRET\n.end\n"
+                        ".function project 1 1 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\n"
+                        + ("TAIL_CALL absent\n" if tail else "CALL absent\nRET\n") + ".end\n"
+                    )
+                    text = header + main + helpers + producers
+                    if reverse:
+                        prefix, *blocks = text.split(".function ")
+                        text = prefix + "".join(".function " + block for block in reversed(blocks))
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nano_vm", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    self.run_checked([binary])
+
+                    # A missing value still carries its map's exact payload
+                    # type; inferred string storage must not admit integers.
+                    incompatible = text.replace("LOAD_GLOBAL 0", "HM_NEW 5 1\nPUSH_STR text\nHM_GET")
+                    assembly.write_text(incompatible)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    result = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source], capture_output=True, timeout=30)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(b"shape", result.stderr)
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

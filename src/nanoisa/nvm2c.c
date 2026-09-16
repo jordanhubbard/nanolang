@@ -478,6 +478,16 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
     return child;
 }
 
+/* A flat field fact can omit a nested caller's optional representation.
+ * I seed inferred string storage with a directed flow, not an exact type.
+ * Constructors and native array/map payload constraints remain exact. */
+static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
+    if (!b->track_shapes) return 1;
+    if (kind != NVM2C_VK_STR) return shape_kind(b, id, kind);
+    NvmShapeId source = nvm_shape_new(&b->shapes, NVM_SHAPE_STRING);
+    return source && nvm_shape_convert(&b->shapes, source, id) && shape_ok(b);
+}
+
 /* Returning a present string into optional record storage is a conversion,
  * not equality between the source string and an optional shape. */
 static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result,
@@ -488,7 +498,7 @@ static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result
         if (source_fields[i] == NVM2C_VK_UNK && result_fields[i] == NVM2C_VK_UNK) continue;
         NvmShapeId from = shape_child(b, source, (uint32_t)i);
         NvmShapeId to = shape_child(b, result, (uint32_t)i);
-        if (!shape_kind(b, from, source_fields[i]) || !shape_kind(b, to, result_fields[i])) return 0;
+        if (!shape_field_kind(b, from, source_fields[i]) || !shape_field_kind(b, to, result_fields[i])) return 0;
     }
     return nvm_shape_convert(&b->shapes, source, result) && shape_ok(b);
 }
@@ -500,7 +510,9 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
         return 0;
     }
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
-    if (!shape_kind(b, slot.shape, slot.kind)) return 0;
+    if (b->shape_opcode == OP_AGG_GET) {
+        if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
+    } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     stk[*sp] = slot;
     if (!stk[*sp].rec_k) stk[*sp].rec_k = b->default_fields;
     (*sp)++;
