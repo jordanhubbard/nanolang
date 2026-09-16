@@ -1073,6 +1073,63 @@ static void test_builtin_host_imports(void) {
     }
 }
 
+static void test_globals_cross_functions_and_preserve_identity(void) {
+    const char *src =
+        ".entry 2\n"
+        ".function init 0 0 0 void 0\n"
+        "  ARR_NEW 1\n"
+        "  STORE_GLOBAL 3\n"
+        "  RET\n"
+        ".end\n"
+        ".function append 0 0 0 void 0\n"
+        "  LOAD_GLOBAL 3\n"
+        "  PUSH_I64 41\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL init\n"
+        "  CALL append\n"
+        "  LOAD_GLOBAL 3\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "globals fixture");
+    CHECK(m != NULL, "globals fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, "nvm2c emits typed globals across functions");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "global generated C compiles and runs");
+        CHECK(status == 42, "global array mutation preserves shared identity");
+        free(c);
+    } else {
+        printf("    nvm2c error: %s\n", err);
+    }
+    nvm_module_free(m);
+}
+
+static void test_uninitialized_global_result_traps(void) {
+    NvmModule *m = assemble_ok(
+        ".entry main\n.function main 0 0 0 int 1\n"
+        "LOAD_GLOBAL 0\nRET\n.end\n", "uninitialized global result");
+    if (!m) return;
+    char *c = emit_or_fail(m, "I preserve uninitialized globals as tagged void values");
+    if (c) {
+        int status = 0;
+        CHECK(compile_and_run(c, &status) == 0 && status == -1,
+              "I reject consuming an uninitialized global as an integer result");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_call_extern_is_refused(void) {
     NvmModule *m = nvm_module_new();
     CHECK(m != NULL, "empty module allocates");
@@ -5812,6 +5869,8 @@ int main(int argc, char **argv) {
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
+    test_globals_cross_functions_and_preserve_identity();
+    test_uninitialized_global_result_traps();
     test_builtin_host_imports();
     test_builtin_text_reader();
     test_builtin_text_writer();
