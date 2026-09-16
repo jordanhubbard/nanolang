@@ -27,7 +27,10 @@ class TestCompilerSelection(unittest.TestCase):
             (root / "tests/negative").mkdir(parents=True)
             (root / "bin").mkdir()
             shutil.copy2(ROOT / "tests/run_negative_tests.sh", root / "tests/run_negative_tests.sh")
-            (root / "tests/negative/probe.nano").write_text("invalid source\n")
+            for relative in ("probe.nano", "nested/deeper/probe space.nano"):
+                source = root / "tests/negative" / relative
+                source.parent.mkdir(parents=True, exist_ok=True)
+                source.write_text("invalid source\n")
             compiler = root / "bin/selected"
             compiler.write_text('#!/bin/sh\necho selected >> calls\necho "Error: rejected" >&2\nexit 1\n')
             compiler.chmod(0o700)
@@ -39,13 +42,19 @@ class TestCompilerSelection(unittest.TestCase):
             result = subprocess.run(["bash", "tests/run_negative_tests.sh"], cwd=root,
                                     env=env, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertEqual((root / "calls").read_text(), "selected\n")
+            self.assertEqual((root / "calls").read_text(), "selected\nselected\n")
             # An explicitly requested accepting compiler must fail the contract.
             env["NANOC"] = str(other)
             result = subprocess.run(["bash", "tests/run_negative_tests.sh"], cwd=root,
                                     env=env, capture_output=True, text=True, timeout=10)
             self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("compiler accepted invalid input", result.stdout)
+            for source in (root / "tests/negative").rglob("*.nano"):
+                source.unlink()
+            result = subprocess.run(["bash", "tests/run_negative_tests.sh"], cwd=root,
+                                    env=env, capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("I found no negative compiler fixtures", result.stderr)
 
     def check_selection(self, target, backend="c", fail=False):
         with tempfile.TemporaryDirectory(prefix="nano compiler selection ") as tmp:
@@ -55,8 +64,10 @@ class TestCompilerSelection(unittest.TestCase):
             (root / "tests/user_guide").mkdir()
             shutil.copy2(ROOT / "tests/run_all_tests.sh", root / "tests/run_all_tests.sh")
             corpus = {"tests/nl_types_probe.nano", "tests/test_probe.nano",
-                      "tests/unit/probe.nano", "tests/user_guide/probe.nano"}
+                      "tests/unit/probe.nano", "tests/user_guide/probe.nano",
+                      "tests/unit/nested/deeper/probe space.nano"}
             for source in corpus:
+                (root / source).parent.mkdir(parents=True, exist_ok=True)
                 (root / source).write_text("fn main() -> int { return 0 }\n")
             fake = '''#!/usr/bin/env python3
 from pathlib import Path

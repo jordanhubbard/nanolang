@@ -25,7 +25,7 @@
 # ============================================================================
 
 set +e
-shopt -s globstar nullglob
+shopt -s nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -218,19 +218,20 @@ run_test() {
     fi
 
     # Determine the artifact to check and run command
-    local run_artifact run_cmd
+    local run_artifact
+    local -a run_cmd
     case "$BACKEND" in
         c|native)
             run_artifact="$out_file"
-            run_cmd="$out_file"
+            run_cmd=("$out_file")
             ;;
         vm|nanovm)
             run_artifact="${out_file}.nvm"
-            run_cmd="./bin/nano_vm ${out_file}.nvm"
+            run_cmd=(./bin/nano_vm "${out_file}.nvm")
             ;;
         daemon)
             run_artifact="${out_file}.nvm"
-            run_cmd="./bin/nano_vm --daemon ${out_file}.nvm"
+            run_cmd=(./bin/nano_vm --daemon "${out_file}.nvm")
             ;;
     esac
 
@@ -248,7 +249,7 @@ run_test() {
 
     # Run the compiled artifact
     if [ -f "$run_artifact" ]; then
-        perl -e "alarm $RUN_TIMEOUT; exec @ARGV" $run_cmd >"$run_log" 2>&1
+        perl -e "alarm $RUN_TIMEOUT; exec {\$ARGV[0]} @ARGV" "${run_cmd[@]}" >"$run_log" 2>&1
         local _run_exit=$?
         local _elapsed_val
         _elapsed_val=$(_elapsed)
@@ -400,9 +401,9 @@ if [ "$RUN_UNIT" = true ]; then
     echo -e "${CYAN}=== UNIT TESTS ===${NC}"
     echo ""
     
-    for f in tests/unit/**/*.nano; do
-        [ -f "$f" ] && run_test "$f" "unit"
-    done
+    while IFS= read -r -d '' f; do
+        run_test "$f" "unit"
+    done < <(find tests/unit -type f -name '*.nano' -print0)
     echo ""
     
     echo -e "${CYAN}Unit Tests: ${GREEN}$UNIT_PASS passed${NC}, ${RED}$UNIT_FAIL failed${NC}"
