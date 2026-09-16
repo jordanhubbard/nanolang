@@ -75,6 +75,45 @@ class OneIrCompiler(unittest.TestCase):
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
 
+    def test_record_local_storage_joins(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        fixture = (ROOT / "tests/nanoisa/fixtures/nested_optional_returns.nasm").read_text()
+        header, functions = fixture.split(".function main", 1)
+        producers = ".function choose" + functions.split(".function choose", 1)[1]
+        for reverse in (False, True):
+            for branch in (None, False, True):
+                for incompatible in (False, True):
+                    with self.subTest(reverse=reverse, branch=branch, incompatible=incompatible), tempfile.TemporaryDirectory(prefix="nano-local-join-") as tmp:
+                        work = Path(tmp)
+                        assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                        present = "CALL present"
+                        missing = "PUSH_BOOL 0\nCALL choose"
+                        if incompatible:
+                            present = "PUSH_I64 42\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1"
+                        first, second = (missing, present) if reverse else (present, missing)
+                        body = first + "\nSTORE_LOCAL 0\n"
+                        if branch is not None:
+                            body += f"PUSH_BOOL {int(branch)}\nJMP_FALSE done\n"
+                        body += second + "\nSTORE_LOCAL 0\ndone:\n"
+                        body += "LOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\n"
+                        ends_present = reverse if branch is not False else not reverse
+                        body += "PUSH_STR text\nEQ\nASSERT\n" if ends_present else "TYPE_CHECK 0\nASSERT\n"
+                        # A destination join must not rewrite the producer's string.
+                        body += "CALL present\nAGG_GET 0\nAGG_GET 0\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n"
+                        main = ".function main 0 1 0 int 1\n" + body + ".end\n"
+                        assembly.write_text(header + (producers + main if reverse else main + producers))
+                        self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                        if incompatible:
+                            result = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source], capture_output=True, timeout=30)
+                            self.assertNotEqual(result.returncode, 0)
+                            self.assertIn(b"shape", result.stderr)
+                        else:
+                            self.run_checked([ROOT / "bin/nano_vm", module])
+                            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                            self.run_checked([binary])
+
     def test_nested_optional_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

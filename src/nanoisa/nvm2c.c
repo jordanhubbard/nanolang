@@ -841,7 +841,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-            if (!shape_equal(b, v.shape, shape_variable(b, &b->shape_locals[(size_t)idx * b->local_width + slot]))) return 0;
+            NvmShapeId destination = shape_variable(b, &b->shape_locals[(size_t)idx * b->local_width + slot]);
+            if (v.kind == NVM2C_VK_REC) {
+                /* A local joins incoming record storage; it does not redefine
+                 * the producer's exact field representation. */
+                if (!shape_type(b, destination, NVM_SHAPE_RECORD)) return 0;
+                if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
+            } else if (!shape_equal(b, v.shape, destination)) return 0;
             if (v.kind == NVM2C_VK_BOOL) {
                 local_kind[slot] = NVM2C_VK_BOOL;
             } else if (v.kind == NVM2C_VK_VALUE) {

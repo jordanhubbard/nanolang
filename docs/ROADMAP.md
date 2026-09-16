@@ -266,12 +266,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     combinations. Normal and fresh ASan/UBSan suites pass
                     1,572 AOT and 1,073 shape checks. Evidence:
                     `docs/evidence/aot-directed-storage-conversions.md`.
-                - [ ] I resolve local record storage joins in
+                - [x] I resolve local record storage joins in
                   `check_match_expr` (319), offset 650. After recursive return
                   conversion, `STORE_LOCAL` still equates optional and string
                   field representations. I test branch and assignment order,
                   source preservation and incompatible payload rejection. MAC
                   `task_0557eb72ec60494983314ecb11a31a36`.
+                  Normal and fresh ASan/UBSan suites pass 1,572 AOT and
+                  1,073 shape checks; all twelve local-join cases pass.
+                  Evidence: `docs/evidence/aot-local-record-storage.md`.
+                - [ ] I resolve the later `check_expr_node` (323) tail-call
+                  string/optional shape conflict at offset 397 after local
+                  storage conversion. I trace argument and result constraints,
+                  retain exact payload checks and rerun compiler acceptance.
+                  MAC `task_5c9df665e6024af3a0cd243dfa6fe8ca`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
