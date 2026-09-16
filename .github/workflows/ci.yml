@@ -48,9 +48,13 @@ jobs:
             pkg-config \
             libssl-dev libffi-dev \
             libsdl2-dev \
+            libsdl2-image-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libncurses-dev \
+            libreadline-dev \
+            libevent-dev libuv1-dev libbullet-dev \
+            libglfw3-dev libglew-dev freeglut3-dev \
             libutf8proc-dev \
             gforth
 
@@ -63,10 +67,12 @@ jobs:
             pkg-config \
             openssl \
             sdl2 \
+            sdl2_image \
             sdl2_mixer \
             sdl2_ttf \
             utf8proc \
-            glfw glew \
+            glfw glew freeglut \
+            readline libevent libuv bullet \
             gforth
 
       - name: Install Python dependencies
@@ -199,6 +205,7 @@ jobs:
             libsdl2-ttf-dev \
             libncurses-dev \
             libreadline-dev \
+            libevent-dev \
             libuv1-dev \
             libbullet-dev \
             libglfw3-dev \
@@ -218,6 +225,7 @@ jobs:
             sdl2_mixer \
             sdl2_ttf \
             readline \
+            libevent \
             libuv \
             bullet \
             glfw \
@@ -418,6 +426,9 @@ jobs:
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libutf8proc-dev \
+            libncurses-dev libreadline-dev \
+            libevent-dev libuv1-dev libbullet-dev \
+            libglfw3-dev libglew-dev freeglut3-dev \
             gforth
 
       - name: Build with coverage

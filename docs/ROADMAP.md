@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Full CI VM example dependencies.** I install the foreign libraries
+      required by dependency shadows in all 244 eligible VM examples for full
+      Linux/Darwin and coverage jobs. I retain every eligible source and all
+      four verified exclusions.
+      MAC `task_35a68f2cee2f4f1994cec322d72dd2b9`.
+
 - [x] **Distinct CI platform checks.** I include the OS in full-suite check
       names so Linux and Darwin ARM jobs cannot hide each other in PR summaries.
       I inspect raw job and required test-step outcomes for release acceptance.
