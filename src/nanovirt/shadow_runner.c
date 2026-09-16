@@ -1,3 +1,4 @@
+#include "runtime/shadow_timeout.h"
 #include "nanolang.h"
 #include "module_builder.h"
 #include "nanovirt/codegen.h"
@@ -168,6 +169,8 @@ bool build_ffi_modules(ModuleList *modules, FfiBinding *bindings) {
 
 bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
                            const char *input, FfiBinding *bindings, bool include_imports) {
+    int shadow_seconds = nl_shadow_timeout_seconds(10);
+    if (shadow_seconds < 0) return false;
     bool present = false;
     for (int i = 0; i < program->as.program.count; i++) {
         if (program->as.program.items[i]->type == AST_SHADOW) present = true;
@@ -210,7 +213,7 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
         close(completion[0]);
         /* I bound test execution, not its authority: this is not a sandbox. */
         signal(SIGALRM, SIG_DFL);
-        alarm(10);
+        alarm((unsigned)shadow_seconds);
         if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
         vm_ffi_set_env(env);
         VmState vm;
@@ -242,8 +245,8 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
             waited = waitpid(child, &status, WNOHANG);
             if (waited == child || (waited < 0 && errno != EINTR)) break;
             clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
-            timed_out = !clock_failed && (now.tv_sec - start.tv_sec > 10 ||
-                (now.tv_sec - start.tv_sec == 10 && now.tv_nsec >= start.tv_nsec));
+            timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
+                (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
             if (clock_failed || timed_out) {
                 kill(child, SIGKILL);
                 do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
@@ -265,7 +268,7 @@ bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
         if (clock_failed)
             fprintf(stderr, "I could not measure the shadow execution deadline\n");
         else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
-            fprintf(stderr, "I stopped shadow execution after 10 seconds\n");
+            fprintf(stderr, "I stopped shadow execution after %d seconds\n", shadow_seconds);
         else if (WIFSIGNALED(status))
             fprintf(stderr, "I stopped shadow execution after signal %d\n", WTERMSIG(status));
         else

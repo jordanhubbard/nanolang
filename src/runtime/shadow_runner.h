@@ -1,6 +1,8 @@
 #ifndef NANOLANG_SHADOW_RUNNER_H
 #define NANOLANG_SHADOW_RUNNER_H
 
+#include "shadow_timeout.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -11,6 +13,8 @@
 
 /* I bound execution, not authority. Foreign calls retain the user's privileges. */
 static inline int nl_run_shadow_entry(int (*entry)(void), int seconds) {
+    seconds = nl_shadow_timeout_seconds(seconds);
+    if (seconds < 1) return 1;
     int completion[2];
     if (pipe(completion) != 0) {
         fprintf(stderr, "I could not create the shadow completion channel\n");
