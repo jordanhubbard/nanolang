@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Packaged native effect state.** I link the shared effect runtime into
+      packaged wrappers so foreign modules can resolve its TLS symbols.
+      I verify the real module loader path and preserve instrumentation flags.
+      MAC `task_e7e676830c454787acfd6a600e3306a2`.
+
 - [ ] **Launcher shadow fixture paths.** I prepare and verify my prebuilt
       artifact fixture from both root and examples working directories.
       I retain the dependency shadows in strict example builds.
