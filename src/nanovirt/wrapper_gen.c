@@ -299,7 +299,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool
         "stdlib_runtime.o", "env.o", "builtins_registry.o",
         "module.o", "module_metadata.o", "utf8.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
-        "resource_tracking.o", "eval.o", "interpreter_ffi.o",
+        "resource_tracking.o", "resource_flow.o", "eval.o", "interpreter_ffi.o",
         "json_diagnostics.o", "reflection.o", "effects.o", "coroutine.o",
         "eval/eval_hashmap.o", "eval/eval_math.o",
         "eval/eval_string.o", "eval/eval_io.o", NULL

@@ -28,16 +28,40 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Lifted callback lexical captures.** I retain source-bounded symbols
+- [x] **Module-object callback declarations.** I use the full callback
+      signature when compiling a module object, including integer returns
+      and parameters. Darwin Clang rejects the old void callback placeholder.
+      MAC `task_2883edb70fb348778b7193a52bd83c8a`.
+
+- [ ] **Dispatch host availability.** I honor my existing availability query
+      in dependency shadows and the API lesson. I retain every example in
+      compilation coverage, verify unavailable stubs on Linux, and execute
+      concurrency acceptance on Darwin. MAC `task_a960cfd36ffa408288941efab82df6fa`.
+
+- [x] **Module-local callback names.** I preserve a function declaration
+      namespace when emitting its value in generated C. I test imported
+      callback shadows with named functions. MAC `task_6b378f16155b4db78c399299e56bfe44`.
+
+- [x] **Packaged VM ownership linkage.** I include my independent ownership
+      pass in packaged interpreter links and verify wrapper generation.
+      MAC `task_0014f18c18694852a7b4bccce95264f6`.
+
+- [x] **Imported native callback shadows.** I execute foreign callback tests
+      through a supported ABI with owner-thread safety. My Darwin strict
+      examples currently fail because the tree interpreter cannot marshal
+      dispatch function arguments. I retain dependency shadow execution.
+      MAC `task_ae64b91721834616ae8979c76b6b09df`.
+
+- [x] **Lifted callback lexical captures.** I retain source-bounded symbols
       for later checking of lifted lambdas. I remove the conflicting eager
       visibility flags while preserving exited-block and shadowing checks.
       MAC `task_b0cd5c144a2d44a6b158e3e57288300b`.
 
-- [ ] **SDL2 mixer fixture portability.** I name the public post-mix callback
+- [x] **SDL2 mixer fixture portability.** I name the public post-mix callback
       signature locally instead of requiring a newer header alias. I retain
       the callback lifetime checks. MAC `task_461188d55ed34eae903d9c0143db7235`.
 
-- [ ] **Module metadata gate prerequisites.** I build the cache probe and
+- [x] **Module metadata gate prerequisites.** I build the cache probe and
       bytecode tools before the foreign-path regression, including from a
       clean tree. MAC `task_82ee0874f7894e23add656e651843c4d`.
 

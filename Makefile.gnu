@@ -224,7 +224,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/module_build_dir.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
-COMPILER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o
+COMPILER_OBJECTS = $(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))
 INTERPRETER = $(BIN_DIR)/nano
 INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o $(OBJ_DIR)/proptest.o
 
@@ -838,7 +838,7 @@ test-daemon: nano_vm nano_virt nano_vmd
 
 # ── NanoVirt (Compiler Backend) ──────────────────────────────────────────────
 NANOVIRT_DIR = $(SRC_DIR)/nanovirt
-NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c
+NANOVIRT_SOURCES = $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)/shadow_runner.c
 NANOVIRT_OBJECTS = $(patsubst $(NANOVIRT_DIR)/%.c,$(OBJ_DIR)/nanovirt/%.o,$(NANOVIRT_SOURCES))
 
 $(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIRT_DIR)/wrapper_gen.h | $(OBJ_DIR)/nanovirt
@@ -2128,6 +2128,7 @@ test-runtime-failures: $(COMPILER_C)
 test-compiler-contracts: $(COMPILER_C)
 	@bash tests/test_compiler_contracts.sh $(COMPILER_C)
 	@python3 tests/test_imported_callback_typedefs.py
+	@python3 -m unittest tests.test_callback_shadows
 
 # Focused native example regressions that previously escaped CI.
 .PHONY: test-examples-regressions

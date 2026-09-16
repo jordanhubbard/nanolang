@@ -888,7 +888,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Check if it's a function identifier */
             Function *func_def = env_get_function(env, expr->as.identifier);
             if (func_def && !func_def->is_extern && func_def->body != NULL) {
-                emit_formatted(list, "nl_%s", expr->as.identifier);
+                emit_literal(list, map_function_name(expr->as.identifier, env));
             } else if (func_def && func_def->is_extern) {
                 emit_foreign_reference(list, map_function_name(expr->as.identifier, env), func_def);
             } else {

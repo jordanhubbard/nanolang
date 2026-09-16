@@ -84,3 +84,21 @@ code-generation cases including a lifted array capture, and the environment
 and typechecker suites. The translator and sanitizer runs each pass 1,730
 checks plus 1,073 shape checks. The VM run passes 272,379 checks and its
 allocation-failure recovery tests.
+
+## Foreign shadows and packaged execution
+
+I share the VM foreign binding and supervised shadow runner with the C seed.
+Module graphs declaring retained foreign policies use that runner; a failing
+shadow does not fall back to another backend. I preserve callback signatures
+and module-local names in generated native module objects. Three portable
+cases cover owner and worker execution, dependency failure preventing output,
+and the machine-readable completion report. They pass on Linux ARM64 and
+Darwin ARM64. All 18 shadow supervision/regression methods pass on Linux.
+
+On puck I compile and run the dispatch counter and API lesson with the C seed,
+and pass the VM captured-callback/isolation test. Linux executes the declared
+unavailable branch of module shadows; this is not evidence of Linux dispatch
+support. I keep every example in compilation coverage.
+
+I add resource_flow.o to the packaged interpreter link. All five wrapper
+unit cases and seven wrapper integration methods pass on Linux.

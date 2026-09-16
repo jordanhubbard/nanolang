@@ -4457,7 +4457,7 @@ static void extern_decl_set_add(char ***set, int *count, int *capacity, const ch
     (*set)[(*count)++] = strdup(name);
 }
 
-static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     sb_append(sb, "/* External C function declarations */\n");
 
     /* Track what we've already emitted so env-scanned externs don't duplicate AST externs */
@@ -4636,9 +4636,8 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                     sb_append(sb, "void*"); \
                 } \
             } else if ((_params)[j].type == TYPE_FUNCTION) { \
-                /* Function pointer param: emit void(*name)(void) to avoid implicit-int */ \
-                sb_appendf(sb, "void (*%s)(void)", (_params)[j].name); \
-                continue; \
+                /* I preserve the declared callback ABI in module object builds. */ \
+                sb_append(sb, register_function_signature(fn_registry, (_params)[j].fn_sig)); \
             } else { \
                 sb_append(sb, type_to_c((_params)[j].type)); \
             } \
@@ -4843,7 +4842,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     generate_type_typedefs(sb, fn_registry, tuple_registry, env);
 
     /* Generate extern function declarations */
-    generate_extern_declarations(sb, program, env);
+    generate_extern_declarations(sb, program, env, fn_registry);
 
     /* Generate nl_perform_* stubs for algebraic effect operations */
     generate_effect_perform_stubs(sb, program);

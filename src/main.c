@@ -1,3 +1,4 @@
+#include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
 #include "colors.h"
 #include "version.h"
@@ -492,8 +493,22 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         signal(SIGALRM, SIG_DFL);
         alarm(10);
         if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
-        bool passed = run_shadow_tests_scope(program, env, modules, input,
-                                             opts->test_imports, opts->verbose);
+        int callback_status = check_callback_shadows(program, env, modules, input,
+                                                     opts->test_imports);
+        bool passed = callback_status != 0 ? callback_status > 0 :
+            run_shadow_tests_scope(program, env, modules, input,
+                                   opts->test_imports, opts->verbose);
+        if (callback_status != 0 && opts->llm_shadow_json_path) {
+            FILE *report = fopen(opts->llm_shadow_json_path, "w");
+            if (!report) passed = false;
+            else {
+                bool written = fprintf(report,
+                    "{\"tool\":\"nanoc_c\",\"backend\":\"nano_vm\","
+                    "\"success\":%s,\"completed\":true}\n",
+                    passed ? "true" : "false") >= 0;
+                if (fclose(report) != 0 || !written) passed = false;
+            }
+        }
         unsigned char done = 1;
         if (passed && write(completion[1], &done, 1) != 1) passed = false;
         close(completion[1]);
