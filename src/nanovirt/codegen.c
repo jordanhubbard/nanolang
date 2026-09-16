@@ -119,6 +119,7 @@ struct CG {
     /* Local variables for current function */
     Local locals[MAX_LOCALS];
     uint16_t local_count;
+    uint16_t local_binding_count;
     uint16_t param_count;
     uint32_t current_fn_idx;
 
@@ -234,7 +235,7 @@ static void patch_jump(CG *cg, uint32_t patch_off, uint32_t instr_off, uint32_t 
 /* ── Local variable management ──────────────────────────────────── */
 
 static int16_t local_find(CG *cg, const char *name) {
-    for (int i = cg->local_count - 1; i >= 0; i--) {
+    for (int i = cg->local_binding_count - 1; i >= 0; i--) {
         if (strcmp(cg->locals[i].name, name) == 0)
             return (int16_t)cg->locals[i].slot;
     }
@@ -242,21 +243,22 @@ static int16_t local_find(CG *cg, const char *name) {
 }
 
 static uint16_t local_add(CG *cg, const char *name, int line) {
-    if (cg->local_count >= MAX_LOCALS) {
+    if (cg->local_count >= MAX_LOCALS || cg->local_binding_count >= MAX_LOCALS) {
         cg_error(cg, line, "too many local variables");
         return 0;
     }
     uint16_t slot = cg->local_count;
-    cg->locals[slot].name = (char *)name;
-    cg->locals[slot].slot = slot;
-    cg->locals[slot].struct_type = NULL;
+    Local *binding = &cg->locals[cg->local_binding_count++];
+    binding->name = (char *)name;
+    binding->slot = slot;
+    binding->struct_type = NULL;
     cg->local_count++;
     return slot;
 }
 
 /* Find the struct type name for a local variable (for field access resolution) */
 static const char *local_struct_type(CG *cg, const char *name) {
-    for (int i = cg->local_count - 1; i >= 0; i--) {
+    for (int i = cg->local_binding_count - 1; i >= 0; i--) {
         if (strcmp(cg->locals[i].name, name) == 0)
             return cg->locals[i].struct_type;
     }
@@ -2272,6 +2274,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     uint32_t saved_code_cap = cg->code_cap;
     memcpy(st->locals, cg->locals, sizeof(cg->locals));
     uint16_t saved_local_count = cg->local_count;
+    uint16_t saved_local_binding_count = cg->local_binding_count;
     uint16_t saved_param_count = cg->param_count;
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
@@ -2285,6 +2288,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     /* Restore parent's locals for upvalue resolution */
     memcpy(st->parent_snapshot.locals, st->locals, sizeof(st->locals));
     st->parent_snapshot.local_count = saved_local_count;
+    st->parent_snapshot.local_binding_count = saved_local_binding_count;
     st->parent_snapshot.upvalues[0].name = NULL; /* sentinel */
     st->parent_snapshot.upvalue_count = saved_upvalue_count;
     st->parent_snapshot.parent = saved_parent;
@@ -2294,6 +2298,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->code_size = 0;
     cg->code_cap = CODE_INITIAL;
     cg->local_count = 0;
+    cg->local_binding_count = 0;
     cg->param_count = (uint16_t)node->as.function.param_count;
     cg->loop_depth = 0;
     cg->upvalue_count = 0;
@@ -2301,9 +2306,10 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
 
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
-        uint16_t slot = local_add(cg, node->as.function.params[i].name, node->line);
+        local_add(cg, node->as.function.params[i].name, node->line);
         if (node->as.function.params[i].struct_type_name) {
-            cg->locals[slot].struct_type = node->as.function.params[i].struct_type_name;
+            cg->locals[cg->local_binding_count - 1].struct_type =
+                node->as.function.params[i].struct_type_name;
         }
     }
 
@@ -2345,6 +2351,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->code_cap = saved_code_cap;
     memcpy(cg->locals, st->locals, sizeof(cg->locals));
     cg->local_count = saved_local_count;
+    cg->local_binding_count = saved_local_binding_count;
     cg->param_count = saved_param_count;
     cg->current_fn_idx = saved_current_fn_idx;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
@@ -2472,7 +2479,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         uint16_t slot = local_add(cg, node->as.let.name, node->line);
         /* Track struct type for field access resolution */
         if (node->as.let.type_name) {
-            cg->locals[slot].struct_type = node->as.let.type_name;
+            cg->locals[cg->local_binding_count - 1].struct_type = node->as.let.type_name;
         }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         break;
@@ -2654,10 +2661,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_BLOCK: {
+        uint16_t saved_binding_count = cg->local_binding_count;
         for (int i = 0; i < node->as.block.count; i++) {
             compile_stmt(cg, node->as.block.statements[i]);
             if (!stmt_falls_through(node->as.block.statements[i])) break;
         }
+        cg->local_binding_count = saved_binding_count;
         break;
     }
 
@@ -2775,10 +2784,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         break;
 
     case AST_UNSAFE_BLOCK: {
+        uint16_t saved_binding_count = cg->local_binding_count;
         for (int i = 0; i < node->as.unsafe_block.count; i++) {
             compile_stmt(cg, node->as.unsafe_block.statements[i]);
             if (!stmt_falls_through(node->as.unsafe_block.statements[i])) break;
         }
+        cg->local_binding_count = saved_binding_count;
         break;
     }
 
@@ -2827,6 +2838,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     /* Reset per-function state */
     cg->code_size = 0;
     cg->local_count = 0;
+    cg->local_binding_count = 0;
     cg->param_count = (uint16_t)fn_node->as.function.param_count;
     cg->loop_depth = 0;
     cg->upvalue_count = 0;
@@ -2834,10 +2846,11 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {
-        uint16_t slot = local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
+        local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
         /* Track struct type for field access resolution */
         if (fn_node->as.function.params[i].struct_type_name) {
-            cg->locals[slot].struct_type = fn_node->as.function.params[i].struct_type_name;
+            cg->locals[cg->local_binding_count - 1].struct_type =
+                fn_node->as.function.params[i].struct_type_name;
         }
 
         /* Put the parameter's declared type where check_expression can find
@@ -3460,6 +3473,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
 
         cg.code_size = 0;
         cg.local_count = 0;
+        cg.local_binding_count = 0;
         cg.loop_depth = 0;
 
         /* Initialize module globals first (they may be referenced by module functions) */
@@ -3549,6 +3563,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
 
         cg.code_size = 0;
         cg.local_count = 0;
+        cg.local_binding_count = 0;
         cg.loop_depth = 0;
         emit_op(&cg, OP_PUSH_I64, (int64_t)0);
         emit_op(&cg, OP_RET);
