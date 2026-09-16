@@ -28,6 +28,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Launcher shadow fixture paths.** I prepare and verify my prebuilt
+      artifact fixture from both root and examples working directories.
+      I retain the dependency shadows in strict example builds.
+      MAC `task_d43b4d7f2ede47788cbeb2b94db32db3`.
+
+- [ ] **Effect integration bootstrap regression.** I preserve normal string
+      type inference and concatenation while lowering native handlers. My clean
+      bootstrap currently emits invalid pointer addition in error_messages.
+      MAC `task_7ecadba95e9445098841f83707a1d7c6`.
+
 - [x] **UI bounds fixture math linkage.** I link the standalone C regression
       against its math dependency on Linux and retain its bounds assertions.
       I query the actual SDL2 dependencies for Darwin runtime lookup, instead
