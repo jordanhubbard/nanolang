@@ -1312,7 +1312,15 @@ bool compile_module_to_object(const char *module_path,
     /* Private siblings keep concurrent builds separate and rename on the same
      * filesystem. A failed compiler must not truncate a published object. */
     char build_dir[1024];
-    int path_length = snprintf(build_dir, sizeof(build_dir), "%s.build.XXXXXX", output_obj);
+    /* I keep user-controlled basenames out of the compiler's __FILE__ path.
+     * Quotes and control characters are valid source filename bytes, but GCC
+     * can mis-expand them when an assert references generated source. Only
+     * the private stem changes: publication still renames beside output_obj. */
+    const char *output_slash = strrchr(output_obj, '/');
+    size_t parent_length = output_slash ? (size_t)(output_slash - output_obj) + 1 : 0;
+    int path_length = parent_length < sizeof(build_dir)
+        ? snprintf(build_dir, sizeof(build_dir), "%.*s.nano-module-XXXXXX",
+                   (int)parent_length, output_obj) : -1;
     bool have_build_dir = path_length >= 0 && (size_t)path_length < sizeof(build_dir) &&
                           mkdtemp(build_dir) != NULL;
     char temp_c_file[1040] = "";
