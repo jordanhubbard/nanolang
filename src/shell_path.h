@@ -41,20 +41,32 @@ static inline bool module_append_include(char *buffer, size_t capacity, const ch
     return module_append_path_flag(buffer, capacity, "-I", path);
 }
 
-static inline bool module_append_unique_object(char *buffer, size_t capacity, const char *path) {
+/* I grow the complete link closure without silently dropping later inputs. */
+static inline bool module_append_fragment(char **buffer, const char *fragment) {
+    size_t used = *buffer ? strlen(*buffer) : 0;
+    size_t length = strlen(fragment);
+    if (length > SIZE_MAX - used - 2) return false;
+    char *grown = realloc(*buffer, used + length + 2);
+    if (!grown) return false;
+    if (used) grown[used++] = ' ';
+    memcpy(grown + used, fragment, length + 1);
+    *buffer = grown;
+    return true;
+}
+
+static inline bool module_append_unique_object(char **buffer, const char *path) {
     char *quoted = module_quote_path(path);
     if (!quoted) return false;
     size_t length = strlen(quoted);
-    for (const char *found = strstr(buffer, quoted); found; found = strstr(found + 1, quoted)) {
-        if ((found == buffer || found[-1] == ' ') &&
+    for (const char *found = *buffer ? strstr(*buffer, quoted) : NULL; found; found = strstr(found + 1, quoted)) {
+        if ((found == *buffer || found[-1] == ' ') &&
             (found[length] == '\0' || found[length] == ' ')) {
             free(quoted);
             return true;
         }
     }
-    size_t used = strlen(buffer);
-    int written = snprintf(buffer + used, capacity - used, "%s%s", used ? " " : "", quoted);
+    bool appended = module_append_fragment(buffer, quoted);
     free(quoted);
-    return written >= 0 && (size_t)written < capacity - used;
+    return appended;
 }
 #endif

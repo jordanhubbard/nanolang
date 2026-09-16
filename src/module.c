@@ -1623,13 +1623,13 @@ static char* get_module_dir(const char *module_path) {
 }
 
 /* Compile all modules in the list to object files using the module builder */
-bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose) {
-    if (!modules || !module_objs_buffer || buffer_size == 0) {
+bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_buffer, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose) {
+    if (!modules || !module_objs_buffer) {
         return false;
     }
     
     /* Initialize buffers */
-    module_objs_buffer[0] = '\0';
+    *module_objs_buffer = NULL;
     if (compile_flags_buffer && compile_flags_buffer_size > 0) {
         compile_flags_buffer[0] = '\0';
     }
@@ -1759,7 +1759,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                     return false;
                 }
                 
-                if (!module_append_unique_object(module_objs_buffer, buffer_size, nano_obj)) {
+                if (!module_append_unique_object(module_objs_buffer, nano_obj)) {
                     fprintf(stderr, "I could not represent all module object paths.\n");
                     module_metadata_free(meta);
                     free(module_dir);
@@ -1829,7 +1829,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             
             nanolang_compiled++;
             
-            if (!module_append_unique_object(module_objs_buffer, buffer_size, obj_file)) {
+            if (!module_append_unique_object(module_objs_buffer, obj_file)) {
                 fprintf(stderr, "I could not represent all module object paths.\n");
                 free(module_dir);
                 module_builder_free(builder);
@@ -1890,11 +1890,14 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 continue;
             }
             
-            if (strlen(module_objs_buffer) + strlen(link_flags[i]) + 2 < buffer_size) {
-                if (module_objs_buffer[0] != '\0') {
-                    strcat(module_objs_buffer, " ");
-                }
-                strcat(module_objs_buffer, link_flags[i]);
+            if (!module_append_fragment(module_objs_buffer, link_flags[i])) {
+                fprintf(stderr, "I could not allocate the complete module link closure.\n");
+                for (size_t k = i; k < link_flags_count; k++) free(link_flags[k]);
+                free(link_flags);
+                for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
+                free(build_infos);
+                module_builder_free(builder);
+                return false;
             }
             free(link_flags[i]);
         }
@@ -1938,6 +1941,14 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                         strcat(compile_flags_buffer, " ");
                     }
                     strcat(compile_flags_buffer, compile_flags[i]);
+                } else {
+                    fprintf(stderr, "I could not represent all module compile flags.\n");
+                    for (size_t k = i; k < compile_flags_count; k++) free(compile_flags[k]);
+                    free(compile_flags);
+                    for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
+                    free(build_infos);
+                    module_builder_free(builder);
+                    return false;
                 }
                 free(compile_flags[i]);
             }

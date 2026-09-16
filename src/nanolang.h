@@ -1000,7 +1000,8 @@ bool compile_module_to_object(const char *module_path,
                               bool verbose,
                               char **extra_compile_flags,
                               size_t extra_compile_flags_count);
-bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_buffer, size_t buffer_size, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
+/* I return an owned module object fragment; callers free it on success or failure. */
+bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_buffer, char *compile_flags_buffer, size_t compile_flags_buffer_size, bool verbose);
 
 /* Module metadata for serialization */
 typedef struct {
