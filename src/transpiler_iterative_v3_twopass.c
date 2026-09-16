@@ -2762,8 +2762,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_INT) {
                     emit_formatted(list, "dynarray_literal_int(%d", count);
                     for (int i = 0; i < count; i++) {
-                        emit_literal(list, ", ");
+                        emit_literal(list, ", (int64_t)(");
                         build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_literal(list, ")");
                     }
                     emit_literal(list, ")");
                 } else if (elem_type == TYPE_U8) {

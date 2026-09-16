@@ -57,6 +57,8 @@ fn positive_float(x: float) -> bool {
 
 shadow positive_float {
     assert (positive_float 1.5)
+    assert (positive_float 2.5)
+    assert (not (positive_float 0.0))
     assert (not (positive_float -1.5))
 }
 
@@ -134,12 +136,6 @@ shadow pipeline_filter_map_reduce {
     assert (== (pipeline_filter_map_reduce) 12)
 }
 
-fn positive_float(value: float) -> bool { return (> value 0.0) }
-shadow positive_float {
-    assert (positive_float 2.5)
-    assert (not (positive_float 0.0))
-}
-
 fn nonempty_text(value: string) -> bool { return (> (str_length value) 0) }
 shadow nonempty_text {
     assert (nonempty_text "value")
@@ -153,6 +149,9 @@ shadow keep_true {
 }
 
 fn main() -> int {
+    assert (== (filter_scalar_literals) 5)
+    assert (== (filter_scalar_variables) 3)
+    assert (== (filter_empty_bool_result) 0)
     # I execute callback checks in the native program as well as in shadows.
     let evens: array<int> = (filter_basic)
     assert (== (array_length evens) 3)

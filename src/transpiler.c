@@ -701,7 +701,7 @@ static const char *register_function_signature(FunctionTypeRegistry *reg, Functi
 
 /* Generate C typedef for a function signature */
 static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
-                                     const char *typedef_name) {
+                                     const char *typedef_name, Environment *env) {
     sb_append(sb, "typedef ");
     
     /* Return type */
@@ -718,7 +718,7 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->param_types[i]));
             }
@@ -729,14 +729,14 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->return_fn_sig->param_types[i] == TYPE_STRUCT && sig->return_fn_sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->return_fn_sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->return_fn_sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->return_fn_sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->return_fn_sig->param_types[i]));
             }
         }
         sb_append(sb, ");\n");
     } else if (sig->return_type == TYPE_STRUCT && sig->return_struct_name) {
-        sb_appendf(sb, "struct %s ", sig->return_struct_name);
+        sb_appendf(sb, "%s ", env_get_opaque_type(env, sig->return_struct_name) ? "void*" : get_prefixed_type_name(sig->return_struct_name));
         /* Function pointer syntax: (*typedef_name) */
         sb_appendf(sb, "(*%s)", typedef_name);
         /* Parameters */
@@ -745,7 +745,7 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->param_types[i]));
             }
@@ -761,7 +761,7 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->param_types[i]));
             }
@@ -4197,13 +4197,13 @@ static void collect_module_headers_from_imports(ASTNode *program, const char *so
 
 /* Generate typedef declarations for function and tuple types */
 static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_registry, 
-                                     TupleTypeRegistry *tuple_registry) {
+                                     TupleTypeRegistry *tuple_registry, Environment *env) {
     /* Generate function type typedefs */
     if (fn_registry->count > 0) {
         sb_append(sb, "/* Function Type Typedefs */\n");
         for (int i = 0; i < fn_registry->count; i++) {
             generate_function_typedef(sb, fn_registry->signatures[i],
-                                    fn_registry->typedef_names[i]);
+                                    fn_registry->typedef_names[i], env);
         }
         sb_append(sb, "\n");
     }
@@ -4282,10 +4282,18 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
         free((char*)resolved);  /* Cast away const for free() */
         if (!module_ast || module_ast->type != AST_PROGRAM) continue;
 
+        bool module_has_main = false;
+        for (int j = 0; j < module_ast->as.program.count; j++) {
+            ASTNode *declaration = module_ast->as.program.items[j];
+            if (declaration && declaration->type == AST_FUNCTION &&
+                strcmp(declaration->as.function.name, "main") == 0)
+                module_has_main = true;
+        }
+
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
             if (!mi || mi->type != AST_FUNCTION) continue;
-            if (!mi->as.function.is_pub) continue;
+            if (!mi->as.function.is_pub && module_has_main) continue;
 
             for (int p = 0; p < mi->as.function.param_count; p++) {
                 if (mi->as.function.params[p].type == TYPE_FUNCTION && mi->as.function.params[p].fn_sig) {
@@ -4301,7 +4309,7 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
 }
 
 /* Generate module extern declarations (extern functions from imported modules) */
-static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
      * Note: System library functions (e.g., SDL_*, sqlite3_*) are declared in module headers,
      * but module wrapper functions need explicit extern declarations */
@@ -4385,6 +4393,8 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                     const char *prefixed = get_prefixed_type_name(func->return_struct_type_name);
                     sb_append(sb, prefixed);
                 }
+            } else if (func->return_type == TYPE_FUNCTION && func->return_fn_sig) {
+                sb_append(sb, register_function_signature(fn_registry, func->return_fn_sig));
             } else {
                 sb_append(sb, type_to_c(func->return_type));
             }
@@ -4407,6 +4417,8 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                         const char *prefixed = get_prefixed_type_name(func->params[j].struct_type_name);
                         sb_append(sb, prefixed);
                     }
+                } else if (func->params[j].type == TYPE_FUNCTION && func->params[j].fn_sig) {
+                    sb_append(sb, register_function_signature(fn_registry, func->params[j].fn_sig));
                 } else {
                     sb_append(sb, type_to_c(func->params[j].type));
                 }
@@ -4813,9 +4825,22 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     
     collect_module_function_types(program, fn_registry, input_file);
     collect_function_and_tuple_types(program, fn_registry, tuple_registry);
+    /* I register transitive foreign signatures before their declarations. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        if (!function->is_extern) continue;
+        if (function->return_type == TYPE_FUNCTION && function->return_fn_sig)
+            register_function_signature(fn_registry, function->return_fn_sig);
+        for (int j = 0; j < function->param_count; ++j) {
+            Parameter *parameter = &function->params[j];
+            if (parameter->type == TYPE_FUNCTION && parameter->fn_sig)
+                register_function_signature(fn_registry, parameter->fn_sig);
+        }
+    }
+
     
     /* Generate typedef declarations */
-    generate_type_typedefs(sb, fn_registry, tuple_registry);
+    generate_type_typedefs(sb, fn_registry, tuple_registry, env);
 
     /* Generate extern function declarations */
     generate_extern_declarations(sb, program, env);
@@ -4824,7 +4849,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     generate_effect_perform_stubs(sb, program);
 
     /* Also generate extern declarations for extern functions from imported modules */
-    generate_module_extern_declarations(sb, program, env);
+    generate_module_extern_declarations(sb, program, env, fn_registry);
 
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);

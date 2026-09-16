@@ -2127,6 +2127,7 @@ test-runtime-failures: $(COMPILER_C)
 .PHONY: test-compiler-contracts
 test-compiler-contracts: $(COMPILER_C)
 	@bash tests/test_compiler_contracts.sh $(COMPILER_C)
+	@python3 tests/test_imported_callback_typedefs.py
 
 # Focused native example regressions that previously escaped CI.
 .PHONY: test-examples-regressions

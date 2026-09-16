@@ -45,3 +45,27 @@ count the premature invocation as a product regression.
 
 Translator, native-compiler, broad quick and full-release validation remain
 separate gates. This checkpoint is not a published release.
+
+## Subsequent acceptance
+
+The reconciled compiler passes all 24 `test-one-ir-compiler` methods and
+1,723 translator checks with 1,073 shape checks. PR #335 lands during this
+run. I preserve the 1,024-local runtime, import its two regressions, and report
+precise count errors from the earliest module validation. The enlarged suite
+is revalidated separately.
+
+The broad quick gate exposes duplicate merged filter predicates; I retain one
+predicate with both shadow assertion sets and execute both branches' scalar
+fixtures from main. Its compile/run regression passes.
+
+Linux CI exposes missing imported callback typedefs in `sdl_nanoamp`. I align
+signature collection with implicit module visibility, collect transitive
+foreign signatures, use those typedefs in foreign declarations and lower
+opaque callback arguments as pointers. A standalone imported-callback native
+compilation test and both strict SDL example regressions pass. The compiler
+contract script and destination checks pass.
+
+The parser contract fixture reveals an ARM64 varargs defect: its final enum
+constant is promoted to four bytes but read as `int64_t`. The parsed node kind
+is 38; the expected array value contains unrelated upper bits. I cast integer
+array literal arguments to the helper ABI. The compiled parser fixture passes.

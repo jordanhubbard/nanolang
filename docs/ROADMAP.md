@@ -28,6 +28,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Parenthesized parser release acceptance.** I reproduce and repair
+      the explicit parser node-kind mismatch in the quick gate, preserving
+      grouped operators and tuple/call distinctions. My probe shows the parser
+      returns the correct kind (38), but an enum literal passed through C
+      varargs is read as an eight-byte integer after four-byte promotion on
+      ARM64. I cast integer-array elements to the helper's `int64_t` ABI. MAC `task_de6fc42342d54f9085cc85c342d0edfa`.
+
+- [x] **Imported callback C typedefs.** I collect implicitly public module
+      signatures before emitting declarations and preserve opaque pointer
+      parameters. I verify callback imports and the SDL mixer example.
+      MAC `task_2883edb70fb348778b7193a52bd83c8a`.
+
 - [ ] **Main PR #335 reconciliation.** I retain my existing 1,024-local
       runtime, import the high-slot and malformed-arity tests, and preserve
       the bounded call formatter. I rerun the native translator gate.
@@ -54,6 +66,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       MAC `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.
       - [ ] I reconcile main through `ded3ee5a`, including affine rejection,
         lexical bindings, native allocation lifetimes and path normalization.
+      - [x] I deduplicate merged filter predicate declarations while retaining
+        both branches' literal, variable and empty-result assertions.
       - [ ] I reproduce remaining release failures, repair them in dependency
         order, and reconcile stale checkboxes against executable evidence.
       - [ ] I run a clean build and full tests, review all open release work,

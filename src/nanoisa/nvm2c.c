@@ -4338,8 +4338,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.local_width = 1;
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         const NvmFunctionEntry *fn = &mod->functions[f];
-        if (fn->local_count > NVM2C_MAX_LOCALS || fn->arity > fn->local_count) {
-            nvm2c_fail(&b, "I cannot classify function %u with invalid local or parameter counts", f);
+        if (fn->local_count > NVM2C_MAX_LOCALS) {
+            nvm2c_fail(&b, "function %u: too many locals", f);
+            return NULL;
+        }
+        if (fn->arity > fn->local_count) {
+            nvm2c_fail(&b, "function %u: arity exceeds local_count", f);
             return NULL;
         }
         if (fn->local_count > b.local_width) b.local_width = fn->local_count;
