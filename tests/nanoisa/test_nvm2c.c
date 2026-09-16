@@ -5280,6 +5280,35 @@ static void test_tagged_string_array_writes(void) {
     }
 }
 
+static void test_record_temporary_storage_is_function_sized(void) {
+    const char *src =
+        ".string seven \"seven\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR seven\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "record temporary sizing fixture");
+    CHECK(m != NULL, "record temporary sizing fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c sizes record temporary storage");
+    if (c) {
+        CHECK(strstr(c, "nrec_t r[256]") == NULL,
+              "generated frames do not reserve the global record temporary limit");
+        CHECK(strstr(c, "nrec_t *r = 1 ? calloc(1, sizeof *r) : NULL") != NULL,
+              "generated frame reserves only its one record temporary");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0,
+              "function-sized record storage compiles and runs");
+        CHECK(status == 7, "function-sized record storage preserves the result");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_uncalled_record_parameter_needs_no_invented_shape(void) {
     const char *src =
         ".entry 1\n"
@@ -5600,6 +5629,7 @@ static void test_void_local_flows_through_branches_loops_and_calls(void) {
 }
 
 int main(int argc, char **argv) {
+    test_record_temporary_storage_is_function_sized();
     test_uncalled_record_parameter_needs_no_invented_shape();
     test_cast_int_updates_classifier_stack();
     test_array_record_field_keeps_runtime_representation();

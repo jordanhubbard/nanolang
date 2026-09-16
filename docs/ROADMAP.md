@@ -212,7 +212,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         arrays, records and maps. Scalar tags do not complete this work.
         I first reconcile the overlapping main translator changes below.
         MAC `task_9bc9d52fdd4a4f818064f53a4a071bae`.
-      - [ ] I reconcile main's newer `4936f8cf` (PR #316) after this checkpoint.
+      - [x] I reconcile main's newer `4936f8cf` (PR #316) after this checkpoint.
         I review its unary/grouping parser changes and import its grouping
         regression without restoring the old match-arm return-as-value rule.
         My creator's 5.0 rule remains: return exits the enclosing function;
@@ -231,6 +231,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         import the two incoming regression functions, and extend match tests
         across C seed, both self-hosted stages and NanoVM. I rerun affected
         parser, native-frame and match gates before committing the merge.
+        I retain the production-identical parser, match checker and native
+        frame implementation, import both regression functions and verify
+        1,718 translator checks, 1,073 shape checks and 27 native/match methods.
+        Evidence: `docs/evidence/main-reconciliation-pr317.md`.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure

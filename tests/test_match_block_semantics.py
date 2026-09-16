@@ -10,6 +10,17 @@ FIXTURE = ROOT / "tests/selfhost/test_match_expression_blocks.nano"
 
 
 class MatchBlockSemantics(unittest.TestCase):
+    def compilers(self):
+        return [ROOT / "bin/nanoc_c", ROOT / "bin/nanoc_stage1",
+                Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage2")),
+                ROOT / "bin/nano_virt"]
+
+    def compile_command(self, compiler, source, output):
+        command = [str(compiler), str(source), "-o", str(output)]
+        if compiler.name == "nano_virt":
+            command.append("--emit-nvm")
+        return command
+
     def test_reject_wrong_return_and_arm_types(self):
         preamble = FIXTURE.read_text().split("\nfn ", 1)[0]
         bodies = [
@@ -17,8 +28,7 @@ class MatchBlockSemantics(unittest.TestCase):
             'Some(item) => { 7 } None(empty) => { "bad" }',
             'Some(item) => { 7 } None(empty) => { let unused: int = 0 }',
         ]
-        for compiler in [ROOT / "bin/nanoc_c", Path(os.environ.get(
-                "NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage2"))]:
+        for compiler in self.compilers():
             for body in bodies:
                 with self.subTest(compiler=compiler.name, body=body), tempfile.TemporaryDirectory(
                         prefix="nanolang-match-reject-") as directory:
@@ -27,12 +37,29 @@ class MatchBlockSemantics(unittest.TestCase):
                     source.write_text(preamble + '\nfn broken(choice: Choice) -> int {\n'
                                       'let value = (match choice { ' + body + ' })\nreturn value\n}\n'
                                       'shadow broken { assert true }\nfn main() -> int { return 0 }\n')
-                    result = subprocess.run([str(compiler), str(source), "-o", str(path / "invalid")],
+                    output = path / "invalid"
+                    output.write_bytes(b"prior artifact")
+                    result = subprocess.run(self.compile_command(compiler, source, output),
                                             cwd=ROOT, env=dict(os.environ, TMPDIR=directory),
                                             capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(output.read_bytes(), b"prior artifact")
                     self.assertNotIn("error: incompatible", result.stderr,
                                      "I must reject this before invoking the C compiler")
+
+    def test_incoming_grouping_fixture(self):
+        source = ROOT / "tests/selfhost/test_infix_ops.nano"
+        for compiler in self.compilers():
+            with self.subTest(compiler=compiler.name), tempfile.TemporaryDirectory(
+                    prefix="nanolang-infix-merge-") as directory:
+                binary = Path(directory) / "infix"
+                compiled = subprocess.run(self.compile_command(compiler, source, binary),
+                                          cwd=ROOT, env=dict(os.environ, TMPDIR=directory),
+                                          capture_output=True, text=True, timeout=120)
+                self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                command = [str(ROOT / "bin/nano_vm"), str(binary)] if compiler.name == "nano_virt" else [str(binary)]
+                executed = subprocess.run(command, capture_output=True, text=True, timeout=10)
+                self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
 
     def test_backend_cases(self):
         fixture = FIXTURE.read_text()
@@ -42,9 +69,7 @@ class MatchBlockSemantics(unittest.TestCase):
                  "match_branch": [(7, 1), (-7, 102), (None, 103)],
                  "match_string": [(7, 7), (-7, 8), (None, 4)],
                  "match_return": [(7, 7), (None, 103)]}
-        compilers = [ROOT / "bin/nanoc_c",
-                     Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage2"))]
-        for compiler in compilers:
+        for compiler in self.compilers():
             for name, examples in cases.items():
                 with self.subTest(compiler=compiler.name, case=name), tempfile.TemporaryDirectory(
                         prefix="nanolang-match-block-") as directory:
@@ -61,11 +86,12 @@ class MatchBlockSemantics(unittest.TestCase):
                                       "fn main() -> int {\n" + checks + "\nreturn 0 }\n" +
                                       "shadow main { assert (== (main) 0) }\n")
                     binary = path / "case"
-                    compiled = subprocess.run([str(compiler), str(source), "-o", str(binary)],
+                    compiled = subprocess.run(self.compile_command(compiler, source, binary),
                                               cwd=ROOT, env=dict(os.environ, TMPDIR=directory),
                                               capture_output=True, text=True, timeout=120)
                     self.assertEqual(compiled.returncode, 0, (compiled.stdout + compiled.stderr)[-4000:])
-                    executed = subprocess.run([str(binary)], capture_output=True, text=True, timeout=10)
+                    command = [str(ROOT / "bin/nano_vm"), str(binary)] if compiler.name == "nano_virt" else [str(binary)]
+                    executed = subprocess.run(command, capture_output=True, text=True, timeout=10)
                     self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
 
 
