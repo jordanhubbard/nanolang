@@ -570,6 +570,7 @@ typedef struct {
     bool from_c_header;  /* True if this constant was loaded from a C header #define */
     int def_line;        /* Line where variable was defined */
     int def_column;      /* Column where variable was defined */
+    bool checker_visible; /* False after the lexical checker scope exits. */
     /* Source file the definition came from, or NULL for symbols with no file
      * (builtins, and anything registered without a location).
      *
@@ -807,6 +808,7 @@ typedef struct {
     /* File whose code is being processed; stamped onto definitions and used to
      * keep source-position lookups inside one file. Borrowed, not owned. */
     const char *current_file;
+    bool checking_types; /* Restrict source lookups to active lexical scopes. */
 } Environment;
 
 /* Function declarations */
