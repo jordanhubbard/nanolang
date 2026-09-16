@@ -60,6 +60,15 @@ shadow test_unary_minus {
     assert (== (test_unary_minus) -7)
 }
 
+fn test_parenthesized_infix() -> int {
+    let x = 10
+    return (x + 5)
+}
+
+shadow test_parenthesized_infix {
+    assert (== (test_parenthesized_infix) 15)
+}
+
 fn test_else_if(x: int) -> int {
     if x < 0 {
         return -1

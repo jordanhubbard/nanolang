@@ -2503,7 +2503,18 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
 
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
-        let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
+        let mut arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
+        if (== body_type ParseNodeType.PNODE_BLOCK) {
+            let arm_block: ASTBlock = (parser_get_block parser body_id)
+            let arm_stmt_count: int = (list_ASTStmtRef_length arm_block.statements)
+            if (> arm_stmt_count 0) {
+                let last_stmt: ASTStmtRef = (list_ASTStmtRef_get arm_block.statements (- arm_stmt_count 1))
+                if (== last_stmt.node_type ParseNodeType.PNODE_RETURN) {
+                    let arm_return: ASTReturn = (parser_get_return parser last_stmt.node_id)
+                    set arm_type (check_expr_node parser arm_return.value arm_return.value_type arm_symbols diags file_name)
+                } else { (print "") }
+            } else { (print "") }
+        } else { (print "") }
 
         if (== i 0) {
             set first_arm_type arm_type

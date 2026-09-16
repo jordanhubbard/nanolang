@@ -2460,6 +2460,34 @@ fn parse_primary(p: Parser) -> Parser {
             (print "")
         }
 
+        /* Bare unary operators: not expr and -expr. */
+        if (== tok.token_type (token_not)) {
+            let p_op: Parser = (parser_advance p)
+            let p_id: Parser = (parser_store_identifier p_op tok.value tok.line tok.column)
+            let func_id: int = p_id.last_expr_node_id
+            let p_arg: Parser = (parse_primary p_id)
+            if (parser_has_error p_arg) {
+                return p_arg
+            } else {
+                let arg_start: int = (list_ASTStmtRef_length p_arg.call_args)
+                let p_arg2: Parser = (parser_store_call_arg p_arg p_arg.last_expr_node_id p_arg.last_expr_node_type)
+                return (parser_store_call p_arg2 func_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok.line tok.column)
+            }
+        } else { (print "") }
+
+        if (== tok.token_type (token_minus)) {
+            let p_op: Parser = (parser_advance p)
+            let p_arg: Parser = (parse_primary p_op)
+            if (parser_has_error p_arg) {
+                return p_arg
+            } else {
+                let arg_id: int = p_arg.last_expr_node_id
+                let arg_type: int = p_arg.last_expr_node_type
+                let p_zero: Parser = (parser_store_number p_arg "0" tok.line tok.column)
+                return (parser_store_binary_op p_zero tok.token_type p_zero.last_expr_node_id arg_id p_zero.last_expr_node_type arg_type tok.line tok.column)
+            }
+        } else { (print "") }
+
         /* cond expression: (cond ((test1) val1) ((test2) val2) (else default)) */
         if (== tok.token_type (token_lparen)) {
             let p_lookahead: Parser = (parser_advance p)  /* consume '(' */
@@ -2674,6 +2702,20 @@ fn parse_primary(p: Parser) -> Parser {
                                     } else {
                                         /* If identifier, it's a function call: (funcname args...) */
                                         if (== tok2.token_type (token_identifier)) {
+                                            let paren_name: NameParseResult = (parse_qualified_name p1)
+                                            if paren_name.ok {
+                                                if (not (parser_is_at_end paren_name.p)) {
+                                                    let paren_next: LexerToken = (parser_current paren_name.p)
+                                                    if (is_binary_op paren_next.token_type) {
+                                                        let p_expr: Parser = (parse_expression p1)
+                                                        if (parser_has_error p_expr) {
+                                                            return p_expr
+                                                        } else {
+                                                            return (parser_expect p_expr (token_rparen))
+                                                        }
+                                                    } else { (print "") }
+                                                } else { (print "") }
+                                            } else { (print "") }
                                             let name_res: NameParseResult = (parse_call_name p1)
                                             if (not name_res.ok) {
                                                 return (parser_with_error name_res.p true)
