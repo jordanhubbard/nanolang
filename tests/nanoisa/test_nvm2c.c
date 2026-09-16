@@ -3088,7 +3088,68 @@ static void test_tagged_scalar_returns(void) {
     }
 }
 
+static void test_array_globals(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[3072];
+        snprintf(source, sizeof source,
+            ".string first \"first\"\n.string next \"next\"\n.entry main\n"
+            ".function main 0 1 0 int 1\nLOAD_GLOBAL 0\nTYPE_CHECK 7\nASSERT\n"
+            "LOAD_GLOBAL 0\nASSERT\nLOAD_GLOBAL 0\nSTORE_LOCAL 0\nLOAD_GLOBAL 0\nSTORE_GLOBAL 1\n"
+            "LOAD_GLOBAL 0\nARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n"
+            "LOAD_GLOBAL 0\nPUSH_I64 0\nARR_GET\nTYPE_CHECK 0\nASSERT\n"
+            "CALL append\nLOAD_LOCAL 0\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+            "LOAD_GLOBAL 1\nLOAD_LOCAL 0\nEQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n%s\nEQ\nASSERT\n"
+            "LOAD_GLOBAL 0\nPUSH_I64 0\n%s\nSTORE_GLOBAL 2\nLOAD_GLOBAL 2\nARR_SET\nPOP\n"
+            "PUSH_I64 0\nSTORE_GLOBAL 0\nLOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n%s\nEQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_I64 -1\nARR_GET\nTYPE_CHECK 0\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_I64 4294967296\nARR_GET\n%s\nEQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_I64 99\n%s\nARR_SET\nPOP\nLOAD_LOCAL 0\nPRINTLN\n"
+            "PUSH_I64 0\nRET\n.end\n"
+            ".function __init__ 0 0 0 void 0\nARR_LITERAL %d 0\nSTORE_GLOBAL 0\nRET\n.end\n"
+            ".function append 0 0 0 void 0\nLOAD_GLOBAL 0\n%s\nARR_PUSH\nSTORE_GLOBAL 0\nRET\n.end\n",
+            strings ? "PUSH_STR first" : "PUSH_I64 42",
+            strings ? "PUSH_STR next" : "PUSH_I64 7",
+            strings ? "PUSH_STR next" : "PUSH_I64 7",
+            strings ? "PUSH_STR next" : "PUSH_I64 7",
+            strings ? "PUSH_STR first" : "PUSH_I64 42",
+            strings ? 5 : 1, strings ? "PUSH_STR first" : "PUSH_I64 42");
+        NvmModule *m = assemble_ok(source, "tagged global arrays");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I preserve tagged array handles across global mutation");
+        if (c) {
+            char output[64] = {0};
+            int status = -1;
+            CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 && status == 0 &&
+                  strcmp(output, strings ? "[next]\n" : "[7]\n") == 0,
+                  "I preserve aliases, element tags, missing reads, narrowing and printed array values");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    const char *bad[] = {
+        "LOAD_GLOBAL 0\nARR_LEN\nPOP",
+        "ARR_NEW 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_I64 0\nARR_GET\nPUSH_I64 1\nI64_ADD\nPOP",
+        "ARR_NEW 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_BOOL 1\nARR_PUSH\nPOP"
+    };
+    for (size_t i = 0; i < sizeof bad / sizeof bad[0]; ++i) {
+        char source[512];
+        snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%s\nPUSH_I64 0\nRET\n.end\n", bad[i]);
+        NvmModule *m = assemble_ok(source, "invalid tagged array consumption");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I defer dynamic array checks until consumption");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status == -1,
+                  "I trap non-array use, missing integer consumption and wrong element tags");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_scalar_globals(void) {
+    test_array_globals();
     const char *source =
         ".string text \"saved\"\n.string yes \"true\"\n.entry main\n"
         ".function main 0 1 0 int 1\n"

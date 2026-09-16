@@ -141,6 +141,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     Full compiler acceptance remains a separate gate. Normal
                     and sanitizer suites pass 1,284 AOT and 994 shape checks.
                     Evidence: `docs/evidence/aot-array-result-kinds.md`.
+                  - [ ] I reconcile empty array returns with nonempty string
+                    array returns in `extract_type_args`. My current compiler
+                    translation stops at function 369, offset 553 with
+                    conflicting `narr_t` and `nsarr_t` results. I retain type
+                    checks while inferring the empty path's element kind.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
@@ -280,9 +285,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     initialization and later stores. My compiler's fourteen
                     globals include booleans, strings and arrays; scalar-only
                     storage does not satisfy its requirements.
-                    My next confirmed compiler failure is an empty string
-                    array store to global 6 in `register_extern_names`
-                    (function 342, offset 4).
+                    I now pass the earlier empty string array store to global
+                    6 in `register_extern_names`; full compiler translation
+                    still requires compatible empty-array return inference.
+                    - [x] I carry integer and string array handles in tagged
+                      globals, preserving alias mutation, void-before-store
+                      and void-valued out-of-range reads. I test array
+                      length/read/push/set, copied global handles and tag
+                      checks. Record arrays and empty-array inference remain
+                      required before I complete globals. Normal and fresh
+                      ASan/UBSan suites pass 1,294 AOT and 994 shape checks.
+                      Evidence: `docs/evidence/aot-array-globals.md`.
+                    - [ ] I preserve void-valued out-of-range reads from
+                      ordinary native arrays too. Existing untagged helpers
+                      abort at lookup; NanoVM yields void and lets consumers
+                      decide. I test ignored results, tag inspection, casts,
+                      typed consumers and index narrowing. MAC
+                      `task_ed0f455484d04f13818362fd857d2889`.
                     - [x] I first carry tagged scalar global loads and stores
                       through initialization, cross-function mutation and
                       saved values. I check slot bounds and retain void before
