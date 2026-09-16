@@ -56,25 +56,23 @@ DynArray* fs_walkdir(const char* root) {
     return result;
 }
 
-/* Internal helper: normalize path into caller-provided buffer */
-static void path_normalize_into(const char* path, char* result, size_t result_size) {
+/* Internal helper: normalize path into a newly allocated string. */
+static char* path_normalize_alloc(const char* path) {
     if (!path || path[0] == '\0') {
-        snprintf(result, result_size, ".");
-        return;
+        return strdup(".");
     }
 
     int is_absolute = (path[0] == '/');
-
-    /* Copy path for tokenization */
     char* copy = strdup(path);
-    if (!copy) {
-        snprintf(result, result_size, "%s", path);
-        return;
-    }
+    if (!copy) return NULL;
 
-    /* Split path into components */
-    const char* parts[512];
-    int count = 0;
+    size_t parts_capacity = 16;
+    size_t count = 0;
+    char** parts = malloc(parts_capacity * sizeof(*parts));
+    if (!parts) {
+        free(copy);
+        return NULL;
+    }
 
     char* saveptr = NULL;
     char* token = strtok_r(copy, "/", &saveptr);
@@ -86,44 +84,75 @@ static void path_normalize_into(const char* path, char* result, size_t result_si
             if (count > 0 && strcmp(parts[count - 1], "..") != 0) {
                 count--;
             } else if (!is_absolute) {
-                /* Keep .. for relative paths */
-                if (count < 512) parts[count++] = token;
+                if (count == parts_capacity) {
+                    size_t new_capacity = parts_capacity * 2;
+                    char** grown = realloc(parts, new_capacity * sizeof(*grown));
+                    if (!grown) {
+                        free(parts);
+                        free(copy);
+                        return NULL;
+                    }
+                    parts = grown;
+                    parts_capacity = new_capacity;
+                }
+                parts[count++] = token;
             }
         } else {
-            /* Normal component */
-            if (count < 512) parts[count++] = token;
+            if (count == parts_capacity) {
+                size_t new_capacity = parts_capacity * 2;
+                char** grown = realloc(parts, new_capacity * sizeof(*grown));
+                if (!grown) {
+                    free(parts);
+                    free(copy);
+                    return NULL;
+                }
+                parts = grown;
+                parts_capacity = new_capacity;
+            }
+            parts[count++] = token;
         }
         token = strtok_r(NULL, "/", &saveptr);
     }
 
-    /* Build result */
-    result[0] = '\0';
-    if (is_absolute) {
-        strcat(result, "/");
-    }
-
-    for (int i = 0; i < count; i++) {
-        if (i > 0 || is_absolute) {
-            if (result[strlen(result) - 1] != '/') {
-                strncat(result, "/", result_size - strlen(result) - 1);
-            }
+    size_t result_size = is_absolute ? 2 : 1;
+    if (count == 0 && !is_absolute) result_size = 2;
+    for (size_t i = 0; i < count; i++) {
+        size_t len = strlen(parts[i]);
+        if (len > SIZE_MAX - result_size - 1) {
+            free(parts);
+            free(copy);
+            return NULL;
         }
-        strncat(result, parts[i], result_size - strlen(result) - 1);
+        result_size += len + 1;
     }
 
-    /* Handle empty result */
-    if (result[0] == '\0') {
-        snprintf(result, result_size, ".");
+    char* result = malloc(result_size);
+    if (!result) {
+        free(parts);
+        free(copy);
+        return NULL;
     }
 
+    size_t pos = 0;
+    if (is_absolute) result[pos++] = '/';
+    for (size_t i = 0; i < count; i++) {
+        size_t len = strlen(parts[i]);
+        if (pos > 0 && result[pos - 1] != '/') result[pos++] = '/';
+        memcpy(result + pos, parts[i], len);
+        pos += len;
+    }
+    if (pos == 0) result[pos++] = '.';
+    result[pos] = '\0';
+
+    free(parts);
     free(copy);
+    return result;
 }
 
 /* Normalize path (resolve . and .., remove redundant slashes) */
 const char* path_normalize(const char* path) {
-    char result[2048];
-    path_normalize_into(path, result, sizeof(result));
-    return strdup(result);
+    char* result = path_normalize_alloc(path);
+    return result ? result : strdup("");
 }
 
 /* Join two path components */
@@ -198,8 +227,15 @@ static void path_append(char* out, size_t out_size, const char* part) {
 }
 
 static int path_make_absolute(const char* path, char* result, size_t result_size) {
+    char* normalized;
     if (path[0] == '/') {
-        path_normalize_into(path, result, result_size);
+        normalized = path_normalize_alloc(path);
+        if (!normalized || strlen(normalized) >= result_size) {
+            free(normalized);
+            return 0;
+        }
+        memcpy(result, normalized, strlen(normalized) + 1);
+        free(normalized);
         return 1;
     }
 
@@ -209,7 +245,13 @@ static int path_make_absolute(const char* path, char* result, size_t result_size
     if (snprintf(anchored, sizeof(anchored), "%s/%s", cwd, path) >= (int)sizeof(anchored)) {
         return 0;
     }
-    path_normalize_into(anchored, result, result_size);
+    normalized = path_normalize_alloc(anchored);
+    if (!normalized || strlen(normalized) >= result_size) {
+        free(normalized);
+        return 0;
+    }
+    memcpy(result, normalized, strlen(normalized) + 1);
+    free(normalized);
     return 1;
 }
 
