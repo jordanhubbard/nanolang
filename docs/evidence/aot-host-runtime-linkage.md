@@ -38,9 +38,9 @@ expects record field zero's storage kind to be 2, but the constructed field has
 kind 0 and integer payload 24. I retain the failing check and acceptance test.
 MAC `task_45fedd409e1447089dad970396b0a075` tracks that distinct failure.
 
-The broader `test-dyn-array` invocation also runs bootstrap; its stage-two
-compilation was still running at this checkpoint. I do not report that gate as
-passed. Linux link flags are documented but were not executed on this host.
+The broader `make test-dyn-array test-refcount-gc test-gc-struct` invocation
+subsequently completed successfully, including its bootstrap prerequisite.
+Linux link flags are documented but were not executed on this host.
 
 MAC `task_fca5000374ef49988da33e5617e703b8` tracks this linkage fix. Worker claims
 still fail with `agent_status_unavailable`; I record evidence without forcing
