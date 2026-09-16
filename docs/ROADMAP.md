@@ -24,6 +24,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **Local integration recovery.** I finish the interrupted rebase onto
+      current main, preserve applicable compiler, module-header and shadow
+      changes, and retain upstream removals. `make test-quick` and
+      `make test-c-backend` pass; both changed examples compile and run
+      with the C seed and rebuilt Stage 2. SDL helper headers pass a C
+      syntax check. Native bootstrap binaries differ; I claim passing
+      smoke and parity checks, not a fixed point.
+      MAC `task_52371d21b5174f2aba3acc13074d28f0`.
+
 - [x] **5.0 / self-hosted nested-array indexing.** I preserve every remaining
       array level while inferring and emitting nested `at` calls, and test both
       intermediate array values and the scalar value through native execution.
