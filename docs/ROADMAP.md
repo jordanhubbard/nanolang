@@ -28,11 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Coverage VM example shadow budget.** I allow a finite explicit
+- [x] **Coverage VM example shadow budget.** I allow a finite explicit
       budget for instrumented VM-example compiler children while preserving
       normal and deadline-regression behavior elsewhere in the full suite.
       I verify the pi example and keep every shadow assertion.
-      MAC `task_840c38c505ae425da92124a08cccc1ce`.
+      MAC `task_840c38c505ae425da92124a08cccc1ce`. A fresh gcov NanoVirt
+      reproduces the ten-second pi timeout; the scoped 60-second budget passes
+      in 25.27 seconds. Four environment-isolation cases retain other defaults.
 
 - [x] **Full CI VM example dependencies.** I install the foreign libraries
       required by dependency shadows in all 244 eligible VM examples for full

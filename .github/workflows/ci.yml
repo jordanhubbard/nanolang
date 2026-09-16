@@ -438,6 +438,8 @@ jobs:
         run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
 
       - name: Run tests
+        env:
+          NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
         run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
 
       - name: Run negative tests
