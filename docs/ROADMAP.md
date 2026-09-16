@@ -28,12 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Public compiler release version.** I synchronize my existing compiler
+- [x] **Public compiler release version.** I synchronize my existing compiler
       version header with package metadata, update both during future releases,
       and test metadata parity and actual CLI output.
       MAC `task_8b774619e731439aa9aef4fef2eb2656`.
 
-- [ ] **Strict CI OpenGL dependencies.** I install GLFW and GLEW alongside
+- [x] **Strict CI OpenGL dependencies.** I install GLFW and GLEW alongside
       freeglut when my strict job selects the complete OpenGL example set.
       I preserve strict selection and the ban on implicit package installation.
       MAC `task_d7e811304f2a4669bfcce7a4a89198eb`.
@@ -44,7 +44,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       boundaries when discovered fixtures contain whitespace.
       MAC `task_0c4db2d50e2d4428828a487053535661`.
 
-- [ ] **Darwin launcher StringBuilder linkage.** I retain the runtime symbols
+- [x] **Darwin launcher StringBuilder linkage.** I retain the runtime symbols
       referenced by imported StringBuilder objects in strict native builds,
       preserving transitive link dependencies and cache identity. I replace
       the silently truncating 2,048-byte closure buffer with complete checked
@@ -52,11 +52,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       Bounded compile-flag buffers must reject overflow explicitly too.
       MAC `task_7c505ffcb1f3464aa8cda8fb461dc4ee`.
 
-- [ ] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
+- [x] **Instrumented bootstrap shadow budget.** I diagnose the ten-second
       sanitizer-build deadline without dropping shadows or instrumentation,
       and test an explicit bounded budget when the workload requires it.
       My bounded parser and one/sixty-second instrumented probes pass; the
-      updated sanitizer CI remains the acceptance gate.
+      hosted sanitizer build and bootstrap also pass at `094cfa80`;
+      the full sanitizer test suite remains a release acceptance gate.
       MAC `task_6a2f75e259e84f09bbec61554b9ff9a7`.
 
 - [x] **MAC shadow execution isolation.** I keep command execution shadows bounded without relying on a live hub or CLI startup, preserving single execution and failure status checks.

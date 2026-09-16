@@ -260,3 +260,37 @@ Jackson Forth evidence and graphical/PTY smoke, interpreter examples, benchmark
 measurements and property-test smoke. Gforth differential execution is skipped
 because Gforth is absent on this local host; CI installs it. This continuation
 is a discovery aid and does not replace the clean combined release gate.
+
+
+## Combined candidate and Darwin closure
+
+At `094cfa803b96a6d61925ab25d4cf15cfe502a825`, I start a fresh checkout with
+`make clean && make -j8 && make test TEST_TIMEOUT=3600`. The clean build and
+bootstrap pass. The full run passes 272,403 VM checks, 1,745 translator checks,
+1,073 shape checks and all 175 verifier/equivalence programs, then continues
+through later acceptance. The one-hour outer test budget preserves every test.
+I do not describe this still-running gate as completed here.
+
+A fresh Darwin checkout of that exact candidate passes `make stage1`, all five
+example regressions and `make examples EXAMPLES_TIMEOUT=2400`. Its original
+availability selection builds 178 targets. Installing freeglut and exposing the
+existing readline keg through its real pkg-config path selects 187; all nine
+additional OpenGL/readline targets compile too, with no availability override.
+The strict CI failure on missing GLFW/GLEW is corrected by explicit dependency
+installation, not by reducing selection.
+
+The module link closure no longer silently truncates at 2,048 bytes. Three
+Linux/Darwin tests cover cold/cached long closures, generation identity and
+explicit compile-flag overflow rejection. Darwin builds the SDL launcher with
+the identical long cache path that reproduced missing runtime symbols.
+
+The combined Darwin unit corpus passes 30/30 in the normal environment at
+`449b8b95`, and its 29 focused methods cover module staging, compiler selection
+and empty arrays on both backends. Compiler sources are unchanged from its
+fresh `6bf18479` build at that checkpoint.
+
+The hosted sanitizer build and bootstrap pass at `094cfa80` under the explicit
+60-second budget. Default shadow supervision remains ten seconds. Final hosted
+tests remain separate acceptance. The release-version regression checks actual
+CLI output and future generated metadata; I no longer report the stale 0.2.0
+version from the public C compiler.

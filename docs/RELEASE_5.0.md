@@ -81,7 +81,7 @@ branches. My source-snapshot boundaries remain in
 
 ## Validation checkpoint — 2026-09-16
 
-My bounded finalization checkpoints passed 1,739 native translator checks,
+My bounded finalization checkpoints passed 1,745 native translator checks,
 1,073 shape checks, 272,403 VM checks, 89 VM codegen checks and 175
 verified/equivalent programs. A clean bootstrap passed at `4373abc5`. Darwin
 passed 14 effect tests, 49 scoping checks and 39 executable guide snippets.
@@ -102,9 +102,21 @@ run passed 47 methods, with eight platform/compiler-specific skips. The Darwin C
 compilation, reuse and header invalidation; its deprecated `.c`-as-C++ warning
 is acknowledged for that fixture, not described as warning-free.
 
-These are dated results from the
-integration work, not fresh validation of every subsequent commit or proof of
-semantic correctness.
+At `094cfa80`, a fresh Linux build passes and the continuing full test run
+passes the translator, shape, VM and 175-program verifier/equivalence gates.
+Darwin compiles all 187 targets selected after installing the actual OpenGL
+and readline dependencies, including the nine targets absent from the earlier
+178-target selection. Five example regressions pass. These are compilation
+results, not a graphical runtime claim. All 12 document-pair tests pass,
+including real authoring regeneration. The hosted sanitizer build and bootstrap
+pass with an explicit bounded shadow budget. I correct the strict CI dependency
+list to install GLFW and GLEW; automatic package installation stays disabled.
+My public compiler version header and package metadata now both identify 5.0.0,
+and release tests keep future versions synchronized.
+
+These are dated results from the integration work, not a claim that the final
+full-suite and CI gates have already completed. My published release evidence
+must identify their tested revisions and final outcomes before publication.
 
 [The integration evidence](evidence/main-reconciliation-pr334-linux.md) records
 commands, revisions, fixes and limitations. Final clean-tree tests, platform CI,
