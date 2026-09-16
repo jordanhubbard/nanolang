@@ -11,12 +11,6 @@
  * - The daemon runs concurrent threads (read lock allows parallel symbol resolution)
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
-#endif
-#ifndef _DARWIN_C_SOURCE
-#define _DARWIN_C_SOURCE 1
-#endif
 #define _POSIX_C_SOURCE 200809L  /* For strdup(), pthread_rwlock_t */
 
 #include "ffi_loader.h"
@@ -39,15 +33,6 @@ static bool initialized = false;
 static bool verbose_mode = false;
 
 static pthread_rwlock_t ffi_lock = PTHREAD_RWLOCK_INITIALIZER;
-
-typedef struct RetainedImage {
-    void *handle;
-    struct RetainedImage *next;
-} RetainedImage;
-/* I keep one additional loader reference per retained image, across registry
- * shutdown/reinitialization. A callback's final release can occur while native
- * code is still returning through that image, so it is not an unload boundary. */
-static RetainedImage *retained_images;
 
 /* ── Lifecycle ───────────────────────────────────────────────────── */
 
@@ -182,17 +167,8 @@ bool ffi_loader_open(const char *module_name, const char *lib_path) {
     }
 
     FfiModule *m = &modules[module_count];
-    char *name = strdup(module_name);
-    char *path = strdup(lib_path);
-    if (!name || !path) {
-        free(name);
-        free(path);
-        dlclose(handle);
-        pthread_rwlock_unlock(&ffi_lock);
-        return false;
-    }
-    m->name = name;
-    m->path = path;
+    m->name = strdup(module_name);
+    m->path = strdup(lib_path);
     m->handle = handle;
     m->user_data = NULL;
     module_count++;
@@ -215,97 +191,6 @@ FfiModule *ffi_loader_get_modules(int *out_count) {
 
 void *ffi_loader_resolve(const char *symbol_name) {
     return ffi_loader_resolve_in(symbol_name, NULL);
-}
-
-void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name) {
-    if (!symbol_name || !module_name) return NULL;
-    void *ptr = NULL;
-    pthread_rwlock_rdlock(&ffi_lock);
-    for (int i = 0; i < module_count; i++) {
-        if (strcmp(modules[i].name, module_name) == 0) {
-            ptr = dlsym(modules[i].handle, symbol_name);
-            break;
-        }
-    }
-    pthread_rwlock_unlock(&ffi_lock);
-    return ptr;
-}
-
-bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name,
-                                void *function, uint32_t expected,
-                                char *error, size_t error_size) {
-    if (error && error_size) error[0] = '\0';
-    if (!symbol_name || !function) return false;
-    const char suffix[] = "__nano_array_abi";
-    size_t length = strlen(symbol_name);
-    if (length > SIZE_MAX - sizeof suffix) return false;
-    char *name = malloc(length + sizeof suffix);
-    if (!name) return false;
-    memcpy(name, symbol_name, length);
-    memcpy(name + length, suffix, sizeof suffix);
-    bool found = false, valid = false;
-    uint32_t actual = 1;
-    pthread_rwlock_rdlock(&ffi_lock);
-    const uint32_t *declaration = NULL;
-    if (!module_name) {
-        found = true;
-        declaration = dlsym(RTLD_DEFAULT, name);
-    }
-    for (int i = 0; module_name && i < module_count; ++i) {
-        if (strcmp(modules[i].name, module_name)) continue;
-        found = true;
-        declaration = dlsym(modules[i].handle, name);
-        break;
-    }
-    if (found) {
-        if (!declaration) {
-            valid = expected == 1;
-        } else {
-            Dl_info function_image, declaration_image;
-            if (dladdr(function, &function_image) && dladdr(declaration, &declaration_image) &&
-                function_image.dli_fbase == declaration_image.dli_fbase) {
-                memcpy(&actual, declaration, sizeof actual);
-                valid = actual == expected;
-            }
-        }
-    }
-    pthread_rwlock_unlock(&ffi_lock);
-    free(name);
-    if (!valid && error && error_size)
-        snprintf(error, error_size,
-                 "I require native array ABI %u for %s; its declaration is missing, incompatible or belongs to another image%s",
-                 expected, symbol_name, found ? "" : " (module not loaded)");
-    return valid;
-}
-
-void *ffi_loader_resolve_retained(const char *symbol_name, const char *module_name) {
-    if (!symbol_name || !module_name) return NULL;
-    void *ptr = NULL;
-    pthread_rwlock_wrlock(&ffi_lock);
-    for (int i = 0; i < module_count; i++) {
-        FfiModule *module = &modules[i];
-        if (strcmp(module->name, module_name)) continue;
-        ptr = dlsym(module->handle, symbol_name);
-        if (!ptr) break;
-        RetainedImage *image = retained_images;
-        while (image && image->handle != module->handle) image = image->next;
-        if (!image) {
-            image = malloc(sizeof(*image));
-            if (!image) { ptr = NULL; break; }
-            image->handle = dlopen(module->path, RTLD_LAZY | RTLD_GLOBAL);
-            if (image->handle != module->handle) {
-                if (image->handle) dlclose(image->handle);
-                free(image);
-                ptr = NULL;
-                break;
-            }
-            image->next = retained_images;
-            retained_images = image;
-        }
-        break;
-    }
-    pthread_rwlock_unlock(&ffi_lock);
-    return ptr;
 }
 
 void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module) {
@@ -401,7 +286,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
     /* Pattern 1: module_dir (interpreter supplies this from import path) */
     if (module_dir && module_dir[0] != '\0') {
         char bdir[1024];
-        if (nano_module_artifact_dir(module_dir, bdir, sizeof(bdir))) {
+        if (nano_module_build_dir(module_dir, bdir, sizeof(bdir))) {
             for (int ei = 0; exts[ei]; ei++) {
                 snprintf(out_path, path_size, "%s/lib%s.%s",
                          bdir, lib_name, exts[ei]);
@@ -416,7 +301,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
 
         /* Pattern 2: modules/<full_normalized> */
         snprintf(logical, sizeof(logical), "modules/%s", mn);
-        if (nano_module_artifact_dir(logical, bdir, sizeof(bdir))) {
+        if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
             snprintf(out_path, path_size, "%s/lib%s.%s",
                      bdir, lib_name, exts[ei]);
             if (access(out_path, F_OK) == 0) return true;
@@ -425,7 +310,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
         /* Pattern 3: modules/<parent_dir> with joined lib name */
         if (parent_dir[0]) {
             snprintf(logical, sizeof(logical), "modules/%s", parent_dir);
-            if (nano_module_artifact_dir(logical, bdir, sizeof(bdir))) {
+            if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
                 snprintf(out_path, path_size, "%s/lib%s.%s",
                          bdir, joined_name, exts[ei]);
                 if (access(out_path, F_OK) == 0) return true;
@@ -435,7 +320,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
         /* Pattern 4: modules/<top_dir> */
         if (top_dir[0]) {
             snprintf(logical, sizeof(logical), "modules/%s", top_dir);
-            if (nano_module_artifact_dir(logical, bdir, sizeof(bdir))) {
+            if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
                 snprintf(out_path, path_size, "%s/lib%s.%s",
                          bdir, top_dir, exts[ei]);
                 if (access(out_path, F_OK) == 0) return true;

@@ -7,20 +7,113 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
-#include <errno.h>
 
 /* Use runtime DynArray API */
 extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
 extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
 
-NANO_EXPORT_ARRAY_ABI(nl_os_process_spawn_with_pipes);
-NANO_EXPORT_ARRAY_ABI(nl_os_process_run);
-
-#include "../../src/runtime/process_capture.h"
-
+/* Run a command and capture stdout/stderr
+ * Returns array<string> with [exit_code, stdout, stderr]
+ */
 DynArray* nl_os_process_run(const char* command) {
-    return nl_process_run_capture(command);
+    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 3);
+    if (!result) return NULL;
+    
+    /* Create temporary files for stdout and stderr */
+    char stdout_file[] = "/tmp/nanolang_stdout_XXXXXX";
+    char stderr_file[] = "/tmp/nanolang_stderr_XXXXXX";
+    
+    int stdout_fd = mkstemp(stdout_file);
+    int stderr_fd = mkstemp(stderr_file);
+    
+    if (stdout_fd == -1 || stderr_fd == -1) {
+        if (stdout_fd != -1) {
+            close(stdout_fd);
+            unlink(stdout_file);
+        }
+        if (stderr_fd != -1) {
+            close(stderr_fd);
+            unlink(stderr_file);
+        }
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "");
+        dyn_array_push_string_copy(result, "Failed to create temp files");
+        return result;
+    }
+    
+    close(stdout_fd);
+    close(stderr_fd);
+    
+    /* Build command with redirects */
+    char full_command[4096];
+    snprintf(full_command, sizeof(full_command), "%s > %s 2> %s", 
+             command, stdout_file, stderr_file);
+    
+    /* Execute command */
+    int exit_code = system(full_command);
+    if (exit_code == -1) {
+        unlink(stdout_file);
+        unlink(stderr_file);
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "");
+        dyn_array_push_string_copy(result, "Failed to execute command");
+        return result;
+    }
+    
+    /* Get actual exit code */
+    int actual_exit = WIFEXITED(exit_code) ? WEXITSTATUS(exit_code) : -1;
+    
+    /* Read stdout */
+    FILE* stdout_fp = fopen(stdout_file, "r");
+    char* stdout_content = NULL;
+    size_t stdout_size = 0;
+    
+    if (stdout_fp) {
+        fseek(stdout_fp, 0, SEEK_END);
+        stdout_size = ftell(stdout_fp);
+        fseek(stdout_fp, 0, SEEK_SET);
+        
+        stdout_content = (char*)malloc(stdout_size + 1);
+        if (stdout_content) {
+            size_t read = fread(stdout_content, 1, stdout_size, stdout_fp);
+            stdout_content[read] = '\0';
+        }
+        fclose(stdout_fp);
+    }
+    
+    /* Read stderr */
+    FILE* stderr_fp = fopen(stderr_file, "r");
+    char* stderr_content = NULL;
+    size_t stderr_size = 0;
+    
+    if (stderr_fp) {
+        fseek(stderr_fp, 0, SEEK_END);
+        stderr_size = ftell(stderr_fp);
+        fseek(stderr_fp, 0, SEEK_SET);
+        
+        stderr_content = (char*)malloc(stderr_size + 1);
+        if (stderr_content) {
+            size_t read = fread(stderr_content, 1, stderr_size, stderr_fp);
+            stderr_content[read] = '\0';
+        }
+        fclose(stderr_fp);
+    }
+    
+    /* Clean up temp files */
+    unlink(stdout_file);
+    unlink(stderr_file);
+    
+    /* Build result array */
+    char exit_code_str[32];
+    snprintf(exit_code_str, sizeof(exit_code_str), "%d", actual_exit);
+    dyn_array_push_string_copy(result, exit_code_str);
+    dyn_array_push_string_copy(result, stdout_content ? stdout_content : "");
+    dyn_array_push_string_copy(result, stderr_content ? stderr_content : "");
+    
+    if (stdout_content) free(stdout_content);
+    if (stderr_content) free(stderr_content);
+    
+    return result;
 }
 
 
@@ -99,46 +192,14 @@ int64_t nl_os_process_wait(int64_t pid) {
  * Caller must close fds with fd_close() when done (typically on process exit).
  * Returns ["-1", "-1", "-1"] on error.
  */
-static bool prepare_process_pipe(int descriptors[2]) {
-    for (int i = 0; i < 2; ++i) {
-        if (descriptors[i] <= STDERR_FILENO) {
-            int moved = fcntl(descriptors[i], F_DUPFD, STDERR_FILENO + 1);
-            if (moved < 0) return false;
-            close(descriptors[i]);
-            descriptors[i] = moved;
-        }
-        if (fcntl(descriptors[i], F_SETFD, FD_CLOEXEC) < 0) return false;
-    }
-    return true;
-}
-
 DynArray* nl_os_process_spawn_with_pipes(const char* command) {
     DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 3);
-    if (!result) return NULL;
-    /* I finish every fallible result allocation before acquiring descriptors
-     * or spawning a child. Error triples reuse these same owned copies. */
-    for (int i = 0; i < 3; ++i) {
-        char *field = malloc(32);
-        if (!field) {
-            for (int64_t j = 0; j < result->length; ++j)
-                free((void *)dyn_array_get_string(result, j));
-            gc_release(result);
-            return NULL;
-        }
-        strcpy(field, "-1");
-        dyn_array_push_string(result, field);
-    }
-    if (!command) return result;
 
-    int out_pipe[2] = {-1, -1}, err_pipe[2] = {-1, -1};
-    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0 ||
-        !prepare_process_pipe(out_pipe) || !prepare_process_pipe(err_pipe) ||
-        fcntl(out_pipe[0], F_SETFL, O_NONBLOCK) < 0 ||
-        fcntl(err_pipe[0], F_SETFL, O_NONBLOCK) < 0) {
-        for (int i = 0; i < 2; ++i) {
-            if (out_pipe[i] >= 0) close(out_pipe[i]);
-            if (err_pipe[i] >= 0) close(err_pipe[i]);
-        }
+    int out_pipe[2], err_pipe[2];
+    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
         return result;
     }
 
@@ -146,6 +207,9 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
     if (pid < 0) {
         close(out_pipe[0]); close(out_pipe[1]);
         close(err_pipe[0]); close(err_pipe[1]);
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
+        dyn_array_push_string_copy(result, "-1");
         return result;
     }
 
@@ -154,8 +218,8 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
         setpgid(0, 0);
         close(out_pipe[0]);
         close(err_pipe[0]);
-        if (dup2(out_pipe[1], STDOUT_FILENO) < 0 ||
-            dup2(err_pipe[1], STDERR_FILENO) < 0) _exit(127);
+        dup2(out_pipe[1], STDOUT_FILENO);
+        dup2(err_pipe[1], STDERR_FILENO);
         close(out_pipe[1]);
         close(err_pipe[1]);
         execl("/bin/sh", "sh", "-c", command, (char*)NULL);
@@ -163,12 +227,20 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
     }
 
     setpgid(pid, pid);
-    /* Parent: keep the already-configured read ends and close write ends. */
+    /* Parent: keep read ends, close write ends, mark non-blocking */
     close(out_pipe[1]);
     close(err_pipe[1]);
-    snprintf((char *)dyn_array_get_string(result, 0), 32, "%d", (int)pid);
-    snprintf((char *)dyn_array_get_string(result, 1), 32, "%d", out_pipe[0]);
-    snprintf((char *)dyn_array_get_string(result, 2), 32, "%d", err_pipe[0]);
+    fcntl(out_pipe[0], F_SETFL, O_NONBLOCK);
+    fcntl(err_pipe[0], F_SETFL, O_NONBLOCK);
+
+    char pid_str[32], out_str[32], err_str[32];
+    snprintf(pid_str,  sizeof(pid_str),  "%d", (int)pid);
+    snprintf(out_str,  sizeof(out_str),  "%d", out_pipe[0]);
+    snprintf(err_str,  sizeof(err_str),  "%d", err_pipe[0]);
+
+    dyn_array_push_string_copy(result, pid_str);
+    dyn_array_push_string_copy(result, out_str);
+    dyn_array_push_string_copy(result, err_str);
     return result;
 }
 

@@ -29,7 +29,6 @@ void vm_ffi_shutdown(void);
 /* Load a module's shared library by name.
  * Searches standard module paths. Returns true on success. */
 bool vm_ffi_load_module(const char *module_name);
-bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx);
 
 /* Call an extern function.
  * import_idx: index into the NVM module's import table
@@ -51,10 +50,6 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
 /* VmState is needed for per-VM co-process state */
 #include "vm.h"
-
-bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
-                    NanoValue *args, int arg_count, NanoValue *result,
-                    char *error_msg, size_t error_msg_size);
 
 /* Start the co-process for FFI isolation.
  * Forks, pipes, and execs nano_cop, then sends COP_MSG_INIT.

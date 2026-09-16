@@ -7,10 +7,9 @@ I keep resource ownership unique. Passing or assigning a resource by value
 moves it. Borrowing observes it for one call. A live resource must be moved to
 a new owner or passed to a consuming function on every exit.
 
-My C and self-hosted frontends check a tested subset of lexical ownership flow
-and complete record destructuring. Neither enforces this complete contract.
-The examples below define the 5.0 target; they are not blanket claims about
-current compiler support. `CANONICAL_STYLE.md` records the tested boundary.
+The C frontend currently implements only basic identifier tracking. The
+self-hosted frontend does not yet enforce this complete contract. The examples
+below define the 5.0 target; they are not claims about current compiler support.
 `AFFINE_TYPES_DESIGN.md` contains the complete rules and conformance matrix.
 
 ## The Model
@@ -37,9 +36,8 @@ fn close_file(file: FileHandle) -> void
 
 Only `resource struct` and values that recursively contain one are affine in
 5.0. There is no non-resource `affine` declaration. All other values remain
-copyable GC values. Borrow syntax remains target syntax. Complete local record
-patterns are tested on my C seed, both self-hosted stages and NanoVM; this does
-not establish generic, module-identity or complete ownership conformance.
+copyable GC values. Borrow and owned-destructuring syntax remain target syntax
+until both frontends implement and test them.
 
 ## Basic Use
 

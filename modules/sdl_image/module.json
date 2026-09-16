@@ -10,8 +10,7 @@
     "-Imodules/sdl_image"
   ],
   "c_sources": [
-    "sdl_image_helpers.c",
-    "sdl_image_arrays.c"
+    "sdl_image_helpers.c"
   ],
   "pkg_config": [
     "sdl2",

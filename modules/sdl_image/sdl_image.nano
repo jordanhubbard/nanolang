@@ -199,29 +199,24 @@ pub extern fn nl_img_set_texture_blend_mode(_texture: int, _blend: int) -> int
 # Returns: SDL_Texture pointer (or 0 on failure)
 pub extern fn nl_img_create_texture_from_pixels(_renderer: SDL_Renderer, _width: int, _height: int, _pixels: int) -> int
 
-# I load the first count paths into a runtime-owned integer array of handles.
-# I allocate the result before loading; failed or null paths produce zero slots.
-# Invalid metadata/counts or allocation failure return a null array; a valid
-# zero count returns an empty array. Destroy acquired handles explicitly.
+# Load multiple icons into an array (batch loading)
+# files: Array of file paths
+# count: Number of files to load
+# Returns: Array of texture pointers (each 0 on failure)
 pub extern fn nl_img_load_icon_batch(_renderer: SDL_Renderer, _files: array<string>, _count: int) -> array<int>
 
 # Destroy a texture and free memory
 pub extern fn nl_img_destroy_texture(_texture: int) -> void
 
-# I consume the first count handles without freeing the runtime-owned array.
-# I clear duplicates throughout this same array before destroying each handle;
-# repeated native cleanup is harmless. Copies in other arrays do not share
-# that ownership state. I copy cleared slots back to the VM caller, including
-# isolated calls; fake-SDL tests cover repeated cleanup through both paths.
+# Destroy multiple textures (batch cleanup)
 pub extern fn nl_img_destroy_texture_batch(_textures: array<int>, _count: int) -> void
 
 # Check if image file exists and is loadable
 # Returns: 1 if file exists and format is supported, 0 otherwise
 pub extern fn nl_img_can_load(_file: string) -> int
 
-# I return a runtime-owned string array of recognized extensions.
-# Its literal strings have static lifetime; this list does not establish which
-# decoders are enabled in the installed SDL_image build.
+# Get supported image format extensions as array
+# Returns: Array of file extension strings (e.g., ["png", "jpg", "bmp"])
 pub extern fn nl_img_get_supported_formats() -> array<string>
 
 # ============================================================================

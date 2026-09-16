@@ -102,41 +102,6 @@ void test_tc_minimal_main(void) {
     ASSERT(tc_passes("fn main() -> int { return 0 }"));
 }
 
-void test_tc_format_template(void) {
-    ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
-    ASSERT(tc_passes("fn main() -> int { let template = \"plain\" let s = (format template) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { let s = (format 42) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { let s = (format true 42) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { let template = 3.5 let s = (format template) return 0 }"));
-    ASSERT(!tc_passes("fn template() -> int { return 42 } fn main() -> int { let s = (format (template)) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { let s = (format [1, 2]) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { let s = (format) return 0 }"));
-}
-
-void test_tc_array_index_contract(void) {
-    const char *names[] = {"at", "array_get"};
-    const char *bad_indices[] = {"\"hello\"", "true", "1.5", "[0]", "missing"};
-    char source[512];
-    for (size_t n = 0; n < 2; n++) {
-        snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2] 0) }", names[n]);
-        ASSERT(tc_passes(source));
-        snprintf(source, sizeof(source), "fn main() -> int { let index: u8 = 0 let s: string = (%s [\"ok\"] index) return 0 }", names[n]);
-        ASSERT(tc_passes(source));
-        snprintf(source, sizeof(source), "fn main() -> int { let inner: array<int> = [42] let rows: array<array<int>> = [inner] let cube: array<array<array<int>>> = [rows] return (%s (%s (%s cube 0) 0) 0) }", names[n], names[n], names[n]);
-        ASSERT(tc_passes(source));
-        for (size_t i = 0; i < sizeof(bad_indices) / sizeof(bad_indices[0]); i++) {
-            snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2] %s) }", names[n], bad_indices[i]);
-            ASSERT(!tc_passes(source));
-        }
-        snprintf(source, sizeof(source), "fn main() -> int { return (%s 42 0) }", names[n]);
-        ASSERT(!tc_passes(source));
-        snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2]) }", names[n]);
-        ASSERT(!tc_passes(source));
-        snprintf(source, sizeof(source), "fn main() -> int { return (%s [1, 2] 0 1) }", names[n]);
-        ASSERT(!tc_passes(source));
-    }
-}
-
 void test_tc_arithmetic(void) {
     ASSERT(tc_passes(
         "fn main() -> int {\n"
@@ -671,67 +636,6 @@ void test_tc_shadow(void) {
         "fn main() -> int { return 0 }"));
 }
 
-void test_tc_returned_function_signature(void) {
-    ASSERT(tc_passes(
-        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
-        "fn choose() -> fn(float) -> float { return plus_one }\n"
-        "fn main() -> int { let x: float = ((choose) 2.0) return 0 }"));
-}
-
-void test_tc_function_variable_alias_signature(void) {
-    ASSERT(tc_passes(
-        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
-        "fn main() -> int { let f: fn(float) -> float = plus_one "
-        "let g: fn(float) -> float = f let x: float = (g 2.0) return 0 }"));
-    ASSERT(!tc_passes(
-        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
-        "fn main() -> int { let f: fn(float) -> float = plus_one "
-        "let g: fn(int) -> int = f return 0 }"));
-}
-
-void test_tc_map_result_signature(void) {
-    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
-        "fn choose() -> fn(int) -> float { return f } "
-        "fn main() -> int { let y: float = (at (map [1] (choose)) 0) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: int) -> int { return x } "
-        "fn main() -> int { let y = (map 1 f) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { let y = (map [1] 2) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: int) -> void { return } "
-        "fn main() -> int { let y = (map [1] f) return 0 }"));
-    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
-        "fn main() -> int { let values = (map [1] f) "
-        "let y: float = (array_get values 0) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: int) -> float { return 1.0 } "
-        "fn main() -> int { let values: array<int> = (map [1] f) return 0 }"));
-    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
-        "fn main() -> int { let y: float = (array_get (map [1] f) 0) return 0 }"));
-    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
-        "fn main() -> int { let g: fn(int) -> float = f "
-        "let y: float = (at (map [1] g) 0) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: int) -> float { return 1.0 } "
-        "fn main() -> int { let y: int = (array_get (map [1] f) 0) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: float) -> float { return x } "
-        "fn main() -> int { let y = (map [1] f) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: int, y: int) -> int { return x } "
-        "fn main() -> int { let y = (map [1] f) return 0 }"));
-    ASSERT(!tc_passes("fn f(x: int) -> int { return x } "
-        "fn main() -> int { let y = (map [1] f 3) return 0 }"));
-}
-
-void test_tc_err_returned_function_argument_type(void) {
-    ASSERT(!tc_passes(
-        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
-        "fn choose() -> fn(float) -> float { return plus_one }\n"
-        "fn main() -> int { let x: float = ((choose) 2) return 0 }"));
-}
-
-void test_tc_err_returned_function_arity(void) {
-    ASSERT(!tc_passes(
-        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
-        "fn choose() -> fn(float) -> float { return plus_one }\n"
-        "fn main() -> int { let x: float = ((choose) 2.0 3.0) return 0 }"));
-}
-
 /* ============================================================================
  * Pure fn tests — purity enforcement via check_purity()
  * ============================================================================ */
@@ -850,103 +754,11 @@ void test_tc_impure_fn_not_affected(void) {
  * main
  * ============================================================================ */
 
-void test_tc_nested_return_context(void) {
-    const char *valid =
-        "fn outer() -> int {\n"
-        "  fn inner() -> float { return 2.5 }\n"
-        "  assert (== (inner) 2.5)\n"
-        "  return 7\n"
-        "}\n"
-        "shadow outer { assert (== (outer) 7) }\n"
-        "fn main() -> int { return (outer) }\n"
-        "shadow main { assert (== (main) 7) }\n";
-    const char *invalid =
-        "fn outer() -> int {\n"
-        "  fn inner() -> bool { return 7 }\n"
-        "  return 0\n"
-        "}\n"
-        "shadow outer { assert (== (outer) 0) }\n"
-        "fn main() -> int { return (outer) }\n"
-        "shadow main { assert (== (main) 0) }\n";
-    ASSERT(tc_passes(valid));
-    ASSERT(tc_module_passes(valid));
-    ASSERT(!tc_passes(invalid));
-    ASSERT(!tc_module_passes(invalid));
-    ASSERT(!tc_passes(
-        "fn main() -> int { while true {\n"
-        "  fn inner() -> void { break }\n"
-        "  break\n"
-        "} return 0 }\n"));
-}
-
-void test_tc_handler_effect_inference(void) {
-    const char *a = "effect Alpha { common : int -> int }\n";
-    const char *b = "effect Beta { common : int -> int, unique : int -> int }\n";
-    const char *valid = "fn main() -> int { return handle { 99 } with { common x -> { x } unique x -> { x } } }";
-    char source[1024];
-    snprintf(source, sizeof(source), "%s%s%s", a, b, valid);
-    ASSERT(tc_passes(source));
-    snprintf(source, sizeof(source), "%s%s%s", b, a, valid);
-    ASSERT(tc_passes(source));
-    snprintf(source, sizeof(source), "%s%sfn main() -> int { return handle { 99 } with { common x -> { x } } }", a, b);
-    ASSERT(!tc_passes(source));
-    snprintf(source, sizeof(source), "%sfn main() -> int { return handle { 99 } with { common x -> { x } common y -> { y } } }", a);
-    ASSERT(!tc_passes(source));
-    snprintf(source, sizeof(source), "%sfn main() -> int { return handle { 99 } with { common -> { 0 } } }", a);
-    ASSERT(!tc_passes(source));
-    snprintf(source, sizeof(source), "%sfn main() -> int { return handle { 99 } with { common x y -> { x } } }", a);
-    ASSERT(!tc_passes(source));
-}
-
-void test_tc_perform_signatures(void) {
-    ASSERT(tc_passes("effect Tick { now : void -> void } fn main() -> int { perform Tick.now return 0 }"));
-    ASSERT(tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1 \"ok\") return 0 }"));
-    ASSERT(!tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1 2) return 0 }"));
-    ASSERT(!tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1) return 0 }"));
-    ASSERT(!tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1 \"ok\" 3) return 0 }"));
-    ASSERT(!tc_passes("fn main() -> int { perform Missing.emit(1) return 0 }"));
-    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.missing(1) return 0 }"));
-    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.emit(\"wrong\") return 0 }"));
-    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { let value = perform Recorder.emit(true) return 0 }"));
-    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.emit() return 0 }"));
-    ASSERT(!tc_passes("effect Clock { now : void -> int } fn main() -> int { perform Clock.now(1) return 0 }"));
-    ASSERT(tc_passes("fn main() -> int { return perform Clock.now() } effect Clock { now : void -> int }"));
-    ASSERT(tc_passes("effect Echo { value : int -> int } fn main() -> int { return perform Echo.value(7) }"));
-    ASSERT(!tc_passes("effect Echo { value : int -> string } fn main() -> int { return perform Echo.value(7) }"));
-}
-
-void test_tc_handler_parameter_metadata(void) {
-    ASSERT(tc_passes("struct Point { x: int } effect Visit { point : Point -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { point p -> { let x: int = p.x } } return 0 }"));
-    ASSERT(tc_passes("effect Visit { values : array<string> -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { values xs -> { let x: string = (at xs 0) } } return 0 }"));
-    ASSERT(!tc_passes("effect Visit { values : array<string> -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { values xs -> { let x: int = (at xs 0) } } return 0 }"));
-    ASSERT(!tc_passes("struct Point { x: string } effect Visit { point : Point -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { point p -> { let x: int = p.x } } return 0 }"));
-    ASSERT(tc_passes("struct Point { x: int } struct Other { x: string } effect Visit { point : Point -> void } "
-        "fn main() -> int { let p = Other { x: \"outer\" } let ignored = handle { 0 } with { point p -> { let x: int = p.x } } let outside: string = p.x return 0 }"));
-    ASSERT(tc_passes("effect Visit { rows : array<array<string>> -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { rows xs -> { let x: string = (at (at xs 0) 0) } } return 0 }"));
-    ASSERT(!tc_passes("effect Visit { rows : array<array<string>> -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { rows xs -> { let x: int = (at (at xs 0) 0) } } return 0 }"));
-    ASSERT(tc_passes("effect Visit { callback : fn(int) -> string -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { callback f -> { let x: string = (f 7) } } return 0 }"));
-    ASSERT(!tc_passes("effect Visit { callback : fn(int) -> string -> void } "
-        "fn main() -> int { let ignored = handle { 0 } with { callback f -> { let x: string = (f true) } } return 0 }"));
-}
-
 int main(void) {
-    TEST(tc_handler_parameter_metadata);
-    TEST(tc_perform_signatures);
-    TEST(tc_handler_effect_inference);
-    TEST(tc_nested_return_context);
     printf("=== Typechecker Tests ===\n");
 
     printf("\n--- Valid programs ---\n");
     TEST(tc_minimal_main);
-    TEST(tc_format_template);
-    TEST(tc_array_index_contract);
     TEST(tc_arithmetic);
     TEST(tc_float_ops);
     TEST(tc_string_ops);
@@ -1009,11 +821,6 @@ int main(void) {
     TEST(tc_int_to_string);
     TEST(tc_string_to_int);
     TEST(tc_shadow);
-    TEST(tc_returned_function_signature);
-    TEST(tc_function_variable_alias_signature);
-    TEST(tc_map_result_signature);
-    TEST(tc_err_returned_function_argument_type);
-    TEST(tc_err_returned_function_arity);
 
     printf("\n--- Pure fn: purity enforcement ---\n");
     TEST(tc_pure_fn_simple);

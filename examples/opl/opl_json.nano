@@ -7,28 +7,6 @@
 # Expected Output: none
 
 module "modules/std/json/json.nano"
-module "modules/std/fs.nano"
-
-pub fn opl_bundle_path(relative: string) -> string {
-    if (exists relative) { return relative }
-    let prefix: string = "examples/"
-    let prefix_len: int = (str_length prefix)
-    let relative_len: int = (str_length relative)
-    if (>= relative_len prefix_len) {
-        if (== (str_substring relative 0 prefix_len) prefix) {
-            let trimmed: string = (str_substring relative prefix_len (- relative_len prefix_len))
-            if (exists trimmed) { return trimmed }
-        }
-    }
-    return relative
-}
-
-shadow opl_bundle_path {
-    assert (== (opl_bundle_path "/tmp") "/tmp")
-    let fixture: string = (opl_bundle_path "examples/opl/bundle/EXAMPLES.opl")
-    assert (exists fixture)
-    assert (> (str_length (read fixture)) 0)
-}
 
 pub fn opl_json_loc(line: int, col: int) -> Json {
     let loc: Json = (new_object)

@@ -10,7 +10,6 @@
  */
 
 #include "nanolang.h"
-#include "module_builder.h"
 #include "nanovirt/codegen.h"
 #include "nanovirt/wrapper_gen.h"
 #include "nanoisa/nvm_format.h"
@@ -23,12 +22,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <time.h>
 
 /* Forward declarations for interpreter FFI (already linked) */
 extern bool ffi_init(bool verbose);
@@ -65,8 +58,6 @@ static void usage(const char *prog) {
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
-    fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
-    fprintf(stderr, "  --root-shadows-only I run only root-file shadows\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
 }
@@ -77,11 +68,7 @@ static bool has_nvm_extension(const char *path) {
     return (len >= 4 && strcmp(path + len - 4, ".nvm") == 0);
 }
 
-#include "shadow_runner.h"
-
 int main(int argc, char **argv) {
-    g_argc = argc;
-    g_argv = argv;
     const char *input = NULL;
     const char *output = NULL;
     bool run = false;
@@ -89,15 +76,10 @@ int main(int argc, char **argv) {
     bool strip_debug = false;
     bool daemon_wrapper = false;
     bool verbose = false;
-    bool test_imports = true;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
-        } else if (strcmp(argv[i], "--test-imports") == 0) {
-            test_imports = true;
-        } else if (strcmp(argv[i], "--root-shadows-only") == 0) {
-            test_imports = false;
         } else if (strcmp(argv[i], "--run") == 0) {
             run = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
@@ -166,30 +148,8 @@ int main(int argc, char **argv) {
 
     /* Type Checking */
     typecheck_set_current_file(input);
-    env_set_current_file(env, input);
-    bool has_main = false, has_shadows = false;
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_SHADOW) has_shadows = true;
-        if (item->type == AST_FUNCTION && strcmp(item->as.function.name, "main") == 0) has_main = true;
-    }
-    bool typed = has_shadows && !has_main ? type_check_module(program, env) : type_check(program, env);
-    if (typed) typed = type_check_shadow_scope(program, env, modules, input, test_imports);
-    if (!typed) {
+    if (!type_check(program, env)) {
         fprintf(stderr, "error: type check failed\n");
-        free_ast(program);
-        free_environment(env);
-        free_module_list(modules);
-        clear_module_cache();
-        free_tokens(tokens, token_count);
-        free(source);
-        return 1;
-    }
-
-    FfiBinding *bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(*bindings));
-    if (!bindings || !build_ffi_modules(modules, bindings) ||
-        !check_shadows(program, env, modules, input, bindings, test_imports)) {
-        free_ffi_bindings(bindings, modules->count);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -201,12 +161,6 @@ int main(int argc, char **argv) {
 
     /* Codegen */
     CodegenResult cg = codegen_compile(program, env, modules, input);
-    if (cg.ok && !bind_ffi_imports(cg.module, modules, bindings, input, env)) {
-        fprintf(stderr, "I could not bind production foreign imports\n");
-        nvm_module_free(cg.module);
-        cg.ok = false;
-    }
-    free_ffi_bindings(bindings, modules->count);
     if (!cg.ok) {
         fprintf(stderr, "error: codegen failed at line %d: %s\n",
                 cg.error_line, cg.error_msg);
@@ -313,7 +267,11 @@ int main(int argc, char **argv) {
 
         /* Load modules referenced in import table */
         for (uint32_t i = 0; i < cg.module->import_count; i++) {
-            vm_ffi_load_import(cg.module, i);
+            const char *mod_name = nvm_get_string(cg.module,
+                                                   cg.module->imports[i].module_name_idx);
+            if (mod_name && mod_name[0] != '\0') {
+                vm_ffi_load_module(mod_name);
+            }
         }
 
         /* Also scan for AST_IMPORT nodes to load modules by path.

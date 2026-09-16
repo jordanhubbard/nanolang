@@ -90,7 +90,7 @@ shadow draw_ui_overlay {
 
 # === MAIN ===
 
-fn run_particles(frame_limit: int) -> int {
+fn main() -> int {
     
     # Initialize SDL
     (SDL_Init 32) 
@@ -173,7 +173,7 @@ fn run_particles(frame_limit: int) -> int {
     
     (println "")
     
-    while (and running (or (== frame_limit 0) (< frame frame_limit))) {
+    while running {
         # Handle keyboard input (ESC to quit)
         let key: int = (nl_sdl_poll_keypress)
         if (> key -1) {
@@ -330,10 +330,7 @@ fn run_particles(frame_limit: int) -> int {
     return 0
 }
 
-shadow run_particles {
-    # I exercise initialization, rendering, and cleanup without waiting for input.
-    assert (== (run_particles 3) 0)
+shadow main {
+    assert (== (main) 0)
 }
 
-fn main() -> int { return (run_particles 0) }
-shadow main { assert (== (run_particles 3) 0) }

@@ -36,10 +36,6 @@ value_tags:
 # v1 remains executable while v2 families are introduced. This inventory is
 # generated into the active C metadata and prevents enum/table drift now.
 legacy_opcodes:
-  - {name: HANDLER_PUSH, code: 0xa5, operands: [U32, I32, U16, U16], pops: 0, pushes: 0}
-  - {name: HANDLER_POP, code: 0xa6, operands: [U16], pops: 0, pushes: 0}
-  - {name: PERFORM, code: 0xa7, operands: [U32, U16], pops: -1, pushes: 1}
-  - {name: EFFECT_RESUME, code: 0xa8, operands: [], pops: 1, pushes: 0}
   - {name: NOP, code: 0x00, operands: [], pops: 0, pushes: 0}
   - {name: PUSH_I64, code: 0x01, operands: [I64], pops: 0, pushes: 1}
   - {name: PUSH_F64, code: 0x02, operands: [F64], pops: 0, pushes: 1}

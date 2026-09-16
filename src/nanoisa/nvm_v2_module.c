@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nvm_v2_sections.h"
-#include "isa.h"
 #include "nvm_format.h"   /* nvm_crc32 */
 
 /* One row per section we may emit, in ascending type order. */
@@ -27,7 +26,7 @@ typedef struct {
     bool     present;
 } SectionPlan;
 
-#define PLAN_SLOTS 11
+#define PLAN_SLOTS 10
 
 static size_t align4(size_t n) { return (n + 3u) & ~(size_t)3u; }
 
@@ -45,7 +44,6 @@ static uint32_t required_features(const NvmV2Module *m) {
     uint32_t f = 0;
     if (m->links.count) f |= NVM_V2_FEATURE_LINKED;
     if (m->imports.count) f |= NVM_V2_FEATURE_FFI;
-    if (m->callbacks.count) f |= NVM_V2_FEATURE_CALLBACKS;
     if (m->has_debug) f |= NVM_V2_FEATURE_DEBUG;
     for (uint32_t i = 0; i < m->imports.count; i++)
         if (m->imports.items[i].kind == NVM_V2_IMPORT_COPROCESS)
@@ -77,9 +75,6 @@ static size_t build_plan(const NvmV2Module *m, SectionPlan *plan) {
     plan[n++] = (SectionPlan){ NVM_V2_SECTION_DEBUG,
                                nvm_v2_debug_encoded_size(&m->debug), 0,
                                m->has_debug };
-    plan[n++] = (SectionPlan){ NVM_V2_SECTION_CALLBACKS,
-                               nvm_v2_callbacks_encoded_size(&m->callbacks), 0,
-                               m->callbacks.count != 0 };
     return n;
 }
 
@@ -150,7 +145,6 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
         case NVM_V2_SECTION_IMPORTS:    nvm_v2_imports_encode(&m->imports, p, z); break;
         case NVM_V2_SECTION_LINKS:      nvm_v2_links_encode(&m->links, p, z); break;
         case NVM_V2_SECTION_DEBUG:      nvm_v2_debug_encode(&m->debug, p, z); break;
-        case NVM_V2_SECTION_CALLBACKS:  nvm_v2_callbacks_encode(&m->callbacks, p, z); break;
         default: break;
         }
     }
@@ -168,49 +162,6 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
 static bool index_ok(uint32_t idx, uint32_t count, bool sentinel_allowed) {
     if (sentinel_allowed && idx == NVM_V2_NO_INDEX) return true;
     return idx < count;
-}
-
-static NvmV2Result validate_callbacks(const NvmV2Module *m) {
-    uint32_t begin = 0;
-    while (begin < m->callbacks.count) {
-        const NvmV2Callback *first = &m->callbacks.items[begin];
-        if (first->import_idx >= m->imports.count) return NVM_V2_ERR_INDEX_RANGE;
-        const NvmV2Signature *import = &m->signatures.items[m->imports.items[first->import_idx].signature_idx];
-        if (import->param_count > NANO_MAX_FFI_ARGS) return NVM_V2_ERR_INDEX_RANGE;
-        uint32_t expected = 0, actual = 0;
-        for (uint16_t p = 0; p < import->param_count; p++)
-            if (import->param_tags[p] == TAG_FUNCTION || import->param_tags[p] == TAG_CLOSURE)
-                expected |= 1u << p;
-        uint32_t end = begin;
-        while (end < m->callbacks.count && m->callbacks.items[end].import_idx == first->import_idx) {
-            const NvmV2Callback *c = &m->callbacks.items[end];
-            if (c->adapter_name_idx >= m->constants.count) return NVM_V2_ERR_INDEX_RANGE;
-            const NvmV2Constant *name = &m->constants.items[c->adapter_name_idx];
-            if (name->tag != TAG_STRING || !name->length || !name->payload ||
-                memchr(name->payload, 0, name->length) ||
-                c->execution != first->execution || c->adapter_name_idx != first->adapter_name_idx)
-                return NVM_V2_ERR_SECTION_TYPE;
-            if (c->parameter_idx == NVM_CALLBACK_NO_PARAMETER) {
-                if (expected || end != begin || c->signature_idx != NVM_V2_NO_INDEX)
-                    return NVM_V2_ERR_INDEX_RANGE;
-            } else {
-                if (c->parameter_idx >= import->param_count ||
-                    !(expected & (1u << c->parameter_idx)) || c->signature_idx >= m->signatures.count)
-                    return NVM_V2_ERR_INDEX_RANGE;
-                const NvmV2Signature *signature = &m->signatures.items[c->signature_idx];
-                if (signature->result_count > 1 ||
-                    (signature->result_count && signature->result_tags[0] == TAG_VOID) ||
-                    !nvm_callback_shape_valid(signature->param_tags, signature->param_count,
-                        signature->result_count ? signature->result_tags[0] : TAG_VOID))
-                    return NVM_V2_ERR_SECTION_TYPE;
-                actual |= 1u << c->parameter_idx;
-            }
-            end++;
-        }
-        if (expected != actual) return NVM_V2_ERR_INDEX_RANGE;
-        begin = end;
-    }
-    return NVM_V2_OK;
 }
 
 static NvmV2Result validate_cross_section(const NvmV2Module *m,
@@ -238,20 +189,10 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
 
     for (uint32_t i = 0; i < m->imports.count; i++) {
         const NvmV2Import *im = &m->imports.items[i];
-        if (im->kind > NVM_V2_IMPORT_KIND_MAX) return NVM_V2_ERR_SECTION_TYPE;
         if (!index_ok(im->module_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
         if (!index_ok(im->symbol_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
         if (!index_ok(im->signature_idx, ns, false)) return NVM_V2_ERR_INDEX_RANGE;
-        if (im->kind == NVM_V2_IMPORT_ARTIFACT) {
-            const NvmV2Constant *path = &m->constants.items[im->module_name_idx];
-            if (path->tag != TAG_STRING || !path->length || !path->payload ||
-                path->payload[0] != '/' || memchr(path->payload, 0, path->length))
-                return NVM_V2_ERR_SECTION_TYPE;
-        }
     }
-
-    NvmV2Result callbacks_valid = validate_callbacks(m);
-    if (callbacks_valid != NVM_V2_OK) return callbacks_valid;
 
     for (uint32_t i = 0; i < m->links.count; i++) {
         const NvmV2Link *lk = &m->links.items[i];
@@ -289,8 +230,6 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
         return NVM_V2_ERR_INDEX_RANGE;
 
     uint32_t required = required_features(m);
-    if (((declared_features & NVM_V2_FEATURE_CALLBACKS) != 0) != (m->callbacks.count != 0))
-        return NVM_V2_ERR_FEATURE_MISMATCH;
     if ((declared_features & required) != required)
         return NVM_V2_ERR_FEATURE_MISMATCH;
 
@@ -331,7 +270,6 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
         case NVM_V2_SECTION_GLOBALS:    r = nvm_v2_globals_decode(p, z, &out->globals); break;
         case NVM_V2_SECTION_IMPORTS:    r = nvm_v2_imports_decode(p, z, &out->imports); break;
         case NVM_V2_SECTION_LINKS:      r = nvm_v2_links_decode(p, z, &out->links); break;
-        case NVM_V2_SECTION_CALLBACKS:  r = nvm_v2_callbacks_decode(p, z, &out->callbacks); break;
         case NVM_V2_SECTION_DEBUG:
             r = nvm_v2_debug_decode(p, z, &out->debug);
             out->has_debug = true;
@@ -360,7 +298,6 @@ void nvm_v2_module_free(NvmV2Module *m) {
     nvm_v2_functions_free(&m->functions);
     nvm_v2_globals_free(&m->globals);
     nvm_v2_imports_free(&m->imports);
-    nvm_v2_callbacks_free(&m->callbacks);
     nvm_v2_links_free(&m->links);
     nvm_v2_debug_free(&m->debug);
     free(m->owned_tags);

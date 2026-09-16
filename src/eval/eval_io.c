@@ -6,10 +6,6 @@
 
 #include "eval_io.h"
 #include "../nanolang.h"
-#include "../runtime/process_capture.h"
-#include "../runtime/file_bytes.h"
-#include "../runtime/file_text.h"
-#include "../runtime/file_write.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -39,14 +35,41 @@ static Value create_dyn_array(DynArray *arr) {
 
 /* File Operations */
 Value builtin_file_read(Value *args) {
-    char *buffer = nl_read_file_text(args[0].as.string_val);
-    Value result = create_string(buffer ? buffer : "");
+    const char *path = args[0].as.string_val;
+    FILE *f = fopen(path, "rb");  /* Binary mode for MOD files and other binary data */
+    if (!f) return create_string("");
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char *buffer = malloc(size + 1);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+    fread(buffer, 1, size, f);
+#pragma GCC diagnostic pop
+    buffer[size] = '\0';
+    fclose(f);
+
+    Value result = create_string(buffer);
     free(buffer);
     return result;
 }
 
 Value builtin_file_read_bytes(Value *args) {
-    return create_dyn_array(nl_read_file_bytes(args[0].as.string_val));
+    const char *path = args[0].as.string_val;
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        return create_dyn_array(dyn_array_new(ELEM_INT));
+    }
+
+    DynArray *bytes = dyn_array_new(ELEM_INT);
+    int c;
+    while ((c = fgetc(f)) != EOF) {
+        dyn_array_push_int(bytes, (int64_t)(unsigned char)c);
+    }
+    fclose(f);
+    return create_dyn_array(bytes);
 }
 
 Value builtin_bytes_from_string(Value *args) {
@@ -110,13 +133,23 @@ Value builtin_string_from_bytes(Value *args) {
 Value builtin_file_write(Value *args) {
     const char *path = args[0].as.string_val;
     const char *content = args[1].as.string_val;
-    return create_int(nl_write_file_text(path, content, "w"));
+    FILE *f = fopen(path, "w");
+    if (!f) return create_int(-1);
+
+    int write_failed = fputs(content, f) == EOF;
+    int close_failed = fclose(f) == EOF;
+    return create_int(write_failed || close_failed ? -1 : 0);
 }
 
 Value builtin_file_append(Value *args) {
     const char *path = args[0].as.string_val;
     const char *content = args[1].as.string_val;
-    return create_int(nl_write_file_text(path, content, "a"));
+    FILE *f = fopen(path, "a");
+    if (!f) return create_int(-1);
+
+    int write_failed = fputs(content, f) == EOF;
+    int close_failed = fclose(f) == EOF;
+    return create_int(write_failed || close_failed ? -1 : 0);
 }
 
 Value builtin_file_remove(Value *args) {
@@ -365,11 +398,44 @@ Value builtin_path_normalize(Value *args) {
     return v;
 }
 
-#include "../runtime/directory_walk.h"
+static void nl_walkdir_rec(const char* root, DynArray* out) {
+    DIR* dir = opendir(root);
+    if (!dir) return;
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+        size_t root_len = strlen(root);
+        size_t name_len = strlen(entry->d_name);
+        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');
+        size_t slash = needs_slash ? 1 : 0;
+        size_t cap = root_len + slash + name_len + 1;
+        char* path = malloc(cap);
+        if (!path) continue;
+        memcpy(path, root, root_len);
+        if (needs_slash) path[root_len] = '/';
+        memcpy(path + root_len + slash, entry->d_name, name_len);
+        path[root_len + slash + name_len] = '\0';
+
+        struct stat st;
+        if (stat(path, &st) != 0) { free(path); continue; }
+        if (S_ISDIR(st.st_mode)) {
+            nl_walkdir_rec(path, out);
+            free(path);
+        } else if (S_ISREG(st.st_mode)) {
+            dyn_array_push_string(out, path);
+        } else {
+            free(path);
+        }
+    }
+    closedir(dir);
+}
 
 Value builtin_fs_walkdir(Value *args) {
     const char* root = args[0].as.string_val;
-    DynArray* out = nl_fs_walkdir(root);
+    DynArray* out = dyn_array_new(ELEM_STRING);
+    if (root && root[0] != '\0') {
+        nl_walkdir_rec(root, out);
+    }
     return create_dyn_array(out);
 }
 
@@ -403,9 +469,77 @@ Value builtin_unsetenv(Value *args) {
     return create_int(unsetenv(name) == 0 ? 0 : -1);
 }
 
+static char* nl_read_all_fd(int fd) {
+    size_t cap = 4096;
+    size_t len = 0;
+    char* buf = malloc(cap);
+    if (!buf) return strdup("");
+    while (1) {
+        if (len + 1 >= cap) {
+            cap *= 2;
+            char* n = realloc(buf, cap);
+            if (!n) { free(buf); return strdup(""); }
+            buf = n;
+        }
+        ssize_t r = read(fd, buf + len, cap - len - 1);
+        if (r <= 0) break;
+        len += (size_t)r;
+    }
+    buf[len] = '\0';
+    return buf;
+}
+
 Value builtin_process_run(Value *args) {
-    DynArray *result = nl_process_run_capture(args[0].as.string_val);
-    return result ? create_dyn_array(result) : create_void();
+    const char* command = args[0].as.string_val;
+    DynArray* out = dyn_array_new(ELEM_STRING);
+
+    int out_pipe[2];
+    int err_pipe[2];
+    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
+        dyn_array_push_string(out, strdup("-1"));
+        dyn_array_push_string(out, strdup(""));
+        dyn_array_push_string(out, strdup(""));
+        return create_dyn_array(out);
+    }
+
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init(&actions);
+    posix_spawn_file_actions_adddup2(&actions, out_pipe[1], STDOUT_FILENO);
+    posix_spawn_file_actions_adddup2(&actions, err_pipe[1], STDERR_FILENO);
+    posix_spawn_file_actions_addclose(&actions, out_pipe[0]);
+    posix_spawn_file_actions_addclose(&actions, err_pipe[0]);
+
+    pid_t pid = 0;
+    char* argv[] = { "sh", "-c", (char*)command, NULL };
+    extern char **environ;
+    int rc = posix_spawn(&pid, "/bin/sh", &actions, NULL, argv, environ);
+    posix_spawn_file_actions_destroy(&actions);
+
+    close(out_pipe[1]);
+    close(err_pipe[1]);
+
+    char* out_s = nl_read_all_fd(out_pipe[0]);
+    char* err_s = nl_read_all_fd(err_pipe[0]);
+    close(out_pipe[0]);
+    close(err_pipe[0]);
+
+    int code = -1;
+    if (rc != 0) {
+        code = rc;
+    } else {
+        int status = 0;
+        (void)waitpid(pid, &status, 0);
+        if (WIFEXITED(status)) code = WEXITSTATUS(status);
+        else if (WIFSIGNALED(status)) code = 128 + WTERMSIG(status);
+        else code = -1;
+    }
+
+    char code_buf[64];
+    snprintf(code_buf, sizeof(code_buf), "%d", code);
+    dyn_array_push_string(out, strdup(code_buf));
+    dyn_array_push_string(out, out_s);
+    dyn_array_push_string(out, err_s);
+    return create_dyn_array(out);
 }
 
 Value builtin_result_is_ok(Value *args) {

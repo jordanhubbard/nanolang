@@ -64,19 +64,12 @@ clang -g -O1 -fsanitize=fuzzer,address \
   fuzz_lexer.c ../../src/lexer.c \
   -o fuzz_lexer
 
-# From the repository root, build and replay my parser seed corpus.
-make fuzz-parser-check
-# If Apple's clang lacks libFuzzer, select an installed LLVM build explicitly.
-make fuzz-parser-check FUZZ_CC=/opt/homebrew/opt/llvm/bin/clang
+# Build parser fuzzer (requires more source files)
+clang -g -O1 -fsanitize=fuzzer,address \
+  -I../../src \
+  fuzz_parser.c ../../src/lexer.c ../../src/parser.c ../../src/nanolang.c \
+  -o fuzz_parser
 ```
-
-My parser target includes the production headers and calls `tokenize`,
-`parse_program`, `free_ast`, and `free_tokens`. I instrument the harness,
-lexer and parser with libFuzzer coverage, ASan and UBSan; linked support/runtime
-objects are not instrumented by this target. `fuzz-parser-check` replays seeds
-without mutation and disables leak detection. It does not establish leak
-freedom or correctness for arbitrary input. The source API is NUL-terminated:
-an embedded NUL ends the source seen by the lexer.
 
 ### With AFL++
 
@@ -87,11 +80,12 @@ afl-clang-fast -g -O1 -fsanitize=address \
   fuzz_lexer.c ../../src/lexer.c \
   -o fuzz_lexer
 
+# Build parser fuzzer
+afl-clang-fast -g -O1 -fsanitize=address \
+  -I../../src \
+  fuzz_parser.c ../../src/lexer.c ../../src/parser.c ../../src/nanolang.c \
+  -o fuzz_parser
 ```
-
-My parser harness retains an AFL++ persistent entry point sharing the same
-input function. Its AFL++ build path has not been validated in this repair;
-the supported Make targets above use libFuzzer.
 
 ## Running Fuzzers
 
@@ -101,10 +95,8 @@ the supported Make targets above use libFuzzer.
 # Run lexer fuzzer (Ctrl+C to stop)
 ./fuzz_lexer corpus_lexer/ -max_len=10000 -timeout=1
 
-# From the repository root, use a private working corpus for parser mutations.
-parser_corpus=$(mktemp -d)
-cp tests/fuzzing/corpus_parser/*.nano "$parser_corpus/"
-bin/fuzz_parser "$parser_corpus" -runs=1000 -max_len=4096 -timeout=5 -detect_leaks=0 -artifact_prefix="$parser_corpus/"
+# Run parser fuzzer
+./fuzz_parser corpus_parser/ -max_len=10000 -timeout=1
 
 # Run for a specific duration (e.g., 60 seconds)
 ./fuzz_lexer corpus_lexer/ -max_total_time=60
@@ -119,7 +111,8 @@ bin/fuzz_parser "$parser_corpus" -runs=1000 -max_len=4096 -timeout=5 -detect_lea
 # Run lexer fuzzer
 afl-fuzz -i corpus_lexer -o findings_lexer ./fuzz_lexer
 
-# Parser AFL++ execution awaits validation of its build path.
+# Run parser fuzzer
+afl-fuzz -i corpus_parser -o findings_parser ./fuzz_parser
 
 # Parallel fuzzing (use multiple cores)
 # Terminal 1 (main fuzzer)
@@ -136,7 +129,6 @@ The `corpus_lexer/` and `corpus_parser/` directories contain seed inputs:
 - `seed1_function.nano` - Simple function definition
 - `seed2_struct.nano` - Struct declaration
 - `seed3_string.nano` - String literal handling
-- `seed4_invalid_prefix.nano` - Failed argument parsing must terminate
 
 These seeds help the fuzzer start with valid input patterns and mutate from there.
 
@@ -161,7 +153,7 @@ These seeds help the fuzzer start with valid input patterns and mutate from ther
 ./fuzz_lexer crash-a1b2c3d4
 
 # Test a crash with parser
-bin/fuzz_parser -detect_leaks=0 path/to/parser-crash
+./fuzz_parser findings_parser/crashes/id:000000,sig:06,src:000000
 ```
 
 ## Adding New Fuzzer Targets

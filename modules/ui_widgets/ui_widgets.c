@@ -1,78 +1,24 @@
 #include "ui_widgets.h"
 #include <string.h>
 #include <math.h>
-#include <limits.h>
-#include <stdlib.h>
-
-static int ui_bar_geometry(int64_t x, int64_t y, int64_t w, int64_t h, int margin);
-static int64_t ui_advance_pen(int64_t x, int64_t amount) {
-    int64_t limit = (int64_t)INT_MAX + 1;
-    return x >= limit || amount > limit - x ? limit : x + amount;
-}
-static uint8_t ui_color_channel(int64_t value) {
-    return value < 0 ? 0 : value > 255 ? 255 : (uint8_t)value;
-}
-
-static int ui_centered_rect(SDL_Rect box, int width, int height, SDL_Rect *out) {
-    if (width < 0 || height < 0) return 0;
-    int64_t x = (int64_t)box.x + ((int64_t)box.w - width) / 2;
-    int64_t y = (int64_t)box.y + ((int64_t)box.h - height) / 2;
-    if (x < INT_MIN || y < INT_MIN ||
-        x + width > INT_MAX || y + height > INT_MAX) return 0;
-    *out = (SDL_Rect){(int)x, (int)y, width, height};
-    return 1;
-}
-
-static int ui_control_label_rect(SDL_Rect box, int width, int height, SDL_Rect *out) {
-    if (width < 0 || height < 0) return 0;
-    int64_t x = (int64_t)box.x + box.w + 8;
-    int64_t y = (int64_t)box.y + ((int64_t)box.h - height) / 2;
-    if (x < INT_MIN || y < INT_MIN ||
-        x + width > INT_MAX || y + height > INT_MAX) return 0;
-    *out = (SDL_Rect){(int)x, (int)y, width, height};
-    return 1;
-}
-
-NANO_EXPORT_ARRAY_ABI(nl_ui_scrollable_list);
-NANO_EXPORT_ARRAY_ABI(nl_ui_dropdown);
-NANO_EXPORT_ARRAY_ABI(nl_ui_file_selector);
-
-/* I bound counts to the widgets' int loop indices before touching SDL. */
-static int ui_array_valid(const DynArray *a, int64_t count) {
-    return a && a->elem_type == ELEM_STRING && a->elem_size == sizeof(char*) &&
-        a->length >= 0 && a->capacity >= a->length &&
-        (uint64_t)a->capacity <= SIZE_MAX / sizeof(char*) &&
-        (!a->capacity || a->data) && count >= 0 &&
-        count <= a->length && count <= INT_MAX;
-}
 
 // Helper: Check if point is inside rectangle
 static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
-    return rw >= 0 && rh >= 0 && px >= rx && (int64_t)px <= (int64_t)rx + rw &&
-        py >= ry && (int64_t)py <= (int64_t)ry + rh;
+    return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
 }
 
 static double g_ui_scale = 1.0;
 
 void nl_ui_set_scale(double scale) {
-    if (!isfinite(scale) || scale <= 0.01) scale = 1.0;
+    if (scale <= 0.01) scale = 1.0;
     g_ui_scale = scale;
-}
-
-/* I saturate before conversion; a representable host coordinate can scale
- * beyond int range even when the scale itself is valid. */
-static int scaled_mouse_coordinate(int value) {
-    double scaled = (double)value / g_ui_scale;
-    if (scaled >= INT_MAX) return INT_MAX;
-    if (scaled <= INT_MIN) return INT_MIN;
-    return (int)scaled;
 }
 
 static void get_mouse_scaled(int *out_x, int *out_y) {
     int mx, my;
     SDL_GetMouseState(&mx, &my);
-    mx = scaled_mouse_coordinate(mx);
-    my = scaled_mouse_coordinate(my);
+    mx = (int)((double)mx / g_ui_scale);
+    my = (int)((double)my / g_ui_scale);
     if (out_x) *out_x = mx;
     if (out_y) *out_y = my;
 }
@@ -156,7 +102,7 @@ void nl_ui_update_mouse_state() {
 // Returns 1 if clicked, 0 otherwise
 int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
                      const char* text, int64_t x, int64_t y, int64_t w, int64_t h) {
-    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return 0;
+    
     // Get mouse position (state is tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
     get_mouse_scaled(&mouse_x, &mouse_y);
@@ -206,9 +152,15 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest;
-                if (ui_centered_rect(rect, surface->w, surface->h, &dest))
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_w = surface->w;
+                int text_h = surface->h;
+                
+                // Center text
+                int text_x = (int)x + ((int)w - text_w) / 2;
+                int text_y = (int)y + ((int)h - text_h) / 2;
+                
+                SDL_Rect dest = {text_x, text_y, text_w, text_h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -223,20 +175,14 @@ void nl_ui_label(SDL_Renderer* renderer, TTF_Font* font,
                  const char* text, int64_t x, int64_t y,
                  int64_t r, int64_t g, int64_t b, int64_t a) {
     
-    if (!renderer || !font || !text || strlen(text) == 0 ||
-        x < INT_MIN || x > INT_MAX || y < INT_MIN || y > INT_MAX) {
+    if (!font || !text || strlen(text) == 0) {
         return;
     }
     
-    SDL_Color color = {ui_color_channel(r), ui_color_channel(g),
-                       ui_color_channel(b), ui_color_channel(a)};
+    SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
     SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, color);
     
     if (surface) {
-        if (!ui_bar_geometry(x, y, surface->w, surface->h, 0)) {
-            SDL_FreeSurface(surface);
-            return;
-        }
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
         if (texture) {
             SDL_Rect dest = {(int)x, (int)y, surface->w, surface->h};
@@ -247,33 +193,18 @@ void nl_ui_label(SDL_Renderer* renderer, TTF_Font* font,
     }
 }
 
-static double ui_fraction(double value) {
-    if (isnan(value) || value <= 0.0) return 0.0;
-    if (value >= 1.0) return 1.0;
-    return value;
-}
-
-/* I check endpoint arithmetic in int64 before creating SDL int rectangles. */
-static int ui_bar_geometry(int64_t x, int64_t y, int64_t w, int64_t h, int margin) {
-    if (x < INT_MIN + margin || x > INT_MAX ||
-        y < INT_MIN + margin || y > INT_MAX ||
-        w <= 0 || w > INT_MAX || h <= 0 || h > INT_MAX) return 0;
-    return x + w <= INT_MAX - margin && y + h <= INT_MAX - margin;
-}
-
 // Draw a horizontal slider
 // Returns new value (0.0 to 1.0)
 double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                     double value) {
     
-    double new_value = ui_fraction(value);
-    if (!renderer || !ui_bar_geometry(x, y, w, h, 4)) return new_value;
+    double new_value = value;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // If mouse is down and over slider, update value
@@ -313,8 +244,8 @@ double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int
 void nl_ui_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                         double progress) {
     
-    progress = ui_fraction(progress);
-    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return;
+    if (progress < 0.0) progress = 0.0;
+    if (progress > 1.0) progress = 1.0;
     
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
@@ -338,7 +269,6 @@ void nl_ui_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w,
 int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
                        const char* label, int64_t x, int64_t y, int64_t checked) {
     
-    if (!renderer || !ui_bar_geometry(x, y, 20, 20, 0)) return checked;
     int64_t new_checked = checked;
     int box_size = 20;
     
@@ -399,9 +329,10 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest;
-                if (ui_control_label_rect(box, surface->w, surface->h, &dest))
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_x = (int)x + box_size + 8;
+                int text_y = (int)y + (box_size - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -415,7 +346,7 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
 // Returns 1 if clicked, 0 otherwise
 int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
                            const char* label, int64_t x, int64_t y, int64_t selected) {
-    if (!renderer || !ui_bar_geometry(x, y, 20, 20, 1)) return 0;
+    
     int clicked = 0;
     int circle_radius = 10;
     int circle_size = circle_radius * 2;
@@ -485,9 +416,10 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest;
-                if (ui_control_label_rect(bg_rect, surface->w, surface->h, &dest))
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_x = (int)x + circle_size + 8;
+                int text_y = (int)y + (circle_size - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -500,11 +432,7 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
 // Draw a panel (container for grouping widgets)
 void nl_ui_panel(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                  int64_t r, int64_t g, int64_t b, int64_t a) {
-    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return;
-    r = ui_color_channel(r);
-    g = ui_color_channel(g);
-    b = ui_color_channel(b);
-    a = ui_color_channel(a);
+    
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
     SDL_SetRenderDrawColor(renderer, (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a);
@@ -526,17 +454,15 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
                                int64_t x, int64_t y, int64_t w, int64_t h,
                                int64_t scroll_offset, int64_t selected_index) {
     
-    if (!renderer || !font || !ui_array_valid(items, item_count) ||
-        scroll_offset < 0 || scroll_offset > item_count || w < 10 ||
-        !ui_bar_geometry(x, y, w, h, 0)) return -1;
+    if (!items || !font) return -1;
     
     int64_t clicked_index = -1;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // Detect click
@@ -557,9 +483,6 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     int visible_count = (int)h / item_height;
 
     // Clip list contents to its rectangle
-    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
-    SDL_Rect previous_clip;
-    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &bg);
     
     // Draw items
@@ -616,16 +539,17 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect area = {(int)x + 10, item_y, surface->w, item_height}, dest;
-                if (ui_centered_rect(area, surface->w, surface->h, &dest))
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_x = (int)x + 10;
+                int text_y = item_y + (item_height - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
         }
     }
 
-    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
+    SDL_RenderSetClipRect(renderer, NULL);
     
     list_prev_mouse_down = mouse_down;
     return clicked_index;
@@ -636,15 +560,28 @@ void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
                         int64_t seconds, int64_t x, int64_t y,
                         int64_t r, int64_t g, int64_t b, int64_t a) {
     
-    /* I form the magnitude without negating INT64_MIN. */
-    uint64_t magnitude = seconds < 0
-        ? (uint64_t)(-(seconds + 1)) + 1 : (uint64_t)seconds;
-    char time_str[32];
-    snprintf(time_str, sizeof(time_str), "%s%02llu:%02llu",
-             seconds < 0 ? "-" : "",
-             (unsigned long long)(magnitude / 60),
-             (unsigned long long)(magnitude % 60));
-    nl_ui_label(renderer, font, time_str, x, y, r, g, b, a);
+    if (!font) return;
+    
+    // Format time as MM:SS
+    int minutes = (int)seconds / 60;
+    int secs = (int)seconds % 60;
+    
+    char time_str[16];
+    snprintf(time_str, sizeof(time_str), "%02d:%02d", minutes, secs);
+    
+    // Draw text
+    SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
+    SDL_Surface* surface = TTF_RenderText_Blended(font, time_str, color);
+    
+    if (surface) {
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (texture) {
+            SDL_Rect dest = {(int)x, (int)y, surface->w, surface->h};
+            SDL_RenderCopy(renderer, texture, NULL, &dest);
+            SDL_DestroyTexture(texture);
+        }
+        SDL_FreeSurface(surface);
+    }
 }
 
 // Seekable progress bar - interactive progress bar
@@ -652,16 +589,16 @@ void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
 double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                                     double progress) {
     
-    progress = ui_fraction(progress);
-    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return -1.0;
+    if (progress < 0.0) progress = 0.0;
+    if (progress > 1.0) progress = 1.0;
     
     double new_position = -1.0;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int seek_prev_mouse_down = 0;
@@ -705,24 +642,20 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
 }
 
 // Text input field - single line text input
-// I currently return 0; editing and Enter handling remain separate work.
-// I render a bounded text buffer; event-driven editing remains separate work.
+// Returns 1 if Enter was pressed, 0 otherwise
+// Text buffer is modified in place
 int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
                           const char* buffer, int64_t buffer_size,
                           int64_t x, int64_t y, int64_t w, int64_t h,
                           int64_t is_focused) {
     
-    if (!renderer || !buffer || buffer_size <= 0 ||
-        (uint64_t)buffer_size > SIZE_MAX || w < 16 || h < 12 ||
-        !ui_bar_geometry(x, y, w, h, 0)) return 0;
-    if (!memchr(buffer, 0, (size_t)buffer_size)) return 0;
     int enter_pressed = 0;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int input_prev_mouse_down = 0;
@@ -764,11 +697,14 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_w = surface->w;
-                if (text_w > (int)w - 16) text_w = (int)w - 16;
-                SDL_Rect area = {(int)x + 8, (int)y, text_w, (int)h}, dest;
-                if (ui_centered_rect(area, text_w, surface->h, &dest))
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_x = (int)x + 8;
+                int text_y = (int)y + ((int)h - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                // Clip text if too wide
+                if (dest.w > (int)w - 16) {
+                    dest.w = (int)w - 16;
+                }
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -778,17 +714,14 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
     // Draw cursor if focused
     if (is_focused) {
         static int cursor_blink_counter = 0;
-        cursor_blink_counter = (cursor_blink_counter + 1) % 60;
+        cursor_blink_counter++;
         if ((cursor_blink_counter / 30) % 2 == 0) {  // Blink every 30 frames
             int cursor_x = (int)x + 8;
-            if (font && buffer[0]) {
+            if (buffer && strlen(buffer) > 0) {
                 // Measure text width to position cursor
-                int text_w = 0, text_h = 0;
-                if (TTF_SizeText(font, buffer, &text_w, &text_h) == 0 && text_w >= 0) {
-                    int64_t measured_x = (int64_t)cursor_x + text_w + 2;
-                    int64_t right = x + w - 8;
-                    cursor_x = (int)(measured_x > right ? right : measured_x);
-                }
+                int text_w, text_h;
+                TTF_SizeText(font, buffer, &text_w, &text_h);
+                cursor_x += text_w + 2;
             }
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawLine(renderer, cursor_x, (int)y + 6, cursor_x, (int)y + (int)h - 6);
@@ -810,20 +743,15 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
                        int64_t x, int64_t y, int64_t w, int64_t h,
                        int64_t selected_index, int64_t is_open) {
     
-    if (!renderer || !font || !ui_array_valid(items, item_count) ||
-        item_count == 0 || w < 30 || h < 8 ||
-        !ui_bar_geometry(x, y, w, h, 0)) return -1;
-    int rows = item_count < 5 ? (int)item_count : 5;
-    int64_t expanded_h = h * (rows + 1);
-    if (is_open && !ui_bar_geometry(x, y, w, expanded_h, 0)) return -1;
+    if (!items || !font || item_count == 0) return -1;
     
     int64_t new_selection = -1;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int dropdown_prev_mouse_down = 0;
@@ -845,18 +773,20 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     SDL_RenderDrawRect(renderer, &box);
     
     // Draw selected item text
-    if (selected_index >= 0 && selected_index < item_count) {
+    if (selected_index >= 0 && selected_index < items->length) {
         const char* selected_text = ((const char**)items->data)[selected_index];
         if (selected_text) {
             SDL_Surface* surface = TTF_RenderText_Blended(font, selected_text, text_color);
             if (surface) {
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture) {
-                    int text_w = surface->w;
-                    if (text_w > (int)w - 30) text_w = (int)w - 30;
-                    SDL_Rect area = {(int)x + 8, (int)y, text_w, (int)h}, dest;
-                    if (ui_centered_rect(area, text_w, surface->h, &dest))
-                        SDL_RenderCopy(renderer, texture, NULL, &dest);
+                    int text_x = (int)x + 8;
+                    int text_y = (int)y + ((int)h - surface->h) / 2;
+                    SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                    if (dest.w > (int)w - 30) {
+                        dest.w = (int)w - 30;
+                    }
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                     SDL_DestroyTexture(texture);
                 }
                 SDL_FreeSurface(surface);
@@ -881,7 +811,9 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     
     // If dropdown is open, check for clicks outside to close it
     if (is_open && dropdown_prev_mouse_down && !mouse_down) {
-        int in_dropdown_area = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)expanded_h);
+        int list_h = (int)h * (item_count < 5 ? item_count : 5);
+        int list_y = (int)y + (int)h;
+        int in_dropdown_area = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h + list_h);
         
         if (!in_dropdown_area) {
             dropdown_prev_mouse_down = mouse_down;
@@ -892,7 +824,7 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     // If dropdown is open, draw the list of options
     if (is_open && item_count > 0) {
         int item_h = (int)h;
-        int list_h = (int)h * rows;
+        int list_h = (int)h * (item_count < 5 ? item_count : 5);
         int list_y = (int)y + (int)h;
         
         // Draw list background
@@ -931,11 +863,11 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
             if (surface) {
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture) {
-                    int text_w = surface->w;
-                    if (text_w > (int)w - 16) text_w = (int)w - 16;
-                    SDL_Rect area = {(int)x + 8, item_y, text_w, item_h}, dest;
-                    if (ui_centered_rect(area, text_w, surface->h, &dest))
-                        SDL_RenderCopy(renderer, texture, NULL, &dest);
+                    SDL_Rect dest = {(int)x + 8, item_y + (item_h - surface->h) / 2, surface->w, surface->h};
+                    if (dest.w > (int)w - 16) {
+                        dest.w = (int)w - 16;
+                    }
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                     SDL_DestroyTexture(texture);
                 }
                 SDL_FreeSurface(surface);
@@ -957,18 +889,13 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
                               int64_t value, int64_t min_val, int64_t max_val,
                               int64_t x, int64_t y, int64_t w, int64_t h) {
     
-    if (min_val > max_val) return value;
-    if (value < min_val) value = min_val;
-    if (value > max_val) value = max_val;
     int64_t new_value = value;
-    if (!renderer || w < 40 || h < 10 || !ui_bar_geometry(x, y, w, h, 0))
-        return new_value;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int spinner_prev_mouse_down = 0;
@@ -1032,10 +959,10 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest;
-                if (ui_centered_rect(value_area, surface->w, surface->h, &dest)) {
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
-                }
+                int text_x = value_area.x + (value_area.w - surface->w) / 2;
+                int text_y = value_area.y + (value_area.h - surface->h) / 2;
+                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -1057,18 +984,15 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              int64_t scroll_offset, int64_t selected_index) {
     
-    if (!renderer || !font || !ui_array_valid(files, file_count) ||
-        file_count == 0 || scroll_offset < 0 ||
-        scroll_offset > file_count || w < 16 ||
-        !ui_bar_geometry(x, y, w, h, 0)) return -1;
+    if (!files || !font || file_count == 0) return -1;
     
     int64_t clicked_item = -1;
     
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = scaled_mouse_coordinate(mouse_x);
-    mouse_y = scaled_mouse_coordinate(mouse_y);
+    mouse_x = (int)((double)mouse_x / g_ui_scale);
+    mouse_y = (int)((double)mouse_y / g_ui_scale);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int file_selector_prev_mouse_down = 0;
@@ -1119,11 +1043,12 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_w = surface->w;
-                if (text_w > (int)w - 16) text_w = (int)w - 16;
-                SDL_Rect area = {(int)x + 8, item_y, text_w, item_h}, dest;
-                if (ui_centered_rect(area, text_w, surface->h, &dest))
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_Rect dest = {(int)x + 8, item_y + (item_h - surface->h) / 2, surface->w, surface->h};
+                // Clip if too wide
+                if (dest.w > (int)w - 16) {
+                    dest.w = (int)w - 16;
+                }
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -1144,8 +1069,7 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
                    const char* text, int64_t widget_x, int64_t widget_y,
                    int64_t widget_w, int64_t widget_h) {
     
-    if (!renderer || !font || !text || strlen(text) == 0 ||
-        !ui_bar_geometry(widget_x, widget_y, widget_w, widget_h, 0)) return;
+    if (!font || !text || strlen(text) == 0) return;
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -1157,18 +1081,16 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     // Measure text size
-    int text_w = 0, text_h = 0;
-    if (TTF_SizeText(font, text, &text_w, &text_h) != 0 ||
-        text_w < 0 || text_h < 0) return;
-
-    int64_t tooltip_w = (int64_t)text_w + 16;
-    int64_t tooltip_h = (int64_t)text_h + 12;
-    int64_t tooltip_x = (int64_t)mouse_x + 15;
-    int64_t tooltip_y = (int64_t)mouse_y + 15;
-    if (!ui_bar_geometry(tooltip_x, tooltip_y, tooltip_w, tooltip_h, 0)) return;
+    int text_w, text_h;
+    TTF_SizeText(font, text, &text_w, &text_h);
+    
+    int tooltip_w = text_w + 16;
+    int tooltip_h = text_h + 12;
+    int tooltip_x = mouse_x + 15;  // Offset from cursor
+    int tooltip_y = mouse_y + 15;
     
     // Draw tooltip background
-    SDL_Rect bg = {(int)tooltip_x, (int)tooltip_y, (int)tooltip_w, (int)tooltip_h};
+    SDL_Rect bg = {tooltip_x, tooltip_y, tooltip_w, tooltip_h};
     SDL_SetRenderDrawColor(renderer, 40, 40, 50, 240);
     SDL_RenderFillRect(renderer, &bg);
     
@@ -1180,13 +1102,9 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
     SDL_Color text_color = {255, 255, 255, 255};
     SDL_Surface* surface = TTF_RenderText_Blended(font, text, text_color);
     if (surface) {
-        if (!ui_bar_geometry(tooltip_x + 8, tooltip_y + 6, surface->w, surface->h, 0)) {
-            SDL_FreeSurface(surface);
-            return;
-        }
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
         if (texture) {
-            SDL_Rect dest = {(int)tooltip_x + 8, (int)tooltip_y + 6, surface->w, surface->h};
+            SDL_Rect dest = {tooltip_x + 8, tooltip_y + 6, surface->w, surface->h};
             SDL_RenderCopy(renderer, texture, NULL, &dest);
             SDL_DestroyTexture(texture);
         }
@@ -1203,22 +1121,13 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
 //   texture_id: SDL texture ID (from SDL_image or similar, cast to int64_t)
 //   x, y: button position
 //   w, h: button size (image will be scaled to fit)
-//   hover_brightness: hover multiplier clamped to [0,2], non-finite => 1
+//   hover_brightness: brightness multiplier on hover (1.0 = no change, 1.2 = 20% brighter)
 int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              double hover_brightness) {
     
     SDL_Texture* texture = (SDL_Texture*)texture_id;
-    if (!renderer || !texture || w < 2 || h < 2 ||
-        !ui_bar_geometry(x, y, w, h, 0)) return 0;
-    Uint8 old_r, old_g, old_b, old_alpha;
-    SDL_BlendMode old_blend;
-    if (SDL_GetTextureColorMod(texture, &old_r, &old_g, &old_b) ||
-        SDL_GetTextureAlphaMod(texture, &old_alpha) ||
-        SDL_GetTextureBlendMode(texture, &old_blend)) return 0;
-    if (!isfinite(hover_brightness)) hover_brightness = 1.0;
-    if (hover_brightness < 0.0) hover_brightness = 0.0;
-    if (hover_brightness > 2.0) hover_brightness = 2.0;
+    if (!texture) return 0;  // Invalid texture
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -1236,19 +1145,17 @@ int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
     // Draw the image texture
     SDL_Rect dest = {(int)x, (int)y, (int)w, (int)h};
     
-    double multiplier = hover ? hover_brightness : 1.0;
-    Uint8 brightness = (Uint8)(255.0 * (multiplier < 1.0 ? multiplier : 1.0));
-    SDL_SetTextureColorMod(texture, brightness, brightness, brightness);
-    SDL_RenderCopy(renderer, texture, NULL, &dest);
-    /* I add a bounded fraction of the texture instead of overflowing its
-     * eight-bit color modulation. Driver blend support remains fallible. */
-    if (multiplier > 1.0 && SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_ADD) == 0) {
-        if (SDL_SetTextureAlphaMod(texture, (Uint8)(old_alpha * (multiplier - 1.0))) == 0)
-            SDL_RenderCopy(renderer, texture, NULL, &dest);
+    if (hover && hover_brightness > 1.0) {
+        // Apply brightness modulation for hover effect
+        Uint8 brightness = (Uint8)(255 * hover_brightness);
+        if (brightness > 255) brightness = 255;
+        SDL_SetTextureColorMod(texture, brightness, brightness, brightness);
+    } else {
+        // Normal brightness
+        SDL_SetTextureColorMod(texture, 255, 255, 255);
     }
-    SDL_SetTextureColorMod(texture, old_r, old_g, old_b);
-    SDL_SetTextureAlphaMod(texture, old_alpha);
-    SDL_SetTextureBlendMode(texture, old_blend);
+    
+    SDL_RenderCopy(renderer, texture, NULL, &dest);
     
     // Draw border on hover
     if (hover) {
@@ -1264,13 +1171,9 @@ int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
     // Draw pressed effect
     if (button_current_mouse_down && hover) {
         // Darken slightly when pressed
-        SDL_BlendMode previous;
-        if (SDL_GetRenderDrawBlendMode(renderer, &previous) == 0 &&
-            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND) == 0) {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 40);
-            SDL_RenderFillRect(renderer, &dest);
-            SDL_SetRenderDrawBlendMode(renderer, previous);
-        }
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 40);
+        SDL_RenderFillRect(renderer, &dest);
     }
     
     return clicked ? 1 : 0;
@@ -1472,11 +1375,7 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
                          int64_t w, int64_t h, int64_t scroll_offset,
                          int64_t line_height) {
     
-    if (!renderer || !font || !code || w < 10 || h < 5 ||
-        !ui_bar_geometry(x, y, w, h, 0) || scroll_offset < 0 ||
-        scroll_offset > INT_MAX || line_height <= 0 || line_height > INT_MAX) return;
-    size_t source_length = strlen(code);
-    if (source_length >= INT_MAX) return;
+    if (!font || !code) return;
     
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
@@ -1489,15 +1388,12 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
     
     // Set up clipping rectangle to prevent text overflow
     SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
-    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
-    SDL_Rect previous_clip;
-    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &clip);
     
-    int64_t current_x = x + 5;
-    int64_t current_y = y + 5 - scroll_offset * line_height;
+    int current_x = (int)x + 5;
+    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
     int pos = 0;
-    int code_len = (int)source_length;
+    int code_len = strlen(code);
     
     // Render tokens line by line
     while (pos < code_len) {
@@ -1533,23 +1429,23 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
         if (token_type == TOKEN_WHITESPACE) {
             if (c == ' ') {
                 // Measure space width
-                int space_w = 0;
-                if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
-                    current_x = ui_advance_pen(current_x, space_w);
+                int space_w;
+                TTF_SizeText(font, " ", &space_w, NULL);
+                current_x += space_w;
             } else if (c == '\t') {
-                int space_w = 0;
-                if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
-                    current_x = ui_advance_pen(current_x, (int64_t)space_w * 4);
+                int space_w;
+                TTF_SizeText(font, " ", &space_w, NULL);
+                current_x += space_w * 4;  // Tab = 4 spaces
             }
             pos++;
             continue;
         }
         
         // Extract token text
-        char *token_text = malloc((size_t)token_len + 1);
-        if (!token_text) break;
-        memcpy(token_text, code + pos, (size_t)token_len);
-        token_text[token_len] = '\0';
+        char token_text[256];
+        int copy_len = token_len < 255 ? token_len : 255;
+        strncpy(token_text, code + pos, copy_len);
+        token_text[copy_len] = '\0';
         
         // Get color for token type
         int r, g, b;
@@ -1558,15 +1454,12 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
         // Render token
         SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
         SDL_Surface* surface = TTF_RenderText_Blended(font, token_text, color);
-        free(token_text);
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                if (ui_bar_geometry(current_x, current_y, surface->w, surface->h, 0)) {
-                    SDL_Rect dest = {(int)current_x, (int)current_y, surface->w, surface->h};
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
-                }
-                if (surface->w >= 0) current_x = ui_advance_pen(current_x, surface->w);
+                SDL_Rect dest = {current_x, current_y, surface->w, surface->h};
+                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                current_x += surface->w;
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -1585,7 +1478,7 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     // Clear clipping
-    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
+    SDL_RenderSetClipRect(renderer, NULL);
 }
 
 static void ansi_color_from_code(int code, int *r, int *g, int *b) {
@@ -1620,11 +1513,7 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
                              const char* code, int64_t x, int64_t y,
                              int64_t w, int64_t h, int64_t scroll_offset,
                              int64_t line_height) {
-    if (!renderer || !font || !code || w < 10 || h < 5 ||
-        !ui_bar_geometry(x, y, w, h, 0) || scroll_offset < 0 ||
-        scroll_offset > INT_MAX || line_height <= 0 || line_height > INT_MAX) return;
-    size_t source_length = strlen(code);
-    if (source_length >= INT_MAX) return;
+    if (!font || !code) return;
 
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
     SDL_SetRenderDrawColor(renderer, 20, 20, 28, 255);
@@ -1633,15 +1522,12 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
     SDL_RenderDrawRect(renderer, &bg);
 
     SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
-    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
-    SDL_Rect previous_clip;
-    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &clip);
 
-    int64_t current_x = x + 5;
-    int64_t current_y = y + 5 - scroll_offset * line_height;
+    int current_x = (int)x + 5;
+    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
     int pos = 0;
-    int code_len = (int)source_length;
+    int code_len = strlen(code);
 
     int r = 220, g = 220, b = 220;
 
@@ -1657,17 +1543,17 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
         }
 
         if (c == ' ') {
-            int space_w = 0;
-            if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
-                current_x = ui_advance_pen(current_x, space_w);
+            int space_w;
+            TTF_SizeText(font, " ", &space_w, NULL);
+            current_x += space_w;
             pos++;
             continue;
         }
 
         if (c == '\t') {
-            int space_w = 0;
-            if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
-                current_x = ui_advance_pen(current_x, (int64_t)space_w * 4);
+            int space_w;
+            TTF_SizeText(font, " ", &space_w, NULL);
+            current_x += space_w * 4;
             pos++;
             continue;
         }
@@ -1675,23 +1561,14 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
         if (c == 27 && code[pos + 1] == '[') {
             int seq = 0;
             int seq_pos = pos + 2;
-            int valid = 1, next_r = r, next_g = g, next_b = b;
             while (code[seq_pos] && code[seq_pos] != 'm') {
                 if (code[seq_pos] >= '0' && code[seq_pos] <= '9') {
-                    int digit = code[seq_pos] - '0';
-                    if (seq > (INT_MAX - digit) / 10) valid = 0;
-                    else seq = seq * 10 + digit;
-                } else if (code[seq_pos] == ';') {
-                    if (valid) ansi_color_from_code(seq, &next_r, &next_g, &next_b);
-                    seq = 0;
-                } else valid = 0;
+                    seq = seq * 10 + (code[seq_pos] - '0');
+                }
                 seq_pos++;
             }
             if (code[seq_pos] == 'm') {
-                if (valid) {
-                    ansi_color_from_code(seq, &next_r, &next_g, &next_b);
-                    r = next_r; g = next_g; b = next_b;
-                }
+                ansi_color_from_code(seq, &r, &g, &b);
                 pos = seq_pos + 1;
                 continue;
             }
@@ -1719,11 +1596,9 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
             if (surface) {
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture) {
-                    if (ui_bar_geometry(current_x, current_y, surface->w, surface->h, 0)) {
-                        SDL_Rect dst = {(int)current_x, (int)current_y, surface->w, surface->h};
-                        SDL_RenderCopy(renderer, texture, NULL, &dst);
-                    }
-                    if (surface->w >= 0) current_x = ui_advance_pen(current_x, surface->w);
+                    SDL_Rect dst = {current_x, current_y, surface->w, surface->h};
+                    SDL_RenderCopy(renderer, texture, NULL, &dst);
+                    current_x += surface->w;
                     SDL_DestroyTexture(texture);
                 }
                 SDL_FreeSurface(surface);
@@ -1733,7 +1608,7 @@ void nl_ui_code_display_ansi(SDL_Renderer* renderer, TTF_Font* font,
         pos += token_len;
     }
 
-    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
+    SDL_RenderSetClipRect(renderer, NULL);
 }
 
 // Code editor widget - displays code with line numbers, syntax highlighting, and blinking cursor
@@ -1742,13 +1617,7 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                        const char* code, int64_t x, int64_t y,
                        int64_t w, int64_t h, int64_t scroll_offset,
                        int64_t line_height, int64_t cursor_row, int64_t cursor_col) {
-    if (!renderer || !font || !code || w < 56 || h < 5 ||
-        !ui_bar_geometry(x, y, w, h, 0) || scroll_offset < 0 ||
-        scroll_offset > INT_MAX || line_height <= 0 || line_height > INT_MAX ||
-        cursor_row < -1 || cursor_row > INT_MAX || cursor_col < 0 ||
-        cursor_col > INT_MAX) return;
-    size_t source_length = strlen(code);
-    if (source_length >= INT_MAX) return;
+    if (!font || !code) return;
 
     // Background (slightly warmer to indicate edit mode)
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
@@ -1761,9 +1630,6 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
 
     // Clip rect
     SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
-    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
-    SDL_Rect previous_clip;
-    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &clip);
 
     // Line number gutter
@@ -1779,7 +1645,7 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
     SDL_RenderDrawLine(renderer, (int)x + gutter_w, (int)y + 2,
                        (int)x + gutter_w, (int)y + (int)h - 2);
 
-    int code_len = (int)source_length;
+    int code_len = (int)strlen(code);
     int line_num = 0;
     int pos = 0;
 
@@ -1790,7 +1656,7 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
         int line_len = pos - line_start;
 
         // Y position for this line
-        int64_t draw_y = y + 5 + ((int64_t)line_num - scroll_offset) * line_height;
+        int draw_y = (int)y + 5 + (line_num - (int)scroll_offset) * (int)line_height;
 
         // Only render visible lines
         if (draw_y + (int)line_height >= (int)y && draw_y < (int)y + (int)h) {
@@ -1805,10 +1671,8 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
             if (gs) {
                 SDL_Texture* gt = SDL_CreateTextureFromSurface(renderer, gs);
                 if (gt) {
-                    if (ui_bar_geometry(x + 5, draw_y, gs->w, gs->h, 0)) {
-                        SDL_Rect dest = {(int)x + 5, (int)draw_y, gs->w, gs->h};
-                        SDL_RenderCopy(renderer, gt, NULL, &dest);
-                    }
+                    SDL_Rect dest = {(int)x + 5, draw_y, gs->w, gs->h};
+                    SDL_RenderCopy(renderer, gt, NULL, &dest);
                     SDL_DestroyTexture(gt);
                 }
                 SDL_FreeSurface(gs);
@@ -1817,32 +1681,30 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
             // Highlight current line background
             if (line_num == (int)cursor_row) {
                 SDL_SetRenderDrawColor(renderer, 35, 35, 50, 255);
-                if (ui_bar_geometry(x + gutter_w + 2, draw_y, w - gutter_w - 6, line_height, 0)) {
-                    SDL_Rect line_bg = {(int)x + gutter_w + 2, (int)draw_y,
-                                        (int)w - gutter_w - 6, (int)line_height};
-                    SDL_RenderFillRect(renderer, &line_bg);
-                }
+                SDL_Rect line_bg = {(int)x + gutter_w + 2, draw_y,
+                                    (int)w - gutter_w - 6, (int)line_height};
+                SDL_RenderFillRect(renderer, &line_bg);
             }
 
             // Render line text with syntax highlighting
             if (line_len > 0) {
                 int lpos = 0;
-                int64_t current_x = x + gutter_w + 5;
+                int current_x = (int)x + gutter_w + 5;
 
                 while (lpos < line_len) {
                     char c = code[line_start + lpos];
 
                     if (c == ' ') {
-                        int sw = 0;
-                        if (TTF_SizeText(font, " ", &sw, NULL) == 0 && sw >= 0)
-                            current_x = ui_advance_pen(current_x, sw);
+                        int sw;
+                        TTF_SizeText(font, " ", &sw, NULL);
+                        current_x += sw;
                         lpos++;
                         continue;
                     }
                     if (c == '\t') {
-                        int sw = 0;
-                        if (TTF_SizeText(font, " ", &sw, NULL) == 0 && sw >= 0)
-                            current_x = ui_advance_pen(current_x, (int64_t)sw * 4);
+                        int sw;
+                        TTF_SizeText(font, " ", &sw, NULL);
+                        current_x += sw * 4;
                         lpos++;
                         continue;
                     }
@@ -1863,25 +1725,22 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                     }
                     if (token_len <= 0) { lpos++; continue; }
 
-                    char *token_text = malloc((size_t)token_len + 1);
-                    if (!token_text) goto editor_cleanup;
-                    memcpy(token_text, code + line_start + lpos, (size_t)token_len);
-                    token_text[token_len] = '\0';
+                    char token_text[256];
+                    int tcopy = token_len < 255 ? token_len : 255;
+                    memcpy(token_text, code + line_start + lpos, tcopy);
+                    token_text[tcopy] = '\0';
 
                     int tr, tg, tb;
                     get_token_color(token_type, &tr, &tg, &tb);
 
                     SDL_Color color = {(Uint8)tr, (Uint8)tg, (Uint8)tb, 255};
                     SDL_Surface* surf = TTF_RenderText_Blended(font, token_text, color);
-                    free(token_text);
                     if (surf) {
                         SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
                         if (tex) {
-                            if (ui_bar_geometry(current_x, draw_y, surf->w, surf->h, 0)) {
-                                SDL_Rect dest = {(int)current_x, (int)draw_y, surf->w, surf->h};
-                                SDL_RenderCopy(renderer, tex, NULL, &dest);
-                            }
-                            if (surf->w >= 0) current_x = ui_advance_pen(current_x, surf->w);
+                            SDL_Rect dest = {current_x, draw_y, surf->w, surf->h};
+                            SDL_RenderCopy(renderer, tex, NULL, &dest);
+                            current_x += surf->w;
                             SDL_DestroyTexture(tex);
                         }
                         SDL_FreeSurface(surf);
@@ -1895,14 +1754,12 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                 int blink = ((SDL_GetTicks() / 530) % 2 == 0);
                 if (blink) {
                     // Calculate cursor X by measuring prefix text (with tabs expanded)
-                    int64_t cursor_x = x + gutter_w + 5;
+                    int cursor_x = (int)x + gutter_w + 5;
                     if ((int)cursor_col > 0 && line_len > 0) {
                         int measure_len = (int)cursor_col < line_len ? (int)cursor_col : line_len;
-                        if ((uint64_t)measure_len > (SIZE_MAX - 1) / 4) goto editor_cleanup;
-                        char *prefix = malloc((size_t)measure_len * 4 + 1);
-                        if (!prefix) goto editor_cleanup;
-                        size_t pi = 0;
-                        for (int ci = 0; ci < measure_len; ci++) {
+                        char prefix[4096];
+                        int pi = 0;
+                        for (int ci = 0; ci < measure_len && pi < 4090; ci++) {
                             char ch = code[line_start + ci];
                             if (ch == '\t') {
                                 prefix[pi++] = ' '; prefix[pi++] = ' ';
@@ -1912,27 +1769,21 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                             }
                         }
                         prefix[pi] = '\0';
-                        int prefix_w = 0;
-                        int measured = TTF_SizeText(font, prefix, &prefix_w, NULL);
-                        free(prefix);
-                        if (measured != 0 || prefix_w < 0) goto editor_next_line;
-                        cursor_x = ui_advance_pen(cursor_x, prefix_w);
+                        int prefix_w;
+                        TTF_SizeText(font, prefix, &prefix_w, NULL);
+                        cursor_x += prefix_w;
                     }
                     SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
-                    if (ui_bar_geometry(cursor_x, draw_y, 2, line_height, 0)) {
-                        SDL_Rect cursor_rect = {(int)cursor_x, (int)draw_y, 2, (int)line_height};
-                        SDL_RenderFillRect(renderer, &cursor_rect);
-                    }
+                    SDL_Rect cursor_rect = {cursor_x, draw_y, 2, (int)line_height};
+                    SDL_RenderFillRect(renderer, &cursor_rect);
                 }
             }
         }
 
-editor_next_line:
         line_num++;
         if (pos < code_len) pos++;  // skip newline
         else break;
     }
 
-editor_cleanup:
-    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
+    SDL_RenderSetClipRect(renderer, NULL);
 }

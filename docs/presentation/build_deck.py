@@ -100,26 +100,27 @@ def build() -> Path:
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG 5.0", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 4.5", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
     # Someone meeting this deck cold needs to know what I am before being told
     # what I prove. The previous subtitle assumed both.
     text(s, "A small language designed to be written by machines and audited by humans.\n"
-            "A developer's view of my syntax, compiler, NanoISA, and runtime foundations on POSIX.",
+            "A developer's view of my syntax, compiler, NanoISA, and the secure runtime I host on POSIX.",
          0.75, 4.35, 7.5, 1.2, 16, BLUE)
     text(s, "Verified bytecode · NSI · capabilities · fabric · trap journal", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
     notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.5.md.",
-              "I am a language with a runtime under development. My release scope does not establish production isolation.",
+              "I am a language and a secure runtime. I do not claim a kernel.",
               "I describe tested behavior. Work I have not done is labelled as such."])
 
     # 2 — syntax
-    s = slide(); title(s, "I make calls and test obligations explicit.", "I recommend canonical forms; my parser also accepts legacy syntax.", 2)
-    for i, (head, body_) in enumerate([("PREFIX", "(f x y)"), ("TYPES", "int · float · bool · string"), ("TESTS", "shadow gcd { ... }")]):
+    s = slide(); title(s, "Machines write code now. The bottleneck is checking it.", "So I refuse ambiguity: one canonical form, explicit boundaries, and evidence required to compile.", 2)
+    for i, (head, body_) in enumerate([("PREFIX", "(f x y)"), ("TYPES", "int · float · bool · string"), ("PROOF", "shadow fn { ... }")]):
         x = 0.8 + i * 4.15
         box(s, x, 2.4, 3.5, 2.0, PANEL, True); text(s, head, x + .2, 2.7, 3.1, .3, 14, ORANGE, True); text(s, body_, x + .2, 3.25, 3.1, .7, 20, FOG, True, mono=True)
     notes(s, ["Authority: docs/PERSONA.md and docs/CANONICAL_STYLE.md.",
-              "My project policy requires useful shadows. My compiler normally warns about missing tests, with documented exemptions.",
-              "A shadow tests its assertions; it does not prove every input. Compiler acceptance is not proof of correctness."])
+              "This slide carries the thesis. Everything after it is a mechanism serving this claim,",
+              "and a reader who does not accept it here will not care about the module format.",
+              "PROOF is not decoration: a function without a shadow test does not compile."])
 
     # 3 — two paths
     s = slide(INK); title(s, "One source language, two execution paths.", "The C path is my native baseline. NanoISA and NanoVM make the intermediate explicit.", 3)
@@ -150,20 +151,19 @@ def build() -> Path:
               "Subtraction form is the point: an offset near the top of the range cannot wrap into it.",
               "An explicit length is why a string holding an embedded zero survives a round trip."])
 
-    # 6 — modeled verifier checks
-    s = slide(); title(s, "My verifier checks modeled invariants before execution.", "These checks are not whole-program proof or complete source ownership.", 6)
+    # 6 — what the verifier proves
+    s = slide(); title(s, "My verifier proves a program before it runs.", "Each property below was a run-time trap. Now it is a rejection.", 6)
     props = [("stack height", "through every basic block, merges must agree"),
-             ("operand types", "known contradictions are refused; unknown stays unknown"),
+             ("operand types", "a known contradiction is refused; unknown never fails"),
              ("return shape", "every exit leaves exactly what the function declares"),
              ("operand depth", "producer declares it, loader confirms it"),
-             ("reference balance", "explicit retain/release counts, not object identity")]
+             ("ownership", "retain and release must balance on every path")]
     for i, (head, body_) in enumerate(props):
         y = 1.95 + i * .82; box(s, .9, y, 11.5, .66, PANEL, True)
         text(s, head, 1.2, y+.17, 2.9, .3, 15, GREEN, True)
         text(s, body_, 4.3, y+.17, 7.9, .3, 14, FOG)
     notes(s, ["Authority: src/nanoisa/verifier.c, src/nanoisa/verifier_types.c, tests/nanoisa/test_verifier.c (93 tests).",
-              "Imported signatures are declarations, not proof of foreign behavior. My abstract reference counter does not identify objects.",
-              "Formal NanoCore theorems and compiler correspondence are separate boundaries; see formal/README.md and docs/ROADMAP.md."])
+              "Every call now carries its signature, so a module is provable before it is linked."])
 
     # 7 — the failure that mattered
     s = slide(INK); title(s, "What my verifier used to miss.", "It declared stack effects for 32 of its 161 instructions and skipped the rest.", 7)
@@ -177,26 +177,27 @@ def build() -> Path:
               "An unknown effect is now a hard failure: absence of data must not read as proof."])
 
     # 8 — hostile input
-    s = slide(); title(s, "I treat every module as hostile input.", "My verifier and parsers have malformed-input tests; their coverage is not universal.", 8)
+    s = slide(); title(s, "I treat every module as hostile input.", "The verifier is one defence. The parsers underneath it are the other, and they are fuzzed.", 8)
     surfaces = ["decoder", "loader", "verifier", "assembler", "disassembler", "co-process"]
     for i, name in enumerate(surfaces):
         x = .85 + (i % 3) * 3.95; y = 2.05 + (i // 3) * .82
         box(s, x, y, 3.65, .64, PANEL, True)
         text(s, name, x + .25, y + .18, 3.2, .3, 16, GREEN, True, mono=True)
     box(s, .85, 3.85, 11.65, 2.0, PANEL, True)
-    text(s, "offset > total || size > total - offset", 1.15, 4.15, 11.0, .35, 20, ORANGE, True, mono=True)
-    text(s, "I bound the offset before subtracting. An unchecked addition or subtraction can wrap. "
-            "My deterministic malformed-input suites exercise these parsing boundaries; passing their "
-            "cases is not proof for arbitrary bytes or an unlimited fuzzing campaign.",
+    text(s, "size > total - offset", 1.15, 4.15, 5.0, .35, 20, ORANGE, True, mono=True)
+    text(s, "never  offset + size > total", 6.6, 4.2, 5.6, .3, 15, STEEL, True, mono=True)
+    text(s, "The second form wraps, so an offset near the top of the range passes the check that "
+            "exists to stop it. Every range in the v2 decoder is written as the first form. Argument "
+            "limits agree across imports, traps, direct FFI and the co-process, so no path is the lenient one.",
          1.15, 4.75, 11.0, .95, 15, FOG)
-    text(s, "Malformed-input tests are evidence, not universal safety proofs.", 2.0, 6.15, 9.3, .4, 17, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
+    text(s, "784 lines of fuzz and malformed-input tests, added in 4.0, across all six", 2.0, 6.15, 9.3, .4, 17, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
     notes(s, ["Authority: tests/nanoisa/test_fuzz_malformed.c, tests/nanovm/test_cop_fuzz.c, tests/fuzzing/README.md.",
-              "I distinguish deterministic malformed-input testing, seed replay and mutation campaigns.",
+              "784 lines of fuzz and malformed-input tests were added in 4.0 across the six surfaces named here.",
               "Wrapping arithmetic was removed from code-range and section validation, not merely guarded.",
               "This slide is the systemic answer to slide 7: a verifier that is correct is still only one layer."])
 
     # 9 — dispatch
-    s = slide(); title(s, "I dispatch through a label table, and keep a portable fallback.", "Historical 4.0 measurement: one handler body, two dispatch strategies.", 9)
+    s = slide(); title(s, "I dispatch through a label table, and keep a portable fallback.", "One copy of 161 handlers, reached two ways. Adopted on measurement, not principle.", 9)
     box(s, .85, 2.15, 5.7, 3.0, PANEL, True)
     text(s, "COMPUTED GOTO", 1.15, 2.45, 5.1, .3, 14, GREEN, True)
     text(s, "one indirect branch per opcode\n\n-4.2% on my Forth interpreter\nagainst a 1.0-1.6% noise band", 1.15, 2.95, 5.1, 1.8, 16, FOG)
@@ -205,30 +206,27 @@ def build() -> Path:
     text(s, "any compiler without\nlabels as values\n\n-DNANO_NO_COMPUTED_GOTO", 7.3, 2.95, 4.9, 1.8, 16, FOG)
     text(s, "152 programs, both builds, identical output", 2.0, 5.55, 9.3, .4, 17, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
     notes(s, ["Authority: src/nanovm/vm.c, docs/NANOISA_MEASUREMENTS.md, make test-dispatch-equivalence.",
-              "Shared handler bodies reduce duplication; execution equivalence still needs tests.",
+              "VM_CASE and VM_NEXT are the only difference, so the two strategies cannot drift in what an instruction does.",
               "The threaded build has no loop around the handlers, so a stray break is a compile error rather than a silent exit."])
 
     # 10 — shadow tests
-    s = slide(INK); title(s, "I require useful shadows by project policy.", "Missing tests normally warn; exemptions are not evidence of correctness.", 10)
-    box(s, .8, 2.0, 5.8, 3.8, PANEL, True); text(s, (HERE / "examples/gcd.nano").read_text().strip(), 1.1, 2.35, 5.2, 2.9, 16, FOG, mono=True)
-    text(s, "Useful tests: policy\nMissing tests: warnings\nExemptions: documented\nImports: tested by default", 7.15, 2.35, 4.7, 2.2, 22, GREEN, True)
-    text(s, "Separate test process;\nsource-only emission skips tests.", 7.15, 4.9, 4.7, .7, 14, FOG)
-    notes(s, ["Authority: CONTRIBUTING.md, docs/CANONICAL_STYLE.md, tests/test_language_claims.py and examples/gcd.nano.",
-              "CPU exemptions include externs, main, generated lambdas and functions using extern calls. Explicit foreign-call shadows still run.",
-              "All three drivers select dependency shadows by default; --root-shadows-only opts out. Test processes have deadlines, not sandboxing.",
-              "I exercise nonnegative and zero gcd inputs here. These assertions are not a theorem for all integers."])
+    s = slide(INK); title(s, "Every function carries a shadow test.", "The test is an executable statement about behavior, not a coverage ornament.", 10)
+    box(s, .8, 2.0, 5.8, 3.8, PANEL, True); text(s, "fn gcd(a: int, b: int) -> int {\n    ...\n}\n\nshadow gcd {\n    assert (== (gcd 48 18) 6)\n}", 1.1, 2.35, 5.2, 2.9, 16, FOG, mono=True)
+    text(s, "2,632 NanoISA tests\n621 NanoVM tests\n93 verifier tests\n63 NanoVirt tests", 7.15, 2.35, 4.7, 2.2, 22, GREEN, True)
+    notes(s, ["Authority: CONTRIBUTING.md and the current test suites, counted at the v4.0.0 tag.",
+              "make test-verify-all-programs additionally verifies every program in tests/, because compiling is not verifying."])
 
     # 11 — FFI
     s = slide(); title(s, "FFI is an explicit unsafe boundary.", "Imports carry signatures. The co-process can keep foreign code outside my VM process.", 11)
     box(s, .8, 2.25, 3.0, 2.6, PANEL, True); text(s, "NanoLang", 1.05, 2.65, 2.5, .3, 18, FOG, True); text(s, "typed call", 1.05, 3.35, 2.5, .3, 15, BLUE, True)
     box(s, 5.15, 2.25, 3.0, 2.6, PANEL, True); text(s, "NanoVM", 5.4, 2.65, 2.5, .3, 18, FOG, True); text(s, "typed trap", 5.4, 3.35, 2.5, .3, 15, GREEN, True)
     box(s, 9.5, 2.25, 3.0, 2.6, PANEL, True); text(s, "nano_cop", 9.75, 2.65, 2.5, .3, 18, FOG, True); text(s, "foreign process", 9.75, 3.35, 2.5, .6, 15, ORANGE, True)
-    text(s, "Historical 4.0 measurement: about 48x per crossing in the recorded setup.", 1.0, 5.6, 11.3, .4, 15, BLUE, align=PP_ALIGN.CENTER)
+    text(s, "isolation costs about 48x per crossing — which is what batching exists to amortize", 1.0, 5.6, 11.3, .4, 15, BLUE, align=PP_ALIGN.CENTER)
     notes(s, ["Authority: docs/EXTERN_FFI.md, src/nanovm/vm_ffi.c, src/nanovm/cop_protocol.c, docs/NANOISA_MEASUREMENTS.md.",
               "The FFI boundary is tested; it is not part of the formally verified NanoCore subset."])
 
     # 12 — cycles
-    s = slide(INK); title(s, "I collect tested reference cycles.", "Cycle collection is not complete leak freedom or backend semantic equivalence.", 12)
+    s = slide(INK); title(s, "I collect cycles, so my backends agree about leaks.", "Reference counting cannot reclaim a cycle, and a cycle is constructible from ordinary NanoLang.", 12)
     box(s, .8, 2.1, 6.0, 3.5, PANEL, True)
     text(s, "struct Node {\n  children: array<Node>\n}\n\nset kids (array_push kids n)", 1.1, 2.5, 5.4, 2.2, 16, FOG, mono=True)
     box(s, 7.15, 2.1, 5.4, 3.5, INK, True)
@@ -254,8 +252,8 @@ def build() -> Path:
               "It could not have detected an interpreter change of any size, which is why these questions stayed open."])
 
     # 14 — secure runtime
-    s = slide(); title(s, "I build runtime foundations on an ordinary kernel.", "Contracts, capabilities, a POSIX fabric, and a journal. Laboratory evidence, not production isolation.", 14)
-    layers = [("EFFECT", "source row"), ("MANIFEST", "required caps"), ("TRAP", "NanoISA"), ("NSI", "method id"), ("CAP", "checked handle")]
+    s = slide(); title(s, "I host a secure runtime on an ordinary kernel.", "Contracts, capabilities, a POSIX fabric, and a journal. Five layers. Not synonyms.", 14)
+    layers = [("EFFECT", "source row"), ("MANIFEST", "required caps"), ("TRAP", "NanoISA"), ("NSI", "method id"), ("CAP", "unforgeable")]
     for i, (head, body_) in enumerate(layers):
         x = 0.55 + i * 2.5
         box(s, x, 2.15, 2.3, 1.7, PANEL, True)
@@ -272,20 +270,20 @@ def build() -> Path:
               "I do not claim a kernel, AES, PKI, or that the journal is wired into every trap."])
 
     # 15 — boundary
-    s = slide(INK); title(s, "My 5.0 contract, and the work still ahead.", "My language/runtime scope has explicit architecture limits.", 15)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.0 RELEASE SCOPE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
-    text(s, "enclosing-function return\ndependency shadows\nretained native callbacks\nmodule identity + caches\nexpanded native lowering\nlaboratory frontends", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
+    s = slide(INK); title(s, "4.1–4.5 shipped. Here is what I have not done.", "One public tag from v4.0.0. Five product phases, not five GitHub Releases.", 15)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.5 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    text(s, "verified NanoISA v2 (4.0)\nForth Core evidence\nNSI v0 + POSIX fabric\nunforgeable capabilities\nisolated editor walker\neffects → policy + journal", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
-    text(s, "NanoISA-only bootstrap\nmatching compiler .nvm\nfull backend parity\ncomplete ownership\nisolated callback ABI\nproduction isolation", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
-    notes(s, ["Authority: docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, docs/ROADMAP.md.",
-              "Retained adapters preserve callback lifetimes and owner-thread execution. Isolated imports cannot use this bridge.",
-              "My 2026-09-16 checkpoints cover native and VM effects. Exact-commit clean-tree tests, platform CI and release acceptance are mandatory release gates."])
+    text(s, "Standard System / INCLUDED\ninternationalized compiler\nGNU Emacs / a kernel\nCUDA or CPython wrap\njournal on every trap\n5.0 One IR", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_4.5.md, docs/ROADMAP.md, docs/FORTH_STANDARD_SYSTEM.md, docs/NSI_EFFECTS.md.",
+              "Catalogs and machine-draft guides exist. JSON/TOON stay English.",
+              "The live editor uses bin/nano_emacs_worker, not dlopen."])
 
     # 16 — closing
     s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))
     text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
     text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
-    text(s, "docs/RELEASE_5.0.md · docs/CALLBACK_ABI.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
+    text(s, "docs/RELEASE_4.5.md · userguide/guide/08_secure_runtime.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
     notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md."])
     footer(s, 16)
 

@@ -73,8 +73,9 @@ static void test_generated_file_writers_report_failures(void) {
     ASSERT(builder != NULL);
     generate_file_operations(builder);
 
-    ASSERT(strstr(builder->buffer, "nl_write_file_text(path, content, \"w\")") != NULL);
-    ASSERT(strstr(builder->buffer, "nl_write_file_text(path, content, \"a\")") != NULL);
+    ASSERT(strstr(builder->buffer, "int write_failed = fputs(content, f) == EOF;") != NULL);
+    ASSERT(strstr(builder->buffer, "int close_failed = fclose(f) == EOF;") != NULL);
+    ASSERT(strstr(builder->buffer, "return write_failed || close_failed ? -1 : 0;") != NULL);
 
     free(builder->buffer);
     free(builder);

@@ -1,66 +1,47 @@
-# I check small arithmetic in shadows and million-step tail recursion at runtime.
+// tco_test.nano — tail-call optimization test
+// Tests that factorial with an accumulator can handle n=1_000_000 without
+// stack overflow (requires --tco flag or TCO enabled by default).
 
 fn factorial_tail(n: int, acc: int) -> int {
-    if (== n 0) { return acc }
-    return (factorial_tail (- n 1) (* acc n))
-}
-
-shadow factorial_tail {
-    assert (== (factorial_tail 0 7) 7)
-    assert (== (factorial_tail 5 1) 120)
+    if n == 0 {
+        acc
+    } else {
+        factorial_tail(n - 1, acc * n)
+    }
 }
 
 fn factorial(n: int) -> int {
-    return (factorial_tail n 1)
-}
-
-shadow factorial {
-    assert (== (factorial 0) 1)
-    assert (== (factorial 10) 3628800)
+    factorial_tail(n, 1)
 }
 
 fn fibonacci_tail(n: int, a: int, b: int) -> int {
-    if (== n 0) { return a }
-    return (fibonacci_tail (- n 1) b (+ a b))
-}
-
-shadow fibonacci_tail {
-    assert (== (fibonacci_tail 0 3 5) 3)
-    assert (== (fibonacci_tail 5 0 1) 5)
+    if n == 0 {
+        a
+    } else {
+        fibonacci_tail(n - 1, b, a + b)
+    }
 }
 
 fn fibonacci(n: int) -> int {
-    return (fibonacci_tail n 0 1)
-}
-
-shadow fibonacci {
-    assert (== (fibonacci 0) 0)
-    assert (== (fibonacci 20) 6765)
-}
-
-fn count_tail(n: int, acc: int) -> int {
-    if (== n 0) { return acc }
-    return (count_tail (- n 1) (+ acc 1))
-}
-
-shadow count_tail {
-    assert (== (count_tail 0 7) 7)
-    assert (== (count_tail 10 7) 17)
+    fibonacci_tail(n, 0, 1)
 }
 
 fn main() -> int {
-    assert (== (factorial 5) 120)
-    assert (== (factorial 10) 3628800)
-    assert (== (fibonacci 20) 6765)
-    # I avoid overflowing factorial arithmetic in my stack-depth check.
-    assert (== (count_tail 1000000 0) 1000000)
-    (println "I completed one million tail calls.")
-    return 0
-}
+    // Smoke test: small values
+    let f5 = factorial(5)
+    let f10 = factorial(10)
+    println(f5)   // 120
+    println(f10)  // 3628800
 
-shadow main {
-    # I test arithmetic here; the executable checks the compiled stack depth.
-    assert (== (factorial 5) 120)
-    assert (== (fibonacci 20) 6765)
-    assert (== (count_tail 10 0) 10)
+    // Fibonacci smoke test
+    let fib20 = fibonacci(20)
+    println(fib20)  // 6765
+
+    // Deep recursion: would stack-overflow without TCO
+    // We call factorial_tail(1000000, 1) — this is 1M frames without TCO.
+    // Result overflows int64 but that's fine; we just need it not to crash.
+    let big = factorial_tail(1000000, 1)
+    println(big)
+
+    0
 }

@@ -32,7 +32,7 @@ void vm_dispatch_module_free(VmDispatchModule *module) {
 
 static bool dispatch_is_branch(uint8_t opcode) {
     return opcode == OP_JMP || opcode == OP_JMP_TRUE
-        || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH;
+        || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG;
 }
 
 static bool dispatch_is_direct_call(uint8_t opcode) {
@@ -168,7 +168,7 @@ bool vm_dispatch_build_function(const VmDecodedFunction *decoded,
              * We do not know code_offset directly, but the verified IR keeps
              * every branch target on a boundary within [0, code_size], so map
              * through the boundary table using the local delta. */
-            int64_t relative = (opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH)
+            int64_t relative = opcode == OP_MATCH_TAG
                 ? src->instruction.operands[1].i32
                 : src->instruction.operands[0].i32;
             int64_t local_target = (int64_t)src->byte_offset + relative;

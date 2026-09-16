@@ -6,15 +6,9 @@
  *
  * A call is in tail position if its result is directly returned (no
  * further computation after the call). This pass handles:
- *   - Direct self calls inside explicit return statements
+ *   - Direct tail recursion:  fn fact(n, acc) => if n == 0 then acc else fact(n-1, n*acc)
  *   - Tail calls in if/else branches
- *   - Explicit returns before later statements in a block
- *
- * I currently lower scalar parameters in the supported expression/block/if
- * subset. I leave loops, closures, aggregates and parameter-shadowing bindings
- * unchanged rather than guessing their binding or ownership rules. Arguments
- * are evaluated left to right into temporaries before state updates. Generated
- * names avoid source identifiers, and ordinary returns retain their type.
+ *   - Tail calls in block last-statement position
  *
  * After the pass, tail-recursive functions gain a TCO body that uses
  * AST_WHILE + AST_SET nodes instead of recursion.

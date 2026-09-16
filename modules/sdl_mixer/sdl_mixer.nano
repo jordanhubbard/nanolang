@@ -6,13 +6,11 @@
 
 opaque type Mix_Chunk
 opaque type Mix_Music
-opaque type Mix_UserData
-opaque type Mix_AudioBuffer
 
 # === Initialization ===
 
 # Initialize SDL_mixer with format flags
-# I return the initialized format flags, not a success boolean.
+# Returns 0 on success
 extern fn Mix_Init(_flags: int) -> int
 
 # Shutdown SDL_mixer
@@ -54,7 +52,7 @@ extern fn Mix_AllocateChannels(_numchans: int) -> int
 # Returns Mix_Chunk handle or 0 on failure
 extern fn Mix_LoadWAV(_file: string) -> Mix_Chunk
 
-# I free the chunk and return zero; the SDK function returns void.
+# Free Mix_Chunk
 extern fn Mix_FreeChunk(_chunk: Mix_Chunk) -> int
 
 # Play sound effect on channel
@@ -121,13 +119,13 @@ extern fn Mix_HaltMusic() -> int
 # ms: milliseconds for fade out
 extern fn Mix_FadeOutMusic(_ms: int) -> int
 
-# I rewind music and return zero; the SDK function returns void.
+# Rewind music to start
 extern fn Mix_RewindMusic() -> int
 
-# I pause music without a result.
+# Pause music (returns void in C, but we use int for consistency)
 extern fn Mix_PauseMusic() -> void
 
-# I resume music without a result.
+# Resume music (returns void in C, but we use int for consistency)
 extern fn Mix_ResumeMusic() -> void
 
 # Set music volume
@@ -152,10 +150,11 @@ extern fn Mix_PausedMusic() -> int
 
 # === Audio Analysis ===
 
-# I lend the buffer only until the callback returns. It must not escape.
-# My retained registration returns 0 on success and -1 on allocation failure.
-extern fn nl_mix_set_post_mix(_callback: fn(Mix_UserData, Mix_AudioBuffer, int) -> void, _arg: Mix_UserData) -> int
-extern fn nl_mix_clear_post_mix() -> void
+# Set post-mix processor callback
+# This callback receives the final mixed audio stream
+# callback: function to process audio data
+# arg: user data passed to callback
+extern fn Mix_SetPostMix(_callback: fn(void, int) -> void, _arg: void) -> void
 
 # Query mixing channels
 # Returns number of channels in use
@@ -163,10 +162,9 @@ extern fn Mix_GetNumChannels() -> int
 
 # === Error Handling ===
 
-# I report the last completed adapter operation's error (at most 1023 bytes).
-# This snapshot belongs to the process-global mixer, not to a VM or SDL thread.
-# A successful operation clears it; read it before starting another operation.
+# Get last SDL_mixer error
 extern fn Mix_GetError() -> string
 
-# I clear the adapter error snapshot and return zero.
+# Clear error message
 extern fn Mix_ClearError() -> int
+

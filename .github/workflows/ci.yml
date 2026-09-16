@@ -9,10 +9,10 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
+    name: Build and Test (${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
-    timeout-minutes: 75
+    timeout-minutes: 45
     permissions:
       contents: read
       checks: write
@@ -46,15 +46,11 @@ jobs:
             build-essential \
             valgrind \
             pkg-config \
-            libssl-dev libffi-dev \
+            libssl-dev \
             libsdl2-dev \
-            libsdl2-image-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libncurses-dev \
-            libreadline-dev \
-            libevent-dev libuv1-dev libbullet-dev \
-            libglfw3-dev libglew-dev freeglut3-dev \
             libutf8proc-dev \
             gforth
 
@@ -67,12 +63,9 @@ jobs:
             pkg-config \
             openssl \
             sdl2 \
-            sdl2_image \
             sdl2_mixer \
             sdl2_ttf \
             utf8proc \
-            glfw glew freeglut \
-            readline libevent libuv bullet \
             gforth
 
       - name: Install Python dependencies
@@ -102,9 +95,7 @@ jobs:
         run: make stage3
 
       - name: Run test suite
-        env:
-          NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
-        run: make test TEST_TIMEOUT=3600
+        run: make test
 
       - name: Run test suite with JUnit XML output
         run: make test-junit
@@ -121,8 +112,6 @@ jobs:
           fail-on-error: false
 
       - name: Run negative tests
-        env:
-          NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
 
       - name: Validate user guide snippets
@@ -200,18 +189,15 @@ jobs:
           ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
-            libssl-dev libffi-dev \
+            libssl-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libncurses-dev \
             libreadline-dev \
-            libevent-dev \
             libuv1-dev \
             libbullet-dev \
-            libglfw3-dev \
-            libglew-dev \
             freeglut3-dev
 
       - name: Install example dependencies (macOS)
@@ -227,11 +213,8 @@ jobs:
             sdl2_mixer \
             sdl2_ttf \
             readline \
-            libevent \
             libuv \
             bullet \
-            glfw \
-            glew \
             freeglut
 
       - name: Build C reference compiler
@@ -337,7 +320,7 @@ jobs:
           ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
-            libssl-dev libffi-dev \
+            libssl-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -345,9 +328,6 @@ jobs:
             libutf8proc-dev
 
       - name: Build with AddressSanitizer
-        # Instrumented bootstrap shadows retain a finite execution deadline.
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
@@ -355,23 +335,17 @@ jobs:
           make sanitize
 
       - name: Complete 3-stage bootstrap with sanitizers
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
 
       - name: Run tests with sanitizers
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         timeout-minutes: 20  # Timeout for test step specifically
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
 
       - name: Run negative tests with sanitizers
-        env:
-          NANOLANG_COMPILER: ./bin/nanoc_c
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           bash tests/run_negative_tests.sh
@@ -422,15 +396,12 @@ jobs:
             lcov \
             bc \
             pkg-config \
-            libssl-dev libffi-dev \
+            libssl-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libutf8proc-dev \
-            libncurses-dev libreadline-dev \
-            libevent-dev libuv1-dev libbullet-dev \
-            libglfw3-dev libglew-dev freeglut3-dev \
             gforth
 
       - name: Build with coverage
@@ -440,13 +411,9 @@ jobs:
         run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
 
       - name: Run tests
-        env:
-          NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
         run: make test CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
 
       - name: Run negative tests
-        env:
-          NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
 
       - name: Show error logs on failure
@@ -535,7 +502,7 @@ jobs:
 
       - name: Install dependencies
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh build-essential bc pkg-config libffi-dev
+        run: ./scripts/ci-apt-install.sh build-essential bc
 
       - name: Download baseline benchmark
         id: baseline
@@ -673,7 +640,7 @@ jobs:
         run: |
           ./scripts/ci-apt-install.sh \
             clang \
-            libblocksruntime-dev libffi-dev \
+            libblocksruntime-dev \
             pkg-config \
             libsdl2-dev \
             libsdl2-image-dev \
@@ -711,7 +678,7 @@ jobs:
 
       - name: Install clang-tidy
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh build-essential clang-tidy libffi-dev
+        run: ./scripts/ci-apt-install.sh build-essential clang-tidy
 
       - name: Run clang-tidy
         run: |
@@ -735,7 +702,7 @@ jobs:
 
       - name: Install clang / build deps
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev
 
       - name: Build nanoc
         run: make nanoc

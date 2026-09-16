@@ -12,7 +12,6 @@ Value builtin_str_equals(Value *args);
 Value builtin_str_starts_with(Value *args);
 Value builtin_str_ends_with(Value *args);
 Value builtin_str_index_of(Value *args);
-Value builtin_str_last_index_of(Value *args);
 Value builtin_str_trim(Value *args);
 Value builtin_str_trim_left(Value *args);
 Value builtin_str_trim_right(Value *args);

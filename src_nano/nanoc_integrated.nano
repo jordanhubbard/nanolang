@@ -113,10 +113,7 @@ extern struct ASTLet {
     var_type: string,
     value: int,
     value_type: int,
-    is_mut: bool,
-    is_destructure: bool,
-    is_destructure_projection: bool,
-    destructure_names: array<string>
+    is_mut: bool
 }
 
 extern struct ASTSet {
@@ -1948,10 +1945,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         var_type: var_type,
         value: value_id,
         value_type: value_type,
-        is_mut: is_mut,
-        is_destructure: false,
-        is_destructure_projection: false,
-        destructure_names: []
+        is_mut: is_mut
     }
     
     (list_ASTLet_push p.lets node)

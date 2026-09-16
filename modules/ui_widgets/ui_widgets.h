@@ -6,72 +6,11 @@
 #include <SDL2/SDL_ttf.h>
 #include "../../src/runtime/dyn_array.h"
 
-/* My array widgets require canonical string arrays and counts in
- * [0, min(length, INT_MAX)]. Scroll offsets must be in [0, count].
- * Invalid arrays/offsets or null renderer/font return -1 before SDL calls.
- * I skip null entries. Geometry and input scaling require a separate audit. */
-
-/* My slider/progress bars clamp fractions to [0,1], with NaN mapped to zero.
- * They require positive SDL-int dimensions and representable endpoints (plus
- * four pixels of margin for the slider handle). Invalid geometry or a null
- * renderer skips drawing: sliders return the clamped value, seek bars -1. */
-
-/* My spinner returns the unchanged value for an inverted range. Otherwise I
- * clamp the initial value to its range. Invalid geometry skips drawing and
- * returns that value; I require width >= 40, height >= 10 and SDL-int endpoints.
- * Unrepresentable centered text is skipped, with texture/surface cleanup. */
-
-/* My panels and labels clamp RGBA channels to [0,255]. Invalid panel geometry
- * skips drawing. Labels reject unrepresentable coordinates/endpoints and
- * nonpositive surface dimensions, releasing any surface already created. */
-
-/* My text buttons reject invalid geometry or null renderers before interaction.
- * Unrepresentable centered text is skipped with surface/texture cleanup; the
- * button's valid hit area still determines its click result. */
-
-/* My checkbox/radio controls validate their 20-pixel bounds before interaction
- * (with one pixel of margin for radio borders). Invalid geometry preserves
- * checkbox state or returns no radio click. Unplaceable labels are skipped
- * with cleanup; valid controls retain their normal interaction behavior. */
-
-/* My time display formats signed MM:SS with unbounded minute digits over the
- * int64 range (negative durations have one leading minus). It uses my label
- * geometry/color checks and cleanup contract. */
-
-/* My tooltips skip invalid hit areas, failed text measurements and
- * unrepresentable padded placement. Rendered surfaces are checked separately
- * and released when their placement is rejected. */
-
-/* My scrollable list requires width >= 10; the file selector requires >= 16.
- * Both reject invalid SDL geometry before interaction and skip unplaceable
- * row text with cleanup. The scrollable list restores the caller's clip state. */
-
-/* My dropdown requires at least 30x8 pixels and representable SDL endpoints,
- * including its expanded rows when open. Invalid geometry returns -1 before
- * interaction; unplaceable text is skipped with cleanup. */
-
-/* My syntax-colored code display requires valid geometry (at least 10x5),
- * scroll in [0,INT_MAX], line height in [1,INT_MAX], and source < INT_MAX bytes.
- * I preserve complete tokens and restore clipping even if allocation fails.
- * Failed measurements do not advance the pen. Multiline layout remains work. */
-
-/* My ANSI viewer uses the same geometry/source/scroll limits. Numeric SGR
- * overflow or malformed parameters leave colors unchanged; supported numeric
- * parameters are applied in sequence. This is not a complete terminal parser.
- * Both viewers saturate horizontal advances beyond SDL's coordinate range. */
-
-/* My code-editor renderer requires at least 56x5 pixels, the viewer's source
- * and scroll limits, cursor row in [-1,INT_MAX] and column in [0,INT_MAX].
- * Tokens and measured prefixes are complete; allocation failure stops drawing
- * and restores clipping. This renderer does not itself implement editing. */
-
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
 
 // Set UI scale factor used for input hit-testing (mouse coordinates are divided by this value).
-// I use 1.0 for non-finite scales or scales <= 0.01. Scaled mouse coordinates
-// saturate to the host int range before conversion, truncating toward zero.
 void nl_ui_set_scale(double scale);
 
 // Create a button and check for mouse interaction
@@ -130,9 +69,8 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
                                     double progress);
 
 // Text input field - single line text input
-// I currently render read-only text and return 0; editing/Enter remain work.
-// I require a terminator within buffer_size and at least 16x12 valid geometry.
-// Invalid inputs make no drawing calls. Null fonts skip text measurement.
+// Returns 1 if Enter was pressed, 0 otherwise
+// NOTE: Currently treated as read-only text for NanoLang integration.
 int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
                           const char* buffer, int64_t buffer_size,
                           int64_t x, int64_t y, int64_t w, int64_t h,
@@ -171,10 +109,7 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
 //   texture_id: SDL texture ID (from SDL_image, cast to int64_t)
 //   x, y: button position
 //   w, h: button size (image will be scaled to fit)
-//   hover_brightness: multiplier clamped to [0,2]; non-finite means 1.
-// I brighten with an additive texture pass where supported; color modulation
-// handles dimming. I restore saved texture settings and pressed-overlay blend
-// mode through SDL calls. Invalid geometry or failed texture queries returns 0.
+//   hover_brightness: brightness multiplier on hover (1.0 = normal, 1.2 = 20% brighter)
 int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              double hover_brightness);

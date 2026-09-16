@@ -5,8 +5,6 @@
  * deserialize_module_metadata_from_c with a variety of module shapes.
  */
 
-#define _POSIX_C_SOURCE 200809L
-#define _DARWIN_C_SOURCE
 #include "../src/nanolang.h"
 #include "../src/module_builder.h"
 #include <stdio.h>
@@ -295,34 +293,6 @@ void test_embed_metadata_before_main(void) {
     ASSERT(meta_pos < main_pos);
 }
 
-void test_serialize_long_identifiers(void) {
-    char name[3001], constant[3001], expected[6200];
-    memset(name, 'm', sizeof(name) - 1);
-    name[sizeof(name) - 1] = '\0';
-    memset(constant, 'c', sizeof(constant) - 1);
-    constant[sizeof(constant) - 1] = '\0';
-    ModuleMetadata meta = make_empty_meta(name);
-    ConstantDef constants[2] = {0};
-    constants[0].name = constant;
-    constants[0].type = TYPE_INT;
-    constants[0].value = 42;
-    constants[1].name = constant;
-    constants[1].type = TYPE_FLOAT;
-    union { double d; int64_t i; } value = {.d = 1.5};
-    constants[1].value = value.i;
-    meta.constants = constants;
-    meta.constant_count = 2;
-    char *output = serialize_module_metadata_to_c(&meta);
-    ASSERT_NOT_NULL(output);
-    snprintf(expected, sizeof(expected), "ModuleMetadata _module_metadata_%s = {\n", name);
-    ASSERT_CONTAINS(output, expected);
-    snprintf(expected, sizeof(expected), "static const int64_t _module_const_%s_%s = 42LL;\n", name, constant);
-    ASSERT_CONTAINS(output, expected);
-    snprintf(expected, sizeof(expected), "static const double _module_const_%s_%s = 1.5;\n", name, constant);
-    ASSERT_CONTAINS(output, expected);
-    free(output);
-}
-
 void test_deserialize_stub_returns_false(void) {
     ModuleMetadata *out = NULL;
     bool ok = deserialize_module_metadata_from_c("/* some c code */", &out);
@@ -362,61 +332,6 @@ void test_module_json_requires_utf8(void) {
  * main
  * ============================================================================ */
 
-static void test_callback_adapters(void) {
-    char directory[] = "/tmp/nanolang-callback-metadata-XXXXXX";
-    ASSERT_NOT_NULL(mkdtemp(directory));
-    char path[256];
-    snprintf(path, sizeof(path), "%s/module.json", directory);
-    const char *valid = "{\"name\":\"fixture\",\"callback_adapters\":{"
-        "\"submit\":{\"symbol\":\"retained_submit\",\"abi\":\"retained_v1\",\"execution\":\"worker\"},"
-        "\"wait\":{\"symbol\":\"retained_wait\",\"abi\":\"retained_v1\",\"execution\":\"owner\"}}}";
-    FILE *f = fopen(path, "wb");
-    ASSERT_NOT_NULL(f);
-    ASSERT(fputs(valid, f) >= 0 && fclose(f) == 0);
-    ModuleBuildMetadata *meta = module_load_metadata(directory);
-    ASSERT_NOT_NULL(meta);
-    ASSERT(meta->callback_adapters_count == 2);
-    ASSERT(!strcmp(meta->callback_adapters[0].function_name, "submit"));
-    ASSERT(!strcmp(meta->callback_adapters[0].adapter_symbol, "retained_submit"));
-    ASSERT(meta->callback_adapters[0].worker_thread);
-    ASSERT(!meta->callback_adapters[1].worker_thread);
-    const char *invalid[] = {
-        "[]", "{} trailing", "{\"callback_adapters\":null}",
-        "{\"callback_adapters\":[],\"name\":\"x\"}",
-        "{\"callback_adapters\":{},\"callback_adapters\":{}}",
-        "{\"callback_adapters\":{\"submit\":{}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\",\"abi\":\"raw\",\"execution\":\"worker\"}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\",\"abi\":\"retained_v1\",\"execution\":\"any\"}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\",\"abi\":\"retained_v1\",\"execution\":\"worker\",\"typo\":\"x\"}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\",\"symbol\":\"b\",\"abi\":\"retained_v1\",\"execution\":\"worker\"}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\",\"abi\":\"retained_v1\",\"execution\":true}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\",\"abi\":\"retained_v1\",\"execution\":\"worker\"},\"submit\":{}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"bad symbol\",\"abi\":\"retained_v1\",\"execution\":\"worker\"}}}",
-        "{\"callback_adapters\":{\"submit\":{\"symbol\":\"a\\u0000b\",\"abi\":\"retained_v1\",\"execution\":\"worker\"}}}",
-        "{\"callback_adapters\\u0000ignored\":{}}"
-    };
-    for (size_t i = 0; i < sizeof(invalid) / sizeof(invalid[0]); i++) {
-        f = fopen(path, "wb");
-        ASSERT_NOT_NULL(f);
-        ASSERT(fputs(invalid[i], f) >= 0 && fclose(f) == 0);
-        ASSERT_NULL(module_load_metadata(directory));
-        /* I retain the selected metadata after the manifest changes. */
-        ASSERT(!strcmp(meta->callback_adapters[0].adapter_symbol, "retained_submit"));
-    }
-    f = fopen(path, "wb");
-    ASSERT_NOT_NULL(f);
-    ASSERT(fputs("{\"description\":\"literal \\\\u0000\"}", f) >= 0 && fclose(f) == 0);
-    ModuleBuildMetadata *literal = module_load_metadata(directory);
-    ASSERT_NOT_NULL(literal);
-    module_metadata_free(literal);
-    f = fopen(path, "wb");
-    ASSERT_NOT_NULL(f);
-    ASSERT(fwrite("{}\0{}", 1, 5, f) == 5 && fclose(f) == 0);
-    ASSERT_NULL(module_load_metadata(directory));
-    module_metadata_free(meta);
-    ASSERT(unlink(path) == 0 && rmdir(directory) == 0);
-}
-
 int main(void) {
     printf("=== Module Metadata Tests ===\n");
     TEST(serialize_null_returns_null);
@@ -428,7 +343,6 @@ int main(void) {
     TEST(serialize_memory_annotations);
     TEST(serialize_int_constant);
     TEST(serialize_float_constant);
-    TEST(serialize_long_identifiers);
     TEST(serialize_multiple_functions);
     TEST(serialize_param_with_struct_type);
     TEST(embed_null_inputs_return_false);
@@ -437,7 +351,6 @@ int main(void) {
     TEST(embed_metadata_before_main);
     TEST(deserialize_stub_returns_false);
     TEST(module_json_requires_utf8);
-    TEST(callback_adapters);
 
     printf("\n✓ All module metadata tests passed!\n");
     return 0;

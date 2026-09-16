@@ -108,7 +108,6 @@ struct VmTuple {
 struct VmClosure {
     VmHeapHeader header;
     uint32_t fn_idx;
-    uint32_t callable_module; /* Same VM-local identity as a direct callable. */
     uint16_t capture_count;
     NanoValue captures[];  /* Flexible array member */
 };
@@ -215,14 +214,10 @@ VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index);
 
 /* Array allocation */
 VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity);
-/* I retain v only on success; failure leaves the array and v unchanged. */
-bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v);
+void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v);
 NanoValue vm_array_pop(VmArray *a);
 NanoValue vm_array_get(VmArray *a, uint32_t index);
 void vm_array_set(VmArray *a, uint32_t index, NanoValue v);
-/* I exchange scalar/string storage without changing either array identity.
- * Both arrays must have the same scalar/string element type. */
-void vm_array_swap_scalar_storage(VmArray *a, VmArray *b);
 VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end);
 /* Remove the element at `index`, shifting the tail left.
  *

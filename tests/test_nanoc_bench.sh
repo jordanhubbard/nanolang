@@ -5,7 +5,7 @@ set -u
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-NANOC="${NANOC:-${NANOLANG_COMPILER:-./bin/nanoc}}"
+NANOC="${NANOC:-./bin/nanoc}"
 SAMPLE="examples/bench_sample.nano"
 
 # The CI bench job runs `make nanoc`. GNU make looks for a target named `nanoc`,

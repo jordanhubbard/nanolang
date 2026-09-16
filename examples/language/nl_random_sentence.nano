@@ -180,11 +180,6 @@ fn load_dictionary() -> string {
         return from_repo
     }
 
-    let from_examples: string = (read "language/data/words.txt")
-    if (> (strlen from_examples) 0) {
-        return from_examples
-    }
-
     let from_system: string = (read "/usr/share/dict/words")
     if (> (strlen from_system) 0) {
         return from_system

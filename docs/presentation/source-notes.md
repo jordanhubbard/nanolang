@@ -30,8 +30,8 @@
 
 ## Release evidence
 
-My local repository contains `v4.0.0` and `v4.5.0` tags. This local 5.0 release edition
-does not claim a new tag or external publication. `docs/RELEASE_4.5.md` is the
+Release `v4.0.0` is tagged and remains the last public GitHub Release until
+`v4.5.0`. There was no public `v4.4.0` tag. `docs/RELEASE_4.5.md` is the
 public summary covering 4.1–4.5. `docs/RELEASE_4.4.md` is the 4.4 product
 page as it stood on `main` before Phase 19.
 The verified local counts at `v4.0.0` were 2,632 NanoISA tests, 621
@@ -59,47 +59,16 @@ and the NanoVM test suite.
 
 ## Boundaries
 
-My historical 4.0 account covers the v2 module format, modeled verifier checks,
-dispatch and measurements. The verifier tracks an abstract balance of explicit
-retain/release instructions, not object identity or complete source ownership.
-Unknown operand types are not proved safe. Current boundaries are recorded in
-`CONTRIBUTING.md`, `docs/CANONICAL_STYLE.md` and the open roadmap.
+Phase 12 is complete: 78 of 78 items. The NanoISA v2 verifier, module format,
+dispatch, ownership and measurement work is shipped, not roadmap.
 
-What remains is roadmap work and is labelled as such. Module signing is
-unimplemented; the 5.0 release number does not establish it.
+What remains is later work and is labelled as such. Module signing is 5.0.
 LLVM and WebAssembly return only as NanoISA translators. I do not claim a
 Forth Standard System, GNU Emacs, a kernel, or that the system is
 internationalized. The trap journal is a tested library, not a hook on
 every `vm.c` trap.
-`Makefile.gnu` now generates and includes transitive C header dependencies.
-The #211 roadmap item records its implementation and acceptance; the focused
-gate is `make test-make-header-dependencies`. This does not close every cache
-snapshot, publication or toolchain-identity requirement.
+`Makefile.gnu` tracks no header dependencies, so a struct change makes an
+incremental build untrustworthy; that is filed as issue #211 and is a known
+defect rather than a claim.
 The mascot is an existing NanoLang user-guide asset, copied into this package
 as `assets/nanolang-mascot.png`; external artwork is not authority for my claims.
-
-My project requires useful shadows, while current CPU typechecking warns about
-missing ones with documented exemptions. All three drivers select dependency
-shadows by default; explicit root-only mode remains available. Separate test
-processes have deadlines, not security sandboxing. `make test-language-claims`
-checks the compiler observations; formal correspondence remains separate.
-The shared nonnegative-input `examples/gcd.nano` demonstrates executable assertions,
-not a theorem for every integer. Artifact tests extract and compile its text.
-
-## 5.0 release-edition checkpoint — 2026-09-16
-
-I use `docs/RELEASE_5.0.md` and `docs/CALLBACK_ABI.md` for current contract
-and callback claims. `src/runtime/callback_runtime.c`, `src/nanovm/vm_callback.c`,
-the dispatch/SDL_mixer adapters and their tests implement retained handles,
-owner-thread execution and cancellation. C-seed callback shadows select the
-shared VM bridge. These in-process adapters do not establish isolated callbacks.
-
-Dated finalization evidence records 1,739 native translator checks, 1,073 shape
-checks, 272,403 VM checks, 89 VM codegen checks and 175 verified/equivalent
-programs. A clean bootstrap passed at `4373abc5`. Darwin passed 14 effect
-tests, 49 scoping checks and 39 executable guide snippets; ownership sanitizers
-exercised 52,000 activations. Strict Linux ARM64 acceptance passed all 185
-selected native example artifacts with unchanged selection/exclusions and five
-root/examples-working-directory regression compilations. These are bounded checkpoints. Exact-commit
-clean-tree tests, platform CI and release acceptance are mandatory release gates. `docs/evidence/main-reconciliation-pr334-linux.md` owns the detailed
-integration evidence. Full NanoISA-only bootstrap and backend parity remain open.

@@ -85,10 +85,6 @@ bool vmd_msg_send_error(int fd, const char *msg);
  * ======================================================================== */
 
 /* Get the socket path for the current user (/tmp/nanolang_vm_<uid>.sock) */
-/* NANOVMD_SOCKET selects an explicit endpoint; its PID path adds ".pid".
- * I return an empty string if the path does not fit, never a truncated alias.
- * NANOVMD_NO_AUTOSTART=1 makes clients fail rather than launch a replacement.
- * The caller owns the selected directory; this is not an isolation boundary. */
 void vmd_socket_path(char *buf, size_t size);
 
 /* Get the PID file path (/tmp/nanolang_vm_<uid>.pid) */

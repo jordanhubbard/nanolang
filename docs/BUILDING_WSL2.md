@@ -7,7 +7,7 @@ I provide this guide for those building me on the Windows Subsystem for Linux 2 
 ```bash
 # 1. Install build essentials
 sudo apt-get update
-sudo apt-get install -y build-essential python3 libssl-dev libffi-dev
+sudo apt-get install -y build-essential python3
 
 # 2. Install pkg-config (required for dependency detection)
 sudo apt-get install -y pkg-config

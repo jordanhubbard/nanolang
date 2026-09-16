@@ -113,7 +113,6 @@ formal/*.vo
 formal/*.vok
 formal/*.vos
 formal/*.glob
-formal/Assumptions.log
 formal/.*.aux
 
 # OCaml build artifacts (Coq extraction)

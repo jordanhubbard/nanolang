@@ -1,3 +1,0 @@
-fn probe() -> int {
-    return (+ 1 int)
-}

@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "../../src/runtime/dyn_array.h"
 
 /* Basic loading helpers */
 int64_t nl_img_load_png_texture(SDL_Renderer* renderer, const char* file);
@@ -36,12 +35,12 @@ int64_t nl_img_set_texture_blend_mode(int64_t texture, int64_t blend);
 int64_t nl_img_create_texture_from_pixels(SDL_Renderer* renderer, int64_t width, int64_t height, void* pixels);
 
 /* Batch operations */
-DynArray* nl_img_load_icon_batch(SDL_Renderer* renderer, DynArray* files, int64_t count);
-void nl_img_destroy_texture_batch(DynArray* textures, int64_t count);
+void* nl_img_load_icon_batch(SDL_Renderer* renderer, const char** files, int64_t count);
+void nl_img_destroy_texture_batch(int64_t* textures, int64_t count);
 
 /* Utility functions */
 void nl_img_destroy_texture(int64_t texture);
 int64_t nl_img_can_load(const char* file);
-DynArray* nl_img_get_supported_formats(void);
+void* nl_img_get_supported_formats(void);
 
 #endif /* SDL_IMAGE_HELPERS_H */

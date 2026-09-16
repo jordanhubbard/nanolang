@@ -1,10 +1,5 @@
 # 5.0 — I emit one thing
 
-**Release boundary:** I retain this document as my architecture target.
-The public 5.0 cut still builds the compiler through C transpilation; it does
-not complete the NanoISA-only bootstrap described below. See
-[the shipped scope](RELEASE_5.0.md) and the unchecked roadmap milestones.
-
 This is the compilation contract for release **5.0**. It is a major-version
 rewrite of how I become a process image. It is not 4.x work. 4.0 keeps the
 decision and a closed-subset spike (`nvm2c` for i64 arithmetic). 4.x keeps

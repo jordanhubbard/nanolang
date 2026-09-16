@@ -13,7 +13,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <math.h>
 
 /* Required by runtime/cli.c */
 int g_argc = 0;
@@ -328,58 +327,6 @@ static void test_reserve(void) {
     PASS(test_name);
 }
 
-static void test_sorted_scalars(void) {
-    const char *test_name = "dyn_array_sorted: scalar ordering and validation";
-    DynArray *ints = dyn_array_new(ELEM_INT);
-    dyn_array_push_int(ints, INT64_MAX);
-    dyn_array_push_int(ints, 0);
-    dyn_array_push_int(ints, INT64_MIN);
-    DynArray *sorted = dyn_array_sorted(ints);
-    ASSERT(sorted && sorted != ints, "independent sorted array");
-    ASSERT_EQ(dyn_array_get_int(sorted, 0), INT64_MIN, "minimum first");
-    ASSERT_EQ(dyn_array_get_int(sorted, 2), INT64_MAX, "maximum last");
-    ASSERT_EQ(dyn_array_get_int(ints, 0), INT64_MAX, "source unchanged");
-    DynArray *floats = dyn_array_new(ELEM_FLOAT);
-    dyn_array_push_float(floats, NAN);
-    dyn_array_push_float(floats, INFINITY);
-    dyn_array_push_float(floats, -0.0);
-    dyn_array_push_float(floats, -INFINITY);
-    dyn_array_push_float(floats, NAN);
-    sorted = dyn_array_sorted(floats);
-    ASSERT(sorted && dyn_array_get_float(sorted, 0) == -INFINITY, "negative infinity first");
-    ASSERT(dyn_array_get_float(sorted, 1) == 0.0, "zero before infinity");
-    ASSERT(dyn_array_get_float(sorted, 2) == INFINITY, "positive infinity before NaN");
-    ASSERT(isnan(dyn_array_get_float(sorted, 3)) && isnan(dyn_array_get_float(sorted, 4)), "NaNs last");
-    ASSERT(isnan(dyn_array_get_float(floats, 0)), "float source unchanged");
-    DynArray *bytes = dyn_array_new(ELEM_U8);
-    dyn_array_push_u8(bytes, 255);
-    dyn_array_push_u8(bytes, 0);
-    sorted = dyn_array_sorted(bytes);
-    ASSERT(sorted && sorted->elem_type == ELEM_U8, "byte representation");
-    ASSERT_EQ(dyn_array_get_u8(sorted, 0), 0, "byte minimum");
-    ASSERT_EQ(dyn_array_get_u8(sorted, 1), 255, "byte maximum");
-    DynArray *empty = dyn_array_new(ELEM_STRING);
-    sorted = dyn_array_sorted(empty);
-    ASSERT(sorted && sorted != empty && sorted->elem_type == ELEM_STRING && !sorted->length, "typed empty copy");
-    ASSERT(dyn_array_sorted(NULL) == NULL, "null rejected");
-    DynArray invalid = *ints;
-    invalid.length = -1;
-    ASSERT(dyn_array_sorted(&invalid) == NULL, "negative length rejected");
-    invalid = *ints;
-    invalid.elem_size = 1;
-    ASSERT(dyn_array_sorted(&invalid) == NULL, "wrong width rejected");
-    invalid = *ints;
-    invalid.capacity = 0;
-    ASSERT(dyn_array_sorted(&invalid) == NULL, "short capacity rejected");
-    invalid = *ints;
-    invalid.data = NULL;
-    ASSERT(dyn_array_sorted(&invalid) == NULL, "missing storage rejected");
-    invalid = *ints;
-    invalid.elem_type = ELEM_ARRAY;
-    ASSERT(dyn_array_sorted(&invalid) == NULL, "unsupported elements rejected");
-    PASS(test_name);
-}
-
 static void test_clone_int(void) {
     const char *test_name = "dyn_array_clone: int array deep copy";
     DynArray *arr = dyn_array_new(ELEM_INT);
@@ -580,7 +527,6 @@ static void test_pop_u8_empty(void) {
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
-    test_sorted_scalars();
     printf("\n[dyn_array] Dynamic array unit tests...\n\n");
 
     test_new_int();

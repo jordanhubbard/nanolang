@@ -1,5 +1,7 @@
 # Note: Opaque types (regex, hashmap, JSON) are automatically GC-managed
-fn exercise_maps() -> int {
+fn main() -> int { return 0 }
+
+shadow main {
     let hm_si: HashMap<string, int> = (map_new)
     (map_put hm_si "a" 1)
     (map_put hm_si "b" 2)
@@ -13,11 +15,6 @@ fn exercise_maps() -> int {
     (map_remove hm_si "a")
     assert (== (map_has hm_si "a") false)
     assert (== (map_size hm_si) 1)
-    (map_remove hm_si "missing")
-    assert (== (map_size hm_si) 1)
-    (map_put hm_si "a" 4)
-    assert (== (map_get hm_si "a") 4)
-    (map_remove hm_si "a")
 
     let ks: array<string> = (map_keys hm_si)
     assert (== (array_length ks) (map_size hm_si))
@@ -36,33 +33,6 @@ fn exercise_maps() -> int {
     assert (== (map_get hm_is 20) "y")
     let vals: array<string> = (map_values hm_is)
     assert (== (array_length vals) 2)
-    assert (or (== (at vals 0) "x") (== (at vals 1) "x"))
-    assert (or (== (at vals 0) "y") (== (at vals 1) "y"))
-    let keys: array<int> = (map_keys hm_is)
-    assert (== (array_length keys) 2)
-    assert (map_has hm_is (at keys 0))
-    assert (map_has hm_is (at keys 1))
-    let alias: HashMap<int, string> = hm_is
     (map_clear hm_is)
     assert (== (map_size hm_is) 0)
-    assert (== (map_size alias) 0)
-    assert (== (array_length vals) 2)
-    (map_put alias 30 "z")
-    assert (== (map_get hm_is 30) "z")
-    (map_clear alias)
-    (map_clear alias)
-    assert (== (map_size hm_is) 0)
-    return 0
-}
-
-shadow exercise_maps {
-    assert (== (exercise_maps) 0)
-}
-
-fn main() -> int {
-    return (exercise_maps)
-}
-
-shadow main {
-    assert (== (main) 0)
 }

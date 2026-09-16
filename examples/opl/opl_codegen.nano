@@ -278,9 +278,8 @@ fn gen_program_from_plan(plan: Json) -> string {
 }
 
 shadow gen_program_from_plan {
-    let src: string = (read (opl_bundle_path "examples/opl/bundle/EXAMPLES.expected_plan.json"))
+    let src: string = (read "examples/opl/bundle/EXAMPLES.expected_plan.json")
     let plan: Json = (parse src)
-    assert (== (get_string plan "planVersion") "opl-plan-0.1")
     let prog: string = (gen_program_from_plan plan)
     assert (> (str_length prog) 100)
     (free plan)

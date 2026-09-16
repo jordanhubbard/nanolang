@@ -8,19 +8,12 @@
 #include "cop_protocol.h"
 #include "vm_ffi.h"
 #include "heap.h"
-#include "../utf8.h"
 #include "../nanoisa/nvm_format.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <poll.h>
-#include <fcntl.h>
-#include <time.h>
-#include <signal.h>
-#include <pthread.h>
-#include <limits.h>
 
 /* MAP_ANON compat */
 #ifndef MAP_ANON
@@ -55,10 +48,6 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         pos += 8;
         break;
     }
-    case TAG_U8:
-        if (pos >= buf_size) return 0;
-        buf[pos++] = val->as.u8;
-        break;
     case TAG_BOOL: {
         if (pos + 1 > buf_size) return 0;
         buf[pos++] = val->as.boolean ? 1 : 0;
@@ -71,7 +60,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
             s = val->as.string->data;
             len = val->as.string->length;
         }
-        if (buf_size - pos < 4 || len > buf_size - pos - 4) return 0;
+        if (pos + 4 + len > buf_size) return 0;
         cop_put_u32(buf + pos, len);
         pos += 4;
         if (len > 0) {
@@ -135,10 +124,6 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
         *out = val_float(v);
         break;
     }
-    case TAG_U8:
-        if (pos >= buf_size) return 0;
-        *out = val_u8(buf[pos++]);
-        break;
     case TAG_BOOL: {
         if (pos + 1 > buf_size) return 0;
         *out = val_bool(buf[pos] != 0);
@@ -153,7 +138,6 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
          * naive check, letting vm_string_new read out of bounds. */
         if (len > buf_size - pos) return 0;
         VmString *s = vm_string_new(heap, (const char *)(buf + pos), len);
-        if (!s) { *out = val_void(); return 0; }
         pos += len;
         *out = val_string(s);
         break;
@@ -178,24 +162,13 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
          * allocating, so a tiny hostile message can't request a ~64 GB alloc. */
         if (count > buf_size - pos) { *out = val_void(); return 0; }
         VmArray *arr = vm_array_new(heap, etype, count > 0 ? count : 4);
-        if (!arr) { *out = val_void(); return 0; }
         for (uint32_t i = 0; i < count; i++) {
             NanoValue elem;
             uint32_t n = cop_deserialize_value(buf + pos, buf_size - pos,
                                                 &elem, heap);
-            if (n == 0) {
-                vm_release(heap, val_array(arr));
-                *out = val_void();
-                return 0;
-            }
+            if (n == 0) { *out = val_void(); return 0; }
             pos += n;
-            if (elem.tag != etype || !vm_array_push(heap, arr, elem)) {
-                vm_release(heap, elem);
-                vm_release(heap, val_array(arr));
-                *out = val_void();
-                return 0;
-            }
-            vm_release(heap, elem); /* The preallocated array retains its own reference. */
+            vm_array_push(heap, arr, elem);
         }
         *out = val_array(arr);
         break;
@@ -215,168 +188,6 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
 #define COP_MAX_DESER_DEPTH 64
 static __thread int cop_deser_depth = 0;
 
-bool cop_execute_request(const uint8_t *request, uint32_t size,
-                          const NvmModule *module, VmHeap *heap,
-                          uint8_t **reply, uint32_t *reply_size,
-                          char *error, size_t error_size) {
-    *reply = NULL;
-    *reply_size = 0;
-    if (size < 6 || size > COP_MAX_PAYLOAD || !module) {
-        snprintf(error, error_size, "I require an initialized module and bounded pipe request");
-        return false;
-    }
-    uint16_t argc = cop_get_u16(request + 4);
-    NanoValue values[NANO_MAX_FFI_ARGS + 1] = {0};
-    if (argc > NANO_MAX_FFI_ARGS ||
-        !cop_decode_call_values(request + 6, size - 6, values, (uint8_t)argc, heap)) {
-        snprintf(error, error_size, "I rejected a malformed pipe call envelope");
-        return false;
-    }
-    bool ok = vm_ffi_call(module, cop_get_u32(request), values, argc,
-                          &values[argc], heap, error, error_size);
-    if (ok) {
-        ok = false;
-        for (uint32_t capacity = 4096; capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
-            uint8_t *bytes = malloc(capacity);
-            if (!bytes) break;
-            uint32_t n = cop_encode_call_values(values, (uint8_t)(argc + 1), bytes, capacity);
-            if (n) {
-                *reply = bytes; *reply_size = n; ok = true; break;
-            }
-            free(bytes);
-        }
-        if (!ok) snprintf(error, error_size, "I could not encode a bounded pipe reply");
-    }
-    for (uint16_t i = 0; i <= argc; ++i) vm_release(heap, values[i]);
-    return ok;
-}
-
-static bool call_scalar_tag(uint8_t tag) {
-    return tag == TAG_INT || tag == TAG_FLOAT || tag == TAG_BOOL ||
-           tag == TAG_U8 || tag == TAG_STRING;
-}
-
-static bool call_value_valid(NanoValue value) {
-    if (value.tag == TAG_ARRAY) {
-        VmArray *a = value.as.array;
-        if (!a || !call_scalar_tag(a->elem_type) ||
-            a->unboxed != vm_array_type_unboxable(a->elem_type)) return false;
-        for (uint32_t i = 0; i < a->length; ++i) {
-            NanoValue item = vm_array_get(a, i);
-            if (item.tag != a->elem_type || !call_value_valid(item)) return false;
-        }
-        return true;
-    }
-    if (value.tag == TAG_STRING) {
-        if (!value.as.string) return true;
-        const char *s = vmstring_cstr(value.as.string);
-        uint32_t n = vmstring_len(value.as.string);
-        return !memchr(s, 0, n) && nl_utf8_validate(s, n, NULL);
-    }
-    return call_scalar_tag(value.tag) || value.tag == TAG_OPAQUE || value.tag == TAG_VOID;
-}
-
-uint32_t cop_encode_call_values(const NanoValue *values, uint8_t count,
-                                uint8_t *buf, uint32_t size) {
-    if (count > NANO_MAX_FFI_ARGS + 1 || size < 4 || (!values && count)) return 0;
-    buf[0] = 'C'; buf[1] = 'A'; buf[2] = 1; buf[3] = count;
-    uint32_t pos = 4;
-    for (uint8_t i = 0; i < count; ++i) {
-        if (!call_value_valid(values[i])) return 0;
-        int alias = -1;
-        if (values[i].tag == TAG_ARRAY)
-            for (uint8_t j = 0; j < i; ++j)
-                if (values[j].tag == TAG_ARRAY && values[j].as.array == values[i].as.array) {
-                    alias = j; break;
-                }
-        if (alias >= 0) {
-            if (size - pos < 2) return 0;
-            buf[pos++] = 0xff; buf[pos++] = (uint8_t)alias;
-        } else {
-            uint32_t n = cop_serialize_value(&values[i], buf + pos, size - pos);
-            if (!n) return 0;
-            pos += n;
-        }
-    }
-    return pos;
-}
-
-bool cop_decode_call_values(const uint8_t *buf, uint32_t size, NanoValue *values,
-                            uint8_t count, VmHeap *heap) {
-    if (count > NANO_MAX_FFI_ARGS + 1 || (!values && count)) return false;
-    for (uint8_t i = 0; i < count; ++i) values[i] = val_void();
-    if (size < 4 || buf[0] != 'C' || buf[1] != 'A' || buf[2] != 1 ||
-        buf[3] != count) return false;
-    uint32_t pos = 4;
-    for (uint8_t i = 0; i < count; ++i) {
-        if (pos >= size) goto fail;
-        if (buf[pos] == 0xff) {
-            if (size - pos < 2 || buf[pos + 1] >= i) goto fail;
-            NanoValue prior = values[buf[pos + 1]];
-            if (prior.tag != TAG_ARRAY) goto fail;
-            values[i] = prior;
-            vm_retain(heap, prior);
-            pos += 2;
-        } else {
-            uint8_t tag = buf[pos];
-            if (!call_scalar_tag(tag) && tag != TAG_ARRAY &&
-                tag != TAG_OPAQUE && tag != TAG_VOID) goto fail;
-            if (tag == TAG_ARRAY && (size - pos < 2 || !call_scalar_tag(buf[pos + 1])))
-                goto fail;
-            uint32_t n = cop_deserialize_value(buf + pos, size - pos, &values[i], heap);
-            if (!n || !call_value_valid(values[i])) goto fail;
-            pos += n;
-        }
-    }
-    if (pos == size) return true;
-fail:
-    for (uint8_t i = 0; i < count; ++i) {
-        vm_release(heap, values[i]);
-        values[i] = val_void();
-    }
-    return false;
-}
-
-bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
-                          uint8_t argc, NanoValue *result, VmHeap *heap) {
-    if (argc > NANO_MAX_FFI_ARGS || (!args && argc) || !result) return false;
-    NanoValue decoded[NANO_MAX_FFI_ARGS + 1];
-    if (!cop_decode_call_values(buf, size, decoded, argc + 1, heap)) return false;
-    bool ok = false;
-    for (uint8_t i = 0; i < argc; ++i) {
-        if (args[i].tag != decoded[i].tag || !call_value_valid(args[i])) goto done;
-        if (args[i].tag != TAG_ARRAY) continue;
-        if (args[i].as.array->elem_type != decoded[i].as.array->elem_type) goto done;
-        for (uint8_t j = 0; j < i; ++j) {
-            if (args[j].tag != TAG_ARRAY) continue;
-            if ((args[i].as.array == args[j].as.array) !=
-                (decoded[i].as.array == decoded[j].as.array)) goto done;
-        }
-    }
-    /* No fallible work remains after validation. Each identity is swapped once. */
-    NanoValue returned = decoded[argc];
-    for (uint8_t i = 0; i < argc; ++i) {
-        if (args[i].tag != TAG_ARRAY) continue;
-        if (returned.tag == TAG_ARRAY && returned.as.array == decoded[i].as.array) {
-            returned = args[i];
-            break;
-        }
-    }
-    vm_retain(heap, returned);
-    for (uint8_t i = 0; i < argc; ++i) {
-        if (args[i].tag != TAG_ARRAY) continue;
-        bool seen = false;
-        for (uint8_t j = 0; j < i; ++j)
-            if (args[j].tag == TAG_ARRAY && args[j].as.array == args[i].as.array) seen = true;
-        if (!seen) vm_array_swap_scalar_storage(args[i].as.array, decoded[i].as.array);
-    }
-    *result = returned;
-    ok = true;
-done:
-    for (uint8_t i = 0; i <= argc; ++i) vm_release(heap, decoded[i]);
-    return ok;
-}
-
 uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
                                NanoValue *out, VmHeap *heap) {
     if (cop_deser_depth >= COP_MAX_DESER_DEPTH) {
@@ -392,82 +203,6 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
 /* ========================================================================
  * Pipe I/O Helpers
  * ======================================================================== */
-
-int64_t cop_now_ms(void) {
-    struct timespec now;
-    if (clock_gettime(CLOCK_MONOTONIC, &now)) return -1;
-    return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
-}
-
-static bool deadline_io(int fd, uint8_t *bytes, size_t size, bool writing,
-                         int64_t deadline, bool *broken_pipe) {
-    while (size) {
-        int64_t now = cop_now_ms();
-        if (now < 0 || now >= deadline) { errno = ETIMEDOUT; return false; }
-        int64_t remaining = deadline - now;
-        struct pollfd pfd = {.fd = fd, .events = writing ? POLLOUT : POLLIN};
-        int ready = poll(&pfd, 1, remaining > INT_MAX ? INT_MAX : (int)remaining);
-        if (ready < 0 && errno == EINTR) continue;
-        if (ready <= 0) { if (!ready) errno = ETIMEDOUT; return false; }
-        ssize_t n = writing ? write(fd, bytes, size) : read(fd, bytes, size);
-        if (n < 0 && (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)) continue;
-        if (n <= 0) {
-            if (n < 0 && writing && errno == EPIPE) *broken_pipe = true;
-            return false;
-        }
-        bytes += n;
-        size -= (size_t)n;
-    }
-    return true;
-}
-
-bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
-                   int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size) {
-    *reply = NULL; *reply_size = 0;
-    bool receive_only = send_fd == -1;
-    if (receive_only) send_fd = recv_fd;
-    if (timeout_ms <= 0 || size > COP_MAX_PAYLOAD || (!request && size)) return false;
-    int64_t now = cop_now_ms();
-    if (now < 0) return false;
-    int64_t deadline = now + timeout_ms;
-    int send_flags = fcntl(send_fd, F_GETFL), recv_flags = fcntl(recv_fd, F_GETFL);
-    if (send_flags < 0 || recv_flags < 0) return false;
-    sigset_t blocked, previous, pending;
-    sigemptyset(&blocked); sigaddset(&blocked, SIGPIPE);
-    if (pthread_sigmask(SIG_BLOCK, &blocked, &previous)) return false;
-    bool had_pending = sigpending(&pending) == 0 && sigismember(&pending, SIGPIPE);
-    bool broken_pipe = false, ok = false;
-    uint8_t *body = NULL;
-    if (fcntl(send_fd, F_SETFL, send_flags | O_NONBLOCK) < 0 ||
-        fcntl(recv_fd, F_SETFL, recv_flags | O_NONBLOCK) < 0) goto done;
-    uint8_t header[COP_HEADER_SIZE] = {COP_PROTO_VERSION, COP_MSG_FFI_REQ, 0, 0};
-    cop_put_u32(header + 4, size);
-    if (!receive_only &&
-        (!deadline_io(send_fd, header, sizeof header, true, deadline, &broken_pipe) ||
-         !deadline_io(send_fd, (uint8_t *)request, size, true, deadline, &broken_pipe))) goto done;
-    if (!deadline_io(recv_fd, header, sizeof header, false, deadline, &broken_pipe)) goto done;
-    uint32_t length = cop_get_u32(header + 4);
-    if (header[0] != COP_PROTO_VERSION || cop_get_u16(header + 2) ||
-        length > COP_MAX_PAYLOAD ||
-        (header[1] != COP_MSG_FFI_RESULT && header[1] != COP_MSG_FFI_ERROR)) goto done;
-    body = malloc(length ? length : 1);
-    if (!body || !deadline_io(recv_fd, body, length, false, deadline, &broken_pipe)) goto done;
-    *type = (CopMsgType)header[1];
-    *reply = body; *reply_size = length; body = NULL; ok = true;
-done:
-    free(body);
-    fcntl(send_fd, F_SETFL, send_flags);
-    fcntl(recv_fd, F_SETFL, recv_flags);
-    /* Consume only the SIGPIPE raised by this exchange, not one already
-     * pending for the caller. Restore its mask rather than changing policy. */
-    if (broken_pipe && !had_pending && sigpending(&pending) == 0 &&
-        sigismember(&pending, SIGPIPE)) {
-        int signal_number;
-        sigwait(&blocked, &signal_number);
-    }
-    pthread_sigmask(SIG_SETMASK, &previous, NULL);
-    return ok;
-}
 
 static bool write_all(int fd, const void *buf, size_t len) {
     const uint8_t *p = buf;
@@ -607,7 +342,7 @@ static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
             mailbox->resp_is_error = 1;
             cop_put_u32(mailbox->resp_data_size, wpos);
             cop_put_u32(mailbox->resp_batch_count, done);
-            snprintf(mailbox->resp_error, sizeof(mailbox->resp_error), "%s", errmsg);
+            strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
             mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             return;
         }
@@ -643,7 +378,6 @@ static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
 
 void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                     int sig_in_fd, int sig_out_fd,
-                    int data_in_fd, int data_out_fd,
                     const NvmModule *module) {
     (void)mailbox_size;
 
@@ -685,34 +419,9 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
     if (write(sig_out_fd, &sig, 1) != 1) goto done;
 
     {
-        struct pollfd channels[2] = {{ .fd = sig_in_fd, .events = POLLIN },
-                                    { .fd = data_in_fd, .events = POLLIN }};
+        struct pollfd pfd = { .fd = sig_in_fd, .events = POLLIN };
         for (;;) {
-            int ready = poll(channels, 2, -1);
-            if (ready < 0 && errno == EINTR) continue;
-            if (ready <= 0) break;
-            if (channels[1].revents) {
-                CopMsgHeader header;
-                if (!cop_recv_header(data_in_fd, &header) ||
-                    header.msg_type != COP_MSG_FFI_REQ) break;
-                uint8_t *request = malloc(header.payload_len ? header.payload_len : 1);
-                if (!request) break;
-                if (!cop_recv_payload(data_in_fd, request, header.payload_len)) {
-                    free(request); break;
-                }
-                uint8_t *reply;
-                uint32_t reply_size;
-                char error[256] = {0};
-                bool ok = cop_execute_request(request, header.payload_len, module, &heap,
-                                               &reply, &reply_size, error, sizeof error);
-                free(request);
-                bool sent = ok ? cop_send(data_out_fd, COP_MSG_FFI_RESULT, reply, reply_size)
-                               : cop_send(data_out_fd, COP_MSG_FFI_ERROR, error, strlen(error));
-                free(reply);
-                if (!sent) break;
-                continue;
-            }
-            if (!channels[0].revents) continue;
+            if (poll(&pfd, 1, -1) <= 0) break;
 
             uint8_t trigger;
             if (read(sig_in_fd, &trigger, 1) != 1) break;
@@ -734,46 +443,40 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             uint16_t argc       = cop_get_u16(mailbox->req_argc);
             uint16_t data_size  = cop_get_u16(mailbox->req_data_size);
 
-            NanoValue args[NANO_MAX_FFI_ARGS + 1] = {0};
-            char errmsg[256] = {0};
-            bool decoded = argc <= NANO_MAX_FFI_ARGS && data_size <= COP_MAILBOX_SLOT_SIZE &&
-                cop_decode_call_values(mailbox->req_data, data_size, args, (uint8_t)argc, &heap);
-            bool ok = decoded && vm_ffi_call(module, import_idx, args, argc, &args[argc], &heap,
-                                             errmsg, sizeof(errmsg));
-            uint32_t rlen = ok ? cop_encode_call_values(args, (uint8_t)(argc + 1),
-                mailbox->resp_data, COP_MAILBOX_SLOT_SIZE) : 0;
-            uint8_t *spill = NULL;
-            if (ok && !rlen) {
-                for (uint32_t capacity = COP_MAILBOX_SLOT_SIZE * 2;
-                     capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
-                    spill = malloc(capacity);
-                    if (!spill) break;
-                    rlen = cop_encode_call_values(args, (uint8_t)(argc + 1), spill, capacity);
-                    if (rlen) break;
-                    free(spill); spill = NULL;
-                }
+            NanoValue args[NANO_MAX_FFI_ARGS] = {0};
+            int actual_argc = 0;
+            uint32_t pos = 0;
+            for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS && pos < data_size; i++) {
+                uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
+                                                          data_size - pos,
+                                                          &args[i], &heap);
+                if (consumed == 0) break;
+                pos += consumed;
+                actual_argc++;
             }
-            if (!decoded) snprintf(errmsg, sizeof errmsg, "I rejected a malformed isolated call envelope");
-            else if (ok && !rlen) snprintf(errmsg, sizeof errmsg, "I cannot fit the isolated reply in the mailbox");
-            if (!ok || !rlen) {
+
+            NanoValue result;
+            char errmsg[256] = {0};
+            if (!vm_ffi_call(module, import_idx, args, actual_argc, &result, &heap,
+                             errmsg, sizeof(errmsg))) {
                 mailbox->resp_is_error  = 1;
                 cop_put_u32(mailbox->resp_data_size, 0);
                 cop_put_u32(mailbox->resp_batch_count, 0);
-                snprintf(mailbox->resp_error, sizeof(mailbox->resp_error), "%s", errmsg);
+                strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
                 mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             } else {
-                mailbox->resp_is_error  = spill ? 2 : 0;
+                uint32_t rlen = cop_serialize_value(&result,
+                                                    mailbox->resp_data,
+                                                    COP_MAILBOX_SLOT_SIZE);
+                mailbox->resp_is_error  = 0;
                 cop_put_u32(mailbox->resp_data_size, rlen);
                 cop_put_u32(mailbox->resp_batch_count, 0);
+                vm_release(&heap, result);
             }
-            if (decoded) for (int i = 0; i <= argc; i++) vm_release(&heap, args[i]);
 
-            if (write(sig_out_fd, &sig, 1) != 1) { free(spill); break; }
-            if (spill) {
-                bool sent = cop_send(data_out_fd, COP_MSG_FFI_RESULT, spill, rlen);
-                free(spill);
-                if (!sent) break;
-            }
+            for (int i = 0; i < actual_argc; i++) vm_release(&heap, args[i]);
+
+            if (write(sig_out_fd, &sig, 1) != 1) break;
         }
     }
 

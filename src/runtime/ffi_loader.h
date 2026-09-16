@@ -11,7 +11,6 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 
 /**
  * Loaded module handle (opaque to callers that just need symbol resolution).
@@ -34,8 +33,7 @@ typedef struct {
 bool ffi_loader_init(bool verbose);
 
 /**
- * Shut down the registry and release its dlopen references. Images used by
- * retained adapters keep a separate process-lifetime reference.
+ * Shut down the FFI loader and dlclose all modules.
  * Does NOT free user_data — callers must clean up their own data first
  * via ffi_loader_get_modules().
  */
@@ -73,22 +71,6 @@ void *ffi_loader_resolve(const char *symbol_name);
  * if found via RTLD_DEFAULT / main executable).
  */
 void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module);
-
-/* I resolve only through the named library handle, without global fallback. */
-void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name);
-
-/* I check a per-function native array ABI declaration in the function's own
- * loaded image. Missing declarations mean legacy version 1. This checks a
- * trusted native declaration, not the memory safety of arbitrary C code.
- * A NULL module selects the process namespace for legacy logical imports;
- * the declaration must still belong to the supplied function address. */
-bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name,
-                                void *function, uint32_t expected,
-                                char *error, size_t error_size);
-
-/* I resolve without fallback and retain the selected image until process exit.
- * Native asynchronous code can outlive both the VM and its callback handles. */
-void *ffi_loader_resolve_retained(const char *symbol_name, const char *module_name);
 
 /**
  * Access the loaded module array (for callers that need to iterate,

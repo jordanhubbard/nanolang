@@ -13,14 +13,8 @@ fn create_file() -> FileHandle {
 }
 
 fn close_file(f: FileHandle) -> void {
-    # I dismantle a simulated handle, not an operating-system file.
-    let FileHandle { fd } = f
-    assert (== fd 42)
     (println "File closed")
 }
-
-shadow create_file { let f: FileHandle = (create_file) assert (== f.fd 42) (close_file f) }
-shadow close_file { (close_file FileHandle { fd: 42 }) }
 
 /* Test 1: Basic create and close */
 
@@ -43,8 +37,7 @@ struct Connection {
 fn test_resource_in_struct() -> int {
     let f: FileHandle = (create_file)
     let conn: Connection = Connection { raw: f }
-    let Connection { raw } = conn
-    (close_file raw)
+    (close_file conn.raw)
     return 0
 }
 
@@ -97,8 +90,6 @@ fn main() -> int {
     assert (== (test_sequential) 0)
     return 0
 }
-
-shadow main { assert (== (main) 0) }
 
 /* This test validates that affine types correctly:
  * ✓ Track basic resource lifecycle (create → consume)

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "list_capacity.h"
 
 /* Note: The actual struct nl_ASTSet definition must be included */
 /* before this file in the compilation */
@@ -13,8 +12,18 @@
 
 /* Helper: Ensure the list has enough capacity */
 static void ensure_capacity_ASTSet(List_ASTSet *list, int min_capacity) {
-    int new_capacity = nl_list_grown_capacity(list->capacity, min_capacity, sizeof(*list->data));
-    if (new_capacity == list->capacity) return;
+    if (list->capacity >= min_capacity) {
+        return;
+    }
+    
+    int new_capacity = list->capacity;
+    if (new_capacity == 0) {
+        new_capacity = INITIAL_CAPACITY;
+    }
+    
+    while (new_capacity < min_capacity) {
+        new_capacity *= GROWTH_FACTOR;
+    }
     
     struct nl_ASTSet *new_data = realloc(list->data, sizeof(struct nl_ASTSet) * new_capacity);
     if (!new_data) {
@@ -33,15 +42,14 @@ List_ASTSet* nl_list_ASTSet_new(void) {
 
 /* Create a new list with specified initial capacity */
 List_ASTSet* nl_list_ASTSet_with_capacity(int capacity) {
-    nl_list_validate_capacity(capacity, sizeof(*((List_ASTSet *)0)->data));
     List_ASTSet *list = malloc(sizeof(List_ASTSet));
     if (!list) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = capacity ? malloc(sizeof(*list->data) * (size_t)capacity) : NULL;
-    if (capacity && !list->data) {
+    list->data = malloc(sizeof(struct nl_ASTSet) * capacity);
+    if (!list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
     }
@@ -54,7 +62,7 @@ List_ASTSet* nl_list_ASTSet_with_capacity(int capacity) {
 
 /* Append an element to the end of the list */
 void nl_list_ASTSet_push(List_ASTSet *list, struct nl_ASTSet value) {
-    ensure_capacity_ASTSet(list, nl_list_next_length(list->length));
+    ensure_capacity_ASTSet(list, list->length + 1);
     list->data[list->length] = value;
     list->length++;
 }
@@ -78,7 +86,7 @@ void nl_list_ASTSet_insert(List_ASTSet *list, int index, struct nl_ASTSet value)
         exit(1);
     }
     
-    ensure_capacity_ASTSet(list, nl_list_next_length(list->length));
+    ensure_capacity_ASTSet(list, list->length + 1);
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 

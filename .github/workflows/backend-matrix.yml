@@ -37,7 +37,7 @@ jobs:
             build-essential \
             pkg-config \
             libncurses-dev \
-            libssl-dev libffi-dev \
+            libssl-dev \
             libutf8proc-dev
 
       - name: Install backend-specific tools
