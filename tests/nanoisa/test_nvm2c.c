@@ -5199,7 +5199,64 @@ static void test_module_initializer(void) {
     }
 }
 
+static void test_tagged_string_array_writes(void) {
+    const char *values[] = {"PUSH_STR text\nSTORE_GLOBAL 0\n",
+                            "PUSH_I64 42\nSTORE_GLOBAL 0\n",
+                            "PUSH_BOOL 1\nSTORE_GLOBAL 0\n", ""};
+    for (int set = 0; set < 2; ++set) {
+        for (int reverse = 0; reverse < 2; ++reverse) {
+            for (int tail = 0; tail < 2; ++tail) {
+                for (int tag = 0; tag < 4; ++tag) {
+                    char main_fn[2048], helpers[1024], source[4096];
+                    snprintf(main_fn, sizeof main_fn,
+                        ".function main 0 2 0 int 1\n%s"
+                        "PUSH_STR old\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n"
+                        "LOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nLOAD_GLOBAL 0\nCALL relay\nPOP\n"
+                        "LOAD_LOCAL 1\nARR_LEN\nPUSH_I64 %d\nI64_EQ\nASSERT\n"
+                        "LOAD_LOCAL 1\nPUSH_I64 %d\nARR_GET\nPUSH_STR text\nEQ\nASSERT\n"
+                        "LOAD_GLOBAL 0\nTYPE_CHECK 5\nASSERT\n"
+                        "LOAD_GLOBAL 0\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                        values[tag], set ? 1 : 2, set ? 0 : 1);
+                    snprintf(helpers, sizeof helpers,
+                        ".function relay 2 2 0 array 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\n%s\n.end\n"
+                        ".function write 2 2 0 array 1\nLOAD_LOCAL 0\n%sLOAD_LOCAL 1\n%s\nRET\n.end\n",
+                        tail ? "TAIL_CALL write" : "CALL write\nRET",
+                        set ? "PUSH_I64 0\n" : "", set ? "ARR_SET" : "ARR_PUSH");
+                    snprintf(source, sizeof source, ".string text \"present\"\n.string old \"old\"\n.entry main\n%s%s",
+                             reverse ? helpers : main_fn, reverse ? main_fn : helpers);
+                    NvmModule *m = assemble_ok(source, "tagged native string-array write");
+                    if (!m) continue;
+                    char *c = emit_or_fail(m, "I emit checked tagged string-array writes");
+                    if (c) {
+                        CHECK(strstr(c, "nvalue_require_string(v[") != NULL,
+                              "I check the tag before writing native string storage");
+                        int status = 0;
+                        CHECK(compile_and_run(c, &status) == 0 && (tag == 0 ? status == 0 : status == -1),
+                              "I preserve aliases and source tags, and trap non-string or absent writes");
+                        free(c);
+                    }
+                    nvm_module_free(m);
+                }
+            }
+        }
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+            "PUSH_STR key\nARR_LITERAL 5 1\n%sHM_NEW 5 1\nPUSH_STR key\nHM_GET\n%s\nPOP\nPUSH_I64 0\nRET\n.end\n",
+            set ? "PUSH_I64 0\n" : "", set ? "ARR_SET" : "ARR_PUSH");
+        NvmModule *m = assemble_ok(source, "incompatible known optional payload write");
+        if (m) {
+            char error[512] = {0};
+            char *c = nvm2c_emit(m, error, sizeof error);
+            CHECK(c == NULL && strstr(error, "shape"), "I reject known integer payloads at string-array writes");
+            free(c);
+            nvm_module_free(m);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
+    test_tagged_string_array_writes();
     test_boolean_arrays();
     test_map_aggregate_fields();
     test_tagged_host_arguments();

@@ -283,11 +283,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   Eight projected-argument cases pass; normal and fresh
                   ASan/UBSan suites pass 1,572 AOT and 1,073 shape checks.
                   Evidence: `docs/evidence/aot-projected-optional-arguments.md`.
-                - [ ] I resolve tagged scalar writes to native string arrays in
+                - [x] I resolve tagged scalar writes to native string arrays in
                   `cg_append` (359), offset 6, after projected optional
                   arguments. I check exact runtime string tags, preserve aliases,
                   reject incompatible payloads and rerun compiler acceptance.
                   MAC `task_ed5f20e9b78d4759b44e7b496b92a2ea`.
+                  Normal and fresh ASan/UBSan runs pass 1,670 AOT and 1,073
+                  shape checks. Evidence:
+                  `docs/evidence/aot-tagged-string-array-writes.md`.
+                - [ ] I resolve the final storage-conversion solver conflict
+                  after tagged native string-array writes: an optional source
+                  attempts to widen an exactly constrained string destination.
+                  I identify the originating constraints, retain exact consumer
+                  checks and rerun compiler acceptance. MAC
+                  `task_146d0626844a4b958bfe0e8697226185`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

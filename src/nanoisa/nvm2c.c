@@ -1202,6 +1202,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_ARR_SET && arr.kind != NVM2C_VK_UNK &&
                 val.kind != NVM2C_VK_UNK) {
                 uint8_t expected = val.kind == NVM2C_VK_REC ? NVM2C_VK_RARR :
+                    val.kind == NVM2C_VK_VALUE && arr.kind == NVM2C_VK_SARR ? NVM2C_VK_SARR :
                     val.kind == NVM2C_VK_STR ? NVM2C_VK_SARR :
                     val.kind == NVM2C_VK_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
                 if (arr.kind != expected) {
@@ -1247,7 +1248,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, arr.origin, kind);
                 if (!sim_push(b, idx, stk, &sp, kind, -1)) return 0;
             }
-            if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape) ||
+            /* A tagged scalar is checked and unboxed at the typed write.
+             * Its present payload, not its optional wrapper, is a string. */
+            NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE && arr.kind == NVM2C_VK_SARR
+                ? shape_child(b, val.shape, 0) : val.shape;
+            if (!shape_equal(b, shape_child(b, arr.shape, 0), written_shape) ||
                 !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
         }
@@ -2966,7 +2971,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             const char *array = NULL, *value = NULL;
             if ((ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) ||
                 (ak == NVM2C_VK_BARR && vk == NVM2C_VK_BOOL)) { array = "a"; value = "t"; }
-            else if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_STR) { array = "sa"; value = "s"; }
+            else if (ak == NVM2C_VK_SARR && (vk == NVM2C_VK_STR || vk == NVM2C_VK_VALUE)) { array = "sa"; value = "s"; }
             else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) { array = "ra"; value = "r"; }
             else {
                 nvm2c_fail(b, "ARR_SET element representation mismatch");
@@ -2984,7 +2989,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     "    for (size_t f = 0; f < r[%d].n; ++f) if (ra[%d]->data[t[%d]].k[f] != r[%d].k[f]) abort();\n",
                     val, arr, ix, val);
             }
-            nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
+            if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_VALUE)
+                nvm2c_printf(b, "    sa[%d]->data[t[%d]] = nvalue_require_string(v[%d]);\n", arr, ix, val);
+            else nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
             /* The result is the same handle, not a copy: aliases see the write. */
             st.slots[st.sp] = arr;
             st.kinds[st.sp++] = ak;
@@ -3007,9 +3014,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "narr_push(a[%d], t[%d])", arr, val);
                 stack_push_iarray(b, &st, expr, ak);
-            } else if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_STR) {
+            } else if (ak == NVM2C_VK_SARR && (vk == NVM2C_VK_STR || vk == NVM2C_VK_VALUE)) {
                 char expr[80];
-                snprintf(expr, sizeof expr, "nsarr_push(sa[%d], s[%d])", arr, val);
+                snprintf(expr, sizeof expr, vk == NVM2C_VK_VALUE
+                         ? "nsarr_push(sa[%d], nvalue_require_string(v[%d]))"
+                         : "nsarr_push(sa[%d], s[%d])", arr, val);
                 stack_push_sarr(b, &st, expr);
             } else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) {
                 char expr[80];
