@@ -2294,12 +2294,6 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
         "}\n\n");
 }
 
-static void emit_narr_arena(Nvm2cBuf *b) {
-    nvm2c_puts(b,
-        "static int64_t narr_arena[65536];\n"
-        "static size_t narr_used;\n");
-}
-
 static void emit_narr_new(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_new(void) {\n"
@@ -2313,13 +2307,14 @@ static void emit_narr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_lit(const int64_t *elems, size_t n) {\n"
         "    if (n > 0 && !elems) abort();\n"
-        "    if (narr_used + n > (sizeof narr_arena / sizeof narr_arena[0])) abort();\n"
-        "    int64_t *p = narr_arena + narr_used;\n"
-        "    if (n) memcpy(p, elems, n * sizeof(int64_t));\n"
-        "    narr_used += n;\n"
         "    narr_t a = narr_new();\n"
-        "    a->data = p;\n"
+        "    if (n) {\n"
+        "        a->data = (int64_t *)malloc(n * sizeof(int64_t));\n"
+        "        if (!a->data) abort();\n"
+        "        memcpy(a->data, elems, n * sizeof(int64_t));\n"
+        "    }\n"
         "    a->len = n;\n"
+        "    a->cap = n;\n"
         "    return a;\n"
         "}\n\n");
 }
@@ -2336,23 +2331,18 @@ static void emit_narr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_push(narr_t a, int64_t v) {\n"
         "    if (!a) abort();\n"
-        "    size_t n = a->len + 1;\n"
         "    if (a->len && !a->data) abort();\n"
-        "    if (narr_used + n > (sizeof narr_arena / sizeof narr_arena[0])) abort();\n"
-        "    int64_t *p = narr_arena + narr_used;\n"
-        "    if (a->len) memcpy(p, a->data, a->len * sizeof(int64_t));\n"
-        "    p[a->len] = v;\n"
-        "    narr_used += n;\n"
-        "    a->data = p;\n"
-        "    a->len = n;\n"
+        "    if (a->len == a->cap) {\n"
+        "        size_t cap = a->cap ? a->cap * 2 : 8;\n"
+        "        if (cap < a->cap || cap > SIZE_MAX / sizeof(int64_t)) abort();\n"
+        "        int64_t *data = (int64_t *)realloc(a->data, cap * sizeof(int64_t));\n"
+        "        if (!data) abort();\n"
+        "        a->data = data;\n"
+        "        a->cap = cap;\n"
+        "    }\n"
+        "    a->data[a->len++] = v;\n"
         "    return a;\n"
         "}\n\n");
-}
-
-static void emit_nsarr_arena(Nvm2cBuf *b) {
-    nvm2c_puts(b,
-        "static const char *nsarr_arena[65536];\n"
-        "static size_t nsarr_used;\n");
 }
 
 static void emit_nsarr_new(Nvm2cBuf *b) {
@@ -2368,13 +2358,14 @@ static void emit_nsarr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_lit(const char *const *elems, size_t n) {\n"
         "    if (n > 0 && !elems) abort();\n"
-        "    if (nsarr_used + n > (sizeof nsarr_arena / sizeof nsarr_arena[0])) abort();\n"
-        "    const char **p = nsarr_arena + nsarr_used;\n"
-        "    if (n) memcpy(p, elems, n * sizeof(const char *));\n"
-        "    nsarr_used += n;\n"
         "    nsarr_t a = nsarr_new();\n"
-        "    a->data = p;\n"
+        "    if (n) {\n"
+        "        a->data = (const char **)malloc(n * sizeof(const char *));\n"
+        "        if (!a->data) abort();\n"
+        "        memcpy(a->data, elems, n * sizeof(const char *));\n"
+        "    }\n"
         "    a->len = n;\n"
+        "    a->cap = n;\n"
         "    return a;\n"
         "}\n\n");
 }
@@ -2391,15 +2382,16 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_push(nsarr_t a, const char *v) {\n"
         "    if (!a) abort();\n"
-        "    size_t n = a->len + 1;\n"
         "    if (a->len && !a->data) abort();\n"
-        "    if (nsarr_used + n > (sizeof nsarr_arena / sizeof nsarr_arena[0])) abort();\n"
-        "    const char **p = nsarr_arena + nsarr_used;\n"
-        "    if (a->len) memcpy(p, a->data, a->len * sizeof(const char *));\n"
-        "    p[a->len] = v ? v : \"\";\n"
-        "    nsarr_used += n;\n"
-        "    a->data = p;\n"
-        "    a->len = n;\n"
+        "    if (a->len == a->cap) {\n"
+        "        size_t cap = a->cap ? a->cap * 2 : 8;\n"
+        "        if (cap < a->cap || cap > SIZE_MAX / sizeof(const char *)) abort();\n"
+        "        const char **data = (const char **)realloc(a->data, cap * sizeof(const char *));\n"
+        "        if (!data) abort();\n"
+        "        a->data = data;\n"
+        "        a->cap = cap;\n"
+        "    }\n"
+        "    a->data[a->len++] = v ? v : \"\";\n"
         "    return a;\n"
         "}\n\n");
 }
@@ -2562,9 +2554,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         nvm2c_puts(&b,
             "\n"
-            "typedef struct { int64_t *data; size_t len; } narr_s;\n"
+            "typedef struct { int64_t *data; size_t len; size_t cap; } narr_s;\n"
             "typedef narr_s *narr_t;\n"
-            "typedef struct { const char **data; size_t len; } nsarr_s;\n"
+            "typedef struct { const char **data; size_t len; size_t cap; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n"
             "typedef struct nrarr_s nrarr_s;\n"
             "typedef nrarr_s *nrarr_t;\n");
@@ -2584,17 +2576,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_iarr_lit || (need_iarr && need_iarr_new)) {
             emit_narr_new(&b);
         }
-        if (need_iarr_lit || need_iarr_push) {
-            emit_narr_arena(&b);
-        }
         if (need_iarr_lit) emit_narr_lit(&b);
         if (need_iarr_get) emit_narr_get(&b);
         if (need_iarr_push) emit_narr_push(&b);
         if (need_sarr_lit || need_sarr_new) {
             emit_nsarr_new(&b);
-        }
-        if (need_sarr_lit || need_sarr_push) {
-            emit_nsarr_arena(&b);
         }
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
