@@ -139,8 +139,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
                   AOT and 965 graph checks. Evidence:
                   `docs/evidence/aot-record-array-literals.md`.
                 - [ ] I diagnose and implement the compiler's hashmap opcode
-                  requirements. Acceptance now stops at function 267
-                  (`build_field_metadata_index`) with operand-stack underflow.
+                  requirements. Acceptance now stops at function 268
+                  (`lookup_field_type_kind`), with unsupported `HM_GET` at
+                  offset 32.
                   - [x] I implement reusable emitted map storage with checked
                     growth, owned keys/values, missing-key results, replacement,
                     deletion and retained lookup values; test both integer and
@@ -151,6 +152,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
                     preserving value kinds, missing-key tags and ownership
                     through locals, branches, calls and returns. Storage tests
                     alone do not implement `HM_NEW` or complete acceptance.
+                    - [x] I carry map/key/value facts and emit construction,
+                      mutation, presence, length and deletion through calls
+                      and aliases. I retain `HM_GET` as an explicit gate until
+                      missing-value tags and fetched-value ownership survive
+                      compiler data flow.
+                      My normal and sanitizer suites pass 1,114 AOT and 980 shape
+                      checks. Compiler acceptance reaches `HM_GET` in function
+                      268 at offset 32. Evidence:
+                      `docs/evidence/aot-map-flow.md`.
+                    - [ ] I reclaim unreachable emitted maps before entry
+                      returns, preserving aliases and returned values under
+                      bounded-live-memory stress. MAC
+                      `task_2f837947d5f24130b401ae433dd8d8c9`.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.
