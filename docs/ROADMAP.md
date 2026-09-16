@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Public compiler release version.** I synchronize my existing compiler
+      version header with package metadata, update both during future releases,
+      and test metadata parity and actual CLI output.
+      MAC `task_8b774619e731439aa9aef4fef2eb2656`.
+
 - [ ] **Strict CI OpenGL dependencies.** I install GLFW and GLEW alongside
       freeglut when my strict job selects the complete OpenGL example set.
       I preserve strict selection and the ban on implicit package installation.
