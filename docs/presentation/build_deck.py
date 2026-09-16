@@ -272,20 +272,20 @@ def build() -> Path:
               "I do not claim a kernel, AES, PKI, or that the journal is wired into every trap."])
 
     # 15 — boundary
-    s = slide(INK); title(s, "4.1–4.5 history, and the work still ahead.", "The current 5.0 draft is not a release-readiness claim.", 15)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.5 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
-    text(s, "verified NanoISA v2 (4.0)\nForth Core evidence\nNSI v0 + POSIX fabric\ncapability APIs\nisolated editor walker\neffects → policy + journal", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
+    s = slide(INK); title(s, "My 5.0 contract, and the work still ahead.", "The current 5.0 draft is not a release-readiness claim.", 15)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "5.0 CANDIDATE", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    text(s, "enclosing-function return\ndependency shadows\nretained native callbacks\nmodule identity + caches\nexpanded native lowering\nlaboratory frontends", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
-    text(s, "Standard System / INCLUDED\ninternationalized compiler\nGNU Emacs / a kernel\nCUDA or CPython wrap\njournal on every trap\n5.0 One IR", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
-    notes(s, ["Authority: docs/RELEASE_4.5.md, docs/ROADMAP.md, docs/FORTH_STANDARD_SYSTEM.md, docs/NSI_EFFECTS.md.",
-              "Catalogs and machine-draft guides exist. JSON/TOON stay English.",
-              "The live editor uses bin/nano_emacs_worker, not dlopen."])
+    text(s, "NanoISA-only bootstrap\nmatching compiler .nvm\nfull backend parity\ncomplete ownership\nisolated callback ABI\nproduction isolation", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, docs/ROADMAP.md.",
+              "Retained adapters preserve callback lifetimes and owner-thread execution. Isolated imports cannot use this bridge.",
+              "The 2026-09-16 evidence is a checkpoint; native and VM effect repairs and final integrated gates remain pending."])
 
     # 16 — closing
     s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))
     text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
     text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
-    text(s, "docs/RELEASE_4.5.md · userguide/guide/08_secure_runtime.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
+    text(s, "docs/RELEASE_5.0.md · docs/CALLBACK_ABI.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
     notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md."])
     footer(s, 16)
 

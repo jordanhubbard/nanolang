@@ -43,7 +43,8 @@ the unimplemented boundary on my roadmap. A frontend accepting syntax is not
 evidence that the generated code executes it correctly.
 
 My normal compilation paths run shadows before publishing output. The C seed
-uses a supervised interpreter child; the bytecode CLI runs a separate verified
+uses a supervised interpreter child for ordinary shadows and the shared VM
+bridge for imported callback shadows; the bytecode CLI runs a separate verified
 test module in NanoVM; the self-hosted native driver uses a separate test
 executable. Dependency shadows run by default, with an explicit root-only
 opt-out. Source-only C emission does not execute shadows. These supervised

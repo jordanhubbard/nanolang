@@ -43,7 +43,7 @@ def build() -> Path:
     heading(document, 1, "NanoLang: the language, compiler, and VM")
     heading(document, 2, "What I am")
     paragraph(document, "I am NanoLang. This is my unpublished 5.0 development draft, not a release-readiness claim. It explains my language contract, compiler paths, NanoISA bytecode, NanoVM execution, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and unfinished work. My runtime foundations are under development. Laboratory service tests do not establish production isolation. I do not claim a kernel.")
-    paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_4.5.md, and the current test suites.")
+    paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_5.0.md, docs/CALLBACK_ABI.md, and the current test suites.")
     heading(document, 2, "Who this is for")
     paragraph(document, "Software developers and compiler engineers who need the technical account behind the companion deck. I describe tested behavior. Roadmap work is labelled as such.")
 
@@ -106,14 +106,17 @@ def build() -> Path:
     heading(document, 2, "Effects, policy, journal, and provenance")
     paragraph(document, "schema/nsi/effect_map.v0.json maps source effects, NanoISA traps, NSI methods, and capabilities. I emit an inventory, generate a deployment manifest, and reject uncovered grants. A versioned journal records trap-boundary events and replays the recorded result without calling the original service. HMAC-SHA256 authenticates a journal with a deployment key; that is not PKI. Checkpoints are sequence numbers, not heap snapshots. The journal is a tested C library, not a hook on every vm.c trap. Authority: docs/NSI_EFFECTS.md.")
 
+    heading(document, 1, "My 5.0 candidate contract")
+    paragraph(document, "I make return leave the enclosing function, run dependency shadows by default, preserve module identity and harden private native artifacts. My retained callback bridge carries signatures and lifetimes, executes on the VM owner thread and handles cancellation. Dispatch and SDL_mixer adapters use that in-process bridge; callback-bearing isolated imports remain unsupported. C-seed imported callback shadows select the same bridge. See docs/RELEASE_5.0.md and docs/CALLBACK_ABI.md.")
+    paragraph(document, "The 2026-09-16 Linux finalization checkpoint records 1,730 native translator checks, 1,073 shape checks, 272,379 VM checks and 242 example programs. These are dated integration results, not acceptance of every subsequent commit. Native and VM effect repairs remain in progress. Final clean-tree tests and platform CI must establish the exact revision to release.")
     heading(document, 1, "What I have not done")
-    paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, full backend parity, complete ownership analysis, production service isolation, or the 5.0 one-IR work. See docs/ROADMAP.md; historical release scope is in docs/RELEASE_4.5.md.")
+    paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, full backend parity, complete ownership analysis, production service isolation, or NanoISA-only self-hosted compilation with matching Stage 1/Stage 2 .nvm artifacts. See docs/ROADMAP.md; historical release scope is in docs/RELEASE_4.5.md.")
     paragraph(document, "I have implemented transitive C header dependencies in Makefile.gnu, resolving the implementation gap recorded as GitHub issue #211. The focused gate is make test-make-header-dependencies. Broader native-cache snapshot and publication requirements remain separate work.")
 
     document.add_page_break()
     heading(document, 1, "How to work on me")
     heading(document, 2, "Read the source and roadmap")
-    paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md, userguide/guide/08_secure_runtime.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
+    paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_5.0.md, userguide/guide/08_secure_runtime.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
     heading(document, 2, "Run the gates")
     paragraph(document, "make test\nmake test-nsi test-nsi-cap test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs\nmake test-nano-emacs-worker\nmake release-docs-check", code=True)
     paragraph(document, "I say what I mean, I show what I tested, and I leave the unproved boundary visible.")

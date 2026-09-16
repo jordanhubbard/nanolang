@@ -1,104 +1,755 @@
 {
-  "release": "5.0.0",
-  "reviewed_on": "2026-09-14",
+  "captured_utc": "2026-09-16T17:05:10.612273+00:00",
+  "candidate_sha": "60d845f383cd26a759e274f8a8a8d973fa7f3e96",
   "issues": [],
+  "release": "5.0.0",
+  "reviewed_on": "2026-09-16",
   "pull_requests": [
     {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_85c76ecc621c88d470642bc6ff733627`\n- head: `540c999ad6eb75050d9064b2464d4d36a3d6f1ea`\n- base at push: `769c0891e78f4438f8166c76aebbf4615e54bce0`\n",
+      "headRefName": "mac/agent_natasha/task_85c76ecc621c88d470642bc6ff733627-lease_e5d0a4df1b9f4b5a89",
+      "headRefOid": "540c999ad6eb75050d9064b2464d4d36a3d6f1ea",
+      "labels": [],
+      "milestone": null,
+      "number": 345,
+      "title": "Integrate conflicting approved task task_9146bd436ee336bbb69153548cebedeb onto current main (task_85c76ecc621c88d470642bc6ff733627)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/345",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "tagged-globals",
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_b942461604a2ccaf01bda98560857137`\n- head: `d15c0278734b32d996e99fdf7b223050104a7518`\n- base at push: `769c0891e78f4438f8166c76aebbf4615e54bce0`\n",
+      "headRefName": "mac/agent_rocky/task_b942461604a2ccaf01bda98560857137-lease_eb80cadc9f05424783",
+      "headRefOid": "d15c0278734b32d996e99fdf7b223050104a7518",
+      "labels": [],
+      "milestone": null,
+      "number": 344,
+      "title": "Integrate conflicting approved task task_dc171e3db9cb497c981d7f06621baa5d onto current main (task_b942461604a2ccaf01bda98560857137)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/344",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "partially superseded; preserve float capability for separate scope decision",
+      "family": "generic-comparisons",
+      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_60af2be121fe003b6f266ceb2a66cfc0`\n- head: `193f101744977d075facd4370cb37870d7153e3c`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
+      "headRefName": "mac/agent_natasha/task_60af2be121fe003b6f266ceb2a66cfc0-lease_e898424e8975481f9d",
+      "headRefOid": "193f101744977d075facd4370cb37870d7153e3c",
+      "labels": [],
+      "milestone": null,
+      "number": 343,
+      "title": "Integrate conflicting approved task task_ed0f455484d04f13818362fd857d2889 onto current main (task_60af2be121fe003b6f266ceb2a66cfc0)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/343",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "missing-array-values",
+      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_90469f202cb610a8adcee406d0824238`\n- head: `0c23db76afce928f63cf463cca41b1bbe4876b11`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
+      "headRefName": "mac/agent_rocky/task_90469f202cb610a8adcee406d0824238-lease_11c1966e50da4eacb5",
+      "headRefOid": "0c23db76afce928f63cf463cca41b1bbe4876b11",
+      "labels": [],
+      "milestone": null,
+      "number": 342,
+      "title": "Integrate conflicting approved task task_bcc4271b0de244c2810c09e004f6cd2e onto current main (task_90469f202cb610a8adcee406d0824238)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/342",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "tagged-globals",
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_9146bd436ee336bbb69153548cebedeb`\n- head: `796e939405ad70f10447f65eaad6154748e24f41`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
+      "headRefName": "mac/agent_bullwinkle/task_9146bd436ee336bbb69153548cebedeb-lease_6839e1824562493591",
+      "headRefOid": "796e939405ad70f10447f65eaad6154748e24f41",
+      "labels": [],
+      "milestone": null,
+      "number": 341,
+      "title": "Integrate conflicting approved task task_9ab7b8fec9b20e398eb5d0afee131578 onto current main (task_9146bd436ee336bbb69153548cebedeb)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/341",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "tagged-globals",
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_026fda7c3c56df0e05b283b52d3c1868`\n- head: `917834fcca87dbe737e652aa29f9508085f85526`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
+      "headRefName": "mac/agent_rocky/task_026fda7c3c56df0e05b283b52d3c1868-lease_9df95807217d465cad",
+      "headRefOid": "917834fcca87dbe737e652aa29f9508085f85526",
+      "labels": [],
+      "milestone": null,
+      "number": 340,
+      "title": "Integrate conflicting approved task task_ea1a3ae068019af489ecd859a9db5e9b onto current main (task_026fda7c3c56df0e05b283b52d3c1868)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/340",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        ".gitignore",
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "direct-call-formatting",
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_da5a3af7ded84469998dffa6a4f98153`\n- head: `e2cf3a8df649da0d33d5e502a06786dca73b1e9a`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
+      "headRefName": "mac/agent_bullwinkle/task_da5a3af7ded84469998dffa6a4f98153-lease_b115574a4fbc42fba6",
+      "headRefOid": "e2cf3a8df649da0d33d5e502a06786dca73b1e9a",
+      "labels": [],
+      "milestone": null,
+      "number": 339,
+      "title": "Integrate conflicting approved task task_ed5f20e9b78d4759b44e7b496b92a2ea onto current main (task_da5a3af7ded84469998dffa6a4f98153)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/339",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "string-array-writes",
+      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_1c43624c496c54b58083f103519f556f`\n- head: `dfceff206c5bd927c5b43353e575e8b0f245978e`\n- base at push: `480c05cfaa681b4a78a97c393dd7ff635ced8234`\n",
+      "headRefName": "mac/agent_bullwinkle/task_1c43624c496c54b58083f103519f556f-lease_fd8dd953a63349229d",
+      "headRefOid": "dfceff206c5bd927c5b43353e575e8b0f245978e",
+      "labels": [],
+      "milestone": null,
+      "number": 337,
+      "title": "Integrate conflicting approved task task_ce16c7f531c94738bfca747633289540 onto current main (task_1c43624c496c54b58083f103519f556f)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/337",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": false,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "direct-call-formatting",
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+    },
+    {
+      "baseRefName": "main",
+      "body": "I reconcile the audited 5.0 compiler/runtime branch with main through `ded3ee5a`, preserving the enclosing-function return contract, dependency-shadow defaults, lexical/module identity, private native artifacts, callback boundaries and expanded NanoISA/native lowering.\n\nI repair Linux build and acceptance failures without suppressing strict warnings: generated runtime conditions, composed fixture bounds, process-capture diagnostics and native test signal supervision. I retain the stronger ownership and dynamic native representations where incoming branches carry older implementations.\n\nCurrent Linux ARM64 evidence: bootstrap smoke checks, 33 ownership/record-pattern methods, 77 VM code-generation tests, 1,723 native translator checks, 1,073 shape checks, process capture and long-path regression pass. Native compiler acceptance, broad quick/full release gates, documentation and final scope reconciliation remain in progress. This draft is not authorization to bypass those gates or publish a tag.\n\nDetailed reconciliation: `docs/evidence/main-reconciliation-pr334-linux.md`. Finalization ledger: `task_a8786d9cf2c1437fa46c7cfb8b99c30e`.\n",
+      "headRefName": "release/5.0-finalization",
+      "headRefOid": "f31c1420035e8922964389eff2e93f4016d12178",
+      "labels": [],
+      "milestone": null,
+      "number": 336,
+      "title": "Finalize the audited NanoLang 5.0 compiler and runtime",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/336",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [],
+      "release_scoped_by_metadata": true,
+      "disposition": "candidate itself; merge only after gates"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_e09e3f77008168571eb9cc7970871c4d`\n- head: `69d5626b79eec88f17709b90d2f0b630de7c94ce`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_bullwinkle/task_e09e3f77008168571eb9cc7970871c4d-lease_90167f7e9b4a41239a",
+      "headRefOid": "69d5626b79eec88f17709b90d2f0b630de7c94ce",
+      "labels": [],
+      "milestone": null,
+      "number": 333,
+      "title": "Integrate conflicting approved task task_ed5f20e9b78d4759b44e7b496b92a2ea onto current main (task_e09e3f77008168571eb9cc7970871c4d)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/333",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "string-array-writes",
+      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_c775043e6502be7501273fbc5ca532f6`\n- head: `3e4fdc7421c3efd3e20deb61f5b635c7e83cfdea`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_rocky/task_c775043e6502be7501273fbc5ca532f6-lease_134afc2562ea4f4887",
+      "headRefOid": "3e4fdc7421c3efd3e20deb61f5b635c7e83cfdea",
+      "labels": [],
+      "milestone": null,
+      "number": 332,
+      "title": "Integrate conflicting approved task task_dc171e3db9cb497c981d7f06621baa5d onto current main (task_c775043e6502be7501273fbc5ca532f6)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/332",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "partially superseded; preserve float capability for separate scope decision",
+      "family": "generic-comparisons",
+      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_39b55f626cb7a504ed3f3677cd2ebcd6`\n- head: `dd1a8986fffd91ecb7fad8907123f1a41b6046d9`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_natasha/task_39b55f626cb7a504ed3f3677cd2ebcd6-lease_ff27e03d197149deb0",
+      "headRefOid": "dd1a8986fffd91ecb7fad8907123f1a41b6046d9",
+      "labels": [],
+      "milestone": null,
+      "number": 331,
+      "title": "Integrate conflicting approved task task_ed0f455484d04f13818362fd857d2889 onto current main (task_39b55f626cb7a504ed3f3677cd2ebcd6)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/331",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "missing-array-values",
+      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_ea1a3ae068019af489ecd859a9db5e9b`\n- head: `b6a309e8b8154ab1fe7e512d70677cf65c5eb011`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_bullwinkle/task_ea1a3ae068019af489ecd859a9db5e9b-lease_09f449b270e745b390",
+      "headRefOid": "b6a309e8b8154ab1fe7e512d70677cf65c5eb011",
+      "labels": [],
+      "milestone": null,
+      "number": 330,
+      "title": "Integrate conflicting approved task task_ce16c7f531c94738bfca747633289540 onto current main (task_ea1a3ae068019af489ecd859a9db5e9b)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/330",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        ".gitignore",
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "direct-call-formatting",
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_9ab7b8fec9b20e398eb5d0afee131578`\n- head: `5d1ebe57e93afa02467db61ca530c51c1896c70b`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_rocky/task_9ab7b8fec9b20e398eb5d0afee131578-lease_63d6c200cc734ee5b0",
+      "headRefOid": "5d1ebe57e93afa02467db61ca530c51c1896c70b",
+      "labels": [],
+      "milestone": null,
+      "number": 329,
+      "title": "Integrate conflicting approved task task_bcc4271b0de244c2810c09e004f6cd2e onto current main (task_9ab7b8fec9b20e398eb5d0afee131578)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/329",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "tagged-globals",
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_ebd6288d083fb6b175276f5a957644aa`\n- head: `ea0042af215a88ca4437ec8f9b2c744ea5e57987`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_bullwinkle/task_ebd6288d083fb6b175276f5a957644aa-lease_db98d840cb3b4b849b",
+      "headRefOid": "ea0042af215a88ca4437ec8f9b2c744ea5e57987",
+      "labels": [],
+      "milestone": null,
+      "number": 327,
+      "title": "Integrate conflicting approved task task_183123ca3822426499719b042132b49f onto current main (task_ebd6288d083fb6b175276f5a957644aa)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/327",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "local-count",
+      "evidence": "480c05cf PR335 + 8e3e8514/f8c21480; tests/nanoisa/test_nvm2c.c:5699 and :5717"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_ad8bbf707801fa3c49a91d9463dcf494`\n- head: `ef9c17e899b8453c61113b266eafcf0c60a8f3ef`\n- base at push: `3b604d988a7a568819a905176ac07f71bf3a2964`\n",
+      "headRefName": "mac/agent_rocky/task_ad8bbf707801fa3c49a91d9463dcf494-lease_782cc04817424110ba",
+      "headRefOid": "ef9c17e899b8453c61113b266eafcf0c60a8f3ef",
+      "labels": [],
+      "milestone": null,
+      "number": 326,
+      "title": "Integrate conflicting approved task task_811f280202174ac88a501ca3281d5e58 onto current main (task_ad8bbf707801fa3c49a91d9463dcf494)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/326",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "scalar-map-tags",
+      "evidence": "3124f5fb; tests/nanoisa/test_nvm2c.c:3292 test_emitted_map_get and :3375 test_emitted_map_flow"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_34d2d9345d584ff78fab59261eb112d6`\n- head: `19a4a5f4aebaaaad617e78b5a978793b2576fdee`\n- base at push: `19afddf5ad9c9348ad69c56b0ebacfb6085e17be`\n",
+      "headRefName": "mac/agent_bullwinkle/task_34d2d9345d584ff78fab59261eb112d6-lease_aac431ec9bc84873a4",
+      "headRefOid": "19a4a5f4aebaaaad617e78b5a978793b2576fdee",
+      "labels": [],
+      "milestone": null,
+      "number": 314,
+      "title": "Resolve string STORE_LOCAL in enum definition generation (task_34d2d9345d584ff78fab59261eb112d6)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/314",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "projected-string-locals",
+      "evidence": "daaef965,60e66341,f2b6203a; source storage conversion and tagged record fields supersede simple kind overwrite; retain proposed runtime regression"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_ed5f20e9b78d4759b44e7b496b92a2ea`\n- head: `f24ef8619a51b9559a0521e70ed33622327ffad1`\n- base at push: `19afddf5ad9c9348ad69c56b0ebacfb6085e17be`\n",
+      "headRefName": "mac/agent_natasha/task_ed5f20e9b78d4759b44e7b496b92a2ea-lease_4297d851aa9f4c6981",
+      "headRefOid": "f24ef8619a51b9559a0521e70ed33622327ffad1",
+      "labels": [],
+      "milestone": null,
+      "number": 312,
+      "title": "Resolve tagged scalar writes to native string arrays (task_ed5f20e9b78d4759b44e7b496b92a2ea)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/312",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "string-array-writes",
+      "evidence": "77811399; tests/nanoisa/test_nvm2c.c:5264 test_tagged_string_array_writes; main PR338 now769c0891 requires reconciliation"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_dc171e3db9cb497c981d7f06621baa5d`\n- head: `6f9c2eccccd8cdef0dd6a9562a3e5c9ca1a39aa4`\n- base at push: `a9f105e136aee1b1b654f17e8356ae75c01b2c08`\n",
+      "headRefName": "mac/agent_bullwinkle/task_dc171e3db9cb497c981d7f06621baa5d-lease_be53a98a7c2b4aee88",
+      "headRefOid": "6f9c2eccccd8cdef0dd6a9562a3e5c9ca1a39aa4",
+      "labels": [],
+      "milestone": null,
+      "number": 310,
+      "title": "Lower generic comparison opcodes in native compiler acceptance (task_dc171e3db9cb497c981d7f06621baa5d)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/310",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "partially superseded; preserve float capability for separate scope decision",
+      "family": "generic-comparisons",
+      "evidence": "ef28ba12; tests/nanoisa/test_nvm2c.c:4476 test_generic_ordering; float PUSH_F64 remains unsupported, audit/float-repro.log"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_ce16c7f531c94738bfca747633289540`\n- head: `663ff9d59c16ebcf6509682e0ae434e557c90a09`\n- base at push: `a9f105e136aee1b1b654f17e8356ae75c01b2c08`\n",
+      "headRefName": "mac/agent_rocky/task_ce16c7f531c94738bfca747633289540-lease_e2d9e2519b0440c6b8",
+      "headRefOid": "663ff9d59c16ebcf6509682e0ae434e557c90a09",
+      "labels": [],
+      "milestone": null,
+      "number": 309,
+      "title": "Check every native direct-call formatting boundary (task_ce16c7f531c94738bfca747633289540)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/309",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate",
+      "family": "direct-call-formatting",
+      "evidence": "663ff9d5 exact ancestor; tests/nanoisa/test_nvm2c.c:3653 test_wide_direct_calls"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_183123ca3822426499719b042132b49f`\n- head: `85924e5f530f7808d0615d851afa20f40637a835`\n- base at push: `a9f105e136aee1b1b654f17e8356ae75c01b2c08`\n",
+      "headRefName": "mac/agent_natasha/task_183123ca3822426499719b042132b49f-lease_8fdcc506730d409dbd",
+      "headRefOid": "85924e5f530f7808d0615d851afa20f40637a835",
+      "labels": [],
+      "milestone": null,
+      "number": 308,
+      "title": "Remove the native translator local-count bottleneck (task_183123ca3822426499719b042132b49f)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/308",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "local-count",
+      "evidence": "480c05cf PR335 + 8e3e8514/f8c21480; tests/nanoisa/test_nvm2c.c:5699 and :5717"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_ed0f455484d04f13818362fd857d2889`\n- head: `f37c746d111b793b9e694447d0553ba9200dc574`\n- base at push: `a9f105e136aee1b1b654f17e8356ae75c01b2c08`\n",
+      "headRefName": "mac/agent_bullwinkle/task_ed0f455484d04f13818362fd857d2889-lease_80150a09d7c349648d",
+      "headRefOid": "f37c746d111b793b9e694447d0553ba9200dc574",
+      "labels": [],
+      "milestone": null,
+      "number": 307,
+      "title": "Preserve void for out-of-range native array reads (task_ed0f455484d04f13818362fd857d2889)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/307",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "missing-array-values",
+      "evidence": "4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 covers missing reads, narrowing and typed-use traps"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_bcc4271b0de244c2810c09e004f6cd2e`\n- head: `5ee83558e21450410578124addbb234444132bcd`\n- base at push: `a9f105e136aee1b1b654f17e8356ae75c01b2c08`\n",
+      "headRefName": "mac/agent_bullwinkle/task_bcc4271b0de244c2810c09e004f6cd2e-lease_c972e1defed04073a6",
+      "headRefOid": "5ee83558e21450410578124addbb234444132bcd",
+      "labels": [],
+      "milestone": null,
+      "number": 304,
+      "title": "Implement typed AOT globals for full compiler acceptance (task_bcc4271b0de244c2810c09e004f6cd2e)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/304",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "tagged-globals",
+      "evidence": "010087dd,4dd41bc4; tests/nanoisa/test_nvm2c.c:3142 test_array_globals and :3202 test_scalar_globals"
+    },
+    {
+      "baseRefName": "main",
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_811f280202174ac88a501ca3281d5e58`\n- head: `50801166436f29bfb22a9aa5c401f5958865216f`\n- base at push: `a9f105e136aee1b1b654f17e8356ae75c01b2c08`\n",
+      "headRefName": "mac/agent_bullwinkle/task_811f280202174ac88a501ca3281d5e58-lease_c078ba813dc442cbbd",
+      "headRefOid": "50801166436f29bfb22a9aa5c401f5958865216f",
+      "labels": [],
+      "milestone": null,
+      "number": 301,
+      "title": "Preserve scalar runtime tags in AOT equality and map values (task_811f280202174ac88a501ca3281d5e58)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/301",
+      "head_ancestor_of_candidate": false,
+      "head_object_available": true,
+      "changed_files": [
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "implementation superseded or reconciled; verify semantic regression preservation before stale closure",
+      "family": "scalar-map-tags",
+      "evidence": "3124f5fb; tests/nanoisa/test_nvm2c.c:3292 test_emitted_map_get and :3375 test_emitted_map_flow"
+    },
+    {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_8500a5ea65584cc3a5cfb02a7812b16b`\n- head: `a58dd71d2197a49b434cf69742faac141d907957`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "headRefName": "mac/agent_bullwinkle/task_8500a5ea65584cc3a5cfb02a7812b16b-lease_d865474ac1c145d686",
+      "headRefOid": "a58dd71d2197a49b434cf69742faac141d907957",
       "labels": [],
       "milestone": null,
       "number": 287,
       "title": "Preserve paired compiler arguments across metadata fragments (task_8500a5ea65584cc3a5cfb02a7812b16b)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/287"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/287",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_8babad5374294e02ab0e8147a6d717ed`\n- head: `afafce716b2e7f113a2d57d375f9f74344d4664f`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "headRefName": "mac/agent_bullwinkle/task_8babad5374294e02ab0e8147a6d717ed-lease_44daa5b6bf2443e49f",
+      "headRefOid": "afafce716b2e7f113a2d57d375f9f74344d4664f",
       "labels": [],
       "milestone": null,
       "number": 286,
       "title": "Reject unrepresentable daemon socket paths before unlink or bind (task_8babad5374294e02ab0e8147a6d717ed)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/286"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/286",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "Makefile.gnu",
+        "src/nanovm/vmd_main.c",
+        "src/nanovm/vmd_server.c",
+        "src/nanovm/vmd_server.h",
+        "tests/nanovm/test_vmd_server.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_f38c6358bf944c218f179daf1490ebe2`\n- head: `204d51cc218829eb6b12b0972a136f5c34b879ff`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "headRefName": "mac/agent_bullwinkle/task_f38c6358bf944c218f179daf1490ebe2-lease_c7fe8dbb1667467995",
+      "headRefOid": "204d51cc218829eb6b12b0972a136f5c34b879ff",
       "labels": [],
       "milestone": null,
       "number": 285,
       "title": "Separate compiler artifacts from diagnostic destinations (task_f38c6358bf944c218f179daf1490ebe2)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/285"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/285",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "src/main.c",
+        "tests/test_compiler_contracts.sh"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_507117859a0642f4882b7015296d8af6`\n- head: `66cb4dc59c027bb2bc1ec6fb165080cedc199e93`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "headRefName": "mac/agent_rocky/task_507117859a0642f4882b7015296d8af6-lease_bbe0c1b9f321485d99",
+      "headRefOid": "66cb4dc59c027bb2bc1ec6fb165080cedc199e93",
       "labels": [],
       "milestone": null,
       "number": 284,
       "title": "Protect self-hosted source from equivalent input/output paths (task_507117859a0642f4882b7015296d8af6)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/284"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/284",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "Makefile.gnu",
+        "modules/std/fs.c",
+        "modules/std/fs.h",
+        "modules/std/fs.nano",
+        "src_nano/nanoc_v06.nano",
+        "tests/test_selfhost_path_aliases.sh"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_e0f2c52ae84842f084d49cff3394d7e1`\n- head: `e144eb649fba47d6a67957ab0890168d384bb5a7`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "headRefName": "mac/agent_bullwinkle/task_e0f2c52ae84842f084d49cff3394d7e1-lease_128a3247ffcf44eda2",
+      "headRefOid": "e144eb649fba47d6a67957ab0890168d384bb5a7",
       "labels": [],
       "milestone": null,
       "number": 283,
       "title": "Fail timeout wrappers when the requested command cannot execute (task_e0f2c52ae84842f084d49cff3394d7e1)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/283"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/283",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "Makefile.gnu",
+        "tests/test_timeout_wrappers.sh"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_9c6fae270c964a25b8949c5929e2f686`\n- head: `cbc91f6c6f21b2bf5433d763b323c7dacb718ef2`\n- base at push: `17517dbf8a2b2de372e8183a8fd27c9197ce558c`\n",
+      "headRefName": "mac/agent_bullwinkle/task_9c6fae270c964a25b8949c5929e2f686-lease_4c3b58a9456642e4af",
+      "headRefOid": "cbc91f6c6f21b2bf5433d763b323c7dacb718ef2",
       "labels": [],
       "milestone": null,
       "number": 282,
       "title": "Count physical newlines consumed by self-hosted lexer tokens (task_9c6fae270c964a25b8949c5929e2f686)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/282"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/282",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src_nano/compiler/lexer.nano"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_4027a8e02a744178b8f99d83a92395d7`\n- head: `e26db7172597e8d95da2a230ee0636ddbc2ebe69`\n- base at push: `353e7f67a79a5f4f0b5291f1f6e30637688439b8`\n",
+      "headRefName": "mac/agent_bullwinkle/task_4027a8e02a744178b8f99d83a92395d7-lease_0e0943db0283443a90",
+      "headRefOid": "e26db7172597e8d95da2a230ee0636ddbc2ebe69",
       "labels": [],
       "milestone": null,
       "number": 281,
       "title": "Preserve function-value call signatures while checking selected shadows (task_4027a8e02a744178b8f99d83a92395d7)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/281"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/281",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "src/typechecker.c",
+        "tests/test_typechecker.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_17fe744141024df08c2ef3de7599865a`\n- head: `f8bcb64caa240ad58f7182683ad5d0a59a2483f5`\n- base at push: `c1c1fb6f429ca3e0e74b2543acff2e43869d483e`\n",
+      "headRefName": "mac/agent_bullwinkle/task_17fe744141024df08c2ef3de7599865a-lease_5eb4862006d44716a7",
+      "headRefOid": "f8bcb64caa240ad58f7182683ad5d0a59a2483f5",
       "labels": [],
       "milestone": null,
       "number": 274,
       "title": "Audit qualified and indirect interpreter calls for checked foreign dispatch (task_17fe744141024df08c2ef3de7599865a)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/274"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/274",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "Makefile.gnu",
+        "src/eval.c",
+        "src/interpreter_ffi.c",
+        "src/interpreter_ffi.h",
+        "tests/test_eval.c",
+        "tests/test_ffi.c",
+        "tests/test_interpreter_ffi_native.c",
+        "tests/test_language_claims.py"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_8c10a946dfa14d92b491fd80f4635187`\n- head: `d66362a10e3bb43087b36db577d7a00cb4f1d269`\n- base at push: `25845744f9d7cd82d697ba221f1caf22b3390321`\n",
+      "headRefName": "mac/agent_bullwinkle/task_8c10a946dfa14d92b491fd80f4635187-lease_181d9c07de4549f08a",
+      "headRefOid": "d66362a10e3bb43087b36db577d7a00cb4f1d269",
       "labels": [],
       "milestone": null,
       "number": 273,
       "title": "Preserve literal filesystem paths through manifest-backed foreign compilation (task_8c10a946dfa14d92b491fd80f4635187)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/273"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/273",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "Makefile.gnu",
+        "src/module_builder.c",
+        "src/shell_path.h",
+        "tests/test_module_builder_paths.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_a4fde0d59ad24fe18c285a76ad58c176`\n- head: `287c17c4629c3ac2c772f206769dc460d8f6ee54`\n- base at push: `51760b94803efe4036af9435a943b329d8c1f492`\n",
+      "headRefName": "mac/agent_bullwinkle/task_a4fde0d59ad24fe18c285a76ad58c176-lease_c28c44b0aebc4f288b",
+      "headRefOid": "287c17c4629c3ac2c772f206769dc460d8f6ee54",
       "labels": [],
       "milestone": null,
       "number": 269,
       "title": "Complete AOT aggregate type and layout coverage beyond flat call facts (task_a4fde0d59ad24fe18c285a76ad58c176)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/269"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/269",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "docs/ROADMAP.md",
+        "src/nanoisa/nvm2c.c",
+        "tests/nanoisa/test_nvm2c.c"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_443e8107d0ff4350999e0d5186a809f1`\n- head: `d64a7c11dbedbc30ff659780ef037b267c4ad166`\n- base at push: `51760b94803efe4036af9435a943b329d8c1f492`\n",
+      "headRefName": "mac/agent_rocky/task_443e8107d0ff4350999e0d5186a809f1-lease_d75a6c27578747269c",
+      "headRefOid": "d64a7c11dbedbc30ff659780ef037b267c4ad166",
       "labels": [],
       "milestone": null,
       "number": 267,
       "title": "Isolate concurrent compiler intermediate and cache files (task_443e8107d0ff4350999e0d5186a809f1)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/267"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/267",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     },
     {
+      "baseRefName": "main",
       "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_56a065134a6e4394ae5c307c05e9597d`\n- head: `d8ea64b02dc25f524bfa13d236c450878478f178`\n- base at push: `51760b94803efe4036af9435a943b329d8c1f492`\n",
+      "headRefName": "mac/agent_rocky/task_56a065134a6e4394ae5c307c05e9597d-lease_a0f6468646694580af",
+      "headRefOid": "d8ea64b02dc25f524bfa13d236c450878478f178",
       "labels": [],
       "milestone": null,
       "number": 266,
       "title": "Make self-hosted component test execution explicit (task_56a065134a6e4394ae5c307c05e9597d)",
-      "url": "https://github.com/jordanhubbard/nanolang/pull/266"
+      "url": "https://github.com/jordanhubbard/nanolang/pull/266",
+      "head_ancestor_of_candidate": true,
+      "head_object_available": true,
+      "changed_files": [
+        "src_nano/transpiler.nano"
+      ],
+      "release_scoped_by_metadata": false,
+      "disposition": "exact head already incorporated in candidate"
     }
   ],
-  "decision": "I found no open GitHub issues and no PR explicitly scoped to 5.0 by title, body, label or milestone. I retain unscoped PRs; age alone is not evidence for closure. I merge the audited product branch with origin/main. MAC fleet dispatch hold affects ledger claims, not this user-authorized release."
+  "scope": "Audited language/runtime release; full NanoISA-only bootstrap and backend parity remain unfinished."
 }

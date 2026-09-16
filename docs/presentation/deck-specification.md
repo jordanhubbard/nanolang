@@ -51,7 +51,7 @@ trap journal library is not a hook on every VM trap.
 12. I collect tested reference cycles; this is not complete leak freedom.
 13. What I measured, and what I declined because of it.
 14. My runtime foundations: contracts, capabilities, fabric, journal.
-15. What 4.1–4.5 shipped, and what I have not done.
+15. My 5.0 language/runtime contract, and the architecture still ahead.
 16. Start with the code, then run the gates.
 
 Slide 1 must say what I am before it says what I prove. A reader may never
@@ -78,7 +78,9 @@ Slide 14 is the runtime mechanism. Five named layers — source effect, module
 requirement, NanoISA trap, NSI method, capability — and a journal that records
 at the trap boundary. Do not collapse them into one word. POSIX is the host.
 
-Slide 15 names the 4.1–4.5 product and the claims I refuse. Slide 7 still shows
+Slide 15 names the audited 5.0 contract and unfinished NanoISA-only bootstrap,
+backend parity and production isolation. Retained callbacks execute through
+the owner-thread bridge; they do not establish isolated callback support. Slide 7 still shows
 the six-instruction program that passed verification; that lesson did not
 expire.
 

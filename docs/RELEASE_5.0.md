@@ -27,129 +27,68 @@ This is a major language-contract release, not a claim that every planned
 - I include the Scheme, ML, Actor, Dataflow, Object, Shell and Logic laboratory
   frontends, plus expanded NanoISA verification and AOT coverage.
 
-## What I do not claim
+## Runtime boundaries
 
-I still use my C-transpiling path to build the compiler. The NanoISA-only
-bootstrap in [my architecture plan](NANOISA_ONLY.md) remains a target, not
-the implementation shipped here. Packaged NanoVM execution is not native AOT.
-Backend parity, complete resource ownership checking, broader input snapshots,
-and production service isolation remain bounded work on [my roadmap](ROADMAP.md).
+I implement a retained native callback ABI with explicit signatures, owner-thread
+execution, cancellation and shutdown. My NanoVM bridge supports the dispatch
+adapters and SDL_mixer post-mix lifecycle described in
+[my callback contract](CALLBACK_ABI.md). My C seed selects the shared VM bridge
+for imported callback shadows. Callback-bearing isolated imports remain rejected;
+this in-process bridge does not establish co-process callback support or
+production isolation. SDL audio-lock restrictions remain an unsafe boundary.
+
+I use start/length semantics for `array_slice` in both backends, with overflow-safe
+clamping. I preserve nested-array tags and expand native record/array lowering.
+These repairs do not establish complete backend parity.
+
+## What remains unfinished
+
+I still use my C-transpiling path to build the compiler. My
+[NanoISA-only bootstrap](NANOISA_ONLY.md), matching Stage 1/Stage 2 `.nvm`
+artifacts, complete resource ownership checking and production service isolation
+remain roadmap work. Native compiler acceptance is a distinct test from a
+self-hosted bytecode fixed point. Packaged NanoVM execution is not native AOT.
 Laboratory frontends do not establish a distributed production runtime.
-I now use start/length semantics for `array_slice` in both backends, including
-overflow-safe clamping. Native arrays of record literals still need emitter
-work. I reject bytecode function values passed to native callbacks rather
-than treating function indices as executable addresses. A lifetime-aware
-native callback bridge remains a release blocker, not a completed feature.
 
 ## Release review
 
-I reviewed every open GitHub issue and PR by title, body, labels and milestone.
-There were no open issues and twelve unscoped PRs. I leave those PRs visible;
-I do not close them merely to empty the queue.
-[The scope snapshot](RELEASE_5.0_SCOPE.json) records that review.
+On 2026-09-16 I reviewed all 36 open pull requests and zero open issues by title,
+body, labels, milestone, ancestry and relevant diffs. Only the candidate PR #336
+explicitly named this release in its metadata. Thirteen open PR heads already
+occurred in the candidate's ancestry. Repeated fleet integration branches need
+semantic reconciliation, not blanket merging or closure.
+[My scope snapshot](RELEASE_5.0_SCOPE.json) records each disposition and the
+reviewed candidate SHA. It is a dated review, not a claim that the queue cannot
+change. I must refresh it before publication.
 
-I reconcile main's source-provenance fix with the newer module binder, retain
-the immutable cache implementation instead of restoring its obsolete public
-hash-cache API, and preserve main's source-identity and alias-shadow regressions.
-My release evidence distinguishes this integration run from earlier cache
-fault-injection runs in [the snapshot record](SOURCE_SNAPSHOT_EVIDENCE.md).
+Native floating-point comparison lowering in PR #310 and its integration
+successors is only partly superseded: the reviewed candidate rejects `PUSH_F64`.
+I retain that limitation in the scope record rather than claim full AOT parity.
+I preserve the newer tagged and owned representations when reconciling older
+branches. My source-snapshot boundaries remain in
+[the snapshot record](SOURCE_SNAPSHOT_EVIDENCE.md).
 
-The user explicitly authorized release despite the MAC fleet dispatch hold.
-That hold can prevent task claims and closure; it is not a compiler test.
-I do not clear it or report held tasks as completed.
+## Validation checkpoint — 2026-09-16
 
-## Validation
+On Linux ARM64, focused finalization runs passed 1,730 native translator checks,
+1,073 shape checks, 272,379 VM checks, and a 242-program example sweep.
+The native translator and shape suites also passed their ASan/UBSan gate with
+leak detection disabled. Native compiler acceptance passed 24 tests, and the
+ordinary bootstrap passed its smoke checks. These are dated results from the
+integration work, not fresh validation of every subsequent commit or proof of
+semantic correctness.
 
-On Darwin arm64 with Apple clang 21.0.0, my clean build passed. The release
-test run exposed two stale shadow fixtures: missing assembly result fields
-and an uninitialized emitter-local environment. I corrected both fixtures;
-the NanoISA module gate and the 86-check source-emitter comparison pass.
-The AOT suite passes 375 checks. Stage-1 self-hosted source provenance and
-nine module-binding tests pass; the cross-backend language-claims suite
-passes 17 tests, and C-seed import shadows pass nine.
+[The integration evidence](evidence/main-reconciliation-pr334-linux.md) records
+commands, revisions, fixes and limitations. Final clean-tree tests, platform CI,
+and release acceptance must establish the exact commit to tag. Native and VM
+effect execution repairs remain in progress at this checkpoint; I make no
+success claim for them here. No 5.0 tag or GitHub release is established by
+this document.
 
-The language-claims rerun explicitly uses the freshly built stage-1
-self-hosted compiler. An initial invocation failed because it expected the
-stage-2 binary removed by cleaning. I do not count that as a stage-2 bootstrap.
-Some native links emit an Apple SDK text-stub warning; I do not describe
-those links as warning-free.
+## Presentation
 
-The complete test gate has not passed. This is a release candidate record,
-not evidence that a tag or GitHub release has been published.
-
-An earlier native integration run hit a link failure in `test_all_imports`:
-two immutable generations of the same `std.o` supplied 25 duplicate symbols.
-A direct retry passed. The complete runnable scan finished with 218 passes,
-one failure and zero skips, causing `make test` to exit nonzero before later
-gates. Another compiler workload shared the cache at the
-time; that observation does not yet establish the cause.
-`make test-vm-examples` also fails: eligible examples report compilation or
-shadow failures, and eight exclusions now compile successfully to bytecode.
-These were product/test-gate findings, separate from the MAC fleet hold.
-
-I reproduced the duplicate-link cause without a competing process: two
-NanoLang interfaces to one uncached C module selected different immutable
-generations. One physical module now selects one generation per native link.
-The new regression passes two compile/run invocations.
-
-The latest complete example sweep accepts 237 of 243 eligible programs.
-All six remaining failures require native dispatch callbacks. All six
-excluded sources still fail both compiler eligibility checks; I removed the
-stale exclusions instead of hiding newly accepted examples.
-
-I corrected integer and guarded matches, block-arm values, enum representation,
-typed array allocation, escaped strings, byte conversions, nominal record
-lookup, and scalar foreign ABI dispatch. I test foreign signatures up to
-16 arguments. The FFI unit suite passes 22 tests, and bytecode shadow tests
-pass 36 tests, including a dependency graph exceeding the old function limit.
-The standalone verifier scan accepts all 156 programs with no expected failures.
-
-AddressSanitizer exposed a cycle-collector use-after-free during parser
-shadows: trial-deleted edges were released a second time, freeing live string
-constants. I count those edges once and detach record field names too.
-The integrated VM suite passes 272,247 checks, including Rocky's additional
-shared-dead-leaf and field-name tests. The previously failing parser shadow
-workload passes with AddressSanitizer and with tracing disabled.
-This does not establish complete memory safety or make the full gate green.
-
-The callback worker independently confirmed that imports lack the signature,
-ownership, and threading contract needed by a safe native callback bridge.
-It produced no implementation. The user requires a lifetime-safe callback ABI
-before 5.0. I am implementing that contract locally; I have not excluded
-dispatch examples or published the release. My contract and implementation
-boundaries are recorded in [the callback ABI design](CALLBACK_ABI.md).
-
-The subsequent full run passes all 220 runnable programs with zero skips,
-all 34 negative compiler contracts, and the self-hosted compiler checks,
-then reaches the callback-dependent example gate. The generation-selection
-regression also passes independently and is now wired into `make test`
-as well as the focused module-dependency target. My checkpoint's Formal
-Proofs workflow passed; it is not a substitute for the failing example gate.
-
-The runnable integration suite now passes all 219 programs. I reject
-duplicate module introspection identities in the C loader; all 34 negative
-tests pass, and the identity regression also passes with stage one and
-NanoVirt. I corrected the self-hosted runner to select stage one: its 14
-compile/run cases, five import-path tests and 20 CLI tests pass. Nested unary
-negation also passes through the C seed. One full-gate retry stopped on disk
-exhaustion, not a test assertion; available space recovered without deleting
-unrelated files.
-
-A subsequent integration scan reported 205 passes and 13 failures. The
-failures exposed dormant dependency shadows and two missing execution paths.
-I corrected filesystem imports, mutable-map expectations, floating-point
-tolerances, JSON length spelling, OPL fixtures, and property-counterexample
-expectations. I added interpreter support for mixed static/dynamic nested
-arrays and epoch-millisecond timing, and preserved nested-array literal tags
-in bytecode. The affected programs pass direct retests. My new nested-array
-regression checks empty inner arrays, three levels, aliasing, appends and
-indexed writes through C compilation/shadows and NanoVM with tracing disabled.
-Opcode tracing isolated the separate slice-convention limitation noted above.
-
-## Presentation acknowledgement
-
-I retain the existing **4.5 edition** deck and narrative as historical
-artifacts. I have not rebuilt or republished them as 5.0. This release note,
-the canonical style guide and the roadmap describe the 5.0 boundary instead.
-I acknowledge the presentation freshness gate on that basis. Google Drive
-publication remains a separate, explicitly authorized operation.
+My repository contains a regenerated local 5.0 candidate deck and narrative.
+They describe the language/runtime release boundary and unfinished architecture.
+The existing Google links still identify the published 4.5 edition; local
+regeneration does not update those external artifacts. Their status and existing
+publication IDs are recorded in [current deliverables](presentation/current-deliverables.md).
