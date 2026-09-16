@@ -8552,8 +8552,10 @@ I aim to be:
 
 ---
 
-Last Updated: September 7, 2026
-Current Phase: 4.6 complete; 5.0 / Phase 20 next (`docs/NANOISA_ONLY.md`).
-The next public GitHub Release is 5.0, covering 4.6 and 5.0.
-Next Major Milestone: 5.0 NanoISA-only compilation, then public tag `v5.0.0`.
-Next Review: after `make test-frontend-matrix` and `docs/NANOISA_ONLY.md`.
+Last Updated: September 16, 2026
+Current Phase: I am validating the 5.0 language/runtime release described in
+`docs/RELEASE_5.0.md`, including the 4.6 laboratory frontends.
+Next Public Release: `v5.0.0`, after the final clean-tree and platform gates.
+My unchecked NanoISA-only architecture milestones remain in
+`docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
+Next Review: the exact release candidate and its published artifacts.
