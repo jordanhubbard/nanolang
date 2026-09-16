@@ -9,6 +9,33 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class VmExampleReporting(unittest.TestCase):
+    def test_example_budget_is_scoped_to_compiler_children(self):
+        source = (ROOT / "tests/test_vm_examples_coverage.sh").read_text()
+        start = source.index('if [ "${NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS+x}"')
+        budget = source[start:source.index("fi\n", start) + 3]
+        loop = source.split('skipped_list=""', 1)[1].split('if [ "$skipped" -ne 0 ]; then', 1)[0]
+        for scoped, ambient in ((None, None), (None, "3"), ("60", "3"), ("", "3")):
+            with self.subTest(scoped=scoped, ambient=ambient), tempfile.TemporaryDirectory() as tmp:
+                directory = Path(tmp)
+                compiler = directory / "compiler"
+                compiler.write_text('#!/bin/sh\nprintf "%s" "${NANO_SHADOW_TIMEOUT_SECONDS-unset}" > "$work_dir/observed"\n')
+                compiler.chmod(0o700)
+                (directory / "eligible.txt").write_text("probe.nano\n")
+                script = directory / "gate"
+                script.write_text(budget + '\nskipped_list=""\n' + loop)
+                env = dict(os.environ, REPO_ROOT=tmp, VM_COMPILER="compiler", EXAMPLES_DIR=tmp, work_dir=tmp)
+                for name, value in (("NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS", scoped),
+                                    ("NANO_SHADOW_TIMEOUT_SECONDS", ambient)):
+                    env.pop(name, None)
+                    if value is not None:
+                        env[name] = value
+                result = subprocess.run(["bash", "-c", 'bash "$1" && printf "%s" "${NANO_SHADOW_TIMEOUT_SECONDS-unset}"',
+                                         "outer-suite", str(script)], env=env, capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, ambient if ambient is not None else "unset")
+                expected = scoped if scoped is not None else ambient
+                self.assertEqual((directory / "observed").read_text(), expected if expected is not None else "unset")
+
     def test_exit_status_and_modern_diagnostics(self):
         source = (ROOT / "tests/test_vm_examples_coverage.sh").read_text()
         loop = source.split('skipped_list=""', 1)[1].split('if [ "$skipped" -ne 0 ]; then', 1)[0]

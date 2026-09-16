@@ -27,6 +27,12 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 export PATH="$REPO_ROOT/tests/fixtures/offline_mac:$PATH"
 
+# I apply an opt-in budget only inside this example gate. My supervisor
+# validates the value; other suite processes retain their original deadline.
+if [ "${NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS+x}" = x ]; then
+    export NANO_SHADOW_TIMEOUT_SECONDS="$NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS"
+fi
+
 VM_COMPILER="bin/nano_virt"
 EXAMPLES_DIR="examples"
 NATIVE_COMPILER="bin/nanoc_c"
