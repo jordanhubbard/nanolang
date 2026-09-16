@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Imported effect declarations.** I register imported effect signatures
+      before checking module functions, and execute a handler across the module
+      boundary with the shared native runtime. I currently reject the declared
+      operation while checking its module. MAC `task_36491565f7db6038fb0b1591f6164c36`.
+
 - [x] **Main PRs #338 and #340 reconciliation.** I retain dynamic native
       storage and bounded call formatting, import string-array write
       regressions, and rerun AOT acceptance. My existing wide-call fixture
