@@ -235,6 +235,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         frame implementation, import both regression functions and verify
         1,718 translator checks, 1,073 shape checks and 27 native/match methods.
         Evidence: `docs/evidence/main-reconciliation-pr317.md`.
+      - [ ] I reconcile PR #309's checked direct-call formatting with my
+        existing bounded formatter and dynamic operand stack. I import its
+        full-arity ordinary/tail-call regression and run the translator gates.
+      - [ ] I reconcile PR #303's early map reclamation only after tracing
+        roots across caller frames, globals, aggregate fields and escaped
+        strings. Its current-function-only root scan cannot establish safe
+        process-wide reclamation. I reproduce these lifetimes and verify
+        bounded loop allocation without freeing reachable values.
+        MAC `task_d3310bef8bd541ba9e1e267ee213eb9e`.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure
