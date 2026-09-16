@@ -1880,6 +1880,66 @@ static void test_one_t_result_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_string_array_push_tags_parameter_and_preserves_alias(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function append 2 2 0 array 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  ARR_NEW 5\n"
+        "  PUSH_STR hi\n"
+        "  CALL append\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "string array parameter fixture");
+    CHECK(m != NULL, "string array parameter fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c tags a projected string parameter");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "static nsarr_t nl_append(nsarr_t a0") != NULL,
+          "string-array parameter retains its native kind");
+    CHECK(strstr(c, "const char * a1") != NULL,
+          "array write tags the scalar parameter as a string");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "aliased string-array C compiles and runs");
+    CHECK(status == 2, "both writes through the array alias are preserved");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_string_array_push_rejects_integer_payload(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  ARR_NEW 5\n"
+        "  PUSH_I64 7\n"
+        "  ARR_PUSH\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "invalid string array payload fixture");
+    CHECK(m != NULL, "invalid string array payload fixture assembles");
+    if (!m) return;
+    char err[256] = {0};
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "nvm2c rejects an integer payload for a native string array");
+    CHECK(strstr(err, "requires a string value") != NULL,
+          "string-array payload refusal names the required runtime kind");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2566,6 +2626,8 @@ int main(int argc, char **argv) {
     test_get_s_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
+    test_string_array_push_tags_parameter_and_preserves_alias();
+    test_string_array_push_rejects_integer_payload();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
