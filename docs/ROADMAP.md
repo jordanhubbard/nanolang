@@ -171,6 +171,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                       check tags at consumption; lookup itself does not trap
                       or invent a default. I extend mixed-value joins and
                       return inference before claiming full integration.
+                      - [x] I check tagged scalar results at typed function
+                        returns, matching VM return-tag validation. I accept
+                        present values and trap missing or wrong-tag values at
+                        that boundary, without equating optional storage with
+                        the declared scalar shape. Normal and sanitizer suites
+                        pass 1,226 AOT and 994 shape checks. Evidence:
+                        `docs/evidence/aot-tagged-scalar-returns.md`.
                       - [x] I emit tagged lookups through locals, compatible
                         calls and same-representation branch joins, retaining
                         fetched strings after map mutation. I test missing

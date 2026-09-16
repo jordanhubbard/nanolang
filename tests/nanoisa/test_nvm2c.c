@@ -2950,7 +2950,46 @@ static void test_mixed_lookup_arguments(void) {
     }
 }
 
+static void test_tagged_scalar_returns(void) {
+    const char *types[] = {"int", "string", "bool"};
+    for (int type = 0; type < 3; ++type) {
+        for (int value = 0; value < 3; ++value) {
+            for (int present_path = 0; present_path < 2; ++present_path) {
+                char source[2048];
+                snprintf(source, sizeof source,
+                    ".string key \"key\"\n.string text \"42\"\n.entry main\n"
+                    ".function main 0 0 0 int 1\nCALL relay\n%s\n"
+                    "PUSH_I64 0\nRET\n.end\n"
+                    ".function relay 0 0 0 %s 1\nTAIL_CALL result\n.end\n"
+                    ".function result 0 1 0 %s 1\nPUSH_BOOL %d\nJMP_FALSE lookup\n"
+                    "%s\nRET\nlookup:\nHM_NEW 5 %d\n%s\n"
+                    "PUSH_STR key\nHM_GET\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nRET\n.end\n",
+                    type == 0 ? "PUSH_I64 42\nI64_EQ\nASSERT" :
+                    type == 1 ? "PUSH_STR text\nEQ\nASSERT" : "ASSERT",
+                    types[type], types[type], present_path,
+                    type == 0 ? "PUSH_I64 42" : type == 1 ? "PUSH_STR text" : "PUSH_BOOL 1",
+                    value == 2 ? 5 : 1,
+                    value == 0 ? "" : value == 1 ? "PUSH_STR key\nPUSH_I64 42\nHM_SET" :
+                    "PUSH_STR key\nPUSH_STR text\nHM_SET");
+                NvmModule *m = assemble_ok(source, "tagged scalar return boundary");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I emit checked tagged scalar returns without changing source storage");
+                if (c) {
+                    int status = 0;
+                    int succeeds = present_path || (type == 0 && value == 1) || (type == 1 && value == 2);
+                    CHECK(compile_and_run(c, &status) == 0 &&
+                          (succeeds ? status == 0 : status == -1),
+                          "I return matching tags and trap missing or wrong tags through ordinary and tail callers");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+}
+
 static void test_emitted_map_get(void) {
+    test_tagged_scalar_returns();
     test_mixed_lookup_arguments();
     for (int strings = 0; strings < 2; ++strings) {
         char source[4096];
@@ -3011,7 +3050,6 @@ static void test_emitted_map_get(void) {
         nvm_module_free(m);
     }
     const char *unresolved[] = {
-        "RET\n",
         "BOOL_NOT\n", "PUSH_BOOL 1\nBOOL_AND\n", "PUSH_BOOL 0\nBOOL_OR\n"
     };
     for (size_t i = 0; i < sizeof unresolved / sizeof unresolved[0]; ++i) {
