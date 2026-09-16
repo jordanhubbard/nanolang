@@ -16,7 +16,7 @@
 #include <string.h>
 
 #define NVM2C_MAX_STACK  64
-#define NVM2C_MAX_LOCALS 256
+#define NVM2C_MAX_LOCALS 1024
 #define NVM2C_MAX_TEMPS  256
 #define NVM2C_MAX_REC_FIELDS 8
 
@@ -146,8 +146,9 @@ static const char *c_local_type(uint8_t kind) {
     return "int64_t";
 }
 
-static uint8_t fn_local_kind(const uint8_t *kinds, uint32_t fn, uint16_t slot) {
-    return kinds[(size_t)fn * NVM2C_MAX_LOCALS + slot];
+static uint8_t fn_local_kind(const uint8_t *kinds, const size_t *local_offsets,
+                             uint32_t fn, uint16_t slot) {
+    return kinds[local_offsets[fn] + slot];
 }
 
 static void emit_c_string_lit(Nvm2cBuf *b, const char *s, uint32_t len) {
@@ -243,18 +244,20 @@ static int mark_str_origin(Nvm2cBuf *b, uint8_t *local_kind, uint16_t nloc, int 
     return mark_origin(b, local_kind, nloc, origin, NVM2C_VK_STR);
 }
 
-static const uint8_t *fn_rec_k_const(const uint8_t *tab, uint32_t fn, uint16_t slot) {
-    return tab + ((size_t)fn * NVM2C_MAX_LOCALS + slot) * NVM2C_MAX_REC_FIELDS;
+static const uint8_t *fn_rec_k_const(const uint8_t *tab, const size_t *local_offsets,
+                                     uint32_t fn, uint16_t slot) {
+    return tab + (local_offsets[fn] + slot) * NVM2C_MAX_REC_FIELDS;
 }
 
 static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                             uint8_t *kinds, uint8_t *all_rec_fields,
+                              const size_t *local_offsets, uint8_t *kinds,
+                              uint8_t *all_rec_fields,
                              uint8_t *result_fields,
                              int *changed) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
-    uint8_t *local_kind = kinds + (size_t)idx * NVM2C_MAX_LOCALS;
+    uint8_t *local_kind = kinds + local_offsets[idx];
     uint8_t *rec_fields = all_rec_fields +
-        ((size_t)idx * NVM2C_MAX_LOCALS) * NVM2C_MAX_REC_FIELDS;
+        local_offsets[idx] * NVM2C_MAX_REC_FIELDS;
     uint16_t nloc = fn->local_count;
     uint16_t i;
     uint8_t old_kind[NVM2C_MAX_LOCALS];
@@ -615,11 +618,11 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 uint16_t param = (uint16_t)(cf->arity - 1 - i);
-                uint8_t *callee_k = kinds + (size_t)callee * NVM2C_MAX_LOCALS;
+                uint8_t *callee_k = kinds + local_offsets[callee];
                 if (!merge_kind(b, &callee_k[param], arg.kind, "parameter")) return 0;
                 if (arg.kind == NVM2C_VK_REC || arg.kind == NVM2C_VK_RARR) {
                     uint8_t *callee_r = all_rec_fields +
-                        ((size_t)callee * NVM2C_MAX_LOCALS + param) *
+                        (local_offsets[callee] + param) *
                         NVM2C_MAX_REC_FIELDS;
                     uint16_t fi;
                     for (fi = 0; fi < NVM2C_MAX_REC_FIELDS; fi++) {
@@ -704,7 +707,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 }
 
 static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                           const uint8_t *kinds) {
+                           const size_t *local_offsets, const uint8_t *kinds) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     const char *rt = c_result_type(fn);
     if (!rt) {
@@ -733,7 +736,9 @@ static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         uint16_t i;
         for (i = 0; i < fn->arity; i++) {
             if (i) nvm2c_puts(b, ", ");
-            nvm2c_printf(b, "%s a%u", c_local_type(fn_local_kind(kinds, idx, i)), (unsigned)i);
+            nvm2c_printf(b, "%s a%u",
+                         c_local_type(fn_local_kind(kinds, local_offsets, idx, i)),
+                         (unsigned)i);
         }
     }
     nvm2c_puts(b, ");\n");
@@ -966,7 +971,8 @@ static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
 }
 
 static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
-                             uint32_t idx, uint32_t callee, const uint8_t *kinds,
+                             uint32_t idx, uint32_t callee,
+                             const size_t *local_offsets, const uint8_t *kinds,
                              char *call, size_t call_sz) {
     if (callee >= mod->function_count) {
         nvm2c_fail(b, "function %u: CALL target %u is out of range", idx, callee);
@@ -981,7 +987,7 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
     uint8_t argk[NVM2C_MAX_LOCALS];
     int i;
     for (i = (int)cf->arity - 1; i >= 0; i--) {
-        uint8_t pk = fn_local_kind(kinds, callee, (uint16_t)i);
+        uint8_t pk = fn_local_kind(kinds, local_offsets, callee, (uint16_t)i);
         argk[i] = pk;
         args[i] = stack_pop_expect(b, st, pk, "CALL argument");
         if (b->failed) return 0;
@@ -1015,7 +1021,8 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
 }
 
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                               const uint8_t *kinds, const uint8_t *rec_fields,
+                               const size_t *local_offsets, const uint8_t *kinds,
+                               const uint8_t *rec_fields,
                                const uint8_t *result_fields) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     const char *rt = c_result_type(fn);
@@ -1030,13 +1037,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     } else {
         for (i = 0; i < fn->arity; i++) {
             if (i) nvm2c_puts(b, ", ");
-            nvm2c_printf(b, "%s a%u", c_local_type(fn_local_kind(kinds, idx, i)), (unsigned)i);
+            nvm2c_printf(b, "%s a%u",
+                         c_local_type(fn_local_kind(kinds, local_offsets, idx, i)),
+                         (unsigned)i);
         }
     }
     nvm2c_puts(b, ") {\n");
 
     for (i = 0; i < fn->local_count; i++) {
-        uint8_t lk = fn_local_kind(kinds, idx, i);
+        uint8_t lk = fn_local_kind(kinds, local_offsets, idx, i);
         if (i < fn->arity) {
             nvm2c_printf(b, "    %s l%u = a%u;\n", c_local_type(lk), (unsigned)i, (unsigned)i);
         } else if (lk == NVM2C_VK_STR) {
@@ -1290,22 +1299,22 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             char rhs[32];
             snprintf(rhs, sizeof rhs, "l%u", (unsigned)slot);
-            if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_STR) {
+            if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_STR) {
                 stack_push_str(b, &st, rhs);
-            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_ARR) {
+            } else if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_ARR) {
                 stack_push_arr(b, &st, rhs);
-            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_SARR) {
+            } else if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_SARR) {
                 stack_push_sarr(b, &st, rhs);
-            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_REC) {
+            } else if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_REC) {
                 int r = stack_push_rec(b, &st, rhs);
                 if (r >= 0) {
-                    memcpy(st.rec_k[r], fn_rec_k_const(rec_fields, idx, slot),
+                    memcpy(st.rec_k[r], fn_rec_k_const(rec_fields, local_offsets, idx, slot),
                            NVM2C_MAX_REC_FIELDS);
                 }
-            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
+            } else if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_RARR) {
                 int a = stack_push_rarr(b, &st, rhs);
                 if (a >= 0) {
-                    memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
+                    memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, local_offsets, idx, slot),
                            NVM2C_MAX_REC_FIELDS);
                 }
             } else {
@@ -1320,7 +1329,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             {
-                uint8_t expect = fn_local_kind(kinds, idx, slot);
+                uint8_t expect = fn_local_kind(kinds, local_offsets, idx, slot);
                 int t = stack_pop_expect(b, &st, expect, "STORE_LOCAL");
                 if (b->failed) goto done;
                 if (expect == NVM2C_VK_STR) {
@@ -1495,12 +1504,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 uint32_t nn = isa_decode(code + pc, remaining - pc, &nxt);
                 if (nn != 0 && nxt.opcode == OP_STORE_LOCAL) {
                     uint16_t slot = nxt.operands[0].u16;
-                    if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_SARR) {
+                    if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_SARR) {
                         as_sarr = 1;
-                    } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
+                    } else if (fn_local_kind(kinds, local_offsets, idx, slot) == NVM2C_VK_RARR) {
                         int a = stack_push_rarr(b, &st, "nrarr_new()");
                         if (a >= 0) {
-                            memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
+                            memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, local_offsets, idx, slot),
                                    NVM2C_MAX_REC_FIELDS);
                         }
                         break;
@@ -1718,7 +1727,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
             char call[768];
-            if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
+            if (!build_direct_call(b, &st, mod, idx, callee, local_offsets,
+                                   kinds, call, sizeof call)) {
                 goto done;
             }
             const NvmFunctionEntry *cf = &mod->functions[callee];
@@ -1753,7 +1763,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             char call[768];
-            if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
+            if (!build_direct_call(b, &st, mod, idx, callee, local_offsets,
+                                   kinds, call, sizeof call)) {
                 goto done;
             }
             if (st.sp != 0) {
@@ -1922,12 +1933,13 @@ static int module_has_arr_op_tag(const NvmModule *mod, uint8_t op, uint8_t tag) 
     return 0;
 }
 
-static int module_has_local_kind(const uint8_t *kinds, uint32_t fn_count, uint8_t kind) {
+static int module_has_local_kind(const NvmModule *mod, const size_t *local_offsets,
+                                 const uint8_t *kinds, uint8_t kind) {
     uint32_t i;
     uint16_t li;
-    for (i = 0; i < fn_count; i++) {
-        for (li = 0; li < NVM2C_MAX_LOCALS; li++) {
-            if (fn_local_kind(kinds, i, li) == kind) return 1;
+    for (i = 0; i < mod->function_count; i++) {
+        for (li = 0; li < mod->functions[i].local_count; li++) {
+            if (fn_local_kind(kinds, local_offsets, i, li) == kind) return 1;
         }
     }
     return 0;
@@ -2144,42 +2156,79 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.err = err;
     b.err_len = err_len;
 
-    uint8_t *kinds = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS, 1);
-    uint8_t *rec_fields = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS
-                                  * NVM2C_MAX_REC_FIELDS, 1);
+    size_t *local_offsets = calloc((size_t)mod->function_count + 1, sizeof *local_offsets);
+    size_t local_total = 0;
+    uint32_t function_index;
+    if (!local_offsets) {
+        if (err && err_len) snprintf(err, err_len, "out of memory");
+        return NULL;
+    }
+    for (function_index = 0; function_index < mod->function_count; function_index++) {
+        const NvmFunctionEntry *fn = &mod->functions[function_index];
+        if (fn->local_count > NVM2C_MAX_LOCALS) {
+            if (err && err_len) snprintf(err, err_len, "function %u: too many locals",
+                                         function_index);
+            free(local_offsets);
+            return NULL;
+        }
+        if (fn->arity > fn->local_count) {
+            if (err && err_len) snprintf(err, err_len,
+                                         "function %u: arity exceeds local_count",
+                                         function_index);
+            free(local_offsets);
+            return NULL;
+        }
+        local_offsets[function_index] = local_total;
+        if (fn->local_count > SIZE_MAX - local_total) {
+            if (err && err_len) snprintf(err, err_len, "local table is too large");
+            free(local_offsets);
+            return NULL;
+        }
+        local_total += fn->local_count;
+    }
+    local_offsets[mod->function_count] = local_total;
+    if (local_total > SIZE_MAX / NVM2C_MAX_REC_FIELDS) {
+        if (err && err_len) snprintf(err, err_len, "local record table is too large");
+        free(local_offsets);
+        return NULL;
+    }
+
+    uint8_t *kinds = calloc(local_total ? local_total : 1, 1);
+    uint8_t *rec_fields = calloc(local_total ? local_total * NVM2C_MAX_REC_FIELDS : 1, 1);
     uint8_t *result_fields = calloc((size_t)mod->function_count * NVM2C_MAX_REC_FIELDS, 1);
     if (!kinds || !rec_fields || !result_fields) {
         free(kinds);
         free(rec_fields);
         free(result_fields);
+        free(local_offsets);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
     memset(kinds, NVM2C_VK_UNK,
-           (size_t)mod->function_count * NVM2C_MAX_LOCALS);
+           local_total);
     memset(rec_fields, NVM2C_VK_UNK,
-           (size_t)mod->function_count * NVM2C_MAX_LOCALS * NVM2C_MAX_REC_FIELDS);
+           local_total * NVM2C_MAX_REC_FIELDS);
     memset(result_fields, NVM2C_VK_UNK,
            (size_t)mod->function_count * NVM2C_MAX_REC_FIELDS);
 
     {
-        uint32_t pass;
-        for (pass = 0; pass <= mod->function_count * NVM2C_MAX_LOCALS; pass++) {
+        size_t pass;
+        for (pass = 0; pass <= local_total; pass++) {
             uint32_t i;
             int changed = 0;
             for (i = 0; i < mod->function_count; i++) {
-                if (!classify_function(&b, mod, i, kinds, rec_fields, result_fields,
-                                       &changed)) {
+                if (!classify_function(&b, mod, i, local_offsets, kinds, rec_fields,
+                                       result_fields, &changed)) {
                     goto fail;
                 }
             }
             if (!changed) break;
         }
-        if (pass > mod->function_count * NVM2C_MAX_LOCALS) {
+        if (pass > local_total) {
             nvm2c_fail(&b, "parameter and record-field classification did not converge");
             goto fail;
         }
-        for (pass = 0; pass < mod->function_count * NVM2C_MAX_LOCALS; pass++) {
+        for (pass = 0; pass < local_total; pass++) {
             if (kinds[pass] == NVM2C_VK_UNK) kinds[pass] = NVM2C_VK_INT;
         }
     }
@@ -2201,10 +2250,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT);
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_lit ||
-            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
+            module_has_local_kind(mod, local_offsets, kinds, NVM2C_VK_ARR);
         int need_sarr = need_sarr_lit ||
-            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR);
-        int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
+            module_has_local_kind(mod, local_offsets, kinds, NVM2C_VK_SARR);
+        int need_rarr = module_has_local_kind(mod, local_offsets, kinds, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
@@ -2220,7 +2269,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             uint16_t li;
             if (fn->result_tag == TAG_STRING) need_string = 1;
             for (li = 0; li < fn->local_count; li++) {
-                if (fn_local_kind(kinds, i, li) == NVM2C_VK_STR) need_string = 1;
+                if (fn_local_kind(kinds, local_offsets, i, li) == NVM2C_VK_STR) need_string = 1;
             }
         }
 
@@ -2280,7 +2329,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
-            emit_prototype(&b, mod, i, kinds);
+            emit_prototype(&b, mod, i, local_offsets, kinds);
             if (b.failed) goto fail;
         }
     }
@@ -2289,7 +2338,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
-            emit_function_body(&b, mod, i, kinds, rec_fields, result_fields);
+            emit_function_body(&b, mod, i, local_offsets, kinds, rec_fields, result_fields);
             if (b.failed) goto fail;
         }
     }
@@ -2326,12 +2375,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(kinds);
     free(rec_fields);
     free(result_fields);
+    free(local_offsets);
     return b.data;
 
 fail:
     free(kinds);
     free(rec_fields);
     free(result_fields);
+    free(local_offsets);
     free(b.data);
     return NULL;
 }

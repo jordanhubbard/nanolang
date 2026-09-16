@@ -24,6 +24,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **5.0 / native translation local capacity.** I accept valid NanoISA
+      functions with up to 1024 locals in `nvm2c`, size inference storage from
+      the locals functions actually declare, reject malformed arity, and test
+      both boundaries. MAC `task_183123ca3822426499719b042132b49f`.
+
 - [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
       type metadata while parsing and registering locals and parameters, then
       select the correct getter at each nested `at`. The C seed passes all
