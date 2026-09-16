@@ -2798,7 +2798,56 @@ static void test_unsupported_classifier_instructions(void) {
     }
 }
 
+static void test_mixed_lookup_arguments(void) {
+    const char *workers =
+        ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\nTYPE_CHECK 0\nJMP_FALSE present\n"
+        "PUSH_I64 0\nRET\npresent:\nLOAD_LOCAL 0\nCAST_STRING\nSTR_LEN\nRET\n.end\n"
+        ".function forward 1 1 0 int 1\nLOAD_LOCAL 0\nTAIL_CALL consume\n.end\n"
+        ".function recurse 2 2 0 int 1\nLOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\n"
+        "LOAD_LOCAL 0\nTAIL_CALL forward\nagain:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\nTAIL_CALL recurse\n.end\n";
+    const char *raw = "PUSH_STR text\nCALL consume\nPUSH_I64 2\nI64_EQ\nASSERT\n";
+    const char *missing = "LOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nCALL consume\nPUSH_I64 0\nI64_EQ\nASSERT\n";
+    for (int before = 0; before < 2; ++before) {
+        for (int raw_first = 0; raw_first < 2; ++raw_first) {
+            char main_body[2048], source[4096];
+            snprintf(main_body, sizeof main_body,
+                ".function main 0 1 0 int 1\nHM_NEW 5 5\nSTORE_LOCAL 0\n%s%s"
+                "LOAD_LOCAL 0\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPUSH_STR key\nHM_GET\n"
+                "PUSH_I64 3\nCALL recurse\nPUSH_I64 2\nI64_EQ\nASSERT\n"
+                "PUSH_STR text\nPUSH_I64 2\nCALL recurse\nPUSH_I64 2\nI64_EQ\nASSERT\n"
+                "LOAD_LOCAL 0\nPUSH_STR key\nHM_DELETE\nPUSH_STR key\nHM_GET\n"
+                "PUSH_I64 1\nCALL recurse\nPUSH_I64 0\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                raw_first ? raw : missing, raw_first ? missing : raw);
+            snprintf(source, sizeof source, ".string key \"key\"\n.string text \"42\"\n.entry main\n%s%s",
+                     before ? workers : main_body, before ? main_body : workers);
+            NvmModule *m = assemble_ok(source, "mixed lookup argument order");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I infer mixed string arguments independently of function and caller order");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I preserve missing and present strings across mixed normal, forward and tail calls");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    NvmModule *m = assemble_ok(
+        ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "HM_NEW 5 1\nPUSH_STR key\nHM_GET\nCALL consume\nPOP\n"
+        "PUSH_STR key\nCALL consume\nRET\n.end\n"
+        ".function consume 1 1 0 int 1\nLOAD_LOCAL 0\nCAST_INT\nRET\n.end\n",
+        "incompatible optional argument payload");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I keep optional payload compatibility after parameter widening");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_emitted_map_get(void) {
+    test_mixed_lookup_arguments();
     for (int strings = 0; strings < 2; ++strings) {
         char source[4096];
         snprintf(source, sizeof source,

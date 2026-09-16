@@ -373,6 +373,18 @@ static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uin
     return 1;
 }
 
+/* Only parameter storage widens here. Aggregate fields still require exact
+ * compatibility; the final graph checks the optional's payload separately. */
+static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
+    if (*dest == NVM2C_VK_VALUE && kind == NVM2C_VK_STR) return 1;
+    if (*dest == NVM2C_VK_STR && kind == NVM2C_VK_VALUE) {
+        *dest = NVM2C_VK_VALUE;
+        facts->changed = 1;
+        return 1;
+    }
+    return merge_fact(b, facts, dest, kind);
+}
+
 static int shape_ok(Nvm2cBuf *b) {
     if (b->shapes.error) {
         const InstructionInfo *info = isa_get_info(b->shape_opcode);
@@ -800,7 +812,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_TYPE_CHECK: {
             Nvm2cSimSlot value;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
-            if (value.kind != NVM2C_VK_VALUE) {
+            if (value.kind != NVM2C_VK_VALUE && facts->final) {
                 nvm2c_fail(b, "I require preserved runtime tags for TYPE_CHECK"); return 0;
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
@@ -1145,8 +1157,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 size_t at = (size_t)callee * NVM2C_MAX_LOCALS + i - 1;
-                if (!merge_fact(b, facts, &facts->parameters[at], arg.kind)) return 0;
-                if (!shape_equal(b, arg.shape, shape_variable(b, &b->shape_locals[at]))) return 0;
+                if (!merge_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
+                NvmShapeId parameter = shape_variable(b, &b->shape_locals[at]);
+                if (facts->parameters[at] == NVM2C_VK_VALUE && arg.kind == NVM2C_VK_STR) {
+                    if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL) ||
+                        !shape_equal(b, arg.shape, shape_child(b, parameter, 0))) return 0;
+                } else if (!shape_equal(b, arg.shape, parameter)) return 0;
                 if (arg.kind == NVM2C_VK_UNK) {
                     mark_origin(local_kind, nloc, arg.origin, facts->parameters[at]);
                 }
@@ -1267,7 +1283,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
 
     for (i = 0; i < nloc; i++) {
         if (i < fn->arity &&
-            !merge_fact(b, facts, &facts->parameters[(size_t)idx * NVM2C_MAX_LOCALS + i], local_kind[i])) return 0;
+            !merge_parameter(b, facts, &facts->parameters[(size_t)idx * NVM2C_MAX_LOCALS + i], local_kind[i])) return 0;
         if (facts->final && local_kind[i] == NVM2C_VK_UNK) local_kind[i] = NVM2C_VK_INT;
     }
     return 1;
@@ -1539,6 +1555,12 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
     uint8_t got = NVM2C_VK_INT;
     int slot = stack_pop_kind(b, st, &got);
     if (b->failed) return -1;
+    if (got == NVM2C_VK_STR && kind == NVM2C_VK_VALUE) {
+        char expression[80];
+        snprintf(expression, sizeof expression, "(nmap_value){5, 0, (char *)s[%d]}", slot);
+        stack_push_value(b, st, expression);
+        return b->failed ? -1 : stack_pop_kind(b, st, NULL);
+    }
     if (got == NVM2C_VK_VALUE && (kind == NVM2C_VK_INT || kind == NVM2C_VK_STR)) {
         char expression[64];
         snprintf(expression, sizeof expression, "nvalue_require_%s(v[%d])",
@@ -3612,9 +3634,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.parameters = inference;
     facts.fields = inference + (size_t)mod->function_count * NVM2C_MAX_LOCALS;
     facts.results = facts.fields + (size_t)mod->function_count * NVM2C_MAX_LOCALS * b.record_width;
-    /* I only add known facts to unknown slots; conflicts fail, never widen. */
+    /* I add known facts and widen string parameters to optional storage when
+     * needed. Payload and aggregate compatibility remain graph constraints. */
     for (size_t pass = 0; ; pass++) {
-        if (pass > fact_size + 1) {
+        if (pass / 2 > fact_size) {
             nvm2c_fail(&b, "I could not converge function type facts");
             goto fail;
         }

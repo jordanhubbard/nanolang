@@ -136,9 +136,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   AOT and 965 graph checks. Evidence:
                   `docs/evidence/aot-record-array-literals.md`.
                 - [ ] I diagnose and implement the compiler's hashmap opcode
-                  requirements. Acceptance now stops at function 280 offset
-                  487: ordinary and tagged strings conflict at parameter 0 of
-                  function 282 (`type_from_string`).
+                  requirements. Acceptance now stops at tagged record packing
+                  in function 282 (`type_from_string`).
                   - [x] I implement reusable emitted map storage with checked
                     growth, owned keys/values, missing-key results, replacement,
                     deletion and retained lookup values; test both integer and
@@ -182,6 +181,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                         insertion. I do not infer a runtime tag from their
                         shared C integer representation. MAC
                         `task_811f280202174ac88a501ca3281d5e58`.
+                      - [x] I reconcile ordinary and optional string arguments
+                        at function boundaries, including forward calls and
+                        tail calls. I preserve the present-value shape and
+                        reject incompatible payloads; caller order must not
+                        decide whether the program compiles. Normal and
+                        sanitizer suites pass 1,137 AOT and 990 shape checks.
+                        Evidence: `docs/evidence/aot-mixed-lookup-arguments.md`.
+                      - [ ] I preserve tagged fields through record packing,
+                        extraction, returned record facts and compatible
+                        ordinary/optional field joins. I retain missing tags
+                        and owned lookup strings instead of unboxing on pack.
                 - [ ] I audit classifier opcode coverage against emission
                   and verifier stack effects, explicitly handling or rejecting
                   each opcode instead of silently skipping unknown effects.
