@@ -154,13 +154,30 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                       tests pass; source-to-bytecode-to-native empty/nonempty
                       int, string and record return fixtures pass. Evidence:
                       `docs/evidence/empty-array-return-tags.md`.
-                - [ ] I remove my native translator's 256-local bottleneck
+                - [x] I remove my native translator's 256-local bottleneck
                   without weakening malformed-arity checks. Fresh compiler
                   bytecode reaches function 463, which exceeds that limit;
                   NanoVirt allows 1,024 locals. I test high local indices,
                   parameter facts and checked allocation sizes, and rerun full
-                  compiler acceptance. MAC
+                  compiler acceptance. Normal and fresh ASan/UBSan suites pass
+                  1,308 AOT and 994 shape checks. Full compiler translation now
+                  reaches generic `LT`. Evidence:
+                  `docs/evidence/aot-wide-locals.md`. MAC
                   `task_183123ca3822426499719b042132b49f`.
+                  - [x] I size local facts from the actual module width and
+                    accept up to 1,024 locals with checked arity and allocation
+                    bounds. I test high indices, cross-function facts and
+                    uninitialized-local rejection.
+                  - [x] I size direct-call text for supported parameter counts
+                    and check each formatted append before advancing its
+                    offset, including separators and the closing parenthesis.
+                    MAC `task_ce16c7f531c94738bfca747633289540`.
+                - [ ] I lower generic comparison opcodes with the VM's operand
+                  rules. Fresh compiler translation reaches unsupported `LT`
+                  (`0x2A`) in function 532 at offset 47. I inspect its operand
+                  types and test checked native comparison instead of assuming
+                  every comparison has integer operands. MAC
+                  `task_dc171e3db9cb497c981d7f06621baa5d`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.

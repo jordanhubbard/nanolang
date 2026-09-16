@@ -4268,6 +4268,54 @@ static void test_classifier_unreachable_and_invalid_joins(void) {
 }
 
 static void test_classifier_local_bounds(void) {
+    const unsigned counts[] = {1, 257, 512, 1024};
+    for (size_t i = 0; i < sizeof counts / sizeof counts[0]; ++i) {
+        char source[768];
+        snprintf(source, sizeof source,
+            ".string text \"answer\"\n.entry main\n.function main 0 %u 0 int 1\n"
+            "PUSH_STR text\nSTORE_LOCAL %u\nLOAD_LOCAL %u\nCALL length\nRET\n.end\n"
+            ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n",
+            counts[i], counts[i] - 1, counts[i] - 1);
+        NvmModule *wide = assemble_ok(source, "wide local facts");
+        if (!wide) continue;
+        char *native = emit_or_fail(wide, "I preserve high-index string locals across calls");
+        if (native) {
+            int status = -1;
+            CHECK(compile_and_run(native, &status) == 0 && status == 6,
+                  "I execute module-sized local facts at the supported boundaries");
+            free(native);
+        }
+        nvm_module_free(wide);
+    }
+    for (int tail = 0; tail < 2; ++tail) {
+        char source[32768];
+        size_t used = (size_t)snprintf(source, sizeof source,
+            ".string text \"answer\"\n.entry main\n.function main 0 0 0 int 1\n");
+        for (unsigned i = 0; i < 1023; ++i)
+            used += (size_t)snprintf(source + used, sizeof source - used, "PUSH_I64 %u\n", i);
+        snprintf(source + used, sizeof source - used,
+            "PUSH_STR text\n%s wide\n%s.end\n"
+            ".function wide 1024 1024 0 int 1\nLOAD_LOCAL 1023\nSTR_LEN\nRET\n.end\n",
+            tail ? "TAIL_CALL" : "CALL", tail ? "" : "RET\n");
+        NvmModule *wide = assemble_ok(source, "wide direct argument list");
+        if (!wide) continue;
+        char *native = emit_or_fail(wide, "I emit checked argument text for 1,024 parameters");
+        if (native) {
+            int status = -1;
+            CHECK(compile_and_run(native, &status) == 0 && status == 6,
+                  "I preserve wide ordinary and tail-call argument types");
+            free(native);
+        }
+        nvm_module_free(wide);
+    }
+    NvmModule *uninitialized = assemble_ok(
+        ".entry main\n.function main 0 1024 0 int 1\nLOAD_LOCAL 1023\nRET\n.end\n", "wide uninitialized local");
+    if (uninitialized) {
+        char error[256] = {0};
+        char *native = nvm2c_emit(uninitialized, error, sizeof error);
+        CHECK(native == NULL && strstr(error, "uninitialized"), "I reject uninitialized high-index locals");
+        free(native); nvm_module_free(uninitialized);
+    }
     NvmModule *m = assemble_ok(".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
                               "classifier bounds");
     if (!m) return;
@@ -4275,6 +4323,10 @@ static void test_classifier_local_bounds(void) {
     m->functions[0].local_count = UINT16_MAX;
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL && strstr(err, "counts") != NULL, "I reject oversized locals before writing classifier state");
+    free(c);
+    m->functions[0].local_count = 1025;
+    c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL && strstr(err, "counts") != NULL, "I reject one past my supported local ceiling");
     free(c);
     m->functions[0].local_count = 0;
     m->functions[0].arity = 1;
