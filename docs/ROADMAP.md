@@ -29,8 +29,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 ## Active Execution Queue
 
 - [ ] **Native float integration after main PR #357.** I preserve float
-      comparison capability with distinct value and shape tags, retain dynamic
-      mismatch traps and typed return boundaries, and verify local/call
+      comparison capability with distinct value and shape tags, preserve VM tag
+      ordering and typed return boundaries, and verify local/call
       transport alongside existing arrays and booleans.
       MAC `task_da116ced2b104050b956a3526ae473e8`.
 
