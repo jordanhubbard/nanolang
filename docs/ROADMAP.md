@@ -24,6 +24,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
+      the published `v5.0.0` tag and restore the released compiler, tests and
+      documentation removed by the reviewed whole-tree replacement. I preserve
+      the intended call-order fix separately and require a focused reapplication.
+      MAC `task_3665bd4322b35fb959ef77a46f761a0a`.
+
 - [x] **5.0 / native call argument order.** I evaluate ordinary and
       module-qualified C-seed call arguments once in source order, retain the
       separately tested computed-callee contract, and execute side-effecting
