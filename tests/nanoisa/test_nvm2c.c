@@ -2054,6 +2054,37 @@ static void test_tail_call_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_scalar_tags_survive_hashmap_roundtrip(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 1 0 int 1\n"
+        "  HM_NEW 1 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_I64 0\n"
+        "  HM_SET\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  HM_GET\n"
+        "  PUSH_BOOL 0\n"
+        "  NE\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "tagged hashmap fixture");
+    CHECK(m != NULL, "tagged hashmap fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits tagged hashmap operations");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "tagged hashmap C compiles and runs");
+        CHECK(status == 1, "integer zero remains unequal to bool false after HM_GET");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static char *quote_path(const char *path) {
     size_t len = strlen(path);
     char *quoted = malloc(len + 3);
@@ -2241,6 +2272,7 @@ int main(int argc, char **argv) {
     test_choose_else_runs_without_nano_vm();
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
+    test_scalar_tags_survive_hashmap_roundtrip();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);
