@@ -855,6 +855,7 @@ bool type_check_module(ASTNode *program, Environment *env);  /* Type check witho
 bool type_check_root_shadows(ASTNode *program, Environment *env);
 /* I borrow checked callback metadata for map result allocation during lowering. */
 Type map_transform_result_type(ASTNode *callback, Environment *env);
+Type filter_predicate_element_type(ASTNode *callback, Environment *env);
 void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 

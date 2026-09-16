@@ -28,20 +28,38 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Self-hosted literal filter dispatch.** I infer direct literal array
+- [x] **Self-hosted literal filter dispatch.** I infer direct literal array
       element types before choosing a native filter helper, including the
       boolean callback ABI. My fresh Stage 2 selects the integer helper for
       float and boolean literals in `tests/nl_functions_filter.nano`, stopping
       `make test-quick` at 16 passing cases and one compilation failure. I test
       all scalar literal/variable paths and empty-result representation, then
       rerun the gate. MAC `task_ac94d5cc420e481a896d5f1a2d37f595`.
+      My added empty-literal checks also expose C-seed integer fallback; I
+      derive that literal's scalar representation from the predicate signature
+      and test both compilers before completing this repair. The VM also keeps
+      integer storage for an empty literal and truncates an appended float; I
+      apply the same predicate-derived scalar type at bytecode construction.
+      My expanded regression passes C-seed, Stage 1, Stage 2 and NanoVM
+      shadows/execution. Native compiler acceptance passes 21 methods and
+      C-backend tests pass seven cases. The quick gate passes all 17 language
+      cases and all 242 eligible VM examples, then reaches the known affine
+      rejection gap below. Evidence: `docs/evidence/scalar-filter-dispatch.md`.
+- [ ] **Release gate — C-seed affine rejection parity.** I resolve the
+      existing ownership task's two reproduced failures before release:
+      unresolved resources must be rejected and use-after-move must carry a
+      static ownership diagnostic, not merely fail a shadow. I review the
+      outstanding recovery branch, preserve prior artifacts on rejection and
+      rerun all three frontend cases and `make test-quick`. MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`.
 - [ ] **Current-main release reconciliation.** I review and integrate the eight
       newer main commits through `b37136cc` (PR #297), including recursive-array
       C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
       branch's compiler/runtime work, verify affected gates and record ancestry
       before release. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
-      My merge preserves both histories and passes the focused gates; the
-      broader quick gate exposes the filter blocker above. Evidence:
+      My merge preserves both histories and passes the focused gates. The
+      filter blocker is repaired; the broader quick gate now reaches the
+      existing affine rejection gap above. Initial merge evidence:
       `docs/evidence/main-reconciliation-pr297.md`.
 - [x] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
       instrumented objects instead of reusing normal objects when only `CC`

@@ -3850,6 +3850,16 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return result;\n")
     set sb (cg_append sb "}\n\n")
 
+    set sb (cg_append sb "static DynArray* nl_filter_bool(DynArray* arr, bool (*fn)(bool)) {\n")
+    set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_BOOL);\n")
+    set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
+    set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
+    set sb (cg_append sb "        bool val = dyn_array_get_bool(arr, i);\n")
+    set sb (cg_append sb "        if (fn(val)) dyn_array_push_bool(result, val);\n")
+    set sb (cg_append sb "    }\n")
+    set sb (cg_append sb "    return result;\n")
+    set sb (cg_append sb "}\n\n")
+
     /* HashMap wrappers (generic API over type-specific implementations) */
     /* nl_map_* operate on HashMap_string_int (int-valued maps)             */
     /* nl_hm_*  operate on HashMap_string_string (string-valued maps)       */
@@ -3908,6 +3918,9 @@ fn gen_c_runtime() -> string {
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
     assert (str_contains runtime "#include \"runtime/string_search.h\"")
+    assert (str_contains runtime "nl_filter_bool(DynArray* arr, bool (*fn)(bool))")
+    assert (str_contains runtime "bool val = dyn_array_get_bool(arr, i)")
+    assert (str_contains runtime "if (fn(val)) dyn_array_push_bool(result, val)")
 }
 
 /*
@@ -5363,18 +5376,18 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 2) {
                             let af_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let af_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-                            let af_a0_code: string = (generate_expression parser af_a0.node_id af_a0.node_type env "")
+                            let mut af_elem_t: string = (array_elem_type_from_array_type (infer_expr_type parser af_a0.node_id af_a0.node_type env))
+                            if (or (== af_elem_t "") (== af_elem_t "unknown")) {
+                                set af_elem_t (array_elem_type_from_array_type expected_type)
+                            }
+                            if (or (== af_elem_t "") (== af_elem_t "unknown")) { set af_elem_t "int" }
+                            let af_a0_code: string = (generate_expression parser af_a0.node_id af_a0.node_type env (+ "array<" (+ af_elem_t ">")))
                             let af_a1_code: string = (generate_expression parser af_a1.node_id af_a1.node_type env "")
-                            let mut af_elem_t: string = ""
-                            if (== af_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
-                                let af_id0: ASTIdentifier = (parser_get_identifier parser af_a0.node_id)
-                                let af_arr_t: string = (genenv_get env af_id0.name)
-                                let af_inferred: string = (array_elem_type_from_array_type af_arr_t)
-                                if (!= af_inferred "") { set af_elem_t af_inferred } else { set af_elem_t "int" }
-                            } else { set af_elem_t "int" }
                             let mut af_helper: string = "nl_filter"
                             if (== af_elem_t "string") { set af_helper "nl_filter_str" } else {
-                                if (== af_elem_t "float") { set af_helper "nl_filter_float" } else { (print "") }
+                                if (== af_elem_t "float") { set af_helper "nl_filter_float" } else {
+                                    if (== af_elem_t "bool") { set af_helper "nl_filter_bool" }
+                                }
                             }
                             let mut af_parts: array<string> = []
                             set af_parts (cg_append af_parts af_helper)
@@ -6122,6 +6135,20 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 }
 
 shadow generate_expression {
+    let filter_types: array<string> = ["int", "float", "bool", "string"]
+    let filter_values: array<string> = ["1", "1.5", "true", "\"text\""]
+    let filter_helpers: array<string> = ["nl_filter(", "nl_filter_float(", "nl_filter_bool(", "nl_filter_str("]
+    let mut filter_index: int = 0
+    while (< filter_index 4) {
+        let filter_type: string = (+ "array<" (+ (at filter_types filter_index) ">"))
+        let filter_text: string = (+ "fn probe() -> " (+ filter_type (+ " { return (filter [" (+ (at filter_values filter_index) "] predicate) }"))))
+        let filter_tokens: List<LexerToken> = (tokenize_string filter_text "filter.nano" (list_CompilerDiagnostic_new))
+        let filter_parser: Parser = (parse_program filter_tokens (list_LexerToken_length filter_tokens) "filter.nano")
+        let filter_return: ASTReturn = (parser_get_return filter_parser 0)
+        let filter_code: string = (generate_expression filter_parser filter_return.value filter_return.value_type (genenv_new "test") filter_type)
+        assert (str_contains filter_code (at filter_helpers filter_index))
+        set filter_index (+ filter_index 1)
+    }
     let nested_tokens: List<LexerToken> = (tokenize_string "fn nested() -> array<array<float>> { return [[], [1.5]] }" "arrays.nano" (list_CompilerDiagnostic_new))
     let nested_parser: Parser = (parse_program nested_tokens (list_LexerToken_length nested_tokens) "arrays.nano")
     let nested_return: ASTReturn = (parser_get_return nested_parser 0)

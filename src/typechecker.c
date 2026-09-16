@@ -838,6 +838,13 @@ Type map_transform_result_type(ASTNode *callback, Environment *env) {
     return map_callback_type(callback, env, &arity, &argument);
 }
 
+Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
+    int arity;
+    Type argument;
+    Type result = map_callback_type(callback, env, &arity, &argument);
+    return arity == 1 && result == TYPE_BOOL ? argument : TYPE_UNKNOWN;
+}
+
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&

@@ -1164,7 +1164,15 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
     /* filter(arr, fn) - returns new array with elements where fn returns true */
     if (strcmp(name, "filter") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);  /* source array */
+        Type input = filter_predicate_element_type(args[1], cg->env);
+        if (args[0]->type == AST_ARRAY_LITERAL &&
+            args[0]->as.array_literal.element_count == 0 &&
+            (input == TYPE_INT || input == TYPE_FLOAT ||
+             input == TYPE_BOOL || input == TYPE_STRING)) {
+            emit_op(cg, OP_ARR_NEW, (int)type_to_tag(input, NULL, cg->env));
+        } else {
+            compile_expr(cg, args[0]);
+        }
         uint16_t src_slot = local_add(cg, "__filter_src__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)src_slot);
 

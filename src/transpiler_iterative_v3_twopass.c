@@ -1620,6 +1620,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
+                bool empty_literal = array_arg && array_arg->type == AST_ARRAY_LITERAL &&
+                                     array_arg->as.array_literal.element_count == 0;
+                if (empty_literal) {
+                    Type input = filter_predicate_element_type(fn_arg, env);
+                    if (input == TYPE_INT || input == TYPE_FLOAT ||
+                        input == TYPE_BOOL || input == TYPE_STRING) elem_type = input;
+                }
+
                 const char *elem_enum = "ELEM_INT";
                 const char *type_suffix = "int";
                 const char *c_type = "int64_t";
@@ -1645,7 +1653,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
 
                 emit_literal(list, "({ DynArray* _arr = ");
-                build_expr(list, array_arg, env);
+                if (empty_literal) emit_formatted(list, "dyn_array_new(%s)", elem_enum);
+                else build_expr(list, array_arg, env);
                 emit_literal(list, "; __auto_type _pred = ");
                 build_expr(list, fn_arg, env);
                 emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); ", elem_enum);
