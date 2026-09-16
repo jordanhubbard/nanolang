@@ -64,6 +64,7 @@ typedef struct {
     size_t record_width;
     int has_maps;
     int has_string_arrays;
+    int has_owned_strings;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -3619,10 +3620,18 @@ static int module_has_local_kind(const Nvm2cBuf *b, const uint8_t *kinds, uint32
     return 0;
 }
 
-static void emit_nstr_arena(Nvm2cBuf *b) {
+static void emit_nstr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static char nstr_arena[65536];\n"
-        "static size_t nstr_used;\n");
+        "typedef struct nstr_owned { struct nstr_owned *next; char data[]; } nstr_owned;\n"
+        "static nstr_owned *nstr_owners;\n"
+        "static char *nstr_allocate(size_t n) {\n"
+        "    if (n > SIZE_MAX - sizeof(nstr_owned) - 1) abort();\n"
+        "    nstr_owned *owner = malloc(sizeof *owner + n + 1);\n"
+        "    if (!owner) abort(); owner->next = nstr_owners; nstr_owners = owner;\n"
+        "    owner->data[n] = 0; return owner->data;\n}\n"
+        "static void nstr_release_owned(void) {\n"
+        "    while (nstr_owners) { nstr_owned *owner = nstr_owners;\n"
+        "        nstr_owners = owner->next; free(owner); }\n}\n");
 }
 
 static void emit_nstr_concat(Nvm2cBuf *b) {
@@ -3630,12 +3639,11 @@ static void emit_nstr_concat(Nvm2cBuf *b) {
         "static const char *nstr_concat(const char *a, const char *b) {\n"
         "    size_t na = strlen(a ? a : \"\");\n"
         "    size_t nb = strlen(b ? b : \"\");\n"
-        "    if (nstr_used + na + nb + 1 > sizeof nstr_arena) abort();\n"
-        "    char *p = nstr_arena + nstr_used;\n"
+        "    if (na > SIZE_MAX - nb) abort();\n"
+        "    char *p = nstr_allocate(na + nb);\n"
         "    memcpy(p, a ? a : \"\", na);\n"
         "    memcpy(p + na, b ? b : \"\", nb);\n"
         "    p[na + nb] = 0;\n"
-        "    nstr_used += na + nb + 1;\n"
         "    return p;\n"
         "}\n\n");
 }
@@ -3644,15 +3652,12 @@ static void emit_nstr_substr(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_substr(const char *s, int64_t start, int64_t len) {\n"
         "    const char *src = s ? s : \"\";\n"
-        "    int64_t slen = (int64_t)strlen(src);\n"
+        "    size_t slen = strlen(src);\n"
         "    if (start < 0) start = 0;\n"
-        "    if (start >= slen || len <= 0) return \"\";\n"
-        "    if (len > slen - start) len = slen - start;\n"
-        "    if (nstr_used + (size_t)len + 1 > sizeof nstr_arena) abort();\n"
-        "    char *p = nstr_arena + nstr_used;\n"
-        "    memcpy(p, src + start, (size_t)len);\n"
-        "    p[len] = 0;\n"
-        "    nstr_used += (size_t)len + 1;\n"
+        "    if ((uint64_t)start >= slen || len <= 0) return \"\";\n"
+        "    size_t count = (uint64_t)len > slen - (size_t)start ? slen - (size_t)start : (size_t)len;\n"
+        "    char *p = nstr_allocate(count);\n"
+        "    memcpy(p, src + (size_t)start, count);\n"
         "    return p;\n"
         "}\n\n");
 }
@@ -3694,10 +3699,9 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
         "static const char *nstr_from_i64(int64_t v) {\n"
         "    char tmp[32];\n"
         "    int n = snprintf(tmp, sizeof tmp, \"%lld\", (long long)v);\n"
-        "    if (n < 0 || (size_t)n + 1 > sizeof nstr_arena - nstr_used) abort();\n"
-        "    char *p = nstr_arena + nstr_used;\n"
+        "    if (n < 0 || (size_t)n >= sizeof tmp) abort();\n"
+        "    char *p = nstr_allocate((size_t)n);\n"
         "    memcpy(p, tmp, (size_t)n + 1);\n"
-        "    nstr_used += (size_t)n + 1;\n"
         "    return p;\n"
         "}\n\n");
 }
@@ -4668,7 +4672,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static void nrec_release_snapshots(void) {\n"
             "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
             "        nrec_owned_head = node->next; free(node); }\n}\n");
-        if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
+        if (need_concat || need_cast || need_substr) {
+            b.has_owned_strings = 1; emit_nstr_storage(&b);
+        }
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
@@ -4776,6 +4782,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
         if (b.has_string_arrays) nvm2c_puts(&b, "    nsarr_release_owned();\n");
+        if (b.has_owned_strings) nvm2c_puts(&b, "    nstr_release_owned();\n");
         nvm2c_puts(&b, "    return result;\n}\n");
     }
 

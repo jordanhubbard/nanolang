@@ -684,6 +684,64 @@ int main(int argc, char **argv) {
                 failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
                 self.assertLess(failed.returncode, 0, "I trap allocation, size and storage failures")
 
+    def test_owned_strings_preserve_escaped_values_and_cleanup(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        with tempfile.TemporaryDirectory(prefix="nano-owned-strings-") as tmp:
+            work = Path(tmp)
+            assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+            assembly.write_text('.string text "x"\n.entry main\n.function main 0 0 0 int 1\n'
+                                'PUSH_I64 42\nCAST_STRING\nPOP\nPUSH_STR text\nPUSH_STR text\nSTR_CONCAT\n'
+                                'PUSH_I64 0\nPUSH_I64 1\nSTR_SUBSTR\nSTR_LEN\nRET\n.end\n')
+            self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+            generated = source.read_text().replace("int main(", "int generated_main(")
+            source.write_text('''#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+static size_t live;
+static int fail_allocation, fake_length;
+static void *tracked_malloc(size_t n) { if (fail_allocation) return NULL; void *p = malloc(n); if (p) ++live; return p; }
+static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
+static size_t tracked_strlen(const char *s) { return fake_length && !strcmp(s, "left") ? SIZE_MAX : strlen(s); }
+#define malloc tracked_malloc
+#define free tracked_free
+#define strlen tracked_strlen
+''' + generated + '''
+int main(int argc, char **argv) {
+    int mode = argc > 1 ? atoi(argv[1]) : 0;
+    if (mode == 1) fail_allocation = 1;
+    if (mode == 6) { fake_length = 1; (void)nstr_concat("left", "right"); }
+    if (mode == 2) (void)nstr_allocate(SIZE_MAX);
+    if (mode == 3) (void)nstr_allocate(SIZE_MAX - sizeof(nstr_owned));
+    const char *escaped = nstr_concat("kept", "value");
+    char *input = malloc(100001); if (!input) return 1;
+    memset(input, 'a', 100000); input[100000] = 0;
+    const char *large = nstr_concat(input, input); free(input);
+    if (strlen(large) != 200000 || large[0] != 'a' || large[199999] != 'a') return 2;
+    if (mode == 4) fail_allocation = 1;
+    const char *slice = nstr_substr(large, -4, INT64_MAX);
+    if (strlen(slice) != 200000 || strcmp(slice, large)) return 3;
+    size_t before = live;
+    if (strcmp(nstr_substr(large, INT64_MAX, INT64_MAX), "") ||
+        strcmp(nstr_substr(large, 0, -1), "") || live != before) return 4;
+    if (mode == 5) fail_allocation = 1;
+    const char *minimum = nstr_from_i64(INT64_MIN), *maximum = nstr_from_i64(INT64_MAX);
+    for (int i = 0; i < 70000; ++i) if (strcmp(nstr_from_i64(42), "42")) return 5;
+    if (strcmp(escaped, "keptvalue") || strcmp(minimum, "-9223372036854775808") ||
+        strcmp(maximum, "9223372036854775807")) return 6;
+    nstr_release_owned(); if (live) return 7;
+    nstr_release_owned(); if (live) return 8;
+    if (generated_main() != 1 || live) return 9;
+    return 0;
+}
+''')
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
+            self.run_checked([binary])
+            for mode in range(1, 7):
+                failed = subprocess.run([binary, str(mode)], capture_output=True, timeout=10)
+                self.assertLess(failed.returncode, 0, "I reject allocation and string-size overflow")
+
     def test_uncalled_functions_are_warning_clean_not_executed(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

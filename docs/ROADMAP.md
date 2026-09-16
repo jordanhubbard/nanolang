@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Current-main release reconciliation.** I review and integrate the eight
+      newer main commits through `b37136cc` (PR #297), including recursive-array
+      C-seed/self-hosted fixes and SDL header metadata. I preserve the integration
+      branch's compiler/runtime work, verify affected gates and record ancestry
+      before release. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
 - [x] **Sanitizer build isolation.** I make the AOT sanitizer target rebuild
       instrumented objects instead of reusing normal objects when only `CC`
       changes. I test warm-cache behavior before claiming translator coverage.
@@ -53,6 +58,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       element shapes and support their construction and data flow without
       guessing a scalar representation. I verify complete compiler execution.
       MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My current compiler-to-bytecode-to-native-to-hello acceptance passes all
+      21 test methods. I retain the broader unchecked contracts below; this
+      execution test does not establish canonical bootstrap identity or general
+      equivalence. Evidence: `docs/evidence/aot-owned-scalar-strings.md`.
       - [x] I construct explicitly tagged struct arrays and reject incompatible
         record-field representations on append instead of overwriting facts.
         My AOT suite passes 922 checks; evidence:
@@ -458,12 +467,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   Normal and fresh ASan/UBSan suites pass 1,670 AOT and 1,073
                   shape checks; compiler acceptance advances to 19 of 20 methods.
                   Evidence: `docs/evidence/aot-owned-string-array-growth.md`.
-                - [ ] I replace the fixed scalar-string arena with checked
+                - [x] I replace the fixed scalar-string arena with checked
                   owned storage. Native compiler execution now passes array
                   growth and aborts in `nstr_concat`, called by `cg_build` while
                   emitting the C runtime. I preserve escaped strings, test
                   allocation/size failures and rerun full acceptance. MAC
                   `task_b0c4ad8c9a824e64ab8fd3fa6881146e`.
+                  Large strings, escaped values, formatting, cleanup and six
+                  negative cases pass. Normal and fresh ASan/UBSan suites pass
+                  1,670 AOT and 1,073 shape checks. All 21 compiler acceptance
+                  methods now pass. Evidence: `docs/evidence/aot-owned-scalar-strings.md`.
                 - [x] I resolve the next compiler field conflict without
                   weakening compatibility checks: function 264 offset 60,
                   `ARR_PUSH` field 0 has string versus integer facts.
