@@ -38,6 +38,10 @@ class GenericSelectedOwnership(unittest.TestCase):
     def test_resource_and_ordinary_selected_arms(self):
         self.check(PREFIX + CONSUME + MAIN, True)
 
+    def test_ordinary_selected_arm_can_be_ignored(self):
+        source = PREFIX + CONSUME.replace('let Result.Err { error } = payload assert (== error "empty") return 0', 'return 0') + MAIN
+        self.check(source, True)
+
     def test_empty_arm_has_no_obligation(self):
         self.check(PREFIX + '''fn consume(value: Box<Handle>) -> int { match value {
  Some(payload) => { let Box.Some { value } = payload return (close_handle value) }
