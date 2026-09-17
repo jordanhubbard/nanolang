@@ -1,6 +1,7 @@
 # My Roadmap
 
-- [ ] I bound native root-membership and owner-marking cost during full compiler self-compilation (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`). My sampled source merge spends CPU tracing growing arrays: linear membership insertion makes a full root traversal quadratic. I preserve collection and lifetime guarantees, measure scaling, and keep this performance diagnosis separate from correctness or bootstrap convergence.
+- [x] I index native root membership and mark each owner once per collection (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`), preserving traversal order, collection points and lifetime guarantees. My [scaling and sanitizer evidence](evidence/native-root-tracking-cost.md) separates this lookup repair from full bootstrap convergence.
+- [ ] I bound repeated native whole-graph scans during source merging (MAC `task_5928905033844a4a8fb498d63cb68c39`). Indexed membership improves each scan, but the full compiler still samples in collection on `split_lines` backward edges. I require measured scheduling or incremental-tracing work that preserves bounded owner retention and current mutable roots; I do not disable collection.
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
