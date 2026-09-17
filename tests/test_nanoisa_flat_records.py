@@ -132,7 +132,7 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
             self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
                              "precise", "negate", "bare", "negative_zero", "difference_zero", "arithmetic",
-                             "comparisons", "relay", "change", "main", "__init__")
+                             "comparisons", "relay", "change", "render_float", "main", "__init__")
             self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
             for module in (seed, emitted):
                 self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)

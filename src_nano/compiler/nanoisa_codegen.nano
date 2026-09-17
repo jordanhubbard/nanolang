@@ -493,6 +493,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
     return (or (nisa_is_arr_builtin name)
@@ -507,6 +508,7 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "array_length")
     assert (nisa_is_inline_call "not")
     assert (nisa_is_inline_call "print")
