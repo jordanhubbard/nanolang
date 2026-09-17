@@ -25,3 +25,9 @@ self-hosted stages (24 compile decisions, including four expected cyclic-layout
 refusals with prior-output preservation). The new integer/string record
 fixtures also compile and run with the C seed. Logs are retained under
 `/tmp/nanolang-primitive-list-fields-{bootstrap,native,cseed}.log`.
+
+After integration with the nested generic identity repair at `d1827351`,
+I rebuilt all bootstrap stages and reran nominal plus nested-generic checks:
+all eleven methods passed in 76.807 seconds (27 compiler decisions across the
+selected stages). The integrated logs are
+`/tmp/nanolang-primitive-list-fields-integrated-{bootstrap,native}.log`.
