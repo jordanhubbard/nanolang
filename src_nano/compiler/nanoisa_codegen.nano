@@ -461,6 +461,20 @@ shadow nisa_list_element_tag {
     assert (== (nisa_list_element_tag p "list_Shade_new") "1")
 }
 
+# I preserve exact two-string operations without replacing declared functions.
+fn nisa_string_binary_opcode(name: string) -> string {
+    if (== name "str_concat") { return "STR_CONCAT" }
+    if (== name "str_starts_with") { return "STR_STARTS_WITH" }
+    if (== name "str_ends_with") { return "STR_ENDS_WITH" }
+    return ""
+}
+shadow nisa_string_binary_opcode {
+    assert (== (nisa_string_binary_opcode "str_concat") "STR_CONCAT")
+    assert (== (nisa_string_binary_opcode "str_starts_with") "STR_STARTS_WITH")
+    assert (== (nisa_string_binary_opcode "str_ends_with") "STR_ENDS_WITH")
+    assert (== (nisa_string_binary_opcode "unknown") "")
+}
+
 fn nisa_is_inline_call(name: string) -> bool {
     if (== name "string_to_int") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
@@ -1439,7 +1453,10 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (or (== node_type ParseNodeType.PNODE_CALL) (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
         let call: ASTCall = (nisa_get_call parser node_id node_type)
         let target_name: string = (nisa_call_name parser call)
-        if (and (== target_name "str_concat") (< (nisa_call_index parser call) 0)) { return "string" }
+        if (and (!= (nisa_string_binary_opcode target_name) "") (< (nisa_call_index parser call) 0)) {
+            if (== target_name "str_concat") { return "string" }
+            return "bool"
+        }
         if (== target_name "array_new") {
             if (!= call.arg_count 2) { return "" }
             let fill: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
@@ -1921,17 +1938,17 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             if (not nisa_ok) { return "" }
         }
     }
-    if (and (== function_name "str_concat") (< declared_index 0)) {
-        if (!= call.arg_count 2) { return (nisa_fail "I require two string operands for str_concat") }
+    if (and (!= (nisa_string_binary_opcode function_name) "") (< declared_index 0)) {
+        if (!= call.arg_count 2) { return (nisa_fail (+ "I require two string operands for " function_name)) }
         let mut i: int = 0
         while (< i call.arg_count) {
             let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
             if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
-                return (nisa_fail "I require two string operands for str_concat")
+                return (nisa_fail (+ "I require two string operands for " function_name))
             }
             set i (+ i 1)
         }
-        return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CONCAT"))
+        return (+ (nisa_emit_call_args parser call) (nisa_line (nisa_string_binary_opcode function_name)))
     }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
     if (nisa_is_set_call function_name) { return (nisa_emit_set_call parser call function_name) }
@@ -2453,7 +2470,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                     }
                 }
-                if (and (== function_name "str_concat") (< call_index 0)) {
+                if (and (!= (nisa_string_binary_opcode function_name) "") (< call_index 0)) {
                     return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                 }
                 if (or (nisa_is_inline_call function_name) (!= (nisa_call_host_symbol parser function_name) "")) {
