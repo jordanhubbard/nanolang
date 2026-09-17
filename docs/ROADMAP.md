@@ -27,6 +27,19 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Concrete native specialization closure.** I discover union instances
+      reachable only through substituted payload fields, including checked
+      cyclic and expanding-type boundaries. MAC `task_98dab2489ab749e7b9053f944b3fe489`.
+- [ ] **Direct nested native match identity.** I retain the concrete selected
+      payload type when matching `payload.value` directly; my current emitter
+      produces `nl_UNKNOWN`. MAC `task_7bc727794375435ca72e6fef466ff161`.
+
+- [x] **Self-hosted native union contexts.** I substitute nested generic payload
+      types and initialize declared union globals in source order alongside
+      guarded globals, preserving native shadows and executable payload values.
+      MAC `task_85a8db6e186440eaad80442bfc133dd8`; evidence:
+      `docs/evidence/selfhost-native-union-contexts.md`.
+
 - [x] **Primitive List record fields.** I preserve `List<int>` and
       `List<string>` keyword elements and their runtime typedefs during
       native token lowering. MAC `task_f0a59def9afe4a08ae63c55d4ba22109`;

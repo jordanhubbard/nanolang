@@ -1,0 +1,23 @@
+struct Plain { value: int }
+union Box<T> { Some { values: array<T> } }
+union Envelope<T> { Some { item: Box<T> } }
+let global: Box<Plain> = Box.Some { values: [Plain { value: 11 }] }
+fn read(value: Box<Plain>) -> int {
+ match value { Some(payload) => { let first: Plain = (at payload.values 0) return first.value } }
+}
+shadow read { assert (== (read Box.Some { values: [Plain { value: 9 }] }) 9) }
+fn make() -> Box<Plain> { return Box.Some { values: [Plain { value: 12 }] } }
+shadow make { assert (== (read (make)) 12) }
+fn main() -> int {
+ assert (== (read global) 11)
+ assert (== (read Box.Some { values: [Plain { value: 13 }] }) 13)
+ let mut value: Box<Plain> = Box.Some { values: [] }
+ set value Box.Some { values: [Plain { value: 14 }] }
+ assert (== (read value) 14)
+ let outer: Envelope<Plain> = Envelope.Some { item: Box.Some { values: [Plain { value: 15 }] } }
+ match outer { Some(payload) => { assert (== (read payload.item) 15) } }
+ let blank: Box<Plain> = Box.Some { values: [] }
+ match blank { Some(payload) => { let grown: array<Plain> = (array_push payload.values Plain { value: 16 }) let first: Plain = (at grown 0) assert (== first.value 16) } }
+ return 0
+}
+shadow main { assert (== (main) 0) }

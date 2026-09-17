@@ -4239,3 +4239,9 @@ test-compiler-artifact-support: $(COMPILER_C)
 test-units: test-native-nested-generics
 test-native-nested-generics: bootstrap
 	python3 -m unittest tests.test_native_nested_generics
+
+.PHONY: test-selfhost-generic-contexts
+test-selfhost-generic-contexts: bootstrap
+	python3 -m unittest -v tests.test_selfhost_generic_contexts
+
+test-units: test-selfhost-generic-contexts
