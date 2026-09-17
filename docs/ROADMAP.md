@@ -10178,3 +10178,6 @@ gates pass.
 My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
+
+- [ ] I preserve all eight module introspection operations and exact merged module identities through canonical NanoISA lowering before completing the product cutover (`task_faa47ec22a2545348aa9c9d705580321`).
+- [ ] I distinguish native executable structure from string data when excluding VM-wrapper products; the ordinary compiler carries a legitimate `bin/nano_vm` shadow-runner path (`task_b4a32a35810544f4a0234ab5828b46b4`).

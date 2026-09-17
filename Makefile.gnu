@@ -3359,7 +3359,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_vm nvm2c nvm2c-runtime
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
@@ -4368,3 +4368,7 @@ test-units: test-selfhost-float-values
 test-canonical-vm-shadows: bootstrap nano_vm
 	python3 -m unittest tests.test_canonical_vm_shadows
 test-units: test-canonical-vm-shadows
+
+.PHONY: test-nanoisa-only-product
+test-nanoisa-only-product: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanoisa_only_product
