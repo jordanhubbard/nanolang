@@ -78,6 +78,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       reject malformed textual payloads, and compare canonical v2 bytes.
       MAC: `task_64dda3aeaab042df96a914ccd974209a`.
 
+- [x] **v5.0.1 self-hosted enum metadata.** I retain ordered enum variant
+      names and signed explicit/implicit values in my shared AST instead of
+      discarding them during parsing. I verify all bootstrap stages and
+      schema consumers before my NanoISA emitter uses these facts.
+      MAC: `task_e66b50097fe343e3b78e6b750a5c7315`.
+
 - [x] **v5.0.1 C-seed global initializer context.** I apply declared map and
       array types before checking top-level initializers, matching local
       declarations. I test typed constant maps, empty string arrays, and

@@ -980,6 +980,14 @@
         [
           "variant_count",
           "int"
+        ],
+        [
+          "variant_names",
+          "array<string>"
+        ],
+        [
+          "variant_values",
+          "array<int>"
         ]
       ],
       "emit_c": true
