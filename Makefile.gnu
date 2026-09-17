@@ -4295,3 +4295,8 @@ test-resource-generic-records: $(COMPILER_C)
 .PHONY: test-vm-bytecode-bootstrap
 test-vm-bytecode-bootstrap: nano_virt nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_vm_bytecode_bootstrap
+
+.PHONY: test-generic-function-values
+test-generic-function-values: bootstrap
+	python3 -m unittest -v tests.test_generic_function_values
+test-selfhost-generic-contexts: test-generic-function-values
