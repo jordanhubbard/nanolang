@@ -42,7 +42,7 @@ emitting its compiler module. That emission passes in 142.855 seconds; native
 translation then passes in 4.111 seconds. Neither path exposes an unsupported
 shape, opcode or artifact ABI within this tested workload.
 
-## Retained proof
+## Retained evidence
 
 I preserve artifacts under `/tmp/nanolang-native-readiness-8666/`:
 
@@ -65,7 +65,7 @@ are `/tmp/nanolang-native-readiness-8666-build.log` and
 
 ## Boundary
 
-I prove two native compiler products can compile a real hello NanoISA program.
+I tested that two native compiler products can compile a real hello NanoISA program.
 I do not run the historical native parser-crash workload or claim full native
 self-compilation convergence. I do not replace the canonical VM bootstrap gate.
 The pending VM-shadow cutover changes what the generated compiler invokes for
