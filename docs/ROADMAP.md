@@ -181,6 +181,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       not establish an executable ownership escape. MAC
       `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
+- [ ] **Classify concrete generic payloads retained inside records.** I use
+      full retained record field annotations and substitute union arguments
+      before classifying an enclosing record. `Outer { boxed: Box<Handle> }`
+      currently reaches native emission without a global ownership diagnostic
+      in both frontends. I require paired resource/ordinary and phantom controls,
+      nested chains and ordinary cycles, preserving declaration identity and
+      collection guards. This is not evidence of executable misuse; native
+      record/global emission remains separate. MAC
+      `task_ef807591eb104cc8b664cd55581ec505`, before the global boundary below.
+
 - [ ] **Define my global resource boundary.** I first reject resource-bearing
       global declarations explicitly in both frontends, using concrete payload
       classification and a precise unsupported-ownership diagnostic. A current
