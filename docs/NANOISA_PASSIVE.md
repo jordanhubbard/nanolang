@@ -82,3 +82,17 @@ purity summaries. It does not implement either frontend's `par` or `flow`
 syntax. The complete external-input task remains open until its broader
 acceptance is met. Guarded scalar validation and paired execution evidence are
 in [my acceptance record](evidence/passive-guarded-inputs.md).
+
+## Structured producer markers
+
+A textual producer may bracket a function-local independent block with
+`.par_begin` and `.par_end`. Before each binding's instructions it writes
+`.par_node result-local [external-parameter ...]`, with sorted external indices.
+The assembler resolves current function and instruction offsets into the
+existing version-2 record. It does not invent guards, purity facts, dependencies,
+or resource permissions. Ordinary passive verification remains authoritative.
+
+Markers must be complete, nonnested, and inside one function. A block needs at
+least one node. Raw `.passive` chunks and producer markers cannot be mixed in
+one input. Canonical disassembly continues to emit exact `.passive` hexadecimal
+chunks; producer convenience syntax is not a second binary format.
