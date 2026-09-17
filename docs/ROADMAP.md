@@ -45,6 +45,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Retained NanoISA layouts.** I preserve complete v2 layout tables through
+      my execution-module bridge, canonical reconstruction and serialization
+      before reference verification consumes them (MAC `task_a794de400f5b400bbc11a6d251e7bd94`, parent ed702).
+  - [ ] I retain exact nominal/nested indices with a required feature bit and
+        reject lossy v1 serialization; same-kind order preserves executable
+        definition ordinals without inventing a new layout identity.
+  - [ ] I test nested fields, distinct same-shaped records, source-lifetime
+        independence, reconstruction and legacy compatibility. This transport
+        does not establish ownership facts or enable borrowed execution.
+
+
 - [x] **Checked NanoISA reference places.** I implement the first reference IR
       prerequisite under `task_ed70242ac4d83be7b2327da7ece387ad`, preserving
       full borrow parent718 and the release hold (MAC `task_83d7ced8a4e34d93b7193fdf2b841137`).
