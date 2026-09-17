@@ -16,6 +16,7 @@ static int supported(uint8_t op) {
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
     case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
     case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:
+    case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
     case OP_CAST_INT: case OP_CAST_FLOAT:
     case OP_NOP: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
@@ -76,6 +77,78 @@ static void float_runtime(FILE *out) {
         "define internal double @float_divide(double %a, double %b) {\nentry:\n"
         " %zero = fcmp oeq double %b, 0.000000e+00\n br i1 %zero, label %z, label %divide\n"
         "z:\n ret double 0.000000e+00\ndivide:\n %answer = fdiv double %a, %b\n ret double %answer\n}\n", out);
+}
+/* I preserve generic three-way NaN ordering independently of IEEE equality. */
+static void comparison_runtime(FILE *out) {
+    fputs(
+        "define internal i1 @comparison_float_pair(%V %a, %V %b) {\n"
+        " %at = extractvalue %V %a, 1\n"
+        " %bt = extractvalue %V %b, 1\n"
+        " %af = icmp eq i8 %at, 3\n"
+        " %bf = icmp eq i8 %bt, 3\n"
+        " %ai = icmp eq i8 %at, 1\n"
+        " %bi = icmp eq i8 %bt, 1\n"
+        " %an = or i1 %af, %ai\n"
+        " %bn = or i1 %bf, %bi\n"
+        " %left = and i1 %af, %bn\n"
+        " %right = and i1 %bf, %an\n"
+        " %answer = or i1 %left, %right\n"
+        " ret i1 %answer\n"
+        "}\n"
+        "define internal i1 @scalar_equal(%V %a, %V %b) {\n"
+        "entry:\n"
+        " %fp = call i1 @comparison_float_pair(%V %a, %V %b)\n"
+        " br i1 %fp, label %floating, label %tagged\n"
+        "floating:\n"
+        " %x = call double @cast_floating(%V %a)\n"
+        " %y = call double @cast_floating(%V %b)\n"
+        " %numeric = fcmp oeq double %x, %y\n"
+        " ret i1 %numeric\n"
+        "tagged:\n"
+        " %at = extractvalue %V %a, 1\n"
+        " %bt = extractvalue %V %b, 1\n"
+        " %same = icmp eq i8 %at, %bt\n"
+        " %av = extractvalue %V %a, 0\n"
+        " %bv = extractvalue %V %b, 0\n"
+        " %payload = icmp eq i64 %av, %bv\n"
+        " %void = icmp eq i8 %at, 0\n"
+        " %value = or i1 %void, %payload\n"
+        " %answer = and i1 %same, %value\n"
+        " ret i1 %answer\n"
+        "}\n"
+        "define internal i64 @scalar_order(%V %a, %V %b) {\n"
+        "entry:\n"
+        " %fp = call i1 @comparison_float_pair(%V %a, %V %b)\n"
+        " br i1 %fp, label %floating, label %tagged\n"
+        "floating:\n"
+        " %x = call double @cast_floating(%V %a)\n"
+        " %y = call double @cast_floating(%V %b)\n"
+        " %lt = fcmp olt double %x, %y\n"
+        " %gt = fcmp ogt double %x, %y\n"
+        " %lo = zext i1 %lt to i64\n"
+        " %hi = zext i1 %gt to i64\n"
+        " %numeric = sub i64 %hi, %lo\n"
+        " ret i64 %numeric\n"
+        "tagged:\n"
+        " %at = extractvalue %V %a, 1\n"
+        " %bt = extractvalue %V %b, 1\n"
+        " %same = icmp eq i8 %at, %bt\n"
+        " %av = extractvalue %V %a, 0\n"
+        " %bv = extractvalue %V %b, 0\n"
+        " %less = icmp slt i64 %av, %bv\n"
+        " %greater = icmp sgt i64 %av, %bv\n"
+        " %l = zext i1 %less to i64\n"
+        " %g = zext i1 %greater to i64\n"
+        " %payload = sub i64 %g, %l\n"
+        " %void = icmp eq i8 %at, 0\n"
+        " %value = select i1 %void, i64 0, i64 %payload\n"
+        " %ati = zext i8 %at to i64\n"
+        " %bti = zext i8 %bt to i64\n"
+        " %tags = sub i64 %ati, %bti\n"
+        " %answer = select i1 %same, i64 %value, i64 %tags\n"
+        " ret i64 %answer\n"
+        "}\n"
+        , out);
 }
 static void pop(FILE *out, uint32_t pc, const char *name) {
     fprintf(out, " %%p%u_%s = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, name);
@@ -155,6 +228,23 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             pop(out, pc, "a");
             fprintf(out, " %%p%u_ok = call i1 @truthy(%%V %%p%u_a)\n call void @check(i1 %%p%u_ok)\n", pc, pc, pc);
             break;
+        case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE: {
+            pop(out, pc, "b");
+            pop(out, pc, "a");
+            if (ins.opcode == OP_EQ || ins.opcode == OP_NE) {
+                fprintf(out, " %%p%u_equal = call i1 @scalar_equal(%%V %%p%u_a, %%V %%p%u_b)\n"
+                    " %%p%u_bool = xor i1 %%p%u_equal, %s\n", pc, pc, pc, pc, pc,
+                    ins.opcode == OP_NE ? "true" : "false");
+            } else {
+                const char *predicate = ins.opcode == OP_LT ? "slt" : ins.opcode == OP_LE ? "sle" :
+                                        ins.opcode == OP_GT ? "sgt" : "sge";
+                fprintf(out, " %%p%u_order = call i64 @scalar_order(%%V %%p%u_a, %%V %%p%u_b)\n"
+                    " %%p%u_bool = icmp %s i64 %%p%u_order, 0\n", pc, pc, pc, pc, predicate, pc);
+            }
+            fprintf(out, " %%p%u_result = zext i1 %%p%u_bool to i64\n", pc, pc);
+            result(out, pc, TAG_BOOL);
+            break;
+        }
         case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT: {
             int binary = ins.opcode == OP_AND || ins.opcode == OP_OR;
             if (binary) {
@@ -290,6 +380,7 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
     }
     runtime(out);
     float_runtime(out);
+    comparison_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
