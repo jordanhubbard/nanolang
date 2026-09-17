@@ -58,3 +58,8 @@ produce identical final fixture assembly, SHA-256
 `e2c9acbe7545694522540760b84f63493cfd17040bf81c72a7b48066c037de99`.
 The Stage2 compiler used here is the preserved compiler from the explicit
 sixty-second-budget bootstrap above; it builds the final rebased emitter source.
+
+After the additive main `0387c897` restack, both focused range methods pass
+again in 1.702 s (`/tmp/nanolang-range-for-restack2.log`), with fresh C-seed,
+VM and native AOT tools. The complete 86/74-method checkpoint above remains
+identified separately.
