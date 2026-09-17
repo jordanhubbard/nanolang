@@ -146,6 +146,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       rejects ownership but both self-hosted stages fail later on generated
       `Tuple_T_int`. I require deliberate rejection or complete substitution
       and ownership lowering; absence of an executable is not diagnostic parity.
+      During concrete metadata classification I retain conservative C resource
+      argument rejection for payload shapes whose formals are not substituted.
       MAC `task_bcd773ad3c084ce099a3da5aef682fef`.
 
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
