@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPILER = Path(os.environ.get("NANOC", ROOT / "bin/nanoc_c")).resolve()
 
 
 class ArtifactImports(unittest.TestCase):
@@ -18,7 +19,7 @@ class ArtifactImports(unittest.TestCase):
         source = cls.directory / "driver.nano"
         source.write_text((ROOT / "tests/nanoisa/fixtures/artifact_import_driver.nano.txt").read_text())
         cls.driver = cls.directory / "driver"
-        result = subprocess.run([ROOT / "bin/nanoc_c", source, "-o", cls.driver], cwd=ROOT,
+        result = subprocess.run([COMPILER, source, "-o", cls.driver], cwd=ROOT,
                                 capture_output=True, text=True, timeout=180)
         if result.returncode:
             raise AssertionError(result.stdout + result.stderr)
@@ -174,6 +175,66 @@ class ArtifactImports(unittest.TestCase):
                     prefix = '\n' + declaration if 'last_error' in declaration else declaration + '\n'
                     merged.write_text(prefix + '\nfn main() -> int { ' + call + ' return 0 }\n')
                     self.assertEqual(self.command(self.driver, merged, provider, provider, "program", expected=1).stdout, "")
+
+    def test_filesystem_array_and_scalar_artifacts_execute_in_both_backends(self):
+        with tempfile.TemporaryDirectory(prefix="nano-fs-artifact-") as tmp:
+            directory = Path(tmp)
+            data = directory / "data"
+            data.mkdir()
+            original = data / "original.txt"
+            copied, target, nested = directory / "copied.txt", directory / "target", directory / "nested/child"
+            api = ROOT / "modules/std/fs.nano"
+            declarations = ("extern fn fs_walkdir(root: string) -> array<string> "
+                            "extern fn file_append(path: string, content: string) -> int "
+                            "extern fn fs_mkdir_p(path: string) -> int "
+                            "extern fn file_copy(source: string, target: string) -> int "
+                            "extern fn dir_copy(source: string, target: string) -> int\n")
+            body = ('fn main() -> int { unsafe { '
+                    'let files: array<string> = (fs_walkdir ' + json.dumps(str(data)) + ') '
+                    'assert (== (array_length files) 1) '
+                    'assert (== (at files 0) ' + json.dumps(str(original)) + ') '
+                    'assert (== (file_append ' + json.dumps(str(original)) + ' "after") 0) '
+                    'assert (== (file_read ' + json.dumps(str(original)) + ') "beforeafter") '
+                    'assert (== (fs_mkdir_p ' + json.dumps(str(nested)) + ') 0) '
+                    'assert (== (file_copy ' + json.dumps(str(original)) + ' ' + json.dumps(str(copied)) + ') 0) '
+                    'assert (== (dir_copy ' + json.dumps(str(data)) + ' ' + json.dumps(str(target)) + ') 0) '
+                    '} return 0 }\n')
+            merged, text, module = directory/'merged.nano', directory/'module.nasm', directory/'module.nvm'
+            merged.write_text(declarations + body)
+            assembly = self.command(self.driver, merged, api, api, "program").stdout
+            self.assertIn('"fs_walkdir" array string', assembly)
+            for name in ('file_append', 'fs_mkdir_p', 'file_copy', 'dir_copy'):
+                self.assertIn('"' + name + '" int string', assembly)
+            self.assertEqual(assembly.count('.import_kind '), 5)
+            text.write_text(assembly)
+            self.command(ROOT/'bin/nanoisa', 'asm', text, '-o', module)
+            c_source, binary = directory/'module.c', directory/'native'
+            self.command(ROOT/'bin/nvm2c', module, '-o', c_source)
+            self.command('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+                         ROOT/'bin/nano_aot_runtime.o', '-lm',
+                         *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []), '-o', binary)
+            for command in ((ROOT/'bin/nano_vm', module), (binary,)):
+                original.write_text('before')
+                self.command(*command)
+                self.assertEqual(copied.read_text(), 'beforeafter')
+                self.assertEqual((target/'original.txt').read_text(), 'beforeafter')
+                self.assertTrue(nested.is_dir())
+
+    def test_filesystem_array_signature_mismatch_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="nano-fs-abi-") as tmp:
+            directory = Path(tmp)
+            api = ROOT / "modules/std/fs.nano"
+            source = directory/'input.nano'
+            for signature, invocation in (
+                ('extern fn fs_walkdir(root: string) -> array<int>', '(fs_walkdir "x")'),
+                ('extern fn fs_walkdir(root: int) -> array<string>', '(fs_walkdir 1)'),
+                ('extern fn fs_walkdir() -> array<string>', '(fs_walkdir)'),
+                ('extern fn file_append(path: string, value: int) -> int', '(file_append "x" 1)'),
+            ):
+                with self.subTest(signature=signature):
+                    source.write_text(signature + '\nfn main() -> int { unsafe { ' + invocation + ' } return 0 }\n')
+                    result = self.command(self.driver, source, api, api, 'program', expected=1)
+                    self.assertEqual(result.stdout, '')
 
     def test_bad_artifact_signatures_operands_and_missing_owner_refuse(self):
         with tempfile.TemporaryDirectory(prefix="nano-artifact-refusal-") as tmp:
