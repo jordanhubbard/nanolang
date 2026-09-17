@@ -26,6 +26,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Restore compiler AOT artifact binding.** I preserve exact library
+      bindings and typed adapters for the NanoISA facade imports introduced by
+      my canonical bytecode route. My unchanged main baseline rejects import
+      `nl_nanoisa_load_print` during compiler-bytecode translation. I retain
+      that rejection until a correct binding exists, then require generated
+      native compiler execution and continued rejection of unsupported imports.
+      MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
+      `docs/evidence/compiler-aot-artifact-binding-gap.md`.
+
 - [ ] **v5.0.1 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish
       ordinary instantiations from resource-bearing ones, and preserve declaring
