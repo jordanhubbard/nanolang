@@ -4488,3 +4488,8 @@ test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUN
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_runtime_alloc tests/nanoisa/test_owned_runtime_alloc.c obj/test_owned_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_owned_runtime_alloc
 	python3 -m unittest tests.test_owned_runtime
+
+.PHONY: test-implicit-returns
+test-units: test-implicit-returns
+test-implicit-returns: nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_implicit_returns
