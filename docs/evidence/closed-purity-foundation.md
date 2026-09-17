@@ -81,4 +81,5 @@ root pure caller that revisits the imported body after loading returns.
 
 My shared frontend gate now has 56 decisions plus these four Cseed ownership
 cases. The imported-global shape is not claimed as shared selfhost acceptance:
-its ordinary baseline exposes a separate existing nominal emission limitation.
+its ordinary baseline exposes a separate existing nominal emission limitation,
+tracked as `task_2905cd2c7dc44e759bf64818ed0a3d77`.

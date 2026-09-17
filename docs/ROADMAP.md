@@ -256,6 +256,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       registration left `type_info` uninitialized, which resource-signature
       inspection exposed during bootstrap.
 
+- [ ] **Selfhost imported scalar global identity.** I retain ordinary scalar
+      representations when separate modules define the same global spelling.
+      My current native shadows emit `NlGuarded_int` as an integer return even
+      without purity annotations. I test both import orders and actual values.
+      MAC `task_2905cd2c7dc44e759bf64818ed0a3d77`.
+
 - [ ] **Map-valued global factory initialization.** I preserve function
       declarations and initialized map handles when a global calls a typed
       map factory. Cseed currently reports a late prototype and Stage 2

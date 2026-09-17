@@ -700,8 +700,9 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     const char *saved_source_file = env_current_file(env);
     /* I borrow the same cache-owned identity as the retained module AST. */
     int source_index = cached_module_index(module_path);
+    ModuleInfo *source_owner = env_get_module(env, module_name);
     const char *module_source = source_index >= 0 ? module_cache->loaded_paths[source_index] :
-                                env_get_module(env, module_name)->path;
+                                (source_owner ? source_owner->path : NULL);
     env_set_current_file(env, module_source);
     bool module_typecheck_ok = type_check_module(module_ast, env);
     env_set_current_file(env, saved_source_file);
