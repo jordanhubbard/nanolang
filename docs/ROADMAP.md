@@ -237,6 +237,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and submit only the focused patch.
       MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
 
+- [ ] **Typed null pointers in ordered native calls.** I retain the declared
+      pointer type when I snapshot a null literal argument for a native call,
+      without weakening left-to-right argument evaluation or callee capture.
+      My strict macOS framework check currently rejects the integer temporary
+      passed to `glfwCreateWindow`'s pointer parameters.
+      MAC `task_64b0d006cff713ffa197dcec1d22a894`.
+
 - [x] **Isolated NanoISA facade shadows.** I replace shared temporary fixture
       names with exclusive directories, retain assembly/load/error assertions,
       and verify concurrent execution and cleanup.
@@ -305,6 +312,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [x] I report the lowerer's exact refusal at this checked boundary and
             preserve prior output when a reachable declaration is unsupported
             (`task_6c940d99e2674a9fabe6b27ce16517eb`).
+
+- [x] **C-seed native nested-array literals.** I lower non-empty array-valued
+      literals to an `ELEM_ARRAY` dynamic array rather than a C compound-array
+      pointer. I preserve left-to-right child evaluation, aliases and the
+      expected nested element context for empty replacement values, with strict
+      native compilation and VM/native parity for direct, local and record-field
+      forms. This item changes only my C seed; self-hosted field/type propagation
+      remains separate work. MAC `task_c2ebfd28c24345daaa8c31dac75b45ac`.
+      My two focused methods pass, including strict native compilation and
+      byte-for-byte VM/native output parity. My transpiler, typechecker,
+      empty-record-array-field and native-call-ordering gates also pass. My
+      quick suite passes bootstrap, all 17 core programs and its following
+      regression groups before reaching the separately tracked macOS typed-null
+      failure above.
 
 - [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root

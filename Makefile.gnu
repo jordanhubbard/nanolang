@@ -4160,3 +4160,8 @@ test-purity-contract: bootstrap
 	python3 tests/test_purity_contract.py
 
 test-units: test-purity-contract
+
+.PHONY: test-cseed-nested-array-literals
+test-units: test-cseed-nested-array-literals
+test-cseed-nested-array-literals: $(COMPILER_C) nano_virt nano_vm
+	@python3 -m unittest tests.test_cseed_nested_array_literals
