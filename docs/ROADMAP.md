@@ -52,7 +52,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [ ] I close scalar CAST_BOOL parity across VM/C/LLVM (MAC `task_59c773b34bec49f4b46d5a0b4a8f2de7`), preserving zero/NaN truthiness and exact result tags. C translation lacks the opcode; my typed LLVM float slice keeps it refused while using the same truthiness for supported branches and assertions.
 
 - [ ] I extend my verified LLVM scalar profile with typed F64 arithmetic, comparisons, exact constants and scalar call/return storage (MAC `task_4b6401a64a3b4accaae1d087c4c1aea2`). I preserve signed zero, unordered NaN predicates, positive-zero division by zero, float truthiness and checked scalar numeric casts before LLVM conversion. I require VM/C/LLVM optimized/native boundary tests; heap/imports and generic cross-type comparisons remain separate coverage.
-- [ ] I execute my standalone owned-transfer subset in both VM and native C
+- [x] I execute my standalone owned-transfer subset in both VM and native C
       (MAC `task_bd2f689969f044a583548cefee6d4f11`, parent ed702): one zero-argument
       scalar-result function, complete nested int/bool/u8 records, verified
       moves/pack/unpack and exact branch/loop obligations. I share executable
@@ -63,6 +63,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I preserve `/tmp/nanolang-owned-runtime-initial-lifetime.log`.
       My linked fallback guards remain scoped to ownership contracts; ordinary
       checked-module behavior is unchanged (same taskbd2f integration gate).
+      I pass the bounded gates in `docs/evidence/nanoisa-owned-runtime.md`.
       Frontend borrow production and the full release remain held.
 
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
@@ -74,7 +75,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I preserve wire-buffer lifetime through the bridge copy in my roundtrip
       fixture; its initial sanitizer failure exposed an early fixture free,
       corrected before acceptance (same task026799).
-      Runtime and frontend admission remain held until execution semantics,
+      General reference-bearing runtime and frontend admission remain held until execution semantics,
       caller aliases and reference lifetime operations are connected; float
       record support remains task93574. My bounded transfer and refusal gates
       are recorded in `docs/evidence/nanoisa-owned-transfers.md`.

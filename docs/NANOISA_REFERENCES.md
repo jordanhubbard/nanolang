@@ -274,7 +274,7 @@ stores and aggregate operations do not become implicit transfers.
 ## Standalone owned-transfer execution contract
 
 I admit one function containing an explicit owned-transfer instruction at entry zero with zero parameters and captures, no
-imports, and exactly one int, bool or u8 result. I require ownership metadata,
+imports or initializer, and exactly one int, bool or u8 result. I require ownership metadata,
 complete finite record layouts with only those scalar leaves or earlier record
 layouts, and successful structural plus affine analysis. All locals have value
 mode. I reject floats, calls, reference modes/operations, globals, collections,

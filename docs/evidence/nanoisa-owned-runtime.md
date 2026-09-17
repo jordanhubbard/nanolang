@@ -4,7 +4,7 @@ I implement task_bd2f689969f044a583548cefee6d4f11 after PR555. My shared
 `nvm_verify_owned_module` contract admits one zero-argument, zero-capture
 function with an int/bool/u8 result and an explicit owned-transfer instruction.
 I require complete finite nested records with those scalar leaves, value-mode
-locals, no imports/linked ownership contracts and actual affine dataflow
+locals, no initializer, imports or linked ownership contracts and actual affine dataflow
 verification. Calls, references, floating fields/operations, aggregate results,
 collections and source borrow production remain outside admission.
 
@@ -51,6 +51,32 @@ Neither intermediate failure is reported as a passing gate.
 Logs include `/tmp/nanolang-owned-runtime-linked-final.log`,
 `/tmp/nanolang-owned-runtime-adjacent-final.log`,
 `/tmp/nanolang-owned-runtime-aot.log` and
-`/tmp/nanolang-owned-runtime-asan.log`. Integrated seed/dispatch evidence follows
-once those gates complete. My full ownership, caller-reference and release
-parents remain open. Float-record transport remains the independent task93574.
+`/tmp/nanolang-owned-runtime-asan.log`. My full ownership, caller-reference and release parents remain open. Ordinary
+float-record transport subsequently landed in PR559; my floating owned-field
+execution remains explicitly excluded.
+
+At my final code checkpoint `55c8e8dc`, based on main `c9576a13` through
+PR561/562, I repeat 1,051 paired runtime checks, 32 VM allocation checks,
+184/272 transfer checks, 11 LLVM methods and seven WebAssembly methods.
+I preserve both backend targets while resolving their additive Makefile conflict.
+
+My reviewed move handler explicitly reserves output space before clearing its
+source, independently of the common instruction preflight. An explicit opcode
+whitelist keeps future affine-analysis additions outside runtime admission.
+That exact ownership/verifier/handler source passes 272,624 VM checks in both
+switch and computed-goto builds, 1,051 focused computed-goto checks and the
+32 focused ASan/UBSan VM allocation checks. Those sources and focused tests are
+unchanged by the final main restack.
+
+I rebuild the C seed and compile the actual canonical native frontend from
+`src_nano/nanoc_v06.nano` on the final integrated tree. It runs `--help`, emits
+hello bytecode through the host-module manifest, and the resulting artifact
+verifies and executes. Final logs are
+`/tmp/nanolang-owned-runtime-final-integrated.log`,
+`/tmp/nanolang-owned-runtime-review-final.log`,
+`/tmp/nanolang-owned-runtime-review-computed.log`,
+`/tmp/nanolang-owned-runtime-review-asan.log`,
+`/tmp/nanolang-owned-runtime-final-seed-build.log`,
+`/tmp/nanolang-owned-runtime-final-seed.log` and
+`/tmp/nanolang-owned-runtime-final-seed-hello.log`. My final documentation commit
+does not alter these compiler or test inputs.
