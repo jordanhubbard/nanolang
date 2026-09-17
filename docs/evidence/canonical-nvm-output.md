@@ -25,3 +25,10 @@ My integration exposed a missing native `str_starts_with` helper during Stage 2
 shadow linking. I supplied that helper and checked seven prefix boundaries.
 The existing bootstrap rebuild, native smoke and no-C-seed smoke pass. My twenty
 CLI regression cases and nine existing module-binding cases also pass.
+
+`make test-canonical-nvm-output` passes through the full native bootstrap and
+four Stage 2 integration cases. I verify two modules with the same function name,
+ordinary calls within an imported module, deterministic v2 bytes, VM/native output
+parity, actual dependency/root shadow failures, root/import direct and linked
+source preservation, invalid types, unsupported float lowering, and prefix edges.
+The same four cases also pass with the C-seed-built Stage 1 driver.

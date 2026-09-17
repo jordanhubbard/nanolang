@@ -125,12 +125,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       MAC `task_894769717bba4e0f8ea11432098406fc`. I rebuilt Stage 2,
       passed native/no-C-seed smoke checks and seven prefix-boundary assertions.
 
-- [ ] **Canonical checked frontend NanoISA output route.** I accept explicit
+- [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
       shadow checks, publishing verified module bytes without reparsing raw text.
       I retain native C as my default and C-hosted shadows as a prerequisite;
       this route does not establish my NanoISA-only fixedpoint.
       MAC `task_d176e9deba444b1e9445e1b4f41aef01`.
+      Evidence: [canonical module output](evidence/canonical-nvm-output.md).
 
 - [x] **Self-hosted NanoISA driver module output.** I add explicit `--emit-nvm`
       through my assembler facade, verify deterministic v2 bytes and publish with
