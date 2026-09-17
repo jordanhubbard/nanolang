@@ -27,6 +27,25 @@ class CanonicalNvmOutput(unittest.TestCase):
                           'shadow main { assert (== (values.value) 37) }\n')
         return source, dependency
 
+    def test_native_string_prefix_builtin(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-prefix-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "prefix.nano", directory / "prefix"
+            source.write_text('''fn main() -> int {
+ assert (str_starts_with "alpha" "alp")
+ assert (str_starts_with "alpha" "alpha")
+ assert (str_starts_with "alpha" "")
+ assert (str_starts_with "" "")
+ assert (not (str_starts_with "al" "alpha"))
+ assert (not (str_starts_with "alpha" "lp"))
+ assert (not (str_starts_with "" "a"))
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+            self.run_command([COMPILER, source, "-o", output])
+            self.run_command([output])
+
     def test_bound_imports_repeatable_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix="canonical-nvm-") as tmp:
             directory = Path(tmp)
@@ -48,12 +67,14 @@ class CanonicalNvmOutput(unittest.TestCase):
             source, dependency = self.sources(directory, bad_dependency=True)
             output = directory / "prior.nvm"
             output.write_bytes(b"prior")
-            self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
+            rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
+            self.assertIn(b"after failed shadows", rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), b"prior")
             self.sources(directory)
             source.write_text(source.read_text().replace('shadow main { assert (== (values.value) 37) }',
                                                         'shadow main { assert false }'))
-            self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
+            rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
+            self.assertIn(b"after failed shadows", rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), b"prior")
 
     def test_source_aliases_and_rejections_preserve_files(self):

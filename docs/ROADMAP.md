@@ -119,6 +119,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       runs, fixture cleanup, prior sentinel preservation and unavailable-temp
       rejection without an output artifact.
 
+- [x] **Self-hosted string prefix runtime.** I implement my `str_starts_with`
+      native runtime contract so importing NanoISA lowering does not leave an
+      undefined `nl_str_starts_with` while compiling Stage 2 shadows.
+      MAC `task_894769717bba4e0f8ea11432098406fc`. I rebuilt Stage 2,
+      passed native/no-C-seed smoke checks and seven prefix-boundary assertions.
+
 - [ ] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
       shadow checks, publishing verified module bytes without reparsing raw text.
