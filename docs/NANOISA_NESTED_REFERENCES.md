@@ -1,8 +1,8 @@
 # My nested reference and reborrow contract
 
 I extend my [same-frame reference contract](NANOISA_SAME_FRAME_REFERENCES.md)
-under MAC `task_556d6702b3c74377b0cb830b6d988c68`. This is my implementation
-contract; acceptance remains open until the paired gates pass. I keep one
+under MAC `task_556d6702b3c74377b0cb830b6d988c68`. I pass my
+[bounded paired gates](evidence/nanoisa-nested-references.md). I keep one
 standalone zero-argument function, an int/bool/u8 result, complete finite owned
 record trees, and scalar-leaf resource referents. Caller provenance, imports,
 reference parameters/results and frontend production remain separate work.
