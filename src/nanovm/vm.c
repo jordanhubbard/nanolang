@@ -8,6 +8,7 @@
 #include "vm_ffi.h"
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
+#include "../nanoisa/ownership_contracts.h"
 #include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
@@ -190,6 +191,26 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
  * over the root module and every linked module and records it on the VM.
  * Any module that fails verification (or is absent) clears the proof, so the
  * VM falls back to the checked handlers. */
+/* Checked stack handlers do not implement declared reference semantics.
+ * I refuse these contracts even when a caller bypasses the CLI verifier. */
+static bool vm_module_ownership_supported(const NvmModule *module) {
+    if (!module) return false;
+    if (!module->ownership_data && !module->ownership_size) return true;
+    bool needs = false;
+    return nvm_ownership_contracts_validate(module, &needs) == NVM_V2_OK && !needs;
+}
+
+static bool vm_ownership_supported(const VmState *vm) {
+    if (!vm || !vm_module_ownership_supported(vm->module) ||
+        !vm_module_ownership_supported(vm->root_module)) return false;
+    for (uint32_t i = 0; i < vm->linked_module_count; i++)
+        if (!vm_module_ownership_supported(vm->linked_modules[i])) return false;
+    return true;
+}
+
+static const char VM_OWNERSHIP_REQUIRED[] =
+    "I require reference lifetime and ownership instruction verification before execution";
+
 static void vm_recompute_verified(VmState *vm) {
     if (!vm) return;
     bool proven = vm->root_module != NULL
@@ -1169,6 +1190,8 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * ======================================================================== */
 
 VmTrap vm_core_execute(VmState *vm) {
+    if (!vm_ownership_supported(vm))
+        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
@@ -4193,6 +4216,8 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
 }
 
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    if (!vm_ownership_supported(vm))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
@@ -4205,6 +4230,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     const NvmModule *target;
     uint32_t function_index;
     if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
+    if (!vm_ownership_supported(vm))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (!vm_callable_target(vm, callable, &target, &function_index))
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
     if (vm_stack_address(vm, out_result))
@@ -4275,6 +4302,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
+    if (!vm_ownership_supported(vm))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm_stack_address(vm, out_result))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
     if (vm->frame_count != 0) {
