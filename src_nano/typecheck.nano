@@ -99,6 +99,7 @@ shadow resource_variant_key {
 
 # I qualify ownership facts by declaration, independently of source spelling.
 fn resource_type_identity(parser: Parser, type_name: string, line: int) -> string {
+    if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_concrete_identity parser type_name line 0) }
     let owner: int = (mb_owner line)
     let mut found: string = ""
     let mut matches: int = 0
@@ -139,6 +140,29 @@ fn resource_type_identity(parser: Parser, type_name: string, line: int) -> strin
     if (== matches 1) { return found }
     return type_name
 }
+# I retain declaration identities for the outer union and every concrete argument.
+fn resource_concrete_identity(parser: Parser, spelling: string, line: int, depth: int) -> string {
+    if (> depth 128) { return spelling }
+    let args: array<string> = (tc_generic_arguments spelling)
+    if (== (array_length args) 0) { return (resource_type_identity parser spelling line) }
+    let base: string = (base_type_name spelling)
+    if (tc_str_starts_with base "fn(") { return spelling }
+    let mut result: string = (+ (resource_type_identity parser base line) "<")
+    let mut i: int = 0
+    while (< i (array_length args)) {
+        if (> i 0) { set result (+ result ",") }
+        set result (+ result (resource_concrete_identity parser (at args i) line (+ depth 1)))
+        set i (+ i 1)
+    }
+    return (+ result ">")
+}
+shadow resource_concrete_identity {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Result<T,E> { Ok { value: T }, Err { error: E } } union Box<T> { Some { value: T } }")
+    assert (== (resource_concrete_identity parser "Result<int,Handle>" 1 0) "#union:0<int,#record:0>")
+    assert (== (resource_concrete_identity parser "Box<Result<int,Handle>>" 1 0) "#union:1<#union:0<int,#record:0>>")
+    assert (== (resource_concrete_identity parser "#union:0<int,#record:0>" 1 0) "#union:0<int,#record:0>")
+}
+
 shadow resource_type_identity {
     let parser: Parser = (resource_test_parser "struct Handle { plain: int }\nresource struct Handle { fd: int }\n")
     (mb_reset [1, 2])
@@ -169,6 +193,7 @@ shadow resource_fixed_payload_bearing {
 }
 
 fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
+    if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
     let mut collections: array<string> = []
     let mut bearing: array<string> = []
     let mut i: int = 0
@@ -545,22 +570,23 @@ shadow tc_substitute_generic {
     assert (== (tc_substitute_generic "Tree" ["T"] ["int"]) "Tree")
 }
 
-fn resource_generic_contains(parser: Parser, spelling: string, line: int, depth: int) -> bool {
+fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, depth: int, collections_only: bool) -> bool {
     # I fail closed at my finite substitution boundary.
     if (> depth 128) { return true }
-    let base: string = (base_type_name spelling)
-    if (resource_type_is_declared parser (resource_type_identity parser base line)) { return true }
-    let args: array<string> = (tc_generic_arguments spelling)
+    let identity: string = (resource_type_identity parser spelling line)
+    let base: string = (base_type_name identity)
+    if (resource_classify parser base collections_only) { return true }
+    let args: array<string> = (tc_generic_arguments identity)
     if (== (array_length args) 0) { return false }
     let mut i: int = 0
     while (< i (parser_get_union_count parser)) {
         let def: ASTUnion = (parser_get_union parser i)
-        if (== def.name base) {
+        if (== (resource_type_identity parser def.name def.line) base) {
             if (!= def.generic_param_count (array_length args)) { return true }
             let mut field: int = 0
             while (< field (array_length def.variant_field_types)) {
                 let concrete: string = (tc_substitute_generic (at def.variant_field_types field) def.generic_params args)
-                if (resource_generic_contains parser concrete def.line (+ depth 1)) { return true }
+                if (resource_instantiated_classify parser concrete def.line (+ depth 1) collections_only) { return true }
                 set field (+ field 1)
             }
             return false
@@ -568,12 +594,26 @@ fn resource_generic_contains(parser: Parser, spelling: string, line: int, depth:
         set i (+ i 1)
     }
     # Collections and unknown generic boundaries retain conservative rejection.
+    let collection: bool = (or (== base "array") (or (== base "List") (== base "HashMap")))
     set i 0
     while (< i (array_length args)) {
-        if (resource_generic_contains parser (at args i) line (+ depth 1)) { return true }
+        if (resource_instantiated_classify parser (at args i) line (+ depth 1) (and collections_only (not collection))) { return true }
         set i (+ i 1)
     }
     return false
+}
+shadow resource_instantiated_classify {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { value: int } } union Values<T> { Some { values: array<T> } }")
+    assert (resource_instantiated_classify parser "Box<Handle>" 1 0 false)
+    assert (not (resource_instantiated_classify parser "Box<int>" 1 0 false))
+    assert (not (resource_instantiated_classify parser "Marker<Handle>" 1 0 false))
+    assert (resource_instantiated_classify parser "Values<Handle>" 1 0 true)
+    assert (not (resource_instantiated_classify parser "Box<Handle>" 1 0 true))
+    assert (resource_instantiated_classify parser "Box<Values<Handle>>" 1 0 true)
+}
+
+fn resource_generic_contains(parser: Parser, spelling: string, line: int, depth: int) -> bool {
+    return (resource_instantiated_classify parser spelling line depth false)
 }
 shadow resource_generic_contains {
     let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { value: int } }")

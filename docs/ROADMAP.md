@@ -8450,6 +8450,9 @@ Compiler product:
       inline call arguments, mutable assignment and nested union construction
       (`task_633f2402ec5944cfba0911a56a9f4eb1`). Correctly typed controls
       currently reach malformed C; frontend nominal rejection remains separate.
+      The instantiated-ownership positive `Box<Result<int,string>>` also
+      emits `nl_Result`/`nl_Box_unknown` after nested parsing is repaired;
+      I retain it in `tests/test_instantiated_ownership.py` as an unmet gate.
 - [x] I apply concrete generic union constructor context before accepting
       nominal array payloads (`task_dd2be49bc494483f9bb18646a0013055`).
       I reject wrong record identities at local/global, argument, return,
