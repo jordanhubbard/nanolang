@@ -3140,10 +3140,22 @@ dynamic_div:
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
+                vm_release(&vm->heap, idx_v);
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_SET: not an array");
             }
-            uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
+            if (idx_v.tag != TAG_INT) {
+                vm_release(&vm->heap, arr);
+                vm_release(&vm->heap, idx_v);
+                vm_release(&vm->heap, v);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I require an integer ARR_SET index.");
+            }
+            if (idx_v.as.i64 < 0 || (uint64_t)idx_v.as.i64 >= arr.as.array->length) {
+                vm_release(&vm->heap, arr);
+                vm_release(&vm->heap, v);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "I require an ARR_SET index within the array.");
+            }
+            uint32_t idx = (uint32_t)idx_v.as.i64;
             vm_release(&vm->heap, vm_array_get(arr.as.array, idx));
             vm_array_set(arr.as.array, idx, v);
             stack_push(vm, arr);

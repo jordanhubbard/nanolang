@@ -117,10 +117,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       weakening conflicting-shape or runtime-tag checks. Full native compiler
       execution remains open. MAC `task_e3a639dac7b54940ab11546c1ffa5eb9`.
 
-- [ ] **Raw NanoISA array-update index checks.** I reject noninteger and
+- [x] **Raw NanoISA array-update index checks.** I reject noninteger and
       invalid-range indices in NanoVM while preserving valid alias mutation
-      and ownership cleanup. Native tag guards remain enforced. MAC
+      and ownership cleanup. I pass 272,485 VM checks under normal and fresh
+      ASan/UBSan builds, plus nine VM/native parity cases. Native guards remain
+      enforced. MAC
       `task_f64074441cf64f47b5f40ccefc78233c`.
+
+- [ ] **Raw NanoISA array-read index checks.** I check integer tags and
+      full-width ranges before reads, preserve native parity, and release
+      consumed references on rejection. MAC `task_e4e7048e334e4b9d8eed2086f792bbcf`.
 
 - [x] **v5.1.0 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
