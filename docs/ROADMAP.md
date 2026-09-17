@@ -8533,13 +8533,25 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I declare truthful parser record, enum and union counts in self-hosted
+- [ ] I measure and bound the VM compiler bootstrap's repeated declaration
+      scans and cycle collection (`task_36ceaa830d7d46ba8a5471326f525aac`).
+      My 1,800-second self-compilation probe made progress through NanoISA
+      lowering and reached native-shadow C generation before its diagnostic
+      timeout; this is not a compiler correctness failure. I preserve bytecode
+      and shadow semantics while completing the independent VM route. AOT
+      stage equality cannot close this acceptance item. Evidence:
+      `docs/evidence/vm-bootstrap-budget.md`.
+- [x] I declare truthful parser record, enum and union counts in self-hosted
       NanoISA assembly (`task_14dca63e4c1146e59ae0a1649ba29060`). My emitted
       aggregate IDs already follow parser order; omitted `.types` bounds prevent
       native nominal field proofs in the complete compiler. I preserve those
       proofs and test unused declarations, exact bounds and VM/native execution
       before repeating the complete compiler artifact gate (companion to
-      `task_250092bed54749ad988f06af5b88c228`).
+      `task_250092bed54749ad988f06af5b88c228`). PR #471 supplies the header;
+      86 comparison checks and 63 methods pass, including exact serialized
+      counts, C-seed instruction parity, VM/native execution and invalid-bound
+      refusal preserving prior output. The full native product and VM compiler
+      bootstrap gates remain separate.
 - [ ] I grow checked assembler symbol tables for my complete compiler artifact
       (`task_74ee50b905d242e68c92abf41b427e15`). After literal repair, the fixed 2048-symbol table
       reports a false duplicate at `s1377`; exact assembly remains captured in
