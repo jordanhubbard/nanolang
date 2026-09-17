@@ -1,5 +1,8 @@
 # My Roadmap
 
+- [ ] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
+- [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
+
 I keep this document to outline my development journey.
 
 I execute active work from top to bottom. Before implementation begins, I add

@@ -445,11 +445,11 @@ static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_
     return merge_fact(b, facts, dest, kind);
 }
 
-/* I box primitive array handles only at call boundaries. Record-field
+/* I box primitive array and map handles at call boundaries. Record-field
  * storage keeps its separate, exact representation contract. */
 static int merge_call_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
-    if (*dest == NVM2C_VK_VALUE && (integer_array_storage(kind) || kind == NVM2C_VK_SARR)) return 1;
-    if ((integer_array_storage(*dest) || *dest == NVM2C_VK_SARR) && kind == NVM2C_VK_VALUE) {
+    if (*dest == NVM2C_VK_VALUE && (integer_array_storage(kind) || kind == NVM2C_VK_SARR || kind == NVM2C_VK_MAP)) return 1;
+    if ((integer_array_storage(*dest) || *dest == NVM2C_VK_SARR || *dest == NVM2C_VK_MAP) && kind == NVM2C_VK_VALUE) {
         *dest = NVM2C_VK_VALUE;
         facts->changed = 1;
         return 1;
@@ -879,7 +879,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_BOOL &&
                 value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_VALUE &&
                 !integer_array_storage(value.kind) && value.kind != NVM2C_VK_SARR &&
-                value.kind != NVM2C_VK_UNK) {
+                value.kind != NVM2C_VK_MAP && value.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I cannot yet store an aggregate or unresolved global in function %u at offset %zu", idx, start);
                 return 0;
             }
@@ -1116,11 +1116,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_HM_SET && !sim_pop(b, idx, stk, &sp, &value)) return 0;
             if (ins.opcode != OP_HM_LEN && !sim_pop(b, idx, stk, &sp, &key)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &map)) return 0;
-            if (map.kind != NVM2C_VK_MAP && map.kind != NVM2C_VK_UNK) {
+            if (map.kind != NVM2C_VK_MAP && map.kind != NVM2C_VK_VALUE && map.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I require a map for this hashmap operation"); return 0;
             }
+            /* A tagged global keeps its optional storage. The checked runtime
+             * operation validates its map tag and value kind independently. */
+            if (map.kind == NVM2C_VK_VALUE) {
+                NvmShapeId checked = 0;
+                map.shape = shape_variable(b, &checked);
+            } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
             if (!shape_type(b, map.shape, NVM_SHAPE_MAP)) return 0;
-            mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
             if (ins.opcode != OP_HM_LEN) {
                 if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
@@ -1458,7 +1463,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
                            (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
                             arg.kind == NVM2C_VK_BOOL || integer_array_storage(arg.kind) ||
-                            arg.kind == NVM2C_VK_SARR || arg.kind == NVM2C_VK_UNK)) {
+                            arg.kind == NVM2C_VK_SARR || arg.kind == NVM2C_VK_MAP || arg.kind == NVM2C_VK_UNK)) {
                     /* A projected field can resolve after flat classification.
                      * Its storage conversion must wait for those graph facts. */
                     if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL)) return 0;
@@ -1597,11 +1602,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
                     fn->result_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
                     (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
-                /* RET consumes a tagged scalar with a runtime tag check. It
+                /* RET consumes a tagged scalar or map with a runtime tag check. It
                  * does not change the representation of the source value. */
                 if (v.kind == NVM2C_VK_VALUE &&
                     (declared == NVM_SHAPE_INT || declared == NVM_SHAPE_BOOL ||
-                     declared == NVM_SHAPE_STRING)) {
+                     declared == NVM_SHAPE_STRING || declared == NVM_SHAPE_MAP)) {
                     if (!shape_type(b, shape_variable(b, &b->shape_results[idx]), declared)) return 0;
                     break;
                 }
@@ -1942,6 +1947,18 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
     uint8_t got = NVM2C_VK_INT;
     int slot = stack_pop_kind(b, st, &got);
     if (b->failed) return -1;
+    if (got == NVM2C_VK_MAP && kind == NVM2C_VK_VALUE) {
+        char expression[80];
+        snprintf(expression, sizeof expression, "(nmap_value){13, 0, (char *)m[%d]}", slot);
+        stack_push_value(b, st, expression);
+        return b->failed ? -1 : stack_pop_kind(b, st, NULL);
+    }
+    if (got == NVM2C_VK_VALUE && kind == NVM2C_VK_MAP) {
+        char expression[64];
+        snprintf(expression, sizeof expression, "nvalue_require_map(v[%d])", slot);
+        stack_push_map(b, st, expression);
+        return b->failed ? -1 : stack_pop_kind(b, st, NULL);
+    }
     if (got == NVM2C_VK_STR && kind == NVM2C_VK_VALUE) {
         char expression[80];
         snprintf(expression, sizeof expression, "(nmap_value){5, 0, (char *)s[%d]}", slot);
@@ -1992,8 +2009,8 @@ static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
         int value = stack_pop(b, st);
         char expression[192];
         snprintf(expression, sizeof expression,
-                 "(v[%d].kind == 5 || v[%d].kind == 7 || ((v[%d].kind == 1 || v[%d].kind == 4) && v[%d].integer != 0))",
-                 value, value, value, value, value);
+                 "(v[%d].kind == 5 || v[%d].kind == 7 || v[%d].kind == 13 || ((v[%d].kind == 1 || v[%d].kind == 4) && v[%d].integer != 0))",
+                 value, value, value, value, value, value);
         stack_push_temp(b, st, expression);
     }
     if (st->sp && st->kinds[st->sp - 1] == NVM2C_VK_BOOL)
@@ -2607,6 +2624,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             unsigned slot = ins.operands[0].u32;
             if (kind == NVM2C_VK_VALUE)
                 nvm2c_printf(b, "    nglobal[%u] = v[%d];\n", slot, value);
+            else if (kind == NVM2C_VK_MAP)
+                nvm2c_printf(b, "    nglobal[%u] = (nmap_value){13, 0, (char *)m[%d]};\n", slot, value);
             else if (kind == NVM2C_VK_STR)
                 nvm2c_printf(b, "    nglobal[%u] = (nmap_value){5, 0, (char *)s[%d]};\n", slot, value);
             else if (kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL)
@@ -4977,11 +4996,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (value.kind != 4) abort();\n    return value.integer;\n}\n"
                 "static inline const char *nvalue_require_string(nmap_value value) {\n"
                 "    if (value.kind != 5) abort();\n    return value.text;\n}\n"
+                "static inline nmap_t nvalue_require_map(nmap_value value) {\n"
+                "    if (value.kind != 13 || !value.text) abort();\n    return (nmap_t)value.text;\n}\n"
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
                 "    return value.kind == 1 || value.kind == 4 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
                 "static inline int nvalue_equal(nmap_value a, nmap_value b) {\n"
                 "    if (a.kind != b.kind) return 0;\n"
-                "    if (a.kind == 7) return a.text == b.text;\n"
+                "    if (a.kind == 7 || a.kind == 13) return a.text == b.text;\n"
                 "    return a.kind == 0 || (a.kind == 1 || a.kind == 4 ? a.integer == b.integer : strcmp(a.text, b.text) == 0);\n}\n"
                 "static inline int nvalue_compare(nmap_value a, nmap_value b) {\n"
                 "    if (a.kind != b.kind) return (int)a.kind - (int)b.kind;\n"
@@ -5109,7 +5130,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
-            "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_cast_int; (void)nvalue_equal;\n"
+            "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n");
