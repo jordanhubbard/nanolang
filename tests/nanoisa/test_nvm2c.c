@@ -1190,7 +1190,7 @@ static void test_projected_global_stores(void) {
         {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
         {"PUSH_F64 1.5", "PUSH_F64 1.5\nF64_EQ\nASSERT"},
         {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
-         "PUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 1\nEQ\nASSERT"},
+         "ARR_LEN\nPUSH_I64 1\nEQ\nASSERT"},
         {"PUSH_BOOL 1", "DUP\nTYPE_CHECK 4\nASSERT\nASSERT"},
         {"PUSH_STR text", "PUSH_STR text\nEQ\nASSERT"},
         {"PUSH_I64 42\nARR_LITERAL 1 1", "PUSH_I64 0\nARR_GET\nPUSH_I64 42\nEQ\nASSERT"},

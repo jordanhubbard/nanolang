@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I resolve nested projected record-array global field shapes (`task_65d164a9fb204ff7872002f53e708bdf`). A new ordinary positive field read after nested projection, global storage and global reload refuses conflicting optional/record facts; I preserve `/tmp/nanolang-float-records-integrated-gates.log`. Existing exact record-array globals and float scalar transport do not establish this nested shape closure.
+
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
       their dataflow to verifier entry points (MAC
       `task_026799f971e34152b6c6898e3de700d2`, parent ed702). I allocate vacant
