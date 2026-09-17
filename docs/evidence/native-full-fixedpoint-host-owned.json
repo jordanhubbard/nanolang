@@ -1,0 +1,354 @@
+{
+  "manifest": {
+    "source_commit": "2f50d7a02c8d78f4eefb05d398d52db0c86d936e",
+    "code_base": "61b0aedc8ccb5b3e8817325568018153ffd43e8d",
+    "root": "/home/jkh/Src/nanolang-native-selfcompile-host-owned",
+    "stage_timeout_seconds": 1800,
+    "owned_rss_limit_gib": 48,
+    "minimum_host_available_gib": 32,
+    "helper_sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "translator_sha256": "b5d863e60a1363d6c2944e07d0d87b2d54bf8684bb0d7811ad5ae15991ad7bdd",
+    "stages": {
+      "seed-build": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nanoc_c",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/src_nano/nanoc_v06.nano",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/seed"
+        ],
+        "budget_seconds": 600,
+        "started": 1789674396.876972,
+        "peak_owned_rss_kib": 320744,
+        "pid": 3710628,
+        "exit_code": 0,
+        "elapsed_seconds": 33.6269237609813
+      },
+      "initial-emission": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/seed",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/src_nano/nanoc_v06.nano",
+          "--emit-nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial.nvm"
+        ],
+        "budget_seconds": 600,
+        "started": 1789674430.504388,
+        "peak_owned_rss_kib": 6625960,
+        "pid": 3729545,
+        "exit_code": 0,
+        "elapsed_seconds": 140.07936131197494
+      },
+      "initial-verify": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "--verify-only",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial.nvm"
+        ],
+        "budget_seconds": 60,
+        "started": 1789674570.5842023,
+        "peak_owned_rss_kib": 680,
+        "pid": 3762696,
+        "exit_code": 0,
+        "elapsed_seconds": 0.21554287598701194
+      },
+      "initial-translation": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nvm2c",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial.nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial.c"
+        ],
+        "budget_seconds": 240,
+        "started": 1789674570.917399,
+        "peak_owned_rss_kib": 600,
+        "pid": 3762724,
+        "exit_code": 0,
+        "elapsed_seconds": 4.3863207179820165
+      },
+      "initial-native-build": {
+        "argv": [
+          "cc",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-O0",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial.c",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-native",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_aot_runtime.o",
+          "-lm",
+          "-Wl,--export-dynamic",
+          "-ldl"
+        ],
+        "budget_seconds": 240,
+        "started": 1789674575.3041854,
+        "peak_owned_rss_kib": 2290048,
+        "pid": 3763233,
+        "exit_code": 0,
+        "elapsed_seconds": 136.1927075459971
+      },
+      "initial-help": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-native",
+          "--help"
+        ],
+        "budget_seconds": 10,
+        "started": 1789674711.5286987,
+        "peak_owned_rss_kib": 184,
+        "pid": 3769024,
+        "exit_code": 0,
+        "elapsed_seconds": 0.002038154983893037
+      },
+      "initial-hello-compile": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-native",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/examples/language/nl_hello.nano",
+          "--emit-nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-hello.nvm"
+        ],
+        "budget_seconds": 180,
+        "started": 1789674711.530831,
+        "peak_owned_rss_kib": 312,
+        "pid": 3769025,
+        "exit_code": 0,
+        "elapsed_seconds": 0.06401100201765075
+      },
+      "initial-hello-verify": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "--verify-only",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-hello.nvm"
+        ],
+        "budget_seconds": 60,
+        "started": 1789674711.5951746,
+        "peak_owned_rss_kib": 328,
+        "pid": 3769029,
+        "exit_code": 0,
+        "elapsed_seconds": 0.0022429730161093175
+      },
+      "initial-hello-execute": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-hello.nvm"
+        ],
+        "budget_seconds": 10,
+        "started": 1789674711.5975056,
+        "peak_owned_rss_kib": 1848,
+        "pid": 3769030,
+        "exit_code": 0,
+        "elapsed_seconds": 0.0028305809828452766
+      },
+      "stage1": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-native",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/src_nano/nanoc_v06.nano",
+          "--emit-nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1.nvm"
+        ],
+        "budget_seconds": 1800,
+        "started": 1789674711.600744,
+        "peak_owned_rss_kib": 3612392,
+        "pid": 3769031,
+        "exit_code": 0,
+        "elapsed_seconds": 1272.849451161048
+      },
+      "stage1-verify": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "--verify-only",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1.nvm"
+        ],
+        "budget_seconds": 60,
+        "started": 1789675984.450724,
+        "peak_owned_rss_kib": 1564,
+        "pid": 4004764,
+        "exit_code": 0,
+        "elapsed_seconds": 0.22460374102229252
+      },
+      "stage1-translation": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nvm2c",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1.nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1.c"
+        ],
+        "budget_seconds": 240,
+        "started": 1789675984.7925496,
+        "peak_owned_rss_kib": 1476,
+        "pid": 4004783,
+        "exit_code": 0,
+        "elapsed_seconds": 4.386090372980107
+      },
+      "stage1-native-build": {
+        "argv": [
+          "cc",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-O0",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1.c",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1-native",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_aot_runtime.o",
+          "-lm",
+          "-Wl,--export-dynamic",
+          "-ldl"
+        ],
+        "budget_seconds": 240,
+        "started": 1789675989.1792362,
+        "peak_owned_rss_kib": 2287000,
+        "pid": 4005065,
+        "exit_code": 0,
+        "elapsed_seconds": 136.68370671500452
+      },
+      "stage1-help": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1-native",
+          "--help"
+        ],
+        "budget_seconds": 10,
+        "started": 1789676125.8632734,
+        "peak_owned_rss_kib": 716,
+        "pid": 4042940,
+        "exit_code": 0,
+        "elapsed_seconds": 0.008055531012360007
+      },
+      "stage2": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1-native",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/src_nano/nanoc_v06.nano",
+          "--emit-nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage2.nvm"
+        ],
+        "budget_seconds": 1800,
+        "started": 1789676125.8715901,
+        "peak_owned_rss_kib": 4017228,
+        "pid": 4042941,
+        "exit_code": 0,
+        "elapsed_seconds": 1367.8006178180221
+      },
+      "stage2-verify": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "--verify-only",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage2.nvm"
+        ],
+        "budget_seconds": 60,
+        "started": 1789677493.672608,
+        "peak_owned_rss_kib": 448,
+        "pid": 228121,
+        "exit_code": 0,
+        "elapsed_seconds": 0.22407986095640808
+      },
+      "hello-compile": {
+        "argv": [
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/stage1-native",
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/examples/language/nl_hello.nano",
+          "--emit-nvm",
+          "-o",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/hello.nvm"
+        ],
+        "budget_seconds": 180,
+        "started": 1789677494.0070128,
+        "peak_owned_rss_kib": 416,
+        "pid": 228143,
+        "exit_code": 0,
+        "elapsed_seconds": 0.032334325020201504
+      },
+      "hello-verify": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "--verify-only",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/hello.nvm"
+        ],
+        "budget_seconds": 60,
+        "started": 1789677494.039608,
+        "peak_owned_rss_kib": 452,
+        "pid": 228147,
+        "exit_code": 0,
+        "elapsed_seconds": 0.0017729389946907759
+      },
+      "hello-execute": {
+        "argv": [
+          "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_vm",
+          "/tmp/nanolang-native-selfcompile-host-owned-61b0/hello.nvm"
+        ],
+        "budget_seconds": 10,
+        "started": 1789677494.0414762,
+        "peak_owned_rss_kib": 520,
+        "pid": 228148,
+        "exit_code": 0,
+        "elapsed_seconds": 0.0038757859729230404
+      }
+    },
+    "boundary": "I run the current canonical VM-shadow route at this pin; I make no speed attribution against the earlier C-shadow source. Native full self-compilation and raw fixed point remain distinct results.",
+    "initial_module_sha256": "616ab7dd3fca6c0a5d9a7a4598e1c7042e70fe1d849d9dbbfed8e81d8c9d4bb2",
+    "initial_module_bytes": 378144,
+    "initial_host_libraries": {
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/compiler_support/.build/.nano-gen-US9pCp/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/nanoisa/.build/.nano-gen-Kf6c76/libnanoisa.so": "567888b0c4af5fc8a3caf27199b2cbba48b576d93578ad3ef0f76ee7a83b52bd",
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/std/.build/.nano-gen-kdehIQ/libstd.so": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283"
+    },
+    "initial_native_sha256": "6c3457efab5d2d5e565afc85909aa3b35b28d856acf15a60a4224c751cfcf99a",
+    "initial_c_sha256": "665f6b2a5035afb58dc1c8ebe7cdc7fab5f5ef13629964e11339da1e4fa5cb07",
+    "stage1_sha256": "616ab7dd3fca6c0a5d9a7a4598e1c7042e70fe1d849d9dbbfed8e81d8c9d4bb2",
+    "stage1_bytes": 378144,
+    "stage1_host_libraries": {
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/compiler_support/.build/.nano-gen-US9pCp/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/nanoisa/.build/.nano-gen-Kf6c76/libnanoisa.so": "567888b0c4af5fc8a3caf27199b2cbba48b576d93578ad3ef0f76ee7a83b52bd",
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/std/.build/.nano-gen-kdehIQ/libstd.so": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283"
+    },
+    "stage2_sha256": "616ab7dd3fca6c0a5d9a7a4598e1c7042e70fe1d849d9dbbfed8e81d8c9d4bb2",
+    "stage2_bytes": 378144,
+    "stage2_host_libraries": {
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/compiler_support/.build/.nano-gen-US9pCp/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/nanoisa/.build/.nano-gen-Kf6c76/libnanoisa.so": "567888b0c4af5fc8a3caf27199b2cbba48b576d93578ad3ef0f76ee7a83b52bd",
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/std/.build/.nano-gen-kdehIQ/libstd.so": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283"
+    },
+    "host_closure_equal": true,
+    "raw_stage1_stage2_equal": true,
+    "complete": true
+  },
+  "post_run_integrity": {
+    "source_commit": "2f50d7a02c8d78f4eefb05d398d52db0c86d936e",
+    "source_clean": true,
+    "hashes": {
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nano_as_capture.so": {
+        "expected": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+        "observed": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+        "matches": true
+      },
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/bin/nvm2c": {
+        "expected": "b5d863e60a1363d6c2944e07d0d87b2d54bf8684bb0d7811ad5ae15991ad7bdd",
+        "observed": "b5d863e60a1363d6c2944e07d0d87b2d54bf8684bb0d7811ad5ae15991ad7bdd",
+        "matches": true
+      },
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/compiler_support/.build/.nano-gen-US9pCp/libcompiler_support.so": {
+        "expected": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+        "observed": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+        "matches": true
+      },
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/nanoisa/.build/.nano-gen-Kf6c76/libnanoisa.so": {
+        "expected": "567888b0c4af5fc8a3caf27199b2cbba48b576d93578ad3ef0f76ee7a83b52bd",
+        "observed": "567888b0c4af5fc8a3caf27199b2cbba48b576d93578ad3ef0f76ee7a83b52bd",
+        "matches": true
+      },
+      "/home/jkh/Src/nanolang-native-selfcompile-host-owned/modules/std/.build/.nano-gen-kdehIQ/libstd.so": {
+        "expected": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283",
+        "observed": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283",
+        "matches": true
+      },
+      "/tmp/nanolang-native-selfcompile-host-owned-61b0/initial-native": {
+        "expected": "6c3457efab5d2d5e565afc85909aa3b35b28d856acf15a60a4224c751cfcf99a",
+        "observed": "6c3457efab5d2d5e565afc85909aa3b35b28d856acf15a60a4224c751cfcf99a",
+        "matches": true
+      }
+    },
+    "unchanged": true
+  }
+}
