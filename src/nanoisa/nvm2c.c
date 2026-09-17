@@ -3309,6 +3309,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 "    if (!%s[%d] || t[%d] < 0 || (uint64_t)t[%d] >= %s[%d]->len) abort();\n",
                 array, arr, ix, ix, array, arr);
             if (ak == NVM2C_VK_RARR) {
+                nvm2c_printf(b, "    if (!ra[%d]->data) abort();\n", arr);
                 /* Classifier field kinds do not encode the runtime width. */
                 nvm2c_printf(b,
                     "    if (ra[%d]->data[t[%d]].n != r[%d].n || ra[%d]->data[t[%d]].kind != r[%d].kind) abort();\n",
@@ -4404,29 +4405,53 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
 }
 
 static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int need_get) {
-    if (need_new) {
+    if (need_new || need_push) {
         b->has_record_array_allocations = 1;
         nvm2c_puts(b,
-            "static nrarr_t nrarr_owners;\n"
+            "#include <string.h>\n"
+            "struct nrarr_owner { nrec_t *data; size_t cap; nrarr_t handle; struct nrarr_owner *next; };\n"
+            "static struct nrarr_owner *nrarr_owners;\n"
+            "static inline struct nrarr_owner *nrarr_track(nrarr_t a, int own_handle) {\n"
+            "    struct nrarr_owner *owner = calloc(1, sizeof *owner);\n"
+            "    if (!owner) abort();\n"
+            "    owner->handle = own_handle ? a : NULL; owner->next = nrarr_owners;\n"
+            "    nrarr_owners = owner; a->owner = owner; return owner;\n}\n"
             "static inline void nrarr_release_owned(void) {\n"
-            "    while (nrarr_owners) { nrarr_t a = nrarr_owners;\n"
-            "        nrarr_owners = a->owned_next; free(a); }\n}\n"
-            "static nrarr_t nrarr_new(void) {\n"
-            "    nrarr_t a = (nrarr_t)calloc(1, sizeof(nrarr_s));\n"
-            "    if (!a) abort();\n"
-            "    a->owned_next = nrarr_owners; nrarr_owners = a;\n"
-            "    return a;\n"
-            "}\n\n");
+            "    while (nrarr_owners) { struct nrarr_owner *owner = nrarr_owners;\n"
+            "        nrarr_owners = owner->next; free(owner->data); free(owner->handle); free(owner); }\n}\n"
+            "static inline nrarr_t nrarr_new(void) {\n"
+            "    nrarr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
+            "    nrarr_track(a, 1); return a;\n}\n"
+            "static inline void nrarr_reserve(nrarr_t a, size_t n) {\n"
+            "    size_t limit = SIZE_MAX / sizeof(nrec_t);\n"
+            "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) abort();\n"
+            "    struct nrarr_owner *owner = a->owner;\n"
+            "    if (owner && (owner->data != a->data || a->len > owner->cap)) abort();\n"
+            "    if (owner && n <= owner->cap) return;\n"
+            "    if (n < a->len) n = a->len;\n"
+            "    size_t cap = owner && owner->cap ? owner->cap : 8;\n"
+            "    while (cap < n) { if (cap > limit / 2) { cap = n; break; } cap *= 2; }\n"
+            "    if (!owner) {\n"
+            "        nrec_t *data = malloc(cap * sizeof *data); if (!data) abort();\n"
+            "        if (a->len) memcpy(data, a->data, a->len * sizeof *data);\n"
+            "        owner = nrarr_track(a, 0); owner->data = data;\n"
+            "    } else {\n"
+            "        nrec_t *data = realloc(owner->data, cap * sizeof *data);\n"
+            "        if (!data) abort();\n"
+            "        owner->data = data;\n"
+            "    }\n"
+            "    owner->cap = cap; a->data = owner->data;\n}\n\n");
     }
     if (need_push) nvm2c_puts(b,
         "static nrarr_t nrarr_push(nrarr_t a, nrec_t v) {\n"
-        "    if (!a || a->len >= NVM2C_RECORD_ARRAY_CAP) abort();\n"
+        "    if (!a || a->len >= SIZE_MAX / sizeof(nrec_t)) abort();\n"
+        "    nrarr_reserve(a, a->len + 1);\n"
         "    a->data[a->len++] = v;\n"
         "    return a;\n"
         "}\n\n");
     if (need_get) nvm2c_puts(b,
         "static nrec_t nrarr_get(nrarr_t a, int64_t idx) {\n"
-        "    if (!a || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    if (!a || idx < 0 || (uint64_t)idx >= a->len || !a->data) abort();\n"
         "    return a->data[idx];\n"
         "}\n\n");
 }
@@ -5127,8 +5152,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
         nvm2c_puts(&b,
-            "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
-            "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; nrarr_t owned_next; };\n\n");
+            "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_roots.inc"

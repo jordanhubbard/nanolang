@@ -70,4 +70,28 @@ fn main() -> int { return (apply make_box) }''', reject=True)
 shadow apply { assert true }
 fn main() -> int { return (apply read_box) }''', reject=True)
 
+    def test_reject_wrong_forwarded_signature(self):
+        self.check('''fn apply(make: fn() -> Box<bool>) -> int { return 0 }
+shadow apply { assert true }
+fn forward(make: fn() -> Box<int>) -> int { return (apply make) }
+shadow forward { assert true }
+fn main() -> int { return (forward make_box) }''', reject=True)
+
+    def test_nested_array_callback(self):
+        self.check('''fn identity(value: array<array<int>>) -> array<array<int>> { return value }
+shadow identity { assert (== (array_length (identity [[7]])) 1) }
+fn apply(f: fn(array<array<int>>) -> array<array<int>>) -> int {
+ let result: array<array<int>> = (f [[7]])
+ return (at (at result 0) 0)
+}
+shadow apply { assert (== (apply identity) 7) }
+fn main() -> int { return (- (apply identity) 7) }''')
+
+    def test_reject_nested_array_signature(self):
+        self.check('''fn identity(value: array<array<string>>) -> array<array<string>> { return value }
+shadow identity { assert (== (array_length (identity [["value"]])) 1) }
+fn apply(f: fn(array<array<int>>) -> array<array<int>>) -> int { return 0 }
+shadow apply { assert true }
+fn main() -> int { return (apply identity) }''', reject=True)
+
 if __name__ == '__main__': unittest.main()
