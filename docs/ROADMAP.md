@@ -211,9 +211,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `Box<int>` when emitting a local `Outer { boxed: Box<int> }` field and
       its empty/nonempty constructors. My C seed currently emits a `void*`
       field and both self-hosted stages emit `nl_Box`; all fail native
-      compilation even without globals. I require paired execution and nested
-      record controls, separately from global lifetime support and classification
-      acceptance. MAC `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
+      compilation even without globals. I first retain complete field spelling
+      and discover field-only instantiations, then order native definitions by
+      those concrete by-value dependencies. I require C seed/Stage 1/Stage 2
+      execution of empty/nonempty, nested and declaration-order controls plus
+      resource rejection; typed payload reads must execute. This stays separate
+      from global lifetime support and classification acceptance. MAC
+      `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
 
 - [x] **Define my unsupported global resource boundary.** I reject owning
       global declarations explicitly in both frontends before artifact
