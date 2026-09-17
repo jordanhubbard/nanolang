@@ -4483,6 +4483,25 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Now check the expression - the specialized functions are registered */
             check_concrete_union_arrays(tc->env, stmt->as.let.type_info, stmt->as.let.value, 0);
             Type value_type = check_expression(stmt->as.let.value, tc->env);
+            /* A projected concrete union retains its complete annotation; I
+             * do not accept a different instantiation merely because both are unions. */
+            if (stmt->as.let.value->type == AST_FIELD_ACCESS && stmt->as.let.type_info) {
+                TypeInfo *actual = try_get_expr_type_info(stmt->as.let.value, tc->env);
+                TypeInfo *expected = stmt->as.let.type_info;
+                if (actual && actual->generic_name && expected->generic_name &&
+                    env_get_union(tc->env, actual->generic_name) &&
+                    env_get_union(tc->env, expected->generic_name)) {
+                    TypeInfo concrete_actual = *actual, concrete_expected = *expected;
+                    concrete_actual.base_type = concrete_expected.base_type = TYPE_UNION;
+                    if (!type_infos_equal(&concrete_actual, &concrete_expected)) {
+                        emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                            "I require the record field's concrete union type to match the binding annotation.",
+                            "Preserve the union declaration and all concrete type arguments.");
+                        tc->has_error = true;
+                    }
+                }
+            }
+
             if (!check_record_array_contract(tc->env, stmt->as.let.var_type,
                     stmt->as.let.element_type, stmt->as.let.type_name, stmt->as.let.value))
                 tc->has_error = true;

@@ -1,5 +1,8 @@
 """I execute concrete union fields without confusing classification with layout."""
 import unittest
+import subprocess
+import tempfile
+from pathlib import Path
 from tests import test_affine_generic_identity as generic
 
 BOX = 'union Box<T> { Some { value: T }, None {} }\n'
@@ -8,6 +11,44 @@ SHADOW = '\nshadow main { assert (== (main) 0) }\n'
 class NativeGenericRecordLayout(unittest.TestCase):
     def check(self, source, accepted=True, modules=None):
         generic.GenericAffineIdentity.check(self, source, accepted, modules)
+
+    def reject_type(self, source):
+        for compiler in generic.COMPILERS:
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix='nano-record-field-type-') as directory:
+                path, output = Path(directory)/'input.nano', Path(directory)/'output'
+                path.write_text(source)
+                output.write_text('prior artifact')
+                result = subprocess.run([generic.COMPILER_ROOT/compiler, path, '-o', output], cwd=generic.ROOT, capture_output=True, text=True, timeout=120)
+                diagnostic = result.stdout + result.stderr
+                self.assertNotEqual(result.returncode, 0, diagnostic)
+                self.assertEqual(output.read_text(), 'prior artifact')
+                self.assertNotIn('C compilation failed', diagnostic)
+                self.assertRegex(diagnostic, '(?i)(type mismatch|expected.*type)')
+
+    def test_direct_field_match_executes(self):
+        self.check(BOX + """struct Outer { boxed: Box<int> }
+fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: 42 } }
+ match outer.boxed { Some(p) => { return (- p.value 42) } None(n) => { return 1 } }
+}""" + SHADOW)
+
+    def test_direct_field_match_expression_executes(self):
+        self.check(BOX + """struct Outer { boxed: Box<int> }
+fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: 42 } }
+ return match outer.boxed { Some(p) => (- p.value 42), None(n) => 1 }
+}""" + SHADOW)
+
+    def test_wrong_concrete_field_argument_rejected(self):
+        self.reject_type(BOX + """struct Outer { boxed: Box<int> }
+fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: 42 } }
+ let wrong: Box<string> = outer.boxed return 0
+}""" + SHADOW)
+
+    def test_wrong_union_field_declaration_rejected(self):
+        self.reject_type(BOX + """union Other<T> { Some { value: T }, None {} }
+struct Outer { boxed: Box<int> }
+fn main() -> int { let outer: Outer = Outer { boxed: Box.Some { value: 42 } }
+ let wrong: Other<int> = outer.boxed return 0
+}""" + SHADOW)
 
     def test_empty_inline_field_executes(self):
         self.check(BOX + 'struct Outer { boxed: Box<int> }\nfn main() -> int { let outer: Outer = Outer { boxed: Box.None {} } return 0 }' + SHADOW)

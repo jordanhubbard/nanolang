@@ -2111,6 +2111,14 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
     if (!= t1.kind t2.kind) {
         return false
     } else {
+        if (== t1.kind TypeKind.TYPE_UNION) {
+            if (!= t1.name t2.name) { return false }
+            # I preserve contextual constructors with no concrete arguments,
+            # while comparing two known instantiations without erasing them.
+            if (and (> (array_length (tc_generic_arguments t1.element_type_name)) 0) (> (array_length (tc_generic_arguments t2.element_type_name)) 0)) {
+                return (== (strip_spaces t1.element_type_name) (strip_spaces t2.element_type_name))
+            }
+        }
         /* For struct/union types, also check name */
         if (or (or (== t1.kind TypeKind.TYPE_STRUCT) (== t1.kind TypeKind.TYPE_UNION)) (== t1.kind TypeKind.TYPE_TUPLE)) {
             return (== t1.name t2.name)
@@ -2176,6 +2184,11 @@ shadow types_equal {
         }
         set i (+ i 1)
     }
+    let boxed_int: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Box", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "Box<int>" }
+    let boxed_string: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Box", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "Box<string>" }
+    assert (types_equal boxed_int boxed_int)
+    assert (not (types_equal boxed_int boxed_string))
+
 }
 
 /* Extract return type from a function type like "fn(int,int)->int" */
