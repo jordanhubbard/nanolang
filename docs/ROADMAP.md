@@ -8608,6 +8608,12 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I preserve complete recursive function parameter/result annotations
+      and nested TypeInfo edges in compiled module metadata, including shared
+      graph references. I test generated-C round trips, lifetime independence,
+      imported execution and mismatched signature rejection before completing
+      this prerequisite; native callback lowering remains separate. MAC
+      `task_1c3c02fe49414bce919adde6666824f5`.
 - [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
       bytecode is input, then two VM-executed compiler generations compile the
       same clean source and immutable host closure. I compare raw generation
