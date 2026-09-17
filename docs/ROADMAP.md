@@ -201,6 +201,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       MAC `task_8ef982b488d8421fb7e5b5ea280e7d2c`; evidence in
       `docs/evidence/selfhost-callback-identity.md`.
 
+- [x] I compare retained C callback annotation trees, reconstruct owned
+      signatures from declarations and emit concrete native parameter/result
+      layouts (`task_cf555f2a672e43d9921ca44b817ec631`). I share the deep-copy
+      and structural comparison helpers. Matching ordinary callback execution
+      and wrong named/local/forwarded signature rejection are bounded gates;
+      complete indirect-call and qualified-call contexts, serialization and resource boundaries
+      remain in `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
+
 - [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
       now owns complete annotation trees. I still require comparison, lowering,
       serialization and paired ordinary
