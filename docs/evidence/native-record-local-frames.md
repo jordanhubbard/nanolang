@@ -43,7 +43,9 @@ executables remain intact; I do not rerun those failing inputs for this repair.
 `tests/test_native_record_locals.py` checks 96 distinct record locals across
 32 recursive calls and verifies every retained value during unwind. It also
 requires the unoptimized generated function's static frame to stay below
-64 KiB. A second fixture swaps two record parameters through 1001 self-tail
+64 KiB. A compile-only comparison using the retained translator reports
+364224 bytes for that fixture and fails this bound before any old native binary
+is executed. A second fixture swaps two record parameters through 1001 self-tail
 restarts while tracing owned strings, copying a record local and mutating an
 aliased array. Both fixtures execute in my VM and under native ASan, UBSan and
 leak detection.
@@ -62,3 +64,11 @@ The native semantic/shape suites, adjacent ownership checks and both ordinary
 compiler-product gates are the acceptance checks for this storage change.
 Their measured outcomes are recorded below when complete. Full native
 self-compilation and release-wide bootstrap acceptance remain separate results.
+
+My first full product run passes 56 of 57 methods in 341.462 seconds, including
+the seeded compiler's native and NanoISA products. The canonical product stops
+at its first C-seed command, before native translation, with `I stopped shadow
+execution after 10 seconds.` I retain this failure in
+`/tmp/nanolang-record-local-product-gate.log`; it is not evidence of a
+record-local failure and I do not relabel it as infrastructure without proof.
+The native suite passes 2390 checks and shape constraints pass 1092 checks.
