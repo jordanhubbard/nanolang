@@ -26,9 +26,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Callee snapshots in VM and interpreter.** I evaluate function values
+- [x] **Callee snapshots in VM and interpreter.** I evaluate function values
       before argument side effects and retain the interpreter callee name until
-      invocation completes. I test mutable bindings and computed callees.
+      invocation completes. Both paths pass mutable-binding and computed-callee
+      regressions; the previous VM fails both. The evaluator suite and all
+      89 NanoVirt tests pass.
       MAC `task_8555af61281944eb9ac4ca9043849a94`.
 
 - [x] **Standalone VM guest arguments for v5.0.1.** I separate VM options

@@ -2978,19 +2978,32 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     return create_void();
 }
 
-static Value eval_call_impl(ASTNode *node, Environment *env);
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name);
 
 /* I retain the invoking source node while native builtins call back into me. */
 static Value eval_call(ASTNode *node, Environment *env) {
     ASTNode *saved_site = g_eval_call_site;
     g_eval_call_site = node;
-    Value result = eval_call_impl(node, env);
+    char *bound_name = NULL;
+    if (!node->as.call.func_expr && node->as.call.name) {
+        Symbol *binding = env_get_var(env, node->as.call.name);
+        if (binding && binding->value.type == VAL_FUNCTION) {
+            bound_name = strdup(binding->value.as.function_val.function_name);
+            if (!bound_name) {
+                fprintf(stderr, "I could not retain the function name.\n");
+                g_eval_call_site = saved_site;
+                return create_void();
+            }
+        }
+    }
+    Value result = eval_call_impl(node, env, bound_name);
+    free(bound_name);
     g_eval_call_site = saved_site;
     return result;
 }
 
 /* Evaluate function call */
-static Value eval_call_impl(ASTNode *node, Environment *env) {
+static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name) {
     /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
     if (node->as.call.func_expr) {
         /* Evaluate the inner function call to get the function */
@@ -3002,7 +3015,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
         }
         
         /* Get the function name from the function value */
-        const char *func_name = func_val.as.function_val.function_name;
+        const char *borrowed_name = func_val.as.function_val.function_name;
+        char *func_name = borrowed_name ? strdup(borrowed_name) : NULL;
         if (!func_name) {
             fprintf(stderr, "Error: Cannot get function name from function value\n");
             return create_void();
@@ -3028,29 +3042,25 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
             if (args[i].is_return) {
                 Value result = args[i];
                 free(args);
+                free(func_name);
                 return result;
             }
         }
         if (!func) {
             fprintf(stderr, "Error: Function '%s' not found\n", func_name);
             free(args);
+            free(func_name);
             return create_void();
         }
         
         Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
                                         node->line, node->column);
         free(args);
+        free(func_name);
         return result;
     }
     
-    const char *name = node->as.call.name;
-
-    /* Check if the name refers to a function variable (for first-class functions) */
-    Symbol *func_var = env_get_var(env, name);
-    if (func_var && func_var->value.type == VAL_FUNCTION) {
-        /* This is a function value stored in a variable - use its actual function name */
-        name = func_var->value.as.function_val.function_name;
-    }
+    const char *name = bound_name ? bound_name : node->as.call.name;
 
     /* Special built-in: range (used in for loops only) */
     if (strcmp(name, "range") == 0) {
