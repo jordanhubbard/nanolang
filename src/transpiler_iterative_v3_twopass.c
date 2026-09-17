@@ -772,19 +772,25 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
 /* I bind arguments in source order before entering an ordinary C call. */
 static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
-                                        int arg_count, Environment *env) {
+                                        int arg_count, Environment *env,
+                                        const char *callee_value) {
     static _Thread_local unsigned next_call_id;
     unsigned call_id;
     bool available;
     do {
         call_id = next_call_id++;
-        available = true;
+        char callee_name[64];
+        snprintf(callee_name, sizeof(callee_name), "__nl_callee_%u", call_id);
+        available = !env || !env_get_var(env, callee_name);
         for (int i = 0; i < arg_count; ++i) {
             char name[64];
             snprintf(name, sizeof(name), "__nl_arg_%u_%d", call_id, i);
             if (env && env_get_var(env, name)) available = false;
         }
     } while (!available);
+    if (callee_value) {
+        emit_formatted(list, "__auto_type __nl_callee_%u = %s; ", call_id, callee_value);
+    }
     for (int i = 0; i < arg_count; ++i) {
         emit_formatted(list, "__auto_type __nl_arg_%u_%d = ", call_id, i);
         build_expr(list, args[i], env);
@@ -2413,15 +2419,19 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     exit(1);
                 }
                 emit_literal(list, "({ ");
+                Symbol *callee_symbol = env_get_var_visible_at(env, func_name, expr->line, expr->column);
+                bool capture_callee = callee_symbol && callee_symbol->type == TYPE_FUNCTION && !func_info;
                 unsigned call_id = build_ordered_call_args(list, expr->as.call.args,
-                                                           expr->as.call.arg_count, env);
+                                                           expr->as.call.arg_count, env,
+                                                           capture_callee ? call_name : NULL);
 
                 /* If wrapping needed, emit gc_wrap_external( */
                 if (needs_wrapping) {
                     emit_literal(list, "gc_wrap_external(");
                 }
 
-                emit_foreign_reference(list, call_name, func_info);
+                if (capture_callee) emit_formatted(list, "__nl_callee_%u", call_id);
+                else emit_foreign_reference(list, call_name, func_info);
                 free(call_name);
                 emit_literal(list, "(");
 
@@ -2483,7 +2493,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             emit_literal(list, "({ ");
             unsigned call_id = build_ordered_call_args(list, expr->as.module_qualified_call.args,
-                                                       expr->as.module_qualified_call.arg_count, env);
+                                                       expr->as.module_qualified_call.arg_count, env, NULL);
             emit_foreign_reference(list, c_name, env_get_function(env, qualified_name));
             emit_literal(list, "(");
             

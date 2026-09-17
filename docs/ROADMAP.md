@@ -68,10 +68,22 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         update the documentation and run full platform acceptance before a
         subsequent release claims the complete roadmap.
 
+- [ ] **Inline union literal match dispatch.** I resolve the union type when
+      matching a constructed literal directly, preserving branch values and side
+      effects instead of emitting an unknown-union zero placeholder.
+      MAC `task_c28c39b66f704cf8af71827955c9edc0`.
+
+- [ ] **Mutable callee capture across backends.** I retain a named function
+      value before its argument expressions mutate that binding. I repair my
+      interpreter's invalid-name lifetime and my VM's replacement-callee call,
+      preserving the original call and subsequent replacement behavior.
+      MAC `task_8555af61281944eb9ac4ca9043849a94`.
+
 - [x] **Native call argument ordering restoration.** I restore ordinary and
       module-qualified argument evaluation once in source order on the corrected
       release tree. I preserve effects, foreign ABI checks and existing lowering,
-      test nested calls and side effects, and submit only the focused patch.
+      test nested calls, mutable callee capture and temporary-name collisions,
+      and submit only the focused patch.
       MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
 
 - [x] **Hosted VM example shadow budget.** I allow a finite explicit

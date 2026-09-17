@@ -75,6 +75,8 @@ shadow main { assert true }
 """
 
 
+CALLEE_MUTATION = 'union Choice { Some { value: int }, None { } }\nfn first(x: int) -> int { return (+ x 100) }\nshadow first { assert (== (first 1) 101) }\nfn second(x: int) -> int { return (+ x 200) }\nshadow second { assert (== (second 1) 201) }\nfn main() -> int {\n let mut target: fn(int) -> int = first\n let choice: Choice = Choice.Some { value: 1 }\n let result: int = (target (match choice { Some(item) => { set target second 1 } None(empty) => { 0 } }))\n assert (== result 101)\n assert (== (target 1) 201)\n return 0\n}\nshadow main { assert true }\n'
+
 class NativeCallArgumentOrder(unittest.TestCase):
     def test_interpreter_vm_and_native_agree(self):
         with tempfile.TemporaryDirectory(prefix="nano-call-order-") as tmp:
@@ -86,6 +88,33 @@ class NativeCallArgumentOrder(unittest.TestCase):
             self._run([str(NANO), str(source)], directory)
             self._run([str(NANO_VIRT), str(source), "--run"], directory)
 
+            executable = directory / "native"
+            self._run([str(NANOC), str(source), "-o", str(executable)], directory)
+            self._run([str(executable)], directory)
+
+    def test_native_captures_mutable_callee_before_argument(self):
+        with tempfile.TemporaryDirectory(prefix="nano-callee-order-") as tmp:
+            directory = Path(tmp)
+            source = directory / "callee.nano"
+            source.write_text(CALLEE_MUTATION)
+            executable = directory / "native"
+            self._run([str(NANOC), str(source), "-o", str(executable)], directory)
+            self._run([str(executable)], directory)
+
+    def test_native_temporaries_do_not_shadow_source_variables(self):
+        names = [f"__nl_arg_{i}_0" for i in range(32)] + [f"__nl_callee_{i}" for i in range(32)]
+        declarations = "\n".join(f"let {name}: int = {i + 1}" for i, name in enumerate(names))
+        total = names[0]
+        for name in names[1:]:
+            total = f"(+ {total} {name})"
+        program = ("fn keep(a: int, b: int) -> int { return b }\nshadow keep { assert true }\n"
+                   "fn main() -> int {\n" + declarations +
+                   f"\nassert (== (keep (keep 1 2) {total}) 2080)\nreturn 0\n}}\n"
+                   "shadow main { assert true }\n")
+        with tempfile.TemporaryDirectory(prefix="nano-call-names-") as tmp:
+            directory = Path(tmp)
+            source = directory / "names.nano"
+            source.write_text(program)
             executable = directory / "native"
             self._run([str(NANOC), str(source), "-o", str(executable)], directory)
             self._run([str(executable)], directory)

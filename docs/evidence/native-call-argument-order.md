@@ -25,3 +25,11 @@ bootstrap smoke program. This record does not
 claim a new x86 or Darwin run.
 
 MAC task: `task_c897ac40d20b43669817b766dbe1c5a3`.
+
+Review added two native regressions. I capture a mutable function-valued callee
+before a match-expression argument replaces it: the current call uses the old
+function and the next call uses the replacement. I also execute nested calls
+with 64 source variables named like my generated argument/callee temporaries.
+Both pass. The release compiler fails the mutable-callee assertion. Separate
+VM/interpreter fixes are tracked by `task_8555af61281944eb9ac4ca9043849a94`;
+this native test does not claim those backends pass that new case yet.
