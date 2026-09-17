@@ -145,6 +145,20 @@ static void test_val_equal_enum(void) {
 
 /* ── val_compare tests ───────────────────────────────────────────────────── */
 
+static void test_val_compare_u8(void) {
+    const char *test_name = "val_compare: exhaustive unsigned byte ordering";
+    for (unsigned a = 0; a <= 255; a++) {
+        for (unsigned b = 0; b <= 255; b++) {
+            int actual = val_compare(val_u8((uint8_t)a), val_u8((uint8_t)b));
+            ASSERT((actual < 0) == (a < b), "unsigned less than");
+            ASSERT((actual > 0) == (a > b), "unsigned greater than");
+            ASSERT((actual == 0) == (a == b), "unsigned equality");
+            ASSERT(val_equal(val_u8((uint8_t)a), val_u8((uint8_t)b)) == (a == b), "tagged equality");
+        }
+    }
+    PASS(test_name);
+}
+
 static void test_val_compare_int(void) {
     const char *test_name = "val_compare: integer ordering";
     ASSERT(val_compare(val_int(1), val_int(2)) < 0,  "1 < 2");
@@ -336,6 +350,7 @@ int main(void) {
     test_val_equal_enum();
 
     /* val_compare */
+    test_val_compare_u8();
     test_val_compare_int();
     test_val_compare_float();
     test_val_compare_bool();

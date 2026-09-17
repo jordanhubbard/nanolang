@@ -3847,6 +3847,7 @@ vm_return_values: ;
             switch (v.tag) {
                 case TAG_FLOAT: stack_push(vm, v); break;
                 case TAG_INT:   stack_push(vm, val_float((double)v.as.i64)); break;
+                case TAG_U8:    stack_push(vm, val_float((double)v.as.u8)); break;
                 case TAG_BOOL:  stack_push(vm, val_float(v.as.boolean ? 1.0 : 0.0)); break;
                 case TAG_STRING: {
                     const char *str = vmstring_cstr(v.as.string);
@@ -3876,6 +3877,11 @@ vm_return_values: ;
             VmString *s;
             switch (v.tag) {
                 case TAG_STRING: stack_push(vm, v); break; /* already a string */
+                case TAG_U8:
+                    s = vm_string_from_int(&vm->heap, (int64_t)v.as.u8);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the byte string.");
+                    stack_push(vm, val_string(s));
+                    break;
                 case TAG_INT:
                     s = vm_string_from_int(&vm->heap, v.as.i64);
                     stack_push(vm, val_string(s));

@@ -223,6 +223,7 @@ static const char *c_result_type(const Nvm2cBuf *b, const NvmFunctionEntry *fn, 
     if (fn->result_count == 0 || fn->result_tag == TAG_VOID) return "void";
     if (fn->result_count != 1) return NULL;
     if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
+    if (fn->result_tag == TAG_U8) return "nmap_value";
     if (fn->result_tag == TAG_FLOAT) return "double";
     if (fn->result_tag == TAG_STRING) return "const char *";
     if (fn->result_tag == TAG_ARRAY) {
@@ -959,6 +960,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_PUSH_BOOL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
+        case OP_PUSH_U8:
         case OP_PUSH_VOID:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
             break;
@@ -1278,7 +1280,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (value.kind != NVM2C_VK_UNK && value.kind != NVM2C_VK_INT &&
                     value.kind != NVM2C_VK_BOOL && value.kind != NVM2C_VK_FLOAT &&
                     value.kind != NVM2C_VK_VALUE) {
-                    nvm2c_fail(b, "I support scalar truthiness only for void, int, bool and float");
+                    nvm2c_fail(b, "I support scalar truthiness only for void, int, u8, bool and float");
                     return 0;
                 }
             }
@@ -1712,7 +1714,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 }
             }
             if (ins.opcode == OP_CALL) {
-                if (cf->result_count == 1 && cf->result_tag == TAG_FLOAT) {
+                if (cf->result_count == 1 && cf->result_tag == TAG_U8) {
+                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                } else if (cf->result_count == 1 && cf->result_tag == TAG_FLOAT) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
@@ -1807,7 +1811,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_RET:
         case OP_HALT: {
             if (fn->result_count == 1 &&
-                (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FLOAT ||
+                (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_U8 || fn->result_tag == TAG_FLOAT ||
                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY ||
                  fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP) &&
                 sp > 0) {
@@ -1839,7 +1843,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !merge_fields(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
                 }
-                NvmShapeKind declared = fn->result_tag == TAG_STRING ? NVM_SHAPE_STRING :
+                NvmShapeKind declared = fn->result_tag == TAG_U8 ? NVM_SHAPE_OPTIONAL :
+                    fn->result_tag == TAG_STRING ? NVM_SHAPE_STRING :
                     fn->result_tag == TAG_BOOL ? NVM_SHAPE_BOOL :
                     fn->result_tag == TAG_FLOAT ? NVM_SHAPE_FLOAT :
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
@@ -2276,10 +2281,10 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
 static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
     if (st->sp && st->kinds[st->sp - 1] == NVM2C_VK_VALUE) {
         int value = stack_pop(b, st);
-        char expression[288];
+        char expression[384];
         snprintf(expression, sizeof expression,
-                 "((v[%d].kind == 3 && nvalue_require_float(v[%d]) != 0.0) || v[%d].kind == 5 || v[%d].kind == 7 || v[%d].kind == 13 || ((v[%d].kind == 1 || v[%d].kind == 4) && v[%d].integer != 0))",
-                 value, value, value, value, value, value, value, value);
+                 "((v[%d].kind == 3 && nvalue_require_float(v[%d]) != 0.0) || v[%d].kind == 5 || v[%d].kind == 7 || v[%d].kind == 13 || ((v[%d].kind == 1 || v[%d].kind == 2 || v[%d].kind == 4) && v[%d].integer != 0))",
+                 value, value, value, value, value, value, value, value, value);
         stack_push_temp(b, st, expression);
     }
     if (st->sp && st->kinds[st->sp - 1] == NVM2C_VK_FLOAT) {
@@ -2313,10 +2318,10 @@ static int stack_pop_scalar_condition(Nvm2cBuf *b, Nvm2cStack *st) {
         uint8_t kind = st->kinds[st->sp - 1];
         if (kind == NVM2C_VK_VALUE) {
             int slot = st->slots[st->sp - 1];
-            nvm2c_printf(b, "    if (v[%d].kind != 0 && v[%d].kind != 1 && v[%d].kind != 3 && v[%d].kind != 4) abort();\n",
-                        slot, slot, slot, slot);
+            nvm2c_printf(b, "    if (v[%d].kind != 0 && v[%d].kind != 1 && v[%d].kind != 2 && v[%d].kind != 3 && v[%d].kind != 4) abort();\n",
+                        slot, slot, slot, slot, slot);
         } else if (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT) {
-            nvm2c_fail(b, "I support scalar truthiness only for void, int, bool and float");
+            nvm2c_fail(b, "I support scalar truthiness only for void, int, u8, bool and float");
             return -1;
         }
     }
@@ -2661,7 +2666,7 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
 
 static int scalar_return_profile(const NvmFunctionEntry *fn) {
     return fn->result_count == 0 || (fn->result_count == 1 &&
-        (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FLOAT));
+        (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_U8 || fn->result_tag == TAG_FLOAT));
 }
 
 static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
@@ -2670,7 +2675,11 @@ static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
         nvm2c_fail(b, "function %u: return leaves %d values, expected %u", idx, st->sp, fn->result_count);
         return 0;
     }
-    if (fn->result_count) {
+    if (fn->result_count && fn->result_tag == TAG_U8) {
+        int slot = stack_pop_expect(b, st, NVM2C_VK_VALUE, "RET");
+        if (b->failed) return 0;
+        nvm2c_printf(b, "    if (v[%d].kind != 2) abort();\n    nresult = v[%d];\n", slot, slot);
+    } else if (fn->result_count) {
         uint8_t kind = fn->result_tag == TAG_FLOAT ? NVM2C_VK_FLOAT :
                        fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT;
         int slot = stack_pop_expect(b, st, kind, "RET");
@@ -2878,6 +2887,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_float(b, &st, rhs);
             break;
         }
+        case OP_PUSH_U8: {
+            char value[64];
+            snprintf(value, sizeof value, "(nmap_value){2, %u, NULL}", ins.operands[0].u8);
+            stack_push_value(b, &st, value);
+            break;
+        }
         case OP_PUSH_BOOL: {
             char rhs[8];
             snprintf(rhs, sizeof rhs, "%dLL", ins.operands[0].u8 ? 1 : 0);
@@ -2980,7 +2995,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_printf(b, "    nf64_print(f[%d]);\n", slot);
                 if (nl) nvm2c_puts(b, "    fputc('\\n', stdout);\n");
             } else if (k == NVM2C_VK_VALUE) {
-                nvm2c_printf(b, "    if (v[%d].kind == 1) printf(\"%%lld\", (long long)v[%d].integer);\n", slot, slot);
+                nvm2c_printf(b, "    if (v[%d].kind == 1 || v[%d].kind == 2) printf(\"%%lld\", (long long)v[%d].integer);\n", slot, slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 3) nf64_print(nvalue_require_float(v[%d]));\n", slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 4) fputs(v[%d].integer ? \"true\" : \"false\", stdout);\n", slot, slot);
                 nvm2c_printf(b, "    else if (v[%d].kind == 5) fputs(v[%d].text, stdout);\n", slot, slot);
@@ -3416,8 +3431,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 int value = stack_pop(b, &st);
                 char expression[360];
                 snprintf(expression, sizeof expression,
-                    "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : v[%d].kind == 1 ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
-                    value, value, value, value, value, value, value, value);
+                    "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : (v[%d].kind == 1 || v[%d].kind == 2) ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
+                    value, value, value, value, value, value, value, value, value);
                 stack_push_str(b, &st, expression);
                 break;
             }
@@ -3977,6 +3992,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (result_is_i64(cf)) {
                 if (cf->result_tag == TAG_BOOL) stack_push_bool(b, &st, call);
                 else stack_push_temp(b, &st, call);
+            } else if (cf->result_count == 1 && cf->result_tag == TAG_U8) {
+                stack_push_value(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_FLOAT) {
                 stack_push_float(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
@@ -4193,7 +4210,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     if (!terminated) {
         if (!scalar_return_profile(fn)) {
-            nvm2c_fail(b, "function %u: I support implicit returns only for zero results or one int/bool/float", idx);
+            nvm2c_fail(b, "function %u: I support implicit returns only for zero results or one int/u8/bool/float", idx);
             goto done;
         }
         if (!emit_scalar_return(b, &st, fn, idx)) goto done;
@@ -5251,6 +5268,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_fail(&b, "function %u: arity exceeds local_count", f);
             return NULL;
         }
+        if (fn->result_tag == TAG_U8) b.has_maps = 1;
+        if (mod->function_param_types && mod->function_param_types[f])
+            for (uint16_t p = 0; p < fn->arity; ++p)
+                if (mod->function_param_types[f][p] == TAG_U8) b.has_maps = 1;
         if (fn->local_count > b.local_width) b.local_width = fn->local_count;
         if (fn->code_offset > mod->code_size || fn->code_length > mod->code_size - fn->code_offset) {
             nvm2c_fail(&b, "I cannot inspect aggregate widths outside function %u", f);
@@ -5267,7 +5288,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 b.record_width = ins.operands[3].u16;
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
                 ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET) b.has_maps = 1;
-            if (ins.opcode == OP_PUSH_VOID) b.has_maps = 1; /* Tagged void storage. */
+            if (ins.opcode == OP_PUSH_VOID || ins.opcode == OP_PUSH_U8) b.has_maps = 1; /* Tagged scalar storage. */
             if (ins.opcode == OP_LT || ins.opcode == OP_LE || ins.opcode == OP_GT || ins.opcode == OP_GE)
                 b.has_maps = 1; /* I retain runtime tags for generic ordering. */
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
@@ -5401,6 +5422,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                     uint8_t *kind = &facts.parameters[(size_t)f * b.local_width + p];
                     if (*kind != NVM2C_VK_UNK) continue;
                     uint8_t declared = tags[p] == TAG_INT ? NVM2C_VK_INT :
+                        tags[p] == TAG_U8 ? NVM2C_VK_VALUE :
                         tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :
                         tags[p] == TAG_FLOAT ? NVM2C_VK_FLOAT :
                         tags[p] == TAG_STRING ? NVM2C_VK_STR :
@@ -5775,27 +5797,27 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (value.kind != 13 || !value.text) abort();\n    return (nmap_t)value.text;\n}\n"
                 "static inline double nvalue_cast_float(nmap_value value) {\n"
                 "    if (value.kind == 3) return nvalue_require_float(value);\n"
-                "    if (value.kind == 1) return (double)value.integer;\n"
+                "    if (value.kind == 1 || value.kind == 2) return (double)value.integer;\n"
                 "    if (value.kind == 4) return value.integer ? 1.0 : 0.0;\n"
                 "    if (value.kind == 5) return value.text ? strtod(value.text, NULL) : 0.0;\n"
                 "    return 0.0;\n}\n"
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
                 "    if (value.kind == 3) return nf64_to_i64(nvalue_require_float(value));\n"
-                "    return value.kind == 1 || value.kind == 4 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
+                "    return value.kind == 1 || value.kind == 2 || value.kind == 4 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
                 "static inline int nvalue_equal(nmap_value a, nmap_value b) {\n"
                 "    if (a.kind == 1 && b.kind == 3) return (double)a.integer == nvalue_require_float(b);\n"
                 "    if (a.kind == 3 && b.kind == 1) return nvalue_require_float(a) == (double)b.integer;\n"
                 "    if (a.kind != b.kind) return 0;\n"
                 "    if (a.kind == 7 || a.kind == 13) return a.text == b.text;\n"
                 "    if (a.kind == 3) return nvalue_require_float(a) == nvalue_require_float(b);\n"
-                "    return a.kind == 0 || (a.kind == 1 || a.kind == 4 ? a.integer == b.integer : strcmp(a.text, b.text) == 0);\n}\n"
+                "    return a.kind == 0 || (a.kind == 1 || a.kind == 2 || a.kind == 4 ? a.integer == b.integer : strcmp(a.text, b.text) == 0);\n}\n"
                 "static inline int nvalue_compare(nmap_value a, nmap_value b) {\n"
                 "    if ((a.kind == 3 && (b.kind == 3 || b.kind == 1)) || (a.kind == 1 && b.kind == 3)) {\n"
                 "        double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;\n"
                 "        double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;\n"
                 "        return (x > y) - (x < y);\n    }\n"
                 "    if (a.kind != b.kind) return (int)a.kind - (int)b.kind;\n"
-                "    if (a.kind == 1 || a.kind == 4) return (a.integer > b.integer) - (a.integer < b.integer);\n"
+                "    if (a.kind == 1 || a.kind == 2 || a.kind == 4) return (a.integer > b.integer) - (a.integer < b.integer);\n"
                 "    if (a.kind == 5) {\n"
                 "        if (a.text == b.text) return 0;\n"
                 "        if (!a.text) { return -1; } if (!b.text) { return 1; }\n"

@@ -2173,6 +2173,23 @@ static void test_cast_int_from_float(void) {
     nvm_module_free(mod);
 }
 
+static void test_cast_float_from_u8(void) {
+    for (unsigned value = 0; value <= 255; value++) {
+        uint8_t code[16];
+        uint32_t off = 0;
+        off += emit(code + off, OP_PUSH_U8, (int)value);
+        off += emit(code + off, OP_CAST_FLOAT);
+        off += emit(code + off, OP_RET);
+        NvmModule *mod = make_module(code, off, 0, 0);
+        VmResult r;
+        NanoValue result = run_module(mod, &r);
+        ASSERT_EQ_INT(r, VM_OK, "cast_float_from_u8: VM_OK");
+        ASSERT_EQ_INT(result.tag, TAG_FLOAT, "cast_float_from_u8: exact float tag");
+        ASSERT_EQ_F64(result.as.f64, (double)value, "cast_float_from_u8: exact unsigned value");
+        nvm_module_free(mod);
+    }
+}
+
 static void test_cast_float_from_int(void) {
     uint8_t code[64];
     uint32_t off = 0;
@@ -2203,6 +2220,33 @@ static void test_cast_bool(void) {
     ASSERT_EQ_INT(result.tag, TAG_BOOL, "cast_bool: tag is bool");
     ASSERT(result.as.boolean == false, "cast_bool: 0 -> false");
     nvm_module_free(mod);
+}
+
+static void test_cast_string_from_u8(void) {
+    for (unsigned value = 0; value <= 255; value++) {
+        uint8_t code[16];
+        uint32_t off = 0;
+        off += emit(code + off, OP_PUSH_U8, (int)value);
+        off += emit(code + off, OP_CAST_STRING);
+        off += emit(code + off, OP_RET);
+        NvmModule *mod = make_module(code, off, 0, 0);
+        VmState vm;
+        vm_init(&vm, mod);
+        size_t baseline = vm.heap.stats.num_objects;
+        ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "byte string: execution");
+        NanoValue result = vm_get_result(&vm);
+        ASSERT_EQ_INT(result.tag, TAG_STRING, "byte string: exact string tag");
+        char expected[4];
+        snprintf(expected, sizeof expected, "%u", value);
+        ASSERT_EQ_STR(vmstring_cstr(result.as.string), expected, "byte string: unsigned decimal");
+        /* I remove the returned stack root, then release exactly its reference. */
+        vm.stack_size--;
+        vm_release(&vm.heap, result);
+        vm_gc_collect_cycles(&vm.heap);
+        ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "byte string: no retained allocation");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
 }
 
 static void test_cast_string(void) {
@@ -5721,8 +5765,10 @@ int main(void) {
 
     printf("\n[Type Casts]\n");
     RUN_TEST(test_cast_int_from_float);
+    RUN_TEST(test_cast_float_from_u8);
     RUN_TEST(test_cast_float_from_int);
     RUN_TEST(test_cast_bool);
+    RUN_TEST(test_cast_string_from_u8);
     RUN_TEST(test_cast_string);
 
     printf("\n[Closures]\n");
