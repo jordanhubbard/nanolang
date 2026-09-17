@@ -27,7 +27,7 @@ after `LOAD_GLOBAL` and aggregate/map storage. Task
 lifetime work. Imported global aliases remain under
 `task_2713a842846b417fbfd6aa4b8059d0dd`; I do not guess another owner's
 binding. C-seed constant map constructor context and empty string-array global
-tags remain under `task_026e73d59e9e45b0b732b43883feea9a`. The parity
+tags are repaired under `task_026e73d59e9e45b0b732b43883feea9a`. The parity
 fixture uses a typed map factory and a nonempty string array; my separate empty
 array test requires the correct string tag. Array-element result inference is
 recorded as `task_1c4da3f9cf804bbf95005ad3f603ef26`; the fixture uses an
