@@ -115,7 +115,7 @@ typedef struct {
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
     NvmShapeGraph shapes;
-    NvmShapeId *shape_locals, *shape_results, **shape_outputs;
+    NvmShapeId *shape_locals, *shape_results, *shape_globals, **shape_outputs;
     NvmShapeId *shape_current;
     Nvm2cJoinShape **join_shapes;
     int shape_generic_array;
@@ -418,7 +418,10 @@ typedef struct {
     uint8_t *parameters;
     uint8_t *fields;
     uint8_t *results;
+    uint8_t *global_kinds;
+    uint8_t *global_fields;
     int changed;
+    int discover_globals;
     int final;
 } Nvm2cFacts;
 
@@ -504,6 +507,45 @@ static int merge_call_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, u
 static int merge_record_results(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uint8_t *fields) {
     for (size_t i = 0; i < b->record_width; ++i)
         if (!merge_parameter(b, facts, &dest[i], fields[i])) return 0;
+    return 1;
+}
+
+static int merge_global_kind(Nvm2cBuf *b, Nvm2cFacts *facts, uint32_t slot, uint8_t kind) {
+    if (kind == NVM2C_VK_UNK || kind == NVM2C_VK_VALUE) return 1;
+    uint8_t *dest = &facts->global_kinds[slot];
+    if (*dest == kind) return 1;
+    if (*dest == NVM2C_VK_UNK) {
+        *dest = kind;
+        facts->changed = 1;
+        return 1;
+    }
+    if (*dest == NVM2C_VK_RARR || kind == NVM2C_VK_RARR) {
+        nvm2c_fail(b, "I require record-array global %u to retain one exact representation "
+                      "(function %u, offset %zu)",
+                   slot, b->classify_function_index, b->classify_offset);
+        return 0;
+    }
+    if (*dest != NVM2C_VK_VALUE) {
+        *dest = NVM2C_VK_VALUE;
+        facts->changed = 1;
+    }
+    return 1;
+}
+
+static int merge_global_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint32_t slot,
+                               const uint8_t *fields) {
+    uint8_t *dest = facts->global_fields + (size_t)slot * b->record_width;
+    for (size_t i = 0; i < b->record_width; ++i) {
+        if (fields[i] == NVM2C_VK_UNK || dest[i] == fields[i]) continue;
+        if (dest[i] != NVM2C_VK_UNK) {
+            nvm2c_fail(b, "I found conflicting field %zu representations in record-array global %u "
+                          "(function %u, offset %zu)",
+                       i, slot, b->classify_function_index, b->classify_offset);
+            return 0;
+        }
+        dest[i] = fields[i];
+        facts->changed = 1;
+    }
     return 1;
 }
 
@@ -946,18 +988,44 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push_slot(b, idx, stk, &sp, y)) return 0;
             break;
         }
-        case OP_LOAD_GLOBAL:
-            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+        case OP_LOAD_GLOBAL: {
+            uint32_t slot = ins.operands[0].u32;
+            if (facts->global_kinds[slot] == NVM2C_VK_RARR) {
+                Nvm2cSimSlot loaded = {0};
+                loaded.kind = NVM2C_VK_RARR;
+                loaded.origin = -1;
+                loaded.shape = shape_variable(b, &b->shape_globals[slot]);
+                loaded.rec_k = sim_fields(b,
+                    facts->global_fields + (size_t)slot * b->record_width, NVM2C_VK_UNK);
+                if (!loaded.rec_k || !sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
+            } else if (!sim_push(b, idx, stk, &sp,
+                                 facts->discover_globals ? NVM2C_VK_UNK : NVM2C_VK_VALUE, -1)) return 0;
             break;
+        }
         case OP_STORE_GLOBAL: {
             Nvm2cSimSlot value;
+            uint32_t slot = ins.operands[0].u32;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            if (!merge_global_kind(b, facts, slot, value.kind)) return 0;
+            if (value.kind == NVM2C_VK_RARR) {
+                if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
+                NvmShapeId global = shape_variable(b, &b->shape_globals[slot]);
+                if (!shape_type(b, global, NVM_SHAPE_ARRAY) ||
+                    !shape_equal(b, shape_child(b, value.shape, 0),
+                                 shape_child(b, global, 0))) return 0;
+            } else if (facts->global_kinds[slot] == NVM2C_VK_RARR &&
+                       value.kind != NVM2C_VK_UNK) {
+                nvm2c_fail(b, "I require record-array global %u to retain its exact representation "
+                              "(function %u, offset %zu)", slot, idx, start);
+                return 0;
+            }
             /* I collect final-pass graph facts before resolving nested fields.
              * Emission still requires supported concrete or tagged storage. */
             if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_BOOL &&
                 value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_FLOAT && value.kind != NVM2C_VK_VALUE &&
                 !integer_array_storage(value.kind) && value.kind != NVM2C_VK_SARR &&
-                value.kind != NVM2C_VK_MAP && value.kind != NVM2C_VK_UNK) {
+                value.kind != NVM2C_VK_RARR && value.kind != NVM2C_VK_MAP &&
+                value.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I cannot yet store an aggregate or unresolved global in function %u at offset %zu", idx, start);
                 return 0;
             }
@@ -2858,9 +2926,27 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_LOAD_GLOBAL: {
-            char expression[64];
-            snprintf(expression, sizeof expression, "nglobal[%u]", ins.operands[0].u32);
-            stack_push_value(b, &st, expression);
+            uint32_t slot = ins.operands[0].u32;
+            uint8_t kind = resolved_shape_kind(b, b->shape_globals[slot]);
+            if (kind == NVM2C_VK_RARR) {
+                nvm2c_printf(b, "    if (nglobal[%u].kind != %u || nglobal[%u].integer != %u || !nglobal[%u].text) abort();\n",
+                             slot, TAG_ARRAY, slot, NVM2C_VK_RARR, slot);
+                char expression[64];
+                snprintf(expression, sizeof expression, "(nrarr_t)nglobal[%u].text", slot);
+                int array = stack_push_rarr(b, &st, expression);
+                if (array >= 0) {
+                    NvmShapeId element = nvm_shape_lookup(&b->shapes, b->shape_globals[slot], 0);
+                    for (size_t f = 0; f < b->record_width; ++f) {
+                        NvmShapeId field = element ? nvm_shape_lookup(&b->shapes, element, (uint32_t)f) : 0;
+                        st.rarr_k[array][f] = resolved_shape_kind(b, field);
+                    }
+                    if (!shape_ok(b)) goto done;
+                }
+            } else {
+                char expression[64];
+                snprintf(expression, sizeof expression, "nglobal[%u]", slot);
+                stack_push_value(b, &st, expression);
+            }
             break;
         }
         case OP_STORE_GLOBAL: {
@@ -2882,6 +2968,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             else if (integer_array_storage(kind) || kind == NVM2C_VK_SARR)
                 nvm2c_printf(b, "    nglobal[%u] = (nmap_value){7, %u, (char *)%s[%d]};\n",
                              slot, kind, stack_array_name(kind), value);
+            else if (kind == NVM2C_VK_RARR)
+                nvm2c_printf(b, "    nglobal[%u] = (nmap_value){%u, %u, (char *)ra[%d]};\n",
+                             slot, TAG_ARRAY, NVM2C_VK_RARR, value);
             else { nvm2c_fail(b, "I cannot yet emit an aggregate global store"); goto done; }
             break;
         }
@@ -5041,6 +5130,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (host && host->result == TAG_STRING && strcmp(host->c_name, "nhost_artifact"))
             b.has_owned_strings = 1;
     }
+    int has_global_store = 0, has_record_array_constructor = 0;
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
      * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
@@ -5093,7 +5183,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 }
                 if (b.global_count <= slot) b.global_count = slot + 1;
                 b.has_maps = 1; /* Globals share the tagged scalar runtime. */
+                if (ins.opcode == OP_STORE_GLOBAL) has_global_store = 1;
             }
+            if ((ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_LITERAL) &&
+                ins.operands[0].u8 == TAG_STRUCT) has_record_array_constructor = 1;
             pc += n;
         }
     }
@@ -5105,6 +5198,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         return NULL;
     }
     size_t fact_size = (size_t)mod->function_count * per_function;
+    size_t per_global = 1 + b.record_width;
+    if (b.global_count > (SIZE_MAX - fact_size) / per_global) {
+        nvm2c_fail(&b, "I cannot allocate this many global facts");
+        return NULL;
+    }
+    fact_size += b.global_count * per_global;
     size_t shape_code_count = mod->code_size;
     size_t shape_local_count = (size_t)mod->function_count * b.local_width;
     if (shape_code_count > SIZE_MAX / sizeof(NvmShapeId) || shape_local_count > SIZE_MAX / sizeof(NvmShapeId)) {
@@ -5113,6 +5212,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
     b.shape_locals = calloc((size_t)mod->function_count * b.local_width, sizeof(NvmShapeId));
     b.shape_results = calloc(mod->function_count, sizeof(NvmShapeId));
+    b.shape_globals = calloc(b.global_count ? b.global_count : 1, sizeof(NvmShapeId));
     b.shape_outputs = calloc(mod->function_count, sizeof *b.shape_outputs);
     b.join_shapes = calloc(mod->function_count, sizeof *b.join_shapes);
     b.emitted_functions = calloc(mod->function_count, 1);
@@ -5122,12 +5222,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * b.local_width
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs || !b.join_shapes || !b.emitted_functions || !b.required_functions || !b.tagged_locals) {
+    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results ||
+        !b.shape_globals || !b.shape_outputs || !b.join_shapes || !b.emitted_functions ||
+        !b.required_functions || !b.tagged_locals) {
         free(inference);
         free(kinds);
         free(rec_fields);
         free(b.shape_locals);
         free(b.shape_results);
+        free(b.shape_globals);
         free(b.shape_outputs);
         free(b.join_shapes);
         free(b.emitted_functions);
@@ -5147,6 +5250,30 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.fields = inference + (size_t)mod->function_count * b.local_width;
     facts.results = facts.fields + (size_t)mod->function_count * b.local_width * b.record_width;
     b.array_results = facts.results + (size_t)mod->function_count * b.record_width;
+    facts.global_kinds = b.array_results + mod->function_count;
+    facts.global_fields = facts.global_kinds + b.global_count;
+    /* I discover exact record-array globals before ordinary inference. A
+     * load cannot publish the old tagged fallback into a local or parameter
+     * before a later function reveals the global's exact element shape. */
+    if (has_global_store && has_record_array_constructor) {
+        facts.discover_globals = 1;
+        for (size_t pass = 0; ; ++pass) {
+            if (pass / 2 > fact_size) {
+                nvm2c_fail(&b, "I could not converge global representation facts");
+                goto fail;
+            }
+            facts.changed = 0;
+            for (uint32_t i = 0; i < mod->function_count; ++i) {
+                if (!classify_function(&b, mod, i, kinds + (size_t)i * b.local_width,
+                                       rec_fields + (size_t)i * b.local_width * b.record_width,
+                                       &facts)) goto fail;
+            }
+            if (!facts.changed) break;
+        }
+        facts.discover_globals = 0;
+        memset(inference, NVM2C_VK_UNK,
+               (size_t)(facts.global_kinds - inference));
+    }
     /* I add known facts and widen string parameters to optional storage when
      * needed. Payload and aggregate compatibility remain graph constraints. */
     for (size_t pass = 0; ; pass++) {
@@ -5189,6 +5316,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (!nvm_shape_solve_conversions(&b.shapes)) {
         nvm2c_fail(&b, "I cannot solve aggregate storage shape conversions: %s", b.shapes.error);
         goto fail;
+    }
+    for (size_t slot = 0; slot < b.global_count; ++slot) {
+        if (facts.global_kinds[slot] != NVM2C_VK_RARR) continue;
+        if (resolved_shape_kind(&b, b.shape_globals[slot]) != NVM2C_VK_RARR) {
+            nvm2c_fail(&b, "I cannot resolve the record element shape of global %zu", slot);
+            goto fail;
+        }
+        b.array_shape_kinds |= (uint16_t)(1u << NVM2C_VK_RARR);
     }
     if (!infer_nominal_scalar_fields(&b, mod)) goto fail;
 
@@ -5750,6 +5885,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);
+    free(b.shape_globals);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
     for (uint32_t i = 0; i < mod->function_count; ++i) {
@@ -5771,6 +5907,7 @@ fail:
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);
+    free(b.shape_globals);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
     for (uint32_t i = 0; i < mod->function_count; ++i) {
