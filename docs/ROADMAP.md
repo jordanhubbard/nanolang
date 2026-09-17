@@ -119,12 +119,25 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/instantiated-ownership-metadata.md`. MAC
       `task_d329989e8acf43149c38d6a998bd730f`.
 
-- [ ] **Substitute generic selected-variant patterns.** My ordinary `Box<int>`
-      pattern `let Box.Some { value } = payload` currently fails complete-field
-      validation in all three stages. I retain concrete arguments through field
-      validation and projections, prove ordinary patterns and rejecting field
-      controls, and keep generic owned transfer rejected until its next step.
-      MAC `task_bbda7f126bda403aa74034a762930f24`, after instantiated ownership metadata.
+- [x] **Substitute generic selected-variant patterns.** I retain concrete
+      arguments through complete-field validation, hidden payload captures and
+      inferred projections. Ordinary integer, string, empty and nested selected
+      patterns execute across my C seed and both self-hosted stages; malformed
+      fields and generic owned transfer remain rejected. Source `81cc5ebd`
+      passes fresh bootstrap, 59 paired new/adjacent methods, C typechecker tests
+      and 160 sanitizer lifetime checks. Evidence:
+      `docs/evidence/generic-selected-patterns.md`. MAC
+      `task_bbda7f126bda403aa74034a762930f24`, after instantiated ownership metadata.
+
+- [ ] **Transfer concrete generic selected payloads.** After ordinary generic
+      pattern validation, I substitute only the selected arm's fields before
+      assigning ownership obligations. I require paired executable resource,
+      ordinary and empty-arm controls plus drop, duplicate-consumption,
+      use-after-move and branch-join rejection. I preserve guards for unresolved
+      payload shapes, collections and incomplete function signatures. Global
+      ownership and direct nested field-scrutinee inference remain separate. MAC
+      `task_08428ceb1d674de49383aab1ba9a78c8`, after
+      `task_bbda7f126bda403aa74034a762930f24`.
 
 - [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
       stores flattened nominal names rather than complete parameter and return
