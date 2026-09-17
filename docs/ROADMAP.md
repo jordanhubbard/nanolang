@@ -45,6 +45,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I implement scalar CAST_BOOL and generic AND/OR/NOT across C, LLVM and shared Wasm (MAC `task_59c773b34bec49f4b46d5a0b4a8f2de7`). I preserve VM truthiness for void/int/bool/float, exact bool tags and already-evaluated operand order through calls/locals/joins. I require same-module VM/C/LLVM/Wasmtime/import-free Node positives and explicit heap/U8 profile refusals.
+- [ ] I audit U8 transport and conversion/ordering before common-profile admission (MAC `task_ad1c498801b34aa38d82f58a588f1d5a`). Current VM CAST_FLOAT(U8) defaults to zero and same-U8 val_compare defaults to equality; this slice does not redefine them.
+- [ ] I specify generic mixed numeric arithmetic and comparisons separately from typed scalar operations (MAC `task_01d3e7ca2b6a47b0bef9504f2fd04006`). I retain VM promotion, NaN and cross-tag ordering observations before changing any backend semantics.
+
 - [x] I complete native full-source compiler generations at frozen source `2f50d7a0` after map-byte debt and builtin host ownership repair (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). Both generations finish under their original 1800-second bounds, verify and match raw bytes; help/hello and immutable source/tool/host integrity pass. I retain [measured evidence and boundaries](evidence/native-full-fixedpoint-host-owned.md). This does not close other full-roadmap release requirements.
 
 - [x] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. Seven Wasm and eleven LLVM methods pass after integration; [evidence](NANOISA_WASM.md). This first subset does not complete heap, host, reference or full-language Wasm coverage.
