@@ -133,7 +133,7 @@ bindings with scalar initializers. I inspect all initializers against the
 pre-block environment before introducing their names. Sibling references,
 mutable inputs, aggregates, and unsupported effects are refused.
 
-Closed scalar source calls require resolved body inspection; scalar local loops
+Closed scalar source calls require resolved body inspection; scalar local `while` loops
 and reassignment are permitted. My separate `pure fn` rules are unchanged. The
 NanoISA emitters require guarded parameter inputs and retain every admitted
 binding in version-2 records, which undergo independent bytecode verification.

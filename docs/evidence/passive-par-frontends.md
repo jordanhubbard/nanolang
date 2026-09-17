@@ -7,7 +7,7 @@ bindings in source order. A sibling reference, mutable external binding,
 aggregate value, or effectful call is outside this slice.
 
 I inspect the resolved bodies of closed scalar calls. I admit scalar frame-local
-mutation and loops without changing my separate `pure fn` contract. I refuse
+mutation and `while` loops without changing my separate `pure fn` contract. I refuse
 recursion, globals, foreign and indirect calls, and observable effects. A known
 spelling does not excuse an incompatible user declaration. My self-hosted
 checker and emitter share this body classifier; the bytecode verifier separately
@@ -38,7 +38,21 @@ original source loop; I do not replace it with a conversion opcode.
 
 The scalar fixture separately exercises `int`, `bool`, `float`, and `string`
 parameters, entry guards, exported bindings, and two blocks. Refusal cases retain
-an existing output file across all four source drivers.
+an existing output file across all four source drivers. A separate duplicate-name
+module test retains each function owner and its private helper, including verified
+canonical Stage 1/Stage 2 `--emit-nvm` output with passive metadata.
+
+The final restacked bootstrap passed. The emitter gate passed 86 C comparison
+checks and 84 methods (102.566 seconds). Five frontend methods passed in 37.554
+seconds; the extended canonical-owner method passed separately. Schema validation
+and 79 C typechecker checks also passed before the final additive restack.
+
+I retain one unexplained failure of the existing artifact-publication test under
+`task_6651883267424a2f907b439de9fba4c6`. It passed in the earlier run and in one
+isolated rerun (23.438 seconds) with identical source, binary, and capture-helper
+hashes before and after execution. A separate bootstrap ran concurrently with
+the failed gate; that observation does not establish its cause. I preserved both
+full-gate logs, the isolated log, hash manifests, and ordinary emitted artifacts.
 
 ## Remaining acceptance
 

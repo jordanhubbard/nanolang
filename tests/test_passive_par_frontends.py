@@ -101,6 +101,41 @@ class PassiveParFrontends(unittest.TestCase):
                         self.assertIn(diagnostic, (result.stdout+result.stderr).lower())
                         self.assertEqual(output.read_text(), 'retained output')
 
+    def test_bound_module_calls_keep_distinct_declaration_owners(self):
+        with tempfile.TemporaryDirectory(prefix='nano-par-owners-') as tmp:
+            directory = Path(tmp)
+            for name, value in (('left', 37), ('right', 12)):
+                (directory / (name + '.nano')).write_text(
+                    'fn base() -> int { return ' + str(value) + ' }\n'
+                    'shadow base { assert (== (base) ' + str(value) + ') }\n'
+                    'pub fn value() -> int { return (base) }\n'
+                    'shadow value { assert (== (value) ' + str(value) + ') }\n')
+            source = directory / 'main.nano'
+            source.write_text('module "left.nano" as left\nmodule "right.nano" as right\n'
+                              'fn main() -> int { par { let a: int = (left.value) '
+                              'let b: int = (right.value) } assert (== a 37) assert (== b 12) '
+                              '(println (+ a b)) return 0 }\nshadow main { assert (== (main) 0) }\n')
+            for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
+                with self.subTest(compiler=compiler):
+                    output = directory / compiler
+                    built = self.run_command(ROOT/'bin'/compiler, source, '-o', output)
+                    self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+                    ran = self.run_command(output)
+                    self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+                    self.assertEqual(ran.stdout, '49\n')
+                    if compiler != 'nanoc_c':
+                        module = directory / (compiler + '.nvm')
+                        emitted = self.run_command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
+                        self.assertEqual(emitted.returncode, 0, emitted.stdout + emitted.stderr)
+                        verified = self.run_command(ROOT/'bin/nano_vm', '--verify-only', module)
+                        self.assertEqual(verified.returncode, 0, verified.stdout + verified.stderr)
+                        dumped = self.run_command(ROOT/'bin/nanoisa', 'dump', module)
+                        self.assertEqual(dumped.returncode, 0, dumped.stdout + dumped.stderr)
+                        self.assertIn('.passive "', dumped.stdout)
+                        ran = self.run_command(ROOT/'bin/nano_vm', module)
+                        self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+                        self.assertEqual(ran.stdout, '49\n')
+
     def test_raw_emitter_keeps_unproved_local_input_boundary(self):
         with tempfile.TemporaryDirectory(prefix='nano-par-local-') as tmp:
             source, output = Path(tmp)/'input.nano', Path(tmp)/'prior.nasm'

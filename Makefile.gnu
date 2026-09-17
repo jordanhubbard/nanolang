@@ -4411,6 +4411,7 @@ test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-units: test-nanoisa-host-closure
 test-nanoisa-host-closure: $(COMPILER_C)
 	python3 -m unittest tests.test_nanoisa_host_closure
+
 .PHONY: test-passive-par-frontends
 test-units: test-passive-par-frontends
 test-passive-par-frontends: bootstrap nanoisa_emit
