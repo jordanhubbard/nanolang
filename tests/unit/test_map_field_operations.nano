@@ -1,0 +1,14 @@
+struct Holder { values: HashMap<string,string> }
+fn exercise() -> int {
+ let h: Holder = Holder { values: (map_new) }
+ (map_set h.values "key" "kept")
+ assert (map_has h.values "key")
+ assert (== (map_get h.values "key") "kept")
+ assert (== (map_length h.values) 1)
+ (map_remove h.values "key")
+ assert (not (map_has h.values "key"))
+ return 0
+}
+shadow exercise { assert (== (exercise) 0) }
+fn main() -> int { return (exercise) }
+shadow main { assert (== (main) 0) }
