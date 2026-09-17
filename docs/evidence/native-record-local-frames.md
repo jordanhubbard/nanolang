@@ -91,3 +91,10 @@ My new static/recursive and tail-root regressions are included in
 `f7fcec8bd5c25e2fa7e20dac1c7c3d6fe4b5c5bc2d896b72a7fb5c0e2392f1bb`.
 Its embedded immutable artifact paths belong to this checkout; the hash is
 local evidence, not a claim of portable artifact identity.
+
+My final additive rebase onto `0387c897` preserves the native implementation.
+I rebuild the native tools and rerun both new regressions plus the existing
+ordinary/self-tail/cross-tail allocation and failure checks: three methods pass
+in 5.315 seconds (`/tmp/nanolang-record-local-final-focused.log`). The compiler
+product result above remains explicitly pinned to `274bab44`; the combined
+compiler/bootstrap gate runs again during integration.
