@@ -11,7 +11,10 @@ float call results must match their declared return types.
 
 On integrated base `5ea3adac` (including shared-borrow schema PR508 and native
 float PR513), my full paired emitter gate passes 86 existing comparisons and
-81 Python methods in 95.112 seconds, with native checks enabled throughout.
+81 Python methods in 95.112 seconds. After the additive restack onto `8666cb09`
+(PR514/515/516), the same full gate passes in 94.937 seconds with native checks
+enabled throughout; my compiler NanoLang/schema source is unchanged by that
+restack.
 My focused fixture compares twelve functions against C-seed bytecode: 26 checks
 pass. Both modules verify and execute in NanoVM and standalone native code.
 The fixture checks precision, prefix/bare unary minus, signed zero versus binary
@@ -33,6 +36,6 @@ contract as the immediate follow-up.
 
 Tasks: `task_8bc58d33e73f4e24a474d3724d862c94` and
 `task_ef26778894c441c2b1002128fd0a8c37`. Local evidence:
-`/tmp/nanolang-float-full-integrated.log`, `/tmp/nanolang-float-exact.log`,
+`/tmp/nanolang-float-full-integrated.log`, `/tmp/nanolang-float-final516-gate.log`, `/tmp/nanolang-float-exact.log`,
 `/tmp/nanolang-float-bootstrap-final.log`, and
 `/tmp/nanolang-float-schema-integrated2.log`.
