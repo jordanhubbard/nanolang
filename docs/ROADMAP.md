@@ -8608,6 +8608,29 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I investigate GCC 13’s strict `-O1` sanitizer-build diagnostic for
+      `nanocore_export.c` `sbuf_appendf`: inlined `vsnprintf` reports a null
+      format string. My normal strict build passes; this is a configuration
+      diagnostic, not a demonstrated runtime failure. I retain the log and
+      use unsuppressed `-O0` sanitizer checks for the independent metadata task.
+      MAC `task_927d53891d204f2fb4e1974eb8c3edc2`.
+- [x] I preserve complete recursive function parameter/result annotations
+      and nested TypeInfo edges in compiled module metadata, including shared
+      graph references. My generated-C roundtrip, 24 C methods, parsed lifetime
+      checks, two ordinary-import callback cases and controlled sanitizer
+      ownership checks pass. Native callback semantics remain separate. MAC
+      `task_1c3c02fe49414bce919adde6666824f5`. Evidence:
+      `docs/evidence/module-signature-metadata.md`.
+  - [x] I retain complete function and parameter metadata when extracting a
+        module, deep-copying and releasing annotations independently of parser
+        and environment lifetime. My real extraction/emission route and 100
+        controlled copy/free cycles pass; legacy checker leaks remain tracked
+        by `task_00c47a5d65d04c48914864ec0de553d6`.
+- [ ] I enforce the same full signature check for qualified imported calls:
+      `cb.apply` currently accepts a string[][] callback where int[][] is
+      required, while an ordinary imported `apply` rejects it. I retain this
+      distinct checker gap under `task_e05a42e2e09b47cc9c53fa6923eeeaef`;
+      metadata serialization does not claim to repair call dispatch checks.
 - [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
       bytecode is input, then two VM-executed compiler generations compile the
       same clean source and immutable host closure. I compare raw generation
@@ -8660,16 +8683,18 @@ Compiler product:
       counts, C-seed instruction parity, VM/native execution and invalid-bound
       refusal preserving prior output. The full native product and VM compiler
       bootstrap gates remain separate.
-- [ ] I grow checked assembler symbol tables for my complete compiler artifact
-      (`task_74ee50b905d242e68c92abf41b427e15`). After literal repair, the fixed 2048-symbol table
-      reports a false duplicate at `s1377`; exact assembly remains captured in
-      `/tmp/nanolang-fullcompiler-quoted.nasm`.
-- [ ] I preserve the full compiler string literals through assembly publication
-      (`task_c77ac0644fda463a8a2d0ae7dd735908`). Full lowering reaches publication, but my assembler
-      rejects `Expected quoted string after .string`; no module is published.
-      I reproduced comment markers stripped inside quotes and the 4095-byte
-      literal limit; `/tmp/nanolang-fullcompiler-quoted.nasm` retains the exact
-      1,246,064-byte compiler assembly. Both require a checked assembler repair.
+- [x] I grow checked assembler symbol, label and patch tables for my complete
+      compiler artifact (`task_74ee50b905d242e68c92abf41b427e15`). PR #465 replaces
+      fixed capacity with checked growth and explicit allocation failure.
+      My 2,691 ISA checks, 210 roundtrip checks, allocation fault harness and
+      sanitizer checks pass; complete compiler assembly verifies and roundtrips.
+      Evidence: `docs/evidence/assembler-compiler-publication.md`.
+- [x] I preserve full compiler string literals through assembly publication
+      (`task_c77ac0644fda463a8a2d0ae7dd735908`). PR #465 retains comment markers
+      inside quoted literals and dynamically decodes long strings with checked
+      allocation. The retained 1,246,064-byte compiler assembly publishes,
+      verifies and roundtrips exactly. Evidence:
+      `docs/evidence/assembler-compiler-publication.md`.
 - [x] I reject incompatible map key/value types at typed boundaries
       (`task_d0438e26b84147cdb9fd16b654c44a6a`). I compare both tags for declared map
       values in returns, bindings, calls, assignments, globals, record construction

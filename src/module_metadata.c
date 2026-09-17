@@ -3,22 +3,82 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <limits.h>
 
-/* Forward declarations for recursive serialization */
-static void serialize_function_signature(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr, 
-                                         FunctionSignature *sig, int sig_idx);
-static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
-                                TypeInfo *type_info, int info_idx);
+/* I index the graph before emission so aliases and recursive edges retain
+ * identity without recursive traversal or dependency-order assumptions. */
+typedef struct {
+    const void **items;
+    int count;
+    int capacity;
+} MetadataPointers;
 
-/* Count total TypeInfo structures needed (for pre-allocation) */
-static int count_type_infos(ModuleMetadata *meta) {
-    int count = 0;
-    for (int i = 0; i < meta->function_count; i++) {
-        Function *f = &meta->functions[i];
-        if (f->return_type_info) count++;
-        /* TODO: Count nested TypeInfo in parameters and recursive structures */
+typedef struct {
+    MetadataPointers types;
+    MetadataPointers signatures;
+} MetadataGraph;
+
+static int metadata_index(const MetadataPointers *table, const void *pointer) {
+    for (int i = 0; pointer && i < table->count; i++)
+        if (table->items[i] == pointer) return i;
+    return -1;
+}
+
+static bool metadata_add(MetadataPointers *table, const void *pointer) {
+    if (!pointer || metadata_index(table, pointer) >= 0) return true;
+    if (table->count == table->capacity) {
+        if (table->capacity > INT_MAX / 2) return false;
+        int capacity = table->capacity ? table->capacity * 2 : 16;
+        if ((size_t)capacity > SIZE_MAX / sizeof(*table->items)) return false;
+        const void **items = realloc(table->items, (size_t)capacity * sizeof(*items));
+        if (!items) return false;
+        table->items = items;
+        table->capacity = capacity;
     }
-    return count;
+    table->items[table->count++] = pointer;
+    return true;
+}
+
+static void metadata_graph_free(MetadataGraph *graph) {
+    free(graph->types.items);
+    free(graph->signatures.items);
+}
+
+static bool metadata_graph_collect(MetadataGraph *graph, const ModuleMetadata *meta) {
+    if (meta->function_count < 0 || (meta->function_count && !meta->functions)) return false;
+    for (int i = 0; i < meta->function_count; i++) {
+        const Function *f = &meta->functions[i];
+        if (f->param_count < 0 || (f->param_count && !f->params)) return false;
+        if (!metadata_add(&graph->types, f->return_type_info) ||
+            !metadata_add(&graph->signatures, f->return_fn_sig)) return false;
+        for (int j = 0; j < f->param_count; j++) {
+            if (!metadata_add(&graph->types, f->params[j].type_info) ||
+                !metadata_add(&graph->signatures, f->params[j].fn_sig)) return false;
+        }
+    }
+    int ti = 0, si = 0;
+    while (ti < graph->types.count || si < graph->signatures.count) {
+        while (ti < graph->types.count) {
+            const TypeInfo *t = graph->types.items[ti++];
+            if (t->type_param_count < 0 || (t->type_param_count && !t->type_params) ||
+                t->tuple_element_count < 0 || (t->tuple_element_count && !t->tuple_types) ||
+                t->row_field_count < 0 || (t->row_field_count && !t->row_field_types) ||
+                t->type_var_count < 0 || (t->type_var_count && !t->type_var_names)) return false;
+            if (!metadata_add(&graph->types, t->element_type) ||
+                !metadata_add(&graph->signatures, t->fn_sig)) return false;
+            for (int j = 0; j < t->type_param_count; j++)
+                if (!metadata_add(&graph->types, t->type_params[j])) return false;
+        }
+        while (si < graph->signatures.count) {
+            const FunctionSignature *sig = graph->signatures.items[si++];
+            if (sig->param_count < 0 || (sig->param_count && !sig->param_types)) return false;
+            if (!metadata_add(&graph->types, sig->return_type_info) ||
+                !metadata_add(&graph->signatures, sig->return_fn_sig)) return false;
+            for (int j = 0; sig->param_type_info && j < sig->param_count; j++)
+                if (!metadata_add(&graph->types, sig->param_type_info[j])) return false;
+        }
+    }
+    return true;
 }
 
 /* Helper macro for appending to dynamic buffer */
@@ -33,24 +93,41 @@ static int count_type_infos(ModuleMetadata *meta) {
     *(pos_ptr) += len; \
 } while(0)
 
-/* Count total FunctionSignatures needed (for pre-allocation) */
-static int count_function_signatures(ModuleMetadata *meta) {
-    int count = 0;
-    for (int i = 0; i < meta->function_count; i++) {
-        Function *f = &meta->functions[i];
-        if (f->return_fn_sig) count++;  /* Return type function sig */
-        
-        /* Count parameter function signatures */
-        for (int j = 0; j < f->param_count; j++) {
-            if (f->params[j].fn_sig) count++;
+/* I append string literals separately so long annotations cannot be truncated
+ * by the small formatting buffer, and source escapes retain their bytes. */
+static void serialize_string_field(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
+                                   const char *object, int index, const char *field,
+                                   const char *value) {
+    char temp[128];
+    snprintf(temp, sizeof(temp), "    %s[%d].%s = ", object, index, field);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, value ? module_c_literal(value) : "NULL");
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, ";\n");
+}
+
+static void serialize_type_array(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
+                                 int index, const char *field, int count,
+                                 const Type *types, char *const *names) {
+    if (!count || (!types && !names)) return;
+    char temp[192];
+    snprintf(temp, sizeof(temp), "    static %s _type_info_%d_%s[%d] = {", types ? "Type" : "char*", index, field, count);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    for (int i = 0; i < count; i++) {
+        if (i) APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, ", ");
+        if (types) {
+            snprintf(temp, sizeof(temp), "%d", types[i]);
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        } else {
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, names[i] ? module_c_literal(names[i]) : "NULL");
         }
     }
-    return count;
+    snprintf(temp, sizeof(temp), "};\n    _type_infos[%d].%s = _type_info_%d_%s;\n", index, field, index, field);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
 }
 
 /* Serialize a FunctionSignature to C initialization code */
 static void serialize_function_signature(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
-                                         FunctionSignature *sig, int sig_idx) {
+                                         const MetadataGraph *graph, const FunctionSignature *sig, int sig_idx) {
     if (!sig) return;
     
     char temp[2048];
@@ -77,8 +154,7 @@ static void serialize_function_signature(char **buffer_ptr, size_t *pos_ptr, siz
             for (int i = 0; i < sig->param_count; i++) {
                 if (i > 0) APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, ", ");
                 if (sig->param_struct_names[i]) {
-                    snprintf(temp, sizeof(temp), "\"%s\"", sig->param_struct_names[i]);
-                    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+                    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, module_c_literal(sig->param_struct_names[i]));
                 } else {
                     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, "NULL");
                 }
@@ -116,23 +192,37 @@ static void serialize_function_signature(char **buffer_ptr, size_t *pos_ptr, siz
              sig_idx, sig->return_type);
     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     
-    if (sig->return_struct_name) {
-        snprintf(temp, sizeof(temp), "    _fn_signatures[%d].return_struct_name = \"%s\";\n",
-                 sig_idx, sig->return_struct_name);
+    serialize_string_field(buffer_ptr, pos_ptr, capacity_ptr, "_fn_signatures", sig_idx,
+                           "return_struct_name", sig->return_struct_name);
+
+    if (sig->param_count && sig->param_type_info) {
+        snprintf(temp, sizeof(temp), "    static TypeInfo* _fn_sig_%d_param_info[%d];\n", sig_idx, sig->param_count);
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
-    } else {
-        snprintf(temp, sizeof(temp), "    _fn_signatures[%d].return_struct_name = NULL;\n", sig_idx);
+        for (int i = 0; i < sig->param_count; i++) {
+            if (!sig->param_type_info[i]) continue;
+            snprintf(temp, sizeof(temp), "    _fn_sig_%d_param_info[%d] = &_type_infos[%d];\n",
+                     sig_idx, i, metadata_index(&graph->types, sig->param_type_info[i]));
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        }
+        snprintf(temp, sizeof(temp), "    _fn_signatures[%d].param_type_info = _fn_sig_%d_param_info;\n", sig_idx, sig_idx);
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     }
-    
-    /* TODO: Handle recursive return_fn_sig */
-    snprintf(temp, sizeof(temp), "    _fn_signatures[%d].return_fn_sig = NULL;\n", sig_idx);
-    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    if (sig->return_type_info) {
+        snprintf(temp, sizeof(temp), "    _fn_signatures[%d].return_type_info = &_type_infos[%d];\n",
+                 sig_idx, metadata_index(&graph->types, sig->return_type_info));
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+    if (sig->return_fn_sig) {
+        snprintf(temp, sizeof(temp), "    _fn_signatures[%d].return_fn_sig = &_fn_signatures[%d];\n",
+                 sig_idx, metadata_index(&graph->signatures, sig->return_fn_sig));
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+
 }
 
 /* Serialize a TypeInfo structure to C initialization code */
 static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capacity_ptr,
-                                TypeInfo *type_info, int info_idx) {
+                                const MetadataGraph *graph, const TypeInfo *type_info, int info_idx) {
     if (!type_info) return;
     
     char temp[2048];
@@ -141,26 +231,29 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
     snprintf(temp, sizeof(temp), "    _type_infos[%d].base_type = %d;\n", info_idx, type_info->base_type);
     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     
-    /* TODO: Handle recursive element_type */
-    snprintf(temp, sizeof(temp), "    _type_infos[%d].element_type = NULL;\n", info_idx);
-    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
-    
-    /* Generic name */
-    if (type_info->generic_name) {
-        snprintf(temp, sizeof(temp), "    _type_infos[%d].generic_name = \"%s\";\n", 
-                 info_idx, type_info->generic_name);
-        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
-    } else {
-        snprintf(temp, sizeof(temp), "    _type_infos[%d].generic_name = NULL;\n", info_idx);
+    if (type_info->element_type) {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].element_type = &_type_infos[%d];\n",
+                 info_idx, metadata_index(&graph->types, type_info->element_type));
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     }
-    
-    /* TODO: Handle type_params array */
-    snprintf(temp, sizeof(temp), "    _type_infos[%d].type_params = NULL;\n", info_idx);
-    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
-    snprintf(temp, sizeof(temp), "    _type_infos[%d].type_param_count = 0;\n", info_idx);
-    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
-    
+
+    serialize_string_field(buffer_ptr, pos_ptr, capacity_ptr, "_type_infos", info_idx,
+                           "generic_name", type_info->generic_name);
+
+    if (type_info->type_param_count) {
+        snprintf(temp, sizeof(temp), "    static TypeInfo* _type_info_%d_params[%d];\n", info_idx, type_info->type_param_count);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        for (int i = 0; i < type_info->type_param_count; i++) {
+            if (!type_info->type_params[i]) continue;
+            snprintf(temp, sizeof(temp), "    _type_info_%d_params[%d] = &_type_infos[%d];\n",
+                     info_idx, i, metadata_index(&graph->types, type_info->type_params[i]));
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        }
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].type_params = _type_info_%d_params;\n    _type_infos[%d].type_param_count = %d;\n",
+                 info_idx, info_idx, info_idx, type_info->type_param_count);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+
     /* Tuple types */
     if (type_info->tuple_element_count > 0 && type_info->tuple_types) {
         snprintf(temp, sizeof(temp), "    static Type _type_info_%d_tuple_types[%d] = {",
@@ -187,8 +280,7 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
             for (int i = 0; i < type_info->tuple_element_count; i++) {
                 if (i > 0) APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, ", ");
                 if (type_info->tuple_type_names[i]) {
-                    snprintf(temp, sizeof(temp), "\"%s\"", type_info->tuple_type_names[i]);
-                    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+                    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, module_c_literal(type_info->tuple_type_names[i]));
                 } else {
                     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, "NULL");
                 }
@@ -215,28 +307,42 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     }
     
-    /* Opaque type name */
-    if (type_info->opaque_type_name) {
-        snprintf(temp, sizeof(temp), "    _type_infos[%d].opaque_type_name = \"%s\";\n",
-                 info_idx, type_info->opaque_type_name);
-        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
-    } else {
-        snprintf(temp, sizeof(temp), "    _type_infos[%d].opaque_type_name = NULL;\n", info_idx);
+    serialize_string_field(buffer_ptr, pos_ptr, capacity_ptr, "_type_infos", info_idx,
+                           "opaque_type_name", type_info->opaque_type_name);
+    serialize_string_field(buffer_ptr, pos_ptr, capacity_ptr, "_type_infos", info_idx,
+                           "row_var_name", type_info->row_var_name);
+    serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "row_field_names",
+                         type_info->row_field_count, NULL, type_info->row_field_names);
+    serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "row_field_types",
+                         type_info->row_field_count, type_info->row_field_types, NULL);
+    serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "row_field_type_names",
+                         type_info->row_field_count, NULL, type_info->row_field_type_names);
+    serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "type_var_names",
+                         type_info->type_var_count, NULL, type_info->type_var_names);
+    snprintf(temp, sizeof(temp), "    _type_infos[%d].row_field_count = %d;\n    _type_infos[%d].is_open_row = %s;\n    _type_infos[%d].type_var_count = %d;\n",
+             info_idx, type_info->row_field_count, info_idx, type_info->is_open_row ? "true" : "false", info_idx, type_info->type_var_count);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    if (type_info->fn_sig) {
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].fn_sig = &_fn_signatures[%d];\n",
+                 info_idx, metadata_index(&graph->signatures, type_info->fn_sig));
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     }
-    
-    /* TODO: Handle fn_sig */
-    snprintf(temp, sizeof(temp), "    _type_infos[%d].fn_sig = NULL;\n", info_idx);
-    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+
 }
 
 /* Serialize module metadata to C code that can be embedded */
 char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     if (!meta) return NULL;
+    MetadataGraph graph = {0};
+    if (!metadata_graph_collect(&graph, meta)) {
+        metadata_graph_free(&graph);
+        return NULL;
+    }
     
     /* Estimate buffer size - start with 4KB */
     size_t capacity = 4096;
     char *buffer = malloc(capacity);
+    if (!buffer) { metadata_graph_free(&graph); return NULL; }
     size_t pos = 0;
     
     /* Helper to append string */
@@ -263,14 +369,14 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     const char *module_ident = module_symbol_suffix(meta->module_name ? meta->module_name : "unknown");
     
     /* Count and declare FunctionSignature arrays */
-    int fn_sig_count = count_function_signatures(meta);
+    int fn_sig_count = graph.signatures.count;
     if (fn_sig_count > 0) {
         snprintf(temp, sizeof(temp), "static FunctionSignature _fn_signatures[%d];\n", fn_sig_count);
         APPEND(temp);
     }
     
     /* Count and declare TypeInfo arrays */
-    int type_info_count = count_type_infos(meta);
+    int type_info_count = graph.types.count;
     if (type_info_count > 0) {
         snprintf(temp, sizeof(temp), "static TypeInfo _type_infos[%d];\n", type_info_count);
         APPEND(temp);
@@ -290,60 +396,13 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     /* Initialize functions */
     APPEND("static void _init_module_metadata(void) __attribute__((constructor));\n");
     APPEND("static void _init_module_metadata(void) {\n");
-    APPEND("    int param_idx = 0;\n");
     
-    /* Serialize FunctionSignatures first */
-    if (fn_sig_count > 0) {
-        APPEND("\n    /* Initialize FunctionSignatures */\n");
-        int sig_idx = 0;
-        
-        /* Serialize return type function signatures */
-        for (int i = 0; i < meta->function_count; i++) {
-            Function *f = &meta->functions[i];
-            if (f->return_fn_sig) {
-                serialize_function_signature(&buffer, &pos, &capacity, f->return_fn_sig, sig_idx);
-                sig_idx++;
-            }
-        }
-        
-        /* Serialize parameter function signatures */
-        for (int i = 0; i < meta->function_count; i++) {
-            Function *f = &meta->functions[i];
-            for (int j = 0; j < f->param_count; j++) {
-                if (f->params[j].fn_sig) {
-                    serialize_function_signature(&buffer, &pos, &capacity, f->params[j].fn_sig, sig_idx);
-                    sig_idx++;
-                }
-            }
-        }
-        
-        APPEND("\n");
-    }
-    
-    /* Serialize TypeInfos */
-    if (type_info_count > 0) {
-        APPEND("    /* Initialize TypeInfos */\n");
-        int info_idx = 0;
-        for (int i = 0; i < meta->function_count; i++) {
-            Function *f = &meta->functions[i];
-            if (f->return_type_info) {
-                serialize_type_info(&buffer, &pos, &capacity, f->return_type_info, info_idx);
-                info_idx++;
-            }
-        }
-        APPEND("\n");
-    }
-    
+    for (int i = 0; i < graph.signatures.count; i++)
+        serialize_function_signature(&buffer, &pos, &capacity, &graph, graph.signatures.items[i], i);
+    for (int i = 0; i < graph.types.count; i++)
+        serialize_type_info(&buffer, &pos, &capacity, &graph, graph.types.items[i], i);
+
     int param_idx = 0;
-    int sig_idx = 0;  /* Track which FunctionSignature index to reference */
-    
-    /* Calculate starting index for parameter signatures (after return signatures) */
-    int param_sig_start_idx = 0;
-    for (int i = 0; i < meta->function_count; i++) {
-        if (meta->functions[i].return_fn_sig) param_sig_start_idx++;
-    }
-    int param_sig_idx = param_sig_start_idx;  /* Track parameter fn_sig indices */
-    
     for (int i = 0; i < meta->function_count; i++) {
         Function *f = &meta->functions[i];
         char temp[2048];
@@ -364,21 +423,15 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
         }
         /* Link to FunctionSignature if present */
         if (f->return_fn_sig) {
-            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_fn_sig = &_fn_signatures[%d];\n", i, sig_idx);
+            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_fn_sig = &_fn_signatures[%d];\n", i, metadata_index(&graph.signatures, f->return_fn_sig));
             APPEND(temp);
-            sig_idx++;
         } else {
             snprintf(temp, sizeof(temp), "    _module_functions[%d].return_fn_sig = NULL;\n", i);
             APPEND(temp);
         }
         /* Link to TypeInfo if present */
         if (f->return_type_info) {
-            /* Find the TypeInfo index for this function's return type */
-            int type_info_idx = 0;
-            for (int k = 0; k < i; k++) {
-                if (meta->functions[k].return_type_info) type_info_idx++;
-            }
-            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = &_type_infos[%d];\n", i, type_info_idx);
+            snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = &_type_infos[%d];\n", i, metadata_index(&graph.types, f->return_type_info));
             APPEND(temp);
         } else {
             snprintf(temp, sizeof(temp), "    _module_functions[%d].return_type_info = NULL;\n", i);
@@ -427,14 +480,17 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
                 
                 /* Link to parameter's function signature if present */
                 if (p->fn_sig) {
-                    snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = &_fn_signatures[%d];\n", param_idx, param_sig_idx);
+                    snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = &_fn_signatures[%d];\n", param_idx, metadata_index(&graph.signatures, p->fn_sig));
                     APPEND(temp);
-                    param_sig_idx++;
                 } else {
                     snprintf(temp, sizeof(temp), "    _module_params[%d].fn_sig = NULL;\n", param_idx);
                     APPEND(temp);
                 }
                 
+                if (p->type_info) {
+                    snprintf(temp, sizeof(temp), "    _module_params[%d].type_info = &_type_infos[%d];\n", param_idx, metadata_index(&graph.types, p->type_info));
+                    APPEND(temp);
+                }
                 param_idx++;
             }
         } else {
@@ -505,6 +561,7 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     #undef APPEND
     
     buffer[pos] = '\0';
+    metadata_graph_free(&graph);
     return buffer;
 }
 

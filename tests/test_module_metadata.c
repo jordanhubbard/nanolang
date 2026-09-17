@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -458,9 +459,213 @@ static void test_union_payload_lifetime(void) {
     free_payload_type_info(concrete);
 }
 
+/* I keep imported callback annotations after both parser and environment die. */
+static void test_function_metadata_lifetime(void) {
+    const char *source =
+        "fn transform(values: array<array<int>>) -> array<array<int>> { return values } "
+        "fn invoke(callback: fn(array<array<int>>) -> array<array<int>>, values: array<array<int>>) -> array<array<int>> { return (callback values) } "
+        "fn factory() -> fn(array<array<int>>) -> array<array<int>> { return transform }";
+    int count = 0;
+    Token *tokens = tokenize(source, &count);
+    ASSERT_NOT_NULL(tokens);
+    ASTNode *program = parse_program(tokens, count);
+    ASSERT_NOT_NULL(program);
+    Environment *env = create_environment();
+    typecheck_set_current_file("<signature-metadata>");
+    ASSERT(type_check_module(program, env));
+    ModuleMetadata *meta = extract_module_metadata(env, "callbacks");
+    ASSERT_NOT_NULL(meta);
+    free_ast(program);
+    free_tokens(tokens, count);
+    free_environment(env);
+    Function *invoke = NULL, *factory = NULL;
+    for (int i = 0; i < meta->function_count; i++) {
+        if (!strcmp(meta->functions[i].name, "invoke")) invoke = &meta->functions[i];
+        if (!strcmp(meta->functions[i].name, "factory")) factory = &meta->functions[i];
+    }
+    ASSERT_NOT_NULL(invoke);
+    ASSERT_NOT_NULL(factory);
+    FunctionSignature *callback = invoke->params[0].fn_sig;
+    ASSERT_NOT_NULL(callback);
+    ASSERT_NOT_NULL(callback->param_type_info);
+    ASSERT(callback->param_type_info[0]->base_type == TYPE_ARRAY);
+    ASSERT(callback->param_type_info[0]->element_type->base_type == TYPE_ARRAY);
+    ASSERT(callback->param_type_info[0]->element_type->element_type->base_type == TYPE_INT);
+    ASSERT(callback->return_type_info->element_type->element_type->base_type == TYPE_INT);
+    ASSERT(invoke->params[1].type_info->element_type->element_type->base_type == TYPE_INT);
+    ASSERT(factory->return_fn_sig->return_type_info->element_type->element_type->base_type == TYPE_INT);
+    char *serialized = serialize_module_metadata_to_c(meta);
+    ASSERT_NOT_NULL(serialized);
+    free_module_metadata(meta);
+    ASSERT_CONTAINS(serialized, ".param_type_info =");
+    ASSERT_CONTAINS(serialized, ".return_type_info =");
+    free(serialized);
+}
+
+static void test_extracted_signature_ownership(void) {
+    TypeInfo integer = {.base_type = TYPE_INT};
+    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &integer};
+    Type types[] = {TYPE_ARRAY};
+    TypeInfo *infos[] = {&array};
+    FunctionSignature nested = {.return_type = TYPE_ARRAY, .return_type_info = &array};
+    FunctionSignature signature = {.param_count = 1, .param_types = types,
+        .param_type_info = infos, .return_type = TYPE_FUNCTION, .return_fn_sig = &nested};
+    TypeInfo callback = {.base_type = TYPE_FUNCTION, .fn_sig = &signature};
+    Parameter parameter = {.name = "callback", .type = TYPE_FUNCTION,
+        .fn_sig = &signature, .type_info = &callback};
+    Function function = {.name = "factory", .param_count = 1, .params = &parameter,
+        .return_type = TYPE_FUNCTION, .return_fn_sig = &signature, .return_type_info = &callback};
+    Environment env = {.functions = &function, .function_count = 1};
+    for (int i = 0; i < 100; i++) {
+        ModuleMetadata *meta = extract_module_metadata(&env, "owned");
+        ASSERT_NOT_NULL(meta);
+        Function *copy = &meta->functions[0];
+        ASSERT(copy->return_fn_sig != &signature);
+        ASSERT(copy->return_type_info != &callback);
+        ASSERT(copy->params[0].fn_sig != &signature);
+        ASSERT(copy->params[0].type_info != &callback);
+        ASSERT(copy->params[0].fn_sig->param_type_info[0] != &array);
+        ASSERT(copy->params[0].fn_sig->param_type_info[0]->element_type != &integer);
+        ASSERT(copy->return_fn_sig->return_fn_sig->return_type_info->element_type->base_type == TYPE_INT);
+        char *serialized = serialize_module_metadata_to_c(meta);
+        ASSERT_NOT_NULL(serialized);
+        free_module_metadata(meta);
+        ASSERT_CONTAINS(serialized, ".return_fn_sig =");
+        free(serialized);
+    }
+}
+
+/* I compile the emitted representation after discarding its original graph.
+ * Static generated edges must preserve identity, cycles and complete types. */
+static void test_recursive_signature_roundtrip(void) {
+    TypeInfo integer = {.base_type = TYPE_INT};
+    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &integer};
+    TypeInfo nested = {.base_type = TYPE_ARRAY, .element_type = &array};
+    TypeInfo *arguments[] = {&nested, &integer};
+    TypeInfo generic = {.base_type = TYPE_UNION, .generic_name = "Box",
+        .type_params = arguments, .type_param_count = 2};
+    TypeInfo *parameter_info[] = {&generic, NULL};
+    Type parameter_types[] = {TYPE_UNION, TYPE_FUNCTION};
+    char *parameter_names[] = {"Box<array<array<int>>>", NULL};
+    FunctionSignature inner = {.return_type = TYPE_ARRAY, .return_type_info = &nested};
+    FunctionSignature outer = {.param_types = parameter_types, .param_count = 2,
+        .param_struct_names = parameter_names, .param_type_info = parameter_info,
+        .return_type = TYPE_FUNCTION, .return_fn_sig = &inner};
+    TypeInfo callback = {.base_type = TYPE_FUNCTION, .fn_sig = &outer};
+    parameter_info[1] = &callback; /* I retain an intentional graph cycle. */
+    Type tuple_types[] = {TYPE_INT, TYPE_UNION};
+    char *tuple_names[] = {NULL, "Box<int>"};
+    char *row_names[] = {"value"};
+    Type row_types[] = {TYPE_UNION};
+    char *row_type_names[] = {"Box<int>"};
+    char *variables[] = {"T", "U"};
+    TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_types = tuple_types,
+        .tuple_type_names = tuple_names, .tuple_element_count = 2,
+        .opaque_type_name = "opaque\"\\\n", .is_open_row = true,
+        .row_var_name = "r", .row_field_names = row_names,
+        .row_field_types = row_types, .row_field_type_names = row_type_names,
+        .row_field_count = 1, .type_var_names = variables, .type_var_count = 2};
+    Parameter parameters[] = {
+        {.name = "callback", .type = TYPE_FUNCTION, .fn_sig = &outer, .type_info = &callback},
+        {.name = "values", .type = TYPE_ARRAY, .element_type = TYPE_ARRAY, .type_info = &nested},
+        {.name = "pair", .type = TYPE_TUPLE, .type_info = &tuple}};
+    Function fn = make_simple_fn("factory");
+    fn.return_type = TYPE_FUNCTION;
+    fn.return_fn_sig = &outer;
+    fn.return_type_info = &callback;
+    fn.params = parameters;
+    fn.param_count = 3;
+    ModuleMetadata meta = make_empty_meta("recursive");
+    meta.functions = &fn;
+    meta.function_count = 1;
+    char *generated = serialize_module_metadata_to_c(&meta);
+    ASSERT_NOT_NULL(generated);
+    memset(&outer, 0, sizeof(outer));
+    memset(&inner, 0, sizeof(inner));
+    memset(&nested, 0, sizeof(nested));
+    memset(&generic, 0, sizeof(generic));
+
+    char directory[] = "/tmp/nanolang-metadata-roundtrip-XXXXXX";
+    ASSERT_NOT_NULL(mkdtemp(directory));
+    char source[256], executable[256];
+    snprintf(source, sizeof(source), "%s/roundtrip.c", directory);
+    snprintf(executable, sizeof(executable), "%s/roundtrip", directory);
+    FILE *out = fopen(source, "w");
+    ASSERT_NOT_NULL(out);
+    ASSERT(fputs(generated, out) >= 0);
+    free(generated);
+    ASSERT(fputs(
+        "int main(void) {\n"
+        " Function *f = &_module_metadata_recursive.functions[0];\n"
+        " FunctionSignature *s = f->return_fn_sig;\n"
+        " assert(s == f->params[0].fn_sig);\n"
+        " assert(f->return_type_info == f->params[0].type_info);\n"
+        " assert(s->param_count == 2 && s->param_types[0] == TYPE_UNION);\n"
+        " assert(!strcmp(s->param_struct_names[0], \"Box<array<array<int>>>\"));\n"
+        " assert(s->param_struct_names[1] == NULL);\n"
+        " assert(s->param_type_info[1]->fn_sig == s);\n"
+        " TypeInfo *g = s->param_type_info[0];\n"
+        " assert(!strcmp(g->generic_name, \"Box\") && g->type_param_count == 2);\n"
+        " TypeInfo *a = g->type_params[0];\n"
+        " assert(a == f->params[1].type_info);\n"
+        " assert(a->base_type == TYPE_ARRAY && a->element_type->base_type == TYPE_ARRAY);\n"
+        " assert(a->element_type->element_type == g->type_params[1]);\n"
+        " assert(g->type_params[1]->base_type == TYPE_INT);\n"
+        " assert(s->return_fn_sig->return_type_info == a);\n"
+        " assert(s->return_fn_sig->param_types == NULL && s->return_fn_sig->param_type_info == NULL);\n"
+        " TypeInfo *t = f->params[2].type_info;\n"
+        " assert(t->tuple_element_count == 2 && t->tuple_types[1] == TYPE_UNION);\n"
+        " assert(t->tuple_type_names[0] == NULL && !strcmp(t->tuple_type_names[1], \"Box<int>\"));\n"
+        " assert(!strcmp(t->opaque_type_name, \"opaque\\\"\\\\\\n\"));\n"
+        " assert(t->is_open_row && !strcmp(t->row_var_name, \"r\"));\n"
+        " assert(t->row_field_count == 1 && t->row_field_types[0] == TYPE_UNION);\n"
+        " assert(!strcmp(t->row_field_names[0], \"value\"));\n"
+        " assert(!strcmp(t->row_field_type_names[0], \"Box<int>\"));\n"
+        " assert(t->type_var_count == 2 && !strcmp(t->type_var_names[1], \"U\"));\n"
+        " return 0;\n}\n", out) >= 0);
+    ASSERT(fclose(out) == 0);
+    pid_t child = fork();
+    ASSERT(child >= 0);
+    if (!child) {
+        execlp("cc", "cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-Isrc", source, "-o", executable, (char *)NULL);
+        _exit(127);
+    }
+    int status;
+    ASSERT(waitpid(child, &status, 0) == child);
+    ASSERT(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+    child = fork();
+    ASSERT(child >= 0);
+    if (!child) { execl(executable, executable, (char *)NULL); _exit(127); }
+    ASSERT(waitpid(child, &status, 0) == child);
+    ASSERT(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+    ASSERT(unlink(source) == 0 && unlink(executable) == 0 && rmdir(directory) == 0);
+}
+
+static void test_malformed_signature_metadata(void) {
+    FunctionSignature signature = {.param_count = 1};
+    Function fn = make_simple_fn("bad");
+    fn.return_fn_sig = &signature;
+    ModuleMetadata meta = make_empty_meta("invalid");
+    meta.functions = &fn;
+    meta.function_count = 1;
+    ASSERT_NULL(serialize_module_metadata_to_c(&meta));
+    signature.param_count = -1;
+    ASSERT_NULL(serialize_module_metadata_to_c(&meta));
+    fn.return_fn_sig = NULL;
+    TypeInfo invalid = {.base_type = TYPE_UNION, .type_param_count = 1};
+    fn.return_type_info = &invalid;
+    ASSERT_NULL(serialize_module_metadata_to_c(&meta));
+    invalid.type_param_count = -1;
+    ASSERT_NULL(serialize_module_metadata_to_c(&meta));
+}
+
 int main(void) {
     printf("=== Module Metadata Tests ===\n");
     TEST(union_payload_lifetime);
+    TEST(recursive_signature_roundtrip);
+    TEST(function_metadata_lifetime);
+    TEST(extracted_signature_ownership);
+    TEST(malformed_signature_metadata);
     TEST(serialize_null_returns_null);
     TEST(serialize_empty_module);
     TEST(serialize_single_void_function);

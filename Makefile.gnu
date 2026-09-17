@@ -902,6 +902,7 @@ test-module-metadata: stage1 nano_virt nano_vm $(OBJ_DIR)/test_module_generation
 	$(CC) $(CFLAGS) -o tests/test_module_builder_paths tests/test_module_builder_paths.c
 	@./tests/test_module_builder_paths
 	@rm -f tests/test_module_builder_paths
+	@python3 -m unittest tests.test_module_signature_metadata
 	@python3 -m unittest tests.test_module_cache_publication.ModuleCachePublication.test_foreign_compiler_paths_are_literal
 	$(CC) $(CFLAGS) -o tests/test_module_metadata tests/test_module_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_module_metadata

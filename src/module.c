@@ -1994,12 +1994,8 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         for (int i = 0; i < meta->function_count; i++) {
             /* Copy function - note: we copy pointers, not deep copy */
             meta->functions[i] = env->functions[i];
-            /* Sever shared pointers that reference AST/env-owned memory. These
-             * are NOT deep copied and must not be dereferenced or freed via the
-             * metadata copy; leaving them pointing into the environment caused a
-             * bus error once the environment was torn down. Complex nested type
-             * information (function signatures / tuple TypeInfo) is intentionally
-             * not serialized, so NULLing it here is safe and prevents the crash. */
+            /* I retain owned annotation copies; executable AST and environment
+             * pointers remain outside compiled module metadata. */
             meta->functions[i].body = NULL;
             meta->functions[i].shadow_test = NULL;
             meta->functions[i].module_name = NULL;
@@ -2008,8 +2004,8 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
             meta->functions[i].cleanup_function = NULL;
             meta->functions[i].effect_names = NULL;
             meta->functions[i].effect_count = 0;
-            meta->functions[i].return_fn_sig = NULL;
-            meta->functions[i].return_type_info = NULL;
+            meta->functions[i].return_fn_sig = copy_function_signature(env->functions[i].return_fn_sig);
+            meta->functions[i].return_type_info = copy_payload_type_info(env->functions[i].return_type_info);
             meta->functions[i].params = NULL;
             /* Keep params and param_count consistent: only restore the count
              * once the parameter array has actually been deep copied below.
@@ -2026,9 +2022,8 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
                 meta->functions[i].param_count = env->functions[i].param_count;
                 for (int j = 0; j < env->functions[i].param_count; j++) {
                     meta->functions[i].params[j] = env->functions[i].params[j];
-                    /* Sever non-deep-copied pointers on the parameter copy. */
-                    meta->functions[i].params[j].fn_sig = NULL;
-                    meta->functions[i].params[j].type_info = NULL;
+                    meta->functions[i].params[j].fn_sig = copy_function_signature(env->functions[i].params[j].fn_sig);
+                    meta->functions[i].params[j].type_info = copy_payload_type_info(env->functions[i].params[j].type_info);
                     meta->functions[i].params[j].name = NULL;
                     meta->functions[i].params[j].struct_type_name = NULL;
                     if (env->functions[i].params[j].name) {
@@ -2037,7 +2032,6 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
                     if (env->functions[i].params[j].struct_type_name) {
                         meta->functions[i].params[j].struct_type_name = strdup(env->functions[i].params[j].struct_type_name);
                     }
-                    /* Note: fn_sig pointers are not deep copied - would need recursive copy */
                 }
             }
             if (env->functions[i].return_struct_type_name) {
@@ -2503,11 +2497,15 @@ void free_module_metadata(ModuleMetadata *meta) {
             if (meta->functions[i].name) free(meta->functions[i].name);
             if (meta->functions[i].params) {
                 for (int j = 0; j < meta->functions[i].param_count; j++) {
+                    free_function_signature(meta->functions[i].params[j].fn_sig);
+                    free_payload_type_info(meta->functions[i].params[j].type_info);
                     if (meta->functions[i].params[j].name) free(meta->functions[i].params[j].name);
                     if (meta->functions[i].params[j].struct_type_name) free(meta->functions[i].params[j].struct_type_name);
                 }
                 free(meta->functions[i].params);
             }
+            free_function_signature(meta->functions[i].return_fn_sig);
+            free_payload_type_info(meta->functions[i].return_type_info);
             if (meta->functions[i].return_struct_type_name) free(meta->functions[i].return_struct_type_name);
         }
         free(meta->functions);
