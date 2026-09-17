@@ -2674,15 +2674,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           early-return changes. Map deallocation and borrowed-result lifetime
           remain separate obligations below.
           MAC `task_1edadd5eb33a445d9bf6516744bc405e`.
-        - [ ] I retain map key/value metadata when a native map operation takes
-          a direct call result. `map_get (returned true)` currently falls back
-          to an integer result for a declared string/string map; a typed local
-          isolates lexical cleanup tests. I consume retained function result
-          annotations and checked callback signatures, then capture receiver,
-          key and value expressions once in source order. I require all scalar
-          pairs, returned-expression controls and preserved-output rejection.
-          Cleanup/lifetime behavior remains separate.
+        - [x] I retain map key/value metadata when a native map operation takes
+          an ordinary direct call or checked callback result. I capture receiver,
+          key and value expressions once in source order. All four scalar pairs,
+          nested receivers, returned expressions and invalid-context artifact
+          preservation pass native/VM checks. Fresh bootstrap and 24 adjacent
+          methods pass; `docs/evidence/native-returned-map-metadata.md` records
+          the explicit native-only free boundary. Cleanup/lifetime is unchanged.
           MAC `task_e018b78bc20a47d18619fce55a20e567`.
+        - [ ] I specify and lower explicit `map_free` across NanoISA backends.
+          Native emission accepts it, but NanoVirt currently reports an undefined
+          function while compiling shadows. The native-only free-order control
+          in returned-map tests is explicit; I require a lifetime/alias contract
+          and paired scalar-tag coverage before claiming portable free support.
+          MAC `task_2f848b73acf847a79df68418b9213637`.
         - [ ] I define early-return cleanup with explicit retain/transfer of
           computed or borrowed results, preserving evaluation order and separate
           control-flow paths. Current native HashMap allocations use malloc;
