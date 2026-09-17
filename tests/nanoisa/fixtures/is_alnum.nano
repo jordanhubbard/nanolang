@@ -1,0 +1,27 @@
+let mut calls: int = 0
+fn next_code() -> int { set calls (+ calls 1) return 65 }
+shadow next_code { set calls 0 assert (== (next_code) 65) assert (== calls 1) set calls 0 }
+fn classify(code: int) -> bool { return (is_alnum code) }
+shadow classify { assert (classify 65) assert (not (classify 95)) }
+fn main() -> int {
+    set calls 0
+    assert (is_alnum (next_code))
+    assert (== calls 1)
+    assert (classify 48)
+    assert (classify 57)
+    assert (classify 65)
+    assert (classify 90)
+    assert (classify 97)
+    assert (classify 122)
+    assert (not (classify 47))
+    assert (not (classify 58))
+    assert (not (classify 64))
+    assert (not (classify 91))
+    assert (not (classify 96))
+    assert (not (classify 123))
+    assert (not (classify 95))
+    assert (not (classify -1))
+    assert (not (classify 256))
+    return 0
+}
+shadow main { assert (== (main) 0) }
