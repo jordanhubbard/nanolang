@@ -14,3 +14,9 @@ emitted modules execute in my VM and generated native code. Operand traces
 suffix calls. Empty strings, empty patterns, equal strings, longer patterns
 and case-sensitive mismatches are checked. Ten malformed argument shapes
 refuse output.
+
+A fresh canonical driver builds. Actual whole-compiler emission advances to
+`unsupported local type HashMap<string,string>`; I retain
+`/tmp/nanolang-edges-fullcompiler-probe.log` and track that next boundary as
+`task_d32f896911e1447da9c6b69059f6d6ea`. I have not produced a complete compiler module or a bytecode fixed
+point. Restacking onto `ab155c41` leaves the tested source tree unchanged.

@@ -8472,7 +8472,11 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower string prefix and suffix tests used by my compiler
+- [ ] I lower the string-valued maps required by my compiler
+      (`task_d32f896911e1447da9c6b69059f6d6ea`), preserving key/value metadata and ownership.
+      Full emission now reaches `HashMap<string,string>`; the retained probe is
+      `/tmp/nanolang-edges-fullcompiler-probe.log`.
+- [x] I lower string prefix and suffix tests used by my compiler
       (`task_891724de0cb5454eb0a575b099aba188`), preserving exact string operands and boolean results.
       Full emission reaches `str_starts_with` after `is_alnum`; the probe is
       `/tmp/nanolang-alnum-fullcompiler-probe.log`.
