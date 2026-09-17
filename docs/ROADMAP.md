@@ -58,7 +58,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       caller aliases and reference lifetime operations are connected; float
       record support remains task93574. My bounded transfer and refusal gates
       are recorded in `docs/evidence/nanoisa-owned-transfers.md`.
-- [ ] I implement a closed scalar LLVM translator of verified NanoISA modules (MAC `task_5b23020475624da786ab72425d8a5aae`): integer/bool values, locals, direct calls and CFG with exact arithmetic, runtime tag checks and atomic output. I require same-module VM/C/LLVM execution, malformed/profile refusal and prior-output preservation before accepting this foundation; full LLVM and Wasm coverage remain open.
+- [ ] I implement a closed scalar LLVM translator of verified NanoISA modules (MAC `task_5b23020475624da786ab72425d8a5aae`): integer/bool values, locals, direct calls and CFG with exact arithmetic, runtime tag checks and atomic output. I require same-module VM/C/LLVM execution, malformed/profile refusal and prior-output preservation before accepting this foundation; full LLVM and Wasm coverage remain open. My initial branch fixture exposed an instruction-start versus next-instruction offset mistake in the new translator; I retain that failed gate and correct the offset against the shared decoder contract.
 - [ ] I correct stale auxiliary LLVM/Wasm example help, retired AST runner references and missing browser-interpreter build sources (MAC `task_26dc7883efaf4b7a83e83128a10f99a7`). These are distinct from implementing NanoISA translators.
 
 - [x] I connect affine facts to a bounded decoded-bytecode analysis (MAC
