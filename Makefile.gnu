@@ -4177,3 +4177,8 @@ test-record-array-projection: $(COMPILER_C) nano_virt nano_vm
 test-units: test-selfhost-array-field-setter
 test-selfhost-array-field-setter: bootstrap3
 	python3 tests/test_selfhost_array_field_setter.py
+
+.PHONY: test-cseed-record-array-literals
+test-units: test-cseed-record-array-literals
+test-cseed-record-array-literals: $(COMPILER_C) nano_virt nano_vm
+	python3 tests/test_cseed_record_array_literals.py

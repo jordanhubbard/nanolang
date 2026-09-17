@@ -1,0 +1,27 @@
+struct Place { line: int }
+struct Entry { name: string, place: Place }
+struct Table { entries: array<Entry> }
+let mut order: int = 0
+fn entry(n: int) -> Entry { set order (+ (* order 10) n) return Entry { name: "entry", place: Place { line: n } } }
+shadow entry { set order 0 assert (== (entry 1).place.line 1) }
+fn entries() -> array<Entry> { return [(entry 1), (entry 2)] }
+shadow entries { set order 0 assert (== (array_length (entries)) 2) assert (== order 12) }
+fn main() -> int {
+ set order 0
+ let table: Table = Table { entries: (entries) }
+ assert (== order 12)
+ assert (== (at table.entries 0).place.line 1)
+ assert (== (at table.entries 1).place.line 2)
+ let value: Entry = Entry { name: "original", place: Place { line: 3 } }
+ let __nl_nested_array_0: Entry = value
+ let __nl_arg_0_0: Entry = value
+ let values: array<Entry> = [__nl_nested_array_0, __nl_arg_0_0, Entry { name: "second", place: Place { line: 4 } }]
+ assert (== (at values 0).name "original")
+ assert (== (at values 2).place.line 4)
+ let alias: array<Entry> = values
+ (array_set alias 0 Entry { name: "replaced", place: Place { line: 9 } })
+ assert (== (at values 0).name "replaced")
+ assert (== value.name "original")
+ return 0
+}
+shadow main { assert (== (main) 0) }

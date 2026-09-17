@@ -2963,6 +2963,21 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.array_literal.elements[i], env);
                     }
                     emit_literal(list, ")");
+                } else if (elem_type == TYPE_STRUCT) {
+                    /* I snapshot each record in source order before copying its
+                     * value into a dynamic record array. */
+                    unsigned array_id = next_nested_array_id(env);
+                    emit_literal(list, "({ ");
+                    unsigned values = build_ordered_call_args(list,
+                        expr->as.array_literal.elements, count, env, NULL);
+                    emit_formatted(list,
+                        "DynArray* __nl_nested_array_%u = dyn_array_new(ELEM_STRUCT); ", array_id);
+                    for (int i = 0; i < count; i++) {
+                        emit_formatted(list,
+                            "dyn_array_push_struct(__nl_nested_array_%u, &__nl_arg_%u_%d, sizeof(__nl_arg_%u_%d)); ",
+                            array_id, values, i, values, i);
+                    }
+                    emit_formatted(list, "__nl_nested_array_%u; })", array_id);
                 } else if (elem_type == TYPE_ARRAY) {
                     /* Nested literals contain DynArray pointers, so their outer
                      * value must remain a DynArray rather than decay from a C

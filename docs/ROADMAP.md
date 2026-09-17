@@ -8225,14 +8225,18 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I check declared nominal record-array assignment contracts across
+      annotations, fields, parameters and returns (`task_8c736631e97043729bf465a2d6bdc2d5`). My C
+      frontend currently accepts a homogeneous array of the wrong record type.
 - [ ] I preserve nested aggregate state after direct record-array projection
       in my VM (`task_911461243652466fb0af1fb706d4ac01`). The existing fixture passes with a typed
       temporary but a direct projection before its nested array read fails a
       shadow assertion. I retain both cases as diagnostic evidence.
-- [ ] I represent nonempty record-array literals as dynamic arrays in my C
+- [x] I represent nonempty record-array literals as dynamic arrays in my C
       seed, preserving child order and nominal element identity
-      (`task_a5fc558cbfa34f14b4d580923de4209c`). The record-array bytecode fixture
-      currently fails native C compilation.
+      (`task_a5fc558cbfa34f14b4d580923de4209c`). Native/VM execution,
+      alias/order/collision cases and mixed-record rejection pass; evidence:
+      `docs/evidence/cseed-record-array-literals.md`.
 - [ ] I prevent ordinary user record names from colliding with internal native
       compiler-schema typedefs (`task_1d90fd4257bb43c599a79ab11cfa7aec`). The
       fixture's `NSType` currently produces conflicting C declarations.
