@@ -8728,6 +8728,11 @@ Compiler product:
       (`task_95a9982edcd04a1dbb57c45639cd7230`). Ten C-seed bytecode comparisons
       and VM/AOT execution pass; direct receiver C-seed inference remains
       separate. See `docs/evidence/selfhost-map-record-fields.md`.
+- [x] I resolve selected generic array payload metadata before checking an
+      enclosing typed array boundary (`task_17ace696e309484bbff5a59acc2891db`).
+      My first check of `array_push payload.values` now retains the concrete
+      record element type. The existing valid constructor fixture and wrong-record
+      refusals pass together; see `docs/evidence/selected-array-context.md`.
 - [x] I preserve nominal record element metadata through direct array access
       and chained field projection in my C seed, including record-array fields
       (`task_8ddcdb5c824e4a8eb6cc0e2d1bc9ebe3`). Both accessors execute under
