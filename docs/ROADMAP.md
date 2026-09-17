@@ -8822,7 +8822,9 @@ Compiler product:
       (`task_29976241a36244f7b0ce4ad75cb10b3f`). My C-seed interpreter/native runtime
       appends `.0` for whole floats; my VM cast and self-hosted native path omit it.
       I retain signed-zero checks independently and require explicit formatting
-      parity before claiming this builtin agrees across backends.
+      parity before claiming this builtin agrees across backends. I preserve `%g`
+      precision and exponent/nonfinite spelling, lower the suffix test only for
+      this builtin in both emitters, and repair my self-hosted native helper.
 - [x] I lower typed F64 opcodes in native AOT with strict float operands
       (`task_fd4c63cf9f3e46f09ece380ce00c7a58`). The exact C-seed/self-hosted scalar fixture
       now verifies and runs in NanoVM and native after PR513. I retain signed
