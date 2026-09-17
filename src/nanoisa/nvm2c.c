@@ -54,6 +54,13 @@ typedef struct Nvm2cFieldBlock {
     uint8_t data[];
 } Nvm2cFieldBlock;
 
+typedef struct Nvm2cJoinShape {
+    struct Nvm2cJoinShape *next;
+    size_t target;
+    int count;
+    NvmShapeId shapes[];
+} Nvm2cJoinShape;
+
 typedef struct {
     char *data;
     size_t len;
@@ -80,6 +87,7 @@ typedef struct {
     NvmShapeGraph shapes;
     NvmShapeId *shape_locals, *shape_results, **shape_outputs;
     NvmShapeId *shape_current;
+    Nvm2cJoinShape **join_shapes;
     int shape_generic_array;
     int track_shapes;
     uint8_t shape_opcode;
@@ -634,7 +642,7 @@ typedef struct {
     int set;
 } Nvm2cSimJoin;
 
-static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
+static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join,
                     const Nvm2cSimSlot *stack, int sp) {
     if (!join->set) {
         if (sp) {
@@ -644,6 +652,16 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
                 return 0;
             }
             memcpy(join->slots, stack, (size_t)sp * sizeof *stack);
+            for (int i = 0; b->track_shapes && i < sp; ++i) {
+                if (stack[i].kind != NVM2C_VK_STR && stack[i].kind != NVM2C_VK_VALUE) continue;
+                /* The join owns its storage shape; a boxed branch must not
+                 * rewrite an exact string-producing function or field. */
+                NvmShapeId storage = 0;
+                storage = shape_variable(b, &storage);
+                if (!shape_field_kind(b, storage, stack[i].kind) ||
+                    !nvm_shape_convert(&b->shapes, stack[i].shape, storage) || !shape_ok(b)) return 0;
+                join->slots[i].shape = storage;
+            }
         }
         join->sp = sp;
         join->set = 1;
@@ -654,7 +672,20 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
         return 0;
     }
     for (int i = 0; i < sp; i++) {
-        if (b->track_shapes && !nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape)) {
+        int string_join = (join->slots[i].kind == NVM2C_VK_STR || join->slots[i].kind == NVM2C_VK_VALUE) &&
+                          (stack[i].kind == NVM2C_VK_STR || stack[i].kind == NVM2C_VK_VALUE);
+        if (string_join && join->slots[i].kind != stack[i].kind) {
+            /* I do not silently widen a loop header after classifying its body. */
+            if (target <= b->classify_offset) {
+                nvm2c_fail(b, "I cannot yet widen tagged string storage on a backward stack edge in function %u", idx);
+                return 0;
+            }
+            join->slots[i].kind = NVM2C_VK_VALUE;
+            b->has_maps = 1;
+        }
+        if (b->track_shapes && !(string_join
+                ? nvm_shape_convert(&b->shapes, stack[i].shape, join->slots[i].shape)
+                : nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape))) {
             nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
             return 0;
         }
@@ -666,8 +697,9 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
         }
         join->slots[i].origin = origin;
         if (stack[i].kind == NVM2C_VK_UNK) continue;
-        if (join->slots[i].kind != stack[i].kind) {
-            nvm2c_fail(b, "I found incompatible stack kinds at a join in function %u", idx);
+        if (join->slots[i].kind != stack[i].kind && !string_join) {
+            nvm2c_fail(b, "I found incompatible stack kinds at a join in function %u after offset %zu (slot %d: %u versus %u)",
+                       idx, b->classify_offset, i, join->slots[i].kind, stack[i].kind);
             return 0;
         }
         if (stack[i].kind == NVM2C_VK_REC || stack[i].kind == NVM2C_VK_RARR || stack[i].kind == NVM2C_VK_MAP) {
@@ -809,7 +841,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         pc += n;
         if (terminated && !joins[start].set) continue;
         if (targets[start]) {
-            if (!terminated && !sim_join(b, idx, &joins[start], stk, sp)) return 0;
+            if (!terminated && !sim_join(b, idx, start, &joins[start], stk, sp)) return 0;
             sp = joins[start].sp;
             if (sp) memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
             terminated = 0;
@@ -1636,7 +1668,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
             size_t target;
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &target) ||
-                !sim_join(b, idx, &joins[target], stk, sp)) return 0;
+                !sim_join(b, idx, target, &joins[target], stk, sp)) return 0;
         }
         if (ins.opcode == OP_JMP || ins.opcode == OP_RET ||
             ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) terminated = 1;
@@ -1715,6 +1747,20 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     b->default_fields = sim_fields(b, NULL, NVM2C_VK_UNK);
     if (!b->default_fields) goto done;
     ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack);
+    if (ok && facts->final) {
+        for (size_t pc = 0; pc <= length; ++pc) {
+            if (!joins[pc].set || !joins[pc].sp) continue;
+            size_t count = (size_t)joins[pc].sp;
+            if (count > (SIZE_MAX - sizeof(Nvm2cJoinShape)) / sizeof(NvmShapeId)) {
+                nvm2c_fail(b, "I cannot represent these join shapes"); ok = 0; break;
+            }
+            Nvm2cJoinShape *saved = malloc(sizeof *saved + count * sizeof(NvmShapeId));
+            if (!saved) { nvm2c_fail(b, "I cannot allocate join shapes"); ok = 0; break; }
+            saved->target = pc; saved->count = joins[pc].sp;
+            for (size_t i = 0; i < count; ++i) saved->shapes[i] = joins[pc].slots[i].shape;
+            saved->next = b->join_shapes[idx]; b->join_shapes[idx] = saved;
+        }
+    }
 done:
     while (b->field_blocks) {
         Nvm2cFieldBlock *next = b->field_blocks->next;
@@ -2119,7 +2165,7 @@ static void field_table_free(uint8_t **table) {
     free(table);
 }
 
-static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
+static int record_join_storage(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
                        size_t tgt, const Nvm2cStack *st) {
     int i;
     if (!set[tgt]) {
@@ -2182,6 +2228,47 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
     nvm2c_puts(b, "    }\n");
     stack_keep_high_water(&joins[tgt], st);
     return 1;
+}
+
+/* I normalize only the taken edge, preserving a conditional's fallthrough
+ * stack. Parallel join assignments then retain their existing cycle safety. */
+static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
+                       size_t target, Nvm2cStack *stack) {
+    Nvm2cJoinShape *shape = b->join_shapes[idx];
+    while (shape && shape->target != target) shape = shape->next;
+    if (!shape) return record_join_storage(b, idx, joins, set, target, stack);
+    if (shape->count != stack->sp) {
+        nvm2c_fail(b, "I found inconsistent classified join height in function %u", idx);
+        return 0;
+    }
+    int needed = 0;
+    for (int i = 0; i < stack->sp; ++i)
+        if (stack->kinds[i] == NVM2C_VK_STR &&
+            nvm_shape_kind(&b->shapes, shape->shapes[i]) == NVM_SHAPE_OPTIONAL) needed = 1;
+    if (!needed) return record_join_storage(b, idx, joins, set, target, stack);
+    Nvm2cStack edge = *stack;
+    edge.slots = malloc((size_t)edge.sp * sizeof *edge.slots);
+    edge.kinds = malloc((size_t)edge.sp * sizeof *edge.kinds);
+    if (!edge.slots || !edge.kinds) {
+        free(edge.slots); free(edge.kinds);
+        nvm2c_fail(b, "I cannot allocate a tagged join edge"); return 0;
+    }
+    memcpy(edge.slots, stack->slots, (size_t)edge.sp * sizeof *edge.slots);
+    memcpy(edge.kinds, stack->kinds, (size_t)edge.sp * sizeof *edge.kinds);
+    for (int i = 0; i < edge.sp; ++i) {
+        if (edge.kinds[i] != NVM2C_VK_STR ||
+            nvm_shape_kind(&b->shapes, shape->shapes[i]) != NVM_SHAPE_OPTIONAL) continue;
+        if ((size_t)edge.next_value >= edge.capacity) {
+            nvm2c_fail(b, "I cannot represent another tagged join temporary"); break;
+        }
+        int value = edge.next_value++;
+        nvm2c_printf(b, "    v[%d] = (nmap_value){5, 0, (char *)s[%d]};\n", value, edge.slots[i]);
+        edge.slots[i] = value; edge.kinds[i] = NVM2C_VK_VALUE;
+    }
+    int ok = !b->failed && record_join_storage(b, idx, joins, set, target, &edge);
+    stack_keep_high_water(stack, &edge);
+    free(edge.slots); free(edge.kinds);
+    return ok;
 }
 
 static void stack_restore_join(Nvm2cBuf *b, Nvm2cStack *st, const Nvm2cStack *join) {
@@ -4617,6 +4704,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.shape_locals = calloc((size_t)mod->function_count * b.local_width, sizeof(NvmShapeId));
     b.shape_results = calloc(mod->function_count, sizeof(NvmShapeId));
     b.shape_outputs = calloc(mod->function_count, sizeof *b.shape_outputs);
+    b.join_shapes = calloc(mod->function_count, sizeof *b.join_shapes);
     b.emitted_functions = calloc(mod->function_count, 1);
     b.required_functions = calloc(mod->function_count, 1);
     b.tagged_locals = calloc((size_t)mod->function_count * b.local_width, 1);
@@ -4624,13 +4712,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * b.local_width
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs || !b.emitted_functions || !b.required_functions || !b.tagged_locals) {
+    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results || !b.shape_outputs || !b.join_shapes || !b.emitted_functions || !b.required_functions || !b.tagged_locals) {
         free(inference);
         free(kinds);
         free(rec_fields);
         free(b.shape_locals);
         free(b.shape_results);
         free(b.shape_outputs);
+        free(b.join_shapes);
         free(b.emitted_functions);
         free(b.required_functions);
         free(b.tagged_locals);
@@ -5191,6 +5280,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(b.shape_results);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        while (b.join_shapes[i]) {
+            Nvm2cJoinShape *next = b.join_shapes[i]->next;
+            free(b.join_shapes[i]); b.join_shapes[i] = next;
+        }
+    }
+    free(b.join_shapes);
     free(b.emitted_functions);
     free(b.required_functions);
     free(b.tagged_locals);
@@ -5205,6 +5301,13 @@ fail:
     free(b.shape_results);
     for (uint32_t i = 0; i < mod->function_count; ++i) free(b.shape_outputs[i]);
     free(b.shape_outputs);
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        while (b.join_shapes[i]) {
+            Nvm2cJoinShape *next = b.join_shapes[i]->next;
+            free(b.join_shapes[i]); b.join_shapes[i] = next;
+        }
+    }
+    free(b.join_shapes);
     free(b.emitted_functions);
     free(b.required_functions);
     free(b.tagged_locals);
