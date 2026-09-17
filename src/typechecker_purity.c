@@ -76,6 +76,18 @@ static bool purity_input_value(PurityWalk *p, Type type, const char *name, int d
 static unsigned purity_call(PurityWalk *p, const char *name) {
     if (!name || purity_local(p,name)>=0) return PURE_UNKNOWN;
     Function *fn=env_get_function(p->env,name);
+    /* I prefer an explicit declaration in this owner over a registry spelling. */
+    for (int i=0; i<p->env->function_count; ++i) {
+        Function *decl=&p->env->functions[i];
+        if (decl->name && !strcmp(decl->name,name) &&
+            ((!decl->module_name && !p->env->current_module) ||
+             (decl->module_name && p->env->current_module &&
+              !strcmp(decl->module_name,p->env->current_module)))) {
+            fn=decl;
+            break;
+        }
+    }
+    if (fn && fn->is_extern) return PURE_UNKNOWN;
     if (fn && fn->body) return purity_function(p,fn);
     if (purity_builtin(name)) return 0;
     for (int i=0; purity_io_names[i]; ++i)

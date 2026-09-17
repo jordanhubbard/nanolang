@@ -241,6 +241,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I compare shared positive/negative fixtures, including recursive closure.
       I reject mutable aggregate globals/parameters, including scalar-record
       wrappers around arrays: immutable handles are not deep-immutability proof.
+      I also reject explicit extern declarations that collide with intrinsic
+      names; a spelling alone does not establish a builtin effect contract.
       This is an eligibility prerequisite, not completed `par`/`flow` semantics.
       MAC `task_41966fd9c9da4f1babfab0a8a25a66c4`.
       My three-stage bootstrap, shared Cseed/Stage 2 conformance, typechecker,

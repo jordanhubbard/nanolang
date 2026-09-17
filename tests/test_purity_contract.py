@@ -25,6 +25,7 @@ fn main() -> int { assert (== (value "yes") "yes!") return 0 }''',
 pure fn value() -> int { return answer }
 fn main() -> int { assert (== (value) 42) return 0 }''',
 }
+ACCEPT["ordinary_map_global"] = 'fn empty() -> HashMap<string,int> { let values: HashMap<string,int> = (map_new) return values }\nlet values: HashMap<string,int> = (empty)\nfn value() -> int { return (map_length values) }\nfn main() -> int { assert (== (value) 0) return 0 }'
 REJECT = {
     "mutable_global": '''let mut state: int = 1
 pure fn value() -> int { return state }''',
@@ -42,9 +43,10 @@ pure fn value() -> Pair { return Pair { value: (leaf) } }''',
     'wrapped_array_parameter': 'struct Box { values: array<int> }\npure fn value(box: Box) -> int { return (at box.values 0) }',
     'wrapped_array_global': 'struct Box { values: array<int> }\nlet box: Box = Box { values: [1] }\npure fn value() -> int { return (at box.values 0) }',
     'map_parameter': 'pure fn value(values: HashMap<string,int>) -> int { return (map_length values) }',
-    'immutable_map_global': 'fn empty() -> HashMap<string,int> { return (map_new) }\nlet values: HashMap<string,int> = (empty)\npure fn value() -> int { return (map_length values) }',
+    'immutable_map_global': 'fn empty() -> HashMap<string,int> { let values: HashMap<string,int> = (map_new) return values }\nlet values: HashMap<string,int> = (empty)\npure fn value() -> int { return (map_length values) }',
     "mutation": '''pure fn value() -> int { let mut x: int = 0 set x 1 return x }''',
     "unsafe": '''pure fn value() -> int { unsafe { (println "effect") } return 0 }''',
+    "extern_intrinsic_collision": 'unsafe module collision\nextern fn abs(x: int) -> int\npure fn value() -> int { return (abs 1) }',
     "annotated_extern": '''pure extern fn external_value() -> int
 pure fn value() -> int { unsafe { return (external_value) } }''',
     "callback": '''fn callback(x: int) -> int { return x }
