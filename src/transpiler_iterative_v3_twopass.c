@@ -3790,8 +3790,19 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         case AST_LET: {
             emit_indent_item(list, indent);
             
+            /* A checked empty pattern over a name has no fields or runtime work. */
+            if (stmt->as.let.is_destructure && !stmt->as.let.destructure_count &&
+                stmt->as.let.value && stmt->as.let.value->type == AST_IDENTIFIER) {
+                emit_literal(list, "(void)0;\n");
+            }
+            /* I infer the stored variant typedef after checking its complete identity. */
+            else if (stmt->as.let.is_destructure) {
+                emit_formatted(list, "__auto_type %s = ", stmt->as.let.name);
+                build_expr(list, stmt->as.let.value, env);
+                emit_literal(list, ";\n");
+            }
             /* I retain evaluation, but a void binding has no C storage. */
-            if (stmt->as.let.var_type == TYPE_VOID) {
+            else if (stmt->as.let.var_type == TYPE_VOID) {
                 emit_literal(list, "(void)(");
                 if (stmt->as.let.value) build_expr(list, stmt->as.let.value, env);
                 else emit_literal(list, "0");

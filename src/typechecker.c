@@ -4049,23 +4049,41 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
             if (stmt->as.let.is_destructure) {
-                StructDef *record = env_get_struct(tc->env, stmt->as.let.type_name);
-                bool complete = record && record->field_count == stmt->as.let.destructure_count;
+                const char *pattern = stmt->as.let.type_name;
+                StructDef *record = env_get_struct(tc->env, pattern);
+                int field_count = record ? record->field_count : -1;
+                char **field_names = record ? record->field_names : NULL;
+                bool variant_pattern = false;
+                if (!record && pattern) {
+                    for (int u = 0; u < tc->env->union_count; ++u) {
+                        UnionDef *def = &tc->env->unions[u];
+                        size_t length = strlen(def->name);
+                        if (def->generic_param_count || strncmp(pattern, def->name, length) || pattern[length] != '.') continue;
+                        for (int v = 0; v < def->variant_count; ++v) {
+                            if (strcmp(pattern + length + 1, def->variant_names[v])) continue;
+                            field_count = def->variant_field_counts[v];
+                            field_names = def->variant_field_names[v];
+                            variant_pattern = true;
+                        }
+                    }
+                }
+                bool complete = field_count >= 0 && field_count == stmt->as.let.destructure_count;
                 Type actual_type = check_expression(stmt->as.let.value, tc->env);
                 const char *actual_name = get_struct_type_name(stmt->as.let.value, tc->env);
                 if (actual_type != TYPE_STRUCT || !actual_name ||
-                    env_get_struct(tc->env, actual_name) != record) complete = false;
+                    (variant_pattern ? strcmp(actual_name, pattern) != 0 :
+                        env_get_struct(tc->env, actual_name) != record)) complete = false;
                 for (int i = 0; complete && i < stmt->as.let.destructure_count; i++) {
                     const char *name = stmt->as.let.destructure_names[i];
                     bool found = false;
-                    for (int j = 0; j < record->field_count; j++)
-                        if (strcmp(name, record->field_names[j]) == 0) found = true;
+                    for (int j = 0; j < field_count; j++)
+                        if (strcmp(name, field_names[j]) == 0) found = true;
                     for (int j = 0; j < i; j++)
                         if (strcmp(name, stmt->as.let.destructure_names[j]) == 0) found = false;
                     complete = found;
                 }
                 if (!complete) {
-                    fprintf(stderr, "I require every record field exactly once in an owned pattern at line %d.\n", stmt->line);
+                    fprintf(stderr, "I require every record or selected variant field exactly once in an owned pattern at line %d.\n", stmt->line);
                     tc->has_error = true;
                     return TYPE_VOID;
                 }

@@ -6264,6 +6264,10 @@ shadow is_guarded_primitive {
 }
 
 fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv) -> string {
+    # A checked empty pattern over a name has no fields or runtime work.
+    if (and let_stmt.is_destructure (and (== (array_length let_stmt.destructure_names) 0) (== let_stmt.value_type ParseNodeType.PNODE_IDENTIFIER))) {
+        return (+ (gen_indent indent) "(void)0;\n")
+    }
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
 
