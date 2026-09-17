@@ -4443,3 +4443,12 @@ test-legacy-float-conversion: bootstrap $(INTERPRETER)
 	@python3 -m unittest tests.test_legacy_float_conversion
 
 test-units: test-legacy-float-conversion
+.PHONY: test-owned-transfers
+test-units: test-owned-transfers
+test-owned-transfers: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_transfers tests/nanoisa/test_owned_transfers.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_owned_transfers
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -c src/nanoisa/affine_bytecode.c -o obj/test_owned_transfer_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DOWN_TRANSFER_ALLOCATION_TEST -o obj/test_owned_transfer_alloc tests/nanoisa/test_owned_transfers.c obj/test_owned_transfer_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_owned_transfer_alloc
+	python3 -m unittest tests.test_owned_transfers

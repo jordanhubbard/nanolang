@@ -45,6 +45,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I encode explicit owned move/store/pack/unpack instructions and connect
+      their dataflow to verifier entry points (MAC
+      `task_026799f971e34152b6c6898e3de700d2`, parent ed702). I allocate vacant
+      primary bytes 0x0b–0x0e without renumbering, close schema/codec/assembly/
+      reconstruction transport, and test ordinary positive transfers plus
+      double-consume/escape/join/nominal refusals.
+      I preserve wire-buffer lifetime through the bridge copy in my roundtrip
+      fixture; its initial sanitizer failure exposed an early fixture free,
+      corrected before acceptance (same task026799).
+      Runtime and frontend admission remain held until execution semantics,
+      caller aliases and reference lifetime operations are connected; float
+      record support remains task93574. My bounded transfer and refusal gates
+      are recorded in `docs/evidence/nanoisa-owned-transfers.md`.
+
 - [x] I connect affine facts to a bounded decoded-bytecode analysis (MAC
       `task_4d22d17c96864d9fbc6031cfba2dc927`, parent ed702): exact scalar stack
       and local facts, read-only parameter record observations, reachable

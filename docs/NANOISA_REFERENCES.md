@@ -222,26 +222,50 @@ Entry references still assume a separately checked caller contract. Analysis
 success does not satisfy `nvm_verify`, install new runtime semantics or lift
 any existing ownership execution refusal. Source producers remain disabled.
 
-### Concrete connection after this slice
+### Concrete transfer connection
 
-My next transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
+My transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
 local and push its unique owner), `OWN_STORE_LOCAL U16` (consume that owner
 into an exact vacant local), `OWN_PACK U32` (use a retained layout index,
 consume its ordered fields and create an owner), and `OWN_UNPACK_LOCAL U16`
 (invalidate the whole record and push every ordered field and obligation
-atomically). I have not allocated their extended-plane wire codes. Their
+atomically). I initially proposed the extended plane. I now allocate verified vacant
+primary bytes 0x0b through 0x0e in that order, without changing any existing
+opcode. This does not implement extended decoding. Their
 codec, assembly/reconstruction, decoded stack effects and strict provenance
 transitions must land together; plain `LOAD_LOCAL` remains an observation.
 An owner temporarily on the operand stack must neither disappear at a branch
 nor duplicate through `DUP`, storage or a call.
 
-My integration point is `verify_function_impl` in `verifier.c`, after decoded
-structural and stack checks, through `nvm_verify_function`,
-`nvm_verify_function_max_stack` and linked verification. I will connect the
-affine pass there only when the explicit transfer/reference instruction
-contracts are supported. I keep `verify_structure`'s ownership refusal and
-the independent direct VM/native guards now. The next contracts also require
-reference creation/access/end-region instructions, exact caller-place alias
-substitution at direct calls, safe imported-contract handling and actual
-VM/native reference semantics before admission. Passing this analysis alone
+My non-admitting entry point is `nvm_verify_affine_function` in `verifier.c`.
+It checks structural declarations before the affine pass. Ordinary structure
+verification consults this pass before its runtime refusal; the normal
+function verifier also refuses explicit transfer instructions, including
+instructions without ownership metadata. I keep the independent direct
+VM/native guards. Eventual executable admission through
+`nvm_verify_function`, `nvm_verify_function_max_stack` and linked verification
+still requires reference creation/access/end-region instructions, exact
+caller-place alias substitution at direct calls, safe imported contracts and
+actual VM/native transfer and reference semantics. Passing this analysis alone
 does not authorize removing any of those guards.
+
+
+## Explicit owned transfer wire and verifier contract
+
+My four transfer operands use existing little-endian codecs: `OWN_MOVE_LOCAL`
+(0x0b, u16 source), `OWN_STORE_LOCAL` (0x0c, u16 destination), `OWN_PACK`
+(0x0d, u32 retained-layout index), and `OWN_UNPACK_LOCAL` (0x0e, u16 source).
+Pack consumes exactly the layout's ordered fields, with the last field on top;
+unpack pushes fields in declaration order. Only checked complete record
+layouts can carry ownership. A resource field must arrive as an owned token,
+not an observation; scalar fields must have exact tags. Whole-record unpack
+invalidates the source and creates every field obligation atomically.
+
+I expose structural plus affine verification separately from runtime admission.
+Normal verification must consult this dataflow before reporting its remaining
+runtime refusal. Even a successfully verified owned transfer function stays
+non-executable until both VM and native translation implement these operations.
+The canonical assembler still refuses executable publication of such modules;
+its non-executing reconstruction API may retain them for codec/verifier tests.
+I require OWNERSHIP metadata and exact resource declarations; ordinary loads,
+stores and aggregate operations do not become implicit transfers.

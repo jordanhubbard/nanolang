@@ -308,3 +308,40 @@ bool nvm_affine_can_exit_scalar(const NvmAffineState *s,uint8_t tag) {
         !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
     return true;
 }
+
+bool nvm_affine_local_type(const NvmAffineState *s,uint16_t local,NvmAffineType *type) {
+    if (!s || local>=s->facts->count || !type) return false;
+    Slot slot=s->facts->locals[local];
+    if (slot.mode) return false;
+    *type=(NvmAffineType){slot.tag,slot.layout}; return true;
+}
+bool nvm_affine_take_local(NvmAffineState *s,uint16_t local,NvmAffineType *type) {
+    NvmAffineType found;
+    if (!type || !nvm_affine_local_type(s,local,&found) || found.tag!=TAG_STRUCT ||
+        found.layout==NVM_V2_NO_INDEX || !nvm_affine_owner_access(s,local,NULL,0,true)) return false;
+    s->live[local]=false; *type=found; return true;
+}
+bool nvm_affine_put_local(NvmAffineState *s,uint16_t local,NvmAffineType type) {
+    NvmAffineType wanted;
+    if (!nvm_affine_local_type(s,local,&wanted) || type.tag!=TAG_STRUCT ||
+        type.layout==NVM_V2_NO_INDEX || wanted.tag!=type.tag || wanted.layout!=type.layout ||
+        !destination(s,local)) return false;
+    s->live[local]=true; return true;
+}
+bool nvm_affine_record_fields(const NvmAffineState *s,uint32_t layout,
+                               NvmAffineType *fields,uint16_t capacity,uint16_t *count) {
+    if (!s || !count || layout>=s->facts->layouts.count ||
+        !(s->facts->flags[layout]&NVM_LAYOUT_COMPLETE)) return false;
+    const NvmV2Layout *record=&s->facts->layouts.items[layout];
+    if (record->kind!=NVM_V2_LAYOUT_STRUCT || record->field_count>capacity ||
+        (record->field_count && !fields)) return false;
+    for (uint16_t i=0;i<record->field_count;i++)
+        fields[i]=(NvmAffineType){record->fields[i].type_tag,record->fields[i].nested_idx};
+    *count=record->field_count; return true;
+}
+bool nvm_affine_can_exit_type(const NvmAffineState *s,NvmAffineType type) {
+    if (!s || s->region || !same(s->facts->result,(Slot){type.tag,0,type.layout})) return false;
+    for (uint16_t i=0;i<s->facts->count;i++) if (s->live[i] &&
+        !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
+    return true;
+}

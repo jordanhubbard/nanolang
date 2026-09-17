@@ -5308,6 +5308,22 @@ static void test_verified_fastpath_enabled(void) {
 /* A module the verifier rejects (stack underflow: OP_ADD with an empty
  * stack) must leave the proof flag clear so the guarded handlers stay in
  * force rather than reading below the operand stack. */
+static void test_owned_transfers_require_runtime(void) {
+    const char *names[]={"OWN_MOVE_LOCAL", "OWN_STORE_LOCAL", "OWN_PACK", "OWN_UNPACK_LOCAL"};
+    for (unsigned i=0;i<4;i++) {
+        char source[256];
+        snprintf(source,sizeof(source),".entry 0\n.function main 0 1 0 int 1\n%s%s 0\nPUSH_I64 0\nRET\n.end\n",i==1?"PUSH_I64 1\n":"",names[i]);
+        AsmResult error;
+        NvmModule *module=asm_assemble_unverified(source,&error);
+        ASSERT(module!=NULL,"non-executing transfer fixture retained");
+        VmState vm;vm_init(&vm,module);
+        ASSERT(!vm.verified,"missing transfer contract never becomes verified");
+        VmResult stopped=vm_execute(&vm);
+        ASSERT_EQ_INT(stopped,VM_ERR_NOT_IMPLEMENTED,"raw transfer cannot execute without runtime semantics");
+        vm_destroy(&vm);nvm_module_free(module);
+    }
+}
+
 static void test_ownership_contracts_refuse_checked_fallback(void) {
     AsmResult assembly;
     NvmModule *module = asm_assemble(
@@ -5860,6 +5876,7 @@ int main(void) {
     printf("\n[Verified Fast Path]\n");
     RUN_TEST(test_verified_fastpath_enabled);
     RUN_TEST(test_unverifiable_stays_checked);
+    RUN_TEST(test_owned_transfers_require_runtime);
     RUN_TEST(test_ownership_contracts_refuse_checked_fallback);
     RUN_TEST(test_verified_flag_tracks_module_lifecycle);
 
