@@ -45,6 +45,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
+
+- [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
+  - [x] I implement checked float storage/transport and typed operations without substituting generic opcodes or admitting implicit integer conversion.
+  - [x] I verify all typed operations, signed-zero/global/function transport, malformed operand tags and the paired real scalar fixture in VM/native, with focused sanitizer and adjacent native gates: four methods including33bad-tag cases,2390native checks and1092shape checks pass. My [scalar evidence](evidence/native-typed-floats.md) distinguishes generic NaN ordering, typed IEEE comparisons and the remaining conversion boundary.
+
 - [ ] I retain nominal record identity through nested empty-array append results. My C-seed checker currently refuses `array_push (array_push [] Item {...}) Item {...}` before VM lowering; I retain the fixture separately from supported scalar append inference (MAC `task_439297c5a6934857a90cbec93bb7958d`).
 
 - [x] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).

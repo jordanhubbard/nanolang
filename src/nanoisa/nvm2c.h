@@ -23,6 +23,12 @@
  * handle. I reject incompatible representations and abort on invalid indices.
  * I emit UTF-8 and control bytes with fixed-width C escapes; embedded NUL
  * remains refused because these helpers use NUL-terminated strings.
+ * I also lower typed F64 arithmetic/negation/comparison, scalar float locals,
+ * call/return/tail transport and checked tagged globals. Typed operations require
+ * float operands; F64_DIV returns positive zero for either signed zero divisor.
+ * CAST_STRING retains VM `%g` formatting, while printing keeps a decimal for
+ * whole floats in the VM's bounded range. Explicit float-to-int conversion and
+ * float arrays/record fields remain outside this scalar contract.
  * Anything else is refused with an error.
  * I lower exact builtin CALL_EXTERN signatures for get_argc, get_argv,
  * vm_getcwd, vm_tmp_dir, vm_getenv and nl_os_getenv to native host helpers.
