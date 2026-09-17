@@ -43,3 +43,19 @@ The hello output was exactly `Hello from NanoLang!` followed by a newline. The i
 My manifest also retains exact immutable paths and hashes for compiler_support, nanoisa and std host libraries. Post-stop checks confirm unchanged source/clean checkout, helper, translator, module, generated C, native binary and all three libraries. Local evidence is `/tmp/nanolang-native-selfcompile-closure-b09a/`, including `manifest.json`, `memory-samples.jsonl`, every stage log and `post-stop-integrity.json`; the runner is `/tmp/nanolang-native-selfcompile-closure-run.py`. I retain both the original missing-manifest prerequisite and this corrected attempt separately.
 
 MAC `task_c7931f1c22db473682d077b119b9c87d` records the next bounded CPU-cost investigation. I will inspect ordinary allocation/traversal and compiler operations, measure isolated workloads, and distinguish a demonstrated local cost from an unproved attribution of the full-source timeout.
+
+## My bounded CPU-cost candidate
+
+I inspected the retained generated C without rerunning full compilation. `nmap_owned_get` marks allocation debt whenever it creates an owned copied string; `nmap_owned_new` does the same for a map. `nmap_collect_if_needed` treats this debt as a Boolean, so one such allocation causes a complete reachable graph trace at the next eligible safe point. The newer temporary-string and aggregate pools instead use byte budgets. This is a candidate for measured batching, not evidence that collection is unnecessary.
+
+I generated a small ordinary module with a record array and string map, verified/executed its bytecode, and instrumented only counters in its emitted runtime. My bounded harness retains the array and map, performs 500 successful copied-string reads, runs the existing safe-point collector, checks retained values and final zero live owners, and measures CPU time at `-O0`:
+
+| Reachable records | Reads | Collections | Root visits | CPU seconds |
+| ---: | ---: | ---: | ---: | ---: |
+| 1000 | 500 | 500 | 501500 | 0.032586 |
+| 5000 | 500 | 500 | 2501500 | 0.168035 |
+| 10000 | 500 | 500 | 5001500 | 0.374575 |
+
+The local cost scales with reads multiplied by the reachable graph. I retain assembly, bytecode, unmodified generated C, instrumented harness and output in `/tmp/nanolang-native-cpu-probe/`. This normal-value workload executes in under one second here and is not a compiler failure reproduction. The stopped full compiler has no CPU profile, so I do not attribute its timeout to this path alone. Repeated whole-string `strlen` in `nstr_char_at`/`nstr_substr`, invoked from lexer loops, is another static candidate without an isolated measurement here.
+
+The next implementable slice is checked allocation-byte accounting for owned map headers and copied map results, with a justified collection budget at existing published-root safe points. It must retain forced collection, graph closure, aliases and bounded garbage; it must measure both allocation churn and a large live graph before acceptance. Any pooling or cross-pool budget change needs explicit retention evidence. I have not changed collector policy in this diagnostic.
