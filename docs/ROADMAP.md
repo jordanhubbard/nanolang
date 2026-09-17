@@ -26,6 +26,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Emitter build diagnostics.** I trace successful C-seed emitter builds
+      that report missing `ASTAssert.then_body` and `else_body` fields, repair
+      the incorrect binding or diagnostic pass, and retain real type failures.
+      MAC `task_233ab81a36a0437db947eb11a8a4421b`.
+
 - [x] **Emitter source preservation.** I reject input/output identity aliases
       before assembly or bytecode publication, including hardlinks and symlinks.
       I fail closed on identity errors and test unchanged source bytes.
