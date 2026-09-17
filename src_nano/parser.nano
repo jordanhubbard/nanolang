@@ -5655,6 +5655,27 @@ shadow parse_statement {
 
 /* Helper: Store function definition node */
 
+# I retain a checked annotation; it cannot override the effect summary.
+fn parser_mark_pure(p: Parser) -> Parser {
+    if (or (parser_has_error p) (<= p.functions_count 0)) { return p }
+    let index: int = (- p.functions_count 1)
+    let func: ASTFunction = (list_ASTFunction_get p.functions index)
+    (list_ASTFunction_set p.functions index (ASTFunction {
+        node_type: func.node_type, line: func.line, column: func.column,
+        name: func.name, param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: true
+    }))
+    return p
+}
+shadow parser_mark_pure {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let empty: Parser = (parser_new tokens 0 "pure.nano")
+    let ordinary: Parser = (parser_store_function empty "value" 0 0 "int" -1 1 1)
+    assert (not (parser_get_function ordinary 0).is_pure)
+    let marked: Parser = (parser_mark_pure ordinary)
+    assert (parser_get_function marked 0).is_pure
+}
+
 /* Helper: Store function node */
 fn parser_store_function(p: Parser, name: string, param_start: int, param_count: int, return_type: string, body_id: int, line: int, column: int) -> Parser {
     let node: ASTFunction = ASTFunction {
@@ -5665,7 +5686,8 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         param_start: param_start,
         param_count: param_count,
         return_type: return_type,
-        body: body_id
+        body: body_id,
+        is_pure: false
     }
     let node_id: int = p.functions_count
     (list_ASTFunction_push p.functions node)
@@ -7625,17 +7647,17 @@ fn parse_definition(p: Parser) -> Parser {
             }
         } else {
             if (== tok.token_type (token_pure)) {
-                /* pure fn / pure extern fn - consume 'pure' and parse as regular fn */
+                /* pure fn / pure extern fn - retain the annotation for effect checking */
                 let p_after_pure: Parser = (parser_advance p_work)
                 if (parser_is_at_end p_after_pure) {
                     return (parser_with_error p_after_pure true)
                 } else {
                     let next_tok: LexerToken = (parser_current p_after_pure)
                     if (== next_tok.token_type (token_fn)) {
-                        return (parse_function_definition p_after_pure)
+                        return (parser_mark_pure (parse_function_definition p_after_pure))
                     } else {
                         if (== next_tok.token_type (token_extern)) {
-                            return (parse_extern_function_definition p_after_pure)
+                            return (parser_mark_pure (parse_extern_function_definition p_after_pure))
                         } else {
                             return (parser_with_error p_after_pure true)
                         }

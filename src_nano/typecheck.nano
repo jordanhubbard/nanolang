@@ -24,6 +24,7 @@ from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/module_bindings.nano"
+import "src_nano/generated/purity_intrinsics.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message, encode_undefined_name_message, encode_wrong_arg_count_message, encode_missing_return_message, encode_immutable_assignment_message
 
@@ -4286,6 +4287,352 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
     return (typecheck_phase_with_shadows parser file_name initial_symbols parser.shadows_count)
 }
 
+# I close summaries over reachable bodies; annotations never substitute for bodies.
+# Bits: I/O 1, mutable read 2, mutation 4, unknown 8, unsafe 16, resource 32.
+struct PurityContext {
+    names: array<string>,
+    mutable: array<bool>,
+    seen: array<bool>,
+    globals: array<Symbol>
+}
+
+fn purity_join(a: int, b: int) -> int {
+    let mut bit: int = 1
+    let mut result: int = 0
+    while (<= bit 32) {
+        if (or (== (% (/ a bit) 2) 1) (== (% (/ b bit) 2) 1)) { set result (+ result bit) }
+        set bit (* bit 2)
+    }
+    return result
+}
+shadow purity_join {
+    assert (== (purity_join 3 6) 7)
+    assert (== (purity_join 32 32) 32)
+    assert (== (purity_join 0 24) 24)
+}
+
+fn purity_local(context: PurityContext, name: string, count: int) -> int {
+    let mut i: int = (- count 1)
+    while (>= i 0) {
+        if (== (at context.names i) name) { return i }
+        set i (- i 1)
+    }
+    return -1
+}
+shadow purity_local {
+    let c: PurityContext = PurityContext { names: ["x", "x"], mutable: [false, true], seen: [], globals: [] }
+    assert (== (purity_local c "x" 2) 1)
+    assert (== (purity_local c "x" 1) 0)
+    assert (== (purity_local c "y" 2) -1)
+}
+
+fn purity_add(context: PurityContext, name: string, mutable: bool, count: int) -> void {
+    let names: array<string> = context.names
+    let flags: array<bool> = context.mutable
+    (array_set names count name)
+    (array_set flags count mutable)
+}
+shadow purity_add {
+    let c: PurityContext = PurityContext { names: [""], mutable: [false], seen: [], globals: [] }
+    (purity_add c "first" false 0)
+    (purity_add c "second" true 0)
+    assert (== (array_length c.names) 1)
+    assert (== (at c.names 0) "second")
+    assert (at c.mutable 0)
+}
+
+fn purity_type(parser: Parser, name: string) -> int {
+    # I inspect nested generic and tuple names as well as their outer spelling.
+    let mut word: string = ""
+    let mut i: int = 0
+    while (<= i (str_length name)) {
+        let mut c: int = 32
+        if (< i (str_length name)) { set c (char_at name i) }
+        if (or (or (is_alnum c) (== c 95)) (== c 46)) {
+            set word (+ word (string_from_char c))
+        } else {
+            if (or (== word "opaque") (resource_type_is_declared parser word)) { return 32 }
+            set word ""
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow purity_type {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
+    assert (== (purity_type p "array<opaque>") 32)
+    assert (== (purity_type p "array<int>") 0)
+}
+
+# I do not infer deep immutability from an immutable aggregate handle.
+fn purity_input_value(parser: Parser, name: string, line: int, depth: int) -> bool {
+    if (> depth 32) { return false }
+    if (or (or (== name "int") (== name "u8")) (or (== name "float") (== name "bool"))) { return true }
+    if (or (== name "string") (== name "void")) { return true }
+    let identity: string = (resource_type_identity parser name line)
+    let mut i: int = 0
+    while (< i parser.structs_count) {
+        let record: ASTStruct = (parser_get_struct_def parser i)
+        if (== (resource_type_identity parser record.name record.line) identity) {
+            if record.is_resource { return false }
+            let mut field: int = 0
+            while (< field (array_length record.field_types)) {
+                if (not (purity_input_value parser (at record.field_types field) record.line (+ depth 1))) { return false }
+                set field (+ field 1)
+            }
+            return true
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i parser.enums_count) {
+        if (== (list_ASTEnum_get parser.enums i).name name) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow purity_input_value {
+    let p: Parser = (resource_test_parser "struct Point { x: int } struct Box { values: array<int> } struct Outer { inner: Box }")
+    assert (purity_input_value p "Point" 1 0)
+    assert (not (purity_input_value p "array<int>" 1 0))
+    assert (not (purity_input_value p "Outer" 1 0))
+    assert (not (purity_input_value p "HashMap<string,int>" 1 0))
+}
+
+fn purity_identifier(parser: Parser, context: PurityContext, name: string, count: int) -> int {
+    let local: int = (purity_local context name count)
+    if (>= local 0) {
+        if (at context.mutable local) { return 2 }
+        return 0
+    }
+    let mut result: int = 0
+    let mut found: bool = false
+    let mut i: int = 0
+    while (< i (array_length context.globals)) {
+        let sym: Symbol = (at context.globals i)
+        if (and (== sym.name name) (not sym.is_function)) {
+            set found true
+            if (or sym.is_mutable (not (purity_input_value parser (type_to_string sym.sym_type) 0 0))) { set result (purity_join result 2) }
+            set result (purity_join result (purity_type parser (type_to_string sym.sym_type)))
+        }
+        set i (+ i 1)
+    }
+    if found { return result }
+    set i 0
+    while (< i parser.enums_count) {
+        if (== (list_ASTEnum_get parser.enums i).name name) { return 0 }
+        set i (+ i 1)
+    }
+    return 8
+}
+shadow purity_identifier {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
+    let c: PurityContext = PurityContext { names: ["x"], mutable: [true], seen: [], globals: [] }
+    assert (== (purity_identifier p c "x" 1) 2)
+    assert (== (purity_identifier p c "absent" 1) 8)
+}
+
+fn purity_call(parser: Parser, context: PurityContext, name: string, count: int) -> int {
+    if (or (== name "") (>= (purity_local context name count) 0)) { return 8 }
+    let mut i: int = 0
+    while (< i parser.functions_count) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (== f.name name) {
+            if (< f.body 0) { return 8 }
+            return (purity_function parser context i)
+        }
+        set i (+ i 1)
+    }
+    if (purity_intrinsic name) { return 0 }
+    if (purity_observable name) { return 1 }
+    return 8
+}
+shadow purity_call {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
+    let c: PurityContext = PurityContext { names: ["abs"], mutable: [false], seen: [], globals: [] }
+    assert (== (purity_call p c "abs" 0) 0)
+    assert (== (purity_call p c "abs" 1) 8)
+    assert (== (purity_call p c "println" 0) 1)
+}
+
+fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count: int) -> int {
+    if (< id 0) { return 0 }
+    if (or (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_FLOAT)) (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL))) { return 0 }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (purity_identifier parser context (parser_get_identifier parser id).name count) }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let n: ASTBinaryOp = (parser_get_binary_op parser id)
+        return (purity_join (purity_node parser n.left n.left_type context count) (purity_node parser n.right n.right_type context count))
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let mut name: string = ""
+        let mut start: int = 0
+        let mut length: int = 0
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let n: ASTCall = (parser_get_call parser id)
+            set start n.arg_start
+            set length n.arg_count
+            if (== n.function_type ParseNodeType.PNODE_IDENTIFIER) {
+                let ident: ASTIdentifier = (parser_get_identifier parser n.function)
+                if (< (purity_local context ident.name count) 0) { set name (mb_lookup (mb_owner ident.line) ident.name) }
+            }
+        } else {
+            let n: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+            set name (mb_lookup (mb_owner n.line) n.function_name)
+            set start n.arg_start
+            set length n.arg_count
+        }
+        let mut result: int = (purity_call parser context name count)
+        let mut i: int = 0
+        while (< i length) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            set result (purity_join result (purity_node parser arg.node_id arg.node_type context count))
+            set i (+ i 1)
+        }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser id)
+        let mut local_count: int = count
+        let mut result: int = 0
+        let mut i: int = 0
+        while (< i (list_ASTStmtRef_length block.statements)) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            set result (purity_join result (purity_node parser stmt.node_id stmt.node_type context local_count))
+            if (== stmt.node_type ParseNodeType.PNODE_LET) {
+                let n: ASTLet = (parser_get_let parser stmt.node_id)
+                (purity_add context n.name n.is_mut local_count)
+                set local_count (+ local_count 1)
+            }
+            set i (+ i 1)
+        }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_LET) {
+        let n: ASTLet = (parser_get_let parser id)
+        let mut result: int = (purity_join (purity_type parser n.var_type) (purity_node parser n.value n.value_type context count))
+        if n.is_mut { set result (purity_join result 4) }
+        if n.is_destructure { set result (purity_join result 8) }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_SET) {
+        let n: ASTSet = (parser_get_set parser id)
+        return (purity_join 4 (purity_node parser n.value n.value_type context count))
+    }
+    if (== kind ParseNodeType.PNODE_IF) {
+        let n: ASTIf = (parser_get_if parser id)
+        return (purity_join (purity_node parser n.condition n.condition_type context count) (purity_join (purity_node parser n.then_body ParseNodeType.PNODE_BLOCK context count) (purity_node parser n.else_body ParseNodeType.PNODE_BLOCK context count)))
+    }
+    if (== kind ParseNodeType.PNODE_RETURN) {
+        let n: ASTReturn = (parser_get_return parser id)
+        return (purity_node parser n.value n.value_type context count)
+    }
+    if (== kind ParseNodeType.PNODE_PRINT) {
+        let n: ASTPrint = (list_ASTPrint_get parser.prints id)
+        return (purity_join 1 (purity_node parser n.value n.value_type context count))
+    }
+    if (== kind ParseNodeType.PNODE_ASSERT) {
+        let n: ASTAssert = (parser_get_assert parser id)
+        return (purity_node parser n.condition n.condition_type context count)
+    }
+    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let n: ASTFieldAccess = (parser_get_field_access parser id)
+        return (purity_node parser n.object n.object_type context count)
+    }
+    if (== kind ParseNodeType.PNODE_ARRAY_LITERAL) {
+        let n: ASTArrayLiteral = (parser_get_array_literal parser id)
+        let mut result: int = (purity_type parser n.element_type)
+        let mut i: int = 0
+        while (< i n.element_count) {
+            let item: ASTStmtRef = (parser_get_array_element parser (+ n.element_start i))
+            set result (purity_join result (purity_node parser item.node_id item.node_type context count))
+            set i (+ i 1)
+        }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let n: ASTStructLiteral = (parser_get_struct_literal parser id)
+        let mut result: int = (purity_type parser n.struct_name)
+        let mut i: int = 0
+        while (< i n.field_count) {
+            set result (purity_join result (purity_node parser (at n.field_value_ids i) (at n.field_value_types i) context count))
+            set i (+ i 1)
+        }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_TUPLE_LITERAL) {
+        let n: ASTTupleLiteral = (parser_get_tuple_literal parser id)
+        let mut result: int = 0
+        let mut i: int = 0
+        while (< i n.element_count) {
+            set result (purity_join result (purity_node parser (at n.element_ids i) (at n.element_types i) context count))
+            set i (+ i 1)
+        }
+        return result
+    }
+    if (== kind ParseNodeType.PNODE_TUPLE_INDEX) {
+        let n: ASTTupleIndex = (parser_get_tuple_index parser id)
+        return (purity_node parser n.tuple n.tuple_type context count)
+    }
+    if (== kind ParseNodeType.PNODE_UNSAFE_BLOCK) { return 24 }
+    return 8
+}
+shadow purity_node {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "purity.nano")
+    let c: PurityContext = PurityContext { names: [], mutable: [], seen: [], globals: [] }
+    assert (== (purity_node p -1 ParseNodeType.PNODE_BLOCK c 0) 0)
+    assert (== (purity_node p 0 ParseNodeType.PNODE_UNSAFE_BLOCK c 0) 24)
+    assert (== (purity_node p 0 ParseNodeType.PNODE_WHILE c 0) 8)
+}
+
+fn purity_function(parser: Parser, parent: PurityContext, index: int) -> int {
+    let f: ASTFunction = (parser_get_function parser index)
+    if (< f.body 0) { return 8 }
+    if (at parent.seen index) { return 0 }
+    let visited: array<bool> = parent.seen
+    (array_set visited index true)
+    let mut names: array<string> = []
+    let mut flags: array<bool> = []
+    let mut slot: int = 0
+    while (< slot parser.lets_count) {
+        set names (array_push names "")
+        set flags (array_push flags false)
+        set slot (+ slot 1)
+    }
+    let context: PurityContext = PurityContext { names: names, mutable: flags, seen: parent.seen, globals: parent.globals }
+    let mut result: int = (purity_type parser f.return_type)
+    let mut i: int = 0
+    while (< i f.param_count) {
+        let param: ASTLet = (parser_get_let parser (+ f.param_start i))
+        set result (purity_join result (purity_type parser param.var_type))
+        if (not (purity_input_value parser param.var_type f.line 0)) { set result (purity_join result 2) }
+        (purity_add context param.name false i)
+        set i (+ i 1)
+    }
+    return (purity_join result (purity_node parser f.body ParseNodeType.PNODE_BLOCK context f.param_count))
+}
+shadow purity_function {
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return (+ x 1) }" "purity.nano" diagnostics)
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
+    let c: PurityContext = PurityContext { names: [], mutable: [], seen: [false], globals: [] }
+    assert (== (purity_function p c 0) 0)
+    assert (at c.seen 0)
+}
+
+fn purity_summary(parser: Parser, index: int, globals: array<Symbol>) -> int {
+    let mut seen: array<bool> = []
+    let mut i: int = 0
+    while (< i parser.functions_count) { set seen (array_push seen false) set i (+ i 1) }
+    let context: PurityContext = PurityContext { names: [], mutable: [], seen: seen, globals: globals }
+    return (purity_function parser context index)
+}
+shadow purity_summary {
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "fn f() -> int { return (g) } fn g() -> int { (println 1) return (f) }" "purity.nano" diagnostics)
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
+    assert (== (purity_summary p 0 []) 1)
+}
+
 pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
     let env: TypeEnvironment = (env_new)
     let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
@@ -4379,6 +4726,12 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         let func: ASTFunction = (parser_get_function parser i)
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         (resource_check_function parser func env.diagnostics file_name)
+        if (and func.is_pure (>= func.body 0)) {
+            if (!= (purity_summary parser i symbols) 0) {
+                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E002" "I cannot prove a closed empty effect summary for this pure fn" (Diagnostics.diag_location file_name func.line func.column)))
+                set error_count (+ error_count 1)
+            }
+        }
         if (not valid) {
             set error_count (+ error_count 1)
         } else {
@@ -4410,7 +4763,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
                 (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0003" "I require a non-extern shadow target" (Diagnostics.diag_location file_name sh.line sh.column)))
                 set error_count (+ error_count 1)
             } else {
-                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body }
+                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false }
                 if (not (check_function parser synthetic symbols env.diagnostics file_name)) { set error_count (+ error_count 1) }
             }
         }

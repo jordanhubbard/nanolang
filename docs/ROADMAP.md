@@ -235,6 +235,50 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       runs, fixture cleanup, prior sentinel preservation and unavailable-temp
       rejection without an output artifact.
 
+- [x] **Closed purity summary foundation.** I preserve `pure fn` annotations in
+      both frontends, derive transitive effects for known bodies, and reject
+      false purity, mutable state, unknown calls, unsafe operations and resources.
+      I compare shared positive/negative fixtures, including recursive closure.
+      I reject mutable aggregate globals/parameters, including scalar-record
+      wrappers around arrays: immutable handles are not deep-immutability proof.
+      I also reject explicit extern declarations that collide with intrinsic
+      names; a spelling alone does not establish a builtin effect contract.
+      I remove the unsupported `pure` claim from `complex_exp`, whose `exp`
+      dependency is an extern declaration rather than a checked body.
+      This is an eligibility prerequisite, not completed `par`/`flow` semantics.
+      MAC `task_41966fd9c9da4f1babfab0a8a25a66c4`.
+      My three-stage bootstrap, shared Cseed/Stage 2 conformance, typechecker,
+      runtime-list and schema checks pass; see
+      [`closed-purity-foundation.md`](evidence/closed-purity-foundation.md).
+      I bind global reads to their function source owner, so same-named
+      globals in unrelated modules do not contaminate the summary.
+      I also preserve complete imported parameter metadata: my old module
+      registration left `type_info` uninitialized, which resource-signature
+      inspection exposed during bootstrap.
+
+- [ ] **Selfhost imported scalar global identity.** I retain ordinary scalar
+      representations when separate modules define the same global spelling.
+      My current native shadows emit `NlGuarded_int` as an integer return even
+      without purity annotations. I test both import orders and actual values.
+      MAC `task_2905cd2c7dc44e759bf64818ed0a3d77`.
+
+- [ ] **Map-valued global factory initialization.** I preserve function
+      declarations and initialized map handles when a global calls a typed
+      map factory. Cseed currently reports a late prototype and Stage 2
+      crashes when that global is read. MAC `task_83a9577deffb4f998924e9cd4a5cddc1`.
+
+- [ ] **Verified foreign intrinsic purity identities.** I establish exact
+      intrinsic ABI/binding contracts before restoring closed eligibility
+      to wrappers such as `complex_exp`. I reject user extern collisions
+      and wrong bindings in both frontends and IR facts. This remains full
+      passive scope. MAC `task_20f6cb36fbf24bba987b4ea503529438`.
+
+- [ ] **Selfhost bool-array record-field mutation.** I must select the bool
+      setter for `array_set record.flags`, preserving mandatory native shadows.
+      My purity bootstrap exposed an incorrect int setter; typed local aliases
+      isolate the foundation while this repair remains open.
+      MAC `task_d32adbdff13241dc8ad9b0a889071352`.
+
 - [x] **Self-hosted string prefix runtime.** I implement my `str_starts_with`
       native runtime contract so importing NanoISA lowering does not leave an
       undefined `nl_str_starts_with` while compiling Stage 2 shadows.

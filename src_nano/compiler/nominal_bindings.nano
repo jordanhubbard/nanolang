@@ -211,7 +211,7 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut functions_index: int = 0
     while (< functions_index parser.functions_count) {
         let item: ASTFunction = (list_ASTFunction_get parser.functions functions_index)
-        (list_ASTFunction_set parser.functions functions_index (ASTFunction { node_type: item.node_type, line: item.line, column: item.column, name: item.name, param_start: item.param_start, param_count: item.param_count, return_type: (nb_type item.return_type item.line), body: item.body }))
+        (list_ASTFunction_set parser.functions functions_index (ASTFunction { node_type: item.node_type, line: item.line, column: item.column, name: item.name, param_start: item.param_start, param_count: item.param_count, return_type: (nb_type item.return_type item.line), body: item.body, is_pure: item.is_pure }))
         set functions_index (+ functions_index 1)
     }
     let mut array_literals_index: int = 0

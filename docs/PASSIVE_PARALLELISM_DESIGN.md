@@ -15,9 +15,20 @@ semantics.
 
 Neither the C frontend nor the self-hosted frontend currently implements the
 complete syntax, effect analysis, dependency analysis, or conformance matrix
-below. NanoISA does not yet carry the required eligibility metadata, and its
-verifier does not yet validate such metadata. I therefore make no
-production-readiness claim for passive parallelism in the current release.
+below. I carry and verify a bounded scalar metadata record described in
+[NANOISA_PASSIVE.md](NANOISA_PASSIVE.md); external inputs, calls and resource
+claims remain outside that record. I make no production-readiness claim for
+the complete passive-parallelism contract in the current release.
+
+I check the current `pure fn` spelling in both frontends by traversing known
+reachable function bodies, including recursive calls and bound imports. I share
+an explicit intrinsic allowlist and reject nonempty or open summaries. Ordinary
+immutable scalar, string, array and record construction is supported. Mutable
+bindings, reads through global mutable aggregate handles, mutable aggregate
+parameter shapes, mutation, resources, unsafe blocks, unknown calls, callbacks, loops
+and unclassified constructs are rejected conservatively. An extern annotation
+alone supplies no verified summary. This foundation does not implement `par`,
+`flow`, dependency extraction, or the full eligibility matrix below.
 
 Everything after this section is the 5.0 target. An example is a specification,
 not evidence that either compiler accepts it today.
@@ -128,7 +139,7 @@ Allocation of ordinary private GC values is permitted when allocation identity,
 address, timing, and collection are unobservable to the program. Reading
 immutable inputs and constructing immutable results are permitted.
 
-`@pure` is a checked summary, not an assertion that overrides analysis. The C
+`pure fn` (the current spelling of this design's `@pure`) is a checked summary, not an assertion that overrides analysis. The C
 and self-hosted frontends must derive the same closed summary. A declaration
 whose body contradicts `@pure` is rejected whether or not it appears in a
 parallelism block.
