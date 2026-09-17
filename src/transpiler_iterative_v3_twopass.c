@@ -4061,15 +4061,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_indent_item(list, indent);
                 emit_literal(list, "{\n");
                 emit_indent_item(list, indent + 1);
-                emit_literal(list, "int64_t __nl_range_start = ");
-                build_expr(list, range->as.call.args[0], env);
-                emit_literal(list, ";\n");
+                unsigned bounds_id = build_ordered_call_args(list, range->as.call.args, 2, env, NULL);
+                emit_literal(list, "\n");
                 emit_indent_item(list, indent + 1);
-                emit_literal(list, "int64_t __nl_range_end = ");
-                build_expr(list, range->as.call.args[1], env);
-                emit_literal(list, ";\n");
-                emit_indent_item(list, indent + 1);
-                emit_formatted(list, "for (int64_t %s = __nl_range_start; %s < __nl_range_end; %s++) ", var, var, var);
+                emit_formatted(list, "for (int64_t %s = __nl_arg_%u_0; %s < __nl_arg_%u_1; %s++) ",
+                               var, bounds_id, var, bounds_id, var);
                 build_stmt(list, scopes, stmt->as.for_stmt.body, indent + 1, env, fn_registry);
                 emit_indent_item(list, indent);
                 emit_literal(list, "}\n");

@@ -36,6 +36,10 @@ fn scoped() -> int {
         set visits (+ visits 1)
     }
     assert (== visits 2)
+    let __nl_range_start: int = 20
+    let __nl_range_end: int = 22
+    for index in (range __nl_range_start __nl_range_end) { set visits (+ visits 1) }
+    assert (== visits 4)
     assert (== index 20)
     return sum
 }

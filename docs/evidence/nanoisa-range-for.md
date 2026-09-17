@@ -12,7 +12,8 @@ My C-seed bytecode reference previously retained a loop variable's binding
 past the loop. I restore its binding count without reusing physical slots.
 My C native reference also repeated the end-bound expression in its loop
 condition. I now snapshot both bounds in source order before binding the
-loop variable. Numeric array loops with exits no longer receive an
+loop variable, using my existing collision-checked argument temporary generator.
+My fixture also binds names resembling compiler temporaries. Numeric array loops with exits no longer receive an
 inapplicable explicit vectorization hint; loops without exits retain it.
 
 My fixture compares all nine functions, including `__init__`, against
@@ -41,3 +42,10 @@ measurement separately as `task_628759a2daf743b9bf13c9a7fea2ced0`; I have not
 changed the default budget, retried away the observation, or inferred a
 compiler correctness failure from it. Native bootstrap binary equality is
 not claimed.
+
+The complete bound-Parser compiler-shadow probe advances past the original
+`tokenize_string` range refusal. It now refuses
+`__nano_module___16_substitute_union_field_type` at merged line 22679 because
+nested appends to an empty array lose their string element context. I retain
+the exact failure in `/tmp/nanolang-range-shadow-probe-run.log` and track it
+as `task_d5ed194093434b5cbfc2e3ec6bc2d37a`. No shadow is excluded.

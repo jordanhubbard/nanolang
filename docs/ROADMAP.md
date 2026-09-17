@@ -8756,7 +8756,8 @@ Compiler product:
       early-return array loops without inapplicable vectorization promises
       (`task_c3d168ec8de94d18a1f63445f2c6cea0`). My current C condition repeats
       the end expression; an unconditional loop return triggers GCC's ignored
-      loop annotation error. I retain paired native/VM execution regressions.
+      loop annotation error. I retain paired native/VM execution regressions
+      and collision-checked bound temporaries.
 - [ ] I snapshot both self-hosted native range bounds before entering the loop
       (`task_8e80a672c285487dbbad07dd1dbfc9b9`). My current `generate_for_stmt` repeats
       its end expression in the C condition. I require once-only source order,
@@ -8766,6 +8767,11 @@ Compiler product:
       ten-second shadow deadline without an assertion diagnostic; explicit
       sixty-second execution advances. I retain both logs, measure the cause
       and keep deadline tests unchanged. A timeout alone is not a correctness failure.
+- [ ] I carry contextual element types through nested empty-array appends
+      (`task_d5ed194093434b5cbfc2e3ec6bc2d37a`). After range lowering, my full compiler
+      shadow probe reaches `substitute_union_field_type` and rejects its nested
+      string appends to `[]`. I retain negative type controls and require exact
+      C-seed bytecode plus VM/native execution before rerunning the closure.
 - [ ] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
       My correctly captured full probe stops at `tokenize_string` because
