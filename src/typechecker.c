@@ -6317,7 +6317,7 @@ bool type_check(ASTNode *program, Environment *env) {
             const char *struct_name = item->as.struct_def.name;
             
             /* Check if struct already defined */
-            if (env_get_struct(env, struct_name)) {
+            if (env_get_struct_owned(env, struct_name, env->current_module)) {
                 fprintf(stderr, "Error at line %d, column %d: Struct '%s' is already defined\n",
                         item->line, item->column, struct_name);
                 tc.has_error = true;
@@ -7119,7 +7119,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             const char *struct_name = item->as.struct_def.name;
             
             /* Check if struct already defined */
-            if (env_get_struct(env, struct_name)) {
+            if (env_get_struct_owned(env, struct_name, env->current_module)) {
                 fprintf(stderr, "Error at line %d, column %d: Struct '%s' is already defined\n",
                         item->line, item->column, struct_name);
                 tc.has_error = true;

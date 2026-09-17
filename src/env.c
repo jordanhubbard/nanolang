@@ -796,10 +796,22 @@ Value create_union(const char *union_name, int variant_index, const char *varian
     return v;
 }
 
+/* I test declaration identity without importing another module's fallback. */
+StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner) {
+    if (!env || !name) return NULL;
+    for (int i = 0; i < env->struct_count; ++i) {
+        StructDef *record = &env->structs[i];
+        bool same_owner = (!owner && !record->module_name) ||
+            (owner && record->module_name && strcmp(owner, record->module_name) == 0);
+        if (same_owner && record->name && strcmp(name, record->name) == 0) return record;
+    }
+    return NULL;
+}
+
 /* Define struct */
 void env_define_struct(Environment *env, StructDef struct_def) {
     /* Check if struct already exists - prevent duplicates */
-    if (env_get_struct(env, struct_def.name) != NULL) {
+    if (env_get_struct_owned(env, struct_def.name, struct_def.module_name) != NULL) {
         /* Struct already defined - skip duplicate registration */
         return;
     }

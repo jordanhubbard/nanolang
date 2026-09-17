@@ -15,20 +15,22 @@ class AffineModuleIdentity(unittest.TestCase):
         for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
             with self.subTest(compiler=compiler, reverse=reverse, nested=nested), tempfile.TemporaryDirectory(prefix="nano-affine-modules-") as directory:
                 work = Path(directory)
-                plain = "struct Handle { fd: int }\n"
+                plain = "struct Handle { plain_value: int }\n"
                 owned = "resource struct Handle { fd: int }\n"
                 kind = "Handle"
                 value = "Handle { fd: 7 }"
-                plain_body = "let copied: Handle = value return (+ copied.fd value.fd)"
+                plain_value = "Handle { plain_value: 7 }"
+                plain_body = "let copied: Handle = value return (+ copied.plain_value value.plain_value)"
                 if nested:
                     plain += "struct Envelope { inner: Handle }\n"
                     owned += "struct Envelope { inner: Handle }\n"
                     kind = "Envelope"
                     value = "Envelope { inner: Handle { fd: 7 } }"
-                    plain_body = "let copied: Envelope = value return (+ copied.inner.fd value.inner.fd)"
+                    plain_value = "Envelope { inner: Handle { plain_value: 7 } }"
+                    plain_body = "let copied: Envelope = value return (+ copied.inner.plain_value value.inner.plain_value)"
                 plain += f"pub fn inspect(value: {kind}) -> int {{ {plain_body} }}\n"
-                plain += f"pub fn run_plain() -> int {{ return (inspect {value}) }}\n"
-                plain += f"shadow inspect {{ assert (== (inspect {value}) 14) }}\nshadow run_plain {{ assert (== (run_plain) 14) }}\n"
+                plain += f"pub fn run_plain() -> int {{ return (inspect {plain_value}) }}\n"
+                plain += f"shadow inspect {{ assert (== (inspect {plain_value}) 14) }}\nshadow run_plain {{ assert (== (run_plain) 14) }}\n"
                 owned += f"fn close_owned(value: {kind}) -> int {{ "
                 if nested:
                     owned += "let Envelope { inner } = value let Handle { fd } = inner return fd }\n"

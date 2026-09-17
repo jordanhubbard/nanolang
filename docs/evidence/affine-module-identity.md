@@ -2,7 +2,8 @@
 
 I reproduce this gap on the restored `e0d01acb` source boundary using the
 released compiler stages: `tests/test_affine_module_identity.py` has four
-methods and 24 compiler/order cases. Fourteen cases fail before repair.
+methods and 24 compiler/order cases. The original same-layout baseline fails fourteen cases; the strengthened
+different-layout baseline is retained separately.
 The positive cases require native compilation, dependency shadows and actual
 execution; source-only C emission is not acceptance. Negative cases require
 an ownership diagnostic and preserve a pre-existing artifact.
@@ -37,3 +38,13 @@ I track this continuation in MAC `task_d7c2aa83a60b43e792fb02ae7881e397`.
 The regression commit is a failing baseline, not a completed repair. It is not
 wired into a release gate until implementation lands. Generic substitution,
 call-scoped borrows and resource capture lowering remain separate obligations.
+
+## My registration increment
+
+I separate exact module-owned declaration lookup from ordinary imported-name
+lookup. Both C registration passes and `env_define_struct` retain same-module
+duplicate rejection while allowing distinct declarations to enter the table.
+`make build test-resource-classification` passes in my isolated Linux ARM64
+tree. This increment does not fix emitted type identity and is not ready for
+integration on its own. My strengthened fixture uses different field names
+for the plain and resource records so a shared C layout cannot pass by chance.
