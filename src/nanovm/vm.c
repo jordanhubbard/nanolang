@@ -1137,6 +1137,7 @@ static inline VmTrap trap_halt(void) {
 }
 
 static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...) {
+    memset(&vm->references, 0, sizeof(vm->references));
     vm->last_error = err;
     va_list ap;
     va_start(ap, fmt);
@@ -1199,6 +1200,16 @@ VmTrap vm_core_execute(VmState *vm) {
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     const bool owned_execution = vm->module->ownership_size &&
         nvm_verify_owned_module(vm->module).ok;
+    if (owned_execution) {
+        if (vm->frame_count!=1 || vm->current_fn!=0)
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one standalone reference activation");
+        if (!vm->references.active) {
+            if (vm->ip!=vm->module->functions[0].code_offset)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need reference activation entry before resuming");
+            memset(&vm->references,0,sizeof(vm->references));
+            vm->references.active=true;
+        }
+    }
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
@@ -1229,6 +1240,12 @@ VmTrap vm_core_execute(VmState *vm) {
     if (vm_labels[OP_NOP] == NULL) {
         for (int label_index = 0; label_index < 256; label_index++)
             vm_labels[label_index] = &&L_vm_default;
+        vm_labels[OP_REGION_BEGIN] = &&L_OP_REGION_BEGIN;
+        vm_labels[OP_REGION_END] = &&L_OP_REGION_END;
+        vm_labels[OP_BORROW_LOCAL_SHARED] = &&L_OP_BORROW_LOCAL_SHARED;
+        vm_labels[OP_BORROW_LOCAL_EXCLUSIVE] = &&L_OP_BORROW_LOCAL_EXCLUSIVE;
+        vm_labels[OP_REF_GET] = &&L_OP_REF_GET;
+        vm_labels[OP_REF_SET] = &&L_OP_REF_SET;
         vm_labels[OP_NOP] = &&L_OP_NOP;
         vm_labels[OP_OWN_MOVE_LOCAL] = &&L_OP_OWN_MOVE_LOCAL;
         vm_labels[OP_OWN_STORE_LOCAL] = &&L_OP_OWN_STORE_LOCAL;
@@ -1607,6 +1624,49 @@ vm_dispatch_top:
                         if (buffered) vm_gc_collect_cycles(&vm->heap);
                     }
                 }
+            }
+            VM_NEXT();
+        }
+
+        VM_CASE(OP_REGION_BEGIN)
+            if (!owned_execution || vm->references.region==UINT32_MAX)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I cannot begin this reference region");
+            ++vm->references.region;
+            VM_NEXT();
+        VM_CASE(OP_REGION_END)
+            if (!owned_execution || !vm->references.region)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference region to end");
+            for (unsigned i=0;i<256;i++)
+                if (vm->references.slots[i].region==vm->references.region)
+                    vm->references.slots[i]=(VmReferenceSlot){0};
+            --vm->references.region;
+            VM_NEXT();
+        VM_CASE(OP_BORROW_LOCAL_SHARED)
+        VM_CASE(OP_BORROW_LOCAL_EXCLUSIVE) {
+            uint16_t ref=instr.operands[0].u16,root=instr.operands[1].u16;
+            if (!owned_execution || ref>=frame->local_count || root>=frame->local_count ||
+                !vm->references.region || vm->references.slots[ref].region)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need an available reference slot and owner");
+            vm->references.slots[ref]=(VmReferenceSlot){root,vm->references.region,
+                instr.opcode==OP_BORROW_LOCAL_EXCLUSIVE};
+            VM_NEXT();
+        }
+        VM_CASE(OP_REF_GET)
+        VM_CASE(OP_REF_SET) {
+            uint16_t ref=instr.operands[0].u16,field=instr.operands[1].u16;
+            if (!owned_execution || ref>=frame->local_count || !vm->references.slots[ref].region)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference slot");
+            VmReferenceSlot slot=vm->references.slots[ref];
+            NanoValue owner=vm->stack[frame->stack_base+slot.root];
+            if (owner.tag!=TAG_STRUCT || field>=owner.as.sval->field_count ||
+                (instr.opcode==OP_REF_SET && !slot.exclusive))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a permitted scalar reference field");
+            if (instr.opcode==OP_REF_GET) stack_push(vm,owner.as.sval->fields[field]);
+            else {
+                NanoValue value=stack_peek(vm,0);
+                if (value.tag!=owner.as.sval->fields[field].tag)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I need the exact reference field type");
+                owner.as.sval->fields[field]=stack_pop(vm);
             }
             VM_NEXT();
         }
@@ -2690,6 +2750,7 @@ dynamic_div:
                                       isa_tag_name(returning->result_tag));
                 }
             }
+            if (owned_execution) memset(&vm->references,0,sizeof(vm->references));
             vm->stack_size -= returning->result_count;
 
             /* Clean up locals */
@@ -4295,10 +4356,13 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
     if (!vm_ownership_supported(vm))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+    if (vm->references.active)
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
     vm->activation_floor = floor;
+    if (result!=VM_OK) memset(&vm->references,0,sizeof(vm->references));
     return result;
 }
 
@@ -4309,6 +4373,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
     if (!vm_ownership_supported(vm))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+    if (vm->references.active)
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
     if (!vm_callable_target(vm, callable, &target, &function_index))
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
     if (vm_stack_address(vm, out_result))

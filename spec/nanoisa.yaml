@@ -61,6 +61,12 @@ legacy_opcodes:
   - {name: STORE_GLOBAL, code: 0x13, operands: [U32], pops: 1, pushes: 0}
   - {name: LOAD_UPVALUE, code: 0x14, operands: [U16, U16], pops: 0, pushes: 1}
   - {name: STORE_UPVALUE, code: 0x15, operands: [U16, U16], pops: 1, pushes: 0}
+  - {name: REGION_BEGIN, code: 0x16, operands: [], pops: 0, pushes: 0}
+  - {name: REGION_END, code: 0x17, operands: [], pops: 0, pushes: 0}
+  - {name: BORROW_LOCAL_SHARED, code: 0x18, operands: [U16, U16], pops: 0, pushes: 0}
+  - {name: BORROW_LOCAL_EXCLUSIVE, code: 0x19, operands: [U16, U16], pops: 0, pushes: 0}
+  - {name: REF_GET, code: 0x1a, operands: [U16, U16], pops: 0, pushes: 1}
+  - {name: REF_SET, code: 0x1b, operands: [U16, U16], pops: 1, pushes: 0}
   - {name: ADD, code: 0x20, operands: [], pops: 2, pushes: 1}
   - {name: SUB, code: 0x21, operands: [], pops: 2, pushes: 1}
   - {name: MUL, code: 0x22, operands: [], pops: 2, pushes: 1}

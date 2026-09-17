@@ -32,6 +32,8 @@ bool nvm_affine_reborrow(NvmAffineState *state, uint32_t reference,
                           uint32_t parent, NvmReferenceMode mode);
 bool nvm_affine_reference_access(const NvmAffineState *state, uint32_t reference,
                                   uint16_t field, bool write);
+bool nvm_affine_reference_field(const NvmAffineState *state, uint32_t reference,
+                                  uint16_t field, bool write, uint8_t *tag);
 /* I inspect obligations without changing them. An owned result must have the
  * exact declared type; UINT16_MAX means no returned local. All other live
  * resource locals and all nested call regions prevent exit. */

@@ -57,7 +57,8 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
         "/* I return status separately so allocation failure still cleans every root. */\n"
         "int nvm_owned_entry(int64_t *result) {\n"
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0};\n"
-        " int status=0; (void)a; (void)c; (void)nown_retain;\n goto L0;\n");
+        " struct { unsigned root,region,exclusive; } refs[256]={{0}}; unsigned region=0;\n"
+        " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region;\n goto L0;\n");
     for (uint32_t i=0;i<code.instruction_count;i++) {
         if (depth[i]<0) continue;
         const VmDecodedInstruction *d=&code.instructions[i];
@@ -65,6 +66,16 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
         unsigned local=in->operands[0].u16;
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
+        case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;
+        case OP_REGION_END:
+            nvm2c_puts(&b," for(unsigned r=0;r<256;r++) if(refs[r].region==region) refs[r].region=0;\n --region;\n");break;
+        case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
+            nvm2c_printf(&b," refs[%u].root=%u; refs[%u].region=region; refs[%u].exclusive=%u;\n",
+                local,in->operands[1].u16,local,local,op==OP_BORROW_LOCAL_EXCLUSIVE);break;
+        case OP_REF_GET:
+            nvm2c_printf(&b," t[%d]=l[refs[%u].root].record->fields[%u];\n",n,local,in->operands[1].u16);break;
+        case OP_REF_SET:
+            nvm2c_printf(&b," l[refs[%u].root].record->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",local,in->operands[1].u16,n-1,n-1);break;
         case OP_NOP: break;
         case OP_PUSH_I64:
             nvm2c_printf(&b," t[%d]=(nown_value){(int64_t)UINT64_C(%llu),NULL};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64);break;
