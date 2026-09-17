@@ -43,7 +43,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "static double nl_round(double x) { return round(x); }\n\n");
 
     /* Type casting functions */
-    sb_append(sb, "static int64_t nl_cast_int(double x) { return (int64_t)x; }\n");
+    sb_append(sb, "static int64_t nl_cast_int(double x) { if (!(x >= -0x1p63 && x < 0x1p63)) { fputs(\"I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\\n\", stderr); exit(EXIT_FAILURE); } return (int64_t)x; }\n");
     sb_append(sb, "static int64_t nl_cast_int_from_int(int64_t x) { return x; }\n");
     sb_append(sb, "static double nl_cast_float(int64_t x) { return (double)x; }\n");
     sb_append(sb, "static double nl_cast_float_from_float(double x) { return x; }\n");
@@ -962,6 +962,8 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    return strtoll(s, NULL, 10);\n");
     sb_append(sb, "}\n\n");
     
+    sb_append(sb, "static double string_to_float(const char* s) { return strtod(s, NULL); }\n\n");
+
     sb_append(sb, "static int64_t digit_value(int64_t c) {\n");
     sb_append(sb, "    if (c >= '0' && c <= '9') {\n");
     sb_append(sb, "        return c - '0';\n");
