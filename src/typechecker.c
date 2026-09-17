@@ -3860,6 +3860,65 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
     }
 }
 
+/* I apply the same declared map context to local and global initializers. */
+static void prepare_map_initializer(TypeChecker *tc, ASTNode *stmt) {
+    /* Handle HashMap<K,V> (register instantiation for code generation) */
+    if (stmt->as.let.var_type == TYPE_HASHMAP && stmt->as.let.type_info) {
+        TypeInfo *info = stmt->as.let.type_info;
+        if (!info->generic_name || strcmp(info->generic_name, "HashMap") != 0) {
+            fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
+                    stmt->line, stmt->column);
+            tc->has_error = true;
+        } else if (info->type_param_count != 2) {
+            fprintf(stderr, "Error at line %d, column %d: HashMap expects 2 type parameter(s), got %d\n",
+                    stmt->line, stmt->column, info->type_param_count);
+            tc->has_error = true;
+        } else {
+            Type key_t = TYPE_UNKNOWN;
+            Type val_t = TYPE_UNKNOWN;
+            if (!hashmap_extract_kv(info, &key_t, &val_t)) {
+                fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
+                        stmt->line, stmt->column);
+                tc->has_error = true;
+            }
+
+            /* Current runtime supports hashing for int and string keys only */
+            if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
+                fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
+                        stmt->line, stmt->column, type_to_string(key_t));
+                tc->has_error = true;
+            }
+            if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
+                fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
+                        stmt->line, stmt->column, type_to_string(val_t));
+                tc->has_error = true;
+            }
+
+            /* Register instantiation for codegen */
+            char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
+            char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
+            env_register_hashmap_instantiation(tc->env, key_name, val_name);
+
+            /* If RHS is (map_new), annotate call with monomorphized return type for transpiler.
+             * ALWAYS set this, even if a user-defined map_new exists - the check_expression
+             * handler will use this to prefer the built-in generic over user-defined. */
+            if (stmt->as.let.value && stmt->as.let.value->type == AST_CALL &&
+                stmt->as.let.value->as.call.name &&
+                strcmp(stmt->as.let.value->as.call.name, "map_new") == 0) {
+                char mono[512];
+                snprintf(mono, sizeof(mono), "HashMap_%s_%s", key_name, val_name);
+                if (stmt->as.let.value->as.call.return_struct_type_name) {
+                    free(stmt->as.let.value->as.call.return_struct_type_name);
+                }
+                stmt->as.let.value->as.call.return_struct_type_name = strdup(mono);
+            }
+
+            free(key_name);
+            free(val_name);
+        }
+    }
+}
+
 /* Internal implementation - do not call directly */
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt);
 
@@ -4011,62 +4070,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            /* Handle HashMap<K,V> (register instantiation for code generation) */
-            if (declared_type == TYPE_HASHMAP && stmt->as.let.type_info) {
-                TypeInfo *info = stmt->as.let.type_info;
-                if (!info->generic_name || strcmp(info->generic_name, "HashMap") != 0) {
-                    fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
-                            stmt->line, stmt->column);
-                    tc->has_error = true;
-                } else if (info->type_param_count != 2) {
-                    fprintf(stderr, "Error at line %d, column %d: HashMap expects 2 type parameter(s), got %d\n",
-                            stmt->line, stmt->column, info->type_param_count);
-                    tc->has_error = true;
-                } else {
-                    Type key_t = TYPE_UNKNOWN;
-                    Type val_t = TYPE_UNKNOWN;
-                    if (!hashmap_extract_kv(info, &key_t, &val_t)) {
-                        fprintf(stderr, "Error at line %d, column %d: Invalid HashMap type annotation\n",
-                                stmt->line, stmt->column);
-                        tc->has_error = true;
-                    }
+            prepare_map_initializer(tc, stmt);
 
-                    /* Current runtime supports hashing for int and string keys only */
-                    if (!(key_t == TYPE_INT || key_t == TYPE_STRING)) {
-                        fprintf(stderr, "Error at line %d, column %d: HashMap key type must be int or string (got %s)\n",
-                                stmt->line, stmt->column, type_to_string(key_t));
-                        tc->has_error = true;
-                    }
-                    if (!(val_t == TYPE_INT || val_t == TYPE_STRING)) {
-                        fprintf(stderr, "Error at line %d, column %d: HashMap value type must be int or string (got %s)\n",
-                                stmt->line, stmt->column, type_to_string(val_t));
-                        tc->has_error = true;
-                    }
-
-                    /* Register instantiation for codegen */
-                    char *key_name = typeinfo_to_generic_arg_name(info->type_params[0]);
-                    char *val_name = typeinfo_to_generic_arg_name(info->type_params[1]);
-                    env_register_hashmap_instantiation(tc->env, key_name, val_name);
-
-                    /* If RHS is (map_new), annotate call with monomorphized return type for transpiler.
-                     * ALWAYS set this, even if a user-defined map_new exists - the check_expression
-                     * handler will use this to prefer the built-in generic over user-defined. */
-                    if (stmt->as.let.value && stmt->as.let.value->type == AST_CALL &&
-                        stmt->as.let.value->as.call.name &&
-                        strcmp(stmt->as.let.value->as.call.name, "map_new") == 0) {
-                        char mono[512];
-                        snprintf(mono, sizeof(mono), "HashMap_%s_%s", key_name, val_name);
-                        if (stmt->as.let.value->as.call.return_struct_type_name) {
-                            free(stmt->as.let.value->as.call.return_struct_type_name);
-                        }
-                        stmt->as.let.value->as.call.return_struct_type_name = strdup(mono);
-                    }
-
-                    free(key_name);
-                    free(val_name);
-                }
-            }
-            
             /* Handle anonymous struct literals: infer struct name from declared type */
             if (stmt->as.let.value && stmt->as.let.value->type == AST_STRUCT_LITERAL) {
                 ASTNode *struct_lit = stmt->as.let.value;
@@ -6825,8 +6830,15 @@ register_function_pass1:;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
-            /* Type check the constant's initial value */
+            /* I provide declared constructor context before checking the initializer. */
+            prepare_map_initializer(&tc, item);
             Type value_type = check_expression(item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_ARRAY &&
+                item->as.let.element_type != TYPE_UNKNOWN &&
+                item->as.let.value->type == AST_ARRAY_LITERAL) {
+                check_array_literal_annotation(&tc, item->as.let.value,
+                                               item->as.let.element_type);
+            }
             
             /* Verify it matches the declared type */
             if (item->as.let.var_type != value_type) {
@@ -7533,8 +7545,15 @@ register_function_pass2:;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
-            /* Type check the constant's initial value */
+            /* I provide declared constructor context before checking the initializer. */
+            prepare_map_initializer(&tc, item);
             Type value_type = check_expression(item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_ARRAY &&
+                item->as.let.element_type != TYPE_UNKNOWN &&
+                item->as.let.value->type == AST_ARRAY_LITERAL) {
+                check_array_literal_annotation(&tc, item->as.let.value,
+                                               item->as.let.element_type);
+            }
             
             /* Verify it matches the declared type */
             if (item->as.let.var_type != value_type) {
