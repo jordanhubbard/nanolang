@@ -246,6 +246,10 @@ void free_environment(Environment *env) {
         env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
+    if (env->import_tracker) {
+        free(env->import_tracker->imports);
+        free(env->import_tracker);
+    }
 
     for (int i = 0; i < env->function_count; i++) {
         /* Note: function names are not owned by environment - they point to AST */
