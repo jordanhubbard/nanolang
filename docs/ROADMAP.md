@@ -52,7 +52,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       import failure and run real module load/link gates, not only tool builds.
       Five wrapper links, seven publication methods and two Forth SEE
       host build/load methods pass; evidence is in my ownership-contract report.
+- [ ] I measure remaining native compiler CPU cost after bounded aggregate reclamation (MAC `task_c7931f1c22db473682d077b119b9c87d`). My pinned `b09a16a8` acceptance reached its unchanged 1800-second deadline with no artifact; peak sampled owned RSS was 4,367,660 KiB and neither memory threshold was reached. I require static analysis and bounded ordinary workloads before repair, preserve [the exact outcome](evidence/native-selfcompile-closure-b09a.md), and do not rerun the full compiler or extend its budget merely to obtain success.
 
+- [ ] I attempt one clean native compiler acceptance at `b09a16a8`, after the manifest closure and typed-integer projection repairs (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). I retain immutable source/tool/helper/host hashes, require help and verified hello first, then allow two generations only in dependency order. Each full generation retains the 1800-second budget, 48 GiB owned-RSS threshold and 32 GiB host reserve; I preserve any failed or incomplete result without retry.
 
 - [x] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure and repaired gate](evidence/native-selfcompile-aggregate-a3f3.md); adding the defining source restores normal canonical seed linking, help and VM-shadow-checked hello publication/execution before another acceptance pin.
 
