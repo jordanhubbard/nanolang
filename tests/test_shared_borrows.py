@@ -9,6 +9,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 COMPILERS = os.environ.get('NANO_BORROW_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')
 PRELUDE = '''resource struct Handle { fd: int }
+union Choice { Some { value: int }, None {} }
 fn read(view: &Handle) -> int { return view.fd }
 shadow read { let h: Handle = Handle { fd: 7 } assert (== (read &h) 7) let Handle { fd } = h assert (== fd 7) }
 fn consume(value: Handle) -> int { let Handle { fd } = value return fd }
@@ -32,6 +33,7 @@ class SharedBorrows(unittest.TestCase):
                     self.assertEqual(output.read_text(), 'prior artifact')
                     self.assertNotIn('C compilation failed', diagnostic)
                     self.assertNotIn('Parsing error', diagnostic)
+                    self.assertNotIn('Parse error', diagnostic)
                     self.assertNotIn('Failed to parse', diagnostic)
                     self.assertNotIn('Segmentation fault', diagnostic)
                 else:
@@ -52,9 +54,13 @@ class SharedBorrows(unittest.TestCase):
 shadow sum { let h: Handle = Handle { fd: 3 } assert (== (sum &h &h) 6) assert (== (consume h) 3) }
 fn forward(view: &Handle) -> int { return (sum &view &view) }
 shadow forward { let h: Handle = Handle { fd: 5 } assert (== (forward &h) 10) assert (== (consume h) 5) }
+fn with_number(view: &Handle, number: int) -> int { return (+ view.fd number) }
+shadow with_number { let h: Handle = Handle { fd: 2 } assert (== (with_number &h 3) 5) assert (== (consume h) 2) }
 fn main() -> int {
  let h: Handle = Handle { fd: 11 }
  assert (== (read &h) 11)
+ let choice: Choice = Choice.Some { value: 0 }
+ assert (== (with_number &h (match choice { Some(payload) => { let local: int = payload.value (+ local (read &h)) } None(empty) => { 0 } })) 22)
  assert (== (sum &h &h) 22)
  assert (== (forward &h) 22)
  assert (== (consume h) 11)
@@ -76,11 +82,11 @@ shadow main { assert (== (main) 0) }
                            'shadow invalid { assert true }\nfn main() -> int { return 0 }\nshadow main { assert true }\n', True)
 
     def test_argument_order_holds_owner_until_call(self):
-        for args in ('&h (consume h)', '&h (if true { set h Handle { fd: 2 } 0 } else { 0 })'):
+        for args in ('&h (consume h)', '&h (match choice { Some(payload) => { set h Handle { fd: 2 } 0 } None(empty) => { 0 } })'):
             with self.subTest(args=args):
                 self.check(PRELUDE + '''fn sample(view: &Handle, other: int) -> int { return (+ view.fd other) }
 shadow sample { assert true }
-''' + f'fn main() -> int {{ let mut h: Handle = Handle {{ fd: 1 }} return (sample {args}) }}\nshadow main {{ assert true }}\n', True)
+''' + f'fn main() -> int {{ let choice: Choice = Choice.Some {{ value: 0 }} let mut h: Handle = Handle {{ fd: 1 }} return (sample {args}) }}\nshadow main {{ assert true }}\n', True)
         self.check(PRELUDE + '''fn sample(first: int, view: &Handle) -> int { return (+ first view.fd) }
 shadow sample { assert true }
 fn main() -> int { let h: Handle = Handle { fd: 1 } return (sample (consume h) &h) }
@@ -113,9 +119,9 @@ shadow main { assert true }
 
     def test_imported_same_spelling_does_not_alias_local_owner(self):
         self.check('module "other.nano" as other\n' + PRELUDE +
-                   'fn main() -> int { let h: other.Handle = other.Handle { fd: 1 } return (read &h) }\n'
+                   'fn main() -> int { let h: other.Handle = (other.make) return (read &h) }\n'
                    'shadow main { assert true }\n', True,
-                   {'other.nano': 'pub struct Handle { fd: int }\n'})
+                   {'other.nano': 'pub struct Handle { fd: int }\npub fn make() -> Handle { return Handle { fd: 1 } }\nshadow make { let value: Handle = (make) assert (== value.fd 1) }\n'})
 
     def test_nominal_identity_not_field_shape(self):
         self.check(PRELUDE + '''resource struct Other { fd: int }

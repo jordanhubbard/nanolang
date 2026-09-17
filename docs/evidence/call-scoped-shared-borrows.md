@@ -63,3 +63,15 @@ ASan/UBSan build of the environment and its test passed all 42 checks; I
 excluded unrelated legacy leak accounting from this focused lifetime run.
 The separate exclusive prototype now observes caller mutation in its C-seed
 shadows and native executable, but exclusive acceptance remains a later gate.
+
+I tightened my negative helper to reject the self-hosted `Parse error`
+diagnostic too. That exposed two fixtures that had proved only C checking:
+parenthesized `if` arguments and qualified imported record literals. I replaced
+them with supported match expressions and a module factory. The corrected
+seven shared methods pass across all three frontends in 8.140 seconds. The
+positive later argument now enters a match arm, appends local bindings,
+performs a nested shared call, and consumes the owner after the outer call.
+My held-index cleanup retains the outer binding prefix: lexical sequences
+restore their entry count, branch/match regions clone storage, and binding
+allocation preserves existing indexes. The paired overwrite case now reaches
+ownership checking in every frontend rather than passing via parser refusal.
