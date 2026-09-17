@@ -8310,12 +8310,22 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I reject negative filled-array lengths consistently across backends
+      (`task_50c84fa002c14b3fa880d3d260bb8a33`). My evaluator rejects them,
+      while C-seed bytecode currently returns an empty array.
 - [ ] I check declared nominal record-array assignment contracts across
       annotations, fields, parameters and returns (`task_8c736631e97043729bf465a2d6bdc2d5`). My C
       frontend currently accepts a homogeneous array of the wrong record type.
-- [ ] I lower `string_from_char` through the existing scalar string contract
-      (`task_292f60fa2cfa431990494d079cc8630c`); actual compiler emission after
-      typed list replacement first refuses this builtin.
+- [ ] I lower typed count/fill `array_new` construction with ordered operands
+      (`task_6b4240883d7d461c8266257aaffb2471`). Actual compiler emission after
+      character conversion stops at `ModuleCache.parsers = (array_new 0 "")`.
+- [ ] I track native `string_from_char` allocations for cleanup
+      (`task_d2b7c2616e2148a1871c25e1a7ac127d`). Unsuppressed LeakSanitizer
+      reports 16 leaked bytes from eight calls to the existing host adapter.
+- [x] I lower `string_from_char` through the existing scalar string contract
+      (`task_292f60fa2cfa431990494d079cc8630c`); eight exact opcode comparisons
+      and VM/AOT byte conversion checks pass. Host-result cleanup remains
+      separate; see `docs/evidence/selfhost-string-from-char.md`.
 - [ ] I release returned record-array allocations in native AOT output
       (`task_0916ab0afb014b5984d69fbb11b0432d`). Unsuppressed LeakSanitizer
       reports a 14,344-byte leak in a minimized returned list without setters.
