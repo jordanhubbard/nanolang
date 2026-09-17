@@ -75,7 +75,7 @@ shadow default_options {
 }
 
 # I derive a sibling source filename only when no output was specified.
-fn c_source_output_path(input: string) -> string {
+fn source_output_path(input: string, suffix: string) -> string {
     let length: int = (str_length input)
     let mut component_start: int = 0
     let mut extension: int = length
@@ -86,9 +86,17 @@ fn c_source_output_path(input: string) -> string {
         if (and (== ch ".") (> i component_start)) { set extension i }
         set i (+ i 1)
     }
-    return (+ (str_substring input 0 extension) ".c")
+    return (+ (str_substring input 0 extension) suffix)
 }
 
+shadow source_output_path {
+    assert (== (source_output_path "dir.name/file.nano" ".nvm") "dir.name/file.nvm")
+    assert (== (source_output_path ".hidden" ".nvm") ".hidden.nvm")
+    assert (== (source_output_path "plain" ".nvm") "plain.nvm")
+}
+fn c_source_output_path(input: string) -> string {
+    return (source_output_path input ".c")
+}
 shadow c_source_output_path {
     assert (== (c_source_output_path "dir.name/file.nano") "dir.name/file.c")
     assert (== (c_source_output_path ".hidden") ".hidden.c")
@@ -106,6 +114,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut diags: string = ""
     let mut help: bool = false
     let mut emit_c: bool = false
+    let mut target: string = ""
     let mut emit_nvm: bool = false
     let mut test_imports: bool = true
     let mut error: string = ""
@@ -151,6 +160,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
                     set error (+ "I do not support this target in my self-hosted driver: " value)
                     break
                 }
+                set target value
                 set emit_c (== value "c")
             }
         } else if (and (not positional_only) (nlc_str_starts_with arg "-")) {
@@ -163,8 +173,9 @@ fn parse_options(args: array<string>) -> CompileOptions {
         }
         set i (+ i 1)
     }
-    if (and emit_c emit_nvm) { set error "I cannot combine --emit-nvm with --target c" }
-    if (and emit_nvm (not output_set)) { set error "I require -o for --emit-nvm" }
+    if (and emit_nvm (!= target "")) { set error "I cannot combine --emit-nvm with an explicit target" }
+    if (and (!= input "") (and (not output_set) (== target ""))) { set emit_nvm true }
+    if (and emit_nvm (not output_set)) { set output (source_output_path input ".nvm") }
     if (and emit_c (not output_set)) { set output (c_source_output_path input) }
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
@@ -181,7 +192,13 @@ shadow parse_options {
     let module_output: CompileOptions = (parse_options ["file.nano", "--emit-nvm", "-o", "file.nvm"])
     assert module_output.emit_nvm
     assert (== module_output.error "")
-    assert (!= (parse_options ["file.nano", "--emit-nvm"]).error "")
+    assert (== (parse_options ["file.nano", "--emit-nvm"]).output_file "file.nvm")
+    assert (== (parse_options ["file.nano"]).output_file "file.nvm")
+    assert (parse_options ["file.nano"]).emit_nvm
+    assert (not (parse_options ["file.nano", "-o", "program"]).emit_nvm)
+    assert (== (parse_options ["file.nano", "--target", "native"]).output_file "a.out")
+    assert (not (parse_options ["file.nano", "--target", "native"]).emit_nvm)
+    assert (!= (parse_options ["file.nano", "--emit-nvm", "--target", "native"]).error "")
     assert (!= (parse_options ["file.nano", "--emit-nvm", "--target", "c", "-o", "file.nvm"]).error "")
     let bad: CompileOptions = (parse_options ["file.nano", "--unknown"])
     assert (!= bad.error "")
@@ -2257,12 +2274,13 @@ fn show_usage() -> int {
     (println "")
     (println "Usage: nanoc <input.nano> [-o output] [options]")
     (println "")
+    (println "Without an output or target, I publish a sibling .nvm file.")
     (println "Options:")
-    (println "  -o <file>        Output executable (default: a.out)")
+    (println "  -o <file>        I publish a native executable unless --emit-nvm or --target c is selected")
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
     (println "  --target <t>    native (default) or c (NanoISA C11 source, no native compilation)")
-    (println "  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o")
+    (println "  --emit-nvm     I publish verified NanoISA (default output: sibling .nvm)")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
     (println "  --              End options; the remaining argument is my input path")

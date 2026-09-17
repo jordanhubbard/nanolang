@@ -4385,3 +4385,7 @@ test-units: test-bootstrap-native-guard
 .PHONY: test-canonical-module-facts
 test-canonical-module-facts: bootstrap nano_vm nvm2c nvm2c-runtime
 	NANOC=$(CURDIR)/bin/nanoc_stage2 python3 -m unittest -v tests.test_canonical_module_facts
+
+.PHONY: test-default-nanoisa-product
+test-default-nanoisa-product: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_default_nanoisa_product
