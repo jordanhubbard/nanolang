@@ -8027,8 +8027,10 @@ Compiler product:
 - [ ] I preserve declared global constructor contexts in my C seed, accepting
       typed map construction and emitting the string tag for empty string
       arrays (`task_026e73d59e9e45b0b732b43883feea9a`).
-- [ ] I infer array and typed-list element access results in expression
-      contexts instead of requiring an explicit intermediate local
+- [x] I infer array and typed-list element access results in expression
+      contexts instead of requiring an explicit intermediate local. I reject
+      invalid containers, indices and mismatched typed accessors; 86 checks
+      and 23 integration methods pass
       (`task_1c4da3f9cf804bbf95005ad3f603ef26`).
 - [ ] I bind imported global values and their selective/qualified aliases
       across canonical checking, native and NanoISA emission without confusing
