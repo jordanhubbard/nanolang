@@ -297,6 +297,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       mutations through all bootstrap compilers.
       MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
+- [ ] **Current native compiler shape convergence.** I restore aggregate
+      conversion solving for current compiler bytecode without weakening exact
+      string constraints. Current and pre-read-fix translators both reject the
+      same retained module before C emission. MAC `task_031b36c92dbe44e49cea3888878d1963`.
+
 - [ ] **NanoCore exporter sanitizer build.** I diagnose the GCC O1
       null-format warning in `sbuf_appendf`; default O3 sanitizer checks
       pass without warning suppression. MAC `task_c08bf552c04740daa060cbc5759eb19d`.

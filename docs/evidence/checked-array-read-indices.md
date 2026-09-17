@@ -36,3 +36,13 @@ Logs: `/tmp/nanolang-array-read-baseline-vm.log`,
 `/tmp/nanolang-array-read-final-native.log`,
 `/tmp/nanolang-array-read-parity/result.log`, and
 `/tmp/nanolang-array-read-full-compiler.log`.
+
+After rebasing onto main `a16b2d8a`, the fresh full compiler gate fails before
+C emission: `I cannot widen an exactly constrained string destination`. The
+same retained current compiler bytecode fails unchanged pre-read-fix nvm2c,
+isolating this baseline shape regression from the read runtime repair. I keep
+that failure open as `task_031b36c92dbe44e49cea3888878d1963`. Current evidence:
+`/tmp/nanolang-array-read-integrated-compiler.log` and
+`/tmp/nanolang-array-read-integrated/baseline.log`; the retained module is
+`/tmp/nanolang-array-read-integrated/compiler.nvm`. I do not claim the current
+full bridge gate is green.
