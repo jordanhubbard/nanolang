@@ -156,6 +156,31 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual(output.read_text(), "previous accepted assembly")
 
+    def test_float_format_matches_and_executes(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/float_format.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-scalar-float-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "render_float", "once", "huge", "main", "__init__")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            expected_output = None
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                output = self.run_checked(ROOT / "bin/nano_vm", module).stdout
+                if expected_output is None:
+                    expected_output = output
+                self.assertEqual(output, expected_output)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.assertEqual(self.run_checked(binary).stdout, expected_output)
+            binary = work / "reference"
+            self.run_checked(ROOT / "bin/nanoc_c", fixture, "-o", binary)
+            self.assertEqual(self.run_checked(binary).stdout, expected_output)
+
     def test_scalar_float_operands_preserve_refusals(self):
         bodies = [
             'return (float_to_string 1.0)',

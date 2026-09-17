@@ -21,6 +21,21 @@ class SelfhostFloatValues(unittest.TestCase):
                 result = subprocess.run([output], capture_output=True, text=True, timeout=10)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_exact_format_precision_and_suffix(self):
+        source = ROOT / "tests/nanoisa/fixtures/float_format.nano"
+        expected_output = None
+        for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-float-format-") as tmp:
+                output = Path(tmp) / "program"
+                result = subprocess.run([COMPILERS / compiler, source, "-o", output], cwd=ROOT,
+                                        capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                result = subprocess.run([output], capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                if expected_output is None:
+                    expected_output = result.stdout
+                self.assertEqual(result.stdout, expected_output)
+
 
 if __name__ == "__main__":
     unittest.main()
