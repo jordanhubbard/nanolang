@@ -435,6 +435,18 @@ static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_
     return merge_fact(b, facts, dest, kind);
 }
 
+/* I box primitive array handles only at call boundaries. Record-field
+ * storage keeps its separate, exact representation contract. */
+static int merge_call_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
+    if (*dest == NVM2C_VK_VALUE && (integer_array_storage(kind) || kind == NVM2C_VK_SARR)) return 1;
+    if ((integer_array_storage(*dest) || *dest == NVM2C_VK_SARR) && kind == NVM2C_VK_VALUE) {
+        *dest = NVM2C_VK_VALUE;
+        facts->changed = 1;
+        return 1;
+    }
+    return merge_parameter(b, facts, dest, kind);
+}
+
 static int merge_record_results(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uint8_t *fields) {
     for (size_t i = 0; i < b->record_width; ++i)
         if (!merge_parameter(b, facts, &dest[i], fields[i])) return 0;
@@ -1403,7 +1415,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 size_t at = (size_t)callee * b->local_width + i - 1;
-                if (!merge_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
+                if (!merge_call_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
                 NvmShapeId parameter = shape_variable(b, &b->shape_locals[at]);
                 if (arg.kind == NVM2C_VK_REC) {
                     uint8_t *fields = facts->fields + at * b->record_width;
@@ -1417,7 +1429,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
                            (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
-                            arg.kind == NVM2C_VK_BOOL || arg.kind == NVM2C_VK_UNK)) {
+                            arg.kind == NVM2C_VK_BOOL || integer_array_storage(arg.kind) ||
+                            arg.kind == NVM2C_VK_SARR || arg.kind == NVM2C_VK_UNK)) {
                     /* A projected field can resolve after flat classification.
                      * Its storage conversion must wait for those graph facts. */
                     if (!shape_type(b, parameter, NVM_SHAPE_OPTIONAL)) return 0;
@@ -1895,6 +1908,8 @@ static int stack_pop(Nvm2cBuf *b, Nvm2cStack *st) {
     return stack_pop_kind(b, st, NULL);
 }
 
+static const char *stack_array_name(uint8_t kind);
+
 static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const char *what) {
     uint8_t got = NVM2C_VK_INT;
     int slot = stack_pop_kind(b, st, &got);
@@ -1909,6 +1924,13 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
         char expression[80];
         snprintf(expression, sizeof expression, "(nmap_value){%u, t[%d], NULL}",
                  got == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT, slot);
+        stack_push_value(b, st, expression);
+        return b->failed ? -1 : stack_pop_kind(b, st, NULL);
+    }
+    if ((integer_array_storage(got) || got == NVM2C_VK_SARR) && kind == NVM2C_VK_VALUE) {
+        char expression[80];
+        snprintf(expression, sizeof expression, "(nmap_value){7, %u, (char *)%s[%d]}",
+                 got, stack_array_name(got), slot);
         stack_push_value(b, st, expression);
         return b->failed ? -1 : stack_pop_kind(b, st, NULL);
     }
@@ -1962,7 +1984,6 @@ static void scalar_value_expression(Nvm2cBuf *b, char *out, size_t size, uint8_t
 /* I publish only live operand slots, not stale high-water temporaries. Caller
  * snapshots stay registered while callees run; mutable aggregates are traced
  * from their current contents at collection time. */
-static const char *stack_array_name(uint8_t kind);
 static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
                            const NvmFunctionEntry *fn, const uint8_t *kinds,
                            uint32_t idx) {

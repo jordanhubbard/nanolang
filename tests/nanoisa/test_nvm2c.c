@@ -1408,6 +1408,87 @@ static void test_glue_runs_without_nano_vm(void) {
 }
 
 /* I preserve optional scalar call facts while requiring a real integer at use. */
+static void test_boxed_array_arguments(void) {
+    const struct { int tag; const char *initial, *replacement; } kinds[] = {
+        {1, "PUSH_I64 3", "PUSH_I64 7"},
+        {4, "PUSH_BOOL 0", "PUSH_BOOL 1"},
+        {5, "PUSH_STR before", "PUSH_STR after"}
+    };
+    for (size_t k = 0; k < sizeof kinds / sizeof kinds[0]; ++k) {
+        for (int before = 0; before < 2; ++before) {
+            for (int boxed_first = 0; boxed_first < 2; ++boxed_first) {
+                char workers[2048], body[3072], source[8192];
+                snprintf(workers, sizeof workers,
+                    ".function update 1 1 0 int 1\nLOAD_LOCAL 0\nTYPE_CHECK 0\nJMP_FALSE present\n"
+                    "PUSH_I64 0\nRET\npresent:\nLOAD_LOCAL 0\nPUSH_I64 0\n%s\nARR_SET\nPOP\n"
+                    "LOAD_LOCAL 0\nARR_LEN\nRET\n.end\n"
+                    ".function relay 1 1 0 int 1\nLOAD_LOCAL 0\nTAIL_CALL update\n.end\n",
+                    kinds[k].replacement);
+                snprintf(body, sizeof body,
+                    ".function main 0 1 0 int 1\n%s\nARR_LITERAL %d 1\nSTORE_LOCAL 0\n"
+                    "LOAD_LOCAL 0\nSTORE_GLOBAL 0\n%s\nCALL update\nPUSH_I64 1\nEQ\nASSERT\n"
+                    "%s\nCALL relay\nPUSH_I64 1\nEQ\nASSERT\n"
+                    "LOAD_GLOBAL 1\nCALL relay\nPUSH_I64 0\nEQ\nASSERT\n"
+                    "PUSH_I64 99\nSTORE_GLOBAL 0\n"
+                    "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n%s\nEQ\nASSERT\n"
+                    "PUSH_I64 0\nRET\n.end\n",
+                    kinds[k].initial, kinds[k].tag,
+                    boxed_first ? "LOAD_GLOBAL 0" : "LOAD_LOCAL 0",
+                    boxed_first ? "LOAD_LOCAL 0" : "LOAD_GLOBAL 0", kinds[k].replacement);
+                snprintf(source, sizeof source,
+                    ".string before \"before\"\n.string after \"after\"\n.entry main\n%s%s",
+                    before ? workers : body, before ? body : workers);
+                NvmModule *m = assemble_ok(source, "boxed array parameter ordering");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I infer boxed array parameters independently of caller and function order");
+                if (c) {
+                    int status = -1;
+                    CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                          "I preserve array tags, absent values, aliases and tail calls after global replacement");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+    /* I must not let a boxed source erase incompatible concrete payload facts. */
+    for (int tag = 1; tag <= 4; tag += 3) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".entry main\n.function main 0 0 0 int 1\nLOAD_GLOBAL 0\nCALL size\nPOP\n"
+            "ARR_NEW 5\nCALL size\nPOP\n%s\nARR_LITERAL %d 1\nCALL size\nRET\n.end\n"
+            ".function size 1 1 0 int 1\nLOAD_LOCAL 0\nARR_LEN\nRET\n.end\n",
+            tag == 1 ? "PUSH_I64 1" : "PUSH_BOOL 1", tag);
+        NvmModule *m = assemble_ok(source, "incompatible boxed array payload");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I reject incompatible array elements after parameter boxing");
+        if (c || !strstr(error, "shape")) fprintf(stderr, "array payload tag %d: %s\n", tag, error);
+        free(c); nvm_module_free(m);
+    }
+    const char *invalid[] = {"PUSH_I64 9", "PUSH_BOOL 1", "PUSH_STR text", "PUSH_I64 1\nARR_LITERAL 1 1"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".string text \"text\"\n.entry main\n.function main 0 0 0 int 1\n"
+            "PUSH_STR text\nARR_LITERAL 5 1\nCALL update\n%s\nSTORE_GLOBAL 0\n"
+            "LOAD_GLOBAL 0\nCALL update\nPUSH_I64 0\nRET\n.end\n"
+            ".function update 1 1 0 void 0\nLOAD_LOCAL 0\nPUSH_I64 0\nPUSH_STR text\nARR_SET\nPOP\nRET\n.end\n",
+            invalid[i]);
+        NvmModule *m = assemble_ok(source, "invalid dynamic array argument");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I retain dynamic array argument checks at consumption");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status != 0,
+                  "I reject nonarray tags and mismatched dynamic array element updates");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_boxed_array_indices(void) {
     const struct {
         const char *array, *value, *check, *index;
@@ -6104,6 +6185,7 @@ int main(int argc, char **argv) {
     test_glue_runs_without_nano_vm();
     test_arr_set_runs_natively();
     test_boxed_array_indices();
+    test_boxed_array_arguments();
     test_len3_runs_without_nano_vm();
     test_first_runs_without_nano_vm();
     test_agg_set_is_refused();
