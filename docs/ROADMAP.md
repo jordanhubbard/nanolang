@@ -8702,11 +8702,13 @@ Compiler product:
         compiler-shadow blocker. Supervised execution and the driver cutover
         remain separate prerequisites: deadlines and completion protocol must
         reject an early exit(0), and normal native C shadows remain until then.
-- [ ] I declare the actual temporary-local capacity of NanoISA `__init__`
+- [x] I declare the actual temporary-local capacity of NanoISA `__init__`
       (`task_3ed43e842d704748af03f82883793652`) before adding range expressions.
-      A global `(array_new 3 7)` currently emits `STORE_LOCAL 0` in a zero-local
-      initializer; assembly verification rejects it. I preserve verifier
-      enforcement and require C-seed/VM initialization and ordering tests.
+      I retain initializer-local state and pass exact C-seed bytecode, VM and
+      native tests for filled-array globals and count/fill ordering. My full
+      emitter gate passes 86 comparisons and 70 Python methods; C-seed/Stage2
+      emitters produce identical fixture assembly. See
+      `docs/evidence/nanoisa-initializer-frame.md`.
 - [ ] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
       My correctly captured full probe stops at `tokenize_string` because

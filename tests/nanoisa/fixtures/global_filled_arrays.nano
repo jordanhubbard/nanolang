@@ -1,0 +1,17 @@
+let mut order: int = 0
+fn count() -> int { set order (+ order 1) return 3 }
+shadow count { let before: int = order assert (== (count) 3) assert (== order (+ before 1)) set order before }
+fn fill() -> int { set order (+ (* order 10) 2) return 7 }
+shadow fill { let before: int = order assert (== (fill) 7) assert (== order (+ (* before 10) 2)) set order before }
+let values: array<int> = (array_new (count) (fill))
+let words: array<string> = (array_new 2 "ready")
+let flags: array<bool> = (array_new 0 true)
+fn main() -> int {
+    assert (== order 12)
+    assert (== (array_length values) 3)
+    assert (== (at values 2) 7)
+    assert (== (at words 1) "ready")
+    assert (== (array_length flags) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

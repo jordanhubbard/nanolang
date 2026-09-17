@@ -921,6 +921,8 @@ fn nisa_emit_globals(parser: Parser) -> string {
     if (>= (nisa_fn_index parser "__init__") 0) {
         return (nisa_fail "I reserve __init__ for global initialization")
     }
+    set nisa_names []
+    set nisa_types []
     let mut body: string = ""
     set i 0
     while (< i (array_length nisa_global_nodes)) {
@@ -929,7 +931,11 @@ fn nisa_emit_globals(parser: Parser) -> string {
         set body (+ body (nisa_line_imm "STORE_GLOBAL" (int_to_string i)))
         set i (+ i 1)
     }
-    return (+ ".function __init__ 0 0 0 void 0\n" (+ body "  RET\n.end\n\n"))
+    let locals: int = (array_length nisa_names)
+    set nisa_names []
+    set nisa_types []
+    let header: string = (+ ".function __init__ 0 " (+ (int_to_string locals) " 0 void 0\n"))
+    return (+ header (+ body "  RET\n.end\n\n"))
 }
 shadow nisa_emit_globals {
     let _: int = (nisa_reset)
@@ -943,6 +949,14 @@ shadow nisa_emit_globals {
     assert (str_contains output "LOAD_GLOBAL 0")
     assert (str_contains output "STORE_GLOBAL 1")
     let _2: int = (nisa_reset)
+    let filled: string = (+ "let xs: array<int> = (array_new 3 7) f" "n main() -> int { return 0 }")
+    let filled_tokens: List<LexerToken> = (tokenize_string filled "globals.nano" diagnostics)
+    let filled_parser: Parser = (parse_program filled_tokens (list_LexerToken_length filled_tokens) "globals.nano")
+    let filled_output: string = (nisa_emit_globals filled_parser)
+    assert (str_contains filled_output ".function __init__ 0 4 0 void 0")
+    assert (== (array_length nisa_names) 0)
+    assert (== (array_length nisa_types) 0)
+    let _3: int = (nisa_reset)
 }
 
 # I preserve the supported string-key map value type through each operation.

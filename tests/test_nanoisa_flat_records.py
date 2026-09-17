@@ -123,6 +123,25 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.assertEqual(self.run_checked(binary).stdout, "init\n")
 
+    def test_global_filled_arrays_retain_initializer_temporaries(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/global_filled_arrays.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-global-filled-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.assertIn(".function __init__ 0 12 0 void 0", assembly.read_text())
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "count", "fill", "main", "__init__")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.run_checked(binary)
+
     def test_aggregate_globals_match_and_execute_in_vm(self):
         fixture = ROOT / "tests/nanoisa/fixtures/global_aggregate_initialization.nano"
         with tempfile.TemporaryDirectory(prefix="nano-aggregate-globals-") as tmp:
