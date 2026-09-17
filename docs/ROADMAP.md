@@ -7932,6 +7932,14 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower the compiler-required `HashMap<string,int>` result/local/call
+      shapes and operations with C-seed and VM/native parity
+      (`task_2c74662f99d44f7faac1fe7427e44325`). Real compiler emission first
+      reaches this unsupported result type after host-import lowering.
+- [x] I lower declared host extern imports and the compiler-required `getenv`
+      builtin in my self-hosted NanoISA emitter (task_cc32b93698db405696235e96ce8fc194).
+      I preserve explicit supported signatures and ABI metadata, compare the
+      C-seed output, execute VM/native calls and refuse unsupported imports.
 - [x] I lower loop `break` and `continue` in my NanoISA emitter
       (task_942fb307760a4460a49eb49986049103), including nested-loop targets and
       out-of-loop refusal. Twelve named bytecode checks and both VM/native
