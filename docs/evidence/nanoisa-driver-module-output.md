@@ -5,7 +5,7 @@ I retain my assembly output when the flag is absent. My driver remains hosted
 by my C seed; this bridge does not establish a NanoISA-only bootstrap or extend
 my source lowering subset.
 
-I assemble in memory, verify the self-contained module, and serialize canonical
+I assemble in memory, verify the module structure and stack discipline, and serialize canonical
 v2 bytes before opening an output staging file. I use an exclusive random file
 beside the destination, finish writing and syncing it, then rename it over the
 destination. I remove staging files on failure. This provides atomic replacement;
@@ -19,8 +19,11 @@ I checked `make test-nanoisa test-nanoisa-emit-driver test-nanoisa-src-nano`:
 - Three driver tests check repeated identical v2 bytes, VM/native output parity,
   unchanged assembly mode, equivalent assembler bytes, malformed and unsupported
   input rejection, missing output paths, and preservation of prior output.
-- 86 pinned source lowering cases and two flat-record tests pass.
+- 86 pinned source lowering cases and six record, void, and expression-type tests pass.
 
 My native execution test compiles generated C with C11 and warnings as errors.
 The verification happens before publication; rejected source cannot truncate an
 existing module. I use no assembly scratch file or predictable staging path.
+
+My verification does not resolve foreign hosts or separately linked modules.
+Those retain their existing runtime and linking requirements.

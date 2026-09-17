@@ -494,7 +494,7 @@ int64_t nl_nanoisa_assemble_text_save(const char *source, const char *path) {
         store_output(NULL, &err);
         return err.code;
     }
-    NvmVerifyResult verified = nvm_verify_linked(mod, NULL, 0);
+    NvmVerifyResult verified = nvm_verify(mod);
     if (!verified.ok) {
         set_error(&err, NANOISA_ERR_FORMAT, 0, "I cannot verify the module: %s", verified.error_msg);
         nvm_module_free(mod);
