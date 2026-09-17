@@ -20,3 +20,8 @@ This is a frontend integration prerequisite. It does not remove the C toolchain
 used for shadows, establish a NanoISA-only bootstrap, resolve foreign hosts, or
 prove complete source coverage. My source subset and linked-module requirements
 remain explicit.
+
+My integration exposed a missing native `str_starts_with` helper during Stage 2
+shadow linking. I supplied that helper and checked seven prefix boundaries.
+The existing bootstrap rebuild, native smoke and no-C-seed smoke pass. My twenty
+CLI regression cases and nine existing module-binding cases also pass.

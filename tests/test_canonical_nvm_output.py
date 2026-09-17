@@ -50,6 +50,11 @@ shadow main { assert (== (main) 0) }
         with tempfile.TemporaryDirectory(prefix="canonical-nvm-") as tmp:
             directory = Path(tmp)
             source, dependency = self.sources(directory)
+            other = directory / "other.nano"
+            other.write_text("module Other\npub fn value() -> int { return 12 }\n"
+                             "shadow value { assert (== (value) 12) }\n")
+            source.write_text(f'module "{other}" as other\n' + source.read_text().replace(
+                '(println "canonical-nvm")', 'assert (== (other.value) 12) (println "canonical-nvm")'))
             first, second = directory / "one.nvm", directory / "two.nvm"
             for output in (first, second):
                 self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
