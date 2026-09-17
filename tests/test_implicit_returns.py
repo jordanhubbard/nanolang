@@ -39,8 +39,14 @@ class ImplicitReturns(unittest.TestCase):
         self.compare('.entry main\n.function main 0 0 0 int 1\nCALL empty\nPUSH_I64 17\nRET\n.end\n'
                      '.function empty 0 0 0 void 0\n.end\n',17)
 
-    def test_empty_void_entry(self):
-        self.compare('.entry main\n.function main 0 0 0 void 0\n.end\n',0)
+    def test_void_entry_retains_native_executable_signature_refusal(self):
+        module=self.module('.entry main\n.function main 0 0 0 void 0\n.end\n')
+        self.run_cmd([VM,module])
+        target=self.work/'prior.c'; target.write_text('previous')
+        result=subprocess.run([ROOT/'bin/nvm2c',module,'-o',target],capture_output=True,text=True,timeout=30)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn('entry function must return a single int',result.stderr)
+        self.assertEqual(target.read_text(),'previous')
 
     def test_nested_scalar_chain_and_entry_fallthrough(self):
         self.compare('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 5\nCALL outer\nI64_ADD\nPUSH_I64 2\nI64_ADD\n.end\n'
