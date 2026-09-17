@@ -10,6 +10,8 @@
     "../../src/nanoisa/isa.c",
     "../../src/nanoisa/retained_layouts.c",
     "../../src/nanoisa/passive.c",
+    "../../src/nanoisa/affine_bytecode.c",
+    "../../src/nanoisa/affine_state.c",
     "../../src/nanoisa/ownership_contracts.c",
     "../../src/nanoisa/reference_places.c",
     "../../src/nanoisa/nvm_format.c",

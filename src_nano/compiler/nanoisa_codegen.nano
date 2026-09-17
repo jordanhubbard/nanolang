@@ -499,6 +499,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "cast_int") { return true }
     if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
@@ -514,6 +515,7 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "cast_int")
     assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "array_length")
     assert (nisa_is_inline_call "not")
@@ -1598,6 +1600,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
                 (and (nisa_is_list_call target_name) (str_ends_with target_name "_get")))) {
             return (nisa_access_result parser call)
         }
+        if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
         if (== target_name "string_to_int") { return "int" }
         if (and (== (nisa_map_opcode target_name) "HM_GET") (== call.arg_count 2)) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -2168,6 +2171,15 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
     if (nisa_is_set_call function_name) { return (nisa_emit_set_call parser call function_name) }
+    if (and (== function_name "cast_int") (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_int") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        let kind: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        if (not (or (== kind "int") (or (== kind "float") (or (== kind "bool") (== kind "string"))))) {
+            return (nisa_fail "I require int, float, bool or string for cast_int")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+    }
     if (== function_name "string_to_int") {
         if (!= call.arg_count 1) { return (nisa_fail "string_to_int needs one string argument") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)

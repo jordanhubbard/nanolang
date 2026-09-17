@@ -45,11 +45,35 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I connect affine facts to a bounded decoded-bytecode analysis (MAC
+      `task_4d22d17c96864d9fbc6031cfba2dc927`, parent ed702): exact scalar stack
+      and local facts, read-only parameter record observations, reachable
+      branches/back edges and exit obligations. I refuse observation escape,
+      unsupported transfers and mismatched joins, and test ordinary loops
+      and borrowed field readers without enabling ownership execution.
+      Caller alias substitution, explicit transfer/reference instructions and
+      actual VM/native access remain required independent acceptance. I pass
+      300 checks and 419 allocation/sanitizer checks; my bounded evidence is
+      `docs/evidence/nanoisa-affine-bytecode.md`.
+
 - [x] I update stale raw-emitter refusal fixtures for already supported scalar float and Boolean-array results (`task_64f967c7f1d14b26a2b8134fb94a706e`). I retain previous-output and exact-diagnostic checks against the documented unsupported float-array result, and verify positive scalar/Boolean-array bytecode.
 
 - [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
 
 - [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
+- [x] I implement local-normalized affine instruction transitions from checked
+      ownership declarations before connecting bytecode dataflow (MAC
+      `task_379b04ef0b8d4a7985ad72b2ab244d5b`, parent ed702): explicit record
+      pack/move/whole-record unpack, nested reference regions and scalar
+      access, exact joins and live-owner exit obligations. I test refused
+      transitions preserve state, overlap/reborrow/argument-order cases and
+      ordinary controls. Stack provenance, CFG/opcodes, runtime lowering and
+      paired source producers remain separate required acceptance; current
+      execution refusals remain enabled. I pass 157 transition checks and
+      182 allocation-injection/sanitizer checks; bounded evidence is in
+      `docs/evidence/nanoisa-affine-state.md`.
+- [x] I batch native map and copied-result collection using checked allocation-byte debt (MAC `task_c7931f1c22db473682d077b119b9c87d`). I count map headers, buckets, entries, keys, copied strings and owner records; positive allocation/growth contributes debt and release reduces live bytes. I retain existing published-root safe points, full graph tracing and forced collection, with a 64 KiB minimum budget adjusted to surviving map bytes. My [bounded byte/alias evidence](evidence/native-map-byte-debt.md) records 32 regression methods, 15 integrated methods, 2,412 native translator checks and 1,092 shape checks. An identical-bytecode live-graph workload reduces 5,000 scans to three; retained-byte counters exclude temporary bucket overlap and RSS. Full compilation remains a separate unrerun gate.
+
 - [x] I complete the retained-layout and ownership source closure in every
       explicit NanoISA build list, including the Forth SEE host manifest,
       its examples shared-library rule and the regular/daemon wrapper object
@@ -57,7 +81,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       import failure and run real module load/link gates, not only tool builds.
       Five wrapper links, seven publication methods and two Forth SEE
       host build/load methods pass; evidence is in my ownership-contract report.
-- [ ] I measure remaining native compiler CPU cost after bounded aggregate reclamation (MAC `task_c7931f1c22db473682d077b119b9c87d`). My pinned `b09a16a8` acceptance reached its unchanged 1800-second deadline with no artifact; peak sampled owned RSS was 4,367,660 KiB and neither memory threshold was reached. I require static analysis and bounded ordinary workloads before repair, preserve [the exact outcome](evidence/native-selfcompile-closure-b09a.md), and do not rerun the full compiler or extend its budget merely to obtain success.
+- [x] I measure remaining native compiler CPU cost after bounded aggregate reclamation (MAC `task_c7931f1c22db473682d077b119b9c87d`). My pinned `b09a16a8` acceptance reached its unchanged 1800-second deadline with no artifact; peak sampled owned RSS was 4,367,660 KiB and neither memory threshold was reached. I require static analysis and bounded ordinary workloads before repair, preserve [the exact outcome](evidence/native-selfcompile-closure-b09a.md), and do not rerun the full compiler or extend its budget merely to obtain success.
 
 - [ ] I attempt one clean native compiler acceptance at `b09a16a8`, after the manifest closure and typed-integer projection repairs (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). I retain immutable source/tool/helper/host hashes, require help and verified hello first, then allow two generations only in dependency order. Each full generation retains the 1800-second budget, 48 GiB owned-RSS threshold and 32 GiB host reserve; I preserve any failed or incomplete result without retry.
 
@@ -161,8 +185,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       module does not call `nagg_add` or `nagg_drop`; three strict generated-C
       cases fail on Darwin after the aggregate-retention merge
       (`task_6363b1e55bd145749ef892d71a552735`).
-- [ ] I complete unchanged-calculator bytecode/native acceptance through both producers after the float-to-int contract lands (`task_668e98f3e13e4fcebb3a2f92e671c713`, depends on `task_b927827f37734658bce360d7ecf913aa`). At `c2c7a74c` my C-seed module verifies and prints `Result: 3.14159` in the VM; native translation explicitly refuses the float cast in `format_float`.
-- [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
+- [ ] I complete unchanged-calculator bytecode/native acceptance through both producers after the float-to-int contract lands (`task_668e98f3e13e4fcebb3a2f92e671c713`, depends on `task_b927827f37734658bce360d7ecf913aa`). At `c2c7a74c` my C-seed module verifies and prints `Result: 3.14159` in the VM; native translation explicitly refuses the float cast in `format_float`. After the checked float conversion, the native program prints the expected result, but LeakSanitizer retains a two-byte `nhost_argv` copied-result leak under `task_d5f899966241452a900422938fff3265`; I require ownership repair without disabling leak checks.
+- [ ] I align legacy interpreter and C-emitter float-to-int helpers with the checked conversion policy (`task_f801bf5769f9489da5ea973574dd156c`). Static inspection found direct double-to-integer casts; NanoISA validation does not cover those paths.
+- [x] I retain scalar `cast_int` in my canonical bytecode emitter (`task_1c172729873542a78d36fcd64ee7fda3`), including exact arity/type checks and declared-function identity. Both unchanged-calculator modules now emit, verify, execute in the VM and translate to native C; host-result leak acceptance remains separate.
+- [x] I implement my NanoISA float-to-int contract (`task_b927827f37734658bce360d7ecf913aa`): truncate finite values in `[-2^63, 2^63)` toward zero; stop with an explicit conversion diagnostic for NaN, infinities or values outside that interval before any C integer cast. My VM and concrete/tagged native paths must agree. Legacy interpreter/C-emitter conversion policy remains separately audited; I do not infer it from NanoISA checks.
+- [x] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries, matching my VM for concrete and tagged operands (MAC `task_b927827f37734658bce360d7ecf913aa`; [checked conversion evidence](evidence/checked-float-to-int.md)). Eight float methods, 2,412 translator and 1,092 shape checks pass; seven targeted Clang sanitizer methods pass after the strict unused-helper correction.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
   - [x] I implement checked float storage/transport and typed operations without substituting generic opcodes or admitting implicit integer conversion.

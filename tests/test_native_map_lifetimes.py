@@ -25,7 +25,7 @@ class NativeMapLifetimes(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
-    def check_program(self, text, peak=16):
+    def check_program(self, text):
         with tempfile.TemporaryDirectory(prefix='nano-map-lifetime-') as tmp:
             work = Path(tmp)
             assembly, module, source, binary = (work / name for name in
@@ -38,10 +38,11 @@ class NativeMapLifetimes(unittest.TestCase):
             generated = source.read_text()
             self.assertIn('    nmap_release_owned();', generated)
             self.assertNotIn('nroot_add(&nroots.live, 11,', generated)
-            # I check bounded live owners, not merely an eventual process exit.
+            # I bound bytes across batching, not merely an eventual process exit.
+            # The 64 KiB floor plus 4 KiB covers retained fixture roots and one allocation.
             generated = generated.replace('    nmap_release_owned();',
                 '    nmap_release_owned();\n'
-                f'    if (nmap_owned_live != 0 || nmap_owned_peak > {peak}) abort();\n')
+                '    if (nmap_owned_live || nmap_live_bytes || nmap_peak_bytes > 69632) abort();\n')
             source.write_text(generated)
             self.run_checked(['cc', '-std=c11', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',

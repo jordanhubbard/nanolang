@@ -1,0 +1,226 @@
+#include "affine_bytecode.h"
+#include "affine_state.h"
+#include "../nanovm/vm_decode.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct { uint8_t tag; bool observation; uint16_t root; } Value;
+typedef struct {
+    NvmAffineState *locals;
+    Value *stack;
+    uint16_t count;
+} Frame;
+static void frame_free(Frame *frame) {
+    if (!frame) return;
+    nvm_affine_state_free(frame->locals);free(frame->stack);free(frame);
+}
+static Frame *frame_clone(const Frame *from) {
+    Frame *out=calloc(1,sizeof(*out));
+    if (!out) return NULL;
+    out->locals=nvm_affine_state_clone(from->locals);
+    if (!out->locals) {frame_free(out);return NULL;}
+    out->count=from->count;
+    if (out->count) {
+        out->stack=malloc(out->count*sizeof(*out->stack));
+        if (!out->stack) {frame_free(out);return NULL;}
+        memcpy(out->stack,from->stack,out->count*sizeof(*out->stack));
+    }
+    return out;
+}
+static bool frame_equal(const Frame *a,const Frame *b) {
+    if (a->count!=b->count || !nvm_affine_state_equal(a->locals,b->locals)) return false;
+    for (uint16_t i=0;i<a->count;i++) {
+        Value x=a->stack[i],y=b->stack[i];
+        if (x.tag!=y.tag || x.observation!=y.observation ||
+            (x.observation && x.root!=y.root)) return false;
+    }
+    return true;
+}
+static bool scalar(uint8_t tag) {
+    return tag==TAG_INT || tag==TAG_U8 || tag==TAG_BOOL || tag==TAG_FLOAT;
+}
+static bool push(Frame *f,Value value) {
+    if (f->count==NVM_AFFINE_MAX_STACK) return false;
+    Value *next=realloc(f->stack,(f->count+1)*sizeof(*next));
+    if (!next) return false;
+    f->stack=next;f->stack[f->count++]=value;return true;
+}
+static bool pop_scalar(Frame *f,uint8_t tag) {
+    if (!f->count || f->stack[f->count-1].observation ||
+        f->stack[f->count-1].tag!=tag) return false;
+    f->count--;return true;
+}
+static bool supported(uint8_t op) {
+    switch(op) {
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
+    case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
+    case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
+    case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
+    case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
+    case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
+    case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
+    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET:
+        return true;
+    default:return false;
+    }
+}
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals) {
+    uint8_t op=in->opcode,tag=TAG_VOID,mode;
+    uint16_t local;
+    switch(op) {
+    case OP_NOP: case OP_JMP: return NULL;
+    case OP_PUSH_I64:tag=TAG_INT;break;
+    case OP_PUSH_U8:tag=TAG_U8;break;
+    case OP_PUSH_F64:tag=TAG_FLOAT;break;
+    case OP_PUSH_BOOL:
+        if (in->operands[0].u8>1) return "I require a Boolean literal";
+        tag=TAG_BOOL;break;
+    case OP_LOAD_LOCAL:
+        local=in->operands[0].u16;
+        if (!nvm_affine_local_info(f->locals,local,&tag,&mode))
+            return "I require a live checked local";
+        if (!push(f,(Value){tag,tag==TAG_STRUCT,local})) return "I cannot extend my analysis stack";
+        return NULL;
+    case OP_STORE_LOCAL: {
+        local=in->operands[0].u16;
+        if (local>=locals || !f->count || f->stack[f->count-1].observation)
+            return "I refuse an observation escape or missing scalar store";
+        Value value=f->stack[f->count-1];
+        /* Defining a scalar consults its exact declaration. The subsequent
+         * lookup makes type disagreement a refusal, never a widening. */
+        if (!scalar(value.tag) || !nvm_affine_scalar_define(f->locals,local) ||
+            !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
+            return "I require the exact scalar local type";
+        f->count--;return NULL;
+    }
+    case OP_AGG_GET: case OP_STRUCT_GET:
+        if (!f->count || !f->stack[f->count-1].observation ||
+            !nvm_affine_scalar_field(f->locals,f->stack[f->count-1].root,
+                                     in->operands[0].u16,&tag))
+            return "I require a checked scalar field observation";
+        f->count--;break;
+    case OP_DUP:
+        if (!f->count || f->stack[f->count-1].observation)
+            return "I refuse to duplicate reference authority";
+        if (!push(f,f->stack[f->count-1])) return "I cannot extend my analysis stack";
+        return NULL;
+    case OP_POP:
+        if (!f->count || f->stack[f->count-1].observation)
+            return "I require a scalar discard; an observation is not an owned consume";
+        f->count--;return NULL;
+    case OP_SWAP:
+        if (f->count<2 || f->stack[f->count-1].observation || f->stack[f->count-2].observation)
+            return "I require scalar stack permutation";
+        {Value value=f->stack[f->count-1];f->stack[f->count-1]=f->stack[f->count-2];f->stack[f->count-2]=value;}
+        return NULL;
+    case OP_JMP_TRUE: case OP_JMP_FALSE:
+        return pop_scalar(f,TAG_BOOL)?NULL:"I require an exact Boolean branch condition";
+    case OP_NOT: case OP_AND: case OP_OR:
+        if (!pop_scalar(f,TAG_BOOL) || (op!=OP_NOT && !pop_scalar(f,TAG_BOOL)))
+            return "I require Boolean operands";
+        tag=TAG_BOOL;break;
+    case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
+        if (!pop_scalar(f,TAG_INT) || (op!=OP_NEG && !pop_scalar(f,TAG_INT)))
+            return "I require integer arithmetic operands";
+        tag=TAG_INT;break;
+    case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
+        if (!pop_scalar(f,TAG_FLOAT) || (op!=OP_F64_NEG && !pop_scalar(f,TAG_FLOAT)))
+            return "I require float arithmetic operands";
+        tag=TAG_FLOAT;break;
+    case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
+        if (!pop_scalar(f,TAG_FLOAT) || !pop_scalar(f,TAG_FLOAT))
+            return "I require float comparison operands";
+        tag=TAG_BOOL;break;
+    case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
+        if (!f->count || f->stack[f->count-1].observation || !scalar(f->stack[f->count-1].tag))
+            return "I require scalar comparison operands";
+        tag=f->stack[f->count-1].tag;
+        if (!pop_scalar(f,tag) || !pop_scalar(f,tag)) return "I require matching comparison tags";
+        tag=TAG_BOOL;break;
+    default:return "I require a connected affine instruction contract";
+    }
+    return push(f,(Value){tag,false,0})?NULL:"I cannot extend my analysis stack";
+}
+static bool propagate(Frame **frames,uint32_t target,const Frame *state,uint32_t *work,
+                       uint32_t *tail,const char **error) {
+    if (frames[target]) {
+        if (!frame_equal(frames[target],state)) {
+            *error="I require exact ownership and stack provenance at every join";return false;
+        }
+    } else {
+        frames[target]=frame_clone(state);
+        if (!frames[target]) {*error="I cannot allocate an analysis branch";return false;}
+        work[(*tail)++]=target;
+    }
+    return true;
+}
+NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
+    NvmAffineAnalysis result={0};
+    const char *error="I require checked ownership declarations";
+    VmDecodedFunction decoded={0};Frame **frames=NULL;uint32_t *work=NULL;
+    Frame *current=NULL;
+    if (!m || !m->functions || function>=m->function_count) goto done;
+    const NvmFunctionEntry *entry=&m->functions[function];
+    if (entry->local_count>NVM_AFFINE_MAX_LOCALS ||
+        entry->code_length>NVM_AFFINE_MAX_INSTRUCTIONS*ISA_MAX_INSTRUCTION_SIZE) {
+        error="I exceeded my bounded affine analysis size";goto done;
+    }
+    NvmAffineState *initial=nvm_affine_state_create(m,function,entry->local_count);
+    if (!initial) goto done;
+    char detail[VM_DECODE_ERROR_SIZE];
+    if (!vm_decode_function(m,function,&decoded,detail)) {
+        nvm_affine_state_free(initial);error="I require decodable function control flow";goto done;
+    }
+    uint32_t count=decoded.instruction_count;
+    if (!count || count>NVM_AFFINE_MAX_INSTRUCTIONS) {
+        nvm_affine_state_free(initial);error="I exceeded my bounded affine instruction count";goto done;
+    }
+    for (uint32_t i=0;i<count;i++) if (!supported(decoded.instructions[i].instruction.opcode)) {
+        result.byte_offset=decoded.instructions[i].byte_offset;
+        nvm_affine_state_free(initial);error="I require a connected affine instruction contract";goto done;
+    }
+    frames=calloc(count,sizeof(*frames));work=malloc(count*sizeof(*work));
+    if (!frames || !work) {nvm_affine_state_free(initial);error="I cannot allocate analysis state";goto done;}
+    frames[0]=calloc(1,sizeof(*frames[0]));
+    if (!frames[0]) {nvm_affine_state_free(initial);error="I cannot allocate entry state";goto done;}
+    frames[0]->locals=initial;
+    uint32_t head=0,tail=1;work[0]=0;
+    while (head<tail) {
+        uint32_t index=work[head++];
+        const VmDecodedInstruction *instruction=&decoded.instructions[index];
+        result.byte_offset=instruction->byte_offset;result.reachable++;
+        current=frame_clone(frames[index]);
+        if (!current) {error="I cannot allocate an instruction state";goto done;}
+        uint8_t op=instruction->instruction.opcode;
+        if (op==OP_RET) {
+            uint8_t tag=TAG_VOID;
+            if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
+            else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
+            if (!nvm_affine_can_exit_scalar(current->locals,tag)) {
+                error="I require an exact scalar result and no live owned obligations";goto done;
+            }
+        } else {
+            error=step(current,&instruction->instruction,entry->local_count);
+            if (error) goto done;
+            if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
+                uint32_t relative=instruction->resolved_target-entry->code_offset;
+                const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
+                if (!target) {error="I require an instruction at my branch target";goto done;}
+                if (!propagate(frames,(uint32_t)(target-decoded.instructions),current,work,&tail,&error)) goto done;
+            }
+            if (op!=OP_JMP) {
+                if (index+1==count) {error="I require an explicit return rather than fallthrough";goto done;}
+                if (!propagate(frames,index+1,current,work,&tail,&error)) goto done;
+            }
+        }
+        frame_free(current);current=NULL;
+    }
+    result.ok=true;result.byte_offset=0;error=NULL;
+done:
+    frame_free(current);
+    if (frames) for (uint32_t i=0;i<decoded.instruction_count;i++) frame_free(frames[i]);
+    free(frames);free(work);vm_decoded_function_free(&decoded);
+    if (error) snprintf(result.message,sizeof(result.message),"%s",error);
+    return result;
+}

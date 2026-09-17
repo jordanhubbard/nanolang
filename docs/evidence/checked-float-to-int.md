@@ -1,0 +1,15 @@
+# My checked NanoISA float-to-int contract
+
+I truncate binary64 values toward zero only inside `[-2^63, 2^63)`. I diagnose NaN, either infinity and values outside that interval before any C integer cast. Both concrete and tagged native operands use this contract, matching the VM. I preserve all other existing `CAST_INT` conversions.
+
+My canonical emitter now recognizes scalar `cast_int` with exactly one int, float, bool or string argument. It preserves a bound declaration's body. The C-seed language checker separately prohibits redefining this builtin name; an initial combined identity fixture correctly hit that policy. I retain the initial log and check canonical declaration identity separately rather than weakening the C-seed rule.
+
+Eight native float methods pass, including valid interval endpoints, signed zero, both truncation directions, concrete/tagged transport and explicit range diagnostics under ASan/UBSan. My full native gate passes 2,412 translator and 1,092 shape checks. Both producers pass scalar source conversions; five host ABI/conversion methods pass, and the full paired compiler gate passes 84 methods in 99.832 seconds.
+
+The unchanged `examples/language/nl_pi_calculator.nano` now emits through both producers, verifies and prints `Result: 3.14159` in the VM with argument `5`. Both modules translate to native C. The C-seed module's native executable also prints that result, but LeakSanitizer reports a two-byte `nhost_argv` copy. I preserve that failure and require host-result adoption before complete calculator acceptance; I do not disable leak checks or claim full native acceptance.
+
+Tasks `task_b927827f37734658bce360d7ecf913aa` and `task_1c172729873542a78d36fcd64ee7fda3` own the checked conversion and canonical scalar emission. `task_668e98f3e13e4fcebb3a2f92e671c713` retains complete calculator acceptance, with host-result task `task_d5f899966241452a900422938fff3265`. Static inspection found unchecked conversions in my legacy interpreter and C emitters; separate task `task_f801bf5769f9489da5ea973574dd156c` owns their alignment. These NanoISA gates make no claim about those legacy paths.
+
+I retain logs under `/tmp/nanolang-float-to-int-`: `tests.log`, `native-gate.log`, `canonical-tests.log`, `identity-tests.log`, `identity-final.log`, and `paired-gate.log`. Full calculator evidence is `/tmp/nanolang-calculator-full-checked-cast/results.json` and `/tmp/nanolang-calculator-canonical-cast-fixed/results.json`. The initial canonical refusal is `/tmp/nanolang-calculator-selfhost-checked-cast/results.json`.
+
+After merging main through the affine bytecode and map-budget changes, I rebuilt the affected tools. Seven targeted Clang sanitizer methods pass (3.442 seconds), and eight GCC ABI/map-budget methods pass (4.909 seconds). The initial Clang run caught an unused conversion helper in the no-import entry form; I retain `clang.log`, move the standard C helper reference after both entry declarations, and retain the corrected `clang-final.log` and `restack-tests.log`. I selected the installed GCC 13 toolchain for Clang explicitly without suppressing warnings.
