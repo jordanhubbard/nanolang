@@ -915,6 +915,53 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.assertEqual(self.run_checked(binary).stdout, "A\nB\n")
 
+    def test_string_map_global_constructor_executes_in_vm(self):
+        # Standalone AOT map globals remain task95796, independently tracked.
+        fixture = ROOT / "tests/nanoisa/fixtures/string_map_global.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-map-global-") as tmp:
+            work = Path(tmp)
+            assembly, module = work / "program.nasm", work / "program.nvm"
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.assertIn("HM_NEW 5 5", assembly.read_text())
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+
+    def test_string_map_constructor_contexts_execute_in_selfhost_backends(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/string_map_contexts.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-map-contexts-") as tmp:
+            work = Path(tmp)
+            assembly, module = work / "program.nasm", work / "program.nvm"
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.assertEqual(assembly.read_text().count("HM_NEW 5 5"), 3)
+            self.assertNotIn("HM_NEW 5 1", assembly.read_text())
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            native, binary = work / "program.c", work / "program"
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
+            self.run_checked(binary)
+
+    def test_string_string_maps_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/string_string_maps.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-map-values-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "fresh", "relay", "put", "has", "read", "wrap", "unwrap", "main")
+            self.assertIn("18 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
     def test_string_int_maps_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/string_int_maps.nano"
         with tempfile.TemporaryDirectory(prefix="nano-map-values-") as tmp:
@@ -937,7 +984,13 @@ class FlatRecordEmitter(unittest.TestCase):
     def test_unsupported_map_shapes_and_arguments_are_refused(self):
         programs = [
             'fn bad() -> HashMap<int,int> { return (map_new) }',
-            'fn bad() -> HashMap<string,string> { return (map_new) }',
+            'fn bad(m: HashMap<string,string>) -> void { (map_put m "key" 42) }',
+            'fn bad(m: HashMap<string,int>) -> HashMap<string,string> { return m }',
+            'fn ints() -> HashMap<string,int> { return (map_new) } '
+            'fn bad() -> HashMap<string,string> { return (ints) }',
+            'fn bad(m: HashMap<string,int>) -> void { let words: HashMap<string,string> = m }',
+            'fn consume(m: HashMap<string,string>) -> int { return 0 } '
+            'fn bad(m: HashMap<string,int>) -> int { return (consume m) }',
             'fn bad() -> HashMap<string,bool> { return (map_new) }',
             'fn bad(m: HashMap<string,int>) -> void { (map_put m "key" true) }',
             'fn bad(m: HashMap<string,int>) -> bool { return (map_has m 1) }',
