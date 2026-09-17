@@ -147,6 +147,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       invalid-range indices in NanoVM while preserving valid alias mutation
       and ownership cleanup. Native tag guards remain enforced. MAC
       `task_f64074441cf64f47b5f40ccefc78233c`.
+- [x] **v5.1.0 self-hosted array field mutation.** I select native array setters
+      from the complete receiver type, including record fields, nested fields,
+      and returned arrays. I execute bool, string, float and nested-array
+      mutations through all bootstrap compilers.
+      MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
 - [x] **v5.1.0 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
@@ -8207,6 +8212,17 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I preserve nested aggregate state after direct record-array projection
+      in my VM (`task_911461243652466fb0af1fb706d4ac01`). The existing fixture passes with a typed
+      temporary but a direct projection before its nested array read fails a
+      shadow assertion. I retain both cases as diagnostic evidence.
+- [ ] I represent nonempty record-array literals as dynamic arrays in my C
+      seed, preserving child order and nominal element identity
+      (`task_a5fc558cbfa34f14b4d580923de4209c`). The record-array bytecode fixture
+      currently fails native C compilation.
+- [ ] I prevent ordinary user record names from colliding with internal native
+      compiler-schema typedefs (`task_1d90fd4257bb43c599a79ab11cfa7aec`). The
+      fixture's `NSType` currently produces conflicting C declarations.
 - [ ] I lower declared enum values/types from preserved self-host AST metadata
       (`task_3ef1df55630e4199b825ff5d8a0043f1`), including signed values and
       exact scalar transport. The actual compiler first stops at
@@ -8230,11 +8246,12 @@ Compiler product:
       (`task_95a9982edcd04a1dbb57c45639cd7230`). Ten C-seed bytecode comparisons
       and VM/AOT execution pass; direct receiver C-seed inference remains
       separate. See `docs/evidence/selfhost-map-record-fields.md`.
-- [ ] I preserve nominal record element metadata through direct array access
+- [x] I preserve nominal record element metadata through direct array access
       and chained field projection in my C seed, including record-array fields
-      (`task_8ddcdb5c824e4a8eb6cc0e2d1bc9ebe3`). Explicit typed locals currently avoid
-      the observed typechecker rejection.
-- [ ] I retain enum member names and signed explicit/implicit values in
+      (`task_8ddcdb5c824e4a8eb6cc0e2d1bc9ebe3`). Both accessors execute under
+      native/VM paths; wrong fields reject. Evidence:
+      `docs/evidence/cseed-record-array-projection.md`.
+- [x] I retain enum member names and signed explicit/implicit values in
       self-host AST metadata instead of discarding them during parsing
       (`task_e66b50097fe343e3b78e6b750a5c7315`). NanoISA enum lowering depends on
       these fields, without adding a token-rescan implementation.

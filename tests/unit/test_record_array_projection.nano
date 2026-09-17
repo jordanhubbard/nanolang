@@ -1,0 +1,20 @@
+struct Place { line: int }
+struct Entry { name: string, place: Place }
+struct Table { entries: array<Entry> }
+fn entries() -> array<Entry> {
+ let values: array<Entry> = []
+ let first: Entry = Entry { name: "first", place: Place { line: 7 } }
+ return (array_push values first)
+}
+shadow entries { assert (== (array_length (entries)) 1) }
+fn main() -> int {
+ let table: Table = Table { entries: (entries) }
+ assert (== (at table.entries 0).name "first")
+ assert (== (at (entries) 0).place.line 7)
+ let second: Entry = Entry { name: "second", place: Place { line: 8 } }
+ let more: array<Entry> = (array_push table.entries second)
+ assert (== (at more 1).place.line 8)
+ assert (== (at (array_push table.entries second) 2).name "second")
+ return 0
+}
+shadow main { assert (== (main) 0) }
