@@ -7886,6 +7886,13 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I lower void-result functions and zero-result call statements in my
+      self-hosted NanoISA emitter (task_862889b9369e4511a465fe838e69224e), including
+      bare and implicit returns. I require C-seed bytecode comparisons and
+      VM/native execution, without claiming complete compiler emission.
+      My gate passes 86 baseline checks, 14 void-function bytecode checks,
+      VM/native execution and four result-count refusals (2026-09-16).
+      The driver next stops at its unresolved imported `nanoisa_emit_nasm`.
 - [ ] I infer projected string-field expressions in my NanoISA emitter
       (task_8e367aeda3394b0bb1ed1c37f56edeef). I currently reject a direct field/string
       comparison; an explicitly typed local is the supported workaround.

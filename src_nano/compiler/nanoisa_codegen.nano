@@ -24,6 +24,7 @@ let mut nisa_str_names: array<string> = []
 let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
+let mut nisa_void_return: bool = false
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -33,6 +34,7 @@ fn nisa_reset() -> int {
     set nisa_ok true
     set nisa_err ""
     set nisa_label 0
+    set nisa_void_return false
     return 0
 }
 
@@ -1238,9 +1240,42 @@ shadow nisa_emit_assert {
     assert (str_contains text "ASSERT")
 }
 
+# I describe the emitted stack effect; list push still needs its trailing POP.
+fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
+    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+    let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (nisa_is_print_builtin identifier.name) { return false }
+    let index: int = (nisa_fn_index parser identifier.name)
+    if (< index 0) { return true }
+    let function: ASTFunction = (parser_get_function parser index)
+    return (!= function.return_type "void")
+}
+
+shadow nisa_call_has_result {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n nop() -> void {} fn value() -> int { return 1 } fn main() -> int { (nop) (print \"x\") return (value) }")
+    let tokens: List<LexerToken> = (tokenize_string source "t.nano" diags)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    assert (not (nisa_call_has_result parser (parser_get_call parser 0)))
+    assert (not (nisa_call_has_result parser (parser_get_call parser 1)))
+    assert (nisa_call_has_result parser (parser_get_call parser 2))
+}
+
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
+        if (< r.value 0) {
+            if nisa_void_return { return (nisa_line "RET") }
+            return (nisa_fail "a value-result function needs a return value")
+        }
+        if (== r.value_type ParseNodeType.PNODE_CALL) {
+            let result_call: ASTCall = (parser_get_call parser r.value)
+            if (== nisa_void_return (nisa_call_has_result parser result_call)) {
+                return (nisa_fail "return call result count does not match my function")
+            }
+        } else {
+            if nisa_void_return { return (nisa_fail "a void function cannot return a value") }
+        }
         if (== r.value_type ParseNodeType.PNODE_CALL) {
             let call: ASTCall = (parser_get_call parser r.value)
             if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
@@ -1298,10 +1333,9 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         } else {
                         if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                             let call: ASTCall = (parser_get_call parser stmt.node_id)
-                            if (== call.function_type ParseNodeType.PNODE_IDENTIFIER) {
-                                let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                                if (nisa_is_print_builtin func_id.name) { return (nisa_emit_call parser call) } else { (print "") }
-                            } else { (print "") }
+                            if (not (nisa_call_has_result parser call)) {
+                                return (nisa_emit_call parser call)
+                            }
                             let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
                             return (+ expr (nisa_line "POP"))
                         } else {
@@ -1369,7 +1403,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
-    if (or (== t "int") (or (== t "string") (== t "bool"))) {
+    if (or (== t "void") (or (== t "int") (or (== t "string") (== t "bool")))) {
         return t
     } else {
         if (and (str_starts_with t "List<") (str_ends_with t ">")) {
@@ -1395,6 +1429,7 @@ shadow nisa_result_tag {
     let src: string = (+ "struct Tok { t: int, s: string, flag: bool } struct Box { p: Tok } " (+ "f" "n main() -> int { return 0 } shadow main { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_result_tag p "void") "void")
     assert (== (nisa_result_tag p "Tok") "struct")
     assert (== (nisa_result_tag p "Box") "")
     assert (== (nisa_result_tag p "List<Tok>") "array")
@@ -1405,6 +1440,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
     let result_tag: string = (nisa_result_tag parser func.return_type)
+    set nisa_void_return (== func.return_type "void")
     if (== result_tag "") {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
@@ -1434,7 +1470,11 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         set header (+ header (int_to_string locals))
         set header (+ header " 0 ")
         set header (+ header result_tag)
-        set header (+ header " 1\n")
+        if nisa_void_return {
+            set header (+ header " 0\n")
+        } else {
+            set header (+ header " 1\n")
+        }
         return (+ (+ header body) ".end\n")
     }
 }
