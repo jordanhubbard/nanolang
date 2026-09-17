@@ -5855,13 +5855,15 @@ shadow parser_store_struct {
 /* Helper: Store enum definition node */
 
 /* Helper: Store enum node */
-fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
+fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, column: int, variant_names: array<string>, variant_values: array<int>) -> Parser {
     let node: ASTEnum = ASTEnum {
         node_type: ParseNodeType.PNODE_ENUM,
         line: line,
         column: column,
         name: name,
-        variant_count: variant_count
+        variant_count: variant_count,
+        variant_names: variant_names,
+        variant_values: variant_values
     }
     let node_id: int = p.enums_count
     (list_ASTEnum_push p.enums node)
@@ -5945,7 +5947,13 @@ fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, col
     }
 }
 shadow parser_store_enum {
-    assert (== 1 1)
+    let initial: Parser = (parser_new (list_LexerToken_new) 0 "enum.nano")
+    let stored: Parser = (parser_store_enum initial "Mode" 1 3 4 ["Only"] [-2])
+    let declaration: ASTEnum = (parser_get_enum stored 0)
+    assert (== declaration.line 3)
+    assert (== declaration.column 4)
+    assert (== (at declaration.variant_names 0) "Only")
+    assert (== (at declaration.variant_values 0) -2)
 }
 
 /* Helper: Store union definition node */
@@ -6970,7 +6978,7 @@ shadow parse_struct_definition {
 }
 
 /* Helper: Parse enum variants recursively */
-fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: int, start_column: int) -> Parser {
+fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: int, start_column: int, variant_names: array<string>, variant_values: array<int>, next_value: int) -> Parser {
     if (parser_has_error p) {
         return p
     } else {
@@ -6982,7 +6990,7 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
             if (== tok.token_type (token_rbrace)) {
                 /* End of enum */
                 let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_enum p1 name variant_count start_line start_column)
+                return (parser_store_enum p1 name variant_count start_line start_column variant_names variant_values)
             } else {
                 if (== tok.token_type (token_identifier)) {
                     /* Variant name */
@@ -6990,6 +6998,7 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
                     
                     /* Check for optional discriminant: = value */
                     let mut p_after_value: Parser = p2
+                    let mut value: int = next_value
                     if (and (not (parser_is_at_end p2)) (== (parser_current p2).token_type (token_assign))) {
                         let p3: Parser = (parser_advance p2)  /* consume '=' */
                         
@@ -6999,6 +7008,7 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
                         } else {
                             let tok3: LexerToken = (parser_current p3)
                             if (== tok3.token_type (token_number)) {
+                                set value (string_to_int tok3.value)
                                 set p_after_value (parser_advance p3)  /* consume number */
                             } else {
                                 return (parser_with_error p3 true)
@@ -7008,6 +7018,9 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
                         set p_after_value p2
                     }
                     
+                    let names: array<string> = (array_push variant_names tok.value)
+                    let values: array<int> = (array_push variant_values value)
+
                     /* Check for comma or '}' */
                     if (parser_is_at_end p_after_value) {
                         return (parser_with_error p_after_value true)
@@ -7016,10 +7029,10 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
                         if (== tok_next.token_type (token_comma)) {
                             let p_comma: Parser = (parser_advance p_after_value)  /* consume ',' */
                             /* Continue parsing more variants */
-                            return (parse_enum_variants p_comma (+ variant_count 1) name start_line start_column)
+                            return (parse_enum_variants p_comma (+ variant_count 1) name start_line start_column names values (+ value 1))
                         } else {
                             /* Expect '}' next - continue to parse it */
-                            return (parse_enum_variants p_after_value (+ variant_count 1) name start_line start_column)
+                            return (parse_enum_variants p_after_value (+ variant_count 1) name start_line start_column names values (+ value 1))
                         }
                     }
                 } else {
@@ -7031,7 +7044,17 @@ fn parse_enum_variants(p: Parser, variant_count: int, name: string, start_line: 
 }
 
 shadow parse_enum_variants {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Zero, Gap = 7, Next, Low = -3, Following }" "enum.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
+    assert (not (parser_has_error parsed))
+    let declaration: ASTEnum = (parser_get_enum parsed 0)
+    assert (== declaration.variant_count 5)
+    assert (== (at declaration.variant_names 2) "Next")
+    assert (== (at declaration.variant_values 0) 0)
+    assert (== (at declaration.variant_values 1) 7)
+    assert (== (at declaration.variant_values 2) 8)
+    assert (== (at declaration.variant_values 3) -3)
+    assert (== (at declaration.variant_values 4) -2)
 }
 
 /* Parse enum definition: enum Name { Variant1, Variant2 } */
@@ -7059,7 +7082,7 @@ fn parse_enum_definition(p: Parser) -> Parser {
                         return p3
                     } else {
                         /* Parse variants recursively */
-                        return (parse_enum_variants p3 0 name tok.line tok.column)
+                        return (parse_enum_variants p3 0 name tok.line tok.column [] [] 0)
                     }
                 } else {
                     return (parser_with_error p1 true)
@@ -8090,7 +8113,7 @@ pub fn parser_get_enum_count(p: Parser) -> int {
 shadow parser_get_enum_count {
     let p: Parser = (parser_init_ast_lists)
     assert (== (parser_get_enum_count p) 0)
-    let p2: Parser = (parser_store_enum p "Color" 3 1 1)
+    let p2: Parser = (parser_store_enum p "Color" 3 1 1 ["Red", "Green", "Blue"] [0, 1, 2])
     assert (== (parser_get_enum_count p2) 1)
 }
 
@@ -8101,7 +8124,7 @@ pub fn parser_get_enum(p: Parser, idx: int) -> ASTEnum {
 
 shadow parser_get_enum {
     let p: Parser = (parser_init_ast_lists)
-    let p2: Parser = (parser_store_enum p "Color" 3 1 1)
+    let p2: Parser = (parser_store_enum p "Color" 3 1 1 ["Red", "Green", "Blue"] [0, 1, 2])
     let e: ASTEnum = (parser_get_enum p2 0)
     assert (== e.name "Color")
 }
