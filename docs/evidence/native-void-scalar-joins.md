@@ -18,7 +18,10 @@ refused.
 The initial source checkpoint is `b957c6ca`, based on merged U8 carrier PR #574.
 I restacked it as `e2bd826b` onto main `925b2127`, preserving PR #575
 U8 formatting and PR #576 nested references. Only additive Makefile targets
-conflicted; the native source merged without conflict. My
+conflicted; the native source merged without conflict. I then preserved the
+PR #577 allocation target on main `045fb5a2`; native production source was
+unchanged. Eight join methods passed again in 1.242s and all 91 adjacent
+CAST_STRING allocation/cleanup checks passed. My
 eight focused methods verify and execute the same modules in NanoVM and native
 C, covering both branch orders, aliases, explicit void locals, nested and
 parallel joins, carried loops, signed zero, and preserved publication on
