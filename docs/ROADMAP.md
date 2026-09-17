@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I repair canonical product export-shadow acceptance (`task_dd74b033c3984805bc27ce5017096c3c`). At `b10a1dd3`, fresh bootstrap passes both compiler stages, hello and installed execution without the C seed. The ordinary product gate passes 26 of 27 methods, but existing `test_module_introspection_exports.nano` compilation aborts without a diagnostic. I preserve the binary, hashes and original log in `/tmp/nanolang-product-exports-b10a1dd3`; static correctness review precedes repair. I keep this separate from the earlier startup incident and retain the product publication hold.
+
 - [ ] I verify product bootstrap after PR #551 adds exact record-array global transport (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; product integration remains open). At earlier product pin `599d7558`, Stage 1 and hello passed, but Stage 2 translation explicitly refused an aggregate global store. I preserve that bootstrap log and keep the product draft open until the integrated compiler passes its gates.
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
       their dataflow to verifier entry points (MAC
