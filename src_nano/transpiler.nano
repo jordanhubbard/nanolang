@@ -4427,18 +4427,9 @@ shadow generate_list_for_type {
  * UNION TYPE DEFINITIONS
  * ============================================================================= */
 
-/* Substitute a union field type: if the field type matches a generic param,
- * replace with the concrete type's C representation */
+# I substitute complete type-name tokens before choosing native storage.
 fn substitute_union_field_type(field_type: string, generic_params: array<string>, type_args: array<string>) -> string {
-    let mut i: int = 0
-    let n: int = (array_length generic_params)
-    while (< i n) {
-        if (== field_type (at generic_params i)) {
-            return (type_to_c (at type_args i))
-        } else { (print "") }
-        set i (+ i 1)
-    }
-    return (type_to_c field_type)
+    return (type_to_c (substitute_type_parameters field_type generic_params type_args))
 }
 
 shadow substitute_union_field_type {
@@ -4447,6 +4438,9 @@ shadow substitute_union_field_type {
     assert (== (substitute_union_field_type "T" params args) "int64_t")
     assert (== (substitute_union_field_type "E" params args) "const char*")
     assert (== (substitute_union_field_type "bool" params args) "bool")
+    assert (== (substitute_union_field_type "Box<T>" params args) "nl_Box_int")
+    assert (== (substitute_union_field_type "Pair<T,Box<E>>" params args) "nl_Pair_int_Box_string")
+    assert (== (substitute_union_field_type "Tree" params args) "nl_Tree")
 }
 
 # I visit complete type nodes, so an outer Box is never a Result instance.
@@ -7951,9 +7945,9 @@ fn generate_global_constants(parser: Parser) -> string {
     let mut has_plain: bool = false
     let mut has_guarded: bool = false
     let mut emitted_globals: array<string> = []
-    /* Collect guarded names and init literals for the constructor */
-    let mut guarded_names: array<string> = []
-    let mut guarded_inits: array<string> = []
+    # I preserve initializer order across guarded scalars and union values.
+    let mut startup: array<string> = []
+    let mut global_env: GenEnv = (genenv_new "global")
 
     let mut li: int = 0
     while (< li total_lets) {
@@ -7967,6 +7961,19 @@ fn generate_global_constants(parser: Parser) -> string {
             }
             if (not glob_dup) {
             set emitted_globals (array_push emitted_globals let_node.name)
+            let guarded: bool = (and let_node.is_mut (is_guarded_primitive let_node.var_type))
+            if guarded {
+                set global_env (genenv_put_global global_env let_node.name let_node.var_type let_node.is_mut)
+            } else {
+                set global_env (genenv_put global_env let_node.name let_node.var_type let_node.is_mut)
+            }
+            let mut union_global: bool = false
+            let mut ui: int = 0
+            while (< ui (parser_get_union_count parser)) {
+                let definition: ASTUnion = (parser_get_union parser ui)
+                if (== definition.name (extract_base_type_name let_node.var_type)) { set union_global true }
+                set ui (+ ui 1)
+            }
             if (and let_node.is_mut (is_guarded_primitive let_node.var_type)) {
                 /* Guarded mutable primitive: declare NlGuarded_* struct, init in ctor */
                 if (not has_guarded) {
@@ -7977,8 +7984,8 @@ fn generate_global_constants(parser: Parser) -> string {
                 set sb (cg_append sb " nl_")
                 set sb (cg_append sb (mangle_name let_node.name))
                 set sb (cg_append sb ";\n")
-                set guarded_names (array_push guarded_names let_node.name)
-                set guarded_inits (array_push guarded_inits (global_init_literal parser let_node))
+                let init: string = (+ (+ (+ (+ (+ "    NL_GUARDED_INIT(nl_" (mangle_name let_node.name)) ", \"nano.") let_node.name) "\", ") (global_init_literal parser let_node))
+                set startup (array_push startup (+ init ");\n"))
             } else {
                 /* Plain declaration: immutable global or mutable complex type */
                 if (not has_plain) {
@@ -7989,30 +7996,30 @@ fn generate_global_constants(parser: Parser) -> string {
                 set sb (cg_append sb c_type)
                 set sb (cg_append sb " nl_")
                 set sb (cg_append sb (mangle_name let_node.name))
-                set sb (cg_append sb " = ")
-                set sb (cg_append sb (global_init_literal parser let_node))
-                set sb (cg_append sb ";\n")
+                if union_global {
+                    set sb (cg_append sb ";\n")
+                    let initial: string = (generate_expression parser let_node.value let_node.value_type global_env let_node.var_type)
+                    set startup (array_push startup (+ (+ (+ (+ "    nl_" (mangle_name let_node.name)) " = ") initial) ";\n"))
+                } else {
+                    set sb (cg_append sb " = ")
+                    set sb (cg_append sb (global_init_literal parser let_node))
+                    set sb (cg_append sb ";\n")
+                }
             }
             } else { (print "") }
         } else { (print "") }
         set li (+ li 1)
     }
-    /* Emit constructor to initialize guarded globals at program startup */
-    if has_guarded {
+    # I initialize union values at runtime, after declarations/prototypes.
+    if (> (array_length startup) 0) {
         set sb (cg_append sb "\n__attribute__((constructor)) static void nl_init_guarded_globals(void) {\n")
         let mut ci: int = 0
-        while (< ci (array_length guarded_names)) {
-            set sb (cg_append sb "    NL_GUARDED_INIT(nl_")
-            set sb (cg_append sb (mangle_name (at guarded_names ci)))
-            set sb (cg_append sb ", \"nano.")
-            set sb (cg_append sb (at guarded_names ci))
-            set sb (cg_append sb "\", ")
-            set sb (cg_append sb (at guarded_inits ci))
-            set sb (cg_append sb ");\n")
+        while (< ci (array_length startup)) {
+            set sb (cg_append sb (at startup ci))
             set ci (+ ci 1)
         }
         set sb (cg_append sb "}\n")
-    } else { (print "") }
+    }
     if (or has_plain has_guarded) {
         set sb (cg_append sb "\n")
     } else { (print "") }
@@ -8024,7 +8031,14 @@ shadow generate_global_constants {
     let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_global_constants p)
-    assert (>= (str_length c) 0)
+    assert (== (str_length c) 0)
+    let union_source: string = "union Box<T> { Value { value: T } } let box: Box<int> = Box.Value { value: 7 }"
+    let union_tokens: List<LexerToken> = (tokenize_string union_source "t.nano" (list_CompilerDiagnostic_new))
+    let unions: Parser = (parse_program union_tokens (list_LexerToken_length union_tokens) "t.nano")
+    let globals: string = (generate_global_constants unions)
+    assert (str_contains globals "nl_Box_int nl_box;")
+    assert (str_contains globals "nl_box = ((nl_Box_int)")
+    assert (str_contains globals "nl_Box_int_TAG_Value")
 }
 
 fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
