@@ -4249,3 +4249,8 @@ test-selfhost-generic-contexts: bootstrap
 	python3 -m unittest -v tests.test_selfhost_generic_contexts
 
 test-units: test-selfhost-generic-contexts
+.PHONY: test-map-constructor-contexts
+test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
+	python3 -m unittest tests.test_map_constructor_contexts
+
+test-units: test-map-constructor-contexts

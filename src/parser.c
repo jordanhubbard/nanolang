@@ -3549,6 +3549,7 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
     int count = 0;
     char **field_names = malloc(sizeof(char*) * capacity);
     Type *field_types = malloc(sizeof(Type) * capacity);
+    TypeInfo **field_type_info = calloc((size_t)capacity, sizeof(TypeInfo*));
     char **field_type_names = malloc(sizeof(char*) * capacity);
     Type *field_element_types = calloc(capacity, sizeof(Type));  /* Track element types for arrays */
     
@@ -3557,11 +3558,13 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
             capacity *= 2;
             field_names = realloc(field_names, sizeof(char*) * capacity);
             field_types = realloc(field_types, sizeof(Type) * capacity);
+            field_type_info = realloc(field_type_info, sizeof(TypeInfo*) * capacity);
             field_type_names = realloc(field_type_names, sizeof(char*) * capacity);
             field_element_types = realloc(field_element_types, sizeof(Type) * capacity);
             /* Initialize new slots */
             for (int i = count; i < capacity; i++) {
                 field_element_types[i] = TYPE_UNKNOWN;
+                field_type_info[i] = NULL;
             }
         }
         
@@ -3582,7 +3585,7 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
         /* Parse field type and capture type name for struct/union/enum types */
         char *type_name = NULL;
         Type element_type = TYPE_UNKNOWN;
-        field_types[count] = parse_type_with_element(p, &element_type, &type_name, NULL, NULL);
+        field_types[count] = parse_type_with_element(p, &element_type, &type_name, NULL, &field_type_info[count]);
         field_type_names[count] = type_name;  /* May be NULL for non-struct types */
         field_element_types[count] = element_type;  /* Capture element type for arrays */
         count++;
@@ -3598,10 +3601,12 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
         free(struct_name);
         for (int i = 0; i < count; i++) {
             free(field_names[i]);
+            free_payload_type_info(field_type_info[i]);
             if (field_type_names[i]) free(field_type_names[i]);
         }
         free(field_names);
         free(field_types);
+        free(field_type_info);
         free(field_type_names);
         free(field_element_types);
         return NULL;
@@ -3612,6 +3617,7 @@ static ASTNode *parse_struct_def(Stage1Parser *p) {
     node->as.struct_def.name = struct_name;
     node->as.struct_def.field_names = field_names;
     node->as.struct_def.field_types = field_types;
+    node->as.struct_def.field_type_info = field_type_info;
     node->as.struct_def.field_type_names = field_type_names;
     node->as.struct_def.field_element_types = field_element_types;
     node->as.struct_def.field_count = count;
@@ -5967,12 +5973,14 @@ void free_ast(ASTNode *node) {
             free(node->as.struct_def.original_name);
             for (int i = 0; i < node->as.struct_def.field_count; i++) {
                 free(node->as.struct_def.field_names[i]);
+                if (node->as.struct_def.field_type_info) free_payload_type_info(node->as.struct_def.field_type_info[i]);
                 if (node->as.struct_def.field_type_names && node->as.struct_def.field_type_names[i]) {
                     free(node->as.struct_def.field_type_names[i]);
                 }
             }
             free(node->as.struct_def.field_names);
             free(node->as.struct_def.field_types);
+            free(node->as.struct_def.field_type_info);
             if (node->as.struct_def.field_type_names) {
                 free(node->as.struct_def.field_type_names);
             }
