@@ -1,0 +1,28 @@
+enum Mode { Zero, Gap = 17, Next, Low = -3, Following }
+struct State { mode: Mode, raw: int, history: array<Mode> }
+fn low() -> Mode { return Mode.Low }
+shadow low { assert (== (low) -3) }
+fn forward(value: Mode) -> Mode { return value }
+shadow forward { assert (== (forward Mode.Next) 18) }
+fn state() -> State { return State { mode: (low), raw: Mode.Following, history: [Mode.Zero, Mode.Gap] } }
+shadow state { assert (== (state).mode -3) }
+fn values() -> array<Mode> { return [Mode.Low, Mode.Following, Mode.Next] }
+shadow values { assert (== (array_length (values)) 3) }
+fn entries() -> List<Mode> {
+    let result: List<Mode> = (list_Mode_new)
+    (list_Mode_push result Mode.Gap)
+    return result
+}
+shadow entries { assert (== (list_Mode_length (entries)) 1) }
+fn main() -> int {
+    let mode: Mode = (forward (low))
+    assert (== mode -3)
+    assert (== (+ mode 4) 1)
+    let current: State = (state)
+    assert (== current.raw -2)
+    assert (== (array_length current.history) 2)
+    assert (== (array_length (values)) 3)
+    assert (== (list_Mode_get (entries) 0) 17)
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -8203,10 +8203,19 @@ Compiler product:
 - [ ] I prevent ordinary user record names from colliding with internal native
       compiler-schema typedefs (`task_1d90fd4257bb43c599a79ab11cfa7aec`). The
       fixture's `NSType` currently produces conflicting C declarations.
-- [ ] I lower declared enum values/types from preserved self-host AST metadata
+- [ ] I lower typed list element replacement through my existing array ABI
+      (`task_0b7d7221b3fd44d5a8055a84e72397a1`), preserving operand order,
+      shared identity and owned payloads. The actual compiler first refuses
+      `list_CompilerDiagnostic_set` after enum lowering.
+- [ ] I align enum-array access type metadata and equality bytecode
+      (`task_d2b541318e964ea4946542bffe3990ae`): my C seed infers a struct
+      for `at(array<Enum>)`, rejecting typed enum locals and emitting generic
+      equality instead of the integer equality used by my emitter.
+- [x] I lower declared enum values/types from preserved self-host AST metadata
       (`task_3ef1df55630e4199b825ff5d8a0043f1`), including signed values and
-      exact scalar transport. The actual compiler first stops at
-      `TOKEN_DOUBLE_COLON` after unsafe-block lowering.
+      exact scalar transport. Fourteen bytecode comparisons and VM/AOT
+      execution pass; enum-array access metadata remains separately tracked.
+      See `docs/evidence/selfhost-enum-values.md`.
 - [x] I propagate unsafe-block termination through C-seed bytecode control flow
       (`task_ed2788c9071249d2a8c8ce3fbec37a74`); recursive analysis now
       preserves exact nested-return bytecode comparisons.

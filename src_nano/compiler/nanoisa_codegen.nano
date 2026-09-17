@@ -415,7 +415,7 @@ fn nisa_list_element_tag(parser: Parser, name: string) -> string {
                                 while (< i enum_count) {
                                     let e: ASTEnum = (parser_get_enum parser i)
                                     if (== e.name type_name) {
-                                        return "9"
+                                        return "1"
                                     } else {
                                         set i (+ i 1)
                                     }
@@ -442,7 +442,7 @@ shadow nisa_list_element_tag {
     assert (== (nisa_list_element_tag p "list_bool_new") "4")
     assert (== (nisa_list_element_tag p "list_string_new") "5")
     assert (== (nisa_list_element_tag p "list_Tok_new") "8")
-    assert (== (nisa_list_element_tag p "list_Shade_new") "9")
+    assert (== (nisa_list_element_tag p "list_Shade_new") "1")
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
@@ -532,18 +532,71 @@ shadow nisa_is_int_record {
     assert (not (nisa_is_int_record p "Nope"))
 }
 
+fn nisa_enum_index(parser: Parser, name: string) -> int {
+    let mut found: int = -1
+    let mut i: int = 0
+    while (< i (parser_get_enum_count parser)) {
+        let declaration: ASTEnum = (parser_get_enum parser i)
+        if (== declaration.name name) {
+            if (>= found 0) { return -1 }
+            set found i
+        }
+        set i (+ i 1)
+    }
+    return found
+}
+shadow nisa_enum_index {
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low = -3, Next }" "enum.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
+    assert (== (nisa_enum_index parser "Mode") 0)
+    assert (== (nisa_enum_index parser "Missing") -1)
+}
+
+fn nisa_enum_receiver(parser: Parser, access: ASTFieldAccess) -> int {
+    if (!= access.object_type ParseNodeType.PNODE_IDENTIFIER) { return -1 }
+    let name: ASTIdentifier = (parser_get_identifier parser access.object)
+    if (>= (nisa_local_find name.name) 0) { return -1 }
+    if (>= (nisa_global_find name.name name.line) 0) { return -1 }
+    return (nisa_enum_index parser name.name)
+}
+shadow nisa_enum_receiver {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low = -3 } fn main() -> int { return Mode.Low }" "enum.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
+    let access: ASTFieldAccess = (parser_get_field_access parser 0)
+    assert (== (nisa_enum_receiver parser access) 0)
+    set nisa_names ["Mode"]
+    assert (== (nisa_enum_receiver parser access) -1)
+    let reset: int = (nisa_reset)
+}
+
+fn nisa_value_type_matches(parser: Parser, actual: string, expected: string) -> bool {
+    if (== actual expected) { return true }
+    if (== expected "int") { return (>= (nisa_enum_index parser actual) 0) }
+    if (== actual "int") { return (>= (nisa_enum_index parser expected) 0) }
+    return false
+}
+shadow nisa_value_type_matches {
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low = -3 }" "enum.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
+    assert (nisa_value_type_matches parser "Mode" "int")
+    assert (nisa_value_type_matches parser "int" "Mode")
+    assert (not (nisa_value_type_matches parser "Mode" "bool"))
+}
+
 fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<string>) -> bool {
+    if (>= (nisa_enum_index parser field) 0) { return true }
     if (== field "HashMap<string,int>") { return true }
     if (or (== field "int") (or (== field "string") (== field "bool"))) { return true }
     if (or (== field "array<int>") (== field "array<string>")) { return true }
     if (or (== field "List<int>") (== field "List<string>")) { return true }
     if (and (str_starts_with field "array<") (str_ends_with field ">")) {
         let element: string = (str_substring field 6 (- (str_length field) 7))
-        return (nisa_record_shape_supported parser element ancestors)
+        return (or (>= (nisa_enum_index parser element) 0) (nisa_record_shape_supported parser element ancestors))
     }
     if (and (str_starts_with field "List<") (str_ends_with field ">")) {
         let element: string = (str_substring field 5 (- (str_length field) 6))
-        return (nisa_record_shape_supported parser element ancestors)
+        return (or (>= (nisa_enum_index parser element) 0) (nisa_record_shape_supported parser element ancestors))
     }
     return (nisa_record_shape_supported parser field ancestors)
 }
@@ -605,17 +658,18 @@ shadow nisa_is_pin_record {
 }
 
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
+    if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))
         if (or (== element "int") (== element "string")) { return true }
-        return (nisa_is_pin_record parser element)
+        return (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))
     }
     if (nisa_local_type_ok t) {
         return true
     } else {
         if (and (str_starts_with t "List<") (str_ends_with t ">")) {
             let inner: string = (str_substring t 5 (- (str_length t) 6))
-            return (nisa_is_pin_record parser inner)
+            return (or (>= (nisa_enum_index parser inner) 0) (nisa_is_pin_record parser inner))
         } else {
             return (nisa_is_pin_record parser t)
         }
@@ -1122,13 +1176,13 @@ shadow nisa_call_name {
 fn nisa_element_type(parser: Parser, container: string) -> string {
     if (and (str_starts_with container "array<") (str_ends_with container ">")) {
         let element: string = (str_substring container 6 (- (str_length container) 7))
-        if (nisa_is_pin_record parser element) { return element }
+        if (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element)) { return element }
     }
     if (or (== container "array<int>") (or (== container "List<int>") (== container "list_int"))) { return "int" }
     if (or (== container "array<string>") (or (== container "List<string>") (== container "list_string"))) { return "string" }
     if (and (str_starts_with container "List<") (str_ends_with container ">")) {
         let element: string = (str_substring container 5 (- (str_length container) 6))
-        if (nisa_is_pin_record parser element) { return element }
+        if (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element)) { return element }
     }
     return ""
 }
@@ -1186,7 +1240,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             if (!= actual element) { return "" }
             set i (+ i 1)
         }
-        if (or (== element "int") (or (== element "string") (nisa_is_pin_record parser element))) { return (+ "array<" (+ element ">")) }
+        if (or (== element "int") (or (== element "string") (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element)))) { return (+ "array<" (+ element ">")) }
         return ""
     }
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" }
@@ -1205,6 +1259,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let access: ASTFieldAccess = (parser_get_field_access parser node_id)
+        let enum_index: int = (nisa_enum_receiver parser access)
+        if (>= enum_index 0) { return (parser_get_enum parser enum_index).name }
         let object_type: string = (nisa_expr_type parser access.object access.object_type)
         let record_index: int = (nisa_struct_index parser object_type)
         if (< record_index 0) { return "" }
@@ -1265,7 +1321,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let right: string = (nisa_expr_type parser binary.right binary.right_type)
         if (and (== binary.op LexerTokenType.TOKEN_PLUS)
                 (and (== left "string") (== right "string"))) { return "string" }
-        if (and (== left "int") (== right "int")) { return "int" }
+        if (and (nisa_value_type_matches parser left "int") (nisa_value_type_matches parser right "int")) { return "int" }
     }
     return ""
 }
@@ -1317,7 +1373,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let mut i: int = 0
         while (< i literal.element_count) {
             let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
-            if (!= (nisa_expr_type parser value.node_id value.node_type) element) {
+            if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
                 return (nisa_fail "array element does not match my declared type")
             }
             set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
@@ -1413,7 +1469,7 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                     let expected: string = (at sd.field_types i)
                     let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
                         (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
-                    if (and (not contextual_array) (!= (nisa_expr_type parser vid vty) expected)) {
+                    if (and (not contextual_array) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
                         return (nisa_fail (+ "I require the declared type for record field " fname))
                     }
                     set out (+ out (nisa_emit_expected_expr parser vid vty expected))
@@ -1464,6 +1520,22 @@ shadow nisa_emit_struct_literal {
 
 fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
     let access: ASTFieldAccess = (parser_get_field_access parser node_id)
+    let enum_index: int = (nisa_enum_receiver parser access)
+    if (>= enum_index 0) {
+        let declaration: ASTEnum = (parser_get_enum parser enum_index)
+        if (or (!= declaration.variant_count (array_length declaration.variant_names))
+               (!= declaration.variant_count (array_length declaration.variant_values))) {
+            return (nisa_fail "I require complete enum member metadata")
+        }
+        let mut member: int = 0
+        while (< member declaration.variant_count) {
+            if (== (at declaration.variant_names member) access.field_name) {
+                return (nisa_line_imm "PUSH_I64" (int_to_string (at declaration.variant_values member)))
+            }
+            set member (+ member 1)
+        }
+        return (nisa_fail (+ "unknown enum member " access.field_name))
+    }
     let ty: string = (nisa_expr_type parser access.object access.object_type)
     let index: int = (nisa_struct_index parser ty)
     if (< index 0) { return (nisa_fail "I require a typed record for field access") }
@@ -2180,6 +2252,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (>= (nisa_enum_index parser t) 0) { return "int" }
     if (and (str_starts_with t "array<") (nisa_type_ok parser t)) { return "array" }
     if (== t "HashMap<string,int>") { return "hashmap" }
     if (or (== t "void") (or (== t "int") (or (== t "string") (== t "bool")))) {
@@ -2187,7 +2260,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
     } else {
         if (and (str_starts_with t "List<") (str_ends_with t ">")) {
             let inner: string = (str_substring t 5 (- (str_length t) 6))
-            if (nisa_is_pin_record parser inner) {
+            if (or (>= (nisa_enum_index parser inner) 0) (nisa_is_pin_record parser inner)) {
                 return "array"
             } else {
                 return ""
