@@ -1,0 +1,15 @@
+fn character(value: int) -> string { return (string_from_char value) }
+shadow character { assert (== (character 65) "A") }
+fn joined() -> string { return (+ (character 65) (character 66)) }
+shadow joined { assert (== (joined) "AB") }
+fn main() -> int {
+    assert (== (character 65) "A")
+    assert (== (joined) "AB")
+    assert (== (character 0) "")
+    assert (== (character 256) "")
+    assert (== (character 321) "A")
+    assert (== (character -191) "A")
+    assert (== (str_length (character 233)) 1)
+    return 0
+}
+shadow main { assert (== (main) 0) }

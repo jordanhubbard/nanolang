@@ -947,7 +947,7 @@ shadow nisa_emit_map_call {
 
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
-    let strings: array<string> = ["get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
+    let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
     let integers: array<string> = ["get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv"]
     let booleans: array<string> = ["file_exists", "vm_file_exists", "vm_dir_exists"]
     let mut i: int = 0
@@ -969,6 +969,7 @@ fn nisa_host_result(name: string) -> string {
 }
 shadow nisa_host_result {
     assert (== (nisa_host_result "vm_getenv") "string")
+    assert (== (nisa_host_result "vm_string_from_char") "string")
     assert (== (nisa_host_result "get_argc") "int")
     assert (== (nisa_host_result "file_exists") "bool")
     assert (== (nisa_host_result "arbitrary_foreign_function") "")
@@ -990,17 +991,18 @@ shadow nisa_host_arity {
 
 fn nisa_host_parameter(name: string) -> string {
     if (<= (nisa_host_arity name) 0) { return "" }
-    if (== name "get_argv") { return "int" }
+    if (or (== name "get_argv") (== name "vm_string_from_char")) { return "int" }
     return "string"
 }
 shadow nisa_host_parameter {
     assert (== (nisa_host_parameter "get_argv") "int")
+    assert (== (nisa_host_parameter "vm_string_from_char") "int")
     assert (== (nisa_host_parameter "vm_getenv") "string")
     assert (== (nisa_host_parameter "get_argc") "")
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
-    let names: array<string> = ["getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv"]
+    let names: array<string> = ["string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return (+ "vm_" name) }
@@ -1010,6 +1012,7 @@ fn nisa_builtin_host_symbol(name: string) -> string {
 }
 shadow nisa_builtin_host_symbol {
     assert (== (nisa_builtin_host_symbol "getenv") "vm_getenv")
+    assert (== (nisa_builtin_host_symbol "string_from_char") "vm_string_from_char")
     assert (== (nisa_builtin_host_symbol "file_exists") "vm_file_exists")
     assert (== (nisa_builtin_host_symbol "get_argc") "")
 }
