@@ -51,7 +51,8 @@ class ShadowEmitter(unittest.TestCase):
 fn initial() -> int { (println "init") return 4 }
 fn main() -> int { return count }
 fn unused() -> float { return 1.5 }
-shadow main { let local: int = 7 assert (== (main) 4) set count local }
+let values: array<int> = (array_new 3 7)
+shadow main { let local: int = 7 assert (== (main) 4) assert (== (at values 2) 7) set count local }
 shadow main { let local: int = 2 assert (== (main) 7) set count (+ count local) }
 shadow main { assert (== count 9) (println "done") }
 '''
