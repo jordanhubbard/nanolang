@@ -407,3 +407,15 @@ bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
     callee->origin_layout=caller->facts->locals[place.local].layout;
     return true;
 }
+
+bool nvm_affine_parameter_type(const NvmAffineState *s,NvmAffineType *type,
+                                 NvmReferenceMode *mode) {
+    if (!s || !type || !mode || s->facts->params!=1 || !s->ref_count ||
+        !s->refs[0].live || !s->facts->locals[0].mode) return false;
+    Slot param=s->facts->locals[0];
+    NvmReferencePlace place={1,0,param.layout,NULL,0,param.layout,(NvmReferenceMode)param.mode};
+    if (!resource(s->facts,param) ||
+        !nvm_reference_place_valid(&s->facts->layouts,param.layout,&place)) return false;
+    *type=(NvmAffineType){param.tag,param.layout};*mode=(NvmReferenceMode)param.mode;
+    return true;
+}

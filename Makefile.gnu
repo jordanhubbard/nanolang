@@ -4520,3 +4520,15 @@ test-units: test-caller-reference-analysis
 test-caller-reference-analysis: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_reference_analysis tests/nanoisa/test_caller_reference_analysis.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_caller_reference_analysis
+
+.PHONY: test-caller-references
+test-units: test-caller-references
+test-caller-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_references tests/nanoisa/test_caller_references.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_caller_reference_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_references_alloc tests/nanoisa/test_caller_references_alloc.c obj/test_caller_reference_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_caller_references_alloc
+	$(CC) $(CFLAGS) -Dcalloc=caller_state_calloc -Dmalloc=caller_state_malloc -c src/nanoisa/affine_state.c -o obj/test_caller_state_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_reference_state_alloc tests/nanoisa/test_caller_reference_state_alloc.c $(NANOVM_OBJECTS) obj/test_caller_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_caller_reference_state_alloc
+	python3 -m unittest tests.test_caller_references

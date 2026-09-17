@@ -117,18 +117,22 @@ typedef struct {
 } VmEffectHandler;
 
 /* I keep reference descriptors outside value storage and address owners by
- * frame-relative index. The admitted contract has one standalone activation. */
+ * frame-relative index. I reserve exactly two contexts for a checked helper call. */
 typedef struct {
     uint16_t root;
     uint32_t region;
     bool exclusive;
     uint32_t path; /* NVM_V2_NO_INDEX denotes the root itself. */
     uint16_t parent; /* UINT16_MAX denotes an original owner borrow. */
+    bool live;
+    uint16_t origin_frame;
+    uint64_t origin_generation;
 } VmReferenceSlot;
 typedef struct {
     VmReferenceSlot slots[256];
     uint32_t region;
     bool active;
+    uint64_t generation;
 } VmReferenceActivation;
 
 typedef struct VmState {
@@ -159,7 +163,8 @@ typedef struct VmState {
     /* Call stack */
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
-    VmReferenceActivation references;
+    VmReferenceActivation references, callee_references;
+    uint64_t reference_generation;
     VmEffectHandler handlers[VM_MAX_FRAMES];
     uint32_t handler_count;
     uint32_t activation_floor; /* RET stops before resuming a suspended caller. */

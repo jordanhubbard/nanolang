@@ -60,4 +60,6 @@ bool nvm_affine_can_exit_type(const NvmAffineState *state, NvmAffineType type);
  * can use them. This API alone does not admit runtime calls. */
 bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
                              uint32_t reference);
+bool nvm_affine_parameter_type(const NvmAffineState *state,NvmAffineType *type,
+                                 NvmReferenceMode *mode);
 #endif

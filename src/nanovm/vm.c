@@ -1,3 +1,4 @@
+#include "../nanoisa/affine_state.h"
 /*
  * NanoVM - Bytecode execution engine
  *
@@ -1138,6 +1139,7 @@ static inline VmTrap trap_halt(void) {
 
 static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...) {
     memset(&vm->references, 0, sizeof(vm->references));
+    memset(&vm->callee_references, 0, sizeof(vm->callee_references));
     vm->last_error = err;
     va_list ap;
     va_start(ap, fmt);
@@ -1201,13 +1203,18 @@ VmTrap vm_core_execute(VmState *vm) {
     const bool owned_execution = vm->module->ownership_size &&
         nvm_verify_owned_module(vm->module).ok;
     if (owned_execution) {
-        if (vm->frame_count!=1 || vm->current_fn!=0)
+        if ((vm->frame_count!=1 || vm->current_fn!=0) &&
+            !(vm->frame_count==2 && vm->current_fn==1 && vm->references.active &&
+              vm->callee_references.active))
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one standalone reference activation");
         if (!vm->references.active) {
             if (vm->ip!=vm->module->functions[0].code_offset)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need reference activation entry before resuming");
             memset(&vm->references,0,sizeof(vm->references));
             vm->references.active=true;
+            if (vm->reference_generation==UINT64_MAX)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I exhausted reference activation identities");
+            vm->references.generation=++vm->reference_generation;
         }
     }
     /* Derive code_end from current function */
@@ -1439,6 +1446,8 @@ vm_dispatch_top:
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
         }
+        VmReferenceActivation *reference_context=vm->frame_count==2
+            ? &vm->callee_references : &vm->references;
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
             vm, vm->module, &dispatch_valid);
@@ -1633,21 +1642,53 @@ vm_dispatch_top:
             VM_NEXT();
         }
 
-        VM_CASE(OP_CALL_REF)
-            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require connected caller-reference execution semantics");
+        VM_CASE(OP_CALL_REF) {
+            uint32_t target=instr.operands[0].u32;
+            uint16_t reference=instr.operands[1].u16;
+            if (!owned_execution || vm->frame_count!=1 || vm->current_fn!=0 || target!=1 ||
+                vm->module->function_count!=2 || reference>=frame->local_count ||
+                !reference_context->slots[reference].live || vm->callee_references.active ||
+                vm->reference_generation==UINT64_MAX)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked entry-to-helper reference call");
+            const NvmFunctionEntry *callee=&vm->module->functions[1];
+            NvmAffineState *contract=nvm_affine_state_create(vm->module,1,callee->local_count);
+            if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate the borrowed parameter facts");
+            NvmAffineType type;NvmReferenceMode mode;
+            bool valid=nvm_affine_parameter_type(contract,&type,&mode);
+            nvm_affine_state_free(contract);
+            if (!valid) return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the checked borrowed parameter contract");
+            uint32_t base=vm->stack_size;
+            VmResult reserved=stack_reserve_frame(vm,base,callee);
+            if (reserved!=VM_OK) return trap_error(vm,reserved,"I could not reserve the borrowed helper frame");
+            VmReferenceSlot argument=reference_context->slots[reference];
+            memset(&vm->callee_references,0,sizeof(vm->callee_references));
+            vm->callee_references.active=true;
+            vm->callee_references.generation=++vm->reference_generation;
+            argument.region=0;argument.parent=UINT16_MAX;
+            argument.exclusive=mode==NVM_REFERENCE_EXCLUSIVE;
+            vm->callee_references.slots[0]=argument;
+            for(uint16_t i=0;i<callee->local_count;i++) stack_push(vm,val_void());
+            VmCallFrame *next=&vm->frames[vm->frame_count++];
+            memset(next,0,sizeof(*next));next->fn_idx=1;next->return_ip=vm->ip;
+            next->stack_base=base;next->local_count=callee->local_count;
+            next->owned_callable=val_void();next->module=vm->module;
+            frame=next;vm->current_fn=1;vm->ip=callee->code_offset;cur_fn=callee;
+            code_end=callee->code_offset+callee->code_length;
+            VM_NEXT();
+        }
 
         VM_CASE(OP_REGION_BEGIN)
-            if (!owned_execution || vm->references.region==UINT32_MAX)
+            if (!owned_execution || reference_context->region==UINT32_MAX)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I cannot begin this reference region");
-            ++vm->references.region;
+            ++reference_context->region;
             VM_NEXT();
         VM_CASE(OP_REGION_END)
-            if (!owned_execution || !vm->references.region)
+            if (!owned_execution || !reference_context->region)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference region to end");
             for (unsigned i=0;i<256;i++)
-                if (vm->references.slots[i].region==vm->references.region)
-                    vm->references.slots[i]=(VmReferenceSlot){0};
-            --vm->references.region;
+                if (reference_context->slots[i].region==reference_context->region)
+                    reference_context->slots[i]=(VmReferenceSlot){0};
+            --reference_context->region;
             VM_NEXT();
         VM_CASE(OP_BORROW_PATH_SHARED)
         VM_CASE(OP_BORROW_PATH_EXCLUSIVE)
@@ -1655,12 +1696,13 @@ vm_dispatch_top:
         VM_CASE(OP_BORROW_LOCAL_EXCLUSIVE) {
             uint16_t ref=instr.operands[0].u16,root=instr.operands[1].u16;
             if (!owned_execution || ref>=frame->local_count || root>=frame->local_count ||
-                !vm->references.region || vm->references.slots[ref].region)
+                !reference_context->region || reference_context->slots[ref].live)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need an available reference slot and owner");
-            vm->references.slots[ref]=(VmReferenceSlot){root,vm->references.region,
+            reference_context->slots[ref]=(VmReferenceSlot){root,reference_context->region,
                 instr.opcode==OP_BORROW_LOCAL_EXCLUSIVE || instr.opcode==OP_BORROW_PATH_EXCLUSIVE,
                 (instr.opcode==OP_BORROW_PATH_SHARED || instr.opcode==OP_BORROW_PATH_EXCLUSIVE)?
-                    instr.operands[2].u32:NVM_V2_NO_INDEX,UINT16_MAX};
+                    instr.operands[2].u32:NVM_V2_NO_INDEX,UINT16_MAX,true,
+                (uint16_t)(vm->frame_count-1),reference_context->generation};
             VM_NEXT();
         }
         VM_CASE(OP_REBORROW_SHARED)
@@ -1668,23 +1710,28 @@ vm_dispatch_top:
             uint16_t ref=instr.operands[0].u16,parent=instr.operands[1].u16;
             bool exclusive=instr.opcode==OP_REBORROW_EXCLUSIVE;
             if (!owned_execution || ref>=frame->local_count || parent>=frame->local_count ||
-                vm->references.slots[ref].region || !vm->references.slots[parent].region ||
-                vm->references.slots[parent].region>=vm->references.region ||
-                (exclusive && !vm->references.slots[parent].exclusive))
+                reference_context->slots[ref].live || !reference_context->slots[parent].live ||
+                reference_context->slots[parent].region>=reference_context->region ||
+                (exclusive && !reference_context->slots[parent].exclusive))
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need parent authority in an enclosing region");
-            vm->references.slots[ref]=vm->references.slots[parent];
-            vm->references.slots[ref].parent=parent;
-            vm->references.slots[ref].region=vm->references.region;
-            vm->references.slots[ref].exclusive=exclusive;
+            reference_context->slots[ref]=reference_context->slots[parent];
+            reference_context->slots[ref].parent=parent;
+            reference_context->slots[ref].region=reference_context->region;
+            reference_context->slots[ref].exclusive=exclusive;
             VM_NEXT();
         }
         VM_CASE(OP_REF_GET)
         VM_CASE(OP_REF_SET) {
             uint16_t ref=instr.operands[0].u16,field=instr.operands[1].u16;
-            if (!owned_execution || ref>=frame->local_count || !vm->references.slots[ref].region)
+            if (!owned_execution || ref>=frame->local_count || !reference_context->slots[ref].live)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference slot");
-            VmReferenceSlot slot=vm->references.slots[ref];
-            NanoValue owner=vm->stack[frame->stack_base+slot.root];
+            VmReferenceSlot slot=reference_context->slots[ref];
+            VmReferenceActivation *origin=slot.origin_frame==0?&vm->references:&vm->callee_references;
+            if (slot.origin_frame>=vm->frame_count || !origin->active ||
+                origin->generation!=slot.origin_generation ||
+                slot.root>=vm->frames[slot.origin_frame].local_count)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need the live originating reference frame");
+            NanoValue owner=vm->stack[vm->frames[slot.origin_frame].stack_base+slot.root];
             if (slot.path!=NVM_V2_NO_INDEX) {
                 uint16_t fields[NVM_OWNERSHIP_MAX_PATH_DEPTH],count;
                 if (nvm_ownership_path(vm->module,slot.path,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK)
@@ -2789,7 +2836,10 @@ vm_return_values: ;
                                       isa_tag_name(returning->result_tag));
                 }
             }
-            if (owned_execution) memset(&vm->references,0,sizeof(vm->references));
+            if (owned_execution) {
+                VmReferenceActivation *finished=vm->frame_count==2?&vm->callee_references:&vm->references;
+                memset(finished,0,sizeof(*finished));
+            }
             vm->stack_size -= returning->result_count;
 
             /* Clean up locals */
@@ -3985,6 +4035,8 @@ vm_return_values: ;
             VM_NEXT();
 
         VM_CASE(OP_HALT)
+            memset(&vm->references,0,sizeof(vm->references));
+            memset(&vm->callee_references,0,sizeof(vm->callee_references));
             if (vm->profile.enabled) vm->profile.traps++;
             return trap_halt();
 
@@ -4360,6 +4412,8 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
 }
 
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    if (nvm_uses_owned_transfers(vm->module) && fn_idx!=0)
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse host entry into a borrowed helper");
     if (!vm_ownership_supported(vm))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
@@ -4368,7 +4422,10 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
     vm->activation_floor = floor;
-    if (result!=VM_OK) memset(&vm->references,0,sizeof(vm->references));
+    if (result!=VM_OK) {
+        memset(&vm->references,0,sizeof(vm->references));
+        memset(&vm->callee_references,0,sizeof(vm->callee_references));
+    }
     return result;
 }
 
@@ -4385,6 +4442,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
     if (vm_stack_address(vm, out_result))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
+    if (nvm_uses_owned_transfers(target) && function_index!=0)
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse callable entry into a borrowed helper");
     const NvmFunctionEntry *fn = &target->functions[function_index];
     if (fn->arity != arg_count || fn->local_count < arg_count ||
         fn->result_count > 1 || (arg_count && !args) ||
@@ -4420,6 +4479,10 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     vm->activation_floor = frames;
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
     status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable);
+    if (status!=VM_OK && target->ownership_size) {
+        memset(&vm->references,0,sizeof(vm->references));
+        memset(&vm->callee_references,0,sizeof(vm->callee_references));
+    }
     if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
     if (status == VM_OK) {
@@ -4451,6 +4514,8 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
+    if (nvm_uses_owned_transfers(vm->module) && fn_idx!=0)
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse invocation entry into a borrowed helper");
     if (!vm_ownership_supported(vm))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm_stack_address(vm, out_result))
