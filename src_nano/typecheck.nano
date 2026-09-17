@@ -163,7 +163,10 @@ fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
                 let mut field: int = 0
                 let mut owns: bool = false
                 while (< field (array_length def.variant_field_types)) {
-                    if (resource_name_in bearing (resource_type_identity parser (at def.variant_field_types field) def.line)) { set owns true }
+                    let spelling: string = (at def.variant_field_types field)
+                    if (not (resource_name_in def.generic_params spelling)) {
+                        if (resource_name_in bearing (resource_type_identity parser spelling def.line)) { set owns true }
+                    }
                     set field (+ field 1)
                 }
                 if owns { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) set changed true }
@@ -182,6 +185,9 @@ shadow resource_type_is_declared {
     assert (resource_type_is_declared parser "Envelope")
     assert (not (resource_type_is_declared parser "Cycle"))
     assert (not (resource_type_is_declared parser "int"))
+    let shadowed: Parser = (resource_test_parser "resource struct T { fd: int } union Box<T> { Some { value: T }, None {} }")
+    assert (resource_type_is_declared shadowed "T")
+    assert (not (resource_type_is_declared shadowed "Box"))
 }
 
 fn resource_find(states: array<ResourceState>, name: string) -> int {

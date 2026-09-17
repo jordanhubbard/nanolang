@@ -67,7 +67,7 @@ frontends. They do not establish explicit generic constructor syntax, generic
 record declarations, recursive nominal signature compatibility, complete C
 payload TypeInfo preservation, or ownership metadata in bytecode.
 
-## My final measured checkpoint
+## My initial measured checkpoint
 
 A frozen-source bootstrap passed. The combined conformance invocation ran 63
 methods: the 51 generic, module-identity, boundary, parity, import and canonical
@@ -89,3 +89,32 @@ Local logs on sparky are `/tmp/nanolang-generic-affine-final-bootstrap.log`,
 `/tmp/nanolang-generic-affine-final-conformance.log`,
 `/tmp/nanolang-generic-affine-owned-patterns.log` and
 `/tmp/nanolang-generic-affine-final-backends.log`.
+
+
+## My formal-parameter scope regression
+
+A resource record named `T` must not replace the formal parameter in
+`union Box<T>`. Before this repair, all three stages reject ordinary `Box<int>`
+as resource-bearing. When imported modules both declare `T`, my self-hosted
+nominal binder also replaces the formal with a module-owned record identity.
+I preserve the baseline in
+`/tmp/nanolang-generic-formal-selfhost-baseline.log`.
+
+I shield union formal parameters during nominal binding and unspecialized
+resource classification. Concrete instantiation arguments still resolve in
+the caller's scope: `Box<T>` remains resource-bearing when that caller's `T`
+is a resource record. My self-hosted scoped binder handles nested type spellings;
+my C union payload parser still lacks complete nested TypeInfo metadata.
+
+Executing the positive C fixtures exposed three prerequisites. I give declared
+one-letter records internal nominal names before the native emitter's legacy
+free-variable heuristic. I initialize metadata slots for empty union arms so
+module teardown does not release uninitialized pointers. I render an imported
+generic union parameter from its concrete TypeInfo when emitting its native
+prototype. The original teardown backtrace is retained at
+`/tmp/nanolang-generic-formal-module/gdb.log`.
+
+The expanded fixtures pair ordinary native copy/match execution with rejected
+resource instantiations, both within a module and across same-named module
+records. Rejection must retain the prior artifact. I have not admitted resource
+union payload transfer, generic records, or unimplemented collection ownership.

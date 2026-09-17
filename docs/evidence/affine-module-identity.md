@@ -25,7 +25,7 @@ after unresolved-owner or use-after-move rejection.
 
 ## My acceptance boundary
 
-`tests/test_affine_module_identity.py` contains nine methods and 49
+`tests/test_affine_module_identity.py` contains nine methods and 51
 compiler/order cases across my C seed, Stage 1 and Stage 2. Positive cases
 compile and execute native programs and dependency/root shadows. They cover
 plain copies, owned moves, nested records, both import orders, long module
@@ -99,3 +99,7 @@ The revised fresh bootstrap, all nine native methods (49 compiler/order cases
 in 66.305 seconds), parser/typechecker units, five wrapper-generation and seven
 publication methods pass. Final logs use `/tmp/nanolang-nominal-metadata-`
 with suffixes `bootstrap.log`, `all.log`, `units.log` and `asan.log`.
+
+The concrete-generic continuation also validates the nested-array annotation
+on both self-hosted stages. The current nine-method corpus therefore has 51
+compiler/order cases; the earlier 49-case checkpoint remains historical.

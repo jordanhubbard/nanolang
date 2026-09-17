@@ -76,8 +76,13 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
         case AST_UNION_DEF:
             for (int i = 0; i < node->as.union_def.variant_count; ++i)
                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; ++j)
-                    if (node->as.union_def.variant_field_type_names && node->as.union_def.variant_field_type_names[i])
-                        SLOT(node->as.union_def.variant_field_type_names[i][j]);
+                    if (node->as.union_def.variant_field_type_names && node->as.union_def.variant_field_type_names[i]) {
+                        const char *name = node->as.union_def.variant_field_type_names[i][j];
+                        bool formal = false;
+                        for (int param = 0; name && param < node->as.union_def.generic_param_count; ++param)
+                            if (!strcmp(name, node->as.union_def.generic_params[param])) formal = true;
+                        if (!formal) SLOT(node->as.union_def.variant_field_type_names[i][j]);
+                    }
             break;
         case AST_STRUCT_LITERAL:
             SLOT(node->as.struct_literal.struct_name);
@@ -156,14 +161,17 @@ bool bind_nominal_records(ASTNode *program, Environment *env) {
         for (int i = 0; i < program->as.program.count; ++i) {
             ASTNode *item = program->as.program.items[i];
             if (item->type != AST_STRUCT_DEF || item->as.struct_def.original_name) continue;
-            /* I retain existing non-colliding ABI spellings. A later module's
-             * colliding declaration gets an owned internal identity. */
-            StructDef *existing = env_get_struct(env, item->as.struct_def.name);
-            if (!existing) continue;
-            bool same_owner = (!owner && !existing->module_name) ||
-                (owner && existing->module_name && strcmp(owner, existing->module_name) == 0);
+            /* I give declared one-letter records an identity distinct from
+             * free generic variables before the native emitter sees them. */
+            const char *source_name = item->as.struct_def.name;
+            bool resembles_formal = source_name[0] >= 'A' && source_name[0] <= 'Z' &&
+                source_name[1] == '\0' && !item->as.struct_def.is_extern;
+            StructDef *existing = env_get_struct(env, source_name);
+            if (!existing && !resembles_formal) continue;
+            bool same_owner = existing && ((!owner && !existing->module_name) ||
+                (owner && existing->module_name && strcmp(owner, existing->module_name) == 0));
             if (same_owner) continue;
-            if (item->as.struct_def.is_extern || existing->is_extern) {
+            if (item->as.struct_def.is_extern || (existing && existing->is_extern)) {
                 fprintf(stderr, "I cannot bind colliding foreign record declarations without an ABI identity: %s\n", item->as.struct_def.name);
                 return false;
             }

@@ -11,12 +11,14 @@ COMPILERS = os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,na
 
 
 class GenericAffineIdentity(unittest.TestCase):
-    def check(self, source, accepted):
+    def check(self, source, accepted, modules=None):
         for compiler in COMPILERS:
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-generic-affine-") as directory:
                 work = Path(directory)
                 program = work / "main.nano"
                 output = work / "program"
+                for name, contents in (modules or {}).items():
+                    (work / name).write_text(contents)
                 program.write_text(source)
                 output.write_bytes(b"prior artifact")
                 result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
@@ -39,6 +41,68 @@ shadow read { let boxed: Box<int> = Box.Some { value: 7 } assert (== (read boxed
 fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } let copy: Box<int> = boxed return (- (+ (read copy) (read boxed)) 14) }
 shadow main { assert (== (main) 0) }
 ''', True)
+
+    def test_formal_shadows_resource_record(self):
+        self.check('''resource struct T { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn close_record(value: T) -> int { let T { fd } = value return fd }
+shadow close_record { assert (== (close_record T { fd: 3 }) 3) }
+fn read(value: Box<int>) -> int {
+    match value { Some(v) => { return v.value } None(n) => { return 0 } }
+}
+shadow read { let boxed: Box<int> = Box.Some { value: 7 } assert (== (read boxed) 7) }
+fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } return (- (read boxed) 7) }
+shadow main { assert (== (main) 0) }
+''', True)
+
+    def test_concrete_same_named_resource_still_rejected(self):
+        self.check('''resource struct T { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn abandon(value: Box<T>) -> void { }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False)
+
+    def test_formal_survives_module_record_binding(self):
+        modules = {
+            "generic.nano": '''resource struct T { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn read(value: Box<int>) -> int {
+    match value { Some(v) => { return v.value } None(n) => { return 0 } }
+}
+shadow read { let boxed: Box<int> = Box.Some { value: 7 } assert (== (read boxed) 7) }
+pub fn result() -> int { let boxed: Box<int> = Box.Some { value: 7 } return (read boxed) }
+shadow result { assert (== (result) 7) }
+''',
+            "plain.nano": '''struct T { value: int }
+pub fn result() -> int { let value: T = T { value: 3 } let copy: T = value return (+ value.value copy.value) }
+shadow result { assert (== (result) 6) }
+''',
+        }
+        self.check('''module "generic.nano" as generic
+module "plain.nano" as plain
+fn main() -> int { return (- (+ (generic.result) (plain.result)) 13) }
+shadow main { assert (== (main) 0) }
+''', True, modules)
+
+    def test_module_concrete_resource_still_rejected(self):
+        modules = {
+            "generic.nano": '''resource struct T { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn abandon(value: Box<T>) -> void { }
+pub fn result() -> int { return 0 }
+shadow result { assert (== (result) 0) }
+''',
+            "plain.nano": '''struct T { value: int }
+pub fn result() -> int { return 0 }
+shadow result { assert (== (result) 0) }
+''',
+        }
+        self.check('''module "generic.nano" as generic
+module "plain.nano" as plain
+fn main() -> int { return (+ (generic.result) (plain.result)) }
+shadow main { assert (== (main) 0) }
+''', False, modules)
 
     def test_string_payload_copy_and_match(self):
         self.check('''union Box<T> { Some { value: T }, None {} }

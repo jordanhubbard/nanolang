@@ -48,6 +48,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         both frontends while executing ordinary-generic positive fixtures.
       - [x] I reject arrays of concrete generic resource payloads in both
         frontends, with ownership diagnostics and prior-artifact preservation.
+      - [ ] I preserve union formal-parameter scope when a same-named resource
+        record exists, including nominal binding and paired ordinary/resource
+        instantiations. The current `resource struct T` plus `Box<T>` fixture
+        wrongly rejects `Box<int>` on all three stages. After classification,
+        my C emitter also mistakes a declared one-letter record for a free type
+        variable; the cross-module fixture exposes an invalid metadata release.
+        Imported generic union parameters also lose their native prototype type.
+        I repair these prerequisites before accepting the positive cases.
       - [ ] I complete nested generic List/HashMap type preservation and paired
         ownership diagnostics while retaining conservative rejection.
       - [ ] I implement resource union payload transfer before admitting generic

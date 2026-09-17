@@ -2164,17 +2164,17 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
                 meta->unions[i].name = strdup(env->unions[i].name);
             }
             if (env->unions[i].variant_count > 0) {
-                meta->unions[i].variant_names = malloc(sizeof(char*) * env->unions[i].variant_count);
+                meta->unions[i].variant_names = calloc(env->unions[i].variant_count, sizeof(char*));
                 meta->unions[i].variant_field_counts = malloc(sizeof(int) * env->unions[i].variant_count);
-                meta->unions[i].variant_field_names = malloc(sizeof(char**) * env->unions[i].variant_count);
-                meta->unions[i].variant_field_types = malloc(sizeof(Type*) * env->unions[i].variant_count);
+                meta->unions[i].variant_field_names = calloc(env->unions[i].variant_count, sizeof(char**));
+                meta->unions[i].variant_field_types = calloc(env->unions[i].variant_count, sizeof(Type*));
                 for (int j = 0; j < env->unions[i].variant_count; j++) {
                     if (env->unions[i].variant_names[j]) {
                         meta->unions[i].variant_names[j] = strdup(env->unions[i].variant_names[j]);
                     }
                     meta->unions[i].variant_field_counts[j] = env->unions[i].variant_field_counts[j];
                     if (env->unions[i].variant_field_counts[j] > 0) {
-                        meta->unions[i].variant_field_names[j] = malloc(sizeof(char*) * env->unions[i].variant_field_counts[j]);
+                        meta->unions[i].variant_field_names[j] = calloc(env->unions[i].variant_field_counts[j], sizeof(char*));
                         meta->unions[i].variant_field_types[j] = malloc(sizeof(Type) * env->unions[i].variant_field_counts[j]);
                         for (int k = 0; k < env->unions[i].variant_field_counts[j]; k++) {
                             if (env->unions[i].variant_field_names[j][k]) {
