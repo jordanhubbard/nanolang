@@ -90,12 +90,12 @@ class PassiveFlowFrontends(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-flow-owner-') as tmp:
             source = Path(tmp)/'owner.nano'
             source.write_text(
-                'fn effect(x: int) -> int { let scratch: int = 99 (println x) return scratch }\n'
-                'shadow effect { assert (== (effect 0) 99) }\n'
-                'fn owner(x: int) -> int { assert (== (effect 10) 99) '
-                'par { let a: int = (+ x 1) } assert (== (effect 20) 99) '
+                'fn emit_value(x: int) -> int { let scratch: int = 99 (println x) return scratch }\n'
+                'shadow emit_value { assert (== (emit_value 0) 99) }\n'
+                'fn owner(x: int) -> int { assert (== (emit_value 10) 99) '
+                'par { let a: int = (+ x 1) } assert (== (emit_value 20) 99) '
                 'flow { let b: int = (+ c 3) let c: int = (+ x 2) } '
-                'assert (== (effect 30) 99) assert (== x 4) '
+                'assert (== (emit_value 30) 99) assert (== x 4) '
                 'assert (== a 5) assert (== c 6) return b }\n'
                 'shadow owner { assert (== (owner 4) 9) }\n'
                 'fn main() -> int { (println (owner 4)) return 0 }\n'
