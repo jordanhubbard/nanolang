@@ -2096,7 +2096,12 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if emit_nvm {
                 set nvm_assembly (nanoisa_emit_program_nasm parser)
                 if (== nvm_assembly "") {
-                    (println "I cannot lower this checked program to my supported NanoISA subset")
+                    let reason: string = (nanoisa_last_lowering_error)
+                    if (== reason "") {
+                        (println "I cannot lower this checked program to my supported NanoISA subset")
+                    } else {
+                        (println (+ "I cannot lower this checked program: " reason))
+                    }
                     return 1
                 }
             }

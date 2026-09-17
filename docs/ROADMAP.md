@@ -182,6 +182,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       reject publication without replacing prior output.
       MAC `task_771b3fdc89aa42f7bf100ce7bfd0d40d`.
       My fresh three-stage bootstrap and all five canonical driver methods pass.
+      - [x] I report the lowerer's exact refusal at this checked boundary and
+            preserve prior output when a reachable declaration is unsupported
+            (`task_6c940d99e2674a9fabe6b27ce16517eb`).
 
 - [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
