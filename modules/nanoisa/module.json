@@ -8,6 +8,7 @@
   "c_sources": [
     "nanoisa.c",
     "../../src/nanoisa/isa.c",
+    "../../src/nanoisa/retained_layouts.c",
     "../../src/nanoisa/passive.c",
     "../../src/nanoisa/nvm_format.c",
     "../../src/nanoisa/nvm_format_v2.c",

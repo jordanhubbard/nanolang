@@ -783,6 +783,35 @@ fn main() -> int {
                         result = subprocess.run([binary], capture_output=True, timeout=10)
                         self.assertLess(result.returncode, 0, "I trap invalid nested record storage")
 
+    def test_typed_i64_consumer_constrains_record_projection(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        for reverse in (False, True):
+            for case in ("negative", "nonnegative", "wrong_tag"):
+                with self.subTest(reverse=reverse, case=case), tempfile.TemporaryDirectory(prefix="nano-i64-projection-") as tmp:
+                    work = Path(tmp)
+                    assembly, module, source, binary = (work / name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+                    main = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+                    helper = ".function negative 1 1 0 bool 1\nLOAD_LOCAL 0\nAGG_GET 0\nPUSH_I64 0\nI64_LT_S\nRET\n.end\n"
+                    text = ".entry main\n" + (helper + main if reverse else main + helper)
+                    text += f".parameters {0 if reverse else 1} struct\n"
+                    assembly.write_text(text)
+                    self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                    self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                    value = -1 if case == "negative" else 0
+                    setup = f"nrec_t r = {{.n = 1}}; r.k[0] = 0; r.f[0] = {value};"
+                    expected = 1 if case == "negative" else 0
+                    if case == "wrong_tag":
+                        setup = 'nrec_t r = {.n = 1}; r.k[0] = 1; r.s[0] = "bad";'
+                    generated = source.read_text().replace("int main(", "int generated_main(")
+                    source.write_text(generated + f"\nint main(void) {{ {setup} return nl_negative(r) != {expected}; }}\n")
+                    self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                    if case == "wrong_tag":
+                        result = subprocess.run([binary], capture_output=True, timeout=10)
+                        self.assertLess(result.returncode, 0, "I trap a non-integer typed projection")
+                    else:
+                        self.run_checked([binary])
+
     def test_string_consumers_constrain_projected_local(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

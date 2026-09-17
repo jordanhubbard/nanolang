@@ -121,3 +121,68 @@ class NativeFloats(unittest.TestCase):
             # I retain the native gap instead of accepting the old silent zero.
             binary = self.native(work, module)
             self.assertNotEqual(self.run_command([binary]).returncode, 0)
+
+    def test_cast_float_matches_vm_scalar_conversions(self):
+        strings = {
+            'decimal': '  -12.5 trailing', 'invalid': 'not a number',
+            'minus_zero': '-0', 'infinity': 'inf', 'not_number': 'nan',
+        }
+        helpers = ''.join(f'.string {name} "{text}"\n' for name, text in strings.items())
+        cases = [(f'PUSH_I64 {n}', str(float(n))) for n in
+                 (0, 1, -1, 9007199254740991, 9007199254740993,
+                  -9223372036854775808, 9223372036854775807)]
+        cases += [('PUSH_BOOL 0', '0'), ('PUSH_BOOL 1', '1'),
+                  ('PUSH_F64 1.25', '1.25'), ('PUSH_F64 inf', 'inf'),
+                  ('PUSH_STR decimal', '-12.5'), ('PUSH_STR invalid', '0')]
+        body = ''
+        for tagged in (False, True):
+            for operand, expected in cases:
+                body += operand + '\n'
+                if tagged:
+                    body += 'STORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+                body += 'CAST_FLOAT\nDUP\nTYPE_CHECK 3\nASSERT\n'
+                body += f'PUSH_F64 {expected}\nF64_EQ\nASSERT\n'
+            for operand in ('PUSH_F64 -0', 'PUSH_STR minus_zero'):
+                body += operand + '\n'
+                if tagged:
+                    body += 'STORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+                body += 'CAST_FLOAT\nCAST_STRING\nPUSH_STR negative\nEQ\nASSERT\n'
+            for operand in ('PUSH_F64 nan', 'PUSH_STR not_number'):
+                body += operand + '\n'
+                if tagged:
+                    body += 'STORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+                body += 'CAST_FLOAT\nDUP\nF64_NE\nASSERT\n'
+        # VM defaults other tags to positive zero, including missing map values.
+        body += 'HM_NEW 5 1\nCAST_FLOAT\nPUSH_F64 0\nF64_EQ\nASSERT\n'
+        body += 'HM_NEW 5 1\nPUSH_STR zero\nHM_GET\nCAST_FLOAT\nPUSH_F64 0\nF64_EQ\nASSERT\n'
+        body += 'PUSH_I64 42\nCAST_FLOAT\nPRINTLN\n'
+        with tempfile.TemporaryDirectory(prefix='nano-native-cast-float-') as tmp:
+            work = Path(tmp)
+            module = self.assemble(work, body, helpers)
+            vm = self.checked([ROOT / 'bin/nano_vm', module])
+            native = self.checked([self.native(work, module, sanitize=True)])
+            self.assertEqual(native.stdout, vm.stdout)
+            self.assertEqual(vm.stdout, '42.0\n')
+
+    def test_cast_float_through_polymorphic_calls_and_local_loop(self):
+        helpers = ('.string fractional "2.5"\n'
+                   '.function convert 1 1 0 float 1\nLOAD_LOCAL 0\nCAST_FLOAT\nRET\n.end\n'
+                   '.function tailconvert 1 1 0 float 1\nLOAD_LOCAL 0\nTAIL_CALL convert\n.end\n'
+                   '.function sum 1 3 0 float 1\nPUSH_I64 0\nSTORE_LOCAL 1\n'
+                   'PUSH_F64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 1\nLOAD_LOCAL 0\n'
+                   'I64_LT_S\nJMP_FALSE done\nLOAD_LOCAL 2\nLOAD_LOCAL 1\nCAST_FLOAT\n'
+                   'F64_ADD\nSTORE_LOCAL 2\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\n'
+                   'STORE_LOCAL 1\nJMP loop\ndone:\nLOAD_LOCAL 2\nRET\n.end\n')
+        body = ''
+        for operand, expected in [('PUSH_I64 42', '42'), ('PUSH_BOOL 1', '1'),
+                                  ('PUSH_STR fractional', '2.5'), ('PUSH_F64 1.25', '1.25')]:
+            # I use the existing tagged transport contract for varying argument kinds.
+            body += f'{operand}\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nCALL tailconvert\nPUSH_F64 {expected}\nF64_EQ\nASSERT\n'
+        body += 'PUSH_I64 5\nCALL sum\nPRINTLN\n'
+        with tempfile.TemporaryDirectory(prefix='nano-native-cast-float-calls-') as tmp:
+            work = Path(tmp)
+            module = self.assemble(work, body, helpers)
+            vm = self.checked([ROOT / 'bin/nano_vm', module])
+            native = self.checked([self.native(work, module, sanitize=True)])
+            self.assertEqual(native.stdout, vm.stdout)
+            self.assertEqual(vm.stdout, '10.0\n')

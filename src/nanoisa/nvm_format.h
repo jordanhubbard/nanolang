@@ -233,6 +233,10 @@ typedef struct {
     uint32_t code_size;
     uint32_t code_capacity;
 
+    /* Owned canonical v2 LAYOUTS bytes; indices and names remain exact. */
+    uint8_t *layout_data;
+    uint32_t layout_size;
+
     /* Owned canonical passive-eligibility payload; absent means no claim. */
     uint8_t *passive_data;
     uint32_t passive_size;

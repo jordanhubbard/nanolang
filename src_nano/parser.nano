@@ -2507,8 +2507,18 @@ fn parse_primary(p: Parser) -> Parser {
             }
             let named: Parser = (parser_store_identifier cur "<borrow>" tok.line tok.column)
             let function_id: int = named.last_expr_node_id
-            let operand: Parser = (parse_primary named)
+            let mut operand: Parser = (parse_primary named)
             if (parser_has_error operand) { return operand }
+            while (and (not (parser_is_at_end operand)) (== (parser_current operand).token_type LexerTokenType.TOKEN_DOT)) {
+                let dot: LexerToken = (parser_current operand)
+                let field_parser: Parser = (parser_advance operand)
+                if (or (parser_is_at_end field_parser) (!= (parser_current field_parser).token_type (token_identifier))) {
+                    (println "I require a named record field in a borrowed place")
+                    return (parser_with_error field_parser true)
+                }
+                let field: LexerToken = (parser_current field_parser)
+                set operand (parser_store_field_access (parser_advance field_parser) operand.last_expr_node_id operand.last_expr_node_type field.value dot.line dot.column)
+            }
             let arg_start: int = (list_ASTStmtRef_length operand.call_args)
             let stored: Parser = (parser_store_call_arg operand operand.last_expr_node_id operand.last_expr_node_type)
             let result: Parser = (parser_store_call stored function_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok.line tok.column)

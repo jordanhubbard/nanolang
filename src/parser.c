@@ -1006,6 +1006,15 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 type_info->base_type = borrow_type;
                 type_info->element_type = underlying;
                 param_list[count].type = borrow_type;
+            } else if (!type_info && param_list[count].type == TYPE_FUNCTION && fn_sig) {
+                /* I keep one owned description of a callback parameter. The
+                 * direct alias remains for established consumers, while the
+                 * TypeInfo wrapper lets later environments retain the complete
+                 * signature instead of quietly degrading it to `fn` alone. */
+                type_info = calloc(1, sizeof(*type_info));
+                if (!type_info) abort();
+                type_info->base_type = TYPE_FUNCTION;
+                type_info->fn_sig = fn_sig;
             }
             param_list[count].type_info = type_info;  /* Retain the borrow and referent separately. */
             
@@ -1299,6 +1308,21 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             if (match(p, TOKEN_MUT)) { mode = 2; advance(p); }
             ASTNode *place = parse_primary(p);
             if (!place) return NULL;
+            while (match(p, TOKEN_DOT)) {
+                Token *dot = current_token(p);
+                advance(p);
+                Token *field = current_token(p);
+                if (!field || field->token_type != TOKEN_IDENTIFIER) {
+                    parser_error(p, dot->line, dot->column, "I require a named record field in a borrowed place\n");
+                    free_ast(place);
+                    return NULL;
+                }
+                ASTNode *projection = create_node(AST_FIELD_ACCESS, dot->line, dot->column);
+                projection->as.field_access.object = place;
+                projection->as.field_access.field_name = strdup(field->value);
+                advance(p);
+                place = projection;
+            }
             ASTNode *borrow = create_node(AST_CALL, tok->line, tok->column);
             borrow->as.call.name = strdup("<borrow>");
             borrow->as.call.borrow_mode = mode;
@@ -5892,7 +5916,10 @@ void free_ast(ASTNode *node) {
                 if (node->as.function.params[i].struct_type_name) {
                     free(node->as.function.params[i].struct_type_name);
                 }
-                if (node->as.function.params[i].fn_sig) {
+                if (node->as.function.params[i].fn_sig &&
+                    (!node->as.function.params[i].type_info ||
+                     node->as.function.params[i].type_info->fn_sig !=
+                         node->as.function.params[i].fn_sig)) {
                     free_function_signature(node->as.function.params[i].fn_sig);
                 }
                 if (node->as.function.params[i].type_info) {

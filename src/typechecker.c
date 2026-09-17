@@ -2640,8 +2640,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         int borrow_mode = func->params[i].type == TYPE_BORROW_MUT ? 2 : 1;
                         const TypeInfo *inner = func->params[i].type_info ? func->params[i].type_info->element_type : NULL;
                         ASTNode *place = arg->type == AST_CALL && arg->as.call.borrow_mode == borrow_mode && arg->as.call.arg_count == 1 ? arg->as.call.args[0] : NULL;
-                        Symbol *owner = place && place->type == AST_IDENTIFIER ? env_get_var_visible_at(env, place->as.identifier, place->line, place->column) : NULL;
-                        const char *actual = owner ? owner->struct_type_name : NULL;
+                        ASTNode *root = place;
+                        while (root && root->type == AST_FIELD_ACCESS) root = root->as.field_access.object;
+                        Symbol *owner = root && root->type == AST_IDENTIFIER ? env_get_var_visible_at(env, root->as.identifier, root->line, root->column) : NULL;
+                        Type referent = owner ? check_expression(place, env) : TYPE_UNKNOWN;
+                        const char *actual = referent == TYPE_STRUCT ? get_struct_type_name(place, env) : NULL;
                         if (!owner || !inner || !actual || !inner->generic_name || strcmp(actual, inner->generic_name) ||
                             (owner->type != TYPE_STRUCT && owner->type != TYPE_BORROW_SHARED && owner->type != TYPE_BORROW_MUT) ||
                             (borrow_mode == 2 && !(owner->type == TYPE_BORROW_MUT || (owner->type == TYPE_STRUCT && owner->is_mut)))) {

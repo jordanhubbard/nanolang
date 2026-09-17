@@ -386,7 +386,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -437,7 +437,7 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_string_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_string_joins tests.test_nanovm_guest_args
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_string_retention tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_string_joins tests.test_nanovm_guest_args
 
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
@@ -4162,7 +4162,7 @@ test-affine-generic-identity: bootstrap
 test-units: test-passive-metadata
 test-passive-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_passive tests/nanoisa/test_passive.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs tests.test_passive_directives
+	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs tests.test_passive_directives tests.test_passive_calls
 
 .PHONY: test-global-initializer-context
 test-units: test-global-initializer-context
@@ -4368,6 +4368,16 @@ test-units: test-native-jump-true
 test-selfhost-float-values: bootstrap
 	python3 -m unittest -v tests.test_selfhost_float_values
 test-units: test-selfhost-float-values
+
+.PHONY: test-nested-borrows
+test-units: test-nested-borrows
+test-nested-borrows: bootstrap nano_virt
+	python3 -m unittest -v tests.test_nested_borrows
+.PHONY: test-nanoisa-introspection
+test-nanoisa-introspection: nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanoisa_introspection
+test-units: test-nanoisa-introspection
+
 .PHONY: test-canonical-vm-shadows
 test-canonical-vm-shadows: bootstrap nano_vm
 	python3 -m unittest tests.test_canonical_vm_shadows
@@ -4389,3 +4399,15 @@ test-canonical-module-facts: bootstrap nano_vm nvm2c nvm2c-runtime
 .PHONY: test-default-nanoisa-product
 test-default-nanoisa-product: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_default_nanoisa_product
+.PHONY: test-reference-places
+test-units: test-reference-places
+test-reference-places:
+	@mkdir -p obj
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_reference_places tests/nanoisa/test_reference_places.c $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
+	./obj/test_reference_places
+
+.PHONY: test-retained-layouts
+test-units: test-retained-layouts
+test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_retained_layouts tests/nanoisa/test_retained_layouts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	python3 -m unittest tests.test_retained_layouts

@@ -73,7 +73,7 @@ struct ResourceState {
     name: string,
     type_name: string,
     moved: bool,
-    shared_borrows: int,
+    held_places: array<string>,
     line: int,
     column: int
 }
@@ -400,7 +400,7 @@ fn resource_find(states: array<ResourceState>, name: string) -> int {
 }
 
 shadow resource_find {
-    let states: array<ResourceState> = [ResourceState { shared_borrows: 0,  name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { held_places: [], name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
     assert (== (resource_find states "file") 0)
 }
 
@@ -430,33 +430,110 @@ fn resource_copy(states: array<ResourceState>, count: int) -> array<ResourceStat
 }
 
 shadow resource_copy {
-    let states: array<ResourceState> = [ResourceState { shared_borrows: 0,  name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { held_places: [], name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
     let copy: array<ResourceState> = (resource_copy states 0)
     assert (== (array_length copy) 0)
     assert (== (array_length states) 1)
 }
 
-fn resource_hold(states: array<ResourceState>, index: int, change: int) -> array<ResourceState> {
+fn resource_place_root(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return (parser_get_identifier parser node_id).name }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser node_id)
+        return (resource_place_root parser field.object field.object_type)
+    }
+    return ""
+}
+shadow resource_place_root {
+    let parser: Parser = (resource_test_parser "fn main() -> int { return owner.left.fd }")
+    assert (== (resource_place_root parser 1 ParseNodeType.PNODE_FIELD_ACCESS) "owner")
+}
+
+fn resource_place_path(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser node_id)
+        return (+ (resource_place_path parser field.object field.object_type) (+ "." field.field_name))
+    }
+    return ""
+}
+shadow resource_place_path {
+    let parser: Parser = (resource_test_parser "fn main() -> int { return owner.left.fd }")
+    assert (== (resource_place_path parser 1 ParseNodeType.PNODE_FIELD_ACCESS) ".left.fd")
+}
+
+fn resource_path_prefix(prefix: string, path: string) -> bool {
+    if (== prefix path) { return true }
+    return (str_starts_with path (+ prefix "."))
+}
+shadow resource_path_prefix {
+    assert (resource_path_prefix "" ".left")
+    assert (resource_path_prefix ".left" ".left.fd")
+    assert (not (resource_path_prefix ".left" ".leftover"))
+}
+
+fn resource_place_conflict(held: array<string>, path: string, exclusive: bool) -> bool {
+    let mut i: int = 0
+    while (< i (array_length held)) {
+        let item: string = (at held i)
+        let other: string = (str_substring item 1 (- (str_length item) 1))
+        if (and (or exclusive (str_starts_with item "E")) (or (resource_path_prefix path other) (resource_path_prefix other path))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow resource_place_conflict {
+    assert (resource_place_conflict ["E.left"] ".left.fd" false)
+    assert (resource_place_conflict ["S.left"] "" true)
+    assert (not (resource_place_conflict ["S.left"] ".left" false))
+    assert (not (resource_place_conflict ["E.left"] ".right" true))
+}
+
+fn resource_place_hold(states: array<ResourceState>, index: int, path: string, exclusive: bool) -> array<ResourceState> {
     let mut result: array<ResourceState> = []
     let mut i: int = 0
     while (< i (array_length states)) {
         let state: ResourceState = (at states i)
-        let mut count: int = state.shared_borrows
-        if (== i index) { set count (+ count change) }
-        set result (array_push result ResourceState { name: state.name, type_name: state.type_name, moved: state.moved, shared_borrows: count, line: state.line, column: state.column })
+        let mut holds: array<string> = []
+        let mut j: int = 0
+        while (< j (array_length state.held_places)) { set holds (array_push holds (at state.held_places j)) set j (+ j 1) }
+        if (== i index) {
+            let mut mode: string = "S"
+            if exclusive { set mode "E" }
+            set holds (array_push holds (+ mode path))
+        }
+        set result (array_push result ResourceState { held_places: holds, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
         set i (+ i 1)
     }
     return result
 }
-shadow resource_hold {
-    let states: array<ResourceState> = [ResourceState { name: "x", type_name: "Owner", moved: false, shared_borrows: 0, line: 1, column: 1 }]
-    let held: array<ResourceState> = (resource_hold states 0 1)
-    assert (== (at held 0).shared_borrows 1)
-    assert (== (at states 0).shared_borrows 0)
-    assert (== (at (resource_hold held 0 (- 0 1)) 0).shared_borrows 0)
-    let exclusive: array<ResourceState> = (resource_hold states 0 (- 0 1))
-    assert (== (at exclusive 0).shared_borrows (- 0 1))
-    assert (== (at (resource_hold exclusive 0 1) 0).shared_borrows 0)
+shadow resource_place_hold {
+    let states: array<ResourceState> = [ResourceState { held_places: [], name: "owner", type_name: "Pair", moved: false, line: 1, column: 1 }]
+    let held: array<ResourceState> = (resource_place_hold states 0 ".left" true)
+    assert (== (array_length (at states 0).held_places) 0)
+    assert (resource_place_conflict (at held 0).held_places ".left" false)
+    let next: array<ResourceState> = (resource_place_hold held 0 ".right" false)
+    assert (== (array_length (at held 0).held_places) 1)
+    assert (== (array_length (at next 0).held_places) 2)
+}
+
+fn resource_restore_holds(states: array<ResourceState>, entry: array<ResourceState>) -> array<ResourceState> {
+    let mut result: array<ResourceState> = []
+    let mut i: int = 0
+    while (< i (array_length states)) {
+        let state: ResourceState = (at states i)
+        let mut holds: array<string> = state.held_places
+        if (< i (array_length entry)) { set holds (at entry i).held_places }
+        set result (array_push result ResourceState { held_places: holds, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
+        set i (+ i 1)
+    }
+    return result
+}
+shadow resource_restore_holds {
+    let states: array<ResourceState> = [ResourceState { held_places: ["S.left"], name: "owner", type_name: "Pair", moved: false, line: 1, column: 1 }]
+    let held: array<ResourceState> = (resource_place_hold states 0 ".right" true)
+    let restored: array<ResourceState> = (resource_restore_holds held states)
+    assert (== (array_length (at restored 0).held_places) 1)
+    assert (== (at (at restored 0).held_places 0) "S.left")
 }
 
 fn resource_replace(states: array<ResourceState>, index: int, moved: bool) -> array<ResourceState> {
@@ -466,14 +543,14 @@ fn resource_replace(states: array<ResourceState>, index: int, moved: bool) -> ar
         let state: ResourceState = (at states i)
         let mut value: bool = state.moved
         if (== i index) { set value moved }
-        set copy (array_push copy ResourceState { shared_borrows: state.shared_borrows, name: state.name, type_name: state.type_name, moved: value, line: state.line, column: state.column })
+        set copy (array_push copy ResourceState { held_places: state.held_places, name: state.name, type_name: state.type_name, moved: value, line: state.line, column: state.column })
         set i (+ i 1)
     }
     return copy
 }
 
 shadow resource_replace {
-    let states: array<ResourceState> = [ResourceState { shared_borrows: 0,  name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { held_places: [], name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
     let changed: array<ResourceState> = (resource_replace states 0 true)
     let original: ResourceState = (at states 0)
     let updated: ResourceState = (at changed 0)
@@ -661,8 +738,8 @@ shadow resource_value_type {
     assert (== (resource_value_type (resource_test_parser "") -1 ParseNodeType.PNODE_IDENTIFIER [] ) "")
     let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T } } fn probe() -> int { return payload.value }")
     let ret: ASTReturn = (parser_get_return parser 0)
-    let owned: array<ResourceState> = [ResourceState { shared_borrows: 0,  name: "payload", type_name: "#variant:0:0<#record:0>", moved: false, line: 1, column: 1 }]
-    let plain: array<ResourceState> = [ResourceState { shared_borrows: 0,  name: "payload", type_name: "#variant:0:0<int>", moved: false, line: 1, column: 1 }]
+    let owned: array<ResourceState> = [ResourceState { held_places: [], name: "payload", type_name: "#variant:0:0<#record:0>", moved: false, line: 1, column: 1 }]
+    let plain: array<ResourceState> = [ResourceState { held_places: [], name: "payload", type_name: "#variant:0:0<int>", moved: false, line: 1, column: 1 }]
     assert (== (resource_value_type parser ret.value ret.value_type owned) "#record:0")
     assert (== (resource_value_type parser ret.value ret.value_type plain) "int")
     let callbacks: Parser = (resource_test_parser "fn make() -> int { return 7 } fn main() -> int { let factory = make return 0 }")
@@ -1091,11 +1168,11 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if (>= index 0) {
             let state: ResourceState = (at states index)
-            if (< state.shared_borrows 0) {
+            if (resource_place_conflict state.held_places "" false) {
                 (resource_flow_error diags file_name id.line id.column "I cannot access an exclusively borrowed owner")
                 return flow
             }
-            if (and move (or (> state.shared_borrows 0) (str_starts_with state.type_name "&"))) {
+            if (and move (or (> (array_length state.held_places) 0) (str_starts_with state.type_name "&"))) {
                 (resource_flow_error diags file_name id.line id.column "I cannot consume or escape a borrowed owner")
                 return flow
             }
@@ -1124,7 +1201,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if flow.next {
             let updated: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
-            return ResourceFlow { states: (array_push updated ResourceState { shared_borrows: 0,  name: binding.name, type_name: (resource_type_identity parser nominal binding.line), moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
+            return ResourceFlow { states: (array_push updated ResourceState { held_places: [], name: binding.name, type_name: (resource_type_identity parser nominal binding.line), moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
         }
         return flow
     }
@@ -1135,14 +1212,14 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             let mut allowed: bool = false
             if (>= index 0) {
                 let owner: ResourceState = (at states index)
-                set allowed (and (str_starts_with owner.type_name "&mut ") (and (not owner.moved) (== owner.shared_borrows 0)))
+                set allowed (and (str_starts_with owner.type_name "&mut ") (and (not owner.moved) (not (resource_place_conflict owner.held_places (+ "." assignment.field_name) true))))
             }
             if (not allowed) { (resource_flow_error diags file_name assignment.line assignment.column "I require an available exclusive borrow for field mutation") }
             return (resource_flow_node parser assignment.value assignment.value_type states true loop_entry diags file_name return_type "")
         }
         if (>= index 0) {
             let state: ResourceState = (at states index)
-            if (or (> state.shared_borrows 0) (str_starts_with state.type_name "&")) {
+            if (or (> (array_length state.held_places) 0) (str_starts_with state.type_name "&")) {
                 (resource_flow_error diags file_name assignment.line assignment.column (+ "I cannot overwrite a borrowed owner: " assignment.target))
             } else {
                 if (and (not state.moved) (resource_type_is_declared parser state.type_name)) {
@@ -1198,7 +1275,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (< arm (array_length matched.arm_bindings)) {
                 let binding: string = (at matched.arm_bindings arm)
                 if (and (!= binding "") (!= binding "_")) {
-                    set arm_states (array_push arm_states ResourceState { shared_borrows: 0,  name: binding, type_name: payload, moved: false, line: matched.line, column: matched.column })
+                    set arm_states (array_push arm_states ResourceState { held_places: [], name: binding, type_name: payload, moved: false, line: matched.line, column: matched.column })
                 } else {
                     if (resource_type_is_declared parser payload) { (resource_flow_error diags file_name matched.line matched.column "I require a binding for the selected resource payload") }
                 }
@@ -1228,7 +1305,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         if (not flow.next) { return flow }
         (resource_loop_edge parser flow.states entry diags file_name)
         let mut body_states: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
-        if (!= variable "") { set body_states (array_push body_states ResourceState { shared_borrows: 0,  name: variable, type_name: "int", moved: false, line: 0, column: 0 }) }
+        if (!= variable "") { set body_states (array_push body_states ResourceState { held_places: [], name: variable, type_name: "int", moved: false, line: 0, column: 0 }) }
         set flow (resource_flow_node parser body ParseNodeType.PNODE_BLOCK body_states false entry diags file_name return_type "")
         if flow.next { (resource_loop_edge parser flow.states entry diags file_name) }
         return ResourceFlow { states: entry, next: true }
@@ -1237,6 +1314,16 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         let field: ASTFieldAccess = (parser_get_field_access parser node_id)
         if (and move (resource_type_is_declared parser (resource_value_type parser node_id node_type states))) {
             (resource_flow_error diags file_name field.line field.column "I cannot partially move a resource field")
+        }
+        let root: string = (resource_place_root parser node_id node_type)
+        let index: int = (resource_find states root)
+        if (>= index 0) {
+            let state: ResourceState = (at states index)
+            if state.moved { (resource_flow_error diags file_name field.line field.column "I cannot use a moved value") }
+            if (resource_place_conflict state.held_places (resource_place_path parser node_id node_type) false) {
+                (resource_flow_error diags file_name field.line field.column "I cannot access an exclusively borrowed place")
+            }
+            return flow
         }
         return (resource_flow_node parser field.object field.object_type states false loop_entry diags file_name return_type "")
     }
@@ -1266,7 +1353,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             set direct (< (resource_find states callee.name) 0)
         }
         if (not direct) { set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name return_type "") }
-        let mut held: array<int> = []
+        let hold_entry: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
         let mut i: int = 0
         while (and flow.next (< i call.arg_count)) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
@@ -1280,22 +1367,19 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 let address: ASTCall = (parser_get_call parser arg.node_id)
                 if (and (> address.borrow_mode 0) (== address.arg_count 1)) {
                     let place: ASTStmtRef = (parser_get_call_arg parser address.arg_start)
-                    if (== place.node_type ParseNodeType.PNODE_IDENTIFIER) {
-                        let owner: ASTIdentifier = (parser_get_identifier parser place.node_id)
-                        let index: int = (resource_find flow.states owner.name)
+                    let root: string = (resource_place_root parser place.node_id place.node_type)
+                    if (!= root "") {
+                        let path: string = (resource_place_path parser place.node_id place.node_type)
+                        let index: int = (resource_find flow.states root)
                         if (and (>= index 0) (str_starts_with context "&")) {
                             set flow (resource_flow_node parser place.node_id place.node_type flow.states false loop_entry diags file_name return_type "")
                             let state: ResourceState = (at flow.states index)
                             if (and (== address.borrow_mode 2) (and (str_starts_with state.type_name "&") (not (str_starts_with state.type_name "&mut ")))) {
                                 (resource_flow_error diags file_name address.line address.column "I cannot upgrade a shared borrow to an exclusive borrow")
-                            } else { if (or (< state.shared_borrows 0) (and (== address.borrow_mode 2) (!= state.shared_borrows 0))) {
+                            } else { if (resource_place_conflict state.held_places path (== address.borrow_mode 2)) {
                                 (resource_flow_error diags file_name address.line address.column "I cannot overlap an exclusive borrow")
                             } else {
-                                let mut delta: int = 1
-                                let mut held_index: int = index
-                                if (== address.borrow_mode 2) { set delta (- 0 1) set held_index (- 0 (+ index 1)) }
-                                set flow ResourceFlow { states: (resource_hold flow.states index delta), next: flow.next }
-                                set held (array_push held held_index)
+                                set flow ResourceFlow { states: (resource_place_hold flow.states index path (== address.borrow_mode 2)), next: flow.next }
                             } }
                             set borrowed true
                         }
@@ -1305,14 +1389,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (not borrowed) { set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type) }
             set i (+ i 1)
         }
-        set i 0
-        while (< i (array_length held)) {
-            let mut index: int = (at held i)
-            let mut delta: int = (- 0 1)
-            if (< index 0) { set index (- (- 0 index) 1) set delta 1 }
-            set flow ResourceFlow { states: (resource_hold flow.states index delta), next: flow.next }
-            set i (+ i 1)
-        }
+        set flow ResourceFlow { states: (resource_restore_holds flow.states hold_entry), next: flow.next }
         if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
             (resource_flow_error diags file_name call.line call.column "resource result has no resolved owner")
         }
@@ -1388,7 +1465,7 @@ shadow resource_flow_node {
     assert flow.next
     let parser: Parser = (resource_test_parser "resource struct File { fd: int } fn read(file: File) -> int { return file.fd }")
     let ret: ASTReturn = (parser_get_return parser 0)
-    let states: array<ResourceState> = [ResourceState { shared_borrows: 0,  name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { held_places: [], name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let observed: ResourceFlow = (resource_flow_node parser ret.value ret.value_type states false [] diags "test.nano" "" "")
     let observed_state: ResourceState = (at observed.states 0)
@@ -1438,7 +1515,7 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
     while (< i func.param_count) {
         let param: ASTLet = (parser_get_let parser (+ func.param_start i))
         (resource_check_annotation parser param.var_type diags file_name param.line param.column)
-        set states (array_push states ResourceState { shared_borrows: 0,  name: param.name, type_name: (resource_type_identity parser param.var_type param.line), moved: false, line: param.line, column: param.column })
+        set states (array_push states ResourceState { held_places: [], name: param.name, type_name: (resource_type_identity parser param.var_type param.line), moved: false, line: param.line, column: param.column })
         set i (+ i 1)
     }
     if (< func.body 0) { return }
@@ -4044,14 +4121,14 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (> call_node.borrow_mode 0) {
             if (and (or (== call_node.borrow_mode 1) (== call_node.borrow_mode 2)) (== call_node.arg_count 1)) {
                 let place: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
-                if (== place.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                let root: string = (resource_place_root parser place.node_id place.node_type)
+                if (!= root "") {
                     let referent: NSType = (check_expr_node parser place.node_id place.node_type symbols diags file_name)
                     let mut prefix: string = "&"
                     let mut mutable: bool = true
                     if (== call_node.borrow_mode 2) {
                         set prefix "&mut "
-                        let identifier: ASTIdentifier = (parser_get_identifier parser place.node_id)
-                        let index: int = (env_lookup symbols identifier.name)
+                        let index: int = (env_lookup symbols root)
                         set mutable false
                         if (>= index 0) { let owner: Symbol = (at symbols index) set mutable owner.is_mutable }
                     }

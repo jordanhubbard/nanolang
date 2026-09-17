@@ -738,8 +738,11 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             strcmp(directive, "par_end") == 0)
             return par_directive(state, directive, p, result);
 
-        if (strcmp(directive, "passive") == 0) {
-            if (state->passive_structured)
+        if (strcmp(directive, "passive") == 0 || strcmp(directive, "layouts") == 0) {
+            bool layouts = strcmp(directive, "layouts") == 0;
+            uint8_t **payload = layouts ? &state->mod->layout_data : &state->mod->passive_data;
+            uint32_t *payload_size = layouts ? &state->mod->layout_size : &state->mod->passive_size;
+            if (!layouts && state->passive_structured)
                 return par_error(result, "I cannot mix raw passive chunks and producer markers.");
             char hex[4096];
             uint32_t length;
@@ -747,32 +750,32 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 !length || length % 2 || !require_line_end(p, result)) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
-                         "I expect a nonempty quoted hexadecimal passive chunk outside functions");
+                         "I expect a nonempty quoted hexadecimal metadata chunk outside functions");
                 return false;
             }
             for (uint32_t i = 0; i < length; ++i) {
                 if (!isxdigit((unsigned char)hex[i])) {
                     result->error = ASM_ERR_SYNTAX;
-                    snprintf(result->message, sizeof(result->message), "I require hexadecimal passive bytes");
+                    snprintf(result->message, sizeof(result->message), "I require hexadecimal metadata bytes");
                     return false;
                 }
             }
             uint32_t bytes = length / 2;
-            if (bytes > UINT32_MAX - state->mod->passive_size) {
+            if (bytes > UINT32_MAX - *payload_size) {
                 result->error = ASM_ERR_MEMORY;
                 return false;
             }
-            uint8_t *data = realloc(state->mod->passive_data, state->mod->passive_size + bytes);
+            uint8_t *data = realloc(*payload, *payload_size + bytes);
             if (!data) { result->error = ASM_ERR_MEMORY; return false; }
             for (uint32_t i = 0; i < bytes; ++i) {
                 unsigned char a = (unsigned char)tolower((unsigned char)hex[i * 2]);
                 unsigned char b = (unsigned char)tolower((unsigned char)hex[i * 2 + 1]);
                 unsigned high = a <= '9' ? a - '0' : a - 'a' + 10;
                 unsigned low = b <= '9' ? b - '0' : b - 'a' + 10;
-                data[state->mod->passive_size + i] = (uint8_t)(high * 16 + low);
+                data[*payload_size + i] = (uint8_t)(high * 16 + low);
             }
-            state->mod->passive_data = data;
-            state->mod->passive_size += bytes;
+            *payload = data;
+            *payload_size += bytes;
             return true;
         }
 
