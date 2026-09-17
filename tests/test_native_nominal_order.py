@@ -62,6 +62,29 @@ fn main() -> int {{ let values: List<{element}> = (list_{element}_new) (list_{el
 shadow main {{ assert (== (main) 0) }}
 ''')
 
+    def test_primitive_list_record_fields_keep_runtime_typedefs(self):
+        for element, first, second in [('int', '7', '9'), ('string', '"first"', '"second"')]:
+            with self.subTest(element=element):
+                self.check(f'''struct Holder {{ values: List<{element}>, tail: int }}
+union Choice {{ Some {{ item: Holder }} }}
+fn read(holder: Holder) -> {element} {{ return (list_{element}_get holder.values 1) }}
+shadow read {{ let values: List<{element}> = (list_{element}_new) (list_{element}_push values {first}) (list_{element}_push values {second}) assert (== (read Holder {{ values: values, tail: 5 }}) {second}) }}
+fn choice_size(value: Choice) -> int {{ match value {{ Some(payload) => {{ return (+ (list_{element}_length payload.item.values) payload.item.tail) }} }} }}
+shadow choice_size {{ let values: List<{element}> = (list_{element}_new) let value: Choice = Choice.Some {{ item: Holder {{ values: values, tail: 5 }} }} assert (== (choice_size value) 5) }}
+fn main() -> int {{
+ let values: List<{element}> = (list_{element}_new)
+ let holder: Holder = Holder {{ values: values, tail: 5 }}
+ (list_{element}_push holder.values {first})
+ (list_{element}_push holder.values {second})
+ assert (== (read holder) {second})
+ assert (== (list_{element}_length values) 2)
+ let choice: Choice = Choice.Some {{ item: holder }}
+ assert (== (choice_size choice) 7)
+ return 0
+}}
+shadow main {{ assert (== (main) 0) }}
+''')
+
     def test_record_cycle_preserves_previous_output(self):
         self.check('struct Left { right: Right }\nstruct Right { left: Left }\n'+MAIN, False)
 
