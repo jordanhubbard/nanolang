@@ -375,10 +375,86 @@ static void test_parameter_tags_survive(void) {
     nvm_module_free(m);
 }
 
+static void test_reused_signature_pool_keeps_undeclared_parameters_void(void) {
+    NvmModule *m = nvm_module_new();
+    CHECK(m != NULL, "I allocate the signature reuse fixture");
+    if (!m) return;
+    const uint8_t code[] = {OP_PUSH_I64, 0,0,0,0,0,0,0,0, OP_RET};
+    CHECK(nvm_append_code(m, code, sizeof code) == 0, "I retain one valid shared body");
+    const uint16_t arities[] = {2, 2, 3, 3, 4};
+    const uint8_t declared[] = {TAG_STRING, TAG_BOOL};
+    for (uint32_t i = 0; i < 5; ++i) {
+        char name[32];
+        snprintf(name, sizeof name, "signature_%u", i);
+        NvmFunctionEntry f = {0};
+        f.name_idx = nvm_add_string(m, name, (uint32_t)strlen(name));
+        f.arity = f.local_count = arities[i];
+        f.code_length = sizeof code;
+        f.result_tag = TAG_INT; f.result_count = 1;
+        CHECK(nvm_add_function(m, &f) == i, "I retain fixture function order");
+        if (i < 2) CHECK(nvm_set_function_param_types(m, i, declared, 2),
+                         "I declare only the first duplicate pair's tags");
+    }
+    uint32_t library = nvm_add_string(m, "fixture", 7);
+    for (uint32_t i = 0; i < 3; ++i) {
+        char name[32]; snprintf(name, sizeof name, "import_%u", i);
+        uint32_t symbol = nvm_add_string(m, name, (uint32_t)strlen(name));
+        CHECK(nvm_add_import(m, library, symbol, (uint16_t)(i + 2), TAG_INT,
+                             i == 0 ? declared : NULL) == i,
+              "I mix declared and absent import parameters after duplicate functions");
+    }
+    NvmV2Module v2;
+    CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I convert reused signature storage");
+    CHECK(v2.signatures.count == 3, "I intern both duplicate pairs exactly");
+    for (uint32_t i = 0; i < 5; ++i) {
+        const NvmV2Signature *sig = &v2.signatures.items[v2.functions.items[i].signature_idx];
+        CHECK(sig->param_count == arities[i], "I preserve each arity");
+        for (uint16_t p = 0; p < arities[i]; ++p)
+            CHECK(sig->param_tags[p] == (i < 2 ? declared[p] : TAG_VOID),
+                  "I never turn stale result or declaration bytes into parameter evidence");
+    }
+    for (uint32_t i = 0; i < 3; ++i) {
+        const NvmV2Signature *sig = &v2.signatures.items[v2.imports.items[i].signature_idx];
+        for (uint16_t p = 0; p < i + 2; ++p)
+            CHECK(sig->param_tags[p] == (i == 0 ? declared[p] : TAG_VOID),
+                  "I never invent import ABI tags from rewound storage");
+    }
+    size_t size = 0, used = 0;
+    CHECK_RESULT(nvm_v2_module_serialize(&v2, NULL, 0, &size), NVM_V2_OK, "I size the wire round trip");
+    uint8_t *bytes = malloc(size);
+    CHECK(bytes != NULL, "I allocate the wire round trip");
+    if (bytes) {
+        CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, size, &used), NVM_V2_OK,
+                     "I serialize exact and absent declarations");
+        NvmV2Module decoded;
+        CHECK_RESULT(nvm_v2_module_deserialize(bytes, used, &decoded), NVM_V2_OK,
+                     "I decode exact and absent declarations");
+        NvmModule *back = NULL;
+        CHECK_RESULT(nvm_v2_to_nvm_module(&decoded, &back), NVM_V2_OK,
+                     "I restore exact and absent declarations");
+        if (back) {
+            for (uint32_t i = 0; i < 5; ++i)
+                for (uint16_t p = 0; p < arities[i]; ++p)
+                    CHECK(back->function_param_types[i][p] == (i < 2 ? declared[p] : TAG_VOID),
+                          "I preserve parameter proof boundaries across the wire");
+            for (uint32_t i = 0; i < 3; ++i)
+                for (uint16_t p = 0; p < i + 2; ++p)
+                    CHECK(back->import_param_types[i][p] == (i == 0 ? declared[p] : TAG_VOID),
+                          "I preserve absent import tags across the wire");
+            nvm_module_free(back);
+        }
+        nvm_v2_module_free(&decoded);
+        free(bytes);
+    }
+    nvm_v2_module_free(&v2);
+    nvm_module_free(m);
+}
+
 int main(void) {
     printf("\n[nvm_v2_convert] NvmModule <-> v2 bridge tests...\n\n");
     test_round_trip_through_v2();
     test_parameter_tags_survive();
+    test_reused_signature_pool_keeps_undeclared_parameters_void();
     test_import_kinds_and_bindings();
     test_header_flags_are_derived();
     test_a_module_without_main_gains_no_entry_point();
