@@ -7281,6 +7281,21 @@ shadow get_stmt_line {
 }
 
 fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv, return_type: string) -> StmtGenResult {
+    if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser stmt.node_id)
+        if block.is_par {
+            let mut code: string = ""
+            let mut current: GenEnv = env
+            let mut i: int = 0
+            while (< i (list_ASTStmtRef_length block.statements)) {
+                let result: StmtGenResult = (generate_statement parser (list_ASTStmtRef_get block.statements i) indent current return_type)
+                set code (+ code result.code)
+                set current result.env
+                set i (+ i 1)
+            }
+            return StmtGenResult { code: code, env: current }
+        }
+    }
     if (== stmt.node_type ParseNodeType.PNODE_LET) {
         let let_stmt: ASTLet = (parser_get_let parser stmt.node_id)
         let code: string = (generate_let_stmt parser let_stmt indent env)

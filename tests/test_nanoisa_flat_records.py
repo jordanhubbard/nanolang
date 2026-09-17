@@ -16,6 +16,55 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_passive_par_records_and_scalar_execution(self):
+        import re
+        fixture = ROOT / "tests/nanoisa/fixtures/passive_par.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-passive-par-") as tmp:
+            directory = Path(tmp)
+            seed, assembly, emitted = (directory / name for name in ("seed.nvm", "self.nasm", "self.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly, "independent", "main")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            records = []
+            for module in (seed, emitted):
+                dumped = self.run_checked(ROOT / "bin/nanoisa", "dump", module).stdout
+                record = bytes.fromhex("".join(re.findall(r'^\.passive "([0-9a-f]+)"', dumped, re.MULTILINE)))
+                self.assertTrue(record)
+                self.assertEqual(int.from_bytes(record[:4], "little"), 2)
+                records.append(record)
+                self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "13\n")
+                native_c, native = directory / "native.c", directory / "native"
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-lm", "-o", native)
+                self.assertEqual(self.run_checked(native).stdout, "13\n")
+            self.assertEqual(records[0], records[1])
+
+    def test_passive_original_calculator_scalar_closure(self):
+        import re
+        from tests.test_passive_par_frontends import calculator_scalar_closure
+        with tempfile.TemporaryDirectory(prefix="nano-passive-calculator-") as tmp:
+            directory = Path(tmp)
+            fixture = directory / "original-closure.nano"
+            fixture.write_text(calculator_scalar_closure())
+            seed, assembly, emitted = (directory / name for name in ("seed.nvm", "self.nasm", "self.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "int_to_float", "arctan_series", "calculate_pi_machin", "main")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            records = []
+            for module in (seed, emitted):
+                dumped = self.run_checked(ROOT / "bin/nanoisa", "dump", module).stdout
+                records.append(bytes.fromhex("".join(re.findall(r'^\.passive "([0-9a-f]+)"', dumped, re.MULTILINE))))
+                self.assertTrue(records[-1])
+                self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "3.14159\n")
+                native_c, native = directory / "native.c", directory / "native"
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-lm", "-o", native)
+                self.assertEqual(self.run_checked(native).stdout, "3.14159\n")
+            self.assertEqual(records[0], records[1])
+
     def test_executable_closure_preserves_calls_and_refuses_unlowered_roots(self):
         driver_fixture = ROOT / "tests/nanoisa/fixtures/program_closure_driver.nano.txt"
         with tempfile.TemporaryDirectory(prefix="nano-program-closure-") as tmp:

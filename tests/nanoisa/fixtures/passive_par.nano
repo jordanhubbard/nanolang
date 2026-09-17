@@ -1,0 +1,26 @@
+fn independent(input: int, flag: bool, scale: float, text: string) -> int {
+    par {
+        let left: int = (+ input 1)
+        let right: int = (* input 2)
+        let ready: bool = (not flag)
+        let number: float = (- scale)
+        let label: string = (+ text "!")
+    }
+    assert ready
+    assert (== number -2.5)
+    assert (== label "ok!")
+    par {
+        let fixed: int = 3
+        let other: int = 4
+    }
+    assert (== (+ fixed other) 7)
+    return (+ left right)
+}
+shadow independent {
+    assert (== (independent 4 false 2.5 "ok") 13)
+}
+fn main() -> int {
+    (println (independent 4 false 2.5 "ok"))
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_purity.nano" import par_closed_call
 /* =============================================================================
  * nanolang NSType Checker (Self-Hosted) - Minimal Version
  * =============================================================================
@@ -1730,6 +1731,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "ASTUnionConstruct", field_name: "column", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTBlock fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "is_par", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
@@ -4886,6 +4888,113 @@ shadow expr_kind_from_pnode {
     assert (== (expr_kind_from_pnode ParseNodeType.PNODE_CALL) 3)
 }
 
+fn par_scalar_expr(parser: Parser, node_id: int, kind: int, symbols: array<Symbol>, names: array<string>) -> bool {
+    if (or (== kind ParseNodeType.PNODE_NUMBER) (or (== kind ParseNodeType.PNODE_FLOAT)
+           (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL)))) { return true }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let name: string = (parser_get_identifier parser node_id).name
+        let mut i: int = 0
+        while (< i (array_length names)) {
+            if (== name (at names i)) { return false }
+            set i (+ i 1)
+        }
+        let index: int = (env_lookup symbols name)
+        if (< index 0) { return false }
+        let symbol: Symbol = (at symbols index)
+        let tag: int = symbol.sym_type.kind
+        return (and (not symbol.is_mutable) (and (not symbol.is_function)
+            (or (== tag TypeKind.TYPE_INT) (or (== tag TypeKind.TYPE_FLOAT)
+                (or (== tag TypeKind.TYPE_STRING) (== tag TypeKind.TYPE_BOOL))))))
+    }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let node: ASTBinaryOp = (parser_get_binary_op parser node_id)
+        if node.is_unary { return (par_scalar_expr parser node.right node.right_type symbols names) }
+        return (and (par_scalar_expr parser node.left node.left_type symbols names)
+                    (par_scalar_expr parser node.right node.right_type symbols names))
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let mut name: string = ""
+        let mut line: int = 0
+        let mut start: int = 0
+        let mut length: int = 0
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let call: ASTCall = (parser_get_call parser node_id)
+            if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return false }
+            let ident: ASTIdentifier = (parser_get_identifier parser call.function)
+            let binding: int = (env_lookup symbols ident.name)
+            if (>= binding 0) {
+                if (not (at symbols binding).is_function) { return false }
+            }
+            set name ident.name set line ident.line set start call.arg_start set length call.arg_count
+        } else {
+            let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+            set name call.function_name set line call.line set start call.arg_start set length call.arg_count
+        }
+        if (not (par_closed_call parser name line length)) { return false }
+        let mut i: int = 0
+        while (< i length) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            if (not (par_scalar_expr parser arg.node_id arg.node_type symbols names)) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    return false
+}
+shadow par_scalar_expr {
+    let parsed: Parser = (resource_test_parser "fn main() -> int { return 1 }")
+    let names: array<string> = []
+    let symbols: array<Symbol> = []
+    assert (par_scalar_expr parsed 0 ParseNodeType.PNODE_NUMBER symbols names)
+    assert (not (par_scalar_expr parsed 0 ParseNodeType.PNODE_ARRAY_LITERAL symbols names))
+}
+
+fn check_par_statement(parser: Parser, block: ASTBlock, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    let count: int = (list_ASTStmtRef_length block.statements)
+    let mut names: array<string> = []
+    let mut valid: bool = (> count 0)
+    let mut i: int = 0
+    while (< i count) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        if (!= statement.node_type ParseNodeType.PNODE_LET) { set valid false }
+        else {
+            let binding: ASTLet = (parser_get_let parser statement.node_id)
+            if binding.is_mut { set valid false }
+            let mut j: int = 0
+            while (< j (array_length names)) {
+                if (== binding.name (at names j)) { set valid false }
+                set j (+ j 1)
+            }
+            set names (array_push names binding.name)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (and valid (< i count)) {
+        let binding: ASTLet = (parser_get_let parser (list_ASTStmtRef_get block.statements i).node_id)
+        if (not (par_scalar_expr parser binding.value binding.value_type symbols names)) { set valid false }
+        set i (+ i 1)
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require nonempty independent immutable scalar let bindings in par and checked closed scalar calls." (Diagnostics.diag_location file_name block.line block.column)))
+        return symbols
+    }
+    let mut result: array<Symbol> = (env_copy_symbols symbols)
+    set i 0
+    while (< i count) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        set result (check_let_statement parser (parser_get_let parser statement.node_id) statement.node_id result diags file_name)
+        set i (+ i 1)
+    }
+    return result
+}
+shadow check_par_statement {
+    let good: Parser = (resource_test_parser "fn main() -> int { par { let a: int = 1 let b: int = 2 } return (+ a b) }")
+    assert (not (typecheck_phase good "par.nano").had_error)
+    let bad: Parser = (resource_test_parser "fn main() -> int { par { let a: int = 1 let b: int = a } return b }")
+    assert (typecheck_phase bad "par.nano").had_error
+}
+
 fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
     let block: ASTBlock = (parser_get_block parser block_id)
     return (check_statement_list parser block.statements symbols expected_return diags file_name current_function)
@@ -4908,6 +5017,16 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
             (Diagnostics.diag_list_add diags ret_diag)
         } else { (print "") }
         
+        if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
+            let parallel_block: ASTBlock = (parser_get_block parser stmt.node_id)
+            if parallel_block.is_par {
+                let before: int = (list_CompilerDiagnostic_length diags)
+                set local_symbols (check_par_statement parser parallel_block local_symbols diags file_name)
+                if (> (list_CompilerDiagnostic_length diags) before) { set ok false }
+                set i (+ i 1)
+                continue
+            }
+        }
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let let_node: ASTLet = (parser_get_let parser stmt.node_id)
             set local_symbols (check_let_statement parser let_node stmt.node_id local_symbols diags file_name)

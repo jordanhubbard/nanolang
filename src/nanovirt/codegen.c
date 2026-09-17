@@ -109,11 +109,17 @@ typedef struct {
     bool is_local;           /* true = parent local, false = parent upvalue */
 } Upvalue;
 
+typedef struct CgPassive {
+    uint32_t *words, word_count;
+    struct CgPassive *next;
+} CgPassive;
+
 typedef struct CG CG;
 struct CG {
     /* Module being built */
     NvmModule *module;
     Environment *env;
+    CgPassive *passive;
 
     /* Current function's code buffer */
     uint8_t *code;
@@ -744,6 +750,7 @@ static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
 static void compile_nested_function(CG *cg, ASTNode *node);
 static bool stmt_falls_through(ASTNode *node);
+static void compile_par_guards(CG *cg, ASTNode *body);
 static bool expr_leaves_value(CG *cg, ASTNode *node);
 static void bind_parameter_type(CG *cg, const Parameter *param, int line);
 
@@ -2958,6 +2965,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
 
     /* Compile nested function body */
     ASTNode *body = node->as.function.body;
+    compile_par_guards(cg, body);
     if (body) {
         if (body->type == AST_BLOCK) {
             for (int i = 0; i < body->as.block.count; i++) {
@@ -3124,6 +3132,156 @@ static bool compile_tail_call(CG *cg, ASTNode *node) {
     for (int i = 0; i < argc; i++) compile_expr(cg, args[i]);
     emit_op(cg, OP_TAIL_CALL, (uint32_t)target);
     return true;
+}
+
+static bool contains_par(ASTNode *node) {
+    if (!node) return false;
+    switch (node->type) {
+        case AST_PAR_BLOCK: return true;
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; ++i)
+                if (contains_par(node->as.block.statements[i])) return true;
+            return false;
+        case AST_IF: return contains_par(node->as.if_stmt.then_branch) || contains_par(node->as.if_stmt.else_branch);
+        case AST_WHILE: return contains_par(node->as.while_stmt.body);
+        case AST_FOR: return contains_par(node->as.for_stmt.body);
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < node->as.unsafe_block.count; ++i)
+                if (contains_par(node->as.unsafe_block.statements[i])) return true;
+            return false;
+        default: return false;
+    }
+}
+
+static void compile_par_guards(CG *cg, ASTNode *body) {
+    if (!contains_par(body)) return;
+    uint8_t *tags = cg->module->function_param_types[cg->current_fn_idx];
+    for (uint16_t i = 0; i < cg->param_count; ++i) {
+        uint8_t tag = tags[i];
+        if (tag != TAG_INT && tag != TAG_BOOL && tag != TAG_STRING && tag != TAG_FLOAT) continue;
+        emit_op(cg, OP_LOAD_LOCAL, (int)i);
+        emit_op(cg, OP_TYPE_CHECK, (int)tag);
+        emit_op(cg, OP_ASSERT);
+    }
+}
+
+static bool par_inputs(CG *cg, ASTNode *expr, ASTNode *block, bool *reads) {
+    if (!expr) return false;
+    switch (expr->type) {
+        case AST_NUMBER: case AST_FLOAT: case AST_BOOL: case AST_STRING: return true;
+        case AST_PREFIX_OP:
+            for (int i = 0; i < expr->as.prefix_op.arg_count; ++i)
+                if (!par_inputs(cg, expr->as.prefix_op.args[i], block, reads)) return false;
+            return true;
+        case AST_IDENTIFIER: {
+            for (int i = 0; i < block->as.par_block.count; ++i)
+                if (!strcmp(expr->as.identifier, block->as.par_block.bindings[i]->as.let.name)) return false;
+            int slot = local_find(cg, expr->as.identifier);
+            if (slot < 0 || slot >= cg->param_count) return false;
+            uint8_t tag = cg->module->function_param_types[cg->current_fn_idx][slot];
+            if (tag != TAG_INT && tag != TAG_BOOL && tag != TAG_STRING && tag != TAG_FLOAT) return false;
+            reads[slot] = true;
+            return true;
+        }
+        case AST_CALL:
+            if (expr->as.call.func_expr) return false;
+            for (int i = 0; i < expr->as.call.arg_count; ++i)
+                if (!par_inputs(cg, expr->as.call.args[i], block, reads)) return false;
+            return true;
+        case AST_MODULE_QUALIFIED_CALL:
+            for (int i = 0; i < expr->as.module_qualified_call.arg_count; ++i)
+                if (!par_inputs(cg, expr->as.module_qualified_call.args[i], block, reads)) return false;
+            return true;
+        default: return false;
+    }
+}
+
+static void compile_par(CG *cg, ASTNode *block) {
+    int count = block->as.par_block.count;
+    if (count <= 0) { cg_error(cg, block->line, "I require a nonempty par block"); return; }
+    for (int i = 0; i < count; ++i) {
+        ASTNode *binding = block->as.par_block.bindings[i];
+        if (!binding || binding->type != AST_LET || binding->as.let.is_mut) {
+            cg_error(cg, block->line, "I require immutable let bindings in par"); return;
+        }
+        for (int j = 0; j < i; ++j)
+            if (!strcmp(binding->as.let.name, block->as.par_block.bindings[j]->as.let.name)) {
+                cg_error(cg, block->line, "I require distinct par binding names"); return;
+            }
+    }
+    uint64_t capacity = 5 + (uint64_t)count * (7 + cg->param_count);
+    if (capacity > UINT32_MAX / 4 || capacity > SIZE_MAX / sizeof(uint32_t)) {
+        cg_error(cg, block->line, "I cannot represent this passive record"); return;
+    }
+    CgPassive *record = calloc(1, sizeof(*record));
+    bool *reads = calloc(cg->param_count ? cg->param_count : 1, sizeof(bool));
+    if (record) record->words = calloc((size_t)capacity, sizeof(uint32_t));
+    if (!record || !reads || !record->words) {
+        if (record) free(record->words);
+        free(record); free(reads);
+        cg_error(cg, block->line, "I cannot allocate this passive record"); return;
+    }
+    uint32_t *words = record->words;
+    words[0] = 1; words[1] = cg->current_fn_idx; words[2] = cg->code_size; words[4] = (uint32_t)count;
+    CgPassive **place = &cg->passive;
+    while (*place && ((*place)->words[1] < words[1] ||
+           ((*place)->words[1] == words[1] && (*place)->words[2] < words[2]))) place = &(*place)->next;
+    record->next = *place; *place = record;
+    uint32_t at = 5;
+    for (int i = 0; i < count && !cg->had_error; ++i) {
+        ASTNode *binding = block->as.par_block.bindings[i];
+        memset(reads, 0, cg->param_count * sizeof(bool));
+        if (!par_inputs(cg, binding->as.let.value, block, reads)) {
+            cg_error(cg, binding->line, "I require independent scalar expressions over guarded parameters in par"); break;
+        }
+        words[at] = cg->code_size;
+        compile_stmt(cg, binding);
+        words[at + 1] = cg->code_size;
+        words[at + 2] = (uint32_t)local_find(cg, binding->as.let.name);
+        uint32_t input = at + 7;
+        for (uint16_t j = 0; j < cg->param_count; ++j) if (reads[j]) words[input++] = j;
+        words[at + 4] = input - at - 7;
+        at = input;
+    }
+    words[3] = cg->code_size;
+    record->word_count = at;
+    free(reads);
+}
+
+static void publish_passive(CG *cg) {
+    uint64_t count = 0, words = 2;
+    for (CgPassive *record = cg->passive; record; record = record->next) {
+        ++count; words += record->word_count;
+    }
+    if (count && !cg->had_error) {
+        if (words > UINT32_MAX / 4) cg_error(cg, 0, "I cannot represent my passive records");
+        else {
+            cg->module->passive_data = malloc((size_t)words * 4);
+            if (!cg->module->passive_data) cg_error(cg, 0, "I cannot allocate my passive records");
+            else {
+                cg->module->passive_size = (uint32_t)words * 4;
+                uint32_t cursor = 0;
+                for (unsigned i = 0; i < 4; ++i) cg->module->passive_data[cursor++] = (uint8_t)(2u >> (8*i));
+                for (unsigned i = 0; i < 4; ++i) cg->module->passive_data[cursor++] = (uint8_t)(count >> (8*i));
+                for (CgPassive *record = cg->passive; record; record = record->next) {
+                    uint32_t base = cg->module->functions[record->words[1]].code_offset;
+                    record->words[2] += base; record->words[3] += base;
+                    uint32_t at = 5;
+                    for (uint32_t i = 0; i < record->words[4]; ++i) {
+                        record->words[at] += base; record->words[at + 1] += base;
+                        at += 7 + record->words[at + 4];
+                    }
+                    for (uint32_t i = 0; i < record->word_count; ++i)
+                        for (unsigned j = 0; j < 4; ++j)
+                            cg->module->passive_data[cursor++] = (uint8_t)(record->words[i] >> (8*j));
+                }
+            }
+        }
+    }
+    while (cg->passive) {
+        CgPassive *next = cg->passive->next;
+        free(cg->passive->words); free(cg->passive); cg->passive = next;
+    }
 }
 
 static void compile_stmt(CG *cg, ASTNode *node) {
@@ -3524,14 +3682,9 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         break;
     }
 
-    case AST_PAR_BLOCK: {
-        /* par blocks execute sequentially in the VM */
-        for (int i = 0; i < node->as.par_block.count; i++) {
-            compile_stmt(cg, node->as.par_block.bindings[i]);
-            if (!stmt_falls_through(node->as.par_block.bindings[i])) break;
-        }
+    case AST_PAR_BLOCK:
+        compile_par(cg, node);
         break;
-    }
 
     case AST_PAR_LET: {
         /* par-let: bindings evaluated sequentially, then body (result discarded as stmt) */
@@ -3617,6 +3770,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 
     /* Compile function body */
     ASTNode *body = fn_node->as.function.body;
+    compile_par_guards(cg, body);
     if (body) {
         if (body->type == AST_BLOCK) {
             for (int i = 0; i < body->as.block.count; i++) {
@@ -4422,6 +4576,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                                      (uint32_t)strlen(input_file));
     }
 
+    publish_passive(&cg);
     free(cg.code);
 
     if (cg.had_error) {
