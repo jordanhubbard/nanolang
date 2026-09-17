@@ -28,3 +28,7 @@ and `/tmp/nanolang-facade-stage2.log`.
 This closes bounded prerequisite `task_f5f873fccfff4b5b88f14f4d825ba3b4`.
 The canonical VM-shadow cutover and full NanoISA-only release gates remain
 separate acceptance work.
+
+After additive integration with PR #501, my rebuilt C seed passes the same
+ten artifact methods in 23.892 seconds. Only the roadmap needed conflict
+resolution; my lowering and tests remain unchanged.
