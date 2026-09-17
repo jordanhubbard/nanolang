@@ -59,6 +59,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       native compiler execution and continued rejection of unsupported imports.
       MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
       `docs/evidence/compiler-aot-artifact-binding-gap.md`.
+      My five exact facade adapters now preserve borrowed string snapshots;
+      real VM/native execution and malformed import contracts pass. Full
+      compiler execution remains blocked by the boxed-index prerequisite.
 
 - [ ] **v5.0.1 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish
@@ -103,11 +106,32 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       reject malformed textual payloads, and compare canonical v2 bytes.
       MAC: `task_64dda3aeaab042df96a914ccd974209a`.
 
+- [x] **v5.0.1 self-hosted enum metadata.** I retain ordered enum variant
+      names and signed explicit/implicit values in my shared AST instead of
+      discarding them during parsing. I verify all bootstrap stages and
+      schema consumers before my NanoISA emitter uses these facts.
+      MAC: `task_e66b50097fe343e3b78e6b750a5c7315`.
+
 - [x] **v5.0.1 C-seed global initializer context.** I apply declared map and
       array types before checking top-level initializers, matching local
       declarations. I test typed constant maps, empty string arrays, and
       rejected mismatches through my native and VM frontends.
       MAC: `task_026e73d59e9e45b0b732b43883feea9a`.
+- [x] **Checked boxed indices in native array updates.** I reconcile declared
+      integer indices that inference boxes as dynamic values, preserving tag
+      checks and rejecting wrong tags. Nine native cases preserve aliases,
+      reject invalid tags/bounds, and advance compiler inference. MAC
+      `task_959f620cc9294ef693072702f35ba44f`.
+
+- [ ] **Boxed string-array argument inference.** I reconcile the concrete
+      string-array contract at `generate_expression` to `mb_resolve` without
+      weakening conflicting-shape or runtime-tag checks. Full native compiler
+      execution remains open. MAC `task_e3a639dac7b54940ab11546c1ffa5eb9`.
+
+- [ ] **Raw NanoISA array-update index checks.** I reject noninteger and
+      invalid-range indices in NanoVM while preserving valid alias mutation
+      and ownership cleanup. Native tag guards remain enforced. MAC
+      `task_f64074441cf64f47b5f40ccefc78233c`.
 
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
@@ -238,6 +262,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and submit only the focused patch.
       MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
 
+- [ ] **Typed null pointers in ordered native calls.** I retain the declared
+      pointer type when I snapshot a null literal argument for a native call,
+      without weakening left-to-right argument evaluation or callee capture.
+      My strict macOS framework check currently rejects the integer temporary
+      passed to `glfwCreateWindow`'s pointer parameters.
+      MAC `task_64b0d006cff713ffa197dcec1d22a894`.
+
 - [x] **Isolated NanoISA facade shadows.** I replace shared temporary fixture
       names with exclusive directories, retain assembly/load/error assertions,
       and verify concurrent execution and cleanup.
@@ -245,6 +276,50 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `make test-nanoisa-shadow-isolation` passes four concurrent compiler
       runs, fixture cleanup, prior sentinel preservation and unavailable-temp
       rejection without an output artifact.
+
+- [x] **Closed purity summary foundation.** I preserve `pure fn` annotations in
+      both frontends, derive transitive effects for known bodies, and reject
+      false purity, mutable state, unknown calls, unsafe operations and resources.
+      I compare shared positive/negative fixtures, including recursive closure.
+      I reject mutable aggregate globals/parameters, including scalar-record
+      wrappers around arrays: immutable handles are not deep-immutability proof.
+      I also reject explicit extern declarations that collide with intrinsic
+      names; a spelling alone does not establish a builtin effect contract.
+      I remove the unsupported `pure` claim from `complex_exp`, whose `exp`
+      dependency is an extern declaration rather than a checked body.
+      This is an eligibility prerequisite, not completed `par`/`flow` semantics.
+      MAC `task_41966fd9c9da4f1babfab0a8a25a66c4`.
+      My three-stage bootstrap, shared Cseed/Stage 2 conformance, typechecker,
+      runtime-list and schema checks pass; see
+      [`closed-purity-foundation.md`](evidence/closed-purity-foundation.md).
+      I bind global reads to their function source owner, so same-named
+      globals in unrelated modules do not contaminate the summary.
+      I also preserve complete imported parameter metadata: my old module
+      registration left `type_info` uninitialized, which resource-signature
+      inspection exposed during bootstrap.
+
+- [ ] **Selfhost imported scalar global identity.** I retain ordinary scalar
+      representations when separate modules define the same global spelling.
+      My current native shadows emit `NlGuarded_int` as an integer return even
+      without purity annotations. I test both import orders and actual values.
+      MAC `task_2905cd2c7dc44e759bf64818ed0a3d77`.
+
+- [ ] **Map-valued global factory initialization.** I preserve function
+      declarations and initialized map handles when a global calls a typed
+      map factory. Cseed currently reports a late prototype and Stage 2
+      crashes when that global is read. MAC `task_83a9577deffb4f998924e9cd4a5cddc1`.
+
+- [ ] **Verified foreign intrinsic purity identities.** I establish exact
+      intrinsic ABI/binding contracts before restoring closed eligibility
+      to wrappers such as `complex_exp`. I reject user extern collisions
+      and wrong bindings in both frontends and IR facts. This remains full
+      passive scope. MAC `task_20f6cb36fbf24bba987b4ea503529438`.
+
+- [ ] **Selfhost bool-array record-field mutation.** I must select the bool
+      setter for `array_set record.flags`, preserving mandatory native shadows.
+      My purity bootstrap exposed an incorrect int setter; typed local aliases
+      isolate the foundation while this repair remains open.
+      MAC `task_d32adbdff13241dc8ad9b0a889071352`.
 
 - [x] **Self-hosted string prefix runtime.** I implement my `str_starts_with`
       native runtime contract so importing NanoISA lowering does not leave an
@@ -262,6 +337,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [x] I report the lowerer's exact refusal at this checked boundary and
             preserve prior output when a reachable declaration is unsupported
             (`task_6c940d99e2674a9fabe6b27ce16517eb`).
+
+- [x] **C-seed native nested-array literals.** I lower non-empty array-valued
+      literals to an `ELEM_ARRAY` dynamic array rather than a C compound-array
+      pointer. I preserve left-to-right child evaluation, aliases and the
+      expected nested element context for empty replacement values, with strict
+      native compilation and VM/native parity for direct, local and record-field
+      forms. This item changes only my C seed; self-hosted field/type propagation
+      remains separate work. MAC `task_c2ebfd28c24345daaa8c31dac75b45ac`.
+      My two focused methods pass, including strict native compilation and
+      byte-for-byte VM/native output parity. My transpiler, typechecker,
+      empty-record-array-field and native-call-ordering gates also pass. My
+      quick suite passes bootstrap, all 17 core programs and its following
+      regression groups before reaching the separately tracked macOS typed-null
+      failure above.
 
 - [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
@@ -8103,10 +8192,29 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower the supported string/int map field in compiler `CollectResult`,
+- [ ] I lower declared enum values/types from preserved self-host AST metadata
+      (`task_3ef1df55630e4199b825ff5d8a0043f1`), including signed values and
+      exact scalar transport. The actual compiler first stops at
+      `TOKEN_DOUBLE_COLON` after unsafe-block lowering.
+- [x] I propagate unsafe-block termination through C-seed bytecode control flow
+      (`task_ed2788c9071249d2a8c8ce3fbec37a74`); recursive analysis now
+      preserves exact nested-return bytecode comparisons.
+- [x] I preserve lexical local bindings during self-hosted block lowering
+      (`task_64cc83f059264bf983a449c3312cde4f`), including unsafe/if/while
+      shadowing, outer mutation, and monotonically allocated local slots.
+- [x] I lower scoped unsafe blocks through my existing supported host ABI,
+      retaining control flow and stack balance
+      (`task_750341a5ccb04cffa9b2e0cc92e1f7d6`). Twelve opcode comparisons
+      and VM/AOT execution cover nested scopes and loop exits; see
+      `docs/evidence/selfhost-unsafe-blocks.md`.
+- [ ] I retain HashMap field generic types through C-seed builtin inference
+      (`task_160826784e8a4aa4ac9d5e589a54c814`); direct `map_get`/`map_has`
+      on a declared string/int map field currently fails inference.
+- [x] I lower the supported string/int map field in compiler `CollectResult`,
       preserving map identity through record fields, calls and returns
-      (`task_95a9982edcd04a1dbb57c45639cd7230`). Actual emission after record arrays
-      first refuses this local type.
+      (`task_95a9982edcd04a1dbb57c45639cd7230`). Ten C-seed bytecode comparisons
+      and VM/AOT execution pass; direct receiver C-seed inference remains
+      separate. See `docs/evidence/selfhost-map-record-fields.md`.
 - [ ] I preserve nominal record element metadata through direct array access
       and chained field projection in my C seed, including record-array fields
       (`task_8ddcdb5c824e4a8eb6cc0e2d1bc9ebe3`). Explicit typed locals currently avoid

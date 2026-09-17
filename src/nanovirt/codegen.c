@@ -2974,6 +2974,11 @@ static bool stmt_falls_through(ASTNode *node) {
                 if (!stmt_falls_through(node->as.block.statements[i])) return false;
             }
             return true;
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < node->as.unsafe_block.count; i++) {
+                if (!stmt_falls_through(node->as.unsafe_block.statements[i])) return false;
+            }
+            return true;
         case AST_IF:
             return !node->as.if_stmt.else_branch
                 || stmt_falls_through(node->as.if_stmt.then_branch)

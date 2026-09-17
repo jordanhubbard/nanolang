@@ -122,7 +122,8 @@ shadow complex_from_polar {
     assert (< (abs c.im) 0.001)
 }
 
-pub pure fn complex_exp(z: Complex) -> Complex {
+# I do not claim a closed summary for my foreign exp dependency.
+pub fn complex_exp(z: Complex) -> Complex {
     let er: float = (exp z.re)
     return Complex { re: (* er (cos z.im)), im: (* er (sin z.im)) }
 }

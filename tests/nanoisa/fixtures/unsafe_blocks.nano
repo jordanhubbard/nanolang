@@ -1,0 +1,62 @@
+fn nested(value: int) -> int {
+    unsafe {
+        if (> value 0) { unsafe { return (+ value 1) } } else { return 0 }
+        return 99
+    }
+    return 100
+}
+shadow nested { assert (== (nested 2) 3) assert (== (nested 0) 0) }
+fn loops() -> int {
+    let mut i: int = 0
+    let mut sum: int = 0
+    while (< i 4) {
+        unsafe {
+            set i (+ i 1)
+            if (== i 2) { unsafe { continue } }
+            let mut j: int = 0
+            while (< j 4) {
+                unsafe {
+                    set j (+ j 1)
+                    if (== j 2) { break }
+                    set sum (+ sum i)
+                }
+            }
+            if (== i 3) { break }
+        }
+    }
+    return sum
+}
+shadow loops { assert (== (loops) 4) }
+fn host() -> string {
+    let mut value: string = "unset"
+    unsafe { set value (getenv "NANO_UNSAFE_EMITTER_TEST") }
+    return value
+}
+shadow host { assert (== (host) (getenv "NANO_UNSAFE_EMITTER_TEST")) }
+fn scoped() -> int {
+    let value: int = 1
+    let mut total: int = 0
+    unsafe {
+        let value: int = 2
+        assert (== value 2)
+        set total value
+        unsafe { let value: int = 3 assert (== value 3) }
+        assert (== value 2)
+    }
+    assert (== value 1)
+    if true { let value: int = 4 assert (== value 4) }
+    assert (== value 1)
+    while (< total 3) { let value: int = 5 assert (== value 5) set total (+ total 1) }
+    assert (== value 1)
+    return total
+}
+shadow scoped { assert (== (scoped) 3) }
+fn main() -> int {
+    assert (== (nested 2) 3)
+    assert (== (nested 0) 0)
+    assert (== (loops) 4)
+    assert (== (scoped) 3)
+    assert (== (host) (getenv "NANO_UNSAFE_EMITTER_TEST"))
+    return 0
+}
+shadow main { assert (== (main) 0) }

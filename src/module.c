@@ -697,7 +697,15 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     
     bool saved_suppress_shadow_warnings = env->suppress_shadow_warnings;
     env->suppress_shadow_warnings = true;
+    const char *saved_source_file = env_current_file(env);
+    /* I borrow the same cache-owned identity as the retained module AST. */
+    int source_index = cached_module_index(module_path);
+    ModuleInfo *source_owner = env_get_module(env, module_name);
+    const char *module_source = source_index >= 0 ? module_cache->loaded_paths[source_index] :
+                                (source_owner ? source_owner->path : NULL);
+    env_set_current_file(env, module_source);
     bool module_typecheck_ok = type_check_module(module_ast, env);
+    env_set_current_file(env, saved_source_file);
     env->suppress_shadow_warnings = saved_suppress_shadow_warnings;
     if (!module_typecheck_ok) {
         fprintf(stderr, "Error: Type checking failed for module '%s'\n", module_path);
@@ -1995,6 +2003,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
             meta->functions[i].body = NULL;
             meta->functions[i].shadow_test = NULL;
             meta->functions[i].module_name = NULL;
+            meta->functions[i].source_file = NULL;
             meta->functions[i].alias_of = NULL;
             meta->functions[i].cleanup_function = NULL;
             meta->functions[i].effect_names = NULL;

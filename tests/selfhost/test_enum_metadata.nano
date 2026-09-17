@@ -1,0 +1,34 @@
+import "../../src_nano/parser.nano"
+import "../../src_nano/compiler/lexer.nano"
+
+fn main() -> int {
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let source: string = "enum Mode { Zero, Gap = 17, Next, Low = -3, Following, Repeat = 17 } enum Empty {} enum Other { First = -8, Second }"
+    let tokens: List<LexerToken> = (tokenize_string source "metadata.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "metadata.nano")
+    assert (not (parser_has_error parsed))
+    assert (== (parser_get_enum_count parsed) 3)
+    let mode: ASTEnum = (parser_get_enum parsed 0)
+    assert (== mode.name "Mode")
+    assert (== mode.variant_count 6)
+    assert (== (array_length mode.variant_names) mode.variant_count)
+    assert (== (array_length mode.variant_values) mode.variant_count)
+    assert (== (at mode.variant_names 3) "Low")
+    assert (== (at mode.variant_names 5) "Repeat")
+    assert (== (at mode.variant_values 0) 0)
+    assert (== (at mode.variant_values 1) 17)
+    assert (== (at mode.variant_values 2) 18)
+    assert (== (at mode.variant_values 3) -3)
+    assert (== (at mode.variant_values 4) -2)
+    assert (== (at mode.variant_values 5) 17)
+    let empty: ASTEnum = (parser_get_enum parsed 1)
+    assert (== empty.variant_count 0)
+    assert (== (array_length empty.variant_names) 0)
+    assert (== (array_length empty.variant_values) 0)
+    let other: ASTEnum = (parser_get_enum parsed 2)
+    assert (== (at other.variant_values 0) -8)
+    assert (== (at other.variant_values 1) -7)
+    assert (== (at mode.variant_values 0) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

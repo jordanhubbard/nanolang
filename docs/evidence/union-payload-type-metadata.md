@@ -18,7 +18,7 @@ AST and registering environment before inspecting the retained payload copy;
 concrete substitution leaves the declaration unchanged.
 
 My nested-array native execution still meets the independently tracked C
-literal emitter defect `task_c2eb` and requires the peer repair before the full
+literal emitter defect `task_c2ebfd28c24345daaa8c31dac75b45ac` and requires the peer repair before the full
 paired gate can pass. A typed temporary reproduces the same `DynArray **`
 initialization error; I preserve both logs instead of claiming success.
 

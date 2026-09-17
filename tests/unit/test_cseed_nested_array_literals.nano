@@ -1,0 +1,62 @@
+# I keep nested array literals in my dynamic-array representation.
+let mut evaluation_order: int = 0
+
+struct Box {
+    rows: array<array<string>>
+}
+
+fn marked_row(value: string, marker: int) -> array<string> {
+    set evaluation_order (+ (* evaluation_order 10) marker)
+    return [value]
+}
+
+shadow marked_row {
+    set evaluation_order 0
+    let row: array<string> = (marked_row "shadow" 1)
+    assert (== evaluation_order 1)
+    assert (str_equals (at row 0) "shadow")
+}
+
+fn check_nested_literals() -> int {
+    let __nl_nested_array_0: array<string> = ["source-name"]
+    assert (str_equals (at (at [["direct"]] 0) 0) "direct")
+
+    let collision_aliases: array<array<string>> = [__nl_nested_array_0]
+    assert (str_equals (at (at collision_aliases 0) 0) "source-name")
+
+    let local: array<array<string>> = [["local"]]
+    assert (str_equals (at (at local 0) 0) "local")
+
+    let alias: array<string> = ["before"]
+    let aliases: array<array<string>> = [alias]
+    (array_set alias 0 "after")
+    assert (str_equals (at (at aliases 0) 0) "after")
+
+    set evaluation_order 0
+    let ordered: array<array<string>> = [
+        (marked_row "left" 1),
+        (marked_row "right" 2)
+    ]
+    assert (== evaluation_order 12)
+    assert (str_equals (at (at ordered 0) 0) "left")
+    assert (str_equals (at (at ordered 1) 0) "right")
+
+    let box: Box = Box { rows: [["before"]] }
+    (array_set box.rows 0 [])
+    assert (== (array_length (at box.rows 0)) 0)
+    return 0
+}
+
+shadow check_nested_literals {
+    assert (== (check_nested_literals) 0)
+}
+
+fn main() -> int {
+    assert (== (check_nested_literals) 0)
+    (println "nested-array-literals-ok")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

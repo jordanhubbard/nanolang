@@ -156,6 +156,88 @@ class OneIrCompiler(unittest.TestCase):
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
 
+    def test_nanoisa_artifact_contracts_remain_exact(self):
+        contracts = {
+            "nl_nanoisa_load_print": ("string", ["string"]),
+            "nl_nanoisa_load_pretty": ("string", ["string"]),
+            "nl_nanoisa_last_error": ("string", []),
+            "nl_nanoisa_assemble_save": ("int", ["string", "string"]),
+            "nl_nanoisa_assemble_text_save": ("int", ["string", "string"]),
+        }
+        with tempfile.TemporaryDirectory(prefix="nano-artifact-contract-") as tmp:
+            work = Path(tmp)
+            assembly, module, source = (work / name for name in ("input.nasm", "input.nvm", "input.c"))
+            for symbol, (result, parameters) in contracts.items():
+                library = str(work / "unused.so")
+                variants = {
+                    "exact": (library, symbol, result, parameters, "artifact"),
+                    "unknown": (library, symbol + "_unknown", result, parameters, "artifact"),
+                    "return": (library, symbol, "bool", parameters, "artifact"),
+                    "arity": (library, symbol, result, parameters + ["string"], "artifact"),
+                    "kind": (library, symbol, result, parameters, "ffi"),
+                }
+                if parameters:
+                    variants["parameter"] = (library, symbol, result, ["int"] + parameters[1:], "artifact")
+                for case, (path, name, returns, args, kind) in variants.items():
+                    with self.subTest(symbol=symbol, case=case):
+                        assembly.write_text(f'.import "{path}" "{name}" {returns} {" ".join(args)}\n'
+                                            f'.import_kind 0 {kind}\n.entry main\n'
+                                            '.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+                        self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                        source.write_text("prior-output")
+                        run = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source],
+                                             capture_output=True, text=True, timeout=30)
+                        if case == "exact":
+                            self.assertEqual(run.returncode, 0, run.stderr)
+                            self.run_checked(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                              source, "-o", work / "input", *HOST_RUNTIME])
+                        else:
+                            self.assertNotEqual(run.returncode, 0)
+                            self.assertIn("refuses CALL_EXTERN", run.stderr)
+                            self.assertEqual(source.read_text(), "prior-output")
+
+    def test_nanoisa_artifact_strings_survive_later_facade_calls(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        with tempfile.TemporaryDirectory(prefix="nano-aot-facade-") as tmp:
+            work = Path(tmp)
+            source, module, native_c, binary = (work / name for name in
+                                              ("input.nano", "input.nvm", "input.c", "input"))
+            source.write_text(r'''module "modules/nanoisa/nanoisa.nano" as isa
+fn main() -> int {
+    let root: string = "__FACADE_ROOT__"
+    let assembly: string = ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+    let nasm: string = (str_concat root "/first.nasm")
+    let first_path: string = (str_concat root "/first.nvm")
+    let second_path: string = (str_concat root "/second.nvm")
+    assert (== (file_write nasm assembly) 0)
+    assert (== (isa.assemble_save nasm first_path) 0)
+    assert (== (isa.assemble_text_save assembly second_path) 0)
+    let first: string = (isa.load_print first_path)
+    let first_copy: string = (str_concat first "")
+    assert (str_contains first "PUSH_I64")
+    let second: string = (isa.load_pretty second_path)
+    let second_copy: string = (str_concat second "")
+    assert (str_contains second "Functions")
+    assert (== first first_copy)
+    assert (== (isa.load_print (str_concat root "/missing.nvm")) "")
+    assert (== second second_copy)
+    let error: string = (isa.last_error)
+    let error_copy: string = (str_concat error "")
+    assert (> (str_length error) 0)
+    assert (== (isa.assemble_text_save assembly second_path) 0)
+    assert (== error error_copy)
+    (println "facade-ok")
+    return 0
+}
+'''.replace('__FACADE_ROOT__', str(work)))
+            self.run_checked([ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", module])
+            self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", module, "--", work]), b"facade-ok\n")
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", native_c])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
+                              "-o", binary, *HOST_RUNTIME])
+            self.assertEqual(self.run_checked([binary, work]), b"facade-ok\n")
+
     def test_real_std_artifact_uses_host_runtime(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")

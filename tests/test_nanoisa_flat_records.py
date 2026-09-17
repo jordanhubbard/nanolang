@@ -260,6 +260,75 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_unsafe_blocks_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/unsafe_blocks.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-unsafe-blocks-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "nested", "loops", "host", "scoped", "main")
+            self.assertIn("12 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+    def test_unsafe_blocks_preserve_refusals(self):
+        programs = [
+            'fn main() -> int { unsafe { let hidden: int = 7 } return hidden }',
+            'fn main() -> int { unsafe { break } return 0 }',
+            'extern fn private_host() -> int fn main() -> int { unsafe { return (private_host) } }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-unsafe-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program)
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I refused that program:", result.stdout)
+                    self.assertFalse(output.exists())
+
+    def test_map_record_fields_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/map_record_fields.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-map-fields-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "collect", "forward", "remember", "main")
+            self.assertIn("10 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+            direct = work / "direct.nano"
+            direct.write_text(fixture.read_text().replace('(map_put values key value)',
+                                                         '(map_put result.visited_set key value)').replace('(map_has values "second")',
+                                                         '(map_has original.visited_set "second")').replace(
+                '(map_get values "second") 2)\n    assert',
+                '(map_get original.visited_set "second") 2)\n    assert'))
+            self.run_checked(ROOT / "bin/nanoisa_emit", direct, "-o", assembly)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            self.run_checked(ROOT / "bin/nano_vm", emitted)
+            native, binary = work / "direct.c", work / "direct"
+            self.run_checked(ROOT / "bin/nvm2c", emitted, "-o", native)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
+            self.run_checked(binary)
+
     def test_record_arrays_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/record_arrays.nano"
         with tempfile.TemporaryDirectory(prefix="nano-record-arrays-") as tmp:
@@ -644,6 +713,8 @@ class FlatRecordEmitter(unittest.TestCase):
 
     def test_recursive_and_malformed_nested_records_are_refused(self):
         programs = [
+            'struct MapField { values: HashMap<int,int> } fn bad(value: MapField) -> MapField { return value }',
+            'struct MapField { values: HashMap<string,int> } fn bad() -> MapField { return MapField { values: 7 } }',
             'struct Cycle { next: Cycle } fn identity(value: Cycle) -> Cycle { return value }',
             'struct Cycle { next: List<Cycle> } fn identity(value: Cycle) -> Cycle { return value }',
             'struct Cycle { next: array<Cycle> } fn identity(value: Cycle) -> Cycle { return value }',

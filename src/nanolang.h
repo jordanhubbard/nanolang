@@ -621,6 +621,7 @@ typedef struct {
     bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     char *module_name;  /* Module this function belongs to (NULL for global) */
+    const char *source_file; /* Borrowed source owner for checked function bodies. */
     char *alias_of;  /* For import aliases: original function name (NULL if not alias) */
 
     /* Memory semantics annotations (for module metadata and tooling) */

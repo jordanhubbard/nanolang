@@ -1,0 +1,136 @@
+# I generate this closed intrinsic set from spec/purity_intrinsics.json.
+pub fn purity_intrinsic(name: string) -> bool {
+    if (== name "range") { return true }
+    if (== name "abs") { return true }
+    if (== name "min") { return true }
+    if (== name "max") { return true }
+    if (== name "sqrt") { return true }
+    if (== name "pow") { return true }
+    if (== name "floor") { return true }
+    if (== name "ceil") { return true }
+    if (== name "round") { return true }
+    if (== name "sin") { return true }
+    if (== name "cos") { return true }
+    if (== name "tan") { return true }
+    if (== name "atan2") { return true }
+    if (== name "asin") { return true }
+    if (== name "acos") { return true }
+    if (== name "atan") { return true }
+    if (== name "log") { return true }
+    if (== name "log2") { return true }
+    if (== name "log10") { return true }
+    if (== name "exp") { return true }
+    if (== name "fmod") { return true }
+    if (== name "cast_int") { return true }
+    if (== name "cast_float") { return true }
+    if (== name "cast_bool") { return true }
+    if (== name "cast_string") { return true }
+    if (== name "to_string") { return true }
+    if (== name "int_to_string") { return true }
+    if (== name "float_to_string") { return true }
+    if (== name "bool_to_string") { return true }
+    if (== name "str_length") { return true }
+    if (== name "str_concat") { return true }
+    if (== name "str_substring") { return true }
+    if (== name "str_contains") { return true }
+    if (== name "str_equals") { return true }
+    if (== name "str_split") { return true }
+    if (== name "str_join") { return true }
+    if (== name "format") { return true }
+    if (== name "str_trim") { return true }
+    if (== name "str_trim_left") { return true }
+    if (== name "str_trim_right") { return true }
+    if (== name "str_starts_with") { return true }
+    if (== name "str_ends_with") { return true }
+    if (== name "str_index_of") { return true }
+    if (== name "str_last_index_of") { return true }
+    if (== name "str_replace") { return true }
+    if (== name "str_to_lower") { return true }
+    if (== name "str_to_upper") { return true }
+    if (== name "char_at") { return true }
+    if (== name "string_from_char") { return true }
+    if (== name "string_to_int") { return true }
+    if (== name "string_to_float") { return true }
+    if (== name "is_digit") { return true }
+    if (== name "is_alpha") { return true }
+    if (== name "is_alnum") { return true }
+    if (== name "is_space") { return true }
+    if (== name "is_whitespace") { return true }
+    if (== name "is_upper") { return true }
+    if (== name "is_lower") { return true }
+    if (== name "digit_value") { return true }
+    if (== name "char_to_lower") { return true }
+    if (== name "char_to_upper") { return true }
+    if (== name "array_length") { return true }
+    if (== name "array_new") { return true }
+    if (== name "at") { return true }
+    if (== name "array_get") { return true }
+    if (== name "array_slice") { return true }
+    if (== name "array_concat") { return true }
+    if (== name "array_reverse") { return true }
+    if (== name "array_contains") { return true }
+    if (== name "array_index_of") { return true }
+    if (== name "hashmap_get") { return true }
+    if (== name "hashmap_has") { return true }
+    if (== name "hashmap_keys") { return true }
+    if (== name "hashmap_values") { return true }
+    if (== name "hashmap_length") { return true }
+    if (== name "map_get") { return true }
+    if (== name "map_has") { return true }
+    if (== name "map_keys") { return true }
+    if (== name "map_values") { return true }
+    if (== name "map_length") { return true }
+    if (== name "result_is_ok") { return true }
+    if (== name "result_is_err") { return true }
+    if (== name "result_unwrap") { return true }
+    if (== name "result_unwrap_err") { return true }
+    if (== name "result_unwrap_or") { return true }
+    if (== name "path_join") { return true }
+    if (== name "path_basename") { return true }
+    if (== name "path_dirname") { return true }
+    if (== name "path_normalize") { return true }
+    if (== name "bytes_from_string") { return true }
+    if (== name "string_from_bytes") { return true }
+    if (== name "bstr_utf8_length") { return true }
+    if (== name "bstr_utf8_char_at") { return true }
+    if (== name "bstr_validate_utf8") { return true }
+    return false
+}
+shadow purity_intrinsic {
+    assert (purity_intrinsic "abs")
+    assert (not (purity_intrinsic "println"))
+}
+pub fn purity_observable(name: string) -> bool {
+    if (== name "print") { return true }
+    if (== name "println") { return true }
+    if (== name "file_read") { return true }
+    if (== name "file_read_bytes") { return true }
+    if (== name "file_write") { return true }
+    if (== name "file_append") { return true }
+    if (== name "file_remove") { return true }
+    if (== name "file_rename") { return true }
+    if (== name "file_exists") { return true }
+    if (== name "file_size") { return true }
+    if (== name "tmp_dir") { return true }
+    if (== name "mktemp") { return true }
+    if (== name "mktemp_dir") { return true }
+    if (== name "dir_create") { return true }
+    if (== name "dir_remove") { return true }
+    if (== name "dir_list") { return true }
+    if (== name "dir_exists") { return true }
+    if (== name "getcwd") { return true }
+    if (== name "chdir") { return true }
+    if (== name "fs_walkdir") { return true }
+    if (== name "path_isfile") { return true }
+    if (== name "path_isdir") { return true }
+    if (== name "system") { return true }
+    if (== name "exit") { return true }
+    if (== name "getenv") { return true }
+    if (== name "setenv") { return true }
+    if (== name "process_run") { return true }
+    return false
+}
+shadow purity_observable {
+    assert (purity_observable "getenv")
+    assert (not (purity_observable "abs"))
+}

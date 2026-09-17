@@ -590,6 +590,7 @@ typedef struct nl_ASTFunction {
     int param_count;
     const char * return_type;
     int body;
+    bool is_pure;
 } nl_ASTFunction;
 typedef nl_ASTFunction ASTFunction;
 #endif
@@ -658,6 +659,8 @@ typedef struct nl_ASTEnum {
     int column;
     const char * name;
     int variant_count;
+    DynArray * variant_names;
+    DynArray * variant_values;
 } nl_ASTEnum;
 typedef nl_ASTEnum ASTEnum;
 #endif

@@ -194,7 +194,8 @@ extern struct ASTFunction {
     param_start: int,
     param_count: int,
     return_type: string,
-    body: int
+    body: int,
+    is_pure: bool
 }
 
 extern struct ASTShadow {
@@ -242,7 +243,9 @@ extern struct ASTEnum {
     line: int,
     column: int,
     name: string,
-    variant_count: int
+    variant_count: int,
+    variant_names: array<string>,
+    variant_values: array<int>
 }
 
 extern struct ASTUnion {
