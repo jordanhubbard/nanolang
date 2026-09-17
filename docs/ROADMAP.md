@@ -61,6 +61,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       execution refusals remain enabled. I pass 157 transition checks and
       182 allocation-injection/sanitizer checks; bounded evidence is in
       `docs/evidence/nanoisa-affine-state.md`.
+- [ ] I batch native map and copied-result collection using checked allocation-byte debt (MAC `task_c7931f1c22db473682d077b119b9c87d`). I count map headers, buckets, entries, keys, copied strings and owner records; positive allocation/growth contributes debt and release reduces live bytes. I retain existing published-root safe points, full graph tracing and forced collection, with a 64 KiB minimum budget adjusted to surviving map bytes. I require bounded byte peaks, alias/mutation/return tests and a large-live-graph scan measurement; I do not repeat full compilation before the repaired slice lands.
+
 - [x] I complete the retained-layout and ownership source closure in every
       explicit NanoISA build list, including the Forth SEE host manifest,
       its examples shared-library rule and the regular/daemon wrapper object
