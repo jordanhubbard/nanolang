@@ -47,6 +47,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 - [x] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. Seven Wasm and eleven LLVM methods pass after integration; [evidence](NANOISA_WASM.md). This first subset does not complete heap, host, reference or full-language Wasm coverage.
 - [ ] I resolve nested projected record-array global field shapes (`task_65d164a9fb204ff7872002f53e708bdf`). A new ordinary positive field read after nested projection, global storage and global reload refuses conflicting optional/record facts; I preserve `/tmp/nanolang-float-records-integrated-gates.log`. Existing exact record-array globals and float scalar transport do not establish this nested shape closure.
+- [ ] I close scalar CAST_BOOL parity across VM/C/LLVM (MAC `task_59c773b34bec49f4b46d5a0b4a8f2de7`), preserving zero/NaN truthiness and exact result tags. C translation lacks the opcode; my typed LLVM float slice keeps it refused while using the same truthiness for supported branches and assertions.
+
+- [ ] I extend my verified LLVM scalar profile with typed F64 arithmetic, comparisons, exact constants and scalar call/return storage (MAC `task_4b6401a64a3b4accaae1d087c4c1aea2`). I preserve signed zero, unordered NaN predicates, positive-zero division by zero, float truthiness and checked scalar numeric casts before LLVM conversion. I require VM/C/LLVM optimized/native boundary tests; heap/imports and generic cross-type comparisons remain separate coverage.
 
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
       their dataflow to verifier entry points (MAC

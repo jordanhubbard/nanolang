@@ -4474,7 +4474,7 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2llvm $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_nvm2llvm
+	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin

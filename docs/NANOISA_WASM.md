@@ -54,3 +54,5 @@ for this translator slice. Darwin execution remains untested.
 After integrating main through PR #559, code `f0d4cba8` passes all seven
 Wasm and eleven LLVM methods together in 6.779 seconds. I preserve the final
 log at `/tmp/nanolang-wasm-final-gates.log`.
+
+My shared typed F64 continuation adds arithmetic, comparisons, exact constants, float helper calls/storage and checked scalar numeric casts. Eleven Wasm methods and seventeen LLVM methods pass together in 42.767 seconds (`/tmp/nanolang-llvm-wasm-floats-final.log`). Positive float fixtures execute through `ScalarWasm.compare`, including Wasmtime and import-free Node; invalid float-to-int cases trap in Wasmtime. Unsupported string values still fail without replacing prior output. The executable entry remains integer/bool, CAST_BOOL remains refused, and heap/import/full-language coverage remains open.
