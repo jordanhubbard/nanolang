@@ -16,7 +16,10 @@ I repair those two omissions before backend admission.
 
 I then admit tagged byte values within the closed scalar backend profile:
 constants, locals, direct call parameters/results, supported joins, TYPE_CHECK,
-CAST_INT/FLOAT/BOOL and same-U8 comparisons. Typed I64/F64/BOOL operations keep
+CAST_INT/FLOAT/BOOL and explicit CAST_INT followed by typed I64 comparisons.
+My VM and C backend also implement same-U8 generic comparisons; LLVM/Wasm
+continue to refuse generic comparison opcodes until task01d or a separate
+static operand-proof prerequisite establishes their complete admitted contract. Typed I64/F64/BOOL operations keep
 their exact tag checks. I do not add a CAST_U8 instruction, byte arithmetic,
 heap or host byte transport, or a byte executable-entry ABI.
 

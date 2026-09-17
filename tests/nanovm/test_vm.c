@@ -2173,6 +2173,23 @@ static void test_cast_int_from_float(void) {
     nvm_module_free(mod);
 }
 
+static void test_cast_float_from_u8(void) {
+    for (unsigned value = 0; value <= 255; value++) {
+        uint8_t code[16];
+        uint32_t off = 0;
+        off += emit(code + off, OP_PUSH_U8, (int)value);
+        off += emit(code + off, OP_CAST_FLOAT);
+        off += emit(code + off, OP_RET);
+        NvmModule *mod = make_module(code, off, 0, 0);
+        VmResult r;
+        NanoValue result = run_module(mod, &r);
+        ASSERT_EQ_INT(r, VM_OK, "cast_float_from_u8: VM_OK");
+        ASSERT_EQ_INT(result.tag, TAG_FLOAT, "cast_float_from_u8: exact float tag");
+        ASSERT_EQ_F64(result.as.f64, (double)value, "cast_float_from_u8: exact unsigned value");
+        nvm_module_free(mod);
+    }
+}
+
 static void test_cast_float_from_int(void) {
     uint8_t code[64];
     uint32_t off = 0;
@@ -5721,6 +5738,7 @@ int main(void) {
 
     printf("\n[Type Casts]\n");
     RUN_TEST(test_cast_int_from_float);
+    RUN_TEST(test_cast_float_from_u8);
     RUN_TEST(test_cast_float_from_int);
     RUN_TEST(test_cast_bool);
     RUN_TEST(test_cast_string);

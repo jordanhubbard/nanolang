@@ -3814,6 +3814,7 @@ vm_return_values: ;
             switch (v.tag) {
                 case TAG_FLOAT: stack_push(vm, v); break;
                 case TAG_INT:   stack_push(vm, val_float((double)v.as.i64)); break;
+                case TAG_U8:    stack_push(vm, val_float((double)v.as.u8)); break;
                 case TAG_BOOL:  stack_push(vm, val_float(v.as.boolean ? 1.0 : 0.0)); break;
                 case TAG_STRING: {
                     const char *str = vmstring_cstr(v.as.string);
