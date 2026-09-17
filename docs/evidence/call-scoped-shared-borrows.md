@@ -41,3 +41,11 @@ check actual const-pointer parameters and address arguments. My bytecode
 negative covers all three relevant drivers. I retain the wider borrow task;
 these results do not prove exclusive mutation, full shape support, ownership
 IR, or release acceptance.
+
+After merging main through `ae4aa585`, I found and repaired a missing
+`borrow_mode` copy in postcondition cloning. The new parser regression first
+failed with mode 0 instead of mode 1. At final source checkpoint `385ba833`,
+my fresh integrated bootstrap, complete C parser/typechecker suites, schema
+consistency and 33 schema methods passed. The 13 paired methods passed again
+in 59.407 seconds, including meaningful helper shadows for repeated sharing
+and forwarding. My compiler sources remained unchanged during each build.
