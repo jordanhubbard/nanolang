@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_purity.nano" import par_closed_call
 /* =============================================================================
  * nanolang NSType Checker (Self-Hosted) - Minimal Version
  * =============================================================================
@@ -4911,14 +4912,32 @@ fn par_scalar_expr(parser: Parser, node_id: int, kind: int, symbols: array<Symbo
         return (and (par_scalar_expr parser node.left node.left_type symbols names)
                     (par_scalar_expr parser node.right node.right_type symbols names))
     }
-    if (== kind ParseNodeType.PNODE_CALL) {
-        let call: ASTCall = (parser_get_call parser node_id)
-        if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.arg_count 1)) {
-            if (== (parser_get_identifier parser call.function).name "not") {
-                let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-                return (par_scalar_expr parser argument.node_id argument.node_type symbols names)
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let mut name: string = ""
+        let mut line: int = 0
+        let mut start: int = 0
+        let mut length: int = 0
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let call: ASTCall = (parser_get_call parser node_id)
+            if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return false }
+            let ident: ASTIdentifier = (parser_get_identifier parser call.function)
+            let binding: int = (env_lookup symbols ident.name)
+            if (>= binding 0) {
+                if (not (at symbols binding).is_function) { return false }
             }
+            set name ident.name set line ident.line set start call.arg_start set length call.arg_count
+        } else {
+            let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+            set name call.function_name set line call.line set start call.arg_start set length call.arg_count
         }
+        if (not (par_closed_call parser name line length)) { return false }
+        let mut i: int = 0
+        while (< i length) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            if (not (par_scalar_expr parser arg.node_id arg.node_type symbols names)) { return false }
+            set i (+ i 1)
+        }
+        return true
     }
     return false
 }
@@ -4957,7 +4976,7 @@ fn check_par_statement(parser: Parser, block: ASTBlock, symbols: array<Symbol>, 
         set i (+ i 1)
     }
     if (not valid) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require nonempty independent immutable scalar let bindings in par; calls and aggregates remain unsupported." (Diagnostics.diag_location file_name block.line block.column)))
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require nonempty independent immutable scalar let bindings in par and checked closed scalar calls." (Diagnostics.diag_location file_name block.line block.column)))
         return symbols
     }
     let mut result: array<Symbol> = (env_copy_symbols symbols)

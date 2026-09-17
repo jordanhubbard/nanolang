@@ -193,7 +193,9 @@ static bool ast_references_name(ASTNode *node, const char *name) {
     }
 }
 
-/* I admit only closed scalar expressions in the first passive frontend slice. */
+static bool par_closed_call(ASTNode *node, Environment *env);
+
+/* I admit only closed scalar expressions in the passive frontend slice. */
 static bool par_scalar_expression(ASTNode *node, Environment *env) {
     if (!node) return false;
     switch (node->type) {
@@ -208,6 +210,16 @@ static bool par_scalar_expression(ASTNode *node, Environment *env) {
         case AST_PREFIX_OP:
             for (int i = 0; i < node->as.prefix_op.arg_count; ++i)
                 if (!par_scalar_expression(node->as.prefix_op.args[i], env)) return false;
+            return true;
+        case AST_CALL:
+            if (!par_closed_call(node, env)) return false;
+            for (int i = 0; i < node->as.call.arg_count; ++i)
+                if (!par_scalar_expression(node->as.call.args[i], env)) return false;
+            return true;
+        case AST_MODULE_QUALIFIED_CALL:
+            if (!par_closed_call(node, env)) return false;
+            for (int i = 0; i < node->as.module_qualified_call.arg_count; ++i)
+                if (!par_scalar_expression(node->as.module_qualified_call.args[i], env)) return false;
             return true;
         default:
             return false;
@@ -523,6 +535,7 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
 }
 
 #include "typechecker_purity.c"
+#include "typechecker_passive.c"
 
 /* Check if types are compatible */
 static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name);
@@ -5116,7 +5129,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             if (!valid) {
                 emit_context_error("E0036 PASSIVE PAR", stmt->line, stmt->column, 3,
-                    "I require nonempty independent immutable scalar let bindings in par; calls and aggregates remain unsupported.",
+                    "I require nonempty independent immutable scalar let bindings in par and checked closed scalar calls.",
                     "Use independent scalar expressions without calls or mutation.");
                 tc->has_error = true;
                 return TYPE_VOID;

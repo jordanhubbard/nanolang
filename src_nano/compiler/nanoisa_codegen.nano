@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_purity.nano" import par_closed_call
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 /* =============================================================================
  * NanoISA lowering (src_nano dual of src/nanovirt/codegen.c, pinned subset)
@@ -2800,12 +2801,24 @@ fn nisa_par_expression(parser: Parser, id: int, kind: int, names: array<string>)
         return (and (nisa_par_expression parser node.left node.left_type names)
                     (nisa_par_expression parser node.right node.right_type names))
     }
-    if (== kind ParseNodeType.PNODE_CALL) {
-        let call: ASTCall = (parser_get_call parser id)
-        if (and (== (nisa_call_name parser call) "not") (== call.arg_count 1)) {
-            let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-            return (nisa_par_expression parser argument.node_id argument.node_type names)
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let call: ASTCall = (nisa_get_call parser id kind)
+        let resolved: string = (nisa_call_name parser call)
+        if (== resolved "") { return false }
+        let mut original: string = ""
+        if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+            set original (parser_get_module_qualified_call parser call.function).function_name
+        } else {
+            set original (parser_get_identifier parser call.function).name
         }
+        if (not (par_closed_call parser original call.line call.arg_count)) { return false }
+        let mut i: int = 0
+        while (< i call.arg_count) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (not (nisa_par_expression parser arg.node_id arg.node_type names)) { return false }
+            set i (+ i 1)
+        }
+        return true
     }
     return false
 }
@@ -2825,10 +2838,14 @@ fn nisa_par_reads(parser: Parser, id: int, kind: int, name: string) -> bool {
         return (or (nisa_par_reads parser node.left node.left_type name)
                    (nisa_par_reads parser node.right node.right_type name))
     }
-    if (== kind ParseNodeType.PNODE_CALL) {
-        let call: ASTCall = (parser_get_call parser id)
-        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-        return (nisa_par_reads parser argument.node_id argument.node_type name)
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let call: ASTCall = (nisa_get_call parser id kind)
+        let mut i: int = 0
+        while (< i call.arg_count) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (nisa_par_reads parser arg.node_id arg.node_type name) { return true }
+            set i (+ i 1)
+        }
     }
     return false
 }

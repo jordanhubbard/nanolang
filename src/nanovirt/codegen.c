@@ -3183,6 +3183,15 @@ static bool par_inputs(CG *cg, ASTNode *expr, ASTNode *block, bool *reads) {
             reads[slot] = true;
             return true;
         }
+        case AST_CALL:
+            if (expr->as.call.func_expr) return false;
+            for (int i = 0; i < expr->as.call.arg_count; ++i)
+                if (!par_inputs(cg, expr->as.call.args[i], block, reads)) return false;
+            return true;
+        case AST_MODULE_QUALIFIED_CALL:
+            for (int i = 0; i < expr->as.module_qualified_call.arg_count; ++i)
+                if (!par_inputs(cg, expr->as.module_qualified_call.args[i], block, reads)) return false;
+            return true;
         default: return false;
     }
 }
