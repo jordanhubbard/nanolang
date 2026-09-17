@@ -4165,3 +4165,7 @@ test-units: test-purity-contract
 test-units: test-cseed-nested-array-literals
 test-cseed-nested-array-literals: $(COMPILER_C) nano_virt nano_vm
 	@python3 -m unittest tests.test_cseed_nested_array_literals
+.PHONY: test-record-array-projection
+test-units: test-record-array-projection
+test-record-array-projection: $(COMPILER_C) nano_virt nano_vm
+	python3 tests/test_record_array_projection.py

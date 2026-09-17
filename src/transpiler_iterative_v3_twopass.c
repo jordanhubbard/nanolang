@@ -529,6 +529,10 @@ static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
+        array_expr->as.call.arg_count == 2)
+        return infer_array_element_type(array_expr->as.call.args[0], env);
 
     const TypeInfo *info = array_expr_type_info(array_expr, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type) {
@@ -2042,7 +2046,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for at() and array_set() - needs type-specific functions */
-            else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_set") == 0) && 
+            else if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0 ||
+                      strcmp(func_name, "array_set") == 0) &&
                      expr->as.call.arg_count >= 2) {
                 /* Detect element type from array argument (first arg) */
                 const char *struct_name = NULL;
@@ -2088,15 +2093,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
                 
+                if (elem_type == TYPE_STRUCT && (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0))
+                    struct_name = get_struct_type_name(expr, env);
+
                 /* For structs, use dyn_array_get/set_struct with casts */
                 if (elem_type == TYPE_STRUCT && struct_name) {
-                    if (strcmp(func_name, "at") == 0) {
+                    if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
                         /* Generate: *((nl_StructName*)dyn_array_get_struct(arr, idx)) */
-                        emit_formatted(list, "*((nl_%s*)dyn_array_get_struct(", struct_name);
+                        emit_formatted(list, "(*((nl_%s*)dyn_array_get_struct(", struct_name);
                         build_expr(list, expr->as.call.args[0], env);  /* array */
                         emit_literal(list, ", ");
                         build_expr(list, expr->as.call.args[1], env);  /* index */
-                        emit_literal(list, "))");
+                        emit_literal(list, ")))");
                     } else {
                         /* Generate: dyn_array_set_struct(arr, idx, &value, sizeof(nl_StructName)) */
                         emit_literal(list, "dyn_array_set_struct(");
@@ -2125,7 +2133,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     
                     /* Generate type-specific function name */
                     char func_buf[64];
-                    if (strcmp(func_name, "at") == 0) {
+                    if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
                         snprintf(func_buf, sizeof(func_buf), "nl_array_at_%s", type_suffix);
                     } else {
                         snprintf(func_buf, sizeof(func_buf), "nl_array_set_%s", type_suffix);
@@ -2367,57 +2375,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, func_buf);
                     build_expr(list, expr->as.call.args[0], env);  /* array */
                     emit_literal(list, ", &_s); _v; })");
-                }
-            }
-            /* Special handling for array_get - needs type-specific accessor */
-            else if (strcmp(func_name, "array_get") == 0 && expr->as.call.arg_count == 2) {
-                /* Determine array element type from first argument */
-                Type elem_type = infer_array_element_type(expr->as.call.args[0], env);
-                const char *struct_name = NULL;
-                
-                /* For struct arrays, try to get struct name */
-                if (elem_type == TYPE_STRUCT) {
-                    ASTNode *arr_expr = expr->as.call.args[0];
-                    if (arr_expr->type == AST_IDENTIFIER) {
-                        Symbol *sym = env_get_var_visible_at(env, arr_expr->as.identifier, arr_expr->line, arr_expr->column);
-                        if (sym && sym->struct_type_name) {
-                            struct_name = sym->struct_type_name;
-                        }
-                    }
-                }
-                
-                /* For structs, use dyn_array_get_struct */
-                if (elem_type == TYPE_STRUCT && struct_name) {
-                    /* Generate: ({ nl_StructName _v; dyn_array_get_struct(arr, idx, &_v, sizeof(nl_StructName)); _v; }) */
-                    emit_formatted(list, "({ nl_%s _v; dyn_array_get_struct(", struct_name);
-                    build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);  /* index */
-                    emit_formatted(list, ", &_v, sizeof(nl_%s)); _v; })", struct_name);
-                } else {
-                    /* Map element type to suffix for primitive types */
-                    const char *type_suffix = "int";
-                    if (elem_type == TYPE_U8) {
-                        type_suffix = "u8";
-                    } else if (elem_type == TYPE_FLOAT) {
-                        type_suffix = "float";
-                    } else if (elem_type == TYPE_STRING) {
-                        type_suffix = "string";
-                    } else if (elem_type == TYPE_BOOL) {
-                        type_suffix = "bool";
-                    } else if (elem_type == TYPE_ARRAY) {
-                        type_suffix = "array";  /* For nested arrays */
-                    }
-                    
-                    /* Generate: dyn_array_get_<type>(arr, idx) */
-                    char func_buf[128];
-                    snprintf(func_buf, sizeof(func_buf), "dyn_array_get_%s", type_suffix);
-                    emit_literal(list, func_buf);
-                    emit_literal(list, "(");
-                    build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);  /* index */
-                    emit_literal(list, ")");
                 }
             }
             else {

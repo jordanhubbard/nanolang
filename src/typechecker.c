@@ -526,6 +526,39 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
     return true;
 }
 
+/* I borrow nominal element identity from the array declaration. */
+const char *get_struct_type_name(ASTNode *expr, Environment *env);
+static const char *array_record_name(ASTNode *array, Environment *env) {
+    if (!array) return NULL;
+    TypeInfo *info = try_get_expr_type_info(array, env);
+    if (info && info->base_type == TYPE_ARRAY && info->element_type &&
+        info->element_type->base_type == TYPE_STRUCT)
+        return info->element_type->generic_name;
+    if (array->type == AST_IDENTIFIER) {
+        Symbol *symbol = env_get_var_visible_at(env, array->as.identifier, array->line, array->column);
+        return symbol && symbol->type == TYPE_ARRAY && symbol->element_type == TYPE_STRUCT
+            ? symbol->struct_type_name : NULL;
+    }
+    if (array->type == AST_FIELD_ACCESS) {
+        const char *owner = get_struct_type_name(array->as.field_access.object, env);
+        StructDef *record = owner ? env_get_struct(env, owner) : NULL;
+        if (!record) return NULL;
+        for (int i = 0; i < record->field_count; i++)
+            if (!strcmp(record->field_names[i], array->as.field_access.field_name) &&
+                record->field_types[i] == TYPE_ARRAY && record->field_element_types &&
+                record->field_element_types[i] == TYPE_STRUCT && record->field_type_names)
+                return record->field_type_names[i];
+    }
+    if (array->type == AST_CALL && !array->as.call.func_expr && array->as.call.name) {
+        if (!strcmp(array->as.call.name, "array_push") && array->as.call.arg_count == 2)
+            return array_record_name(array->as.call.args[0], env);
+        Function *function = env_get_function(env, array->as.call.name);
+        if (function && function->return_type == TYPE_ARRAY && function->return_element_type == TYPE_STRUCT)
+            return function->return_struct_type_name;
+    }
+    return NULL;
+}
+
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
@@ -555,6 +588,9 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         }
         
         case AST_CALL: {
+            if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
+                (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
+                return array_record_name(expr->as.call.args[0], env);
             /* Check if return_struct_type_name was set by type checker (for generic list get) */
             if (expr->as.call.return_struct_type_name) {
                 return expr->as.call.return_struct_type_name;
@@ -730,6 +766,10 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
+        array_expr->as.call.arg_count == 2)
+        return infer_array_element_type(array_expr->as.call.args[0], env);
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
         array_expr->as.call.arg_count == 2) {
