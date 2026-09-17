@@ -8533,6 +8533,14 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I measure and bound the VM compiler bootstrap's repeated declaration
+      scans and cycle collection (`task_36ceaa830d7d46ba8a5471326f525aac`).
+      My 1,800-second self-compilation probe made progress through NanoISA
+      lowering and reached native-shadow C generation before its diagnostic
+      timeout; this is not a compiler correctness failure. I preserve bytecode
+      and shadow semantics while completing the independent VM route. AOT
+      stage equality cannot close this acceptance item. Evidence:
+      `docs/evidence/vm-bootstrap-budget.md`.
 - [ ] I declare truthful parser record, enum and union counts in self-hosted
       NanoISA assembly (`task_14dca63e4c1146e59ae0a1649ba29060`). My emitted
       aggregate IDs already follow parser order; omitted `.types` bounds prevent
