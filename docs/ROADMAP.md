@@ -10176,3 +10176,5 @@ gates pass.
 My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
+
+- [x] I execute canonical `--emit-nvm` shadows as verified NanoISA. At `e35d8f55`, two full compiler generations match raw365,976-byte modules and immutable host closure; the generated compiler builds and runs hello. I retain default shadow deadlines and permit declared native host artifact/cache work, not NanoLang-generated C compilation. See [my evidence](evidence/canonical-vm-shadow-cutover.md) (`task_c5a7a4835d364b50b747018c794a07d0`).
