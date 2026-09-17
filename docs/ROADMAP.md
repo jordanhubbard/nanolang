@@ -92,11 +92,21 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       declarations. I test typed constant maps, empty string arrays, and
       rejected mismatches through my native and VM frontends.
       MAC: `task_026e73d59e9e45b0b732b43883feea9a`.
-- [ ] **Checked boxed indices in native array updates.** I reconcile declared
+- [x] **Checked boxed indices in native array updates.** I reconcile declared
       integer indices that inference boxes as dynamic values, preserving tag
-      checks and rejecting wrong tags. My compiler currently stops in
-      `parser_mark_owned` before native emission. MAC
+      checks and rejecting wrong tags. Nine native cases preserve aliases,
+      reject invalid tags/bounds, and advance compiler inference. MAC
       `task_959f620cc9294ef693072702f35ba44f`.
+
+- [ ] **Boxed string-array argument inference.** I reconcile the concrete
+      string-array contract at `generate_expression` to `mb_resolve` without
+      weakening conflicting-shape or runtime-tag checks. Full native compiler
+      execution remains open. MAC `task_e3a639dac7b54940ab11546c1ffa5eb9`.
+
+- [ ] **Raw NanoISA array-update index checks.** I reject noninteger and
+      invalid-range indices in NanoVM while preserving valid alias mutation
+      and ownership cleanup. Native tag guards remain enforced. MAC
+      `task_f64074441cf64f47b5f40ccefc78233c`.
 
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,

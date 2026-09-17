@@ -1407,6 +1407,50 @@ static void test_glue_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* I preserve optional scalar call facts while requiring a real integer at use. */
+static void test_boxed_array_indices(void) {
+    const struct {
+        const char *array, *value, *check, *index;
+        int succeeds;
+    } cases[] = {
+        {"PUSH_I64 1\nARR_LITERAL 1 1\n", "PUSH_I64 2\n", "PUSH_I64 2\nEQ\nASSERT\n", "PUSH_I64 0\n", 1},
+        {"PUSH_BOOL 0\nARR_LITERAL 4 1\n", "PUSH_BOOL 1\n", "ASSERT\n", "PUSH_I64 0\n", 1},
+        {"PUSH_STR before\nARR_LITERAL 5 1\n", "PUSH_STR after\n", "PUSH_STR after\nEQ\nASSERT\n", "PUSH_I64 0\n", 1},
+        {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\n", "PUSH_I64 2\nAGG_PACK 0 0 0 1\n", "AGG_GET 0\nPUSH_I64 2\nEQ\nASSERT\n", "PUSH_I64 0\n", 1},
+        {"PUSH_I64 1\nARR_LITERAL 1 1\n", "PUSH_I64 2\n", "POP\n", "PUSH_BOOL 0\n", 0},
+        {"PUSH_I64 1\nARR_LITERAL 1 1\n", "PUSH_I64 2\n", "POP\n", "PUSH_STR before\n", 0},
+        {"PUSH_I64 1\nARR_LITERAL 1 1\n", "PUSH_I64 2\n", "POP\n", "LOAD_LOCAL 0\n", 0},
+        {"PUSH_I64 1\nARR_LITERAL 1 1\n", "PUSH_I64 2\n", "POP\n", "PUSH_I64 -1\n", 0},
+        {"PUSH_I64 1\nARR_LITERAL 1 1\n", "PUSH_I64 2\n", "POP\n", "PUSH_I64 1\n", 0},
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        char assembly[4096];
+        snprintf(assembly, sizeof assembly,
+                 ".string before \"before\"\n.string after \"after\"\n.entry main\n"
+                 ".function update 2 4 0 void 0\nLOAD_LOCAL 1\nJMP_FALSE done\n"
+                 "%sSTORE_LOCAL 2\nLOAD_LOCAL 2\nSTORE_LOCAL 3\n"
+                 "LOAD_LOCAL 2\nLOAD_LOCAL 0\n%sARR_SET\nPOP\n"
+                 "LOAD_LOCAL 3\nPUSH_I64 0\nARR_GET\n%sdone:\nRET\n.end\n"
+                 ".function main 0 1 0 int 1\nLOAD_LOCAL 0\nPUSH_BOOL 0\nCALL update\n"
+                 "%sPUSH_BOOL 1\nCALL update\nPUSH_I64 0\nRET\n.end\n",
+                 cases[i].array, cases[i].value, cases[i].check, cases[i].index);
+        NvmModule *module = assemble_ok(assembly, "boxed array index");
+        if (!module) continue;
+        char error[256] = {0};
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I lower boxed indices through checked integer extraction");
+        if (!source) fprintf(stderr, "boxed index case %zu: %s\n", i, error);
+        if (source) {
+            int status = 0;
+            CHECK(compile_and_run(source, &status) == 0, "I compile a boxed array-index caller");
+            CHECK(cases[i].succeeds ? status == 0 : status != 0,
+                  "I preserve aliased writes and reject noninteger or out-of-range indices");
+            free(source);
+        }
+        nvm_module_free(module);
+    }
+}
+
 static void test_arr_set_runs_natively(void) {
     const char *src =
         ".entry 0\n"
@@ -6059,6 +6103,7 @@ int main(int argc, char **argv) {
     test_greeting_runs_without_nano_vm();
     test_glue_runs_without_nano_vm();
     test_arr_set_runs_natively();
+    test_boxed_array_indices();
     test_len3_runs_without_nano_vm();
     test_first_runs_without_nano_vm();
     test_agg_set_is_refused();
