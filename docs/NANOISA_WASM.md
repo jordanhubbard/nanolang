@@ -28,8 +28,7 @@ completed binary module to stdout. I do not permit unresolved linker imports.
 
 My initial tested profile is integer/bool scalar storage, calls, recursion,
 loops, branches and assertions. I inherit the LLVM profile's explicit
-refusals, including unsupported imports, layouts, initializers and implicit
-returns. Heap values, host calls, linked modules and reference/passive
+refusals, including unsupported imports, layouts and initializers. Heap values, host calls, linked modules and reference/passive
 contracts remain work; this foundation does not complete my Wasm release gate.
 
 ## My execution evidence
@@ -56,3 +55,5 @@ Wasm and eleven LLVM methods together in 6.779 seconds. I preserve the final
 log at `/tmp/nanolang-wasm-final-gates.log`.
 
 My shared typed F64 continuation adds arithmetic, comparisons, exact constants, float helper calls/storage and checked scalar numeric casts. Eleven Wasm methods and seventeen LLVM methods pass together in 42.767 seconds (`/tmp/nanolang-llvm-wasm-floats-final.log`). Positive float fixtures execute through `ScalarWasm.compare`, including Wasmtime and import-free Node; invalid float-to-int cases trap in Wasmtime. Unsupported string values still fail without replacing prior output. At this F64 checkpoint the executable entry remained integer/bool and CAST_BOOL was still refused. The scalar truthiness continuation adds CAST_BOOL plus eager AND/OR/NOT for void/int/bool/float through the same lowering. Heap/import/full-language coverage remains open.
+
+I now admit verified implicit scalar exits and zero-result void helper calls through the shared LLVM return block (`task_4fd2bff257a44da0b0c4bb62b52b91b8`). A void call adds no operand-stack result. My executable entry remains one int/bool result; void/float entries, heap/multiple-result helpers and initializers remain refused with prior output preserved. The [38-method combined gate](NANOISA_LLVM.md#my-shared-implicit-return-admission-contract) includes unchanged-module Wasmtime and import-free Node execution.

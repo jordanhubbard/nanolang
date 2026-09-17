@@ -272,6 +272,12 @@ bool nvm_affine_reference_access(const NvmAffineState *s,uint32_t id,uint16_t fi
         ancestor(s,id,i) && (write || s->refs[i].place.mode==NVM_REFERENCE_EXCLUSIVE)) return false;
     return true;
 }
+bool nvm_affine_reference_field(const NvmAffineState *s,uint32_t id,uint16_t field,
+                                  bool write,uint8_t *tag) {
+    if (!tag || !nvm_affine_reference_access(s,id,field,write)) return false;
+    *tag=s->facts->layouts.items[s->refs[id].place.referent_layout].fields[field].type_tag;
+    return true;
+}
 bool nvm_affine_can_exit(const NvmAffineState *s,uint16_t result) {
     if (!s || s->region) return false;
     if (result==UINT16_MAX) { if (s->facts->result.tag!=TAG_VOID) return false; }

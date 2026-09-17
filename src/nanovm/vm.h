@@ -116,6 +116,19 @@ typedef struct {
     uint16_t parameter_start, parameter_count;
 } VmEffectHandler;
 
+/* I keep reference descriptors outside value storage and address owners by
+ * frame-relative index. The admitted contract has one standalone activation. */
+typedef struct {
+    uint16_t root;
+    uint32_t region;
+    bool exclusive;
+} VmReferenceSlot;
+typedef struct {
+    VmReferenceSlot slots[256];
+    uint32_t region;
+    bool active;
+} VmReferenceActivation;
+
 typedef struct VmState {
     /* Module being executed */
     const NvmModule *module;
@@ -144,6 +157,7 @@ typedef struct VmState {
     /* Call stack */
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
+    VmReferenceActivation references;
     VmEffectHandler handlers[VM_MAX_FRAMES];
     uint32_t handler_count;
     uint32_t activation_floor; /* RET stops before resuming a suspended caller. */

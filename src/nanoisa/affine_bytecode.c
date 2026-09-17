@@ -54,6 +54,8 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
 }
 static bool supported(uint8_t op) {
     switch(op) {
+    case OP_REGION_BEGIN: case OP_REGION_END:
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
@@ -78,6 +80,26 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals) {
     case OP_PUSH_BOOL:
         if (in->operands[0].u8>1) return "I require a Boolean literal";
         tag=TAG_BOOL;break;
+    case OP_REGION_BEGIN:
+        return nvm_affine_region_begin(f->locals)?NULL:"I cannot begin another reference region";
+    case OP_REGION_END:
+        return nvm_affine_region_end(f->locals)?NULL:"I need a live reference region to end";
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
+        /* An existing stack observation must not outlive an exclusive hold. */
+        for (uint16_t i=0;i<f->count;i++)
+            if (f->stack[i].observation && f->stack[i].root==in->operands[1].u16 &&
+                op==OP_BORROW_LOCAL_EXCLUSIVE)
+                return "I cannot borrow exclusively while an owner observation is on my stack";
+        return nvm_affine_borrow(f->locals,in->operands[0].u16,in->operands[1].u16,
+            NULL,0,op==OP_BORROW_LOCAL_SHARED?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)?NULL:
+            "I require an available scalar-leaf resource owner and reference slot in a live region";
+    case OP_REF_GET: case OP_REF_SET:
+        if (!nvm_affine_reference_field(f->locals,in->operands[0].u16,
+                in->operands[1].u16,op==OP_REF_SET,&tag))
+            return "I require a live permitted scalar reference field";
+        if (op==OP_REF_SET)
+            return pop_scalar(f,tag)?NULL:"I require the exact scalar reference field type";
+        break;
     case OP_OWN_MOVE_LOCAL: {
         NvmAffineType type;
         if (!nvm_affine_take_local(f->locals,in->operands[0].u16,&type))
