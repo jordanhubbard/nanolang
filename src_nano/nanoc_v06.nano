@@ -27,6 +27,7 @@ import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
+module "std/fs.nano" as compiler_fs
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -39,9 +40,6 @@ extern fn file_exists(path: string) -> bool
 extern fn file_delete(path: string) -> int
 extern fn file_compare_identity(source: string, candidate: string) -> int
 extern fn file_compare_destinations(first: string, second: string) -> int
-
-/* Path operations */
-extern fn path_normalize(path: string) -> string
 
 /* System commands - wrapper to avoid stdlib.h system() conflict */
 extern fn nl_exec_shell(cmd: string) -> int
@@ -1001,6 +999,7 @@ shadow merged_qualified_calls_valid {
 
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
+    (mb_set_sources merge.files)
     let prefix: string = (merged_binding_prefix parser)
     if (not (nb_register parser prefix)) { return false }
     let root_owner: int = (- (array_length merge.files) 1)
@@ -1049,14 +1048,14 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
                             if (< s (array_length imp.import_aliases)) {
                                 if (!= (at imp.import_aliases s) "") { set alias (at imp.import_aliases s) }
                             }
-                            (mb_add owner alias target)
+                            (mb_add_target owner alias target target_owner)
                         }
                         set s (+ s 1)
                     }
                 } else {
                     let mut name: string = original
                     if (!= imp.module_name "") { set name (+ imp.module_name (+ "." original)) }
-                    (mb_add owner name target)
+                    (mb_add_target owner name target target_owner)
                 }
             }
             set f (+ f 1)
@@ -1551,7 +1550,7 @@ fn collect_introspection(files: array<string>, repo_root: string) -> Introspecti
     # The final DFS entry is the program itself, not an imported module.
     while (< i (- (array_length files) 1)) {
         let path: string = (at files i)
-        let base: string = (path_basename path)
+        let base: string = (compiler_fs.basename path)
         let dot: int = (last_dot_index base)
         let mut fallback: string = base
         if (> dot 0) { set fallback (str_substring base 0 dot) }
@@ -1571,7 +1570,7 @@ fn collect_introspection(files: array<string>, repo_root: string) -> Introspecti
         let mut is_unsafe: bool = raw.is_unsafe
         set j 0
         while (< j (array_length unsafe_paths)) {
-            if (== (at unsafe_paths j) (path_normalize path)) { set is_unsafe true }
+            if (== (at unsafe_paths j) (compiler_fs.normalize path)) { set is_unsafe true }
             set j (+ j 1)
         }
         let info: ModuleIntrospection = ModuleIntrospection {

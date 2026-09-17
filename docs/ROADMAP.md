@@ -8417,15 +8417,25 @@ Compiler product:
       already supplied canonical runtime sources (`task_59b46df66b0d480b83cf9cde4a416c07`).
       The artifact facade exposes duplicate cJSON symbols and unresolved SHA256
       during the three-stage bootstrap.
+- [ ] I lower the exact `nl_nanoisa_assemble_text_save` artifact signature
+      required by compiler publication (`task_3560b1472ae64d73b0449b7df6933914`).
+      Full compiler emission reaches this int-result extern after path imports.
+- [x] I apply my existing `nano_aot_runtime.o` host-link contract to the
+      canonical artifact regression (`task_e56bc32177f04739ae5a8935ead863b1`).
+      Its initial native invocation omitted the required runtime exports.
+- [ ] I propagate required foreign header search paths through transitive
+      C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`). My
+      module compiler currently omits a dependency manifest's header directory.
 - [x] I let my module builder source pass its own conservative PCH capture
       scan without changing the runtime marker or rejection policy
       (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.
 - [x] I emit enum array literals with integer dynamic storage and preserve
       that representation during native access and append
       (`task_0e901805aea04c8aa644995602612a64`).
-- [ ] I lower the exact path host contracts required by my compiler
-      (`task_81e682a57a3d431e845b0f41f140352e`); after boolean arrays, actual emission
-      refuses the `path_basename` extern declaration.
+- [x] I lower the exact path artifact contracts required by my compiler
+      (`task_81e682a57a3d431e845b0f41f140352e`), preserving immutable library
+      identities, owner bindings and exact signatures across VM and native
+      execution. See `docs/evidence/selfhost-artifact-imports.md`.
 - [x] I validate array/list append element types before emitting bytecode
       (`task_e354c7131ebf40e3b177ba5a6cab1aba`); malformed append types now refuse publication.
 - [ ] I define boolean List syntax and backend parity before claiming support

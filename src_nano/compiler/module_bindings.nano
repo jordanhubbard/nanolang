@@ -5,6 +5,8 @@ let mut mb_file_starts: array<int> = []
 let mut mb_owners: array<int> = []
 let mut mb_names: array<string> = []
 let mut mb_targets: array<string> = []
+let mut mb_definition_owners: array<int> = []
+let mut mb_source_paths: array<string> = []
 
 pub fn mb_active() -> bool {
     return mb_enabled
@@ -22,6 +24,8 @@ pub fn mb_reset(starts: array<int>) -> void {
     set mb_owners []
     set mb_names []
     set mb_targets []
+    set mb_definition_owners []
+    set mb_source_paths []
     set mb_enabled (> (array_length starts) 0)
 }
 shadow mb_reset {
@@ -50,7 +54,7 @@ shadow mb_owner {
     assert (== (mb_owner 1) (- 0 1))
 }
 
-pub fn mb_add(owner: int, name: string, target: string) -> void {
+pub fn mb_add_target(owner: int, name: string, target: string, definition_owner: int) -> void {
     if (not (mb_active)) { return }
     # I install local declarations before imports, so local definitions win.
     let mut i: int = 0
@@ -61,6 +65,19 @@ pub fn mb_add(owner: int, name: string, target: string) -> void {
     set mb_owners (array_push mb_owners owner)
     set mb_names (array_push mb_names name)
     set mb_targets (array_push mb_targets target)
+    set mb_definition_owners (array_push mb_definition_owners definition_owner)
+}
+shadow mb_add_target {
+    (mb_reset [1, 8])
+    (mb_add_target 1 "external" "symbol" 0)
+    assert (== (at mb_definition_owners 0) 0)
+    (mb_add_target 1 "external" "other" 1)
+    assert (== (at mb_definition_owners 0) 0)
+    (mb_reset [])
+}
+
+pub fn mb_add(owner: int, name: string, target: string) -> void {
+    (mb_add_target owner name target owner)
 }
 shadow mb_add {
     (mb_reset [1])
@@ -106,5 +123,48 @@ shadow mb_resolve {
     (mb_add 0 "answer" "module_answer")
     assert (== (mb_resolve "answer" 1 []) "module_answer")
     assert (== (mb_resolve "answer" 1 ["answer"]) "answer")
+    (mb_reset [])
+}
+
+# I retain import provenance separately from the C-linkage spelling.
+pub fn mb_target_owner(owner: int, name: string) -> int {
+    if (not (mb_active)) { return -1 }
+    let mut i: int = 0
+    while (< i (array_length mb_names)) {
+        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
+            return (at mb_definition_owners i)
+        }
+        set i (+ i 1)
+    }
+    return owner
+}
+shadow mb_target_owner {
+    (mb_reset [1, 8])
+    (mb_add_target 1 "alias" "external" 0)
+    assert (== (mb_target_owner 1 "alias") 0)
+    assert (== (mb_target_owner 1 "local") 1)
+    (mb_reset [])
+    assert (== (mb_target_owner 1 "alias") -1)
+}
+
+pub fn mb_set_sources(paths: array<string>) -> void {
+    set mb_source_paths paths
+}
+shadow mb_set_sources {
+    (mb_set_sources ["one.nano", "two.nano"])
+    assert (== (array_length mb_source_paths) 2)
+    (mb_reset [])
+    assert (== (array_length mb_source_paths) 0)
+}
+
+pub fn mb_source(owner: int) -> string {
+    if (or (< owner 0) (>= owner (array_length mb_source_paths))) { return "" }
+    return (at mb_source_paths owner)
+}
+shadow mb_source {
+    (mb_set_sources ["one.nano"])
+    assert (== (mb_source 0) "one.nano")
+    assert (== (mb_source 1) "")
+    assert (== (mb_source -1) "")
     (mb_reset [])
 }
