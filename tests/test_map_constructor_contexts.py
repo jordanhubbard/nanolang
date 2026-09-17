@@ -23,7 +23,8 @@ class MapConstructorContexts(unittest.TestCase):
                         source = baseline.replace("HashMap<string,string>", f"HashMap<{key},{value}>")
                         for name in ("before", "grown", "keys"):
                             source = source.replace(f"{name}: array<string>", f"{name}: array<{key}>")
-                        source = source.replace("items: array<string>", f"items: array<{value}>")
+                        for name in ("items", "before_values", "grown_values"):
+                            source = source.replace(f"{name}: array<string>", f"{name}: array<{value}>")
                         if key == "int":
                             source = source.replace('"new"', "11").replace('"answer"', "12")
                         if value == "int":

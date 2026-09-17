@@ -8,6 +8,10 @@ shadow choose { assert (== (map_size (choose true)) 0) assert (== (map_size (cho
 fn exercise(values: HashMap<string,string>) -> int {
  let before: array<string> = (map_keys values)
  assert (== (array_length before) 0)
+ let before_values: array<string> = (map_values values)
+ assert (== (array_length before_values) 0)
+ let grown_values: array<string> = (array_push before_values "kept")
+ assert (== (at grown_values 0) "kept")
  let grown: array<string> = (array_push before "new")
  assert (== (at grown 0) "new")
  (map_put values "answer" "kept")
