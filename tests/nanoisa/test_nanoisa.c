@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 /* ========================================================================
  * Test Framework (minimal)
@@ -1908,6 +1911,52 @@ static void test_nanoisa_facade_reports_invalid_bytes(void) {
  * Main
  * ======================================================================== */
 
+static void test_nanoisa_atomic_text_publication(void) {
+    char directory[] = "/tmp/nanoisa-atomic-XXXXXX";
+    ASSERT(mkdtemp(directory) != NULL, "I create isolated publication storage");
+    char path[256];
+    snprintf(path, sizeof(path), "%s/output.nvm", directory);
+    FILE *file = fopen(path, "wb");
+    ASSERT(file != NULL, "I create the previous output");
+    ASSERT(fwrite("previous", 1, 8, file) == 8, "I seed the previous bytes");
+    ASSERT(fclose(file) == 0, "I close the previous output");
+    ASSERT(nl_nanoisa_assemble_text_save("not assembly", path) != NANOISA_OK,
+           "I reject malformed assembly");
+    ASSERT(nl_nanoisa_assemble_text_save(
+        ".entry main\n.function main 0 0 0 int 1\nPOP\nRET\n.end\n", path) != NANOISA_OK,
+        "I reject unverified stack use");
+    file = fopen(path, "rb");
+    ASSERT(file != NULL, "I retain the previous output");
+    char prior[9] = {0};
+    ASSERT(fread(prior, 1, 8, file) == 8, "I retain the previous length");
+    fclose(file);
+    ASSERT_EQ_STR(prior, "previous", "I preserve previous bytes on rejection");
+    const char *source = ".entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n";
+    ASSERT_EQ_INT(nl_nanoisa_assemble_text_save(source, path), NANOISA_OK,
+                  "I publish a verified module");
+    NanoisaErr err;
+    NvmModule *module = nanoisa_load_file(path, &err);
+    ASSERT(module != NULL, "I reload the published v2 module");
+    nvm_module_free(module);
+    char blocked[256];
+    snprintf(blocked, sizeof(blocked), "%s/blocked", directory);
+    ASSERT(mkdir(blocked, 0700) == 0, "I create a blocked output directory");
+    ASSERT_EQ_INT(nl_nanoisa_assemble_text_save(source, blocked), NANOISA_ERR_IO,
+                  "I report failed publication over a directory");
+    DIR *dir = opendir(directory);
+    ASSERT(dir != NULL, "I inspect staging cleanup");
+    struct dirent *entry;
+    int staged = 0;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strstr(entry->d_name, ".tmp.")) ++staged;
+    }
+    closedir(dir);
+    ASSERT_EQ_INT(staged, 0, "I remove every failed staging file");
+    unlink(path);
+    rmdir(blocked);
+    rmdir(directory);
+}
+
 int main(void) {
     printf("=== NanoISA Test Suite ===\n\n");
 
@@ -1992,6 +2041,7 @@ int main(void) {
     RUN_TEST(test_roundtrip_assemble_serialize_deserialize_disassemble);
 
     printf("\n[Public Facade]\n");
+    RUN_TEST(test_nanoisa_atomic_text_publication);
     RUN_TEST(test_nanoisa_facade_roundtrip);
     RUN_TEST(test_nanoisa_print_is_assemblable);
     RUN_TEST(test_nanoisa_facade_file_roundtrip);
