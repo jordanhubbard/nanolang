@@ -4242,7 +4242,7 @@ test-compiler-artifact-support: $(COMPILER_C)
 
 .PHONY: test-native-nested-generics
 test-units: test-native-nested-generics
-test-native-nested-generics: bootstrap
+test-native-nested-generics: bootstrap nano_virt
 	python3 -m unittest tests.test_native_nested_generics
 
 .PHONY: test-generic-selected-patterns

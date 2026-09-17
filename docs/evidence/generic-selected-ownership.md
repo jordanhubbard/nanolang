@@ -54,8 +54,29 @@ At `2eccc83a`, after merging main through `5117aaf4`, my C seed passed
 23 focused methods (20 ownership and three match-result controls) in
 18.903 seconds. The added ordinary-arm control passed all three compilers
 in 8.797 seconds: an ordinary selected sibling can be ignored without
-destructuring. My full adjacent positive remains blocked on the recorded
-selected-array task; these focused results do not replace it.
+destructuring. That focused checkpoint preceded the selected-array integration below.
+
+## My integrated acceptance
+
+At `475b6264`, I included the canonical selected-array repair from PR474 and
+removed my duplicate unchecked roadmap row. A fresh full bootstrap passed.
+All 23 ownership/match methods passed across the selected compiler drivers.
+The eight native-generic, nominal-array and projection methods passed in
+16.900 seconds after building the required NanoVirt/VM tools. The initial
+combined invocation recorded missing-tool errors; I preserved that log and
+reran all eight affected methods unchanged. My native-nested-generics Make
+target now depends explicitly on `nano_virt`, required by PR474's negative test.
+
+The integrated C typechecker suite passed. My updated isolated sanitizer
+harness passed 380 parser/typechecker/teardown checks (19 ownership fixtures,
+20 iterations each). The guarded-syntax test remains a driver rejection test,
+not a sanitizer parser fixture. Leak detection remains separately limited.
+
+Logs: `bootstrap-r7.log`, `final-integrated-affected.log`,
+`final-integrated-array.log`, `typechecker-integrated.log`, and
+`asan-integrated.log` under the same local evidence directory. These bounded
+results resolve the earlier adjacent failure; they do not claim complete
+affine ownership or a full release gate.
 
 MAC: `task_08428ceb1d674de49383aab1ba9a78c8` and native prerequisite
 `task_ce96caed26b843ecb1365def0c733b58`.
