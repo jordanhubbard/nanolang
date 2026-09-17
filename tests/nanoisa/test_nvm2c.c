@@ -1233,6 +1233,73 @@ static void test_projected_global_stores(void) {
     }
 }
 
+static void test_tagged_scalar_local_assignments(void) {
+    const struct { const char *value, *consume; } cases[] = {
+        {"PUSH_I64 42", "PUSH_I64 1\nI64_ADD\nPUSH_I64 43\nEQ\nASSERT"},
+        {"PUSH_BOOL 1", "BOOL_NOT\nBOOL_NOT\nASSERT"},
+        {"PUSH_STR text", "STR_LEN\nPUSH_I64 4\nEQ\nASSERT"},
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        for (int parameter = 0; parameter < 2; ++parameter) {
+            for (int boxed_first = 0; boxed_first < 2; ++boxed_first) {
+                char source[4096];
+                snprintf(source, sizeof source,
+                    ".string text \"text\"\n.entry main\n.function main 0 0 0 int 1\n"
+                    "%s\nSTORE_GLOBAL 0\n%s\nCALL consume\nPUSH_I64 0\nRET\n.end\n"
+                    ".function consume %d 1 0 void 0\n%s\nSTORE_LOCAL 0\n%s\nSTORE_LOCAL 0\n"
+                    "LOAD_LOCAL 0\n%s\nRET\n.end\n",
+                    cases[i].value, parameter ? cases[i].value : "", parameter,
+                    boxed_first ? "LOAD_GLOBAL 0" : cases[i].value,
+                    boxed_first ? cases[i].value : "LOAD_GLOBAL 0", cases[i].consume);
+                NvmModule *m = assemble_ok(source, "tagged scalar local assignment order");
+                if (!m) continue;
+                char *c = emit_or_fail(m, "I retain tagged local storage across scalar writes and parameter calls");
+                if (c) {
+                    int status = -1;
+                    CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                          "I consume the actual scalar payload after either assignment order");
+                    free(c);
+                }
+                nvm_module_free(m);
+            }
+        }
+    }
+    for (int strings = 0; strings < 2; ++strings) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".string key \"key\"\n.entry main\n.function main 0 1 0 int 1\n"
+            "%s\nSTORE_LOCAL 0\nHM_NEW 5 %d\nPUSH_STR key\nHM_GET\nSTORE_LOCAL 0\n"
+            "PUSH_I64 0\nRET\n.end\n", strings ? "PUSH_STR key" : "PUSH_I64 1", strings ? 1 : 5);
+        NvmModule *m = assemble_ok(source, "incompatible tagged local payload");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I retain exact local payload conflicts after storage widening");
+        free(c); nvm_module_free(m);
+    }
+    const char *invalid[] = {"PUSH_BOOL 1", "PUSH_STR text", "LOAD_GLOBAL 1", "ARR_NEW 1"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        for (int take = 0; take < 2; ++take) {
+            char source[2048];
+            snprintf(source, sizeof source,
+                ".string text \"text\"\n.entry main\n.function main 0 1 0 int 1\n"
+                "%s\nSTORE_GLOBAL 0\nPUSH_I64 42\nSTORE_LOCAL 0\nPUSH_BOOL %d\nJMP_FALSE consume\n"
+                "LOAD_GLOBAL 0\nSTORE_LOCAL 0\nconsume:\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\n"
+                "PUSH_I64 43\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n", invalid[i], take);
+            NvmModule *m = assemble_ok(source, "checked tagged scalar local path");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I keep dynamic scalar validation at its executed consumption");
+            if (c) {
+                int status = 0;
+                CHECK(compile_and_run(c, &status) == 0 && (take ? status != 0 : status == 0),
+                      "I reject wrong tags on the taken path and preserve the untouched scalar otherwise");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+}
+
 static void test_uninitialized_global_result_traps(void) {
     NvmModule *m = assemble_ok(
         ".entry main\n.function main 0 0 0 int 1\n"
@@ -6281,6 +6348,7 @@ int main(int argc, char **argv) {
     test_float_comparison_transport();
     test_globals_cross_functions_and_preserve_identity();
     test_uninitialized_global_result_traps();
+    test_tagged_scalar_local_assignments();
     test_projected_global_stores();
     test_builtin_host_imports();
     test_character_host_imports();

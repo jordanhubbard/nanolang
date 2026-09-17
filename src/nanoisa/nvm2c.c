@@ -908,7 +908,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-            NvmShapeId destination = shape_variable(b, &b->shape_locals[(size_t)idx * b->local_width + slot]);
+            size_t local_at = (size_t)idx * b->local_width + slot;
+            if (v.kind == NVM2C_VK_VALUE && !b->tagged_locals[local_at]) {
+                /* I retain tagged storage across every assignment and path,
+                 * including earlier scalar writes revisited during inference. */
+                b->tagged_locals[local_at] = 1;
+                facts->changed = 1;
+                if (slot < fn->arity) facts->parameters[local_at] = NVM2C_VK_VALUE;
+            }
+            NvmShapeId destination = shape_variable(b, &b->shape_locals[local_at]);
             if (b->tagged_locals[(size_t)idx * b->local_width + slot]) {
                 if (!shape_type(b, destination, NVM_SHAPE_OPTIONAL)) return 0;
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
