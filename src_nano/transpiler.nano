@@ -1391,7 +1391,9 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
-        return (genenv_get env id.name)
+        let annotation: string = (genenv_get env id.name)
+        if (transp_str_starts_with annotation "&") { return (str_substring annotation 1 (str_length annotation)) }
+        return annotation
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser node_id)
@@ -2878,6 +2880,9 @@ shadow tuple_typedef_name {
 }
 
 fn type_to_c(nano_type: string) -> string {
+    if (transp_str_starts_with nano_type "&") {
+        return (+ "const " (+ (type_to_c (str_substring nano_type 1 (str_length nano_type))) "*"))
+    }
     /* Function pointer types: fn(int,int)->int */
     if (is_fn_type nano_type) {
         return (register_fn_type nano_type)
@@ -5030,6 +5035,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 return (guard_native_array_reference parser resolved_name foreign_name)
             }
             let c_var: string = (+ "nl_" (mangle_name (mb_resolve id.name id.line env.names)))
+            if (transp_str_starts_with (genenv_get env id.name) "&") { return (+ "(*" (+ c_var ")")) }
             if (and (genenv_get_global env id.name) (is_guarded_primitive (genenv_get env id.name))) {
                 let c_type: string = (type_to_c (genenv_get env id.name))
                 let mut rd: array<string> = []
@@ -5226,6 +5232,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     /* Function call */
                     let call: ASTCall = (parser_get_call parser node_id)
+                    if (> call.borrow_mode 0) {
+                        let place: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                        return (+ "(&(" (+ (generate_expression parser place.node_id place.node_type env "") "))"))
+                    }
 
                     if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
                         let callee_code: string = (generate_expression parser call.function call.function_type env "")

@@ -273,6 +273,28 @@ static void test_union_owns_string_payload(void) {
     gc_shutdown();
 }
 
+static void test_borrowed_record_identity(void) {
+    Environment *owner_env = create_environment();
+    char *names[] = {"fd"};
+    Value fields[] = {create_int(7)};
+    StructValue initial = {.struct_name = "Handle", .field_names = names,
+                           .field_values = fields, .field_count = 1};
+    Value value = {.type = VAL_STRUCT, .as.struct_val = &initial};
+    env_define_var(owner_env, "owner", TYPE_STRUCT, true, value);
+    Value owner = env_get_var(owner_env, "owner")->value;
+    Environment *borrow_env = create_environment();
+    env_define_var(borrow_env, "first", TYPE_BORROW_SHARED, false, owner);
+    env_define_var(borrow_env, "second", TYPE_BORROW_SHARED, false, owner);
+    CHECK(env_get_var(borrow_env, "first")->value.as.struct_val == owner.as.struct_val,
+          "I retain the owner's record identity for a shared parameter");
+    CHECK(env_get_var(borrow_env, "second")->value.as.struct_val == owner.as.struct_val,
+          "I retain the same identity for repeated shared aliases");
+    free_environment(borrow_env);
+    CHECK(owner.as.struct_val->field_values[0].as.int_val == 7,
+          "I leave the owner alive after borrowed bindings are destroyed");
+    free_environment(owner_env);
+}
+
 int main(void) {
     printf("\n[env_scoping] symbol visibility is confined to one file...\n\n");
     test_lookup_ignores_other_files();
@@ -284,6 +306,7 @@ int main(void) {
     test_import_owner_restoration();
     test_retained_block_bounds();
     test_union_owns_string_payload();
+    test_borrowed_record_identity();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

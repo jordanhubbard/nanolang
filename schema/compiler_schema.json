@@ -403,6 +403,10 @@
         [
           "arg_count",
           "int"
+        ],
+        [
+          "borrow_mode",
+          "int"
         ]
       ],
       "emit_c": true

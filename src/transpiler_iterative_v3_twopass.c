@@ -1046,6 +1046,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
             }
+            if (sym && sym->type == TYPE_BORROW_SHARED) {
+                emit_formatted(list, "(*%s)", expr->as.identifier);
+                break;
+            }
             if (sym && sym->type == TYPE_VOID) {
                 emit_literal(list, "((void)0)");
                 break;
@@ -1464,6 +1468,12 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_CALL: {
+            if (expr->as.call.borrow_mode) {
+                emit_literal(list, "(&(");
+                build_expr(list, expr->as.call.args[0], env);
+                emit_literal(list, "))");
+                break;
+            }
             /* Map function name */
             const char *func_name = expr->as.call.name;
             

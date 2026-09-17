@@ -11,6 +11,8 @@ typedef struct {
     const TypeInfo *type_info; /* Borrowed from the function AST or retained environment. */
     bool resource;
     bool moved;
+    bool borrowed;
+    unsigned shared_borrows;
     FunctionSignature *signature;
 } OwnBinding;
 
@@ -233,8 +235,9 @@ static bool own_add(OwnFlow *flow, ASTNode *node, const char *name, const char *
         flow->bindings = bindings;
         flow->capacity = capacity;
     }
-    bool resource = own_value_resource(flow, node, nominal, info);
-    flow->bindings[flow->count++] = (OwnBinding){.name = name, .nominal = nominal, .type_info = info, .resource = resource};
+    bool borrowed = info && info->base_type == TYPE_BORROW_SHARED;
+    bool resource = own_value_resource(flow, node, nominal, borrowed ? info->element_type : info);
+    flow->bindings[flow->count++] = (OwnBinding){.name = name, .nominal = nominal, .type_info = info, .resource = resource, .borrowed = borrowed};
     if (resource && flow->restricted)
         own_error(flow, node, "this control-flow boundary needs ownership lowering", name);
     return true;
@@ -409,7 +412,7 @@ static const TypeInfo *own_expr_info(OwnFlow *flow, ASTNode *node) {
 
 static void own_leaks(OwnFlow *flow, size_t first, ASTNode *at) {
     for (size_t i = first; i < flow->count; ++i)
-        if (flow->bindings[i].resource && !flow->bindings[i].moved)
+        if (flow->bindings[i].resource && !flow->bindings[i].moved && !flow->bindings[i].borrowed)
             own_error(flow, at, "resource remains live at scope exit", flow->bindings[i].name);
 }
 
@@ -487,6 +490,8 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                     own_error(flow, node, "resource captures need ownership lowering", binding->name);
                 if (flow->restricted) own_error(flow, node, "this boundary needs ownership lowering", binding->name);
                 if (binding->moved) own_error(flow, node, "I cannot use a moved value", binding->name);
+                else if (move && (binding->borrowed || binding->shared_borrows))
+                    own_error(flow, node, "I cannot consume or escape a borrowed owner", binding->name);
                 else if (move) binding->moved = true;
             }
             return OWN_NEXT;
@@ -512,7 +517,9 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         case AST_SET: {
             OwnBinding *binding = own_find(flow, node->as.set.name);
             size_t index = binding ? (size_t)(binding - flow->bindings) : SIZE_MAX;
-            if (binding && binding->resource && !binding->moved)
+            if (binding && (binding->borrowed || binding->shared_borrows))
+                own_error(flow, node, "I cannot overwrite a borrowed owner", binding->name);
+            else if (binding && binding->resource && !binding->moved)
                 own_error(flow, node, "I cannot overwrite a live resource", binding->name);
             if ((!binding || !binding->resource) && own_value_resource(flow, node, own_type(flow, node->as.set.value), own_expr_info(flow, node->as.set.value)))
                 own_error(flow, node, "resource assignment needs an owned destination", node->as.set.name);
@@ -567,9 +574,26 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         case AST_MODULE_QUALIFIED_CALL: {
             ASTNode **args = node->type == AST_CALL ? node->as.call.args : node->as.module_qualified_call.args;
             int count = node->type == AST_CALL ? node->as.call.arg_count : node->as.module_qualified_call.arg_count;
+            if (node->type == AST_CALL && node->as.call.borrow_mode) {
+                own_error(flow, node, "I cannot store or escape a borrow", NULL);
+                return OWN_NEXT;
+            }
             unsigned result = node->type == AST_CALL ? own_node(flow, node->as.call.func_expr, false) : OWN_NEXT;
-            for (int i = 0; i < count && (result & OWN_NEXT); ++i)
-                result = (result & ~OWN_NEXT) | own_node(flow, args[i], true);
+            size_t first_count = flow->count;
+            unsigned *held = calloc(first_count ? first_count : 1, sizeof(*held));
+            if (!held) { own_error(flow, node, "I cannot allocate call borrow state", NULL); return result; }
+            for (int i = 0; i < count && (result & OWN_NEXT); ++i) {
+                ASTNode *arg = args[i];
+                if (arg->type == AST_CALL && arg->as.call.borrow_mode == 1 && arg->as.call.arg_count == 1 && arg->as.call.args[0]->type == AST_IDENTIFIER) {
+                    ASTNode *place = arg->as.call.args[0];
+                    OwnBinding *binding = own_find(flow, place->as.identifier);
+                    result = (result & ~OWN_NEXT) | own_node(flow, place, false);
+                    if (!binding || !binding->resource) own_error(flow, arg, "I require a live owned place for a borrow", place->as.identifier);
+                    else { size_t index = (size_t)(binding - flow->bindings); ++binding->shared_borrows; if (index < first_count) ++held[index]; }
+                } else result = (result & ~OWN_NEXT) | own_node(flow, arg, true);
+            }
+            for (size_t i = 0; i < first_count; ++i) flow->bindings[i].shared_borrows -= held[i];
+            free(held);
             if ((result & OWN_NEXT) && resource && (!move || flow->restricted))
                 own_error(flow, node, "resource result has no resolved owner", nominal);
             return result;

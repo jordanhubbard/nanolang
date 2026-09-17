@@ -102,7 +102,8 @@ extern struct ASTCall {
     line: int,
     column: int,
     function: int,
-    arg_count: int
+    arg_count: int,
+    borrow_mode: int
 }
 
 extern struct ASTLet {
@@ -1708,7 +1709,7 @@ shadow parser_store_binary_op {
 
 /* Helper: Store function call node */
 fn parser_store_call(p: Parser, function_id: int, arg_count: int, line: int, column: int) -> Parser {
-    let node: ASTCall = ASTCall {
+    let node: ASTCall = ASTCall { borrow_mode: 0,
         node_type: ParseNodeType.PNODE_CALL,
         line: line,
         column: column,

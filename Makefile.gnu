@@ -4339,6 +4339,10 @@ test-units: test-borrow-annotations
 test-borrow-annotations: bootstrap
 	python3 tests/test_borrow_annotations.py
 
+.PHONY: test-shared-borrows
+test-units: test-shared-borrows
+test-shared-borrows: bootstrap nano_virt
+	python3 tests/test_shared_borrows.py
 .PHONY: test-selfhost-range-bounds
 test-selfhost-range-bounds: bootstrap
 	python3 -m unittest -v tests.test_selfhost_range_bounds

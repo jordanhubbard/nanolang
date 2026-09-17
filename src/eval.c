@@ -4885,6 +4885,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return eval_prefix_op(expr, env);
 
         case AST_CALL:
+            if (expr->as.call.borrow_mode) return eval_expression(expr->as.call.args[0], env);
             return eval_call(expr, env);
 
         case AST_MODULE_QUALIFIED_CALL: {

@@ -69,7 +69,8 @@ extern struct ASTCall {
     function: int,
     function_type: int,
     arg_start: int,
-    arg_count: int
+    arg_count: int,
+    borrow_mode: int
 }
 
 extern struct ASTModuleQualifiedCall {

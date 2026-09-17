@@ -3618,6 +3618,19 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         return result;
     }
 
+    /* I do not substitute by-value aggregates for an unimplemented borrow ABI. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        for (int p = 0; p < function->param_count; ++p) {
+            if (function->params && (function->params[p].type == TYPE_BORROW_SHARED ||
+                                     function->params[p].type == TYPE_BORROW_MUT)) {
+                snprintf(result.error_msg, sizeof(result.error_msg),
+                         "I cannot lower borrowed parameters to NanoISA yet");
+                return result;
+            }
+        }
+    }
+
     CG cg = {0};
     cg.module = nvm_module_new();
     cg.env = env;

@@ -410,6 +410,7 @@ typedef struct nl_ASTCall {
     int function_type;
     int arg_start;
     int arg_count;
+    int borrow_mode;
 } nl_ASTCall;
 typedef nl_ASTCall ASTCall;
 #endif

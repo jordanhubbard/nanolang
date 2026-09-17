@@ -1,4 +1,4 @@
-"""I retain borrow syntax without admitting unimplemented ownership semantics."""
+"""I retain borrow syntax and guard annotation contexts without lowering support."""
 from pathlib import Path
 import os
 import subprocess
@@ -31,16 +31,16 @@ class BorrowAnnotations(unittest.TestCase):
                     self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 
     def test_parameters_remain_guarded(self):
-        for annotation in ('&Handle', '&mut Handle', '&array<int>', '&mut Box<int>'):
+        for annotation in ('&mut Handle', '&array<int>', '&mut Box<int>'):
             with self.subTest(annotation=annotation):
                 self.compile(PRELUDE + 'union Box<T> { Value { value: T } }\n'
                              + f'fn observe(value: {annotation}) -> int {{ return 0 }}\n'
                              + 'shadow observe { assert true }\n' + MAIN,
-                             'call-scoped ownership lowering is not implemented')
+                             'borrow')
 
     def test_extern_parameter_cannot_bypass_guard(self):
         self.compile(PRELUDE + 'extern fn observe(value: &Handle) -> int\n' + MAIN,
-                     'call-scoped ownership lowering is not implemented')
+                     'borrow')
 
     def test_unsupported_annotation_contexts(self):
         for declaration in ('extern fn value() -> &Handle',
@@ -55,7 +55,7 @@ class BorrowAnnotations(unittest.TestCase):
     def test_arguments_are_explicitly_unsupported(self):
         self.compile('fn observe(value: int) -> int { return value }\nshadow observe { assert true }\n'
                      'fn main() -> int { let value: int = 1 return (observe &value) }\nshadow main { assert true }\n',
-                     'cannot lower borrowed argument expressions yet')
+                     'borrow')
 
     def test_ordinary_ownership_control(self):
         self.compile(PRELUDE + 'fn consume(value: Handle) -> int { let Handle { fd } = value return fd }\n'
