@@ -951,6 +951,10 @@ static void test_owned_generic_function_annotations(void) {
     ASTNode *function = program->as.program.items[2];
     FunctionSignature *sig = function->as.function.params[0].fn_sig;
     ASSERT_NOT_NULL(sig);
+    TypeInfo *parameter_info = function->as.function.params[0].type_info;
+    ASSERT_NOT_NULL(parameter_info);
+    ASSERT_EQ(parameter_info->base_type, TYPE_FUNCTION);
+    ASSERT(parameter_info->fn_sig == sig);
     ASSERT_EQ(sig->param_count, 2);
     ASSERT_NOT_NULL(sig->param_type_info);
     ASSERT(strcmp(sig->param_type_info[0]->generic_name, "Box") == 0);

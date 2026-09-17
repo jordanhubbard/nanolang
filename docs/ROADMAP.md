@@ -3760,6 +3760,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           `make test-dispatch-callbacks` passes real dependency shadows and
           isolated-call refusal. The 133-callback native lifecycle fixture
           passes ASan/UBSan and TSan; wrapper allocation failures pass ASan/UBSan.
+        - [x] I retain a function parameter's complete signature in its parsed
+          type metadata. NanoVirt must rebuild imported wrapper bindings from
+          that same owned declaration, reject real callback mismatches, and
+          avoid verifier-invalid `POP` instructions after void calls. I cover
+          the direct signature alias and ownership, dispatch callbacks,
+          NanoVirt, and verifier gates. On Darwin arm64, `make test-quick`
+          passes on rebased main with the default 10-second shadow budget when
+          I select the installed Command Line Tools explicitly.
+          MAC `task_b6f108fa6a43ae1881ecc1f742e5f20f`.
       - [ ] I pass all six dispatch-dependent examples with dependency
         shadows enabled, sanitizer checks, and the complete clean release gate.
         - [x] I link my retained callback runtime and VM bridge into generated
