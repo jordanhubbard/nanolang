@@ -8566,6 +8566,11 @@ Compiler product:
       and shadow semantics while completing the independent VM route. AOT
       stage equality cannot close this acceptance item. Evidence:
       `docs/evidence/vm-bootstrap-budget.md`.
+  - [ ] I share the existing linear local-declaration classification across
+        typechecking, NanoISA lowering and native-shadow C generation, replacing
+        the three repeated transpiler scans without importing the full
+        typechecker. I preserve parser index semantics and compare generated
+        C/assembly and initialization behavior before closing this substep.
   - [x] I precompute per-let global ownership once from ordinary/unsafe block
         statements and function parameters, preserving IDs, declaration order,
         initializer effects and exact fixture bytecode. I compare the old
