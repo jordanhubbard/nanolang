@@ -13,6 +13,7 @@
     "../nanoisa/nanoisa.c",
     "../../src/nanoisa/isa.c",
     "../../src/nanoisa/passive.c",
+    "../../src/nanoisa/affine_state.c",
     "../../src/nanoisa/ownership_contracts.c",
     "../../src/nanoisa/retained_layouts.c",
     "../../src/nanoisa/reference_places.c",

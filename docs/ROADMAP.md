@@ -50,6 +50,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
 
 - [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
+- [x] I implement local-normalized affine instruction transitions from checked
+      ownership declarations before connecting bytecode dataflow (MAC
+      `task_379b04ef0b8d4a7985ad72b2ab244d5b`, parent ed702): explicit record
+      pack/move/whole-record unpack, nested reference regions and scalar
+      access, exact joins and live-owner exit obligations. I test refused
+      transitions preserve state, overlap/reborrow/argument-order cases and
+      ordinary controls. Stack provenance, CFG/opcodes, runtime lowering and
+      paired source producers remain separate required acceptance; current
+      execution refusals remain enabled. I pass 157 transition checks and
+      182 allocation-injection/sanitizer checks; bounded evidence is in
+      `docs/evidence/nanoisa-affine-state.md`.
 - [x] I complete the retained-layout and ownership source closure in every
       explicit NanoISA build list, including the Forth SEE host manifest,
       its examples shared-library rule and the regular/daemon wrapper object
