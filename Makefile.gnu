@@ -620,7 +620,7 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 test-collection-array-exports:
 	python3 -m unittest tests.test_collection_array_exports
 
-test-units: test-collection-array-exports
+test-units: test-native-call-argument-order test-collection-array-exports
 .PHONY: test-filesystem-array-exports
 test-filesystem-array-exports:
 	python3 -m unittest tests.test_filesystem_array_exports
@@ -4093,3 +4093,6 @@ release-major:
 .PHONY: test-callee-snapshots
 test-callee-snapshots: $(INTERPRETER) nano_virt
 	@python3 -m unittest tests.test_callee_snapshots
+.PHONY: test-native-call-argument-order
+test-native-call-argument-order: $(COMPILER_C) $(INTERPRETER) nano_virt nano_vm
+	@python3 -m unittest tests.test_native_call_argument_order
