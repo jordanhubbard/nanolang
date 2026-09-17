@@ -146,16 +146,31 @@ shadow main { assert (== (main) 0) }
             self.assertIn(b"after failed shadows", rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), accepted)
 
+    def test_reachable_scalar_float_publishes_and_executes(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-float-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "main.nano", directory / "main.nvm"
+            source.write_text('fn required() -> float { return 1.5 }\n'
+                              'shadow required { assert (== (required) 1.5) }\n'
+                              'fn main() -> int { assert (== (required) 1.5) (println "float-ok") return 0 }\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
+            self.assertEqual(self.run_command([ROOT / "bin/nano_vm", output]).stdout, b"float-ok\n")
+            c_file, executable = directory / "out.c", directory / "native"
+            self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
+            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file, "-lm", "-o", executable])
+            self.assertEqual(self.run_command([executable]).stdout, b"float-ok\n")
+
     def test_reachable_refusal_reports_precise_boundary(self):
         with tempfile.TemporaryDirectory(prefix="canonical-program-route-") as tmp:
             directory = Path(tmp)
             source, output = directory / "main.nano", directory / "main.nvm"
             output.write_bytes(b"prior")
-            source.write_text('fn required() -> float { return 1.5 }\n'
+            source.write_text('fn required() -> array<float> { return [1.5] }\n'
                               'fn main() -> int { (required) return 0 }\n'
                               'shadow main { assert (== (main) 0) }\n')
             rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
-            self.assertIn(b"I cannot lower this checked program: unsupported result type float",
+            self.assertIn(b"I cannot lower this checked program: unsupported result type array<float>",
                           rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), b"prior")
 
@@ -190,7 +205,7 @@ shadow main { assert (== (main) 0) }
                     self.assertEqual(original.read_bytes(), before)
             output = directory / "prior.nvm"
             for body in ('fn main() -> int { return "wrong" }\nshadow main { assert true }\n',
-                         'fn main() -> int { let value: float = 1.25 (println value) return 0 }\nshadow main { assert true }\n'):
+                         'fn required() -> array<float> { return [1.25] }\nfn main() -> int { (required) return 0 }\nshadow main { assert true }\n'):
                 source.write_text(body)
                 output.write_bytes(b"prior")
                 self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)

@@ -8774,13 +8774,21 @@ Compiler product:
       shadow module now passes, resolving the baseline assertion under
       `task_fdf43892a1104b1facddc2553af390af`. Fresh current-main closure and
       canonical cutover remain separate; see `evidence/vm-deferred-cycle-counts.md`.
-- [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). The complete compiler shadow assertion remains open under `task_fdf43892a1104b1facddc2553af390af`; this repair does not resolve it.
+- [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). This edge-publication repair alone did not resolve the compiler shadow assertion; the separate deferred-cycle repair above closes that recorded baseline failure.
 - [x] I retain stack context for assertion failures under VM debug mode or module debug metadata, as I already do for ordinary runtime errors. My VM suite passes 272595 checks, including assertion function/source context and unchanged ordinary output (`task_10e6ea8cf0f34321b9dff21594eb9e8a`).
 - [x] I retain checked filesystem foreign signatures in the complete
       dependency shadow closure, including `fs_walkdir` string arrays and
       scalar filesystem operations. I preserve owning artifact identity and
       the existing VM/native ABI without excluding dependency shadows
       (`task_41323f26030d452f92bbdbf69a0a8704`).
+- [x] I run canonical `--emit-nvm` shadow checks as verified bytecode before
+      publishing, returning before my C transpiler and native shadow build.
+      I retain dependency selection, completion/deadline checks and previous
+      output on failure. At `e35d8f55`, both full compiler generations match raw
+      365,976-byte modules and immutable host closure; the generated compiler
+      builds and runs hello. See [my evidence](evidence/canonical-vm-shadow-cutover.md)
+      (`task_c5a7a4835d364b50b747018c794a07d0`).
+      My fixed-point guard keeps the seed compiler identity stable so cached host artifacts remain valid, then rejects NanoLang-generated C compilation during both VM generations. Declared native host artifacts retain their build/cache-validation calls, including native snapshot compilation.
 - [x] I supervise standalone VM shadow execution with a verified module,
       completion handshake and bounded parent deadline. I reject early exit,
       failed execution and incompatible CLI modes before canonical publication
@@ -10222,3 +10230,5 @@ gates pass.
 My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
+
+- [x] I exclude VM-wrapper executable structure without rejecting ordinary string constants naming `nano_vm` or `nvm_blob`. I skip C literal/comment regions in my internal architecture assertion; six ordinary data cases compile and run without VM linkage, and all 2,414 native translator checks pass (`task_b4a32a35810544f4a0234ab5828b46b4`).

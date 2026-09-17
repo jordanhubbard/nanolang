@@ -1780,6 +1780,15 @@ shadow native_shadow_start {
     assert (== (native_shadow_start p 4) 2)
 }
 
+fn bytecode_shadow_cleanup(directory: string) -> void {
+    if (== directory "") { return }
+    unsafe {
+        (file_delete (+ directory "/shadows.nvm"))
+        (file_delete directory)
+    }
+}
+shadow bytecode_shadow_cleanup { (bytecode_shadow_cleanup "") }
+
 fn native_cleanup(directory: string, keep_c: bool) -> void {
     if (== directory "") { return }
     unsafe { (file_delete (+ directory "/shadows")) }
@@ -2100,6 +2109,50 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 } else { (print "") }
             } else { (print "") }
 
+            # I check bytecode shadows and publish before entering C emission.
+            if emit_nvm {
+                let assembly: string = (nanoisa_emit_program_nasm parser)
+                if (== assembly "") {
+                    (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
+                    return 1
+                }
+                if has_shadows {
+                    let shadow_assembly: string = (nanoisa_emit_shadows_nasm parser first_shadow)
+                    if (== shadow_assembly "") {
+                        (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
+                        return 1
+                    }
+                    let directory: string = (mktemp_dir "nano_bytecode_shadows_")
+                    if (== directory "") {
+                        (println "I could not create bytecode shadow storage")
+                        return 1
+                    }
+                    let shadow_file: string = (+ directory "/shadows.nvm")
+                    let staged: int = (Nanoisa.assemble_text_save shadow_assembly shadow_file)
+                    if (!= staged 0) {
+                        (println (+ "I could not verify the shadow module: " (Nanoisa.last_error)))
+                        (bytecode_shadow_cleanup directory)
+                        return 1
+                    }
+                    let mut vm: string = (getenv "NANO_VM")
+                    if (== vm "") { set vm (nl_path_join repo_root "bin/nano_vm") }
+                    let command: string = (+ (native_shell_quote vm) (+ " --check-shadows " (native_shell_quote shadow_file)))
+                    let checked: int = (nl_exec_shell command)
+                    (bytecode_shadow_cleanup directory)
+                    if (!= checked 0) {
+                        (println "I will not publish bytecode after failed shadows")
+                        return 1
+                    }
+                }
+                if (!= (Nanoisa.assemble_text_save assembly output_file) 0) {
+                    (println (+ "I could not publish the NanoISA module: " (Nanoisa.last_error)))
+                    return 1
+                }
+                if (!= llm_diags_json_path "") {
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
+                }
+                return 0
+            }
             /* Step 4: Transpiler - Generate C code */
             if verbose {
                 (println "[4/5] Generating C code...")
@@ -2107,21 +2160,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
 
-            # I lower the already-bound, checked parser. I still run native shadows
-            # below; this explicit route is not my NanoISA-only bootstrap.
-            let mut nvm_assembly: string = ""
-            if emit_nvm {
-                set nvm_assembly (nanoisa_emit_program_nasm parser)
-                if (== nvm_assembly "") {
-                    let reason: string = (nanoisa_last_lowering_error)
-                    if (== reason "") {
-                        (println "I cannot lower this checked program to my supported NanoISA subset")
-                    } else {
-                        (println (+ "I cannot lower this checked program: " reason))
-                    }
-                    return 1
-                }
-            }
             let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
             if (not introspection.ok) { return 1 }
             let c_code: string = (+ (transpile_parser parser) introspection.code)
@@ -2383,18 +2421,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     return 1
                 }
             }
-            if emit_nvm {
-                let nvm_status: int = (Nanoisa.assemble_text_save nvm_assembly output_file)
-                (native_cleanup native_dir keep_c)
-                if (!= nvm_status 0) {
-                    (println (+ "I could not publish the NanoISA module: " (Nanoisa.last_error)))
-                    return 1
-                }
-                if (!= llm_diags_json_path "") {
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
-                }
-                return 0
-            }
             set cc_cmd (+ cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
             
             if verbose {
@@ -2455,7 +2481,7 @@ fn show_usage() -> int {
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
     (println "  --target <t>    native (default) or c (source output, no native compilation)")
-    (println "  --emit-nvm     I publish verified NanoISA after native shadow checks; requires -o")
+    (println "  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
     (println "  --              End options; the remaining argument is my input path")

@@ -7,6 +7,7 @@ from pathlib import Path
 import shlex
 import signal
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -26,8 +27,31 @@ class VMBytecodeBootstrap(unittest.TestCase):
         print(f'I retain my bootstrap evidence at {evidence}', flush=True)
         env = os.environ.copy()
         env['NANO_AS_CAPTURE_HELPER'] = str(ROOT / 'bin/nano_as_capture.so')
+        native_marker = evidence / 'unexpected-native-compiler'
+        guarded_cc = evidence / 'guard-native-compiler'
+        probe_log = evidence / 'host-cache-probes.log'
+        compiler_command = shlex.split(env.get('NANO_CC') or env.get('CC') or 'cc')
+        self.assertTrue(compiler_command)
+        native_sources = []
+        module_build_roots = []
+        for name in ('compiler_support', 'nanoisa', 'std'):
+            module_root = ROOT / 'modules' / name
+            metadata = json.loads((module_root / 'module.json').read_text())
+            native_sources.extend(str((module_root / source).resolve())
+                                  for key in ('c_sources', 'shared_c_sources')
+                                  for source in metadata.get(key, []))
+            module_build_roots.append(str(module_root / '.build'))
+        guard_config = {'compiler': compiler_command, 'native_sources': native_sources,
+                        'module_build_roots': module_build_roots,
+                        'native_marker': str(native_marker), 'probe_log': str(probe_log)}
+        guarded_cc.write_text('#!' + sys.executable + '\nconfig = ' + repr(guard_config) + '\n' +
+                              (ROOT / 'tests/bootstrap_native_guard.py').read_text() + '\nmain(config)\n')
+        guarded_cc.chmod(0o755)
+        env['CC'] = str(guarded_cc)
+        env['NANO_CC'] = str(guarded_cc)
+        env.pop('NANOLANG_BOOTSTRAP_NO_CC', None)
         manifest = {'root': str(ROOT), 'stages': {}, 'stage_timeout_seconds': budget,
-                    'boundary': 'I execute native C shadows; this gate does not establish a NanoISA-only compiler.'}
+                    'boundary': 'I execute VM-generation shadows as bytecode and reject NanoLang-generated C compilation. Declared native host artifacts retain their existing build and cache-validation paths; the product still contains its separate legacy C backend.'}
 
         def save():
             (evidence / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
@@ -80,6 +104,10 @@ class VMBytecodeBootstrap(unittest.TestCase):
         hosts = imports(seed, 'seed')
         manifest['host_libraries'] = hosts
         save()
+        # I retain the seed's compiler identity and immutable artifact cache.
+        # Changing CC here would request new host-library builds before shadows.
+        env['NANOLANG_BOOTSTRAP_NO_CC'] = '1'
+        env['NANO_VM'] = str(ROOT / 'bin/nano_vm')
         for label, compiler, output in [('stage1', seed, first), ('stage2', first, second)]:
             run(label, [ROOT / 'bin/nano_vm', compiler, '--', source, '--emit-nvm', '-o', output])
             run(label + '-verify', [ROOT / 'bin/nano_vm', '--verify-only', output])
@@ -101,6 +129,11 @@ class VMBytecodeBootstrap(unittest.TestCase):
         self.assertEqual(digest(env['NANO_AS_CAPTURE_HELPER']), manifest['helper_sha256'])
         self.assertEqual(git('rev-parse', 'HEAD'), manifest['source_commit'])
         self.assertEqual(git('status', '--porcelain'), '')
+        self.assertFalse(native_marker.exists(), 'I invoked native code generation during VM generations.')
+        manifest['vm_generations_nanolang_codegen_calls'] = 0
+        host_calls = probe_log.read_text().splitlines() if probe_log.exists() else []
+        manifest['host_cache_probe_calls'] = host_calls.count('host-cache-probe')
+        manifest['native_host_artifact_calls'] = host_calls.count('native-host-artifact')
         manifest['complete'] = True
         save()
 
