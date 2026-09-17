@@ -27,7 +27,7 @@ class VMBytecodeBootstrap(unittest.TestCase):
         env = os.environ.copy()
         env['NANO_AS_CAPTURE_HELPER'] = str(ROOT / 'bin/nano_as_capture.so')
         manifest = {'root': str(ROOT), 'stages': {}, 'stage_timeout_seconds': budget,
-                    'boundary': 'I execute native C shadows; this gate does not establish a NanoISA-only compiler.'}
+                    'boundary': 'I execute VM-generation shadows as bytecode and reject native compiler calls. The product still contains its separate legacy C backend.'}
 
         def save():
             (evidence / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
@@ -80,6 +80,13 @@ class VMBytecodeBootstrap(unittest.TestCase):
         hosts = imports(seed, 'seed')
         manifest['host_libraries'] = hosts
         save()
+        native_marker = evidence / 'unexpected-native-compiler'
+        rejected_cc = evidence / 'reject-native-compiler'
+        rejected_cc.write_text('#!/bin/sh\n: > ' + shlex.quote(str(native_marker)) + '\nexit 91\n')
+        rejected_cc.chmod(0o755)
+        env['CC'] = str(rejected_cc)
+        env['NANO_CC'] = str(rejected_cc)
+        env['NANO_VM'] = str(ROOT / 'bin/nano_vm')
         for label, compiler, output in [('stage1', seed, first), ('stage2', first, second)]:
             run(label, [ROOT / 'bin/nano_vm', compiler, '--', source, '--emit-nvm', '-o', output])
             run(label + '-verify', [ROOT / 'bin/nano_vm', '--verify-only', output])
@@ -101,6 +108,8 @@ class VMBytecodeBootstrap(unittest.TestCase):
         self.assertEqual(digest(env['NANO_AS_CAPTURE_HELPER']), manifest['helper_sha256'])
         self.assertEqual(git('rev-parse', 'HEAD'), manifest['source_commit'])
         self.assertEqual(git('status', '--porcelain'), '')
+        self.assertFalse(native_marker.exists(), 'I invoked a native compiler during VM generations.')
+        manifest['vm_generations_native_compiler_calls'] = 0
         manifest['complete'] = True
         save()
 
