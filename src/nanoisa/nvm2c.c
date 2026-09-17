@@ -2629,6 +2629,28 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
     return 1;
 }
 
+static int scalar_return_profile(const NvmFunctionEntry *fn) {
+    return fn->result_count == 0 || (fn->result_count == 1 &&
+        (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || fn->result_tag == TAG_FLOAT));
+}
+
+static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
+                              const NvmFunctionEntry *fn, uint32_t idx) {
+    if (st->sp != fn->result_count) {
+        nvm2c_fail(b, "function %u: return leaves %d values, expected %u", idx, st->sp, fn->result_count);
+        return 0;
+    }
+    if (fn->result_count) {
+        uint8_t kind = fn->result_tag == TAG_FLOAT ? NVM2C_VK_FLOAT :
+                       fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT;
+        int slot = stack_pop_expect(b, st, kind, "RET");
+        if (b->failed) return 0;
+        nvm2c_printf(b, "    nresult = %c[%d];\n", kind == NVM2C_VK_FLOAT ? 'f' : 't', slot);
+    }
+    nvm2c_puts(b, "    goto L_return;\n");
+    return 1;
+}
+
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                const uint8_t *kinds, const uint8_t *rec_fields,
                                const uint8_t *result_fields) {
@@ -4018,19 +4040,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_RET:
-            if (result_is_i64(fn)) {
-                int t = stack_pop_expect(b, &st, fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT, "RET");
-                if (b->failed) goto done;
-                if (st.sp != 0) {
-                    nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
-                    goto done;
-                }
-                nvm2c_printf(b, "    nresult = t[%d];\n    goto L_return;\n", t);
-            } else if (fn->result_count == 1 && fn->result_tag == TAG_FLOAT) {
-                int value = stack_pop_expect(b, &st, NVM2C_VK_FLOAT, "RET");
-                if (b->failed) goto done;
-                if (st.sp) { nvm2c_fail(b, "I cannot return a float with extra stack values"); goto done; }
-                nvm2c_printf(b, "    nresult = f[%d];\n    goto L_return;\n", value);
+            if (scalar_return_profile(fn)) {
+                if (!emit_scalar_return(b, &st, fn, idx)) goto done;
             } else if (fn->result_count == 1 && fn->result_tag == TAG_STRING) {
                 int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "RET");
                 if (b->failed) goto done;
@@ -4145,11 +4156,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
 
     if (is_target[remaining] && join_set[remaining]) {
+        if (!terminated && !record_join(b, idx, joins, join_set, remaining, &st)) goto done;
+        stack_restore_join(b, &st, &joins[remaining]);
+        terminated = 0;
         nvm2c_printf(b, "L_%zu: ;\n", remaining);
     }
     if (!terminated) {
-        nvm2c_fail(b, "function %u: falls off the end without RET or HALT", idx);
-        goto done;
+        if (!scalar_return_profile(fn)) {
+            nvm2c_fail(b, "function %u: I support implicit returns only for zero results or one int/bool/float", idx);
+            goto done;
+        }
+        if (!emit_scalar_return(b, &st, fn, idx)) goto done;
     }
     nvm2c_puts(b, "L_return:\n");
     if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
