@@ -8546,13 +8546,17 @@ Compiler product:
       (`task_6b4240883d7d461c8266257aaffb2471`). Sixteen exact
       opcode comparisons and VM/native execution pass; see
       `docs/evidence/selfhost-filled-arrays.md`.
-- [ ] I retain concrete generic union types during native emission at globals,
+- [x] I retain concrete generic union types during C-seed native emission at globals,
       inline call arguments, mutable assignment and nested union construction
-      (`task_633f2402ec5944cfba0911a56a9f4eb1`). Correctly typed controls
-      currently reach malformed C; frontend nominal rejection remains separate.
-      My `Box<Result<int,string>>` and nested marker positives now execute
-      after PR450; broader constructor contexts remain open. I retain those
-      controls in `tests/test_instantiated_ownership.py`.
+      (`task_633f2402ec5944cfba0911a56a9f4eb1`). I retain owned constructor
+      and specialization context; executable payload values and nominal refusals
+      pass. See `docs/evidence/native-generic-constructor-context.md`.
+      My existing nested Result and marker controls remain in
+      `tests/test_instantiated_ownership.py`.
+- [ ] I substitute nested generic payloads and initialize union globals in
+      my self-hosted native stages (`task_85a8db6e186440eaad80442bfc133dd8`).
+      The stronger constructor fixture exposes `nl_Box_T` in `Envelope<Plain>`
+      and an invalid aggregate `= 0` initializer after a fresh bootstrap.
 - [x] I apply concrete generic union constructor context before accepting
       nominal array payloads (`task_dd2be49bc494483f9bb18646a0013055`).
       I reject wrong record identities at local/global, argument, return,

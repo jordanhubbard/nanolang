@@ -2739,25 +2739,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             char monomorphized_name[256];
             bool is_generic = false;
             
-            if (g_current_function && 
-                g_current_function->as.function.return_type == TYPE_UNION &&
-                g_current_function->as.function.return_type_info &&
-                g_current_function->as.function.return_type_info->generic_name &&
-                g_current_function->as.function.return_type_info->type_param_count > 0 &&
-                strcmp(union_name, g_current_function->as.function.return_type_info->generic_name) == 0) {
-                /* Build monomorphized name: Result<int, string> -> Result_int_string */
-                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name),
-                                                                g_current_function->as.function.return_type_info)) {
-                    snprintf(monomorphized_name, sizeof(monomorphized_name), "%s", union_name);
+            TypeInfo *context = expr->as.union_construct.type_info;
+            if (!context && g_current_function &&
+                g_current_function->as.function.return_type == TYPE_UNION)
+                context = g_current_function->as.function.return_type_info;
+            if (context && context->generic_name && context->type_param_count > 0 &&
+                strcmp(union_name, context->generic_name) == 0) {
+                if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name), context)) {
+                    fprintf(stderr, "I cannot represent this concrete union constructor\n");
+                    exit(1);
                 }
-                
                 prefixed_union = get_prefixed_type_name(monomorphized_name);
                 is_generic = true;
-            } else {
-                /* Non-generic union or no function context - use base name */
-                prefixed_union = get_prefixed_type_name(union_name);
-            }
-            
+            } else prefixed_union = get_prefixed_type_name(union_name);
+
             /* Get variant index */
             int variant_idx = env_get_union_variant_index(env, union_name, variant_name);
             if (variant_idx < 0) {

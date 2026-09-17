@@ -318,6 +318,7 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (sym) return sym->type_info;
@@ -634,11 +635,51 @@ static void check_union_record_array_contract(Environment *env, UnionDef *def,
     }
 }
 
-/* I resolve constructor payload annotations against their enclosing concrete
- * declaration without attaching borrowed context to the expression AST. */
+/* I retain complete concrete trees for native nested payload substitution. */
+static void register_native_union_context(Environment *env, const TypeInfo *info, unsigned depth) {
+    if (!info || depth > 128) return;
+    register_native_union_context(env, info->element_type, depth + 1);
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        register_native_union_context(env, info->type_params[i], depth + 1);
+    UnionDef *def = info->generic_name ? env_get_union(env, info->generic_name) : NULL;
+    if (!def || !def->generic_param_count || def->generic_param_count != info->type_param_count) return;
+    char **names = calloc((size_t)info->type_param_count, sizeof(char*));
+    if (!names) return;
+    bool complete = true;
+    for (int i = 0; i < info->type_param_count; ++i) {
+        names[i] = typeinfo_to_generic_arg_name(info->type_params[i]);
+        if (!names[i]) complete = false;
+    }
+    if (complete) env_register_union_instantiation(env, info->generic_name,
+                                                  (const char**)names, info->type_param_count);
+    bool added = false;
+    for (int i = 0; complete && i < env->generic_instance_count; ++i) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (strcmp(inst->generic_name, info->generic_name) || inst->type_arg_count != info->type_param_count) continue;
+        bool matches = true;
+        for (int j = 0; j < info->type_param_count; ++j)
+            if (strcmp(inst->type_arg_names[j], names[j])) matches = false;
+        if (matches && !inst->type_info) {
+            inst->type_info = copy_payload_type_info(info);
+            added = inst->type_info != NULL;
+        }
+    }
+    for (int i = 0; i < info->type_param_count; ++i) free(names[i]);
+    free(names);
+    if (!added) return;
+    for (int arm = 0; arm < def->variant_count; ++arm)
+        for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
+            TypeInfo *payload = resolve_union_payload_type_info(def, arm, field, info);
+            register_native_union_context(env, payload, depth + 1);
+            free_payload_type_info(payload);
+        }
+}
+
+/* I resolve payload annotations and retain owned constructor context. */
 static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
                                         ASTNode *value, unsigned depth) {
     if (!expected || !value) return;
+    register_native_union_context(env, expected, 0);
     if (depth > 128) {
         emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
             "I cannot resolve this deeply nested payload context.", "Reduce the nesting depth.");
@@ -700,6 +741,25 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     } else return;
     int arm = env_get_union_variant_index(env, expected->generic_name, variant);
     if (arm < 0) return;
+    if (expected->type_param_count > 0) {
+        TypeInfo *context = copy_payload_type_info(expected);
+        if (!context) return;
+        if (value->type == AST_STRUCT_LITERAL) {
+            if (value->as.struct_literal.spread_source) { free_payload_type_info(context); return; }
+            char *owner = strdup(expected->generic_name);
+            char *selected = strdup(variant);
+            if (!owner || !selected) { free(owner); free(selected); free_payload_type_info(context); return; }
+            free(value->as.struct_literal.struct_name);
+            memset(&value->as, 0, sizeof(value->as));
+            value->type = AST_UNION_CONSTRUCT;
+            value->as.union_construct.union_name = owner;
+            value->as.union_construct.variant_name = selected;
+            value->as.union_construct.field_names = names;
+            value->as.union_construct.field_values = values;
+            value->as.union_construct.field_count = count;
+        } else free_payload_type_info(value->as.union_construct.type_info);
+        value->as.union_construct.type_info = context;
+    }
     for (int i = 0; i < count; ++i) {
         for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
             if (strcmp(names[i], def->variant_field_names[arm][field])) continue;
@@ -6954,6 +7014,9 @@ register_function_pass1:;
             }
 
             env_define_function(env, func);
+            register_native_union_context(env, func.return_type_info, 0);
+            for (int p = 0; p < func.param_count; ++p)
+                register_native_union_context(env, func.params[p].type_info, 0);
 
             /* Module introspection: track exported functions (public only) */
             if (item->as.function.is_pub && env->current_module) {
@@ -7691,6 +7754,9 @@ register_function_pass2:;
             f.module_name = env->current_module ? strdup(env->current_module) : NULL;
 
             env_define_function(env, f);
+            register_native_union_context(env, f.return_type_info, 0);
+            for (int p = 0; p < f.param_count; ++p)
+                register_native_union_context(env, f.params[p].type_info, 0);
 
             /* Module introspection: track exported functions (public only) */
             if (item->as.function.is_pub && env->current_module) {
