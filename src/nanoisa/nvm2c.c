@@ -425,10 +425,17 @@ typedef struct {
     uint8_t *results;
     uint8_t *global_kinds;
     uint8_t *global_fields;
+    uint8_t *global_stored;
     int changed;
     int discover_globals;
     int final;
 } Nvm2cFacts;
+
+enum {
+    NVM2C_GLOBAL_UNSTORED,
+    NVM2C_GLOBAL_EXACT_CANDIDATE,
+    NVM2C_GLOBAL_DYNAMIC
+};
 
 /* Classifier field vectors are immutable after publication. Branch merges
  * clone before changing them; one function-scoped arena owns every vector. */
@@ -1006,6 +1013,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 loaded.rec_k = sim_fields(b,
                     facts->global_fields + (size_t)slot * b->record_width, NVM2C_VK_UNK);
                 if (!loaded.rec_k || !sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
+            } else if (facts->final &&
+                       facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
+                       facts->global_kinds[slot] == NVM2C_VK_UNK) {
+                /* A nested projection can reveal an exact record-array only
+                 * after graph construction. Do not publish the tagged global
+                 * fallback into its consumers before that shape closes. */
+                Nvm2cSimSlot loaded = {0};
+                loaded.kind = NVM2C_VK_UNK;
+                loaded.origin = -1;
+                loaded.shape = shape_variable(b, &b->shape_globals[slot]);
+                loaded.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!loaded.rec_k || !sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
             } else if (!sim_push(b, idx, stk, &sp,
                                  facts->discover_globals ? NVM2C_VK_UNK : NVM2C_VK_VALUE, -1)) return 0;
             break;
@@ -1014,6 +1033,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot value;
             uint32_t slot = ins.operands[0].u32;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            uint8_t stored = value.kind == NVM2C_VK_VALUE
+                ? NVM2C_GLOBAL_DYNAMIC : NVM2C_GLOBAL_EXACT_CANDIDATE;
+            if (facts->global_stored[slot] < stored) {
+                facts->global_stored[slot] = stored;
+                facts->changed = 1;
+            }
             if (!merge_global_kind(b, facts, slot, value.kind)) return 0;
             if (value.kind == NVM2C_VK_RARR) {
                 if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
@@ -1021,6 +1046,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!shape_type(b, global, NVM_SHAPE_ARRAY) ||
                     !shape_equal(b, shape_child(b, value.shape, 0),
                                  shape_child(b, global, 0))) return 0;
+            } else if (facts->final && value.kind == NVM2C_VK_UNK &&
+                       facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
+                       facts->global_kinds[slot] == NVM2C_VK_UNK) {
+                if (!shape_equal(b, value.shape,
+                                 shape_variable(b, &b->shape_globals[slot]))) return 0;
             } else if (facts->global_kinds[slot] == NVM2C_VK_RARR &&
                        value.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I require record-array global %u to retain its exact representation "
@@ -5268,13 +5298,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.required_functions = calloc(mod->function_count, 1);
     b.tagged_locals = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *inference = malloc(fact_size);
+    uint8_t *global_stored = calloc(b.global_count ? b.global_count : 1, 1);
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * b.local_width
                                  * b.record_width, 1);
-    if (!kinds || !rec_fields || !inference || !b.shape_locals || !b.shape_results ||
+    if (!kinds || !rec_fields || !inference || !global_stored || !b.shape_locals || !b.shape_results ||
         !b.shape_globals || !b.shape_outputs || !b.join_shapes || !b.emitted_functions ||
         !b.required_functions || !b.tagged_locals) {
         free(inference);
+        free(global_stored);
         free(kinds);
         free(rec_fields);
         free(b.shape_locals);
@@ -5301,6 +5333,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.array_results = facts.results + (size_t)mod->function_count * b.record_width;
     facts.global_kinds = b.array_results + mod->function_count;
     facts.global_fields = facts.global_kinds + b.global_count;
+    facts.global_stored = global_stored;
     /* I discover exact record-array globals before ordinary inference. A
      * load cannot publish the old tagged fallback into a local or parameter
      * before a later function reveals the global's exact element shape. */
@@ -5367,8 +5400,18 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         goto fail;
     }
     for (size_t slot = 0; slot < b.global_count; ++slot) {
+        uint8_t resolved = resolved_shape_kind(&b, b.shape_globals[slot]);
+        if (facts.global_kinds[slot] == NVM2C_VK_UNK && resolved == NVM2C_VK_RARR) {
+            facts.global_kinds[slot] = NVM2C_VK_RARR;
+            NvmShapeId element = nvm_shape_lookup(&b.shapes, b.shape_globals[slot], 0);
+            for (size_t field = 0; field < b.record_width; ++field) {
+                NvmShapeId shape = element ? nvm_shape_lookup(&b.shapes, element, (uint32_t)field) : 0;
+                facts.global_fields[slot * b.record_width + field] = resolved_shape_kind(&b, shape);
+            }
+            if (!shape_ok(&b)) goto fail;
+        }
         if (facts.global_kinds[slot] != NVM2C_VK_RARR) continue;
-        if (resolved_shape_kind(&b, b.shape_globals[slot]) != NVM2C_VK_RARR) {
+        if (resolved != NVM2C_VK_RARR) {
             nvm2c_fail(&b, "I cannot resolve the record element shape of global %zu", slot);
             goto fail;
         }
@@ -5941,6 +5984,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(kinds);
     free(rec_fields);
     free(inference);
+    free(global_stored);
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);
@@ -5963,6 +6007,7 @@ fail:
     free(kinds);
     free(rec_fields);
     free(inference);
+    free(global_stored);
     nvm_shape_destroy(&b.shapes);
     free(b.shape_locals);
     free(b.shape_results);

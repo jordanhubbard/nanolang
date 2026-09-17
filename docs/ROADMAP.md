@@ -56,7 +56,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I complete native full-source compiler generations at frozen source `2f50d7a0` after map-byte debt and builtin host ownership repair (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). Both generations finish under their original 1800-second bounds, verify and match raw bytes; help/hello and immutable source/tool/host integrity pass. I retain [measured evidence and boundaries](evidence/native-full-fixedpoint-host-owned.md). This does not close other full-roadmap release requirements.
 
 - [x] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. Seven Wasm and eleven LLVM methods pass after integration; [evidence](NANOISA_WASM.md). This first subset does not complete heap, host, reference or full-language Wasm coverage.
-- [ ] I resolve nested projected record-array global field shapes (`task_65d164a9fb204ff7872002f53e708bdf`). A new ordinary positive field read after nested projection, global storage and global reload refuses conflicting optional/record facts; I preserve `/tmp/nanolang-float-records-integrated-gates.log`. Existing exact record-array globals and float scalar transport do not establish this nested shape closure.
+- [x] I resolve nested projected record-array global field shapes
+      (`task_65d164a9fb204ff7872002f53e708bdf`). I keep unresolved stored
+      exact candidates connected through the final shape graph without turning
+      dynamic or unstored globals into exact storage, then publish the proved
+      record-array kind and fields. Both function orders execute with the same
+      result in NanoVM and strict ASan/UBSan native builds; all 2,418 structured-C
+      checks and 1,092 shape checks pass. This closes only exact array projection
+      after nested record/global flow; merged float-record scalar transport
+      (#559) and typed F64 LLVM/Wasm support (#560) remain independently proved
+      gates.
 
 - [ ] I extend my verified LLVM scalar profile with typed F64 arithmetic, comparisons, exact constants and scalar call/return storage (MAC `task_4b6401a64a3b4accaae1d087c4c1aea2`). I preserve signed zero, unordered NaN predicates, positive-zero division by zero, float truthiness and checked scalar numeric casts before LLVM conversion. I require VM/C/LLVM optimized/native boundary tests; heap/imports and generic cross-type comparisons remain separate coverage.
 - [x] I execute my standalone owned-transfer subset in both VM and native C
