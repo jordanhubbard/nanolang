@@ -69,5 +69,33 @@ shadow main { assert (== (main) 0) }
                     self.assertEqual(output.read_text(), 'previous artifact')
 
 
+    def test_explicit_integer_enum_literals_preserve_array_invariance(self):
+        cases = {
+            'literal': ('let values: array<int> = [Mode.Low, 7] assert (== (at values 0) -3)', True),
+            'alias': ('let values: array<Mode> = [Mode.Low] let wrong: array<int> = values', False),
+            'mixed bool': ('let values: array<int> = [Mode.Low, true]', False),
+        }
+        with tempfile.TemporaryDirectory(prefix='nano-enum-int-context-') as tmp:
+            source, output = Path(tmp)/'input.nano', Path(tmp)/'output.nvm'
+            for stage in ('nanoc_stage1', 'nanoc_stage2'):
+                for name, (body, accepted) in cases.items():
+                    with self.subTest(stage=stage, case=name):
+                        source.write_text('enum Mode { Low = -3 }\nfn main() -> int { '+body+' return 0 }\nshadow main { assert (== (main) 0) }\n')
+                        output.write_text('previous artifact')
+                        result = subprocess.run([ROOT/'bin'/stage, source, '--emit-nvm', '-o', output],
+                                                cwd=ROOT, capture_output=True, text=True, timeout=120)
+                        if accepted:
+                            self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                            self.checked(ROOT/'bin/nano_vm', output)
+                            native_c, native = Path(tmp)/'output.c', Path(tmp)/'output'
+                            self.checked(ROOT/'bin/nvm2c', output, '-o', native_c)
+                            self.checked('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', native_c, '-lm', '-o', native)
+                            self.checked(native)
+                        else:
+                            self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                            self.assertIn('NSType checking failed', result.stdout+result.stderr)
+                            self.assertEqual(output.read_text(), 'previous artifact')
+
+
 if __name__ == '__main__':
     unittest.main()

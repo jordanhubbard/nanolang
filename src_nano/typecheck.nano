@@ -4788,7 +4788,26 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
                 }
             }
         }
-        let init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
+        let mut init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
+        if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
+            let literal: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
+            let mut has_enum: bool = false
+            let mut integer_elements: bool = true
+            let mut element_index: int = 0
+            while (< element_index literal.element_count) {
+                let element: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start element_index))
+                let actual: NSType = (check_expr_node parser element.node_id element.node_type symbols diags file_name)
+                if (== actual.kind TypeKind.TYPE_ENUM) { set has_enum true }
+                if (not (or (== actual.kind TypeKind.TYPE_INT) (== actual.kind TypeKind.TYPE_ENUM))) { set integer_elements false }
+                set element_index (+ element_index 1)
+            }
+            if has_enum {
+                if integer_elements { set init_type declared_type }
+                else {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require integer or enum scalar elements in this integer array literal." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+                }
+            }
+        }
         if (not (types_equal init_type declared_type)) {
             let detail: string = (+ "Variable " let_node.name)
             let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string declared_type) (type_to_string init_type) detail)
