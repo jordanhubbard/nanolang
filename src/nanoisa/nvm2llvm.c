@@ -110,7 +110,10 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                 fprintf(out, "%s%%V %%p%u_arg%u", i ? ", " : "", pc, i);
             fputs(")\n", out); push(out, pc, "a"); break;
         }
-        case OP_RET: pop(out, pc, "a"); fprintf(out, " ret %%V %%p%u_a\n", pc); terminates = 1; break;
+        case OP_RET:
+            pop(out, pc, "a");
+            fprintf(out, " call i64 @integer(%%V %%p%u_a, i8 %u)\n ret %%V %%p%u_a\n", pc, f->result_tag, pc);
+            terminates = 1; break;
         case OP_ASSERT:
             pop(out, pc, "a");
             fprintf(out, " %%p%u_x = extractvalue %%V %%p%u_a, 0\n %%p%u_ok = icmp ne i64 %%p%u_x, 0\n call void @check(i1 %%p%u_ok)\n", pc, pc, pc, pc, pc);
@@ -148,7 +151,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         if (!terminates) fprintf(out, " br label %%b%u\n", next);
         pc = next;
     }
-    fprintf(out, "b%u:\n unreachable\n}\n", f->code_length);
+    fprintf(out, "b%u:\n %%fallthrough = call %%V @pop(ptr %%stack, ptr %%sp)\n call i64 @integer(%%V %%fallthrough, i8 %u)\n ret %%V %%fallthrough\n}\n", f->code_length, f->result_tag);
 }
 int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
@@ -157,21 +160,30 @@ int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
     if (m->import_count || m->module_ref_count || m->struct_count || m->enum_count || m->union_count ||
         m->ownership_size || m->passive_size || m->layout_size)
         return refuse(error, size, "I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
+    if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
+        return refuse(error, size, "I require an explicit executable entry point");
     if (m->functions[m->header.entry_point].arity)
         return refuse(error, size, "I require a zero-argument scalar entry point");
     for (uint32_t i = 0; i < m->function_count; ++i) {
         const NvmFunctionEntry *f = &m->functions[i];
+        const char *name = nvm_get_string(m, f->name_idx);
+        if (name && !strcmp(name, "__init__"))
+            return refuse(error, size, "I refuse module initializers in my scalar LLVM profile");
         if (f->upvalue_count || f->result_count != 1 || (f->result_tag != TAG_INT && f->result_tag != TAG_BOOL))
             return refuse(error, size, "I require one integer/bool result and no captures in function %u", i);
         for (uint16_t p = 0; p < f->arity; ++p)
             if (m->function_param_types && m->function_param_types[i] && !scalar(m->function_param_types[i][p]))
                 return refuse(error, size, "I require scalar parameters in function %u", i);
+        uint8_t last = OP_NOP;
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
             if (!width || !supported(ins.opcode)) return refuse(error, size, "I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            last = ins.opcode;
             pc += width;
         }
+        if (last != OP_RET && last != OP_JMP)
+            return refuse(error, size, "I require explicit returns until VM/C implicit exits share a supported contract");
     }
     runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
