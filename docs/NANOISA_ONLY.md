@@ -154,11 +154,16 @@ failed. Canonical disassembly is a different test.
 | Translator | Job | Not |
 | --- | --- | --- |
 | `nvm2c` | Canonical AOT portability. C11. Locals, arithmetic, calls, control, runtime ABI. | VM wrapper |
-| `nvm2llvm` | Optional. Same module, LLVM IR. | NanoLang AST backend |
-| `nvm2wasm` | Optional. Same module, Wasm. | NanoLang AST backend |
+| `nvm2llvm` | Required for my full-roadmap v5.1 release. Same module, LLVM IR. | NanoLang AST backend |
+| `nvm2wasm` | Required for my full-roadmap v5.1 release. Same module, Wasm. | NanoLang AST backend |
 | `nvm2riscv` | Optional. Same module, assembly. | AST `riscv_backend` as a second IR |
 | GPU (SPIR-V / PTX / Metal / OpenCL) | Restricted profile only | Pretending general NanoISA is a kernel language |
 | JVM / others | Evaluate; accept only as translators of verified NanoISA | New AST backends |
+
+My general architecture permits optional translators, but my selected full-roadmap
+v5.1 scope includes the Phase 20 LLVM and WebAssembly implementation rows.
+I require both translators for that release. Evaluating JVM and the listed GPU
+targets does not require shipping every evaluated target.
 
 I reintroduce LLVM and Wasm only behind these translators, with the same
 module run through the VM and through the translator for semantic
@@ -375,7 +380,8 @@ NanoISA emitter in `src_nano` until it compiles `src_nano`.
 3. Stage 1 and Stage 2 `.nvm` files match.
 4. A pinned suite gives the same answers on `nano_vm` and on AOT C.
 5. `transpiler.nano` is gone from the product compiler (history keeps it).
-6. LLVM and Wasm, if present, are translators of the same module.
+6. LLVM and Wasm are implemented as translators of the same module, with
+   full applicable-language coverage and pinned VM/AOT/translator equivalence.
 7. `docs/NANOISA_HL_ROUNDTRIP.md` states sufficient / insufficient /
    blocked from evidence, not aspiration.
 
