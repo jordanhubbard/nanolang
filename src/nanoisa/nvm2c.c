@@ -275,7 +275,10 @@ static const Nvm2cHost host_adapters[] = {
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
- * an arbitrary artifact's ABI from its coarse NanoISA return tag. */
+ * an arbitrary artifact's ABI from its coarse NanoISA return tag. String
+ * results must be independent of argument storage, or copied by nhost_snapshot;
+ * I do not admit general interior-pointer/borrowed-input result contracts. The
+ * name/signature check trusts the artifact to implement this lifetime contract. */
 static const Nvm2cHost artifact_adapters[] = {
     /* I snapshot the facade's transient borrowed strings before its next call. */
     {"nlc_module_artifact", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
