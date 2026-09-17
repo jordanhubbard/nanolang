@@ -31,3 +31,8 @@ W0002 through an error constructor. That independent severity defect is
 `task_47e61dea383042808ccc1a0c89bef064`; its failure log is
 `/tmp/nanolang-selfhost-range-before.log`. The focused native fixture isolates
 the bound defect without deleting assertions from that original test.
+
+After integrating canonical main `28644fc3` (including the range emitter and
+borrow-annotation schema), the fresh three-stage bootstrap and both methods
+pass again in 13.548 s with the same explicit shadow budget
+(`/tmp/nanolang-selfhost-range-integrated.log`).
