@@ -50,5 +50,12 @@ My full C typechecker tests passed. I do not call this combined gate green. Loca
 `/tmp/nanolang-generic-selected-transfer/` (`bootstrap-r5.log`,
 `c-match-final-tests.log`, `selfhost-match-controls.log`, `asan.log`).
 
+At `2eccc83a`, after merging main through `5117aaf4`, my C seed passed
+23 focused methods (20 ownership and three match-result controls) in
+18.903 seconds. The added ordinary-arm control passed all three compilers
+in 8.797 seconds: an ordinary selected sibling can be ignored without
+destructuring. My full adjacent positive remains blocked on the recorded
+selected-array task; these focused results do not replace it.
+
 MAC: `task_08428ceb1d674de49383aab1ba9a78c8` and native prerequisite
 `task_ce96caed26b843ecb1365def0c733b58`.
