@@ -3677,6 +3677,56 @@ static void test_scalar_arithmetic_boundaries(void) {
     }
 }
 
+static void test_array_update_index_contract(void) {
+    uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                      OP_LOAD_LOCAL, 2, 0, OP_ARR_SET, OP_RET};
+    NvmModule *mod = make_module(code, sizeof code, 3, 3);
+    mod->functions[0].result_tag = TAG_ARRAY;
+    VmState vm;
+    vm_init(&vm, mod);
+    for (unsigned test = 0; test < 10; ++test) {
+        size_t before = vm.heap.stats.num_objects;
+        VmString *old = vm_string_new(&vm.heap, "old", 3);
+        VmString *replacement = vm_string_new(&vm.heap, "new", 3);
+        VmArray *array = vm_array_new(&vm.heap, TAG_STRING, 1);
+        ASSERT(vm_array_push(&vm.heap, array, val_string(old)), "I initialize the aliased array");
+        vm_release(&vm.heap, val_string(old));
+        NanoValue index = val_int(0);
+        if (test == 1) index = val_bool(false);
+        if (test == 2 || test == 9) index = val_string(vm_string_new(&vm.heap, "index", 5));
+        if (test == 3) index = val_void();
+        if (test == 4) index = val_float(0.0);
+        if (test == 5) index = val_int(-1);
+        if (test == 6) index = val_int(1);
+        if (test == 7) index = val_int(INT64_C(4294967296));
+        if (test == 8) index = val_int(INT64_MAX);
+        NanoValue receiver = test == 9 ? val_string(vm_string_new(&vm.heap, "receiver", 8)) : val_array(array);
+        NanoValue args[] = {receiver, index, val_string(replacement)};
+        NanoValue result = val_void();
+        VmResult expected = test == 0 ? VM_OK : test >= 5 && test <= 8 ? VM_ERR_OUT_OF_BOUNDS : VM_ERR_TYPE_ERROR;
+        ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 3, &result), expected,
+                      "I reject wrong index tags and full-width bounds before mutation");
+        ASSERT_EQ_INT(vm.stack_size, 0, "I restore the operand stack after an array update");
+        ASSERT_EQ_INT(vm.frame_count, 0, "I restore call frames after an array update");
+        ASSERT_EQ_STR(vm_array_get(array, 0).as.string->data, test == 0 ? "new" : "old",
+                      "I preserve aliases and leave rejected updates unchanged");
+        vm_release(&vm.heap, result);
+        ASSERT_EQ_INT(array->header.ref_count, 1, "I release the consumed array reference");
+        ASSERT_EQ_INT(replacement->header.ref_count, test == 0 ? 2 : 1,
+                      "I transfer successful payloads and release rejected payload references");
+        if (index.tag == TAG_STRING)
+            ASSERT_EQ_INT(index.as.string->header.ref_count, 1, "I release rejected heap index references");
+        vm_release(&vm.heap, index);
+        if (test == 9) vm_release(&vm.heap, receiver);
+        vm_release(&vm.heap, val_array(array));
+        vm_release(&vm.heap, val_string(replacement));
+        vm_gc_collect_cycles(&vm.heap);
+        ASSERT_EQ_INT(vm.heap.stats.num_objects, before, "I retain no heap objects after update cleanup");
+    }
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_array_arithmetic_values(void) {
     const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
                              OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
@@ -5612,6 +5662,7 @@ int main(void) {
     RUN_TEST(test_add_array_array);
     RUN_TEST(test_add_array_scalar);
     RUN_TEST(test_array_arithmetic_values);
+    RUN_TEST(test_array_update_index_contract);
     RUN_TEST(test_scalar_arithmetic_boundaries);
     RUN_TEST(test_array_arithmetic_boundaries);
     RUN_TEST(test_array_arithmetic_strings);
