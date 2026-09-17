@@ -109,6 +109,25 @@ shadow main { assert (== (main) 0) }
         for reverse in (False, True):
             self.check_modules("let moved: Handle = value return (close_owned moved)", True, reverse, long_names=True)
 
+    def test_foreign_record_collision_is_rejected(self):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+            for reverse in (False, True):
+                with self.subTest(compiler=compiler, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-affine-foreign-") as directory:
+                    work = Path(directory)
+                    (work / "foreign.nano").write_text("extern struct Handle { fd: int }\n")
+                    (work / "local.nano").write_text("struct Handle { value: int }\n")
+                    imports = ['module "foreign.nano" as foreign', 'module "local.nano" as ordinary']
+                    if reverse:
+                        imports.reverse()
+                    source = work / "main.nano"
+                    source.write_text("\n".join(imports) + "\nfn main() -> int { return 0 }\n")
+                    output = work / "program"
+                    output.write_bytes(b"prior artifact")
+                    result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn("colliding foreign record declarations", result.stdout + result.stderr)
+                    self.assertEqual(output.read_bytes(), b"prior artifact")
+
     def test_same_module_duplicate_is_rejected(self):
         for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-affine-duplicate-") as directory:
