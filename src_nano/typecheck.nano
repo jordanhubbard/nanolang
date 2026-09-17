@@ -131,7 +131,27 @@ shadow resource_type_identity {
     (mb_reset [])
 }
 
-fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
+# I unwrap fixed array payloads inside the declaring formal scope.
+fn resource_fixed_payload_bearing(parser: Parser, spelling: string, line: int, formals: array<string>, bearing: array<string>, depth: int) -> bool {
+    if (> depth 128) { return true }
+    if (== (base_type_name spelling) "array") {
+        let args: array<string> = (tc_generic_arguments spelling)
+        if (!= (array_length args) 1) { return true }
+        return (resource_fixed_payload_bearing parser (at args 0) line formals bearing (+ depth 1))
+    }
+    if (resource_name_in formals spelling) { return false }
+    return (resource_name_in bearing (resource_type_identity parser spelling line))
+}
+shadow resource_fixed_payload_bearing {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int }")
+    let roots: array<string> = [(resource_type_identity parser "Handle" 1)]
+    assert (resource_fixed_payload_bearing parser "array<array<Handle>>" 1 [] roots 0)
+    assert (not (resource_fixed_payload_bearing parser "array<Handle>" 1 ["Handle"] roots 0))
+    assert (not (resource_fixed_payload_bearing parser "array<int>" 1 [] roots 0))
+}
+
+fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
+    let mut collections: array<string> = []
     let mut bearing: array<string> = []
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
@@ -139,6 +159,7 @@ fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
         if def.is_resource { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) }
         set i (+ i 1)
     }
+    if (== (array_length bearing) 0) { return false }
     # A cycle alone creates no obligation. I propagate only from resource roots.
     let mut changed: bool = true
     while changed {
@@ -146,36 +167,71 @@ fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
         set i 0
         while (< i (parser_get_struct_def_count parser)) {
             let def: ASTStruct = (parser_get_struct_def parser i)
-            if (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) {
+            if (or (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) (not (resource_name_in collections (resource_type_identity parser def.name def.line)))) {
                 let mut field: int = 0
                 let mut owns: bool = false
+                let mut unsupported: bool = false
                 while (< field (array_length def.field_types)) {
-                    if (resource_name_in bearing (resource_type_identity parser (at def.field_types field) def.line)) { set owns true }
+                    let field_key: string = (resource_type_identity parser (at def.field_types field) def.line)
+                    if (resource_name_in bearing field_key) { set owns true }
+                    if (resource_name_in collections field_key) { set unsupported true }
                     set field (+ field 1)
                 }
-                if owns { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) set changed true }
+                let key: string = (resource_type_identity parser def.name def.line)
+                if (and owns (not (resource_name_in bearing key))) { set bearing (array_push bearing key) set changed true }
+                if (and unsupported (not (resource_name_in collections key))) { set collections (array_push collections key) set changed true }
             }
             set i (+ i 1)
         }
         set i 0
         while (< i (parser_get_union_count parser)) {
             let def: ASTUnion = (parser_get_union parser i)
-            if (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) {
+            if (or (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) (not (resource_name_in collections (resource_type_identity parser def.name def.line)))) {
                 let mut field: int = 0
                 let mut owns: bool = false
+                let mut unsupported: bool = false
                 while (< field (array_length def.variant_field_types)) {
                     let spelling: string = (at def.variant_field_types field)
-                    if (not (resource_name_in def.generic_params spelling)) {
-                        if (resource_name_in bearing (resource_type_identity parser spelling def.line)) { set owns true }
+                    if (resource_fixed_payload_bearing parser spelling def.line def.generic_params bearing 0) { set owns true }
+                    if (== (base_type_name spelling) "array") {
+                        if (resource_fixed_payload_bearing parser spelling def.line def.generic_params bearing 0) { set unsupported true }
+                    } else {
+                        if (resource_fixed_payload_bearing parser spelling def.line def.generic_params collections 0) { set unsupported true }
                     }
                     set field (+ field 1)
                 }
-                if owns { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) set changed true }
+                let key: string = (resource_type_identity parser def.name def.line)
+                if (and owns (not (resource_name_in bearing key))) { set bearing (array_push bearing key) set changed true }
+                if (and unsupported (not (resource_name_in collections key))) { set collections (array_push collections key) set changed true }
             }
             set i (+ i 1)
         }
     }
+    if collections_only { return (resource_name_in collections (resource_type_identity parser type_name 0)) }
     return (resource_name_in bearing (resource_type_identity parser type_name 0))
+}
+
+shadow resource_classify {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Owners { Some { values: array<Handle> }, None {} } union Plain { Some { values: array<int> }, None {} }")
+    assert (resource_classify parser "Owners" false)
+    assert (resource_classify parser "Owners" true)
+    assert (not (resource_classify parser "Handle" true))
+    assert (not (resource_classify parser "Plain" false))
+    assert (not (resource_classify parser "Plain" true))
+}
+
+fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
+    return (resource_classify parser type_name false)
+}
+
+fn resource_has_collection_payload(parser: Parser, type_name: string) -> bool {
+    return (resource_classify parser type_name true)
+}
+shadow resource_has_collection_payload {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Owners { Some { values: array<Handle> }, None {} } struct Outer { owners: Owners }")
+    assert (resource_has_collection_payload parser "Owners")
+    assert (resource_has_collection_payload parser "Outer")
+    assert (not (resource_has_collection_payload parser "Handle"))
 }
 
 shadow resource_type_is_declared {
@@ -484,6 +540,10 @@ shadow resource_generic_contains {
 }
 
 fn resource_check_annotation(parser: Parser, spelling: string, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
+    if (resource_has_collection_payload parser (resource_type_identity parser spelling line)) {
+        (resource_flow_error diags file_name line column "resource-bearing union collection payloads are not supported")
+        return
+    }
     let typ: NSType = (type_from_string spelling)
     let collection: bool = (or (== typ.kind TypeKind.TYPE_ARRAY) (or (== typ.kind TypeKind.TYPE_LIST_GENERIC) (tc_str_starts_with spelling "HashMap<")))
     if (and (not collection) (== (array_length (tc_generic_arguments spelling)) 0)) { return }

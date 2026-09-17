@@ -58,6 +58,10 @@ static bool own_info_resource(OwnFlow *flow, ASTNode *at, TypeInfo *info, unsign
 static void own_metadata(OwnFlow *flow, ASTNode *at, Type type, const char *name, TypeInfo *info) {
     bool nominal = is_resource_type(flow->env, name);
     bool contained = own_info_resource(flow, at, info, 0);
+    if (has_resource_collection_payload(flow->env, name)) {
+        own_error(flow, at, "resource-bearing union collection payloads are not supported", name);
+        return;
+    }
     if ((type == TYPE_ARRAY || type == TYPE_LIST_GENERIC || type == TYPE_HASHMAP) && (nominal || contained))
         own_error(flow, at, "I reject resource-bearing collection elements", name);
     else if (contained && !nominal)

@@ -43,8 +43,35 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [ ] **Classify fixed nested resource union payloads.** I reject unsupported
       ownership in `Owners.Some { values: array<Handle> }` as consistently as
       `Box<Handle>` after preserving complete payload metadata. My C seed
-      currently accepts an `abandon(Owners)` declaration. I require paired
-      frontend negative tests before admitting collection ownership. MAC
+      previously accepted an `abandon(Owners)` declaration. My paired
+      rejection and ordinary controls now pass; I still reject collection ownership. MAC
+      `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
+      - [x] After merged payload metadata PR411, I classify nested fixed array
+        payloads using declaration identity and a least fixed point, preserving
+        ordinary cycles and generic formal shadowing.
+      - [x] I reject unsupported resource collection payloads consistently at
+        ownership boundaries, including pass-through signatures, and execute
+        ordinary union-array controls in C and both self-hosted stages.
+      - [x] I retain the owned-match guard and record selected-variant transfer
+        as the separate open task below; this classifier does not implement it.
+
+      Evidence: `docs/evidence/fixed-union-resource-collections.md`.
+
+- [ ] **Preserve self-hosted union array-literal context.** My C seed now
+      executes `Values.Some { values: [Plain { value: 7 }] }`, but both
+      self-hosted stages choose `dyn_array_push_int` for `nl_Plain` and reject
+      native emission. I preserve their output-artifact rejection, use typed
+      array temporaries to isolate classification, and repair concrete payload
+      context before claiming inline parity. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
+
+- [ ] **Transfer selected owned union payloads.** After fixed collection
+      rejection, I implement exhaustive unguarded nongeneric matching with one
+      scrutinee move, per-arm payload obligations and complete qualified variant
+      destructuring. I require both frontends to accept resolved payloads and
+      reject ignored fields, repeated use, unresolved exits and incompatible
+      joins. I keep unsupported guarded/generic/tuple/borrow cases rejected and
+      do not infer NanoISA ownership verification from native execution. MAC
+      `task_c17b55115379414980609a5d867ccad1`, dependent on
       `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
 
 - [ ] **Diagnose unsupported tuple ownership before emission.** For
