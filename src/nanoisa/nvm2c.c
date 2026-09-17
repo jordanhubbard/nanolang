@@ -94,6 +94,31 @@ typedef struct Nvm2cJoinShape {
     NvmShapeId shapes[];
 } Nvm2cJoinShape;
 
+typedef struct Nvm2cScalarJoin {
+    struct Nvm2cScalarJoin *next;
+    uint32_t function;
+    size_t target;
+    int count;
+    uint16_t tags[];
+} Nvm2cScalarJoin;
+
+#define NVM2C_SCALAR_UNKNOWN UINT16_C(0x8000)
+
+/* A boxed carrier is not proof of a scalar payload. These masks come only
+ * from exact scalar producers, their copies, and conservative local stores. */
+static uint16_t scalar_kind_tags(uint8_t kind) {
+    return kind == NVM2C_VK_INT ? 1u << TAG_INT :
+           kind == NVM2C_VK_BOOL ? 1u << TAG_BOOL :
+           kind == NVM2C_VK_FLOAT ? 1u << TAG_FLOAT :
+           kind == NVM2C_VK_STR ? 1u << TAG_STRING : NVM2C_SCALAR_UNKNOWN;
+}
+
+static int optional_scalar_tags(uint16_t tags) {
+    unsigned payload = tags & ~(1u << TAG_VOID);
+    return (tags & (1u << TAG_VOID)) && payload && !(payload & (payload - 1)) &&
+           !(tags & ~((1u << (TAG_BOOL + 1)) - 1));
+}
+
 typedef struct {
     char *data;
     size_t len;
@@ -116,6 +141,8 @@ typedef struct {
     uint8_t *emitted_functions;
     uint8_t *required_functions;
     uint8_t *tagged_locals;
+    uint16_t *local_scalar_tags;
+    Nvm2cScalarJoin *scalar_joins;
     uint16_t array_shape_kinds;
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
@@ -418,6 +445,7 @@ typedef struct {
     int origin;
     uint8_t *rec_k;
     NvmShapeId shape;
+    uint16_t scalar_tags;
 } Nvm2cSimSlot;
 
 typedef struct {
@@ -656,6 +684,7 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
         (b->shape_opcode == OP_LOAD_LOCAL && slot.kind == NVM2C_VK_STR)) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
+    if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
     stk[*sp] = slot;
     if (!stk[*sp].rec_k) stk[*sp].rec_k = b->default_fields;
     (*sp)++;
@@ -696,6 +725,8 @@ static int sim_push(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     memset(&slot, 0, sizeof slot);
     slot.kind = kind;
     slot.origin = origin;
+    if (b->shape_opcode == OP_PUSH_VOID) slot.scalar_tags = 1u << TAG_VOID;
+    if (b->shape_opcode == OP_PUSH_U8) slot.scalar_tags = 1u << TAG_U8;
     return sim_push_slot(b, idx, stk, sp, slot);
 }
 
@@ -744,7 +775,13 @@ typedef struct {
 } Nvm2cSimJoin;
 
 static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join,
-                    const Nvm2cSimSlot *stack, int sp) {
+                    const Nvm2cSimSlot *stack, int sp, Nvm2cFacts *facts) {
+    Nvm2cScalarJoin *plan = b->scalar_joins;
+    while (plan && (plan->function != idx || plan->target != target)) plan = plan->next;
+    if (plan && plan->count != sp) {
+        nvm2c_fail(b, "I found inconsistent scalar join height in function %u", idx);
+        return 0;
+    }
     if (!join->set) {
         if (sp) {
             join->slots = malloc((size_t)sp * sizeof *stack);
@@ -753,13 +790,23 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 return 0;
             }
             memcpy(join->slots, stack, (size_t)sp * sizeof *stack);
-            for (int i = 0; b->track_shapes && i < sp; ++i) {
-                if (stack[i].kind != NVM2C_VK_STR && stack[i].kind != NVM2C_VK_VALUE) continue;
-                /* The join owns its storage shape; a boxed branch must not
-                 * rewrite an exact string-producing function or field. */
+            for (int i = 0; i < sp; ++i) {
+                if (plan && plan->tags[i]) {
+                    uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
+                    if (!optional_scalar_tags(tags)) {
+                        nvm2c_fail(b, "I require proved void/scalar provenance at a boxed join");
+                        return 0;
+                    }
+                    join->slots[i].kind = NVM2C_VK_VALUE;
+                    join->slots[i].scalar_tags = tags;
+                }
+                if (!b->track_shapes) continue;
+                uint8_t kind = join->slots[i].kind;
+                if (kind != NVM2C_VK_STR && kind != NVM2C_VK_VALUE) continue;
+                /* Destination storage never rewrites the exact producer. */
                 NvmShapeId storage = 0;
                 storage = shape_variable(b, &storage);
-                if (!shape_field_kind(b, storage, stack[i].kind) ||
+                if (!shape_field_kind(b, storage, kind) ||
                     !nvm_shape_convert(&b->shapes, stack[i].shape, storage) || !shape_ok(b)) return 0;
                 join->slots[i].shape = storage;
             }
@@ -773,10 +820,34 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         return 0;
     }
     for (int i = 0; i < sp; i++) {
+        uint16_t tags = join->slots[i].scalar_tags | stack[i].scalar_tags;
+        int scalar_join = optional_scalar_tags(tags);
+        if (plan && plan->tags[i] && !scalar_join) {
+            nvm2c_fail(b, "I require proved void/scalar provenance at a boxed join");
+            return 0;
+        }
+        if (scalar_join) {
+            if (!plan) {
+                if ((size_t)sp > (SIZE_MAX - sizeof *plan) / sizeof *plan->tags) {
+                    nvm2c_fail(b, "I cannot represent scalar join facts"); return 0;
+                }
+                plan = calloc(1, sizeof *plan + (size_t)sp * sizeof *plan->tags);
+                if (!plan) { nvm2c_fail(b, "I cannot allocate scalar join facts"); return 0; }
+                plan->function = idx; plan->target = target; plan->count = sp;
+                plan->next = b->scalar_joins; b->scalar_joins = plan;
+            }
+            if (plan->tags[i] != tags) {
+                if (facts->final) {
+                    nvm2c_fail(b, "I require stable scalar join facts before shape emission"); return 0;
+                }
+                plan->tags[i] = tags; facts->changed = 1;
+            }
+            join->slots[i].kind = NVM2C_VK_VALUE;
+            b->has_maps = 1;
+        }
         int string_join = (join->slots[i].kind == NVM2C_VK_STR || join->slots[i].kind == NVM2C_VK_VALUE) &&
                           (stack[i].kind == NVM2C_VK_STR || stack[i].kind == NVM2C_VK_VALUE);
-        if (string_join && join->slots[i].kind != stack[i].kind) {
-            /* I do not silently widen a loop header after classifying its body. */
+        if (!scalar_join && string_join && join->slots[i].kind != stack[i].kind) {
             if (target <= b->classify_offset) {
                 nvm2c_fail(b, "I cannot yet widen tagged string storage on a backward stack edge in function %u", idx);
                 return 0;
@@ -784,12 +855,13 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             join->slots[i].kind = NVM2C_VK_VALUE;
             b->has_maps = 1;
         }
-        if (b->track_shapes && !(string_join
+        if (b->track_shapes && !((string_join || scalar_join)
                 ? nvm_shape_convert(&b->shapes, stack[i].shape, join->slots[i].shape)
                 : nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape))) {
             nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
             return 0;
         }
+        join->slots[i].scalar_tags = tags;
         int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
         if (join->slots[i].kind == NVM2C_VK_UNK) {
             join->slots[i] = stack[i];
@@ -798,7 +870,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         }
         join->slots[i].origin = origin;
         if (stack[i].kind == NVM2C_VK_UNK) continue;
-        if (join->slots[i].kind != stack[i].kind && !string_join) {
+        if (join->slots[i].kind != stack[i].kind && !string_join && !scalar_join) {
             nvm2c_fail(b, "I found incompatible stack kinds at a join in function %u after offset %zu (slot %d: %u versus %u)",
                        idx, b->classify_offset, i, join->slots[i].kind, stack[i].kind);
             return 0;
@@ -942,7 +1014,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         pc += n;
         if (terminated && !joins[start].set) continue;
         if (targets[start]) {
-            if (!terminated && !sim_join(b, idx, start, &joins[start], stk, sp)) return 0;
+            if (!terminated && !sim_join(b, idx, start, &joins[start], stk, sp, facts)) return 0;
             sp = joins[start].sp;
             if (sp) memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
             terminated = 0;
@@ -1080,6 +1152,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             memset(&loaded, 0, sizeof loaded);
             loaded.kind = local_kind[slot];
+            if (loaded.kind == NVM2C_VK_VALUE)
+                loaded.scalar_tags = b->local_scalar_tags[(size_t)idx * b->local_width + slot];
             loaded.origin = (int)slot;
             loaded.shape = shape_variable(b, &b->shape_locals[(size_t)idx * b->local_width + slot]);
             if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR || loaded.kind == NVM2C_VK_MAP) {
@@ -1098,6 +1172,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             size_t local_at = (size_t)idx * b->local_width + slot;
+            uint16_t tags = b->local_scalar_tags[local_at] | v.scalar_tags;
+            if (tags != b->local_scalar_tags[local_at]) {
+                b->local_scalar_tags[local_at] = tags; facts->changed = 1;
+            }
             if (v.kind == NVM2C_VK_VALUE && !b->tagged_locals[local_at]) {
                 /* I retain tagged storage across every assignment and path,
                  * including earlier scalar writes revisited during inference. */
@@ -1716,6 +1794,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_CALL) {
                 if (cf->result_count == 1 && cf->result_tag == TAG_U8) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                    stk[sp - 1].scalar_tags = 1u << TAG_U8;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_FLOAT) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
                 } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
@@ -1884,7 +1963,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
             size_t target;
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &target) ||
-                !sim_join(b, idx, target, &joins[target], stk, sp)) return 0;
+                !sim_join(b, idx, target, &joins[target], stk, sp, facts)) return 0;
         }
         if (ins.opcode == OP_JMP || ins.opcode == OP_RET ||
             ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) terminated = 1;
@@ -2522,7 +2601,7 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
     }
     int needed = 0;
     for (int i = 0; i < stack->sp; ++i)
-        if (stack->kinds[i] == NVM2C_VK_STR &&
+        if (scalar_kind_tags(stack->kinds[i]) != NVM2C_SCALAR_UNKNOWN &&
             nvm_shape_kind(&b->shapes, shape->shapes[i]) == NVM_SHAPE_OPTIONAL) needed = 1;
     if (!needed) return record_join_storage(b, idx, joins, set, target, stack);
     Nvm2cStack edge = *stack;
@@ -2535,13 +2614,19 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
     memcpy(edge.slots, stack->slots, (size_t)edge.sp * sizeof *edge.slots);
     memcpy(edge.kinds, stack->kinds, (size_t)edge.sp * sizeof *edge.kinds);
     for (int i = 0; i < edge.sp; ++i) {
-        if (edge.kinds[i] != NVM2C_VK_STR ||
+        if (scalar_kind_tags(edge.kinds[i]) == NVM2C_SCALAR_UNKNOWN ||
             nvm_shape_kind(&b->shapes, shape->shapes[i]) != NVM_SHAPE_OPTIONAL) continue;
         if ((size_t)edge.next_value >= edge.capacity) {
             nvm2c_fail(b, "I cannot represent another tagged join temporary"); break;
         }
         int value = edge.next_value++;
-        nvm2c_printf(b, "    v[%d] = (nmap_value){5, 0, (char *)s[%d]};\n", value, edge.slots[i]);
+        if (edge.kinds[i] == NVM2C_VK_STR)
+            nvm2c_printf(b, "    v[%d] = (nmap_value){5, 0, (char *)s[%d]};\n", value, edge.slots[i]);
+        else if (edge.kinds[i] == NVM2C_VK_FLOAT)
+            nvm2c_printf(b, "    v[%d] = nvalue_from_float(f[%d]);\n", value, edge.slots[i]);
+        else
+            nvm2c_printf(b, "    v[%d] = (nmap_value){%u, t[%d], NULL};\n", value,
+                         edge.kinds[i] == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT, edge.slots[i]);
         edge.slots[i] = value; edge.kinds[i] = NVM2C_VK_VALUE;
     }
     int ok = !b->failed && record_join_storage(b, idx, joins, set, target, &edge);
@@ -3270,6 +3355,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "f[%d] %s (double)t[%d]", lhs, op, rhs);
                 stack_push_temp(b, &st, expr);
+            } else if ((lk == NVM2C_VK_BOOL && rk == NVM2C_VK_FLOAT) ||
+                       (lk == NVM2C_VK_FLOAT && rk == NVM2C_VK_BOOL)) {
+                /* I preserve unequal scalar tags, without numeric promotion. */
+                stack_push_temp(b, &st, ins.opcode == OP_EQ ? "0" : "1");
             } else if (lk == NVM2C_VK_STR && rk == NVM2C_VK_STR) {
                 char expr[192];
                 snprintf(expr, sizeof expr,
@@ -5335,6 +5424,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.emitted_functions = calloc(mod->function_count, 1);
     b.required_functions = calloc(mod->function_count, 1);
     b.tagged_locals = calloc((size_t)mod->function_count * b.local_width, 1);
+    b.local_scalar_tags = calloc(shape_local_count, sizeof *b.local_scalar_tags);
     uint8_t *inference = malloc(fact_size);
     uint8_t *global_stored = calloc(b.global_count ? b.global_count : 1, 1);
     uint8_t *kinds = calloc((size_t)mod->function_count * b.local_width, 1);
@@ -5342,7 +5432,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                                  * b.record_width, 1);
     if (!kinds || !rec_fields || !inference || !global_stored || !b.shape_locals || !b.shape_results ||
         !b.shape_globals || !b.shape_outputs || !b.join_shapes || !b.emitted_functions ||
-        !b.required_functions || !b.tagged_locals) {
+        !b.required_functions || !b.tagged_locals || !b.local_scalar_tags) {
         free(inference);
         free(global_stored);
         free(kinds);
@@ -5355,10 +5445,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         free(b.emitted_functions);
         free(b.required_functions);
         free(b.tagged_locals);
+        free(b.local_scalar_tags);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
 
+    for (uint32_t f = 0; f < mod->function_count; ++f)
+        for (uint16_t local = 0; local < mod->functions[f].local_count; ++local)
+            b.local_scalar_tags[(size_t)f * b.local_width + local] =
+                local < mod->functions[f].arity ? NVM2C_SCALAR_UNKNOWN : 1u << TAG_VOID;
     if (!mark_required_functions(&b, mod)) goto fail;
     for (uint32_t f = 0; f < mod->function_count; ++f)
         if (!mark_uninitialized_locals(&b, mod, f)) goto fail;
@@ -5378,7 +5473,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (has_global_store && has_record_array_constructor) {
         facts.discover_globals = 1;
         for (size_t pass = 0; ; ++pass) {
-            if (pass / 2 > fact_size) {
+            if (pass / 2 > fact_size && pass / 2 - fact_size > mod->code_size) {
                 nvm2c_fail(&b, "I could not converge global representation facts");
                 goto fail;
             }
@@ -5397,7 +5492,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     /* I add known facts and widen string parameters to optional storage when
      * needed. Payload and aggregate compatibility remain graph constraints. */
     for (size_t pass = 0; ; pass++) {
-        if (pass / 2 > fact_size) {
+        if (pass / 2 > fact_size && pass / 2 - fact_size > mod->code_size) {
             nvm2c_fail(&b, "I could not converge function type facts");
             goto fail;
         }
@@ -6040,6 +6135,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(b.emitted_functions);
     free(b.required_functions);
     free(b.tagged_locals);
+    free(b.local_scalar_tags);
+    while (b.scalar_joins) {
+        Nvm2cScalarJoin *next = b.scalar_joins->next;
+        free(b.scalar_joins); b.scalar_joins = next;
+    }
     return b.data;
 
 fail:
@@ -6063,6 +6163,11 @@ fail:
     free(b.emitted_functions);
     free(b.required_functions);
     free(b.tagged_locals);
+    free(b.local_scalar_tags);
+    while (b.scalar_joins) {
+        Nvm2cScalarJoin *next = b.scalar_joins->next;
+        free(b.scalar_joins); b.scalar_joins = next;
+    }
     free(b.data);
     return NULL;
 }

@@ -14,7 +14,7 @@ Eleven focused methods pass on Linux ARM64 with installed LLVM 23.0.0git. The sa
 
 The final eleven methods pass in 6.098 seconds, and again in 5.292 seconds with the new host translator sources instrumented by ASan/UBSan/LSan (linked existing ISA objects are not fully instrumented). Logs remain `/tmp/nanolang-llvm-result-tag-tests.log` and `/tmp/nanolang-llvm-final-sanitizer-tests.log`. I retain initial assembly-fixture syntax failures and the new translator's corrected relative-branch offset failure in the earlier numbered logs. VM/C comparison tools come from the already tested host-ownership checkout; no full compiler build was run for this slice. Darwin and other LLVM versions are unrun evidence, not claimed coverage.
 
-I do not yet lower generic arithmetic/comparison, globals, tail calls, strings, aggregate allocation, imports, linked modules, effects or resource/passive contracts here. Those remain explicit refusals or signature/profile exclusions. This foundation does not close the full LLVM release requirement, and the shared scalar Wasm implementation likewise leaves its full-language scope open.
+I do not yet lower generic arithmetic, globals, tail calls, strings, aggregate allocation, imports, linked modules, effects or resource/passive contracts here. Those remain explicit refusals or signature/profile exclusions. This foundation does not close the full LLVM release requirement, and the shared scalar Wasm implementation likewise leaves its full-language scope open.
 
 My initial implicit-return fixture exposed a separate VM caller-resumption defect: a nested implicit return ended execution before the caller resumed. Task `task_4b3800f46af143fbb171f9565f92b8e0` retains `/tmp/nanolang-llvm-implicit-tests.log`. At that foundation checkpoint, entry implicit return executed in VM but C AOT refused it; task `task_8a18a76c86884299ac3f7880ea617978` retains `/tmp/nanolang-llvm-profile-tests.log`. At that foundation checkpoint I refused those exits. The later return continuations below replace those refusals with common execution checks while preserving runtime declared-result tag rejection. Named initializers are also explicitly refused because VM executes `__init__` before entry and this profile has no initializer contract.
 
@@ -59,7 +59,21 @@ The completed continuation passes all 38 shared LLVM/Wasm methods in 73.715 seco
 I preserve TAG_U8 through scalar constants, locals, calls, results and joins.
 CAST_INT/FLOAT produce the exact unsigned byte value; CAST_BOOL and eager
 logical operations use zero/nonzero truthiness. Typed I64/F64/BOOL operations
-retain their exact tag checks. I compare bytes in this common profile through
-explicit CAST_INT and typed I64 comparison; generic comparison opcodes remain
-refused until their separate contract is implemented. My [U8 evidence](evidence/scalar-u8-contract.md)
+retain their exact tag checks. My initial byte continuation compared values through explicit CAST_INT and
+typed I64 comparison. The subsequent generic comparison continuation below
+admits exact tagged comparisons as well. My [U8 evidence](evidence/scalar-u8-contract.md)
 distinguishes these gates from the VM/C same-U8 generic comparison repair.
+
+## My generic comparison continuation
+
+I admit EQ/NE/LT/LE/GT/GE for my closed void/int/U8/bool/float profile. I use
+separate equality and three-way-order helpers, preserving VM behavior rather
+than deriving equality from an ordering result of zero. Generic NaN LE/GE
+remain true while EQ is false; typed F64 LE/GE remain false. Mixed int/float
+comparison retains binary64 integer rounding, including the 2^53 and int64
+boundaries. Other mixed scalar tags order by tag number and compare unequal.
+
+My [compatibility contract and evidence](evidence/generic-scalar-comparisons.md)
+records same-module gates and exclusions. This is raw ISA compatibility, not
+a new source-language numeric-promotion guarantee. Generic arithmetic, heap
+and string profile admission remain separate.

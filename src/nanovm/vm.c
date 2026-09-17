@@ -3938,19 +3938,23 @@ vm_return_values: ;
                     break;
                 case TAG_INT:
                     s = vm_string_from_int(&vm->heap, v.as.i64);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
                 case TAG_FLOAT:
                     s = vm_string_from_float(&vm->heap, v.as.f64);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
                 case TAG_BOOL:
                     s = vm_string_from_bool(&vm->heap, v.as.boolean);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
                 default:
                     vm_release(&vm->heap, v);
                     s = vm_string_new(&vm->heap, "", 0);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
             }

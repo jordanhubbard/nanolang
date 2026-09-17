@@ -42,22 +42,12 @@ class ScalarTruthiness(unittest.TestCase):
     def test_void_tag_survives_local_storage(self):
         self.compare(self.program('PUSH_VOID\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nDUP\nTYPE_CHECK 0\nASSERT\nCAST_BOOL\nBOOL_NOT\nASSERT\n'))
 
-    def test_tagged_void_integer_join_stays_explicitly_refused_by_c(self):
+    def test_tagged_void_integer_join_retains_truthiness(self):
         suffix = ('.function choose 1 1 0 bool 1\n.parameters choose bool\n'
                   'LOAD_LOCAL 0\nJMP_TRUE present\nPUSH_VOID\nJMP join\npresent:\n'
                   'PUSH_I64 7\njoin:\nCAST_BOOL\nRET\n.end\n')
-        module = self.module(self.program('PUSH_BOOL 0\nCALL choose\nBOOL_NOT\nASSERT\n'
-                                          'PUSH_BOOL 1\nCALL choose\nASSERT\n',suffix))
-        self.run_cmd([llvm.VM,'--verify-only',module])
-        self.run_cmd([llvm.VM,module])
-        ir = self.work/'join.ll'
-        self.run_cmd([llvm.LLVM,module,'-o',ir])
-        self.run_cmd(['lli',ir])
-        target = self.work/'retained.c'
-        target.write_text('previous')
-        result = self.run_cmd([llvm.C,module,'-o',target],success=False)
-        self.assertIn('incompatible stack kinds at a join',result.stderr)
-        self.assertEqual(target.read_text(),'previous')
+        self.compare(self.program('PUSH_BOOL 0\nCALL choose\nBOOL_NOT\nASSERT\n'
+                                  'PUSH_BOOL 1\nCALL choose\nASSERT\n',suffix))
 
     def test_logical_ops_consume_eager_call_results(self):
         # Earlier CALL instructions must run even when a logical result could
