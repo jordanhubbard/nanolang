@@ -50,3 +50,7 @@ retained in `/tmp/nanolang-wasm-foundation-tests.log`. I used installed LLVM
 23.0.0git and Wasmtime 43.0.0 on Linux ARM64. VM/C comparison tools came from
 the separately built product checkout; no full compiler rebuild was needed
 for this translator slice. Darwin execution remains untested.
+
+After integrating main through PR #559, code `f0d4cba8` passes all seven
+Wasm and eleven LLVM methods together in 6.779 seconds. I preserve the final
+log at `/tmp/nanolang-wasm-final-gates.log`.

@@ -45,7 +45,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. This first subset does not complete heap, host, reference or full-language Wasm coverage.
+- [x] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. Seven Wasm and eleven LLVM methods pass after integration; [evidence](NANOISA_WASM.md). This first subset does not complete heap, host, reference or full-language Wasm coverage.
 - [ ] I resolve nested projected record-array global field shapes (`task_65d164a9fb204ff7872002f53e708bdf`). A new ordinary positive field read after nested projection, global storage and global reload refuses conflicting optional/record facts; I preserve `/tmp/nanolang-float-records-integrated-gates.log`. Existing exact record-array globals and float scalar transport do not establish this nested shape closure.
 
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
