@@ -4331,3 +4331,8 @@ test-native-returned-maps: $(COMPILER_C) nano_virt nano_vm
 test-units: test-borrow-annotations
 test-borrow-annotations: bootstrap
 	python3 tests/test_borrow_annotations.py
+
+.PHONY: test-selfhost-range-bounds
+test-selfhost-range-bounds: bootstrap
+	python3 -m unittest -v tests.test_selfhost_range_bounds
+test-units: test-selfhost-range-bounds
