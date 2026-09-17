@@ -1223,6 +1223,10 @@ VmTrap vm_core_execute(VmState *vm) {
         for (int label_index = 0; label_index < 256; label_index++)
             vm_labels[label_index] = &&L_vm_default;
         vm_labels[OP_NOP] = &&L_OP_NOP;
+        vm_labels[OP_OWN_MOVE_LOCAL] = &&L_OP_OWN_MOVE_LOCAL;
+        vm_labels[OP_OWN_STORE_LOCAL] = &&L_OP_OWN_STORE_LOCAL;
+        vm_labels[OP_OWN_PACK] = &&L_OP_OWN_PACK;
+        vm_labels[OP_OWN_UNPACK_LOCAL] = &&L_OP_OWN_UNPACK_LOCAL;
         vm_labels[OP_PUSH_I64] = &&L_OP_PUSH_I64;
         vm_labels[OP_PUSH_F64] = &&L_OP_PUSH_F64;
         vm_labels[OP_PUSH_BOOL] = &&L_OP_PUSH_BOOL;
@@ -1539,6 +1543,12 @@ vm_dispatch_top:
         /* ============================================================
          * Stack & Constants
          * ============================================================ */
+
+        VM_CASE(OP_OWN_MOVE_LOCAL)
+        VM_CASE(OP_OWN_STORE_LOCAL)
+        VM_CASE(OP_OWN_PACK)
+        VM_CASE(OP_OWN_UNPACK_LOCAL)
+            return trap_error(vm, VM_ERR_NOT_IMPLEMENTED, "I require owned-transfer execution semantics before execution");
 
         VM_CASE(OP_NOP)
             VM_NEXT();

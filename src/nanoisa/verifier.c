@@ -12,6 +12,7 @@
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
+#include "affine_bytecode.h"
 #include "isa.h"
 #include "../nanovm/vm.h"
 #include "../nanovm/vm_decode.h"
@@ -362,7 +363,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
  * Structural validation
  * ======================================================================== */
 
-static NvmVerifyResult verify_structure(const NvmModule *mod) {
+static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only) {
     if (!mod) return fail("module is NULL");
     if (!mod->code && mod->code_size > 0)
         return fail("code pointer is NULL but code_size=%u", mod->code_size);
@@ -421,8 +422,14 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
     bool needs_ownership = false;
     if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
         return fail("I found invalid ownership declarations");
-    if (needs_ownership)
-        return fail("I require reference lifetime and ownership instruction verification before execution");
+    if (needs_ownership && !affine_only) {
+        for (uint32_t i=0;i<mod->function_count;i++) {
+            NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,i);
+            if (!analysis.ok) return fail("I refuse reference lifetime and ownership instruction dataflow in function[%u] at %u: %s",
+                                          i,analysis.byte_offset,analysis.message);
+        }
+        return fail("I require reference lifetime and ownership instruction execution semantics before execution");
+    }
 
     if (!nvm_retained_layouts_valid(mod))
         return fail("I found invalid retained layout metadata");
@@ -481,7 +488,7 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
                                            uint16_t *out_max_stack) {
-    NvmVerifyResult structure = verify_structure(mod);
+    NvmVerifyResult structure = verify_structure(mod, false);
     if (!structure.ok) return structure;
     if (fn_idx >= mod->function_count)
         return fail("function index %u >= function_count %u",
@@ -509,6 +516,13 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 
         /* Validate operands based on opcode */
         switch (instr.opcode) {
+
+        case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
+        case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: {
+            NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
+            if (!analysis.ok) FAIL_DECODED("I refuse reference lifetime and ownership instruction dataflow: %s",analysis.message);
+            FAIL_DECODED("I require owned-transfer execution semantics before execution");
+        }
 
         /* --- Jump targets must land within this function --- */
         case OP_JMP:
@@ -829,6 +843,15 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
     return stack_result;
 }
 
+NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
+    NvmVerifyResult structure=verify_structure(mod,true);
+    if (!structure.ok) return structure;
+    NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
+    if (!analysis.ok) return fail("I refuse reference lifetime and ownership instruction dataflow at %u: %s",
+                                  analysis.byte_offset,analysis.message);
+    return ok_result();
+}
+
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
     return verify_function_impl(mod, fn_idx, NULL, 0, NULL);
 }
@@ -845,7 +868,7 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
     /* Phase 1: structural validation */
-    NvmVerifyResult r = verify_structure(mod);
+    NvmVerifyResult r = verify_structure(mod, false);
     if (!r.ok) return r;
 
     /* Phase 2: per-function bytecode validation */
@@ -864,7 +887,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
         return fail("linked_count %u but linked_modules table is NULL", linked_count);
 
     /* Phase 1: structural validation */
-    NvmVerifyResult r = verify_structure(mod);
+    NvmVerifyResult r = verify_structure(mod, false);
     if (!r.ok) return r;
 
     /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the

@@ -61,6 +61,12 @@ typedef enum {
     OP_SWAP         = 0x09,
     OP_ROT3         = 0x0A,
 
+    /* Explicit record transfers: verifier support precedes execution. */
+    OP_OWN_MOVE_LOCAL   = 0x0B,
+    OP_OWN_STORE_LOCAL  = 0x0C,
+    OP_OWN_PACK         = 0x0D,
+    OP_OWN_UNPACK_LOCAL = 0x0E,
+
     /* Variable Access (0x10-0x1F) */
     OP_LOAD_LOCAL   = 0x10,  /* operand: u16 (FP-relative index) */
     OP_STORE_LOCAL  = 0x11,  /* operand: u16 */
