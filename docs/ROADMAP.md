@@ -205,9 +205,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       reject invalid tags/bounds, and advance compiler inference. MAC
       `task_959f620cc9294ef693072702f35ba44f`.
 
-- [ ] **Native compiler character-classification imports.** I bind emitted
-      `vm_is_alnum` and related supported imports through exact typed host
-      contracts, retaining malformed-import rejection. MAC
+- [x] **Native compiler character-classification imports.** I bind eight
+      emitted character imports through exact typed host contracts. I retain
+      malformed-import rejection and test 232 VM/native boundary assertions. MAC
       `task_9e4e686f52bc426bbe4d2e694fa565bc`.
 
 - [ ] **Native compiler projected global-store facts.** I resolve projected

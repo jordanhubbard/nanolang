@@ -250,6 +250,14 @@ static const Nvm2cHost host_adapters[] = {
     {"nl_os_path_normalize", "nhost_normalize", 1, TAG_STRING, TAG_STRING},
     {"nl_exec_shell", "nhost_shell", 1, TAG_STRING, TAG_INT},
     {"nl_exec_capture", "nhost_capture", 1, TAG_STRING, TAG_STRING},
+    {"vm_is_digit", "nhost_is_digit", 1, TAG_INT, TAG_BOOL},
+    {"vm_is_alpha", "nhost_is_alpha", 1, TAG_INT, TAG_BOOL},
+    {"vm_is_alnum", "nhost_is_alnum", 1, TAG_INT, TAG_BOOL},
+    {"vm_is_space", "nhost_is_space", 1, TAG_INT, TAG_BOOL},
+    {"vm_is_upper", "nhost_is_upper", 1, TAG_INT, TAG_BOOL},
+    {"vm_is_lower", "nhost_is_lower", 1, TAG_INT, TAG_BOOL},
+    {"vm_is_whitespace", "nhost_is_whitespace", 1, TAG_INT, TAG_BOOL},
+    {"vm_digit_value", "nhost_digit_value", 1, TAG_INT, TAG_INT},
     {"vm_string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"vm_mktemp_dir", "nhost_mktemp_dir", 1, TAG_STRING, TAG_STRING},
@@ -4796,6 +4804,23 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
             if (module_uses_host(mod, "nhost_file_write")) emit_host_file_write(&b);
             if (module_uses_host(mod, "nhost_normalize")) emit_host_normalize(&b);
+            /* I preserve the VM builtin contract, including its explicit int narrowing. */
+            if (module_uses_host(mod, "nhost_is_digit")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_digit(int64_t code) { int c = (int)code; return c >= '0' && c <= '9'; }\n");
+            if (module_uses_host(mod, "nhost_is_alpha")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_alpha(int64_t code) { int c = (int)code; return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }\n");
+            if (module_uses_host(mod, "nhost_is_alnum")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_alnum(int64_t code) { int c = (int)code; return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'); }\n");
+            if (module_uses_host(mod, "nhost_is_space")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_space(int64_t code) { int c = (int)code; unsigned char u = (unsigned char)c; return c >= 0 && (u == ' ' || (u >= 9 && u <= 13)); }\n");
+            if (module_uses_host(mod, "nhost_is_upper")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_upper(int64_t code) { int c = (int)code; return c >= 'A' && c <= 'Z'; }\n");
+            if (module_uses_host(mod, "nhost_is_lower")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_lower(int64_t code) { int c = (int)code; return c >= 'a' && c <= 'z'; }\n");
+            if (module_uses_host(mod, "nhost_is_whitespace")) nvm2c_puts(&b,
+                "static inline int64_t nhost_is_whitespace(int64_t code) { return code == ' ' || code == 9 || code == 10 || code == 13; }\n");
+            if (module_uses_host(mod, "nhost_digit_value")) nvm2c_puts(&b,
+                "static inline int64_t nhost_digit_value(int64_t code) { return code >= '0' && code <= '9' ? code - '0' : -1; }\n");
             if (module_uses_host(mod, "nhost_from_char")) nvm2c_puts(&b,
                 "static inline const char *nhost_from_char(int64_t code) {\n"
                 "    char *text = malloc(2);\n"
