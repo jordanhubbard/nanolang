@@ -26,6 +26,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **v5.0.1 concrete union payload metadata.** I preserve nested C payload
+      TypeInfo before implementing selected-variant ownership transfer. MAC
+      `task_1f64c9b88a5248dcbda2258dcbee99f7`.
+      - [ ] I record nested ordinary execution and resource-rejection baselines.
+      - [ ] I preserve metadata through parsing, declaration registration,
+        nominal/formal binding, module copies and teardown with explicit ownership.
+      - [ ] I use concrete payload metadata in supported native matching/emission
+        and retain conservative rejection of resource-bearing collections/unions.
+      - [ ] I pass paired frontend execution/rejection and relevant metadata,
+        bootstrap and instrumented checks before integration.
+      Selected-variant ownership transfer remains a subsequent open obligation.
+
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
       my canonical bytecode route. My unchanged main baseline rejects import
