@@ -101,6 +101,19 @@ class NativeCallArgumentOrder(unittest.TestCase):
             self._run([str(NANOC), str(source), "-o", str(executable)], directory)
             self._run([str(executable)], directory)
 
+    def test_native_function_variable_shadows_global_function(self):
+        program = CALLEE_MUTATION.replace(
+            "fn main() -> int {",
+            "fn target(x: int) -> int { return (+ x 900) }\n"
+            "shadow target { assert (== (target 1) 901) }\nfn main() -> int {")
+        with tempfile.TemporaryDirectory(prefix="nano-shadow-callee-") as tmp:
+            directory = Path(tmp)
+            source = directory / "shadow.nano"
+            source.write_text(program)
+            executable = directory / "native"
+            self._run([str(NANOC), str(source), "-o", str(executable)], directory)
+            self._run([str(executable)], directory)
+
     def test_native_temporaries_do_not_shadow_source_variables(self):
         names = [f"__nl_arg_{i}_0" for i in range(32)] + [f"__nl_callee_{i}" for i in range(32)]
         declarations = "\n".join(f"let {name}: int = {i + 1}" for i, name in enumerate(names))

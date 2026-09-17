@@ -2412,6 +2412,14 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
+                Symbol *callee_symbol = env_get_var_visible_at(env, func_name, expr->line, expr->column);
+                bool capture_callee = callee_symbol && callee_symbol->type == TYPE_FUNCTION;
+                if (capture_callee) {
+                    mapped_name = effect_bound_identifier(func_name);
+                    func_info = NULL;
+                    needs_wrapping = false;
+                    needs_unwrap_check = false;
+                }
                 /* I retain the callee name before recursive lowering reuses its buffer. */
                 char *call_name = strdup(mapped_name);
                 if (!call_name) {
@@ -2419,8 +2427,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     exit(1);
                 }
                 emit_literal(list, "({ ");
-                Symbol *callee_symbol = env_get_var_visible_at(env, func_name, expr->line, expr->column);
-                bool capture_callee = callee_symbol && callee_symbol->type == TYPE_FUNCTION && !func_info;
                 unsigned call_id = build_ordered_call_args(list, expr->as.call.args,
                                                            expr->as.call.arg_count, env,
                                                            capture_callee ? call_name : NULL);
