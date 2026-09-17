@@ -280,6 +280,7 @@ struct ASTNode {
             int arg_count;
         } prefix_op;
         struct {
+            int borrow_mode;     /* Syntactic address expression: 0 ordinary, 1 shared, 2 exclusive. */
             char *name;           /* Function name (for regular calls) */
             ASTNode *func_expr;   /* Function expression (for calls like ((func_call) arg1 arg2)) */
             ASTNode **args;

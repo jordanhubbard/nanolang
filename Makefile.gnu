@@ -4331,3 +4331,8 @@ test-native-returned-maps: $(COMPILER_C) nano_virt nano_vm
 test-units: test-borrow-annotations
 test-borrow-annotations: bootstrap
 	python3 tests/test_borrow_annotations.py
+
+.PHONY: test-shared-borrows
+test-units: test-shared-borrows
+test-shared-borrows: bootstrap nano_virt
+	python3 tests/test_shared_borrows.py

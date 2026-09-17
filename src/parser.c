@@ -1293,9 +1293,21 @@ static ASTNode *parse_primary(Stage1Parser *p) {
     ASTNode *node;
 
     switch (tok->token_type) {
-        case TOKEN_AMPERSAND:
-            parser_error(p, tok->line, tok->column, "I cannot lower borrowed argument expressions yet\n");
-            return NULL;
+        case TOKEN_AMPERSAND: {
+            int mode = 1;
+            advance(p);
+            if (match(p, TOKEN_MUT)) { mode = 2; advance(p); }
+            ASTNode *place = parse_primary(p);
+            if (!place) return NULL;
+            ASTNode *borrow = create_node(AST_CALL, tok->line, tok->column);
+            borrow->as.call.name = strdup("<borrow>");
+            borrow->as.call.borrow_mode = mode;
+            borrow->as.call.arg_count = 1;
+            borrow->as.call.args = malloc(sizeof(ASTNode *));
+            if (!borrow->as.call.args) abort();
+            borrow->as.call.args[0] = place;
+            return borrow;
+        }
         case TOKEN_NOT: {
             /* Unary not: not expr */
             int line = tok->line;

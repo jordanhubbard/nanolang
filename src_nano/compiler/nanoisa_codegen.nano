@@ -1338,7 +1338,7 @@ shadow nisa_emit_host_call {
 fn nisa_get_call(parser: Parser, node_id: int, node_type: int) -> ASTCall {
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let qualified: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
-        return ASTCall { node_type: ParseNodeType.PNODE_CALL, line: qualified.line,
+        return ASTCall { borrow_mode: 0, node_type: ParseNodeType.PNODE_CALL, line: qualified.line,
             column: qualified.column, function: node_id,
             function_type: ParseNodeType.PNODE_MODULE_QUALIFIED_CALL,
             arg_start: qualified.arg_start, arg_count: qualified.arg_count }

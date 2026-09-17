@@ -1629,7 +1629,7 @@ shadow parser_store_binary_op {
 
 /* Helper: Store call node */
 fn parser_store_call(p: Parser, function_id: int, function_type: int, arg_start: int, arg_count: int, line: int, column: int) -> Parser {
-    let node: ASTCall = ASTCall {
+    let node: ASTCall = ASTCall { borrow_mode: 0,
         node_type: ParseNodeType.PNODE_CALL,
         line: line,
         column: column,
@@ -2481,8 +2481,23 @@ fn parse_primary(p: Parser) -> Parser {
         let tok: LexerToken = (parser_current p)
 
         if (== tok.token_type LexerTokenType.TOKEN_AMPERSAND) {
-            (println "I cannot lower borrowed argument expressions yet")
-            return (parser_with_error p true)
+            let mut cur: Parser = (parser_advance p)
+            let mut mode: int = 1
+            if (not (parser_is_at_end cur)) {
+                let next: LexerToken = (parser_current cur)
+                if (== next.token_type (token_mut)) { set mode 2 set cur (parser_advance cur) }
+            }
+            let named: Parser = (parser_store_identifier cur "<borrow>" tok.line tok.column)
+            let function_id: int = named.last_expr_node_id
+            let operand: Parser = (parse_primary named)
+            if (parser_has_error operand) { return operand }
+            let arg_start: int = (list_ASTStmtRef_length operand.call_args)
+            let stored: Parser = (parser_store_call_arg operand operand.last_expr_node_id operand.last_expr_node_type)
+            let result: Parser = (parser_store_call stored function_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok.line tok.column)
+            let ordinary: ASTCall = (list_ASTCall_get result.calls result.last_expr_node_id)
+            let borrowed: ASTCall = ASTCall { node_type: ordinary.node_type, line: ordinary.line, column: ordinary.column, function: ordinary.function, function_type: ordinary.function_type, arg_start: ordinary.arg_start, arg_count: ordinary.arg_count, borrow_mode: mode }
+            (list_ASTCall_set result.calls result.last_expr_node_id borrowed)
+            return result
         }
 
         # I bind a bare unary operator to the next primary, before infix parsing.
