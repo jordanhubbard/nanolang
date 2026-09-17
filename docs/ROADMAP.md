@@ -53,6 +53,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         and a C-seed crash; I retain generic resource rejection and test ordinary
         scalar/array generic annotations under allocator perturbation.
 
+- [ ] **Passive eligibility metadata.** I implement a bounded scalar record
+      codec and verifier for dependency graphs, stable serial order, instruction
+      ranges and declared reads/writes, preserving records through v2 bridges.
+      Calls and resource/effect operations remain refused until closed summaries
+      support them. Frontend syntax and full passive conformance remain separate.
+      MAC `task_abd0941bc1f34580845eb31ecd68a12c`.
+
 - [x] **Map constructor diagnostics.** I count constructor type errors through
       my structured diagnostic path, rejecting direct untyped returns, nested
       calls, discarded calls and invalid arity before artifact publication.
