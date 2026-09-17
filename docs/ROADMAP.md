@@ -30,6 +30,10 @@ gate as complete. Phase 22 / 6.0 remains separate.
       and test aliases, nested fields, moves and unresolved owners. I keep
       unsupported generic and borrow boundaries explicit. MAC
       `task_d7c2aa83a60b43e792fb02ae7881e397`.
+      Reproduction also exposes cross-module nominal registration and emitted
+      type-name collisions. I repair declaration identity and representation
+      before claiming ownership parity; my failing baseline and dependency
+      order are in `docs/evidence/affine-module-identity.md`.
 
 - [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
       the published `v5.0.0` tag and restore the released compiler, tests and
