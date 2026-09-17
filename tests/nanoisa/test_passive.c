@@ -131,7 +131,7 @@ static void text_roundtrip(const NvmModule *m, const uint8_t *bytes, size_t size
     /* Replacing a valid version with an unsupported one cannot erase the claim. */
     char *claim = strstr(text, ".passive \"");
     if (claim) {
-        claim[10] = '2';
+        claim[10] = '3';
         copy = asm_assemble(text, &result);
         CHECK(!copy && result.error == ASM_ERR_VERIFY);
         nvm_module_free(copy);
@@ -177,7 +177,7 @@ int main(int argc,char **argv) {
     for(uint32_t i=0;i<original_size;++i) { m->passive_size=i; CHECK(!nvm_passive_valid(m)); }
     m->passive_size=original_size;
     const uint32_t mutations[][2]={
-      {0,2},{1,0},{1,UINT32_MAX},{2,3},{2,1},{3,1},{4,1},{5,27},{5,29},
+      {0,3},{1,0},{1,UINT32_MAX},{2,3},{2,1},{3,1},{4,1},{5,27},{5,29},
       {6,0},{6,UINT32_MAX},{7,13},{8,27},{9,1},{10,0},{11,1},{12,1},{13,1},
       {14,0},{14,2},{15,1},{16,13},{17,0},{18,1},{19,1},{20,1},{21,1}};
     for(size_t i=0;i<sizeof mutations/sizeof mutations[0];++i) {
