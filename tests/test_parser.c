@@ -70,6 +70,53 @@ static ASTNode *parse_repl(const char *src) {
  * Basic parsing tests
  * ============================================================================ */
 
+/* I preserve each nested annotation rather than flattening its first name. */
+void test_nested_generic_annotation_metadata(void) {
+    ASTNode *program = parse_ok("fn identity(value: Box<Result<int,string>>) -> Box<Result<int,string>> { return value }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *function = program->as.program.items[0];
+    TypeInfo *parameter = function->as.function.params[0].type_info;
+    TypeInfo *result = function->as.function.return_type_info;
+    TypeInfo *roots[] = {parameter, result};
+    for (int i = 0; i < 2; ++i) {
+        TypeInfo *outer = roots[i];
+        ASSERT_NOT_NULL(outer);
+        ASSERT(strcmp(outer->generic_name, "Box") == 0);
+        ASSERT_EQ(outer->type_param_count, 1);
+        TypeInfo *inner = outer->type_params[0];
+        ASSERT_EQ(inner->base_type, TYPE_UNION);
+        ASSERT(strcmp(inner->generic_name, "Result") == 0);
+        ASSERT_EQ(inner->type_param_count, 2);
+        ASSERT_EQ(inner->type_params[0]->base_type, TYPE_INT);
+        ASSERT_EQ(inner->type_params[1]->base_type, TYPE_STRING);
+    }
+    free_ast(program);
+
+    program = parse_ok("fn inspect(value: Box<array<Result<int,types.Item>>>) -> int { return 0 }");
+    ASSERT_NOT_NULL(program);
+    parameter = program->as.program.items[0]->as.function.params[0].type_info;
+    TypeInfo *array = parameter->type_params[0];
+    ASSERT_EQ(array->base_type, TYPE_ARRAY);
+    ASSERT_NOT_NULL(array->element_type);
+    ASSERT(strcmp(array->element_type->generic_name, "Result") == 0);
+    ASSERT(strcmp(array->element_type->type_params[1]->generic_name, "types.Item") == 0);
+    free_ast(program);
+}
+
+void test_nested_generic_annotation_errors(void) {
+    const char *cases[] = {
+        "fn broken(value: Box<Result<int,string>) -> int { return 0 }",
+        "fn broken(value: Box<Result<int,string> int>) -> int { return 0 }",
+        "fn broken(value: Box<array<Result<int,string>>) -> int { return 0 }"
+    };
+    suppress_stderr();
+    for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+        ASTNode *program = parse_ok(cases[i]);
+        ASSERT_NULL(program);
+    }
+    restore_stderr();
+}
+
 void test_parse_minimal(void) {
     ASTNode *prog = parse_ok("fn main() -> int { return 0 }");
     ASSERT_NOT_NULL(prog);
@@ -900,6 +947,8 @@ int main(void) {
 
     printf("\n--- Valid programs ---\n");
     TEST(parse_minimal);
+    TEST(nested_generic_annotation_metadata);
+    TEST(nested_generic_annotation_errors);
     TEST(parse_empty_program);
     TEST(parse_arithmetic);
     TEST(parse_all_comparisons);
