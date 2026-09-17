@@ -1230,7 +1230,9 @@ static void test_projected_global_stores(void) {
         if (!m) continue;
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
+        CHECK(i == 1 ? c != NULL : c == NULL,
+              i == 1 ? "I retain exact record-array global storage after resolving nested fields" :
+                       "I reject unsupported global storage after resolving nested fields");
         free(c); nvm_module_free(m);
     }
 }
