@@ -167,12 +167,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       not establish an executable ownership escape. MAC
       `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
-- [ ] **Define my global resource boundary.** My duplicate-consumption probe
-      reaches native emission without an ownership diagnostic in the C seed
-      and Stage1, then fails global-record initialization. This is not evidence
-      of executable duplicate use. I require paired frontend rejection or a
-      verified global lifetime model, with ordinary global controls. MAC
-      `task_8afaef937f934a6e9919e41b91b7a41c`.
+- [ ] **Define my global resource boundary.** I first reject resource-bearing
+      global declarations explicitly in both frontends, using concrete payload
+      classification and a precise unsupported-ownership diagnostic. A current
+      unused global `Box<Handle>` publishes in all three compilers; ordinary
+      `Box<int>` globals compile and run. I require rejection before artifact
+      publication, mutable/immutable and nested/generic controls, imported
+      declaration checks and ordinary global/local positives. This guard does
+      not implement global lifetime or transfer semantics. Plain record-global
+      emission remains separate under `task_95796f5f49564ed4a911fd05a1aac5b4`.
+      MAC `task_8afaef937f934a6e9919e41b91b7a41c`.
 
 - [x] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
