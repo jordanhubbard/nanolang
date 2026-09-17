@@ -1,6 +1,8 @@
 # My Roadmap
 
-- [ ] I bound native root-membership and owner-marking cost during full compiler self-compilation (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`). My sampled source merge spends CPU tracing growing arrays: linear membership insertion makes a full root traversal quadratic. I preserve collection and lifetime guarantees, measure scaling, and keep this performance diagnosis separate from correctness or bootstrap convergence.
+- [x] I index native root membership and mark each owner once per collection (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`), preserving traversal order, collection points and lifetime guarantees. My [scaling and sanitizer evidence](evidence/native-root-tracking-cost.md) separates this lookup repair from full bootstrap convergence.
+- [x] I guard native loop collection with collectible-owner allocation debt (MAC `task_5928905033844a4a8fb498d63cb68c39`), preserving fresh mutable-root tracing, forced collection and bounded retention. My [measured scan and lifetime evidence](evidence/native-collection-debt.md) records 9998 scans reduced to two and the distinct record-capacity boundary below.
+- [ ] I grow native AOT record arrays beyond 256 elements with checked allocation, alias preservation and complete teardown (MAC `task_617006c46f9746da9694c6a4e0a0ceaf`). The full native compiler now reaches this existing limit while tokenizing; my retained 257-record fixture passes VM and emits byte-identical failing native C with unchanged and debt-scheduled translators. Full compiler self-compilation remains blocked here.
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
@@ -173,13 +175,22 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `task_08428ceb1d674de49383aab1ba9a78c8`, after
       `task_bbda7f126bda403aa74034a762930f24`.
 
+- [x] I retain owned parameter and return annotation trees inside my C
+      function signatures, including deep copies and parser/interpreter teardown
+      (`task_42ad1f3109374581a3f88f5dc58c049c`). This representation prerequisite
+      does not close the paired callback execution and ownership boundary below.
+      See `docs/evidence/function-signature-storage.md`.
+
 - [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
       stores flattened nominal names rather than complete parameter and return
       `TypeInfo`. I require parse/copy/lifetime preservation and paired ordinary
       generic callback execution plus conservative resource rejection before
       claiming complete function-value ownership. This representation gap does
-      not establish an executable ownership escape. MAC
-      `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
+      not establish an executable ownership escape. My `fn()->Box<int>` probe
+      fails native emission in the C seed and loses generic identity in both
+      selfhost stages; NanoVirt publishes while later printing missing-signature
+      errors. I require each boundary to retain metadata or fail before publication.
+      MAC `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
 - [ ] **Classify concrete generic payloads retained inside records.** I use
       full retained record field annotations and substitute union arguments
@@ -8577,6 +8588,15 @@ Compiler product:
       and shadow semantics while completing the independent VM route. AOT
       stage equality cannot close this acceptance item. Evidence:
       `docs/evidence/vm-bootstrap-budget.md`.
+  - [x] I share the existing linear local-declaration classification across
+        typechecking, NanoISA lowering and native-shadow C generation, replacing
+        the three repeated transpiler scans without importing the full
+        typechecker. I preserve parser index semantics and compare generated
+        C/assembly and initialization behavior. My 86 comparison checks and
+        64 Python methods pass, as does a fresh three-stage native bootstrap.
+        A 40-worker fixture produces identical 37,116-byte generated C before
+        and after this extraction; native initialization/mutation checks pass.
+        Evidence: `docs/evidence/shared-declaration-ownership.md`.
   - [x] I precompute per-let global ownership once from ordinary/unsafe block
         statements and function parameters, preserving IDs, declaration order,
         initializer effects and exact fixture bytecode. I compare the old

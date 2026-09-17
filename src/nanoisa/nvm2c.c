@@ -2079,7 +2079,7 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
                            const NvmFunctionEntry *fn, const uint8_t *kinds,
                            uint32_t idx) {
     if (!b->has_maps) return;
-    nvm2c_puts(b, "    nroots.live.count = 0;\n");
+    nvm2c_puts(b, "    nroot_reset(&nroots.live);\n");
     for (uint16_t i = 0; i < fn->local_count; ++i) {
         uint8_t k = fn_local_kind(b, kinds, idx, i);
         if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
@@ -2508,7 +2508,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     if (has_self_tail) nvm2c_puts(b, "    if (0) goto L_tco;\nL_tco: ;\n");
     if (b->has_maps && has_self_tail) {
         emit_map_roots(b, &st, fn, kinds, idx);
-        nvm2c_puts(b, "    nmap_collect();\n");
+        nvm2c_puts(b, "    nmap_collect_if_needed();\n");
     }
 
     while (pc < remaining) {
@@ -3612,7 +3612,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (b->has_maps && tgt <= start) {
                 emit_map_roots(b, &st, fn, kinds, idx);
-                nvm2c_puts(b, "    nmap_collect();\n");
+                nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
             nvm2c_printf(b, "    goto L_%zu;\n", tgt);
@@ -3629,7 +3629,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_printf(b, "    if (!t[%d]) {\n", cond);
             if (b->has_maps && tgt <= start) {
                 emit_map_roots(b, &st, fn, kinds, idx);
-                nvm2c_puts(b, "    nmap_collect();\n");
+                nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
             nvm2c_printf(b, "    goto L_%zu;\n    }\n", tgt);
@@ -3761,7 +3761,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         goto done;
     }
     nvm2c_puts(b, "L_return:\n    free(r);\n");
-    if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; free(nroots.live.items);\n");
+    if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
     nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     /* I emit the body once, then insert declarations using its actual
@@ -5072,11 +5072,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; unsigned marked; } nvalue_owned;\n"
                 "static nvalue_owned *nvalue_owned_head;\n"
                 "static size_t nmap_owned_live, nmap_owned_peak;\n"
+                "static unsigned nmap_allocation_debt;\n"
                 "static nmap_value nmap_owned_get(nmap_t map, const char *key) {\n"
                 "    nmap_value value = nmap_get(map, key);\n"
                 "    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);\n"
                 "        if (!owner) { nmap_release_value(value); abort(); }\n"
                 "        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;\n"
+                "        nmap_allocation_debt = 1;\n"
                 "        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }\n"
                 "    return value;\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
@@ -5105,6 +5107,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);\n"
                 "    if (!owner) { nmap_destroy(map); abort(); }\n"
                 "    *owner = (nmap_owned){map, nmap_owned_head, 0}; nmap_owned_head = owner;\n"
+                "    nmap_allocation_debt = 1;\n"
                 "    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;\n"
                 "    return map;\n}\n"
                 "static void nmap_release_owned(void) {\n"
@@ -5136,7 +5139,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);\n");
             if (b.global_count) nvm2c_printf(&b,
                 "    for (size_t i = 0; i < %zu; ++i) nroot_value(&work, nglobal[i]);\n", b.global_count);
-            nvm2c_puts(&b, "    nroot_trace(&work); free(work.items); nmap_sweep();\n}\n");
+            nvm2c_puts(&b, "    nroot_trace(&work); nroot_destroy(&work); nmap_sweep();\n"
+                "    nmap_allocation_debt = 0;\n}\n"
+                "/* I defer only without new owners: root mutations may retain old owners,\n"
+                " * but cannot grow their count. My next allocating safepoint traces fresh edges. */\n"
+                "static inline void nmap_collect_if_needed(void) {\n"
+                "    if (nmap_allocation_debt) nmap_collect();\n}\n");
         }
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"

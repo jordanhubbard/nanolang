@@ -20,6 +20,7 @@
  */
 
 import "src_nano/parser.nano"
+from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
@@ -3218,39 +3219,7 @@ shadow env_copy_symbols {
 
 # I classify locals from every statement list, including nested expression blocks.
 fn typecheck_local_lets(parser: Parser) -> array<bool> {
-    let mut flags: array<bool> = []
-    let mut i: int = 0
-    while (< i (parser_get_let_count parser)) { set flags (array_push flags false) set i (+ i 1) }
-    set i 0
-    while (< i (parser_get_function_count parser)) {
-        let f: ASTFunction = (parser_get_function parser i)
-        let mut j: int = 0
-        while (< j f.param_count) { (array_set flags (+ f.param_start j) true) set j (+ j 1) }
-        set i (+ i 1)
-    }
-    set i 0
-    while (< i (list_ASTBlock_length parser.blocks)) {
-        let block: ASTBlock = (list_ASTBlock_get parser.blocks i)
-        let mut j: int = 0
-        while (< j (list_ASTStmtRef_length block.statements)) {
-            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements j)
-            if (== stmt.node_type ParseNodeType.PNODE_LET) { (array_set flags stmt.node_id true) }
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    set i 0
-    while (< i (list_ASTUnsafeBlock_length parser.unsafe_blocks)) {
-        let block: ASTUnsafeBlock = (list_ASTUnsafeBlock_get parser.unsafe_blocks i)
-        let mut j: int = 0
-        while (< j (list_ASTStmtRef_length block.statements)) {
-            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements j)
-            if (== stmt.node_type ParseNodeType.PNODE_LET) { (array_set flags stmt.node_id true) }
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    return flags
+    return (declaration_local_lets parser)
 }
 
 shadow typecheck_local_lets {

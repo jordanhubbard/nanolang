@@ -36,6 +36,7 @@ Logs: `/tmp/nanolang-declaration-ownership-gate.log`,
 
 This closes the bounded emitter optimization within
 `task_36ceaa830d7d46ba8a5471326f525aac`. Full VM compiler-source execution and
-fixed-point comparison remain open. Native-shadow C generation still has
-its own declaration-ownership query, and native root-tracing work belongs
-to a separate runtime follow-up.
+fixed-point comparison remain open. At this checkpoint native-shadow C generation still had its own
+declaration-ownership query. My subsequent shared classification is recorded
+in `shared-declaration-ownership.md`; native root-tracing work belongs to a
+separate runtime follow-up.

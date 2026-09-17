@@ -23,6 +23,7 @@ import "src_nano/compiler/module_bindings.nano"
 from "src_nano/compiler/nominal_bindings.nano" import nb_type
 import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
+from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
@@ -4096,11 +4097,12 @@ fn gen_c_program(functions: string) -> string {
 /* Returns true if the program has any module-scope mutable primitive that
  * requires nano_dispatch.h (NlGuarded_* + libdispatch). */
 fn parser_has_guarded_globals(parser: Parser) -> bool {
+    let local_lets: array<bool> = (declaration_local_lets parser)
     let total: int = (parser_get_let_count parser)
     let mut i: int = 0
     while (< i total) {
         let l: ASTLet = (parser_get_let parser i)
-        if (not (is_let_in_function parser i)) {
+        if (not (at local_lets i)) {
             if (and l.is_mut (is_guarded_primitive l.var_type)) {
                 return true
             } else { (print "") }
@@ -7905,6 +7907,12 @@ shadow is_let_in_function {
     assert (is_let_in_function p 2)
     assert (is_let_in_function p 3)
     assert (is_let_in_function p 4)
+    let flags: array<bool> = (declaration_local_lets p)
+    let mut i: int = 0
+    while (< i (array_length flags)) {
+        assert (== (at flags i) (is_let_in_function p i))
+        set i (+ i 1)
+    }
 }
 
 /* Extract a C literal string for a global let's initial value.
@@ -7952,6 +7960,7 @@ shadow global_init_literal {
  * Immutable globals and complex mutable globals: plain C declarations.
  * Mutable primitive globals (int/float/bool/string): NlGuarded_* with constructor. */
 fn generate_global_constants(parser: Parser) -> string {
+    let local_lets: array<bool> = (declaration_local_lets parser)
     let total_lets: int = (parser_get_let_count parser)
     let mut sb: array<string> = []
     let mut has_plain: bool = false
@@ -7964,7 +7973,7 @@ fn generate_global_constants(parser: Parser) -> string {
     let mut li: int = 0
     while (< li total_lets) {
         let let_node: ASTLet = (parser_get_let parser li)
-        if (not (is_let_in_function parser li)) {
+        if (not (at local_lets li)) {
             let mut glob_dup: bool = false
             let mut gdi: int = 0
             while (< gdi (array_length emitted_globals)) {
@@ -8159,10 +8168,11 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
      * NL_GUARDED_READ / NL_GUARDED_WRITE when accessed from inside functions. */
     let mut global_env: GenEnv = (genenv_new "global")
     let all_lets: int = (parser_get_let_count parser)
+    let local_lets: array<bool> = (declaration_local_lets parser)
     let mut gi: int = 0
     while (< gi all_lets) {
         let glet: ASTLet = (parser_get_let parser gi)
-        if (not (is_let_in_function parser gi)) {
+        if (not (at local_lets gi)) {
             if (and glet.is_mut (is_guarded_primitive glet.var_type)) {
                 set global_env (genenv_put_global global_env glet.name glet.var_type glet.is_mut)
             } else {
