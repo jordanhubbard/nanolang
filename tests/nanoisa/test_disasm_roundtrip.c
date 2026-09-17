@@ -80,8 +80,100 @@ static void round_trips(const char *label, const char *src) {
     nvm_module_free(b);
 }
 
+static void quoted_string_boundaries(void) {
+    const char *source =
+        ".string punctuation \"left; # right\" ; trailing comment\n"
+        ".string escaped \"quote\\\";#slash\\\\;#\" # trailing comment\n"
+        ".string empty \"\" ; empty string\n"
+        ".function main 0 0 0 int 1\n PUSH_I64 0 # instruction comment\n RET\n.end\n";
+    AsmResult result;
+    NvmModule *module = asm_assemble(source, &result);
+    CHECK(module != NULL, "quoted comment markers assemble");
+    if (module) {
+        CHECK(module->string_count >= 3, "all quoted constants survive");
+        if (module->string_count >= 3) {
+        CHECK(strcmp(module->strings[0], "left; # right") == 0, "literal comment bytes survive");
+        CHECK(strcmp(module->strings[1], "quote\";#slash\\;#") == 0, "escaped quotes and slashes preserve comments");
+        CHECK(module->string_lengths[2] == 0, "empty quoted constant survives");
+        }
+        nvm_module_free(module);
+    }
+    round_trips("quoted comment markers", source);
+    round_trips("quoted import and module names",
+        ".import \"lib;#\" \"call#;\" void # comment\n"
+        ".module_ref \"other;#\" ; comment\n"
+        ".function main 0 0 0 int 1\n CALL_EXTERN 0\n PUSH_I64 0\n RET\n.end\n");
+    const size_t lengths[] = {4095, 4096, 16384};
+    for (size_t i = 0; i < sizeof(lengths) / sizeof(lengths[0]); i++) {
+        size_t length = lengths[i];
+        char *text = malloc(length + 128);
+        CHECK(text != NULL, "allocate long string fixture");
+        if (!text) continue;
+        size_t prefix = (size_t)sprintf(text, ".string long ");
+        text[prefix++] = '"';
+        memset(text + prefix, 'x', length);
+        strcpy(text + prefix + length, "\"\n.function main 0 0 0 int 1\n PUSH_I64 0\n RET\n.end\n");
+        module = asm_assemble(text, &result);
+        CHECK(module != NULL, "long literal assembles");
+        if (module) {
+            CHECK(module->string_lengths[0] == length, "long literal retains full length");
+            CHECK(memcmp(module->strings[0], text + prefix, length) == 0, "long literal retains all bytes");
+            nvm_module_free(module);
+        }
+        round_trips("long quoted literal", text);
+        free(text);
+    }
+    const char *bad[] = {".string \"unterminated", ".string \"escaped\\\"", ".string \"dangling\\", ".string \"ok\" junk"};
+    for (size_t i = 0; i < sizeof(bad) / sizeof(bad[0]); i++) {
+        module = asm_assemble(bad[i], &result);
+        CHECK(module == NULL && result.error == ASM_ERR_SYNTAX, "malformed quoted directive refuses");
+        nvm_module_free(module);
+    }
+}
+
+static void large_symbol_and_branch_tables(void) {
+    const uint32_t count = 2200;
+    char *text = malloc(200000);
+    CHECK(text != NULL, "allocate many-symbol fixture");
+    if (!text) return;
+    size_t used = 0;
+    for (uint32_t i = 0; i < count; i++)
+        used += (size_t)sprintf(text + used, ".string s%u \"same\"\n", i);
+    used += (size_t)sprintf(text + used, ".function main 0 0 0 int 1\n");
+    for (uint32_t i = 0; i < count; i++)
+        used += (size_t)sprintf(text + used, " JMP label%u\nlabel%u:\n", i, i);
+    sprintf(text + used, " PUSH_I64 37\n RET\n.end\n");
+    AsmResult result;
+    NvmModule *module = asm_assemble(text, &result);
+    CHECK(module != NULL, "large symbol label and patch tables assemble");
+    if (module) {
+        bool all_patched = true;
+        for (uint32_t i = 0; i < count; i++) {
+            const uint8_t *instruction = module->code + i * 5;
+            if (instruction[0] != OP_JMP || instruction[1] != 5 || instruction[2] || instruction[3] || instruction[4])
+                all_patched = false;
+        }
+        CHECK(all_patched, "every forward jump is resolved beyond old patch limit");
+        nvm_module_free(module);
+    }
+    round_trips("large symbol and branch tables", text);
+    free(text);
+    const char *duplicates[] = {
+        ".string same \"one\"\n.string same \"two\"\n",
+        ".function main 0 0 0 int 1\nloop:\nloop:\n PUSH_I64 0\n RET\n.end\n"
+    };
+    for (size_t i = 0; i < 2; i++) {
+        module = asm_assemble(duplicates[i], &result);
+        CHECK(module == NULL && result.error == (i == 0 ? ASM_ERR_DUPLICATE_SYMBOL : ASM_ERR_DUPLICATE_LABEL),
+              "actual duplicate retains its error category");
+        nvm_module_free(module);
+    }
+}
+
 int main(void) {
     printf("\n[disasm_roundtrip] canonical disassembly is lossless...\n\n");
+    quoted_string_boundaries();
+    large_symbol_and_branch_tables();
 
     round_trips("simple",
         ".function main 0 1 0 int 1\n  PUSH_I64 42\n  RET\n.end\n");
