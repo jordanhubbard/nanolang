@@ -550,6 +550,18 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 
     if (array_expr->type == AST_CALL && array_expr->as.call.name &&
         !array_expr->as.call.func_expr) {
+        if ((strcmp(array_expr->as.call.name, "at") == 0 ||
+             strcmp(array_expr->as.call.name, "array_get") == 0) &&
+            array_expr->as.call.arg_count == 2) {
+            ASTNode *container = array_expr->as.call.args[0];
+            if (container && container->type == AST_ARRAY_LITERAL &&
+                container->as.array_literal.element_count > 0) {
+                ASTNode *first = container->as.array_literal.elements[0];
+                if (first && check_expression(first, env) == TYPE_ARRAY) {
+                    return infer_array_element_type(first, env);
+                }
+            }
+        }
         Function *producer = env_get_function(env, array_expr->as.call.name);
         if (producer && producer->return_type == TYPE_ARRAY) {
             return producer->return_element_type;
@@ -798,6 +810,20 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
     }
     return call_id;
 }
+
+static unsigned next_nested_array_id(Environment *env) {
+    static _Thread_local unsigned next_id;
+    unsigned id;
+    bool available;
+    do {
+        id = next_id++;
+        char name[64];
+        snprintf(name, sizeof(name), "__nl_nested_array_%u", id);
+        available = !env || !env_get_var(env, name);
+    } while (!available);
+    return id;
+}
+
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry);
 
@@ -2104,14 +2130,36 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     } else {
                         snprintf(func_buf, sizeof(func_buf), "nl_array_set_%s", type_suffix);
                     }
-                    
-                    emit_literal(list, func_buf);
-                    emit_literal(list, "(");
-                    for (int i = 0; i < expr->as.call.arg_count; i++) {
-                        if (i > 0) emit_literal(list, ", ");
-                        build_expr(list, expr->as.call.args[i], env);
+
+                    ASTNode *value_arg = expr->as.call.arg_count >= 3
+                        ? expr->as.call.args[2] : NULL;
+                    bool empty_nested_replacement =
+                        strcmp(func_name, "array_set") == 0 && elem_type == TYPE_ARRAY &&
+                        value_arg && value_arg->type == AST_ARRAY_LITERAL &&
+                        value_arg->as.array_literal.element_count == 0 &&
+                        value_arg->as.array_literal.element_type == TYPE_UNKNOWN;
+                    if (empty_nested_replacement) {
+                        /* The C AST retains only one declared field-array level.
+                         * For [] replacing an existing nested element, preserve
+                         * that element's runtime tag and evaluate source operands
+                         * once, in their written order. */
+                        emit_literal(list, "({ ");
+                        unsigned call_id = build_ordered_call_args(
+                            list, expr->as.call.args, 2, env, NULL);
+                        emit_formatted(list,
+                            "nl_array_set_array(__nl_arg_%u_0, __nl_arg_%u_1, "
+                            "dyn_array_new(dyn_array_get_elem_type("
+                            "nl_array_at_array(__nl_arg_%u_0, __nl_arg_%u_1)))); })",
+                            call_id, call_id, call_id, call_id);
+                    } else {
+                        emit_literal(list, func_buf);
+                        emit_literal(list, "(");
+                        for (int i = 0; i < expr->as.call.arg_count; i++) {
+                            if (i > 0) emit_literal(list, ", ");
+                            build_expr(list, expr->as.call.args[i], env);
+                        }
+                        emit_literal(list, ")");
                     }
-                    emit_literal(list, ")");
                 }
             }
             /* Special handling for array_new() - creates new dynamic array with size and initial value */
@@ -2954,6 +3002,22 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.array_literal.elements[i], env);
                     }
                     emit_literal(list, ")");
+                } else if (elem_type == TYPE_ARRAY) {
+                    /* Nested literals contain DynArray pointers, so their outer
+                     * value must remain a DynArray rather than decay from a C
+                     * compound array to DynArray**. Sequential pushes preserve
+                     * the language's left-to-right child evaluation. */
+                    unsigned array_id = next_nested_array_id(env);
+                    emit_formatted(list,
+                        "({ DynArray* __nl_nested_array_%u = dyn_array_new(ELEM_ARRAY); ",
+                        array_id);
+                    for (int i = 0; i < count; i++) {
+                        emit_formatted(list, "dyn_array_push_array(__nl_nested_array_%u, ",
+                                       array_id);
+                        build_expr(list, expr->as.array_literal.elements[i], env);
+                        emit_literal(list, "); ");
+                    }
+                    emit_formatted(list, "__nl_nested_array_%u; })", array_id);
                 } else {
                     /* For other types, fallback to old behavior */
                     const char *c_type = type_to_c(elem_type);
