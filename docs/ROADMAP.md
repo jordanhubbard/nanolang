@@ -169,6 +169,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       MAC `task_894769717bba4e0f8ea11432098406fc`. I rebuilt Stage 2,
       passed native/no-C-seed smoke checks and seven prefix-boundary assertions.
 
+- [x] **Canonical executable NanoISA reachability.** I route explicit
+      `nanoc_v06 --emit-nvm` through the program-closure API after full binding,
+      type checks and shadow execution. Unreachable unsupported helpers may be
+      excluded from executable bytecode; their shadows must still run and can
+      reject publication without replacing prior output.
+      MAC `task_771b3fdc89aa42f7bf100ce7bfd0d40d`.
+      My fresh three-stage bootstrap and all five canonical driver methods pass.
+
 - [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
       shadow checks, publishing verified module bytes without reparsing raw text.
