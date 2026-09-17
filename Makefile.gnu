@@ -4120,3 +4120,10 @@ test-parameter-nominal-metadata: $(COMPILER_C)
 test-units: test-map-constructor-diagnostics
 test-map-constructor-diagnostics: $(COMPILER_C) nano_virt
 	@python3 -m unittest tests.test_map_constructor_diagnostics
+
+
+
+test-units: test-canonical-nvm-output
+.PHONY: test-canonical-nvm-output
+test-canonical-nvm-output: bootstrap3 nano_vm nvm2c
+	@python3 -m unittest tests.test_canonical_nvm_output

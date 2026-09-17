@@ -1138,6 +1138,7 @@ fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "str_slice") { return "nl_str_slice" } else { (print "") }
     if (== func_name "str_concat") { return "nl_str_concat" } else { (print "") }
     if (== func_name "str_substring") { return "nl_str_substring" } else { (print "") }
+    if (== func_name "str_starts_with") { return "nl_str_starts_with" } else { (print "") }
     if (== func_name "str_contains") { return "nl_str_contains" } else { (print "") }
     if (== func_name "str_equals") { return "nl_str_equals" } else { (print "") }
     
@@ -3572,6 +3573,11 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return out;\n")
     set sb (cg_append sb "}\n\n")
     
+    set sb (cg_append sb "bool nl_str_starts_with(const char* str, const char* prefix) {\n")
+    set sb (cg_append sb "    if (!str || !prefix) return false;\n")
+    set sb (cg_append sb "    while (*prefix) { if (*str++ != *prefix++) return false; }\n")
+    set sb (cg_append sb "    return true;\n")
+    set sb (cg_append sb "}\n\n")
     set sb (cg_append sb "bool nl_str_contains(const char* str, const char* substr) {\n")
     set sb (cg_append sb "    return strstr(str, substr) != NULL;\n")
     set sb (cg_append sb "}\n\n")

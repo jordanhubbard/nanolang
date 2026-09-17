@@ -18,6 +18,8 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
+import "src_nano/compiler/nanoisa_codegen.nano"
+module "modules/nanoisa/nanoisa.nano" as Nanoisa
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
 import "src_nano/compiler/module_introspection.nano"
@@ -57,6 +59,7 @@ struct CompileOptions {
     llm_diags_json_path: string,
     show_help: bool,
     emit_c: bool,
+    emit_nvm: bool,
     test_imports: bool,
     error: string
 }
@@ -105,6 +108,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut diags: string = ""
     let mut help: bool = false
     let mut emit_c: bool = false
+    let mut emit_nvm: bool = false
     let mut test_imports: bool = true
     let mut error: string = ""
     let mut positional_only: bool = false
@@ -120,6 +124,8 @@ fn parse_options(args: array<string>) -> CompileOptions {
             set verbose true
         } else if (and (not positional_only) (or (== arg "-k") (== arg "--keep-c"))) {
             set keep_c true
+        } else if (and (not positional_only) (== arg "--emit-nvm")) {
+            set emit_nvm true
         } else if (and (not positional_only) (== arg "--test-imports")) {
             set test_imports true
         } else if (and (not positional_only) (== arg "--root-shadows-only")) {
@@ -159,11 +165,13 @@ fn parse_options(args: array<string>) -> CompileOptions {
         }
         set i (+ i 1)
     }
+    if (and emit_c emit_nvm) { set error "I cannot combine --emit-nvm with --target c" }
+    if (and emit_nvm (not output_set)) { set error "I require -o for --emit-nvm" }
     if (and emit_c (not output_set)) { set output (c_source_output_path input) }
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
         keep_c: keep_c, show_intermediate_code: show_code,
-        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, test_imports: test_imports, error: error
+        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, error: error
     }
 }
 
@@ -172,6 +180,11 @@ shadow parse_options {
     assert source.emit_c
     assert (== source.output_file "file.c")
     assert (== source.error "")
+    let module_output: CompileOptions = (parse_options ["file.nano", "--emit-nvm", "-o", "file.nvm"])
+    assert module_output.emit_nvm
+    assert (== module_output.error "")
+    assert (!= (parse_options ["file.nano", "--emit-nvm"]).error "")
+    assert (!= (parse_options ["file.nano", "--emit-nvm", "--target", "c", "-o", "file.nvm"]).error "")
     let bad: CompileOptions = (parse_options ["file.nano", "--unknown"])
     assert (!= bad.error "")
     let missing: CompileOptions = (parse_options ["-o"])
@@ -1839,7 +1852,7 @@ shadow outputs_preserve_sources {
     }
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, test_imports: bool) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -2073,6 +2086,16 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
 
+            # I lower the already-bound, checked parser. I still run native shadows
+            # below; this explicit route is not my NanoISA-only bootstrap.
+            let mut nvm_assembly: string = ""
+            if emit_nvm {
+                set nvm_assembly (nanoisa_emit_parser_nasm parser)
+                if (== nvm_assembly "") {
+                    (println "I cannot lower this checked program to my supported NanoISA subset")
+                    return 1
+                }
+            }
             let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
             if (not introspection.ok) { return 1 }
             let c_code: string = (+ (transpile_parser parser) introspection.code)
@@ -2332,6 +2355,18 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     return 1
                 }
             }
+            if emit_nvm {
+                let nvm_status: int = (Nanoisa.assemble_text_save nvm_assembly output_file)
+                (native_cleanup native_dir keep_c)
+                if (!= nvm_status 0) {
+                    (println (+ "I could not publish the NanoISA module: " (Nanoisa.last_error)))
+                    return 1
+                }
+                if (!= llm_diags_json_path "") {
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
+                }
+                return 0
+            }
             set cc_cmd (+ cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
             
             if verbose {
@@ -2376,7 +2411,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
  * ============================================================================= */
 
 shadow compile_program {
-    assert (== (compile_program "" "" false false false "" false true) 1)
+    assert (== (compile_program "" "" false false false "" false false true) 1)
 }
 
 fn show_usage() -> int {
@@ -2392,6 +2427,7 @@ fn show_usage() -> int {
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
     (println "  --target <t>    native (default) or c (source output, no native compilation)")
+    (println "  --emit-nvm     I publish verified NanoISA after native shadow checks; requires -o")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
     (println "  --              End options; the remaining argument is my input path")
@@ -2451,7 +2487,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.test_imports)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports)
 }
 
 shadow main {
