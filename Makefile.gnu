@@ -4401,6 +4401,10 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_retained_layouts tests/nanoisa/test_retained_layouts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest tests.test_retained_layouts
 
+.PHONY: test-calculator-host-abi
+test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_calculator_host_abi
+test-units: test-calculator-host-abi
 .PHONY: test-ownership-contracts
 test-units: test-ownership-contracts
 test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c

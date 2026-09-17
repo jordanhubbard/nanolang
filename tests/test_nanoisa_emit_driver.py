@@ -95,7 +95,7 @@ class NanoisaEmitDriver(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="nano-driver-errors-") as tmp:
             directory = Path(tmp)
             source, output = directory / "bad.nano", directory / "prior.nvm"
-            for body in ("fn broken(", "fn main() -> float { return 1.5 }\nshadow main { assert true }\n"):
+            for body in ("fn broken(", "fn main() -> array<float> { return [1.5] }\nshadow main { assert true }\n"):
                 source.write_text(body)
                 output.write_bytes(b"previous bytes")
                 self.run_command([DRIVER, source, "--emit-nvm", "-o", output], expected=1)
@@ -108,13 +108,24 @@ class NanoisaEmitDriver(unittest.TestCase):
             self.assertEqual(output.read_bytes(), b"previous bytes")
             self.assertEqual(list(directory.glob("*.tmp.*")), [])
 
+    def test_supported_float_and_boolean_array_results(self):
+        with tempfile.TemporaryDirectory(prefix="nano-supported-results-") as tmp:
+            directory=Path(tmp); source=directory/"supported.nano"; output=directory/"supported.nvm"
+            source.write_text('fn number() -> float { return 1.5 }\nshadow number { assert true }\n'
+                              'fn flags() -> array<bool> { return [true] }\nshadow flags { assert true }\n'
+                              'fn main() -> int { assert (== (number) 1.5) assert (at (flags) 0) return 0 }\n'
+                              'shadow main { assert true }\n')
+            self.run_command([DRIVER,source,"--emit-nvm","-o",output])
+            self.run_command([ROOT/"bin/nano_vm","--verify-only",output])
+            self.run_command([ROOT/"bin/nano_vm",output])
+
     def test_lowering_refusal_reports_the_exact_boundary(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-diagnostic-") as tmp:
             directory = Path(tmp)
             source, output = directory / "unsupported.nano", directory / "unsupported.nasm"
-            source.write_text('fn main() -> array<bool> { return [true] }\n')
+            source.write_text('fn main() -> array<float> { return [1.5] }\n')
             result = self.run_command([DRIVER, source, "-o", output], expected=1)
-            self.assertIn(b"I refused that program: unsupported result type array<bool>", result.stdout)
+            self.assertIn(b"I refused that program: unsupported result type array<float>", result.stdout)
             self.assertFalse(output.exists())
 
 

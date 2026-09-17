@@ -260,6 +260,8 @@ typedef struct {
 
 /* I recognize my builtin namespace, not arbitrary libraries exporting a name. */
 static const Nvm2cHost host_adapters[] = {
+    {"strlen", "nhost_strlen", 1, TAG_STRING, TAG_INT},
+    {"atan", "atan", 1, TAG_FLOAT, TAG_FLOAT},
     {"vm_getcwd", "nhost_getcwd", 0, TAG_VOID, TAG_STRING},
     {"vm_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
     {"nl_os_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
@@ -1652,7 +1654,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             for (uint8_t p = 0; p < host->argc; ++p) {
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
-                uint8_t expected = host->parameter == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT;
+                uint8_t expected = host->parameter == TAG_STRING ? NVM2C_VK_STR :
+                                   host->parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
                 /* I check tagged arguments when the host consumes them; that
                  * use does not change their caller-owned representation. */
                 if (arg.kind == NVM2C_VK_VALUE) continue;
@@ -1669,7 +1672,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp,
                           host->result == TAG_ARRAY ? NVM2C_VK_SARR :
                           host->result == TAG_STRING ? NVM2C_VK_STR :
-                          host->result == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT, -1)) return 0;
+                          host->result == TAG_BOOL ? NVM2C_VK_BOOL :
+                          host->result == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, -1)) return 0;
             break;
         }
         case OP_JMP_TRUE:
@@ -3956,11 +3960,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(s[%d], s[%d])", host->c_name, left, right);
             } else if (host->argc) {
-                uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT;
+                uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR :
+                                   host->parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
                 int arg = stack_pop_expect(b, &st, kind, "CALL_EXTERN");
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(%c[%d])", host->c_name,
-                         kind == NVM2C_VK_STR ? 's' : 't', arg);
+                         kind == NVM2C_VK_STR ? 's' : kind == NVM2C_VK_FLOAT ? 'f' : 't', arg);
                 if (host->result == TAG_ARRAY)
                     snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d])",
                              ins.operands[0].u32, arg);
@@ -3970,6 +3975,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (host->result == TAG_ARRAY) stack_push_sarr(b, &st, expression);
             else if (host->result == TAG_STRING) stack_push_str(b, &st, expression);
             else if (host->result == TAG_BOOL) stack_push_bool(b, &st, expression);
+            else if (host->result == TAG_FLOAT) stack_push_float(b, &st, expression);
             else stack_push_temp(b, &st, expression);
             break;
         }
@@ -5319,6 +5325,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static inline int64_t nhost_is_digit(int64_t code) { int c = (int)code; return c >= '0' && c <= '9'; }\n");
             if (module_uses_host(mod, "nhost_is_alpha")) nvm2c_puts(&b,
                 "static inline int64_t nhost_is_alpha(int64_t code) { int c = (int)code; return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }\n");
+            if (module_uses_host(mod, "atan")) nvm2c_puts(&b, "#include <math.h>\n");
+            if (module_uses_host(mod, "nhost_strlen")) nvm2c_puts(&b,
+                "#include <string.h>\nstatic inline int64_t nhost_strlen(const char *value) { return (int64_t)strlen(value ? value : \"\"); }\n");
             if (module_uses_host(mod, "nhost_is_alnum")) nvm2c_puts(&b,
                 "static inline int64_t nhost_is_alnum(int64_t code) { int c = (int)code; return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'); }\n");
             if (module_uses_host(mod, "nhost_is_space")) nvm2c_puts(&b,
