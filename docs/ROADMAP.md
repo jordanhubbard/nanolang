@@ -9,7 +9,7 @@
   - [x] I verify native semantics, record/map/string lifetime and tail calls, measure reduced static frames of 17904 and 19024 bytes, and pass both ordinary compiler product compilation gates. I preserve the initial independent shadow-deadline failure under `task_628759a2daf743b9bf13c9a7fea2ced0`.
   - [x] I publish the measured storage and acceptance boundary; full native self-compilation remains a separate acceptance result.
 
-- [ ] I support verified `JMP_TRUE` in native translation while preserving VM truthiness semantics (MAC `task_211f22859e164287a07a63cba74ace5b`). My record-local fixtures pass VM execution but expose the existing native classifier refusal; this storage repair uses the supported `BOOL_NOT`/`JMP_FALSE` equivalent.
+- [ ] I support verified `JMP_TRUE` in native translation while preserving VM truthiness semantics (MAC `task_211f22859e164287a07a63cba74ace5b`). My bounded companion covers control-flow discovery, local initialization, taken-edge transfers and loop-root collection, with VM/native true/false branch effects and actual float-format artifacts before acceptance. My record-local fixtures pass VM execution but expose the existing native classifier refusal; this storage repair uses the supported `BOOL_NOT`/`JMP_FALSE` equivalent.
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
