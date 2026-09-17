@@ -45,6 +45,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I retain nominal record identity through nested empty-array append results. My C-seed checker currently refuses `array_push (array_push [] Item {...}) Item {...}` before VM lowering; I retain the fixture separately from supported scalar append inference (MAC `task_439297c5a6934857a90cbec93bb7958d`).
+
+- [ ] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).
+
 - [ ] **Paired call-scoped resource borrows.** I implement the existing
       `&T` / `&mut T` contract with retained annotation identity and explicit
       borrowed call arguments. I first preserve syntax and metadata, then

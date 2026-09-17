@@ -341,8 +341,28 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
                 self.run_checked(binary)
 
+    def test_empty_array_append_infers_nested_types_and_order(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/empty_array_append.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-empty-append-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "words", "bits", "announce", "main")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "first\nsecond\n")
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.assertEqual(self.run_checked(binary).stdout, "first\nsecond\n")
+
     def test_boolean_arrays_preserve_element_type_refusals(self):
         programs = [
+            'fn main() -> int { (array_push (array_push [] \"x\") true) return 0 }',
+            'fn main() -> int { let xs: array<int> = [] (array_push xs \"x\") return 0 }',
             'fn main() -> int { let xs: array<bool> = [1] return 0 }',
             'fn main() -> int { let xs: array<bool> = [true, 1] return 0 }',
             'fn main() -> int { let xs: array<bool> = [true] (array_set xs 0 1) return 0 }',

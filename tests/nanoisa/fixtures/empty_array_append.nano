@@ -1,0 +1,40 @@
+fn words() -> array<string> {
+    return (array_push (array_push [] "T") "E")
+}
+shadow words {
+    let result: array<string> = (words)
+    assert (== (at result 0) "T")
+    assert (== (at result 1) "E")
+}
+
+fn bits() -> array<bool> {
+    return (array_push (array_push [] true) false)
+}
+shadow bits {
+    let result: array<bool> = (bits)
+    assert (at result 0)
+    assert (not (at result 1))
+}
+
+fn announce(value: string) -> string {
+    (println value)
+    return value
+}
+shadow announce { assert (== (announce "control") "control") }
+
+fn main() -> int {
+    let strings: array<string> = (words)
+    assert (== (array_length strings) 2)
+    assert (== (at strings 0) "T")
+    assert (== (at strings 1) "E")
+    let flags: array<bool> = (bits)
+    assert (at flags 0)
+    assert (not (at flags 1))
+    let numbers: array<int> = (array_push (array_push [] 3) 5)
+    assert (== (at numbers 1) 5)
+    let ordered: array<string> = (array_push (array_push [] (announce "first")) (announce "second"))
+    assert (== (at ordered 0) "first")
+    assert (== (at ordered 1) "second")
+    return 0
+}
+shadow main { assert (== (main) 0) }
