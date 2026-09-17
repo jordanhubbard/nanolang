@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I align ordinary implicit function exits with declared result signatures and caller resumption (VM `task_4b3800f46af143fbb171f9565f92b8e0`, native `task_8a18a76c86884299ac3f7880ea617978`). I share ordinary VM return validation/cleanup while preserving explicit effect-owner lexical unwind. I admit native zero-result void or one int/bool/float fallthrough, test entry/nested/conditional end paths and wrong shapes, and keep aggregate/heap/multiple implicit results and LLVM/Wasm admission separate.
+
 - [ ] I extend native stack joins to explicit void plus concrete scalars (MAC `task_ca11c365f9e742d090f09ab59c6de45c`). My ordinary void/int join verifies and executes VM/LLVM but C refuses tagged-kind8 versus int-kind0. I preserve that refusal until edge boxing and shapes retain exact tags; direct void/local transport and bool-valued joins are the current truthiness boundary.
 
 - [x] I preserve explicit PUSH_VOID as tagged void in native scalar transport (MAC `task_96e1b3c367da476e9fb4f4cf8df68932`). My shared truthiness gate exposed the existing classifier refusal at opcode0x05; I add stack/local transport with type-tag and false-truthiness checks, without broadening void-return calls.

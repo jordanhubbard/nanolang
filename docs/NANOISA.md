@@ -950,3 +950,7 @@ field may have the same name without ambiguity.
 - **Per-frame module tracking** - Each call frame I create records its module for cross-module resolution.
 - **Link-time callable handles** - I resolve every `CALL_MODULE` (module index, function index) operand pair into a direct callable handle during linking, so dispatch follows a resolved module/function pointer instead of re-indexing the module and function tables and repeating bounds checks on every call. Relinking or rebuilding a module re-resolves the handles.
 - **Opaque proxy values** - I represent FFI objects as integer IDs. I keep the actual handles in my co-process address space.
+
+## My implicit function exits
+
+Reaching the end of a function is an implicit return. I require exactly its declared result count on the operand stack, excluding parameters/locals, and validate result tags as for RET. A zero-result void function returns no operand; a scalar-result function returns its existing operand. I do not synthesize a result. Ordinary nested calls resume at the callee-saved return address in the caller module after local cleanup; activation boundaries retain their normal return behavior. Explicit lexical returns from effect handlers remain distinct from implicit handler completion. My bounded native continuation admits zero results or one int/bool/float result; implicit heap/aggregate/multiple results remain unsupported.
