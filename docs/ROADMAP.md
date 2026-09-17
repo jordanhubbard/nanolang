@@ -653,6 +653,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         allocation (`task_af9ed9b1529b4c65853e5669d4171126`).
 
 - [x] I align passive branch targets with instruction-relative NanoISA offsets and verify ordinary entry/exit control flow in VM and native execution (`task_57b72385fb434d559a9fd13e25002f14`; 249 metadata checks, four VM/native executions and 96 verifier cases; `docs/evidence/passive-branch-targets.md`).
+- [x] I checked the suspected native bool/int guard mismatch: generated C retains bool and emits a false integer-tag check before node output. The test had incorrectly required translation refusal; no native source repair is needed (`task_f7ed4e430c9b41458b4ca9123671765d`, cancelled as not applicable).
+- [x] I define and verify version-2 guarded int/bool/string/float passive inputs, preserving version-1 refusal and paired serial behavior (`task_b26c733ca21841768b4dd6c67e7ed094`; six methods, 249 retained metadata checks and exact codec roundtrips; `docs/evidence/passive-guarded-inputs.md`; bounded child of `task_bf571298c10d4cc5a387b9f233ff3c40`).
 - [ ] **Passive immutable input proofs.** I prove external input values before
       admitting their reads in eligibility metadata; declared signature tags
       alone do not close the current verifier's unknown call/local types.

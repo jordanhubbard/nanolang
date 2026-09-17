@@ -4160,9 +4160,9 @@ test-affine-generic-identity: bootstrap
 
 .PHONY: test-passive-metadata
 test-units: test-passive-metadata
-test-passive-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
+test-passive-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_passive tests/nanoisa/test_passive.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	@python3 -m unittest tests.test_passive_metadata
+	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs
 
 .PHONY: test-global-initializer-context
 test-units: test-global-initializer-context
