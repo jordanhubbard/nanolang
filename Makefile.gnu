@@ -4548,3 +4548,7 @@ test-units: test-native-scalar-joins
 test-units: test-artifact-string-release
 test-artifact-string-release: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_artifact_string_release
+.PHONY: test-native-underscore-bindings
+test-units: test-native-underscore-bindings
+test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
+	python3 -m unittest -v tests.test_native_underscore_bindings

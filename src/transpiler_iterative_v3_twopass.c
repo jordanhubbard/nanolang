@@ -12,6 +12,7 @@
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include "utf8.h"
+#include "checked_loop_binding.h"
 #include <stdarg.h>
 #include <string.h>
 
@@ -137,11 +138,18 @@ typedef struct {
  * WORK LIST - Ordered list of work items (NOT a stack!)
  * ============================================================================ */
 
+typedef struct UnderscoreAlias {
+    struct UnderscoreAlias *next;
+    char name[64];
+} UnderscoreAlias;
+
 typedef struct {
     WorkItem *items;
     int capacity;
     int count;
     FunctionTypeRegistry *fn_registry;
+    UnderscoreAlias *underscore_aliases;
+    const char *underscore_name;
 } WorkList;
 
 static WorkList *worklist_create(int initial_capacity) {
@@ -153,6 +161,8 @@ static WorkList *worklist_create(int initial_capacity) {
     list->capacity = initial_capacity;
     list->count = 0;
     list->fn_registry = NULL;
+    list->underscore_aliases = NULL;
+    list->underscore_name = NULL;
     list->items = malloc(sizeof(WorkItem) * initial_capacity);
     if (!list->items) {
         fprintf(stderr, "Error: Out of memory allocating WorkList items\n");
@@ -176,7 +186,30 @@ static void worklist_free(WorkList *list) {
         }
     }
     free(list->items);
+    while (list->underscore_aliases) {
+        UnderscoreAlias *next = list->underscore_aliases->next;
+        free(list->underscore_aliases);
+        list->underscore_aliases = next;
+    }
     free(list);
+}
+
+/* I change native storage names, never source names or diagnostic locations. */
+static const char *native_local_name(WorkList *list, const char *name) {
+    return name && !strcmp(name, "_") && list->underscore_name
+        ? list->underscore_name : name;
+}
+
+static const char *new_underscore_name(WorkList *list, Environment *env) {
+    static unsigned serial;
+    UnderscoreAlias *alias = malloc(sizeof *alias);
+    if (!alias) { fprintf(stderr, "I cannot allocate a native binding name.\n"); exit(1); }
+    do {
+        snprintf(alias->name, sizeof alias->name, "__nl_underscore_%u", serial++);
+    } while (env_get_var(env, alias->name));
+    alias->next = list->underscore_aliases;
+    list->underscore_aliases = alias;
+    return alias->name;
 }
 
 static void worklist_grow(WorkList *list) {
@@ -221,6 +254,7 @@ typedef struct {
 
 typedef struct {
     ScopeVar *vars;
+    const char *underscore_name;
     int capacity;
     int count;
 } Scope;
@@ -260,7 +294,7 @@ static void scope_stack_free(ScopeStack *stack) {
     free(stack);
 }
 
-static void scope_stack_push(ScopeStack *stack) {
+static void scope_stack_push(ScopeStack *stack, WorkList *list) {
     if (stack->count >= stack->capacity) {
         stack->capacity *= 2;
         stack->scopes = realloc(stack->scopes, sizeof(Scope) * stack->capacity);
@@ -270,6 +304,7 @@ static void scope_stack_push(ScopeStack *stack) {
         }
     }
     Scope *scope = &stack->scopes[stack->count++];
+    scope->underscore_name = list->underscore_name;
     scope->capacity = 16;
     scope->count = 0;
     scope->vars = malloc(sizeof(ScopeVar) * scope->capacity);
@@ -343,10 +378,11 @@ static void scope_emit_cleanup(ScopeStack *stack, WorkList *list, int indent) {
     }
 }
 
-static void scope_stack_pop(ScopeStack *stack) {
+static void scope_stack_pop(ScopeStack *stack, WorkList *list) {
     if (stack->count == 0) return;
 
     Scope *scope = &stack->scopes[--stack->count];
+    list->underscore_name = scope->underscore_name;
     for (int i = 0; i < scope->count; i++) {
         free(scope->vars[i].name);
     }
@@ -356,10 +392,23 @@ static void scope_stack_pop(ScopeStack *stack) {
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent,
                        Environment *env, FunctionTypeRegistry *fn_registry);
 
+static void build_loop_body(WorkList *list, ScopeStack *scopes, ASTNode *body,
+                            ASTNode *loop, int indent, Environment *env,
+                            FunctionTypeRegistry *registry) {
+    const char *outer = list->underscore_name;
+    if (!reestablish_checked_loop_binding(env, loop)) {
+        fprintf(stderr, "I require checked loop binding metadata at line %d.\n", loop->line);
+        exit(1);
+    }
+    if (!strcmp(loop->as.for_stmt.var_name, "_")) list->underscore_name = NULL;
+    build_stmt(list, scopes, body, indent, env, registry);
+    list->underscore_name = outer;
+}
+
 static void build_scoped_statements(WorkList *list, ScopeStack *scopes, ASTNode *body,
                                     int indent, Environment *env,
                                     FunctionTypeRegistry *fn_registry) {
-    scope_stack_push(scopes);
+    scope_stack_push(scopes, list);
     if (body && body->type == AST_BLOCK) {
         for (int i = 0; i < body->as.block.count; i++)
             build_stmt(list, scopes, body->as.block.statements[i], indent, env, fn_registry);
@@ -369,7 +418,7 @@ static void build_scoped_statements(WorkList *list, ScopeStack *scopes, ASTNode 
         emit_literal(list, ";\n");
     }
     scope_emit_cleanup(scopes, list, indent);
-    scope_stack_pop(scopes);
+    scope_stack_pop(scopes, list);
 }
 
 /* ============================================================================
@@ -851,7 +900,7 @@ static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *en
         return;
     }
     ScopeStack *scopes = scope_stack_create();
-    scope_stack_push(scopes);
+    scope_stack_push(scopes, list);
     for (int i = 0; i < body->as.block.count; i++) {
         ASTNode *stmt = body->as.block.statements[i];
         if (i == body->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
@@ -862,7 +911,7 @@ static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *en
             if (stmt->type == AST_IDENTIFIER) {
                 Scope *scope = &scopes->scopes[scopes->count - 1];
                 for (int j = 0; j < scope->count; j++) {
-                    if (strcmp(scope->vars[j].name, stmt->as.identifier) == 0)
+                    if (strcmp(scope->vars[j].name, native_local_name(list, stmt->as.identifier)) == 0)
                         scope->vars[j].needs_gc_release = false;
                 }
             }
@@ -871,7 +920,7 @@ static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *en
         }
     }
     scope_emit_cleanup(scopes, list, 0);
-    scope_stack_pop(scopes);
+    scope_stack_pop(scopes, list);
     scope_stack_free(scopes);
 }
 
@@ -1047,7 +1096,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             if (sym && (sym->type == TYPE_BORROW_SHARED || sym->type == TYPE_BORROW_MUT)) {
-                emit_formatted(list, "(*%s)", expr->as.identifier);
+                emit_formatted(list, "(*%s)", native_local_name(list, expr->as.identifier));
                 break;
             }
             if (sym && sym->type == TYPE_VOID) {
@@ -1075,7 +1124,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
              * A local variable shadows any same-named function from an imported module.
              * Only fall through to the function-name check when no variable is in scope. */
             if (sym) {
-                emit_literal(list, expr->as.identifier);
+                emit_literal(list, native_local_name(list, expr->as.identifier));
                 break;
             }
 
@@ -2371,7 +2420,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 Symbol *callee_symbol = env_get_var_visible_at(env, func_name, expr->line, expr->column);
                 bool capture_callee = callee_symbol && callee_symbol->type == TYPE_FUNCTION;
                 if (capture_callee) {
-                    mapped_name = effect_capture_name(func_name, expr->line, expr->column);
+                    mapped_name = native_local_name(list, effect_capture_name(func_name, expr->line, expr->column));
                     func_info = NULL;
                     needs_wrapping = false;
                     needs_unwrap_check = false;
@@ -3336,7 +3385,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
 
             /* Push new scope for this block */
-            scope_stack_push(scopes);
+            scope_stack_push(scopes, list);
 
             for (int i = 0; i < stmt->as.block.count; i++) {
                 ASTNode *child = stmt->as.block.statements[i];
@@ -3351,7 +3400,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             scope_emit_cleanup(scopes, list, indent + 1);
 
             /* Pop scope */
-            scope_stack_pop(scopes);
+            scope_stack_pop(scopes, list);
 
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
@@ -3372,12 +3421,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             /* Unsafe blocks transpile to regular C blocks */
             emit_indent_item(list, indent);
             emit_literal(list, "/* unsafe */ {\n");
-            scope_stack_push(scopes);
+            scope_stack_push(scopes, list);
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
                 build_stmt(list, scopes, stmt->as.unsafe_block.statements[i], indent + 1, env, fn_registry);
             }
             scope_emit_cleanup(scopes, list, indent + 1);
-            scope_stack_pop(scopes);
+            scope_stack_pop(scopes, list);
             emit_indent_item(list, indent);
             emit_literal(list, "}\n");
             break;
@@ -3403,11 +3452,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, "/* par-let begin (independent bindings follow) */\n");
             for (int i = 0; i < stmt->as.par_let.count; i++) {
                 emit_indent_item(list, indent);
+                const char *binding_name = !strcmp(stmt->as.par_let.names[i], "_")
+                    ? new_underscore_name(list, env) : stmt->as.par_let.names[i];
                 emit_literal(list, "__auto_type ");
-                emit_literal(list, stmt->as.par_let.names[i]);
+                emit_literal(list, binding_name);
                 emit_literal(list, " = ");
                 build_expr(list, stmt->as.par_let.values[i], env);
                 emit_literal(list, "; /* par-let binding */\n");
+                if (!strcmp(stmt->as.par_let.names[i], "_")) list->underscore_name = binding_name;
             }
             emit_indent_item(list, indent);
             emit_literal(list, "/* par-let end */\n");
@@ -3693,7 +3745,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             
         case AST_RETURN:
             if (native_effect_program && !in_effect_handler && stmt->as.return_stmt.value && stmt->as.return_stmt.value->type == AST_IDENTIFIER) {
-                const char *name = stmt->as.return_stmt.value->as.identifier;
+                const char *name = native_local_name(list, stmt->as.return_stmt.value->as.identifier);
                 for (int si = scopes->count - 1; si >= 0; --si) {
                     Scope *scope = &scopes->scopes[si];
                     for (int vi = scope->count - 1; vi >= 0; --vi) {
@@ -3736,6 +3788,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
             
         case AST_LET: {
+            const char *binding_name = !strcmp(stmt->as.let.name, "_")
+                ? new_underscore_name(list, env) : stmt->as.let.name;
             emit_indent_item(list, indent);
             
             /* A checked empty pattern over a name has no fields or runtime work. */
@@ -3745,7 +3799,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
             /* I infer the stored variant typedef after checking its complete identity. */
             else if (stmt->as.let.is_destructure) {
-                emit_formatted(list, "__auto_type %s = ", stmt->as.let.name);
+                emit_formatted(list, "__auto_type %s = ", binding_name);
                 build_expr(list, stmt->as.let.value, env);
                 emit_literal(list, ";\n");
             }
@@ -3758,14 +3812,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
             /* Handle tuple types - use __auto_type to infer from RHS */
             else if (stmt->as.let.var_type == TYPE_TUPLE) {
-                emit_formatted(list, "__auto_type %s = ", stmt->as.let.name);
+                emit_formatted(list, "__auto_type %s = ", binding_name);
                 build_expr(list, stmt->as.let.value, env);
                 emit_literal(list, ";\n");
             }
             /* Handle function types - use typedef from registry */
             else if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig && fn_registry) {
                 const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
-                emit_formatted(list, "%s %s", typedef_name, stmt->as.let.name);
+                emit_formatted(list, "%s %s", typedef_name, binding_name);
                 
                 if (stmt->as.let.value) {
                     emit_literal(list, " = ");
@@ -3775,7 +3829,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             }
             /* Handle List<T> (generic lists) */
             else if (stmt->as.let.var_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
-                emit_formatted(list, "List_%s* %s", stmt->as.let.type_name, stmt->as.let.name);
+                emit_formatted(list, "List_%s* %s", stmt->as.let.type_name, binding_name);
                 if (stmt->as.let.value) {
                     emit_literal(list, " = ");
                     build_expr(list, stmt->as.let.value, env);
@@ -3791,7 +3845,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     snprintf(monomorphized_name, sizeof(monomorphized_name), "HashMap");
                 }
 
-                emit_formatted(list, "%s* %s", monomorphized_name, stmt->as.let.name);
+                emit_formatted(list, "%s* %s", monomorphized_name, binding_name);
                 if (stmt->as.let.value) {
                     emit_literal(list, " = ");
                     build_expr(list, stmt->as.let.value, env);
@@ -3813,7 +3867,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     }
                     
                     const char *prefixed = get_prefixed_type_name(monomorphized_name);
-                    emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
+                    emit_formatted(list, "%s %s", prefixed, binding_name);
                     
                     if (stmt->as.let.value) {
                         emit_literal(list, " = ");
@@ -3911,7 +3965,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     if (is_enum || (type_name && env_get_enum(env, type_name))) {
                         /* Enum type */
                         const char *prefixed = get_prefixed_type_name(type_name);
-                        emit_formatted(list, "%s %s = ", prefixed, stmt->as.let.name);
+                        emit_formatted(list, "%s %s = ", prefixed, binding_name);
                         build_expr(list, stmt->as.let.value, env);
                         emit_literal(list, ";\n");
                     } else {
@@ -3927,13 +3981,13 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         
                         if (opaque) {
                             /* Opaque types are stored as void* */
-                            emit_formatted(list, "void* %s", stmt->as.let.name);
+                            emit_formatted(list, "void* %s", binding_name);
                         } else if (type_name) {
                             /* Regular struct type */
                             const char *prefixed = get_prefixed_type_name(type_name);
-                            emit_formatted(list, "%s %s", prefixed, stmt->as.let.name);
+                            emit_formatted(list, "%s %s", prefixed, binding_name);
                         } else {
-                            emit_formatted(list, "void* %s", stmt->as.let.name);
+                            emit_formatted(list, "void* %s", binding_name);
                         }
                         
                         if (stmt->as.let.value) {
@@ -3947,7 +4001,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             else {
                 /* Regular types (int, float, string, bool, etc.) */
                 const char *c_type = type_to_c(stmt->as.let.var_type);
-                emit_formatted(list, "%s %s", c_type, stmt->as.let.name);
+                emit_formatted(list, "%s %s", c_type, binding_name);
 
                 if (stmt->as.let.value) {
                     /* Propagate element type from let to empty array literals */
@@ -3964,6 +4018,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, ";\n");
             }
             
+            /* The initializer above sees the previous lexical binding. */
+            if (!strcmp(stmt->as.let.name, "_")) list->underscore_name = binding_name;
+
             /* Register in environment */
             Symbol *checked_binding = NULL;
             for (int i = env->symbol_count - 1; i >= 0; --i) {
@@ -3999,11 +4056,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emitted_binding->struct_type_name = owned_nominal;
 
             /* Track variable for GC cleanup if needed */
-            scope_add_var(scopes, stmt->as.let.name, stmt->as.let.var_type, stmt->as.let.type_name, env);
+            scope_add_var(scopes, binding_name, stmt->as.let.var_type, stmt->as.let.type_name, env);
             if (native_effect_program && scopes->count > 0) {
                 Scope *scope = &scopes->scopes[scopes->count - 1];
-                if (scope->count > 0 && !strcmp(scope->vars[scope->count - 1].name, stmt->as.let.name)) {
-                    emit_formatted(list, "NlEffectGC _nl_gc_%s __attribute__((cleanup(nl_effect_gc_pop))) = {nl_effect_gc_top, (void **)&%s, true, true}; nl_effect_gc_top = &_nl_gc_%s;\n", stmt->as.let.name, stmt->as.let.name, stmt->as.let.name);
+                if (scope->count > 0 && !strcmp(scope->vars[scope->count - 1].name, binding_name)) {
+                    emit_formatted(list, "NlEffectGC _nl_gc_%s __attribute__((cleanup(nl_effect_gc_pop))) = {nl_effect_gc_top, (void **)&%s, true, true}; nl_effect_gc_top = &_nl_gc_%s;\n", binding_name, binding_name, binding_name);
                 }
             }
 
@@ -4013,7 +4070,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         case AST_SET:
             if (stmt->as.set.field_name) {
                 emit_indent_item(list, indent);
-                emit_literal(list, stmt->as.set.name);
+                emit_literal(list, native_local_name(list, stmt->as.set.name));
                 emit_literal(list, "->");
                 emit_literal(list, stmt->as.set.field_name);
                 emit_literal(list, " = ");
@@ -4036,15 +4093,15 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 /* Self-assignment detected: skip code generation to avoid -Wself-assign warning */
                 emit_indent_item(list, indent);
                 emit_literal(list, "/* self-assignment elided: ");
-                emit_literal(list, stmt->as.set.name);
+                emit_literal(list, native_local_name(list, stmt->as.set.name));
                 emit_literal(list, " = ");
-                emit_literal(list, stmt->as.set.name);
+                emit_literal(list, native_local_name(list, stmt->as.set.name));
                 emit_literal(list, " */\n");
                 break;
             }
             
             emit_indent_item(list, indent);
-            emit_literal(list, in_effect_handler ? effect_capture_name(stmt->as.set.name, stmt->line, stmt->column) : stmt->as.set.name);
+            emit_literal(list, native_local_name(list, in_effect_handler ? effect_capture_name(stmt->as.set.name, stmt->line, stmt->column) : stmt->as.set.name));
             emit_literal(list, " = ");
             
             /* Special handling for empty array literals: infer type from target variable */
@@ -4088,7 +4145,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_indent_item(list, indent + 1);
                 emit_formatted(list, "for (int64_t %s = __nl_arg_%u_0; %s < __nl_arg_%u_1; %s++) ",
                                var, bounds_id, var, bounds_id, var);
-                build_stmt(list, scopes, stmt->as.for_stmt.body, indent + 1, env, fn_registry);
+                build_loop_body(list, scopes, stmt->as.for_stmt.body, stmt, indent + 1, env, fn_registry);
                 emit_indent_item(list, indent);
                 emit_literal(list, "}\n");
             } else {
@@ -4158,13 +4215,18 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                                    c_elem_type, var, get_fn);
                     /* Emit body statements */
                     ASTNode *dyn_body = stmt->as.for_stmt.body;
-                    scope_stack_push(scopes);
+                    scope_stack_push(scopes, list);
+                    if (!reestablish_checked_loop_binding(env, stmt)) {
+                        fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
+                        exit(1);
+                    }
+                    if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (dyn_body && dyn_body->type == AST_BLOCK) {
                         for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
                             build_stmt(list, scopes, dyn_body->as.block.statements[bi], indent + 2, env, fn_registry);
                         }
                     }
-                    scope_stack_pop(scopes);
+                    scope_stack_pop(scopes, list);
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "}\n");
                     emit_indent_item(list, indent);
@@ -4243,13 +4305,18 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
                     /* Emit body statements */
                     ASTNode *body = stmt->as.for_stmt.body;
-                    scope_stack_push(scopes);
+                    scope_stack_push(scopes, list);
+                    if (!reestablish_checked_loop_binding(env, stmt)) {
+                        fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
+                        exit(1);
+                    }
+                    if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (body && body->type == AST_BLOCK) {
                         for (int bi = 0; bi < body->as.block.count; bi++) {
                             build_stmt(list, scopes, body->as.block.statements[bi], indent + 2, env, fn_registry);
                         }
                     }
-                    scope_stack_pop(scopes);
+                    scope_stack_pop(scopes, list);
 
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "}\n");
@@ -4449,9 +4516,9 @@ void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
     ScopeStack *scopes = scope_stack_create();
 
     /* Function body is already a scope, but we track variables in it */
-    scope_stack_push(scopes);
+    scope_stack_push(scopes, list);
     build_stmt(list, scopes, stmt, indent, env, fn_registry);
-    scope_stack_pop(scopes);
+    scope_stack_pop(scopes, list);
 
     /* Pass 2: Process and output */
     process_worklist(sb, list);
@@ -4528,7 +4595,7 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
             parameter->scope_end_column = handler_body->scope_end_column;
         }
         if (op->return_type != TYPE_VOID) build_match_arm_value(handler, handler_body, env);
-        else { ScopeStack *scopes = scope_stack_create(); scope_stack_push(scopes); build_stmt(handler, scopes, handler_body, 0, env, list->fn_registry); scope_stack_free(scopes); }
+        else { ScopeStack *scopes = scope_stack_create(); scope_stack_push(scopes, handler); build_stmt(handler, scopes, handler_body, 0, env, list->fn_registry); scope_stack_free(scopes); }
         env->symbol_count = saved_symbols;
         in_effect_handler = false; effect_captures = NULL; effect_capture_count = 0;
         process_worklist(helper_source, handler); worklist_free(handler); free(filtered); free(slots);
