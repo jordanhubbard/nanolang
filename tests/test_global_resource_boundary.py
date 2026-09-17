@@ -41,6 +41,15 @@ class GlobalResourceBoundary(unittest.TestCase):
     def test_nested_record_rejected(self):
         self.check(RESOURCE + 'struct Outer { owner: Handle }\nlet owner: Outer = Outer { owner: Handle { fd: 7 } }\n' + ENDING)
 
+    def test_record_with_generic_resource_payload_rejected(self):
+        self.check(RESOURCE + 'union Box<T> { Some { value: T }, None {} }\nstruct Outer { boxed: Box<Handle> }\nlet owner: Outer = Outer { boxed: Box.None {} }\n' + ENDING)
+
+    def test_nested_record_generic_chain_rejected(self):
+        self.check(RESOURCE + 'union Box<T> { Some { value: T }, None {} }\nstruct Inner { boxed: Box<Handle> }\nstruct Outer { inner: Inner }\nlet owner: Outer = Outer { inner: Inner { boxed: Box.None {} } }\n' + ENDING)
+
+    def test_record_generic_collection_rejected(self):
+        self.check(RESOURCE + 'union Box<T> { Some { value: T }, None {} }\nstruct Outer { boxed: Box<array<Handle>> }\nlet owner: Outer = Outer { boxed: Box.None {} }\n' + ENDING)
+
     def test_fixed_union_rejected(self):
         self.check(RESOURCE + 'union Choice { Some { owner: Handle }, None {} }\nlet owner: Choice = Choice.Some { owner: Handle { fd: 7 } }\n' + ENDING)
 
