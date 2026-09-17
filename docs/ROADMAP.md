@@ -97,6 +97,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       both self-hosted stages after fresh bootstrap. MAC
       `task_7eb80289f352425aa2abd26af55d0ffc`.
 
+- [ ] **Parse complete nested generic arguments.** My C annotation parser
+      currently stops at the inner `<` in `Box<Result<int,string>>`. I retain
+      recursive argument `TypeInfo` and require ordinary execution plus nested
+      resource rejection before classifying instantiated ownership. MAC
+      `task_8178b6b71fe147bd851629713e7be14d`.
+
 - [ ] **Retain instantiated ownership metadata.** I preserve complete concrete
       C `TypeInfo` and matching self-hosted generic identities through ownership
       bindings, aliases and calls. I substitute ordinary `Result<T,E>`/`Box<T>`
