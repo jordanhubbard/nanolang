@@ -2664,10 +2664,27 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           All four int/string pairs pass VM values, including empty extraction.
           See `docs/evidence/map-constructor-contexts.md`.
           MAC `task_f4e1871af407805219770d7620d58349`.
-        - [ ] I keep native map cleanup inside the binding scope. A map local
-          declared in a selected arm currently reaches function cleanup as an
-          undeclared C name; VM execution passes.
+        - [x] I keep native map cleanup inside the binding scope. Match arms
+          now emit cleanup before leaving their lexical C block, and my full
+          four-pair native/VM map fixture runs without removing selected arms.
+          Fresh bootstrap and 36 map/effect/selected-ownership methods pass;
+          alias/return controls and 20 opaque finalizers establish the bounded
+          behavior in `docs/evidence/native-map-lexical-cleanup.md`.
+          I preserved the recovered fleet patch and removed its proposed
+          early-return changes. Map deallocation and borrowed-result lifetime
+          remain separate obligations below.
           MAC `task_1edadd5eb33a445d9bf6516744bc405e`.
+        - [ ] I retain map key/value metadata when a native map operation takes
+          a direct call result. `map_get (returned true)` currently falls back
+          to an integer result for a declared string/string map; a typed local
+          isolates lexical cleanup tests. I require all scalar-pair execution
+          and preserved evaluation order. MAC `task_e018b78bc20a47d18619fce55a20e567`.
+        - [ ] I define early-return cleanup with explicit retain/transfer of
+          computed or borrowed results, preserving evaluation order and separate
+          control-flow paths. Current native HashMap allocations use malloc;
+          gc_release does not establish their deallocation. I keep map lifetime
+          and opaque/effect cleanup gates separate from lexical visibility.
+          MAC `task_195cac35e7704e56805932977512ae02`.
         - [x] I advance my bytecode for-loop index on continue, including
           unconditional and nested paths, without advancing an enclosing loop
           on an inner while continue. My new regression and both former timeout

@@ -194,7 +194,9 @@ static void worklist_append(WorkList *list, WorkItem item) {
  * FORWARD DECLARATIONS
  * ============================================================================ */
 static void emit_indent_item(WorkList *list, int level);
+static void emit_literal(WorkList *list, const char *str);
 static void emit_formatted(WorkList *list, const char *fmt, ...);
+static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 
 /* ============================================================================
  * SCOPE TRACKING - Track GC-managed variables for automatic cleanup
@@ -338,6 +340,25 @@ static void scope_stack_pop(ScopeStack *stack) {
         free(scope->vars[i].name);
     }
     free(scope->vars);
+}
+
+static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent,
+                       Environment *env, FunctionTypeRegistry *fn_registry);
+
+static void build_scoped_statements(WorkList *list, ScopeStack *scopes, ASTNode *body,
+                                    int indent, Environment *env,
+                                    FunctionTypeRegistry *fn_registry) {
+    scope_stack_push(scopes);
+    if (body && body->type == AST_BLOCK) {
+        for (int i = 0; i < body->as.block.count; i++)
+            build_stmt(list, scopes, body->as.block.statements[i], indent, env, fn_registry);
+    } else if (body) {
+        emit_indent_item(list, indent);
+        build_expr(list, body, env);
+        emit_literal(list, ";\n");
+    }
+    scope_emit_cleanup(scopes, list, indent);
+    scope_stack_pop(scopes);
 }
 
 /* ============================================================================
@@ -3473,33 +3494,13 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_literal(list, ") {\n");
                         emit_indent_item(list, indent + 3);
                         emit_literal(list, "_matched = 1;\n");
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
-                                }
-                            } else {
-                                emit_indent_item(list, indent + 3);
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, ";\n");
-                            }
-                        }
+                        build_scoped_statements(list, scopes, arm_body, indent + 3, env, fn_registry);
                         emit_indent_item(list, indent + 2);
                         emit_literal(list, "}\n");
                     } else {
                         emit_indent_item(list, indent + 2);
                         emit_literal(list, "_matched = 1;\n");
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 2, env, fn_registry);
-                                }
-                            } else {
-                                emit_indent_item(list, indent + 2);
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, ";\n");
-                            }
-                        }
+                        build_scoped_statements(list, scopes, arm_body, indent + 2, env, fn_registry);
                     }
 
                     emit_indent_item(list, indent + 1);
@@ -3532,17 +3533,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         /* Wildcard arm: _ => { body }  emits default: */
                         emit_literal(list, "default: {\n");
 
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
-                                }
-                            } else {
-                                emit_indent_item(list, indent + 3);
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, ";\n");
-                            }
-                        }
+                        build_scoped_statements(list, scopes, arm_body, indent + 3, env, fn_registry);
 
                         emit_indent_item(list, indent + 3);
                         emit_literal(list, "break;\n");
@@ -3554,17 +3545,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         emit_literal(list, variant_name + 4);  /* skip "INT:" prefix */
                         emit_literal(list, ": {\n");
 
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
-                                }
-                            } else {
-                                emit_indent_item(list, indent + 3);
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, ";\n");
-                            }
-                        }
+                        build_scoped_statements(list, scopes, arm_body, indent + 3, env, fn_registry);
 
                         emit_indent_item(list, indent + 3);
                         emit_literal(list, "break;\n");
@@ -3582,13 +3563,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         }
                         emit_literal(list, "case nl_"); emit_literal(list, union_c_name);
                         emit_literal(list, "_TAG_"); emit_literal(list, alts_s[n_alts_s-1]); emit_literal(list, ": {\n");
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
-                                }
-                            } else { emit_indent_item(list, indent + 3); build_expr(list, arm_body, env); emit_literal(list, ";\n"); }
-                        }
+                        build_scoped_statements(list, scopes, arm_body, indent + 3, env, fn_registry);
                         emit_indent_item(list, indent + 3); emit_literal(list, "break;\n");
                         emit_indent_item(list, indent + 2); emit_literal(list, "}\n");
                     } else {
@@ -3633,17 +3608,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                             emit_literal(list, ";\n");
                         }
 
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    build_stmt(list, scopes, arm_body->as.block.statements[j], indent + 3, env, fn_registry);
-                                }
-                            } else {
-                                emit_indent_item(list, indent + 3);
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, ";\n");
-                            }
-                        }
+                        build_scoped_statements(list, scopes, arm_body, indent + 3, env, fn_registry);
 
                         emit_indent_item(list, indent + 3);
                         emit_literal(list, "break;\n");
