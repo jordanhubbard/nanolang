@@ -210,9 +210,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       malformed-import rejection and test 232 VM/native boundary assertions. MAC
       `task_9e4e686f52bc426bbe4d2e694fa565bc`.
 
-- [ ] **Checked tagged native scalar-local assignments.** I retain runtime
-      tag checks when a local receives a concrete loop index and a tagged
-      global-array read, preserving exact payload constraints. MAC
+- [x] **Checked tagged native scalar-local assignments.** I retain tagged
+      storage across local writes and reassigned parameters, preserving exact
+      payload constraints and checked consumption. Twenty-two cases and the
+      fresh compiler-bytecode/native/program execution gate pass. MAC
       `task_9d72bb9f29074e51ad826bc26e87b13a`.
 
 - [x] **Native compiler projected global-store facts.** I resolve nested
