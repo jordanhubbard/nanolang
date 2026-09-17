@@ -74,8 +74,10 @@ retain raw hashes, timings and immutable host inputs. I do not compare the
 C-seed lowering output with the first self-hosted output. A fixed point does
 not prove compiler semantic correctness.
 
-My current canonical driver still generates C to execute shadows. Removing
-that phase remains an architecture requirement. Native execution of compiler
+My canonical `--emit-nvm` driver executes verified bytecode shadows. At
+`e35d8f55`, two full compiler generations match raw 365,976-byte modules with
+the same immutable host closure; see [my cutover evidence](evidence/canonical-vm-shadow-cutover.md).
+My default native product remains a separate cutover. Native execution of compiler
 bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
 point does not claim completion of native full-source bootstrap.
 
@@ -94,7 +96,7 @@ to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
 → `.nvm`. My `compiler/nanoisa_codegen.nano` emitter now lowers the full compiler
 program closure, and the VM bootstrap above exercises it. My driver still
-retains native C shadow generation; the NanoISA-only cutover remains open.
+retains the legacy C native product route; the NanoISA-only product cutover remains open.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool

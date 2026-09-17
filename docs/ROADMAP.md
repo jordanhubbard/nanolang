@@ -45,6 +45,25 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I adopt exact owned native host-result buffers into tracked string reclamation after checking each adapter contract (MAC `task_d5f899966241452a900422938fff3265`). Environment/argument copies, path normalization, file/capture/mktemp results and artifact snapshots remain separate from the temporary-expression pool; I preserve borrowed/TLS/foreign ownership and require bounded lifetime tests.
+
+- [ ] I bound temporary string retention in my native AOT runtime (MAC `task_4d3105329e73454083846ad41473500d`). My [static lifetime audit](evidence/native-string-retention-audit.md) finds that concat, substring, formatting and character strings stay in `nstr_owners` until entry returns; existing map collection does not reclaim them. I keep the resource-budget-limited full native compiler acceptance open without attributing its whole RSS to this pool.
+  - [x] I introduce safe published-root string reclamation with allocation-byte debt, including string-only modules, caller/global/aggregate aliases, return handoff and self-tail staging.
+  - [x] I test bounded normal allocation churn, escaped aliases, aggregate mutation and final cleanup under sanitizers before any new bounded full-source acceptance run.
+  - [x] I inventory separate host-result allocations and record their exact ownership/adoption follow-up as `task_d5f899966241452a900422938fff3265`; borrowed artifact or environment strings must not be freed as owned storage. The distinct C-runtime array-copy ownership contract remains open as `task_93bb44374587a757753418fc28c2095d`.
+
+- [x] **Borrowed first-class callback boundary.** I reject unsupported
+      shared/exclusive borrowed callback values before native publication,
+      preserving ordinary and already-supported owned callback signatures.
+      My earlier C-seed generated-C failure and Stage1 admission are now
+      guarded by paired stored/returned/forwarded refusal and prior-output
+      controls. Borrowed callback transfer itself remains unsupported. MAC `task_5647b9905ea3eb914389f660d54634bd`.
+- [x] I publish refreshed seeded and canonical native compiler product acceptance at `8666cb09` after typed floats and true branches (MAC `task_f1bcd093f86b433a8f3d59139939187b`). Both existing positive gates pass with default shadows and exact hello outputs in VM/native; My [retained hashes and command timings](evidence/native-compiler-readiness-8666.md) record405.053seconds for both gates without claiming full native self-compilation or the pending VM-shadow cutover.
+- [ ] I test full native self-compilation using my repaired canonical native compiler product from code pin `8666cb09` (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). I retain a clean immutable source checkout, normal shadows and the existing 1800-second per-stage diagnostic budget.
+  - [ ] I compile the full compiler source to a verified Stage 1 module and retain exact commands, exit status, timings and artifact hashes. My [bounded attempt](evidence/native-selfcompile-resource-budget.md) stops at the recorded 48 GiB resident-memory limit after 1419.248 seconds without an artifact; I leave this acceptance open.
+  - [ ] If Stage 1 passes, I translate it to native and compile the same pinned source to Stage 2, comparing raw module bytes and their exact immutable host closure.
+  - [ ] I check the generated compiler product and publish the observed boundary separately from canonical VM bootstrap and the pending VM-shadow cutover.
+
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
@@ -78,15 +97,29 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         parser-copy, paired refusal/retention and ordinary ownership controls
         pass; `evidence/call-scoped-borrow-annotations.md` distinguishes the
         diagnostic bootstrap budget from the open default-deadline task.
-      - [ ] I first admit explicit shared borrows of fixed resource records
+      - [x] I first admit explicit shared borrows of fixed resource records
         with scalar fields, passing the caller's address to native code and
         preserving interpreter identity. I prove repeated reads, forwarding,
         post-call consumption and refusal of consumption, mutation, escape or
         a later argument that moves a borrowed owner. Unsupported generic,
         aggregate, foreign and callback shapes remain explicit boundaries.
-      - [ ] I then add exclusive pointer mutation with observable caller
-        updates and paired overlapping shared/exclusive argument rejection.
-        Broader projections and shape support follow their own paired gates.
+      - [x] I then retain an explicit field target for `set view.field value`
+        in both parsers and my shared AST schema. I check scalar field identity
+        and reject mutation through shared parameters before lowering.
+      - [x] I add exclusive mutable-pointer parameters and explicit `&mut`
+        call arguments, with observable caller field updates and paired
+        overlapping shared/exclusive argument rejection in either order.
+        I reject moving, storing, returning or replacing a borrowed owner;
+        whole-owner replacement is not field mutation. I require a mutable
+        owner or an existing exclusive capability, and prove forwarding,
+        post-call consumption and output preservation on refusal. Broader
+        projections and shape support follow their own paired gates.
+      - [x] I explicitly refuse field-place assignment in both NanoISA
+        emitters before reference IR exists, including the raw self-hosted
+        emitter API. I preserve a prior output and never reinterpret a field
+        target as whole-variable assignment (same borrow task). My
+        [exclusive evidence](evidence/call-scoped-exclusive-borrows.md) records
+        the three-compiler controls and keeps the full borrow parent open.
 - [x] I lower my declared NanoISA file assembly and disassembly artifact contracts with exact parameter and result validation, and execute their real module shadows in VM and native products (MAC `task_f5f873fccfff4b5b88f14f4d825ba3b4`).
 
 - [ ] **Concrete native specialization closure.** I discover union instances
@@ -630,6 +663,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         strict Darwin C99 must build the parser with overflow-checked portable
         allocation (`task_af9ed9b1529b4c65853e5669d4171126`).
 
+- [x] I align passive branch targets with instruction-relative NanoISA offsets and verify ordinary entry/exit control flow in VM and native execution (`task_57b72385fb434d559a9fd13e25002f14`; 249 metadata checks, four VM/native executions and 96 verifier cases; `docs/evidence/passive-branch-targets.md`).
+- [x] I checked the suspected native bool/int guard mismatch: generated C retains bool and emits a false integer-tag check before node output. The test had incorrectly required translation refusal; no native source repair is needed (`task_f7ed4e430c9b41458b4ca9123671765d`, cancelled as not applicable).
+- [x] I define and verify version-2 guarded int/bool/string/float passive inputs, preserving version-1 refusal and paired serial behavior (`task_b26c733ca21841768b4dd6c67e7ed094`; six methods, 249 retained metadata checks and exact codec roundtrips; `docs/evidence/passive-guarded-inputs.md`; bounded child of `task_bf571298c10d4cc5a387b9f233ff3c40`).
+- [x] I resolve structured `.par_begin`, `.par_node`, and `.par_end` assembly markers into authoritative version-2 record offsets, preserving canonical bytes and verifier checks (`task_6798838c50b74d698505602f06b70194`; nine passive methods, 96 verifier and 210 roundtrip checks, plus instrumented allocation recovery; `docs/evidence/passive-producer-markers.md`).
+- [ ] I retain let-only `par` declarations in both frontends, reject dependencies and unsupported effects before emitting checked NanoISA records, and verify paired behavior (`task_e0c6fd18cfbb49c78e4c509d8444417e`). Flow extraction and full passive conformance remain separate.
 - [ ] **Passive immutable input proofs.** I prove external input values before
       admitting their reads in eligibility metadata; declared signature tags
       alone do not close the current verifier's unknown call/local types.
@@ -8732,11 +8770,14 @@ Compiler product:
       scalar filesystem operations. I preserve owning artifact identity and
       the existing VM/native ABI without excluding dependency shadows
       (`task_41323f26030d452f92bbdbf69a0a8704`).
-- [ ] I run canonical `--emit-nvm` shadow checks as verified bytecode before
+- [x] I run canonical `--emit-nvm` shadow checks as verified bytecode before
       publishing, returning before my C transpiler and native shadow build.
       I retain dependency selection, completion/deadline checks and previous
-      output on failure; complete compiler shadow lowering remains required
+      output on failure. At `e35d8f55`, both full compiler generations match raw
+      365,976-byte modules and immutable host closure; the generated compiler
+      builds and runs hello. See [my evidence](evidence/canonical-vm-shadow-cutover.md)
       (`task_c5a7a4835d364b50b747018c794a07d0`).
+      My fixed-point guard keeps the seed compiler identity stable so cached host artifacts remain valid, then rejects NanoLang-generated C compilation during both VM generations. Declared native host artifacts retain their build/cache-validation calls, including native snapshot compilation.
 - [x] I supervise standalone VM shadow execution with a verified module,
       completion handshake and bounded parent deadline. I reject early exit,
       failed execution and incompatible CLI modes before canonical publication
@@ -10179,7 +10220,8 @@ My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
 
-- [ ] I preserve all eight module introspection operations and exact merged module identities through canonical NanoISA lowering before completing the product cutover (`task_faa47ec22a2545348aa9c9d705580321`).
-- [ ] I distinguish native executable structure from string data when excluding VM-wrapper products; the ordinary compiler carries a legitimate `bin/nano_vm` shadow-runner path (`task_b4a32a35810544f4a0234ab5828b46b4`).
+- [ ] I preserve all eight module introspection operations and exact merged module identities through canonical NanoISA lowering before completing the product cutover (`task_faa47ec22a2545348aa9c9d705580321`). I first separate source facts from legacy C helper emission, then pass explicit facts into both program and shadow lowering with indexed-result and identity parity tests.
 
 - [ ] I resolve the ordinary native compiler startup abort after the NanoISA-only driver creates Stage 2; I retain the executable and failed hello smoke log, and do not infer a cause from signal status (`task_57eb1d541d084ec4930b8764c591bad3`).
+
+- [x] I exclude VM-wrapper executable structure without rejecting ordinary string constants naming `nano_vm` or `nvm_blob`. I skip C literal/comment regions in my internal architecture assertion; six ordinary data cases compile and run without VM linkage, and all 2,414 native translator checks pass (`task_b4a32a35810544f4a0234ab5828b46b4`).

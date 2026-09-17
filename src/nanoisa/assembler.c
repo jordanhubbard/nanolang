@@ -80,6 +80,11 @@ typedef struct {
     uint32_t fn_code_size;
     uint32_t fn_code_capacity;
 
+    /* Structured producer markers resolve to the ordinary passive payload. */
+    bool passive_structured, par_active, par_node_active;
+    uint32_t passive_capacity, par_block_offset, par_node_offset;
+    uint32_t passive_blocks, par_nodes;
+
     /* Line tracking */
     uint32_t line;
 } AsmState;
@@ -610,6 +615,106 @@ static bool assemble_instruction(AsmState *state, const char *mnemonic,
  * Line Processing
  * ======================================================================== */
 
+static bool par_error(AsmResult *result, const char *message) {
+    result->error = ASM_ERR_SYNTAX;
+    snprintf(result->message, sizeof(result->message), "%s", message);
+    return false;
+}
+
+static void passive_patch(AsmState *state, uint32_t offset, uint32_t word) {
+    for (unsigned i = 0; i < 4; ++i)
+        state->mod->passive_data[offset + i] = (uint8_t)(word >> (8 * i));
+}
+
+static bool passive_word(AsmState *state, uint32_t word, AsmResult *result) {
+    uint32_t size = state->mod->passive_size;
+    if (size > UINT32_MAX - 4) {
+        result->error = ASM_ERR_MEMORY;
+        snprintf(result->message, sizeof(result->message), "I cannot grow the passive record.");
+        return false;
+    }
+    uint32_t needed = size + 4;
+    if (needed > state->passive_capacity) {
+        uint32_t capacity = state->passive_capacity ? state->passive_capacity : 128;
+        while (capacity < needed)
+            capacity = capacity > UINT32_MAX / 2 ? UINT32_MAX : capacity * 2;
+        uint8_t *data = realloc(state->mod->passive_data, capacity);
+        if (!data) {
+            result->error = ASM_ERR_MEMORY;
+            snprintf(result->message, sizeof(result->message), "I cannot allocate the passive record.");
+            return false;
+        }
+        state->mod->passive_data = data;
+        state->passive_capacity = capacity;
+    }
+    passive_patch(state, size, word);
+    state->mod->passive_size = needed;
+    return true;
+}
+
+static bool par_directive(AsmState *state, const char *directive,
+                          const char *p, AsmResult *result) {
+    if (!state->in_function)
+        return par_error(result, "I require passive producer markers inside a function.");
+    if (state->mod->code_size > UINT32_MAX - state->fn_code_size)
+        return par_error(result, "I cannot represent the passive instruction offset.");
+    uint32_t offset = state->mod->code_size + state->fn_code_size;
+    if (strcmp(directive, "par_begin") == 0) {
+        if (!require_line_end(p, result)) return false;
+        if (state->par_active)
+            return par_error(result, "I cannot nest passive producer blocks.");
+        if (!state->passive_structured) {
+            if (state->mod->passive_size)
+                return par_error(result, "I cannot mix raw passive chunks and producer markers.");
+            if (!passive_word(state, 2, result) || !passive_word(state, 0, result)) return false;
+            state->passive_structured = true;
+        }
+        state->par_block_offset = state->mod->passive_size;
+        uint32_t fields[] = {1, state->current_function, offset, 0, 0};
+        for (unsigned i = 0; i < 5; ++i)
+            if (!passive_word(state, fields[i], result)) return false;
+        state->par_active = true;
+        state->par_node_active = false;
+        state->par_nodes = 0;
+        return true;
+    }
+    if (!state->par_active)
+        return par_error(result, "I require .par_begin before a passive node or end marker.");
+    if (strcmp(directive, "par_end") == 0) {
+        if (!require_line_end(p, result)) return false;
+        if (!state->par_node_active)
+            return par_error(result, "I require at least one node in a passive producer block.");
+        passive_patch(state, state->par_node_offset + 4, offset);
+        passive_patch(state, state->par_block_offset + 12, offset);
+        passive_patch(state, state->par_block_offset + 16, state->par_nodes);
+        passive_patch(state, 4, ++state->passive_blocks);
+        state->par_active = state->par_node_active = false;
+        return true;
+    }
+    uint32_t local;
+    if (!parse_uint32(&p, &local) || local > UINT16_MAX)
+        return par_error(result, "I require a local index after .par_node.");
+    if (state->par_node_active) passive_patch(state, state->par_node_offset + 4, offset);
+    state->par_node_offset = state->mod->passive_size;
+    uint32_t fields[] = {offset, 0, local, 0, 0, 0, 0};
+    for (unsigned i = 0; i < 7; ++i)
+        if (!passive_word(state, fields[i], result)) return false;
+    uint32_t count = 0;
+    for (;;) {
+        skip_whitespace(&p);
+        if (!*p) break;
+        uint32_t input;
+        if (!parse_uint32(&p, &input) || input > UINT16_MAX)
+            return par_error(result, "I require parameter indices after the passive result local.");
+        if (!passive_word(state, input, result)) return false;
+        ++count;
+    }
+    passive_patch(state, state->par_node_offset + 16, count);
+    ++state->par_nodes;
+    state->par_node_active = true;
+    return true;
+}
+
 static bool process_line(AsmState *state, const char *line, AsmResult *result) {
     const char *p = line;
     skip_whitespace(&p);
@@ -629,7 +734,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
         }
 
         /* I append lossless metadata chunks; normal verification checks the graph. */
+        if (strcmp(directive, "par_begin") == 0 || strcmp(directive, "par_node") == 0 ||
+            strcmp(directive, "par_end") == 0)
+            return par_directive(state, directive, p, result);
+
         if (strcmp(directive, "passive") == 0) {
+            if (state->passive_structured)
+                return par_error(result, "I cannot mix raw passive chunks and producer markers.");
             char hex[4096];
             uint32_t length;
             if (state->in_function || !parse_quoted_string(&p, hex, sizeof(hex), &length) ||
@@ -946,6 +1057,8 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
         }
 
         if (strcmp(directive, "end") == 0) {
+            if (state->par_active)
+                return par_error(result, "I require .par_end before ending the function.");
             if (!state->in_function) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),

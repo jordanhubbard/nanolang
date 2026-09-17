@@ -20,6 +20,32 @@
 #define NVM2C_MAX_LOCALS 1024
 #define NVM2C_CALL_SIZE (64 + NVM2C_MAX_LOCALS * 32)
 
+/* I inspect my generated executable text, not literal data or comments.
+ * This is an internal architecture assertion, not a C security validator. */
+static bool contains_vm_wrapper_code(const char *source) {
+    const char *p = source;
+    while (*p) {
+        if (*p == '"' || *p == '\'') {
+            char quote = *p++;
+            while (*p && *p != quote) {
+                if (*p == '\\' && p[1]) p++;
+                p++;
+            }
+            if (*p) p++;
+        } else if (p[0] == '/' && p[1] == '*') {
+            p += 2;
+            while (*p && !(p[0] == '*' && p[1] == '/')) p++;
+            if (*p) p += 2;
+        } else if (p[0] == '/' && p[1] == '/') {
+            while (*p && *p != '\n') p++;
+        } else {
+            if (!strncmp(p, "nano_vm", 7) || !strncmp(p, "nvm_blob", 8)) return true;
+            p++;
+        }
+    }
+    return false;
+}
+
 #define NVM2C_VK_INT 0
 #define NVM2C_VK_STR 1
 #define NVM2C_VK_UNK 2
@@ -275,7 +301,10 @@ static const Nvm2cHost host_adapters[] = {
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
- * an arbitrary artifact's ABI from its coarse NanoISA return tag. */
+ * an arbitrary artifact's ABI from its coarse NanoISA return tag. String
+ * results must be independent of argument storage, or copied by nhost_snapshot;
+ * I do not admit general interior-pointer/borrowed-input result contracts. The
+ * name/signature check trusts the artifact to implement this lifetime contract. */
 static const Nvm2cHost artifact_adapters[] = {
     /* I snapshot the facade's transient borrowed strings before its next call. */
     {"nlc_module_artifact", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
@@ -3674,6 +3703,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
             emit_map_roots(b, &st, fn, kinds, idx);
+            if (b->has_owned_strings) nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             char call[NVM2C_CALL_SIZE];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
@@ -3709,6 +3739,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_TAIL_CALL: {
             uint32_t callee = ins.operands[0].u32;
             emit_map_roots(b, &st, fn, kinds, idx);
+            if (b->has_owned_strings) nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             if (callee >= mod->function_count) {
                 nvm2c_fail(b, "function %u: TAIL_CALL target %u is out of range", idx, callee);
                 goto done;
@@ -3844,6 +3875,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             /* A host call may re-enter generated code through a callback. I
              * publish its caller before consuming the host arguments. */
             emit_map_roots(b, &st, fn, kinds, idx);
+            if (b->has_owned_strings) nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             const Nvm2cHost *host = import_host(mod, ins.operands[0].u32);
             if (!host) {
                 nvm2c_fail(b, "CALL_EXTERN has no exact builtin host ABI");
@@ -4082,16 +4114,38 @@ static int module_has_local_kind(const Nvm2cBuf *b, const uint8_t *kinds, uint32
 
 static void emit_nstr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "typedef struct nstr_owned { struct nstr_owned *next; char data[]; } nstr_owned;\n"
+        "typedef struct nstr_owned { struct nstr_owned *next; size_t bytes; char data[]; } nstr_owned;\n"
         "static nstr_owned *nstr_owners;\n"
+        "static size_t nstr_live_bytes, nstr_peak_bytes, nstr_allocation_debt;\n"
+        "static size_t nstr_collection_budget = 65536;\n"
         "static char *nstr_allocate(size_t n) {\n"
         "    if (n > SIZE_MAX - sizeof(nstr_owned) - 1) abort();\n"
-        "    nstr_owned *owner = malloc(sizeof *owner + n + 1);\n"
+        "    size_t bytes = sizeof(nstr_owned) + n + 1;\n"
+        "    if (bytes > SIZE_MAX - nstr_live_bytes || bytes > SIZE_MAX - nstr_allocation_debt) abort();\n"
+        "    nstr_owned *owner = malloc(bytes);\n"
         "    if (!owner) { abort(); } owner->next = nstr_owners; nstr_owners = owner;\n"
+        "    owner->bytes = bytes; nstr_live_bytes += bytes; nstr_allocation_debt += bytes;\n"
+        "    if (nstr_live_bytes > nstr_peak_bytes) nstr_peak_bytes = nstr_live_bytes;\n"
         "    owner->data[n] = 0; return owner->data;\n}\n"
         "static void nstr_release_owned(void) {\n"
         "    while (nstr_owners) { nstr_owned *owner = nstr_owners;\n"
-        "        nstr_owners = owner->next; free(owner); }\n}\n");
+        "        nstr_owners = owner->next; free(owner); }\n"
+        "    nstr_live_bytes = 0; nstr_allocation_debt = 0; nstr_collection_budget = 65536;\n}\n");
+}
+
+static void emit_nstr_sweep(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "/* I inspect known owners, never a header before an arbitrary borrowed pointer. */\n"
+        "static void nstr_sweep(const nroot_list *roots) {\n"
+        "    nstr_owned **link = &nstr_owners;\n"
+        "    while (*link) {\n"
+        "        nstr_owned *owner = *link;\n"
+        "        if (nroot_contains(roots, 1, owner->data)) link = &owner->next;\n"
+        "        else { *link = owner->next; nstr_live_bytes -= owner->bytes; free(owner); }\n"
+        "    }\n"
+        "    nstr_allocation_debt = 0;\n"
+        "    nstr_collection_budget = nstr_live_bytes > 65536 ? nstr_live_bytes : 65536;\n"
+        "}\n");
 }
 
 static void emit_nstr_concat(Nvm2cBuf *b) {
@@ -4823,6 +4877,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.err_len = err_len;
     b.record_width = 1;
     b.local_width = 1;
+    b.has_owned_strings = module_has_opcode(mod, OP_STR_CONCAT) ||
+        module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_CAST_STRING) ||
+        module_uses_host(mod, "nhost_from_char");
+    /* The tagged map runtime also provides shared frame/aggregate root tracing.
+     * String-only modules need that infrastructure, without requiring map opcodes. */
+    if (b.has_owned_strings) b.has_maps = 1;
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         const NvmFunctionEntry *fn = &mod->functions[f];
         if (fn->local_count > NVM2C_MAX_LOCALS) {
@@ -5244,6 +5304,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef nsarr_s *nsarr_t;\n");
         if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
         if (need_iarr) { b.has_integer_arrays = 1; emit_narr_storage(&b); }
+        if (b.has_owned_strings) emit_nstr_storage(&b);
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_runtime.inc"
@@ -5327,18 +5388,24 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_puts(&b,
 #include "nvm2c_map_roots.inc"
             );
+            if (b.has_owned_strings) emit_nstr_sweep(&b);
             nvm2c_puts(&b, "static void nmap_collect(void) {\n    nroot_list work = {0};\n"
                 "    for (nroot_frame *f = nroot_head; f; f = f->prev)\n"
                 "        for (size_t i = 0; i < f->live.count; ++i)\n"
                 "            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);\n");
             if (b.global_count) nvm2c_printf(&b,
                 "    for (size_t i = 0; i < %zu; ++i) nroot_value(&work, nglobal[i]);\n", b.global_count);
-            nvm2c_puts(&b, "    nroot_trace(&work); nroot_destroy(&work); nmap_sweep();\n"
+            nvm2c_puts(&b, "    nroot_trace(&work);\n");
+            if (b.has_owned_strings) nvm2c_puts(&b, "    nstr_sweep(&work);\n");
+            nvm2c_puts(&b, "    nroot_destroy(&work); nmap_sweep();\n"
                 "    nmap_allocation_debt = 0;\n}\n"
-                "/* I defer only without new owners: root mutations may retain old owners,\n"
-                " * but cannot grow their count. My next allocating safepoint traces fresh edges. */\n"
+                "/* I trace fresh mutable edges for map allocation debt or a string byte budget.\n"
+                " * Without allocation, dropped owners wait for the next allocating safepoint. */\n"
                 "static inline void nmap_collect_if_needed(void) {\n"
-                "    if (nmap_allocation_debt) nmap_collect();\n}\n");
+                "    if (nmap_allocation_debt");
+            if (b.has_owned_strings)
+                nvm2c_puts(&b, " || nstr_allocation_debt >= nstr_collection_budget");
+            nvm2c_puts(&b, ") nmap_collect();\n}\n");
         }
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
@@ -5351,9 +5418,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static void nrec_release_snapshots(void) {\n"
             "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
             "        nrec_owned_head = node->next; free(node); }\n}\n");
-        if (need_concat || need_cast || need_substr || module_uses_host(mod, "nhost_from_char")) {
-            b.has_owned_strings = 1; emit_nstr_storage(&b);
-        }
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
@@ -5473,7 +5537,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
 
     if (b.failed) goto fail;
-    if (strstr(b.data, "nano_vm") != NULL || strstr(b.data, "nvm_blob") != NULL) {
+    if (contains_vm_wrapper_code(b.data)) {
         nvm2c_fail(&b, "internal error: emitted a VM wrapper rather than structured C");
         goto fail;
     }

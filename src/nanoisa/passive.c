@@ -27,6 +27,34 @@ static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_BOOL || tag == TAG_FLOAT ||
            tag == TAG_U8 || tag == TAG_STRING;
 }
+/* A declaration is not a proof: the entry prefix checks the actual value. */
+static bool guarded_input(const NvmModule *m, uint32_t function,
+                          uint32_t input, uint32_t entry) {
+    const NvmFunctionEntry *f = &m->functions[function];
+    if (!m->function_param_types || !m->function_param_types[function]) return false;
+    uint32_t pc = f->code_offset, previous = 0;
+    bool first = true;
+    while (pc < entry) {
+        DecodedInstruction guard[3];
+        for (unsigned i = 0; i < 3; ++i) {
+            if (pc >= entry) return false;
+            uint32_t length = isa_decode(m->code + pc, entry - pc, &guard[i]);
+            if (!length) return false;
+            pc += length;
+        }
+        if (guard[0].opcode != OP_LOAD_LOCAL || guard[1].opcode != OP_TYPE_CHECK ||
+            guard[2].opcode != OP_ASSERT) return false;
+        uint32_t parameter = guard[0].operands[0].u16;
+        if (parameter >= f->arity || (!first && parameter <= previous)) return false;
+        uint8_t tag = m->function_param_types[function][parameter];
+        if (!scalar(tag) || tag == TAG_U8 || guard[1].operands[0].u8 != tag) return false;
+        if (parameter == input) return true;
+        if (parameter > input) return false;
+        previous = parameter;
+        first = false;
+    }
+    return false;
+}
 static bool allowed(uint8_t op) {
     switch (op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_F64: case OP_PUSH_BOOL:
@@ -79,7 +107,7 @@ static bool node_code(const NvmModule *m, const NvmFunctionEntry *f,
     return ok && depth == 0;
 }
 static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
-                  uint32_t *previous_exit, bool first) {
+                  uint32_t *previous_exit, bool first, uint32_t version) {
     uint32_t kind = word(r), function = word(r), entry = word(r), exit = word(r), count = word(r);
     if (!r->ok || (kind != 1 && kind != 2) || function >= m->function_count ||
         !count || count > r->left / 28 || entry >= exit || exit > m->code_size) return false;
@@ -97,7 +125,7 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
         uint32_t effects = word(r), resources = word(r);
         if (!r->ok || effects || resources || n->entry < entry || n->exit > exit ||
             n->entry >= n->exit || n->result < f->arity || n->result >= f->local_count ||
-            n->dependencies > count || n->reads != 0 ||
+            n->dependencies > count || (version == 1 && n->reads != 0) ||
             (uint64_t)n->dependencies + n->reads > r->left / 4 || (kind == 1 && n->dependencies)) { ok = false; break; }
         n->deps = r->p;
         for (uint32_t j = 0; j < n->dependencies; ++j) {
@@ -109,7 +137,8 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
             uint32_t input = word(r);
             if (input >= f->arity || (j && input <= at(n->inputs, j - 1)) ||
                 !m->function_param_types || !m->function_param_types[function] ||
-                (input < f->arity && !scalar(m->function_param_types[function][input]))) ok = false;
+                (input < f->arity && (!scalar(m->function_param_types[function][input]) ||
+                 !guarded_input(m, function, input, entry)))) ok = false;
         }
         for (uint32_t j = 0; j < i; ++j) if (nodes[j].result == n->result) ok = false;
     }
@@ -138,13 +167,15 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
         if (!length) { ok = false; break; }
         if (!allowed(d.opcode) && d.opcode != OP_JMP && d.opcode != OP_JMP_TRUE &&
             d.opcode != OP_JMP_FALSE && d.opcode != OP_RET && d.opcode != OP_HALT &&
-            d.opcode != OP_PRINT && d.opcode != OP_PRINTLN && d.opcode != OP_ASSERT) {
+            d.opcode != OP_PRINT && d.opcode != OP_PRINTLN && d.opcode != OP_ASSERT &&
+            !(version == 2 && d.opcode == OP_TYPE_CHECK)) {
             ok = false; break;
         }
         if (pc == entry) saw_entry = true;
         if (pc == exit) saw_exit = true;
         if (d.opcode == OP_JMP || d.opcode == OP_JMP_TRUE || d.opcode == OP_JMP_FALSE) {
-            int64_t target = (int64_t)pc + length + d.operands[0].i32;
+            /* Relative branches use the instruction start, as in the ISA verifier. */
+            int64_t target = (int64_t)pc + d.operands[0].i32;
             if (target > entry && target < exit) ok = false;
         }
         if (d.opcode == OP_STORE_LOCAL) {
@@ -164,9 +195,9 @@ bool nvm_passive_valid(const NvmModule *m) {
     if (!m->passive_data || !m->code || !m->functions) return false;
     Reader r = {m->passive_data, m->passive_size, true};
     uint32_t version = word(&r), count = word(&r);
-    if (!r.ok || version != 1 || !count || count > r.left / 48) return false;
+    if (!r.ok || (version != 1 && version != 2) || !count || count > r.left / 48) return false;
     uint32_t function = 0, exit = 0;
     for (uint32_t i = 0; i < count; ++i)
-        if (!block(&r, m, &function, &exit, i == 0)) return false;
+        if (!block(&r, m, &function, &exit, i == 0, version)) return false;
     return r.ok && r.left == 0;
 }

@@ -121,6 +121,31 @@ static void table_failures(void) {
     asm_state_cleanup(&state);
     assert(!outstanding);
 }
+static void passive_allocation_failures(void) {
+    AsmState state = {0};
+    state.mod = nvm_module_new();
+    assert(state.mod);
+    AsmResult result = {0};
+    reject_growth = 1;
+    assert(!passive_word(&state, 2, &result));
+    assert(result.error == ASM_ERR_MEMORY && !state.mod->passive_data);
+    assert(!state.mod->passive_size && !outstanding);
+    reject_growth = 0;
+    for (uint32_t i = 0; i < 32; ++i) assert(passive_word(&state, i, &result));
+    uint8_t *previous = state.mod->passive_data;
+    reject_growth = 1;
+    assert(!passive_word(&state, 32, &result));
+    assert(result.error == ASM_ERR_MEMORY && state.mod->passive_data == previous);
+    assert(state.mod->passive_size == 128 && state.mod->passive_data[124] == 31);
+    reject_growth = 0;
+    assert(passive_word(&state, 32, &result));
+    assert(state.mod->passive_size == 132);
+    literal_free(state.mod->passive_data);
+    state.mod->passive_data = NULL;
+    state.mod->passive_size = 0;
+    nvm_module_free(state.mod);
+    assert(!outstanding);
+}
 static void function_failures(void) {
     AsmState state = {0};
     state.mod = nvm_module_new();
@@ -149,6 +174,7 @@ static void function_failures(void) {
 }
 int main(void) {
     function_failures();
+    passive_allocation_failures();
     literal_failures();
     table_failures();
     puts("I passed literal failures, table growth, duplicate distinctions and allocation recovery.");
