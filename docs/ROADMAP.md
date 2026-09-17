@@ -83,6 +83,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       declarations. I test typed constant maps, empty string arrays, and
       rejected mismatches through my native and VM frontends.
       MAC: `task_026e73d59e9e45b0b732b43883feea9a`.
+- [ ] **Restore compiler AOT artifact binding.** I preserve exact library
+      bindings and typed adapters for the NanoISA facade imports introduced by
+      my canonical bytecode route. My unchanged main baseline rejects import
+      `nl_nanoisa_load_print` during compiler-bytecode translation. I retain
+      that rejection until a correct binding exists, then require generated
+      native compiler execution and continued rejection of unsupported imports.
+      MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
+      `docs/evidence/compiler-aot-artifact-binding-gap.md`.
 
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
