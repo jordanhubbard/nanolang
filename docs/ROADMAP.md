@@ -263,6 +263,24 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       Darwin generated-C regressions now pass with all 2,418 native translator
       checks and 1,092 shape checks
       (`task_6363b1e55bd145749ef892d71a552735`).
+- [ ] I select and validate one coherent Darwin SDK/libffi toolchain for release
+      qualification (`task_5bdfd4ed14eb27b98bd509243c4af9a1`). On Darwin
+      26.6.2 at `045fb5a2`, Command Line Tools select Clang 21 and
+      `/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk` version 27.0, while
+      Homebrew's `libffi.pc` comes from
+      `/opt/homebrew/Library/Homebrew/os/mac/pkgconfig/26` and injects the
+      `MacOSX26.sdk/usr/include/ffi` path. The actual default-budget
+      `make bootstrap1` emits `ld: warning: ignoring unexpected dylib` for the
+      SDK 27 `libSystem.B.tbd`, then completes Stage 1 and its hello smoke. A
+      full `make test-quick` at `765ec87b` also passes under the default shadow
+      deadline while emitting the same warning, including all 244 eligible VM
+      examples. A trivial libffi link does not emit the warning, so I do not
+      claim the mixed include path is its cause. I will isolate the
+      generated-product link closure, preserve explicit `LIBFFI_CFLAGS` and
+      `LIBFFI_LIBS` overrides, add a bounded preflight or regression, remove
+      the bootstrap warning and rerun `make test-quick` without widening the
+      shadow deadline. The fleet verifier image's missing `ffi.h` task 865
+      remains separate unless shared evidence establishes one cause.
 - [x] I complete unchanged-calculator acceptance through both producers (MAC `task_668e98f3e13e4fcebb3a2f92e671c713`, checked conversion `task_b927827f37734658bce360d7ecf913aa` and builtin ownership child `task_7f2b7373646341d5a317f374d302e390`). Both retained modules print `Result: 3.14159` and pass GCC ASan/UBSan/LSan plus strict Clang after PR553; [evidence](evidence/native-host-string-ownership.md). The earlier two-byte argv-copy leak is resolved history. Generic artifact-result ownership under parent `task_d5f899966241452a900422938fff3265` remains open.
 - [x] I emit the registered C-seed `string_to_float` helper (`task_5909147f37c2478a8c07494935d7e24a`). The real conversion fixture reached an implicit-declaration error; I retain that failure and match the existing interpreter/self-hosted `strtod` contract.
 - [x] I align legacy interpreter and C-emitter float-to-int helpers with the checked conversion policy (`task_f801bf5769f9489da5ea973574dd156c`). Static inspection found direct double-to-integer casts; NanoISA validation does not cover those paths. I use the same finite `[-2^63, 2^63)` interval and diagnostic as NanoISA before conversion. A fresh bootstrap and 64 interpreter/C-seed/Stage-1/Stage-2 cases pass; [evidence](evidence/legacy-float-conversion.md).
