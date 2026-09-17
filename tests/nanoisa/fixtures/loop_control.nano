@@ -1,0 +1,65 @@
+fn nested(limit: int) -> int {
+    let mut outer: int = 0
+    let mut total: int = 0
+    while (< outer limit) {
+        set outer (+ outer 1)
+        let mut inner: int = 0
+        while (< inner 5) {
+            set inner (+ inner 1)
+            if (== inner 2) { continue assert false }
+            if (== inner 4) { break assert false }
+            set total (+ total inner)
+        }
+        if (== outer 2) { continue assert false }
+        set total (+ total 10)
+    }
+    return total
+}
+shadow nested {
+    assert (== (nested 0) 0)
+    assert (== (nested 1) 14)
+    assert (== (nested 3) 32)
+}
+
+fn exit_outer() -> int {
+    let mut count: int = 0
+    while true {
+        set count (+ count 1)
+        while true { break assert false }
+        if (== count 2) { break assert false }
+    }
+    return count
+}
+shadow exit_outer { assert (== (exit_outer) 2) }
+
+fn condition_after_continue(limit: int) -> int {
+    let mut count: int = 0
+    while (< count limit) {
+        set count (+ count 1)
+        continue
+        assert false
+    }
+    return count
+}
+shadow condition_after_continue { assert (== (condition_after_continue 3) 3) }
+
+fn branch_targets() -> int {
+    let mut count: int = 0
+    while true {
+        set count (+ count 1)
+        if (< count 3) { continue } else { break }
+        assert false
+    }
+    return count
+}
+shadow branch_targets { assert (== (branch_targets) 3) }
+
+fn main() -> int {
+    assert (== (nested 0) 0)
+    assert (== (nested 3) 32)
+    assert (== (exit_outer) 2)
+    assert (== (condition_after_continue 3) 3)
+    assert (== (branch_targets) 3)
+    return 0
+}
+shadow main { assert (== (main) 0) }

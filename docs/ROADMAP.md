@@ -12,7 +12,7 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**The full 5.0 roadmap is my active completion contract.** On 2026-09-16
+**The full 5.0 roadmap is my v5.0.1 completion contract.** On 2026-09-16
 my user explicitly selected every 5.0 obligation, including NanoISA-only
 compilation and matching Stage 1/Stage 2 bytecode. My published
 [`v5.0.0`](https://github.com/jordanhubbard/nanolang/releases/tag/v5.0.0)
@@ -20,7 +20,9 @@ contains tested language/runtime repairs, but it does not complete that
 architecture. `docs/RELEASE_5.0.md` records that historical release;
 `docs/NANOISA_ONLY.md` and the unchecked 5.0 milestones below govern the
 remaining work. I preserve the published tag and do not redefine an unfinished
-gate as complete. Phase 22 / 6.0 remains separate.
+gate as complete. My user assigned all remaining work to v5.0.1 on
+2026-09-16. I hold release publication until these gates pass; the native map
+lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separate.
 
 ## Active Execution Queue
 
@@ -40,13 +42,52 @@ gate as complete. Phase 22 / 6.0 remains separate.
       Long module names also expose silent truncation in my native formatted
       output builder; I retain complete generated identities and test execution.
 
+- [ ] **Map constructor diagnostics.** I resolve NanoVirt success accompanied
+      by `map_new` type errors for direct returns and nested calls, preserving
+      real type rejection and checking output publication.
+      MAC `task_306e982151974f42bd7c191ad017201a`.
+
+- [x] **Emitter build diagnostics.** I retain each native function parameter's
+      declared nominal metadata instead of inheriting a same-name parameter
+      from another function. Three regressions pass, real wrong-field access
+      remains rejected, and the emitter builds without the spurious E004 errors.
+      MAC `task_233ab81a36a0437db947eb11a8a4421b`.
+
+- [x] **Emitter source preservation.** I reject input/output identity aliases
+      before assembly or bytecode publication, including hardlinks and symlinks.
+      I fail closed on identity errors and test unchanged source bytes.
+      MAC `task_f430ed807f1743fdafc2f95cf67cb530`. Five driver tests pass,
+      including both output modes, four alias forms and identity errors.
+
+- [x] **Inline union match metadata.** I preserve the union identity of
+      variant literals in expression and statement matches, and test payloads,
+      side effects and lexical returns across interpreter, native and VM paths.
+      All four cross-backend regressions and the typechecker suite pass.
+      MAC `task_c28c39b66f704cf8af71827955c9edc0`.
+
+- [x] **Callee snapshots in VM and interpreter.** I evaluate function values
+      before argument side effects and retain the interpreter callee name until
+      invocation completes. Both paths pass mutable-binding and computed-callee
+      regressions; the previous VM fails both. The evaluator suite and all
+      89 NanoVirt tests pass.
+      MAC `task_8555af61281944eb9ac4ca9043849a94`.
+
+- [x] **Standalone VM guest arguments for v5.0.1.** I separate VM options
+      from guest arguments with `--`, expose the module path as guest argument
+      zero, preserve empty arguments, and reject ambiguous module paths and
+      unsupported daemon argument transport. I test compiler-style flags.
+      Five regression methods pass, including a bytecode emitter invocation
+      that produces and executes the Cut A addition module with result 42.
+      This is driver coverage, not compiler bytecode fixed-point acceptance.
+      MAC `task_d36776ab4ed143118c577f74f88ad3be`.
+
 - [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
       the published `v5.0.0` tag and restore the released compiler, tests and
       documentation removed by the reviewed whole-tree replacement. I preserve
       the intended call-order fix separately and require a focused reapplication.
       MAC `task_3665bd4322b35fb959ef77a46f761a0a`.
 
-- [ ] **Complete the full 5.0 acceptance contract.** I reconcile dated and
+- [ ] **Complete the full 5.0 acceptance contract for v5.0.1.** I reconcile dated and
       duplicate ledger entries against current code, then complete the remaining
       5.0 work in dependency order. I distinguish a closed repair from a complete
       architectural milestone. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
@@ -65,6 +106,39 @@ gate as complete. Phase 22 / 6.0 remains separate.
       - [ ] I close the other explicit 5.0 audits against measured evidence,
         update the documentation and run full platform acceptance before a
         subsequent release claims the complete roadmap.
+
+- [ ] **Inline union literal match dispatch.** I resolve the union type when
+      matching a constructed literal directly, preserving branch values and side
+      effects instead of emitting an unknown-union zero placeholder.
+      MAC `task_c28c39b66f704cf8af71827955c9edc0`.
+
+- [ ] **Mutable callee capture across backends.** I retain a named function
+      value before its argument expressions mutate that binding. I repair my
+      interpreter's invalid-name lifetime and my VM's replacement-callee call,
+      preserving the original call and subsequent replacement behavior.
+      MAC `task_8555af61281944eb9ac4ca9043849a94`.
+
+- [x] **Native call argument ordering restoration.** I restore ordinary and
+      module-qualified argument evaluation once in source order on the corrected
+      release tree. I preserve effects, foreign ABI checks and existing lowering,
+      test nested calls, mutable callee capture and temporary-name collisions,
+      and submit only the focused patch.
+      MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
+
+- [x] **Isolated NanoISA facade shadows.** I replace shared temporary fixture
+      names with exclusive directories, retain assembly/load/error assertions,
+      and verify concurrent execution and cleanup.
+      MAC `task_a91eb62cd7ca44b1b9b6a1865a5f2300`.
+      `make test-nanoisa-shadow-isolation` passes four concurrent compiler
+      runs, fixture cleanup, prior sentinel preservation and unavailable-temp
+      rejection without an output artifact.
+
+- [x] **Self-hosted NanoISA driver module output.** I add explicit `--emit-nvm`
+      through my assembler facade, verify deterministic v2 bytes and publish with
+      atomic output replacement. I preserve prior files on failure and test VM
+      and native execution while retaining the C-seed-hosted subset boundary.
+      MAC `task_1b6ed994e19447f6b58305aa52768548`.
+      Evidence: [driver module output](evidence/nanoisa-driver-module-output.md).
 
 - [x] **Hosted VM example shadow budget.** I allow a finite explicit
       budget for instrumented VM-example compiler children while preserving
@@ -606,7 +680,7 @@ gate as complete. Phase 22 / 6.0 remains separate.
           focused tests require at most 16 live map/string owners and zero
           after entry cleanup. Remaining PR ancestry reconciliation stays open.
           Evidence: `docs/evidence/native-map-root-lifetimes.md`.
-        - [ ] **5.0.1 / caller-safe native map reclamation.** I ship the
+        - [x] **5.0.1 / caller-safe native map reclamation.** I ship the
           registered-frame repair after verifying globals, nested and mutable
           aggregates, scalar-float safepoints, backward branches, self-tail
           restarts and non-self tail teardown under ASan/UBSan. MAC
@@ -7891,6 +7965,49 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower compiler-required `string_to_int` after map transport; real
+      compiler emission first refuses that builtin
+      (`task_62d9f8ab389e4299b1b16a33ed591630`). I require C-seed and VM/native parity.
+- [x] I expose one parsed-program lowering entrypoint for my canonical
+      compiler after module merging and typechecking, retaining the raw-source
+      wrapper and testing identical assembly and state reset
+      (`task_4dfcc41fa8e147848662f6e3965746d9`).
+- [x] I lower the compiler-required `HashMap<string,int>` result/local/call
+      shapes and operations with C-seed and VM/native parity
+      (`task_2c74662f99d44f7faac1fe7427e44325`). Real compiler emission first
+      reaches this unsupported result type after host-import lowering.
+- [x] I lower declared host extern imports and the compiler-required `getenv`
+      builtin in my self-hosted NanoISA emitter (task_cc32b93698db405696235e96ce8fc194).
+      I preserve explicit supported signatures and ABI metadata, compare the
+      C-seed output, execute VM/native calls and refuse unsupported imports.
+- [x] I lower loop `break` and `continue` in my NanoISA emitter
+      (task_942fb307760a4460a49eb49986049103), including nested-loop targets and
+      out-of-loop refusal. Twelve named bytecode checks and both VM/native
+      executions pass, including nested loops and unreachable statements.
+      Real compiler emission passes `parse_options` and next refuses
+      `getenv`, which needs host-builtin lowering (2026-09-16).
+- [x] I lower void-result functions and zero-result call statements in my
+      self-hosted NanoISA emitter (task_862889b9369e4511a465fe838e69224e), including
+      bare and implicit returns. I require C-seed bytecode comparisons and
+      VM/native execution, without claiming complete compiler emission.
+      My gate passes 86 baseline checks, 14 void-function bytecode checks,
+      VM/native execution and four result-count refusals (2026-09-16).
+      The driver next stops at its unresolved imported `nanoisa_emit_nasm`.
+- [x] I infer projected string-field expressions and supported builtin string
+      results in my NanoISA emitter (task_8e367aeda3394b0bb1ed1c37f56edeef).
+      I select generic bool equality instead of I64_EQ and retain rejection
+      of mixed scalar comparisons. Ten new named bytecode checks and both
+      VM/native executions pass; four mixed-type forms remain refused.
+      Real compiler emission passes `c_source_output_path` and next reaches
+      the loop-control boundary above (2026-09-16).
+- [x] I lower boolean fields and record-valued returns for my supported flat
+      records in the self-hosted NanoISA emitter (task_7eb936723f594d5b81c6cd307dc25e6d).
+      I compare C-seed bytecode, execute VM/native construction, projection
+      and returned records, retain nested-record refusal, and retry compiler
+      emission to identify the next unsupported form. This is a compiler-subset
+      slice; matching compiler bytecode across bootstrap stages remains open.
+      My focused gate passes 86 existing comparisons and ten new named-function
+      checks, both VM/native executions, and nested-record refusal (2026-09-16).
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
 - [x] Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits `.nasm` for

@@ -2195,10 +2195,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
          * entry in the function table is not a substitute for that value. */
         int16_t callable_slot = name ? local_find(cg, name) : -1;
         int16_t callable_upvalue = name && callable_slot < 0 ? upvalue_resolve(cg, name) : -1;
-        if (callable_slot >= 0 || callable_upvalue >= 0) {
-            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
-            if (callable_slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)callable_slot);
+        if (callable_slot >= 0 || callable_upvalue >= 0 || node->as.call.func_expr) {
+            /* I snapshot the callee before arguments can mutate its binding. */
+            if (node->as.call.func_expr) compile_expr(cg, node->as.call.func_expr);
+            else if (callable_slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)callable_slot);
             else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            uint16_t saved_callee = local_add(cg, "", node->line);
+            emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
+            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
+            emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,
                     check_expression(node, cg->env) == TYPE_VOID ? 0 : 1);
             break;

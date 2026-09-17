@@ -34,6 +34,20 @@ static const NvmFunctionEntry *fn_by_name(const NvmModule *m, const char *name) 
     return NULL;
 }
 
+static int imports_equal(const NvmModule *a, const NvmModule *b) {
+    if (a->import_count != b->import_count) return 0;
+    for (uint32_t i = 0; i < a->import_count; ++i) {
+        const NvmImportEntry *x = &a->imports[i], *y = &b->imports[i];
+        if (strcmp(nvm_get_string(a, x->module_name_idx), nvm_get_string(b, y->module_name_idx)) ||
+            strcmp(nvm_get_string(a, x->function_name_idx), nvm_get_string(b, y->function_name_idx)) ||
+            x->param_count != y->param_count || x->return_type != y->return_type || x->kind != y->kind)
+            return 0;
+        if (x->param_count && memcmp(a->import_param_types[i], b->import_param_types[i], x->param_count))
+            return 0;
+    }
+    return 1;
+}
+
 static int code_equal(const NvmModule *a, const NvmFunctionEntry *fa,
                       const NvmModule *b, const NvmFunctionEntry *fb) {
     size_t pa;
@@ -174,6 +188,24 @@ int main(int argc, char **argv) {
         printf("    assemble: %s (line %u)\n", asm_err.message, asm_err.line);
         nvm_module_free(c_mod);
         return 1;
+    }
+
+    /* Optional named fixtures share the same operand-aware bytecode check. */
+    if (argc > 3) {
+        for (int i = 3; i < argc; ++i) {
+            if (strcmp(argv[i], "--imports") == 0) {
+                CHECK(imports_equal(c_mod, s_mod), "ordered import names, kinds and signatures match");
+                continue;
+            }
+            const NvmFunctionEntry *c_fn = fn_by_name(c_mod, argv[i]);
+            const NvmFunctionEntry *s_fn = fn_by_name(s_mod, argv[i]);
+            CHECK(c_fn && s_fn, argv[i]);
+            CHECK(code_equal(c_mod, c_fn, s_mod, s_fn), argv[i]);
+        }
+        nvm_module_free(c_mod);
+        nvm_module_free(s_mod);
+        printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
+        return g_fail ? 1 : 0;
     }
 
     CHECK(c_mod->function_count >= 39, "C seed emitted add through via_one_t");

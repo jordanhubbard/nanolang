@@ -437,7 +437,7 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_map_lifetimes
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_map_lifetimes tests.test_nanovm_guest_args
 
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
@@ -507,7 +507,7 @@ nanoisa_emit: $(COMPILER_C) | bin
 	$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
 
 .PHONY: test-nanoisa-src-nano
-test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running src_nano NanoISA Cut A comparison..."
 	$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_add.nano --emit-nvm --strip-debug \
 		-o /tmp/nanolang_cut_a_c.nvm
@@ -516,6 +516,7 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 		tests/nanoisa/test_nanoisa_src_nano.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
 		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
+	@python3 -m unittest -v tests.test_nanoisa_flat_records
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
 
 .PHONY: nanoisa_dump
@@ -619,7 +620,7 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 test-collection-array-exports:
 	python3 -m unittest tests.test_collection_array_exports
 
-test-units: test-collection-array-exports
+test-units: test-native-call-argument-order test-collection-array-exports
 .PHONY: test-filesystem-array-exports
 test-filesystem-array-exports:
 	python3 -m unittest tests.test_filesystem_array_exports
@@ -1744,7 +1745,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-logic test-frontend-matrix test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-nanoisa-src-nano test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
+test-units: test-inline-union-match test-callee-snapshots test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-logic test-frontend-matrix test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-nanoisa-src-nano test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -4093,3 +4094,29 @@ release-minor:
 release-major:
 	@echo "Creating major release..."
 	@$(RELEASE_TIMEOUT_CMD) ./scripts/release.sh major
+
+.PHONY: test-callee-snapshots
+test-callee-snapshots: $(INTERPRETER) nano_virt
+	@python3 -m unittest tests.test_callee_snapshots
+.PHONY: test-native-call-argument-order
+test-native-call-argument-order: $(COMPILER_C) $(INTERPRETER) nano_virt nano_vm
+	@python3 -m unittest tests.test_native_call_argument_order
+
+.PHONY: test-inline-union-match
+test-inline-union-match: $(COMPILER_C) $(INTERPRETER) nano_virt
+	@python3 -m unittest tests.test_inline_union_match
+
+test-units: test-nanoisa-emit-driver
+.PHONY: test-nanoisa-emit-driver
+test-nanoisa-emit-driver: nanoisa_emit nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest tests.test_nanoisa_emit_driver
+
+.PHONY: test-nanoisa-shadow-isolation
+test-units: test-nanoisa-shadow-isolation
+test-nanoisa-shadow-isolation: $(COMPILER_C)
+	@python3 -m unittest tests.test_nanoisa_shadow_isolation
+
+.PHONY: test-parameter-nominal-metadata
+test-units: test-parameter-nominal-metadata
+test-parameter-nominal-metadata: $(COMPILER_C)
+	@python3 -m unittest tests.test_parameter_nominal_metadata

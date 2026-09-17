@@ -1,0 +1,55 @@
+struct CompileOptions {
+    enabled: bool,
+    count: int,
+    label: string,
+    quiet: bool
+}
+
+fn make_options(enabled: bool) -> CompileOptions {
+    return CompileOptions { enabled: enabled, count: 42, label: "ready", quiet: false }
+}
+shadow make_options {
+    let options: CompileOptions = (make_options true)
+    assert options.enabled
+    assert (not options.quiet)
+    assert (== options.count 42)
+    let label: string = options.label
+    assert (== label "ready")
+}
+
+fn relay_options(enabled: bool) -> CompileOptions {
+    return (make_options enabled)
+}
+shadow relay_options {
+    let options: CompileOptions = (relay_options false)
+    assert (not options.enabled)
+    assert (not options.quiet)
+}
+
+fn check_options(options: CompileOptions, expected: bool) -> int {
+    if expected {
+        assert options.enabled
+    } else {
+        assert (not options.enabled)
+    }
+    assert (not options.quiet)
+    assert (== options.count 42)
+    let label: string = options.label
+    assert (== label "ready")
+    return options.count
+}
+shadow check_options {
+    assert (== (check_options (make_options true) true) 42)
+    assert (== (check_options (make_options false) false) 42)
+}
+
+fn main() -> int {
+    let on: CompileOptions = (make_options true)
+    let off: CompileOptions = (relay_options false)
+    assert (== (check_options on true) 42)
+    assert (== (check_options off false) 42)
+    assert on.enabled
+    assert (not off.enabled)
+    return 0
+}
+shadow main { assert (== (main) 0) }

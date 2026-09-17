@@ -5,6 +5,7 @@ from "modules/std/fs.nano" import write, delete
 extern fn nl_nanoisa_load_print(_path: string) -> string
 extern fn nl_nanoisa_load_pretty(_path: string) -> string
 extern fn nl_nanoisa_assemble_save(_nasm_path: string, _nvm_path: string) -> int
+extern fn nl_nanoisa_assemble_text_save(_source: string, _path: string) -> int
 extern fn nl_nanoisa_last_error() -> string
 
 pub fn load_print(path: string) -> string {
@@ -14,20 +15,25 @@ pub fn load_print(path: string) -> string {
 }
 
 shadow load_print {
-    let nasm_path: string = "/tmp/nanoisa_load_print_shadow.nasm"
-    let nvm_path: string = "/tmp/nanoisa_load_print_shadow.nvm"
-    let source: string = ".function main 0 0 0 void 0\n  HALT\n.end\n"
-    assert (== (write nasm_path source) 0)
-    assert (== (assemble_save nasm_path nvm_path) 0)
-    assert (str_contains (load_print nvm_path) "HALT")
-    assert (not (str_contains (load_print nvm_path) "[0000|"))
-    (delete nasm_path)
-    (delete nvm_path)
-    let bad_path: string = "/tmp/nanoisa_load_print_bad.nvm"
-    assert (== (write bad_path "BAD!0000000000000000000000000000") 0)
-    assert (== (load_print bad_path) "")
-    assert (str_contains (last_error) "magic")
-    (delete bad_path)
+    let directory: string = (mktemp_dir "nanoisa_load_print_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let nasm_path: string = (+ directory "/nanoisa_load_print_shadow.nasm")
+        let nvm_path: string = (+ directory "/nanoisa_load_print_shadow.nvm")
+        let source: string = ".function main 0 0 0 void 0\n  HALT\n.end\n"
+        assert (== (write nasm_path source) 0)
+        assert (== (assemble_save nasm_path nvm_path) 0)
+        assert (str_contains (load_print nvm_path) "HALT")
+        assert (not (str_contains (load_print nvm_path) "[0000|"))
+        (delete nasm_path)
+        (delete nvm_path)
+        let bad_path: string = (+ directory "/nanoisa_load_print_bad.nvm")
+        assert (== (write bad_path "BAD!0000000000000000000000000000") 0)
+        assert (== (load_print bad_path) "")
+        assert (str_contains (last_error) "magic")
+        (delete bad_path)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn load_pretty(path: string) -> string {
@@ -37,21 +43,26 @@ pub fn load_pretty(path: string) -> string {
 }
 
 shadow load_pretty {
-    let nasm_path: string = "/tmp/nanoisa_load_pretty_shadow.nasm"
-    let nvm_path: string = "/tmp/nanoisa_load_pretty_shadow.nvm"
-    let source: string = ".function helper 0 0 0 void 0\n  RET\n.end\n"
-    assert (== (write nasm_path source) 0)
-    assert (== (assemble_save nasm_path nvm_path) 0)
-    let output: string = (load_pretty nvm_path)
-    assert (str_contains output "NVM module")
-    assert (str_contains output "Functions")
-    (delete nasm_path)
-    (delete nvm_path)
-    let bad_path: string = "/tmp/nanoisa_load_pretty_bad.nvm"
-    assert (== (write bad_path "BAD!0000000000000000000000000000") 0)
-    assert (== (load_pretty bad_path) "")
-    assert (str_contains (last_error) "magic")
-    (delete bad_path)
+    let directory: string = (mktemp_dir "nanoisa_load_pretty_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let nasm_path: string = (+ directory "/nanoisa_load_pretty_shadow.nasm")
+        let nvm_path: string = (+ directory "/nanoisa_load_pretty_shadow.nvm")
+        let source: string = ".function helper 0 0 0 void 0\n  RET\n.end\n"
+        assert (== (write nasm_path source) 0)
+        assert (== (assemble_save nasm_path nvm_path) 0)
+        let output: string = (load_pretty nvm_path)
+        assert (str_contains output "NVM module")
+        assert (str_contains output "Functions")
+        (delete nasm_path)
+        (delete nvm_path)
+        let bad_path: string = (+ directory "/nanoisa_load_pretty_bad.nvm")
+        assert (== (write bad_path "BAD!0000000000000000000000000000") 0)
+        assert (== (load_pretty bad_path) "")
+        assert (str_contains (last_error) "magic")
+        (delete bad_path)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn assemble_save(nasm_path: string, nvm_path: string) -> int {
@@ -61,14 +72,30 @@ pub fn assemble_save(nasm_path: string, nvm_path: string) -> int {
 }
 
 shadow assemble_save {
-    let nasm_path: string = "/tmp/nanoisa_assemble_save_shadow.nasm"
-    let nvm_path: string = "/tmp/nanoisa_assemble_save_shadow.nvm"
-    let source: string = ".function test 0 0 0 void 0\n  RET\n.end\n"
-    assert (== (write nasm_path source) 0)
-    assert (== (assemble_save nasm_path nvm_path) 0)
-    assert (> (str_length (load_print nvm_path)) 0)
-    (delete nasm_path)
-    (delete nvm_path)
+    let directory: string = (mktemp_dir "nanoisa_assemble_save_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let nasm_path: string = (+ directory "/nanoisa_assemble_save_shadow.nasm")
+        let nvm_path: string = (+ directory "/nanoisa_assemble_save_shadow.nvm")
+        let source: string = ".function test 0 0 0 void 0\n  RET\n.end\n"
+        assert (== (write nasm_path source) 0)
+        assert (== (assemble_save nasm_path nvm_path) 0)
+        assert (> (str_length (load_print nvm_path)) 0)
+        (delete nasm_path)
+        (delete nvm_path)
+        assert (== (delete directory) 0)
+    }
+}
+
+# I preserve an existing output until complete verified v2 bytes are ready.
+pub fn assemble_text_save(source: string, path: string) -> int {
+    unsafe {
+        return (nl_nanoisa_assemble_text_save source path)
+    }
+}
+
+shadow assemble_text_save {
+    assert (!= (assemble_text_save "" "") 0)
 }
 
 pub fn last_error() -> string {
@@ -78,6 +105,11 @@ pub fn last_error() -> string {
 }
 
 shadow last_error {
-    assert (== (load_print "/tmp/nanoisa_missing_file.nvm") "")
-    assert (> (str_length (last_error)) 0)
+    let directory: string = (mktemp_dir "nanoisa_last_error_")
+    assert (!= directory "")
+    if (!= directory "") {
+        assert (== (load_print (+ directory "/nanoisa_missing_file.nvm")) "")
+        assert (> (str_length (last_error)) 0)
+        assert (== (delete directory) 0)
+    }
 }

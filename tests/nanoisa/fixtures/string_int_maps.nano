@@ -1,0 +1,49 @@
+fn fresh() -> HashMap<string,int> {
+    let values: HashMap<string,int> = (map_new)
+    return values
+}
+shadow fresh { assert (not (map_has (fresh) "missing")) }
+fn relay() -> HashMap<string,int> { return (fresh) }
+shadow relay { assert (== (map_size (relay)) 0) }
+fn put(values: HashMap<string,int>, key: string, value: int) -> void {
+    (map_put values key value)
+}
+shadow put {
+    let values: HashMap<string,int> = (fresh)
+    (put values "answer" 42)
+    assert (== (map_get values "answer") 42)
+}
+fn add(values: HashMap<string,int>, key: string) -> HashMap<string,int> {
+    if (not (map_has values key)) { (map_set values key 1) }
+    return values
+}
+shadow add {
+    let values: HashMap<string,int> = (fresh)
+    let updated: HashMap<string,int> = (add values "one")
+    assert (== (map_get updated "one") 1)
+    assert (map_has values "one")
+}
+fn has(values: HashMap<string,int>, key: string) -> bool { return (map_has values key) }
+shadow has { assert (not (has (fresh) "absent")) }
+fn read(values: HashMap<string,int>, key: string) -> int { return (map_get values key) }
+shadow read {
+    let values: HashMap<string,int> = (fresh)
+    (put values "zero" 0)
+    assert (== (read values "zero") 0)
+}
+fn main() -> int {
+    let values: HashMap<string,int> = (relay)
+    (put values "answer" 42)
+    assert (== (read values "answer") 42)
+    assert (not (has values "missing"))
+    (map_set values "answer" 0)
+    assert (has values "answer")
+    assert (== (read values "answer") 0)
+    let alias: HashMap<string,int> = (add values "one")
+    assert (== (map_length alias) 2)
+    assert (== (map_length values) 2)
+    let empty: HashMap<string,int> = (map_new)
+    assert (== (map_size empty) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

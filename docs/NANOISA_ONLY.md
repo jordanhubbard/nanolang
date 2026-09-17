@@ -18,6 +18,15 @@ is a **consumer of that module**. The NanoLang→C pretty-printer leaves
 the compiler. `cc` stays. `nano_vm` stays as a runner, not as the
 definition of "native."
 
+## Guest arguments
+
+I run bytecode with `nano_vm [VM options] compiler.nvm -- source.nano -o output.nvm`.
+The guest sees `compiler.nvm` as argument zero and all arguments after `--`
+unchanged. VM options are not guest arguments. Without `--`, the guest sees
+only its module path. I reject extra module paths rather than silently replacing
+the selected module. Daemon and verification-only modes reject the guest delimiter;
+my daemon protocol does not transport guest arguments yet.
+
 ## The shape
 
 ```

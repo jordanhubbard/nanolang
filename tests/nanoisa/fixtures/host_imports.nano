@@ -1,0 +1,26 @@
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn nl_os_getenv(name: string) -> string
+extern fn file_exists(path: string) -> bool
+
+fn env_text() -> string { return (getenv "NANO_EMITTER_HOST_TEST") }
+shadow env_text { assert (== (env_text) (getenv "NANO_EMITTER_HOST_TEST")) }
+fn declared_text() -> string { return (nl_os_getenv "NANO_EMITTER_HOST_TEST") }
+shadow declared_text { assert (== (declared_text) (getenv "NANO_EMITTER_HOST_TEST")) }
+fn argument(index: int) -> string { return (get_argv index) }
+shadow argument { assert (== (argument 0) (get_argv 0)) }
+fn argc_value() -> int { return (get_argc) }
+shadow argc_value { assert (>= (argc_value) 1) }
+fn present() -> bool { return (file_exists "tests/nanoisa/fixtures/host_imports.nano") }
+shadow present { assert (present) }
+fn main() -> int {
+    assert (== (env_text) (declared_text))
+    assert (== (declared_text) (getenv "NANO_EMITTER_HOST_TEST"))
+    (println (env_text))
+    (println (argc_value))
+    assert (>= (argc_value) 1)
+    assert (present)
+    if (> (argc_value) 1) { (println (argument 1)) }
+    return 0
+}
+shadow main { assert (== (main) 0) }
