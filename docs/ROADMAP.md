@@ -54,8 +54,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         parser-copy, paired refusal/retention and ordinary ownership controls
         pass; `evidence/call-scoped-borrow-annotations.md` distinguishes the
         diagnostic bootstrap budget from the open default-deadline task.
-      - [ ] I implement call-scoped shared reads and exclusive mutation with
-        paired overlap, move and escape rejection before admitting borrows.
+      - [ ] I first admit explicit shared borrows of fixed resource records
+        with scalar fields, passing the caller's address to native code and
+        preserving interpreter identity. I prove repeated reads, forwarding,
+        post-call consumption and refusal of consumption, mutation, escape or
+        a later argument that moves a borrowed owner. Unsupported generic,
+        aggregate, foreign and callback shapes remain explicit boundaries.
+      - [ ] I then add exclusive pointer mutation with observable caller
+        updates and paired overlapping shared/exclusive argument rejection.
+        Broader projections and shape support follow their own paired gates.
 
 - [ ] **Concrete native specialization closure.** I discover union instances
       reachable only through substituted payload fields, including checked
