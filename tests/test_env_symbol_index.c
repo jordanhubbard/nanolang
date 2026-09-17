@@ -129,6 +129,27 @@ int main(void) {
         fail_index_allocation = 0;
     }
     assert(env_get_var(env, "name_0") == linear(env, "name_0"));
+    /* Graph visibility does not rewrite source diagnostics or escape lexical/file bounds. */
+    env_set_current_file(env, "flow.nano");
+    env_define_var(env, "graph_scalar", TYPE_INT, false, create_int(7));
+    Symbol *graph = env_get_var(env, "graph_scalar");
+    graph->def_line = 20; graph->def_column = 9;
+    graph->flow_start_line = 10; graph->flow_start_column = 5;
+    graph->scope_end_line = 30; graph->scope_end_column = 1;
+    assert(!env_get_var_visible_at(env, "graph_scalar", 9, 1));
+    assert(!env_get_var_visible_at(env, "graph_scalar", 10, 4));
+    assert(env_get_var_visible_at(env, "graph_scalar", 15, 1) == graph);
+    assert(graph->def_line == 20 && graph->def_column == 9);
+    assert(!env_get_var_visible_at(env, "graph_scalar", 30, 1));
+    env_set_current_file(env, "other.nano");
+    assert(!env_get_var_visible_at(env, "graph_scalar", 15, 1));
+    env_set_current_file(env, "flow.nano");
+    env_define_var(env, "ordinary_scalar", TYPE_INT, false, create_int(8));
+    Symbol *ordinary = env_get_var(env, "ordinary_scalar");
+    ordinary->def_line = 20; ordinary->def_column = 9;
+    assert(!env_get_var_visible_at(env, "ordinary_scalar", 15, 1));
+    assert(env_get_var_visible_at(env, "ordinary_scalar", 20, 9) == ordinary);
+
     pop_to(env, 0);
     assert(!env_get_var(env, "imported"));
     env_define_var(env, "after_reset", TYPE_INT, false, create_int(9));

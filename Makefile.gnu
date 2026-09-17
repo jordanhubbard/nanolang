@@ -4420,6 +4420,11 @@ test-nanoisa-host-closure: $(COMPILER_C)
 test-units: test-passive-par-frontends
 test-passive-par-frontends: bootstrap nanoisa_emit
 	python3 -m unittest tests.test_passive_par_frontends
+
+.PHONY: test-passive-flow-frontends
+test-units: test-passive-flow-frontends
+test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump
+	python3 -m unittest tests.test_passive_flow_frontends
 .PHONY: test-affine-state
 test-units: test-affine-state
 test-affine-state: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

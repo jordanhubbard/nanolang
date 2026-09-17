@@ -3175,7 +3175,7 @@ static bool par_inputs(CG *cg, ASTNode *expr, ASTNode *block, bool *reads) {
             return true;
         case AST_IDENTIFIER: {
             for (int i = 0; i < block->as.par_block.count; ++i)
-                if (!strcmp(expr->as.identifier, block->as.par_block.bindings[i]->as.let.name)) return false;
+                if (!strcmp(expr->as.identifier, block->as.par_block.bindings[i]->as.let.name)) return block->as.par_block.is_flow;
             int slot = local_find(cg, expr->as.identifier);
             if (slot < 0 || slot >= cg->param_count) return false;
             uint8_t tag = cg->module->function_param_types[cg->current_fn_idx][slot];
@@ -3198,54 +3198,65 @@ static bool par_inputs(CG *cg, ASTNode *expr, ASTNode *block, bool *reads) {
 
 static void compile_par(CG *cg, ASTNode *block) {
     int count = block->as.par_block.count;
-    if (count <= 0) { cg_error(cg, block->line, "I require a nonempty par block"); return; }
-    for (int i = 0; i < count; ++i) {
-        ASTNode *binding = block->as.par_block.bindings[i];
-        if (!binding || binding->type != AST_LET || binding->as.let.is_mut) {
-            cg_error(cg, block->line, "I require immutable let bindings in par"); return;
-        }
-        for (int j = 0; j < i; ++j)
-            if (!strcmp(binding->as.let.name, block->as.par_block.bindings[j]->as.let.name)) {
-                cg_error(cg, block->line, "I require distinct par binding names"); return;
-            }
+    int *order = passive_binding_order(block);
+    if (!order) {
+        cg_error(cg, block->line, "I require distinct immutable passive bindings and a valid dependency order");
+        return;
     }
-    uint64_t capacity = 5 + (uint64_t)count * (7 + cg->param_count);
+    uint64_t capacity = 5 + (uint64_t)count * (7ull + cg->param_count + (block->as.par_block.is_flow ? count : 0));
     if (capacity > UINT32_MAX / 4 || capacity > SIZE_MAX / sizeof(uint32_t)) {
+        free(order);
         cg_error(cg, block->line, "I cannot represent this passive record"); return;
     }
     CgPassive *record = calloc(1, sizeof(*record));
+    uint32_t *offsets = calloc((size_t)count, sizeof(*offsets));
     bool *reads = calloc(cg->param_count ? cg->param_count : 1, sizeof(bool));
     if (record) record->words = calloc((size_t)capacity, sizeof(uint32_t));
-    if (!record || !reads || !record->words) {
+    if (!record || !reads || !offsets || !record->words) {
         if (record) free(record->words);
-        free(record); free(reads);
+        free(record); free(reads); free(offsets); free(order);
         cg_error(cg, block->line, "I cannot allocate this passive record"); return;
     }
     uint32_t *words = record->words;
-    words[0] = 1; words[1] = cg->current_fn_idx; words[2] = cg->code_size; words[4] = (uint32_t)count;
+    words[0] = block->as.par_block.is_flow ? 2 : 1;
+    words[1] = cg->current_fn_idx; words[2] = cg->code_size; words[4] = (uint32_t)count;
     CgPassive **place = &cg->passive;
     while (*place && ((*place)->words[1] < words[1] ||
            ((*place)->words[1] == words[1] && (*place)->words[2] < words[2]))) place = &(*place)->next;
     record->next = *place; *place = record;
     uint32_t at = 5;
+    /* Metadata remains in source-ID order even when instructions do not. */
     for (int i = 0; i < count && !cg->had_error; ++i) {
         ASTNode *binding = block->as.par_block.bindings[i];
+        offsets[i] = at;
         memset(reads, 0, cg->param_count * sizeof(bool));
         if (!par_inputs(cg, binding->as.let.value, block, reads)) {
-            cg_error(cg, binding->line, "I require independent scalar expressions over guarded parameters in par"); break;
+            cg_error(cg, binding->line, "I require scalar passive expressions over dependencies and guarded parameters"); break;
         }
-        words[at] = cg->code_size;
-        compile_stmt(cg, binding);
-        words[at + 1] = cg->code_size;
-        words[at + 2] = (uint32_t)local_find(cg, binding->as.let.name);
         uint32_t input = at + 7;
+        if (block->as.par_block.is_flow) {
+            for (int j = 0; j < count; ++j)
+                if (passive_expression_reads_name(binding->as.let.value, block->as.par_block.bindings[j]->as.let.name))
+                    words[input++] = (uint32_t)j;
+        }
+        words[at + 3] = input - at - 7;
+        uint32_t first_read = input;
         for (uint16_t j = 0; j < cg->param_count; ++j) if (reads[j]) words[input++] = j;
-        words[at + 4] = input - at - 7;
+        words[at + 4] = input - first_read;
         at = input;
+    }
+    for (int step = 0; step < count && !cg->had_error; ++step) {
+        int i = order[step];
+        ASTNode *binding = block->as.par_block.bindings[i];
+        uint32_t node = offsets[i];
+        words[node] = cg->code_size;
+        compile_stmt(cg, binding);
+        words[node + 1] = cg->code_size;
+        words[node + 2] = (uint32_t)local_find(cg, binding->as.let.name);
     }
     words[3] = cg->code_size;
     record->word_count = at;
-    free(reads);
+    free(reads); free(offsets); free(order);
 }
 
 static void publish_passive(CG *cg) {
@@ -3269,7 +3280,7 @@ static void publish_passive(CG *cg) {
                     uint32_t at = 5;
                     for (uint32_t i = 0; i < record->words[4]; ++i) {
                         record->words[at] += base; record->words[at + 1] += base;
-                        at += 7 + record->words[at + 4];
+                        at += 7 + record->words[at + 3] + record->words[at + 4];
                     }
                     for (uint32_t i = 0; i < record->word_count; ++i)
                         for (unsigned j = 0; j < 4; ++j)

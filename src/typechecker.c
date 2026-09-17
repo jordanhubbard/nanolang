@@ -5111,6 +5111,37 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_PAR_BLOCK: {
+            if (stmt->as.par_block.is_flow) {
+                int *order = passive_binding_order(stmt);
+                if (!order) {
+                    emit_context_error("E0036 PASSIVE FLOW", stmt->line, stmt->column, 3,
+                        "I cannot establish distinct immutable flow bindings and acyclic dependencies.",
+                        "Use a nonempty scalar graph with a stable serial order.");
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+                for (int step = 0; step < stmt->as.par_block.count; ++step) {
+                    ASTNode *binding = stmt->as.par_block.bindings[order[step]];
+                    if (!par_scalar_expression(binding->as.let.value, tc->env)) {
+                        emit_context_error("E0036 PASSIVE FLOW", binding->line, binding->column, 3,
+                            "I require immutable scalar inputs and checked closed scalar calls in flow.",
+                            "Keep mutation, captures and unsupported effects outside this graph.");
+                        tc->has_error = true;
+                        break;
+                    }
+                    check_statement(tc, binding);
+                    /* Only completed graph dependencies enter the environment.
+                     * Later emitters reuse graph visibility without changing the
+                     * declaration coordinates used in source diagnostics. */
+                    Symbol *symbol = env_get_var(tc->env, binding->as.let.name);
+                    if (symbol) {
+                        symbol->flow_start_line = stmt->line;
+                        symbol->flow_start_column = stmt->column;
+                    }
+                }
+                free(order);
+                return TYPE_VOID;
+            }
             int count = stmt->as.par_block.count;
             bool valid = count > 0;
             for (int i = 0; i < count; ++i) {

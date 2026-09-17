@@ -5981,10 +5981,16 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_PAR_BLOCK: {
             Value par_result = create_void();
-            for (int i = 0; i < stmt->as.par_block.count; i++) {
-                par_result = eval_statement(stmt->as.par_block.bindings[i], env);
-                if (par_result.is_return || par_result.is_break || par_result.is_continue) return par_result;
+            int *order = stmt->as.par_block.is_flow ? passive_binding_order(stmt) : NULL;
+            if (stmt->as.par_block.is_flow && !order) {
+                fprintf(stderr, "I cannot establish a valid flow execution order.\n");
+                exit(1);
             }
+            for (int i = 0; i < stmt->as.par_block.count; i++) {
+                par_result = eval_statement(stmt->as.par_block.bindings[order ? order[i] : i], env);
+                if (par_result.is_return || par_result.is_break || par_result.is_continue) break;
+            }
+            free(order);
             return par_result;
         }
 

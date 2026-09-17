@@ -3383,16 +3383,18 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
 
 
-        case AST_PAR_BLOCK:
-            /* par blocks emit sequentially at the enclosing scope so bindings remain visible after the block */
-            emit_indent_item(list, indent);
-            emit_literal(list, "/* par begin */\n");
-            for (int i = 0; i < stmt->as.par_block.count; i++) {
-                build_stmt(list, scopes, stmt->as.par_block.bindings[i], indent, env, fn_registry);
+        case AST_PAR_BLOCK: {
+            int *order = stmt->as.par_block.is_flow ? passive_binding_order(stmt) : NULL;
+            if (stmt->as.par_block.is_flow && !order) {
+                fprintf(stderr, "I cannot establish a valid flow execution order.\n");
+                exit(1);
             }
-            emit_indent_item(list, indent);
-            emit_literal(list, "/* par end */\n");
+            /* I export bindings at the enclosing scope in the stable serial order. */
+            for (int i = 0; i < stmt->as.par_block.count; i++)
+                build_stmt(list, scopes, stmt->as.par_block.bindings[order ? order[i] : i], indent, env, fn_registry);
+            free(order);
             break;
+        }
 
         case AST_PAR_LET:
             /* par-let: emit bindings as sequential C declarations, then the body expression.
