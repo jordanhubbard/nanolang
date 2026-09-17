@@ -37,7 +37,7 @@ class NestedBorrows(unittest.TestCase):
                                         capture_output=True, text=True, timeout=180)
                 diagnostic = result.stdout + result.stderr
                 if reject:
-                    self.assertNotEqual(result.returncode, 0, diagnostic)
+                    self.assertGreater(result.returncode, 0, diagnostic)
                     self.assertEqual(output.read_text(), 'prior artifact')
                     for marker in ('C compilation failed', 'Parse error', 'Parsing error', 'Failed to parse', 'Segmentation fault'):
                         self.assertNotIn(marker, diagnostic)
