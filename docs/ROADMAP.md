@@ -7992,6 +7992,17 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower canonical program globals and ordered runtime initialization
+      (`task_5a019d3f83cc43d1beb7ace8c8c7388c`). The intermediate executable
+      closure pass refuses top-level lets instead of omitting their effects.
+      This remains required for full compiler emission and bootstrap.
+- [x] I expose an explicit executable API that roots main and preserves its
+      bound direct-call closure, including recursion. I refuse globals and
+      unresolved function values until their lowering preserves initialization
+      and references (`task_ee84482d7ca74757ade0ed4f60728cbc`). Whole-source
+      APIs and full native shadow scope remain available. I do not skip named
+      imports. All 86 bytecode checks and 19 integration methods pass;
+      `docs/evidence/selfhost-program-closure.md` records the bounded scope.
 - [x] I escape compiler string literals in NanoISA assembly; after scalar
       array results, real compiler emission first reaches quotes/control
       characters (`task_98ec870924bf4b82b9ba5e2591576488`).
