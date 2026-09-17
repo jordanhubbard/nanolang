@@ -8599,6 +8599,12 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
+      bytecode is input, then two VM-executed compiler generations compile the
+      same clean source and immutable host closure. I compare raw generation
+      outputs, verify both and execute a product of the final compiler. Native
+      C shadow generation and the NanoISA-only architecture remain separate
+      (`task_36ceaa830d7d46ba8a5471326f525aac`).
 - [ ] I measure and bound the VM compiler bootstrap's repeated declaration
       scans and cycle collection (`task_36ceaa830d7d46ba8a5471326f525aac`).
       My 1,800-second self-compilation probe made progress through NanoISA
