@@ -70,9 +70,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         post-call consumption and refusal of consumption, mutation, escape or
         a later argument that moves a borrowed owner. Unsupported generic,
         aggregate, foreign and callback shapes remain explicit boundaries.
-      - [ ] I then add exclusive pointer mutation with observable caller
-        updates and paired overlapping shared/exclusive argument rejection.
-        Broader projections and shape support follow their own paired gates.
+      - [ ] I then retain an explicit field target for `set view.field value`
+        in both parsers and my shared AST schema. I check scalar field identity
+        and reject mutation through shared parameters before lowering.
+      - [ ] I add exclusive mutable-pointer parameters and explicit `&mut`
+        call arguments, with observable caller field updates and paired
+        overlapping shared/exclusive argument rejection in either order.
+        I reject moving, storing, returning or replacing a borrowed owner;
+        whole-owner replacement is not field mutation. I require a mutable
+        owner or an existing exclusive capability, and prove forwarding,
+        post-call consumption and output preservation on refusal. Broader
+        projections and shape support follow their own paired gates.
 - [x] I lower my declared NanoISA file assembly and disassembly artifact contracts with exact parameter and result validation, and execute their real module shadows in VM and native products (MAC `task_f5f873fccfff4b5b88f14f4d825ba3b4`).
 
 - [ ] **Concrete native specialization closure.** I discover union instances
