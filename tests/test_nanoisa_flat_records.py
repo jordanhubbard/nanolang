@@ -1,5 +1,6 @@
 """I compare and execute the flat-record emitter subset across VM and AOT."""
 from pathlib import Path
+import os
 import subprocess
 import tempfile
 import unittest
@@ -13,6 +14,50 @@ class FlatRecordEmitter(unittest.TestCase):
                                 capture_output=True, text=True, timeout=120)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
+
+    def test_host_imports_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/host_imports.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-host-imports-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "--imports", "env_text", "declared_text", "argument", "argc_value", "present", "main")
+            self.assertIn("15 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                for command in ([ROOT / "bin/nano_vm", module, "--", "sentinel"], [binary, "sentinel"]):
+                    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120,
+                                            env={**os.environ, "NANO_EMITTER_HOST_TEST": "host-value"})
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(result.stdout, "host-value\n2\nsentinel\n")
+
+    def test_host_signature_mismatches_are_refused(self):
+        programs = [
+            'extern fn get_argv(index: string) -> string',
+            'extern fn get_argc(unexpected: int) -> int',
+            'extern fn get_argc() -> string',
+            'extern fn unknown_host() -> int',
+            'extern fn get_argv(index: array<int>) -> string',
+            'fn bad() -> string { return (getenv 42) }',
+            'extern fn get_argv(index: int) -> string fn bad() -> string { return (get_argv "x") }',
+            'fn bad() -> string { return (getenv) }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-host-refusal-") as tmp:
+            work = Path(tmp)
+            for index, program in enumerate(programs):
+                with self.subTest(program=program):
+                    source, output = work / f"bad{index}.nano", work / f"bad{index}.nasm"
+                    source.write_text(program + '\nfn main() -> int { return 0 }\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse(output.exists())
 
     def test_boolean_record_returns_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/flat_record_results.nano"
