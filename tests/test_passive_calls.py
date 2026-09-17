@@ -64,6 +64,80 @@ class PassiveCalls(unittest.TestCase):
             'LOAD_LOCAL 1\nLOAD_LOCAL 2\nI64_ADD\nRET\n.end')
         self.paired_roundtrip(source, b'32\n')
 
+    def test_serial_effectful_calls_around_multiple_blocks_keep_caller_frame(self):
+        source = """.entry 2
+.function effect 1 3 0 int 1
+LOAD_LOCAL 0
+PRINTLN
+PUSH_I64 99
+STORE_LOCAL 0
+PUSH_I64 98
+STORE_LOCAL 1
+PUSH_I64 97
+STORE_LOCAL 2
+LOAD_LOCAL 0
+RET
+.end
+.function owner 1 4 0 int 1
+LOAD_LOCAL 0
+TYPE_CHECK 1
+ASSERT
+PUSH_I64 10
+CALL effect
+POP
+.par_begin
+.par_node 1 0
+LOAD_LOCAL 0
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 1
+.par_end
+PUSH_I64 20
+CALL effect
+POP
+.flow_begin 2
+.flow_node 1 3 0 1 0
+LOAD_LOCAL 0
+PUSH_I64 2
+I64_ADD
+STORE_LOCAL 3
+.flow_node 0 2 1 1 0
+LOAD_LOCAL 3
+PUSH_I64 3
+I64_ADD
+STORE_LOCAL 2
+.flow_end
+PUSH_I64 30
+CALL effect
+POP
+LOAD_LOCAL 0
+PRINTLN
+LOAD_LOCAL 1
+PRINTLN
+LOAD_LOCAL 2
+PRINTLN
+LOAD_LOCAL 3
+PRINTLN
+PUSH_I64 0
+RET
+.end
+.parameters 1 int
+.function main 0 0 0 int 1
+PUSH_I64 4
+CALL owner
+RET
+.end
+"""
+        self.paired_roundtrip(source, b'10\n20\n30\n4\n5\n9\n6\n')
+
+    def test_owner_callee_still_requires_whole_body_purity_inside_node(self):
+        # An ordinary effectful body may own pure nodes without becoming pure.
+        source = program('LOAD_LOCAL 0\nPRINTLN\n'
+                         '.par_begin\n.par_node 1\nPUSH_I64 7\nSTORE_LOCAL 1\n.par_end\n'
+                         'LOAD_LOCAL 1\nRET', locals_count=2)
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assemble(Path(tmp), source, accepted=False)
+
     def test_arctan_loop_with_two_arguments(self):
         source = """.entry 2
 .function arctan 2 8 0 float 1
