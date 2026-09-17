@@ -29,3 +29,8 @@ Evidence is retained under `/tmp/nanolang-native-shape-convergence/`:
 `minimal.nasm`, `minimal-baseline.log`, `gate.log`, `parity.log`, and
 `full-compiler.log`. The original full-module provenance trace is
 `/tmp/nanolang-shape-convergence-trace3.log`; temporary diagnostics were removed.
+
+After rebasing onto main `0072c05a`, including canonical artifact imports, I
+rebuilt the compiler/runtime and repeated the unchanged full native compiler
+gate successfully in 89.096 seconds. Final log:
+`/tmp/nanolang-native-shape-convergence/integrated-full-compiler.log`.
