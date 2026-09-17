@@ -502,8 +502,14 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
+/* I resolve nominal enum annotations before selecting scalar array operations. */
+static Type resolved_array_element(Type element, const char *name, Environment *env) {
+    return element == TYPE_STRUCT && name && env_get_enum(env, name) ? TYPE_ENUM : element;
+}
+
 /* I validate the inferred literal kind before annotation propagation changes it. */
-static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Type expected) {
+static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Type expected, const char *name) {
+    expected = resolved_array_element(expected, name, tc->env);
     if (literal->as.array_literal.element_count > 0 &&
             !types_match(literal->as.array_literal.element_type, expected)) {
         char message[256];
@@ -909,6 +915,10 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_new") &&
+        array_expr->as.call.arg_count == 2)
+        return check_expression(array_expr->as.call.args[1], env);
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
         array_expr->as.call.arg_count == 2)
         return infer_array_element_type(array_expr->as.call.args[0], env);
@@ -921,13 +931,13 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     }
     TypeInfo *info = try_get_expr_type_info(array_expr, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type)
-        return info->element_type->base_type;
+        return resolved_array_element(info->element_type->base_type, info->element_type->generic_name, env);
 
     if (array_expr->type == AST_CALL && array_expr->as.call.name &&
         !array_expr->as.call.func_expr) {
         Function *producer = env_get_function(env, array_expr->as.call.name);
         if (producer && producer->return_type == TYPE_ARRAY)
-            return producer->return_element_type;
+            return resolved_array_element(producer->return_element_type, producer->return_struct_type_name, env);
     }
     if (array_expr->type == AST_MODULE_QUALIFIED_CALL) {
         const char *alias = array_expr->as.module_qualified_call.module_alias;
@@ -939,7 +949,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         Function *producer = env_get_function(env, qualified);
         free(qualified);
         if (producer && producer->return_type == TYPE_ARRAY)
-            return producer->return_element_type;
+            return resolved_array_element(producer->return_element_type, producer->return_struct_type_name, env);
     }
 
     if (array_expr->type == AST_ARRAY_LITERAL) {
@@ -955,7 +965,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (array_expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, array_expr->as.identifier, array_expr->line, array_expr->column);
         if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
-            return sym->element_type;
+            return resolved_array_element(sym->element_type, sym->struct_type_name, env);
         }
         return TYPE_UNKNOWN;
     }
@@ -969,7 +979,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
                 for (int i = 0; i < sdef->field_count; i++) {
                     if (strcmp(sdef->field_names[i], field_name) == 0) {
                         if (sdef->field_types[i] == TYPE_ARRAY && sdef->field_element_types[i] != TYPE_UNKNOWN) {
-                            return sdef->field_element_types[i];
+                            return resolved_array_element(sdef->field_element_types[i], sdef->field_type_names ? sdef->field_type_names[i] : NULL, env);
                         }
                         break;
                     }
@@ -2420,7 +2430,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             arg->as.array_literal.element_count == 0 &&
                             func->params[i].type == TYPE_ARRAY &&
                             func->params[i].element_type != TYPE_UNKNOWN) {
-                            arg->as.array_literal.element_type = func->params[i].element_type;
+                            arg->as.array_literal.element_type = resolved_array_element(func->params[i].element_type, func->params[i].struct_type_name, env);
                         }
                         
                         /* Check for opaque type parameters - allow 0 (null) as argument */
@@ -2776,7 +2786,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     arg->as.array_literal.element_count == 0 &&
                     func->params[i].type == TYPE_ARRAY &&
                     func->params[i].element_type != TYPE_UNKNOWN) {
-                    arg->as.array_literal.element_type = func->params[i].element_type;
+                    arg->as.array_literal.element_type = resolved_array_element(func->params[i].element_type, func->params[i].struct_type_name, env);
                 }
             }
             
@@ -3076,8 +3086,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     field_value->as.array_literal.element_count == 0) {
                     /* An empty field has no element from which to infer its
                      * runtime representation. Preserve its declaration. */
-                    field_value->as.array_literal.element_type =
-                        sdef->field_element_types[field_index];
+                    field_value->as.array_literal.element_type = resolved_array_element(
+                        sdef->field_element_types[field_index],
+                        sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, env);
                 }
                 if (!types_match(field_type, sdef->field_types[field_index])) {
                     char message[256];
@@ -4364,7 +4375,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (declared_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.let.value;
-                    check_array_literal_annotation(tc, array_lit, element_type);
+                    check_array_literal_annotation(tc, array_lit, element_type, stmt->as.let.type_name);
                 }
             }
             
@@ -4498,7 +4509,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
                 if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.set.value;
-                    check_array_literal_annotation(tc, array_lit, sym->element_type);
+                    check_array_literal_annotation(tc, array_lit, sym->element_type, sym->struct_type_name);
                 }
             }
 
@@ -6980,7 +6991,7 @@ register_function_pass1:;
                 item->as.let.element_type != TYPE_UNKNOWN &&
                 item->as.let.value->type == AST_ARRAY_LITERAL) {
                 check_array_literal_annotation(&tc, item->as.let.value,
-                                               item->as.let.element_type);
+                                               item->as.let.element_type, item->as.let.type_name);
             }
             
             /* Verify it matches the declared type */
@@ -7713,7 +7724,7 @@ register_function_pass2:;
                 item->as.let.element_type != TYPE_UNKNOWN &&
                 item->as.let.value->type == AST_ARRAY_LITERAL) {
                 check_array_literal_annotation(&tc, item->as.let.value,
-                                               item->as.let.element_type);
+                                               item->as.let.element_type, item->as.let.type_name);
             }
             
             /* Verify it matches the declared type */

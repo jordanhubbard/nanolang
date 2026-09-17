@@ -475,6 +475,46 @@ class FlatRecordEmitter(unittest.TestCase):
                                 self.assertEqual(result.returncode, 1)
                                 self.assertRegex(result.stdout + result.stderr, r'(?i)(index|bound)')
 
+    def test_enum_array_annotations_reject_other_kinds(self):
+        with tempfile.TemporaryDirectory(prefix="nano-enum-array-refusal-") as tmp:
+            work = Path(tmp)
+            source, output = work / "bad.nano", work / "prior"
+            for value in ("true", "Other { value: 1 }"):
+                source.write_text('enum Shade { Dark = -2 } struct Other { value: int } '
+                                  'fn main() -> int { let items: array<Shade> = [' + value +
+                                  '] return 0 } shadow main { assert (== (main) 0) }')
+                for compiler in ("nanoc_c", "nano_virt"):
+                    with self.subTest(value=value, compiler=compiler):
+                        output.write_bytes(b"prior artifact")
+                        command = [ROOT / "bin" / compiler, source, "-o", output]
+                        if compiler == "nano_virt": command.append("--emit-nvm")
+                        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn("E001 TYPE MISMATCH", result.stdout + result.stderr)
+                        self.assertEqual(output.read_bytes(), b"prior artifact")
+
+    def test_enum_array_metadata_matches_and_executes(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/enum_arrays.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-enum-array-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            native = work / "seed-native"
+            self.run_checked(ROOT / "bin/nanoc_c", fixture, "-o", native)
+            self.run_checked(native)
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "values", "read", "main")
+            self.assertIn("8 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
     def test_enum_values_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/enum_values.nano"
         with tempfile.TemporaryDirectory(prefix="nano-enum-values-") as tmp:
