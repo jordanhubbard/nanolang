@@ -8390,7 +8390,7 @@ Compiler product:
 - [ ] I retain native foreign module metadata for root sources outside my
       repository (`task_c6b698326e0f4e6296299ddfdf172ebd`). Source-ancestry root
       discovery currently omits an imported repository manifest in that case.
-- [ ] I place native module objects before their link libraries and omit
+- [x] I place native module objects before their link libraries and omit
       already supplied canonical runtime sources (`task_59b46df66b0d480b83cf9cde4a416c07`).
       The artifact facade exposes duplicate cJSON symbols and unresolved SHA256
       during the three-stage bootstrap.

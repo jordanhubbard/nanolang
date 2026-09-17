@@ -15,7 +15,10 @@ checks.
 `tests/test_native_module_linking.py` builds and runs two real native programs.
 Both invoke SHA256 from an imported C module. One also uses a manifest entry
 for my existing cJSON source; the other supplies its own different `cJSON.c`.
-Both pass with the corrected Stage 1 compiler. These fixtures live inside the
+Both fail with the previous compiler and pass with a freshly built standalone
+Stage 1 compiler. The combined artifact-import and link repair also passes a
+fresh three-stage native bootstrap and the installed-compiler check without the
+C seed. These fixtures live inside the
 repository, matching the compiler bootstrap's source context.
 
 A separate initial fixture outside the repository exposed omitted native
