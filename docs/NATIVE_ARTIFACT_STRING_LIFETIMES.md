@@ -80,4 +80,4 @@ this change. Legacy C callers retain the original interface and can explicitly
 call the companion after copying escaping text. Other filesystem helpers still
 need their own audited provider contracts; this does not free their results.
 
-Exact measured checks are recorded with the implementation evidence.
+Exact measured checks are recorded in my [implementation evidence](evidence/artifact-string-cleanup.md).
