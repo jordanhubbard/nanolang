@@ -85,6 +85,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         and a C-seed crash; I retain generic resource rejection and test ordinary
         scalar/array generic annotations under allocator perturbation.
 
+- [ ] **Passive immutable input proofs.** I prove external input values before
+      admitting their reads in eligibility metadata; declared signature tags
+      alone do not close the current verifier's unknown call/local types.
+      MAC `task_bf571298c10d4cc5a387b9f233ff3c40`.
+
+- [x] **Passive eligibility metadata.** I implement a bounded scalar record
+      codec and verifier for dependency graphs, stable serial order, instruction
+      ranges and declared reads/writes, preserving records through v2 bridges.
+      Calls and resource/effect operations remain refused until closed summaries
+      support them. Frontend syntax and full passive conformance remain separate.
+      MAC `task_abd0941bc1f34580845eb31ecd68a12c`. The scalar subset passes
+      204 checks, VM/native execution and an instrumented verifier check.
+      External reads remain refused pending their separate proof obligation.
+
 - [x] **Map constructor diagnostics.** I count constructor type errors through
       my structured diagnostic path, rejecting direct untyped returns, nested
       calls, discarded calls and invalid arity before artifact publication.
@@ -8024,7 +8038,18 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I escape compiler string literals in NanoISA assembly; after scalar
+- [ ] I lower canonical program globals and ordered runtime initialization
+      (`task_5a019d3f83cc43d1beb7ace8c8c7388c`). The intermediate executable
+      closure pass refuses top-level lets instead of omitting their effects.
+      This remains required for full compiler emission and bootstrap.
+- [x] I expose an explicit executable API that roots main and preserves its
+      bound direct-call closure, including recursion. I refuse globals and
+      unresolved function values until their lowering preserves initialization
+      and references (`task_ee84482d7ca74757ade0ed4f60728cbc`). Whole-source
+      APIs and full native shadow scope remain available. I do not skip named
+      imports. All 86 bytecode checks and 19 integration methods pass;
+      `docs/evidence/selfhost-program-closure.md` records the bounded scope.
+- [x] I escape compiler string literals in NanoISA assembly; after scalar
       array results, real compiler emission first reaches quotes/control
       characters (`task_98ec870924bf4b82b9ba5e2591576488`).
 - [x] I keep conservatively emitted scalar-array push helpers valid under

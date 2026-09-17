@@ -289,7 +289,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool
         "nanovm/vm_decode.o", "nanovm/vm_dispatch.o", NULL
     };
     static const char *nanoisa_objs[] = {
-        "nanoisa/isa.o", "nanoisa/nvm_format.o",
+        "nanoisa/isa.o", "nanoisa/passive.o", "nanoisa/nvm_format.o",
         "nanoisa/nvm_format_v2.o", "nanoisa/nvm_v2_cursor.o", "nanoisa/nvm_v2_constants.o", "nanoisa/nvm_v2_signatures.o", "nanoisa/nvm_v2_layouts.o", "nanoisa/nvm_v2_functions.o", "nanoisa/nvm_v2_imports.o", "nanoisa/nvm_v2_module.o", "nanoisa/nvm_v2_convert.o",
         "nanoisa/assembler.o", "nanoisa/disassembler.o",
         "nanoisa/verifier.o", "nanoisa/verifier_types.o", "nanoisa/nanoisa_facade.o", NULL

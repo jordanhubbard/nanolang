@@ -233,6 +233,10 @@ typedef struct {
     uint32_t code_size;
     uint32_t code_capacity;
 
+    /* Owned canonical passive-eligibility payload; absent means no claim. */
+    uint8_t *passive_data;
+    uint32_t passive_size;
+
     /* Debug info */
     NvmDebugEntry *debug_entries;
     uint32_t debug_count;

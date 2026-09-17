@@ -388,6 +388,8 @@ typedef struct {
     NvmV2Debug      debug;
     const uint8_t  *code;          /* aliases the module buffer when decoded */
     uint64_t        code_size;
+    const uint8_t  *passive_data;   /* aliases source module or decoded buffer */
+    uint32_t        passive_size;
     bool            has_debug;     /* DEBUG present, even if empty */
 
     /* Signature tag arrays alias the buffer when a module is decoded, so
