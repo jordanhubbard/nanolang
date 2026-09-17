@@ -66,3 +66,30 @@ harness are retained under `/tmp/nanolang-metadata-san-o0-obj` and
 `/tmp/nanolang-metadata-sanitizer.c`. This is the bounded metadata prerequisite
 `task_1c3c02fe49414bce919adde6666824f5`, not complete callback semantics or
 native resource-callback ownership.
+
+## My generated-list initialization repair
+
+A fresh full compiler build after PR #487 exposed three generated `List<T>`
+parameter allocations in `env_register_list_instantiation` that initialized
+names and type tags but left `fn_sig` and `type_info` unset. The new metadata
+copier dereferenced those indeterminate pointers. This was an initialization
+bug; I did not establish a dangling AST lifetime as its cause.
+
+I zero-initialize all three parameter arrays. I retain complete metadata
+copying. My dedicated regression compiles `env.c` with a malloc wrapper that
+fills allocations with `0xa5`; it fails on `parameter->fn_sig == NULL` before
+the repair and passes extraction plus serialization afterward. My normal
+allocator and compiler remain unchanged.
+
+A fresh `make -j8 bootstrap` passes all native stages and the installed
+compiler smoke test. The native binaries differ; this check does not claim a
+fixed point. `make -j8 test-module-metadata` also passes: 24 C methods, the
+poisoned-allocation check, three import methods including ordinary compilation
+of `generated/compiler_contracts.nano`, and the foreign compiler-path
+regression. The nested callback rejection still preserves previous output.
+
+I retain before/after logs at `/tmp/nanolang-list-metadata-before.log` and
+`/tmp/nanolang-list-metadata-after.log`, the full bootstrap at
+`/tmp/nanolang-list-metadata-bootstrap.log`, and the integrated gate at
+`/tmp/nanolang-list-metadata-integrated.log`. This repair is
+`task_402e6b8289fc4f58b79ef5559a68dce3`.
