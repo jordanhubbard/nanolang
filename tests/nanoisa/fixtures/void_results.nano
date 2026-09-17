@@ -1,0 +1,28 @@
+fn empty() -> void {}
+shadow empty { (empty) assert true }
+
+fn show_usage() -> void { (println "usage") }
+shadow show_usage { (show_usage) assert true }
+
+fn explicit_return() -> void { return }
+shadow explicit_return { (explicit_return) assert true }
+
+fn early(flag: bool) -> void {
+    if flag { return }
+    (println "continued")
+}
+shadow early { (early true) (early false) assert true }
+
+fn relay() -> void { return (explicit_return) }
+shadow relay { (relay) assert true }
+
+fn main() -> int {
+    (empty)
+    (show_usage)
+    (explicit_return)
+    (early true)
+    (early false)
+    (relay)
+    return 0
+}
+shadow main { assert (== (main) 0) }
