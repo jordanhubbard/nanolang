@@ -222,10 +222,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       representations; twelve pass VM/native and sanitizer parity. MAC
       `task_3636ea1587cd41a88e4660abe94acb53`.
 
-- [ ] **Tagged native array-update bounds.** I reject negative and full-width
+- [x] **Tagged native array-update bounds.** I reject negative and full-width
       out-of-range indices before narrowing dynamic array updates, preserving
       aliases and matching the checked VM contract. MAC
-      `task_40b4cf1f065f49609cec599123f06557`.
+      `task_40b4cf1f065f49609cec599123f06557`. Twenty-one VM/native
+      cases and the full compiler native bridge pass; see
+      `docs/evidence/native-dynamic-array-update-bounds.md`.
 
 - [x] **Boxed primitive-array argument inference.** I retain primitive-array
       identity and exact payload constraints across tagged call parameters.

@@ -4062,8 +4062,8 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
     nvm2c_puts(b,
         "static inline nmap_value nvalue_array_set(nmap_value a, int64_t index, nmap_value value) {\n"
         "    if (a.integer == 6) abort();\n"
-        "    uint32_t at = (uint32_t)index;\n"
-        "    if (at >= (uint64_t)nvalue_array_len(a)) return a;\n"
+        "    if (index < 0 || (uint64_t)index >= (uint64_t)nvalue_array_len(a)) abort();\n"
+        "    size_t at = (size_t)index;\n"
         "    if (a.integer == 3) ((narr_t)a.text)->data[at] = nvalue_require_int(value);\n"
         "    else if (a.integer == 10) ((narr_t)a.text)->data[at] = nvalue_require_bool(value);\n"
         "    else ((nsarr_t)a.text)->data[at] = nvalue_require_string(value);\n"
