@@ -8084,10 +8084,18 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower the supported string/int map field in compiler `CollectResult`,
+- [ ] I lower scoped unsafe blocks through my existing supported host ABI,
+      retaining control flow and stack balance
+      (`task_750341a5ccb04cffa9b2e0cc92e1f7d6`). Actual compiler emission after
+      map fields first refuses `PNODE_UNSAFE_BLOCK`, not an unknown host call.
+- [ ] I retain HashMap field generic types through C-seed builtin inference
+      (`task_160826784e8a4aa4ac9d5e589a54c814`); direct `map_get`/`map_has`
+      on a declared string/int map field currently fails inference.
+- [x] I lower the supported string/int map field in compiler `CollectResult`,
       preserving map identity through record fields, calls and returns
-      (`task_95a9982edcd04a1dbb57c45639cd7230`). Actual emission after record arrays
-      first refuses this local type.
+      (`task_95a9982edcd04a1dbb57c45639cd7230`). Ten C-seed bytecode comparisons
+      and VM/AOT execution pass; direct receiver C-seed inference remains
+      separate. See `docs/evidence/selfhost-map-record-fields.md`.
 - [ ] I preserve nominal record element metadata through direct array access
       and chained field projection in my C seed, including record-array fields
       (`task_8ddcdb5c824e4a8eb6cc0e2d1bc9ebe3`). Explicit typed locals currently avoid
