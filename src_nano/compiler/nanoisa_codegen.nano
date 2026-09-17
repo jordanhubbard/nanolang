@@ -3044,6 +3044,91 @@ pub fn nanoisa_emit_program_nasm(parser: Parser) -> string {
     return (nisa_emit_module_nasm parser true)
 }
 
+# I choose synthetic names outside the supplied declaration namespace.
+fn nisa_shadow_name(parser: Parser, base: string) -> string {
+    let mut name: string = base
+    while (>= (nisa_fn_index parser name) 0) { set name (+ name "_") }
+    return name
+}
+shadow nisa_shadow_name {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n reserved() -> void {} fn reserved_() -> void {}")
+    let tokens: List<LexerToken> = (tokenize_string source "names.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "names.nano")
+    assert (== (nisa_shadow_name parser "reserved") "reserved__")
+    assert (== (nisa_shadow_name parser "free") "free")
+}
+
+# I lower a selected suffix into one module with shared initialized globals.
+# My caller retains the binding context and supervises execution separately.
+pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
+    let _: int = (nisa_reset)
+    set nisa_program_mode true
+    let count: int = parser.shadows_count
+    if (or (< first_shadow 0) (> first_shadow count)) {
+        return (nisa_fail "I require a valid first-shadow index")
+    }
+    if (parser_has_error parser) { return (nisa_fail "parse failed") }
+    let initializers: string = (nisa_emit_globals parser)
+    if (not nisa_ok) { return "" }
+    let entry_name: string = (nisa_shadow_name parser "__nanoisa_shadow_entry")
+    let mut entry_body: string = ""
+    let mut out: string = ""
+    let mut i: int = first_shadow
+    while (< i count) {
+        let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        let name: string = (nisa_shadow_name parser (+ "__nanoisa_shadow_" (int_to_string i)))
+        let function: ASTFunction = ASTFunction {
+            node_type: ParseNodeType.PNODE_FUNCTION, line: selected.line, column: selected.column,
+            name: name, param_start: 0, param_count: 0, return_type: "void",
+            body: selected.body, is_pure: false
+        }
+        set out (+ out (nisa_emit_function parser function))
+        if (not nisa_ok) {
+            set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
+                (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
+            return ""
+        }
+        set entry_body (+ entry_body (nisa_line_imm "CALL" name))
+        set i (+ i 1)
+    }
+    let entry_index: int = (- count first_shadow)
+    set out (+ out (+ ".function " (+ entry_name " 0 0 0 int 1\n")))
+    set out (+ out (+ entry_body "  PUSH_I64 0\n  RET\n.end\n"))
+    set i 0
+    while (< i (array_length nisa_function_queue)) {
+        let function: ASTFunction = (parser_get_function parser (at nisa_function_queue i))
+        if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
+        else { set out (+ out (nisa_emit_function parser function)) }
+        set i (+ i 1)
+    }
+    set out (+ out initializers)
+    if (not nisa_ok) { return "" }
+    let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
+    set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
+    set prelude (+ prelude (+ " " (int_to_string (parser_get_union_count parser))))
+    set prelude (+ prelude (+ "\n.entry " (int_to_string entry_index)))
+    set prelude (+ prelude (+ "\n\n" nisa_import_text))
+    set prelude (+ prelude (nisa_str_prelude))
+    return (+ prelude out)
+}
+shadow nanoisa_emit_shadows_nasm {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n main() -> int { return 7 } shadow main { assert (== (main) 7) } shadow main { assert false }")
+    let tokens: List<LexerToken> = (tokenize_string source "shadows.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadows.nano")
+    let assembly: string = (nanoisa_emit_shadows_nasm parser 0)
+    assert (str_contains assembly ".entry 2")
+    assert (str_contains assembly ".function main")
+    assert (str_contains assembly "CALL __nanoisa_shadow_0")
+    assert (str_contains assembly "CALL __nanoisa_shadow_1")
+    assert (== (nanoisa_emit_shadows_nasm parser (- 0 1)) "")
+    assert (== (nanoisa_emit_shadows_nasm parser 3) "")
+    let empty: string = (nanoisa_emit_shadows_nasm parser 2)
+    assert (str_contains empty ".entry 0")
+    assert (not (str_contains empty ".function main"))
+}
+
 fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
     let _: int = (nisa_reset)
     set nisa_program_mode program

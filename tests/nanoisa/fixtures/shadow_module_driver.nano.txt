@@ -1,0 +1,31 @@
+import "src_nano/compiler/nanoisa_codegen.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/module_bindings.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+
+fn main() -> int {
+    if (!= (get_argc) 4) { return 0 }
+    if (and (!= (get_argv 3) "raw") (!= (get_argv 3) "bound")) { return 0 }
+    let source: string = (file_read (get_argv 1))
+    let first: int = (string_to_int (get_argv 2))
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source "shadows.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadows.nano")
+    (mb_reset [])
+    if (== (get_argv 3) "bound") {
+        (mb_reset [1, 4, 7])
+        (mb_add 0 "value" "dep_a_value")
+        (mb_add 1 "value" "dep_b_value")
+        (mb_add 2 "first.value" "dep_a_value")
+        (mb_add 2 "second.value" "dep_b_value")
+    }
+    let assembly: string = (nanoisa_emit_shadows_nasm parser first)
+    if (== assembly "") { (println (nanoisa_last_lowering_error)) return 1 }
+    (print assembly)
+    return 0
+}
+shadow main { assert (== (main) 0) }
