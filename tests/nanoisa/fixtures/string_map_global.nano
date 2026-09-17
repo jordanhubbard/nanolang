@@ -1,0 +1,11 @@
+let globals: HashMap<string,string> = (map_new)
+fn main() -> int {
+    (map_put globals "key" "old")
+    let retained: string = (map_get globals "key")
+    (map_put globals "key" "new")
+    assert (== retained "old")
+    assert (== (map_get globals "key") "new")
+    assert (== (map_size globals) 1)
+    return 0
+}
+shadow main { assert (== (main) 0) }

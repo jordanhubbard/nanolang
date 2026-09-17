@@ -1,0 +1,52 @@
+struct Box { values: HashMap<string,string> }
+fn fresh() -> HashMap<string,string> {
+    let values: HashMap<string,string> = (map_new)
+    return values
+}
+shadow fresh { assert (== (map_size (fresh)) 0) }
+fn relay() -> HashMap<string,string> { return (fresh) }
+shadow relay { assert (not (map_has (relay) "absent")) }
+fn put(values: HashMap<string,string>, key: string, value: string) -> void { (map_put values key value) }
+shadow put {
+    let values: HashMap<string,string> = (fresh)
+    (put values "key" "value")
+    assert (== (map_get values "key") "value")
+}
+fn read(values: HashMap<string,string>, key: string) -> string { return (map_get values key) }
+shadow read {
+    let values: HashMap<string,string> = (fresh)
+    (put values "key" "value")
+    assert (== (read values "key") "value")
+}
+fn has(values: HashMap<string,string>, key: string) -> bool { return (map_has values key) }
+shadow has { assert (not (has (fresh) "absent")) }
+fn wrap(values: HashMap<string,string>) -> Box { return Box { values: values } }
+shadow wrap {
+    let values: HashMap<string,string> = (fresh)
+    let box: Box = (wrap values)
+    let stored: HashMap<string,string> = box.values
+    assert (== (map_size stored) 0)
+}
+fn unwrap(box: Box) -> HashMap<string,string> { return box.values }
+shadow unwrap { assert (== (map_size (unwrap (wrap (fresh)))) 0) }
+fn main() -> int {
+    let values: HashMap<string,string> = (relay)
+    let alias: HashMap<string,string> = values
+    (put values "key" (+ "old" "-value"))
+    let retained: string = (read values "key")
+    (map_set alias "key" (+ "new" "-value"))
+    assert (== retained "old-value")
+    assert (== (read values "key") "new-value")
+    (put values "empty" "")
+    assert (has alias "empty")
+    assert (== (read alias "empty") "")
+    assert (not (has alias "missing"))
+    assert (== (map_size values) 2)
+    assert (== (map_length alias) 2)
+    let box: Box = (wrap values)
+    let stored: HashMap<string,string> = (unwrap box)
+    (put stored "through-record" "yes")
+    assert (== (read values "through-record") "yes")
+    return 0
+}
+shadow main { assert (== (main) 0) }

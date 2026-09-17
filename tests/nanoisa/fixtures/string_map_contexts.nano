@@ -1,0 +1,19 @@
+struct Box { values: HashMap<string,string> }
+fn fresh() -> HashMap<string,string> { return (map_new) }
+shadow fresh { assert (== (map_size (fresh)) 0) }
+fn boxed() -> Box { return Box { values: (map_new) } }
+shadow boxed { let box: Box = (boxed) let values: HashMap<string,string> = box.values assert (== (map_size values) 0) }
+fn put(values: HashMap<string,string>) -> HashMap<string,string> { (map_put values "key" "value") return values }
+shadow put { let values: HashMap<string,string> = (put (fresh)) assert (== (map_get values "key") "value") }
+fn main() -> int {
+    let values: HashMap<string,string> = (put (map_new))
+    assert (== (map_get values "key") "value")
+    let returned: HashMap<string,string> = (put (fresh))
+    assert (== (map_get returned "key") "value")
+    let box: Box = (boxed)
+    let fields: HashMap<string,string> = box.values
+    (map_put fields "record" "yes")
+    assert (== (map_get fields "record") "yes")
+    return 0
+}
+shadow main { assert (== (main) 0) }

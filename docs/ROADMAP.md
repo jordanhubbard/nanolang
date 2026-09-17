@@ -8685,6 +8685,8 @@ Compiler product:
 - [ ] I carry record and map globals through standalone AOT with runtime
       tags, field/map access and lifetime roots; generic scalar global values
       do not establish this support (`task_95796f5f49564ed4a911fd05a1aac5b4`).
+      A string-valued global map reproduces the native refusal; VM passes.
+      `/tmp/nanolang-map-context-repro/full.nvm` retains the failing module.
 - [x] I preserve declared global constructor contexts in my C seed, accepting
       typed map construction and emitting the string tag for empty string
       arrays (`task_026e73d59e9e45b0b732b43883feea9a`).
