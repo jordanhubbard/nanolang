@@ -58,6 +58,8 @@ typedef struct {
  * Assembler State
  * ======================================================================== */
 
+typedef struct { uint32_t offset, length; } FlowMarker;
+
 typedef struct {
     NvmModule *mod;
 
@@ -84,6 +86,8 @@ typedef struct {
     bool passive_structured, par_active, par_node_active;
     uint32_t passive_capacity, par_block_offset, par_node_offset;
     uint32_t passive_blocks, par_nodes;
+    FlowMarker *flow_nodes;
+    uint32_t flow_count;
 
     /* Line tracking */
     uint32_t line;
@@ -100,6 +104,7 @@ static void asm_state_cleanup(AsmState *state) {
     free(state->labels);
     free(state->symbols);
     free(state->patches);
+    free(state->flow_nodes);
 }
 
 static void fn_emit(AsmState *state, const uint8_t *data, uint32_t size) {
@@ -654,6 +659,8 @@ static bool passive_word(AsmState *state, uint32_t word, AsmResult *result) {
 
 static bool par_directive(AsmState *state, const char *directive,
                           const char *p, AsmResult *result) {
+    if (state->flow_nodes)
+        return par_error(result, "I cannot mix par markers into a flow block.");
     if (!state->in_function)
         return par_error(result, "I require passive producer markers inside a function.");
     if (state->mod->code_size > UINT32_MAX - state->fn_code_size)
@@ -715,6 +722,105 @@ static bool par_directive(AsmState *state, const char *directive,
     return true;
 }
 
+static bool flow_directive(AsmState *state, const char *directive,
+                           const char *p, AsmResult *result) {
+    if (!state->in_function)
+        return par_error(result, "I require flow producer markers inside a function.");
+    if (state->mod->code_size > UINT32_MAX - state->fn_code_size)
+        return par_error(result, "I cannot represent the flow instruction offset.");
+    uint32_t offset = state->mod->code_size + state->fn_code_size;
+    if (strcmp(directive, "flow_begin") == 0) {
+        uint32_t count;
+        if (!parse_uint32(&p, &count) || !count ||
+            count > state->mod->functions[state->current_function].local_count)
+            return par_error(result, "I require a positive flow node count within the function locals.");
+        if (!require_line_end(p, result)) return false;
+        if (!par_directive(state, "par_begin", "", result)) return false;
+        state->flow_nodes = calloc(count, sizeof(FlowMarker));
+        if (!state->flow_nodes) {
+            result->error = ASM_ERR_MEMORY;
+            snprintf(result->message, sizeof(result->message), "I cannot allocate the flow marker index.");
+            return false;
+        }
+        state->flow_count = count;
+        passive_patch(state, state->par_block_offset, 2);
+        return true;
+    }
+    if (!state->flow_nodes)
+        return par_error(result, "I require .flow_begin before a flow node or end marker.");
+    if (strcmp(directive, "flow_end") == 0) {
+        if (!require_line_end(p, result)) return false;
+        if (state->par_nodes != state->flow_count)
+            return par_error(result, "I require every source node exactly once before .flow_end.");
+        passive_patch(state, state->par_node_offset + 4, offset);
+        uint32_t start = state->par_block_offset + 20;
+        uint32_t size = state->mod->passive_size - start;
+        uint8_t *ordered = malloc(size);
+        if (!ordered) {
+            result->error = ASM_ERR_MEMORY;
+            snprintf(result->message, sizeof(result->message), "I cannot order the flow records.");
+            return false;
+        }
+        uint32_t cursor = 0;
+        for (uint32_t i = 0; i < state->flow_count; ++i) {
+            FlowMarker node = state->flow_nodes[i];
+            memcpy(ordered + cursor, state->mod->passive_data + node.offset, node.length);
+            cursor += node.length;
+        }
+        memcpy(state->mod->passive_data + start, ordered, size);
+        free(ordered);
+        free(state->flow_nodes);
+        state->flow_nodes = NULL;
+        passive_patch(state, state->par_block_offset + 12, offset);
+        passive_patch(state, state->par_block_offset + 16, state->flow_count);
+        passive_patch(state, 4, ++state->passive_blocks);
+        state->par_active = state->par_node_active = false;
+        state->flow_count = 0;
+        return true;
+    }
+    uint32_t id, local, dependencies;
+    if (!parse_uint32(&p, &id) || id >= state->flow_count ||
+        !parse_uint32(&p, &local) || local > UINT16_MAX ||
+        !parse_uint32(&p, &dependencies) || dependencies > state->flow_count)
+        return par_error(result, "I require a source ID, result local and dependency count after .flow_node.");
+    if (state->flow_nodes[id].length)
+        return par_error(result, "I require distinct flow source IDs.");
+    if (state->par_node_active) passive_patch(state, state->par_node_offset + 4, offset);
+    uint32_t start = state->mod->passive_size;
+    uint32_t fields[] = {offset, 0, local, dependencies, 0, 0, 0};
+    for (unsigned i = 0; i < 7; ++i)
+        if (!passive_word(state, fields[i], result)) return false;
+    uint32_t previous = 0;
+    for (uint32_t i = 0; i < dependencies; ++i) {
+        uint32_t dependency;
+        if (!parse_uint32(&p, &dependency) || dependency >= state->flow_count ||
+            (i && dependency <= previous))
+            return par_error(result, "I require sorted distinct source IDs for flow dependencies.");
+        if (!passive_word(state, dependency, result)) return false;
+        previous = dependency;
+    }
+    uint32_t reads;
+    if (!parse_uint32(&p, &reads) || reads > state->mod->functions[state->current_function].arity)
+        return par_error(result, "I require a parameter-read count after flow dependencies.");
+    passive_patch(state, start + 16, reads);
+    previous = 0;
+    for (uint32_t i = 0; i < reads; ++i) {
+        uint32_t input;
+        if (!parse_uint32(&p, &input) || input >= state->mod->functions[state->current_function].arity ||
+            (i && input <= previous))
+            return par_error(result, "I require sorted distinct parameter indices for flow reads.");
+        if (!passive_word(state, input, result)) return false;
+        previous = input;
+    }
+    if (!require_line_end(p, result)) return false;
+    state->flow_nodes[id].offset = start;
+    state->flow_nodes[id].length = state->mod->passive_size - start;
+    state->par_node_offset = start;
+    state->par_node_active = true;
+    ++state->par_nodes;
+    return true;
+}
+
 static bool process_line(AsmState *state, const char *line, AsmResult *result) {
     const char *p = line;
     skip_whitespace(&p);
@@ -737,6 +843,9 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
         if (strcmp(directive, "par_begin") == 0 || strcmp(directive, "par_node") == 0 ||
             strcmp(directive, "par_end") == 0)
             return par_directive(state, directive, p, result);
+        if (strcmp(directive, "flow_begin") == 0 || strcmp(directive, "flow_node") == 0 ||
+            strcmp(directive, "flow_end") == 0)
+            return flow_directive(state, directive, p, result);
 
         if (strcmp(directive, "passive") == 0 || strcmp(directive, "layouts") == 0 ||
             strcmp(directive, "ownership") == 0) {
@@ -1074,7 +1183,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
 
         if (strcmp(directive, "end") == 0) {
             if (state->par_active)
-                return par_error(result, "I require .par_end before ending the function.");
+                return par_error(result, "I require the passive block's end marker before ending the function.");
             if (!state->in_function) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
