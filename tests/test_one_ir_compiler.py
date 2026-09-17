@@ -235,6 +235,7 @@ static inline void tracked_free(void *p) {
 
     def test_nanoisa_artifact_contracts_remain_exact(self):
         contracts = {
+            "nlc_module_artifact": ("string", ["string"]),
             "nl_nanoisa_load_print": ("string", ["string"]),
             "nl_nanoisa_load_pretty": ("string", ["string"]),
             "nl_nanoisa_last_error": ("string", []),
@@ -252,6 +253,8 @@ static inline void tracked_free(void *p) {
                     "return": (library, symbol, "bool", parameters, "artifact"),
                     "arity": (library, symbol, result, parameters + ["string"], "artifact"),
                     "kind": (library, symbol, result, parameters, "ffi"),
+                    "relative": ("relative.so", symbol, result, parameters, "artifact"),
+                    "empty": ("", symbol, result, parameters, "artifact"),
                 }
                 if parameters:
                     variants["parameter"] = (library, symbol, result, ["int"] + parameters[1:], "artifact")
@@ -260,8 +263,14 @@ static inline void tracked_free(void *p) {
                         assembly.write_text(f'.import "{path}" "{name}" {returns} {" ".join(args)}\n'
                                             f'.import_kind 0 {kind}\n.entry main\n'
                                             '.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
-                        self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                         source.write_text("prior-output")
+                        if case in ("relative", "empty"):
+                            invalid = subprocess.run([str(ROOT/"bin/nanoisa"), "asm", str(assembly), "-o", str(module)], capture_output=True, text=True, timeout=30)
+                            self.assertNotEqual(invalid.returncode, 0)
+                            self.assertIn("artifact path must be absolute", invalid.stderr)
+                            self.assertEqual(source.read_text(), "prior-output")
+                            continue
+                        self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                         run = subprocess.run([ROOT / "bin/nvm2c", module, "-o", source],
                                              capture_output=True, text=True, timeout=30)
                         if case == "exact":
@@ -272,6 +281,34 @@ static inline void tracked_free(void *p) {
                             self.assertNotEqual(run.returncode, 0)
                             self.assertIn("refuses CALL_EXTERN", run.stderr)
                             self.assertEqual(source.read_text(), "prior-output")
+
+    def test_module_artifact_adapter_snapshots_borrowed_results(self):
+        with tempfile.TemporaryDirectory(prefix="nano-module-artifact-adapter-") as tmp:
+            work = Path(tmp)
+            library = work / ("fixture.dylib" if sys.platform == "darwin" else "fixture.so")
+            helper = work / "fixture.c"
+            helper.write_text('#include <stdio.h>\n#include <string.h>\n'
+                              'const char *nlc_module_artifact(const char *path) {\n'
+                              ' static _Thread_local char result[256];\n'
+                              ' if (!strcmp(path, "missing")) result[0] = 0;\n'
+                              ' else snprintf(result, sizeof result, "/immutable/%s", path);\n'
+                              ' return result; }\n')
+            self.run_checked(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fPIC",
+                              "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                              helper, "-o", library])
+            assembly, module, source, binary = (work/name for name in ("input.nasm", "input.nvm", "input.c", "input"))
+            assembly.write_text(f'.import "{library}" "nlc_module_artifact" string string\n'
+                                '.import_kind 0 artifact\n.string first "first"\n.string second "second"\n'
+                                '.string missing "missing"\n.string expected "/immutable/first"\n'
+                                '.entry main\n.function main 0 1 0 int 1\n'
+                                'PUSH_STR first\nCALL_EXTERN 0\nSTORE_LOCAL 0\n'
+                                'PUSH_STR second\nCALL_EXTERN 0\nPOP\n'
+                                'PUSH_STR missing\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n'
+                                'LOAD_LOCAL 0\nPUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+            self.run_checked([ROOT/"bin/nanoisa", "asm", assembly, "-o", module])
+            self.run_checked([ROOT/"bin/nvm2c", module, "-o", source])
+            self.run_checked(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary, *HOST_RUNTIME])
+            self.run_checked([binary])
 
     def test_nanoisa_artifact_strings_survive_later_facade_calls(self):
         cc = shutil.which("cc")
