@@ -5254,11 +5254,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
-            "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n");
+            "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"
+            "    (void)nroot_reset; (void)nmap_collect_if_needed;\n");
         if (b.has_string_arrays) nvm2c_puts(&b,
             "    (void)nsarr_new; (void)nsarr_reserve; (void)nsarr_copy_string;\n");
         if (b.has_integer_arrays) nvm2c_puts(&b,
             "    (void)narr_new; (void)narr_reserve;\n");
+        if (b.has_record_array_allocations) nvm2c_puts(&b,
+            "    (void)nrarr_new; (void)nrarr_reserve;\n");
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_string_arrays)
             nvm2c_puts(&b, "    (void)nsarr_push;\n");
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)

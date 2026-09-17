@@ -950,6 +950,8 @@ static void test_tagged_record_array(void) {
         char *source = nvm2c_emit(module, error, sizeof error);
         CHECK(source != NULL, "I emit explicitly tagged record arrays");
         if (source) {
+            if (i == 0) CHECK(strstr(source, "(void)nrarr_new; (void)nrarr_reserve;") != NULL,
+                              "I keep optional record-array helpers referenced for strict C compilers");
             int status = -1;
             CHECK(compile_and_run(source, &status) == 0 && status == 0,
                   "I preserve empty and mixed-field record arrays through stack/local flow");
@@ -3920,7 +3922,30 @@ static void test_scalar_globals(void) {
     }
 }
 
+static void test_map_helpers_compile_without_safepoints(void) {
+    NvmModule *m = assemble_ok(
+        ".entry main\n"
+        ".function main 0 0 0 int 1\n"
+        "  HM_NEW 5 1\n"
+        "  HM_LEN\n"
+        "  RET\n"
+        ".end\n",
+        "map without collection safepoints");
+    if (!m) return;
+    char *c = emit_or_fail(m, "I emit map support without requiring a safepoint");
+    if (c) {
+        CHECK(strstr(c, "(void)nroot_reset; (void)nmap_collect_if_needed;") != NULL,
+              "I keep optional root helpers referenced for strict C compilers");
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+              "I compile map support without root-reset or collection safepoints");
+        free(c);
+    }
+    nvm_module_free(m);
+}
+
 static void test_emitted_map_get(void) {
+    test_map_helpers_compile_without_safepoints();
     test_scalar_globals();
     test_tagged_scalar_returns();
     test_mixed_lookup_arguments();

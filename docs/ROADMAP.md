@@ -9225,6 +9225,17 @@ Compiler product:
 - [x] I bound every append while formatting native direct calls and size the
       call expression for the full supported arity. Wide ordinary and tail
       calls pass the focused `nvm2c` sanitizer test.
+- [x] I keep my generated map-root support warning-clean under strict C11 on
+      Darwin even when a program has no root-reset or collection safepoint.
+      `task_de5e8502bf025d94b103fa4a4ce734db` repairs the release-gate
+      regression where Apple Clang rejects unused `nroot_reset` and
+      `nmap_collect_if_needed` helpers. The focused no-safepoint fixture and
+      all 2,389 structured-C checks pass on Darwin (2026-09-17).
+- [x] I keep dynamic record-array support warning-clean when a program creates
+      an empty record array but never grows it. The same Darwin audit task
+      records the post-PR483 `nrarr_reserve` strict-Clang regression separately
+      from record-array allocation and ownership semantics. The empty-array
+      fixture and all 2,390 structured-C checks pass on Darwin (2026-09-17).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
