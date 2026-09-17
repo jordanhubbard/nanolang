@@ -8837,6 +8837,8 @@ Compiler product:
       shadows (`task_8bc58d33e73f4e24a474d3724d862c94`), retaining source lexemes
       and the unchanged canonical dependency-shadow regression. I require
       C-seed bytecode, VM/native execution and output-preservation controls.
+      Direct returns of float formatting must use inline builtin lowering,
+      rather than ordinary function tail-call resolution.
 - [x] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
       lexical scope and nested break/continue/return behavior. My integrated
