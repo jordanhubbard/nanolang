@@ -11,7 +11,9 @@ an empty record array followed by append. Ten matching constructor controls
 execute; eight wrong nominal contexts are refused by both C and bytecode
 frontends while preserving a prior artifact.
 
-My fresh three-stage native bootstrap passes. The existing nested generic,
+My fresh three-stage native bootstrap passes again after integration with
+PR452 ownership metadata. Sixteen constructor, nested-generic and instantiated
+ownership methods pass on that integrated build. The existing nested generic,
 nominal ordering and record-array suites remain adjacent checks. Forty repeated
 parser/typechecker/environment/AST teardown checks pass ASan and UBSan with
 leak detection disabled; this does not establish leak freedom.
@@ -25,7 +27,7 @@ to the C seed until that separate repair lands; existing paired gates retain
 both self-hosted stages.
 
 Task: `task_633f2402ec5944cfba0911a56a9f4eb1`.
-Logs: `/tmp/nanolang-constructor-bootstrap.log`,
-`/tmp/nanolang-constructor-context-asan.log`, and
-`/tmp/nanolang-constructor-final-gates.log`.
+Logs: `/tmp/nanolang-constructor-integrated-bootstrap.log`,
+`/tmp/nanolang-constructor-integrated-asan.log`, and
+`/tmp/nanolang-constructor-final-integrated.log`.
 I do not claim the NanoISA bootstrap or bytecode fixed point from these checks.

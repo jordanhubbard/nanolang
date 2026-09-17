@@ -102,8 +102,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] **Parse complete nested generic arguments.** My C annotation parser
       preserves the inner arguments in `Box<Result<int,string>>`. I retain
       recursive argument `TypeInfo`; 64 parser checks, focused parser sanitizer
-      checks, fresh bootstrap and 16 paired generic-affine methods pass. Native nested
-      emission remains task `task_633f2402ec5944cfba0911a56a9f4eb1`. MAC
+      checks, fresh bootstrap and 16 paired generic-affine methods pass. Native constructor
+      context is repaired in the C seed; self-hosted nested/global emission
+      remains task `task_85a8db6e186440eaad80442bfc133dd8`. MAC
       `task_8178b6b71fe147bd851629713e7be14d`.
 
 - [x] **Retain instantiated ownership metadata.** I preserve complete concrete
