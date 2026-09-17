@@ -167,7 +167,37 @@ static bool own_value_resource(OwnFlow *flow, ASTNode *at, const char *name, con
     return false;
 }
 
+/* I preserve fixed nominal callbacks; generic resource transfer needs a
+ * separate signature-aware ownership model. Ordinary phantom arguments do
+ * not create an obligation. */
+static bool own_callback_signature(OwnFlow *, const FunctionSignature *, unsigned);
+
+static bool own_callback_type(OwnFlow *flow, const TypeInfo *info, unsigned depth) {
+    if (!info) return false;
+    if (depth > 128) return true;
+    if (info->fn_sig && own_callback_signature(flow, info->fn_sig, depth + 1)) return true;
+    if (has_resource_collection_type_info(flow->env, info)) return true;
+    return is_resource_type_info(flow->env, info) &&
+        (info->type_param_count || own_unresolved_payload_shape(info, 0));
+}
+
+static bool own_callback_signature(OwnFlow *flow, const FunctionSignature *signature, unsigned depth) {
+    if (!signature) return false;
+    if (depth > 128) return true;
+    if (own_callback_type(flow, signature->return_type_info, depth + 1) ||
+        own_callback_signature(flow, signature->return_fn_sig, depth + 1)) return true;
+    for (int i = 0; signature->param_type_info && i < signature->param_count; ++i)
+        if (own_callback_type(flow, signature->param_type_info[i], depth + 1)) return true;
+    return false;
+}
+
+static void own_check_callback(OwnFlow *flow, ASTNode *at, const FunctionSignature *signature) {
+    if (own_callback_signature(flow, signature, 0))
+        own_error(flow, at, "generic resource callback signatures need ownership lowering", NULL);
+}
+
 static void own_metadata(OwnFlow *flow, ASTNode *at, Type type, const char *name, const TypeInfo *info) {
+    if (info) own_check_callback(flow, at, info->fn_sig);
     bool nominal = own_resource(flow, name);
     bool contained = own_value_resource(flow, at, name, info);
     if (has_resource_collection_payload(flow->env, name)) {
@@ -425,6 +455,7 @@ static void own_nested_function(OwnFlow *flow, ASTNode *function) {
     nested.loop = NULL;
     for (int i = 0; i < function->as.function.param_count; ++i) {
         Parameter *parameter = &function->as.function.params[i];
+        own_check_callback(flow, function, parameter->fn_sig);
         if (own_add(&nested, function, parameter->name, parameter->struct_type_name, parameter->type_info))
             nested.bindings[nested.count - 1].signature = parameter->fn_sig;
     }
@@ -441,6 +472,16 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
     switch (node->type) {
         case AST_IDENTIFIER: {
             OwnBinding *binding = own_find(flow, node->as.identifier);
+            Function *function = binding ? NULL : env_get_function(flow->env, node->as.identifier);
+            if (function) {
+                bool unsupported = own_callback_type(flow, function->return_type_info, 0) ||
+                    own_callback_signature(flow, function->return_fn_sig, 0);
+                for (int i = 0; i < function->param_count; ++i)
+                    unsupported |= own_callback_type(flow, function->params[i].type_info, 0) ||
+                        own_callback_signature(flow, function->params[i].fn_sig, 0);
+                if (unsupported)
+                    own_error(flow, node, "generic resource callback signatures need ownership lowering", function->name);
+            }
             if (binding && binding->resource) {
                 if ((size_t)(binding - flow->bindings) < flow->exit_first)
                     own_error(flow, node, "resource captures need ownership lowering", binding->name);
@@ -461,6 +502,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             own_metadata(flow, node, node->as.let.var_type, type, info);
             unsigned result = node->as.let.is_destructure_projection ? OWN_NEXT : own_node(flow, node->as.let.value, true);
             FunctionSignature *signature = node->as.let.fn_sig ? node->as.let.fn_sig : own_signature(flow, node->as.let.value);
+            own_check_callback(flow, node, signature);
             if ((result & OWN_NEXT) && own_add(flow, node, node->as.let.name, type, info)) {
                 flow->bindings[flow->count - 1].signature = signature;
                 if (node->as.let.is_destructure) flow->bindings[flow->count - 1].moved = true;
@@ -718,6 +760,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
 void check_global_ownership(Environment *env, ASTNode *global, bool *has_error) {
     if (!global || global->type != AST_LET) return;
     OwnFlow flow = {.env = env, .error = has_error};
+    own_check_callback(&flow, global, global->as.let.fn_sig);
     bool resource = own_resource(&flow, global->as.let.type_name) ||
         own_info_resource(&flow, global, global->as.let.type_info, 0);
     if (!resource && global->as.let.value)
@@ -733,10 +776,12 @@ void check_function_ownership(Environment *env, ASTNode *function, bool *has_err
     for (int i = 0; i < env->struct_count; ++i) any_resource |= env->structs[i].is_resource;
     if (!any_resource) return;
     OwnFlow flow = {.env = env, .error = has_error};
+    own_check_callback(&flow, function, function->as.function.return_fn_sig);
     own_metadata(&flow, function, function->as.function.return_type,
                  function->as.function.return_struct_type_name, function->as.function.return_type_info);
     for (int i = 0; i < function->as.function.param_count; ++i) {
         Parameter *parameter = &function->as.function.params[i];
+        own_check_callback(&flow, function, parameter->fn_sig);
         own_metadata(&flow, function, parameter->type, parameter->struct_type_name, parameter->type_info);
         if (!function->as.function.is_extern && own_add(&flow, function, parameter->name, parameter->struct_type_name, parameter->type_info))
             flow.bindings[flow.count - 1].signature = parameter->fn_sig;

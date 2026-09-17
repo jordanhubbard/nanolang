@@ -4311,3 +4311,8 @@ test-vm-bytecode-bootstrap: nano_virt nano_vm nanoisa_dump
 test-generic-function-values: bootstrap
 	python3 -m unittest -v tests.test_generic_function_values
 test-selfhost-generic-contexts: test-generic-function-values
+
+.PHONY: test-resource-callback-boundary
+test-units: test-resource-callback-boundary
+test-resource-callback-boundary: bootstrap
+	python3 -m unittest tests.test_resource_callback_boundary

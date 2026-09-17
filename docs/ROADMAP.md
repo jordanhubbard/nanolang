@@ -229,6 +229,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       This establishes classification, not native record layout or global
       ownership support. MAC `task_ef807591eb104cc8b664cd55581ec505`.
 
+- [x] **Guard unsupported generic resource callback signatures.** I inspect
+      complete callback parameter/result annotations and reject generic owners
+      and resource collections before publication. My ordinary and phantom
+      callback values remain copyable; I check their transfer contracts
+      separately. All 13 boundary methods pass through C seed/Stage 1/Stage 2,
+      including executable nongeneric resource parameter/result controls and
+      preserved-output rejection. Fresh bootstrap and 78 adjacent paired
+      methods pass; `docs/evidence/resource-callback-boundary.md` records exact
+      checkpoints and limits. This guard does not implement generic callback
+      ownership. MAC `task_f05070eff34a4b169318fe949da45630`.
+
 - [x] **Retain concrete union identity when reading record fields.** I retain
       complete annotations and declaration-aware union kinds for typed reads
       and direct matches. I reject wrong concrete arguments and wrong union
