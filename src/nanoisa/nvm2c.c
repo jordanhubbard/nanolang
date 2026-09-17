@@ -1137,6 +1137,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
+        case OP_CAST_FLOAT: {
+            Nvm2cSimSlot value;
+            if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
+            break;
+        }
         case OP_CAST_INT: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -3210,6 +3216,31 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expr[48];
             snprintf(expr, sizeof expr, "nstr_from_i64(t[%d])", v);
             stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_CAST_FLOAT: {
+            uint8_t kind;
+            int value = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            char expression[128];
+            if (kind == NVM2C_VK_VALUE)
+                snprintf(expression, sizeof expression, "nvalue_cast_float(v[%d])", value);
+            else if (kind == NVM2C_VK_FLOAT)
+                snprintf(expression, sizeof expression, "f[%d]", value);
+            else if (kind == NVM2C_VK_INT)
+                snprintf(expression, sizeof expression, "(double)t[%d]", value);
+            else if (kind == NVM2C_VK_BOOL)
+                snprintf(expression, sizeof expression, "(t[%d] ? 1.0 : 0.0)", value);
+            else if (kind == NVM2C_VK_STR)
+                snprintf(expression, sizeof expression, "(s[%d] ? strtod(s[%d], NULL) : 0.0)", value, value);
+            else if (kind == NVM2C_VK_REC || kind == NVM2C_VK_MAP ||
+                     integer_array_storage(kind) || kind == NVM2C_VK_SARR || kind == NVM2C_VK_RARR)
+                snprintf(expression, sizeof expression, "0.0");
+            else {
+                nvm2c_fail(b, "I cannot emit CAST_FLOAT with an unresolved representation");
+                goto done;
+            }
+            stack_push_float(b, &st, expression);
             break;
         }
         case OP_CAST_INT: {
@@ -5291,7 +5322,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
             need_assert || need_rarr || b.has_maps || module_has_opcode(mod, OP_AGG_PACK) ||
-            module_has_opcode(mod, OP_CAST_INT)) {
+            module_has_opcode(mod, OP_CAST_INT) || module_has_opcode(mod, OP_CAST_FLOAT)) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
@@ -5337,6 +5368,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (value.kind != 5) abort();\n    return value.text;\n}\n"
                 "static inline nmap_t nvalue_require_map(nmap_value value) {\n"
                 "    if (value.kind != 13 || !value.text) abort();\n    return (nmap_t)value.text;\n}\n"
+                "static inline double nvalue_cast_float(nmap_value value) {\n"
+                "    if (value.kind == 3) return nvalue_require_float(value);\n"
+                "    if (value.kind == 1) return (double)value.integer;\n"
+                "    if (value.kind == 4) return value.integer ? 1.0 : 0.0;\n"
+                "    if (value.kind == 5) return value.text ? strtod(value.text, NULL) : 0.0;\n"
+                "    return 0.0;\n}\n"
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
                 "    if (value.kind == 3) abort(); /* I require an explicit float conversion contract. */\n"
                 "    return value.kind == 1 || value.kind == 4 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
@@ -5485,7 +5522,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
-            "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_equal;\n"
+            "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_float; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"
