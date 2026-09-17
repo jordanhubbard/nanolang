@@ -1041,12 +1041,29 @@ static void test_borrow_annotation_retention(void) {
     ASSERT_NULL(parse_ok("struct Invalid { value: &int }"));
 }
 
+static void test_borrow_postcondition_copy(void) {
+    ASTNode *program = parse_ok("fn inspect(view: &Handle) -> int ensures (valid &view) { return 0 }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *body = program->as.program.items[0]->as.function.body;
+    ASTNode *returned = body->as.block.statements[0];
+    ASSERT_EQ(returned->type, AST_BLOCK);
+    ASTNode *condition = returned->as.block.statements[1]->as.assert.condition;
+    ASSERT_EQ(condition->type, AST_CALL);
+    ASTNode *borrow = condition->as.call.args[0];
+    ASSERT_EQ(borrow->type, AST_CALL);
+    ASSERT_EQ(borrow->as.call.borrow_mode, 1);
+    ASSERT_EQ(borrow->as.call.arg_count, 1);
+    ASSERT(strcmp(borrow->as.call.args[0]->as.identifier, "view") == 0);
+    free_ast(program);
+}
+
 int main(void) {
     printf("=== Parser Tests ===\n");
 
     printf("\n--- Valid programs ---\n");
     TEST(parse_minimal);
     TEST(borrow_annotation_retention);
+    TEST(borrow_postcondition_copy);
     TEST(nested_generic_annotation_metadata);
     TEST(nested_generic_annotation_errors);
     TEST(parse_empty_program);

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPILERS = os.environ.get('NANO_BORROW_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')
 PRELUDE = '''resource struct Handle { fd: int }
 fn read(view: &Handle) -> int { return view.fd }
-shadow read { assert true }
+shadow read { let h: Handle = Handle { fd: 7 } assert (== (read &h) 7) let Handle { fd } = h assert (== fd 7) }
 fn consume(value: Handle) -> int { let Handle { fd } = value return fd }
 shadow consume { assert (== (consume Handle { fd: 7 }) 7) }
 '''
@@ -49,9 +49,9 @@ class SharedBorrows(unittest.TestCase):
 
     def test_repeated_shared_aliases_and_forwarding(self):
         self.check(PRELUDE + '''fn sum(a: &Handle, b: &Handle) -> int { return (+ a.fd b.fd) }
-shadow sum { assert true }
+shadow sum { let h: Handle = Handle { fd: 3 } assert (== (sum &h &h) 6) assert (== (consume h) 3) }
 fn forward(view: &Handle) -> int { return (sum &view &view) }
-shadow forward { assert true }
+shadow forward { let h: Handle = Handle { fd: 5 } assert (== (forward &h) 10) assert (== (consume h) 5) }
 fn main() -> int {
  let h: Handle = Handle { fd: 11 }
  assert (== (read &h) 11)
