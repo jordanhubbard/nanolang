@@ -3129,7 +3129,20 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let binding: ASTLet = (parser_get_let parser stmt.node_id)
-            return (nisa_emit_typed_let parser binding binding.var_type)
+            let mut value_type: string = binding.var_type
+            if (== value_type "") {
+                if (== binding.value_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                    let literal: ASTArrayLiteral = (parser_get_array_literal parser binding.value)
+                    if (== literal.element_count 0) {
+                        return (nisa_fail "I require an explicit type for an empty array local")
+                    }
+                }
+                if (nisa_is_map_constructor parser binding.value binding.value_type) {
+                    return (nisa_fail "I require an explicit type for an empty map local")
+                }
+                set value_type (nisa_expr_type parser binding.value binding.value_type)
+            }
+            return (nisa_emit_typed_let parser binding value_type)
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
@@ -3201,6 +3214,11 @@ shadow nisa_emit_stmt {
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT\n  RET")
     assert nisa_ok
+    let inferred: string = (nanoisa_emit_nasm (+ "f" "n main() -> int { let value = 7 let copy = (+ value 1) return copy }"))
+    assert nisa_ok
+    assert (str_contains inferred ".function main 0 2 0 int 1")
+    assert (str_contains inferred "STORE_LOCAL 0")
+    assert (str_contains inferred "STORE_LOCAL 1")
 }
 
 fn nisa_emit_statements(parser: Parser, statements: List<ASTStmtRef>) -> string {
