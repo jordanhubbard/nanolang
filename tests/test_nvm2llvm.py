@@ -66,17 +66,8 @@ class ScalarLLVM(unittest.TestCase):
         self.assertEqual(vm.stdout, llvm.stdout)
         return ir
 
-    def test_verified_implicit_entry_refused(self):
-        module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\n.end\n')
-        self.run_cmd([VM, '--verify-only', module])
-        self.run_cmd([VM, module])
-        result = self.run_cmd([LLVM, module], success=False)
-        self.assertIn('explicit returns', result.stderr)
-        self.assertEqual(result.stdout, '')
-        source, executable = self.work/'implicit.c', self.work/'implicit'
-        self.run_cmd([C, module, '-o', source])
-        self.run_cmd(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', source, '-o', executable])
-        self.run_cmd([executable])
+    def test_verified_implicit_entry(self):
+        self.compare('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\n.end\n')
 
     def test_integer_boundaries(self):
         checks = []
@@ -295,14 +286,13 @@ RET
                 self.assertEqual(result.stdout, '')
                 self.assertIn('scalar', result.stderr)
 
-    def test_initializer_and_nested_implicit_return_refused(self):
-        for function, body in (('__init__', 'PUSH_I64 0\nRET\n'), ('implicit', 'PUSH_I64 9\n')):
-            with self.subTest(function=function):
-                module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function '+function+' 0 0 0 int 1\n'+body+'.end\n')
-                self.run_cmd([VM, '--verify-only', module])
-                result = self.run_cmd([LLVM, module], success=False)
-                self.assertEqual(result.stdout, '')
-                self.assertIn('initializer' if function == '__init__' else 'explicit returns', result.stderr)
+    def test_initializer_refused(self):
+        module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
+                             '.function __init__ 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+        self.run_cmd([VM, '--verify-only', module])
+        result = self.run_cmd([LLVM, module], success=False)
+        self.assertEqual(result.stdout, '')
+        self.assertIn('initializer', result.stderr)
 
     def test_unused_import_refused(self):
         module = self.module('.import "" "get_argc" int\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
