@@ -4521,3 +4521,8 @@ test-cast-string-allocation: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJEC
 	$(CC) $(CFLAGS) -Dmalloc=cast_heap_malloc -c src/nanovm/heap.c -o obj/test_cast_string_heap.o
 	$(CC) $(CFLAGS) -o obj/test_cast_string_alloc tests/nanovm/test_cast_string_alloc.c obj/test_cast_string_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_cast_string_alloc
+.PHONY: test-native-scalar-joins
+test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_native_scalar_joins
+
+test-units: test-native-scalar-joins
