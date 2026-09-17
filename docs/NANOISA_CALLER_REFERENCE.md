@@ -1,8 +1,8 @@
 # My one-parameter caller-origin contract
 
 I implement MAC `task_48dcff3ff3314e9aad325209387968d1` after nested-reference
-PR576, under affine parent ed702 and borrow parent718. This is an implementation
-contract, not evidence of runtime admission. My multi-parameter acceptance stays
+PR576, under affine parent ed702 and borrow parent718. I pass my
+[bounded caller-origin gates](evidence/nanoisa-caller-reference.md). My multi-parameter acceptance stays
 open under `task_7a2c8017c0c04b82a48ba069561e9d36`.
 
 I admit exactly entry function 0 and one nonrecursive helper function 1. Entry
