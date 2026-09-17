@@ -8543,6 +8543,11 @@ Compiler product:
       and shadow semantics while completing the independent VM route. AOT
       stage equality cannot close this acceptance item. Evidence:
       `docs/evidence/vm-bootstrap-budget.md`.
+  - [ ] I precompute per-let global ownership once from ordinary/unsafe block
+        statements and function parameters, preserving IDs, declaration order,
+        initializer effects and exact fixture bytecode. I compare the old
+        classification on nested and shadow scopes and measure the compiler
+        route; this bounded emitter repair does not close the full VM gate.
 - [x] I declare truthful parser record, enum and union counts in self-hosted
       NanoISA assembly (`task_14dca63e4c1146e59ae0a1649ba29060`). My emitted
       aggregate IDs already follow parser order; omitted `.types` bounds prevent
