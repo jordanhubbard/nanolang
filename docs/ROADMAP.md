@@ -8709,9 +8709,12 @@ Compiler product:
       (`task_750341a5ccb04cffa9b2e0cc92e1f7d6`). Twelve opcode comparisons
       and VM/AOT execution cover nested scopes and loop exits; see
       `docs/evidence/selfhost-unsafe-blocks.md`.
-- [ ] I retain HashMap field generic types through C-seed builtin inference
-      (`task_160826784e8a4aa4ac9d5e589a54c814`); direct `map_get`/`map_has`
-      on a declared string/int map field currently fails inference.
+- [x] I retain HashMap field generic types through C-seed builtin inference
+      (`task_160826784e8a4aa4ac9d5e589a54c814`). My checked field owns its complete
+      map annotation, shared inference borrows declared tags and native emission
+      selects the matching helper. I test all four scalar pairs, nested/imported
+      receivers, and structured errors that preserve prior artifacts.
+      See `docs/evidence/map-field-operations.md`.
 - [x] I lower the supported string/int map field in compiler `CollectResult`,
       preserving map identity through record fields, calls and returns
       (`task_95a9982edcd04a1dbb57c45639cd7230`). Ten C-seed bytecode comparisons

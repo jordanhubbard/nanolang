@@ -4265,3 +4265,9 @@ test-map-type-boundaries: $(COMPILER_C) nano_virt
 	@python3 tests/test_map_type_boundaries.py
 
 test-units: test-map-type-boundaries
+
+.PHONY: test-map-field-operations
+test-map-field-operations: $(COMPILER_C) nano_virt nano_vm
+	@python3 tests/test_map_field_operations.py
+
+test-units: test-map-field-operations
