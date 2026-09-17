@@ -8748,12 +8748,40 @@ Compiler product:
       emitter gate passes 86 comparisons and 70 Python methods; C-seed/Stage2
       emitters produce identical fixture assembly. See
       `docs/evidence/nanoisa-initializer-frame.md`.
-- [ ] I lower range `for` loops required by my full compiler shadow closure
-      (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
-      My correctly captured full probe stops at `tokenize_string` because
-      `PNODE_FOR` has no lowering. I retain range evaluation order, loop scope,
-      nesting and break/continue behavior, require C-seed/VM parity, and rerun
-      the complete shadow closure without exclusions.
+- [x] I restore C-seed NanoVM lexical bindings after a `for` loop
+      (`task_be93f56b6a5848ebbd23ef30ccd7bfd4`) while retaining allocated slots.
+      Nested same-name variables and bounds referring to outer locals pass
+      exact C-seed/self-hosted bytecode and VM/native execution controls.
+- [ ] I infer C-seed loop element metadata from inline and computed arrays
+      (`task_911317d4234c46049c3dea1a2d0a153d`). The current `AST_FOR` checker
+      only reads identifier receivers, so inline string/bool literals give an
+      integer loop variable and reject valid bodies. I retain the failing
+      expanded probe and use explicit typed locals as the current control.
+- [x] I preserve C-seed native range bounds once in source order and compile
+      valid early-return array loops without inapplicable vectorization hints
+      (`task_c3d168ec8de94d18a1f63445f2c6cea0`). My collision-checked argument
+      temporaries preserve user bindings; paired native/VM controls pass.
+- [ ] I snapshot both self-hosted native range bounds before entering the loop
+      (`task_8e80a672c285487dbbad07dd1dbfc9b9`). My current `generate_for_stmt` repeats
+      its end expression in the C condition. I require once-only source order,
+      nested lexical scopes and Stage1/Stage2 paired execution.
+- [ ] I measure my compiler-shadow deadline after range emitter growth
+      (`task_628759a2daf743b9bf13c9a7fea2ced0`). A fresh bootstrap reached the default
+      ten-second shadow deadline without an assertion diagnostic; explicit
+      sixty-second execution advances. I retain both logs, measure the cause
+      and keep deadline tests unchanged. A timeout alone is not a correctness failure.
+- [ ] I carry contextual element types through nested empty-array appends
+      (`task_d5ed194093434b5cbfc2e3ec6bc2d37a`). After range lowering, my full compiler
+      shadow probe reaches `substitute_union_field_type` and rejects its nested
+      string appends to `[]`. I retain negative type controls and require exact
+      C-seed bytecode plus VM/native execution before rerunning the closure.
+- [x] I lower range `for` loops required by my full compiler shadow closure
+      (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
+      lexical scope and nested break/continue/return behavior. My integrated
+      gate passes 86 existing comparisons and 74 Python methods; C-seed and
+      Stage2-built emitters produce identical fixture assembly. The full
+      shadow probe advances to the separately recorded empty-array append
+      context boundary without exclusions. See `docs/evidence/nanoisa-range-for.md`.
 - [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
       bytecode is input, then two VM-executed compiler generations compile the
       same clean source and immutable host closure. I compare raw generation

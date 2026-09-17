@@ -31,6 +31,7 @@ let mut nisa_void_return: bool = false
 let mut nisa_return_type: string = ""
 let mut nisa_loop_top: string = ""
 let mut nisa_loop_end: string = ""
+let mut nisa_loop_index: string = ""
 let mut nisa_import_names: array<string> = []
 let mut nisa_import_text: string = ""
 let mut nisa_artifact_owners: array<int> = []
@@ -54,6 +55,7 @@ fn nisa_reset() -> int {
     set nisa_return_type ""
     set nisa_loop_top ""
     set nisa_loop_end ""
+    set nisa_loop_index ""
     set nisa_import_names []
     set nisa_import_text ""
     set nisa_artifact_owners []
@@ -1535,6 +1537,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             if (== target_name "str_concat") { return "string" }
             return "bool"
         }
+        if (== target_name "range") { return "array<int>" }
         if (== target_name "array_new") {
             if (!= call.arg_count 2) { return "" }
             let fill: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
@@ -1894,6 +1897,62 @@ shadow nisa_temp_local {
     let reset_again: int = (nisa_reset)
 }
 
+fn nisa_increment_local(slot: string) -> string {
+    let mut text: string = (nisa_line_imm "LOAD_LOCAL" slot)
+    set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+    set text (+ text (nisa_line "I64_ADD"))
+    return (+ text (nisa_line_imm "STORE_LOCAL" slot))
+}
+shadow nisa_increment_local {
+    assert (== (nisa_increment_local "2") "  LOAD_LOCAL 2\n  PUSH_I64 1\n  I64_ADD\n  STORE_LOCAL 2\n")
+}
+
+# I evaluate each bound once and materialize the same integer array as my seed.
+fn nisa_emit_range(parser: Parser, call: ASTCall) -> string {
+    if (!= call.arg_count 2) {
+        return (nisa_fail "I require two integer range bounds")
+    }
+    let mut argument: int = 0
+    while (< argument call.arg_count) {
+        let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start argument))
+        if (!= (nisa_expr_type parser value.node_id value.node_type) "int") {
+            return (nisa_fail "I require integer range bounds")
+        }
+        set argument (+ argument 1)
+    }
+    let mut text: string = ""
+    set text (+ text (nisa_emit_call_args parser call))
+    let end_slot: string = (nisa_temp_local "int")
+    set text (+ text (nisa_line_imm "STORE_LOCAL" end_slot))
+    let index_slot: string = (nisa_temp_local "int")
+    set text (+ text (nisa_line_imm "STORE_LOCAL" index_slot))
+    set text (+ text (nisa_line_imm "ARR_NEW" "1"))
+    let array_slot: string = (nisa_temp_local "array<int>")
+    set text (+ text (nisa_line_imm "STORE_LOCAL" array_slot))
+    let top: string = (nisa_fresh)
+    let end: string = (nisa_fresh)
+    set text (+ text (nisa_label_line top))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" end_slot))
+    set text (+ text (nisa_line "LT"))
+    set text (+ text (nisa_line_imm "JMP_FALSE" end))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" array_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+    set text (+ text (nisa_line "ARR_PUSH"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" array_slot))
+    set text (+ text (nisa_increment_local index_slot))
+    set text (+ text (nisa_line_imm "JMP" top))
+    set text (+ text (nisa_label_line end))
+    return (+ text (nisa_line_imm "LOAD_LOCAL" array_slot))
+}
+shadow nisa_emit_range {
+    let text: string = (nanoisa_emit_nasm "fn main() -> int { for value in (range 0 3) { assert (>= value 0) } return 0 }")
+    assert (str_contains text "ARR_NEW 1")
+    assert (str_contains text "LT")
+    assert (str_contains text "ARR_PUSH")
+    assert (== (nanoisa_emit_nasm "fn main() -> int { let values: array<int> = (range true) return 0 }") "")
+}
+
 fn nisa_emit_filled_array(parser: Parser, call: ASTCall) -> string {
     if (!= call.arg_count 2) { return (nisa_fail "I require an array count and fill value") }
     let count: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -2057,6 +2116,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line (nisa_string_binary_opcode function_name)))
     }
+    if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
     if (nisa_is_set_call function_name) { return (nisa_emit_set_call parser call function_name) }
     if (== function_name "string_to_int") {
@@ -2452,6 +2512,8 @@ fn nisa_emit_while(parser: Parser, w: ASTWhile) -> string {
     let l_end: string = (nisa_fresh)
     let outer_top: string = nisa_loop_top
     let outer_end: string = nisa_loop_end
+    let outer_index: string = nisa_loop_index
+    set nisa_loop_index ""
     set nisa_loop_top l_top
     set nisa_loop_end l_end
     let mut out: string = (nisa_label_line l_top)
@@ -2473,6 +2535,7 @@ fn nisa_emit_while(parser: Parser, w: ASTWhile) -> string {
     set out (+ out (nisa_label_line l_end))
     set nisa_loop_top outer_top
     set nisa_loop_end outer_end
+    set nisa_loop_index outer_index
     return out
 }
 
@@ -2493,6 +2556,64 @@ shadow nisa_emit_while {
     assert (str_contains text "I64_LT_S")
     assert (str_contains text "JMP_FALSE")
     assert (str_contains text "JMP L")
+}
+
+fn nisa_emit_for(parser: Parser, loop: ASTFor) -> string {
+    let container: string = (nisa_expr_type parser loop.iterable loop.iterable_type)
+    let element: string = (nisa_element_type parser container)
+    if (== element "") { return (nisa_fail "I require a supported array or list for iteration") }
+    let mut text: string = ""
+    if (or (== loop.iterable_type ParseNodeType.PNODE_CALL) (== loop.iterable_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let iterable: ASTCall = (nisa_get_call parser loop.iterable loop.iterable_type)
+        if (== (nisa_call_name parser iterable) "range") { set text (nisa_emit_range parser iterable) }
+        else { set text (nisa_emit_expr parser loop.iterable loop.iterable_type) }
+    } else { set text (nisa_emit_expr parser loop.iterable loop.iterable_type) }
+    let array_slot: string = (nisa_temp_local container)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" array_slot))
+    set text (+ text (nisa_line_imm "PUSH_I64" "0"))
+    let index_slot: string = (nisa_temp_local "int")
+    set text (+ text (nisa_line_imm "STORE_LOCAL" index_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" array_slot))
+    set text (+ text (nisa_line "ARR_LEN"))
+    let length_slot: string = (nisa_temp_local "int")
+    set text (+ text (nisa_line_imm "STORE_LOCAL" length_slot))
+    let outer_top: string = nisa_loop_top
+    let outer_end: string = nisa_loop_end
+    let outer_index: string = nisa_loop_index
+    let top: string = (nisa_fresh)
+    let end: string = (nisa_fresh)
+    set nisa_loop_top top
+    set nisa_loop_end end
+    set nisa_loop_index index_slot
+    set text (+ text (nisa_label_line top))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" length_slot))
+    set text (+ text (nisa_line "LT"))
+    set text (+ text (nisa_line_imm "JMP_FALSE" end))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" array_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index_slot))
+    set text (+ text (nisa_line "ARR_GET"))
+    let variable_slot: int = (array_length nisa_names)
+    set nisa_names (array_push nisa_names loop.var_name)
+    set nisa_types (array_push nisa_types element)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" (int_to_string variable_slot)))
+    set text (+ text (nisa_emit_block parser loop.body))
+    if (nisa_block_falls_through parser loop.body) {
+        set text (+ text (nisa_increment_local index_slot))
+        set text (+ text (nisa_line_imm "JMP" top))
+    }
+    set text (+ text (nisa_label_line end))
+    (array_set nisa_names variable_slot "")
+    set nisa_loop_top outer_top
+    set nisa_loop_end outer_end
+    set nisa_loop_index outer_index
+    return text
+}
+shadow nisa_emit_for {
+    let text: string = (nanoisa_emit_nasm "fn main() -> int { let index: int = 20 for index in (range 0 2) { continue } return index }")
+    assert (str_contains text "ARR_GET")
+    assert (str_contains text "LOAD_LOCAL 0\n  RET")
+    assert (== nisa_loop_index "")
 }
 
 fn nisa_emit_assert(parser: Parser, node: ASTAssert) -> string {
@@ -2539,6 +2660,9 @@ shadow nisa_call_has_result {
 }
 
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
+    if (== stmt.node_type ParseNodeType.PNODE_FOR) {
+        return (nisa_emit_for parser (parser_get_for parser stmt.node_id))
+    }
     if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
         let block: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
         return (nisa_emit_statements parser block.statements)
@@ -2549,7 +2673,9 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     }
     if (== stmt.node_type ParseNodeType.PNODE_CONTINUE) {
         if (== nisa_loop_top "") { return (nisa_fail "continue needs an enclosing loop") }
-        return (nisa_line_imm "JMP" nisa_loop_top)
+        let mut step: string = ""
+        if (!= nisa_loop_index "") { set step (nisa_increment_local nisa_loop_index) }
+        return (+ step (nisa_line_imm "JMP" nisa_loop_top))
     }
     if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
@@ -2781,6 +2907,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_return_type func.return_type
     set nisa_loop_top ""
     set nisa_loop_end ""
+    set nisa_loop_index ""
     if (== result_tag "") {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {

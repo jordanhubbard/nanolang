@@ -3203,6 +3203,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             break;
         }
 
+        uint16_t saved_binding_count = cg->local_binding_count;
+
         /* Compile the range expression (should produce an array) */
         compile_expr(cg, node->as.for_stmt.range_expr);
         /* Store array in a temp local */
@@ -3265,6 +3267,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
 
         cg->loop_depth--;
+        cg->local_binding_count = saved_binding_count;
         break;
     }
 

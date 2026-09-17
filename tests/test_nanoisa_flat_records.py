@@ -123,6 +123,48 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.assertEqual(self.run_checked(binary).stdout, "init\n")
 
+    def test_range_for_loops_match_scope_and_control_flow(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/range_for.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-range-for-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "lower", "upper", "bounds", "scoped", "mixed_loops", "first", "scalar_arrays", "main", "__init__")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.run_checked(binary)
+            binary = work / "reference"
+            self.run_checked(ROOT / "bin/nanoc_c", fixture, "-o", binary)
+            self.run_checked(binary)
+
+    def test_range_and_iteration_reject_invalid_operands(self):
+        programs = [
+            'fn main() -> int { for value in (range) { assert true } return 0 }',
+            'fn main() -> int { for value in (range 1 2 3) { assert true } return 0 }',
+            'fn main() -> int { for value in (range 0 true) { assert true } return 0 }',
+            'fn main() -> int { for value in (range 0 "end") { assert true } return 0 }',
+            'fn main() -> int { for value in (range 2) { assert true } return 0 }',
+            'fn main() -> int { let values: array<int> = (range 0 2) return 0 }',
+            'fn main() -> int { for value in 7 { (println value) } return 0 }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-range-refusal-") as tmp:
+            source, output = Path(tmp) / "bad.nano", Path(tmp) / "bad.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program)
+                    output.write_text("prior output")
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=30)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(output.read_text(), "prior output")
+
     def test_global_filled_arrays_retain_initializer_temporaries(self):
         fixture = ROOT / "tests/nanoisa/fixtures/global_filled_arrays.nano"
         with tempfile.TemporaryDirectory(prefix="nano-global-filled-") as tmp:
