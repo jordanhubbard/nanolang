@@ -8838,7 +8838,8 @@ Compiler product:
       and the unchanged canonical dependency-shadow regression. I require
       C-seed bytecode, VM/native execution and output-preservation controls.
       Direct returns of float formatting must use inline builtin lowering,
-      rather than ordinary function tail-call resolution.
+      rather than ordinary function tail-call resolution. Float call results must
+      also match the declared return type before inline or tail-call emission.
 - [x] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
       lexical scope and nested break/continue/return behavior. My integrated
