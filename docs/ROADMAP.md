@@ -26,7 +26,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **v5.0.1 passive metadata text preservation.** I preserve validated
+- [x] **v5.0.1 passive metadata text preservation.** I preserve validated
       eligibility records through canonical disassembly and reassembly,
       reject malformed textual payloads, and compare canonical v2 bytes.
       MAC: `task_64dda3aeaab042df96a914ccd974209a`.
