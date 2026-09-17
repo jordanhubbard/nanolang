@@ -4226,3 +4226,7 @@ test-module-builder-self-capture: $(OBJ_DIR)/test_module_generation_probe
 test-units: test-native-module-linking
 test-native-module-linking: bootstrap3
 	@python3 -m unittest tests.test_native_module_linking
+.PHONY: test-compiler-artifact-support
+test-units: test-compiler-artifact-support
+test-compiler-artifact-support: $(COMPILER_C)
+	@python3 -m unittest tests.test_compiler_artifact_support
