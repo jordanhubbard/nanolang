@@ -578,10 +578,33 @@ bool codegen_bind_callback_contract(NvmModule *module, uint32_t import_index,
     return true;
 }
 
+static uint8_t module_introspection_result(const char *name, uint16_t *arity) {
+    if (!name || strncmp(name, "___module_", 10)) return TAG_VOID;
+    const char *rest = name + 10;
+    *arity = 0;
+    if (!strncmp(rest, "is_unsafe_", 10) || !strncmp(rest, "has_ffi_", 8)) return TAG_BOOL;
+    if (!strncmp(rest, "function_count_", 15) || !strncmp(rest, "struct_count_", 13)) return TAG_INT;
+    if (!strncmp(rest, "name_", 5) || !strncmp(rest, "path_", 5)) return TAG_STRING;
+    if (!strncmp(rest, "function_name_", 14) || !strncmp(rest, "struct_name_", 12)) {
+        *arity = 1;
+        return TAG_STRING;
+    }
+    return TAG_VOID;
+}
+
 /* Register an extern function in the codegen extern table and NVM import table */
 static void register_extern(CG *cg, const char *name, const char *module_name,
                            uint16_t param_count, uint8_t return_tag,
                            const uint8_t *param_tags) {
+    uint16_t intrinsic_arity = 0;
+    uint8_t intrinsic_result = module_introspection_result(name, &intrinsic_arity);
+    if (intrinsic_result != TAG_VOID) {
+        if (param_count != intrinsic_arity || return_tag != intrinsic_result ||
+            (intrinsic_arity && (!param_tags || param_tags[0] != TAG_INT)))
+            cg_error(cg, 0, "I require the declared module introspection signature");
+        /* These declarations lower to module facts, not external host calls. */
+        return;
+    }
     if (param_count > NANO_MAX_FFI_ARGS) {
         cg_error(cg, 0, "I cannot import a function with more than 16 foreign arguments");
         return;
@@ -622,6 +645,34 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 
 /* ── Module introspection inline compilation ───────────────────── */
 
+/* I consume the already evaluated index once and preserve the empty-string
+ * result outside the exported-name range. */
+static void compile_module_names(CG *cg, char **names, int count) {
+    emit_op(cg, OP_DUP);
+    emit_op(cg, OP_PUSH_I64, (int64_t)0);
+    emit_op(cg, OP_I64_LT_S);
+    uint32_t lower = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
+    emit_op(cg, OP_DUP);
+    emit_op(cg, OP_PUSH_I64, (int64_t)count);
+    emit_op(cg, OP_I64_GE_S);
+    uint32_t upper = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
+    uint16_t index = local_add(cg, "", 0);
+    emit_op(cg, OP_STORE_LOCAL, (int)index);
+    for (int i = 0; i < count; i++) {
+        uint32_t text = nvm_add_string(cg->module, names[i], (uint32_t)strlen(names[i]));
+        emit_op(cg, OP_PUSH_STR, text);
+    }
+    emit_op(cg, OP_ARR_LITERAL, (int)TAG_STRING, (uint32_t)count);
+    emit_op(cg, OP_LOAD_LOCAL, (int)index);
+    emit_op(cg, OP_ARR_GET);
+    uint32_t done = emit_op(cg, OP_JMP, (int32_t)0);
+    patch_jump(cg, lower + 1, lower, cg->code_size);
+    patch_jump(cg, upper + 1, upper, cg->code_size);
+    emit_op(cg, OP_POP);
+    emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "", 0));
+    patch_jump(cg, done + 1, done, cg->code_size);
+}
+
 /* Handle ___module_* calls inline instead of FFI so wrapper binaries work.
  * Returns true if the call was handled, false if not a ___module_ pattern. */
 static bool compile_module_introspection(CG *cg, const char *name) {
@@ -649,13 +700,13 @@ static bool compile_module_introspection(CG *cg, const char *name) {
     if (strncmp(rest, "function_count_", 15) == 0) {
         mname = rest + 15;
         mi = env_get_module(cg->env, mname);
-        emit_op(cg, OP_PUSH_I64, (uint32_t)(mi ? mi->function_count : 0));
+        emit_op(cg, OP_PUSH_I64, (int64_t)(mi ? mi->function_count : 0));
         return true;
     }
     if (strncmp(rest, "struct_count_", 13) == 0) {
         mname = rest + 13;
         mi = env_get_module(cg->env, mname);
-        emit_op(cg, OP_PUSH_I64, (uint32_t)(mi ? mi->struct_count : 0));
+        emit_op(cg, OP_PUSH_I64, (int64_t)(mi ? mi->struct_count : 0));
         return true;
     }
     if (strncmp(rest, "name_", 5) == 0) {
@@ -672,8 +723,18 @@ static bool compile_module_introspection(CG *cg, const char *name) {
         emit_op(cg, OP_PUSH_STR, sidx);
         return true;
     }
-    /* function_name_ and struct_name_ take an index arg - skip for now,
-     * those are rare and still work via FFI in --run mode */
+    if (strncmp(rest, "function_name_", 14) == 0) {
+        mi = env_get_module(cg->env, rest + 14);
+        compile_module_names(cg, mi ? mi->exported_functions : NULL,
+                             mi ? mi->function_count : 0);
+        return true;
+    }
+    if (strncmp(rest, "struct_name_", 12) == 0) {
+        mi = env_get_module(cg->env, rest + 12);
+        compile_module_names(cg, mi ? mi->exported_structs : NULL,
+                             mi ? mi->struct_count : 0);
+        return true;
+    }
     return false;
 }
 
@@ -2249,7 +2310,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
 
         /* Handle module introspection inline (no FFI needed) */
-        if (name && compile_module_introspection(cg, name)) {
+        if (name && fn_find(cg, name) < 0 && compile_module_introspection(cg, name)) {
             break;
         }
 

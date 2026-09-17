@@ -4368,3 +4368,8 @@ test-units: test-native-jump-true
 test-selfhost-float-values: bootstrap
 	python3 -m unittest -v tests.test_selfhost_float_values
 test-units: test-selfhost-float-values
+
+.PHONY: test-nanoisa-introspection
+test-nanoisa-introspection: nano_virt nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanoisa_introspection
+test-units: test-nanoisa-introspection
