@@ -120,6 +120,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
   - [ ] I check the generated compiler product and publish the observed boundary separately from canonical VM bootstrap and the pending VM-shadow cutover.
 
 - [x] I lower native `CAST_FLOAT` with the VM scalar conversion contract, including concrete and tagged int/bool/float/string inputs, while preserving the separate float-to-int refusal (`task_3d6c3314d8924dd2b0aca679647e7048`; six float methods, 2,412 native and 1,092 shape checks; `docs/evidence/native-cast-float.md`). I require unchanged arctangent VM/native output before passive frontend cutover.
+- [ ] I keep generated float helpers warning-clean after `CAST_FLOAT` adds
+      `nvalue_from_float` and float modules add `nf64_print`; strict native
+      tests currently fail on Darwin when either helper is defined but unused
+      (`task_5b98593f4d7fa6ec667fd315091f7e48`).
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
@@ -9489,6 +9493,13 @@ Compiler product:
       `getx` from the Cut A pin compiles and runs without `nano_vm`.
       Nested records, string fields, `AGG_SET`, variants, and tuples
       stay refused. `make test-nvm2c` (110 passed).
+- [x] I constrain projected record fields at typed i64 consumers before native
+      C emission, so a valid integer field is not mistaken for tagged optional
+      storage (`task_70156c5bc037856cbdbfbb09d8656d4b`). I execute the generated
+      C for signed comparison and retain invalid-tag traps without widening
+      generic dynamic opcodes. Both function orders and valid negative/nonnegative
+      fields pass; a string-tagged field traps. My NanoISA suite passes 2,691
+      checks and the adjacent nested-record projection regression passes.
 - [x] `nvm2c` translates `bool` results as i64 0/1. `is_pos` from the
       Cut A pin compiles and runs without `nano_vm`.
       `make test-nvm2c` (120 passed).

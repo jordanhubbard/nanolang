@@ -665,6 +665,16 @@ static int mark_string_operand(Nvm2cBuf *b, uint8_t *local_kind, uint16_t nloc,
     return value.kind != NVM2C_VK_UNK || shape_field_kind(b, value.shape, NVM2C_VK_STR);
 }
 
+static int require_typed_integer_operand(Nvm2cBuf *b, uint8_t *local_kind, uint16_t nloc,
+                                         Nvm2cSimSlot value) {
+    mark_origin(local_kind, nloc, value.origin, NVM2C_VK_INT);
+    if (value.kind == NVM2C_VK_UNK)
+        return shape_field_kind(b, value.shape, NVM2C_VK_INT);
+    if (value.kind == NVM2C_VK_INT || value.kind == NVM2C_VK_VALUE) return 1;
+    nvm2c_fail(b, "I require integer operands for typed I64 operations");
+    return 0;
+}
+
 static const uint8_t *fn_rec_k_const(const Nvm2cBuf *b, const uint8_t *tab, uint32_t fn, uint16_t slot) {
     return tab + ((size_t)fn * b->local_width + slot) * b->record_width;
 }
@@ -1073,7 +1083,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
-            if (ins.opcode == OP_BOOL_AND || ins.opcode == OP_BOOL_OR) {
+            if (ins.opcode == OP_I64_ADD || ins.opcode == OP_I64_SUB ||
+                ins.opcode == OP_I64_MUL || ins.opcode == OP_I64_DIV_S ||
+                ins.opcode == OP_I64_REM_S || ins.opcode == OP_I64_EQ ||
+                ins.opcode == OP_I64_NE || ins.opcode == OP_I64_LT_S ||
+                ins.opcode == OP_I64_LE_S || ins.opcode == OP_I64_GT_S ||
+                ins.opcode == OP_I64_GE_S) {
+                if (!require_typed_integer_operand(b, local_kind, nloc, rhs) ||
+                    !require_typed_integer_operand(b, local_kind, nloc, lhs)) return 0;
+            } else if (ins.opcode == OP_BOOL_AND || ins.opcode == OP_BOOL_OR) {
                 mark_origin(local_kind, nloc, rhs.origin, NVM2C_VK_BOOL);
                 mark_origin(local_kind, nloc, lhs.origin, NVM2C_VK_BOOL);
             }
@@ -1087,7 +1105,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_BOOL_NOT: {
             Nvm2cSimSlot x;
             if (!sim_pop(b, idx, stk, &sp, &x)) return 0;
-            if (ins.opcode == OP_BOOL_NOT) mark_origin(local_kind, nloc, x.origin, NVM2C_VK_BOOL);
+            if (ins.opcode == OP_I64_NEG) {
+                if (!require_typed_integer_operand(b, local_kind, nloc, x)) return 0;
+            } else if (ins.opcode == OP_BOOL_NOT) {
+                mark_origin(local_kind, nloc, x.origin, NVM2C_VK_BOOL);
+            }
             (void)x;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
