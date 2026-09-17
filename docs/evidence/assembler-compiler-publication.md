@@ -24,6 +24,8 @@ Validation:
   and 2,200 symbols, labels and forward patches with every jump checked.
 - The allocation harness checks scratch/pool failures, table allocation and
   growth failures, duplicate distinctions, index bounds, cleanup and recovery.
+  Function name/table allocation failures report memory errors; a mismatched
+  function symbol reports a nonzero duplicate error even from a clean result.
 - The round-trip suite and allocation harness pass ASan/UBSan with leak checks
   using separate objects in `/tmp/nanolang-asm-sanitizer-obj`.
 - The exact captured compiler assembly assembles, verifies in my VM, and
@@ -43,3 +45,21 @@ I track these repairs as `task_c77ac0644fda463a8a2d0ae7dd735908` and
 `task_74ee50b905d242e68c92abf41b427e15`. Assembly round-trip equality does not
 establish compiler bootstrap equality. Actual source compilation through this
 bytecode compiler and the self-hosted stage comparison remain separate gates.
+
+A fresh canonical native driver also published
+`/tmp/nanolang-selfhost-stage1.nvm` through the repaired module artifact.
+I executed that bytecode compiler with this exact route:
+
+```sh
+NANO_AS_CAPTURE_HELPER="$PWD/bin/nano_as_capture.so" \
+  bin/nano_vm /tmp/nanolang-selfhost-stage1.nvm -- \
+  /tmp/nanolang-bytecode-hello.nano --emit-nvm \
+  -o /tmp/nanolang-bytecode-hello.nvm
+bin/nano_vm --verify-only /tmp/nanolang-bytecode-hello.nvm
+bin/nano_vm /tmp/nanolang-bytecode-hello.nvm
+```
+
+All three commands exit zero. The 380-byte hello artifact asserts that
+20 + 17 equals 37. Compiler-source self-compilation remains the next gate.
+The review regression logs are `/tmp/nanolang-asm-review-gate.log` and
+`/tmp/nanolang-asm-review-sanitizers.log` (210 round-trip checks, no reports).

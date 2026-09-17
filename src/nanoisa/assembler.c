@@ -912,11 +912,14 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 return false;
             }
 
-            state->in_function = true;
-            state->fn_code_size = 0;
-
             NvmFunctionEntry fn = {0};
             fn.name_idx = nvm_add_string(state->mod, name, (uint32_t)strlen(name));
+            if (fn.name_idx == UINT32_MAX) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof(result->message),
+                         "I cannot allocate the function name.");
+                return false;
+            }
             fn.arity = (uint16_t)arity_val;
             fn.local_count = (uint16_t)locals_val;
             fn.upvalue_count = (uint16_t)upvalues_val;
@@ -924,13 +927,21 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             fn.result_count = result_count;
 
             state->current_function = nvm_add_function(state->mod, &fn);
+            if (state->current_function == UINT32_MAX) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof(result->message),
+                         "I cannot allocate the function entry.");
+                return false;
+            }
             int symbol = find_symbol(state, SYMBOL_FUNCTION, name);
             if (symbol < 0 || state->symbols[symbol].value != state->current_function) {
-                if (result->error != ASM_ERR_DUPLICATE_SYMBOL) return false;
+                result->error = ASM_ERR_DUPLICATE_SYMBOL;
                 snprintf(result->message, sizeof(result->message),
                          "Duplicate function symbol: %.200s", name);
                 return false;
             }
+            state->in_function = true;
+            state->fn_code_size = 0;
             return require_line_end(p, result);
         }
 
