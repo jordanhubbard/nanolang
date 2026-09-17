@@ -4644,6 +4644,7 @@ static ASTNode *clone_ast_node(const ASTNode *node) {
                 cloned->as.call.name = strdup(node->as.call.name);
             }
             cloned->as.call.func_expr = clone_ast_node(node->as.call.func_expr);
+            cloned->as.call.checked_signature = copy_function_signature(node->as.call.checked_signature);
             cloned->as.call.arg_count = node->as.call.arg_count;
             cloned->as.call.args = malloc(sizeof(ASTNode*) * node->as.call.arg_count);
             for (int i = 0; i < node->as.call.arg_count; i++) {
@@ -5748,6 +5749,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_CALL:
             free(node->as.call.name);
+            free_function_signature(node->as.call.checked_signature);
             if (node->as.call.return_struct_type_name) {
                 free(node->as.call.return_struct_type_name);
             }

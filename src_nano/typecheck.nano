@@ -2559,6 +2559,26 @@ shadow type_from_string_with_parser {
     assert (== nested.element_type_name "array<int>")
 }
 
+# I resolve nominal callback parameters against the same declarations as values.
+fn fn_type_params_with_parser(parser: Parser, signature: string) -> array<NSType> {
+    let parsed: array<NSType> = (fn_type_param_types signature)
+    let mut result: array<NSType> = []
+    let mut i: int = 0
+    while (< i (array_length parsed)) {
+        set result (array_push result (type_from_string_with_parser parser (type_to_string (at parsed i))))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow fn_type_params_with_parser {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T } }")
+    let parameters: array<NSType> = (fn_type_params_with_parser parser "fn(Box<int>,array<Box<string>>)->int")
+    assert (== (array_length parameters) 2)
+    assert (== (at parameters 0).kind TypeKind.TYPE_UNION)
+    assert (== (type_to_string (at parameters 0)) "Box<int>")
+    assert (== (type_to_string (at parameters 1)) "array<Box<string>>")
+}
+
 /* I find the first complete needle, including an empty needle at zero. */
 fn tc_str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
@@ -3921,7 +3941,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 (Diagnostics.diag_list_add diags diag)
                 return (type_unknown_named "call")
             } else { (print "") }
-            let param_types: array<NSType> = (fn_type_param_types callee_type.name)
+            let param_types: array<NSType> = (fn_type_params_with_parser parser callee_type.name)
             let param_count: int = (array_length param_types)
             if (!= call_node.arg_count param_count) {
                 let msg: string = (+ "The function expression expects " (+ (int_to_string param_count) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))
@@ -4071,12 +4091,25 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else {
                     /* Variable being called - if it's a function type, extract return type */
                     if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
-                        let params: array<NSType> = (fn_type_param_types sym.sym_type.name)
+                        let params: array<NSType> = (fn_type_params_with_parser parser sym.sym_type.name)
                         if (!= call_node.arg_count (array_length params)) {
                             let msg: string = (+ "The function value `" (+ fn_name (+ "` expects " (+ (int_to_string (array_length params)) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
                             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
                             (Diagnostics.diag_list_add diags diag)
                         } else { (print "") }
+                        let mut argument_index: int = 0
+                        while (< argument_index call_node.arg_count) {
+                            if (< argument_index (array_length params)) {
+                                let argument: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start argument_index))
+                                let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                                let expected: NSType = (at params argument_index)
+                                if (not (types_equal actual expected)) {
+                                    let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
+                                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                                }
+                            }
+                            set argument_index (+ argument_index 1)
+                        }
                         return (type_from_string_with_parser parser (type_to_string (fn_type_return_type sym.sym_type.name)))
                     } else {
                         return sym.sym_type
@@ -4103,29 +4136,33 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else { (print "") }
-        /* Look up function in symbol table using qualified name */
-        let idx: int = (env_lookup symbols qualified_name)
+        # I retain the mapped helper fallback, then check callback contracts.
+        let mut idx: int = (env_lookup symbols qualified_name)
+        if (< idx 0) { set idx (env_lookup symbols (module_qualified_suffix qualified_name)) }
         if (>= idx 0) {
             let sym: Symbol = (at symbols idx)
             if sym.is_function {
+                let mut j: int = 0
+                while (< j mqc_node.arg_count) {
+                    if (< j (array_length sym.param_types)) {
+                        let expected: NSType = (at sym.param_types j)
+                        if (== expected.kind TypeKind.TYPE_FUNCTION) {
+                            let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
+                            let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                            if (not (types_equal actual expected)) {
+                                let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
+                                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
+                            }
+                        }
+                    }
+                    set j (+ j 1)
+                }
                 return sym.return_type
             } else {
                 return sym.sym_type
             }
         } else {
-            /* Bootstrap leniency: try looking up without module prefix */
-            let unqualified_name: string = (module_qualified_suffix qualified_name)
-            let idx2: int = (env_lookup symbols unqualified_name)
-            if (>= idx2 0) {
-                let sym: Symbol = (at symbols idx2)
-                if sym.is_function {
-                    return sym.return_type
-                } else {
-                    return sym.sym_type
-                }
-            } else {
-                return (type_unknown_named qualified_name)
-            }
+            return (type_unknown_named qualified_name)
         }
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
