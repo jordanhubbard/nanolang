@@ -38,6 +38,19 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         bootstrap and instrumented checks before integration.
       Selected-variant ownership transfer remains a subsequent open obligation.
 
+- [ ] **Classify fixed nested resource union payloads.** I reject unsupported
+      ownership in `Owners.Some { values: array<Handle> }` as consistently as
+      `Box<Handle>` after preserving complete payload metadata. My C seed
+      currently accepts an `abandon(Owners)` declaration. I require paired
+      frontend negative tests before admitting collection ownership. MAC
+      `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
+
+- [ ] **Release legacy union metadata allocations.** My payload lifetime check
+      exposed 245 bytes retained by existing registered field-name/formal arrays
+      and the environment import tracker. I establish borrower ownership before
+      freeing these and require LeakSanitizer evidence; scoped ASan checks with
+      leak detection disabled do not satisfy this item. MAC `task_00c47a5d65d04c48914864ec0de553d6`.
+
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
       my canonical bytecode route. My unchanged main baseline rejects import

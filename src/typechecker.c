@@ -316,6 +316,8 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (sym) return sym->type_info;
     }
+    if (expr->type == AST_FIELD_ACCESS && expr->as.field_access.resolved_type_info)
+        return expr->as.field_access.resolved_type_info;
     if (expr->type == AST_CALL && expr->as.call.name) {
         if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
             (strcmp(expr->as.call.name, "at") == 0 ||
@@ -3109,7 +3111,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < udef->variant_field_counts[variant_idx]; i++) {
                     if (strcmp(udef->variant_field_names[variant_idx][i], field_name) == 0) {
                         Type field_type = udef->variant_field_types[variant_idx][i];
-                        
+                        TypeInfo *arguments = try_get_expr_type_info(expr->as.field_access.object, env);
+                        TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx, i, arguments);
+                        if (payload) {
+                            free_payload_type_info(expr->as.field_access.resolved_type_info);
+                            expr->as.field_access.resolved_type_info = payload;
+                            free(union_name);
+                            return payload->base_type;
+                        }
+
                         /* For generic unions, resolve the concrete type using TypeInfo */
                         if (udef->generic_param_count > 0 && expr->as.field_access.object->type == AST_IDENTIFIER) {
                             Symbol *obj_sym = env_get_var_visible_at(env, expr->as.field_access.object->as.identifier,
@@ -6426,7 +6436,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Register the union */
-            UnionDef udef;
+            UnionDef udef = {0};
             udef.name = strdup(union_name);
             udef.variant_count = item->as.union_def.variant_count;
             
@@ -6476,6 +6486,16 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
+            /* Each registered declaration owns an independent payload tree. */
+            udef.variant_field_type_info = calloc((size_t)udef.variant_count, sizeof(TypeInfo **));
+            for (int j = 0; j < udef.variant_count; ++j) {
+                int fields = udef.variant_field_counts[j];
+                udef.variant_field_type_info[j] = calloc((size_t)fields, sizeof(TypeInfo *));
+                for (int k = 0; k < fields; ++k)
+                    if (item->as.union_def.variant_field_type_info && item->as.union_def.variant_field_type_info[j])
+                        udef.variant_field_type_info[j][k] = copy_payload_type_info(item->as.union_def.variant_field_type_info[j][k]);
+            }
+
             /* Copy generic parameters if present */
             udef.generic_param_count = item->as.union_def.generic_param_count;
             if (udef.generic_param_count > 0) {
@@ -7238,7 +7258,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Register the union */
-            UnionDef udef;
+            UnionDef udef = {0};
             udef.name = strdup(union_name);
             udef.variant_count = item->as.union_def.variant_count;
             
@@ -7288,6 +7308,16 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
                 }
             }
             
+            /* Each registered declaration owns an independent payload tree. */
+            udef.variant_field_type_info = calloc((size_t)udef.variant_count, sizeof(TypeInfo **));
+            for (int j = 0; j < udef.variant_count; ++j) {
+                int fields = udef.variant_field_counts[j];
+                udef.variant_field_type_info[j] = calloc((size_t)fields, sizeof(TypeInfo *));
+                for (int k = 0; k < fields; ++k)
+                    if (item->as.union_def.variant_field_type_info && item->as.union_def.variant_field_type_info[j])
+                        udef.variant_field_type_info[j][k] = copy_payload_type_info(item->as.union_def.variant_field_type_info[j][k]);
+            }
+
             /* Copy generic parameters if present */
             udef.generic_param_count = item->as.union_def.generic_param_count;
             if (udef.generic_param_count > 0) {

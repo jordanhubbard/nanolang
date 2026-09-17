@@ -514,6 +514,10 @@ static const char *map_function_name(const char *name, Environment *env) {
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    if (expr->type == AST_FIELD_ACCESS) {
+        check_expression(expr, env);
+        if (expr->as.field_access.resolved_type_info) return expr->as.field_access.resolved_type_info;
+    }
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         return sym && sym->type == TYPE_ARRAY ? sym->type_info : NULL;

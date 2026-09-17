@@ -164,6 +164,11 @@ void free_environment(Environment *env) {
         free(env->unions[i].name);
         for (int j = 0; j < env->unions[i].variant_count; j++) {
             free(env->unions[i].variant_names[j]);
+            if (env->unions[i].variant_field_type_info && env->unions[i].variant_field_type_info[j]) {
+                for (int k = 0; k < env->unions[i].variant_field_counts[j]; ++k)
+                    free_payload_type_info(env->unions[i].variant_field_type_info[j][k]);
+                free(env->unions[i].variant_field_type_info[j]);
+            }
             if (env->unions[i].variant_field_names && env->unions[i].variant_field_names[j]) {
                 for (int k = 0; k < env->unions[i].variant_field_counts[j]; k++) {
                     free(env->unions[i].variant_field_names[j][k]);
@@ -174,6 +179,7 @@ void free_environment(Environment *env) {
                 free(env->unions[i].variant_field_types[j]);
             }
         }
+        free(env->unions[i].variant_field_type_info);
         if (env->unions[i].variant_names) free(env->unions[i].variant_names);
         if (env->unions[i].variant_field_counts) free(env->unions[i].variant_field_counts);
         if (env->unions[i].variant_field_names) free(env->unions[i].variant_field_names);
@@ -1451,6 +1457,138 @@ void free_type_info(TypeInfo *info) {
         free_function_signature(info->fn_sig);
     }
     free(info);
+}
+
+/* Payload annotations own their complete parsed tree. I never borrow a nested
+ * node across AST, environment and extracted-module lifetimes. */
+static void *payload_alloc(size_t count, size_t size) {
+    if (count && size > SIZE_MAX / count) {
+        fprintf(stderr, "I cannot represent this payload type metadata\n");
+        exit(1);
+    }
+    void *value = calloc(count ? count : 1, size);
+    if (!value) {
+        fprintf(stderr, "I cannot allocate payload type metadata\n");
+        exit(1);
+    }
+    return value;
+}
+static char *payload_name(const char *name) {
+    if (!name) return NULL;
+    size_t length = strlen(name) + 1;
+    char *copy = payload_alloc(length, 1);
+    memcpy(copy, name, length);
+    return copy;
+}
+static char **payload_names(char *const *names, int count) {
+    if (!names) return NULL;
+    char **copy = payload_alloc((size_t)count, sizeof(*copy));
+    for (int i = 0; i < count; ++i) copy[i] = payload_name(names[i]);
+    return copy;
+}
+static void payload_free_names(char **names, int count) {
+    if (!names) return;
+    for (int i = 0; i < count; ++i) free(names[i]);
+    free(names);
+}
+static FunctionSignature *payload_signature(const FunctionSignature *source, unsigned depth) {
+    if (!source) return NULL;
+    if (depth > 512) {
+        fprintf(stderr, "I cannot copy payload signatures beyond my checked depth\n");
+        exit(1);
+    }
+    FunctionSignature *copy = payload_alloc(1, sizeof(*copy));
+    *copy = *source;
+    copy->param_types = NULL;
+    if (source->param_types) {
+        copy->param_types = payload_alloc((size_t)source->param_count, sizeof(Type));
+        memcpy(copy->param_types, source->param_types, (size_t)source->param_count * sizeof(Type));
+    }
+    copy->param_struct_names = payload_names(source->param_struct_names, source->param_count);
+    copy->return_struct_name = payload_name(source->return_struct_name);
+    copy->return_fn_sig = payload_signature(source->return_fn_sig, depth + 1);
+    return copy;
+}
+static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
+    if (!source) return NULL;
+    if (depth > 512) {
+        fprintf(stderr, "I cannot copy payload annotations beyond my checked depth\n");
+        exit(1);
+    }
+    TypeInfo *copy = payload_alloc(1, sizeof(*copy));
+    *copy = *source;
+    copy->generic_name = payload_name(source->generic_name);
+    copy->opaque_type_name = payload_name(source->opaque_type_name);
+    copy->element_type = payload_copy(source->element_type, depth + 1);
+    copy->type_params = NULL;
+    if (source->type_params) {
+        copy->type_params = payload_alloc((size_t)source->type_param_count, sizeof(TypeInfo *));
+        for (int i = 0; i < source->type_param_count; ++i)
+            copy->type_params[i] = payload_copy(source->type_params[i], depth + 1);
+    }
+    copy->tuple_types = NULL;
+    if (source->tuple_types) {
+        copy->tuple_types = payload_alloc((size_t)source->tuple_element_count, sizeof(Type));
+        memcpy(copy->tuple_types, source->tuple_types, (size_t)source->tuple_element_count * sizeof(Type));
+    }
+    copy->tuple_type_names = payload_names(source->tuple_type_names, source->tuple_element_count);
+    copy->fn_sig = payload_signature(source->fn_sig, depth + 1);
+    copy->row_var_name = payload_name(source->row_var_name);
+    copy->row_field_names = payload_names(source->row_field_names, source->row_field_count);
+    copy->row_field_types = NULL;
+    if (source->row_field_types) {
+        copy->row_field_types = payload_alloc((size_t)source->row_field_count, sizeof(Type));
+        memcpy(copy->row_field_types, source->row_field_types, (size_t)source->row_field_count * sizeof(Type));
+    }
+    copy->row_field_type_names = payload_names(source->row_field_type_names, source->row_field_count);
+    copy->type_var_names = payload_names(source->type_var_names, source->type_var_count);
+    return copy;
+}
+TypeInfo *copy_payload_type_info(const TypeInfo *info) { return payload_copy(info, 0); }
+void free_payload_type_info(TypeInfo *info) {
+    if (!info) return;
+    free_payload_type_info(info->element_type);
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        free_payload_type_info(info->type_params[i]);
+    free(info->type_params);
+    free(info->generic_name);
+    free(info->opaque_type_name);
+    free(info->tuple_types);
+    payload_free_names(info->tuple_type_names, info->tuple_element_count);
+    free_function_signature(info->fn_sig);
+    free(info->row_var_name);
+    payload_free_names(info->row_field_names, info->row_field_count);
+    free(info->row_field_types);
+    payload_free_names(info->row_field_type_names, info->row_field_count);
+    payload_free_names(info->type_var_names, info->type_var_count);
+    free(info);
+}
+
+/* I substitute complete concrete trees, not the flattened field name. */
+static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeInfo *arguments) {
+    TypeInfo *info = *slot;
+    if (!info || !arguments) return;
+    if (info->generic_name && info->type_param_count == 0 && !info->element_type) {
+        for (int i = 0; i < def->generic_param_count && i < arguments->type_param_count; ++i) {
+            if (!strcmp(info->generic_name, def->generic_params[i]) && arguments->type_params && arguments->type_params[i]) {
+                TypeInfo *concrete = copy_payload_type_info(arguments->type_params[i]);
+                free_payload_type_info(info);
+                *slot = concrete;
+                return;
+            }
+        }
+    }
+    if (info->element_type) payload_substitute(&info->element_type, def, arguments);
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        payload_substitute(&info->type_params[i], def, arguments);
+}
+TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments) {
+    if (!def || arm < 0 || arm >= def->variant_count || field < 0 ||
+        field >= def->variant_field_counts[arm] || !def->variant_field_type_info ||
+        !def->variant_field_type_info[arm]) return NULL;
+    TypeInfo *info = copy_payload_type_info(def->variant_field_type_info[arm][field]);
+    payload_substitute(&info, def, arguments);
+    return info;
 }
 
 /* Check if two function signatures are equal */

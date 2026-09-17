@@ -2160,6 +2160,14 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->unions = malloc(sizeof(UnionDef) * meta->union_count);
         for (int i = 0; i < meta->union_count; i++) {
             meta->unions[i] = env->unions[i];
+            meta->unions[i].variant_field_type_info = calloc((size_t)env->unions[i].variant_count, sizeof(TypeInfo **));
+            for (int j = 0; j < env->unions[i].variant_count; ++j) {
+                int fields = env->unions[i].variant_field_counts[j];
+                meta->unions[i].variant_field_type_info[j] = calloc((size_t)fields, sizeof(TypeInfo *));
+                for (int k = 0; k < fields; ++k)
+                    if (env->unions[i].variant_field_type_info && env->unions[i].variant_field_type_info[j])
+                        meta->unions[i].variant_field_type_info[j][k] = copy_payload_type_info(env->unions[i].variant_field_type_info[j][k]);
+            }
             if (env->unions[i].name) {
                 meta->unions[i].name = strdup(env->unions[i].name);
             }
@@ -2533,6 +2541,11 @@ void free_module_metadata(ModuleMetadata *meta) {
             if (meta->unions[i].variant_names) {
                 for (int j = 0; j < meta->unions[i].variant_count; j++) {
                     if (meta->unions[i].variant_names[j]) free(meta->unions[i].variant_names[j]);
+                    if (meta->unions[i].variant_field_type_info && meta->unions[i].variant_field_type_info[j]) {
+                        for (int k = 0; k < meta->unions[i].variant_field_counts[j]; ++k)
+                            free_payload_type_info(meta->unions[i].variant_field_type_info[j][k]);
+                        free(meta->unions[i].variant_field_type_info[j]);
+                    }
                     if (meta->unions[i].variant_field_names && meta->unions[i].variant_field_names[j]) {
                         for (int k = 0; k < meta->unions[i].variant_field_counts[j]; k++) {
                             if (meta->unions[i].variant_field_names[j][k]) free(meta->unions[i].variant_field_names[j][k]);
@@ -2543,6 +2556,7 @@ void free_module_metadata(ModuleMetadata *meta) {
                         free(meta->unions[i].variant_field_types[j]);
                     }
                 }
+                free(meta->unions[i].variant_field_type_info);
                 free(meta->unions[i].variant_names);
                 free(meta->unions[i].variant_field_counts);
                 free(meta->unions[i].variant_field_names);
