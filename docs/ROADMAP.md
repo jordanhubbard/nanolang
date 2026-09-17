@@ -8653,7 +8653,7 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I retain checked filesystem foreign signatures in the complete
+- [x] I retain checked filesystem foreign signatures in the complete
       dependency shadow closure, including `fs_walkdir` string arrays and
       scalar filesystem operations. I preserve owning artifact identity and
       the existing VM/native ABI without excluding dependency shadows

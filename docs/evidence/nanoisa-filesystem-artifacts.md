@@ -16,7 +16,11 @@ The fixture explicitly supplies the same source-owner bindings as the real
 frontend; its first incomplete binding setup was correctly rejected.
 
 The full emitter gate passes 86 bytecode comparisons and 72 Python methods
-in 90.318 seconds. A fresh native bootstrap is running before completion.
+in 90.318 seconds. A fresh default-budget native bootstrap passes. All eight
+artifact methods also pass through a Stage 2-built emitter in 14.046 seconds,
+including exact C-seed import comparisons. That standalone harness run needs
+the comparator executable which the full gate normally builds and removes;
+I built it explicitly before the successful Stage 2 run.
 Logs are `/tmp/nanolang-fs-artifact-{focused,emitter-gate,bootstrap}.log`.
 This is task `task_41323f26030d452f92bbdbf69a0a8704`; the draft canonical
 VM-shadow cutover remains a separate gate with additional lowering work.

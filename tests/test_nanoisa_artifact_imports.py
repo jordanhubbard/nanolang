@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPILER = Path(os.environ.get("NANOC", ROOT / "bin/nanoc_c")).resolve()
 
 
 class ArtifactImports(unittest.TestCase):
@@ -18,7 +19,7 @@ class ArtifactImports(unittest.TestCase):
         source = cls.directory / "driver.nano"
         source.write_text((ROOT / "tests/nanoisa/fixtures/artifact_import_driver.nano.txt").read_text())
         cls.driver = cls.directory / "driver"
-        result = subprocess.run([ROOT / "bin/nanoc_c", source, "-o", cls.driver], cwd=ROOT,
+        result = subprocess.run([COMPILER, source, "-o", cls.driver], cwd=ROOT,
                                 capture_output=True, text=True, timeout=180)
         if result.returncode:
             raise AssertionError(result.stdout + result.stderr)
