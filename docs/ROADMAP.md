@@ -8691,6 +8691,8 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). The complete compiler shadow assertion remains open under `task_fdf43892a1104b1facddc2553af390af`; this repair does not resolve it.
+- [ ] I retain stack context for assertion failures under VM debug mode, as I already do for ordinary runtime errors (`task_10e6ea8cf0f34321b9dff21594eb9e8a`).
 - [x] I retain checked filesystem foreign signatures in the complete
       dependency shadow closure, including `fs_walkdir` string arrays and
       scalar filesystem operations. I preserve owning artifact identity and
