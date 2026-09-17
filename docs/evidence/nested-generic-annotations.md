@@ -14,9 +14,10 @@ passed the same suite. Other linked objects were not instrumented, and leak
 detection was disabled; I do not claim whole-compiler sanitizer coverage or
 leak freedom from this run.
 
-A fresh isolated bootstrap and the sixteen existing paired generic-affine
-methods are running before integration. The combined ownership continuation
-already completed bootstrap, but that is a different source checkpoint.
+A fresh isolated three-stage bootstrap passed on this branch, followed by all
+sixteen existing paired generic-affine methods in 55.303 seconds. Those methods
+check the C seed and both self-hosted stages, independently of the unfinished
+ownership continuation.
 
 This is a parser prerequisite, not nested native execution support. My retained
 ordinary `Box<Result<int,string>>` control still fails native emission under
