@@ -58,6 +58,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       moves/pack/unpack and exact branch/loop obligations. I share executable
       eligibility across verifier/backends, test parity and allocation cleanup,
       and preserve refusal for calls/references/imports/aggregate results/floats.
+      My observation/unpack lifetime probe requires a collector safe point for
+      an emptied shell already in the cycle-suspect buffer (same taskbd2f);
+      I preserve `/tmp/nanolang-owned-runtime-initial-lifetime.log`.
+      My linked fallback guards remain scoped to ownership contracts; ordinary
+      checked-module behavior is unchanged (same taskbd2f integration gate).
       Frontend borrow production and the full release remain held.
 
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
