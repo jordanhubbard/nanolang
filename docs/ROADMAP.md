@@ -26,6 +26,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Callee snapshots in VM and interpreter.** I evaluate function values
+      before argument side effects and retain the interpreter callee name until
+      invocation completes. I test mutable bindings and computed callees.
+      MAC `task_8555af61281944eb9ac4ca9043849a94`.
+
 - [x] **Standalone VM guest arguments for v5.0.1.** I separate VM options
       from guest arguments with `--`, expose the module path as guest argument
       zero, preserve empty arguments, and reject ambiguous module paths and
