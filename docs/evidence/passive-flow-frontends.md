@@ -50,12 +50,26 @@ helper from a function with no passive block.
 
 ## Validation
 
-The first integrated checkpoint passed fresh bootstrap, 86 baseline comparisons,
-85 paired emitter/artifact/shadow methods, six flow frontend methods, five
-existing par frontend methods, and 20 passive metadata methods. My schema gate
-requires generated artifacts committed before its clean-tree comparison; its
-initial refusal reports those pending generated changes. Final restacked gates
-are pending. The expanded inferred-type fixture first exposed the raw
+On source `bf61838dd2d46b1663f9394f3ab2a43741260b69`, integrated with main
+`71e433b6`, `/tmp/nanolang-flow-final3-gates.log` exited zero:
+
+- Fresh native C-seed → Stage1 → Stage2 bootstrap and configured smoke checks.
+- 86 baseline comparison checks and 85 emitter/artifact/shadow methods
+  (110.325 seconds), including exact normalized code and passive bytes for
+  seven named functions and six flow records, plus verified VM/strict native output.
+- Six flow frontend methods (41.150 seconds), five existing par frontend methods
+  (37.430 seconds), and 20 passive metadata methods (1.996 seconds).
+- Indexed environment regression, including preserved definition locations,
+  graph lexical start, file/scope bounds and an ordinary forward-reference control.
+- Clean generated compiler schema and 33 schema tests (1.368 seconds).
+- All 79 C typechecker cases.
+
+These are native bootstrap and bounded parity checks, not a new bytecode
+compiler fixed-point claim. Earlier checkpoints and failures remain in
+`/tmp/nanolang-flow-integrated-gates.log`, `/tmp/nanolang-flow-final-gates.log`
+and `/tmp/nanolang-flow-final2-gates.log`.
+
+The expanded inferred-type fixture first exposed the raw
 self-hosted let emitter requiring an annotation after flow had inferred a scalar
 type. I now pass that checked scalar type through shared typed-let lowering;
 ordinary raw unannotated locals remain outside this change. My regression sources are

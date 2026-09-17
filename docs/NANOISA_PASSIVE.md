@@ -141,15 +141,16 @@ Native source compilation retains the same lexical binding behavior.
 
 I test the original square/cube fixture and calculator on all three native
 compiler stages, and compare the unchanged calculator scalar closure across
-both NanoISA emitters and VM/native execution. The full raw calculator still
-refuses its `strlen` ABI. Foreign identity, broader external inputs, and `flow`
-extraction remain open. [My frontend evidence](evidence/passive-par-frontends.md)
-states the exact boundary.
+both NanoISA emitters and VM/native execution. The original par checkpoint
+recorded a full raw calculator `strlen` ABI refusal; scalar ABI acceptance is
+tracked separately. Foreign identity and broader external inputs remain open.
+[My par frontend evidence](evidence/passive-par-frontends.md) records that
+checkpoint; the scalar flow source contract follows below.
 
 ## Structured flow producer contract
 
 I resolve this interface under `task_d83213c008654ff4a561843889e778aa`.
-It does not admit frontend `flow` syntax.
+This section defines the assembler interface used by the source contract below.
 
 ```
 .flow_begin node-count
@@ -170,15 +171,16 @@ existing `par` markers, and the prohibition on mixing raw bytes with producer
 markers. Ordinary forward chains, diamonds, source-order ties, guarded scalar
 inputs, and closed scalar calls must execute identically in VM and native output.
 Text errors must refuse publication. I retain checked allocation and recovery.
-Frontend extraction, immutable local/aggregate inputs, resources and foreign
-purity remain separate work; this interface provides no scheduler.
+The source contract below adds bounded frontend extraction. Immutable
+local/aggregate inputs, resources and foreign purity remain separate work;
+this interface provides no scheduler.
 
 [My flow-marker evidence](evidence/passive-flow-markers.md) records paired execution,
 exact records, retained codec checks and bounded assembler sanitizer coverage.
 
-## Planned scalar flow frontend contract
+## Bounded scalar flow frontend contract
 
-I record `task_a1bedc94472e491ea40ae8773f3b7ca0` before implementation. A nonempty
+I retain this contract under `task_a1bedc94472e491ea40ae8773f3b7ca0`. A nonempty
 `flow` block contains distinct immutable scalar `let` bindings. Original source
 IDs remain unchanged in the AST and emitted node arrays. Reads resolve against
 the complete block name set, so forward references and outer-name shadowing
@@ -193,8 +195,8 @@ scope after the block. An initializer trap stops execution at that node.
 
 I reuse guarded scalar parameter and closed-call proofs. Mutable inputs,
 unproved local captures in NanoISA, resources, aggregates, and unknown or foreign
-effects remain refused. I add no scheduler or new verifier rule. Acceptance
-requires forward chains, diamonds, source-order ties, exact metadata, bound
+effects remain refused. I add no scheduler or new verifier rule. My tests cover
+forward chains, diamonds, source-order ties, exact metadata, bound
 module identities, all three native compiler stages, serial VM/native agreement,
 publication-preserving refusals, schema checks and fresh bootstrap.
 
@@ -204,3 +206,6 @@ Only completed graph dependencies enter the checking environment. I retain
 the graph visibility start separately from original declaration locations
 for later emission.
 Ordinary blocks retain their existing source-order visibility rules.
+
+[My scalar flow evidence](evidence/passive-flow-frontends.md) records exact
+paired output, frontend checks and the remaining owner-call boundary.
