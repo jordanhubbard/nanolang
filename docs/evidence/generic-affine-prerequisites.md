@@ -154,3 +154,25 @@ Logs are `/tmp/nanolang-generic-formal-asan-build.log`,
 `/tmp/nanolang-generic-formal-asan-o0.log` and
 `/tmp/nanolang-generic-formal-asan-o0-corrected.log`. I do not claim a clean
 initial setup or leak-checking acceptance from this result.
+
+
+## My integrated acceptance checkpoint
+
+On source commit `0068b2d6`, incorporating main through PR397 (`2a8d8c87`),
+my fresh bootstrap passes. All 45 combined generic, module-identity and affine
+contract-boundary methods pass in 127.142 seconds. The generic corpus has 16
+methods / 48 C-seed, Stage 1 and Stage 2 cases; the nine-method module corpus
+has 51 compiler/order cases. A separate 15-method frontend-parity,
+self-hosted module-binding and canonical-bytecode suite passes in 41.497
+seconds. Resource classification, allocation-failure, five wrapper-generation
+methods and module-metadata units pass.
+
+The logs are `/tmp/nanolang-generic-union-bootstrap.log`,
+`/tmp/nanolang-generic-union-conformance.log`,
+`/tmp/nanolang-generic-union-adjacent.log`,
+`/tmp/nanolang-generic-union-resource-gates.log` and
+`/tmp/nanolang-generic-union-module-gates.log`. The instrumented C checkpoint
+above uses the same C source; its later changes are self-hosted traversal only.
+These gates establish the bounded classification and ordinary-value slice,
+not complete generic resource transfer, borrows, purity, or compiler fixed-point
+acceptance. I keep those roadmap obligations open.

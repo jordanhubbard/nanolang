@@ -43,25 +43,26 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         Both self-hosted stages reject explicit `Box<int>.Some` constructors,
         leave match payload `T` unsubstituted, and emit `DynArray*` for a
         `Box<array<int>>` parameter/local. My C union declaration parser drops
-        nested payload TypeInfo; I retain that metadata before substitution.
+        nested payload TypeInfo; I still need to retain that metadata before
+        general substitution.
       - [x] I reject unsupported generic resource obligations consistently in
         both frontends while executing ordinary-generic positive fixtures.
       - [x] I reject arrays of concrete generic resource payloads in both
         frontends, with ownership diagnostics and prior-artifact preservation.
-      - [ ] I preserve union formal-parameter scope when a same-named resource
+      - [x] I preserve union formal-parameter scope when a same-named resource
         record exists, including nominal binding and paired ordinary/resource
-        instantiations. The current `resource struct T` plus `Box<T>` fixture
-        wrongly rejects `Box<int>` on all three stages. After classification,
-        my C emitter also mistakes a declared one-letter record for a free type
-        variable; the cross-module fixture exposes an invalid metadata release.
-        Imported generic union parameters also lose their native prototype type.
-        My self-hosted ownership walker also rejects every ordinary match when
-        a resource declaration exists; I add branch traversal with ownership
+        instantiations. My baseline `resource struct T` plus `Box<T>` fixture
+        wrongly rejected `Box<int>` on all three stages. I also repair declared
+        one-letter C record identities, empty union-arm metadata cleanup and
+        imported concrete union parameter prototypes. I add ordinary self-hosted
+        match traversal with ownership
         joins and visits ordinary union constructor fields while retaining
         resource-payload rejection and unsupported guards.
-        I also retain inline union constructor identity in C ownership lookup;
-        the new negative case otherwise incorrectly admits an unresolved owner.
-        I repair these prerequisites before accepting the positive cases.
+        I retain inline union constructor identity in C ownership lookup. All
+        sixteen generic methods pass across three stages, including ordinary
+        native execution and retained resource-payload rejection. My fresh
+        bootstrap, 45 combined methods, 15 adjacent methods and instrumented
+        C-only corpus pass; evidence records the earlier failed checkpoints.
       - [ ] I complete nested generic List/HashMap type preservation and paired
         ownership diagnostics while retaining conservative rejection.
       - [ ] I implement resource union payload transfer before admitting generic
