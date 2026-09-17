@@ -18,7 +18,9 @@ class CompilerArtifactSupport(unittest.TestCase):
         source = directory / "driver.nano"
         source.write_text('from "modules/compiler_support/compiler_support.nano" import module_artifact\n'
                           'extern fn get_argv(index: int) -> string\n'
-                          'fn main() -> int { unsafe { (println (module_artifact (get_argv 1))) } return 0 }\n'
+                          'fn main() -> int { unsafe { let path: string = (module_artifact (get_argv 1)) '
+                          'let cleared: string = (module_artifact "") assert (== cleared "") '
+                          '(println path) } return 0 }\n'
                           'shadow main { assert true }\n')
         cls.driver = directory / "driver"
         result = subprocess.run([ROOT / "bin/nanoc_c", source, "-o", cls.driver], cwd=ROOT,

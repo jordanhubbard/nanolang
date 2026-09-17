@@ -3,7 +3,7 @@ module compiler_support
 extern fn nlc_module_artifact(source_path: string) -> string
 
 pub fn module_artifact(source_path: string) -> string {
-    unsafe { return (nlc_module_artifact source_path) }
+    unsafe { return (+ "" (nlc_module_artifact source_path)) }
 }
 shadow module_artifact {
     assert (== (module_artifact "") "")

@@ -2,9 +2,6 @@
   "name": "compiler_support",
   "version": "0.1.0",
   "description": "I build manifest-backed foreign support and retain immutable artifact identity.",
-  "headers": [
-    "compiler_support.h"
-  ],
   "c_sources": [
     "compiler_support.c",
     "../../src/module_builder.c",

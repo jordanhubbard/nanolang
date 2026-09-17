@@ -516,7 +516,7 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump $(NANOI
 		tests/nanoisa/test_nanoisa_src_nano.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
 		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
-	@python3 -m unittest -v tests.test_nanoisa_flat_records
+	@python3 -m unittest -v tests.test_nanoisa_flat_records tests.test_nanoisa_artifact_imports
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
 
 .PHONY: nanoisa_dump
@@ -4132,7 +4132,7 @@ test-map-constructor-diagnostics: $(COMPILER_C) nano_virt
 
 test-units: test-canonical-nvm-output
 .PHONY: test-canonical-nvm-output
-test-canonical-nvm-output: bootstrap3 nano_vm nvm2c
+test-canonical-nvm-output: bootstrap3 nano_vm nvm2c nvm2c-runtime
 	@python3 -m unittest tests.test_canonical_nvm_output
 
 .PHONY: test-affine-generic-identity

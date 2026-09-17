@@ -8,7 +8,8 @@ NanoLang expressions or execute bytecode here.
 
 My C export `nlc_module_artifact(const char *)` returns a per-thread snapshot
 that the next call replaces. Foreign adapters must copy that result when they
-retain it. The native adapter uses the existing string-snapshot contract.
+retain it. My NanoLang wrapper copies it into a language string before returning;
+the native adapter uses the existing string-snapshot contract.
 
 I reuse the module builder's source capture, cache and publication machinery.
 On Linux, a compiler moved away from its installed tools supplies the existing

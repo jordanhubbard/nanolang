@@ -8417,6 +8417,15 @@ Compiler product:
       already supplied canonical runtime sources (`task_59b46df66b0d480b83cf9cde4a416c07`).
       The artifact facade exposes duplicate cJSON symbols and unresolved SHA256
       during the three-stage bootstrap.
+- [ ] I lower the exact `nl_nanoisa_assemble_text_save` artifact signature
+      required by compiler publication (`task_3560b1472ae64d73b0449b7df6933914`).
+      Full compiler emission reaches this int-result extern after path imports.
+- [x] I apply my existing `nano_aot_runtime.o` host-link contract to the
+      canonical artifact regression (`task_e56bc32177f04739ae5a8935ead863b1`).
+      Its initial native invocation omitted the required runtime exports.
+- [ ] I propagate required foreign header search paths through transitive
+      C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`). My
+      module compiler currently omits a dependency manifest's header directory.
 - [x] I let my module builder source pass its own conservative PCH capture
       scan without changing the runtime marker or rejection policy
       (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.
