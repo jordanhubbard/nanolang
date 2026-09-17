@@ -37,9 +37,15 @@ shadow main { assert true }
                 list(executor.map(compile_probe, range(4)))
             self.assertEqual(sentinel.read_text(), "preserve me")
             self.assertEqual(list(fixtures.iterdir()), [sentinel])
-            # No shared legacy path may silently bypass the isolated fixture check.
-            facade = (ROOT / "modules/nanoisa/nanoisa.nano").read_text()
-            self.assertNotIn('"/tmp/', facade)
+            # An unusable requested temp root must reject the shadow run, rather
+            # than silently using shared legacy paths elsewhere.
+            unavailable = dict(env, TMPDIR=str(directory / "missing-temp-root"))
+            rejected = subprocess.run([str(ROOT / "bin/nanoc_c"), str(source),
+                                       "-o", str(directory / "rejected")],
+                                      cwd=ROOT, env=unavailable, capture_output=True,
+                                      text=True, timeout=120)
+            self.assertNotEqual(rejected.returncode, 0, rejected.stdout + rejected.stderr)
+            self.assertFalse((directory / "rejected").exists())
 
 
 if __name__ == "__main__":
