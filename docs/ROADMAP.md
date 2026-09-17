@@ -8734,7 +8734,7 @@ Compiler product:
       I retain dependency selection, completion/deadline checks and previous
       output on failure; complete compiler shadow lowering remains required
       (`task_c5a7a4835d364b50b747018c794a07d0`).
-      My fixed-point guard keeps the seed compiler identity stable so cached host artifacts remain valid, then rejects native code generation during both VM generations. Read-only preprocessing/tool queries remain required to validate cached host artifacts.
+      My fixed-point guard keeps the seed compiler identity stable so cached host artifacts remain valid, then rejects NanoLang-generated C compilation during both VM generations. Declared native host artifacts retain their build/cache-validation calls, including native snapshot compilation.
 - [x] I supervise standalone VM shadow execution with a verified module,
       completion handshake and bounded parent deadline. I reject early exit,
       failed execution and incompatible CLI modes before canonical publication

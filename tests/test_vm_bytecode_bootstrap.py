@@ -32,23 +32,26 @@ class VMBytecodeBootstrap(unittest.TestCase):
         probe_log = evidence / 'host-cache-probes.log'
         compiler_command = shlex.split(env.get('NANO_CC') or env.get('CC') or 'cc')
         self.assertTrue(compiler_command)
-        guarded_cc.write_text(
-            '#!' + sys.executable + '\nimport os, sys\nfrom pathlib import Path\n' +
-            'probe = any(arg in ("-E", "-###", "-print-prog-name=as") for arg in sys.argv[1:])\n' +
-            'active = os.environ.get("NANOLANG_BOOTSTRAP_NO_CC") == "1"\n' +
-            'if active and probe:\n' +
-            '    with open(' + repr(str(probe_log)) + ', "a") as log: log.write("host-cache-probe\\n")\n' +
-            'if active and not probe:\n' +
-            '    Path(' + repr(str(native_marker)) + ').write_text("I rejected a native compiler call.\\n")\n' +
-            '    sys.exit(91)\n' +
-            'command = ' + repr(compiler_command) + '\n' +
-            'os.execvp(command[0], command + sys.argv[1:])\n')
+        native_sources = []
+        module_build_roots = []
+        for name in ('compiler_support', 'nanoisa', 'std'):
+            module_root = ROOT / 'modules' / name
+            metadata = json.loads((module_root / 'module.json').read_text())
+            native_sources.extend(str((module_root / source).resolve())
+                                  for key in ('c_sources', 'shared_c_sources')
+                                  for source in metadata.get(key, []))
+            module_build_roots.append(str(module_root / '.build'))
+        guard_config = {'compiler': compiler_command, 'native_sources': native_sources,
+                        'module_build_roots': module_build_roots,
+                        'native_marker': str(native_marker), 'probe_log': str(probe_log)}
+        guarded_cc.write_text('#!' + sys.executable + '\nconfig = ' + repr(guard_config) + '\n' +
+                              (ROOT / 'tests/bootstrap_native_guard.py').read_text() + '\nmain(config)\n')
         guarded_cc.chmod(0o755)
         env['CC'] = str(guarded_cc)
         env['NANO_CC'] = str(guarded_cc)
         env.pop('NANOLANG_BOOTSTRAP_NO_CC', None)
         manifest = {'root': str(ROOT), 'stages': {}, 'stage_timeout_seconds': budget,
-                    'boundary': 'I execute VM-generation shadows as bytecode and reject native code generation. Cached host artifacts retain preprocessing and tool-query validation; the product still contains its separate legacy C backend.'}
+                    'boundary': 'I execute VM-generation shadows as bytecode and reject NanoLang-generated C compilation. Declared native host artifacts retain their existing build and cache-validation paths; the product still contains its separate legacy C backend.'}
 
         def save():
             (evidence / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
@@ -127,8 +130,10 @@ class VMBytecodeBootstrap(unittest.TestCase):
         self.assertEqual(git('rev-parse', 'HEAD'), manifest['source_commit'])
         self.assertEqual(git('status', '--porcelain'), '')
         self.assertFalse(native_marker.exists(), 'I invoked native code generation during VM generations.')
-        manifest['vm_generations_native_codegen_calls'] = 0
-        manifest['host_cache_probe_calls'] = len(probe_log.read_text().splitlines()) if probe_log.exists() else 0
+        manifest['vm_generations_nanolang_codegen_calls'] = 0
+        host_calls = probe_log.read_text().splitlines() if probe_log.exists() else []
+        manifest['host_cache_probe_calls'] = host_calls.count('host-cache-probe')
+        manifest['native_host_artifact_calls'] = host_calls.count('native-host-artifact')
         manifest['complete'] = True
         save()
 
