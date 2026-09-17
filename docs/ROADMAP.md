@@ -8761,10 +8761,16 @@ Compiler product:
       valid early-return array loops without inapplicable vectorization hints
       (`task_c3d168ec8de94d18a1f63445f2c6cea0`). My collision-checked argument
       temporaries preserve user bindings; paired native/VM controls pass.
-- [ ] I snapshot both self-hosted native range bounds before entering the loop
-      (`task_8e80a672c285487dbbad07dd1dbfc9b9`). My current `generate_for_stmt` repeats
-      its end expression in the C condition. I require once-only source order,
-      nested lexical scopes and Stage1/Stage2 paired execution.
+- [ ] I keep unreachable-code warnings nonfatal in self-hosted checking
+      (`task_47e61dea383042808ccc1a0c89bef064`). My `check_block` currently creates W0002
+      through the error constructor, so Stage1/Stage2 reject a valid early-return
+      fixture accepted by C seed. I preserve the warning and original fixture.
+- [x] I snapshot both self-hosted native range bounds before entering the loop
+      (`task_8e80a672c285487dbbad07dd1dbfc9b9`). A fresh three-stage bootstrap
+      and both paired methods pass across C seed, Stage1 and Stage2, including
+      failed-shadow output preservation, source order and nested lexical scope.
+      See `docs/evidence/selfhost-native-range-bounds.md` for the explicit
+      shadow budget and separate unreachable-warning boundary.
 - [ ] I measure my compiler-shadow deadline after range emitter growth
       (`task_628759a2daf743b9bf13c9a7fea2ced0`). A fresh bootstrap reached the default
       ten-second shadow deadline without an assertion diagnostic; explicit
