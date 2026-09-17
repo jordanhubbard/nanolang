@@ -49,3 +49,12 @@ The complete bound-Parser compiler-shadow probe advances past the original
 nested appends to an empty array lose their string element context. I retain
 the exact failure in `/tmp/nanolang-range-shadow-probe-run.log` and track it
 as `task_d5ed194093434b5cbfc2e3ec6bc2d37a`. No shadow is excluded.
+
+After integrating main through `274bab44` and adding outer-variable bound
+and temporary-name collision controls, the final gate passes all 86 existing
+comparisons and 74 Python methods in 90.901 s
+(`/tmp/nanolang-range-for-integrated.log`). C-seed and Stage2-built emitters
+produce identical final fixture assembly, SHA-256
+`e2c9acbe7545694522540760b84f63493cfd17040bf81c72a7b48066c037de99`.
+The Stage2 compiler used here is the preserved compiler from the explicit
+sixty-second-budget bootstrap above; it builds the final rebased emitter source.
