@@ -65,3 +65,15 @@ Use `Result<T, E>` or another explicit union for failures callers can handle. Ma
 ## Collections
 
 Built-in arrays and hash maps are separate from the C-backed collection modules. The generated [Builtins](../generated/builtins.md) page lists the exact builtin spellings. The generated [Modules](../generated/modules.md) page lists module declarations and native build boundaries.
+
+At module scope, annotate an empty collection or `map_new` so its initializer
+has a concrete element, key and value context:
+
+```nano
+let labels: array<string> = []
+let counts: HashMap<string, int> = (map_new)
+```
+
+The declared type is part of checking the initializer; it is not merely a
+post-hoc assertion. An untyped empty collection or untyped `map_new` remains
+ambiguous and is rejected.

@@ -113,6 +113,45 @@ shadow gcd {
 
 I support recursion, first-class functions, closures, generics, preconditions with `requires`, and postconditions with `ensures`. Contracts are checked properties of executions; they are not formal proofs.
 
+## Checked Pure Functions
+
+`pure fn` asks both frontends to prove a closed, effect-free call graph. It is
+not a promise I accept on trust. I follow known helpers transitively, including
+recursive cycles, and reject the declaration if any reachable path is open or
+observable.
+
+<!--nl-snippet {"name":"refresh_language_pure_function","check":true}-->
+```nano
+pure fn square(value: int) -> int {
+    return (* value value)
+}
+
+shadow square {
+    assert (== (square 0) 0)
+    assert (== (square 7) 49)
+}
+
+fn main() -> int {
+    assert (== (square 6) 36)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
+```
+
+The current checked subset admits immutable scalar, string and enum inputs,
+recursively scalar/string records, supported closed intrinsics and private
+immutable construction. I conservatively reject mutation, loops, unsafe or
+foreign work, computed and unknown calls, callbacks, resource-bearing
+signatures, and aggregate inputs whose deep immutability is not proved. An
+`extern pure fn` declaration alone is not proof.
+
+This frontend check is a prerequisite for passive execution metadata. It does
+not by itself emit `par` or `flow`, prove NanoISA eligibility, or promise
+parallel execution.
+
 ## Comments
 
 ```nano

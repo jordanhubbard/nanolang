@@ -198,6 +198,11 @@ My bytecode verifier checks the invariants it models before execution:
 - An abstract balance of explicit retain/release instructions across the
   modeled control flow. This counter is not object-identity tracking, a complete
   source ownership analysis, or a proof of leak freedom.
+- Versioned passive-eligibility records, when present. I validate their
+  function and instruction ranges, stable dependency order, declared reads,
+  result locals, effects and resource claims against the serialized code. My
+  current scalar record rejects external reads, calls, effects and resources;
+  metadata that claims more than I can prove is invalid.
 
 These executable checks are separate from my formal NanoCore theorems and
 their hypotheses. Neither a passing verifier nor a shadow test proves that
@@ -210,6 +215,12 @@ Two rules about the verifier itself, both learned the expensive way:
   evidence must not read as proof.
 - Do not add a rule I do not already enforce at run time. A rule that is not
   true of the VM is a language restriction smuggled in through the verifier.
+
+If a transform changes instruction offsets, locals, reads or dependencies, it
+must rebuild and reverify passive metadata. It may not retain stale claims or
+silently discard a feature-bearing section. A module without passive metadata
+keeps ordinary serial semantics; a valid record is optimization advice, not a
+promise that a scheduler runs work concurrently.
 
 If you add a surface that parses input -- a decoder, a loader, an assembler, a
 wire format -- fuzz it. `tests/nanoisa/test_fuzz_malformed.c` and
@@ -344,6 +355,18 @@ a change that looks harmless:
 ```bash
 make test-fuzz-malformed test-cop-fuzz test-verify-all-programs
 ```
+
+If you touched passive eligibility, purity analysis, or their shared intrinsic
+classification, also run:
+
+```bash
+make test-passive-metadata test-purity-contract
+python3 scripts/gen_purity_intrinsics.py --check
+```
+
+`pure fn` is checked transitively by both frontends. An annotation is not an
+escape hatch for an unsafe, mutable, resource-bearing, computed or unknown
+call path, and an `extern` annotation alone is not a closed summary.
 
 If you changed `spec/nanoisa.yaml`, `make schema-check` must pass. The
 specification is the source of truth for the instruction set; the assembler,
