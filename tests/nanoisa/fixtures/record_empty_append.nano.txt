@@ -1,0 +1,12 @@
+# I retain this checker refusal for MAC task_439297c5a6934857a90cbec93bb7958d.
+struct Item { value: int }
+fn items() -> array<Item> {
+    return (array_push (array_push [] Item { value: 7 }) Item { value: 9 })
+}
+shadow items {
+    let result: array<Item> = (items)
+    assert (== (at result 0).value 7)
+}
+
+fn main() -> int { let values: array<Item> = (items) assert (== (array_length values) 2) return 0 }
+shadow main { assert (== (main) 0) }
