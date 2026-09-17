@@ -66,6 +66,7 @@ typedef struct {
     int has_maps;
     int has_string_arrays;
     int has_integer_arrays;
+    int has_record_array_allocations;
     int has_owned_strings;
     size_t global_count;
     size_t local_width;
@@ -4287,12 +4288,20 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
 }
 
 static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int need_get) {
-    if (need_new) nvm2c_puts(b,
-        "static nrarr_t nrarr_new(void) {\n"
-        "    nrarr_t a = (nrarr_t)calloc(1, sizeof(nrarr_s));\n"
-        "    if (!a) abort();\n"
-        "    return a;\n"
-        "}\n\n");
+    if (need_new) {
+        b->has_record_array_allocations = 1;
+        nvm2c_puts(b,
+            "static nrarr_t nrarr_owners;\n"
+            "static inline void nrarr_release_owned(void) {\n"
+            "    while (nrarr_owners) { nrarr_t a = nrarr_owners;\n"
+            "        nrarr_owners = a->owned_next; free(a); }\n}\n"
+            "static nrarr_t nrarr_new(void) {\n"
+            "    nrarr_t a = (nrarr_t)calloc(1, sizeof(nrarr_s));\n"
+            "    if (!a) abort();\n"
+            "    a->owned_next = nrarr_owners; nrarr_owners = a;\n"
+            "    return a;\n"
+            "}\n\n");
+    }
     if (need_push) nvm2c_puts(b,
         "static nrarr_t nrarr_push(nrarr_t a, nrec_t v) {\n"
         "    if (!a || a->len >= NVM2C_RECORD_ARRAY_CAP) abort();\n"
@@ -4832,9 +4841,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (module_uses_host(mod, "nhost_digit_value")) nvm2c_puts(&b,
                 "static inline int64_t nhost_digit_value(int64_t code) { return code >= '0' && code <= '9' ? code - '0' : -1; }\n");
             if (module_uses_host(mod, "nhost_from_char")) nvm2c_puts(&b,
+                "static char *nstr_allocate(size_t n);\n"
                 "static inline const char *nhost_from_char(int64_t code) {\n"
-                "    char *text = malloc(2);\n"
-                "    if (!text) abort();\n"
+                "    char *text = nstr_allocate(1);\n"
                 "    text[0] = (char)code; text[1] = 0;\n"
                 "    return text;\n}\n");
             if (module_uses_host(mod, "nhost_mktemp_dir")) nvm2c_puts(&b,
@@ -4996,7 +5005,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b, " };\n");
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
-            "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; };\n\n");
+            "struct nrarr_s { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; nrarr_t owned_next; };\n\n");
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_roots.inc"
@@ -5020,7 +5029,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static void nrec_release_snapshots(void) {\n"
             "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
             "        nrec_owned_head = node->next; free(node); }\n}\n");
-        if (need_concat || need_cast || need_substr) {
+        if (need_concat || need_cast || need_substr || module_uses_host(mod, "nhost_from_char")) {
             b.has_owned_strings = 1; emit_nstr_storage(&b);
         }
         if (need_concat) emit_nstr_concat(&b);
@@ -5131,6 +5140,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
+        if (b.has_record_array_allocations) nvm2c_puts(&b, "    nrarr_release_owned();\n");
         if (b.has_string_arrays) nvm2c_puts(&b, "    nsarr_release_owned();\n");
         if (b.has_integer_arrays) nvm2c_puts(&b, "    narr_release_owned();\n");
         if (b.has_owned_strings) nvm2c_puts(&b, "    nstr_release_owned();\n");
