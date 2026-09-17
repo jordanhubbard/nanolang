@@ -827,7 +827,7 @@ fn main() -> int {
                         setup = 'const char *data[] = {"hello"}; nsarr_s a = {.data = data, .len = 1}; r.k[0] = 5; r.sa[0] = &a;'
                         check = 'strcmp(nl_read(r), "hello") == 0'
                     elif tag == "record":
-                        setup = "nrarr_s a = {.len = 1}; a.data[0].n = 1; a.data[0].f[0] = 42; r.k[0] = 6; r.ra[0] = &a;"
+                        setup = "nrec_t data[1] = {{.n = 1}}; data[0].f[0] = 42; nrarr_s a = {.data = data, .len = 1}; r.k[0] = 6; r.ra[0] = &a;"
                         check = "nl_read(r) == 42"
                     else:
                         value = 1 if tag == "bool" else 42

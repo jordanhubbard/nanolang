@@ -68,6 +68,7 @@
 "            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 1, a->data[i]);\n"
 "        } else if (root.kind == 6) {\n"
 "            const nrarr_s *a = root.ptr;\n"
+"            if (a->len && !a->data) abort();\n"
 "            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 4, &a->data[i]);\n"
 "        } else if (root.kind == 4) {\n"
 "            const nrec_t *r = root.ptr;\n"
