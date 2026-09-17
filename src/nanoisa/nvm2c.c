@@ -101,7 +101,9 @@ typedef struct {
     int has_string_arrays;
     int has_integer_arrays;
     int has_record_array_allocations;
+    int has_record_array_getter;
     int has_owned_strings;
+    int has_owned_aggregates;
     size_t global_count;
     size_t local_width;
     uint8_t *array_results;
@@ -2190,8 +2192,7 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
     nvm2c_puts(b, "    nroot_reset(&nroots.live);\n");
     for (uint16_t i = 0; i < fn->local_count; ++i) {
         uint8_t k = fn_local_kind(b, kinds, idx, i);
-        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
-            integer_array_storage(k)) continue;
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT) continue;
         char local[32];
         local_operand(local, b, kinds, idx, i);
         nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %s%s);\n", k,
@@ -2199,8 +2200,7 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
     }
     for (int i = 0; i < st->sp; ++i) {
         uint8_t k = st->kinds[i];
-        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
-            integer_array_storage(k)) continue;
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT) continue;
         nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %s%s[%d]);\n", k,
                      k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "",
                      stack_array_name(k), st->slots[i]);
@@ -3734,7 +3734,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
             emit_map_roots(b, &st, fn, kinds, idx);
-            if (b->has_owned_strings) nvm2c_puts(b, "    nmap_collect_if_needed();\n");
+            if (b->has_owned_strings || b->has_owned_aggregates)
+                nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             char call[NVM2C_CALL_SIZE];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
                 goto done;
@@ -3770,7 +3771,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_TAIL_CALL: {
             uint32_t callee = ins.operands[0].u32;
             emit_map_roots(b, &st, fn, kinds, idx);
-            if (b->has_owned_strings) nvm2c_puts(b, "    nmap_collect_if_needed();\n");
+            if (b->has_owned_strings || b->has_owned_aggregates)
+                nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             if (callee >= mod->function_count) {
                 nvm2c_fail(b, "function %u: TAIL_CALL target %u is out of range", idx, callee);
                 goto done;
@@ -3906,7 +3908,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             /* A host call may re-enter generated code through a callback. I
              * publish its caller before consuming the host arguments. */
             emit_map_roots(b, &st, fn, kinds, idx);
-            if (b->has_owned_strings) nvm2c_puts(b, "    nmap_collect_if_needed();\n");
+            if (b->has_owned_strings || b->has_owned_aggregates)
+                nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             const Nvm2cHost *host = import_host(mod, ins.operands[0].u32);
             if (!host) {
                 nvm2c_fail(b, "CALL_EXTERN has no exact builtin host ABI");
@@ -4260,12 +4263,59 @@ static void emit_nstr_from_f64(Nvm2cBuf *b) {
         "    memcpy(text, tmp, (size_t)n + 1); return text;\n}\n");
 }
 
+static void emit_nagg_accounting(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static size_t nagg_live_bytes, nagg_peak_bytes, nagg_allocation_debt;\n"
+        "static size_t nagg_collection_budget = 65536;\n"
+        "static inline void nagg_add(size_t bytes) {\n"
+        "    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) abort();\n"
+        "    nagg_live_bytes += bytes; nagg_allocation_debt += bytes;\n"
+        "    if (nagg_live_bytes > nagg_peak_bytes) nagg_peak_bytes = nagg_live_bytes;\n}\n"
+        "static inline void nagg_drop(size_t bytes) {\n"
+        "    if (bytes > nagg_live_bytes) abort();\n"
+        "    nagg_live_bytes -= bytes;\n}\n");
+}
+
+static void emit_nagg_sweep(Nvm2cBuf *b, int snapshots) {
+    nvm2c_puts(b, "static void nagg_sweep(const nroot_list *roots) {\n    (void)roots;\n");
+    if (snapshots) nvm2c_puts(b,
+        "    nrec_owned **records = &nrec_owned_head;\n"
+        "    while (*records) {\n"
+        "        nrec_owned *owner = *records;\n"
+        "        if (nroot_contains(roots, 4, &owner->value)) records = &owner->next;\n"
+        "        else { *records = owner->next; nagg_drop(sizeof *owner); free(owner); }\n"
+        "    }\n");
+    const char *pools[] = {"narr", "nsarr", "nrarr"};
+    int present[] = {b->has_integer_arrays, b->has_string_arrays, b->has_record_array_allocations};
+    for (int i = 0; i < 3; ++i) {
+        if (!present[i]) continue;
+        const char *name = pools[i];
+        nvm2c_printf(b,
+            "    { struct %s_owner **link = &%s_owners;\n"
+            "      while (*link) { struct %s_owner *owner = *link;\n"
+            "        if (nroot_contains(roots, 128, owner)) link = &owner->next;\n"
+            "        else { *link = owner->next; nagg_drop(owner->bytes);\n"
+            "            free(owner->data); free(owner->handle); free(owner); }\n"
+            "      } }\n", name, name, name);
+    }
+    if (b->has_string_arrays) nvm2c_puts(b,
+        "    nsarr_string **strings = &nsarr_strings;\n"
+        "    while (*strings) { nsarr_string *owner = *strings;\n"
+        "        if (nroot_contains(roots, 1, owner->data)) strings = &owner->next;\n"
+        "        else { *strings = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner); }\n"
+        "    }\n");
+    nvm2c_puts(b,
+        "    nagg_allocation_debt = 0;\n"
+        "    nagg_collection_budget = nagg_live_bytes > 65536 ? nagg_live_bytes : 65536;\n}\n");
+}
+
 static void emit_narr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "struct narr_owner { int64_t *data; size_t cap; narr_t handle; struct narr_owner *next; };\n"
+        "struct narr_owner { int64_t *data; size_t cap, bytes; narr_t handle; struct narr_owner *next; };\n"
         "static struct narr_owner *narr_owners;\n"
         "static inline struct narr_owner *narr_track(narr_t a, int own_handle) {\n"
         "    struct narr_owner *owner = calloc(1, sizeof *owner); if (!owner) abort();\n"
+        "    owner->bytes = sizeof *owner + (own_handle ? sizeof *a : 0); nagg_add(owner->bytes);\n"
         "    owner->handle = own_handle ? a : NULL; owner->next = narr_owners;\n"
         "    narr_owners = owner; a->owner = owner; return owner;\n}\n"
         "static inline narr_t narr_new(void) {\n"
@@ -4288,10 +4338,12 @@ static void emit_narr_storage(Nvm2cBuf *b) {
         "        int64_t *data = realloc(owner->data, cap * sizeof *data);\n"
         "        if (!data) { abort(); } owner->data = data;\n"
         "    }\n"
+        "    size_t growth = (cap - owner->cap) * sizeof *owner->data;\n"
+        "    nagg_add(growth); owner->bytes += growth;\n"
         "    owner->cap = cap; a->data = owner->data;\n}\n"
         "static inline void narr_release_owned(void) {\n"
         "    while (narr_owners) { struct narr_owner *owner = narr_owners;\n"
-        "        narr_owners = owner->next; free(owner->data); free(owner->handle); free(owner); }\n}\n");
+        "        narr_owners = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner->handle); free(owner); }\n}\n");
 }
 
 static void emit_narr_lit(Nvm2cBuf *b) {
@@ -4320,13 +4372,14 @@ static void emit_narr_push(Nvm2cBuf *b) {
 static void emit_nsarr_storage(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "#include <string.h>\n"
-        "struct nsarr_owner { const char **data; size_t cap; nsarr_t handle; struct nsarr_owner *next; };\n"
+        "struct nsarr_owner { const char **data; size_t cap, bytes; nsarr_t handle; struct nsarr_owner *next; };\n"
         "static struct nsarr_owner *nsarr_owners;\n"
-        "typedef struct nsarr_string { char *data; struct nsarr_string *next; } nsarr_string;\n"
+        "typedef struct nsarr_string { char *data; size_t bytes; struct nsarr_string *next; } nsarr_string;\n"
         "static nsarr_string *nsarr_strings;\n"
         "static inline struct nsarr_owner *nsarr_track(nsarr_t a, int own_handle) {\n"
         "    struct nsarr_owner *owner = calloc(1, sizeof *owner);\n"
         "    if (!owner) abort();\n"
+        "    owner->bytes = sizeof *owner + (own_handle ? sizeof *a : 0); nagg_add(owner->bytes);\n"
         "    owner->handle = own_handle ? a : NULL; owner->next = nsarr_owners;\n"
         "    nsarr_owners = owner; a->owner = owner; return owner;\n}\n"
         "static inline nsarr_t nsarr_new(void) {\n"
@@ -4349,18 +4402,22 @@ static void emit_nsarr_storage(Nvm2cBuf *b) {
         "        const char **data = realloc(owner->data, cap * sizeof *data);\n"
         "        if (!data) { abort(); } owner->data = data;\n"
         "    }\n"
+        "    size_t growth = (cap - owner->cap) * sizeof *owner->data;\n"
+        "    nagg_add(growth); owner->bytes += growth;\n"
         "    owner->cap = cap; a->data = owner->data;\n}\n"
         "static inline const char *nsarr_copy_string(const char *value) {\n"
         "    if (!value) { abort(); } size_t n = strlen(value); if (n == SIZE_MAX) abort();\n"
+        "    if (n > SIZE_MAX - sizeof(nsarr_string) - 1) abort();\n"
         "    nsarr_string *owner = malloc(sizeof *owner); if (!owner) abort();\n"
         "    owner->data = malloc(n + 1); if (!owner->data) abort();\n"
+        "    owner->bytes = sizeof *owner + n + 1; nagg_add(owner->bytes);\n"
         "    memcpy(owner->data, value, n + 1); owner->next = nsarr_strings;\n"
         "    nsarr_strings = owner; return owner->data;\n}\n"
         "static inline void nsarr_release_owned(void) {\n"
         "    while (nsarr_owners) { struct nsarr_owner *owner = nsarr_owners;\n"
-        "        nsarr_owners = owner->next; free(owner->data); free(owner->handle); free(owner); }\n"
+        "        nsarr_owners = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner->handle); free(owner); }\n"
         "    while (nsarr_strings) { nsarr_string *owner = nsarr_strings;\n"
-        "        nsarr_strings = owner->next; free(owner->data); free(owner); }\n}\n");
+        "        nsarr_strings = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner); }\n}\n");
 }
 
 static void emit_nsarr_lit(Nvm2cBuf *b) {
@@ -4646,16 +4703,17 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
         b->has_record_array_allocations = 1;
         nvm2c_puts(b,
             "#include <string.h>\n"
-            "struct nrarr_owner { nrec_t *data; size_t cap; nrarr_t handle; struct nrarr_owner *next; };\n"
+            "struct nrarr_owner { nrec_t *data; size_t cap, bytes; nrarr_t handle; struct nrarr_owner *next; };\n"
             "static struct nrarr_owner *nrarr_owners;\n"
             "static inline struct nrarr_owner *nrarr_track(nrarr_t a, int own_handle) {\n"
             "    struct nrarr_owner *owner = calloc(1, sizeof *owner);\n"
             "    if (!owner) abort();\n"
-            "    owner->handle = own_handle ? a : NULL; owner->next = nrarr_owners;\n"
+            "    owner->bytes = sizeof *owner + (own_handle ? sizeof *a : 0); nagg_add(owner->bytes);\n"
+        "    owner->handle = own_handle ? a : NULL; owner->next = nrarr_owners;\n"
             "    nrarr_owners = owner; a->owner = owner; return owner;\n}\n"
             "static inline void nrarr_release_owned(void) {\n"
             "    while (nrarr_owners) { struct nrarr_owner *owner = nrarr_owners;\n"
-            "        nrarr_owners = owner->next; free(owner->data); free(owner->handle); free(owner); }\n}\n"
+            "        nrarr_owners = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner->handle); free(owner); }\n}\n"
             "static inline nrarr_t nrarr_new(void) {\n"
             "    nrarr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
             "    nrarr_track(a, 1); return a;\n}\n"
@@ -4677,7 +4735,9 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
             "        if (!data) abort();\n"
             "        owner->data = data;\n"
             "    }\n"
-            "    owner->cap = cap; a->data = owner->data;\n}\n\n");
+            "    size_t growth = (cap - owner->cap) * sizeof *owner->data;\n"
+        "    nagg_add(growth); owner->bytes += growth;\n"
+        "    owner->cap = cap; a->data = owner->data;\n}\n\n");
     }
     if (need_push) nvm2c_puts(b,
         "static nrarr_t nrarr_push(nrarr_t a, nrec_t v) {\n"
@@ -4686,11 +4746,14 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
         "    a->data[a->len++] = v;\n"
         "    return a;\n"
         "}\n\n");
-    if (need_get) nvm2c_puts(b,
+    if (need_get) {
+        b->has_record_array_getter = 1;
+        nvm2c_puts(b,
         "static nrec_t nrarr_get(nrarr_t a, int64_t idx) {\n"
         "    if (!a || idx < 0 || (uint64_t)idx >= a->len || !a->data) abort();\n"
         "    return a->data[idx];\n"
         "}\n\n");
+    }
 }
 
 /* The legacy module has nominal type IDs but no field-layout table. I can
@@ -4912,8 +4975,20 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_CAST_STRING) ||
         module_uses_host(mod, "nhost_from_char");
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
-     * String-only modules need that infrastructure, without requiring map opcodes. */
+     * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
+    b.has_owned_aggregates = module_has_opcode(mod, OP_AGG_PACK) ||
+        module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
+        module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
+        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) ||
+        module_uses_host(mod, "nhost_walk");
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        if (mod->functions[f].result_tag == TAG_ARRAY) b.has_owned_aggregates = 1;
+        if (mod->function_param_types && mod->function_param_types[f])
+            for (uint16_t p = 0; p < mod->functions[f].arity; ++p)
+                if (mod->function_param_types[f][p] == TAG_ARRAY) b.has_owned_aggregates = 1;
+    }
+    if (b.has_owned_aggregates) b.has_maps = 1;
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         const NvmFunctionEntry *fn = &mod->functions[f];
         if (fn->local_count > NVM2C_MAX_LOCALS) {
@@ -5333,6 +5408,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef narr_s *narr_t;\n"
             "typedef struct { const char **data; size_t len; struct nsarr_owner *owner; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
+        if (need_iarr || need_sarr || need_rarr) b.has_owned_aggregates = 1;
+        if (b.has_owned_aggregates) {
+            b.has_maps = 1;
+            emit_nagg_accounting(&b);
+        }
         if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
         if (need_iarr) { b.has_integer_arrays = 1; emit_narr_storage(&b); }
         if (b.has_owned_strings) emit_nstr_storage(&b);
@@ -5421,11 +5501,26 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b, " };\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
+        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
+            "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
+            "static nrec_owned *nrec_owned_head;\n"
+            "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
+            "    nrec_owned *node = malloc(sizeof *node);\n"
+            "    if (!node) abort();\n"
+            "    nagg_add(sizeof *node);\n"
+            "    node->value = value; node->next = nrec_owned_head; nrec_owned_head = node;\n"
+            "    return &node->value;\n}\n"
+            "static void nrec_release_snapshots(void) {\n"
+            "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
+            "        nrec_owned_head = node->next; nagg_drop(sizeof *node); free(node); }\n}\n");
+        if (need_rarr) emit_nrarr_helpers(&b, need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
+                                         need_rarr_lit || need_arr_push, need_arr_get);
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_roots.inc"
             );
             if (b.has_owned_strings) emit_nstr_sweep(&b);
+            if (b.has_owned_aggregates) emit_nagg_sweep(&b, module_has_opcode(mod, OP_AGG_PACK));
             nvm2c_puts(&b, "static void nmap_collect(void) {\n    nroot_list work = {0};\n"
                 "    for (nroot_frame *f = nroot_head; f; f = f->prev)\n"
                 "        for (size_t i = 0; i < f->live.count; ++i)\n"
@@ -5434,27 +5529,19 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    for (size_t i = 0; i < %zu; ++i) nroot_value(&work, nglobal[i]);\n", b.global_count);
             nvm2c_puts(&b, "    nroot_trace(&work);\n");
             if (b.has_owned_strings) nvm2c_puts(&b, "    nstr_sweep(&work);\n");
+            if (b.has_owned_aggregates) nvm2c_puts(&b, "    nagg_sweep(&work);\n");
             nvm2c_puts(&b, "    nroot_destroy(&work); nmap_sweep();\n"
                 "    nmap_allocation_debt = 0;\n}\n"
-                "/* I trace fresh mutable edges for map allocation debt or a string byte budget.\n"
+                "/* I trace fresh mutable edges for map debt or an owned byte budget.\n"
                 " * Without allocation, dropped owners wait for the next allocating safepoint. */\n"
                 "static inline void nmap_collect_if_needed(void) {\n"
                 "    if (nmap_allocation_debt");
             if (b.has_owned_strings)
                 nvm2c_puts(&b, " || nstr_allocation_debt >= nstr_collection_budget");
+            if (b.has_owned_aggregates)
+                nvm2c_puts(&b, " || nagg_allocation_debt >= nagg_collection_budget");
             nvm2c_puts(&b, ") nmap_collect();\n}\n");
         }
-        if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
-            "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
-            "static nrec_owned *nrec_owned_head;\n"
-            "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
-            "    nrec_owned *node = malloc(sizeof *node);\n"
-            "    if (!node) abort();\n"
-            "    node->value = value; node->next = nrec_owned_head; nrec_owned_head = node;\n"
-            "    return &node->value;\n}\n"
-            "static void nrec_release_snapshots(void) {\n"
-            "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
-            "        nrec_owned_head = node->next; free(node); }\n}\n");
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
@@ -5467,8 +5554,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
-        if (need_rarr) emit_nrarr_helpers(&b, need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
-                                         need_rarr_lit || need_arr_push, need_arr_get);
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
                                                 need_iarr_get, need_sarr_get, need_print);
     }
@@ -5533,6 +5618,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)narr_new; (void)narr_reserve;\n");
         if (b.has_record_array_allocations) nvm2c_puts(&b,
             "    (void)nrarr_new; (void)nrarr_reserve;\n");
+        if (b.has_record_array_getter) nvm2c_puts(&b, "    (void)nrarr_get;\n");
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_string_arrays)
             nvm2c_puts(&b, "    (void)nsarr_push;\n");
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)

@@ -1,4 +1,6 @@
-/* I trace live native frames and aggregate edges before reclaiming map owners.
+/* I trace live native frames and aggregate edges before reclaiming owners.
+ * Kind 128 is an internal exact owner key obtained from a currently live array
+ * handle. I never retain/dereference a discarded foreign stack handle.
  * Kinds here are NVM2C_VK_* storage kinds, not NanoISA runtime tags.
  * I keep traversal order in items; my half-full power-of-two index stores
  * item indices plus one so reallocating items never invalidates membership. */
@@ -32,7 +34,7 @@
 "    free(list->items); free(list->slots); *list = (nroot_list){0};\n"
 "}\n"
 "static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {\n"
-"    if (!ptr || kind == 0 || kind == 2 || kind == 3 || kind == 9 || kind == 10 || kind == 11) return;\n"
+"    if (!ptr || kind == 0 || kind == 2 || kind == 9 || kind == 11) return;\n"
 "    if (nroot_contains(list, kind, ptr)) return;\n"
 "    if (list->count >= list->slot_count / 2) {\n"
 "        if (list->slot_count > SIZE_MAX / 2 / sizeof *list->slots) abort();\n"
@@ -63,17 +65,24 @@
 "    for (size_t cursor = 0; cursor < work->count; ++cursor) {\n"
 "        nroot_ref root = work->items[cursor];\n"
 "        if (root.kind == 8) nroot_value(work, *(const nmap_value *)root.ptr);\n"
+"        else if (root.kind == 3 || root.kind == 10) {\n"
+"            const narr_s *a = root.ptr;\n"
+"            nroot_add(work, 128, a->owner);\n"
+"        }\n"
 "        else if (root.kind == 5) {\n"
 "            const nsarr_s *a = root.ptr;\n"
+"            nroot_add(work, 128, a->owner);\n"
 "            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 1, a->data[i]);\n"
 "        } else if (root.kind == 6) {\n"
 "            const nrarr_s *a = root.ptr;\n"
+"            nroot_add(work, 128, a->owner);\n"
 "            if (a->len && !a->data) abort();\n"
 "            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 4, &a->data[i]);\n"
 "        } else if (root.kind == 4) {\n"
 "            const nrec_t *r = root.ptr;\n"
 "            for (size_t i = 0; i < r->n; ++i) {\n"
 "                if (r->k[i] == 1) nroot_add(work, 1, r->s[i]);\n"
+"                else if (r->k[i] == 3 || r->k[i] == 10) nroot_add(work, r->k[i], r->a[i]);\n"
 "                else if (r->k[i] == 4) nroot_add(work, 4, r->rec[i]);\n"
 "                else if (r->k[i] == 5) nroot_add(work, 5, r->sa[i]);\n"
 "                else if (r->k[i] == 6) nroot_add(work, 6, r->ra[i]);\n"
