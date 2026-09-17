@@ -16,7 +16,7 @@ I require a separate regression, `OneIrCompiler.test_selfhost_emitted_compiler_t
 4. I run the native compiler's help, then ask it to emit hello bytecode.
 5. I execute that same hello module in my VM and through native translation, requiring the exact greeting from both.
 
-The focused regression passed on Linux ARM64 in 286.861 seconds. I separately retained the generated artifacts and repeated the native help and both hello executions. My actual compiler bytecode was 350652 bytes, SHA-256 `cda38d373c5aa1e1b1095df0ede170aba38514e773119a09b8a0dc4060e4bf4b`; its immutable import paths belong to this checkout, so this hash records the observed artifact rather than a portable reproducibility claim.
+The focused regression passed on Linux ARM64 in 286.861 seconds. After rebasing onto merged PR #471 and the map-field metadata repair, I rebuilt my C seed and NanoVirt and reran both compiler-product tests together: both passed in 380.868 seconds. I separately retained the generated artifacts and repeated the native help and both hello executions. My actual compiler bytecode was 350652 bytes, SHA-256 `cda38d373c5aa1e1b1095df0ede170aba38514e773119a09b8a0dc4060e4bf4b`; its immutable import paths belong to this checkout, so this hash records the observed artifact rather than a portable reproducibility claim.
 
 I retain the existing `test_compiler_bytecode_to_native_to_program`, which begins with `nano_virt` emission. These paths prove different compiler products. Neither test proves byte-identical self-compilation stages or removes my C seed; those bootstrap acceptance criteria remain open.
 
