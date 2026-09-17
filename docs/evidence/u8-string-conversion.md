@@ -43,3 +43,8 @@ by test-units; the explicit Wasm gate includes the string-refusal method too.
 A static adjacent audit records `task_822750774e0040298e8297e96145f3d5`: existing integer, float,
 boolean and default CAST_STRING arms do not check NULL from their allocation
 helpers. I did not reproduce allocation failure or change those arms here.
+
+My full existing native translator gate passes 2,414 checks and 1,092 shape
+checks (`/tmp/nanolang-u8-string-native-regression.log`). The required paired
+Makefile target passes both execution methods in 2.006 seconds
+(`/tmp/nanolang-u8-string-target.log`).
