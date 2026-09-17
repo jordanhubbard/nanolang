@@ -10463,6 +10463,8 @@ My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
 
+- [ ] I preserve metadata lowering failure state and public shadow declaration parity (`task_a600db3ae64f4f63b8b85d77856c593a`). I stop after a failed index expression before allocating table labels or interning exports, validate unused introspection declarations in both public emitters, and test ordinary shadow assignments, once-only indices, empty tables and first-error retention. This defensive child does not establish a cause or resolution for historical product abort task `task_dd74b033c3984805bc27ce5017096c3c`.
+
 - [ ] I preserve all eight module introspection operations and exact merged module identities through canonical NanoISA lowering before completing the product cutover (`task_faa47ec22a2545348aa9c9d705580321`). I first separate source facts from legacy C helper emission, then pass explicit facts into both program and shadow lowering with indexed-result and identity parity tests.
 
 - [ ] I resolve the ordinary native compiler startup abort after the NanoISA-only driver creates Stage 2; I retain the executable and failed hello smoke log, and do not infer a cause from signal status (`task_57eb1d541d084ec4930b8764c591bad3`).
