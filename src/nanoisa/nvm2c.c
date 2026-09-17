@@ -5638,11 +5638,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
-            "    (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_float; (void)nvalue_equal;\n"
+            "    (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_float; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"
             "    (void)nroot_reset; (void)nmap_collect_if_needed;\n");
+        if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN))
+            nvm2c_puts(&b, "    (void)nf64_print;\n");
         if (b.has_string_arrays) nvm2c_puts(&b,
             "    (void)nsarr_new; (void)nsarr_reserve; (void)nsarr_copy_string;\n");
         if (b.has_integer_arrays) nvm2c_puts(&b,
