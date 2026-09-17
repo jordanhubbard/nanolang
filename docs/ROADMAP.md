@@ -2,7 +2,9 @@
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
-- [ ] I preserve projected string branches at native stack joins in the fresh compiler, with the strengthened compiler product gate (MAC `task_55002ea4e4c64f80a6ba70b7f147ebef`). Both unchanged main `b3f79449` and the map patch reject the same `check_let_statement` bytecode; this remains a full-compiler blocker.
+- [x] I preserve forward projected string branches at native stack joins in the fresh compiler, with the strengthened compiler product gate (MAC `task_55002ea4e4c64f80a6ba70b7f147ebef`). I reproduced the same `check_let_statement` failure with unchanged main `b3f79449` and repaired it with checked join storage. Backward joins and the separate selfhost-emitted artifact remain below.
+- [ ] I converge tagged string storage across backward native stack edges before widening an already classified loop header (MAC `task_ea3c8acd272a49669bd6ae6aa75cdf49`). I preserve the VM-positive loop fixture and native refusal separately from the forward compiler join repair.
+- [ ] I resolve the `purity_node` to `purity_call` parameter conflict when translating the complete selfhost-emitted compiler to native code, then require its own NanoISA product (MAC `task_04376d3e430c478d968af69e26543a0f`). I distinguish this artifact from the Cseed-seeded compiler bridge.
 
 I keep this document to outline my development journey.
 
