@@ -26,10 +26,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Map constructor diagnostics.** I resolve NanoVirt success accompanied
-      by `map_new` type errors for direct returns and nested calls, preserving
-      real type rejection and checking output publication.
-      MAC `task_306e982151974f42bd7c191ad017201a`.
+- [x] **Map constructor diagnostics.** I count constructor type errors through
+      my structured diagnostic path, rejecting direct untyped returns, nested
+      calls, discarded calls and invalid arity before artifact publication.
+      Both C and NanoVirt preserve prior output; typed maps still execute.
+      MAC `task_306e982151974f42bd7c191ad017201a`. Two focused methods and
+      the full C typechecker unit suite pass.
 
 - [x] **Emitter build diagnostics.** I retain each native function parameter's
       declared nominal metadata instead of inheriting a same-name parameter

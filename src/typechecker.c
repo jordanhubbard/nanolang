@@ -1893,15 +1893,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* HashMap<K,V> core built-ins (only if no user-defined function with same name exists) */
                 if (strcmp(expr->as.call.name, "map_new") == 0) {
                     if (expr->as.call.arg_count != 0) {
-                        fprintf(stderr, "Error at line %d, column %d: map_new requires 0 arguments\n",
-                                expr->line, expr->column);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                           "I require zero arguments for map_new.",
+                                           "Declare the HashMap<K,V> type on the receiving binding.");
                         return TYPE_UNKNOWN;
                     }
 
                     /* Requires type context (e.g., let hm: HashMap<K,V> = (map_new)) */
                     if (!expr->as.call.return_struct_type_name) {
-                        fprintf(stderr, "Error at line %d, column %d: map_new requires a HashMap<K,V> type annotation\n",
-                                expr->line, expr->column);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                           "I require a HashMap<K,V> type annotation for map_new.",
+                                           "Use a typed local binding before returning or passing the map.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_HASHMAP;
