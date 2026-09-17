@@ -5644,9 +5644,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         fn_c_name(mod, entry, ename, sizeof ename);
         if (mod->import_count) nvm2c_puts(&b,
             "int main(int argc, char **argv) {\n"
-            "    (void)nf64_to_i64;\n"
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
+        nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
         /* Standard C references keep strict unused-function warnings clean. */
         for (uint32_t i = 0; i < mod->function_count; ++i) {
             if (!b.emitted_functions[i]) continue;
