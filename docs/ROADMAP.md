@@ -7965,7 +7965,7 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I escape compiler string literals in NanoISA assembly; after scalar
+- [x] I escape compiler string literals in NanoISA assembly; after scalar
       array results, real compiler emission first reaches quotes/control
       characters (`task_98ec870924bf4b82b9ba5e2591576488`).
 - [x] I keep conservatively emitted scalar-array push helpers valid under
