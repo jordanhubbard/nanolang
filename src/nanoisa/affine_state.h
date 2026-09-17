@@ -43,4 +43,13 @@ bool nvm_affine_local_info(const NvmAffineState *state, uint16_t local,
 bool nvm_affine_scalar_field(const NvmAffineState *state, uint16_t local,
                               uint16_t field, uint8_t *tag);
 bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
+typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
+/* These transfer APIs exchange an exact record token with the bytecode stack.
+ * The stack analysis must prohibit duplication, loss and incompatible joins. */
+bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
+bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType type);
+bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffineType *type);
+bool nvm_affine_record_fields(const NvmAffineState *state, uint32_t layout,
+                               NvmAffineType *fields, uint16_t capacity, uint16_t *count);
+bool nvm_affine_can_exit_type(const NvmAffineState *state, NvmAffineType type);
 #endif

@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_graph.nano" import passive_order
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
 /* =============================================================================
  * nanolang NSType Checker (Self-Hosted) - Minimal Version
@@ -1732,6 +1733,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     
     /* ASTBlock fields */
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "is_par", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "is_flow", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
@@ -4949,6 +4951,35 @@ shadow par_scalar_expr {
     assert (not (par_scalar_expr parsed 0 ParseNodeType.PNODE_ARRAY_LITERAL symbols names))
 }
 
+fn check_flow_statement(parser: Parser, block: ASTBlock, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    let count: int = (list_ASTStmtRef_length block.statements)
+    let order: array<int> = (passive_order parser block)
+    if (or (== count 0) (!= (array_length order) count)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require distinct immutable scalar flow bindings with acyclic dependencies." (Diagnostics.diag_location file_name block.line block.column)))
+        return symbols
+    }
+    let mut result: array<Symbol> = (env_copy_symbols symbols)
+    let names: array<string> = []
+    let mut i: int = 0
+    while (< i count) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements (at order i))
+        let binding: ASTLet = (parser_get_let parser statement.node_id)
+        if (not (par_scalar_expr parser binding.value binding.value_type result names)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require scalar flow expressions and checked closed scalar calls." (Diagnostics.diag_location file_name block.line block.column)))
+            return result
+        }
+        set result (check_let_statement parser binding statement.node_id result diags file_name)
+        set i (+ i 1)
+    }
+    return result
+}
+shadow check_flow_statement {
+    let good: Parser = (resource_test_parser "fn main() -> int { flow { let b: int = (+ a 1) let a: int = 2 } return b }")
+    assert (not (typecheck_phase good "flow.nano").had_error)
+    let bad: Parser = (resource_test_parser "fn main() -> int { flow { let a: int = b let b: int = a } return b }")
+    assert (typecheck_phase bad "flow.nano").had_error
+}
+
 fn check_par_statement(parser: Parser, block: ASTBlock, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
     let count: int = (list_ASTStmtRef_length block.statements)
     let mut names: array<string> = []
@@ -5019,9 +5050,13 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
         
         if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
             let parallel_block: ASTBlock = (parser_get_block parser stmt.node_id)
-            if parallel_block.is_par {
+            if (or parallel_block.is_par parallel_block.is_flow) {
                 let before: int = (list_CompilerDiagnostic_length diags)
-                set local_symbols (check_par_statement parser parallel_block local_symbols diags file_name)
+                if parallel_block.is_flow {
+                    set local_symbols (check_flow_statement parser parallel_block local_symbols diags file_name)
+                } else {
+                    set local_symbols (check_par_statement parser parallel_block local_symbols diags file_name)
+                }
                 if (> (list_CompilerDiagnostic_length diags) before) { set ok false }
                 set i (+ i 1)
                 continue

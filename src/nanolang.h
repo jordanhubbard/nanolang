@@ -507,6 +507,7 @@ struct ASTNode {
         struct {
             ASTNode **bindings;    /* Let-binding statements (AST_LET nodes) */
             int count;             /* Number of bindings */
+            bool is_flow;          /* Source order is retained; execution uses the graph order. */
         } par_block;
 
 
@@ -600,6 +601,8 @@ typedef struct {
     bool from_c_header;  /* True if this constant was loaded from a C header #define */
     int def_line;        /* Line where variable was defined */
     int def_column;      /* Column where variable was defined */
+    int flow_start_line; /* Graph lexical start, separate from definition diagnostics */
+    int flow_start_column;
     int scope_end_line;  /* Exclusive source bound; zero for unbounded symbols */
     int scope_end_column;
     /* Source file the definition came from, or NULL for symbols with no file
@@ -1258,5 +1261,8 @@ int64_t nl_gpu_load(int64_t ptr);
 void    nl_gpu_store(int64_t ptr, int64_t val);
 double  nl_gpu_load_float(int64_t ptr);
 void    nl_gpu_store_float(int64_t ptr, double val);
+
+bool passive_expression_reads_name(const ASTNode *node, const char *name);
+int *passive_binding_order(const ASTNode *block); /* Owned result; NULL refuses the graph. */
 
 #endif /* NANOLANG_H */

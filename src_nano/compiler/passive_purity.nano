@@ -100,7 +100,7 @@ fn par_closed_node(parser: Parser, id: int, kind: int, names: array<string>, cou
     }
     if (== kind ParseNodeType.PNODE_BLOCK) {
         let n: ASTBlock = (parser_get_block parser id)
-        if n.is_par { return false }
+        if (or n.is_par n.is_flow) { return false }
         let mut local_count: int = count
         let mut i: int = 0
         while (< i (list_ASTStmtRef_length n.statements)) {

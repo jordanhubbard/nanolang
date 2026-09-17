@@ -1,0 +1,109 @@
+# I keep source IDs distinct from stable serial execution order.
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+
+pub fn passive_reads(parser: Parser, id: int, kind: int, name: string) -> bool {
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (== (parser_get_identifier parser id).name name) }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let node: ASTBinaryOp = (parser_get_binary_op parser id)
+        if node.is_unary { return (passive_reads parser node.right node.right_type name) }
+        return (or (passive_reads parser node.left node.left_type name) (passive_reads parser node.right node.right_type name))
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let mut start: int = 0
+        let mut count: int = 0
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let call: ASTCall = (parser_get_call parser id)
+            if (passive_reads parser call.function call.function_type name) { return true }
+            set start call.arg_start set count call.arg_count
+        } else {
+            let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+            set start call.arg_start set count call.arg_count
+        }
+        let mut i: int = 0
+        while (< i count) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            if (passive_reads parser arg.node_id arg.node_type name) { return true }
+            set i (+ i 1)
+        }
+    }
+    return false
+}
+shadow passive_reads {
+    let tokens: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return (+ x x) }" "flow.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "flow.nano")
+    let sum: ASTBinaryOp = (parser_get_binary_op parser 0)
+    assert (passive_reads parser sum.left sum.left_type "x")
+    assert (not (passive_reads parser sum.left sum.left_type "other"))
+}
+
+pub fn passive_order(parser: Parser, block: ASTBlock) -> array<int> {
+    let count: int = (list_ASTStmtRef_length block.statements)
+    let mut names: array<string> = []
+    let mut done: array<bool> = []
+    let mut order: array<int> = []
+    let mut i: int = 0
+    while (< i count) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        if (!= stmt.node_type ParseNodeType.PNODE_LET) { return [] }
+        let binding: ASTLet = (parser_get_let parser stmt.node_id)
+        if (or binding.is_mut binding.is_destructure) { return [] }
+        let mut j: int = 0
+        while (< j i) {
+            if (== (at names j) binding.name) { return [] }
+            set j (+ j 1)
+        }
+        set names (array_push names binding.name)
+        set done (array_push done false)
+        set i (+ i 1)
+    }
+    if (not block.is_flow) {
+        set i 0
+        while (< i count) { set order (array_push order i) set i (+ i 1) }
+        return order
+    }
+    let mut step: int = 0
+    while (< step count) {
+        let mut next: int = -1
+        set i 0
+        while (and (< i count) (< next 0)) {
+            if (not (at done i)) {
+                let binding: ASTLet = (parser_get_let parser (list_ASTStmtRef_get block.statements i).node_id)
+                let mut ready: bool = true
+                let mut j: int = 0
+                while (< j count) {
+                    if (passive_reads parser binding.value binding.value_type (at names j)) {
+                        if (not (at done j)) { set ready false }
+                    }
+                    set j (+ j 1)
+                }
+                if ready { set next i }
+            }
+            set i (+ i 1)
+        }
+        if (< next 0) { return [] }
+        set order (array_push order next)
+        (array_set done next true)
+        set step (+ step 1)
+    }
+    return order
+}
+shadow passive_order {
+    let text: string = "fn main() -> int { flow { let total: int = (+ left right) let left: int = (+ root 1) let right: int = (* root 2) let root: int = 3 } return total }"
+    let tokens: List<LexerToken> = (tokenize_string text "flow.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "flow.nano")
+    let body: ASTBlock = (parser_get_block p (parser_get_function p 0).body)
+    let block: ASTBlock = (parser_get_block p (list_ASTStmtRef_get body.statements 0).node_id)
+    let order: array<int> = (passive_order p block)
+    assert (== (array_length order) 4)
+    assert (== (at order 0) 3)
+    assert (== (at order 1) 1)
+    assert (== (at order 2) 2)
+    assert (== (at order 3) 0)
+    let cyclic: string = "fn main() -> int { flow { let a: int = b let b: int = a } return 0 }"
+    let ct: List<LexerToken> = (tokenize_string cyclic "flow.nano" (diag_list_new))
+    let cp: Parser = (parse_program ct (list_LexerToken_length ct) "flow.nano")
+    let cb: ASTBlock = (parser_get_block cp (parser_get_function cp 0).body)
+    assert (== (array_length (passive_order cp (parser_get_block cp (list_ASTStmtRef_get cb.statements 0).node_id))) 0)
+}

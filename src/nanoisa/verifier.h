@@ -46,6 +46,10 @@ typedef struct {
  */
 NvmVerifyResult nvm_verify(const NvmModule *mod);
 
+/* I validate structural metadata and affine transfer dataflow, not executable
+ * runtime support. Ordinary nvm_verify/VM/native admission remains separate. */
+NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx);
+
 /* Validate one function after an incremental compiler appends it. */
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx);
 
