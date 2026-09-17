@@ -265,7 +265,7 @@ RET
         self.run_cmd(['lli', ir], success=False)
 
     def test_refused_profile_preserves_output(self):
-        module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_F64 1.0\nPOP\nPUSH_I64 0\nRET\n.end\n')
+        module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nSTORE_GLOBAL 0\nPUSH_I64 0\nRET\n.end\n')
         output = self.work/'kept.ll'; output.write_text('prior output')
         result = self.run_cmd([LLVM, module, '-o', output], success=False)
         self.assertIn('scalar LLVM profile', result.stderr)
@@ -281,10 +281,10 @@ RET
         self.run_cmd([LLVM, module, '-o', output], success=False)
         self.assertEqual(output.read_text(), 'prior output')
 
-    def test_nominal_metadata_and_float_signature_refused(self):
+    def test_nominal_metadata_and_nonscalar_signature_refused(self):
         for text in (
             '.types 1 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n',
-            '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function unused 1 1 0 int 1\n.parameters unused float\nPUSH_I64 0\nRET\n.end\n',
+            '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function unused 1 1 0 int 1\n.parameters unused string\nPUSH_I64 0\nRET\n.end\n',
         ):
             with self.subTest(text=text):
                 module = self.module(text)

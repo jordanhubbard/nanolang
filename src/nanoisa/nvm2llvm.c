@@ -10,9 +10,13 @@ static int refuse(char *error, size_t size, const char *format, ...) {
     va_start(ap, format); vsnprintf(error, size, format, ap); va_end(ap);
     return 0;
 }
-static int scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_BOOL || tag == TAG_VOID; }
+static int scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
 static int supported(uint8_t op) {
     switch (op) {
+    case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
+    case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
+    case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:
+    case OP_CAST_INT: case OP_CAST_FLOAT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S: case OP_I64_REM_S:
@@ -46,6 +50,32 @@ static void runtime(FILE *out) {
         "safe:\n %q = sdiv i64 %a, %b\n %r = srem i64 %a, %b\n"
         " %answer = select i1 %rem, i64 %r, i64 %q\n ret i64 %answer\n}\n", out);
 }
+static void float_runtime(FILE *out) {
+    fputs(
+        "define internal double @floating(%V %v) {\n"
+        " %bits = call i64 @integer(%V %v, i8 3)\n %x = bitcast i64 %bits to double\n ret double %x\n}\n"
+        "define internal i1 @truthy(%V %v) {\n"
+        " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
+        " %float = icmp eq i8 %tag, 3\n %x = bitcast i64 %bits to double\n"
+        " %f = fcmp une double %x, 0.000000e+00\n %i = icmp ne i64 %bits, 0\n"
+        " %answer = select i1 %float, i1 %f, i1 %i\n ret i1 %answer\n}\n"
+        "define internal i64 @cast_integer(%V %v) {\nentry:\n"
+        " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
+        " %float = icmp eq i8 %tag, 3\n br i1 %float, label %fp, label %scalar\n"
+        "fp:\n %x = bitcast i64 %bits to double\n"
+        " %lower = fcmp oge double %x, 0xC3E0000000000000\n"
+        " %upper = fcmp olt double %x, 0x43E0000000000000\n %valid = and i1 %lower, %upper\n"
+        " call void @check(i1 %valid)\n %answer = fptosi double %x to i64\n ret i64 %answer\n"
+        "scalar:\n ret i64 %bits\n}\n"
+        "define internal double @cast_floating(%V %v) {\nentry:\n"
+        " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
+        " %float = icmp eq i8 %tag, 3\n br i1 %float, label %fp, label %scalar\n"
+        "fp:\n %x = bitcast i64 %bits to double\n ret double %x\n"
+        "scalar:\n %answer = sitofp i64 %bits to double\n ret double %answer\n}\n"
+        "define internal double @float_divide(double %a, double %b) {\nentry:\n"
+        " %zero = fcmp oeq double %b, 0.000000e+00\n br i1 %zero, label %z, label %divide\n"
+        "z:\n ret double 0.000000e+00\ndivide:\n %answer = fdiv double %a, %b\n ret double %answer\n}\n", out);
+}
 static void pop(FILE *out, uint32_t pc, const char *name) {
     fprintf(out, " %%p%u_%s = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, name);
 }
@@ -76,11 +106,14 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         fprintf(out, "b%u:\n", pc);
         switch (ins.opcode) {
         case OP_NOP: break;
-        case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
+        case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
+            int64_t float_bits = 0;
+            if (ins.opcode == OP_PUSH_F64) memcpy(&float_bits, &ins.operands[0].f64, sizeof float_bits);
             fprintf(out, " call void @push(ptr %%stack, ptr %%sp, %%V { i64 %" PRId64 ", i8 %u })\n",
-                ins.opcode == OP_PUSH_I64 ? ins.operands[0].i64 : ins.opcode == OP_PUSH_BOOL ? (int64_t)(ins.operands[0].u8 != 0) : 0,
-                ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
+                ins.opcode == OP_PUSH_F64 ? float_bits : ins.opcode == OP_PUSH_I64 ? ins.operands[0].i64 : ins.opcode == OP_PUSH_BOOL ? (int64_t)(ins.operands[0].u8 != 0) : 0,
+                ins.opcode == OP_PUSH_F64 ? TAG_FLOAT : ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
             break;
+        }
         case OP_POP: pop(out, pc, "a"); break;
         case OP_DUP: pop(out, pc, "a"); push(out, pc, "a"); push(out, pc, "a"); break;
         case OP_SWAP: pop(out, pc, "b"); pop(out, pc, "a"); push(out, pc, "b"); push(out, pc, "a"); break;
@@ -95,8 +128,8 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             if (ins.opcode == OP_JMP) fprintf(out, " br label %%b%u\n", target);
             else {
                 pop(out, pc, "a");
-                fprintf(out, " %%p%u_x = extractvalue %%V %%p%u_a, 0\n %%p%u_cond = icmp ne i64 %%p%u_x, 0\n"
-                    " br i1 %%p%u_cond, label %%b%u, label %%b%u\n", pc, pc, pc, pc, pc,
+                fprintf(out, " %%p%u_cond = call i1 @truthy(%%V %%p%u_a)\n"
+                    " br i1 %%p%u_cond, label %%b%u, label %%b%u\n", pc, pc, pc,
                     ins.opcode == OP_JMP_TRUE ? target : next, ins.opcode == OP_JMP_TRUE ? next : target);
             }
             terminates = 1; break;
@@ -116,8 +149,43 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             terminates = 1; break;
         case OP_ASSERT:
             pop(out, pc, "a");
-            fprintf(out, " %%p%u_x = extractvalue %%V %%p%u_a, 0\n %%p%u_ok = icmp ne i64 %%p%u_x, 0\n call void @check(i1 %%p%u_ok)\n", pc, pc, pc, pc, pc);
+            fprintf(out, " %%p%u_ok = call i1 @truthy(%%V %%p%u_a)\n call void @check(i1 %%p%u_ok)\n", pc, pc, pc);
             break;
+        case OP_CAST_INT: case OP_CAST_FLOAT:
+            pop(out, pc, "a");
+            if (ins.opcode == OP_CAST_FLOAT) {
+                fprintf(out, " %%p%u_fp = call double @cast_floating(%%V %%p%u_a)\n %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc, pc, pc);
+            } else {
+                fprintf(out, " %%p%u_result = call i64 @cast_integer(%%V %%p%u_a)\n", pc, pc);
+            }
+            result(out, pc, ins.opcode == OP_CAST_FLOAT ? TAG_FLOAT : TAG_INT);
+            break;
+        case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
+        case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
+        case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: {
+            if (ins.opcode != OP_F64_NEG) pop(out, pc, "b");
+            pop(out, pc, "a");
+            fprintf(out, " %%p%u_x = call double @floating(%%V %%p%u_a)\n", pc, pc);
+            if (ins.opcode != OP_F64_NEG) fprintf(out, " %%p%u_y = call double @floating(%%V %%p%u_b)\n", pc, pc);
+            const char *op = NULL, *cmp = NULL;
+            switch (ins.opcode) {
+            case OP_F64_ADD: op="fadd"; break; case OP_F64_SUB: op="fsub"; break; case OP_F64_MUL: op="fmul"; break;
+            case OP_F64_EQ: cmp="oeq"; break; case OP_F64_NE: cmp="une"; break;
+            case OP_F64_LT: cmp="olt"; break; case OP_F64_LE: cmp="ole"; break;
+            case OP_F64_GT: cmp="ogt"; break; case OP_F64_GE: cmp="oge"; break;
+            default: break;
+            }
+            if (cmp) {
+                fprintf(out, " %%p%u_cmp = fcmp %s double %%p%u_x, %%p%u_y\n %%p%u_result = zext i1 %%p%u_cmp to i64\n", pc, cmp, pc, pc, pc, pc);
+            } else {
+                if (op) fprintf(out, " %%p%u_fp = %s double %%p%u_x, %%p%u_y\n", pc, op, pc, pc);
+                else if (ins.opcode == OP_F64_NEG) fprintf(out, " %%p%u_fp = fneg double %%p%u_x\n", pc, pc);
+                else fprintf(out, " %%p%u_fp = call double @float_divide(double %%p%u_x, double %%p%u_y)\n", pc, pc, pc);
+                fprintf(out, " %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc);
+            }
+            result(out, pc, cmp ? TAG_BOOL : TAG_FLOAT);
+            break;
+        }
         case OP_TYPE_CHECK:
             pop(out, pc, "a");
             fprintf(out, " %%p%u_tag = extractvalue %%V %%p%u_a, 1\n %%p%u_cmp = icmp eq i8 %%p%u_tag, %u\n"
@@ -168,6 +236,9 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         return refuse(error, size, "I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
     if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
         return refuse(error, size, "I require an explicit executable entry point");
+    if (m->functions[m->header.entry_point].result_tag != TAG_INT &&
+        m->functions[m->header.entry_point].result_tag != TAG_BOOL)
+        return refuse(error, size, "I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return refuse(error, size, "I require a zero-argument scalar entry point");
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -175,8 +246,8 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         const char *name = nvm_get_string(m, f->name_idx);
         if (name && !strcmp(name, "__init__"))
             return refuse(error, size, "I refuse module initializers in my scalar LLVM profile");
-        if (f->upvalue_count || f->result_count != 1 || (f->result_tag != TAG_INT && f->result_tag != TAG_BOOL))
-            return refuse(error, size, "I require one integer/bool result and no captures in function %u", i);
+        if (f->upvalue_count || f->result_count != 1 || (f->result_tag != TAG_INT && f->result_tag != TAG_BOOL && f->result_tag != TAG_FLOAT))
+            return refuse(error, size, "I require one numeric/bool result and no captures in function %u", i);
         for (uint16_t p = 0; p < f->arity; ++p)
             if (m->function_param_types && m->function_param_types[i] && !scalar(m->function_param_types[i][p]))
                 return refuse(error, size, "I require scalar parameters in function %u", i);
@@ -192,6 +263,7 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
             return refuse(error, size, "I require explicit returns until VM/C implicit exits share a supported contract");
     }
     runtime(out);
+    float_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
