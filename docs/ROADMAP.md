@@ -236,6 +236,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and stops later at the separately owned VM example-purity failures under
       `task_7ee12d8737363c126a040fde905a7114`.
 
+- [x] **Native compiler NanoISA product.** I require my compiler built from
+      bytecode to compile `nl_hello.nano` with explicit `--emit-nvm`, execute
+      that module in NanoVM, and translate/run the same product through
+      `nvm2c` and `cc`. The default C-backend hello does not satisfy this
+      acceptance. MAC `task_16425cd8a2404735a5cb246db12c5f59`; evidence:
+      `docs/evidence/native-compiler-bytecode-product.md`. Compiler seeding
+      still uses my C frontend; self-emission and fixed-point gates stay open.
+
 - [x] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
       my canonical bytecode route. I continue to reject unsupported imports and

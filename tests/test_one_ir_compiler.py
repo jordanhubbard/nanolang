@@ -232,6 +232,19 @@ static inline void tracked_free(void *p) {
             hello = work / "hello"
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
+            # I require an actual NanoISA product from the generated compiler,
+            # then exercise that same product in both execution paths.
+            hello_module, hello_c, hello_aot = (work / name for name in
+                                               ("hello.nvm", "hello.c", "hello-aot"))
+            self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano",
+                              "--emit-nvm", "-o", hello_module])
+            self.assertGreater(hello_module.stat().st_size, 0)
+            self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", hello_module], timeout=10),
+                             b"Hello from NanoLang!\n")
+            self.run_checked([ROOT / "bin/nvm2c", hello_module, "-o", hello_c])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                              hello_c, "-o", hello_aot])
+            self.assertEqual(self.run_checked([hello_aot], timeout=10), b"Hello from NanoLang!\n")
 
     def test_nanoisa_artifact_contracts_remain_exact(self):
         contracts = {
