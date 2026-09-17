@@ -535,6 +535,7 @@ shadow nisa_is_int_record {
 }
 
 fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<string>) -> bool {
+    if (== field "HashMap<string,int>") { return true }
     if (or (== field "int") (or (== field "string") (== field "bool"))) { return true }
     if (or (== field "array<int>") (== field "array<string>")) { return true }
     if (or (== field "List<int>") (== field "List<string>")) { return true }
@@ -553,6 +554,8 @@ shadow nisa_field_shape_supported {
     let tokens: List<LexerToken> = (tokenize_string "struct Point { x: int }" "shape.nano" diagnostics)
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shape.nano")
     assert (nisa_field_shape_supported parser "List<Point>" [])
+    assert (nisa_field_shape_supported parser "HashMap<string,int>" [])
+    assert (not (nisa_field_shape_supported parser "HashMap<int,int>" []))
     assert (not (nisa_field_shape_supported parser "array<bool>" []))
 }
 
