@@ -1645,8 +1645,26 @@ shadow generate_enum_definitions_from_tokens {
     assert (== 1 1)
 }
 
-fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
-    let mut out: string = ""
+fn native_nominal_field_type(c_type: string) -> string {
+    if (and (transp_str_starts_with c_type "List_") (== (str_substring c_type (- (str_length c_type) 1) 1) "*")) {
+        return (+ "struct " c_type)
+    } else { (print "") }
+    return c_type
+}
+
+shadow native_nominal_field_type {
+    assert (== (native_nominal_field_type "List_Node*") "struct List_Node*")
+    assert (== (native_nominal_field_type "nl_Node") "nl_Node")
+}
+
+struct NativeNominalDefinition {
+    c_name: string,
+    code: string,
+    field_types: array<string>
+}
+
+fn collect_native_structs(parser: Parser) -> array<NativeNominalDefinition> {
+    let mut definitions: array<NativeNominalDefinition> = []
     let n: int = parser.token_count
     let mut i: int = 0
     let mut emitted_structs: array<string> = []
@@ -1665,7 +1683,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
             } else { (print "") }
 
             if (not skip_struct) {
-            if (>= (+ i 2) n) { return out } else { (print "") }
+            if (>= (+ i 2) n) { return definitions } else { (print "") }
 
             let name_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 1))
             let brace_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 2))
@@ -1687,6 +1705,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
 
                 let c_name: string = (+ "nl_" (mangle_name sname))
                 let mut fields: string = ""
+                let mut dependencies: array<string> = []
 
                 let mut j: int = (+ i 3)
                 let mut struct_done: bool = false
@@ -1706,8 +1725,9 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
                                     let fname: string = tcur.value
                                     let tr: TypeCParseResult = (parse_type_c_from_tokens parser (+ j 2))
                                     if tr.ok {
+                                        set dependencies (array_push dependencies tr.c_type)
                                         set fields (+ fields "    ")
-                                        set fields (+ fields tr.c_type)
+                                        set fields (+ fields (native_nominal_field_type tr.c_type))
                                         set fields (+ fields " ")
                                         set fields (+ fields (mangle_name fname))
                                         set fields (+ fields ";\n")
@@ -1730,6 +1750,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
                     }
                 }
 
+                let mut out: string = ""
                 set out (+ out "\n/* Struct definition: ")
                 set out (+ out sname)
                 set out (+ out " */\n")
@@ -1741,6 +1762,8 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
                 set out (+ out c_name)
                 set out (+ out ";\n")
 
+                let definition: NativeNominalDefinition = NativeNominalDefinition { c_name: c_name, code: out, field_types: dependencies }
+                set definitions (array_push definitions definition)
                 set i j
                 } else { (print "") }
                 } else { (print "") }
@@ -1751,6 +1774,25 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
         set i (+ i 1)
     }
 
+    return definitions
+}
+
+shadow collect_native_structs {
+    let toks: List<LexerToken> = (tokenize_string "struct Point { x: int }" "t.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parser_new toks (list_LexerToken_length toks) "t.nano")
+    let definitions: array<NativeNominalDefinition> = (collect_native_structs p)
+    assert (== (array_length definitions) 1)
+}
+
+fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
+    let definitions: array<NativeNominalDefinition> = (collect_native_structs parser)
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length definitions)) {
+        let definition: NativeNominalDefinition = (at definitions i)
+        set out (+ out definition.code)
+        set i (+ i 1)
+    }
     return out
 }
 
@@ -4071,14 +4113,11 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
     set sb (cg_append sb (gen_c_runtime))
     set sb (cg_append sb (generate_module_forward_declarations parser))
     
-    /* Generate union definitions */
-    set sb (cg_append sb (generate_union_definitions parser))
-    
     /* Generate enum definitions */
     set sb (cg_append sb (generate_enum_definitions_from_tokens parser))
 
-    /* Generate user-defined struct definitions by scanning tokens (before List specializations) */
-    set sb (cg_append sb (generate_struct_definitions_from_tokens parser))
+    /* I order mixed nominal definitions by complete-value dependencies. */
+    set sb (cg_append sb (generate_native_nominal_definitions parser))
 
     /* Generate List<T> specializations (after struct defs so types are available) */
     set sb (cg_append sb (generate_list_specializations parser))
@@ -4465,7 +4504,7 @@ fn emit_union_typedefs(u: ASTUnion, mono_name: string, generic_params: array<str
                 let fname: string = (at u.variant_field_names (+ field_offset fi))
                 let ftype: string = (at u.variant_field_types (+ field_offset fi))
                 let c_ftype: string = (substitute_union_field_type ftype generic_params type_args)
-                set sb (cg_append sb c_ftype)
+                set sb (cg_append sb (native_nominal_field_type c_ftype))
                 set sb (cg_append sb " ")
                 set sb (cg_append sb (mangle_name fname))
                 set sb (cg_append sb "; ")
@@ -4527,6 +4566,119 @@ fn emit_union_typedefs(u: ASTUnion, mono_name: string, generic_params: array<str
 
 shadow emit_union_typedefs {
     assert (== 1 1)
+}
+
+/* I keep exact emitted field types, so pointer-backed collections do not
+ * introduce by-value layout dependencies. */
+fn native_union_definition(u: ASTUnion, name: string, args: array<string>) -> NativeNominalDefinition {
+    let mut fields: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length u.variant_field_types)) {
+        set fields (array_push fields (substitute_union_field_type (at u.variant_field_types i) u.generic_params args))
+        set i (+ i 1)
+    }
+    return NativeNominalDefinition { c_name: (+ "nl_" name), code: (emit_union_typedefs u name u.generic_params args), field_types: fields }
+}
+
+shadow native_union_definition {
+    let toks: List<LexerToken> = (tokenize_string "union Choice { Some { value: int } }" "t.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let u: ASTUnion = (parser_get_union parser 0)
+    let definition: NativeNominalDefinition = (native_union_definition u u.name [])
+    assert (== definition.c_name "nl_Choice")
+    assert (== (at definition.field_types 0) "int64_t")
+}
+
+fn generate_native_nominal_definitions(parser: Parser) -> string {
+    let mut definitions: array<NativeNominalDefinition> = (collect_native_structs parser)
+    let mut ui: int = 0
+    while (< ui (parser_get_union_count parser)) {
+        let u: ASTUnion = (parser_get_union parser ui)
+        if (== u.generic_param_count 0) {
+            let definition: NativeNominalDefinition = (native_union_definition u u.name [])
+            set definitions (array_push definitions definition)
+        } else {
+            let instances: array<string> = (find_union_instantiations parser u.name)
+            let mut ii: int = 0
+            while (< ii (array_length instances)) {
+                let instance: string = (at instances ii)
+                let definition: NativeNominalDefinition = (native_union_definition u (monomorphize_type_name instance) (extract_type_args instance))
+                set definitions (array_push definitions definition)
+                set ii (+ ii 1)
+            }
+        }
+        set ui (+ ui 1)
+    }
+    let mut done: array<string> = []
+    let mut out: string = ""
+    let mut remaining: int = (array_length definitions)
+    while (> remaining 0) {
+        let mut progress: bool = false
+        let mut i: int = 0
+        while (< i (array_length definitions)) {
+            let definition: NativeNominalDefinition = (at definitions i)
+            let mut emitted: bool = false
+            let mut d: int = 0
+            while (< d (array_length done)) {
+                if (== (at done d) definition.c_name) { set emitted true } else { (print "") }
+                set d (+ d 1)
+            }
+            if (not emitted) {
+                let mut ready: bool = true
+                let mut f: int = 0
+                while (< f (array_length definition.field_types)) {
+                    let field: string = (at definition.field_types f)
+                    let mut target: int = 0
+                    while (< target (array_length definitions)) {
+                        let dependency: NativeNominalDefinition = (at definitions target)
+                        if (== field dependency.c_name) {
+                            let mut resolved: bool = false
+                            set d 0
+                            while (< d (array_length done)) {
+                                if (== (at done d) field) { set resolved true } else { (print "") }
+                                set d (+ d 1)
+                            }
+                            if (not resolved) { set ready false } else { (print "") }
+                        } else { (print "") }
+                        set target (+ target 1)
+                    }
+                    set f (+ f 1)
+                }
+                if ready {
+                    set out (+ out definition.code)
+                    set done (array_push done definition.c_name)
+                    set progress true
+                } else { (print "") }
+            } else { (print "") }
+            set i (+ i 1)
+        }
+        if (not progress) {
+            return (+ out "\n#error I cannot lay out cyclic by-value record and union definitions\n")
+        } else { (print "") }
+        set remaining 0
+        set i 0
+        while (< i (array_length definitions)) {
+            let definition: NativeNominalDefinition = (at definitions i)
+            let mut emitted: bool = false
+            let mut d: int = 0
+            while (< d (array_length done)) {
+                if (== (at done d) definition.c_name) { set emitted true } else { (print "") }
+                set d (+ d 1)
+            }
+            if (not emitted) { set remaining (+ remaining 1) } else { (print "") }
+            set i (+ i 1)
+        }
+    }
+    return out
+}
+
+shadow generate_native_nominal_definitions {
+    let toks: List<LexerToken> = (tokenize_string "struct Point { x: int } union Choice { Some { value: Point } }" "t.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let code: string = (generate_native_nominal_definitions p)
+    assert (str_contains code "nl_Point")
+    assert (str_contains code "nl_Choice")
+    assert (not (str_contains code "#error"))
 }
 
 /* Generate union definitions from AST */

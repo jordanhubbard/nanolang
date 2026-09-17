@@ -27,6 +27,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Record-valued call pushes.** I capture a record-returning call once
+      before taking its address for native `array_push`; the current direct
+      form produces invalid C while a typed local works. MAC `task_6ce6ece22ae34698a178bf29ee04412b`.
+
 - [ ] **Mixed native nominal definition order.** I order record and union
       definitions by their by-value dependencies, preserve pointer-backed
       collection boundaries, and diagnose unsatisfied layout cycles. I test
