@@ -143,6 +143,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/instantiated-ownership-metadata.md`. MAC
       `task_d329989e8acf43149c38d6a998bd730f`.
 
+- [x] **Keep the resource-flow allocation boundary test aligned with ownership
+      metadata.** I pass an explicit absent type tree for the deliberately
+      metadata-free overflow fixture after `own_add` gained concrete `TypeInfo`
+      context. The focused allocation target and all 12 instantiated-ownership
+      methods pass. MAC: `task_a822c3af6ff10226a2dde139a8ac1d7c`.
+
 - [x] **Substitute generic selected-variant patterns.** I retain concrete
       arguments through complete-field validation, hidden payload captures and
       inferred projections. Ordinary integer, string, empty and nested selected
