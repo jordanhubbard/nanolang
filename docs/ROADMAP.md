@@ -229,18 +229,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       This establishes classification, not native record layout or global
       ownership support. MAC `task_ef807591eb104cc8b664cd55581ec505`.
 
-- [ ] **Guard unsupported generic resource callback signatures.** I first retain
-      existing nongeneric resource callback controls, then inspect complete
-      parameter/result annotations at function-value boundaries. I reject
-      generic resource-bearing and resource-collection signatures before output
-      publication until their transfer semantics are tested. Ordinary and
-      phantom generic callbacks remain executable controls. My existing self-hosted
-      classifier incorrectly treats `fn()->Marker<Handle>` as an owner even
-      when `Marker` is phantom; I separate callback values from their signature
-      transfer contracts before completing this boundary. I require paired
-      C seed/Stage 1/Stage 2 local, returned and forwarded cases and precise
-      diagnostics preserving prior artifacts. This is a boundary prerequisite,
-      not full callback ownership. MAC `task_f05070eff34a4b169318fe949da45630`.
+- [x] **Guard unsupported generic resource callback signatures.** I inspect
+      complete callback parameter/result annotations and reject generic owners
+      and resource collections before publication. My ordinary and phantom
+      callback values remain copyable; I check their transfer contracts
+      separately. All 13 boundary methods pass through C seed/Stage 1/Stage 2,
+      including executable nongeneric resource parameter/result controls and
+      preserved-output rejection. Fresh bootstrap and 78 adjacent paired
+      methods pass; `docs/evidence/resource-callback-boundary.md` records exact
+      checkpoints and limits. This guard does not implement generic callback
+      ownership. MAC `task_f05070eff34a4b169318fe949da45630`.
 
 - [x] **Retain concrete union identity when reading record fields.** I retain
       complete annotations and declaration-aware union kinds for typed reads
