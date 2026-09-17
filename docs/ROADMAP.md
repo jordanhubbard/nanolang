@@ -179,6 +179,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
   - [ ] If Stage 1 passes, I translate it to native and compile the same pinned source to Stage 2, comparing raw module bytes and their exact immutable host closure.
   - [ ] I check the generated compiler product and publish the observed boundary separately from canonical VM bootstrap and the pending VM-shadow cutover.
 
+- [x] I retain exact native record-array globals without widening them into my
+      tagged primitive-array contract. I preserve element shapes and trace both
+      global and aliased record-array owners through overwrite and collection
+      (`task_1e569db4d8f1486abdd7d5ed3ca00bc1`; two focused VM/native and refusal
+      methods under ASan/UBSan; 2,409 native checks plus three known unrelated
+      aggregate-helper warning failures; 1,092 shape checks).
+
 - [x] I lower native `CAST_FLOAT` with the VM scalar conversion contract, including concrete and tagged int/bool/float/string inputs, while preserving the separate float-to-int refusal (`task_3d6c3314d8924dd2b0aca679647e7048`; six float methods, 2,412 native and 1,092 shape checks; `docs/evidence/native-cast-float.md`). I require unchanged arctangent VM/native output before passive frontend cutover.
 - [x] I keep generated float helpers warning-clean after `CAST_FLOAT` adds
       `nvalue_from_float` and float modules add `nf64_print`; strict native
