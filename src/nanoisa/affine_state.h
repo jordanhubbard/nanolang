@@ -36,4 +36,11 @@ bool nvm_affine_reference_access(const NvmAffineState *state, uint32_t reference
  * exact declared type; UINT16_MAX means no returned local. All other live
  * resource locals and all nested call regions prevent exit. */
 bool nvm_affine_can_exit(const NvmAffineState *state, uint16_t result);
+/* I expose only checked live-local declarations and permitted scalar field
+ * observations to the bytecode analysis; callers cannot mutate my facts. */
+bool nvm_affine_local_info(const NvmAffineState *state, uint16_t local,
+                            uint8_t *tag, uint8_t *mode);
+bool nvm_affine_scalar_field(const NvmAffineState *state, uint16_t local,
+                              uint16_t field, uint8_t *tag);
+bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
 #endif

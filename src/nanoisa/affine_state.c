@@ -281,3 +281,30 @@ bool nvm_affine_can_exit(const NvmAffineState *s,uint16_t result) {
         !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
     return true;
 }
+
+bool nvm_affine_local_info(const NvmAffineState *s,uint16_t local,
+                            uint8_t *tag,uint8_t *mode) {
+    if (!s || local>=s->facts->count || !s->live[local] || !tag || !mode) return false;
+    Slot slot=s->facts->locals[local];
+    if (!slot.mode && !nvm_affine_owner_access(s,local,NULL,0,false)) return false;
+    *tag=slot.tag; *mode=slot.mode; return true;
+}
+bool nvm_affine_scalar_field(const NvmAffineState *s,uint16_t local,
+                              uint16_t field,uint8_t *tag) {
+    if (!s || local>=s->facts->count || !s->live[local] || !tag) return false;
+    Slot root=s->facts->locals[local];
+    if (root.layout==NVM_V2_NO_INDEX) return false;
+    const NvmV2Layout *layout=&s->facts->layouts.items[root.layout];
+    if (field>=layout->field_count || !scalar(layout->fields[field].type_tag)) return false;
+    bool allowed=root.mode ? nvm_affine_reference_access(s,local,field,false)
+        : nvm_affine_owner_access(s,local,&field,1,false);
+    if (!allowed) return false;
+    *tag=layout->fields[field].type_tag; return true;
+}
+bool nvm_affine_can_exit_scalar(const NvmAffineState *s,uint8_t tag) {
+    if (!s || s->region || (tag!=TAG_VOID && !scalar(tag)) ||
+        s->facts->result.tag!=tag) return false;
+    for (uint16_t i=0;i<s->facts->count;i++) if (s->live[i] &&
+        !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
+    return true;
+}

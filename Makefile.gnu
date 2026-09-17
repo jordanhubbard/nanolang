@@ -386,7 +386,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -4428,3 +4428,12 @@ test-affine-state: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_test_malloc -Dcalloc=affine_test_calloc -c src/nanoisa/affine_state.c -o obj/test_affine_state_alloc.o
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_ALLOCATION_TEST -o obj/test_affine_state_alloc tests/nanoisa/test_affine_state.c obj/test_affine_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_state_alloc
+
+.PHONY: test-affine-bytecode
+test-units: test-affine-bytecode
+test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_affine_bytecode
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_affine_bytecode_alloc
