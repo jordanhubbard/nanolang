@@ -1311,33 +1311,11 @@ shadow nisa_emit_call_args {
 }
 
 fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
-    let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
-    let mut out: string = ""
-    let mut tag: string = "1"
-    let mut i: int = 0
-    while (< i arr.element_count) {
-        let el: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
-        if (== el.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-            return (nisa_fail "nested arrays are not in the pinned subset")
-        } else {
-            if (== el.node_type ParseNodeType.PNODE_STRING) {
-                if (and (!= i 0) (!= tag "5")) {
-                    return (nisa_fail "mixed array elements are not in the pinned subset")
-                } else {
-                    set tag "5"
-                }
-            } else {
-                if (== tag "5") {
-                    return (nisa_fail "mixed array elements are not in the pinned subset")
-                } else {
-                    (print "")
-                }
-            }
-            set out (+ out (nisa_emit_expr parser el.node_id el.node_type))
-            set i (+ i 1)
-        }
+    let expected: string = (nisa_expr_type parser node_id ParseNodeType.PNODE_ARRAY_LITERAL)
+    if (== expected "") {
+        return (nisa_fail "I require homogeneous supported scalar array elements")
     }
-    return (+ out (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string arr.element_count)))))
+    return (nisa_emit_expected_expr parser node_id ParseNodeType.PNODE_ARRAY_LITERAL expected)
 }
 
 shadow nisa_emit_array_literal {

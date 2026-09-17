@@ -212,6 +212,35 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.assertIn("I refused that program:", result.stdout)
                     self.assertFalse(output.exists())
 
+    def test_computed_array_literal_tags_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/computed_array_literals.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-computed-array-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly, "word", "main")
+            self.assertIn("6 passed, 0 failed", result.stdout)
+            self.assertIn("ARR_LITERAL 5 1", assembly.read_text())
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[true]'):
+                with self.subTest(expression=expression):
+                    invalid = work / "invalid.nano"
+                    output = work / "invalid.nasm"
+                    invalid.write_text('fn main() -> int { return (array_length ' + expression + ') }\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", invalid, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("homogeneous supported scalar array elements", result.stdout)
+                    self.assertFalse(output.exists())
+
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
         with tempfile.TemporaryDirectory(prefix="nano-escaped-strings-") as tmp:
