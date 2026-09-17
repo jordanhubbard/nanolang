@@ -8,7 +8,7 @@
  * The generated process does not require nano_vm, nano_cop, or nano_vmd.
  *
  * Closed subset: i64 constants, locals, integer arithmetic and comparisons,
- * CALL/TAIL_CALL, JMP/JMP_FALSE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
+ * CALL/TAIL_CALL, JMP/JMP_FALSE/JMP_TRUE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
  * ARR_LITERAL, ARR_GET, ARR_LEN, ARR_PUSH of array<int> and array<string>,
  * ARR_NEW of array<int> or a string list as a heap object so ARR_PUSH then
  * POP mutates the local the way the VM does (void list_int_push /

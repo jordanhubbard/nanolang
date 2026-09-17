@@ -759,7 +759,7 @@ static int mark_uninitialized_locals(Nvm2cBuf *b, const NvmModule *mod, uint32_t
         }
         if (ins.opcode == OP_RET || ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) continue;
         size_t next[2] = {pc + n, 0}, successors = 1;
-        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
             size_t target;
             if (!jump_target(b, idx, pc, ins.operands[0].i32, fn->code_length, &target)) break;
             if (ins.opcode == OP_JMP) next[0] = target;
@@ -1612,6 +1612,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                           host->result == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT, -1)) return 0;
             break;
         }
+        case OP_JMP_TRUE:
         case OP_JMP_FALSE: {
             Nvm2cSimSlot cond;
             if (!sim_pop(b, idx, stk, &sp, &cond)) return 0;
@@ -1690,7 +1691,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             return 0;
         }
         }
-        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
             size_t target;
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &target) ||
                 !sim_join(b, idx, target, &joins[target], stk, sp)) return 0;
@@ -1748,7 +1749,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
         starts[pc] = 1;
-        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
             size_t target;
             if (!jump_target(b, idx, pc, ins.operands[0].i32, length, &target)) goto done;
             targets[target] = 1;
@@ -2101,6 +2102,20 @@ static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
         char expression[48];
         snprintf(expression, sizeof expression, "(f[%d] != 0.0)", value);
         stack_push_bool(b, st, expression);
+    }
+    if (st->sp) {
+        uint8_t kind = st->kinds[st->sp - 1];
+        if (kind == NVM2C_VK_STR || integer_array_storage(kind) ||
+            kind == NVM2C_VK_SARR || kind == NVM2C_VK_RARR ||
+            kind == NVM2C_VK_MAP || kind == NVM2C_VK_REC) {
+            int value = stack_pop(b, st);
+            char expression[48];
+            /* My by-value record represents a constructed VM heap object. */
+            if (kind == NVM2C_VK_REC) snprintf(expression, sizeof expression, "1");
+            else snprintf(expression, sizeof expression, "(%s[%d] != NULL)",
+                          stack_array_name(kind), value);
+            stack_push_bool(b, st, expression);
+        }
     }
     if (st->sp && st->kinds[st->sp - 1] == NVM2C_VK_BOOL)
         return stack_pop_expect(b, st, NVM2C_VK_BOOL, what);
@@ -2550,7 +2565,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         if (look.opcode == OP_TAIL_CALL && look.operands[0].u32 == idx)
             has_self_tail = 1;
-        if (look.opcode == OP_JMP || look.opcode == OP_JMP_FALSE) {
+        if (look.opcode == OP_JMP || look.opcode == OP_JMP_FALSE || look.opcode == OP_JMP_TRUE) {
             size_t tgt = 0;
             if (!jump_target(b, idx, scan, look.operands[0].i32, remaining, &tgt)) {
                 goto done;
@@ -3740,14 +3755,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             terminated = 1;
             break;
         }
+        case OP_JMP_TRUE:
         case OP_JMP_FALSE: {
-            int cond = stack_pop_condition(b, &st, "JMP_FALSE");
+            int cond = stack_pop_condition(b, &st, isa_get_info(ins.opcode)->name);
             if (b->failed) goto done;
             size_t tgt = 0;
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &tgt)) {
                 goto done;
             }
-            nvm2c_printf(b, "    if (!t[%d]) {\n", cond);
+            nvm2c_printf(b, "    if (%st[%d]) {\n", ins.opcode == OP_JMP_FALSE ? "!" : "", cond);
             if (b->has_maps && tgt <= start) {
                 emit_map_roots(b, &st, fn, kinds, idx);
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
