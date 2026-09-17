@@ -1077,7 +1077,68 @@ shadow nisa_call_name {
     (mb_reset [])
 }
 
+fn nisa_element_type(parser: Parser, container: string) -> string {
+    if (or (== container "array<int>") (or (== container "List<int>") (== container "list_int"))) { return "int" }
+    if (or (== container "array<string>") (or (== container "List<string>") (== container "list_string"))) { return "string" }
+    if (and (str_starts_with container "List<") (str_ends_with container ">")) {
+        let element: string = (str_substring container 5 (- (str_length container) 6))
+        if (nisa_is_pin_record parser element) { return element }
+    }
+    return ""
+}
+shadow nisa_element_type {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "struct Entry { text: string }" "element.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "element.nano")
+    assert (== (nisa_element_type parser "array<string>") "string")
+    assert (== (nisa_element_type parser "List<int>") "int")
+    assert (== (nisa_element_type parser "List<Entry>") "Entry")
+    assert (== (nisa_element_type parser "array<bool>") "")
+}
+
+fn nisa_access_result(parser: Parser, call: ASTCall) -> string {
+    if (!= call.arg_count 2) { return (nisa_fail "I require a container and integer index") }
+    let object: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let index: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    if (!= (nisa_expr_type parser index.node_id index.node_type) "int") {
+        return (nisa_fail "I require an integer index")
+    }
+    let container: string = (nisa_expr_type parser object.node_id object.node_type)
+    let element: string = (nisa_element_type parser container)
+    if (== element "") { return (nisa_fail "I require a supported typed container for element access") }
+    let name: string = (nisa_call_name parser call)
+    if (nisa_is_list_call name) {
+        let declared: string = (str_substring name 5 (- (str_length name) 9))
+        if (!= declared element) { return (nisa_fail "I require the list accessor to match its element type") }
+    }
+    return element
+}
+shadow nisa_access_result {
+    let _: int = (nisa_reset)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string (+ "f" "n first(words: array<string>) -> string { return (at words 0) }") "element.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "element.nano")
+    set nisa_names ["words"]
+    set nisa_types ["array<string>"]
+    assert (== (nisa_access_result parser (parser_get_call parser 0)) "string")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+        let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        let mut element: string = "int"
+        let mut i: int = 0
+        while (< i literal.element_count) {
+            let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+            let actual: string = (nisa_expr_type parser value.node_id value.node_type)
+            if (== i 0) { set element actual }
+            if (!= actual element) { return "" }
+            set i (+ i 1)
+        }
+        if (or (== element "int") (== element "string")) { return (+ "array<" (+ element ">")) }
+        return ""
+    }
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" }
     if (== node_type ParseNodeType.PNODE_BOOL) { return "bool" }
     if (== node_type ParseNodeType.PNODE_NUMBER) { return "int" }
@@ -1110,6 +1171,20 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (or (== node_type ParseNodeType.PNODE_CALL) (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
         let call: ASTCall = (nisa_get_call parser node_id node_type)
         let target_name: string = (nisa_call_name parser call)
+        if (and (nisa_is_list_call target_name) (str_ends_with target_name "_new")) {
+            let element: string = (str_substring target_name 5 (- (str_length target_name) 9))
+            let container: string = (+ "List<" (+ element ">"))
+            if (!= (nisa_element_type parser container) "") { return container }
+            return ""
+        }
+        if (and (== target_name "array_push") (== call.arg_count 2)) {
+            let object: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+            return (nisa_expr_type parser object.node_id object.node_type)
+        }
+        if (or (== target_name "at") (or (== target_name "array_get")
+                (and (nisa_is_list_call target_name) (str_ends_with target_name "_get")))) {
+            return (nisa_access_result parser call)
+        }
         if (== target_name "string_to_int") { return "int" }
         let map_result: string = (nisa_map_result target_name)
         if (!= map_result "") { return map_result }
@@ -1445,6 +1520,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             if (!= call.arg_count 2) {
                 return (nisa_fail "array_get needs 2 arguments")
             } else {
+                if (== (nisa_access_result parser call) "") { return "" }
                 return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_GET"))
             }
         } else {
