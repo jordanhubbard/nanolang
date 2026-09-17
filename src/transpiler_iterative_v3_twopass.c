@@ -2415,7 +2415,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 Symbol *callee_symbol = env_get_var_visible_at(env, func_name, expr->line, expr->column);
                 bool capture_callee = callee_symbol && callee_symbol->type == TYPE_FUNCTION;
                 if (capture_callee) {
-                    mapped_name = effect_bound_identifier(func_name);
+                    mapped_name = effect_capture_name(func_name, expr->line, expr->column);
                     func_info = NULL;
                     needs_wrapping = false;
                     needs_unwrap_check = false;
