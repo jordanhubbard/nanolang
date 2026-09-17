@@ -192,6 +192,7 @@ void free_environment(Environment *env) {
         free(env->generic_instances[i].generic_name);
         free(env->generic_instances[i].type_args);
         free(env->generic_instances[i].concrete_name);
+        free_payload_type_info(env->generic_instances[i].type_info);
         if (env->generic_instances[i].type_arg_names) {
             for (int j = 0; j < env->generic_instances[i].type_arg_count; j++) {
                 if (env->generic_instances[i].type_arg_names[j]) {
@@ -1167,7 +1168,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
             sizeof(GenericInstantiation) * env->generic_instance_capacity);
     }
     
-    GenericInstantiation inst;
+    GenericInstantiation inst = {0};
     inst.generic_name = strdup("List");
     inst.type_arg_count = 1;
     inst.type_args = malloc(sizeof(Type));
@@ -1291,7 +1292,7 @@ void env_register_hashmap_instantiation(Environment *env, const char *key_type, 
             sizeof(GenericInstantiation) * env->generic_instance_capacity);
     }
 
-    GenericInstantiation inst;
+    GenericInstantiation inst = {0};
     inst.generic_name = strdup("HashMap");
     inst.type_arg_count = 2;
     inst.type_args = malloc(sizeof(Type) * 2);
@@ -1343,7 +1344,7 @@ void env_register_union_instantiation(Environment *env, const char *union_name,
             sizeof(GenericInstantiation) * env->generic_instance_capacity);
     }
     
-    GenericInstantiation inst;
+    GenericInstantiation inst = {0};
     inst.generic_name = strdup(union_name);
     inst.type_arg_count = type_arg_count;
     inst.type_args = malloc(sizeof(Type) * type_arg_count);

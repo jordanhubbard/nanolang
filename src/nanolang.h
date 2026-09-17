@@ -716,6 +716,7 @@ typedef struct {
     int type_arg_count;        /* Number of type arguments */
     char **type_arg_names;     /* e.g., ["Point"] for user types, NULL for primitives */
     char *concrete_name;       /* e.g., "List_int" or "List_Point" (generated name) */
+    TypeInfo *type_info;       /* Owned concrete union payload substitution context. */
 } GenericInstantiation;
 
 /* Generic function instantiation (for user-defined generic functions like fn identity(x: T) -> T) */
