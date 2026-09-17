@@ -1163,10 +1163,11 @@ shadow nisa_import_add {
 }
 
 fn nisa_artifact_arity(name: string) -> int {
+    if (== name "nl_nanoisa_assemble_save") { return 2 }
     if (or (== name "nl_nanoisa_assemble_text_save") (or (== name "file_append") (or (== name "file_copy") (== name "dir_copy")))) { return 2 }
     if (== name "nl_nanoisa_last_error") { return 0 }
     if (or (== name "path_join") (== name "path_relpath")) { return 2 }
-    let names: array<string> = ["path_basename", "path_dirname", "path_normalize", "path_canonical", "nlc_module_artifact", "fs_walkdir", "fs_mkdir_p"]
+    let names: array<string> = ["path_basename", "path_dirname", "path_normalize", "path_canonical", "nlc_module_artifact", "fs_walkdir", "fs_mkdir_p", "nl_nanoisa_load_print", "nl_nanoisa_load_pretty"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return 1 }
@@ -1175,6 +1176,9 @@ fn nisa_artifact_arity(name: string) -> int {
     return -1
 }
 shadow nisa_artifact_arity {
+    assert (== (nisa_artifact_arity "nl_nanoisa_assemble_save") 2)
+    assert (== (nisa_artifact_arity "nl_nanoisa_load_print") 1)
+    assert (== (nisa_artifact_arity "nl_nanoisa_load_pretty") 1)
     assert (== (nisa_artifact_arity "fs_walkdir") 1)
     assert (== (nisa_artifact_arity "fs_mkdir_p") 1)
     assert (== (nisa_artifact_arity "file_append") 2)
@@ -1189,12 +1193,16 @@ shadow nisa_artifact_arity {
 }
 
 fn nisa_artifact_result(name: string) -> string {
+    if (== name "nl_nanoisa_assemble_save") { return "int" }
     if (== name "fs_walkdir") { return "array<string>" }
     if (or (== name "nl_nanoisa_assemble_text_save") (or (== name "file_append") (or (== name "fs_mkdir_p") (or (== name "file_copy") (== name "dir_copy"))))) { return "int" }
     if (>= (nisa_artifact_arity name) 0) { return "string" }
     return ""
 }
 shadow nisa_artifact_result {
+    assert (== (nisa_artifact_result "nl_nanoisa_assemble_save") "int")
+    assert (== (nisa_artifact_result "nl_nanoisa_load_print") "string")
+    assert (== (nisa_artifact_result "nl_nanoisa_load_pretty") "string")
     assert (== (nisa_artifact_result "nl_nanoisa_assemble_text_save") "int")
     assert (== (nisa_artifact_result "nl_nanoisa_last_error") "string")
     assert (== (nisa_artifact_result "fs_walkdir") "array<string>")
