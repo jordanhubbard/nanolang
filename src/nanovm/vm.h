@@ -122,6 +122,8 @@ typedef struct {
     uint16_t root;
     uint32_t region;
     bool exclusive;
+    uint32_t path; /* NVM_V2_NO_INDEX denotes the root itself. */
+    uint16_t parent; /* UINT16_MAX denotes an original owner borrow. */
 } VmReferenceSlot;
 typedef struct {
     VmReferenceSlot slots[256];

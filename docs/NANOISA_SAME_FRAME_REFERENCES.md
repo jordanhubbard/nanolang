@@ -51,6 +51,7 @@ transfer, incompatible joins and live regions on return; failed translation
 must preserve prior output. Codec, assembly, reconstruction and computed-goto
 execution must carry every opcode unchanged.
 
-Nested reference paths, reborrows, caller-place alias substitution, borrowed
+My [subsequent nested extension](NANOISA_NESTED_REFERENCES.md) implements
+bounded paths and reborrows. Caller-place alias substitution, borrowed
 parameters/results and source frontend production remain required follow-ups.
 This root-only stage does not satisfy my full affine or v5.1 release contract.

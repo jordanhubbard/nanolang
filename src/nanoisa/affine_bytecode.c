@@ -54,6 +54,8 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
 }
 static bool supported(uint8_t op) {
     switch(op) {
+    case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
+    case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
@@ -69,7 +71,7 @@ static bool supported(uint8_t op) {
     default:return false;
     }
 }
-static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals) {
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
@@ -84,15 +86,26 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals) {
         return nvm_affine_region_begin(f->locals)?NULL:"I cannot begin another reference region";
     case OP_REGION_END:
         return nvm_affine_region_end(f->locals)?NULL:"I need a live reference region to end";
-    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
+    case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
+        return nvm_affine_reborrow(f->locals,in->operands[0].u16,in->operands[1].u16,
+            op==OP_REBORROW_SHARED?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)?NULL:
+            "I require permitted parent authority and a fresh reborrow in a deeper region";
+    case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: {
+        bool exclusive=op==OP_BORROW_LOCAL_EXCLUSIVE || op==OP_BORROW_PATH_EXCLUSIVE;
+        uint16_t fields[NVM_OWNERSHIP_MAX_PATH_DEPTH],count=0;
+        if ((op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE) &&
+            nvm_ownership_path(module,in->operands[2].u32,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK)
+            return "I require a retained bounded ownership path";
         /* An existing stack observation must not outlive an exclusive hold. */
         for (uint16_t i=0;i<f->count;i++)
             if (f->stack[i].observation && f->stack[i].root==in->operands[1].u16 &&
-                op==OP_BORROW_LOCAL_EXCLUSIVE)
+                exclusive)
                 return "I cannot borrow exclusively while an owner observation is on my stack";
         return nvm_affine_borrow(f->locals,in->operands[0].u16,in->operands[1].u16,
-            NULL,0,op==OP_BORROW_LOCAL_SHARED?NVM_REFERENCE_SHARED:NVM_REFERENCE_EXCLUSIVE)?NULL:
+            fields,count,exclusive?NVM_REFERENCE_EXCLUSIVE:NVM_REFERENCE_SHARED)?NULL:
             "I require an available scalar-leaf resource owner and reference slot in a live region";
+    }
     case OP_REF_GET: case OP_REF_SET:
         if (!nvm_affine_reference_field(f->locals,in->operands[0].u16,
                 in->operands[1].u16,op==OP_REF_SET,&tag))
@@ -270,7 +283,7 @@ NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t functi
                 error="I require an exact scalar result and no live owned obligations";goto done;
             }
         } else {
-            error=step(current,&instruction->instruction,entry->local_count);
+            error=step(current,&instruction->instruction,entry->local_count,m);
             if (error) goto done;
             if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;

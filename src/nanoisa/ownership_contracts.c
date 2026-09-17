@@ -68,6 +68,62 @@ static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
     return NVM_V2_OK;
 }
 
+/* I share exact path-table transport validation with runtime lookup. */
+static NvmV2Result paths_read(NvmV2Cursor *cursor,uint32_t wanted,
+                               uint16_t *fields,uint16_t capacity,uint16_t *length) {
+    uint32_t count;NvmV2Result result;
+    uint16_t selected[NVM_OWNERSHIP_MAX_PATH_DEPTH],selected_count=0;
+    if ((result=nvm_v2_u32(cursor,&count))!=NVM_V2_OK) return result;
+    if (count>NVM_OWNERSHIP_MAX_PATHS) return NVM_V2_ERR_INDEX_RANGE;
+    for (uint32_t i=0;i<count;i++) {
+        uint16_t n,reserved;
+        if ((result=nvm_v2_u16(cursor,&n))!=NVM_V2_OK ||
+            (result=nvm_v2_u16(cursor,&reserved))!=NVM_V2_OK) return result;
+        if (reserved) return NVM_V2_ERR_RESERVED_FLAGS;
+        if (!n || n>NVM_OWNERSHIP_MAX_PATH_DEPTH) return NVM_V2_ERR_INDEX_RANGE;
+        for (uint16_t j=0;j<n;j++) {
+            uint16_t field;
+            if ((result=nvm_v2_u16(cursor,&field))!=NVM_V2_OK) return result;
+            if (i==wanted) selected[j]=field;
+        }
+        if (i==wanted) selected_count=n;
+        if ((result=nvm_v2_align4(cursor))!=NVM_V2_OK) return result;
+    }
+    if (cursor->pos!=cursor->size) return NVM_V2_ERR_SECTION_RANGE;
+    if (wanted!=NVM_V2_NO_INDEX) {
+        if (!selected_count || selected_count>capacity || !fields || !length)
+            return NVM_V2_ERR_INDEX_RANGE;
+        for (uint16_t i=0;i<selected_count;i++) fields[i]=selected[i];
+        *length=selected_count;
+    }
+    return NVM_V2_OK;
+}
+
+NvmV2Result nvm_ownership_path(const NvmModule *module,uint32_t index,
+                               uint16_t *fields,uint16_t capacity,uint16_t *count) {
+    if (!module || !module->ownership_data || index==NVM_V2_NO_INDEX)
+        return NVM_V2_ERR_INDEX_RANGE;
+    NvmV2Cursor cursor;
+    nvm_v2_cursor_init(&cursor,module->ownership_data,module->ownership_size);
+    uint32_t version,layouts,functions;const uint8_t *ignored;
+    NvmV2Result result;
+    if ((result=nvm_v2_u32(&cursor,&version))!=NVM_V2_OK) return result;
+    if (version!=NVM_OWNERSHIP_PATH_VERSION) return NVM_V2_ERR_FORMAT_VERSION;
+    if ((result=nvm_v2_u32(&cursor,&layouts))!=NVM_V2_OK ||
+        (result=nvm_v2_take(&cursor,layouts,&ignored))!=NVM_V2_OK ||
+        (result=nvm_v2_align4(&cursor))!=NVM_V2_OK ||
+        (result=nvm_v2_u32(&cursor,&functions))!=NVM_V2_OK) return result;
+    if (functions!=module->function_count) return NVM_V2_ERR_INDEX_RANGE;
+    for (uint32_t i=0;i<functions;i++) {
+        uint16_t locals,params;
+        if ((result=nvm_v2_u16(&cursor,&locals))!=NVM_V2_OK ||
+            (result=nvm_v2_u16(&cursor,&params))!=NVM_V2_OK) return result;
+        if (params>locals) return NVM_V2_ERR_INDEX_RANGE;
+        if ((result=nvm_v2_take(&cursor,((size_t)locals+1)*8,&ignored))!=NVM_V2_OK) return result;
+    }
+    return paths_read(&cursor,index,fields,capacity,count);
+}
+
 NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
                                             bool *requires_verifier) {
     if (!module || !requires_verifier) return NVM_V2_ERR_INDEX_RANGE;
@@ -87,7 +143,7 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
     bool needs = false;
     if ((result = nvm_v2_u32(&cursor, &version)) != NVM_V2_OK ||
         (result = nvm_v2_u32(&cursor, &count)) != NVM_V2_OK) goto done;
-    if (version != NVM_OWNERSHIP_VERSION) { result = NVM_V2_ERR_FORMAT_VERSION; goto done; }
+    if (version != NVM_OWNERSHIP_VERSION && version != NVM_OWNERSHIP_PATH_VERSION) { result = NVM_V2_ERR_FORMAT_VERSION; goto done; }
     if (count != layouts.count) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
     if ((result = nvm_v2_take(&cursor, count, &flags)) != NVM_V2_OK ||
         (result = nvm_v2_align4(&cursor)) != NVM_V2_OK ||
@@ -114,6 +170,8 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
                 != NVM_V2_OK) goto done;
         }
     }
+    if (version==NVM_OWNERSHIP_PATH_VERSION &&
+        (result=paths_read(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL))!=NVM_V2_OK) goto done;
     if (cursor.pos != cursor.size) { result = NVM_V2_ERR_SECTION_RANGE; goto done; }
     *requires_verifier = needs;
 done:
