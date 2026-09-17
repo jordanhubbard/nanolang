@@ -45,6 +45,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Borrowed first-class callback boundary.** I reject unsupported
+      shared/exclusive borrowed callback values before native publication,
+      preserving ordinary and already-supported owned callback signatures.
+      My C seed currently reaches generated-C failure for an inferred borrowed
+      function value while Stage1 admits it. I require paired stored/returned/
+      forwarded refusal and prior-output controls until callback transfer is
+      implemented. MAC `task_5647b9905ea3eb914389f660d54634bd`.
+
 - [ ] I retain nominal record identity through nested empty-array append results. My C-seed checker currently refuses `array_push (array_push [] Item {...}) Item {...}` before VM lowering; I retain the fixture separately from supported scalar append inference (MAC `task_439297c5a6934857a90cbec93bb7958d`).
 
 - [x] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).
