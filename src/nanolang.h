@@ -977,8 +977,11 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 
 /* Function signature helpers */
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
+FunctionSignature *function_signature_from_function(const Function *function);
+FunctionSignature *copy_function_signature(const FunctionSignature *signature);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
 void free_payload_type_info(TypeInfo *info);

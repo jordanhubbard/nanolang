@@ -969,7 +969,29 @@ static void test_owned_generic_function_annotations(void) {
     ASSERT(copy->fn_sig != sig);
     ASSERT(copy->fn_sig->param_type_info[0] != sig->param_type_info[0]);
     ASSERT(copy->fn_sig->return_type_info != sig->return_type_info);
+    FunctionSignature *direct = copy_function_signature(sig);
+    ASSERT(function_signatures_equal(sig, direct));
+    ASSERT(type_infos_equal(sig->return_type_info, direct->return_type_info));
+    direct->param_type_info[0]->type_params[0]->element_type->base_type = TYPE_BOOL;
+    ASSERT(!function_signatures_equal(sig, direct));
+    direct->param_type_info[0]->type_params[0]->element_type->base_type = TYPE_INT;
+    direct->return_type_info->type_params[0]->type_params[0]->base_type = TYPE_STRING;
+    ASSERT(!function_signatures_equal(sig, direct));
+    free_function_signature(direct);
+    Parameter parameters[2] = {0};
+    for (int i = 0; i < 2; ++i) {
+        parameters[i].type = sig->param_types[i];
+        parameters[i].struct_type_name = sig->param_struct_names[i];
+        parameters[i].type_info = sig->param_type_info[i];
+    }
+    Function declaration = {.param_count = 2, .params = parameters,
+        .return_type = sig->return_type, .return_struct_type_name = sig->return_struct_name,
+        .return_type_info = sig->return_type_info};
+    direct = function_signature_from_function(&declaration);
+    ASSERT(function_signatures_equal(sig, direct));
     free_ast(program);
+    ASSERT(function_signatures_equal(copy->fn_sig, direct));
+    free_function_signature(direct);
     ASSERT_EQ(copy->fn_sig->return_type_info->type_params[0]->type_params[0]->base_type, TYPE_INT);
     ASSERT_EQ(copy->fn_sig->param_type_info[1]->type_params[1]->base_type, TYPE_INT);
     free_payload_type_info(copy);

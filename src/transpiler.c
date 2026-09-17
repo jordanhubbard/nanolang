@@ -691,75 +691,51 @@ static const char *register_function_signature(FunctionTypeRegistry *reg, Functi
     return reg->typedef_names[reg->count - 1];
 }
 
-/* Generate C typedef for a function signature */
+static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info);
+
+static void emit_signature_type(StringBuilder *sb, Environment *env, Type type,
+                                const char *name, TypeInfo *info) {
+    if (info && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
+        emit_native_type_info(env, sb, info);
+    } else if (info && (type == TYPE_LIST_GENERIC || type == TYPE_HASHMAP)) {
+        char *concrete = typeinfo_to_generic_arg_name(info);
+        if (!concrete) { fprintf(stderr, "I cannot allocate a callback type name\n"); exit(1); }
+        sb_appendf(sb, "%s*", concrete);
+        free(concrete);
+    } else if (name && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
+        sb_append(sb, env_get_opaque_type(env, name) ? "void*" : get_prefixed_type_name(name));
+    } else if (name && type == TYPE_LIST_GENERIC) {
+        sb_appendf(sb, "List_%s*", name);
+    } else {
+        sb_append(sb, type_to_c(type));
+    }
+}
+static void emit_signature_parameters(StringBuilder *sb, Environment *env, FunctionSignature *sig) {
+    if (!sig->param_count) sb_append(sb, "void");
+    for (int i = 0; i < sig->param_count; ++i) {
+        if (i) sb_append(sb, ", ");
+        emit_signature_type(sb, env, sig->param_types[i],
+            sig->param_struct_names ? sig->param_struct_names[i] : NULL,
+            sig->param_type_info ? sig->param_type_info[i] : NULL);
+    }
+}
+/* I use complete annotation trees for each native callback boundary. */
 static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
                                      const char *typedef_name, Environment *env) {
     sb_append(sb, "typedef ");
-    
-    /* Return type */
     if (sig->return_type == TYPE_FUNCTION && sig->return_fn_sig) {
-        /* Nested function return type: fn() -> fn(int, int) -> int
-         * C syntax: typedef int64_t (*(*FnType_N)())(int64_t, int64_t);
-         */
-        /* Return type of nested function */
-        sb_appendf(sb, "%s ", type_to_c(sig->return_fn_sig->return_type));
-        /* Outer function pointer: (*(*typedef_name)()) */
-        sb_appendf(sb, "(*(*%s)(", typedef_name);
-        /* Parameters for outer function */
-        for (int i = 0; i < sig->param_count; i++) {
-            if (i > 0) sb_append(sb, ", ");
-            
-            if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
-            } else {
-                sb_append(sb, type_to_c(sig->param_types[i]));
-            }
-        }
+        FunctionSignature *inner = sig->return_fn_sig;
+        emit_signature_type(sb, env, inner->return_type, inner->return_struct_name, inner->return_type_info);
+        sb_appendf(sb, " (*(*%s)(", typedef_name);
+        emit_signature_parameters(sb, env, sig);
         sb_append(sb, "))(");
-        /* Parameters for nested function */
-        for (int i = 0; i < sig->return_fn_sig->param_count; i++) {
-            if (i > 0) sb_append(sb, ", ");
-            
-            if (sig->return_fn_sig->param_types[i] == TYPE_STRUCT && sig->return_fn_sig->param_struct_names[i]) {
-                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->return_fn_sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->return_fn_sig->param_struct_names[i]));
-            } else {
-                sb_append(sb, type_to_c(sig->return_fn_sig->param_types[i]));
-            }
-        }
-        sb_append(sb, ");\n");
-    } else if (sig->return_type == TYPE_STRUCT && sig->return_struct_name) {
-        sb_appendf(sb, "%s ", env_get_opaque_type(env, sig->return_struct_name) ? "void*" : get_prefixed_type_name(sig->return_struct_name));
-        /* Function pointer syntax: (*typedef_name) */
-        sb_appendf(sb, "(*%s)", typedef_name);
-        /* Parameters */
-        sb_append(sb, "(");
-        for (int i = 0; i < sig->param_count; i++) {
-            if (i > 0) sb_append(sb, ", ");
-            
-            if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
-            } else {
-                sb_append(sb, type_to_c(sig->param_types[i]));
-            }
-        }
-        sb_append(sb, ");\n");
+        emit_signature_parameters(sb, env, inner);
     } else {
-        sb_appendf(sb, "%s ", type_to_c(sig->return_type));
-        /* Function pointer syntax: (*typedef_name) */
-        sb_appendf(sb, "(*%s)", typedef_name);
-        /* Parameters */
-        sb_append(sb, "(");
-        for (int i = 0; i < sig->param_count; i++) {
-            if (i > 0) sb_append(sb, ", ");
-            
-            if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
-            } else {
-                sb_append(sb, type_to_c(sig->param_types[i]));
-            }
-        }
-        sb_append(sb, ");\n");
+        emit_signature_type(sb, env, sig->return_type, sig->return_struct_name, sig->return_type_info);
+        sb_appendf(sb, " (*%s)(", typedef_name);
+        emit_signature_parameters(sb, env, sig);
     }
+    sb_append(sb, ");\n");
 }
 
 /* SDL-specific scalar type mapping for FFI

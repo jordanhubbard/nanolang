@@ -67,51 +67,6 @@ typedef struct {
 } ShadowFailure;
 
 
-static FunctionSignature *copy_function_signature(const FunctionSignature *sig) {
-    if (!sig) return NULL;
-
-    FunctionSignature *out = calloc(1, sizeof(FunctionSignature));
-    if (!out) {
-        fprintf(stderr, "Error: Out of memory copying function signature\n");
-        exit(1);
-    }
-
-    out->param_count = sig->param_count;
-    out->return_type = sig->return_type;
-    out->return_struct_name = sig->return_struct_name ? strdup(sig->return_struct_name) : NULL;
-    out->return_fn_sig = copy_function_signature(sig->return_fn_sig);
-    out->return_type_info = copy_payload_type_info(sig->return_type_info);
-    if (sig->param_type_info) {
-        out->param_type_info = calloc((size_t)sig->param_count, sizeof(TypeInfo*));
-        if (sig->param_count && !out->param_type_info) {
-            fprintf(stderr, "I cannot allocate copied function parameter annotations\n");
-            exit(1);
-        }
-        for (int i = 0; i < sig->param_count; ++i)
-            out->param_type_info[i] = copy_payload_type_info(sig->param_type_info[i]);
-    }
-
-    if (sig->param_count > 0) {
-        out->param_types = malloc(sizeof(Type) * sig->param_count);
-        out->param_struct_names = malloc(sizeof(char*) * sig->param_count);
-        if (!out->param_types || !out->param_struct_names) {
-            fprintf(stderr, "Error: Out of memory copying function signature\n");
-            exit(1);
-        }
-
-        for (int i = 0; i < sig->param_count; i++) {
-            out->param_types[i] = sig->param_types[i];
-            out->param_struct_names[i] = sig->param_struct_names && sig->param_struct_names[i]
-                ? strdup(sig->param_struct_names[i])
-                : NULL;
-        }
-    } else {
-        out->param_types = NULL;
-        out->param_struct_names = NULL;
-    }
-
-    return out;
-}
 
 static bool g_in_shadow_tests = false;
 static int g_shadow_current_fail_count = 0;
