@@ -131,11 +131,15 @@ Value builtin_str_index_of(Value *args) {
         fprintf(stderr, "Error: str_index_of requires two string arguments\n");
         return create_void();
     }
-    const char *haystack = args[0].as.string_val;
-    const char *needle = args[1].as.string_val;
-    const char *p = strstr(haystack, needle);
-    if (!p) return create_int(-1);
-    return create_int((long long)(p - haystack));
+    return create_int(nl_cstr_index_of(args[0].as.string_val, args[1].as.string_val));
+}
+
+Value builtin_str_last_index_of(Value *args) {
+    if (args[0].type != VAL_STRING || args[1].type != VAL_STRING) {
+        fprintf(stderr, "I require two string arguments for str_last_index_of\n");
+        return create_void();
+    }
+    return create_int(nl_cstr_last_index_of(args[0].as.string_val, args[1].as.string_val));
 }
 
 Value builtin_str_trim(Value *args) {

@@ -1,0 +1,4 @@
+#!/bin/sh
+# I exercise the documented offline MAC path without writing to a live ledger.
+echo 'mac: missing bearer token (offline test fixture)' >&2
+exit 1

@@ -230,45 +230,6 @@ void nl_gl3_bind_buffer(int64_t target, int64_t buffer) {
     glBindBuffer((GLenum)target, (GLuint)buffer);
 }
 
-void nl_gl3_buffer_data_f32(int64_t target, DynArray *data_f64, int64_t usage) {
-    if (!data_f64 || data_f64->length <= 0) {
-        glBufferData((GLenum)target, 0, NULL, (GLenum)usage);
-        return;
-    }
-
-    /* nanolang float arrays are stored as doubles; convert to float32 for GL */
-    int64_t n = data_f64->length;
-    const double *src = (const double*)data_f64->data;
-    float *tmp = (float*)malloc((size_t)n * sizeof(float));
-    if (!tmp) {
-        glBufferData((GLenum)target, 0, NULL, (GLenum)usage);
-        return;
-    }
-    for (int64_t i = 0; i < n; i++) {
-        tmp[i] = (float)src[i];
-    }
-    glBufferData((GLenum)target, (GLsizeiptr)((size_t)n * sizeof(float)), tmp, (GLenum)usage);
-    free(tmp);
-}
-
-void nl_gl3_buffer_data_u32(int64_t target, DynArray *data_i64, int64_t usage) {
-    if (!data_i64 || data_i64->length <= 0) {
-        glBufferData((GLenum)target, 0, NULL, (GLenum)usage);
-        return;
-    }
-    int64_t n = data_i64->length;
-    const int64_t *src = (const int64_t*)data_i64->data;
-    uint32_t *tmp = (uint32_t*)malloc((size_t)n * sizeof(uint32_t));
-    if (!tmp) {
-        glBufferData((GLenum)target, 0, NULL, (GLenum)usage);
-        return;
-    }
-    for (int64_t i = 0; i < n; i++) {
-        tmp[i] = (uint32_t)src[i];
-    }
-    glBufferData((GLenum)target, (GLsizeiptr)((size_t)n * sizeof(uint32_t)), tmp, (GLenum)usage);
-    free(tmp);
-}
 
 void nl_gl3_enable_vertex_attrib_array(int64_t index) {
     glEnableVertexAttribArray((GLuint)index);

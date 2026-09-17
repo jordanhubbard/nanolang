@@ -9,6 +9,8 @@
 /* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
 #include "vm_ffi.h"
+#include "vm_ffi_arrays.h"
+#include "module_builder.h"
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
 #include "ffi_dispatch_generated.h"
@@ -17,6 +19,7 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <ffi.h>
 
 /* ========================================================================
  * Module Registry (delegates to ffi_loader)
@@ -36,13 +39,46 @@ void vm_ffi_shutdown(void) {
     ffi_loader_shutdown();
 }
 
+bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx) {
+    if (!module || import_idx >= module->import_count) return false;
+    const NvmImportEntry *imp = &module->imports[import_idx];
+    const char *name = nvm_get_string(module, imp->module_name_idx);
+    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (!name || name[0] != '/' ||
+            strlen(name) != nvm_get_string_len(module, imp->module_name_idx)) return false;
+        if (!ffi_loader_is_initialized()) ffi_loader_init(false);
+        return ffi_loader_open(name, name);
+    }
+    if (imp->kind > NVM_IMPORT_ARTIFACT) return false;
+    return vm_ffi_load_module(name);
+}
+
 bool vm_ffi_load_module(const char *module_name) {
+    if (!module_name || !module_name[0]) return false;
     if (!ffi_loader_is_initialized()) ffi_loader_init(false);
     if (ffi_loader_find(module_name)) return true;
 
-    /* Find library using the shared search logic (no module_dir for VM) */
+    /* I retain source-path context, as the interpreter does. Logical module
+     * names still use the shared loader's standard-module fallbacks. */
+    char *module_dir = NULL;
+    size_t name_len = strlen(module_name);
+    if (name_len >= 5 && strcmp(module_name + name_len - 5, ".nano") == 0) {
+        module_dir = strdup(module_name);
+        if (!module_dir) return false;
+        char *slash = strrchr(module_dir, '/');
+        if (slash == module_dir) slash[1] = '\0';
+        else if (slash) *slash = '\0';
+        else strcpy(module_dir, ".");
+    }
     char path[1024];
-    if (!ffi_loader_find_library(module_name, NULL, path, sizeof(path))) {
+    /* I read build metadata to resolve its library name; I never build or
+     * install dependencies from the runtime loader. */
+    ModuleBuildMetadata *meta = module_dir ? module_load_metadata(module_dir) : NULL;
+    bool found = ffi_loader_find_library(meta ? meta->name : module_name,
+                                         module_dir, path, sizeof(path));
+    module_metadata_free(meta);
+    free(module_dir);
+    if (!found) {
         /* Not fatal - function might be in main executable or already-loaded lib */
         return false;
     }
@@ -55,9 +91,9 @@ bool vm_ffi_load_module(const char *module_name) {
  * ======================================================================== */
 
 /* Marshal NanoValue args to C void* array for polymorphic dispatch */
-static int marshal_args(NanoValue *args, int arg_count,
+static bool marshal_args(NanoValue *args, int arg_count,
                         const NvmImportEntry *imp, const uint8_t *param_types,
-                        void **arg_ptrs) {
+                        void **arg_ptrs, VmFfiArrayFrame *arrays, char *error, size_t size) {
     for (int i = 0; i < arg_count; i++) {
         uint8_t expected_tag = (i < imp->param_count && param_types)
                                ? param_types[i] : args[i].tag;
@@ -88,53 +124,27 @@ static int marshal_args(NanoValue *args, int arg_count,
                 /* Opaque values stored as raw pointer in i64 */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
-            case TAG_ARRAY: {
-                /* Convert VmArray to DynArray for C functions */
-                VmArray *va = args[i].as.array;
-                if (!va) {
-                    arg_ptrs[i] = (void *)dyn_array_new(ELEM_INT);
-                } else {
-                    ElementType et = ELEM_INT;
-                    if (va->elem_type == TAG_STRING) et = ELEM_STRING;
-                    else if (va->elem_type == TAG_FLOAT) et = ELEM_FLOAT;
-                    else if (va->elem_type == TAG_BOOL) et = ELEM_BOOL;
-                    DynArray *da = dyn_array_new(et);
-                    for (uint32_t j = 0; j < va->length; j++) {
-                        NanoValue elem = vm_array_get(va, j);
-                        switch (et) {
-                            case ELEM_INT:   dyn_array_push_int(da, elem.as.i64); break;
-                            case ELEM_FLOAT: dyn_array_push_float(da, elem.as.f64); break;
-                            case ELEM_BOOL:  dyn_array_push_bool(da, elem.as.boolean); break;
-                            case ELEM_STRING:
-                                if (elem.as.string)
-                                    dyn_array_push_string(da, vmstring_cstr(elem.as.string));
-                                else
-                                    dyn_array_push_string(da, "");
-                                break;
-                            default:
-                                dyn_array_push_int(da, elem.as.i64);
-                                break;
-                        }
-                    }
-                    arg_ptrs[i] = (void *)da;
-                }
+            case TAG_ARRAY:
+                if (!vm_ffi_array_argument(arrays, args[i], &arg_ptrs[i], error, size)) return false;
                 break;
-            }
             default:
                 /* Pass as raw int64 (best effort) */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
         }
     }
-    return arg_count;
+    return true;
 }
 
 /* Convert C int64_t result to NanoValue based on return type tag */
 static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
-                                VmHeap *heap) {
+                                VmHeap *heap, bool *success) {
+    *success = true;
     switch (return_tag) {
         case TAG_INT:
             return val_int(raw_result);
+        case TAG_U8:
+            return val_u8((uint8_t)raw_result);
         case TAG_FLOAT: {
             /* Result is actually a double bit-pattern in int64_t */
             double d;
@@ -146,7 +156,10 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
         case TAG_STRING: {
             const char *str = (const char *)(intptr_t)raw_result;
             if (str) {
-                VmString *vs = vm_string_new(heap, str, (uint32_t)strlen(str));
+                size_t length = strlen(str);
+                if (length > UINT32_MAX) { *success = false; return val_void(); }
+                VmString *vs = vm_string_new(heap, str, (uint32_t)length);
+                if (!vs) { *success = false; return val_void(); }
                 return val_string(vs);
             }
             return val_void();
@@ -161,58 +174,11 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
             return v;
         }
         case TAG_ARRAY: {
-            /* C functions return DynArray* - convert to VmArray */
-            DynArray *darr = (DynArray *)(intptr_t)raw_result;
-            if (!darr) return val_void();
-            /* Preserve the element type so ARR_GET / iteration observe the
-             * correct tag (strings were previously mislabelled as ints, which
-             * made e.g. dir_list()/process_run() elements read back empty). */
-            uint8_t vm_elem_tag = TAG_INT;
-            switch (darr->elem_type) {
-                case ELEM_FLOAT:  vm_elem_tag = TAG_FLOAT;  break;
-                case ELEM_BOOL:   vm_elem_tag = TAG_BOOL;    break;
-                case ELEM_STRING: vm_elem_tag = TAG_STRING;  break;
-                default:          vm_elem_tag = TAG_INT;     break;
-            }
-            VmArray *varr = vm_array_new(heap, vm_elem_tag, (uint32_t)darr->length);
-            for (int64_t ai = 0; ai < darr->length; ai++) {
-                NanoValue elem;
-                switch (darr->elem_type) {
-                    case ELEM_INT:
-                        elem = val_int(dyn_array_get_int(darr, ai));
-                        break;
-                    case ELEM_FLOAT:
-                        elem = val_float(dyn_array_get_float(darr, ai));
-                        break;
-                    case ELEM_BOOL:
-                        elem = val_bool(dyn_array_get_bool(darr, ai));
-                        break;
-                    case ELEM_STRING: {
-                        const char *s = dyn_array_get_string(darr, ai);
-                        if (s) {
-                            VmString *vs = vm_string_new(heap, s, (uint32_t)strlen(s));
-                            elem = val_string(vs);
-                        } else {
-                            elem = val_void();
-                        }
-                        break;
-                    }
-                    default:
-                        elem = val_int(dyn_array_get_int(darr, ai));
-                        break;
-                }
-                vm_array_push(heap, varr, elem);
-                /* push retains, so the reference vm_string_new handed back
-                 * has no owner once the array holds its own. Without this,
-                 * every string element of a marshalled array kept a reference
-                 * nothing would ever drop -- the same pattern OP_ARR_PUSH
-                 * already follows. Non-heap elements release to a no-op. */
-                vm_release(heap, elem);
-            }
-            NanoValue v = {0};
-            v.tag = TAG_ARRAY;
-            v.as.array = varr;
-            return v;
+            DynArray *array = (DynArray *)(intptr_t)raw_result;
+            if (!array) return val_void();
+            VmArray *copy = vm_ffi_array_import(heap, array, NULL, 0);
+            if (!copy) { *success = false; return val_void(); }
+            return val_array(copy);
         }
         default:
             return val_int(raw_result);
@@ -353,8 +319,9 @@ static bool ffi_call_mixed(void *func_ptr, NanoValue *args, int arg_count,
 
     int64_t r = 0;
     if (!ffi_dispatch_gp(func_ptr, slots, arg_count, &r)) return false;
-    *result = marshal_result(r, imp->return_type, heap);
-    return true;
+    bool converted;
+    *result = marshal_result(r, imp->return_type, heap, &converted);
+    return converted;
 }
 
 /* ========================================================================
@@ -514,13 +481,15 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
-    /* Load the backing module once (best-effort; the symbol may live in the
-     * main executable or an already-loaded library). */
-    if (mod_name && mod_name[0] != '\0') {
-        vm_ffi_load_module(mod_name);
+    /* I require exact loading for artifacts. Only logical imports retain
+     * best-effort loading and the legacy global symbol search. */
+    bool loaded = vm_ffi_load_import(module, import_idx);
+    void *func_ptr = NULL;
+    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (loaded) func_ptr = ffi_loader_resolve_module(func_name, mod_name);
+    } else if (imp->kind <= NVM_IMPORT_COPROCESS) {
+        func_ptr = ffi_loader_resolve(func_name);
     }
-
-    void *func_ptr = ffi_loader_resolve(func_name);
     if (!func_ptr) {
         desc->state = NVM_CALL_FAILED;
         snprintf(error_msg, error_msg_size,
@@ -529,15 +498,283 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
+    bool has_array = imp->return_type == TAG_ARRAY;
+    for (uint16_t i = 0; i < imp->param_count; ++i)
+        if (desc->param_types && desc->param_types[i] == TAG_ARRAY) has_array = true;
+    if (has_array &&
+        !ffi_loader_check_array_abi(imp->kind == NVM_IMPORT_ARTIFACT ? mod_name : NULL, func_name, func_ptr,
+                                    NANO_DYN_ARRAY_ABI_VERSION, error_msg, error_msg_size)) {
+        desc->state = NVM_CALL_FAILED;
+        return NULL;
+    }
+
     desc->func_ptr = func_ptr;
     desc->state = NVM_CALL_RESOLVED;
     return desc;
+}
+
+static bool callback_contract_pending(const NvmModule *module, uint32_t import_idx,
+                                      char *error, size_t size) {
+    for (uint32_t i = 0; i < module->callback_contract_count; i++) {
+        if (module->callback_contracts[i].import_idx == import_idx) {
+            snprintf(error, size, "I require the retained callback scheduler for this import");
+            return true;
+        }
+    }
+    return false;
+}
+
+typedef union {
+    int64_t integer;
+    double number;
+    uint8_t byte;
+    void *pointer;
+    ffi_arg word;
+} CallbackNativeSlot;
+
+typedef struct {
+    ffi_cif *cif;
+    void *function;
+    void **arguments;
+    CallbackNativeSlot returned;
+    pthread_mutex_t mutex;
+    bool done;
+    NanoCallbackRuntime *runtime;
+    bool string_result, string_copy_failed;
+    char *returned_string;
+    uint32_t returned_length;
+} CallbackNativeCall;
+
+/* I snapshot borrowed results before worker TLS destructors can reclaim them.
+ * Only the owner creates VM heap objects after the worker has joined. */
+static void callback_native_invoke(CallbackNativeCall *call) {
+    ffi_call(call->cif, FFI_FN(call->function), &call->returned, call->arguments);
+    if (call->string_result && call->returned.pointer) {
+        size_t length = strlen(call->returned.pointer);
+        if (length > UINT32_MAX || length == SIZE_MAX) {
+            call->string_copy_failed = true;
+            return;
+        }
+        call->returned_string = malloc(length + 1);
+        if (!call->returned_string) {
+            call->string_copy_failed = true;
+            return;
+        }
+        memcpy(call->returned_string, call->returned.pointer, length + 1);
+        call->returned_length = (uint32_t)length;
+    }
+}
+
+static void *callback_native_worker(void *opaque) {
+    CallbackNativeCall *call = opaque;
+    callback_native_invoke(call);
+    pthread_mutex_lock(&call->mutex);
+    call->done = true;
+    pthread_mutex_unlock(&call->mutex);
+    nano_callback_wake(call->runtime);
+    return NULL;
+}
+
+static ffi_type *callback_native_type(uint8_t tag) {
+    switch (tag) {
+    case TAG_VOID: return &ffi_type_void;
+    case TAG_INT: return &ffi_type_sint64;
+    case TAG_FLOAT: return &ffi_type_double;
+    case TAG_BOOL: case TAG_U8: return &ffi_type_uint8;
+    case TAG_STRING: case TAG_OPAQUE: case TAG_FUNCTION: case TAG_CLOSURE: return &ffi_type_pointer;
+    default: return NULL;
+    }
+}
+
+bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
+                    NanoValue *args, int arg_count, NanoValue *result,
+                    char *error_msg, size_t error_msg_size) {
+    if (!vm || !pthread_equal(vm->owner_thread, pthread_self())) return false;
+    if (!module || !result) {
+        snprintf(error_msg, error_msg_size, "I require a module and result storage for native dispatch");
+        return false;
+    }
+    *result = val_void();
+    if (!nvm_callback_contracts_valid(module)) {
+        snprintf(error_msg, error_msg_size, "I require valid callback contracts for native dispatch");
+        return false;
+    }
+    const NvmCallbackContract *policy = NULL;
+    for (uint32_t i = 0; i < module->callback_contract_count; i++)
+        if (module->callback_contracts[i].import_idx == import_idx) { policy = &module->callback_contracts[i]; break; }
+    if (!policy) {
+        return vm->isolate_ffi
+            ? vm_ffi_call_cop(vm, module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size)
+            : vm_ffi_call(module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size);
+    }
+    if (import_idx >= module->import_count || vm->callbacks_closed) {
+        snprintf(error_msg, error_msg_size, "I require a valid callback contract and live VM host");
+        return false;
+    }
+    const NvmImportEntry *import = &module->imports[import_idx];
+    if (vm->isolate_ffi || import->kind == NVM_IMPORT_COPROCESS) {
+        snprintf(error_msg, error_msg_size, "I cannot transport retained callback handles through isolated FFI");
+        return false;
+    }
+    if (arg_count != import->param_count || arg_count > NANO_MAX_FFI_ARGS || arg_count < 0 || (arg_count && !args)) {
+        snprintf(error_msg, error_msg_size, "I require the declared callback-aware foreign argument count");
+        return false;
+    }
+    ffi_type *return_type = callback_native_type(import->return_type);
+    if (!return_type || import->return_type == TAG_FUNCTION || import->return_type == TAG_CLOSURE) {
+        snprintf(error_msg, error_msg_size, "I require a scalar or string result for a callback-aware native import");
+        return false;
+    }
+    CallbackNativeSlot storage[NANO_MAX_FFI_ARGS] = {{0}};
+    void *values[NANO_MAX_FFI_ARGS];
+    ffi_type *types[NANO_MAX_FFI_ARGS];
+    NanoCallbackV1 *handles[NANO_MAX_FFI_ARGS] = {0};
+    char *strings[NANO_MAX_FFI_ARGS] = {0};
+    CallbackNativeCall call = {.string_result = import->return_type == TAG_STRING};
+    bool ok = false;
+    for (int p = 0; p < arg_count; p++) {
+        uint8_t tag = module->import_param_types[import_idx][p];
+        types[p] = callback_native_type(tag);
+        values[p] = &storage[p];
+        bool opaque_null = tag == TAG_OPAQUE && args[p].tag == TAG_INT && args[p].as.i64 == 0;
+        if (!types[p] || tag == TAG_VOID ||
+            ((tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? !val_is_function(args[p]) :
+             (args[p].tag != tag && !opaque_null))) {
+            snprintf(error_msg, error_msg_size, "I require matching scalar, string or callable parameters for this native adapter");
+            goto cleanup;
+        }
+        switch (tag) {
+        case TAG_INT: storage[p].integer = args[p].as.i64; break;
+        case TAG_FLOAT: storage[p].number = args[p].as.f64; break;
+        case TAG_BOOL: storage[p].byte = args[p].as.boolean; break;
+        case TAG_U8: storage[p].byte = args[p].as.u8; break;
+        case TAG_OPAQUE: storage[p].pointer = opaque_null ? NULL : args[p].as.obj; break;
+        case TAG_STRING: {
+            VmString *string = args[p].as.string;
+            if (!string || memchr(string->data, '\0', string->length)) {
+                snprintf(error_msg, error_msg_size, "I require a non-null string without embedded NUL bytes for this native adapter");
+                goto cleanup;
+            }
+            size_t length = string->length;
+            if (length == SIZE_MAX || !(strings[p] = malloc(length + 1))) {
+                snprintf(error_msg, error_msg_size, "I could not copy a native string argument");
+                goto cleanup;
+            }
+            memcpy(strings[p], string->data, length);
+            strings[p][length] = '\0';
+            storage[p].pointer = strings[p];
+            break;
+        }
+        default: {
+            const NvmCallbackContract *contract = policy;
+            while (contract->parameter_idx != (uint16_t)p) contract++;
+            handles[p] = vm_callback_create(vm, args[p], contract);
+            if (!handles[p]) {
+                snprintf(error_msg, error_msg_size, "I could not publish a retained callback with the declared target signature");
+                goto cleanup;
+            }
+            storage[p].pointer = handles[p];
+        }
+        }
+    }
+    const char *symbol = nvm_get_string(module, policy->adapter_name_idx);
+    const char *library = nvm_get_string(module, import->module_name_idx);
+    if (!ffi_loader_is_initialized()) vm_ffi_init();
+    void *function = vm_ffi_load_import(module, import_idx) && library && library[0]
+        ? ffi_loader_resolve_retained(symbol, library) : NULL;
+    if (!function) {
+        snprintf(error_msg, error_msg_size, "I could not resolve retained adapter %s in its selected module", symbol);
+        goto cleanup;
+    }
+    ffi_cif cif;
+    if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count, return_type, types) != FFI_OK) {
+        snprintf(error_msg, error_msg_size, "I could not prepare the retained adapter's native signature");
+        goto cleanup;
+    }
+    call.cif = &cif;
+    call.function = function;
+    call.arguments = values;
+    if (policy->execution == NVM_FOREIGN_WORKER_THREAD) {
+        if (!vm->callbacks) vm->callbacks = nano_callback_runtime_create();
+        if (!vm->callbacks || pthread_mutex_init(&call.mutex, NULL)) {
+            snprintf(error_msg, error_msg_size, "I could not prepare the native-call worker");
+            goto cleanup;
+        }
+        call.runtime = vm->callbacks;
+        pthread_t thread;
+        if (pthread_create(&thread, NULL, callback_native_worker, &call)) {
+            pthread_mutex_destroy(&call.mutex);
+            snprintf(error_msg, error_msg_size, "I could not start the native-call worker");
+            goto cleanup;
+        }
+        for (;;) {
+            pthread_mutex_lock(&call.mutex);
+            bool done = call.done;
+            pthread_mutex_unlock(&call.mutex);
+            if (done) break;
+            vm_callback_pump(vm, true);
+        }
+        pthread_join(thread, NULL);
+        pthread_mutex_destroy(&call.mutex);
+    } else callback_native_invoke(&call);
+    if (call.string_copy_failed) {
+        snprintf(error_msg, error_msg_size, "I could not copy the native string result");
+        goto cleanup;
+    }
+    if (vm->callback_error != VM_OK) {
+        snprintf(error_msg, error_msg_size, "I stopped after a callback failed: %s", vm->callback_error_msg);
+        goto cleanup;
+    }
+    switch (import->return_type) {
+    case TAG_VOID: break;
+    case TAG_INT: *result = val_int(call.returned.integer); break;
+    case TAG_FLOAT: *result = val_float(call.returned.number); break;
+    case TAG_BOOL: *result = val_bool(call.returned.word != 0); break;
+    case TAG_U8: *result = val_u8((uint8_t)call.returned.word); break;
+    case TAG_OPAQUE: result->tag = TAG_OPAQUE; result->as.obj = call.returned.pointer; break;
+    case TAG_STRING:
+        if (call.returned_string) {
+            VmString *string = vm_string_new(&vm->heap, call.returned_string, call.returned_length);
+            if (!string) {
+                snprintf(error_msg, error_msg_size, "I could not allocate the VM string result");
+                goto cleanup;
+            }
+            *result = val_string(string);
+        }
+        break;
+    }
+    ok = true;
+cleanup:
+    free(call.returned_string);
+    for (int p = 0; p < arg_count; p++) {
+        free(strings[p]);
+        if (handles[p]) handles[p]->release(handles[p]);
+    }
+    if (vm->callbacks) nano_callback_collect(vm->callbacks);
+    return ok;
+}
+
+static bool finish_foreign_arrays(VmFfiArrayFrame *arrays, int64_t raw, uint8_t tag,
+                                  NanoValue *result, char *error, size_t size) {
+    bool ok = true;
+    NanoValue converted = val_void();
+    if (!(tag == TAG_ARRAY &&
+          vm_ffi_array_alias_result(arrays, (void *)(intptr_t)raw, &converted))) {
+        converted = marshal_result(raw, tag, arrays->heap, &ok);
+        if (!ok) snprintf(error, size, "I could not validate or allocate the foreign result");
+    }
+    if (ok) ok = vm_ffi_arrays_commit(arrays, error, size);
+    if (ok) *result = converted;
+    else vm_release(arrays->heap, converted);
+    vm_ffi_arrays_dispose(arrays);
+    return ok;
 }
 
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
                  char *error_msg, size_t error_msg_size) {
+    if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!ffi_loader_is_initialized()) vm_ffi_init();
 
     if (import_idx >= module->import_count) {
@@ -550,7 +787,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* Module introspection functions (___module_*) are environment- and
      * argument-dependent, so they are dispatched directly and never cached. */
-    if (vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
+    if (imp->kind == NVM_IMPORT_FFI &&
+        vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
         return true;
     }
 
@@ -567,10 +805,91 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* Marshal arguments */
     void *arg_ptrs[NANO_MAX_FFI_ARGS] = {0};
-    if (arg_count > NANO_MAX_FFI_ARGS) {
+    VmFfiArrayFrame arrays = {.heap = heap};
+    if (arg_count < 0 || arg_count > NANO_MAX_FFI_ARGS) {
         snprintf(error_msg, error_msg_size,
                  "Too many FFI arguments (%d > %d)", arg_count, NANO_MAX_FFI_ARGS);
         return false;
+    }
+    if (arg_count != desc->param_count || (arg_count && !args)) {
+        snprintf(error_msg, error_msg_size, "I require the declared foreign argument count and values");
+        return false;
+    }
+
+    /* A bytecode function index is not an executable C address. I reject it
+     * until a callback bridge owns its ABI, lifetime, and execution context. */
+    for (int i = 0; i < arg_count; i++) {
+        if (args[i].tag == TAG_FUNCTION || args[i].tag == TAG_CLOSURE ||
+            (param_types && i < desc->param_count &&
+             (param_types[i] == TAG_FUNCTION || param_types[i] == TAG_CLOSURE))) {
+            snprintf(error_msg, error_msg_size,
+                     "I cannot pass a bytecode function as a native callback (%s argument %d)",
+                     func_name, i + 1);
+            return false;
+        }
+    }
+
+    /* I use typed ABI dispatch for wider signatures, including mixed
+     * integer/pointer and floating-point register classes. */
+    bool typed_abi = imp->return_type == TAG_FLOAT || imp->return_type == TAG_ARRAY;
+    for (int i = 0; param_types && i < arg_count && i < desc->param_count; i++)
+        if (param_types[i] == TAG_FLOAT || param_types[i] == TAG_ARRAY) typed_abi = true;
+    if (arg_count > 10 || typed_abi) {
+        if (arg_count != desc->param_count) {
+            snprintf(error_msg, error_msg_size, "I require the declared foreign argument count");
+            return false;
+        }
+        ffi_type *types[NANO_MAX_FFI_ARGS];
+        void *values[NANO_MAX_FFI_ARGS];
+        union { int64_t integer; double floating; void *pointer; uint8_t byte; }
+            storage[NANO_MAX_FFI_ARGS], returned = {0};
+        if (!marshal_args(args, arg_count, imp, param_types, arg_ptrs, &arrays, error_msg, error_msg_size))
+            goto ffi_array_failure;
+        for (int i = 0; i < arg_count; i++) {
+            uint8_t tag = param_types ? param_types[i] : args[i].tag;
+            values[i] = &storage[i];
+            if (tag == TAG_FLOAT) {
+                types[i] = &ffi_type_double;
+                storage[i].floating = args[i].tag == TAG_FLOAT ? args[i].as.f64 : (double)args[i].as.i64;
+            } else if (tag == TAG_INT || tag == TAG_ENUM) {
+                types[i] = &ffi_type_sint64;
+                storage[i].integer = (int64_t)(intptr_t)arg_ptrs[i];
+            } else if (tag == TAG_BOOL || tag == TAG_U8) {
+                types[i] = &ffi_type_uint8;
+                storage[i].byte = (uint8_t)(uintptr_t)arg_ptrs[i];
+            } else if (tag == TAG_STRING || tag == TAG_BSTRING || tag == TAG_ARRAY || tag == TAG_OPAQUE) {
+                types[i] = &ffi_type_pointer;
+                storage[i].pointer = arg_ptrs[i];
+            } else {
+                snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign argument tag %u", tag);
+                goto ffi_array_failure;
+            }
+        }
+        ffi_type *return_type = NULL;
+        switch (imp->return_type) {
+            case TAG_VOID: return_type = &ffi_type_void; break;
+            case TAG_FLOAT: return_type = &ffi_type_double; break;
+            case TAG_INT: case TAG_ENUM: return_type = &ffi_type_sint64; break;
+            case TAG_BOOL: case TAG_U8: return_type = &ffi_type_uint8; break;
+            case TAG_STRING: case TAG_BSTRING: case TAG_ARRAY: case TAG_OPAQUE:
+                return_type = &ffi_type_pointer; break;
+            default:
+                snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign result tag %u", imp->return_type);
+                goto ffi_array_failure;
+        }
+        ffi_cif cif;
+        if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count, return_type, types) != FFI_OK) {
+            snprintf(error_msg, error_msg_size, "I could not prepare a typed foreign signature");
+            goto ffi_array_failure;
+        }
+        ffi_call(&cif, FFI_FN(func_ptr), &returned, values);
+        int64_t raw = returned.integer;
+        if (imp->return_type == TAG_FLOAT) memcpy(&raw, &returned.floating, sizeof raw);
+        else if (imp->return_type == TAG_BOOL || imp->return_type == TAG_U8) raw = returned.byte;
+        else if (imp->return_type == TAG_ARRAY || imp->return_type == TAG_STRING ||
+                 imp->return_type == TAG_BSTRING || imp->return_type == TAG_OPAQUE)
+            raw = (int64_t)(intptr_t)returned.pointer;
+        return finish_foreign_arrays(&arrays, raw, imp->return_type, result, error_msg, error_msg_size);
     }
 
     /* Fast path: all-float signatures use properly typed dispatch so
@@ -622,7 +941,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         /* Fall through to the generic path if the pattern was unsupported. */
     }
 
-    marshal_args(args, arg_count, imp, param_types, arg_ptrs);
+    if (!marshal_args(args, arg_count, imp, param_types, arg_ptrs, &arrays, error_msg, error_msg_size))
+        goto ffi_array_failure;
 
     /* Call the function */
     int64_t raw_result = 0;
@@ -652,9 +972,11 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
             return false;
     }
 
-    /* Marshal result */
-    *result = marshal_result(raw_result, imp->return_type, heap);
-    return true;
+    return finish_foreign_arrays(&arrays, raw_result, imp->return_type, result, error_msg, error_msg_size);
+
+ffi_array_failure:
+    vm_ffi_arrays_dispose(&arrays);
+    return false;
 }
 
 /* ========================================================================
@@ -691,9 +1013,18 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
     if (mailbox == MAP_FAILED) return false;
     memset(mailbox, 0, mbox_size);
 
-    /* Two 1-byte signal pipes (replace the old full-payload pipes) */
-    int sig_to_child[2], sig_from_child[2];
-    if (pipe(sig_to_child) != 0 || pipe(sig_from_child) != 0) {
+    /* Signal pipes serve small mailbox calls; data pipes carry large calls
+     * to the same worker and therefore the same native module state. */
+    int sig_to_child[2] = {-1, -1}, sig_from_child[2] = {-1, -1};
+    int data_to_child[2] = {-1, -1}, data_from_child[2] = {-1, -1};
+    if (pipe(sig_to_child) != 0 || pipe(sig_from_child) != 0 ||
+        pipe(data_to_child) != 0 || pipe(data_from_child) != 0) {
+        for (int i = 0; i < 2; ++i) {
+            if (sig_to_child[i] >= 0) close(sig_to_child[i]);
+            if (sig_from_child[i] >= 0) close(sig_from_child[i]);
+            if (data_to_child[i] >= 0) close(data_to_child[i]);
+            if (data_from_child[i] >= 0) close(data_from_child[i]);
+        }
         munmap(mailbox, mbox_size);
         return false;
     }
@@ -703,6 +1034,8 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
         munmap(mailbox, mbox_size);
         close(sig_to_child[0]);  close(sig_to_child[1]);
         close(sig_from_child[0]); close(sig_from_child[1]);
+        close(data_to_child[0]); close(data_to_child[1]);
+        close(data_from_child[0]); close(data_from_child[1]);
         return false;
     }
 
@@ -711,22 +1044,27 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
          * (no exec — mailbox pointer is valid because we forked, not exec'd) */
         close(sig_to_child[1]);
         close(sig_from_child[0]);
+        close(data_to_child[1]);
+        close(data_from_child[0]);
         cop_child_main(mailbox, mbox_size,
-                       sig_to_child[0], sig_from_child[1], module);
+                       sig_to_child[0], sig_from_child[1],
+                       data_to_child[0], data_from_child[1], module);
         _exit(0);  /* cop_child_main never returns normally */
     }
 
     /* Parent: close child-side pipe ends */
     close(sig_to_child[0]);
     close(sig_from_child[1]);
+    close(data_to_child[0]);
+    close(data_from_child[1]);
 
     vm->cop_pid = pid;
     vm->cop_mailbox = mailbox;
     vm->cop_mailbox_size = mbox_size;
     vm->cop_sig_send_fd = sig_to_child[1];
     vm->cop_sig_recv_fd = sig_from_child[0];
-    vm->cop_in_fd  = -1;  /* not used in mailbox mode */
-    vm->cop_out_fd = -1;
+    vm->cop_in_fd = data_to_child[1];
+    vm->cop_out_fd = data_from_child[0];
 
     /* Wait for ready signal from child (up to 5 s) */
     struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
@@ -757,7 +1095,7 @@ void vm_ffi_cop_stop(VmState *vm) {
     }
     /* Legacy pipe fds (may be -1 in mailbox mode) */
     if (vm->cop_in_fd >= 0) {
-        cop_send_simple(vm->cop_in_fd, COP_MSG_SHUTDOWN);
+        /* Closing cannot block on a full request pipe after a timed-out send. */
         close(vm->cop_in_fd);
         vm->cop_in_fd = -1;
     }
@@ -766,14 +1104,15 @@ void vm_ffi_cop_stop(VmState *vm) {
         vm->cop_out_fd = -1;
     }
 
-    /* Wait up to 50 ms for graceful exit, then SIGTERM */
+    /* Wait up to 50 ms for EOF-driven exit, then kill the owned worker.
+     * Foreign code can ignore SIGTERM; it must not defeat the call deadline. */
     int status;
     pid_t w = waitpid(vm->cop_pid, &status, WNOHANG);
     if (w == 0) {
         usleep(50000);
         w = waitpid(vm->cop_pid, &status, WNOHANG);
         if (w == 0) {
-            kill(vm->cop_pid, SIGTERM);
+            kill(vm->cop_pid, SIGKILL);
             waitpid(vm->cop_pid, &status, 0);
         }
     }
@@ -825,6 +1164,11 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
+    if (arg_count < 0 || arg_count > NANO_MAX_FFI_ARGS || (!args && arg_count) || !result) {
+        snprintf(error_msg, error_msg_size, "I require a valid isolated argument count and result");
+        return false;
+    }
+    if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         /* Isolation was explicitly requested (this function only runs under
          * vm->isolate_ffi). If the co-process can't be launched we must NOT
@@ -842,17 +1186,16 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     /* ── Fast path: mailbox ──────────────────────────────────────────── */
     if (mbox) {
         /* Serialize args directly into the mailbox request slot */
-        uint32_t pos = 0;
-        bool fits = true;
-        for (int i = 0; i < arg_count && i < NANO_MAX_FFI_ARGS && fits; i++) {
-            uint32_t n = cop_serialize_value(&args[i],
-                                             mbox->req_data + pos,
-                                             COP_MAILBOX_SLOT_SIZE - pos);
-            if (n == 0) { fits = false; break; }
-            pos += n;
-        }
-
-        if (fits) {
+        uint32_t pos = cop_encode_call_values(args, (uint8_t)arg_count,
+                                               mbox->req_data, COP_MAILBOX_SLOT_SIZE);
+        if (pos) {
+            int64_t started = cop_now_ms();
+            if (started < 0 || vm->cop_timeout_ms <= 0) {
+                snprintf(error_msg, error_msg_size, "I require a positive isolated call deadline");
+                return false;
+            }
+            int64_t deadline = started + vm->cop_timeout_ms;
+            cop_put_u32(mbox->req_batch_count, 0);
             cop_put_u32(mbox->req_import_idx, import_idx);
             cop_put_u16(mbox->req_argc, (uint16_t)arg_count);
             cop_put_u16(mbox->req_data_size, (uint16_t)pos);
@@ -883,26 +1226,35 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
             }
 
             /* Read result from mailbox */
+            if (mbox->resp_is_error == 2) {
+                int64_t now = cop_now_ms();
+                int64_t remaining = now < 0 ? 0 : deadline - now;
+                CopMsgType type;
+                uint8_t *reply = NULL;
+                uint32_t reply_size = 0;
+                bool ok = remaining > 0 &&
+                    cop_exchange(-1, vm->cop_out_fd, NULL, 0, (int)remaining,
+                                  &type, &reply, &reply_size) &&
+                    type == COP_MSG_FFI_RESULT &&
+                    cop_apply_call_reply(reply, reply_size, args, (uint8_t)arg_count, result, heap);
+                free(reply);
+                if (!ok) {
+                    vm_ffi_cop_stop(vm);
+                    snprintf(error_msg, error_msg_size, "I could not receive the isolated spill reply before its deadline");
+                }
+                return ok;
+            }
             if (mbox->resp_is_error) {
-                snprintf(error_msg, error_msg_size, "%s", mbox->resp_error);
+                snprintf(error_msg, error_msg_size, "%.*s",
+                         (int)sizeof(mbox->resp_error), mbox->resp_error);
                 return false;
             }
             uint32_t resp_wire_size = cop_get_u32(mbox->resp_data_size);
-            if (resp_wire_size > 0) {
-                /* resp_data_size is written by the (untrusted) child; clamp to
-                 * the actual slot size so a corrupt/hostile child can't make us
-                 * read past the 4 KB mailbox slot / the shared mapping. */
-                uint32_t resp_size = resp_wire_size;
-                if (resp_size > COP_MAILBOX_SLOT_SIZE) resp_size = COP_MAILBOX_SLOT_SIZE;
-                uint32_t consumed = cop_deserialize_value(
-                    mbox->resp_data, resp_size, result, heap);
-                if (consumed == 0) {
-                    snprintf(error_msg, error_msg_size,
-                             "COP: failed to deserialize mailbox result");
-                    return false;
-                }
-            } else {
-                *result = val_void();
+            if (resp_wire_size > COP_MAILBOX_SLOT_SIZE ||
+                !cop_apply_call_reply(mbox->resp_data, resp_wire_size, args,
+                                      (uint8_t)arg_count, result, heap)) {
+                snprintf(error_msg, error_msg_size, "I rejected an invalid isolated reply");
+                return false;
             }
             return true;
         }
@@ -923,70 +1275,47 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     }
 
     uint8_t payload[8192];
-    uint32_t pos = 0;
-    memcpy(payload + pos, &import_idx, 4); pos += 4;
-    uint16_t argc = (uint16_t)arg_count;
-    memcpy(payload + pos, &argc, 2); pos += 2;
-    for (int i = 0; i < arg_count && i < NANO_MAX_FFI_ARGS; i++) {
-        uint32_t n = cop_serialize_value(&args[i], payload + pos,
-                                         sizeof(payload) - pos);
-        if (n == 0) {
-            snprintf(error_msg, error_msg_size, "COP: failed to serialize arg %d", i);
+    uint8_t *request = payload;
+    uint32_t capacity = sizeof payload;
+    uint32_t encoded;
+    while (!(encoded = cop_encode_call_values(args, (uint8_t)arg_count,
+                                               request + 6, capacity - 6))) {
+        if (request != payload) free(request);
+        if (capacity >= COP_MAX_PAYLOAD) {
+            snprintf(error_msg, error_msg_size, "I could not encode a bounded pipe request");
             return false;
         }
-        pos += n;
-    }
-
-    if (!cop_send(vm->cop_in_fd, COP_MSG_FFI_REQ, payload, pos)) {
-        vm_ffi_cop_stop(vm);
-        snprintf(error_msg, error_msg_size,
-                 "COP: pipe broken during FFI request");
-        return false;
-    }
-
-    CopMsgHeader hdr;
-    if (!cop_recv_header(vm->cop_out_fd, &hdr)) {
-        vm_ffi_cop_stop(vm);
-        snprintf(error_msg, error_msg_size,
-                 "COP: pipe broken waiting for FFI response");
-        return false;
-    }
-
-    if (hdr.msg_type == COP_MSG_FFI_RESULT) {
-        if (hdr.payload_len > 0) {
-            uint8_t *recv_buf = (hdr.payload_len <= sizeof(payload))
-                                ? payload : malloc(hdr.payload_len);
-            if (!recv_buf) {
-                snprintf(error_msg, error_msg_size,
-                         "COP: OOM for result (%u bytes)", hdr.payload_len);
-                return false;
-            }
-            bool ok = cop_recv_payload(vm->cop_out_fd, recv_buf, hdr.payload_len);
-            if (!ok) {
-                if (recv_buf != payload) free(recv_buf);
-                snprintf(error_msg, error_msg_size, "COP: failed to receive result");
-                return false;
-            }
-            uint32_t consumed = cop_deserialize_value(recv_buf, hdr.payload_len,
-                                                       result, heap);
-            if (recv_buf != payload) free(recv_buf);
-            if (consumed == 0) {
-                snprintf(error_msg, error_msg_size, "COP: failed to deserialize result");
-                return false;
-            }
-        } else {
-            *result = val_void();
+        capacity *= 2;
+        request = malloc(capacity);
+        if (!request) {
+            snprintf(error_msg, error_msg_size, "I could not allocate the pipe request");
+            return false;
         }
-        return true;
     }
-    if (hdr.msg_type == COP_MSG_FFI_ERROR) {
-        uint32_t elen = hdr.payload_len < (uint32_t)(error_msg_size - 1)
-                        ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
-        if (elen > 0) { cop_recv_payload(vm->cop_out_fd, error_msg, elen); error_msg[elen] = '\0'; }
+    cop_put_u32(request, import_idx);
+    cop_put_u16(request + 4, (uint16_t)arg_count);
+    CopMsgType response_type;
+    uint8_t *reply = NULL;
+    uint32_t reply_size = 0;
+    bool exchanged = cop_exchange(vm->cop_in_fd, vm->cop_out_fd, request, encoded + 6,
+                                    vm->cop_timeout_ms, &response_type, &reply, &reply_size);
+    if (request != payload) free(request);
+    if (!exchanged) {
+        vm_ffi_cop_stop(vm);
+        snprintf(error_msg, error_msg_size, "I could not complete the isolated pipe exchange within %d ms",
+                 vm->cop_timeout_ms);
         return false;
     }
-    snprintf(error_msg, error_msg_size, "COP: unexpected response 0x%02x", hdr.msg_type);
-    return false;
+    bool ok = false;
+    if (response_type == COP_MSG_FFI_RESULT) {
+        ok = cop_apply_call_reply(reply, reply_size, args, (uint8_t)arg_count, result, heap);
+        if (!ok) snprintf(error_msg, error_msg_size, "I rejected an invalid isolated pipe reply");
+    } else {
+        snprintf(error_msg, error_msg_size, "%.*s", (int)reply_size, (const char *)reply);
+    }
+    free(reply);
+    if (!ok) vm_ffi_cop_stop(vm);
+    return ok;
 }
 
 /* ========================================================================
@@ -1013,6 +1342,9 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
     for (int i = 0; i < count; i++) results[i] = val_void();
     if (count == 0) return true;
 
+    for (int i = 0; i < count; i++)
+        if (callback_contract_pending(module, calls[i].import_idx, error_msg, error_msg_size)) return false;
+
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         snprintf(error_msg, error_msg_size,
                  "COP: FFI isolation requested but co-process unavailable; "
@@ -1021,7 +1353,26 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
     }
 
     CopMailbox *mbox = vm->cop_mailbox;
-    if (!mbox) {
+    bool array_arguments = false;
+    for (int i = 0; i < count; ++i) {
+        if (calls[i].import_idx < module->import_count) {
+            uint8_t returned = module->imports[calls[i].import_idx].return_type;
+            if (returned == TAG_ARRAY || returned == TAG_STRING || returned == TAG_BSTRING)
+                array_arguments = true;
+        }
+        if (calls[i].arg_count < 0 || calls[i].arg_count > NANO_MAX_FFI_ARGS ||
+            (!calls[i].args && calls[i].arg_count)) {
+            snprintf(error_msg, error_msg_size, "I require valid isolated batch arguments");
+            return false;
+        }
+        for (int j = 0; j < calls[i].arg_count; ++j)
+            if (calls[i].args[j].tag == TAG_ARRAY) array_arguments = true;
+    }
+    if (!mbox || array_arguments) {
+        /* Variable-size replies need single-call spillover. Array calls must
+         * observe the previous call's published mutations.
+         * I retain scalar batching; packing array snapshots ahead of execution
+         * would silently erase dependencies between calls sharing an array. */
         /* No shared-memory mailbox: fall back to per-call dispatch so batching
          * still works functionally over the pipe channel (just without the
          * single-crossing win). */

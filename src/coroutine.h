@@ -43,6 +43,7 @@ typedef Value (*CoroFn)(void *arg, int coro_id);
 typedef struct NanoCoroutine {
     int id;
     CoroStatus status;
+    bool active;        /* I cannot recycle this slot until its callback returns. */
     CoroFn fn;
     void *arg;
     Value result;        /* Result value when CORO_DONE */
@@ -67,15 +68,23 @@ extern NanoScheduler g_scheduler;
 /* Initialize the global scheduler */
 void nano_scheduler_init(void);
 
-/* Spawn a new coroutine: returns coroutine id (>= 0) or -1 on failure */
+/* I return an ID or -1 for a null callback, exhausted IDs or full storage.
+ * Completed handles still occupy storage until nano_coro_release succeeds. */
 int nano_coro_spawn(CoroFn fn, void *arg);
+
+/* I retain completed slots until explicit release. Release fails for pending
+ * or active callbacks and stale IDs. I free scheduler-owned error text, not
+ * the borrowed argument or objects referenced by the result Value. */
+bool nano_coro_release(int coro_id);
 
 /* Cooperative yield hint — allows other coroutines to run.
  * In the simple run-to-completion scheduler, this is a no-op.
  * With ucontext/fiber support, this would switch contexts. */
 void nano_coro_yield(void);
 
-/* Run the scheduler until a specific coroutine is done. Returns its result. */
+/* I return the completed result or VAL_VOID on failure. Invalid handles,
+ * failed tasks and self/ancestor waits mark a running caller CORO_ERROR.
+ * Outside a callback, inspect task status separately from a void result. */
 Value nano_coro_await_id(int coro_id);
 
 /* Step the scheduler once: pick the next READY coroutine and run it.
@@ -94,10 +103,10 @@ bool nano_coro_is_done(int coro_id);
 /* Get count of pending (non-done, non-error) coroutines */
 int nano_scheduler_pending_count(void);
 
-/* Mark current coroutine as done with result (called from within a coro) */
+/* I complete a running callback; terminal states are not overwritten. */
 void nano_coro_complete(Value result);
 
-/* Mark current coroutine as errored */
+/* I fail a running callback; terminal states are not overwritten. */
 void nano_coro_error(const char *msg);
 
 /* Get id of currently running coroutine (-1 if in scheduler context) */

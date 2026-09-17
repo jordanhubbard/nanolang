@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include <stdarg.h>
@@ -700,7 +701,7 @@ static const char *register_function_signature(FunctionTypeRegistry *reg, Functi
 
 /* Generate C typedef for a function signature */
 static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
-                                     const char *typedef_name) {
+                                     const char *typedef_name, Environment *env) {
     sb_append(sb, "typedef ");
     
     /* Return type */
@@ -717,7 +718,7 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->param_types[i]));
             }
@@ -728,14 +729,14 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->return_fn_sig->param_types[i] == TYPE_STRUCT && sig->return_fn_sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->return_fn_sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->return_fn_sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->return_fn_sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->return_fn_sig->param_types[i]));
             }
         }
         sb_append(sb, ");\n");
     } else if (sig->return_type == TYPE_STRUCT && sig->return_struct_name) {
-        sb_appendf(sb, "struct %s ", sig->return_struct_name);
+        sb_appendf(sb, "%s ", env_get_opaque_type(env, sig->return_struct_name) ? "void*" : get_prefixed_type_name(sig->return_struct_name));
         /* Function pointer syntax: (*typedef_name) */
         sb_appendf(sb, "(*%s)", typedef_name);
         /* Parameters */
@@ -744,7 +745,7 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->param_types[i]));
             }
@@ -760,7 +761,7 @@ static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
             if (i > 0) sb_append(sb, ", ");
             
             if (sig->param_types[i] == TYPE_STRUCT && sig->param_struct_names[i]) {
-                sb_appendf(sb, "struct %s", sig->param_struct_names[i]);
+                sb_appendf(sb, "%s", env_get_opaque_type(env, sig->param_struct_names[i]) ? "void*" : get_prefixed_type_name(sig->param_struct_names[i]));
             } else {
                 sb_append(sb, type_to_c(sig->param_types[i]));
             }
@@ -951,6 +952,8 @@ static void mangle_module_name(char *dest, size_t dest_size, const char *module_
 
 /* Helper: Get C function name with namespace mangling support */
 static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern) {
+    const char *helper_name = module_helper_c_name(nano_name);
+    if (helper_name != nano_name) return helper_name;
     /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
     static _Thread_local char buffer[512];
     
@@ -1214,6 +1217,10 @@ static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
                 register_function_signature(reg, stmt->as.let.fn_sig);
             }
             break;
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < stmt->as.unsafe_block.count; ++i)
+                collect_fn_sigs(stmt->as.unsafe_block.statements[i], reg);
+            break;
         case AST_BLOCK:
             for (int i = 0; i < stmt->as.block.count; i++) {
                 collect_fn_sigs(stmt->as.block.statements[i], reg);
@@ -1263,6 +1270,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#  include \"runtime/gc.h\"\n");
     sb_append(sb, "#endif\n");
     sb_append(sb, "#include \"runtime/dyn_array.h\"\n");
+    sb_append(sb, "#include \"runtime/native_array_abi.h\"\n");
     sb_append(sb, "#ifndef __wasm__\n");
     sb_append(sb, "#  include \"nanolang.h\"\n");
     sb_append(sb, "#endif\n");
@@ -2664,7 +2672,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                           j, sdef->field_names[j]);
             }
         }
-        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "    return \"\";\n");
         sb_append(sb, "}\n\n");
         
         /* Function: __reflect_<StructName>_field_type(index) -> string */
@@ -2704,7 +2712,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                 sb_appendf(sb, "    else if (index == %d) { return \"%s\"; }\n", j, type_str);
             }
         }
-        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "    return \"\";\n");
         sb_append(sb, "}\n\n");
         
         /* Function: __reflect_<StructName>_has_field(name) -> bool */
@@ -2718,7 +2726,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                           sdef->field_names[j]);
             }
         }
-        sb_append(sb, "    else { return 0; }\n");
+        sb_append(sb, "    return 0;\n");
         sb_append(sb, "}\n\n");
         
         /* Function: __reflect_<StructName>_field_type_by_name(name) -> string */
@@ -2759,7 +2767,7 @@ static void generate_struct_metadata(Environment *env, StringBuilder *sb) {
                           sdef->field_names[j], type_str);
             }
         }
-        sb_append(sb, "    else { return \"\"; }\n");
+        sb_append(sb, "    return \"\";\n");
         sb_append(sb, "}\n\n");
     }
     
@@ -2781,6 +2789,7 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         if (!mod || !mod->name) continue;
         
         const char *module_name = mod->name;
+        const char *module_symbol = module_symbol_suffix(module_name);
         
         #ifdef DEBUG_MODULE_INTROSPECTION
         fprintf(stderr, "DEBUG: Generating functions for module '%s' (unsafe=%d, has_ffi=%d)\n",
@@ -2788,42 +2797,38 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         #endif
         
         /* Function: ___module_info_<NAME>() -> struct with module metadata */
-        sb_appendf(sb, "/* Module: %s (path: %s, unsafe: %s, has_ffi: %s) */\n",
-                  module_name, 
-                  mod->path ? mod->path : "unknown",
-                  mod->is_unsafe ? "yes" : "no",
-                  mod->has_ffi ? "yes" : "no");
+        sb_append(sb, "/* Module metadata entry. */\n");
         
         /* For now, generate simple metadata functions */
         /* These can be called from NanoLang to introspect modules at compile-time */
         
         /* Function: ___module_is_unsafe_<NAME>() -> bool */
-        sb_appendf(sb, "static inline bool ___module_is_unsafe_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline bool ___module_is_unsafe_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %s;\n", mod->is_unsafe ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_has_ffi_<NAME>() -> bool */
-        sb_appendf(sb, "static inline bool ___module_has_ffi_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline bool ___module_has_ffi_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %s;\n", mod->has_ffi ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_name_<NAME>() -> string */
-        sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_name);
-        sb_appendf(sb, "    return \"%s\";\n", module_name);
+        sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_symbol);
+        sb_appendf(sb, "    return %s;\n", module_c_literal(module_name));
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_path_<NAME>() -> string */
-        sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_name);
-        sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
+        sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_symbol);
+        sb_appendf(sb, "    return %s;\n", module_c_literal(mod->path));
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_function_count_<NAME>() -> int */
-        sb_appendf(sb, "int64_t ___module_function_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "int64_t ___module_function_count_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %d;\n", mod->function_count);
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_function_name_<NAME>(idx: int) -> string */
-        sb_appendf(sb, "const char* ___module_function_name_%s(int64_t idx) {\n", module_name);
+        sb_appendf(sb, "const char* ___module_function_name_%s(int64_t idx) {\n", module_symbol);
         if (mod->function_count > 0 && mod->exported_functions) {
             for (int j = 0; j < mod->function_count; j++) {
                 const char *fname = mod->exported_functions[j] ? mod->exported_functions[j] : "";
@@ -2841,12 +2846,12 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_struct_count_<NAME>() -> int */
-        sb_appendf(sb, "int64_t ___module_struct_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "int64_t ___module_struct_count_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %d;\n", mod->struct_count);
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_struct_name_<NAME>(idx: int) -> string */
-        sb_appendf(sb, "const char* ___module_struct_name_%s(int64_t idx) {\n", module_name);
+        sb_appendf(sb, "const char* ___module_struct_name_%s(int64_t idx) {\n", module_symbol);
         if (mod->struct_count > 0 && mod->exported_structs) {
             for (int j = 0; j < mod->struct_count; j++) {
                 const char *sname = mod->exported_structs[j] ? mod->exported_structs[j] : "";
@@ -3152,6 +3157,13 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
 
         const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
         if (!resolved) continue;
+
+        /* I use the same target-file identity as the module loader. */
+        char *canonical = realpath(resolved, NULL);
+        if (canonical) {
+            free((char *)resolved);
+            resolved = canonical;
+        }
 
         /* Extract module name from file path BEFORE freeing resolved */
         char module_name_from_path[256];
@@ -3820,9 +3832,16 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 /* Preserve element_type for array parameters */
                 env_define_var_with_type_info(env, item->as.function.params[j].name,
                              item->as.function.params[j].type, item->as.function.params[j].element_type, 
-                             item->as.function.params[j].type == TYPE_ARRAY ?
-                                 item->as.function.params[j].type_info : NULL,
+                             item->as.function.params[j].type_info,
                              false, dummy_val);
+                Symbol *located_param = &env->symbols[env->symbol_count - 1];
+                if (native_effect_program) located_param->def_file = g_source_file_for_line_directives;
+                located_param->def_line = item->line;
+                located_param->def_column = item->column;
+                if (item->as.function.body) {
+                    located_param->scope_end_line = item->as.function.body->scope_end_line;
+                    located_param->scope_end_column = item->as.function.body->scope_end_column;
+                }
                 
                 /* For array<Struct> parameters, set struct_type_name */
                 if (item->as.function.params[j].type == TYPE_ARRAY && 
@@ -3928,12 +3947,8 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)isatty((int)fd);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "/* Exit status of the most recent nl_exec_capture() call. */\n");
-    sb_append(sb, "static int64_t nl_exec_capture_status = 0;\n\n");
-
-    sb_append(sb, "/* Capture stdout from a shell command, running it exactly once. */\n");
+    sb_append(sb, "/* Capture stdout from a shell command */\n");
     sb_append(sb, "static inline const char* nl_exec_capture(const char* cmd) {\n");
-    sb_append(sb, "    nl_exec_capture_status = -1;\n");
     sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
     sb_append(sb, "    if (!pipe) return \"\";\n");
     sb_append(sb, "    char* out = (char*)malloc(65536);\n");
@@ -3945,95 +3960,14 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "        total += n;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    out[total] = '\\0';\n");
-    sb_append(sb, "    int nl_status = pclose(pipe);\n");
-    sb_append(sb, "    if (nl_status == -1) nl_exec_capture_status = -1;\n");
-    sb_append(sb, "    else if (WIFEXITED(nl_status)) nl_exec_capture_status = (int64_t)WEXITSTATUS(nl_status);\n");
-    sb_append(sb, "    else nl_exec_capture_status = -1;\n");
+    sb_append(sb, "    pclose(pipe);\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "/* Exit status of the most recent nl_exec_capture() call. */\n");
-    sb_append(sb, "static inline int64_t nl_exec_last_status(void) {\n");
-    sb_append(sb, "    return nl_exec_capture_status;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "static char* nl_os_read_all_fd(int fd) {\n");
-    sb_append(sb, "    size_t cap = 4096;\n");
-    sb_append(sb, "    size_t len = 0;\n");
-    sb_append(sb, "    char* buf = malloc(cap);\n");
-    sb_append(sb, "    if (!buf) return strdup(\"\");\n");
-    sb_append(sb, "    while (1) {\n");
-    sb_append(sb, "        if (len + 1 >= cap) {\n");
-    sb_append(sb, "            cap *= 2;\n");
-    sb_append(sb, "            char* n = realloc(buf, cap);\n");
-    sb_append(sb, "            if (!n) { free(buf); return strdup(\"\"); }\n");
-    sb_append(sb, "            buf = n;\n");
-    sb_append(sb, "        }\n");
-    sb_append(sb, "        ssize_t r = read(fd, buf + len, cap - len - 1);\n");
-    sb_append(sb, "        if (r <= 0) break;\n");
-    sb_append(sb, "        len += (size_t)r;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    buf[len] = '\\0';\n");
-    sb_append(sb, "    return buf;\n");
-    sb_append(sb, "}\n\n");
-
+    sb_append(sb, "#include \"runtime/process_capture.h\"\n");
     sb_append(sb, "#ifndef NANOLANG_STD_PROCESS_H\n");
     sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
-    sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
-    sb_append(sb, "    if (!command) {\n");
-    sb_append(sb, "        dyn_array_push_string(out, strdup(\"-1\"));\n");
-    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
-    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
-    sb_append(sb, "        return out;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    int out_pipe[2];\n");
-    sb_append(sb, "    int err_pipe[2];\n");
-    sb_append(sb, "    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {\n");
-    sb_append(sb, "        dyn_array_push_string(out, strdup(\"-1\"));\n");
-    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
-    sb_append(sb, "        dyn_array_push_string(out, strdup(\"\"));\n");
-    sb_append(sb, "        return out;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    posix_spawn_file_actions_t actions;\n");
-    sb_append(sb, "    posix_spawn_file_actions_init(&actions);\n");
-    sb_append(sb, "    posix_spawn_file_actions_adddup2(&actions, out_pipe[1], STDOUT_FILENO);\n");
-    sb_append(sb, "    posix_spawn_file_actions_adddup2(&actions, err_pipe[1], STDERR_FILENO);\n");
-    sb_append(sb, "    posix_spawn_file_actions_addclose(&actions, out_pipe[0]);\n");
-    sb_append(sb, "    posix_spawn_file_actions_addclose(&actions, err_pipe[0]);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    pid_t pid = 0;\n");
-    sb_append(sb, "    char* argv[] = { \"sh\", \"-c\", (char*)command, NULL };\n");
-    sb_append(sb, "    extern char **environ;\n");
-    sb_append(sb, "    int rc = posix_spawn(&pid, \"/bin/sh\", &actions, NULL, argv, environ);\n");
-    sb_append(sb, "    posix_spawn_file_actions_destroy(&actions);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    close(out_pipe[1]);\n");
-    sb_append(sb, "    close(err_pipe[1]);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    char* out_s = nl_os_read_all_fd(out_pipe[0]);\n");
-    sb_append(sb, "    char* err_s = nl_os_read_all_fd(err_pipe[0]);\n");
-    sb_append(sb, "    close(out_pipe[0]);\n");
-    sb_append(sb, "    close(err_pipe[0]);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    int code = -1;\n");
-    sb_append(sb, "    if (rc != 0) {\n");
-    sb_append(sb, "        code = rc;\n");
-    sb_append(sb, "    } else {\n");
-    sb_append(sb, "        int status = 0;\n");
-    sb_append(sb, "        (void)waitpid(pid, &status, 0);\n");
-    sb_append(sb, "        if (WIFEXITED(status)) code = WEXITSTATUS(status);\n");
-    sb_append(sb, "        else if (WIFSIGNALED(status)) code = 128 + WTERMSIG(status);\n");
-    sb_append(sb, "        else code = -1;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    char code_buf[64];\n");
-    sb_append(sb, "    snprintf(code_buf, sizeof(code_buf), \"%d\", code);\n");
-    sb_append(sb, "    dyn_array_push_string(out, strdup(code_buf));\n");
-    sb_append(sb, "    dyn_array_push_string(out, out_s);\n");
-    sb_append(sb, "    dyn_array_push_string(out, err_s);\n");
-    sb_append(sb, "    return out;\n");
+    sb_append(sb, "    return nl_process_run_capture(command);\n");
     sb_append(sb, "}\n");
     sb_append(sb, "#endif /* NANOLANG_STD_PROCESS_H */\n\n");
 }
@@ -4264,13 +4198,13 @@ static void collect_module_headers_from_imports(ASTNode *program, const char *so
 
 /* Generate typedef declarations for function and tuple types */
 static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_registry, 
-                                     TupleTypeRegistry *tuple_registry) {
+                                     TupleTypeRegistry *tuple_registry, Environment *env) {
     /* Generate function type typedefs */
     if (fn_registry->count > 0) {
         sb_append(sb, "/* Function Type Typedefs */\n");
         for (int i = 0; i < fn_registry->count; i++) {
             generate_function_typedef(sb, fn_registry->signatures[i],
-                                    fn_registry->typedef_names[i]);
+                                    fn_registry->typedef_names[i], env);
         }
         sb_append(sb, "\n");
     }
@@ -4349,10 +4283,18 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
         free((char*)resolved);  /* Cast away const for free() */
         if (!module_ast || module_ast->type != AST_PROGRAM) continue;
 
+        bool module_has_main = false;
+        for (int j = 0; j < module_ast->as.program.count; j++) {
+            ASTNode *declaration = module_ast->as.program.items[j];
+            if (declaration && declaration->type == AST_FUNCTION &&
+                strcmp(declaration->as.function.name, "main") == 0)
+                module_has_main = true;
+        }
+
         for (int j = 0; j < module_ast->as.program.count; j++) {
             ASTNode *mi = module_ast->as.program.items[j];
             if (!mi || mi->type != AST_FUNCTION) continue;
-            if (!mi->as.function.is_pub) continue;
+            if (!mi->as.function.is_pub && module_has_main) continue;
 
             for (int p = 0; p < mi->as.function.param_count; p++) {
                 if (mi->as.function.params[p].type == TYPE_FUNCTION && mi->as.function.params[p].fn_sig) {
@@ -4368,7 +4310,7 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
 }
 
 /* Generate module extern declarations (extern functions from imported modules) */
-static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
      * Note: System library functions (e.g., SDL_*, sqlite3_*) are declared in module headers,
      * but module wrapper functions need explicit extern declarations */
@@ -4452,6 +4394,8 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                     const char *prefixed = get_prefixed_type_name(func->return_struct_type_name);
                     sb_append(sb, prefixed);
                 }
+            } else if (func->return_type == TYPE_FUNCTION && func->return_fn_sig) {
+                sb_append(sb, register_function_signature(fn_registry, func->return_fn_sig));
             } else {
                 sb_append(sb, type_to_c(func->return_type));
             }
@@ -4474,6 +4418,8 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                         const char *prefixed = get_prefixed_type_name(func->params[j].struct_type_name);
                         sb_append(sb, prefixed);
                     }
+                } else if (func->params[j].type == TYPE_FUNCTION && func->params[j].fn_sig) {
+                    sb_append(sb, register_function_signature(fn_registry, func->params[j].fn_sig));
                 } else {
                     sb_append(sb, type_to_c(func->params[j].type));
                 }
@@ -4512,7 +4458,7 @@ static void extern_decl_set_add(char ***set, int *count, int *capacity, const ch
     (*set)[(*count)++] = strdup(name);
 }
 
-static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     sb_append(sb, "/* External C function declarations */\n");
 
     /* Track what we've already emitted so env-scanned externs don't duplicate AST externs */
@@ -4654,7 +4600,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             sb_append(sb, type_to_c((_return_type))); \
         } \
         \
-        sb_appendf(sb, " %s(", func_name); \
+        sb_appendf(sb, " %s(", module_helper_c_name(func_name)); \
         for (int j = 0; j < (_param_count); j++) { \
             if (j > 0) sb_append(sb, ", "); \
             const char *sdl_param_type = get_sdl_c_type(func_name, j, false); \
@@ -4691,9 +4637,8 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                     sb_append(sb, "void*"); \
                 } \
             } else if ((_params)[j].type == TYPE_FUNCTION) { \
-                /* Function pointer param: emit void(*name)(void) to avoid implicit-int */ \
-                sb_appendf(sb, "void (*%s)(void)", (_params)[j].name); \
-                continue; \
+                /* I preserve the declared callback ABI in module object builds. */ \
+                sb_append(sb, register_function_signature(fn_registry, (_params)[j].fn_sig)); \
             } else { \
                 sb_append(sb, type_to_c((_params)[j].type)); \
             } \
@@ -4722,46 +4667,39 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
     #undef EMIT_EXTERN_DECL
 }
 
-/* Generate no-op stubs for nl_perform_EffectName_OpName().
- * These allow effect-using programs to compile through the C path even though
- * full CPS effect dispatch is only implemented in the interpreter. */
-static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
+/* I dispatch synchronous effects through lexical frames and explicitly unwind
+ * owned local guards before a handler returns from its installing function. */
+static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) return;
-    sb_append(sb, "/* ── Algebraic effect perform stubs (interpreter dispatches at runtime) ── */\n");
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        if (!item || item->type != AST_EFFECT_DECL) continue;
-        const char *eff = item->as.effect_decl.effect_name;
+    native_effect_program = env->effect_count > 0;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_EFFECT_DECL) native_effect_program = true;
+    if (!native_effect_program) return;
+    sb_append(sb, "#include \"runtime/effect_runtime.h\"\n");
+    for (int i = 0; i < env->effect_count; i++) {
+        EffectDef *effect = &env->effects[i];
+        const char *eff = effect->name;
         if (!eff) continue;
-        for (int j = 0; j < item->as.effect_decl.op_count; j++) {
-            const char *op   = item->as.effect_decl.op_names[j];
-            /* op_param_types is the simplified layout; fall back to op_params[j][0] */
-            Type ptype;
-            if (item->as.effect_decl.op_param_types && item->as.effect_decl.op_param_types[j] != TYPE_UNKNOWN) {
-                ptype = item->as.effect_decl.op_param_types[j];
-            } else if (item->as.effect_decl.op_params &&
-                       item->as.effect_decl.op_param_counts &&
-                       item->as.effect_decl.op_param_counts[j] > 0 &&
-                       item->as.effect_decl.op_params[j]) {
-                ptype = item->as.effect_decl.op_params[j][0].type;
-            } else {
-                ptype = TYPE_VOID;
+        for (int j = 0; j < effect->op_count; j++) {
+            const char *op = effect->ops[j].name;
+            int count = effect->ops[j].param_count;
+            Type rtype = effect->ops[j].return_type;
+            const char *crt = effect_c_type(rtype, effect->ops[j].return_type_name, env);
+            sb_appendf(sb, "static %s nl_perform_%s_%s(", crt, eff, op);
+            if (!count) sb_append(sb, "void");
+            for (int k = 0; k < count; k++) {
+                if (k) sb_append(sb, ", ");
+                sb_appendf(sb, "%s _arg%d",
+                    effect_c_type(effect->ops[j].params[k].type, effect->ops[j].params[k].struct_type_name, env), k);
             }
-            Type rtype       = item->as.effect_decl.op_return_types[j];
-            const char *cpt  = type_to_c(ptype);
-            const char *crt  = type_to_c(rtype);
-            /* Param: if void, emit no argument */
-            if (rtype == TYPE_VOID || rtype == TYPE_UNKNOWN) {
-                if (ptype == TYPE_VOID || ptype == TYPE_UNKNOWN)
-                    sb_appendf(sb, "static void nl_perform_%s_%s(void) { /* effect stub */ }\n", eff, op);
-                else
-                    sb_appendf(sb, "static void nl_perform_%s_%s(%s _arg) { (void)_arg; /* effect stub */ }\n", eff, op, cpt);
-            } else {
-                if (ptype == TYPE_VOID || ptype == TYPE_UNKNOWN)
-                    sb_appendf(sb, "static %s nl_perform_%s_%s(void) { %s _r; memset(&_r, 0, sizeof(_r)); return _r; }\n", crt, eff, op, crt);
-                else
-                    sb_appendf(sb, "static %s nl_perform_%s_%s(%s _arg) { (void)_arg; %s _r; memset(&_r, 0, sizeof(_r)); return _r; }\n", crt, eff, op, cpt, crt);
-            }
+            sb_append(sb, ") { void *_args[] = {");
+            for (int k = 0; k < count; k++) sb_appendf(sb, "%s&_arg%d", k ? "," : "", k);
+            if (!count) sb_append(sb, "NULL");
+            sb_append(sb, "}; ");
+            if (rtype != TYPE_VOID) sb_appendf(sb, "%s _r = {0}; ", crt);
+            sb_appendf(sb, "nl_effect_dispatch(\"%s.%s\", _args, %s); ", eff, op, rtype == TYPE_VOID ? "NULL" : "&_r");
+            if (rtype != TYPE_VOID) sb_append(sb, "return _r; ");
+            sb_append(sb, "}\n");
         }
     }
     sb_append(sb, "\n");
@@ -4787,7 +4725,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     StringBuilder *sb = sb_create();
 
     /* POSIX feature macro for strdup, strnlen, etc. */
-    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
+    sb_append(sb, "#define _GNU_SOURCE 1\n#define _DARWIN_C_SOURCE 1\n#define _POSIX_C_SOURCE 200809L\n\n");
 
     /* Generate headers */
     generate_c_headers(sb);
@@ -4890,18 +4828,31 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     
     collect_module_function_types(program, fn_registry, input_file);
     collect_function_and_tuple_types(program, fn_registry, tuple_registry);
+    /* I register transitive foreign signatures before their declarations. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        if (!function->is_extern) continue;
+        if (function->return_type == TYPE_FUNCTION && function->return_fn_sig)
+            register_function_signature(fn_registry, function->return_fn_sig);
+        for (int j = 0; j < function->param_count; ++j) {
+            Parameter *parameter = &function->params[j];
+            if (parameter->type == TYPE_FUNCTION && parameter->fn_sig)
+                register_function_signature(fn_registry, parameter->fn_sig);
+        }
+    }
+
     
     /* Generate typedef declarations */
-    generate_type_typedefs(sb, fn_registry, tuple_registry);
+    generate_type_typedefs(sb, fn_registry, tuple_registry, env);
 
     /* Generate extern function declarations */
-    generate_extern_declarations(sb, program, env);
+    generate_extern_declarations(sb, program, env, fn_registry);
 
-    /* Generate nl_perform_* stubs for algebraic effect operations */
-    generate_effect_perform_stubs(sb, program);
+    /* Generate typed entry points for synchronous effect operations. */
+    generate_effect_dispatch(sb, program, env);
 
     /* Also generate extern declarations for extern functions from imported modules */
-    generate_module_extern_declarations(sb, program, env);
+    generate_module_extern_declarations(sb, program, env, fn_registry);
 
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);
@@ -4913,7 +4864,13 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
 
     /* Generate function implementations */
-    generate_function_implementations(sb, program, env, fn_registry, tuple_registry);
+    effect_helpers = sb_create(); effect_serial = 0;
+    StringBuilder *implementations = sb_create();
+    generate_function_implementations(implementations, program, env, fn_registry, tuple_registry);
+    sb_append(sb, effect_helpers->buffer);
+    sb_append(sb, implementations->buffer);
+    free(effect_helpers->buffer); free(effect_helpers); effect_helpers = NULL;
+    free(implementations->buffer); free(implementations);
 
     /* Add C main() wrapper for standalone executables (skip for module objects) */
     if (env && env->emit_c_main) {

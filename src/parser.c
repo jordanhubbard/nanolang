@@ -3,6 +3,7 @@
 #include "diag_id.h"
 #include <stdarg.h>
 #include <stdint.h>
+#include <limits.h>
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
@@ -149,6 +150,7 @@ static void add_lambda_function(Stage1Parser *p, ASTNode *fn_node) {
 static ASTNode *parse_statement(Stage1Parser *p);
 static ASTNode *parse_expression(Stage1Parser *p);
 static ASTNode *parse_block(Stage1Parser *p);
+static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count, int *capacity);
 static ASTNode *parse_struct_def(Stage1Parser *p);
 static ASTNode *parse_enum_def(Stage1Parser *p);
 static ASTNode *parse_union_def(Stage1Parser *p);
@@ -206,6 +208,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     sig->param_struct_names = NULL;
     sig->return_type = TYPE_UNKNOWN;
     sig->return_struct_name = NULL;
+    sig->return_fn_sig = NULL;
     
     /* Parse parameter types */
     tok = current_token(p);
@@ -888,13 +891,10 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 TypeInfo *info = calloc(1, sizeof(TypeInfo));
                 info->base_type = TYPE_ARRAY;
                 
-                TypeInfo *elem_info = nested_info;
-                if (!elem_info) {
-                    elem_info = calloc(1, sizeof(TypeInfo));
-                    elem_info->base_type = element_type;
-                    if (type_param_name_out && *type_param_name_out) {
-                        elem_info->generic_name = strdup(*type_param_name_out);
-                    }
+                TypeInfo *elem_info = nested_info ? nested_info : calloc(1, sizeof(TypeInfo));
+                elem_info->base_type = element_type;
+                if (!elem_info->generic_name && type_param_name_out && *type_param_name_out) {
+                    elem_info->generic_name = strdup(*type_param_name_out);
                 }
                 
                 info->element_type = elem_info;
@@ -1118,6 +1118,50 @@ static bool is_infix_binary_op(TokenType type) {
             type == TOKEN_AND || type == TOKEN_OR);
 }
 
+/* I publish an argument list only after every argument and its delimiter parse. */
+static ASTNode **parse_prefix_arguments(Stage1Parser *p, int *arg_count) {
+    int capacity = 4;
+    int count = 0;
+    ASTNode **args = malloc(sizeof(*args) * capacity);
+    *arg_count = 0;
+    if (!args) {
+        parser_error(p, 0, 0, "I cannot allocate prefix arguments.\n");
+        return NULL;
+    }
+    while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
+        if (count == capacity) {
+            if (capacity > INT_MAX / 2 || (size_t)capacity > SIZE_MAX / 2 / sizeof(*args)) {
+                parser_error(p, 0, 0, "I cannot represent this many prefix arguments.\n");
+                goto fail;
+            }
+            int next_capacity = capacity * 2;
+            ASTNode **grown = realloc(args, sizeof(*args) * (size_t)next_capacity);
+            if (!grown) {
+                parser_error(p, 0, 0, "I cannot grow prefix arguments.\n");
+                goto fail;
+            }
+            args = grown;
+            capacity = next_capacity;
+        }
+        int start = p->pos;
+        ASTNode *arg = parse_expression(p);
+        if (!arg) goto fail;
+        if (p->pos <= start) {
+            free_ast(arg);
+            parser_error(p, 0, 0, "I cannot parse a prefix argument without advancing.\n");
+            goto fail;
+        }
+        args[count++] = arg;
+    }
+    if (!expect(p, TOKEN_RPAREN, "Expected ')' after prefix arguments")) goto fail;
+    *arg_count = count;
+    return args;
+fail:
+    for (int i = 0; i < count; i++) free_ast(args[i]);
+    free(args);
+    return NULL;
+}
+
 /* Parse prefix operation: (op arg1 arg2 ...) */
 static ASTNode *parse_prefix_op(Stage1Parser *p) {
     Token *tok = current_token(p);
@@ -1144,22 +1188,9 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         advance(p);
 
         /* Parse arguments */
-        int capacity = 4;
         int count = 0;
-        ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
-
-        while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
-            if (count >= capacity) {
-                capacity *= 2;
-                args = realloc(args, sizeof(ASTNode*) * capacity);
-            }
-            args[count++] = parse_expression(p);
-        }
-
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after prefix operation")) {
-            free(args);
-            return NULL;
-        }
+        ASTNode **args = parse_prefix_arguments(p, &count);
+        if (!args) return NULL;
 
         ASTNode *node = create_node(AST_PREFIX_OP, line, column);
         node->as.prefix_op.op = op;
@@ -1185,21 +1216,10 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         char *func_name = strdup(tok->value ? tok->value : "unknown");
         advance(p);
 
-        int capacity = 4;
         int count = 0;
-        ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
-
-        while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
-            if (count >= capacity) {
-                capacity *= 2;
-                args = realloc(args, sizeof(ASTNode*) * capacity);
-            }
-            args[count++] = parse_expression(p);
-        }
-
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after function call")) {
+        ASTNode **args = parse_prefix_arguments(p, &count);
+        if (!args) {
             free(func_name);
-            free(args);
             return NULL;
         }
 
@@ -1295,6 +1315,48 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
     type_info->type_param_count = count;
     
     return type_info;
+}
+
+static ASTNode *parse_primary(Stage1Parser *p);
+
+/* I share perform syntax between expression and statement positions. */
+static ASTNode *parse_perform(Stage1Parser *p, bool allow_bare_argument) {
+    Token *start = current_token(p);
+    ASTNode *node = create_node(AST_EFFECT_OP, start->line, start->column);
+    advance(p);
+    if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
+    node->as.effect_op.effect_name = strdup(current_token(p)->value);
+    advance(p);
+    if (!expect(p, TOKEN_DOT, "I require '.' after the performed effect name.")) goto failed;
+    if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
+    node->as.effect_op.op_name = strdup(current_token(p)->value);
+    advance(p);
+    bool parenthesized = match(p, TOKEN_LPAREN);
+    if (!parenthesized && !allow_bare_argument) return node;
+    if (parenthesized) advance(p);
+    int capacity = 0;
+    while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (node->as.effect_op.arg_count == capacity) {
+            if (capacity > INT_MAX / 2) goto failed;
+            int next = capacity ? capacity * 2 : 4;
+            ASTNode **args = realloc(node->as.effect_op.args, sizeof(*args) * (size_t)next);
+            if (!args) goto failed;
+            node->as.effect_op.args = args;
+            capacity = next;
+        }
+        ASTNode *arg = parenthesized ? parse_expression(p) : parse_primary(p);
+        if (!arg) goto failed;
+        node->as.effect_op.args[node->as.effect_op.arg_count++] = arg;
+        if (!parenthesized) break;
+        if (match(p, TOKEN_COMMA)) advance(p);
+    }
+    if (parenthesized && !expect(p, TOKEN_RPAREN, "I require ')' after perform arguments.")) goto failed;
+    return node;
+malformed:
+    parser_error(p, node->line, node->column, "I require an effect and operation name after perform.\n");
+failed:
+    free_ast(node);
+    return NULL;
 }
 
 /* Parse primary expression */
@@ -1478,6 +1540,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             lam_node->as.function.return_type_info      = lam_ret_type_info;
             lam_node->as.function.body                  = lam_body;
             lam_node->as.function.is_extern             = false;
+            lam_node->as.function.is_anonymous          = true;
             lam_node->as.function.is_pub                = false;
 
             /* Hoist to program level (appended after full parse) */
@@ -1486,6 +1549,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             /* Return identifier expression that names the lambda */
             ASTNode *id_node = create_node(AST_IDENTIFIER, lam_line, lam_col);
             id_node->as.identifier = strdup(lambda_name);
+            id_node->lambda_definition = lam_node;
             return id_node;
         }
 
@@ -1523,6 +1587,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     statements = realloc(statements, sizeof(ASTNode*) * capacity);
                 }
 
+                if (parse_record_bindings(p, &statements, &count, &capacity)) continue;
                 ASTNode *stmt = parse_statement(p);
                 if (stmt) {
                     statements[count++] = stmt;
@@ -1532,12 +1597,15 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 }
             }
 
+            Token *scope_end = current_token(p);
             if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
                 free(statements);
                 return NULL;
             }
 
             node = create_node(AST_UNSAFE_BLOCK, line, column);
+            node->scope_end_line = scope_end->line;
+            node->scope_end_column = scope_end->column;
             node->as.unsafe_block.statements = statements;
             node->as.unsafe_block.count = count;
             return node;
@@ -1652,42 +1720,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
         case TOKEN_SET: {
             /* Handle `perform Effect.op arg` as a contextual keyword */
             if (tok->value && strcmp(tok->value, "perform") == 0) {
-                int perf_line = tok->line, perf_col = tok->column;
-                advance(p); /* consume 'perform' */
-                /* Parse Effect.op — expect Identifier.Identifier */
-                Token *effect_tok = current_token(p);
-                char *effect_name = NULL;
-                char *op_name = NULL;
-                if (effect_tok && effect_tok->token_type == TOKEN_IDENTIFIER && effect_tok->value) {
-                    effect_name = strdup(effect_tok->value);
-                    advance(p);
-                    if (match(p, TOKEN_DOT)) {
-                        advance(p); /* consume '.' */
-                        Token *op_tok = current_token(p);
-                        if (op_tok && op_tok->token_type == TOKEN_IDENTIFIER && op_tok->value) {
-                            op_name = strdup(op_tok->value);
-                            advance(p);
-                        }
-                    }
-                }
-                /* Parse optional argument — handle both `perform E.op expr` and `perform E.op(expr)` */
-                ASTNode *arg = NULL;
-                if (match(p, TOKEN_LPAREN)) {
-                    /* perform E.op(arg) — paren wraps the argument */
-                    advance(p); /* consume '(' */
-                    if (!match(p, TOKEN_RPAREN)) {
-                        arg = parse_expression(p);
-                    }
-                    if (match(p, TOKEN_RPAREN)) advance(p); /* consume ')' */
-                } else if (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF) &&
-                           !match(p, TOKEN_RPAREN)) {
-                    arg = parse_primary(p);
-                }
-                ASTNode *perf_node = create_node(AST_EFFECT_OP, perf_line, perf_col);
-                perf_node->as.effect_op.effect_name = effect_name;
-                perf_node->as.effect_op.op_name = op_name;
-                perf_node->as.effect_op.arg = arg;
-                return perf_node;
+                return parse_perform(p, true);
             }
 
             /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
@@ -2776,6 +2809,79 @@ static ASTNode *parse_expression(Stage1Parser *p) {
 }
 
 /* Parse block */
+/* I lower a complete owned pattern into one evaluated temporary and projections.
+ * Only parser-created nodes carry the ownership markers; names cannot forge them. */
+static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count, int *capacity) {
+    int offset = 1;
+    if (!match(p, TOKEN_LET)) return false;
+    Token *next = peek_token(p, offset);
+    bool is_mut = next && next->token_type == TOKEN_MUT;
+    if (is_mut) offset++;
+    Token *type = peek_token(p, offset);
+    Token *brace = peek_token(p, offset + 1);
+    if (!type || !brace || type->token_type != TOKEN_IDENTIFIER || brace->token_type != TOKEN_LBRACE)
+        return false;
+    Token *start = current_token(p);
+    char temporary[64];
+    snprintf(temporary, sizeof temporary, "__owned$%d", p->pos);
+    ASTNode *owner = create_node(AST_LET, start->line, start->column);
+    owner->as.let.name = strdup(temporary);
+    owner->as.let.var_type = TYPE_STRUCT;
+    owner->as.let.type_name = strdup(type->value);
+    owner->as.let.is_destructure = true;
+    for (int i = 0; i < offset + 2; i++) advance(p);
+    while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (!match(p, TOKEN_IDENTIFIER)) {
+            parser_error(p, start->line, start->column, "I require every field name in an owned record pattern.\n");
+            free_ast(owner);
+            return true;
+        }
+        int n = owner->as.let.destructure_count;
+        char **names = realloc(owner->as.let.destructure_names, sizeof(*names) * (size_t)(n + 1));
+        if (!names) { fprintf(stderr, "I cannot allocate an owned record pattern.\n"); exit(1); }
+        owner->as.let.destructure_names = names;
+        names[n] = strdup(current_token(p)->value);
+        if (!names[n]) { fprintf(stderr, "I cannot allocate an owned field name.\n"); exit(1); }
+        owner->as.let.destructure_count++;
+        advance(p);
+        if (!match(p, TOKEN_RBRACE) && !expect(p, TOKEN_COMMA, "I require ',' between owned field names")) {
+            free_ast(owner);
+            return true;
+        }
+    }
+    if (!expect(p, TOKEN_RBRACE, "I require '}' after the owned pattern") ||
+        !expect(p, TOKEN_ASSIGN, "I require '=' after the owned pattern")) {
+        free_ast(owner);
+        return true;
+    }
+    owner->as.let.value = parse_expression(p);
+    if (!owner->as.let.value) { free_ast(owner); return true; }
+    int needed = *count + owner->as.let.destructure_count + 1;
+    if (needed > *capacity) {
+        ASTNode **grown = realloc(*items, sizeof(**items) * (size_t)needed);
+        if (!grown) { fprintf(stderr, "I cannot allocate owned pattern bindings.\n"); exit(1); }
+        *items = grown;
+        *capacity = needed;
+    }
+    (*items)[(*count)++] = owner;
+    for (int i = 0; i < owner->as.let.destructure_count; i++) {
+        ASTNode *ref = create_node(AST_IDENTIFIER, start->line, start->column);
+        ref->as.identifier = strdup(temporary);
+        ASTNode *field = create_node(AST_FIELD_ACCESS, start->line, start->column);
+        field->as.field_access.object = ref;
+        field->as.field_access.field_name = strdup(owner->as.let.destructure_names[i]);
+        ASTNode *binding = create_node(AST_LET, start->line, start->column);
+        binding->as.let.name = strdup(owner->as.let.destructure_names[i]);
+        binding->as.let.var_type = TYPE_UNKNOWN;
+        binding->as.let.element_type = TYPE_UNKNOWN;
+        binding->as.let.is_mut = is_mut;
+        binding->as.let.is_destructure_projection = true;
+        binding->as.let.value = field;
+        (*items)[(*count)++] = binding;
+    }
+    return true;
+}
+
 static ASTNode *parse_block(Stage1Parser *p) {
     /* Recursion depth guard */
     p->recursion_depth++;
@@ -2836,6 +2942,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             statements = realloc(statements, sizeof(ASTNode*) * capacity);
         }
 
+        if (parse_record_bindings(p, &statements, &count, &capacity)) continue;
         /* Check for tuple destructuring: let [mut] (names) = expr */
         bool is_tuple_destr = false;
         bool td_is_mut = false;
@@ -2947,6 +3054,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
     // fprintf(stderr, "DEBUG: [block_%d depth=%d] Expecting closing '}' at line %d\n",
     //         my_block_id, p->recursion_depth, end_tok ? end_tok->line : 0);
     
+    Token *scope_end = current_token(p);
     if (!expect(p, TOKEN_RBRACE, "Expected '}'")) {
         free(statements);
         p->recursion_depth--;
@@ -2957,6 +3065,8 @@ static ASTNode *parse_block(Stage1Parser *p) {
     //         my_block_id, p->recursion_depth, count);
 
     ASTNode *node = create_node(AST_BLOCK, line, column);
+    node->scope_end_line = scope_end->line;
+    node->scope_end_column = scope_end->column;
     node->as.block.statements = statements;
     node->as.block.count = count;
     p->recursion_depth--;
@@ -3210,6 +3320,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                     statements = realloc(statements, sizeof(ASTNode*) * capacity);
                 }
 
+                if (parse_record_bindings(p, &statements, &count, &capacity)) continue;
                 ASTNode *stmt = parse_statement(p);
                 if (stmt) {
                     statements[count++] = stmt;
@@ -3219,12 +3330,15 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                 }
             }
 
+            Token *scope_end = current_token(p);
             if (!expect(p, TOKEN_RBRACE, "Expected '}' after unsafe block")) {
                 free(statements);
                 return NULL;
             }
 
             node = create_node(AST_UNSAFE_BLOCK, line, column);
+            node->scope_end_line = scope_end->line;
+            node->scope_end_column = scope_end->column;
             node->as.unsafe_block.statements = statements;
             node->as.unsafe_block.count = count;
             return node;
@@ -3349,53 +3463,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             if (tok->token_type == TOKEN_IDENTIFIER) {
                 /* ── perform Effect.op(arg) ───────────────────────────── */
                 if (strcmp(tok->value, "perform") == 0) {
-                    int line   = tok->line;
-                    int column = tok->column;
-                    advance(p);  /* consume "perform" */
-
-                    if (!match(p, TOKEN_IDENTIFIER)) {
-                        parser_error(p, line, column,
-                            "Error at line %d, column %d: Expected effect name after 'perform'\n",
-                            line, column);
-                        return NULL;
-                    }
-                    char *eff_name = strdup(current_token(p)->value);
-                    advance(p);
-
-                    if (!expect(p, TOKEN_DOT, "Expected '.' after effect name in 'perform'")) {
-                        free(eff_name);
-                        return NULL;
-                    }
-
-                    if (!match(p, TOKEN_IDENTIFIER)) {
-                        parser_error(p, line, column,
-                            "Error at line %d, column %d: Expected operation name after '.'\n",
-                            line, column);
-                        free(eff_name);
-                        return NULL;
-                    }
-                    char *op_name = strdup(current_token(p)->value);
-                    advance(p);
-
-                    /* argument in parens: op(arg)  or no-arg: op() */
-                    ASTNode *arg = NULL;
-                    if (match(p, TOKEN_LPAREN)) {
-                        advance(p);  /* consume ( */
-                        if (!match(p, TOKEN_RPAREN)) {
-                            arg = parse_expression(p);
-                        }
-                        if (!expect(p, TOKEN_RPAREN, "Expected ')' after perform argument")) {
-                            free(eff_name); free(op_name);
-                            if (arg) free_ast(arg);
-                            return NULL;
-                        }
-                    }
-
-                    ASTNode *perf = create_node(AST_EFFECT_OP, line, column);
-                    perf->as.effect_op.effect_name = eff_name;
-                    perf->as.effect_op.op_name     = op_name;
-                    perf->as.effect_op.arg         = arg;
-                    return perf;
+                    return parse_perform(p, false);
                 }
 
                 /* ── handle expr with { Effect.op(binding) -> body } ── */
@@ -3869,11 +3937,21 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
             char *type_name_str = NULL;
             FunctionSignature *fn_sig = NULL;
             TypeInfo *type_info = NULL;
-            Type param_type = parse_type_with_element(p, NULL, &type_name_str, &fn_sig, &type_info);
+            Type element_type = TYPE_UNKNOWN;
+            Type param_type = parse_type_with_element(p, &element_type, &type_name_str, &fn_sig, &type_info);
+            if (param_type == TYPE_FUNCTION && fn_sig && !type_info) {
+                type_info = calloc(1, sizeof(*type_info));
+                if (!type_info) {
+                    fprintf(stderr, "I cannot allocate an effect parameter signature.\n");
+                    exit(EXIT_FAILURE);
+                }
+                type_info->base_type = TYPE_FUNCTION;
+                type_info->fn_sig = fn_sig;
+            }
             params[param_count].name = NULL;  /* effect ops don't name params in signature */
             params[param_count].type = param_type;
             params[param_count].struct_type_name = type_name_str;
-            params[param_count].element_type = TYPE_UNKNOWN;
+            params[param_count].element_type = element_type;
             params[param_count].fn_sig = fn_sig;
             params[param_count].type_info = type_info;
             param_count++;
@@ -4765,7 +4843,7 @@ static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **
 }
 
 /* Returns true if an AST node type is a value-producing expression */
-static bool is_expression_node(ASTNodeType type) {
+bool ast_is_value_expression(ASTNodeType type) {
     switch (type) {
         case AST_NUMBER:
         case AST_FLOAT:
@@ -4780,18 +4858,33 @@ static bool is_expression_node(ASTNodeType type) {
         case AST_STRUCT_LITERAL:
         case AST_FIELD_ACCESS:
         case AST_UNION_CONSTRUCT:
-        /* AST_MATCH excluded: match arm bodies need the full TypeChecker context
-         * (current_function_return_type) for proper return-statement type checking.
-         * Wrapping match in an implicit return causes arms to be evaluated through
-         * check_expression with an uninitialised temp TypeChecker, breaking type inference. */
+        case AST_MATCH:
         case AST_TUPLE_LITERAL:
         case AST_TUPLE_INDEX:
         case AST_QUALIFIED_NAME:
         case AST_TRY_OP:
+        case AST_EFFECT_OP:
+        case AST_HANDLE_EXPR:
+        case AST_EFFECT_HANDLER:
+        case AST_AWAIT:
             return true;
         default:
             return false;
     }
+}
+
+/* I recognize definite function exits, without assuming that loops terminate. */
+bool ast_always_returns(const ASTNode *node) {
+    if (!node) return false;
+    if (node->type == AST_RETURN) return true;
+    if (node->type == AST_IF)
+        return ast_always_returns(node->as.if_stmt.then_branch) &&
+               ast_always_returns(node->as.if_stmt.else_branch);
+    if (node->type == AST_BLOCK) {
+        for (int i = 0; i < node->as.block.count; i++)
+            if (ast_always_returns(node->as.block.statements[i])) return true;
+    }
+    return false;
 }
 
 /* Recursively inject implicit returns at tail positions of a block.
@@ -4808,7 +4901,7 @@ static void inject_implicit_return(ASTNode *block) {
     ASTNode *stmt = block->as.block.statements[last];
     if (!stmt) return;
 
-    if (is_expression_node(stmt->type)) {
+    if (stmt->type != AST_MATCH && ast_is_value_expression(stmt->type)) {
         /* Wrap bare expression in return */
         ASTNode *ret = create_node(AST_RETURN, stmt->line, stmt->column);
         ret->as.return_stmt.value = stmt;
@@ -5154,8 +5247,34 @@ static ASTNode *parse_import(Stage1Parser *p) {
     char *module_path = NULL;
 
     if (match(p, TOKEN_STRING)) {
-        /* module "module.nano" */
-        module_path = strdup(current_token(p)->value);
+        /* I decode path data once; expression strings remain raw in the AST. */
+        const char *raw = current_token(p)->value;
+        size_t length = strlen(raw);
+        module_path = malloc(length + 1);
+        if (!module_path) {
+            parser_error(p, line, column, "I cannot allocate this module path.\n");
+            return NULL;
+        }
+        size_t out = 0;
+        for (size_t i = 0; i < length; i++) {
+            char byte = raw[i];
+            if (byte == '\\' && i + 1 < length) {
+                byte = raw[++i];
+                switch (byte) {
+                    case 'n': byte = '\n'; break;
+                    case 't': byte = '\t'; break;
+                    case 'r': byte = '\r'; break;
+                    case '0':
+                        parser_error(p, line, column, "I cannot use a NUL byte in a module path.\n");
+                        free(module_path);
+                        return NULL;
+                    case '\\': case '\'': case '"': break;
+                    default: module_path[out++] = '\\'; break;
+                }
+            }
+            module_path[out++] = byte;
+        }
+        module_path[out] = '\0';
         advance(p);
     } else if (match(p, TOKEN_IDENTIFIER)) {
         /* module foo (treat as "modules/foo/foo.nano") */
@@ -5709,11 +5828,15 @@ void free_ast(ASTNode *node) {
             free(node->as.array_literal.elements);
             break;
         case AST_LET:
+            for (int i = 0; i < node->as.let.destructure_count; i++)
+                free(node->as.let.destructure_names[i]);
+            free(node->as.let.destructure_names);
             free(node->as.let.name);
             if (node->as.let.type_name) {
                 free(node->as.let.type_name);
             }
-            if (node->as.let.fn_sig) {
+            if (node->as.let.fn_sig &&
+                (!node->as.let.type_info || node->as.let.type_info->fn_sig != node->as.let.fn_sig)) {
                 free_function_signature(node->as.let.fn_sig);
             }
             if (node->as.let.type_info) {
@@ -5845,6 +5968,14 @@ void free_ast(ASTNode *node) {
             free(node->as.effect_decl.effect_name);
             for (int i = 0; i < node->as.effect_decl.op_count; i++) {
                 free(node->as.effect_decl.op_names[i]);
+                for (int j = 0; j < node->as.effect_decl.op_param_counts[i]; j++) {
+                    Parameter *param = &node->as.effect_decl.op_params[i][j];
+                    free(param->name);
+                    free(param->struct_type_name);
+                    if (!param->type_info || param->type_info->fn_sig != param->fn_sig)
+                        free_function_signature(param->fn_sig);
+                    free_type_info(param->type_info);
+                }
                 free(node->as.effect_decl.op_params[i]);
                 free(node->as.effect_decl.op_return_type_names[i]);
             }
@@ -6010,7 +6141,9 @@ void free_ast(ASTNode *node) {
         case AST_EFFECT_OP:
             free(node->as.effect_op.effect_name);
             free(node->as.effect_op.op_name);
-            if (node->as.effect_op.arg) free_ast(node->as.effect_op.arg);
+            for (int i = 0; i < node->as.effect_op.arg_count; i++)
+                free_ast(node->as.effect_op.args[i]);
+            free(node->as.effect_op.args);
             break;
         default:
             break;

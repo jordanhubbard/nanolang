@@ -1,35 +1,24 @@
 /* Simple test for path operations */
 
-extern fn path_normalize(path: string) -> string
-extern fn path_join(a: string, b: string) -> string
-extern fn path_basename(path: string) -> string
-extern fn path_dirname(path: string) -> string
+module "modules/std/fs.nano" as fs
 
 fn main() -> int {
     (println "Testing path operations")
     
-    let mut p1 = ""
-    unsafe {
-        set p1 (path_normalize "/foo/bar")
-    }
+    let p1: string = (fs.normalize "/foo/./bar")
+    assert (== p1 "/foo/bar")
     (println p1)
     
-    let mut p2 = ""
-    unsafe {
-        set p2 (path_join "foo" "bar")
-    }
+    let p2: string = (fs.join "foo" "bar")
+    assert (== p2 "foo/bar")
     (println p2)
     
-    let mut p3 = ""
-    unsafe {
-        set p3 (path_basename "/foo/bar/baz.txt")
-    }
+    let p3: string = (fs.basename "/foo/bar/baz.txt")
+    assert (== p3 "baz.txt")
     (println p3)
     
-    let mut p4 = ""
-    unsafe {
-        set p4 (path_dirname "/foo/bar/baz.txt")
-    }
+    let p4: string = (fs.dirname "/foo/bar/baz.txt")
+    assert (== p4 "/foo/bar")
     (println p4)
     
     return 0
@@ -38,4 +27,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

@@ -1,17 +1,16 @@
 /*
  * cps_pass.h — nanolang async/await CPS transform pass
  *
- * Transforms async function bodies into continuation-passing style:
- *   - async fn becomes a regular fn that returns a Future/Promise value
- *   - await expr becomes a yield-then-resume with the CPS continuation
- *   - The interpreter (eval.c) handles cooperative scheduling
+ * I walk selected async/await syntax and report selected context errors.
+ * I do not construct continuations or Future/Promise values. My interpreter
+ * evaluates scalar awaits transparently and delegates coroutine handles to
+ * its run-to-completion scheduler. Resumable async execution remains work.
  */
 #pragma once
 #include "nanolang.h"
 
-/* Run the CPS transformation pass over the entire program AST.
- * Rewrites AST_ASYNC_FN and AST_AWAIT nodes into CPS form.
- * Returns number of async functions transformed.
+/* I walk the supported AST cases without rewriting async functions.
+ * I return the number of async declarations visited, not a transform count.
  */
 int cps_pass(ASTNode *program);
 

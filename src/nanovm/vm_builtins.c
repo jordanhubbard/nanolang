@@ -17,7 +17,12 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
 #include "runtime/dyn_array.h"
+#include "runtime/process_capture.h"
+#include "runtime/file_bytes.h"
+#include "runtime/file_text.h"
+#include "runtime/file_write.h"
 #include "utf8.h"
 
 /* mkdtemp declaration (not exposed on macOS with -std=c99) */
@@ -26,6 +31,42 @@ char *mkdtemp(char *);
 #endif
 
 /* ── OS / File System ─────────────────────────────────────────────── */
+
+const char *nl_exec_capture(const char *command) {
+    static __thread char output[65536];
+    output[0] = '\0';
+    FILE *pipe = popen(command, "r");
+    if (!pipe) return output;
+    size_t used = fread(output, 1, sizeof(output) - 1, pipe);
+    output[used] = '\0';
+    /* I drain excess output before waiting so the child cannot block on a
+     * full pipe after my retained-output bound has been reached. */
+    char discard[4096];
+    while (fread(discard, 1, sizeof(discard), pipe)) {}
+    pclose(pipe);
+    return output;
+}
+
+int64_t nl_exec_shell(const char *command) {
+    return (int64_t)system(command);
+}
+
+int64_t nl_timing_get_microseconds(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_REALTIME, &now)) return -1;
+    return (int64_t)now.tv_sec * 1000000 + now.tv_nsec / 1000;
+}
+
+int64_t nl_timing_get_nanoseconds(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now)) return -1;
+    return (int64_t)now.tv_sec * 1000000000 + now.tv_nsec;
+}
+
+int64_t nl_get_time_ms(void) {
+    int64_t us = nl_timing_get_microseconds();
+    return us < 0 ? -1 : us / 1000;
+}
 
 char *vm_getcwd(void) {
     char buf[1024];
@@ -38,27 +79,15 @@ int64_t vm_chdir(const char *path) {
 }
 
 char *vm_file_read(const char *path) {
-    FILE *f = fopen(path, "rb");
-    if (!f) return strdup("");
-    fseek(f, 0, SEEK_END);
-    long len = ftell(f);
-    if (len < 0) { fclose(f); return strdup(""); }
-    fseek(f, 0, SEEK_SET);
-    char *buf = malloc((size_t)len + 1);
-    if (!buf) { fclose(f); return strdup(""); }
-    size_t n = fread(buf, 1, (size_t)len, f);
-    buf[n] = '\0';
-    fclose(f);
-    return buf;
+    return nl_read_file_text(path);
+}
+
+DynArray *vm_file_read_bytes(const char *path) {
+    return nl_read_file_bytes(path);
 }
 
 int64_t vm_file_write(const char *path, const char *content) {
-    FILE *f = fopen(path, "w");
-    if (!f) return -1;
-    size_t len = strlen(content);
-    size_t written = fwrite(content, 1, len, f);
-    int close_failed = fclose(f) == EOF;
-    return written == len && !close_failed ? 0 : -1;
+    return nl_write_file_text(path, content, "w");
 }
 
 int64_t vm_file_exists(const char *path) {
@@ -139,6 +168,10 @@ int64_t vm_str_index_of(const char *haystack, const char *needle) {
     return nl_cstr_index_of(haystack, needle);
 }
 
+int64_t vm_str_last_index_of(const char *haystack, const char *needle) {
+    return nl_cstr_last_index_of(haystack, needle);
+}
+
 /* ── String building ──────────────────────────────────────────────── */
 
 char *vm_string_from_char(int64_t code) {
@@ -215,6 +248,107 @@ int64_t vm_bstr_validate_utf8(const char *str) {
 
 /* ── Binary string operations ────────────────────────────────────── */
 
+static bool vm_trim_space(unsigned char byte) {
+    return byte == ' ' || byte == '\t' || byte == '\n' || byte == '\r';
+}
+
+char *vm_str_trim_left(const char *str) {
+    if (!str) return strdup("");
+    while (vm_trim_space((unsigned char)*str)) str++;
+    return strdup(str);
+}
+
+char *vm_str_trim_right(const char *str) {
+    if (!str) return strdup("");
+    size_t end = strlen(str);
+    while (end && vm_trim_space((unsigned char)str[end - 1])) end--;
+    char *result = malloc(end + 1);
+    if (!result) return NULL;
+    memcpy(result, str, end);
+    result[end] = '\0';
+    return result;
+}
+
+char *vm_format(const char *template, DynArray *arguments) {
+    if (!template || !arguments || arguments->elem_type != ELEM_STRING ||
+        arguments->elem_size != sizeof(char *) || arguments->length < 0 ||
+        arguments->capacity < arguments->length ||
+        (uint64_t)arguments->capacity > SIZE_MAX / sizeof(char *) ||
+        (arguments->length && !arguments->data)) return NULL;
+    for (int64_t i = 0; i < arguments->length; i++)
+        if (!dyn_array_get_string(arguments, i)) return NULL;
+
+    size_t length = 0;
+    char *result = NULL;
+    for (int pass = 0; pass < 2; pass++) {
+        size_t offset = 0;
+        int64_t used = 0;
+        const char *cursor = template;
+        while (*cursor) {
+            const char *part = cursor;
+            size_t size = 1;
+            if (*cursor == '%' && used < arguments->length &&
+                (cursor[1] == 's' || cursor[1] == 'd' ||
+                 cursor[1] == 'f' || cursor[1] == 'g')) {
+                part = dyn_array_get_string(arguments, used++);
+                size = strlen(part);
+                cursor += 2;
+            } else {
+                cursor++;
+            }
+            if (size > SIZE_MAX - 1 - offset) { free(result); return NULL; }
+            if (pass) memcpy(result + offset, part, size);
+            offset += size;
+        }
+        if (!pass) {
+            length = offset;
+            result = malloc(length + 1);
+            if (!result) return NULL;
+        }
+    }
+    result[length] = '\0';
+    return result;
+}
+
+char *vm_str_join(DynArray *parts, const char *separator) {
+    if (!parts || !separator || parts->elem_type != ELEM_STRING ||
+        parts->elem_size != sizeof(char *) || parts->length < 0 ||
+        parts->capacity < parts->length ||
+        (uint64_t)parts->capacity > SIZE_MAX / sizeof(char *) ||
+        (parts->length && !parts->data)) return NULL;
+    size_t length = 0, separator_length = strlen(separator);
+    for (int64_t i = 0; i < parts->length; i++) {
+        const char *part = dyn_array_get_string(parts, i);
+        if (!part) return NULL;
+        size_t size = strlen(part);
+        if (i) {
+            if (separator_length > SIZE_MAX - 1 - length) return NULL;
+            length += separator_length;
+        }
+        if (size > SIZE_MAX - 1 - length) return NULL;
+        length += size;
+    }
+    char *result = malloc(length + 1);
+    if (!result) return NULL;
+    size_t offset = 0;
+    for (int64_t i = 0; i < parts->length; i++) {
+        if (i) {
+            memcpy(result + offset, separator, separator_length);
+            offset += separator_length;
+        }
+        const char *part = dyn_array_get_string(parts, i);
+        size_t size = strlen(part);
+        memcpy(result + offset, part, size);
+        offset += size;
+    }
+    result[offset] = '\0';
+    return result;
+}
+
+DynArray *vm_array_sort(DynArray *array) {
+    return dyn_array_sorted(array);
+}
+
 DynArray *vm_bytes_from_string(const char *str) {
     DynArray *arr = dyn_array_new(ELEM_INT);
     if (!str) return arr;
@@ -231,7 +365,9 @@ char *vm_string_from_bytes(DynArray *arr) {
     char *buf = malloc(len + 1);
     if (!buf) return strdup("");
     for (size_t i = 0; i < len; i++) {
-        buf[i] = (char)dyn_array_get_int(arr, (int64_t)i);
+        buf[i] = arr->elem_type == ELEM_U8
+            ? (char)dyn_array_get_u8(arr, (int64_t)i)
+            : (char)dyn_array_get_int(arr, (int64_t)i);
     }
     buf[len] = '\0';
     return buf;
@@ -240,108 +376,5 @@ char *vm_string_from_bytes(DynArray *arr) {
 /* ── Process ──────────────────────────────────────────────────────── */
 
 DynArray *vm_process_run(const char *cmd) {
-    DynArray *result = dyn_array_new_with_capacity(ELEM_STRING, 3);
-    if (!result) return NULL;
-
-    char stdout_file[] = "/tmp/nanovm_stdout_XXXXXX";
-    char stderr_file[] = "/tmp/nanovm_stderr_XXXXXX";
-    int stdout_fd = mkstemp(stdout_file);
-    int stderr_fd = mkstemp(stderr_file);
-
-    if (stdout_fd == -1 || stderr_fd == -1) {
-        if (stdout_fd != -1) { close(stdout_fd); unlink(stdout_file); }
-        if (stderr_fd != -1) { close(stderr_fd); unlink(stderr_file); }
-        dyn_array_push_string_copy(result, "-1");
-        dyn_array_push_string_copy(result, "");
-        dyn_array_push_string_copy(result, "Failed to create temp files");
-        return result;
-    }
-    close(stdout_fd);
-    close(stderr_fd);
-
-    char full_command[4096];
-    snprintf(full_command, sizeof(full_command), "%s > %s 2> %s",
-             cmd, stdout_file, stderr_file);
-
-    int exit_code = system(full_command);
-    int actual_exit = -1;
-    if (exit_code != -1) {
-        actual_exit = WIFEXITED(exit_code) ? WEXITSTATUS(exit_code) : -1;
-    }
-
-    /* Read stdout */
-    char *stdout_content = NULL;
-    FILE *fp = fopen(stdout_file, "r");
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        long sz = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-        stdout_content = (char *)malloc((size_t)sz + 1);
-        if (stdout_content) {
-            size_t rd = fread(stdout_content, 1, (size_t)sz, fp);
-            stdout_content[rd] = '\0';
-        }
-        fclose(fp);
-    }
-
-    /* Read stderr */
-    char *stderr_content = NULL;
-    fp = fopen(stderr_file, "r");
-    if (fp) {
-        fseek(fp, 0, SEEK_END);
-        long sz = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-        stderr_content = (char *)malloc((size_t)sz + 1);
-        if (stderr_content) {
-            size_t rd = fread(stderr_content, 1, (size_t)sz, fp);
-            stderr_content[rd] = '\0';
-        }
-        fclose(fp);
-    }
-
-    unlink(stdout_file);
-    unlink(stderr_file);
-
-    char exit_str[32];
-    snprintf(exit_str, sizeof(exit_str), "%d", actual_exit);
-    dyn_array_push_string_copy(result, exit_str);
-    dyn_array_push_string_copy(result, stdout_content ? stdout_content : "");
-    dyn_array_push_string_copy(result, stderr_content ? stderr_content : "");
-
-    free(stdout_content);
-    free(stderr_content);
-    return result;
-}
-
-/* Exit status of the most recent vm_exec_capture() call. */
-static int64_t vm_exec_capture_status = 0;
-
-/* Capture stdout from a shell command, running it exactly once, and record the
- * exit status so vm_exec_last_status() can return it. Backs stdlib/mac.nano's
- * nl_exec_capture extern in the NanoVM backend. */
-char *vm_exec_capture(const char *cmd) {
-    vm_exec_capture_status = -1;
-    if (!cmd) return strdup("");
-    FILE *pipe = popen(cmd, "r");
-    if (!pipe) return strdup("");
-    size_t cap = 65536;
-    char *out = (char *)malloc(cap);
-    if (!out) { pclose(pipe); return strdup(""); }
-    size_t total = 0;
-    while (total + 1 < cap) {
-        size_t n = fread(out + total, 1, cap - 1 - total, pipe);
-        if (n == 0) break;
-        total += n;
-    }
-    out[total] = '\0';
-    int status = pclose(pipe);
-    if (status == -1) vm_exec_capture_status = -1;
-    else if (WIFEXITED(status)) vm_exec_capture_status = (int64_t)WEXITSTATUS(status);
-    else vm_exec_capture_status = -1;
-    return out;
-}
-
-/* Exit status of the most recent vm_exec_capture() call. */
-int64_t vm_exec_last_status(void) {
-    return vm_exec_capture_status;
+    return nl_process_run_capture(cmd);
 }

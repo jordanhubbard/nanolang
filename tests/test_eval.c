@@ -12,19 +12,40 @@
 #include "../src/nanolang.h"
 #include "../src/builtins_registry.h"
 #include "../src/eval/eval_io.h"
+#include "../src/coroutine.h"
+#include "../src/effects.h"
+#include "../src/interpreter_ffi.h"
+#include "../src/runtime/ffi_loader.h"
+#include "../src/runtime/dyn_array.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
-static int s_fail_fputs = 0;
-static int s_fail_fclose = 0;
-int __real_fputs(const char *s, FILE *stream);
-int __real_fclose(FILE *stream);
-int __wrap_fputs(const char *s, FILE *stream) {
-    return s_fail_fputs ? EOF : __real_fputs(s, stream);
+/* Only the test-specific eval object redirects this clock call. Other tests
+ * use the host clock unless this deterministic epoch fixture is active. */
+static int s_epoch_clock_active;
+static int s_epoch_clock_calls;
+static clockid_t s_epoch_clock_id;
+static struct timespec s_epoch_clock_value;
+int nano_test_clock_gettime(clockid_t clock_id, struct timespec *result) {
+    if (!s_epoch_clock_active) return clock_gettime(clock_id, result);
+    s_epoch_clock_calls++;
+    s_epoch_clock_id = clock_id;
+    *result = s_epoch_clock_value;
+    return 0;
 }
-int __wrap_fclose(FILE *stream) {
-    int result = __real_fclose(stream);
+
+static int s_fail_fwrite;
+static int s_fail_fclose;
+static int s_fclose_calls;
+size_t nano_test_fwrite(const void *ptr, size_t size, size_t count, FILE *stream) {
+    return s_fail_fwrite ? 0 : fwrite(ptr, size, count, stream);
+}
+int nano_test_fclose(FILE *stream) {
+    s_fclose_calls++;
+    int result = fclose(stream);
     return s_fail_fclose ? EOF : result;
 }
 
@@ -115,6 +136,32 @@ void test_eval_integer_arithmetic(void) {
     Value result = call_function("add", args, 2, ctx.env);
     ASSERT_EQ(result.as.int_val, 30);
 
+    run_ctx_free(&ctx);
+}
+
+void test_eval_record_string_local_lifetime(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Text { value: string }\n"
+        "fn read_text(t: Text) -> int {\n"
+        "  let mut local: string = t.value\n"
+        "  set local (+ local \"!\")\n"
+        "  return (str_length local)\n"
+        "}\n"
+        "fn check() -> int {\n"
+        "  let t: Text = Text { value: \"seven\" }\n"
+        "  let a: int = (read_text t)\n"
+        "  let b: int = (read_text t)\n"
+        "  return (+ (+ a b) (str_length t.value))\n"
+        "}\n"
+        "shadow check { assert (== (check) 17) }\n"
+        "fn main() -> int { return 0 }\n"));
+    for (int i = 0; i < 100; i++) {
+        Value value = call_function("check", NULL, 0, ctx.env);
+        ASSERT_EQ(value.type, VAL_INT);
+        ASSERT_EQ(value.as.int_val, 17);
+    }
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 }
 
@@ -1800,6 +1847,65 @@ void test_eval_map_pure_arithmetic_int(void) {
 }
 
 /* map fast path: single-return pure-arithmetic fn on float DynArray */
+void test_eval_map_declared_scalar_results(void) {
+    const char *types[] = {"int", "float", "bool", "string"};
+    const char *values[] = {"42", "1.5", "true", "\"mapped\""};
+    ValueType tags[] = {VAL_INT, VAL_FLOAT, VAL_BOOL, VAL_STRING};
+    ElementType elements[] = {ELEM_INT, ELEM_FLOAT, ELEM_BOOL, ELEM_STRING};
+    for (int type = 0; type < 4; type++) {
+        for (int dynamic = 0; dynamic < 2; dynamic++) {
+            for (int length = 0; length < 2; length++) {
+                char source[512];
+                snprintf(source, sizeof(source),
+                    "fn transform(x: int) -> %s { return %s } "
+                    "fn mapped(xs: array<int>) -> array<%s> { return (map xs transform) } "
+                    "fn main() -> int { return 0 }", types[type], values[type], types[type]);
+                RunCtx ctx;
+                ASSERT(run_ctx_init(&ctx, source));
+                Value input = create_void();
+                if (dynamic) {
+                    input.type = VAL_DYN_ARRAY;
+                    input.as.dyn_array_val = dyn_array_new(ELEM_INT);
+                    if (length) dyn_array_push_int(input.as.dyn_array_val, 7);
+                } else {
+                    input = create_array(VAL_INT, length, length);
+                    if (length) ((long long *)input.as.array_val->data)[0] = 7;
+                }
+                Value output = call_function("mapped", &input, 1, ctx.env);
+                ASSERT(!output.is_return);
+                if (dynamic) {
+                    ASSERT(output.type == VAL_DYN_ARRAY);
+                    ASSERT(dyn_array_get_elem_type(output.as.dyn_array_val) == elements[type]);
+                    ASSERT(dyn_array_length(output.as.dyn_array_val) == length);
+                    if (length) {
+                        if (type == 0) ASSERT(dyn_array_get_int(output.as.dyn_array_val, 0) == 42);
+                        if (type == 1) ASSERT(dyn_array_get_float(output.as.dyn_array_val, 0) == 1.5);
+                        if (type == 2) ASSERT(dyn_array_get_bool(output.as.dyn_array_val, 0));
+                        if (type == 3) ASSERT(!strcmp(dyn_array_get_string(output.as.dyn_array_val, 0), "mapped"));
+                        ASSERT(dyn_array_get_int(input.as.dyn_array_val, 0) == 7);
+                    }
+                } else {
+                    ASSERT(output.type == VAL_ARRAY);
+                    Array *array = output.as.array_val;
+                    ASSERT(array->element_type == tags[type]);
+                    ASSERT(array->length == length);
+                    if (length) {
+                        if (type == 0) ASSERT(((long long *)array->data)[0] == 42);
+                        if (type == 1) ASSERT(((double *)array->data)[0] == 1.5);
+                        if (type == 2) ASSERT(((bool *)array->data)[0]);
+                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); free(((char **)array->data)[0]); }
+                        ASSERT(((long long *)input.as.array_val->data)[0] == 7);
+                    }
+                    free(array->data);
+                    free(array);
+                }
+                run_ctx_free(&ctx);
+                if (!dynamic) { free(input.as.array_val->data); free(input.as.array_val); }
+            }
+        }
+    }
+}
+
 void test_eval_map_pure_arithmetic_float(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2002,20 +2108,27 @@ void test_eval_coroutine_spawn_and_run(void) {
 /* async fn direct call (exercises is_async path in call_function, line 4391) */
 void test_eval_async_fn_direct_call(void) {
     RunCtx ctx;
-    suppress_stderr();
+    nano_scheduler_init();
+    int first_id = g_scheduler.count;
     bool ok = run_ctx_init(&ctx,
         "async fn compute(n: int) -> int { return (* n n) }\n"
+        "shadow compute { assert (== (compute 3) 9) }\n"
         "fn main() -> int {\n"
-        "    let r: int = (compute 7)\n"
-        "    return r\n"
+        "    for i in (range 0 130) { assert (== (compute i) (* i i)) }\n"
+        "    return 0\n"
         "}\n"
         "shadow main {\n"
         "    assert (== (compute 3) 9)\n"
         "}\n"
     );
-    restore_stderr();
-    /* async fn may be called synchronously or via coroutine */
-    (void)ok;
+    ASSERT(ok);
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 0);
+    ASSERT(g_scheduler.count - first_id >= 130);
+    for (int i = 0; i < MAX_COROUTINES; i++) {
+        ASSERT(g_scheduler.coroutines[i].id < first_id);
+    }
     run_ctx_free(&ctx);
 }
 
@@ -2063,22 +2176,524 @@ void test_eval_array_broadcast_scalar_right(void) {
  * main
  * ============================================================================ */
 
+void test_eval_indexed_read_aliases(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "fn read(values: array<int>) -> int { return (+ (at values 0) (array_get values 1)) }\n"
+        "shadow read { assert (== (read [20, 22]) 42) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    Value values = create_array(VAL_INT, 2, 2);
+    ((long long *)values.as.array_val->data)[0] = 20;
+    ((long long *)values.as.array_val->data)[1] = 22;
+    Value result = call_function("read", &values, 1, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    free(values.as.array_val->data);
+    free(values.as.array_val);
+    DynArray *dynamic = dyn_array_new(ELEM_INT);
+    dynamic = dyn_array_push_int(dynamic, 20);
+    dynamic = dyn_array_push_int(dynamic, 22);
+    values = create_void();
+    values.type = VAL_DYN_ARRAY;
+    values.as.dyn_array_val = dynamic;
+    result = call_function("read", &values, 1, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_foreign_native_call_api(void) {
+    ASSERT(ffi_init(false));
+    ASSERT(ffi_loader_open("eval_abi", "obj/test_interpreter_ffi_native.so"));
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "extern fn ffi_test_void(d: float, n: int, b: bool) -> void\n"
+        "extern fn ffi_test_observed() -> int\n"
+        "extern fn ffi_test_string() -> string\n"
+        "extern fn ffi_test_bool(b: bool, n: int, d: float) -> bool\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
+    int symbols = ctx.env->symbol_count;
+    Value args[] = {create_float(1.25), create_int(42), create_bool(true)};
+    Value result = call_function("ffi_test_void", args, 3, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    result = call_function("ffi_test_observed", NULL, 0, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    result = call_function("ffi_test_string", NULL, 0, ctx.env);
+    ASSERT(result.type == VAL_STRING && !strcmp(result.as.string_val, "native"));
+    Value bool_args[] = {create_bool(true), create_int(42), create_float(1.25)};
+    result = call_function("ffi_test_bool", bool_args, 3, ctx.env);
+    ASSERT(result.type == VAL_BOOL && result.as.bool_val);
+    bool_args[0] = create_bool(false);
+    result = call_function("ffi_test_bool", bool_args, 3, ctx.env);
+    ASSERT(result.type == VAL_BOOL && !result.as.bool_val);
+    suppress_stderr();
+    result = call_function("ffi_test_void", args, 2, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    result = call_function("ffi_test_void", NULL, 3, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    args[0] = create_bool(true);
+    result = call_function("ffi_test_void", args, 3, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    restore_stderr();
+    result = call_function("ffi_test_observed", NULL, 0, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    ASSERT(ctx.env->symbol_count == symbols);
+    run_ctx_free(&ctx);
+    ffi_cleanup();
+}
+
+void test_eval_struct_array_literal(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { label: string, value: int }\n"
+        "fn item() -> Item { let label: string = (+ \"forty\" \"two\") return Item { label: label, value: 42 } }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow item { let values: array<Item> = [(item), Item { label: \"next\", value: 43 }] "
+        "let first: Item = (at values 0) let second: Item = (array_get values 1) "
+        "assert (== first.label \"fortytwo\") assert (== first.value 42) "
+        "assert (== second.label \"next\") assert (== second.value 43) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_literal_evaluates_once_in_order(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "let mut calls: int = 0\n"
+        "fn next() -> int { set calls (+ calls 1) return calls }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow next { let values: array<int> = [(next), (next), (next)] "
+        "assert (== calls 3) assert (== (at values 0) 1) "
+        "assert (== (at values 1) 2) assert (== (at values 2) 3) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_append_and_dynamic_write(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { "
+        "let ints: array<int> = [1] let ints2: array<int> = (array_push ints 2) "
+        "assert (== (array_length ints) 2) assert (== (at ints2 1) 2) "
+        "let floats: array<float> = [1.5] let floats2: array<float> = (array_push floats 2.5) "
+        "assert (== (at floats2 1) 2.5) "
+        "let bools: array<bool> = [false] let bools2: array<bool> = (array_push bools true) "
+        "assert (at bools2 1) "
+        "let strings: array<string> = [\"a\"] let strings2: array<string> = (array_push strings \"b\") "
+        "assert (== (at strings2 1) \"b\") "
+        "let records: array<Item> = [Item { value: 1, label: \"a\" }] "
+        "let records2: array<Item> = (array_push records Item { value: 2, label: \"b\" }) "
+        "assert (== (at records2 1).value 2) "
+        "let di: array<int> = (array_push [] 1) (array_set di 0 42) assert (== (at di 0) 42) "
+        "let df: array<float> = (array_push [] 1.5) (array_set df 0 2.5) assert (== (at df 0) 2.5) "
+        "let db: array<bool> = (array_push [] false) (array_set db 0 true) assert (at db 0) "
+        "let ds: array<string> = (array_push [] \"a\") (array_set ds 0 (+ \"forty\" \"two\")) "
+        "assert (== (at ds 0) \"fortytwo\") "
+        "let dr: array<Item> = (array_push [] Item { value: 1, label: \"a\" }) "
+        "(array_set dr 0 Item { value: 42, label: (+ \"forty\" \"two\") }) "
+        "assert (== (at dr 0).value 42) assert (== (at dr 0).label \"fortytwo\") "
+        "let nested: array<array<int>> = (array_push [] di) "
+        "let other: array<int> = (array_push [] 7) (array_set nested 0 other) "
+        "assert (== (at (at nested 0) 0) 7) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_record_alias_across_direct_calls(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Pair { left: int, right: int }\n"
+        "fn alias_after_reassignment() -> int {\n"
+        " let original: Pair = Pair { left: 20, right: 22 }\n"
+        " let mut alias: Pair = original\n"
+        " set alias Pair { left: 1, right: 2 }\n"
+        " return (+ original.left original.right)\n"
+        "}\n"
+        "fn read_pair(pair: Pair) -> int { return (+ pair.left pair.right) }\n"
+        "fn alias_across_call() -> int {\n"
+        " let pair: Pair = Pair { left: 19, right: 23 }\n"
+        " let result: int = (read_pair pair)\n"
+        " return (+ result pair.left)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow read_pair { assert (== (read_pair Pair { left: 1, right: 2 }) 3) }\n"
+        "shadow alias_after_reassignment { assert (== (alias_after_reassignment) 42) }\n"
+        "shadow alias_across_call { assert (== (alias_across_call) 61) }\n"));
+    Value result = call_function("alias_after_reassignment", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 42);
+    result = call_function("alias_across_call", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 61);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_record_alias_reassignment(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "struct Box { item: Item }\n"
+        "fn replace(item: Item) -> Item { let mut local: Item = item "
+        "set local Item { value: 2, label: \"new\" } return local }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow replace { let mut original: Item = Item { value: 1, label: (+ \"o\" \"ld\") } "
+        "let alias: Item = original let nested: Box = Box { item: original } "
+        "set original original assert (== original.label \"old\") "
+        "set original (replace original) assert (== original.value 2) "
+        "assert (== alias.value 1) assert (== alias.label \"old\") "
+        "assert (== nested.item.label \"old\") "
+        "set original nested.item assert (== original.value 1) "
+        "set original Item { value: 3, label: \"last\" } "
+        "assert (== nested.item.value 1) assert (== nested.item.label \"old\") }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_epoch_milliseconds(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "extern fn nl_get_time_ms() -> int\n"
+        "fn now() -> int { unsafe { return (nl_get_time_ms) } }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow now { assert (> (now) 0) }\n"));
+    const struct { time_t seconds; long nanoseconds; long long expected; } cases[] = {
+        {0, 0, 0},
+        {1700000000, 999999, 1700000000000LL},
+        {1700000000, 1000000, 1700000000001LL},
+        {1700000000, 999999999, 1700000000999LL},
+        {1700000001, 0, 1700000001000LL},
+    };
+    s_epoch_clock_active = 1;
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        s_epoch_clock_value.tv_sec = cases[i].seconds;
+        s_epoch_clock_value.tv_nsec = cases[i].nanoseconds;
+        s_epoch_clock_calls = 0;
+        Value result = call_function("now", NULL, 0, ctx.env);
+        ASSERT_EQ(s_epoch_clock_calls, 1);
+        ASSERT_EQ(s_epoch_clock_id, CLOCK_REALTIME);
+        ASSERT(result.type == VAL_INT);
+        ASSERT_EQ(result.as.int_val, cases[i].expected);
+    }
+    s_epoch_clock_active = 0;
+    run_ctx_free(&ctx);
+}
+
+void test_eval_unqualified_effect_handler(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Recorder { emit : int -> void }\n"
+        "let mut recorded: int = 0\n"
+        "fn send(value: int) -> void { perform Recorder.emit(value) }\n"
+        "fn exercise() -> int {\n"
+        " let ignored = handle { (send 7) } with { emit value -> { set recorded value } }\n"
+        " return recorded\n"
+        "}\n"
+        "shadow send { assert (== (exercise) 7) }\n"
+        "shadow exercise { assert (== (exercise) 7) }\n"
+        "fn main() -> int { return (exercise) }\n"
+        "shadow main { assert (== (main) 7) }\n"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 7);
+    ASSERT(nl_effect_find_handler("Recorder", "emit", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_effect_handlers(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Recorder { emit : int -> void }\n"
+        "let mut recorded: int = 0\n"
+        "fn send(value: int) -> void { perform Recorder.emit(value) }\n"
+        "fn nested() -> void {\n"
+        " let ignored = handle { (send 2) } with {\n"
+        "  emit value -> { set recorded (+ (* recorded 10) (+ value 1)) }\n"
+        " }\n"
+        "}\n"
+        "fn sequence() -> void { (send 1) (nested) (send 4) }\n"
+        "fn exercise() -> int {\n"
+        " set recorded 0\n"
+        " let ignored = handle { (sequence) } with {\n"
+        "  emit value -> { set recorded (+ (* recorded 10) value) }\n"
+        " }\n"
+        " return recorded\n"
+        "}\n"
+        "shadow send { assert (== (exercise) 134) }\n"
+        "shadow nested { assert (== (exercise) 134) }\n"
+        "shadow sequence { assert (== (exercise) 134) }\n"
+        "shadow exercise { assert (== (exercise) 134) }\n"
+        "fn main() -> int { return (exercise) }\n"
+        "shadow main { assert (== (main) 134) }\n"));
+    for (int i = 0; i < 2; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 134);
+        ASSERT(nl_effect_find_handler("Recorder", "emit", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_effect_argument_lists(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Recorder { pair : int int -> void, tick : void -> void }\n"
+        "let mut trace: int = 0\n"
+        "let mut recorded: int = 0\n"
+        "fn argument(value: int) -> int { set trace (+ (* trace 10) value) return value }\n"
+        "fn exercise() -> int {\n"
+        " set trace 0 set recorded 0\n"
+        " let first: int = 9\n"
+        " let ignored = handle { perform Recorder.pair((argument 1) (+ first (argument 2))) } with {\n"
+        "  pair first second -> { set recorded (+ (* first 100) second) }\n"
+        " }\n"
+        " let ticked = handle { perform Recorder.tick() } with {\n"
+        "  tick -> { set recorded (+ recorded 1000) }\n"
+        " }\n"
+        " return (+ (* trace 10000) recorded)\n"
+        "}\n"
+        "shadow argument { assert (== (exercise) 121111) }\n"
+        "shadow exercise { assert (== (exercise) 121111) }\n"
+        "fn main() -> int { return (exercise) }\n"
+        "shadow main { assert (== (main) 121111) }\n"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 121111);
+    ASSERT(nl_effect_find_handler("Recorder", "pair", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_destination(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Stop { stop : int -> int }\n"
+        "let mut trace: int = 0\n"
+        "fn send() -> int { let x = perform Stop.stop(7) set trace 1 return x }\n"
+        "fn exercise() -> int { let x = handle { (send) } with { stop n -> { return n } } set trace 2 return 99 }\n"
+        "fn main() -> int { set trace 0 let x = (exercise) return (+ 100 (+ x (* trace 1000))) }\n"));
+    for (int i = 0; i < 2; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 107);
+        ASSERT(!result.is_return);
+        ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_expression_order(void) {
+    const char *bodies[] = {
+        "return (+ (emit) (mark))",
+        "return (combine (emit) (mark))",
+        "set trace (emit) return 99",
+        "if (== (emit) 7) { set trace 3 } return 99",
+        "while (< (emit) 8) { break } return 99",
+        "let xs = [(emit), (mark)] return 99",
+        "let xs = [0, (emit), (mark)] return 99",
+        "let pair = ((emit), (mark)) return 99",
+        "let point = Point { x: (emit), y: (mark) } return 99",
+        "let base = Point { x: 0, y: 0 } let point: Point = {..base, x: (emit), y: (mark)} return 99",
+        "let packet = Packet.Data { x: (emit), y: (mark) } return 99",
+        "let x = match (emit) { 7 => (mark), _ => 0 } return 99",
+        "let x = match 7 { 7 if (== (emit) 7) => (mark), _ => 0 } return 99",
+        "let x = match 8 { _ if (== (emit) 7) => (mark) } return 99",
+        "let p = Packet.Data { x: 1, y: 2 } let x = match p { Data(d) if (== (emit) 7) => (mark), _ => 0 } return 99",
+        "for i in (range (emit) (mark)) { set trace 8 } return 99",
+        "assert (== (emit) 99) return 99",
+    };
+    for (size_t i = 0; i < sizeof(bodies) / sizeof(bodies[0]); i++) {
+        char source[2048];
+        snprintf(source, sizeof(source),
+            "effect Stop { stop : int -> int } let mut trace: int = 0 "
+            "struct Point { x: int, y: int } union Packet { Data { x: int, y: int } } "
+            "fn emit() -> int { return perform Stop.stop(7) } "
+            "fn mark() -> int { set trace 4 return 1 } "
+            "fn combine(a: int, b: int) -> int { set trace 5 return (+ a b) } "
+            "fn send() -> int { %s } "
+            "fn exercise() -> int { let x = handle { (send) } with { stop n -> { return n } } return 99 } "
+            "fn main() -> int { let x = (exercise) return (+ x (* trace 1000)) }", bodies[i]);
+        RunCtx ctx;
+        ASSERT(run_ctx_init(&ctx, source));
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 7);
+        ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+        run_ctx_free(&ctx);
+    }
+}
+
+void test_eval_handler_final_value_resumes(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Ask { ask : int -> int } "
+        "fn send() -> int { let x = perform Ask.ask(7) return (+ x 10) } "
+        "fn main() -> int { let x = handle { (send) } with { ask n -> { (+ n 1) } } return (+ x 100) }"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 118);
+    ASSERT(nl_effect_find_handler("Ask", "ask", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_nested_and_string(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Outer { leave : void -> int } effect Inner { ask : void -> int } "
+        "let mut trace: int = 0 "
+        "fn inner() -> int { let x = handle { perform Inner.ask() } with { "
+        " ask -> { let x = perform Outer.leave() set trace 1 return 99 } } set trace 2 return x } "
+        "fn owner() -> string { let answer: string = \"kept\" "
+        " let x = handle { (inner) } with { leave -> { return answer } } set trace 3 return \"wrong\" } "
+        "fn main() -> int { set trace 0 let answer = (owner) assert (== answer \"kept\") return trace }"));
+    for (int i = 0; i < 3; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 0);
+        ASSERT(nl_effect_find_handler("Outer", "leave", NULL) == NULL);
+        ASSERT(nl_effect_find_handler("Inner", "ask", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_recursive_activation(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Stop { stop : int -> int } "
+        "fn recur(depth: int) -> int { "
+        " if (== depth 0) { let x = handle { perform Stop.stop(7) } with { stop n -> { return n } } return 99 } "
+        " let inner = (recur (- depth 1)) return (+ inner 1) } "
+        "fn main() -> int { return (recur 3) }"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 10);
+    ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_partial_literal_cleanup(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Leaf { text: string } struct Point { text: string, child: Leaf } "
+        "effect Stop { point : void -> Point, text : void -> string } "
+        "fn point() -> Point { return perform Stop.point() } "
+        "fn text() -> string { return perform Stop.text() } "
+        "fn records(base: Point) -> int { let xs = [base, (point)] return 99 } "
+        "fn strings() -> int { let xs = [\"owned\", (text)] return 99 } "
+        "fn record_owner(base: Point) -> int { let x = handle { (records base) } with { point -> { return 7 } } return 99 } "
+        "fn string_owner() -> int { let x = handle { (strings) } with { text -> { return 8 } } return 99 } "
+        "fn main() -> int { let base = Point { text: \"kept\", child: Leaf { text: \"nested\" } } "
+        " let result = (+ (record_owner base) (string_owner)) "
+        " assert (== base.text \"kept\") assert (== base.child.text \"nested\") return result }"));
+    for (int i = 0; i < 3; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 15);
+        ASSERT(nl_effect_find_handler("Stop", "point", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_higher_order(void) {
+    const char *operations[] = {"(map values visit)", "(filter values keep)",
+                                "(reduce values 0 combine)"};
+    for (size_t op = 0; op < 3; op++) {
+        for (int dynamic = 0; dynamic < 2; dynamic++) {
+            for (int escape = 0; escape < 2; escape++) {
+                char source[2048];
+                snprintf(source, sizeof(source),
+                    "effect Stop { stop : int -> int } let mut calls: int = 0 "
+                    "fn visit(x: int) -> int { set calls (+ calls 1) if (== x 2) { return perform Stop.stop(7) } return x } "
+                    "fn keep(x: int) -> bool { return (> (visit x) 0) } "
+                    "fn combine(acc: int, x: int) -> int { return (+ acc (visit x)) } "
+                    "fn owner(values: array<int>) -> int { let ignored = handle { %s } with { stop n -> { %s } } return 99 } "
+                    "fn main() -> int { return 0 }", operations[op], escape ? "return n" : "n");
+                RunCtx ctx;
+                ASSERT(run_ctx_init(&ctx, source));
+                Value input;
+                if (dynamic) {
+                    DynArray *array = dyn_array_new(ELEM_INT);
+                    for (int i = 1; i <= 3; i++) array = dyn_array_push_int(array, i);
+                    input = create_void();
+                    input.type = VAL_DYN_ARRAY;
+                    input.as.dyn_array_val = array;
+                } else {
+                    input = create_array(VAL_INT, 3, 3);
+                    for (int i = 0; i < 3; i++) ((long long *)input.as.array_val->data)[i] = i + 1;
+                }
+                Value result = call_function("owner", &input, 1, ctx.env);
+                ASSERT_EQ(result.type, VAL_INT);
+                ASSERT_EQ(result.as.int_val, escape ? 7 : 99);
+                ASSERT_EQ(env_get_var(ctx.env, "calls")->value.as.int_val, escape ? 2 : 3);
+                ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+                run_ctx_free(&ctx);
+                if (dynamic) gc_release(input.as.dyn_array_val);
+                else { free(input.as.array_val->data); free(input.as.array_val); }
+            }
+        }
+    }
+}
+
+void test_eval_handler_return_async_calls(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Stop { stop : int -> int } let mut trace: int = 0 "
+        "async fn inner(n: int) -> int { let x = perform Stop.stop(n) set trace 1 return x } "
+        "async fn outer(n: int) -> int { let x = (inner n) set trace 2 return x } "
+        "fn owner() -> int { let x = handle { (outer 7) } with { stop n -> { return n } } set trace 3 return 99 } "
+        "fn main() -> int { set trace 0 let x = (owner) return (+ x (* trace 1000)) }"));
+    nano_scheduler_init();
+    int first_id = g_scheduler.count;
+    for (int i = 0; i < 100; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 7);
+        ASSERT(!result.is_return);
+        ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+        for (int slot = 0; slot < MAX_COROUTINES; slot++) {
+            ASSERT(g_scheduler.coroutines[slot].id < first_id);
+        }
+    }
+    ASSERT_EQ(g_scheduler.count - first_id, 200);
+    run_ctx_free(&ctx);
+}
+
 static void test_eval_file_write_failures(void) {
-    Value args[2] = {create_string("/tmp/test_eval_file_failure.txt"), create_string("content")};
-
-    s_fail_fputs = 1;
+    char path[] = "/tmp/test_eval_file_failure.XXXXXX";
+    int fd = mkstemp(path);
+    ASSERT(fd >= 0);
+    ASSERT(close(fd) == 0);
+    Value args[2] = {create_string(path), create_string("content")};
+    s_fail_fwrite = 1;
+    s_fclose_calls = 0;
     Value write_result = builtin_file_write(args);
-    s_fail_fputs = 0;
+    s_fail_fwrite = 0;
     ASSERT_EQ(write_result.as.int_val, -1);
-
+    ASSERT_EQ(s_fclose_calls, 1);
     s_fail_fclose = 1;
+    s_fclose_calls = 0;
     Value append_result = builtin_file_append(args);
     s_fail_fclose = 0;
     ASSERT_EQ(append_result.as.int_val, -1);
-    unlink(args[0].as.string_val);
+    ASSERT_EQ(s_fclose_calls, 1);
+    remove(args[0].as.string_val);
 }
 
 int main(void) {
+    TEST(eval_file_write_failures);
+    TEST(eval_handler_return_async_calls);
+    TEST(eval_handler_return_higher_order);
+    TEST(eval_handler_return_partial_literal_cleanup);
+    TEST(eval_handler_return_recursive_activation);
+    TEST(eval_handler_return_nested_and_string);
+    TEST(eval_handler_return_expression_order);
+    TEST(eval_handler_final_value_resumes);
+    TEST(eval_handler_return_destination);
+    TEST(eval_effect_argument_lists);
+    TEST(eval_unqualified_effect_handler);
+    TEST(eval_nested_effect_handlers);
     printf("=== Interpreter (eval.c) Tests ===\n");
     TEST(eval_integer_arithmetic);
     TEST(eval_subtraction);
@@ -2162,9 +2777,11 @@ int main(void) {
     TEST(eval_type_casting);
     TEST(eval_bool_operations);
     TEST(eval_nested_struct_fields);
+    TEST(eval_record_string_local_lifetime);
 
     TEST(eval_map_pure_arithmetic_int);
     TEST(eval_map_pure_arithmetic_float);
+    TEST(eval_map_declared_scalar_results);
     TEST(eval_reduce_pure_arithmetic_int);
     TEST(eval_reduce_pure_arithmetic_float);
     TEST(eval_unary_minus_int_array);
@@ -2177,7 +2794,14 @@ int main(void) {
     TEST(eval_async_fn_direct_call);
     TEST(eval_string_format_struct);
     TEST(eval_array_broadcast_scalar_right);
-    TEST(eval_file_write_failures);
+    TEST(eval_foreign_native_call_api);
+    TEST(eval_indexed_read_aliases);
+    TEST(eval_struct_array_literal);
+    TEST(eval_array_literal_evaluates_once_in_order);
+    TEST(eval_array_append_and_dynamic_write);
+    TEST(eval_record_alias_reassignment);
+    TEST(eval_record_alias_across_direct_calls);
+    TEST(eval_epoch_milliseconds);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;

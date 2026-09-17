@@ -7,7 +7,7 @@
  */
 
 import "src_nano/compiler/ir.nano"
-from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
+from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors, diag_list_new
 from "std/fs.nano" import read
 
 pure fn is_identifier_start(c: int) -> bool {
@@ -65,6 +65,8 @@ shadow is_digit_char {
 }
 
 pure fn keyword_group1(s: string) -> int {
+    if (== s "break") { return LexerTokenType.TOKEN_BREAK }
+    if (== s "continue") { return LexerTokenType.TOKEN_CONTINUE }
     if (== s "module") { return LexerTokenType.TOKEN_MODULE } else {
         if (== s "pub") { return LexerTokenType.TOKEN_PUB } else {
             if (== s "from") { return LexerTokenType.TOKEN_FROM } else {
@@ -77,6 +79,8 @@ pure fn keyword_group1(s: string) -> int {
 }
 
 shadow keyword_group1 {
+    assert (== (keyword_group1 "break") LexerTokenType.TOKEN_BREAK)
+    assert (== (keyword_group1 "continue") LexerTokenType.TOKEN_CONTINUE)
     assert (== (keyword_group1 "module") 19)  /* TOKEN_MODULE */
     assert (== (keyword_group1 "pub") 20)     /* TOKEN_PUB */
     assert (== (keyword_group1 "from") 21)    /* TOKEN_FROM */
@@ -886,7 +890,14 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                             if (== new_pos -1) {
                                 set i len
                             } else {
-                                set i new_pos
+                                # I count source bytes, not decoded escape values.
+                                while (< i new_pos) {
+                                    if (== (char_at source i) 10) {
+                                        set line (+ line 1)
+                                        set line_start (+ i 1)
+                                    }
+                                    set i (+ i 1)
+                                }
                             }
                         }
                     }
@@ -927,4 +938,49 @@ shadow tokenize_string {
     let toks_bad: List<LexerToken> = (tokenize_string bad "cafe.nano" diags_bad)
     assert (== (list_LexerToken_length toks_bad) 0)
     assert (diag_list_has_errors diags_bad)
+    let positions: List<LexerToken> = (tokenize_string "\"a\nb\" next\n\"a\\nb\" last" "positions.nano" diags)
+    let next: LexerToken = (list_LexerToken_get positions 1)
+    let last: LexerToken = (list_LexerToken_get positions 3)
+    assert (== next.value "next")
+    assert (== next.line 2)
+    assert (== next.column 4)
+    assert (== last.value "last")
+    assert (== last.line 3)
+    assert (== last.column 8)
+
+    let multiline: string = "let text: string = \"one\ntwo\"\nfn after() -> int { return 0 }"
+    let multiline_diags: List<CompilerDiagnostic> = (diag_list_new)
+    let multiline_toks: List<LexerToken> = (tokenize_string multiline "multiline.nano" multiline_diags)
+    let mut found_after: bool = false
+    let mut token_index: int = 0
+    while (< token_index (list_LexerToken_length multiline_toks)) {
+        let tok: LexerToken = (list_LexerToken_get multiline_toks token_index)
+        if (== tok.value "after") {
+            assert (== tok.line 3)
+            set found_after true
+        } else {
+            (print "")
+        }
+        set token_index (+ token_index 1)
+    }
+    assert found_after
+    let interpolated: List<LexerToken> = (tokenize_string "f\"one\n{2}\" next\nf\"a\\nb\" last" "interpolated.nano" diags)
+    let mut found_next: bool = false
+    let mut found_last: bool = false
+    for index in (range 0 (list_LexerToken_length interpolated)) {
+        let tok: LexerToken = (list_LexerToken_get interpolated index)
+        if (== tok.value "next") {
+            assert (== tok.line 2)
+            assert (== tok.column 6)
+            set found_next true
+        }
+        if (== tok.value "last") {
+            assert (== tok.line 3)
+            assert (== tok.column 9)
+            set found_last true
+        }
+    }
+    assert found_next
+    assert found_last
+    assert (not (diag_list_has_errors diags))
 }

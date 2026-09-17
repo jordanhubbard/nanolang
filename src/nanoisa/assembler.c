@@ -651,6 +651,77 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return require_line_end(p, result);
         }
 
+        if (strcmp(directive, "callback") == 0) {
+            NvmCallbackContract c = {0};
+            uint32_t parameter, abi, length;
+            char adapter[4096], execution[32];
+            if (!parse_uint32(&p, &c.import_idx) || !parse_uint32(&p, &parameter) ||
+                parameter > UINT16_MAX ||
+                !parse_quoted_string(&p, adapter, sizeof(adapter), &length) ||
+                !parse_uint32(&p, &abi) || abi != NVM_CALLBACK_ABI_RETAINED_V1 ||
+                !parse_identifier(&p, execution, sizeof(execution)) ||
+                (strcmp(execution, "owner") && strcmp(execution, "worker")) ||
+                !parse_result_tag(&p, &c.return_tag)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "I expect .callback import parameter \"adapter\" 1 owner|worker result [parameters]");
+                return false;
+            }
+            c.parameter_idx = (uint16_t)parameter;
+            c.abi_version = (uint8_t)abi;
+            c.execution = strcmp(execution, "worker") == 0 ? NVM_FOREIGN_WORKER_THREAD : NVM_FOREIGN_OWNER_THREAD;
+            while (!at_line_end(p)) {
+                if (c.param_count >= NANO_MAX_FFI_ARGS || !parse_result_tag(&p, &c.param_tags[c.param_count])) {
+                    result->error = ASM_ERR_SYNTAX;
+                    snprintf(result->message, sizeof(result->message), "I need at most 16 callback parameter tags");
+                    return false;
+                }
+                c.param_count++;
+            }
+            c.adapter_name_idx = nvm_add_string(state->mod, adapter, length);
+            if (c.adapter_name_idx == UINT32_MAX || !nvm_add_callback_contract(state->mod, &c)) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof(result->message), "I could not add this callback contract");
+                return false;
+            }
+            return true;
+        }
+
+        if (strcmp(directive, "parameters") == 0) {
+            uint32_t index;
+            if (!parse_uint32(&p, &index) || index >= state->mod->function_count) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof(result->message), "I need an existing function index for .parameters");
+                return false;
+            }
+            uint16_t arity = state->mod->functions[index].arity;
+            uint8_t *tags = arity ? malloc(arity) : NULL;
+            bool ok = !arity || tags;
+            for (uint16_t i = 0; ok && i < arity; i++) ok = parse_result_tag(&p, &tags[i]);
+            ok = ok && at_line_end(p) && nvm_set_function_param_types(state->mod, index, tags, arity);
+            free(tags);
+            if (!ok) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof(result->message), "I need exact-arity tags for .parameters");
+            }
+            return ok;
+        }
+
+        if (strcmp(directive, "import_kind") == 0) {
+            uint32_t index;
+            char kind[32];
+            if (!parse_uint32(&p, &index) || index >= state->mod->import_count ||
+                !parse_identifier(&p, kind, sizeof(kind)) || !at_line_end(p) ||
+                (strcmp(kind, "ffi") && strcmp(kind, "coprocess") && strcmp(kind, "artifact"))) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof(result->message), "I expect .import_kind index ffi|coprocess|artifact");
+                return false;
+            }
+            state->mod->imports[index].kind = !strcmp(kind, "artifact") ? NVM_IMPORT_ARTIFACT :
+                !strcmp(kind, "coprocess") ? NVM_IMPORT_COPROCESS : NVM_IMPORT_FFI;
+            return true;
+        }
+
         /* .module_ref "name" -- an ordered linked-module dependency.
          * OP_CALL_MODULE's first operand indexes this table. */
         if (strcmp(directive, "module_ref") == 0) {

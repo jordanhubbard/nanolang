@@ -10,6 +10,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define NANO_DYN_ARRAY_ABI_VERSION 1u
+/* I attach the compiled layout version to each array-bearing foreign export. */
+#define NANO_EXPORT_ARRAY_ABI(function) \
+    __attribute__((visibility("default"))) const uint32_t function##__nano_array_abi = NANO_DYN_ARRAY_ABI_VERSION
+
 /* Element type enum (matches nanolang Value types) */
 typedef enum {
     ELEM_INT = 1,
@@ -31,6 +36,20 @@ typedef struct {
     void* data;            /* Element storage */
 } DynArray;
 
+/* I validate metadata and logical storage, not the provenance of a C pointer. */
+static inline bool dyn_array_has_storage(const DynArray *array, ElementType type,
+                                         size_t width, uint64_t bytes) {
+    if (!array || !array->data || array->elem_type != type || !width ||
+        array->elem_size != width || array->length < 0 || array->capacity < array->length ||
+        (uint64_t)array->length > SIZE_MAX / width) return false;
+    return bytes <= (uint64_t)array->length * width;
+}
+
+/* I return NULL when construction or cloning cannot allocate representable
+ * storage. Growth, reserve and first struct insertion abort on allocation or
+ * capacity overflow: those APIs cannot report failure, and callers must not
+ * continue writing into old storage. Struct width is currently 1..255 bytes
+ * in this native ABI. Cloning copies flat record bytes, not owned child graphs. */
 /* Create new empty dynamic array */
 DynArray* dyn_array_new(ElementType elem_type);
 
@@ -96,6 +115,9 @@ void dyn_array_reserve(DynArray* arr, int64_t new_capacity);
 
 /* Clone array (deep copy) */
 DynArray* dyn_array_clone(DynArray* arr);
+/* I sort a new scalar array. NaNs sort last; equal elements are not stable.
+ * NULL reports invalid metadata, unsupported elements or allocation failure. */
+DynArray* dyn_array_sorted(DynArray* arr);
 
 /* Struct array operations */
 DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size);
@@ -104,4 +126,3 @@ void dyn_array_set_struct(DynArray* arr, int64_t index, const void* struct_ptr, 
 void dyn_array_pop_struct(DynArray* arr, void* out_struct, size_t struct_size, bool* success);
 
 #endif /* NANOLANG_DYN_ARRAY_H */
-

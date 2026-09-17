@@ -77,6 +77,9 @@ typedef struct {
     int loop_depth;         /* Track if we're inside a loop (for break/continue validation) */
 } TypeChecker;
 
+/* I retain the enclosing function context when checking expression blocks. */
+static _Thread_local TypeChecker *active_statement_checker;
+
 static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
     if (!param) return strdup("unknown");
 
@@ -234,21 +237,25 @@ static bool is_function_accessible(Function *func, Environment *env, int line, i
     
     /* Different module - check visibility */
     if (!func->is_pub) {
-        fprintf(stderr, "Error at line %d, column %d: Function '%s' is private to module '%s'\n",
-                line, column, func->name, func->module_name);
-        fprintf(stderr, "  Note: Use 'pub fn %s(...)' to make it accessible from other modules\n",
-                func->name);
-        fprintf(stderr, "  Hint: Private functions are only accessible within their defining module\n");
+        char message[512];
+        snprintf(message, sizeof(message),
+                 "I cannot call private function '%s' from module '%s'.",
+                 func->name, func->module_name);
+        emit_context_error("E009 PRIVATE ACCESS", line, column,
+                           (int)safe_strlen(func->name), message,
+                           "Call an exported function, or declare this function pub in its owning module.");
         return false;
     }
 
     /* Check if symbol was explicitly imported via selective import */
     if (!is_symbol_imported(func->name, func->module_name, env)) {
-        fprintf(stderr, "Error at line %d, column %d: Function '%s' from module '%s' was not imported\n",
-                line, column, func->name, func->module_name);
-        fprintf(stderr, "  Note: Add 'from \"%s\" import %s' to import this function\n",
-                func->module_name, func->name);
-        fprintf(stderr, "  Hint: Functions must be explicitly imported before use\n");
+        char message[512];
+        snprintf(message, sizeof(message),
+                 "I cannot call function '%s' from module '%s' without importing it.",
+                 func->name, func->module_name);
+        emit_context_error("E009 IMPORT ACCESS", line, column,
+                           (int)safe_strlen(func->name), message,
+                           "Include this function in the selective import.");
         return false;
     }
 
@@ -310,6 +317,12 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         if (sym) return sym->type_info;
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
+        if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
+            (strcmp(expr->as.call.name, "at") == 0 ||
+             strcmp(expr->as.call.name, "array_get") == 0)) {
+            TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
+            if (array && array->base_type == TYPE_ARRAY) return array->element_type;
+        }
         Function *func = env_get_function(env, expr->as.call.name);
         if (func && func->return_type_info) return func->return_type_info;
     }
@@ -602,6 +615,22 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
+/* I validate the inferred literal kind before annotation propagation changes it. */
+static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Type expected) {
+    if (literal->as.array_literal.element_count > 0 &&
+            !types_match(literal->as.array_literal.element_type, expected)) {
+        char message[256];
+        snprintf(message, sizeof message, "I expected array elements of type %s, but found %s.",
+                 type_to_string(expected), type_to_string(literal->as.array_literal.element_type));
+        emit_context_error("E001 TYPE MISMATCH", literal->line, literal->column, 1,
+                           message, "Use elements matching the array annotation.");
+        tc->has_error = true;
+        return false;
+    }
+    literal->as.array_literal.element_type = expected;
+    return true;
+}
+
 static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value) {
     if (out_key) *out_key = TYPE_UNKNOWN;
     if (out_value) *out_value = TYPE_UNKNOWN;
@@ -619,6 +648,18 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
+        case AST_BLOCK:
+            if (expr->as.block.count > 0) {
+                ASTNode *tail = expr->as.block.statements[expr->as.block.count - 1];
+                if (ast_is_value_expression(tail->type)) return get_struct_type_name(tail, env);
+            }
+            return NULL;
+        case AST_MATCH:
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                const char *name = get_struct_type_name(expr->as.match_expr.arm_bodies[i], env);
+                if (name) return name;
+            }
+            return NULL;
         case AST_STRUCT_LITERAL:
             return expr->as.struct_literal.struct_name;
             
@@ -638,7 +679,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
             /* Check if function returns a struct */
             Function *func = env_get_function(env, expr->as.call.name);
-            if (func && func->return_type == TYPE_STRUCT) {
+            if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION)) {
                 return func->return_struct_type_name;
             }
             
@@ -762,8 +803,79 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     }
 }
 
+static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
+
+/* I borrow the callback declaration; no temporary signature escapes this query. */
+static Type map_callback_type(ASTNode *callback, Environment *env, int *arity, Type *argument) {
+    FunctionSignature *sig = NULL;
+    *arity = -1;
+    *argument = TYPE_UNKNOWN;
+    if (callback->type == AST_IDENTIFIER) {
+        Symbol *symbol = env_get_var_visible_at(env, callback->as.identifier,
+                                               callback->line, callback->column);
+        if (symbol) {
+            sig = symbol->type_info ? symbol->type_info->fn_sig : NULL;
+        } else {
+            Function *function = env_get_function(env, callback->as.identifier);
+            if (function) {
+                *arity = function->param_count;
+                if (*arity == 1) *argument = function->params[0].type;
+                return function->return_type;
+            }
+        }
+    } else if (callback->type == AST_CALL) {
+        sig = function_result_signature(callback, env);
+    }
+    if (!sig) return TYPE_UNKNOWN;
+    *arity = sig->param_count;
+    if (*arity == 1) *argument = sig->param_types[0];
+    return sig->return_type;
+}
+
+Type map_transform_result_type(ASTNode *callback, Environment *env) {
+    int arity;
+    Type argument;
+    return map_callback_type(callback, env, &arity, &argument);
+}
+
+Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
+    int arity;
+    Type argument;
+    Type result = map_callback_type(callback, env, &arity, &argument);
+    return arity == 1 && result == TYPE_BOOL ? argument : TYPE_UNKNOWN;
+}
+
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
+        array_expr->as.call.arg_count == 2) {
+        int arity;
+        Type argument;
+        return map_callback_type(array_expr->as.call.args[1], env, &arity, &argument);
+    }
+    TypeInfo *info = try_get_expr_type_info(array_expr, env);
+    if (info && info->base_type == TYPE_ARRAY && info->element_type)
+        return info->element_type->base_type;
+
+    if (array_expr->type == AST_CALL && array_expr->as.call.name &&
+        !array_expr->as.call.func_expr) {
+        Function *producer = env_get_function(env, array_expr->as.call.name);
+        if (producer && producer->return_type == TYPE_ARRAY)
+            return producer->return_element_type;
+    }
+    if (array_expr->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *alias = array_expr->as.module_qualified_call.module_alias;
+        const char *name = array_expr->as.module_qualified_call.function_name;
+        size_t size = strlen(alias) + strlen(name) + 2;
+        char *qualified = malloc(size);
+        if (!qualified) return TYPE_UNKNOWN;
+        snprintf(qualified, size, "%s.%s", alias, name);
+        Function *producer = env_get_function(env, qualified);
+        free(qualified);
+        if (producer && producer->return_type == TYPE_ARRAY)
+            return producer->return_element_type;
+    }
 
     if (array_expr->type == AST_ARRAY_LITERAL) {
         if (array_expr->as.array_literal.element_type != TYPE_UNKNOWN) {
@@ -808,6 +920,17 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 /* Internal implementation - do not call directly */
 static Type check_expression_impl(ASTNode *expr, Environment *env);
 
+/* I retain emission metadata without extending a local's source visibility. */
+static void bound_scope_symbols(Environment *env, int first, ASTNode *scope) {
+    if (!env || !scope || scope->scope_end_line <= 0) return;
+    for (int i = first; i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        if (symbol->scope_end_line > 0) continue; /* Inner scopes keep their bound. */
+        symbol->scope_end_line = scope->scope_end_line;
+        symbol->scope_end_column = scope->scope_end_column;
+    }
+}
+
 /* Check expression type (wrapper with recursion depth tracking) */
 Type check_expression(ASTNode *expr, Environment *env) {
     if (!expr) return TYPE_UNKNOWN;
@@ -821,9 +944,108 @@ Type check_expression(ASTNode *expr, Environment *env) {
         return TYPE_UNKNOWN;
     }
 
+    int first_symbol = env ? env->symbol_count : 0;
     Type result = check_expression_impl(expr, env);
+    bound_scope_symbols(env, first_symbol, expr);
     g_check_expr_depth--;
     return result;
+}
+
+/* I borrow declared signatures; the parser/environment owns their storage. */
+static FunctionSignature *function_result_signature(ASTNode *call, Environment *env) {
+    if (!call || call->type != AST_CALL) return NULL;
+    if (call->as.call.func_expr) {
+        FunctionSignature *callee = function_result_signature(call->as.call.func_expr, env);
+        return callee ? callee->return_fn_sig : NULL;
+    }
+    if (!call->as.call.name) return NULL;
+    Function *func = env_get_function(env, call->as.call.name);
+    if (func) return func->return_fn_sig;
+    Symbol *sym = env_get_var_visible_at(env, call->as.call.name, call->line, call->column);
+    FunctionSignature *sig = sym && sym->type_info ? sym->type_info->fn_sig : NULL;
+    return sig ? sig->return_fn_sig : NULL;
+}
+
+static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *sig) {
+    if (!sig) {
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+                           "I cannot determine this function value's signature.",
+                           "Declare the function value's parameter and return types.");
+        return TYPE_UNKNOWN;
+    }
+    if (sig->param_count != call->as.call.arg_count) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+                           "I require the declared number of arguments for this function value.",
+                           "Match the function signature.");
+        return TYPE_UNKNOWN;
+    }
+    for (int i = 0; i < call->as.call.arg_count; i++) {
+        Type actual = check_expression(call->as.call.args[i], env);
+        if (!types_match(actual, sig->param_types[i])) {
+            emit_context_error("E001 TYPE MISMATCH", call->as.call.args[i]->line,
+                               call->as.call.args[i]->column, 1,
+                               "I require the declared argument type for this function value.",
+                               "Match the function signature.");
+        }
+    }
+    return sig->return_type;
+}
+
+static Type check_perform(ASTNode *expr, Environment *env) {
+    const char *effect_name = expr->as.effect_op.effect_name;
+    const char *op_name = expr->as.effect_op.op_name;
+    EffectDef *effect = effect_name ? env_get_effect(env, effect_name) : NULL;
+    EffectOp *op = effect && op_name ? effect_get_op(effect, op_name) : NULL;
+    if (!op) {
+        emit_context_error("E029 UNKNOWN EFFECT OPERATION", expr->line, expr->column, 7,
+                           "I require a declared effect and operation for perform.",
+                           "Check the effect and operation names against their declaration.");
+        return TYPE_UNKNOWN;
+    }
+    int count = expr->as.effect_op.arg_count;
+    if (count != op->param_count) {
+        emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 7,
+                           "I require the declared operation's argument count for perform.",
+                           "Match the effect operation signature.");
+        return TYPE_UNKNOWN;
+    }
+    for (int i = 0; i < count; i++) {
+        Type actual = check_expression(expr->as.effect_op.args[i], env);
+        if (!types_match(actual, op->params[i].type)) {
+            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
+                               "I require the declared operation's argument type for perform.",
+                               "Match the effect operation signature.");
+            return TYPE_UNKNOWN;
+        }
+    }
+    return op->return_type;
+}
+
+static bool check_array_access_arguments(ASTNode *call, Environment *env) {
+    if (call->as.call.arg_count != 2) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+                           "I require an array and an index for array access.",
+                           "Pass exactly two arguments.");
+        return false;
+    }
+    ASTNode *array = call->as.call.args[0];
+    ASTNode *index = call->as.call.args[1];
+    Type array_type = check_expression(array, env);
+    Type index_type = check_expression(index, env);
+    bool valid = true;
+    if (array_type != TYPE_ARRAY) {
+        emit_context_error("E001 TYPE MISMATCH", array->line, array->column, 1,
+                           "I require an array as the first argument to array access.",
+                           "Pass an array before its index.");
+        valid = false;
+    }
+    if (index_type != TYPE_INT && index_type != TYPE_U8) {
+        emit_context_error("E001 TYPE MISMATCH", index->line, index->column, 1,
+                           "I require an integer array index.",
+                           "Pass an int or u8 index.");
+        valid = false;
+    }
+    return valid;
 }
 
 /* Internal implementation of check_expression */
@@ -863,17 +1085,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_UNKNOWN;
             }
             sym->is_used = true;  /* Mark variable as used */
-            
-            /* Track resource usage - this is a READ/USE (not consumption) */
-            /* Note: We'll track consumption separately when passing to functions */
-            /* For now, just mark as used to detect use-after-consume */
-            if (sym->is_resource) {
-                bool resource_error = false;
-                check_resource_use(env, expr->as.identifier, expr->line, expr->column, &resource_error);
-                if (resource_error) {
-                    g_typecheck_error_count++;
-                }
-            }
             
             return sym->type;
         }
@@ -1274,25 +1485,31 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                /* Check argument types */
-                for (int i = 0; i < expr->as.call.arg_count; i++) {
-                    check_expression(expr->as.call.args[i], env);
-                }
-                
-                /* Return type will be determined at runtime */
-                /* For now, assume it returns int */
-                return TYPE_INT;
+                return check_indirect_call(expr, env, function_result_signature(expr->as.call.func_expr, env));
             }
             
             /* Regular function call */
             
             /* Special handling for map builtin - check before environment lookup */
             if (strcmp(expr->as.call.name, "map") == 0) {
-                /* map(array, transform_fn) -> array */
-                if (expr->as.call.arg_count >= 2) {
-                    Type array_type = check_expression(expr->as.call.args[0], env);
-                    check_expression(expr->as.call.args[1], env);  /* Check function */
-                    return array_type;  /* Return same type as input array */
+                if (expr->as.call.arg_count != 2) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require an array and a transform for map.", "Pass exactly two arguments.");
+                    return TYPE_UNKNOWN;
+                }
+                Type array_type = check_expression(expr->as.call.args[0], env);
+                Type callback_type = check_expression(expr->as.call.args[1], env);
+                int arity;
+                Type argument;
+                Type result = map_callback_type(expr->as.call.args[1], env, &arity, &argument);
+                Type element = infer_array_element_type(expr->as.call.args[0], env);
+                if (array_type != TYPE_ARRAY || callback_type != TYPE_FUNCTION || arity != 1 ||
+                    result == TYPE_UNKNOWN || result == TYPE_VOID ||
+                    (element != TYPE_UNKNOWN && !types_match(element, argument))) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a unary transform matching the array element type and returning a value.",
+                        "Match the transform signature to the source array.");
+                    return TYPE_UNKNOWN;
                 }
                 return TYPE_ARRAY;
             }
@@ -1328,7 +1545,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Usage: format(\"Hello %s\", name)");
                     return TYPE_UNKNOWN;
                 }
-                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                Type template_type = check_expression(expr->as.call.args[0], env);
+                if (template_type != TYPE_STRING) {
+                    ASTNode *template = expr->as.call.args[0];
+                    emit_context_error("E001 TYPE MISMATCH", template->line, template->column, 1,
+                        "I require a string template for format.",
+                        "Pass the template string before its substitution arguments.");
+                }
+                for (int i = 1; i < expr->as.call.arg_count; i++) {
                     check_expression(expr->as.call.args[i], env);
                 }
                 return TYPE_STRING;
@@ -1416,6 +1640,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
             }
+
+            if (strcmp(expr->as.call.name, "array_push") == 0 &&
+                expr->as.call.arg_count == 2) {
+                ASTNode *receiver = expr->as.call.args[0];
+                if (receiver->type == AST_ARRAY_LITERAL &&
+                    receiver->as.array_literal.element_count == 0) {
+                    Type element = check_expression(expr->as.call.args[1], env);
+                    if (element != TYPE_UNKNOWN) {
+                        receiver->as.array_literal.element_type = element;
+                    }
+                }
+            }
             
             /* If not a function, check if it's a function-typed variable (parameter) */
             /* ALSO: prefer built-in HashMap<K,V> generics when there's a generic type context,
@@ -1458,21 +1694,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     /* Mark the variable as used */
                     sym->is_used = true;
                     
-                    /* This is a call to a function parameter - check arguments */
-                    for (int i = 0; i < expr->as.call.arg_count; i++) {
-                        check_expression(expr->as.call.args[i], env);
-                    }
-                    /* If this is a call with no arguments (just getting the function), return TYPE_FUNCTION */
-                    if (expr->as.call.arg_count == 0) {
-                        return TYPE_FUNCTION;
-                    }
-                    /* Get return type from the function signature in type_info */
-                    if (sym->type_info && sym->type_info->fn_sig) {
-                        return sym->type_info->fn_sig->return_type;
-                    }
-                    /* Fallback if no signature available */
-                    /* Return TYPE_INT for legacy compatibility (used in let statement checks) */
-                    return TYPE_INT;
+                    return check_indirect_call(expr, env, sym->type_info ? sym->type_info->fn_sig : NULL);
                 }
                 
                 /* Special handling for dynamic array builtins */
@@ -1619,6 +1841,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Special handling for array_get builtin */
                 if (strcmp(expr->as.call.name, "array_get") == 0) {
+                    if (!check_array_access_arguments(expr, env)) return TYPE_UNKNOWN;
+                    Type inferred = infer_array_element_type(expr->as.call.args[0], env);
+                    if (inferred != TYPE_UNKNOWN) return inferred;
                     /* array_get(array, index) -> element type (same as at()) */
                     if (expr->as.call.arg_count >= 1) {
                         ASTNode *array_arg = expr->as.call.args[0];
@@ -2063,7 +2288,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         /* Create signature from passed function */
-                        FunctionSignature passed_sig;
+                        FunctionSignature passed_sig = {0};
                         passed_sig.param_count = passed_func->param_count;
                         passed_sig.param_types = malloc(sizeof(Type) * passed_func->param_count);
                         passed_sig.param_struct_names = malloc(sizeof(char*) * passed_func->param_count);
@@ -2073,6 +2298,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         passed_sig.return_type = passed_func->return_type;
                         passed_sig.return_struct_name = passed_func->return_struct_type_name;
+                        passed_sig.return_fn_sig = passed_func->return_fn_sig;
                         
                         /* Compare signatures */
                         if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
@@ -2109,19 +2335,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         /* Regular argument type checking */
                         Type arg_type = check_expression(arg, env);
-                        
-                        /* Track resource consumption when passing to functions */
-                        /* If argument is a resource variable passed by value, mark as consumed */
-                        if (arg->type == AST_IDENTIFIER) {
-                            Symbol *arg_sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
-                            if (arg_sym && arg_sym->is_resource) {
-                                /* Resource is being passed to function - mark as consumed */
-                                bool resource_error = false;
-                                check_resource_consume(env, arg->as.identifier, arg->line, arg->column, &resource_error);
-                                if (resource_error) {
-                                    g_typecheck_error_count++;
-                                }
-                            }
+                        if (arg->type == AST_ARRAY_LITERAL &&
+                            arg->as.array_literal.element_count == 0 &&
+                            func->params[i].type == TYPE_ARRAY &&
+                            func->params[i].element_type != TYPE_UNKNOWN) {
+                            arg->as.array_literal.element_type = func->params[i].element_type;
                         }
                         
                         /* Check for opaque type parameters - allow 0 (null) as argument */
@@ -2131,7 +2349,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             if (opaque) {
                                 is_opaque_param = true;
                                 /* For opaque types, allow TYPE_INT (for passing 0 as NULL) */
-                                if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT) {
+                                if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT && arg_type != TYPE_OPAQUE) {
                                     char message[256];
                                     snprintf(message, sizeof(message),
                                             "Argument %d expects opaque type `%s` or 0 (null), got %s.",
@@ -2203,9 +2421,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Special handling for array operations that need element type inference */
             if (strcmp(expr->as.call.name, "at") == 0 || strcmp(expr->as.call.name, "array_get") == 0) {
+                if (!check_array_access_arguments(expr, env)) return TYPE_UNKNOWN;
                 /* at(array, index) returns the element type of the array */
                 if (expr->as.call.arg_count >= 1) {
                     ASTNode *array_arg = expr->as.call.args[0];
+                    Type inferred_element = infer_array_element_type(array_arg, env);
+                    if (inferred_element != TYPE_UNKNOWN) return inferred_element;
                     
                     /* Check if it's an array literal - get element type from it */
                     if (array_arg->type == AST_ARRAY_LITERAL && array_arg->as.array_literal.element_count > 0) {
@@ -2462,7 +2683,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* Type check each argument expression */
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
-                check_expression(expr->as.module_qualified_call.args[i], env);
+                ASTNode *arg = expr->as.module_qualified_call.args[i];
+                check_expression(arg, env);
+                if (arg->type == AST_ARRAY_LITERAL &&
+                    arg->as.array_literal.element_count == 0 &&
+                    func->params[i].type == TYPE_ARRAY &&
+                    func->params[i].element_type != TYPE_UNKNOWN) {
+                    arg->as.array_literal.element_type = func->params[i].element_type;
+                }
             }
             
             return func->return_type;
@@ -2738,6 +2966,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
+                ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                if (sdef->field_types[field_index] == TYPE_ARRAY &&
+                    sdef->field_element_types &&
+                    field_value->type == AST_ARRAY_LITERAL &&
+                    field_value->as.array_literal.element_count == 0) {
+                    /* An empty field has no element from which to infer its
+                     * runtime representation. Preserve its declaration. */
+                    field_value->as.array_literal.element_type =
+                        sdef->field_element_types[field_index];
+                }
                 if (!types_match(field_type, sdef->field_types[field_index])) {
                     char message[256];
                     snprintf(message, sizeof(message),
@@ -3040,6 +3278,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_MATCH: {
+            /* Code generation may ask again without a function-checking context. */
+            if (!active_statement_checker && expr->as.match_expr.result_type_checked)
+                return expr->as.match_expr.result_type;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
             /* Allow int-pattern match: any arm variant starts with "INT:" */
@@ -3172,12 +3413,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                  * This is safe because each arm's binding uses a unique name from the source code.
                  */
                 
-                /* First arm determines return type */
-                if (i == 0) {
+                /* A definite function exit contributes no match value. */
+                if (ast_always_returns(expr->as.match_expr.arm_bodies[i])) continue;
+                if (return_type == TYPE_UNKNOWN) {
                     return_type = arm_type;
-                } else if (arm_type != return_type && arm_type != TYPE_VOID) {
+                } else if (arm_type != return_type) {
                     fprintf(stderr, "Error at line %d, column %d: Match arms must all return the same type\n",
                             expr->line, expr->column);
+                    if (active_statement_checker) active_statement_checker->has_error = true;
                 }
             }
 
@@ -3262,33 +3505,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
+            expr->as.match_expr.result_type = return_type;
+            expr->as.match_expr.result_type_checked = true;
             return return_type;
         }
 
         case AST_BLOCK: {
             /* Blocks can be used as expressions in match arms
-             * Type check all statements and return the type of the last expression/return
+             * I check statements in function context; only the final expression yields a value.
              */
             Type block_type = TYPE_VOID;
             
-            /* Create a temporary TypeChecker for statement type checking */
-            TypeChecker temp_tc;
+            /* I inherit return/unsafe context, rather than inventing a function. */
+            TypeChecker temp_tc = active_statement_checker ? *active_statement_checker : (TypeChecker){0};
             temp_tc.env = env;
             temp_tc.has_error = false;
-            temp_tc.loop_depth = 0;
             
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
-                if (stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
-                    block_type = check_expression(stmt->as.return_stmt.value, env);
+                if (i == expr->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
+                    block_type = check_expression(stmt, env);
                 } else {
-                    /* Type check the statement (for side effects) */
-                    Type stmt_type = check_statement(&temp_tc, stmt);
-                    /* If it's the last statement and not a return, use its type */
-                    if (i == expr->as.block.count - 1 && stmt_type != TYPE_VOID) {
-                        block_type = stmt_type;
-                    }
+                    check_statement(&temp_tc, stmt);
                 }
+            }
+            if (temp_tc.has_error) {
+                if (active_statement_checker) active_statement_checker->has_error = true;
+                return TYPE_UNKNOWN;
             }
             return block_type;
         }
@@ -3463,21 +3706,39 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Identify which effect is being handled by matching op names */
             EffectDef *matched_effect = NULL;
-            const char *first_op = expr->as.handle_expr.handler_op_names[0];
+            for (int i = 0; i < expr->as.handle_expr.handler_count; i++) {
+                for (int j = 0; j < i; j++) {
+                    if (!strcmp(expr->as.handle_expr.handler_op_names[i],
+                                expr->as.handle_expr.handler_op_names[j])) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 6,
+                            "I require one handler clause per operation.",
+                            "Remove the duplicate operation handler.");
+                        return TYPE_UNKNOWN;
+                    }
+                }
+            }
             for (int i = 0; i < env->effect_count; i++) {
-                for (int j = 0; j < env->effects[i].op_count; j++) {
-                    if (strcmp(env->effects[i].ops[j].name, first_op) == 0) {
-                        matched_effect = &env->effects[i];
+                bool matches = true;
+                for (int j = 0; j < expr->as.handle_expr.handler_count; j++) {
+                    if (!effect_get_op(&env->effects[i], expr->as.handle_expr.handler_op_names[j])) {
+                        matches = false;
                         break;
                     }
                 }
-                if (matched_effect) break;
+                if (!matches) continue;
+                if (matched_effect) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 6,
+                        "I cannot infer a unique effect for this handler.",
+                        "Use operation names that identify one effect.");
+                    return TYPE_UNKNOWN;
+                }
+                matched_effect = &env->effects[i];
             }
 
             if (!matched_effect) {
                 emit_context_error("E029 UNKNOWN EFFECT OPERATION", expr->line, expr->column,
-                    (int)strlen(first_op),
-                    "No registered effect declares this operation",
+                    6,
+                    "I found no effect declaring all these handler operations.",
                     "E015: define the effect before using handle...with");
                 g_typecheck_error_count++;
                 return TYPE_UNKNOWN;
@@ -3508,12 +3769,28 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Bind handler parameters to their declared types */
                 if (op) {
                     int param_count = expr->as.handle_expr.handler_param_counts[i];
+                    if (param_count != op->param_count) {
+                        emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 6,
+                            "I require the declared operation's parameter count in its handler.",
+                            "Match the effect operation signature.");
+                        return TYPE_UNKNOWN;
+                    }
                     int bind_count = param_count < op->param_count ? param_count : op->param_count;
                     for (int k = 0; k < bind_count; k++) {
                         const char *pname = expr->as.handle_expr.handler_param_names[i][k];
                         if (pname) {
                             Value dummy = create_void();
-                            env_define_var(env, pname, op->params[k].type, false, dummy);
+                            Parameter *param = &op->params[k];
+                            env_define_var_with_type_info(env, pname, param->type,
+                                param->element_type, param->type_info, false, dummy);
+                            Symbol *symbol = env_get_var(env, pname);
+                            if (symbol) {
+                                free(symbol->struct_type_name);
+                                symbol->struct_type_name = param->struct_type_name
+                                    ? strdup(param->struct_type_name) : NULL;
+                                symbol->def_line = expr->line;
+                                symbol->def_column = expr->column;
+                            }
                         }
                     }
                 }
@@ -3556,9 +3833,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_EFFECT_OP: {
-            if (expr->as.effect_op.arg)
-                check_expression(expr->as.effect_op.arg, env);
-            return TYPE_VOID;
+            return check_perform(expr, env);
         }
 
         default:
@@ -3569,13 +3844,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
 /* Internal implementation - do not call directly */
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt);
-
-static void hide_checker_symbols(Environment *env, int first) {
-    if (!env) return;
-    for (int i = first; i < env->symbol_count; i++) {
-        env->symbols[i].checker_visible = false;
-    }
-}
 
 /* Check statement and return its type (for blocks) (wrapper with recursion depth tracking) */
 static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
@@ -3591,7 +3859,13 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         return TYPE_VOID;
     }
 
+    TypeChecker *previous = active_statement_checker;
+    active_statement_checker = tc;
+    int first_symbol = tc->env->symbol_count;
     Type result = check_statement_impl(tc, stmt);
+    ASTNode *scope = stmt->type == AST_FOR ? stmt->as.for_stmt.body : stmt;
+    bound_scope_symbols(tc->env, first_symbol, scope);
+    active_statement_checker = previous;
     g_check_stmt_depth--;
     return result;
 }
@@ -3600,6 +3874,28 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
 static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
     switch (stmt->type) {
         case AST_LET: {
+            if (stmt->as.let.is_destructure) {
+                StructDef *record = env_get_struct(tc->env, stmt->as.let.type_name);
+                bool complete = record && record->field_count == stmt->as.let.destructure_count;
+                Type actual_type = check_expression(stmt->as.let.value, tc->env);
+                const char *actual_name = get_struct_type_name(stmt->as.let.value, tc->env);
+                if (actual_type != TYPE_STRUCT || !actual_name ||
+                    env_get_struct(tc->env, actual_name) != record) complete = false;
+                for (int i = 0; complete && i < stmt->as.let.destructure_count; i++) {
+                    const char *name = stmt->as.let.destructure_names[i];
+                    bool found = false;
+                    for (int j = 0; j < record->field_count; j++)
+                        if (strcmp(name, record->field_names[j]) == 0) found = true;
+                    for (int j = 0; j < i; j++)
+                        if (strcmp(name, stmt->as.let.destructure_names[j]) == 0) found = false;
+                    complete = found;
+                }
+                if (!complete) {
+                    fprintf(stderr, "I require every record field exactly once in an owned pattern at line %d.\n", stmt->line);
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+            }
             /* INVARIANT (bead nl-ico): declared_type is a local working copy
              * of stmt->as.let.var_type. Any place that reclassifies the
              * inferred/declared type (struct→union, struct→enum, etc.) must
@@ -3619,24 +3915,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 Type inferred = check_expression(stmt->as.let.value, tc->env);
                 stmt->as.let.var_type = inferred;
                 declared_type = inferred;
-                /* Infer element type for array literals */
+                /* Preserve array representation for fields, aliases and calls too. */
                 if (inferred == TYPE_ARRAY && stmt->as.let.element_type == TYPE_UNKNOWN) {
-                    if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
-                        ASTNode *alit = stmt->as.let.value;
-                        if (alit->as.array_literal.element_count > 0) {
-                            stmt->as.let.element_type = check_expression(alit->as.array_literal.elements[0], tc->env);
-                            alit->as.array_literal.element_type = stmt->as.let.element_type;
-                        }
-                    }
+                    stmt->as.let.element_type = infer_array_element_type(stmt->as.let.value, tc->env);
                 }
                 /* Infer struct/union type_name from expression where possible */
                 if ((inferred == TYPE_STRUCT || inferred == TYPE_UNION) && !stmt->as.let.type_name) {
-                    /* Try to extract type name from the RHS expression */
-                    if (stmt->as.let.value->type == AST_STRUCT_LITERAL && stmt->as.let.value->as.struct_literal.struct_name) {
-                        stmt->as.let.type_name = strdup(stmt->as.let.value->as.struct_literal.struct_name);
-                    } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.return_struct_type_name) {
-                        stmt->as.let.type_name = strdup(stmt->as.let.value->as.call.return_struct_type_name);
-                    }
+                    const char *name = get_struct_type_name(stmt->as.let.value, tc->env);
+                    if (name) stmt->as.let.type_name = strdup(name);
                 }
                 /* Register and add to env */
                 Value val = create_void();
@@ -3855,8 +4141,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         /* Check if it's a function-typed variable */
                         Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
                         if (sym && sym->type == TYPE_FUNCTION) {
-                            /* TODO: Store function signature in Symbol for function-typed variables */
-                            /* For now, allow it - runtime will handle */
+                            value_sig = sym->type_info ? sym->type_info->fn_sig : NULL;
                         }
                     }
                 } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.func_expr) {
@@ -3894,6 +4179,20 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Extract element type if this is an array */
             Type element_type = stmt->as.let.element_type;  /* Get from type annotation if available */
+            if (declared_type == TYPE_ARRAY && stmt->as.let.value->type == AST_CALL &&
+                !stmt->as.let.value->as.call.func_expr && stmt->as.let.value->as.call.name &&
+                strcmp(stmt->as.let.value->as.call.name, "map") == 0) {
+                Type mapped = infer_array_element_type(stmt->as.let.value, tc->env);
+                if (element_type == TYPE_UNKNOWN) {
+                    element_type = mapped;
+                    stmt->as.let.element_type = mapped;
+                } else if (mapped != TYPE_UNKNOWN && !types_match(mapped, element_type)) {
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I require the array annotation to match the transform result type.",
+                        "Use the transform's return type as the mapped element type.");
+                    tc->has_error = true;
+                }
+            }
             if (declared_type == TYPE_ARRAY && element_type == TYPE_UNKNOWN) {
                 /* Fallback: infer from array literal if not specified in type annotation */
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
@@ -3923,13 +4222,21 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (declared_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.let.value;
-                    /* Set element type on array literal so transpiler knows what to generate */
-                    array_lit->as.array_literal.element_type = element_type;
+                    check_array_literal_annotation(tc, array_lit, element_type);
                 }
             }
             
             /* Create TypeInfo for tuples or use existing from parser for generic types */
             TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
+            if (!type_info && declared_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                /* The AST owns this metadata; symbols borrow it. I keep the
+                 * direct signature alias for existing lowering consumers. */
+                type_info = calloc(1, sizeof(TypeInfo));
+                if (!type_info) { tc->has_error = true; return TYPE_UNKNOWN; }
+                type_info->base_type = TYPE_FUNCTION;
+                type_info->fn_sig = stmt->as.let.fn_sig;
+                stmt->as.let.type_info = type_info;
+            }
             if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
@@ -4046,7 +4353,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
                 if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.set.value;
-                    array_lit->as.array_literal.element_type = sym->element_type;
+                    check_array_literal_annotation(tc, array_lit, sym->element_type);
                 }
             }
 
@@ -4091,7 +4398,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_FOR: {
-            int scope_start = tc->env->symbol_count;
             /* Determine loop variable type from iterable */
             Type iter_type = check_expression(stmt->as.for_stmt.range_expr, tc->env);
 
@@ -4102,8 +4408,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* Look up array variable to get element type */
                 ASTNode *rng = stmt->as.for_stmt.range_expr;
                 if (rng && rng->type == AST_IDENTIFIER) {
-                    Symbol *arr_sym = env_get_var_visible_at(tc->env, rng->as.identifier,
-                                                             rng->line, rng->column);
+                    Symbol *arr_sym = env_get_var(tc->env, rng->as.identifier);
                     if (arr_sym && arr_sym->element_type != TYPE_UNKNOWN) {
                         loop_var_type = arr_sym->element_type;
                     }
@@ -4117,8 +4422,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* Look up list variable to get element type */
                 ASTNode *rng = stmt->as.for_stmt.range_expr;
                 if (rng && rng->type == AST_IDENTIFIER) {
-                    Symbol *list_sym = env_get_var_visible_at(tc->env, rng->as.identifier,
-                                                              rng->line, rng->column);
+                    Symbol *list_sym = env_get_var(tc->env, rng->as.identifier);
                     if (list_sym && list_sym->element_type != TYPE_UNKNOWN) {
                         loop_var_type = list_sym->element_type;
                     }
@@ -4146,7 +4450,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             tc->loop_depth++;
             check_statement(tc, stmt->as.for_stmt.body);
             tc->loop_depth--;
-            hide_checker_symbols(tc->env, scope_start);
 
             /* DON'T restore environment - transpiler needs loop variable symbols! */
             /* The old code removed loop variables after typechecking:
@@ -4223,7 +4526,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_BLOCK: {
-            int scope_start = tc->env->symbol_count;
             Type last_type = TYPE_VOID;
             bool returned = false;
             for (int i = 0; i < stmt->as.block.count; i++) {
@@ -4235,7 +4537,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 last_type = check_statement(tc, s);
                 if (s->type == AST_RETURN) returned = true;
             }
-            hide_checker_symbols(tc->env, scope_start);
             return last_type;
         }
 
@@ -4293,7 +4594,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_UNSAFE_BLOCK: {
-            int scope_start = tc->env->symbol_count;
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
             tc->in_unsafe_block = true;
@@ -4305,7 +4605,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Restore previous unsafe state */
             tc->in_unsafe_block = prev_unsafe;
-            hide_checker_symbols(tc->env, scope_start);
             return TYPE_VOID;
         }
 
@@ -4337,21 +4636,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_EFFECT_OP: {
-            /* Validate that the effect exists (if registry is available) */
-            if (tc->env) {
-                EffectDecl *decl = env_effect_lookup(tc->env,
-                                        stmt->as.effect_op.effect_name);
-                if (!decl && stmt->as.effect_op.effect_name) {
-                    /* effect not yet registered — may be declared later; just warn */
-                    fprintf(stderr,
-                        "Warning at line %d: Unknown effect '%s' (may not be declared yet)\n",
-                        stmt->line, stmt->as.effect_op.effect_name);
-                }
-            }
-            /* Type-check the argument */
-            if (stmt->as.effect_op.arg)
-                check_expression(stmt->as.effect_op.arg, tc->env);
-            return TYPE_VOID;  /* return type depends on op — use void as conservative */
+            return check_perform(stmt, tc->env);
         }
 
         case AST_IF: {
@@ -4476,7 +4761,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
-                int scope_start = tc->env->symbol_count;
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
@@ -4516,8 +4800,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 } else {
                     check_expression(arm, tc->env);
                 }
-
-                hide_checker_symbols(tc->env, scope_start);
 
                 /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
                  * later when it re-typechecks expressions for code generation. Match arm bindings need
@@ -4607,14 +4889,29 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
                 /* Type-check the function body */
                 if (stmt->as.function.body) {
-                    int scope_start = tc->env->symbol_count;
                     for (int p = 0; p < stmt->as.function.param_count; p++) {
                         Value dummy_val = {0};
-                        env_define_var(tc->env, stmt->as.function.params[p].name,
-                                      stmt->as.function.params[p].type, true, dummy_val);
+                        Parameter *param = &stmt->as.function.params[p];
+                        env_define_var_with_type_info(tc->env, param->name,
+                                      param->type, param->element_type,
+                                      param->type_info, false, dummy_val);
+                        Symbol *symbol = env_get_var(tc->env, param->name);
+                        if (symbol) {
+                            symbol->def_line = stmt->line;
+                            symbol->def_column = stmt->column;
+                            /* I use this declaration, not metadata copied from
+                             * an unrelated earlier parameter with this name. */
+                            free(symbol->struct_type_name);
+                            symbol->struct_type_name = param->struct_type_name
+                                ? strdup(param->struct_type_name) : NULL;
+                        }
                     }
-                    check_statement(tc, stmt->as.function.body);
-                    hide_checker_symbols(tc->env, scope_start);
+                    TypeChecker nested = *tc;
+                    nested.loop_depth = 0;
+                    nested.current_function_return_type = func.return_type;
+                    nested.current_function_return_struct_name = func.return_struct_type_name;
+                    check_statement(&nested, stmt->as.function.body);
+                    tc->has_error = tc->has_error || nested.has_error;
                 }
             }
             return TYPE_VOID;
@@ -5825,6 +6122,99 @@ static bool functions_match(Function *f1, Function *f2) {
     return true;
 }
 
+/* I check only the root's shadows here, after its declarations and functions.
+ * I retain inferred metadata just as the ordinary function checker does;
+ * the bytecode emitter still needs it when choosing operand/array kinds. */
+bool type_check_root_shadows(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    bool ok = true;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_SHADOW) continue;
+        TypeChecker tc = {0};
+        tc.env = env;
+        tc.current_function_return_type = TYPE_VOID;
+        check_statement(&tc, item->as.shadow.body);
+        if (tc.has_error) ok = false;
+    }
+    return ok && g_typecheck_error_count == 0;
+}
+
+/* I check selected shadows in their source and authority context, then restore
+ * the root context. Module declarations have already been checked by loading. */
+bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                             const char *input_file, bool include_imports) {
+    if (!env) return false;
+    char *root_owner = env->current_module;
+    bool root_unsafe = env->current_module_is_unsafe;
+    env_set_current_file(env, input_file);
+    typecheck_set_current_file(input_file);
+    bool typed = type_check_root_shadows(program, env);
+    int count = include_imports && modules ? modules->count : 0;
+    for (int i = 0; i < count && typed; i++) {
+        const char *file = modules->module_paths[i];
+        ASTNode *dependency = get_cached_module_ast(file);
+        char *owner = module_program_name(dependency, file);
+        env->current_module = owner;
+        env->current_module_is_unsafe = false;
+        if (dependency) {
+            for (int j = 0; j < dependency->as.program.count; j++) {
+                ASTNode *item = dependency->as.program.items[j];
+                if (item->type == AST_IMPORT && item->as.import_stmt.is_unsafe)
+                    env->current_module_is_unsafe = true;
+            }
+        }
+        env_set_current_file(env, file);
+        typecheck_set_current_file(file);
+        typed = owner && type_check_root_shadows(dependency, env);
+        env->current_module = root_owner;
+        free(owner);
+    }
+    env_set_current_file(env, input_file);
+    env->current_module_is_unsafe = root_unsafe;
+    typecheck_set_current_file(input_file);
+    return typed;
+}
+
+static bool register_effect_declaration(ASTNode *item, Environment *env) {
+    /* Register algebraic effect definition */
+    const char *eff_name = item->as.effect_decl.effect_name;
+    if (env_get_effect(env, eff_name)) {
+        emit_context_error("E031 DUPLICATE EFFECT", item->line, item->column, (int)strlen(eff_name),
+            "Effect is already defined in this scope",
+            "E013: effect names must be unique");
+        return false;
+    }
+
+    EffectDef edef;
+    edef.name = strdup(eff_name);
+    edef.op_count = item->as.effect_decl.op_count;
+    edef.is_pub = item->as.effect_decl.is_pub;
+    edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+    edef.ops = edef.op_count > 0 ? malloc(sizeof(EffectOp) * edef.op_count) : NULL;
+
+    for (int j = 0; j < edef.op_count; j++) {
+        edef.ops[j].name = strdup(item->as.effect_decl.op_names[j]);
+        edef.ops[j].return_type = item->as.effect_decl.op_return_types[j];
+        edef.ops[j].return_type_name = item->as.effect_decl.op_return_type_names[j]
+            ? strdup(item->as.effect_decl.op_return_type_names[j]) : NULL;
+        edef.ops[j].param_count = item->as.effect_decl.op_param_counts[j];
+        if (edef.ops[j].param_count > 0) {
+            edef.ops[j].params = malloc(sizeof(Parameter) * edef.ops[j].param_count);
+            for (int k = 0; k < edef.ops[j].param_count; k++) {
+                edef.ops[j].params[k] = item->as.effect_decl.op_params[j][k];
+                if (item->as.effect_decl.op_params[j][k].name)
+                    edef.ops[j].params[k].name = strdup(item->as.effect_decl.op_params[j][k].name);
+            }
+        } else {
+            edef.ops[j].params = NULL;
+        }
+    }
+    env_define_effect(env, edef);
+
+    return true;
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -5832,7 +6222,6 @@ bool type_check(ASTNode *program, Environment *env) {
     }
 
     g_typecheck_error_count = 0;
-    env->checking_types = true;
 
     TypeChecker tc;
     tc.env = env;
@@ -6093,41 +6482,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             env_define_opaque_type(env, type_name);
 
         } else if (item->type == AST_EFFECT_DECL) {
-            /* Register algebraic effect definition */
-            const char *eff_name = item->as.effect_decl.effect_name;
-            if (env_get_effect(env, eff_name)) {
-                emit_context_error("E031 DUPLICATE EFFECT", item->line, item->column, (int)strlen(eff_name),
-                    "Effect is already defined in this scope",
-                    "E013: effect names must be unique");
-                tc.has_error = true;
-                continue;
-            }
-
-            EffectDef edef;
-            edef.name = strdup(eff_name);
-            edef.op_count = item->as.effect_decl.op_count;
-            edef.is_pub = item->as.effect_decl.is_pub;
-            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
-            edef.ops = edef.op_count > 0 ? malloc(sizeof(EffectOp) * edef.op_count) : NULL;
-
-            for (int j = 0; j < edef.op_count; j++) {
-                edef.ops[j].name = strdup(item->as.effect_decl.op_names[j]);
-                edef.ops[j].return_type = item->as.effect_decl.op_return_types[j];
-                edef.ops[j].return_type_name = item->as.effect_decl.op_return_type_names[j]
-                    ? strdup(item->as.effect_decl.op_return_type_names[j]) : NULL;
-                edef.ops[j].param_count = item->as.effect_decl.op_param_counts[j];
-                if (edef.ops[j].param_count > 0) {
-                    edef.ops[j].params = malloc(sizeof(Parameter) * edef.ops[j].param_count);
-                    for (int k = 0; k < edef.ops[j].param_count; k++) {
-                        edef.ops[j].params[k] = item->as.effect_decl.op_params[j][k];
-                        if (item->as.effect_decl.op_params[j][k].name)
-                            edef.ops[j].params[k].name = strdup(item->as.effect_decl.op_params[j][k].name);
-                    }
-                } else {
-                    edef.ops[j].params = NULL;
-                }
-            }
-            env_define_effect(env, edef);
+            if (!register_effect_declaration(item, env)) tc.has_error = true;
 
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */
@@ -6265,6 +6620,11 @@ register_function_pass1:;
             
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
+            /* I distinguish an imported name from a duplicate in this module. */
+            if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
+                (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
             if (existing) {
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {
@@ -6345,6 +6705,7 @@ register_function_pass1:;
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
+            func.return_element_type = item->as.function.return_element_type;
             func.return_type_info = NULL;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
             func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
@@ -6470,6 +6831,7 @@ register_function_pass1:;
             /* Preserve struct/union type name metadata for globals */
             Symbol *sym = env_get_var(env, item->as.let.name);
             if (sym) {
+                sym->is_global = true;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }
@@ -6497,6 +6859,7 @@ register_function_pass1:;
         if (item->type == AST_FUNCTION) {
             /* Skip extern functions - they have no body to check */
             if (item->as.function.is_extern) {
+                check_function_ownership(env, item, &tc.has_error);
                 continue;
             }
             
@@ -6643,7 +7006,8 @@ register_function_pass1:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
-            check_resource_function(env, item, &tc.has_error);
+            bound_scope_symbols(env, saved_symbol_count, item->as.function.body);
+            check_function_ownership(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
             if (item->as.function.is_pure) {
@@ -6710,7 +7074,6 @@ register_function_pass1:;
         tc.has_error = true;
     }
 
-    env->checking_types = false;
     return !tc.has_error && g_typecheck_error_count == 0;
 }
 
@@ -6722,7 +7085,6 @@ bool type_check_module(ASTNode *program, Environment *env) {
     }
 
     g_typecheck_error_count = 0;
-    env->checking_types = true;
 
     TypeChecker tc;
     tc.env = env;
@@ -6921,6 +7283,8 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register the opaque type in environment */
             env_define_opaque_type(env, type_name);
             
+        } else if (item->type == AST_EFFECT_DECL) {
+            if (!register_effect_declaration(item, env)) tc.has_error = true;
         } else if (item->type == AST_ENUM_DEF) {
             /* Defensive check: ensure item and enum_def fields are valid */
             if (!item) {
@@ -7029,6 +7393,11 @@ register_function_pass2:;
             
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
+            /* I distinguish an imported name from a duplicate in this module. */
+            if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
+                (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
             if (existing) {
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {
@@ -7083,6 +7452,7 @@ register_function_pass2:;
                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
             }
             f.return_type = item->as.function.return_type;
+            f.return_element_type = item->as.function.return_element_type;
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
                 strdup(item->as.function.return_struct_type_name) : NULL;
             f.return_fn_sig = item->as.function.return_fn_sig;
@@ -7166,6 +7536,7 @@ register_function_pass2:;
             /* Preserve struct/union type name metadata for globals */
             Symbol *sym = env_get_var(env, item->as.let.name);
             if (sym) {
+                sym->is_global = true;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }
@@ -7353,6 +7724,8 @@ register_function_pass2:;
 
             /* Check function body */
             check_statement(&tc, item->as.function.body);
+            bound_scope_symbols(env, saved_symbol_count, item->as.function.body);
+            check_function_ownership(env, item, &tc.has_error);
 
             /* Purity check: verify pure fn body obeys purity rules */
             if (item->as.function.is_pure) {
@@ -7394,6 +7767,5 @@ register_function_pass2:;
     /* Note: Modules don't require a main function */
     /* Main function check is skipped for modules */
 
-    env->checking_types = false;
     return !tc.has_error && g_typecheck_error_count == 0;
 }

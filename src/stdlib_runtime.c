@@ -450,22 +450,9 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "/* String ends_with */\n");
-    sb_append(sb, "static bool nl_str_ends_with(const char* s, const char* suffix) {\n");
-    sb_append(sb, "    if (!s || !suffix) return false;\n");
-    sb_append(sb, "    size_t slen = strnlen(s, 64*1024*1024);\n");
-    sb_append(sb, "    size_t suflen = strnlen(suffix, 64*1024*1024);\n");
-    sb_append(sb, "    if (suflen > slen) return false;\n");
-    sb_append(sb, "    if (suflen == 0) return true;\n");
-    sb_append(sb, "    return strncmp(s + slen - suflen, suffix, suflen) == 0;\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "#include \"runtime/string_edges.h\"\n");
 
-    sb_append(sb, "/* String index_of - returns index of first occurrence of needle, or -1 */\n");
-    sb_append(sb, "static int64_t nl_str_index_of(const char* haystack, const char* needle) {\n");
-    sb_append(sb, "    if (!haystack || !needle) return -1;\n");
-    sb_append(sb, "    const char* p = strstr(haystack, needle);\n");
-    sb_append(sb, "    if (!p) return -1;\n");
-    sb_append(sb, "    return (int64_t)(p - haystack);\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "#include \"runtime/string_search.h\"\n");
 
     /* Bytes (array<u8>) helpers */
     sb_append(sb, "static DynArray* nl_bytes_from_string(const char* s) {\n");
@@ -500,6 +487,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (length < 0) length = 0;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    if (start > len) start = len;\n");
+    sb_append(sb, "    if (length > len - start) length = len - start;\n");
     sb_append(sb, "    int64_t end = start + length;\n");
     sb_append(sb, "    if (end > len) end = len;\n");
     sb_append(sb, "    ElementType t = dyn_array_get_elem_type(arr);\n");
@@ -556,23 +544,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "/* ========== Array Operations (With Bounds Checking!) ========== */\n\n");
 
     /* Array sort (integer ascending, in-place on a copy) */
-    sb_append(sb, "static int nl_array_sort_cmp_int(const void* a, const void* b) {\n");
-    sb_append(sb, "    int64_t x = *(const int64_t*)a;\n");
-    sb_append(sb, "    int64_t y = *(const int64_t*)b;\n");
-    sb_append(sb, "    return (x > y) - (x < y);\n");
-    sb_append(sb, "}\n\n");
-
     sb_append(sb, "static DynArray* nl_array_sort(DynArray* arr) {\n");
-    sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
-    sb_append(sb, "    DynArray* out = dyn_array_clone(arr);\n");
-    sb_append(sb, "    if (!out) return arr;\n");
-    sb_append(sb, "    int64_t len = dyn_array_length(out);\n");
-    sb_append(sb, "    if (len <= 1) return out;\n");
-    sb_append(sb, "    ElementType t = dyn_array_get_elem_type(out);\n");
-    sb_append(sb, "    if (t == ELEM_INT) {\n");
-    sb_append(sb, "        qsort(out->data, (size_t)len, sizeof(int64_t), nl_array_sort_cmp_int);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return out;\n");
+    sb_append(sb, "    return dyn_array_sorted(arr);\n");
     sb_append(sb, "}\n\n");
 
     /* Array reverse (returns a new array) */
@@ -1011,20 +984,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
     
     /* str_trim */
-    sb_append(sb, "static const char* nl_str_trim(const char* s) {\n");
-    sb_append(sb, "    if (!s) return \"\";\n");
-    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
-    sb_append(sb, "    size_t start = 0;\n");
-    sb_append(sb, "    while (start < len && (s[start] == ' ' || s[start] == '\\t' || s[start] == '\\n' || s[start] == '\\r')) start++;\n");
-    sb_append(sb, "    size_t end = len;\n");
-    sb_append(sb, "    while (end > start && (s[end-1] == ' ' || s[end-1] == '\\t' || s[end-1] == '\\n' || s[end-1] == '\\r')) end--;\n");
-    sb_append(sb, "    size_t new_len = end - start;\n");
-    sb_append(sb, "    char* result = gc_alloc_string(new_len);\n");
-    sb_append(sb, "    if (!result) return \"\";\n");
-    sb_append(sb, "    memcpy(result, s + start, new_len);\n");
-    sb_append(sb, "    result[new_len] = '\\0';\n");
-    sb_append(sb, "    return result;\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "#include \"runtime/string_edges.h\"\n");
 
     /* str_trim_left */
     sb_append(sb, "static const char* nl_str_trim_left(const char* s) {\n");
@@ -1263,80 +1223,16 @@ void generate_path_operations(StringBuilder *sb) {
     sb_append(sb, "    return result ? result : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "#include \"runtime/path_normalize.h\"\n");
     sb_append(sb, "static char* nl_os_path_normalize(const char* path) {\n");
     sb_append(sb, "    if (!path) return gc_alloc_string(0);\n");
-    sb_append(sb, "    bool abs = (path[0] == '/');\n");
-    sb_append(sb, "    char* copy = strdup(path);\n");
-    sb_append(sb, "    if (!copy) return gc_alloc_string(0);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    size_t parts_capacity = 16;\n");
-    sb_append(sb, "    size_t count = 0;\n");
-    sb_append(sb, "    char** parts = malloc(parts_capacity * sizeof(*parts));\n");
-    sb_append(sb, "    if (!parts) { free(copy); return gc_alloc_string(0); }\n");
-    sb_append(sb, "    char* save = NULL;\n");
-    sb_append(sb, "    char* tok = strtok_r(copy, \"/\", &save);\n");
-    sb_append(sb, "    while (tok) {\n");
-    sb_append(sb, "        if (strcmp(tok, \"\") == 0 || strcmp(tok, \".\") == 0) {\n");
-    sb_append(sb, "            /* skip */\n");
-    sb_append(sb, "        } else if (strcmp(tok, \"..\") == 0) {\n");
-    sb_append(sb, "            if (count > 0 && strcmp(parts[count - 1], \"..\") != 0) {\n");
-    sb_append(sb, "                count--;\n");
-    sb_append(sb, "            } else if (!abs) {\n");
-    sb_append(sb, "                if (count == parts_capacity) {\n");
-    sb_append(sb, "                    size_t new_capacity = parts_capacity * 2;\n");
-    sb_append(sb, "                    char** grown = realloc(parts, new_capacity * sizeof(*grown));\n");
-    sb_append(sb, "                    if (!grown) { free(parts); free(copy); return gc_alloc_string(0); }\n");
-    sb_append(sb, "                    parts = grown;\n");
-    sb_append(sb, "                    parts_capacity = new_capacity;\n");
-    sb_append(sb, "                }\n");
-    sb_append(sb, "                parts[count++] = tok;\n");
-    sb_append(sb, "            }\n");
-    sb_append(sb, "        } else {\n");
-    sb_append(sb, "            if (count == parts_capacity) {\n");
-    sb_append(sb, "                size_t new_capacity = parts_capacity * 2;\n");
-    sb_append(sb, "                char** grown = realloc(parts, new_capacity * sizeof(*grown));\n");
-    sb_append(sb, "                if (!grown) { free(parts); free(copy); return gc_alloc_string(0); }\n");
-    sb_append(sb, "                parts = grown;\n");
-    sb_append(sb, "                parts_capacity = new_capacity;\n");
-    sb_append(sb, "            }\n");
-    sb_append(sb, "            parts[count++] = tok;\n");
-    sb_append(sb, "        }\n");
-    sb_append(sb, "        tok = strtok_r(NULL, \"/\", &save);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    /* Allocate GC string with max possible size */\n");
-    sb_append(sb, "    size_t cap = strlen(path) + 3;\n");
-    sb_append(sb, "    char* out = gc_alloc_string(cap);\n");
-    sb_append(sb, "    if (!out) { free(parts); free(copy); return gc_alloc_string(0); }\n");
-    sb_append(sb, "    size_t pos = 0;\n");
-    sb_append(sb, "    if (abs) out[pos++] = '/';\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    for (size_t i = 0; i < count; i++) {\n");
-    sb_append(sb, "        size_t len = strlen(parts[i]);\n");
-    sb_append(sb, "        /* Check if we have enough space */\n");
-    sb_append(sb, "        if (pos + len + 2 > cap) {\n");
-    sb_append(sb, "            /* Need more space - allocate new GC string and copy */\n");
-    sb_append(sb, "            size_t new_cap = (pos + len + 2) * 2;\n");
-    sb_append(sb, "            char* new_out = gc_alloc_string(new_cap);\n");
-    sb_append(sb, "            if (!new_out) { gc_release(out); free(parts); free(copy); return gc_alloc_string(0); }\n");
-    sb_append(sb, "            memcpy(new_out, out, pos);\n");
-    sb_append(sb, "            gc_release(out);\n");
-    sb_append(sb, "            out = new_out;\n");
-    sb_append(sb, "            cap = new_cap;\n");
-    sb_append(sb, "        }\n");
-    sb_append(sb, "        if (pos > 0 && out[pos - 1] != '/') out[pos++] = '/';\n");
-    sb_append(sb, "        memcpy(out + pos, parts[i], len);\n");
-    sb_append(sb, "        pos += len;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    if (pos == 0) {\n");
-    sb_append(sb, "        if (abs) { out[pos++] = '/'; } else { out[pos++] = '.'; }\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    out[pos] = '\\0';\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "    free(parts);\n");
-    sb_append(sb, "    free(copy);\n");
-    sb_append(sb, "    return out;\n");
+    sb_append(sb, "    char* normalized = nl_normalize_path(path);\n");
+    sb_append(sb, "    if (!normalized) return gc_alloc_string(0);\n");
+    sb_append(sb, "    size_t length = strlen(normalized);\n");
+    sb_append(sb, "    char* out = gc_alloc_string(length);\n");
+    sb_append(sb, "    if (out) memcpy(out, normalized, length + 1);\n");
+    sb_append(sb, "    free(normalized);\n");
+    sb_append(sb, "    return out ? out : gc_alloc_string(0);\n");
     sb_append(sb, "}\n\n");
 }
 
@@ -1402,100 +1298,37 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "    return chdir(path) == 0 ? 0 : -1;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static void nl_os_walkdir_rec(const char* root, DynArray* out) {\n");
-    sb_append(sb, "    DIR* dir = opendir(root);\n");
-    sb_append(sb, "    if (!dir) return;\n");
-    sb_append(sb, "    struct dirent* entry;\n");
-    sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
-    sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
-    sb_append(sb, "        size_t root_len = strlen(root);\n");
-    sb_append(sb, "        size_t name_len = strlen(entry->d_name);\n");
-    sb_append(sb, "        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');\n");
-    sb_append(sb, "        size_t cap = root_len + (needs_slash ? 1 : 0) + name_len + 1;\n");
-    sb_append(sb, "        char* path = malloc(cap);\n");
-    sb_append(sb, "        if (!path) continue;\n");
-    sb_append(sb, "        if (needs_slash) snprintf(path, cap, \"%s/%s\", root, entry->d_name);\n");
-    sb_append(sb, "        else snprintf(path, cap, \"%s%s\", root, entry->d_name);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "        struct stat st;\n");
-    sb_append(sb, "        if (stat(path, &st) != 0) { free(path); continue; }\n");
-    sb_append(sb, "        if (S_ISDIR(st.st_mode)) {\n");
-    sb_append(sb, "            nl_os_walkdir_rec(path, out);\n");
-    sb_append(sb, "            free(path);\n");
-    sb_append(sb, "        } else if (S_ISREG(st.st_mode)) {\n");
-    sb_append(sb, "            dyn_array_push_string(out, path);\n");
-    sb_append(sb, "        } else {\n");
-    sb_append(sb, "            free(path);\n");
-    sb_append(sb, "        }\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    closedir(dir);\n");
-    sb_append(sb, "}\n\n");
-
+    sb_append(sb, "#include \"runtime/directory_walk.h\"\n");
     sb_append(sb, "static DynArray* nl_os_walkdir(const char* root) {\n");
-    sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
-    sb_append(sb, "    if (!root || root[0] == '\\0') return out;\n");
-    sb_append(sb, "    nl_os_walkdir_rec(root, out);\n");
-    sb_append(sb, "    return out;\n");
+    sb_append(sb, "    return nl_fs_walkdir(root);\n");
     sb_append(sb, "}\n\n");
 }
 
 /* Generate file operations for OS stdlib */
 void generate_file_operations(StringBuilder *sb) {
-    /* File operations */
+    sb_append(sb, "#include \"runtime/file_text.h\"\n");
     sb_append(sb, "static const char* nl_os_file_read(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
-    sb_append(sb, "    if (!f) return gc_alloc_string(0);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
-    sb_append(sb, "    long size = ftell(f);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    char* buffer = gc_alloc_string((size_t)size);\n");
-    sb_append(sb, "    if (!buffer) { fclose(f); return gc_alloc_string(0); }\n");
-    sb_append(sb, "    fread(buffer, 1, size, f);\n");
-    sb_append(sb, "    buffer[size] = '\\0';\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "    char* text = nl_read_file_text(path);\n");
+    sb_append(sb, "    if (!text) return gc_alloc_string(0);\n");
+    sb_append(sb, "    size_t length = strlen(text);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(length);\n");
+    sb_append(sb, "    if (result) memcpy(result, text, length + 1);\n");
+    sb_append(sb, "    free(text);\n");
+    sb_append(sb, "    return result;\n");
     sb_append(sb, "}\n\n");
 
-    /* Binary file reading - returns DynArray of bytes (0-255) */
+    sb_append(sb, "#include \"runtime/file_bytes.h\"\n");
     sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
-    sb_append(sb, "    if (!f) {\n");
-    sb_append(sb, "        /* Return empty array on error */\n");
-    sb_append(sb, "        return dyn_array_new(ELEM_U8);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
-    sb_append(sb, "    long size = ftell(f);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    /* Create dynamic array for bytes */\n");
-    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_U8);\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    /* Read bytes and add to array */\n");
-    sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
-    sb_append(sb, "        int c = fgetc(f);\n");
-    sb_append(sb, "        if (c == EOF) break;\n");
-    sb_append(sb, "        dyn_array_push_u8(bytes, (uint8_t)(unsigned char)c);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return bytes;\n");
+    sb_append(sb, "    return nl_read_file_bytes(path);\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "#include \"runtime/file_write.h\"\n");
     sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"w\");\n");
-    sb_append(sb, "    if (!f) return -1;\n");
-    sb_append(sb, "    int write_failed = fputs(content, f) == EOF;\n");
-    sb_append(sb, "    int close_failed = fclose(f) == EOF;\n");
-    sb_append(sb, "    return write_failed || close_failed ? -1 : 0;\n");
+    sb_append(sb, "    return nl_write_file_text(path, content, \"w\");\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_file_append(const char* path, const char* content) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"a\");\n");
-    sb_append(sb, "    if (!f) return -1;\n");
-    sb_append(sb, "    int write_failed = fputs(content, f) == EOF;\n");
-    sb_append(sb, "    int close_failed = fclose(f) == EOF;\n");
-    sb_append(sb, "    return write_failed || close_failed ? -1 : 0;\n");
+    sb_append(sb, "    return nl_write_file_text(path, content, \"a\");\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_file_remove(const char* path) {\n");
@@ -1608,13 +1441,8 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)system(cmd);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "#include <sys/wait.h>\n");
-    sb_append(sb, "/* Exit status of the most recent nl_exec_capture() call. */\n");
-    sb_append(sb, "static int64_t nl_exec_capture_status = 0;\n\n");
-
-    sb_append(sb, "/* Capture stdout from a shell command, running it exactly once. */\n");
+    sb_append(sb, "/* Capture stdout from a shell command */\n");
     sb_append(sb, "const char* nl_exec_capture(const char* cmd) {\n");
-    sb_append(sb, "    nl_exec_capture_status = -1;\n");
     sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
     sb_append(sb, "    if (!pipe) return \"\";\n");
     sb_append(sb, "    char* out = (char*)malloc(65536);\n");
@@ -1626,16 +1454,8 @@ void generate_stdlib_runtime(StringBuilder *sb) {
     sb_append(sb, "        total += n;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    out[total] = '\\0';\n");
-    sb_append(sb, "    int nl_status = pclose(pipe);\n");
-    sb_append(sb, "    if (nl_status == -1) nl_exec_capture_status = -1;\n");
-    sb_append(sb, "    else if (WIFEXITED(nl_status)) nl_exec_capture_status = (int64_t)WEXITSTATUS(nl_status);\n");
-    sb_append(sb, "    else nl_exec_capture_status = -1;\n");
+    sb_append(sb, "    pclose(pipe);\n");
     sb_append(sb, "    return out;\n");
-    sb_append(sb, "}\n\n");
-
-    sb_append(sb, "/* Exit status of the most recent nl_exec_capture() call. */\n");
-    sb_append(sb, "int64_t nl_exec_last_status(void) {\n");
-    sb_append(sb, "    return nl_exec_capture_status;\n");
     sb_append(sb, "}\n\n");
 
     /* File I/O aliases for self-hosted compiler compatibility */

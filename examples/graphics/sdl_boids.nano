@@ -179,7 +179,7 @@ shadow draw_ui_overlay {
 
 # === MAIN ===
 
-fn main() -> int {
+fn run_boids(max_frames: int) -> int {
     # Initialize SDL
     (SDL_Init 32)
 
@@ -213,15 +213,11 @@ fn main() -> int {
         set i (+ i 1)
     }
 
-    # Set up dispatch infrastructure for parallel flocking
-    let q_compute: NlQueue = (queue_concurrent "nano.boids.compute")
-    let g_flock: NlQueueGroup = (group_create)
-
     let dt: float = 0.016
     let mut frame: int = 0
     let mut running: bool = true
 
-    while running {
+    while (and running (or (<= max_frames 0) (< frame max_frames))) {
         let key: int = (nl_sdl_poll_keypress)
         if (or (== key 41) (== key 20)) {    # ESC or Q to quit
             set running false
@@ -236,14 +232,23 @@ fn main() -> int {
         # Fan out: two workers compute forces for lower/upper halves simultaneously.
         # Safety: g_boid_x/y/vx/vy are read-only during this phase;
         #         each worker writes to disjoint slots of g_new_vx/vy.
-        (group_async g_flock q_compute compute_flocking_lower)
-        (group_async g_flock q_compute compute_flocking_upper)
+        if (dispatch_available) {
+            let q_compute: NlQueue = (queue_concurrent "nano.boids.compute")
+            let g_flock: NlQueueGroup = (group_create)
+            (group_async g_flock q_compute compute_flocking_lower)
+            (group_async g_flock q_compute compute_flocking_upper)
 
-        # Fan in: wait for both workers to finish
-        let wait_rc: int = (group_wait_ms g_flock 1000)
-        if (!= wait_rc 0) {
-            (println "WARN: flocking timeout")
-        } else {}
+            # Fan in: wait for both workers to finish
+            let wait_rc: int = (group_wait_ms g_flock 1000)
+            if (!= wait_rc 0) {
+                (println "WARN: flocking timeout")
+            } else {}
+            (group_destroy g_flock)
+            (queue_destroy q_compute)
+        } else {
+            (compute_flocking_lower)
+            (compute_flocking_upper)
+        }
 
         # Copy computed velocities back to g_boid_vx/vy
         set i 0
@@ -309,8 +314,6 @@ fn main() -> int {
     (println frame)
 
     # Cleanup
-    (group_destroy g_flock)
-    (queue_destroy q_compute)
     (TTF_CloseFont font)
     (TTF_Quit)
     (SDL_DestroyRenderer renderer)
@@ -320,6 +323,14 @@ fn main() -> int {
     return 0
 }
 
+shadow run_boids {
+    assert (== (run_boids 1) 0)
+}
+
+fn main() -> int {
+    return (run_boids 0)
+}
+
 shadow main {
-    assert (== (main) 0)
+    assert (== (run_boids 1) 0)
 }

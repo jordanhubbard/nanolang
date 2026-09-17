@@ -163,9 +163,10 @@ shadow map_put {
 
 shadow map_has {
     let hm0: HashMap = (map_new)
+    assert (not (map_has hm0 "key"))
     let hm1: HashMap = (map_put hm0 "key" "val")
     assert (map_has hm1 "key")
-    assert (not (map_has hm0 "key"))
+    assert (map_has hm0 "key")
 }
 
 shadow map_get {
@@ -176,9 +177,10 @@ shadow map_get {
 
 shadow map_size {
     let hm0: HashMap = (map_new)
+    assert (== (map_size hm0) 0)
     let hm1: HashMap = (map_put hm0 "a" "1")
     let hm2: HashMap = (map_put hm1 "b" "2")
-    assert (== (map_size hm0) 0)
+    assert (== (map_size hm0) 2)
     assert (== (map_size hm2) 2)
 }
 
@@ -231,9 +233,10 @@ shadow std_hm_put {
 
 shadow std_hm_has {
     let hm0: HashMap = (std_hm_new)
+    assert (not (std_hm_has hm0 "key"))
     let hm1: HashMap = (std_hm_put hm0 "key" "val")
     assert (std_hm_has hm1 "key")
-    assert (not (std_hm_has hm0 "key"))
+    assert (std_hm_has hm0 "key")
 }
 
 shadow std_hm_get {
@@ -244,9 +247,10 @@ shadow std_hm_get {
 
 shadow std_hm_size {
     let hm0: HashMap = (std_hm_new)
+    assert (== (std_hm_size hm0) 0)
     let hm1: HashMap = (std_hm_put hm0 "a" "1")
     let hm2: HashMap = (std_hm_put hm1 "b" "2")
-    assert (== (std_hm_size hm0) 0)
+    assert (== (std_hm_size hm0) 2)
     assert (== (std_hm_size hm2) 2)
 }
 

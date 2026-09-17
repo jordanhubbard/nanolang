@@ -296,7 +296,23 @@ static void test_val_print_contract(void) {
 
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
+static void test_opaque_null_equality(void) {
+    const char *test_name = "I compare opaque null with integer zero only";
+    NanoValue pointer = val_void();
+    pointer.tag = TAG_OPAQUE;
+    ASSERT(val_equal(pointer, val_int(0)), "I recognize the zero null spelling");
+    ASSERT(val_equal(val_int(0), pointer), "I keep null equality symmetric");
+    ASSERT(!val_equal(pointer, val_int(1)), "I reject nonzero integers");
+    ASSERT(!val_equal(pointer, val_float(0.0)), "I do not infer a floating null");
+    int payload = 0;
+    pointer.as.obj = &payload;
+    ASSERT(!val_equal(pointer, val_int(0)), "I distinguish live pointers from null");
+    ASSERT(!val_equal(val_int(0), pointer), "I keep non-null inequality symmetric");
+    PASS(test_name);
+}
+
 int main(void) {
+    test_opaque_null_equality();
     printf("\n[value] NanoVM value operations tests...\n\n");
 
     /* val_truthy */

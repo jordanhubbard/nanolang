@@ -20,6 +20,7 @@ SPEC.loader.exec_module(generator)
 # falls to the `default:` arm; the test below asserts that partition is exact,
 # so adding a verifier rule without listing it here is a deliberate failure.
 SPECIALIZED_VERIFIER_OPCODES = {
+    "OP_HANDLER_PUSH", "OP_PERFORM",
     "OP_AGG_PACK",
     "OP_ARR_LITERAL",
     "OP_ARR_NEW",

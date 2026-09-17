@@ -1,5 +1,5 @@
 # Example: Affine Resource Demo
-# Purpose: Show resource structs and single-use close behavior
+# Purpose: I transfer and dismantle a simulated file handle
 # Features: resource struct, functions, shadow tests
 # Difficulty: Intermediate
 # Category: language
@@ -8,13 +8,14 @@
 # Build: local
 # Dependencies: none
 # Tags: resource, affine, shadow-tested
-# Expected Output: audit.log
+# Expected Output: audit.log, resource closed
 
 resource struct FileHandle {
     fd: int
 }
 
 fn open_file(path: string) -> FileHandle {
+    # I model a handle here; I do not open an operating-system file.
     (println path)
     return FileHandle { fd: 42 }
 }
@@ -25,6 +26,8 @@ shadow open_file {
 }
 
 fn close_file(_f: FileHandle) -> void {
+    let FileHandle { fd } = _f
+    assert (> fd 0)
     (println "resource closed")
 }
 

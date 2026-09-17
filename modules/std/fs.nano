@@ -8,6 +8,7 @@ module std_fs
 /* FFI declarations for filesystem operations */
 extern fn fs_walkdir(_root: string) -> array<string>
 extern fn path_normalize(_path: string) -> string
+extern fn path_canonical(_path: string) -> string
 extern fn path_join(_a: string, _b: string) -> string
 extern fn path_basename(_path: string) -> string
 extern fn path_dirname(_path: string) -> string
@@ -22,6 +23,9 @@ extern fn file_copy(_src: string, _dst: string) -> int
 extern fn dir_copy(_src: string, _dst: string) -> int
 /* Note: getcwd is a builtin and doesn't need extern declaration */
 
+# I follow directory links once per opened directory identity, in unspecified
+# order. Missing/unreadable paths are omitted; this is a best-effort walk, not
+# a complete snapshot or a confinement boundary. Host path limits still apply.
 pub fn walkdir(root: string) -> array<string> {
     unsafe {
         return (fs_walkdir root)
@@ -29,13 +33,40 @@ pub fn walkdir(root: string) -> array<string> {
 }
 
 shadow walkdir {
-    let files: array<string> = (walkdir "modules")
-    assert (> (array_length files) 0)
+    let directory: string = (mktemp_dir "nano_fs_walk_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/one.txt")
+        assert (== (write path "one") 0)
+        let files: array<string> = (walkdir directory)
+        assert (== (array_length files) 1)
+        assert (== (at files 0) path)
+        assert (== (delete path) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn normalize(path: string) -> string {
     unsafe {
         return (path_normalize path)
+    }
+}
+
+# I resolve existing paths, including symlinks; failure returns an empty string.
+pub fn canonical(path: string) -> string {
+    unsafe { return (path_canonical path) }
+}
+
+shadow canonical {
+    assert (== (canonical "") "")
+    let directory: string = (mktemp_dir "nano_fs_canonical_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let resolved: string = (canonical directory)
+        assert (!= resolved "")
+        assert (== (canonical (+ directory "/.")) resolved)
+        assert (== (canonical (+ directory "/absent")) "")
+        assert (== (delete directory) 0)
     }
 }
 
@@ -192,8 +223,19 @@ pub fn glob(root: string, pattern: string) -> array<string> {
 }
 
 shadow glob {
-    let nanos: array<string> = (glob "modules/std" "*.nano")
-    assert (> (array_length nanos) 0)
+    let directory: string = (mktemp_dir "nano_fs_glob_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/one.nano")
+        assert (== (write path "one") 0)
+        assert (== (write (+ directory "/two.txt") "two") 0)
+        let nanos: array<string> = (glob directory "*.nano")
+        assert (== (array_length nanos) 1)
+        assert (== (at nanos 0) path)
+        assert (== (delete path) 0)
+        assert (== (delete (+ directory "/two.txt")) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 /* =============================================================================
@@ -207,9 +249,15 @@ pub fn read(path: string) -> string {
 }
 
 shadow read {
-    /* Test with a known file */
-    let content: string = (read "README.md")
-    assert (> (str_length content) 0)
+    let directory: string = (mktemp_dir "nano_fs_read_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/read.txt")
+        assert (== (write path "read back") 0)
+        assert (== (read path) "read back")
+        assert (== (delete path) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn write(path: string, content: string) -> int {
@@ -219,15 +267,15 @@ pub fn write(path: string, content: string) -> int {
 }
 
 shadow write {
-    /* Test write and read round-trip */
-    let test_path: string = "/tmp/nanolang_test_write.txt"
-    let test_content: string = "test content"
-    let write_result: int = (write test_path test_content)
-    assert (== write_result 0)
-    let read_back: string = (read test_path)
-    assert (== read_back test_content)
-    /* Clean up */
-    (file_delete test_path)
+    let directory: string = (mktemp_dir "nano_fs_write_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/write.txt")
+        assert (== (write path "test content") 0)
+        assert (== (read path) "test content")
+        assert (== (delete path) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn append(path: string, content: string) -> int {
@@ -237,13 +285,16 @@ pub fn append(path: string, content: string) -> int {
 }
 
 shadow append {
-    /* Test append functionality */
-    let test_path: string = "/tmp/nanolang_test_append.txt"
-    (write test_path "line1\n")
-    (append test_path "line2\n")
-    let content: string = (read test_path)
-    assert (== content "line1\nline2\n")
-    (file_delete test_path)
+    let directory: string = (mktemp_dir "nano_fs_append_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/append.txt")
+        assert (== (write path "line1\n") 0)
+        assert (== (append path "line2\n") 0)
+        assert (== (read path) "line1\nline2\n")
+        assert (== (delete path) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn exists(path: string) -> bool {
@@ -253,8 +304,17 @@ pub fn exists(path: string) -> bool {
 }
 
 shadow exists {
-    assert (exists "README.md")
-    assert (not (exists "/nonexistent/path/that/does/not/exist"))
+    let directory: string = (mktemp_dir "nano_fs_exists_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/exists.txt")
+        assert (not (exists path))
+        assert (== (write path "present") 0)
+        assert (exists path)
+        assert (== (delete path) 0)
+        assert (not (exists path))
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn delete(path: string) -> int {
@@ -264,12 +324,16 @@ pub fn delete(path: string) -> int {
 }
 
 shadow delete {
-    /* Test delete */
-    let test_path: string = "/tmp/nanolang_test_delete.txt"
-    (write test_path "temp")
-    assert (exists test_path)
-    (delete test_path)
-    assert (not (exists test_path))
+    let directory: string = (mktemp_dir "nano_fs_delete_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/delete.txt")
+        assert (== (write path "temp") 0)
+        assert (exists path)
+        assert (== (delete path) 0)
+        assert (not (exists path))
+        assert (== (delete directory) 0)
+    }
 }
 
 
@@ -280,8 +344,17 @@ pub fn mkdir_p(path: string) -> int {
 }
 
 shadow mkdir_p {
-    let code: int = (mkdir_p "/tmp/nanolang_fs_test_dir")
-    assert (== code 0)
+    let directory: string = (mktemp_dir "nano_fs_mkdir_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/parent/child")
+        assert (== (mkdir_p path) 0)
+        assert (== (mkdir_p path) 0)
+        assert (exists path)
+        assert (== (delete path) 0)
+        assert (== (delete (+ directory "/parent")) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn copy_file(src: string, dst: string) -> int {
@@ -291,14 +364,18 @@ pub fn copy_file(src: string, dst: string) -> int {
 }
 
 shadow copy_file {
-    let src: string = "/tmp/nanolang_copy_src.txt"
-    let dst: string = "/tmp/nanolang_copy_dst.txt"
-    (write src "hello")
-    let code: int = (copy_file src dst)
-    assert (== code 0)
-    assert (== (read dst) "hello")
-    (file_delete src)
-    (file_delete dst)
+    let directory: string = (mktemp_dir "nano_fs_copy_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let src: string = (+ directory "/source.txt")
+        let dst: string = (+ directory "/destination.txt")
+        assert (== (write src "hello") 0)
+        assert (== (copy_file src dst) 0)
+        assert (== (read dst) "hello")
+        assert (== (delete src) 0)
+        assert (== (delete dst) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 pub fn copy_dir(src: string, dst: string) -> int {
@@ -308,13 +385,19 @@ pub fn copy_dir(src: string, dst: string) -> int {
 }
 
 shadow copy_dir {
-    let src: string = "/tmp/nanolang_copy_dir_src"
-    let dst: string = "/tmp/nanolang_copy_dir_dst"
-    (mkdir_p src)
-    (write (+ src "/file.txt") "ok")
-    let code: int = (copy_dir src dst)
-    assert (== code 0)
-    assert (exists (+ dst "/file.txt"))
-    (file_delete (+ src "/file.txt"))
-    (file_delete (+ dst "/file.txt"))
+    let directory: string = (mktemp_dir "nano_fs_copy_dir_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let src: string = (+ directory "/source")
+        let dst: string = (+ directory "/destination")
+        assert (== (mkdir_p src) 0)
+        assert (== (write (+ src "/file.txt") "ok") 0)
+        assert (== (copy_dir src dst) 0)
+        assert (== (read (+ dst "/file.txt")) "ok")
+        assert (== (delete (+ src "/file.txt")) 0)
+        assert (== (delete (+ dst "/file.txt")) 0)
+        assert (== (delete src) 0)
+        assert (== (delete dst) 0)
+        assert (== (delete directory) 0)
+    }
 }

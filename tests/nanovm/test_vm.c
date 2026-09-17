@@ -15,12 +15,14 @@
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/assembler.h"
+#include "nanoisa/verifier.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#include <unistd.h>
 
 /* Globals expected by runtime/cli.c */
 int g_argc = 0;
@@ -2436,6 +2438,49 @@ static void test_cycle_detaches_struct_field_names(void) {
  * collection walk while later entries still had to be read. All three are the
  * same mistake, which is reading an object's header after something else has
  * freed it. */
+static void test_dead_cycles_preserve_shared_live_payload(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmString *text = vm_string_new(&heap, "live constant", 13);
+    for (int round = 0; round < 4; round++) {
+        VmArray *a = vm_array_new(&heap, TAG_ARRAY, 4);
+        VmArray *b = vm_array_new(&heap, TAG_ARRAY, 4);
+        vm_array_push(&heap, a, val_array(b));
+        vm_array_push(&heap, b, val_array(a));
+        vm_array_push(&heap, a, val_string(text));
+        vm_array_push(&heap, b, val_string(text));
+        vm_release(&heap, val_array(a));
+        vm_release(&heap, val_array(b));
+        ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 2, "I collect only the dead pair");
+        ASSERT_EQ_INT((int)heap.stats.num_objects, 1, "I preserve the externally held string");
+        ASSERT_EQ_INT((int)text->header.ref_count, 1, "I subtract each dead edge once");
+        ASSERT_EQ_INT((int)text->length, 13, "I preserve constant contents");
+    }
+    vm_release(&heap, val_string(text));
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "I free the payload after its live owner releases it");
+    vm_heap_destroy(&heap);
+}
+
+static void test_dead_cycle_preserves_live_field_name(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmString *name = vm_string_new(&heap, "field", 5);
+    VmStruct *record = vm_struct_new(&heap, 0, 1);
+    NanoValue value = val_struct(record);
+    record->fields[0] = value;
+    vm_retain(&heap, value);
+    record->field_names = calloc(1, sizeof(VmString *));
+    record->field_names[0] = name;
+    vm_retain(&heap, val_string(name));
+    vm_release(&heap, value);
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 1, "I collect the self-referential record");
+    ASSERT_EQ_INT((int)name->header.ref_count, 1, "I account for its field-name edge once");
+    ASSERT_EQ_INT((int)name->length, 5, "I preserve the externally owned field name");
+    vm_release(&heap, val_string(name));
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "I reclaim the final field-name reference");
+    vm_heap_destroy(&heap);
+}
+
 static void test_object_freed_while_buffered(void) {
     VmHeap heap = {0};
     vm_heap_init(&heap);
@@ -3604,6 +3649,184 @@ static void test_add_array_array(void) {
     nvm_module_free(mod);
 }
 
+static void test_scalar_arithmetic_boundaries(void) {
+    const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD,
+        OP_I64_ADD, OP_I64_SUB, OP_I64_MUL, OP_I64_DIV_S, OP_I64_REM_S};
+    const int64_t pairs[][2] = {{INT64_MAX, 1}, {INT64_MIN, -1}, {9, 0}};
+    const int64_t expected[][5] = {
+        {INT64_MIN, INT64_MAX - 1, INT64_MAX, INT64_MAX, 0},
+        {INT64_MAX, INT64_MIN + 1, INT64_MIN, INT64_MIN, 0},
+        {9, 9, 0, 0, 0}
+    };
+    for (unsigned op = 0; op < 10; op++) {
+        uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                          (uint8_t)ops[op], OP_RET};
+        NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+        mod->functions[0].result_tag = TAG_INT;
+        VmState vm;
+        vm_init(&vm, mod);
+        for (unsigned pair = 0; pair < 3; pair++) {
+            NanoValue args[] = {val_int(pairs[pair][0]), val_int(pairs[pair][1])};
+            NanoValue output = val_void();
+            ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "scalar boundary");
+            ASSERT_EQ_INT(output.tag, TAG_INT, "integer result");
+            ASSERT_EQ_INT(output.as.i64, expected[pair][op % 5], "total wrapping result");
+        }
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
+static void test_array_arithmetic_values(void) {
+    const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
+                             OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
+    for (unsigned op = 0; op < 8; op++) {
+        for (unsigned shape = 0; shape < 3; shape++) {
+            for (unsigned kind = 0; kind < 5; kind++) {
+                uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                                  (uint8_t)ops[op], OP_RET};
+                NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+                mod->functions[0].result_tag = TAG_ARRAY;
+                VmState vm;
+                vm_init(&vm, mod);
+                uint64_t baseline = vm.heap.stats.num_objects;
+                /* int/int, float/float, int/float, float/int, boxed mixed. */
+                NanoValue x = (kind == 1 || kind == 3) ? val_float(7.5) : val_int(7);
+                NanoValue y = (kind == 1 || kind == 2) ? val_float(2.5) : val_int(2);
+                VmArray *left = vm_array_new(&vm.heap, kind == 4 ? TAG_VOID : x.tag, 2);
+                VmArray *right = vm_array_new(&vm.heap, kind == 4 ? TAG_VOID : y.tag, 2);
+                ASSERT(vm_array_push(&vm.heap, left, x), "left element");
+                ASSERT(vm_array_push(&vm.heap, right, y), "right element");
+                ASSERT(vm_array_push(&vm.heap, left, kind == 4 ? val_float(7.5) : x), "left second");
+                ASSERT(vm_array_push(&vm.heap, right, kind == 4 ? val_float(2.5) : y), "right second");
+                NanoValue args[] = {shape == 2 ? x : val_array(left),
+                                    shape == 1 ? y : val_array(right)};
+                NanoValue output = val_void();
+                ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "vector invocation");
+                ASSERT_EQ_INT(output.tag, TAG_ARRAY, "array result");
+                ASSERT_EQ_INT(output.as.array->length, 2, "vector result length");
+                ASSERT_EQ_INT(output.as.array->elem_type,
+                              kind == 4 ? TAG_VOID : kind == 0 ? TAG_INT : TAG_FLOAT,
+                              "result storage type");
+                for (unsigned i = 0; i < 2; i++) {
+                    bool floating = kind != 0 && (kind != 4 || i == 1);
+                    double a = kind == 4 && i == 1 && shape != 2 ? 7.5 :
+                               x.tag == TAG_FLOAT ? x.as.f64 : (double)x.as.i64;
+                    double b = kind == 4 && i == 1 && shape != 1 ? 2.5 :
+                               y.tag == TAG_FLOAT ? y.as.f64 : (double)y.as.i64;
+                    double expected = op % 4 == 0 ? a + b : op % 4 == 1 ? a - b :
+                                      op % 4 == 2 ? a * b : a / b;
+                    NanoValue actual = vm_array_get(output.as.array, i);
+                    ASSERT_EQ_INT(actual.tag, floating ? TAG_FLOAT : TAG_INT, "element tag");
+                    if (floating) ASSERT_EQ_F64(actual.as.f64, expected, "fractional result");
+                    else ASSERT_EQ_INT(actual.as.i64, (int64_t)expected, "integer result");
+                }
+                vm_release(&vm.heap, output);
+                vm_release(&vm.heap, val_array(left));
+                vm_release(&vm.heap, val_array(right));
+                vm_gc_collect_cycles(&vm.heap);
+                ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "numeric cleanup");
+                vm_destroy(&vm);
+                nvm_module_free(mod);
+            }
+        }
+    }
+}
+
+static void test_array_arithmetic_boundaries(void) {
+    const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
+                             OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
+    const int64_t pairs[][2] = {{INT64_MAX, 1}, {INT64_MIN, -1}, {9, 0}};
+    const int64_t expected[][4] = {
+        {INT64_MIN, INT64_MAX - 1, INT64_MAX, INT64_MAX},
+        {INT64_MAX, INT64_MIN + 1, INT64_MIN, INT64_MIN},
+        {9, 9, 0, 0}
+    };
+    for (unsigned op = 0; op < 8; op++) {
+        for (unsigned shape = 0; shape < 3; shape++) {
+            for (unsigned pair = 0; pair < 3; pair++) {
+                uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                                  (uint8_t)ops[op], OP_RET};
+                NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+                mod->functions[0].result_tag = TAG_ARRAY;
+                VmState vm;
+                vm_init(&vm, mod);
+                uint64_t baseline = vm.heap.stats.num_objects;
+                NanoValue x = val_int(pairs[pair][0]), y = val_int(pairs[pair][1]);
+                VmArray *left = vm_array_new(&vm.heap, TAG_INT, 2);
+                VmArray *right = vm_array_new(&vm.heap, TAG_INT, 1);
+                ASSERT(vm_array_push(&vm.heap, left, x), "boundary left");
+                ASSERT(vm_array_push(&vm.heap, right, y), "boundary right");
+                /* The shorter-array rule must not inspect an unused tail. */
+                if (shape == 0) ASSERT(vm_array_push(&vm.heap, left, x), "longer left");
+                NanoValue args[] = {shape == 2 ? x : val_array(left),
+                                    shape == 1 ? y : val_array(right)};
+                NanoValue output = val_void();
+                ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "boundary invocation");
+                ASSERT_EQ_INT(output.as.array->length, 1, "shorter length");
+                ASSERT_EQ_INT(vm_array_get(output.as.array, 0).as.i64,
+                              expected[pair][op % 4], "wrapping and total integer arithmetic");
+                vm_release(&vm.heap, output);
+                left->length = right->length = 0; /* Packed integers own no references. */
+                ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "empty invocation");
+                ASSERT_EQ_INT(output.as.array->length, 0, "empty result");
+                ASSERT_EQ_INT(output.as.array->elem_type, TAG_INT, "empty type preserved");
+                vm_release(&vm.heap, output);
+                vm_release(&vm.heap, val_array(left));
+                vm_release(&vm.heap, val_array(right));
+                vm_gc_collect_cycles(&vm.heap);
+                ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "boundary cleanup");
+                vm_destroy(&vm);
+                nvm_module_free(mod);
+            }
+        }
+    }
+}
+
+static void test_array_arithmetic_strings(void) {
+    for (unsigned dedicated = 0; dedicated < 2; dedicated++) {
+        for (unsigned shape = 0; shape < 3; shape++) {
+            uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                              dedicated ? OP_ARRAY_ADD : OP_ADD, OP_RET};
+            NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+            mod->functions[0].result_tag = TAG_ARRAY;
+            VmState vm;
+            vm_init(&vm, mod);
+            uint64_t baseline = vm.heap.stats.num_objects;
+            NanoValue x = val_string(vm_string_new(&vm.heap, "left", 4));
+            NanoValue y = val_string(vm_string_new(&vm.heap, "right", 5));
+            VmArray *left = vm_array_new(&vm.heap, TAG_STRING, 1);
+            VmArray *right = vm_array_new(&vm.heap, TAG_STRING, 1);
+            ASSERT(vm_array_push(&vm.heap, left, x), "left string");
+            ASSERT(vm_array_push(&vm.heap, right, y), "right string");
+            NanoValue args[] = {shape == 2 ? x : val_array(left),
+                                shape == 1 ? y : val_array(right)};
+            NanoValue output = val_void();
+            ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "string vector");
+            ASSERT_EQ_INT(output.as.array->elem_type, TAG_STRING, "boxed string type");
+            NanoValue element = vm_array_get(output.as.array, 0);
+            ASSERT_EQ_INT(element.tag, TAG_STRING, "string element tag");
+            ASSERT_EQ_STR(vmstring_cstr(element.as.string), "leftright", "ordered concatenation");
+            ASSERT_EQ_INT(element.as.string->header.ref_count, 1, "one result owner");
+            vm_release(&vm.heap, output);
+            /* A bad second pair must fail without converting pointer payloads. */
+            ASSERT(vm_array_push(&vm.heap, left, val_bool(true)), "boxed invalid element");
+            ASSERT(vm_array_push(&vm.heap, right, y), "second right string");
+            args[0] = val_array(left);
+            ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_ERR_TYPE_ERROR,
+                          "reject unsupported element pair");
+            vm_release(&vm.heap, x);
+            vm_release(&vm.heap, y);
+            vm_release(&vm.heap, val_array(left));
+            vm_release(&vm.heap, val_array(right));
+            vm_gc_collect_cycles(&vm.heap);
+            ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "string cleanup");
+            vm_destroy(&vm);
+            nvm_module_free(mod);
+        }
+    }
+}
+
 static void test_add_array_scalar(void) {
     /* OP_ADD with array + scalar → broadcast add */
     uint8_t code[64];
@@ -3712,7 +3935,7 @@ static void test_call_module_string_constant(void) {
     uint8_t root_code[16];
     uint32_t root_len = 0;
     root_len += emit(root_code + root_len, OP_CALL_MODULE, (uint32_t)0, linked_fn,
-                     (uint16_t)0, (uint16_t)0);
+                     (uint16_t)0, (uint16_t)1);
     root_len += emit(root_code + root_len, OP_RET);
     uint32_t root_fn = add_fn(mod_a, "main", root_code, root_len, 0, 0);
 
@@ -3951,6 +4174,237 @@ static void test_call_module_handle_resolution(void) {
     vm_destroy(&vm);
     nvm_module_free(mod_a);
     nvm_module_free(mod_b);
+}
+
+typedef struct {
+    VmState *vm;
+    NanoCallbackV1 *handle;
+    NvmCallbackContract contract;
+    NanoValue callable;
+    bool ok;
+    bool allow_cancellation;
+    unsigned cancelled;
+} CallbackWorker;
+
+static void *invoke_vm_callback_worker(void *opaque) {
+    CallbackWorker *worker = opaque;
+    worker->ok = !vm_callback_create(worker->vm, worker->callable, &worker->contract) &&
+        vm_callback_pump(worker->vm, false) == -1 &&
+        vm_callback_shutdown(worker->vm) == NANO_CALLBACK_WRONG_THREAD;
+    for (int i = 0; i < 256; i++) {
+        NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = i}, result;
+        NanoCallbackStatus status = worker->handle->invoke(worker->handle, &arg, 1, &result);
+        if (worker->allow_cancellation && status == NANO_CALLBACK_CANCELLED) {
+            worker->cancelled++;
+            worker->ok = worker->ok && result.tag == NANO_CALLBACK_VOID;
+            continue;
+        }
+        worker->ok = worker->ok && status == NANO_CALLBACK_OK &&
+            result.tag == NANO_CALLBACK_INT && result.as.integer == i + 40;
+    }
+    worker->handle->release(worker->handle);
+    return NULL;
+}
+
+static void test_vm_retained_callbacks(void) {
+    AsmResult assembled;
+    NvmModule *module = asm_assemble(
+        ".function callback 1 1 1 int 1\n"
+        "LOAD_UPVALUE 0 0\nPUSH_I64 0\nARR_GET\nLOAD_LOCAL 0\nADD\n"
+        "DUP\nSTORE_GLOBAL 0\nRET\n.end\n.parameters 0 int\n"
+        ".function fail 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\nLOAD_LOCAL 0\nRET\n.end\n.parameters 1 int\n",
+        &assembled);
+    ASSERT(module, "I assemble typed retained-callback targets");
+    VmState vm;
+    vm_init(&vm, module);
+    VmArray *capture = vm_array_new(&vm.heap, TAG_INT, 1);
+    ASSERT(capture && vm_array_push(&vm.heap, capture, val_int(40)), "I allocate a captured array");
+    VmClosure *closure = vm_closure_new(&vm.heap, 0, 1);
+    ASSERT(closure, "I allocate a callback closure");
+    closure->captures[0] = val_array(capture);
+    NanoValue callable = val_closure(closure);
+    NvmCallbackContract contract = {.abi_version = NVM_CALLBACK_ABI_RETAINED_V1,
+        .parameter_idx = 0, .execution = NVM_FOREIGN_WORKER_THREAD,
+        .param_count = 1, .param_tags = {TAG_INT}, .return_tag = TAG_INT};
+    module->function_param_types[0][0] = TAG_VOID;
+    ASSERT(!vm_callback_create(&vm, callable, &contract), "I reject unknown callable signatures");
+    module->function_param_types[0][0] = TAG_FLOAT;
+    ASSERT(!vm_callback_create(&vm, callable, &contract), "I reject mismatched callable signatures");
+    module->function_param_types[0][0] = TAG_INT;
+    vm.isolate_ffi = true;
+    ASSERT(!vm_callback_create(&vm, callable, &contract), "I do not publish native pointers for isolated FFI");
+    vm.isolate_ffi = false;
+    NanoCallbackV1 *handle = vm_callback_create(&vm, callable, &contract);
+    ASSERT(handle && closure->header.ref_count == 2, "I root the callable before native publication");
+    vm_release(&vm.heap, callable);
+    vm_gc_collect_cycles(&vm.heap);
+    ASSERT_EQ_INT(closure->header.ref_count, 1, "I keep the native-owned closure live across collection");
+    CallbackWorker worker = {.vm = &vm, .handle = handle, .contract = contract, .callable = callable};
+    pthread_t thread;
+    handle->retain(handle);
+    alarm(20);
+    ASSERT_EQ_INT(pthread_create(&thread, NULL, invoke_vm_callback_worker, &worker), 0,
+                  "I start a foreign callback producer");
+    for (int i = 0; i < 256;) if (vm_callback_pump(&vm, true) == 1) i++;
+    ASSERT_EQ_INT(pthread_join(thread, NULL), 0, "I join the foreign producer");
+    alarm(0);
+    ASSERT(worker.ok, "I execute foreign-thread requests only through the owner");
+    ASSERT_EQ_INT(vm.globals[0].as.i64, 295, "I preserve shared globals and captured arrays");
+    VmState failed_vm;
+    vm_init(&failed_vm, module);
+    NanoCallbackV1 *bad = vm_callback_create(&failed_vm, val_function(1), &contract);
+    ASSERT(bad, "I publish a typed callback that can fail during execution");
+    NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = 1}, result;
+    ASSERT_EQ_INT(bad->invoke(bad, &arg, 1, &result), NANO_CALLBACK_EXECUTION_ERROR,
+                  "I report a VM assertion failure through the retained ABI");
+    ASSERT(failed_vm.callback_error == VM_ERR_ASSERT_FAILED && result.tag == NANO_CALLBACK_VOID,
+           "I retain callback failure evidence and clear the native result");
+    bad->release(bad);
+    vm_destroy(&failed_vm);
+    worker.allow_cancellation = true;
+    handle->retain(handle);
+    alarm(20);
+    ASSERT_EQ_INT(pthread_create(&thread, NULL, invoke_vm_callback_worker, &worker), 0,
+                  "I start a producer that remains live through VM shutdown");
+    for (int i = 0; i < 128;) if (vm_callback_pump(&vm, true) == 1) i++;
+    vm_destroy(&vm);
+    ASSERT_EQ_INT(pthread_join(thread, NULL), 0, "I join the producer after VM shutdown");
+    alarm(0);
+    ASSERT(worker.ok && worker.cancelled == 128, "I cancel remaining requests without touching the destroyed heap");
+    ASSERT(!vm_callback_create(&vm, val_function(1), &contract), "I do not reopen a destroyed callback host");
+    ASSERT_EQ_INT(handle->invoke(handle, &arg, 1, &result), NANO_CALLBACK_CANCELLED,
+                  "I cancel late native calls after VM and capture destruction");
+    handle->release(handle);
+    nvm_module_free(module);
+}
+
+static void test_suspended_callable_activation(void) {
+    for (unsigned depth = 1; depth <= 2; depth++) {
+        for (unsigned failure = 0; failure < 3; failure++) {
+            AsmResult assembled;
+            NvmModule *root = asm_assemble(
+                ".function paused 0 1 0 int 1\nPUSH_I64 999\nPRINT\nLOAD_GLOBAL 0\nRET\n.end\n", &assembled);
+            ASSERT(root, "I assemble a caller that pauses at a real print trap");
+            const char *body = failure == 1 ? "PUSH_BOOL 0\nASSERT\nLOAD_LOCAL 0\nRET\n" :
+                failure == 2 ? "PUSH_I64 42\nHALT\n" :
+                "LOAD_UPVALUE 0 0\nLOAD_LOCAL 0\nADD\nDUP\nSTORE_GLOBAL 0\nRET\n";
+            char source[512];
+            snprintf(source, sizeof(source), ".function callback 1 2 1 int 1\n%s.end\n", body);
+            NvmModule *target = asm_assemble(source, &assembled);
+            ASSERT(target, "I assemble a capturing callback target");
+            VmState vm;
+            vm_init(&vm, root);
+            ASSERT_EQ_INT(vm_link_module(&vm, target), 0, "I link a callback owner");
+            ASSERT(vm_ensure_globals(&vm, 1), "I reserve shared callback globals");
+            vm.globals[0] = val_int(7);
+            vm.global_count = 1;
+            VmString *guard = vm_string_new(&vm.heap, "caller root", 11);
+            VmClosure *closure = vm_closure_new(&vm.heap, 0, 1);
+            ASSERT(guard && closure, "I allocate caller and callback roots");
+            closure->callable_module = 2;
+            closure->captures[0] = val_int(40);
+            vm.stack[vm.stack_size++] = val_string(guard);
+            vm.frame_count = depth;
+            vm.activation_floor = depth - 1;
+            for (unsigned i = 0; i < depth; i++) vm.frames[i].module = root;
+            vm.frames[depth - 1].local_count = 1;
+            VmTrap paused = vm_core_execute(&vm);
+            ASSERT_EQ_INT(paused.type, TRAP_PRINT, "I reach the suspended host boundary");
+            vm_release(&vm.heap, paused.data.print.value);
+            uint32_t saved_ip = vm.ip;
+            VmCallFrame saved_frames[2];
+            memcpy(saved_frames, vm.frames, depth * sizeof(VmCallFrame));
+            vm.halt_requested = true;
+            NanoValue argument = val_int(1), returned = val_void();
+            VmResult status = vm_invoke_callable(&vm, val_closure(closure), &argument, 1, &returned);
+            ASSERT_EQ_INT(status, failure == 1 ? VM_ERR_ASSERT_FAILED : failure == 2 ? VM_ERR_TYPE_ERROR : VM_OK,
+                          "I distinguish normal return, assertion failure, and halt");
+            ASSERT(vm.module == root && vm.ip == saved_ip && vm.current_fn == 0 &&
+                   vm.frame_count == depth && vm.activation_floor == depth - 1 && vm.halt_requested,
+                   "I restore suspended execution state");
+            ASSERT(!memcmp(saved_frames, vm.frames, depth * sizeof(VmCallFrame)),
+                   "I do not rewrite suspended frames");
+            ASSERT(vm.stack_size == 1 && vm.stack[0].as.string == guard && guard->header.ref_count == 1,
+                   "I preserve caller stack roots");
+            ASSERT_EQ_INT(closure->header.ref_count, 1, "I release the activation's callable reference");
+            if (!failure) ASSERT(returned.tag == TAG_INT && returned.as.i64 == 41,
+                                 "I execute captures against shared globals");
+            vm_release(&vm.heap, returned);
+            vm_release(&vm.heap, val_closure(closure));
+            vm.halt_requested = false;
+            VmTrap resumed = vm_core_execute(&vm);
+            ASSERT_EQ_INT(resumed.type, TRAP_NONE, "I resume the original caller after callback completion");
+            ASSERT_EQ_INT(vm.frame_count, depth - 1, "I stop at the enclosing activation floor");
+            ASSERT_EQ_INT(vm_get_result(&vm).as.i64, failure ? 7 : 41,
+                          "I preserve shared state and the caller's return value");
+            vm_destroy(&vm);
+            nvm_module_free(root);
+            nvm_module_free(target);
+        }
+    }
+}
+
+static void test_linked_callable_identity(void) {
+    const char *root_source =
+        ".module_ref \"one\"\n.module_ref \"two\"\n.entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "CALL_MODULE 0 0 0 1\nSTORE_LOCAL 0\n"
+        "CALL_MODULE 1 0 0 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 0\nLOAD_LOCAL 1\nEQ\nNOT\nASSERT\n"
+        "PUSH_I64 1\nLOAD_LOCAL 0\nCALL_INDIRECT 1 1\n"
+        "PUSH_I64 1\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nADD\n"
+        "PUSH_I64 1\nFUNCREF 1\nCALL_MODULE 0 2 2 1\nADD\nRET\n.end\n"
+        ".function root_target 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 1000\nADD\nRET\n.end\n"
+        ".function call 2 2 0 int 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nRET\n.end\n";
+    for (int closure = 0; closure < 2; closure++) {
+        AsmResult assembled;
+        NvmModule *root = asm_assemble(root_source, &assembled);
+        ASSERT(root, "I assemble the linked callable consumer");
+        NvmModule *libraries[2];
+        for (int i = 0; i < 2; i++) {
+            char source[1024], factory[128], target[128];
+            if (closure) {
+                snprintf(factory, sizeof(factory), "PUSH_I64 %d\nCLOSURE_NEW 1 1\n", 40 * (i + 1));
+                snprintf(target, sizeof(target), "LOAD_UPVALUE 0 0\n");
+            } else {
+                snprintf(factory, sizeof(factory), "FUNCREF 1\n");
+                snprintf(target, sizeof(target), "PUSH_I64 %d\n", 40 * (i + 1));
+            }
+            snprintf(source, sizeof(source),
+                ".function factory 0 0 0 %s 1\n%sRET\n.end\n"
+                ".function target 1 1 %d int 1\nLOAD_LOCAL 0\n%sADD\nRET\n.end\n"
+                ".function apply 2 2 0 int 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nRET\n.end\n",
+                closure ? "closure" : "function", factory, closure, target);
+            libraries[i] = asm_assemble(source, &assembled);
+            if (!libraries[i]) fprintf(stderr, "%s\n%s\n", source, assembled.message);
+            ASSERT(libraries[i], "I assemble the linked callable producer");
+        }
+        VmState vm;
+        vm_init(&vm, root);
+        ASSERT_EQ_INT(vm_link_named_module(&vm, "one", libraries[0]), 0, "I link the first producer");
+        ASSERT_EQ_INT(vm_link_named_module(&vm, "two", libraries[1]), 1, "I link the second producer");
+        ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "I invoke returned and forwarded cross-module callables");
+        ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 1123, "I use all three distinct function-one targets");
+        const NvmModule *owner = NULL;
+        uint32_t index = UINT32_MAX;
+        NanoValue first = val_function_owned(1, 2), second = val_function_owned(1, 3);
+        ASSERT(sizeof(NanoValue) == 16, "I preserve the compact value layout");
+        ASSERT(!val_equal(first, second) && val_compare(first, second) < 0,
+               "I distinguish equal indices in distinct modules");
+        ASSERT(vm_callable_target(&vm, first, &owner, &index) && owner == libraries[0] && index == 1,
+               "I resolve the explicit callable owner");
+        ASSERT(!vm_callable_target(&vm, val_function_owned(1, 0), &owner, &index),
+               "I reject an unbound callable");
+        ASSERT(!vm_callable_target(&vm, val_function_owned(1, UINT32_MAX), &owner, &index),
+               "I reject an unknown callable owner");
+        NanoValue args[] = {val_int(1), val_function_owned(1, UINT32_MAX)}, result;
+        ASSERT_EQ_INT(vm_invoke(&vm, 2, args, 2, &result), VM_ERR_UNDEFINED_FUNCTION,
+                      "I reject invalid identity before indirect entry");
+        vm_destroy(&vm);
+        nvm_module_free(root);
+        nvm_module_free(libraries[0]);
+        nvm_module_free(libraries[1]);
+    }
 }
 
 static void test_separately_linked_module_roundtrip(void) {
@@ -4757,6 +5211,205 @@ static void test_verified_flag_tracks_module_lifecycle(void) {
     nvm_module_free(mod);
 }
 
+/* I reject missing operands before touching locals or a caller's stack. */
+static void test_stack_slice_underflow(void) {
+    NanoOpcode ops[256] = {OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
+                              OP_PICK, OP_ROLL, OP_PICK, OP_ROLL,
+                              OP_PICK, OP_ROLL, OP_ARR_LITERAL, OP_STRUCT_LITERAL,
+                              OP_UNION_CONSTRUCT, OP_TUPLE_NEW, OP_AGG_PACK,
+                              OP_CLOSURE_NEW};
+    unsigned required[256] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536,
+                              3, 3, 3, 3, 3, 3};
+    size_t count = 16;
+    for (unsigned opcode = 0; opcode < NANOISA_PRIMARY_OPCODE_LIMIT; opcode++) {
+        const InstructionInfo *info = isa_get_info((uint8_t)opcode);
+        if (!info || info->operand_count || info->pop_count <= 0) continue;
+        if (opcode == OP_DUP || opcode == OP_POP || opcode == OP_SWAP
+                || opcode == OP_ROT3) continue;
+        ops[count] = (NanoOpcode)opcode;
+        required[count++] = (unsigned)info->pop_count;
+    }
+    ASSERT(count > 50, "I exercise fixed-effect handler families, not just stack shuffles");
+    for (size_t op = 0; op < count; op++) {
+        unsigned needed = required[op];
+        for (unsigned depth = 0; depth < needed && depth <= 3; depth++) {
+            for (unsigned locals = 0; locals <= 2; locals += 2) {
+                for (unsigned caller = 0; caller <= 2; caller += 2) {
+                    uint8_t code[64];
+                    uint32_t size = 0;
+                    for (unsigned i = 0; i < depth; i++)
+                        size += emit(code + size, OP_PUSH_I64, (int64_t)(42 + i));
+                    if (ops[op] == OP_PICK || ops[op] == OP_ROLL)
+                        size += emit(code + size, ops[op], (int)(needed - 1));
+                    else if (ops[op] == OP_ARR_LITERAL)
+                        size += emit(code + size, ops[op], TAG_INT, (int)needed);
+                    else if (ops[op] == OP_STRUCT_LITERAL || ops[op] == OP_CLOSURE_NEW)
+                        size += emit(code + size, ops[op], (uint32_t)0, (int)needed);
+                    else if (ops[op] == OP_UNION_CONSTRUCT)
+                        size += emit(code + size, ops[op], (uint32_t)0, 0, (int)needed);
+                    else if (ops[op] == OP_TUPLE_NEW)
+                        size += emit(code + size, ops[op], (int)needed);
+                    else if (ops[op] == OP_AGG_PACK)
+                        size += emit(code + size, ops[op], AGG_TUPLE, (uint32_t)0, 0, (int)needed);
+                    else
+                        size += emit(code + size, ops[op]);
+                    size += emit(code + size, OP_HALT);
+                    NvmModule *mod = make_module(code, size, 0, (uint16_t)locals);
+                    VmState vm;
+                    vm_init(&vm, mod);
+                    ASSERT(!vm.verified, "I reject underflow in the verifier");
+                    for (unsigned i = 0; i < caller; i++)
+                        vm.stack[vm.stack_size++] = val_int(100 + i);
+                    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_STACK_UNDERFLOW,
+                                  "I trap on missing operands");
+                    ASSERT_EQ_INT(vm.stack_size, caller + locals + depth,
+                                  "I preserve the stack on underflow");
+                    for (unsigned i = 0; i < caller; i++) {
+                        ASSERT_EQ_INT(vm.stack[i].tag, TAG_INT, "I preserve caller tags");
+                        ASSERT_EQ_INT(vm.stack[i].as.i64, 100 + i, "I preserve caller values");
+                    }
+                    for (unsigned i = 0; i < locals; i++)
+                        ASSERT_EQ_INT(vm.stack[caller + i].tag, TAG_VOID,
+                                      "I preserve frame locals");
+                    for (unsigned i = 0; i < depth; i++) {
+                        ASSERT_EQ_INT(vm.stack[caller + locals + i].tag, TAG_INT,
+                                      "I preserve the remaining operand tag");
+                        ASSERT_EQ_INT(vm.stack[caller + locals + i].as.i64, 42 + i,
+                                      "I preserve the remaining operand value");
+                    }
+                    vm_destroy(&vm);
+                    nvm_module_free(mod);
+                }
+            }
+        }
+    }
+}
+
+static void test_linked_call_shape_boundaries(void) {
+    for (unsigned mismatch = 0; mismatch < 2; mismatch++) {
+        uint8_t code[64], body[32];
+        uint32_t size = emit(code, OP_PUSH_I64, (int64_t)42);
+        size += emit(code + size, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0, 1, 1);
+        size += emit(code + size, OP_RET);
+        NvmModule *mod = make_module(code, size, 0, 2);
+        mod->functions[0].result_tag = TAG_INT;
+        uint32_t body_size = 0;
+        if (!mismatch) body_size += emit(body, OP_PUSH_I64, (int64_t)7);
+        body_size += emit(body + body_size, OP_RET);
+        NvmModule *linked = make_module(body, body_size, mismatch ? 1 : 2, 2);
+        linked->functions[0].result_count = mismatch ? 0 : 1;
+        linked->functions[0].result_tag = mismatch ? TAG_VOID : TAG_INT;
+        ASSERT(nvm_verify(mod).ok, "I verify the caller's declared shape separately");
+        ASSERT(nvm_verify(linked).ok, "I verify the target separately");
+        VmState vm;
+        vm_init(&vm, mod);
+        ASSERT_EQ_INT(vm_link_module(&vm, linked), 0, "I bind the target module");
+        ASSERT(!vm.verified, "I do not confuse separate proofs with a linked proof");
+        vm.stack[vm.stack_size++] = val_int(100);
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_TYPE_ERROR,
+                      "I reject the mismatched linked shape before entering it");
+        ASSERT_EQ_INT(vm.frame_count, 1, "I keep the caller frame");
+        ASSERT_EQ_INT(vm.stack_size, 4, "I keep caller, locals and argument");
+        ASSERT_EQ_INT(vm.stack[0].as.i64, 100, "I preserve the caller prefix");
+        ASSERT_EQ_INT(vm.stack[1].tag, TAG_VOID, "I preserve the first local");
+        ASSERT_EQ_INT(vm.stack[2].tag, TAG_VOID, "I preserve the second local");
+        ASSERT_EQ_INT(vm.stack[3].as.i64, 42, "I preserve the argument");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+        nvm_module_free(linked);
+    }
+}
+
+static void test_call_operand_boundaries(void) {
+    const NanoOpcode ops[] = {OP_CALL, OP_TAIL_CALL, OP_CALL_INDIRECT,
+                              OP_CALL_EXTERN, OP_CALL_MODULE};
+    for (size_t op = 0; op < sizeof(ops) / sizeof(ops[0]); op++) {
+        for (unsigned depth = 0; depth < 2; depth++) {
+            for (unsigned locals = 0; locals <= 2; locals += 2) {
+                for (unsigned caller = 0; caller <= 2; caller += 2) {
+                    uint8_t code[64], body[8];
+                    uint32_t size = 0;
+                    for (unsigned i = 0; i < depth; i++)
+                        size += emit(code + size, OP_PUSH_I64, (int64_t)(42 + i));
+                    bool indirect = ops[op] == OP_CALL_INDIRECT;
+                    if (indirect) {
+                        size += emit(code + size, OP_FUNCREF, (uint32_t)1);
+                        size += emit(code + size, ops[op], 2, 1);
+                    } else if (ops[op] == OP_CALL_MODULE) {
+                        size += emit(code + size, ops[op], (uint32_t)0,
+                                     (uint32_t)0, 2, 1);
+                    } else {
+                        size += emit(code + size, ops[op],
+                                     (uint32_t)(ops[op] == OP_CALL_EXTERN ? 0 : 1));
+                    }
+                    size += emit(code + size, OP_HALT);
+                    NvmModule *mod = make_module(code, size, 0, (uint16_t)locals);
+                    uint32_t body_size = emit(body, OP_HALT);
+                    add_fn(mod, "callee", body, body_size, 2, 2);
+                    uint8_t params[] = {TAG_INT, TAG_INT};
+                    uint32_t module_name = nvm_add_string(mod, "foreign", 7);
+                    uint32_t function_name = nvm_add_string(mod, "call", 4);
+                    nvm_add_import(mod, module_name, function_name, 2, TAG_INT, params);
+                    NvmModule *linked = make_module(body, body_size, 2, 2);
+                    VmState vm;
+                    vm_init(&vm, mod);
+                    vm_link_module(&vm, linked);
+                    ASSERT(!vm.verified, "I keep malformed calls on the checked path");
+                    for (unsigned i = 0; i < caller; i++)
+                        vm.stack[vm.stack_size++] = val_int(100 + i);
+                    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_STACK_UNDERFLOW,
+                                  "I reject missing call arguments before frame changes");
+                    ASSERT_EQ_INT(vm.frame_count, 1, "I do not enter the callee");
+                    ASSERT_EQ_INT(vm.stack_size, caller + locals + depth + indirect,
+                                  "I preserve the call stack on argument failure");
+                    for (unsigned i = 0; i < caller; i++)
+                        ASSERT_EQ_INT(vm.stack[i].as.i64, 100 + i, "I preserve caller values");
+                    for (unsigned i = 0; i < locals; i++)
+                        ASSERT_EQ_INT(vm.stack[caller + i].tag, TAG_VOID, "I preserve locals");
+                    for (unsigned i = 0; i < depth; i++)
+                        ASSERT_EQ_INT(vm.stack[caller + locals + i].as.i64, 42 + i,
+                                      "I preserve existing arguments");
+                    if (indirect)
+                        ASSERT_EQ_INT(vm.stack[vm.stack_size - 1].tag, TAG_FUNCTION,
+                                      "I preserve the callable on failure");
+                    vm_destroy(&vm);
+                    nvm_module_free(mod);
+                    nvm_module_free(linked);
+                }
+            }
+        }
+    }
+}
+
+static void test_closure_large_capture_count(void) {
+    const unsigned counts[] = {0, 32768, 32769, 65535};
+    for (size_t c = 0; c < sizeof(counts) / sizeof(counts[0]); c++) {
+        unsigned count = counts[c];
+        uint8_t *code = malloc((size_t)count * 9 + 16);
+        ASSERT(code != NULL, "I allocate the capture-boundary program");
+        uint32_t size = 0;
+        for (unsigned i = 0; i < count; i++)
+            size += emit(code + size, OP_PUSH_I64, (int64_t)i);
+        size += emit(code + size, OP_CLOSURE_NEW, (uint32_t)0, (int)count);
+        size += emit(code + size, OP_HALT);
+        NvmModule *mod = make_module(code, size, 0, 0);
+        free(code);
+        VmState vm;
+        vm_init(&vm, mod);
+        ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "I construct the complete closure");
+        ASSERT_EQ_INT(vm.stack_size, 1, "I consume every capture operand");
+        ASSERT_EQ_INT(vm.stack[0].tag, TAG_CLOSURE, "I return a closure");
+        for (unsigned i = 0; i < count; i++) {
+            ASSERT_EQ_INT(vm.stack[0].as.closure->captures[i].tag, TAG_INT,
+                          "I preserve capture tags");
+            ASSERT_EQ_INT(vm.stack[0].as.closure->captures[i].as.i64, i,
+                          "I preserve capture order across the signed boundary");
+        }
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -4790,6 +5443,10 @@ int main(void) {
 
     printf("\n[Stack Operations]\n");
     RUN_TEST(test_dup);
+    RUN_TEST(test_stack_slice_underflow);
+    RUN_TEST(test_call_operand_boundaries);
+    RUN_TEST(test_linked_call_shape_boundaries);
+    RUN_TEST(test_closure_large_capture_count);
     RUN_TEST(test_swap);
     RUN_TEST(test_pop);
     RUN_TEST(test_push_void);
@@ -4858,6 +5515,8 @@ int main(void) {
     RUN_TEST(test_two_object_cycle_is_collected);
     RUN_TEST(test_reachable_cycle_is_not_collected);
     RUN_TEST(test_cycle_payload_is_freed_with_it);
+    RUN_TEST(test_dead_cycles_preserve_shared_live_payload);
+    RUN_TEST(test_dead_cycle_preserves_live_field_name);
     RUN_TEST(test_cycle_preserves_shared_live_payload);
     RUN_TEST(test_cycles_share_dead_leaf);
     RUN_TEST(test_cycle_detaches_struct_field_names);
@@ -4918,6 +5577,9 @@ int main(void) {
     RUN_TEST(test_call_module_chain);
     RUN_TEST(test_call_module_handle_resolution);
     RUN_TEST(test_separately_linked_module_roundtrip);
+    RUN_TEST(test_linked_callable_identity);
+    RUN_TEST(test_suspended_callable_activation);
+    RUN_TEST(test_vm_retained_callbacks);
 
     printf("\n[Stack Ops: ROT3]\n");
     RUN_TEST(test_rot3);
@@ -4949,6 +5611,10 @@ int main(void) {
     RUN_TEST(test_add_strings);
     RUN_TEST(test_add_array_array);
     RUN_TEST(test_add_array_scalar);
+    RUN_TEST(test_array_arithmetic_values);
+    RUN_TEST(test_scalar_arithmetic_boundaries);
+    RUN_TEST(test_array_arithmetic_boundaries);
+    RUN_TEST(test_array_arithmetic_strings);
 
     printf("\n[vm_error_string]\n");
     RUN_TEST(test_vm_error_string);

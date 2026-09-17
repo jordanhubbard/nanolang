@@ -24,6 +24,9 @@ const char *get_project_root(void) { return g_project_root; }
 #include <assert.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <time.h>
+#include <signal.h>
 
 static int g_pass = 0, g_fail = 0;
 #define TEST(name) static void test_##name(void)
@@ -360,6 +363,36 @@ TEST(deserialize_hostile_lengths) {
     vm_heap_destroy(&heap);
 }
 
+TEST(decode_nested_array_ownership) {
+    const uint8_t wire[] = {
+        TAG_ARRAY, TAG_ARRAY, 1, 0, 0, 0,
+        TAG_ARRAY, TAG_STRING, 2, 0, 0, 0,
+        TAG_STRING, 1, 0, 0, 0, 'a',
+        TAG_STRING, 1, 0, 0, 0, 'b'
+    };
+    VmHeap heap;
+    vm_heap_init(&heap);
+    for (size_t length = 0; length < sizeof(wire); length++) {
+        NanoValue out = val_void();
+        ASSERT(cop_deserialize_value(wire, (uint32_t)length, &out, &heap) == 0);
+        ASSERT(heap.stats.num_objects == 0);
+    }
+    NanoValue out = val_void();
+    ASSERT(cop_deserialize_value(wire, sizeof(wire), &out, &heap) == sizeof(wire));
+    ASSERT(out.tag == TAG_ARRAY && out.as.array->length == 1);
+    NanoValue inner = vm_array_get(out.as.array, 0);
+    ASSERT(inner.tag == TAG_ARRAY && inner.as.array->header.ref_count == 1);
+    ASSERT(inner.as.array->length == 2);
+    for (unsigned i = 0; i < 2; i++) {
+        NanoValue string = vm_array_get(inner.as.array, i);
+        ASSERT(string.tag == TAG_STRING && string.as.string->header.ref_count == 1);
+    }
+    vm_release(&heap, out);
+    vm_gc_collect_cycles(&heap);
+    ASSERT(heap.stats.num_objects == 0);
+    vm_heap_destroy(&heap);
+}
+
 TEST(serialize_array_roundtrip) {
     VmHeap heap = {0};
     vm_heap_init(&heap);
@@ -440,6 +473,11 @@ TEST(batch_roundtrip_many_calls) {
         ASSERT_EQ(results[i].as.i64, (int64_t)(i + 1));  /* abs(-(i+1)) */
         vm_release(&heap, results[i]);
     }
+    NanoValue single_arg = val_int(-123), single_result;
+    ASSERT(vm_ffi_call_cop(&vm, mod, 0, &single_arg, 1, &single_result, &heap,
+                          err, sizeof err));
+    ASSERT(single_result.tag == TAG_INT && single_result.as.i64 == 123);
+    vm_release(&heap, single_result);
 
     vm_ffi_cop_stop(&vm);
     vm_heap_destroy(&heap);
@@ -617,9 +655,125 @@ TEST(a_payload_over_the_cap_is_refused_by_the_sender) {
     close(fds[0]); close(fds[1]);
 }
 
+TEST(call_envelope_aliases_and_atomic_reply) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+    VmArray *a = vm_array_new(&heap, TAG_U8, 4);
+    ASSERT(a && vm_array_push(&heap, a, val_u8(7)));
+    NanoValue args[] = {val_array(a), val_array(a)};
+    uint8_t wire[256];
+    uint32_t n = cop_encode_call_values(args, 2, wire, sizeof wire);
+    ASSERT(n > 0);
+    NanoValue child[3];
+    ASSERT(cop_decode_call_values(wire, n, child, 2, &heap));
+    ASSERT(child[0].as.array == child[1].as.array && child[0].as.array != a);
+    vm_array_set(child[0].as.array, 0, val_u8(99));
+    child[2] = child[0]; /* encoding borrows; I own only the first two refs */
+    n = cop_encode_call_values(child, 3, wire, sizeof wire);
+    ASSERT(n > 0);
+    NanoValue result = val_void();
+    for (uint32_t truncated = 0; truncated < n; ++truncated) {
+        ASSERT(!cop_apply_call_reply(wire, truncated, args, 2, &result, &heap));
+        ASSERT_EQ(vm_array_get(a, 0).as.u8, 7);
+    }
+    wire[n] = 0;
+    ASSERT(!cop_apply_call_reply(wire, n + 1, args, 2, &result, &heap));
+    ASSERT(cop_apply_call_reply(wire, n, args, 2, &result, &heap));
+    ASSERT(result.as.array == a && vm_array_get(a, 0).as.u8 == 99);
+    vm_release(&heap, result);
+    vm_release(&heap, child[0]);
+    vm_release(&heap, child[1]);
+    vm_release(&heap, val_array(a));
+    vm_gc_collect_cycles(&heap);
+    ASSERT_EQ(heap.stats.num_objects, 0);
+    vm_heap_destroy(&heap);
+}
+
+TEST(call_envelope_rejects_bad_references_and_topology) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+    uint8_t invalid[] = {'C', 'A', 1, 1, 0xff, 0};
+    NanoValue out[3];
+    ASSERT(!cop_decode_call_values(invalid, sizeof invalid, out, 1, &heap));
+    ASSERT_EQ(out[0].tag, TAG_VOID);
+    invalid[2] = 2;
+    ASSERT(!cop_decode_call_values(invalid, sizeof invalid, out, 1, &heap));
+    uint8_t scalar_ref[] = {'C', 'A', 1, 2, TAG_VOID, 0xff, 0};
+    ASSERT(!cop_decode_call_values(scalar_ref, sizeof scalar_ref, out, 2, &heap));
+    VmArray *a = vm_array_new(&heap, TAG_INT, 1);
+    VmArray *b = vm_array_new(&heap, TAG_INT, 1);
+    ASSERT(vm_array_push(&heap, a, val_int(1)) && vm_array_push(&heap, b, val_int(2)));
+    NanoValue original[] = {val_array(a), val_array(b)};
+    NanoValue changed[] = {val_array(b), val_array(b), val_void()};
+    uint8_t wire[256];
+    uint32_t n = cop_encode_call_values(changed, 3, wire, sizeof wire);
+    NanoValue result = val_void();
+    ASSERT(n && !cop_apply_call_reply(wire, n, original, 2, &result, &heap));
+    ASSERT_EQ(vm_array_get(a, 0).as.i64, 1);
+    original[1] = original[0];
+    changed[0] = val_array(a);
+    n = cop_encode_call_values(changed, 3, wire, sizeof wire);
+    ASSERT(n && !cop_apply_call_reply(wire, n, original, 2, &result, &heap));
+    vm_release(&heap, val_array(a)); vm_release(&heap, val_array(b));
+    vm_gc_collect_cycles(&heap);
+    ASSERT_EQ(heap.stats.num_objects, 0);
+    vm_heap_destroy(&heap);
+}
+
+TEST(pipe_exchange_deadlines_and_broken_peer) {
+    for (int mode = 0; mode < 4; ++mode) {
+        int send_pipe[2], recv_pipe[2];
+        ASSERT(pipe(send_pipe) == 0 && pipe(recv_pipe) == 0);
+        pid_t child = fork();
+        ASSERT(child >= 0);
+        if (!child) {
+            close(send_pipe[1]); close(recv_pipe[0]);
+            if (mode == 1) {
+                CopMsgHeader header;
+                uint8_t request;
+                if (!cop_recv_header(send_pipe[0], &header) ||
+                    !cop_recv_payload(send_pipe[0], &request, 1)) _exit(2);
+                uint8_t partial[8] = {COP_PROTO_VERSION, COP_MSG_FFI_RESULT, 0, 0, 10, 0, 0, 0};
+                if (write(recv_pipe[1], partial, sizeof partial) != sizeof partial) _exit(3);
+            }
+            if (mode == 2) _exit(0);
+            for (;;) pause();
+        }
+        close(send_pipe[0]); close(recv_pipe[1]);
+        if (mode == 2) ASSERT(waitpid(child, NULL, 0) == child);
+        size_t size = mode == 0 ? COP_MAX_PAYLOAD : 1;
+        uint8_t *request = calloc(size, 1);
+        ASSERT(request);
+        int flags = fcntl(send_pipe[1], F_GETFL);
+        struct timespec start, finish;
+        ASSERT(clock_gettime(CLOCK_MONOTONIC, &start) == 0);
+        CopMsgType type;
+        uint8_t *reply;
+        uint32_t reply_size;
+        ASSERT(!cop_exchange(mode == 3 ? -1 : send_pipe[1], recv_pipe[0], request, (uint32_t)size,
+                             50, &type, &reply, &reply_size));
+        ASSERT(clock_gettime(CLOCK_MONOTONIC, &finish) == 0);
+        double elapsed = finish.tv_sec - start.tv_sec + (finish.tv_nsec - start.tv_nsec) / 1e9;
+        ASSERT(elapsed < 2.0);
+        ASSERT(reply == NULL && reply_size == 0);
+        int restored = fcntl(send_pipe[1], F_GETFL);
+        ASSERT(restored >= 0);
+        /* Darwin can expose additional internal pipe status bits after I/O;
+         * I check the caller-visible modes this helper must preserve. */
+        int modes = O_NONBLOCK | O_APPEND | O_ACCMODE;
+        ASSERT_EQ(restored & modes, flags & modes);
+        free(request);
+        close(send_pipe[1]); close(recv_pipe[0]);
+        if (mode != 2) { kill(child, SIGKILL); ASSERT(waitpid(child, NULL, 0) == child); }
+    }
+}
+
 int main(void) {
     printf("\n[cop_protocol] Co-process protocol tests...\n\n");
     RUN(serialize_int);
+    RUN(pipe_exchange_deadlines_and_broken_peer);
+    RUN(call_envelope_aliases_and_atomic_reply);
+    RUN(call_envelope_rejects_bad_references_and_topology);
     RUN(serialize_negative_int);
     RUN(serialize_int_little_endian);
     RUN(deserialize_int_little_endian);
@@ -643,6 +797,7 @@ int main(void) {
     RUN(serialize_string_length_little_endian);
     RUN(deserialize_hostile_lengths);
     RUN(serialize_array_roundtrip);
+    RUN(decode_nested_array_ownership);
     RUN(batch_roundtrip_many_calls);
     RUN(batch_empty_is_noop);
     RUN(batch_bad_import_reports_error);

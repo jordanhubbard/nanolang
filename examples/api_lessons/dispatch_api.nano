@@ -23,6 +23,7 @@ shadow noop_work {
 }
 
 fn drain_serial_queue() -> int {
+    if (not (dispatch_available)) { return -1 }
     let q: NlQueue = (queue_serial "nano.api_lesson.serial")
     (queue_sync q fn() -> void { (noop_work) })
     (queue_destroy q)
@@ -30,10 +31,15 @@ fn drain_serial_queue() -> int {
 }
 
 shadow drain_serial_queue {
-    assert (== (drain_serial_queue) 0)
+    if (dispatch_available) {
+        assert (== (drain_serial_queue) 0)
+    } else {
+        assert (== (drain_serial_queue) -1)
+    }
 }
 
 fn run_group_fanout() -> int {
+    if (not (dispatch_available)) { return -1 }
     let q: NlQueue = (queue_concurrent "nano.api_lesson.fanout")
     let g: NlQueueGroup = (group_create)
     let mut i: int = 0
@@ -48,10 +54,18 @@ fn run_group_fanout() -> int {
 }
 
 shadow run_group_fanout {
-    assert (== (run_group_fanout) 0)
+    if (dispatch_available) {
+        assert (== (run_group_fanout) 0)
+    } else {
+        assert (== (run_group_fanout) -1)
+    }
 }
 
 fn main() -> int {
+    if (not (dispatch_available)) {
+        (println "I require Apple libdispatch for this lesson.")
+        return 0
+    }
     (drain_serial_queue)
     let rc: int = (run_group_fanout)
     (println (+ "dispatch group rc: " (int_to_string rc)))
