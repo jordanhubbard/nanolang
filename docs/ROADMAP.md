@@ -2658,17 +2658,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           All four int/string pairs pass VM values, including empty extraction.
           See `docs/evidence/map-constructor-contexts.md`.
           MAC `task_f4e1871af407805219770d7620d58349`.
-        - [ ] I keep native map cleanup inside the binding scope. A map local
-          declared in a selected arm currently reaches function cleanup as an
-          undeclared C name; VM execution passes.
+        - [x] I keep native map cleanup inside the binding scope. Match arms
+          now emit cleanup before leaving their lexical C block, and my full
+          four-pair native/VM map fixture runs without removing selected arms.
+          Fresh bootstrap and 36 map/effect/selected-ownership methods pass;
+          alias/return controls and 20 opaque finalizers establish the bounded
+          behavior in `docs/evidence/native-map-lexical-cleanup.md`.
+          I preserved the recovered fleet patch and removed its proposed
+          early-return changes. Map deallocation and borrowed-result lifetime
+          remain separate obligations below.
           MAC `task_1edadd5eb33a445d9bf6516744bc405e`.
-          I recovered the preserved fleet source/test diff after its build lacked
-          `ffi.h`. I retain only lexical match-arm scope tracking; the recovered
-          early-return cleanup runs before evaluating the result and mutates
-          shared cleanup flags across conditional paths, so I remove that part.
-          I require all four native/VM map tag pairs, alias reuse, computed
-          returns and both conditional paths before closing this bounded repair.
-          The original patch and failed fleet evidence remain preserved.
         - [ ] I retain map key/value metadata when a native map operation takes
           a direct call result. `map_get (returned true)` currently falls back
           to an integer result for a declared string/string map; a typed local
