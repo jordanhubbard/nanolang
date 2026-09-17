@@ -4105,3 +4105,8 @@ test-units: test-nanoisa-emit-driver
 .PHONY: test-nanoisa-emit-driver
 test-nanoisa-emit-driver: nanoisa_emit nano_vm nvm2c nanoisa_dump
 	@python3 -m unittest tests.test_nanoisa_emit_driver
+
+.PHONY: test-nanoisa-shadow-isolation
+test-units: test-nanoisa-shadow-isolation
+test-nanoisa-shadow-isolation: $(COMPILER_C)
+	@python3 -m unittest tests.test_nanoisa_shadow_isolation
