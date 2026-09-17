@@ -19,7 +19,8 @@ Validation:
 
 - `make -j8 test-nanoisa-src-nano`: 86 comparison checks and all 64 Python
   methods pass. These include the bytecode-executed emitter's exact assembly
-  comparison and initializer-order assertions.
+  comparison and initializer-order assertions. The integrated rerun after
+  rebasing onto `482bdfb9` also passes all 64 methods (74.535 seconds).
 - `make -j8 bootstrap`: a fresh three-stage native bootstrap passes its
   configured smoke gates. Its native binaries differ; this establishes no
   canonical bytecode fixed point.
@@ -33,6 +34,7 @@ Validation:
 
 Retained logs are `/tmp/nanolang-shared-ownership-gate.log`,
 `/tmp/nanolang-shared-ownership-bootstrap.log`,
+`/tmp/nanolang-shared-ownership-integrated-gate.log`,
 `/tmp/nanolang-shared-ownership-{before,after}.log`, and
 `/tmp/nanolang-shared-ownership-native-build.log`. The comparison fixture is
 `/tmp/nanolang-shared-ownership-native.nano`; its generated C is retained as
