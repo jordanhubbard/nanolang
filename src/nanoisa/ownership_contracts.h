@@ -9,7 +9,7 @@
 
 /* I validate declarations, not instruction lifetimes. Resource/reference
  * declarations set requires_verifier; executable consumers must refuse them
- * until the ownership instruction verifier and runtime are implemented. */
+ * unless the shared executable ownership verifier admits their exact subset. */
 NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
                                             bool *requires_verifier);
 #endif

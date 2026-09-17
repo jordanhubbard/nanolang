@@ -9,6 +9,7 @@
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
 #include "../nanoisa/ownership_contracts.h"
+#include "../nanoisa/nvm_v2_sections.h"
 #include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
@@ -193,18 +194,22 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
  * VM falls back to the checked handlers. */
 /* Checked stack handlers do not implement declared reference semantics.
  * I refuse these contracts even when a caller bypasses the CLI verifier. */
-static bool vm_module_ownership_supported(const NvmModule *module) {
+static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
     if (!module) return false;
     if (!module->ownership_data && !module->ownership_size) return true;
     bool needs = false;
-    return nvm_ownership_contracts_validate(module, &needs) == NVM_V2_OK && !needs;
+    return nvm_ownership_contracts_validate(module, &needs) == NVM_V2_OK &&
+        ((!needs && !nvm_uses_owned_transfers(module)) ||
+         (standalone && nvm_verify_owned_module(module).ok));
 }
 
 static bool vm_ownership_supported(const VmState *vm) {
-    if (!vm || !vm_module_ownership_supported(vm->module) ||
-        !vm_module_ownership_supported(vm->root_module)) return false;
-    for (uint32_t i = 0; i < vm->linked_module_count; i++)
-        if (!vm_module_ownership_supported(vm->linked_modules[i])) return false;
+    if (!vm) return false;
+    bool standalone=vm->linked_module_count==0 && vm->module==vm->root_module;
+    if (!vm_module_ownership_supported(vm->module,standalone) ||
+        !vm_module_ownership_supported(vm->root_module,standalone)) return false;
+    for (uint32_t i=0;i<vm->linked_module_count;i++)
+        if (!vm_module_ownership_supported(vm->linked_modules[i],false)) return false;
     return true;
 }
 
@@ -1192,6 +1197,8 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
 VmTrap vm_core_execute(VmState *vm) {
     if (!vm_ownership_supported(vm))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+    const bool owned_execution = vm->module->ownership_size &&
+        nvm_verify_owned_module(vm->module).ok;
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
@@ -1547,8 +1554,62 @@ vm_dispatch_top:
         VM_CASE(OP_OWN_MOVE_LOCAL)
         VM_CASE(OP_OWN_STORE_LOCAL)
         VM_CASE(OP_OWN_PACK)
-        VM_CASE(OP_OWN_UNPACK_LOCAL)
-            return trap_error(vm, VM_ERR_NOT_IMPLEMENTED, "I require owned-transfer execution semantics before execution");
+        VM_CASE(OP_OWN_UNPACK_LOCAL) {
+            if (!owned_execution)
+                return trap_error(vm, VM_ERR_NOT_IMPLEMENTED,
+                                  "I require owned-transfer execution semantics before execution");
+            uint8_t op=instr.opcode;
+            if (op==OP_OWN_PACK) {
+                NvmV2Layouts layouts={0};
+                if (nvm_v2_layouts_decode(vm->module->layout_data, vm->module->layout_size, &layouts)!=NVM_V2_OK)
+                    return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned record fields");
+                uint32_t layout=instr.operands[0].u32;
+                uint16_t count=layouts.items[layout].field_count;
+                nvm_v2_layouts_free(&layouts);
+                if (!stack_has_operands(vm,count))
+                    return trap_error(vm,VM_ERR_STACK_UNDERFLOW,"I require every owned field");
+                if (stack_reserve(vm,(uint64_t)vm->stack_size+1)!=VM_OK)
+                    return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve an owned record result");
+                VmStruct *record=vm_struct_new(&vm->heap,layout,count);
+                if (!record) return trap_error(vm,VM_ERR_MEMORY,"I cannot allocate an owned record");
+                for (uint16_t i=count;i>0;i--) record->fields[i-1]=stack_pop(vm);
+                stack_push(vm,val_struct(record));
+            } else {
+                uint32_t index=effect_local_index(vm,frame,instr.operands[0].u16);
+                if (index>=vm->stack_size)
+                    return trap_error(vm,VM_ERR_OUT_OF_BOUNDS,"I require an owned local slot");
+                if (op==OP_OWN_STORE_LOCAL) {
+                    NanoValue previous=vm->stack[index];
+                    vm->stack[index]=stack_pop(vm);
+                    vm_release(&vm->heap,previous);
+                } else {
+                    NanoValue value=vm->stack[index];
+                    if (value.tag!=TAG_STRUCT || !value.as.sval)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned record");
+                    if (op==OP_OWN_MOVE_LOCAL) {
+                        /* I preserve the owner even if this handler is later
+                         * separated from the common instruction preflight. */
+                        if (stack_reserve(vm,(uint64_t)vm->stack_size+1)!=VM_OK)
+                            return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve a moved owner");
+                        vm->stack[index]=val_void();
+                        stack_push(vm,value);
+                    } else {
+                        VmStruct *record=value.as.sval;
+                        if (stack_reserve(vm,(uint64_t)vm->stack_size+record->field_count)!=VM_OK)
+                            return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve every unpacked field");
+                        vm->stack[index]=val_void();
+                        for (uint32_t i=0;i<record->field_count;i++) {
+                            stack_push(vm,record->fields[i]);
+                            record->fields[i]=val_void();
+                        }
+                        bool buffered=record->header.buffered;
+                        vm_release(&vm->heap,value);
+                        if (buffered) vm_gc_collect_cycles(&vm->heap);
+                    }
+                }
+            }
+            VM_NEXT();
+        }
 
         VM_CASE(OP_NOP)
             VM_NEXT();

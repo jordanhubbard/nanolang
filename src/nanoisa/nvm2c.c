@@ -11,6 +11,10 @@
 #include "utf8.h"
 #include "nvm2c_shape.h"
 #include "ownership_contracts.h"
+#include "affine_state.h"
+#include "affine_bytecode.h"
+#include "verifier.h"
+#include "../nanovm/vm_decode.h"
 
 #include <stdarg.h>
 #include <limits.h>
@@ -5070,24 +5074,7 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
     return 1;
 }
 
-/* I refuse transfer instructions even without their required declarations. */
-static bool has_owned_transfers(const NvmModule *mod) {
-    if (mod->function_count && !mod->functions) return true;
-    for (uint32_t f=0;f<mod->function_count;f++) {
-        const NvmFunctionEntry *fn=&mod->functions[f];
-        if (fn->code_offset>mod->code_size || fn->code_length>mod->code_size-fn->code_offset ||
-            (fn->code_length && !mod->code)) return true;
-        uint32_t offset=0;
-        while (offset<fn->code_length) {
-            DecodedInstruction instruction;
-            uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
-            if (!count) break;
-            if (instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_OWN_UNPACK_LOCAL) return true;
-            offset+=count;
-        }
-    }
-    return false;
-}
+#include "nvm2c_owned.h"
 
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
@@ -5097,7 +5084,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
     bool needs_ownership = false;
     if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
-        has_owned_transfers(mod)) {
+        nvm_uses_owned_transfers(mod)) {
+        if (nvm_verify_owned_module(mod).ok) return emit_owned_module(mod, err, err_len);
         if (err && err_len) snprintf(err, err_len,
             "I require valid reference lifetime and ownership instruction verification before translation");
         return NULL;

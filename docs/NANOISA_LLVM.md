@@ -23,3 +23,15 @@ ASCII identifier in my reserved target-entry namespace; other names are
 refused before publication. My Wasm translator uses this API to avoid the
 wasm32 C-main startup convention. The underlying scalar result remains i32
 at the host entry boundary.
+
+## My bounded float continuation
+
+Task `task_4b6401a64a3b4accaae1d087c4c1aea2` adds typed F64 values to the existing tagged scalar ABI. I preserve exact constant bits and tags through locals, branches, calls and checked returns. I use ordered float comparisons except `F64_NE`, whose unordered predicate keeps NaN unequal. Division by either zero returns positive zero, and float truthiness treats both signed zeros as false and NaN as true.
+
+For admitted int/bool/float/void scalars, CAST_FLOAT follows VM conversion; CAST_BOOL stays refused until the separate C/LLVM common-profile continuation. CAST_INT guards the ordered interval [-2^63,2^63) before fptosi, rejecting NaN, infinity and out-of-range values rather than producing LLVM poison. I do not enable fast-math flags, generic cross-type comparisons, heap values, imports or initializer/implicit-exit support here. The executable entry remains integer/bool; float helper results are supported.
+
+Scalar CAST_BOOL continuation is `task_59c773b34bec49f4b46d5a0b4a8f2de7`; I do not treat branch truthiness support as opcode coverage.
+
+My float gate passes 17 methods in 24.787 seconds, and again in 23.198 seconds with the new translator sources instrumented by ASan/UBSan/LSan (existing linked ISA objects remain normally compiled). Logs are `/tmp/nanolang-llvm-floats-zero-bits.log` and `/tmp/nanolang-llvm-floats-sanitizer-tests.log`. The unchanged modules execute through VM, C AOT, LLVM JIT, optimized LLVM and linked LLVM native code. Five NaN/infinity/range cases stop before invalid integer conversion. An additional LLVM harness checks returned signed-zero bits, including positive zero from a negative-zero divisor. This initial run did not establish Wasm coverage; the integrated gate below adds that evidence without claiming general heap/import coverage.
+
+After the named-entry/Wasm foundation merge `2fdaeab7`, I pass all 28 LLVM and Wasm methods in 42.767 seconds (`/tmp/nanolang-llvm-wasm-floats-final.log`). The shared F64 fixtures run through Wasmtime and import-free Node as well as the existing VM/C/LLVM paths. They exercise typed arithmetic/comparisons, NaN, calls, locals, joins, zero truthiness and checked conversion; Wasmtime also rejects the five invalid float-to-int inputs. I retain the initial invalid string-table fixture syntax in `/tmp/nanolang-llvm-wasm-floats-integrated.log`; the corrected refusal uses an assembled string constant.
