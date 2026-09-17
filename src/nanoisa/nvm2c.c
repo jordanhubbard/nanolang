@@ -1280,7 +1280,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (value.kind != NVM2C_VK_UNK && value.kind != NVM2C_VK_INT &&
                     value.kind != NVM2C_VK_BOOL && value.kind != NVM2C_VK_FLOAT &&
                     value.kind != NVM2C_VK_VALUE) {
-                    nvm2c_fail(b, "I support scalar truthiness only for void, int, bool and float");
+                    nvm2c_fail(b, "I support scalar truthiness only for void, int, u8, bool and float");
                     return 0;
                 }
             }
@@ -2321,7 +2321,7 @@ static int stack_pop_scalar_condition(Nvm2cBuf *b, Nvm2cStack *st) {
             nvm2c_printf(b, "    if (v[%d].kind != 0 && v[%d].kind != 1 && v[%d].kind != 2 && v[%d].kind != 3 && v[%d].kind != 4) abort();\n",
                         slot, slot, slot, slot, slot);
         } else if (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT) {
-            nvm2c_fail(b, "I support scalar truthiness only for void, int, bool and float");
+            nvm2c_fail(b, "I support scalar truthiness only for void, int, u8, bool and float");
             return -1;
         }
     }
@@ -3431,8 +3431,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 int value = stack_pop(b, &st);
                 char expression[360];
                 snprintf(expression, sizeof expression,
-                    "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : (v[%d].kind == 1 || v[%d].kind == 2) ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
-                    value, value, value, value, value, value, value, value, value);
+                    "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : v[%d].kind == 1 ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
+                    value, value, value, value, value, value, value, value);
                 stack_push_str(b, &st, expression);
                 break;
             }
@@ -4210,7 +4210,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     if (!terminated) {
         if (!scalar_return_profile(fn)) {
-            nvm2c_fail(b, "function %u: I support implicit returns only for zero results or one int/bool/float", idx);
+            nvm2c_fail(b, "function %u: I support implicit returns only for zero results or one int/u8/bool/float", idx);
             goto done;
         }
         if (!emit_scalar_return(b, &st, fn, idx)) goto done;

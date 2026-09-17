@@ -32,3 +32,9 @@ all same-byte order relations, exact conversion/result tags, call/branch
 transport, and previous-output preservation for unsupported profiles. I retain
 separate VM, native C, LLVM and Wasm evidence and do not claim full backend
 coverage from this scalar slice.
+
+My display control exposed a separate CAST_STRING(U8) empty-string fallback
+in the VM (`/tmp/nanolang-u8-common.log`, `/tmp/nanolang-u8-native-sanitized.log`).
+I record task_d08968be827a4d26942123825229ac8e rather than treating that fallback
+as an intended numeric formatting rule. This slice preserves it and tests
+ordinary numeric PRINTLN separately.

@@ -57,7 +57,7 @@ class ScalarU8(unittest.TestCase):
             self.assertEqual(target.read_text(), 'previous')
 
     def test_native_byte_display_and_unused_signature(self):
-        text = self.program('PUSH_U8 255\nPRINTLN\nPUSH_U8 128\nCAST_STRING\nPRINTLN\n',
+        text = self.program('PUSH_U8 255\nPRINTLN\nPUSH_U8 128\nPRINTLN\n',
             '.function unused 1 1 0 u8 1\n.parameters unused u8\nLOAD_LOCAL 0\nRET\n.end\n')
         module = self.module(text)
         vm = self.run_cmd([llvm.VM, module])
@@ -66,6 +66,27 @@ class ScalarU8(unittest.TestCase):
         self.run_cmd([llvm.C, module, '-o', c])
         self.run_cmd(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c, '-o', executable])
         self.assertEqual(self.run_cmd([executable]).stdout, vm.stdout)
+
+    def test_declared_byte_argument_retains_runtime_tag_guard(self):
+        suffix = ('.function checked 1 1 0 int 1\n.parameters checked u8\n'
+                  'LOAD_LOCAL 0\nTYPE_CHECK 2\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        self.compare(self.program('PUSH_I64 255\nCALL checked\nPOP\n', suffix), trap=True)
+
+    def test_declared_byte_result_checks_actual_return_tag(self):
+        suffix = ('.function wrong 1 1 0 u8 1\n.parameters wrong int\n'
+                  'LOAD_LOCAL 0\nRET\n.end\n')
+        module = self.module(self.program('PUSH_I64 255\nCALL wrong\nPOP\n', suffix))
+        self.run_cmd([llvm.VM, module], success=False)
+        ir, target = self.work/'wrong.ll', self.work/'wrong.wasm'
+        self.run_cmd([llvm.LLVM, module, '-o', ir])
+        self.run_cmd(['lli', ir], success=False)
+        self.run_cmd([wasm.WASM, module, '-o', target])
+        self.run_cmd(['wasmtime', 'run', '--invoke', 'nano_entry', target], success=False)
+        c = self.work/'wrong.c'
+        c.write_text('previous')
+        refusal = self.run_cmd([llvm.C, module, '-o', c], success=False)
+        self.assertIn('shape', refusal.stderr)
+        self.assertEqual(c.read_text(), 'previous')
 
     def test_typed_integer_instruction_still_checks_byte_tag(self):
         suffix = '.function add_one 1 1 0 int 1\n.parameters add_one int\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nRET\n.end\n'
