@@ -23,7 +23,9 @@ now fail before replacing output in every frontend. This does not establish
 selected-variant ownership transfer or NanoISA ownership support. The integrated
 log is `/tmp/nanolang-union-context-integrated.log`. All 49 adjacent methods
 also pass on that integrated source in 105.847 seconds; their log is
-`/tmp/nanolang-union-context-integrated-adjacent.log`.
+`/tmp/nanolang-union-context-integrated-adjacent.log`. After integrating the
+selected-pattern prerequisite PR428, another fresh bootstrap and all five paired
+methods pass in 30.142 seconds (`/tmp/nanolang-union-context-final-integration.log`).
 
 My local logs are `/tmp/nanolang-union-context-bootstrap.log`,
 `/tmp/nanolang-union-context-selfhost-tests.log`,
