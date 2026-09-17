@@ -1,0 +1,23 @@
+struct Unused { number: int }
+struct Message { text: string, count: int }
+enum First { Low = -4, High = 9 }
+enum Second { Zero, One }
+union UnusedResult { Ok { value: int }, Err { message: string } }
+
+fn copy_message(value: Message) -> Message {
+    return Message { text: value.text, count: value.count }
+}
+shadow copy_message {
+    let value: Message = Message { text: "kept", count: 37 }
+    let result: Message = (copy_message value)
+    assert (== result.text "kept")
+    assert (== result.count 37)
+}
+fn main() -> int {
+    let original: Message = Message { text: "kept", count: 37 }
+    let result: Message = (copy_message original)
+    assert (== result.text "kept")
+    assert (== result.count 37)
+    return 0
+}
+shadow main { assert (== (main) 0) }
