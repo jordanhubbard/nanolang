@@ -14,6 +14,7 @@
 #include "isa.h"
 #include "nvm_format.h"
 #include "nanoisa.h"
+#include "utf8.h"
 
 static int g_pass = 0, g_fail = 0;
 #ifdef __linux__
@@ -969,6 +970,73 @@ static void test_tagged_record_array(void) {
         char *source = nvm2c_emit(module, error, sizeof error);
         CHECK(source == NULL, "I refuse scalar, nested-array and mixed-field record construction");
         free(source); nvm_module_free(module);
+    }
+}
+
+static void test_character_host_imports(void) {
+    const char *names[] = {"vm_is_digit", "vm_is_alpha", "vm_is_alnum", "vm_is_space",
+                           "vm_is_upper", "vm_is_lower", "vm_is_whitespace", "vm_digit_value"};
+    const int64_t codes[] = {-257, -1, 0, 9, 10, 11, 12, 13, 32, 47, 48, 57, 58,
+                             64, 65, 90, 91, 96, 97, 122, 123, 127, 128, 255, 256,
+                             288, INT64_C(4294967361), INT64_MIN, INT64_MAX};
+    for (size_t kind = 0; kind < sizeof names / sizeof names[0]; ++kind) {
+        char source[8192];
+        size_t used = (size_t)snprintf(source, sizeof source,
+            ".import \"\" \"%s\" %s int\n.entry main\n.function main 0 0 0 int 1\n",
+            names[kind], kind == 7 ? "int" : "bool");
+        for (size_t i = 0; i < sizeof codes / sizeof codes[0]; ++i) {
+            int64_t code = codes[i], expected;
+            int c = (int)code;
+            switch (kind) {
+                case 0: expected = nl_ascii_isdigit(c); break;
+                case 1: expected = nl_ascii_isalpha(c); break;
+                case 2: expected = nl_ascii_isalnum(c); break;
+                case 3: expected = nl_ascii_isspace(c); break;
+                case 4: expected = nl_ascii_isupper(c); break;
+                case 5: expected = nl_ascii_islower(c); break;
+                case 6: expected = code == ' ' || code == '\t' || code == '\n' || code == '\r'; break;
+                default: expected = code >= '0' && code <= '9' ? code - '0' : -1; break;
+            }
+            int written = snprintf(source + used, sizeof source - used,
+                "PUSH_I64 %lld\nCALL_EXTERN 0\n%s %lld\nEQ\nASSERT\n",
+                (long long)code, kind == 7 ? "PUSH_I64" : "PUSH_BOOL", (long long)expected);
+            CHECK(written >= 0 && (size_t)written < sizeof source - used,
+                  "I retain the complete character host fixture");
+            if (written < 0 || (size_t)written >= sizeof source - used) break;
+            used += (size_t)written;
+        }
+        snprintf(source + used, sizeof source - used, "PUSH_I64 0\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, names[kind]);
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = emit_or_fail(m, "I bind exact character classification host signatures");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve ASCII classes, whitespace differences, and full-width VM input behavior");
+            free(c);
+        }
+        for (int bad = 0; bad < 8; ++bad) {
+            NvmImportEntry saved = m->imports[0];
+            uint8_t parameter = m->import_param_types[0][0];
+            switch (bad) {
+                case 0: m->imports[0].kind = NVM_IMPORT_COPROCESS; break;
+                case 1: m->imports[0].kind = NVM_IMPORT_ARTIFACT; break;
+                case 2: m->imports[0].return_type = kind == 7 ? TAG_BOOL : TAG_INT; break;
+                case 3: m->imports[0].module_name_idx = nvm_add_string(m, "libc", 4); break;
+                case 4: m->imports[0].param_count = 0; break;
+                case 5: m->import_param_types[0][0] = TAG_BOOL; break;
+                case 6: m->imports[0].module_name_idx = nvm_add_string(m, "\0foreign", 8); break;
+                default: m->imports[0].function_name_idx = nvm_add_string(m, names[kind],
+                                                                         (uint32_t)strlen(names[kind]) + 1); break;
+            }
+            c = nvm2c_emit(m, error, sizeof error);
+            CHECK(c == NULL, "I refuse character hosts with noncanonical namespace, kind, arity or tags");
+            free(c);
+            m->imports[0] = saved;
+            m->import_param_types[0][0] = parameter;
+        }
+        nvm_module_free(m);
     }
 }
 
@@ -6164,6 +6232,7 @@ int main(int argc, char **argv) {
     test_globals_cross_functions_and_preserve_identity();
     test_uninitialized_global_result_traps();
     test_builtin_host_imports();
+    test_character_host_imports();
     test_builtin_text_reader();
     test_builtin_text_writer();
     test_builtin_filesystem_predicates();
