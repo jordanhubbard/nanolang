@@ -1459,8 +1459,13 @@ test-nvm-v2-endtoend: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@./tests/nanoisa/test_nvm_v2_endtoend
 	@rm -f tests/nanoisa/test_nvm_v2_endtoend
 
+.PHONY: test-assembler-string-alloc
+test-assembler-string-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_assembler_string_alloc tests/nanoisa/test_assembler_string_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@./obj/test_assembler_string_alloc
+
 .PHONY: test-disasm-roundtrip
-test-disasm-roundtrip: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-disasm-roundtrip: test-assembler-string-alloc $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running canonical disassembly round-trip tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_disasm_roundtrip \
 		tests/nanoisa/test_disasm_roundtrip.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)

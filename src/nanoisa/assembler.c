@@ -14,13 +14,12 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <limits.h>
 
 /* ========================================================================
  * Label Table
  * ======================================================================== */
 
-#define MAX_LABELS 1024
-#define MAX_SYMBOLS 2048
 
 typedef enum {
     SYMBOL_FUNCTION,
@@ -47,7 +46,6 @@ typedef struct {
  * Patch List (forward references to resolve in pass 2)
  * ======================================================================== */
 
-#define MAX_PATCHES 2048
 
 typedef struct {
     char label[128];
@@ -63,14 +61,14 @@ typedef struct {
 typedef struct {
     NvmModule *mod;
 
-    Label labels[MAX_LABELS];
-    uint32_t label_count;
+    Label *labels;
+    uint32_t label_count, label_capacity;
 
-    Symbol symbols[MAX_SYMBOLS];
-    uint32_t symbol_count;
+    Symbol *symbols;
+    uint32_t symbol_count, symbol_capacity;
 
-    Patch patches[MAX_PATCHES];
-    uint32_t patch_count;
+    Patch *patches;
+    uint32_t patch_count, patch_capacity;
 
     /* Current function being assembled */
     bool in_function;
@@ -94,6 +92,9 @@ static void asm_state_init(AsmState *state) {
 
 static void asm_state_cleanup(AsmState *state) {
     free(state->fn_code);
+    free(state->labels);
+    free(state->symbols);
+    free(state->patches);
 }
 
 static void fn_emit(AsmState *state, const uint8_t *data, uint32_t size) {
@@ -231,8 +232,37 @@ static int find_symbol(const AsmState *state, SymbolKind kind, const char *name)
     return -1;
 }
 
-static bool add_symbol(AsmState *state, SymbolKind kind, const char *name, uint32_t value) {
-    if (state->symbol_count >= MAX_SYMBOLS || find_symbol(state, kind, name) >= 0) return false;
+/* Lookup helpers return signed indices; reject overflow before allocation. */
+static void *reserve_table(void *table, uint32_t *capacity, uint32_t count,
+                           size_t element_size, AsmResult *result) {
+    if (count < *capacity) return table;
+    if (count >= INT_MAX) {
+        result->error = ASM_ERR_BAD_OPERAND;
+        snprintf(result->message, sizeof(result->message), "I reached my assembler table index limit");
+        return NULL;
+    }
+    uint32_t next = *capacity ? (*capacity > INT_MAX / 2 ? INT_MAX : *capacity * 2) : 64;
+    if (next > SIZE_MAX / element_size) {
+        result->error = ASM_ERR_BAD_OPERAND;
+        snprintf(result->message, sizeof(result->message), "I cannot represent this assembler table size");
+        return NULL;
+    }
+    void *grown = realloc(table, (size_t)next * element_size);
+    if (!grown) {
+        result->error = ASM_ERR_MEMORY;
+        snprintf(result->message, sizeof(result->message), "I cannot grow this assembler table");
+        return NULL;
+    }
+    *capacity = next;
+    return grown;
+}
+
+static bool add_symbol(AsmState *state, SymbolKind kind, const char *name, uint32_t value, AsmResult *result) {
+    if (find_symbol(state, kind, name) >= 0) { result->error = ASM_ERR_DUPLICATE_SYMBOL; return false; }
+    Symbol *grown = reserve_table(state->symbols, &state->symbol_capacity,
+                                 state->symbol_count, sizeof(Symbol), result);
+    if (!grown) return false;
+    state->symbols = grown;
     Symbol *symbol = &state->symbols[state->symbol_count++];
     snprintf(symbol->name, sizeof(symbol->name), "%s", name);
     symbol->kind = kind;
@@ -274,6 +304,16 @@ static int hex_digit_value(char c) {
 /* Parse a quoted string: "hello world" -> hello world
  * Supports escape sequences: \n, \r, \t, \0, \\, \", and \xHH for
  * arbitrary bytes so binary strings round-trip losslessly. */
+/* Comment markers only terminate unquoted assembly text. */
+static void strip_trailing_comment(char *line) {
+    bool quoted = false;
+    for (char *p = line; *p; p++) {
+        if (quoted && *p == '\\' && p[1]) { p++; continue; }
+        if (*p == '"') { quoted = !quoted; continue; }
+        if (!quoted && (*p == ';' || *p == '#')) { *p = '\0'; return; }
+    }
+}
+
 static bool parse_quoted_string(const char **p, char *out, size_t out_size, uint32_t *out_len) {
     skip_whitespace(p);
     if (**p != '"') return false;
@@ -333,10 +373,9 @@ static int find_label(AsmState *state, const char *name, uint32_t function) {
     return -1;
 }
 
-static bool add_label(AsmState *state, const char *name, uint32_t offset) {
-    if (state->label_count >= MAX_LABELS) return false;
+static bool add_label(AsmState *state, const char *name, uint32_t offset, AsmResult *result) {
     int existing = find_label(state, name, state->current_function);
-    if (existing >= 0 && state->labels[existing].defined) return false; /* duplicate */
+    if (existing >= 0 && state->labels[existing].defined) { result->error = ASM_ERR_DUPLICATE_LABEL; return false; }
 
     if (existing >= 0) {
         state->labels[existing].offset = offset;
@@ -344,6 +383,10 @@ static bool add_label(AsmState *state, const char *name, uint32_t offset) {
         return true;
     }
 
+    Label *grown = reserve_table(state->labels, &state->label_capacity,
+                                state->label_count, sizeof(Label), result);
+    if (!grown) return false;
+    state->labels = grown;
     Label *l = &state->labels[state->label_count++];
     snprintf(l->name, sizeof(l->name), "%s", name);
     l->offset = offset;
@@ -352,13 +395,17 @@ static bool add_label(AsmState *state, const char *name, uint32_t offset) {
     return true;
 }
 
-static void add_patch(AsmState *state, const char *label, uint32_t code_offset, uint32_t instr_start) {
-    if (state->patch_count >= MAX_PATCHES) return;
+static bool add_patch(AsmState *state, const char *label, uint32_t code_offset, uint32_t instr_start, AsmResult *result) {
+    Patch *grown = reserve_table(state->patches, &state->patch_capacity,
+                                state->patch_count, sizeof(Patch), result);
+    if (!grown) return false;
+    state->patches = grown;
     Patch *p = &state->patches[state->patch_count++];
     snprintf(p->label, sizeof(p->label), "%s", label);
     p->code_offset = code_offset;
     p->instr_start = instr_start;
     p->function = state->current_function;
+    return true;
 }
 
 /* ========================================================================
@@ -456,8 +503,8 @@ static uint32_t encode_operand(uint8_t *buf, OperandType type, uint8_t opcode,
                              "Expected label or i32 operand");
                     return 0;
                 }
-                add_patch(state, label, state->fn_code_size + (uint32_t)(buf - (state->fn_code + state->fn_code_size)),
-                          instr_start);
+                /* assemble_instruction sets the final operand offset. */
+                if (!add_patch(state, label, 0, instr_start, result)) return 0;
                 /* Placeholder - will be patched */
                 memset(buf, 0, 4);
                 return 4;
@@ -619,21 +666,42 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
         }
 
         if (strcmp(directive, "string") == 0) {
-            char buf[4096];
             char name[128];
             uint32_t len;
             const char *before_name = p;
             bool named = parse_identifier(&p, name, sizeof(name));
             if (!named) p = before_name;
-            if (!parse_quoted_string(&p, buf, sizeof(buf), &len)) {
+            size_t source_length = strlen(p);
+            if (source_length >= UINT32_MAX) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof(result->message),
+                         "I require a string literal within the u32 length limit");
+                return false;
+            }
+            char *buf = malloc(source_length + 1);
+            if (!buf) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof(result->message),
+                         "I cannot allocate this string literal");
+                return false;
+            }
+            if (!parse_quoted_string(&p, buf, source_length + 1, &len)) {
+                free(buf);
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
                          "Expected quoted string after .string");
                 return false;
             }
             uint32_t index = nvm_add_string(state->mod, buf, len);
-            if (named && !add_symbol(state, SYMBOL_CONSTANT, name, index)) {
-                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+            free(buf);
+            if (index == UINT32_MAX) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof(result->message),
+                         "I cannot retain this string literal");
+                return false;
+            }
+            if (named && !add_symbol(state, SYMBOL_CONSTANT, name, index, result)) {
+                if (result->error != ASM_ERR_DUPLICATE_SYMBOL) return false;
                 snprintf(result->message, sizeof(result->message),
                          "Duplicate constant symbol: %.200s", name);
                 return false;
@@ -804,8 +872,8 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                          "Expected: .symbol function|import|field|type|constant name index");
                 return false;
             }
-            if (!add_symbol(state, kind, name, value)) {
-                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+            if (!add_symbol(state, kind, name, value, result)) {
+                if (result->error != ASM_ERR_DUPLICATE_SYMBOL) return false;
                 snprintf(result->message, sizeof(result->message),
                          "Duplicate %s symbol: %.200s", symbol_kind_name(kind), name);
                 return false;
@@ -858,7 +926,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             state->current_function = nvm_add_function(state->mod, &fn);
             int symbol = find_symbol(state, SYMBOL_FUNCTION, name);
             if (symbol < 0 || state->symbols[symbol].value != state->current_function) {
-                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                if (result->error != ASM_ERR_DUPLICATE_SYMBOL) return false;
                 snprintf(result->message, sizeof(result->message),
                          "Duplicate function symbol: %.200s", name);
                 return false;
@@ -988,8 +1056,8 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                              "Label outside .function/.end block");
                     return false;
                 }
-                if (!add_label(state, ident, state->fn_code_size)) {
-                    result->error = ASM_ERR_DUPLICATE_LABEL;
+                if (!add_label(state, ident, state->fn_code_size, result)) {
+                    if (result->error != ASM_ERR_DUPLICATE_LABEL) return false;
                     snprintf(result->message, sizeof(result->message),
                              "Duplicate label: %s", ident);
                     return false;
@@ -1062,11 +1130,11 @@ static bool collect_function_symbols(AsmState *state, const char *source, AsmRes
             cursor += 9;
             char name[128];
             if (parse_identifier(&cursor, name, sizeof(name)) &&
-                !add_symbol(state, SYMBOL_FUNCTION, name, function_index++)) {
-                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                !add_symbol(state, SYMBOL_FUNCTION, name, function_index++, result)) {
                 result->line = line;
-                snprintf(result->message, sizeof(result->message),
-                         "Duplicate function symbol: %.200s", name);
+                if (result->error == ASM_ERR_DUPLICATE_SYMBOL)
+                    snprintf(result->message, sizeof(result->message),
+                             "Duplicate function symbol: %.200s", name);
                 free(line_buf);
                 return false;
             }
@@ -1120,10 +1188,7 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
         line_buf[line_len] = '\0';
 
         /* Strip trailing comment */
-        char *comment = strchr(line_buf, ';');
-        if (comment) *comment = '\0';
-        comment = strchr(line_buf, '#');
-        if (comment) *comment = '\0';
+        strip_trailing_comment(line_buf);
 
         /* Strip trailing whitespace */
         size_t len = strlen(line_buf);
