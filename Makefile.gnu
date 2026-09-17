@@ -726,6 +726,13 @@ test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	@./tests/nanovm/test_vm_ffi
 	@rm -f tests/nanovm/test_vm_ffi
 
+.PHONY: test-vm-path-normalize-sanitizers
+test-vm-path-normalize-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -fno-sanitize-recover=all -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_vm_path_normalize \
+		tests/nanovm/test_vm_ffi.c src/nanovm/vm_ffi.c $(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NANO_TEST_PATH_ALIASES_ONLY=1 ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_vm_path_normalize
+
 .PHONY: test-wrapper-gen
 test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o
 	@echo "Running wrapper_gen unit tests..."

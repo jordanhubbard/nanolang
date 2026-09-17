@@ -1151,7 +1151,41 @@ TEST(sdl_image_cleanup_dispatch) {
     vm_ffi_shutdown();
 }
 
+TEST(builtin_path_normalize_aliases) {
+    const char *aliases[] = {"path_normalize", "nl_os_path_normalize"};
+    const char *paths[][2] = {{"", "."}, {"/../../a//b/..", "/a"},
+        {"../../a/../b", "../../b"}, {"a/./b/../c", "a/c"}, {"é/../空", "空"}};
+    vm_ffi_init();
+    VmHeap heap; vm_heap_init(&heap);
+    for (size_t alias=0;alias<2;alias++) {
+        NvmModule *module=nvm_module_new(); ASSERT(module);
+        uint32_t library=nvm_add_string(module,"",0);
+        uint32_t symbol=nvm_add_string(module,aliases[alias],(uint32_t)strlen(aliases[alias]));
+        uint8_t tag=TAG_STRING;
+        uint32_t imported=nvm_add_import(module,library,symbol,1,TAG_STRING,&tag);
+        for (size_t repeat=0;repeat<100;repeat++) for (size_t i=0;i<5;i++) {
+            NanoValue argument=val_string(vm_string_new(&heap,paths[i][0],(uint32_t)strlen(paths[i][0])));
+            NanoValue result=val_void(); char error[256]={0};
+            ASSERT(vm_ffi_call(module,imported,&argument,1,&result,&heap,error,sizeof error));
+            ASSERT(result.tag==TAG_STRING && result.as.string);
+            ASSERT(strcmp(vmstring_cstr(result.as.string),paths[i][1])==0);
+            vm_release(&heap,result); vm_release(&heap,argument);
+            ASSERT_EQ(heap.stats.num_objects,0);
+        }
+        NanoValue wrong=val_int(1), result=val_void(); char error[256]={0};
+        ASSERT(!vm_ffi_call(module,imported,&wrong,1,&result,&heap,error,sizeof error));
+        ASSERT(strstr(error,"take and return a string"));
+        ASSERT_EQ(heap.stats.num_objects,0);
+        nvm_module_free(module);
+    }
+    vm_heap_destroy(&heap); vm_ffi_shutdown();
+}
+
 int main(void) {
+    if (getenv("NANO_TEST_PATH_ALIASES_ONLY")) {
+        RUN(builtin_path_normalize_aliases);
+        return g_fail ? 1 : 0;
+    }
     if (getenv("NANO_TEST_SDL_ARRAY_LIBRARY")) RUN(sdl_image_cleanup_dispatch);
     if (getenv("NANO_TEST_SDL_ARRAY_ONLY")) {
         if (g_pass == 1 && g_fail == 0) {
@@ -1160,6 +1194,7 @@ int main(void) {
         }
         return 1;
     }
+    RUN(builtin_path_normalize_aliases);
     RUN(retained_native_strings);
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
