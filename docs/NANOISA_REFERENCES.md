@@ -195,3 +195,29 @@ are not heap-storable values. No API operation copies a reference into an
 ordinary local, packs it into a record or returns it. I retain uninitialized
 and consumed locals as equally unavailable; loop joins require the same live
 obligations and reference provenance, not an identical history of moves.
+
+## Bounded bytecode dataflow contract
+
+My next analysis consumes a decoded function, not a producer-supplied list
+of transitions. I initially admit exact numeric/bool stack values, scalar
+locals and read-only observations of record parameters. `LOAD_LOCAL` of a
+record produces an observation tied to its checked root, never an owned copy.
+Only a checked scalar `AGG_GET`/`STRUCT_GET` may turn that observation into a
+scalar value. I refuse observation duplication, stores, returns, calls,
+aggregate construction and mutation until their distinct transfer/reference
+instruction contracts are connected. An observation does not consume a live
+resource obligation.
+
+I propagate cloned local state and stack tags/provenance along reachable
+branch edges. Each join and loop back edge must match exactly; I do not widen
+missing or conflicting facts. I require explicit returns with the exact
+scalar result tag and no remaining owned obligations. I reject falling off
+the code end. Instructions outside this slice are refused even in dead code,
+so dead branches cannot hide an unimplemented transfer operation.
+
+This analysis initially bounds a function at 4096 decoded instructions,
+256 locals and 256 stack values; exceeding a bound is explicit refusal.
+Those bounds limit analysis storage and do not alter general NanoISA limits.
+Entry references still assume a separately checked caller contract. Analysis
+success does not satisfy `nvm_verify`, install new runtime semantics or lift
+any existing ownership execution refusal. Source producers remain disabled.
