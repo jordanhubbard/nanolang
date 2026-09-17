@@ -50,3 +50,20 @@ post-substitution failure in `/tmp/nanolang-selfhost-union-contexts-first.log`.
 My passing nested-value control uses an explicitly typed inner reader; it
 does not establish either missing behavior above. Resource-collection
 ownership and full compiler bytecode bootstrap remain separate work.
+
+## Validation
+
+Fresh `make bootstrap` passes. All fourteen methods in
+`python3 -m unittest -v tests.test_selfhost_generic_contexts tests.test_native_nominal_order tests.test_native_nested_generics`
+pass in 100.684 seconds (33 compiler decisions, including the existing
+expected layout-cycle refusals). The new target participates in `test-units`.
+
+I also rebuilt compiler bytecode with the C frontend, translated and compiled
+it to a native compiler, and ran help/default-native hello plus explicit
+`--emit-nvm` hello. That same hello module passes NanoVM and native AOT
+execution. Commands and products are retained in
+`/tmp/nanolang-union-contexts-product`; the compiler host-C build took 75.078s.
+This checks regression of the bounded bridge, not self-emission or a bytecode
+fixed point. Bootstrap and focused logs are
+`/tmp/nanolang-selfhost-union-contexts-final-bootstrap.log` and
+`/tmp/nanolang-selfhost-union-contexts-final.log`.
