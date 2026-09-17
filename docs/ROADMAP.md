@@ -8722,7 +8722,7 @@ Compiler product:
       shadow module now passes, resolving the baseline assertion under
       `task_fdf43892a1104b1facddc2553af390af`. Fresh current-main closure and
       canonical cutover remain separate; see `evidence/vm-deferred-cycle-counts.md`.
-- [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). The complete compiler shadow assertion remains open under `task_fdf43892a1104b1facddc2553af390af`; this repair does not resolve it.
+- [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). This edge-publication repair alone did not resolve the compiler shadow assertion; the separate deferred-cycle repair above closes that recorded baseline failure.
 - [x] I retain stack context for assertion failures under VM debug mode or module debug metadata, as I already do for ordinary runtime errors. My VM suite passes 272595 checks, including assertion function/source context and unchanged ordinary output (`task_10e6ea8cf0f34321b9dff21594eb9e8a`).
 - [x] I retain checked filesystem foreign signatures in the complete
       dependency shadow closure, including `fs_walkdir` string arrays and
