@@ -4343,3 +4343,9 @@ test-borrow-annotations: bootstrap
 test-selfhost-range-bounds: bootstrap
 	python3 -m unittest -v tests.test_selfhost_range_bounds
 test-units: test-selfhost-range-bounds
+
+.PHONY: test-native-floats
+test-native-floats: nvm2c nanoisa_dump nano_vm
+	@python3 -m unittest -v tests.test_native_floats
+
+test-units: test-native-floats
