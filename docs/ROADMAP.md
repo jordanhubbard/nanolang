@@ -8729,6 +8729,11 @@ Compiler product:
       scalar filesystem operations. I preserve owning artifact identity and
       the existing VM/native ABI without excluding dependency shadows
       (`task_41323f26030d452f92bbdbf69a0a8704`).
+- [ ] I run canonical `--emit-nvm` shadow checks as verified bytecode before
+      publishing, returning before my C transpiler and native shadow build.
+      I retain dependency selection, completion/deadline checks and previous
+      output on failure; complete compiler shadow lowering remains required
+      (`task_c5a7a4835d364b50b747018c794a07d0`).
 - [x] I supervise standalone VM shadow execution with a verified module,
       completion handshake and bounded parent deadline. I reject early exit,
       failed execution and incompatible CLI modes before canonical publication
