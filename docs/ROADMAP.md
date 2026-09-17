@@ -27,7 +27,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
+- [x] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
       TypeInfo before implementing selected-variant ownership transfer. MAC
       `task_1f64c9b88a5248dcbda2258dcbee99f7`.
       - [x] I record nested ordinary execution and resource-rejection baselines.
@@ -93,6 +93,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/v5.1-release-readiness.md`. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
+- [ ] **Reconcile completed v5.1.0 roadmap and MAC records.** I compare active
+      checkboxes with authoritative task states and merged commits, close only
+      work targeted to this session, and leave genuinely unfinished follow-ons
+      explicit. I verify the Darwin parser portability gate before closing its
+      stale task and correct release-tree restoration evidence after its owner
+      closes the ledger row. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
+
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
       my canonical bytecode route. My unchanged main baseline rejects import
@@ -102,8 +109,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
       `docs/evidence/compiler-aot-artifact-binding-gap.md`.
       My five exact facade adapters now preserve borrowed string snapshots;
-      real VM/native execution and malformed import contracts pass. Full
-      compiler execution remains blocked by the boxed-index prerequisite.
+      real VM/native execution and malformed import contracts pass. The boxed
+      primitive-array prerequisite is complete. Fresh compiler execution now
+      reaches the exact `vm_is_alnum` host contract and projected global-store
+      follow-ons recorded below; I keep this full AOT gate open until generated
+      compiler execution passes.
 
 - [ ] **v5.1.0 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish
@@ -112,9 +122,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [x] I record paired baseline cases and the parser/emitter prerequisites.
         Both self-hosted stages reject explicit `Box<int>.Some` constructors,
         leave match payload `T` unsubstituted, and emit `DynArray*` for a
-        `Box<array<int>>` parameter/local. My C union declaration parser drops
-        nested payload TypeInfo; I still need to retain that metadata before
-        general substitution.
+        `Box<array<int>>` parameter/local. My baseline C parser dropped nested
+        payload TypeInfo; the completed concrete-payload row above now retains
+        it before general substitution.
       - [x] I reject unsupported generic resource obligations consistently in
         both frontends while executing ordinary-generic positive fixtures.
       - [x] I reject arrays of concrete generic resource payloads in both
@@ -142,6 +152,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [ ] I restore the required full compiler AOT gate through the separately
         recorded exact artifact-binding repair. Owned payload transfer above
         remains open; I do not claim the complete generic ownership contract.
+        MAC task `task_27d3d1bee3f84b5a9c1fc79e1f0c0748` closed its bounded
+        classification slice; the explicit transfer, nested collection and AOT
+        follow-ons keep this umbrella unchecked.
 
 - [x] **v5.1.0 passive metadata text preservation.** I preserve validated
       eligibility records through canonical disassembly and reassembly,
@@ -294,9 +307,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       the intended call-order fix separately and require a focused reapplication.
       PR #360 restored the accepted tree and merged as `4077b505`; its exact
       tree comparison, release-document check and nine release-gate methods
-      passed. PR #365 then reapplied call ordering independently. The MAC row
-      remains administratively open for its targeted owner to close; that does
-      not make the restored product tree pending. MAC
+      passed. PR #365 then reapplied call ordering independently. Its targeted
+      owner closed the previously stale MAC row on 2026-09-17. MAC
       `task_3665bd4322b35fb959ef77a46f761a0a`.
 
 - [ ] **Complete the full 5.0 acceptance contract for v5.1.0.** I reconcile dated and
