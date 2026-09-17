@@ -45,14 +45,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I connect affine facts to a bounded decoded-bytecode analysis (MAC
+- [x] I connect affine facts to a bounded decoded-bytecode analysis (MAC
       `task_4d22d17c96864d9fbc6031cfba2dc927`, parent ed702): exact scalar stack
       and local facts, read-only parameter record observations, reachable
       branches/back edges and exit obligations. I refuse observation escape,
       unsupported transfers and mismatched joins, and test ordinary loops
       and borrowed field readers without enabling ownership execution.
       Caller alias substitution, explicit transfer/reference instructions and
-      actual VM/native access remain required independent acceptance.
+      actual VM/native access remain required independent acceptance. I pass
+      300 checks and 419 allocation/sanitizer checks; my bounded evidence is
+      `docs/evidence/nanoisa-affine-bytecode.md`.
 
 - [x] I update stale raw-emitter refusal fixtures for already supported scalar float and Boolean-array results (`task_64f967c7f1d14b26a2b8134fb94a706e`). I retain previous-output and exact-diagnostic checks against the documented unsupported float-array result, and verify positive scalar/Boolean-array bytecode.
 
