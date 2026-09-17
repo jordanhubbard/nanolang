@@ -108,6 +108,15 @@ class NanoisaEmitDriver(unittest.TestCase):
             self.assertEqual(output.read_bytes(), b"previous bytes")
             self.assertEqual(list(directory.glob("*.tmp.*")), [])
 
+    def test_lowering_refusal_reports_the_exact_boundary(self):
+        with tempfile.TemporaryDirectory(prefix="nano-driver-diagnostic-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "unsupported.nano", directory / "unsupported.nasm"
+            source.write_text('fn main() -> array<bool> { return [true] }\n')
+            result = self.run_command([DRIVER, source, "-o", output], expected=1)
+            self.assertIn(b"I refused that program: unsupported result type array<bool>", result.stdout)
+            self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

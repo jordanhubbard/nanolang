@@ -411,7 +411,7 @@ class FlatRecordEmitter(unittest.TestCase):
             result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
                                     cwd=ROOT, capture_output=True, text=True, timeout=120)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("outside the pinned subset", result.stdout)
+            self.assertIn("I refused that program: unsupported result type Nested", result.stdout)
             self.assertFalse(output.exists())
 
 
