@@ -4368,3 +4368,12 @@ test-units: test-native-jump-true
 test-selfhost-float-values: bootstrap
 	python3 -m unittest -v tests.test_selfhost_float_values
 test-units: test-selfhost-float-values
+.PHONY: test-canonical-vm-shadows
+test-canonical-vm-shadows: bootstrap nano_vm
+	python3 -m unittest tests.test_canonical_vm_shadows
+test-units: test-canonical-vm-shadows
+
+.PHONY: test-bootstrap-native-guard
+test-bootstrap-native-guard:
+	python3 -m unittest -v tests.test_bootstrap_native_guard
+test-units: test-bootstrap-native-guard
