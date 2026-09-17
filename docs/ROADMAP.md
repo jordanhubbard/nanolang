@@ -297,6 +297,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       mutations through all bootstrap compilers.
       MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
+- [ ] **Tagged native array-read bounds.** I preserve missing reads as void
+      while checking full signed indices before narrowing. I retain strict
+      index tags and verify VM/native parity. MAC `task_7f62cc6dc9bc4d748a4fd8e78ca721f9`.
+
 - [ ] **Raw NanoISA array-read index checks.** I check integer tags and
       full-width ranges before reads, preserve native parity, and release
       consumed references on rejection. MAC `task_e4e7048e334e4b9d8eed2086f792bbcf`.
