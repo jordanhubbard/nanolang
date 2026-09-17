@@ -11,21 +11,21 @@ then use existing string and branch instructions to apply that suffix rule.
 My self-hosted native runtime helper follows the same rule as my C reference
 interpreter and native helper. I add no instruction or host ABI.
 
-My focused fixture covers positive/negative zero, unary versus subtraction,
-whole and fractional values, six-significant-digit precision, small and large
-exponents, runtime overflow to positive/negative infinity, runtime infinity
-subtraction to NaN, and once-only operand evaluation. Five functions compare
-exactly against C-seed bytecode (12 checks); both modules verify and run in
-NanoVM, and my C reference normal compilation/shadows and executable pass.
-The permanent tests also compare printed nonfinite results between paths.
+My fixture covers positive/negative zero, unary versus subtraction, whole and
+fractional values, six-significant-digit precision, small and large exponents,
+runtime overflow to positive/negative infinity, runtime infinity subtraction to
+NaN, and once-only operand evaluation. Five functions compare exactly against
+C-seed bytecode (12 checks); both modules verify and run in NanoVM and native
+code. Printed nonfinite results agree exactly with C-seed native execution.
 
-A fresh native three-stage bootstrap and paired C-seed/Stage1/Stage2 formatting
-gate pass: two methods, six compiler cases, 16.132 seconds. C-seed native and
-both VM artifacts print identical `inf`, `-inf`, and `nan` lines on this host.
-Native AOT acceptance remains dependent on typed-F64
-support (`task_fd4c63cf9f3e46f09ece380ce00c7a58`) and the already recorded
-`JMP_TRUE` companion (`task_211f22859e164287a07a63cba74ace5b`). I keep the native
-checks enabled and do not claim acceptance until they pass.
+With PR510's scalar emitter and merged native companions PR513/516, the full
+paired emitter gate passes 86 existing comparisons and 82 Python methods in
+95.640 seconds, with native checks enabled. A fresh native three-stage bootstrap
+passes at the default deadline; the paired C-seed/Stage1/Stage2 float tests pass
+(two methods, six compiler cases, 15.901 seconds). The final rebase onto merged
+PR510 (`8e56e9cf`) changes only inherited evidence, not this tested production
+source. Schema regeneration retains both unary and borrow metadata.
 
 Task: `task_29976241a36244f7b0ce4ad75cb10b3f`. Local evidence:
-`/tmp/nanolang-float-format-exact.log`, `/tmp/nanolang-float-format-native.log`.
+`/tmp/nanolang-float-format-exact.log`, `/tmp/nanolang-format-final516-gate.log`,
+and `/tmp/nanolang-format-bootstrap-final.log`.
