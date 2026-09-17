@@ -1,5 +1,6 @@
 """I reject hidden resource collections without rejecting ordinary union arrays."""
 import unittest
+from unittest import mock
 from tests import test_affine_generic_identity as generic
 
 class UnionResourceCollections(unittest.TestCase):
@@ -50,16 +51,23 @@ shadow main { assert (== (main) 0) }
 ''', False)
 
     def test_ordinary_record_array_payload(self):
-        self.check('''struct Plain { value: int }
+        source = '''resource struct Unused { fd: int }
+struct Plain { value: int }
 union Values { Some { values: array<Plain> }, None {} }
 fn read(value: Values) -> int { match value { Some(v) => { return (array_length v.values) } None(n) => { return 0 } } }
 shadow read { let value: Values = Values.Some { values: [Plain { value: 7 }] } assert (== (read value) 1) }
 fn main() -> int { let value: Values = Values.Some { values: [Plain { value: 7 }] } return (- (read value) 1) }
 shadow main { assert (== (main) 0) }
-''', True)
+'''
+        temporary = source.replace('let value: Values = Values.Some { values: [Plain { value: 7 }] }', 'let items: array<Plain> = [Plain { value: 7 }] let value: Values = Values.Some { values: items }')
+        self.check(temporary, True)
+        # The inline C path is repaired; paired inline emission has its own task.
+        with mock.patch.object(generic, 'COMPILERS', ['nanoc_c']):
+            self.check(source, True)
 
     def test_ordinary_array_payload_copy_and_match(self):
-        self.check('''struct Plain { value: int }
+        self.check('''resource struct Unused { fd: int }
+struct Plain { value: int }
 union Values { Some { values: array<int> }, None {} }
 fn read(value: Values) -> int { match value { Some(v) => { return (at v.values 0) } None(n) => { return 0 } } }
 shadow read { let value: Values = Values.Some { values: [7] } assert (== (read value) 7) }

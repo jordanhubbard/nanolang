@@ -4182,3 +4182,7 @@ test-selfhost-array-field-setter: bootstrap3
 test-units: test-cseed-record-array-literals
 test-cseed-record-array-literals: $(COMPILER_C) nano_virt nano_vm
 	python3 tests/test_cseed_record_array_literals.py
+
+.PHONY: test-union-resource-collections
+test-union-resource-collections: bootstrap test-resource-classification
+	python3 -m unittest tests.test_union_resource_collections
