@@ -26,6 +26,53 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Restore compiler AOT artifact binding.** I preserve exact library
+      bindings and typed adapters for the NanoISA facade imports introduced by
+      my canonical bytecode route. My unchanged main baseline rejects import
+      `nl_nanoisa_load_print` during compiler-bytecode translation. I retain
+      that rejection until a correct binding exists, then require generated
+      native compiler execution and continued rejection of unsupported imports.
+      MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
+      `docs/evidence/compiler-aot-artifact-binding-gap.md`.
+
+- [ ] **v5.0.1 concrete generic resource classification.** I substitute generic
+      union payload types before classifying concrete ownership, distinguish
+      ordinary instantiations from resource-bearing ones, and preserve declaring
+      module identity. MAC `task_27d3d1bee3f84b5a9c1fc79e1f0c0748`.
+      - [x] I record paired baseline cases and the parser/emitter prerequisites.
+        Both self-hosted stages reject explicit `Box<int>.Some` constructors,
+        leave match payload `T` unsubstituted, and emit `DynArray*` for a
+        `Box<array<int>>` parameter/local. My C union declaration parser drops
+        nested payload TypeInfo; I still need to retain that metadata before
+        general substitution.
+      - [x] I reject unsupported generic resource obligations consistently in
+        both frontends while executing ordinary-generic positive fixtures.
+      - [x] I reject arrays of concrete generic resource payloads in both
+        frontends, with ownership diagnostics and prior-artifact preservation.
+      - [x] I preserve union formal-parameter scope when a same-named resource
+        record exists, including nominal binding and paired ordinary/resource
+        instantiations. My baseline `resource struct T` plus `Box<T>` fixture
+        wrongly rejected `Box<int>` on all three stages. I also repair declared
+        one-letter C record identities, empty union-arm metadata cleanup and
+        imported concrete union parameter prototypes. I add ordinary self-hosted
+        match traversal with ownership joins and visit ordinary union
+        constructor fields while retaining
+        resource-payload rejection and unsupported guards.
+        I retain inline union constructor identity in C ownership lookup. All
+        sixteen generic methods pass across three stages, including ordinary
+        native execution and retained resource-payload rejection. My fresh
+        bootstrap, 45 combined methods, 15 adjacent methods and instrumented
+        C-only corpus pass; evidence records the earlier failed checkpoints.
+      - [ ] I complete nested generic List/HashMap type preservation and paired
+        ownership diagnostics while retaining conservative rejection.
+      - [ ] I implement resource union payload transfer before admitting generic
+        resource consumption; classification alone does not complete this gate.
+      - [x] I bootstrap and pass the scoped generic/ownership/import checks,
+        recording the initial missing-tool setup correction explicitly.
+      - [ ] I restore the required full compiler AOT gate through the separately
+        recorded exact artifact-binding repair. Owned payload transfer above
+        remains open; I do not claim the complete generic ownership contract.
+
 - [x] **v5.0.1 passive metadata text preservation.** I preserve validated
       eligibility records through canonical disassembly and reassembly,
       reject malformed textual payloads, and compare canonical v2 bytes.

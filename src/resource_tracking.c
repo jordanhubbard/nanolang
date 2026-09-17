@@ -59,6 +59,12 @@ bool is_resource_type(Environment *env, const char *struct_name) {
                     !variant->variant_field_type_names || !variant->variant_field_types[arm] ||
                     !variant->variant_field_type_names[arm]) continue;
                 for (int field = 0; field < variant->variant_field_counts[arm]; field++) {
+                    /* I resolve formal parameters only after concrete substitution. */
+                    const char *name = variant->variant_field_type_names[arm][field];
+                    bool formal = false;
+                    for (int param = 0; name && param < variant->generic_param_count; ++param)
+                        if (!strcmp(name, variant->generic_params[param])) formal = true;
+                    if (formal) continue;
                     if (resource_field_bearing(env, variant->variant_field_types[arm][field],
                             variant->variant_field_type_names[arm][field], variant->module_name, bearing)) {
                         bearing[index] = changed = true;

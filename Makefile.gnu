@@ -2805,7 +2805,7 @@ test-make-header-dependencies:
 .PHONY: test-affine-selfhost
 test-affine-selfhost: bootstrap nano_virt nano_vm
 	@bash tests/test_affine_selfhost.sh
-	@python3 -m unittest tests.test_affine_module_identity
+	@python3 -m unittest tests.test_affine_module_identity tests.test_affine_generic_identity
 
 .PHONY: test-affine-module-identity
 test-affine-module-identity: bootstrap
@@ -4132,6 +4132,10 @@ test-units: test-canonical-nvm-output
 .PHONY: test-canonical-nvm-output
 test-canonical-nvm-output: bootstrap3 nano_vm nvm2c
 	@python3 -m unittest tests.test_canonical_nvm_output
+
+.PHONY: test-affine-generic-identity
+test-affine-generic-identity: bootstrap
+	@python3 -m unittest tests.test_affine_generic_identity
 
 .PHONY: test-passive-metadata
 test-units: test-passive-metadata

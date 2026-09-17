@@ -111,10 +111,7 @@ shadow main { assert (== (main) 0) }
 
     def test_generic_annotation_metadata(self):
         for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
-            # I exercise nested TypeInfo allocation in my C parser. My
-            # self-hosted nested-generic union emission is a separate open gate.
-            arguments = ("int", "Handle") if compiler in ("nanoc_stage1", "nanoc_stage2") else ("int", "array<int>", "Handle")
-            for argument in arguments:
+            for argument in ("int", "array<int>", "Handle"):
                 with self.subTest(compiler=compiler, argument=argument), tempfile.TemporaryDirectory(prefix="nano-affine-generic-") as directory:
                     work = Path(directory)
                     source = work / "main.nano"

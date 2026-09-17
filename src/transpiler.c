@@ -3363,6 +3363,17 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     } else {
                         sb_append(sb, get_prefixed_type_name(param->struct_type_name));
                     }
+                } else if (param->type == TYPE_UNION && param->type_info &&
+                           param->type_info->generic_name && param->type_info->type_param_count > 0) {
+                    char monomorphized_name[256];
+                    if (!build_monomorphized_name_from_typeinfo(
+                            monomorphized_name, sizeof(monomorphized_name),
+                            param->type_info->generic_name, param->type_info->type_params,
+                            param->type_info->type_param_count)) {
+                        fprintf(stderr, "I cannot represent this imported generic union parameter\n");
+                        exit(1);
+                    }
+                    sb_append(sb, get_prefixed_type_name(monomorphized_name));
                 } else if (param->type == TYPE_UNION && param->struct_type_name) {
                     sb_append(sb, get_prefixed_type_name(param->struct_type_name));
                 } else if (param->type == TYPE_LIST_GENERIC && param->struct_type_name) {

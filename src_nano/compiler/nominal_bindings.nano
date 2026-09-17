@@ -111,7 +111,7 @@ shadow nb_name_char {
     assert (not (nb_name_char 60))
 }
 
-pub fn nb_type(spelling: string, line: int) -> string {
+fn nb_scoped_type(spelling: string, line: int, formals: array<string>) -> string {
     let mut result: string = ""
     let mut i: int = 0
     while (< i (str_length spelling)) {
@@ -121,7 +121,13 @@ pub fn nb_type(spelling: string, line: int) -> string {
             let name: string = (str_substring spelling start (- i start))
             let key: string = (nb_key name)
             let target: string = (mb_lookup (mb_owner line) key)
-            if (== target key) { set result (+ result name) }
+            let mut formal: bool = false
+            let mut parameter: int = 0
+            while (< parameter (array_length formals)) {
+                if (== name (at formals parameter)) { set formal true }
+                set parameter (+ parameter 1)
+            }
+            if (or formal (== target key)) { set result (+ result name) }
             else { set result (+ result target) }
         } else {
             set result (+ result (str_substring spelling i 1))
@@ -129,6 +135,19 @@ pub fn nb_type(spelling: string, line: int) -> string {
         }
     }
     return result
+}
+
+shadow nb_scoped_type {
+    (mb_reset [1])
+    (mb_add 0 (nb_key "T") "owned_T")
+    (mb_add 0 (nb_key "Handle") "owned_Handle")
+    assert (== (nb_scoped_type "Choice<array<T>,Handle>" 1 ["T"]) "Choice<array<T>,owned_Handle>")
+    assert (== (nb_scoped_type "T" 1 []) "owned_T")
+    (mb_reset [])
+}
+
+pub fn nb_type(spelling: string, line: int) -> string {
+    return (nb_scoped_type spelling line [])
 }
 
 shadow nb_type {
@@ -140,14 +159,26 @@ shadow nb_type {
     (mb_reset [])
 }
 
-fn nb_types(types: array<string>, line: int) -> array<string> {
+fn nb_scoped_types(types: array<string>, line: int, formals: array<string>) -> array<string> {
     let mut result: array<string> = []
     let mut i: int = 0
     while (< i (array_length types)) {
-        set result (array_push result (nb_type (at types i) line))
+        set result (array_push result (nb_scoped_type (at types i) line formals))
         set i (+ i 1)
     }
     return result
+}
+shadow nb_scoped_types {
+    (mb_reset [1])
+    (mb_add 0 (nb_key "T") "owned_T")
+    let result: array<string> = (nb_scoped_types ["T", "array<T>"] 1 ["T"])
+    assert (== (at result 0) "T")
+    assert (== (at result 1) "array<T>")
+    (mb_reset [])
+}
+
+fn nb_types(types: array<string>, line: int) -> array<string> {
+    return (nb_scoped_types types line [])
 }
 shadow nb_types {
     (mb_reset [1])
@@ -192,7 +223,7 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut unions_index: int = 0
     while (< unions_index parser.unions_count) {
         let item: ASTUnion = (list_ASTUnion_get parser.unions unions_index)
-        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: item.name, variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_types item.variant_field_types item.line), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
+        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: item.name, variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_scoped_types item.variant_field_types item.line item.generic_params), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
         set unions_index (+ unions_index 1)
     }
 }

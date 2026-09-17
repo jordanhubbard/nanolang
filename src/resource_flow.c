@@ -151,7 +151,16 @@ static const char *own_type(OwnFlow *flow, ASTNode *node) {
             OwnBinding *binding = own_find(flow, node->as.identifier);
             return binding ? binding->nominal : NULL;
         }
-        case AST_STRUCT_LITERAL: return node->as.struct_literal.struct_name;
+        case AST_STRUCT_LITERAL: {
+            const char *name = node->as.struct_literal.struct_name;
+            /* I retain the union owner of the parser's Choice.Some literal. */
+            for (int i = 0; name && i < flow->env->union_count; ++i) {
+                const char *owner = flow->env->unions[i].name;
+                size_t length = strlen(owner);
+                if (!strncmp(name, owner, length) && name[length] == '.') return owner;
+            }
+            return name;
+        }
         case AST_UNION_CONSTRUCT: return node->as.union_construct.union_name;
         case AST_IF: {
             const char *type = own_type(flow, node->as.if_stmt.then_branch);
