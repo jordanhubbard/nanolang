@@ -76,7 +76,7 @@ shadow consume { let value: Choice = Choice.Some { owner: Handle { fd: 7 } } ass
 fn main() -> int { return 0 }
 shadow main { assert (== (main) 0) }
 ''', False, {
-            'nanoc_c': 'exhaustive unguarded nongeneric owned match',
+            'nanoc_c': 'exhaustive unguarded owned match',
             'nanoc_stage1': "Parse error.*unexpected token 'if'",
             'nanoc_stage2': "Parse error.*unexpected token 'if'",
         })

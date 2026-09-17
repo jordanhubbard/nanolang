@@ -4249,3 +4249,8 @@ test-selfhost-generic-contexts: bootstrap
 	python3 -m unittest -v tests.test_selfhost_generic_contexts
 
 test-units: test-selfhost-generic-contexts
+
+.PHONY: test-generic-selected-ownership
+test-units: test-generic-selected-ownership
+test-generic-selected-ownership: bootstrap
+	python3 -m unittest -v tests.test_generic_selected_ownership

@@ -662,6 +662,51 @@ shadow resource_generic_contains {
     assert (not (resource_generic_contains parser "Marker<Handle>" 1 0))
 }
 
+# I admit only closed payload shapes whose selected fields can transfer.
+fn resource_transfer_supported(parser: Parser, spelling: string, line: int, depth: int) -> bool {
+    if (> depth 128) { return false }
+    if (not (resource_generic_contains parser spelling line 0)) { return true }
+    let identity: string = (resource_type_identity parser spelling line)
+    if (resource_has_collection_payload parser identity) { return false }
+    let base: string = (base_type_name identity)
+    let args: array<string> = (tc_generic_arguments identity)
+    if (and (tc_str_starts_with base "#record:") (== (array_length args) 0)) { return true }
+    let mut index: int = 0
+    while (< index (parser_get_union_count parser)) {
+        let definition: ASTUnion = (parser_get_union parser index)
+        let whole: bool = (== base (+ "#union:" (int_to_string index)))
+        let mut offset: int = 0
+        let mut variant: int = 0
+        let mut found: bool = false
+        while (< variant definition.variant_count) {
+            let count: int = (at definition.variant_field_counts variant)
+            if (or whole (== base (resource_variant_key index variant))) {
+                set found true
+                if (!= definition.generic_param_count (array_length args)) { return false }
+                let mut field: int = 0
+                while (< field count) {
+                    let concrete: string = (tc_substitute_generic (at definition.variant_field_types (+ offset field)) definition.generic_params args)
+                    if (not (resource_transfer_supported parser concrete definition.line (+ depth 1))) { return false }
+                    set field (+ field 1)
+                }
+            }
+            set offset (+ offset count)
+            set variant (+ variant 1)
+        }
+        if found { return true }
+        set index (+ index 1)
+    }
+    return false
+}
+shadow resource_transfer_supported {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Bundle<T> { Some { value: (T,int) } }")
+    assert (resource_transfer_supported parser "Box<Handle>" 1 0)
+    assert (resource_transfer_supported parser "#variant:0:1<#record:0>" 1 0)
+    assert (resource_transfer_supported parser "Box<Box<Handle>>" 1 0)
+    assert (not (resource_transfer_supported parser "Box<array<Handle>>" 1 0))
+    assert (not (resource_transfer_supported parser "Bundle<Handle>" 1 0))
+}
+
 fn resource_check_annotation(parser: Parser, spelling: string, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
     if (resource_has_collection_payload parser (resource_type_identity parser spelling line)) {
         (resource_flow_error diags file_name line column "resource-bearing union collection payloads are not supported")
@@ -672,8 +717,8 @@ fn resource_check_annotation(parser: Parser, spelling: string, diags: List<Compi
     if (and (not collection) (== (array_length (tc_generic_arguments spelling)) 0)) { return }
     if (resource_generic_contains parser spelling line 0) {
         if collection { (resource_flow_error diags file_name line column "resource-bearing collections are not supported") }
-        else { if (> (array_length (tc_generic_arguments spelling)) 0) {
-            (resource_flow_error diags file_name line column "generic resource ownership needs lowering")
+        else { if (not (resource_transfer_supported parser spelling line 0)) {
+            (resource_flow_error diags file_name line column "this resource payload shape needs ownership lowering")
         } }
     }
     if (not collection) { return }
@@ -694,13 +739,14 @@ shadow resource_check_annotation {
     assert (== (Diagnostics.diag_list_count diags) 0)
 }
 
-fn resource_flow_block(parser: Parser, statements: List<ASTStmtRef>, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string) -> ResourceFlow {
+fn resource_flow_block(parser: Parser, statements: List<ASTStmtRef>, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string) -> ResourceFlow {
     let first: int = (array_length states)
     let mut flow: ResourceFlow = ResourceFlow { states: (resource_copy states first), next: true }
     let mut i: int = 0
     while (and flow.next (< i (list_ASTStmtRef_length statements))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get statements i)
-        set flow (resource_flow_node parser stmt.node_id stmt.node_type flow.states (and move (== i (- (list_ASTStmtRef_length statements) 1))) loop_entry diags file_name)
+        let final_value: bool = (and move (== i (- (list_ASTStmtRef_length statements) 1)))
+        set flow (resource_flow_value parser stmt.node_id stmt.node_type (cond (final_value expected_type) (else "")) flow.states final_value loop_entry diags file_name return_type)
         set i (+ i 1)
     }
     if flow.next { (resource_resolve_exit parser flow.states first diags file_name) }
@@ -708,7 +754,7 @@ fn resource_flow_block(parser: Parser, statements: List<ASTStmtRef>, states: arr
 }
 
 shadow resource_flow_block {
-    let flow: ResourceFlow = (resource_flow_block (resource_test_parser "") (list_ASTStmtRef_new) [] false [] (list_CompilerDiagnostic_new) "test.nano")
+    let flow: ResourceFlow = (resource_flow_block (resource_test_parser "") (list_ASTStmtRef_new) [] false [] (list_CompilerDiagnostic_new) "test.nano" "" "")
     assert flow.next
     assert (== (array_length flow.states) 0)
 }
@@ -744,13 +790,15 @@ fn resource_owned_union_index(parser: Parser, input: string) -> int {
     let index: int = (resource_union_index parser input)
     if (< index 0) { return -1 }
     let def: ASTUnion = (parser_get_union parser index)
-    if (or (> def.generic_param_count 0) (resource_has_collection_payload parser input)) { return -1 }
+    if (!= def.generic_param_count (array_length (tc_generic_arguments input))) { return -1 }
+    if (or (resource_has_collection_payload parser input) (not (resource_transfer_supported parser input def.line 0))) { return -1 }
     return index
 }
 shadow resource_owned_union_index {
     let parser: Parser = (resource_test_parser "union Choice { None {} } union Box<T> { Some { item: T } }")
     assert (== (resource_owned_union_index parser "Choice") 0)
     assert (== (resource_owned_union_index parser "Box") -1)
+    assert (== (resource_owned_union_index parser "Box<int>") 1)
 }
 
 fn resource_match_supported(parser: Parser, matched: ASTMatch, input: string) -> bool {
@@ -776,7 +824,98 @@ shadow resource_match_supported {
     assert (resource_match_supported parser (parser_get_match parser 0) "Choice")
 }
 
-fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string) -> ResourceFlow {
+fn resource_parameter_type(parser: Parser, name: string, line: int, argument: int, states: array<ResourceState>) -> string {
+    if (>= (resource_find states name) 0) { return "" }
+    let target: string = (mb_lookup (mb_owner line) name)
+    let mut index: int = 0
+    while (< index (parser_get_function_count parser)) {
+        let definition: ASTFunction = (parser_get_function parser index)
+        if (and (== definition.name target) (< argument definition.param_count)) {
+            let parameter: ASTLet = (parser_get_let parser (+ definition.param_start argument))
+            return (resource_type_identity parser parameter.var_type parameter.line)
+        }
+        set index (+ index 1)
+    }
+    return ""
+}
+shadow resource_parameter_type {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T } } fn read(value: Box<int>) -> int { return 0 }")
+    assert (== (resource_parameter_type parser "read" 1 0 []) "#union:0<int>")
+    assert (== (resource_parameter_type parser "read" 1 1 []) "")
+}
+
+# I pass an already checked declared context to union constructor payloads.
+# Other expression forms keep their existing ownership traversal.
+fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: string, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string) -> ResourceFlow {
+    let index: int = (resource_owned_union_index parser expected)
+    if (or (< index 0) (not (or (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (== node_type ParseNodeType.PNODE_STRUCT_LITERAL)))) {
+        return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected)
+    }
+    let identity: string = (resource_type_identity parser expected 0)
+    let actual: string = (resource_value_type parser node_id node_type states)
+    if (!= (base_type_name actual) (base_type_name identity)) {
+        return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected)
+    }
+    let definition: ASTUnion = (parser_get_union parser index)
+    let mut names: array<string> = []
+    let mut ids: array<int> = []
+    let mut types: array<int> = []
+    let mut selected: string = ""
+    let mut line: int = 0
+    let mut column: int = 0
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+        let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+        set names literal.field_names set ids literal.field_value_ids set types literal.field_value_types
+        set selected literal.variant_name set line literal.line set column literal.column
+    } else {
+        let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        set names literal.field_names set ids literal.field_value_ids set types literal.field_value_types
+        let prefix: string = (+ definition.name ".")
+        if (not (tc_str_starts_with literal.struct_name prefix)) {
+            return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected)
+        }
+        set selected (str_substring literal.struct_name (str_length prefix) (- (str_length literal.struct_name) (str_length prefix)))
+        set line literal.line set column literal.column
+    }
+    let mut flow: ResourceFlow = ResourceFlow { states: states, next: true }
+    let mut offset: int = 0
+    let mut variant: int = 0
+    while (< variant definition.variant_count) {
+        let count: int = (at definition.variant_field_counts variant)
+        if (== selected (at definition.variant_names variant)) {
+            let mut field: int = 0
+            while (and flow.next (< field (array_length names))) {
+                let mut slot: int = 0
+                let mut context: string = ""
+                while (< slot count) {
+                    if (== (at names field) (at definition.variant_field_names (+ offset slot))) {
+                        set context (tc_substitute_generic (at definition.variant_field_types (+ offset slot)) definition.generic_params (tc_generic_arguments identity))
+                    }
+                    set slot (+ slot 1)
+                }
+                set flow (resource_flow_value parser (at ids field) (at types field) (resource_type_identity parser context definition.line) flow.states true loop_entry diags file_name return_type)
+                set field (+ field 1)
+            }
+            if (and flow.next (and (not move) (resource_type_is_declared parser identity))) {
+                (resource_flow_error diags file_name line column "resource construction has no resolved owner")
+            }
+            return flow
+        }
+        set offset (+ offset count)
+        set variant (+ variant 1)
+    }
+    return (resource_flow_node parser node_id node_type states move loop_entry diags file_name return_type expected)
+}
+shadow resource_flow_value {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } fn read() -> int { let value: Box<int> = Box.Some { value: 7 } return 0 }")
+    let binding: ASTLet = (parser_get_let parser 0)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let result: ResourceFlow = (resource_flow_value parser binding.value binding.value_type "Box<int>" [] true [] diags "test.nano" "")
+    assert result.next
+    assert (== (Diagnostics.diag_list_count diags) 0)
+}
+
+fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string) -> ResourceFlow {
     let mut flow: ResourceFlow = ResourceFlow { states: states, next: true }
     if (or (== node_type ParseNodeType.PNODE_BREAK) (== node_type ParseNodeType.PNODE_CONTINUE)) {
         (resource_loop_edge parser states loop_entry diags file_name)
@@ -797,19 +936,19 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         let block: ASTBlock = (parser_get_block parser node_id)
-        return (resource_flow_block parser block.statements states move loop_entry diags file_name)
+        return (resource_flow_block parser block.statements states move loop_entry diags file_name return_type expected_type)
     }
     if (== node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
         let block: ASTUnsafeBlock = (parser_get_unsafe_block parser node_id)
-        return (resource_flow_block parser block.statements states move loop_entry diags file_name)
+        return (resource_flow_block parser block.statements states move loop_entry diags file_name return_type expected_type)
     }
     if (== node_type ParseNodeType.PNODE_LET) {
         let binding: ASTLet = (parser_get_let parser node_id)
         let mut nominal: string = binding.var_type
-        if (or (== nominal "") (== nominal "unknown")) { set nominal (resource_value_type parser binding.value binding.value_type states) }
+        if (or binding.is_destructure (or (== nominal "") (== nominal "unknown"))) { set nominal (resource_value_type parser binding.value binding.value_type states) }
         (resource_check_annotation parser nominal diags file_name binding.line binding.column)
         if (not binding.is_destructure_projection) {
-            set flow (resource_flow_node parser binding.value binding.value_type states true loop_entry diags file_name)
+            set flow (resource_flow_value parser binding.value binding.value_type (resource_type_identity parser nominal binding.line) states true loop_entry diags file_name return_type)
         }
         if flow.next {
             let updated: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
@@ -826,22 +965,24 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 (resource_flow_error diags file_name assignment.line assignment.column (+ "I cannot overwrite a live resource: " assignment.target))
             }
         }
-        set flow (resource_flow_node parser assignment.value assignment.value_type states true loop_entry diags file_name)
+        let mut context: string = ""
+        if (>= index 0) { let destination: ResourceState = (at states index) set context destination.type_name }
+        set flow (resource_flow_value parser assignment.value assignment.value_type context states true loop_entry diags file_name return_type)
         if (and flow.next (>= index 0)) { return ResourceFlow { states: (resource_replace flow.states index false), next: true } }
         return flow
     }
     if (== node_type ParseNodeType.PNODE_RETURN) {
         let ret: ASTReturn = (parser_get_return parser node_id)
-        set flow (resource_flow_node parser ret.value ret.value_type states true loop_entry diags file_name)
+        set flow (resource_flow_value parser ret.value ret.value_type return_type states true loop_entry diags file_name return_type)
         if flow.next { (resource_resolve_exit parser flow.states 0 diags file_name) }
         return ResourceFlow { states: flow.states, next: false }
     }
     if (== node_type ParseNodeType.PNODE_IF) {
         let branch: ASTIf = (parser_get_if parser node_id)
-        set flow (resource_flow_node parser branch.condition branch.condition_type states false loop_entry diags file_name)
+        set flow (resource_flow_node parser branch.condition branch.condition_type states false loop_entry diags file_name return_type "")
         if (not flow.next) { return flow }
-        let left: ResourceFlow = (resource_flow_node parser branch.then_body ParseNodeType.PNODE_BLOCK (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name)
-        let right: ResourceFlow = (resource_flow_node parser branch.else_body ParseNodeType.PNODE_BLOCK (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name)
+        let left: ResourceFlow = (resource_flow_value parser branch.then_body ParseNodeType.PNODE_BLOCK expected_type (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name return_type)
+        let right: ResourceFlow = (resource_flow_value parser branch.else_body ParseNodeType.PNODE_BLOCK expected_type (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name return_type)
         return (resource_join parser left right diags file_name)
     }
     if (== node_type ParseNodeType.PNODE_MATCH) {
@@ -850,9 +991,9 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         let owned: bool = (resource_generic_contains parser input matched.line 0)
         let supported: bool = (resource_match_supported parser matched input)
         if (and owned (not supported)) {
-            (resource_flow_error diags file_name matched.line matched.column "I require an exhaustive unguarded nongeneric owned match")
+            (resource_flow_error diags file_name matched.line matched.column "I require an exhaustive unguarded owned match with supported concrete payloads")
         }
-        set flow (resource_flow_node parser matched.scrutinee matched.scrutinee_type states (and owned supported) loop_entry diags file_name)
+        set flow (resource_flow_node parser matched.scrutinee matched.scrutinee_type states (and owned supported) loop_entry diags file_name return_type "")
         if (not flow.next) { return flow }
         let first: int = (array_length flow.states)
         let mut joined: ResourceFlow = ResourceFlow { states: flow.states, next: false }
@@ -877,7 +1018,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                     if (resource_type_is_declared parser payload) { (resource_flow_error diags file_name matched.line matched.column "I require a binding for the selected resource payload") }
                 }
             }
-            let branch: ResourceFlow = (resource_flow_node parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) arm_states move loop_entry diags file_name)
+            let branch: ResourceFlow = (resource_flow_value parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) expected_type arm_states move loop_entry diags file_name return_type)
             if branch.next { (resource_resolve_exit parser branch.states first diags file_name) }
             let outer: ResourceFlow = ResourceFlow { states: (resource_copy branch.states first), next: branch.next }
             set joined (resource_join parser joined outer diags file_name)
@@ -898,12 +1039,12 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             set body loop.body set condition loop.iterable set condition_type loop.iterable_type set variable loop.var_name
         }
         let entry: array<ResourceState> = (resource_copy states (array_length states))
-        set flow (resource_flow_node parser condition condition_type states false entry diags file_name)
+        set flow (resource_flow_node parser condition condition_type states false entry diags file_name return_type "")
         if (not flow.next) { return flow }
         (resource_loop_edge parser flow.states entry diags file_name)
         let mut body_states: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
         if (!= variable "") { set body_states (array_push body_states ResourceState { name: variable, type_name: "int", moved: false, line: 0, column: 0 }) }
-        set flow (resource_flow_node parser body ParseNodeType.PNODE_BLOCK body_states false entry diags file_name)
+        set flow (resource_flow_node parser body ParseNodeType.PNODE_BLOCK body_states false entry diags file_name return_type "")
         if flow.next { (resource_loop_edge parser flow.states entry diags file_name) }
         return ResourceFlow { states: entry, next: true }
     }
@@ -912,14 +1053,15 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         if (and move (resource_type_is_declared parser (resource_value_type parser node_id node_type states))) {
             (resource_flow_error diags file_name field.line field.column "I cannot partially move a resource field")
         }
-        return (resource_flow_node parser field.object field.object_type states false loop_entry diags file_name)
+        return (resource_flow_node parser field.object field.object_type states false loop_entry diags file_name return_type "")
     }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
         let mut i: int = 0
         while (and flow.next (< i call.arg_count)) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-            set flow (resource_flow_node parser arg.node_id arg.node_type flow.states true loop_entry diags file_name)
+            let context: string = (resource_parameter_type parser call.function_name call.line i states)
+            set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type)
             set i (+ i 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
@@ -929,11 +1071,16 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser node_id)
-        set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name)
+        set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name return_type "")
         let mut i: int = 0
         while (and flow.next (< i call.arg_count)) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-            set flow (resource_flow_node parser arg.node_id arg.node_type flow.states true loop_entry diags file_name)
+            let mut context: string = ""
+            if (== call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+                let callee: ASTIdentifier = (parser_get_identifier parser call.function)
+                set context (resource_parameter_type parser callee.name callee.line i states)
+            }
+            set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type)
             set i (+ i 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
@@ -943,19 +1090,19 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
         let op: ASTBinaryOp = (parser_get_binary_op parser node_id)
-        set flow (resource_flow_node parser op.left op.left_type states false loop_entry diags file_name)
+        set flow (resource_flow_node parser op.left op.left_type states false loop_entry diags file_name return_type "")
         if (not flow.next) { return flow }
-        let right: ResourceFlow = (resource_flow_node parser op.right op.right_type (resource_copy flow.states (array_length flow.states)) false loop_entry diags file_name)
+        let right: ResourceFlow = (resource_flow_node parser op.right op.right_type (resource_copy flow.states (array_length flow.states)) false loop_entry diags file_name return_type "")
         if (or (== op.op LexerTokenType.TOKEN_AND) (== op.op LexerTokenType.TOKEN_OR)) { return (resource_join parser flow right diags file_name) }
         return right
     }
     if (== node_type ParseNodeType.PNODE_ASSERT) {
         let assertion: ASTAssert = (parser_get_assert parser node_id)
-        return (resource_flow_node parser assertion.condition assertion.condition_type states false loop_entry diags file_name)
+        return (resource_flow_node parser assertion.condition assertion.condition_type states false loop_entry diags file_name return_type "")
     }
     if (== node_type ParseNodeType.PNODE_PRINT) {
         let printed: ASTPrint = (list_ASTPrint_get parser.prints node_id)
-        return (resource_flow_node parser printed.value printed.value_type states false loop_entry diags file_name)
+        return (resource_flow_node parser printed.value printed.value_type states false loop_entry diags file_name return_type "")
     }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
         let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
@@ -967,7 +1114,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (and (not supported) (resource_generic_contains parser field_type literal.line 0)) {
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
-            set flow (resource_flow_node parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name)
+            set flow (resource_flow_node parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name return_type "")
             set field (+ field 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser identity))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
@@ -984,7 +1131,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (and union_literal (and (not supported) (resource_generic_contains parser field_type literal.line 0))) {
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
-            set flow (resource_flow_node parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name)
+            set flow (resource_flow_node parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name return_type "")
             set i (+ i 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser identity))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
@@ -996,7 +1143,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         while (and flow.next (< i literal_array.element_count)) {
             let element: ASTStmtRef = (parser_get_array_element parser (+ literal_array.element_start i))
             if (resource_type_is_declared parser (resource_value_type parser element.node_id element.node_type flow.states)) { (resource_flow_error diags file_name literal_array.line literal_array.column "resource-bearing collections are not supported") }
-            set flow (resource_flow_node parser element.node_id element.node_type flow.states true loop_entry diags file_name)
+            set flow (resource_flow_node parser element.node_id element.node_type flow.states true loop_entry diags file_name return_type "")
             set i (+ i 1)
         }
         return flow
@@ -1007,18 +1154,18 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
 }
 
 shadow resource_flow_node {
-    let flow: ResourceFlow = (resource_flow_node (resource_test_parser "") -1 ParseNodeType.PNODE_BLOCK [] false [] (list_CompilerDiagnostic_new) "test.nano")
+    let flow: ResourceFlow = (resource_flow_node (resource_test_parser "") -1 ParseNodeType.PNODE_BLOCK [] false [] (list_CompilerDiagnostic_new) "test.nano" "" "")
     assert flow.next
     let parser: Parser = (resource_test_parser "resource struct File { fd: int } fn read(file: File) -> int { return file.fd }")
     let ret: ASTReturn = (parser_get_return parser 0)
     let states: array<ResourceState> = [ResourceState { name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let observed: ResourceFlow = (resource_flow_node parser ret.value ret.value_type states false [] diags "test.nano")
+    let observed: ResourceFlow = (resource_flow_node parser ret.value ret.value_type states false [] diags "test.nano" "" "")
     let observed_state: ResourceState = (at observed.states 0)
     assert (not observed_state.moved)
     assert (== (Diagnostics.diag_list_count diags) 0)
     let moved: array<ResourceState> = (resource_replace states 0 true)
-    let rejected: ResourceFlow = (resource_flow_node parser ret.value ret.value_type moved false [] diags "test.nano")
+    let rejected: ResourceFlow = (resource_flow_node parser ret.value ret.value_type moved false [] diags "test.nano" "" "")
     assert rejected.next
     assert (== (Diagnostics.diag_list_count diags) 1)
 }
@@ -1042,7 +1189,7 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
         set i (+ i 1)
     }
     if (< func.body 0) { return }
-    let flow: ResourceFlow = (resource_flow_node parser func.body ParseNodeType.PNODE_BLOCK states false [] diags file_name)
+    let flow: ResourceFlow = (resource_flow_node parser func.body ParseNodeType.PNODE_BLOCK states false [] diags file_name (resource_type_identity parser func.return_type func.line) "")
     if flow.next { (resource_resolve_exit parser flow.states 0 diags file_name) }
 }
 

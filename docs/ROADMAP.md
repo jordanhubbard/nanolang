@@ -148,7 +148,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and return contexts while transferring constructor payloads; I do not
       reconstruct missing arguments from sibling variants. I require paired
       executable resource, ordinary and empty-arm controls plus drop, duplicate-consumption,
-      use-after-move and branch-join rejection. I preserve guards for unresolved
+      use-after-move and branch-join rejection. Conditional and match-expression
+      constructor results remain positive gates while native emission is repaired.
+      I preserve guards for unresolved
       payload shapes, collections and incomplete function signatures. Global
       ownership and direct nested field-scrutinee inference remain separate. MAC
       `task_08428ceb1d674de49383aab1ba9a78c8`, after
