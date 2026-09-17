@@ -196,16 +196,24 @@ static inline void *tracked_malloc(size_t n) {
 static inline void *tracked_calloc(size_t n, size_t width) {
     void *p = calloc(n, width); if (p) { ++live_allocations; ++total_allocations; } return p;
 }
+static inline void *tracked_realloc(void *p, size_t n) {
+    if (!n) abort();
+    int creates_allocation = p == NULL;
+    void *q = realloc(p, n);
+    if (q && creates_allocation) { ++live_allocations; ++total_allocations; }
+    return q;
+}
 static inline void tracked_free(void *p) {
     if (p) { --live_allocations; }
     free(p);
 }
 #define malloc tracked_malloc
 #define calloc tracked_calloc
+#define realloc tracked_realloc
 #define free tracked_free
 '''
                 invoke = "generated_main(0, NULL)" if ".import " in text else "generated_main()"
-                source.write_text(allocation_probe + generated + "\n#undef malloc\n#undef calloc\n#undef free\n" +
+                source.write_text(allocation_probe + generated + "\n#undef malloc\n#undef calloc\n#undef realloc\n#undef free\n" +
                                   "int main(void) { int result = " + invoke + ";\n" +
                                   'if (live_allocations || !total_allocations) { fprintf(stderr, "I retained %zu allocations.\\n", live_allocations); return 97; }\n' +
                                   "return result; }\n")
