@@ -3,7 +3,13 @@
 - [x] I index native root membership and mark each owner once per collection (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`), preserving traversal order, collection points and lifetime guarantees. My [scaling and sanitizer evidence](evidence/native-root-tracking-cost.md) separates this lookup repair from full bootstrap convergence.
 - [x] I guard native loop collection with collectible-owner allocation debt (MAC `task_5928905033844a4a8fb498d63cb68c39`), preserving fresh mutable-root tracing, forced collection and bounded retention. My [measured scan and lifetime evidence](evidence/native-collection-debt.md) records 9998 scans reduced to two and the distinct record-capacity boundary below.
 - [x] I grow native AOT record arrays beyond 256 elements with checked allocation, alias preservation and complete teardown (MAC `task_617006c46f9746da9694c6a4e0a0ceaf`). The full native compiler now reaches this existing limit while tokenizing; my retained 257-record fixture passes VM and emits byte-identical failing native C with unchanged and debt-scheduled translators. The 50-method functional/sanitizer suite passes; full native self-compilation remains blocked by the separate parser stack task.
-- [ ] I bound generated native compiler stack use for nested expressions (MAC `task_4c5aeade9fa944dd80eebfbd1ae91072`). A small depth-24 prefix expression crashes both unchanged fixed-capacity and dynamically grown native compilers below the former record limit; a larger stack in a diagnostic child process lets the unchanged compiler finish. I preserve the ordinary stack limit for acceptance and keep full bootstrap blocked pending the independent repair.
+- [x] I reduce generated native compiler record-local stack use with invocation-owned heap frames (MAC `task_4c5aeade9fa944dd80eebfbd1ae91072`). I preserve historical parser crash evidence and the ordinary stack limit; my [static and functional evidence](evidence/native-record-local-frames.md) records the bounded repair without claiming full native self-compilation.
+  - [x] I measure retained native compiler frames without executing failing inputs: GCC 13.3 on AArch64 reports 397216 bytes for `parse_primary` and 123664 for `parse_expression_recursive`; 4360-byte records dominate their local storage.
+  - [x] I allocate record locals in invocation-owned heap storage, preserving value copies, root addresses, return snapshots and simultaneous self-tail argument staging.
+  - [x] I verify native semantics, record/map/string lifetime and tail calls, measure reduced static frames of 17904 and 19024 bytes, and pass both ordinary compiler product compilation gates. I preserve the initial independent shadow-deadline failure under `task_628759a2daf743b9bf13c9a7fea2ced0`.
+  - [x] I publish the measured storage and acceptance boundary; full native self-compilation remains a separate acceptance result.
+
+- [ ] I support verified `JMP_TRUE` in native translation while preserving VM truthiness semantics (MAC `task_211f22859e164287a07a63cba74ace5b`). My record-local fixtures pass VM execution but expose the existing native classifier refusal; this storage repair uses the supported `BOOL_NOT`/`JMP_FALSE` equivalent.
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
@@ -39,6 +45,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I retain nominal record identity through nested empty-array append results. My C-seed checker currently refuses `array_push (array_push [] Item {...}) Item {...}` before VM lowering; I retain the fixture separately from supported scalar append inference (MAC `task_439297c5a6934857a90cbec93bb7958d`).
+
+- [x] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).
+
 - [ ] **Paired call-scoped resource borrows.** I implement the existing
       `&T` / `&mut T` contract with retained annotation identity and explicit
       borrowed call arguments. I first preserve syntax and metadata, then
@@ -63,6 +73,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [ ] I then add exclusive pointer mutation with observable caller
         updates and paired overlapping shared/exclusive argument rejection.
         Broader projections and shape support follow their own paired gates.
+- [x] I lower my declared NanoISA file assembly and disassembly artifact contracts with exact parameter and result validation, and execute their real module shadows in VM and native products (MAC `task_f5f873fccfff4b5b88f14f4d825ba3b4`).
 
 - [ ] **Concrete native specialization closure.** I discover union instances
       reachable only through substituted payload fields, including checked
@@ -8748,12 +8759,46 @@ Compiler product:
       emitter gate passes 86 comparisons and 70 Python methods; C-seed/Stage2
       emitters produce identical fixture assembly. See
       `docs/evidence/nanoisa-initializer-frame.md`.
-- [ ] I lower range `for` loops required by my full compiler shadow closure
-      (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
-      My correctly captured full probe stops at `tokenize_string` because
-      `PNODE_FOR` has no lowering. I retain range evaluation order, loop scope,
-      nesting and break/continue behavior, require C-seed/VM parity, and rerun
-      the complete shadow closure without exclusions.
+- [x] I restore C-seed NanoVM lexical bindings after a `for` loop
+      (`task_be93f56b6a5848ebbd23ef30ccd7bfd4`) while retaining allocated slots.
+      Nested same-name variables and bounds referring to outer locals pass
+      exact C-seed/self-hosted bytecode and VM/native execution controls.
+- [ ] I infer C-seed loop element metadata from inline and computed arrays
+      (`task_911317d4234c46049c3dea1a2d0a153d`). The current `AST_FOR` checker
+      only reads identifier receivers, so inline string/bool literals give an
+      integer loop variable and reject valid bodies. I retain the failing
+      expanded probe and use explicit typed locals as the current control.
+- [x] I preserve C-seed native range bounds once in source order and compile
+      valid early-return array loops without inapplicable vectorization hints
+      (`task_c3d168ec8de94d18a1f63445f2c6cea0`). My collision-checked argument
+      temporaries preserve user bindings; paired native/VM controls pass.
+- [ ] I keep unreachable-code warnings nonfatal in self-hosted checking
+      (`task_47e61dea383042808ccc1a0c89bef064`). My `check_block` currently creates W0002
+      through the error constructor, so Stage1/Stage2 reject a valid early-return
+      fixture accepted by C seed. I preserve the warning and original fixture.
+- [x] I snapshot both self-hosted native range bounds before entering the loop
+      (`task_8e80a672c285487dbbad07dd1dbfc9b9`). A fresh three-stage bootstrap
+      and both paired methods pass across C seed, Stage1 and Stage2, including
+      failed-shadow output preservation, source order and nested lexical scope.
+      See `docs/evidence/selfhost-native-range-bounds.md` for the explicit
+      shadow budget and separate unreachable-warning boundary.
+- [ ] I measure my compiler-shadow deadline after range emitter growth
+      (`task_628759a2daf743b9bf13c9a7fea2ced0`). A fresh bootstrap reached the default
+      ten-second shadow deadline without an assertion diagnostic; explicit
+      sixty-second execution advances. I retain both logs, measure the cause
+      and keep deadline tests unchanged. A timeout alone is not a correctness failure.
+- [ ] I carry contextual element types through nested empty-array appends
+      (`task_d5ed194093434b5cbfc2e3ec6bc2d37a`). After range lowering, my full compiler
+      shadow probe reaches `substitute_union_field_type` and rejects its nested
+      string appends to `[]`. I retain negative type controls and require exact
+      C-seed bytecode plus VM/native execution before rerunning the closure.
+- [x] I lower range `for` loops required by my full compiler shadow closure
+      (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
+      lexical scope and nested break/continue/return behavior. My integrated
+      gate passes 86 existing comparisons and 74 Python methods; C-seed and
+      Stage2-built emitters produce identical fixture assembly. The full
+      shadow probe advances to the separately recorded empty-array append
+      context boundary without exclusions. See `docs/evidence/nanoisa-range-for.md`.
 - [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
       bytecode is input, then two VM-executed compiler generations compile the
       same clean source and immutable host closure. I compare raw generation

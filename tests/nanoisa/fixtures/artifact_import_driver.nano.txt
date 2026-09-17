@@ -19,7 +19,7 @@ fn main() -> int {
     (mb_add_target 2 "selected" "path_basename" 1)
     (mb_add_target 2 "publish" "nl_nanoisa_assemble_text_save" 0)
     (mb_add_target 2 "diagnostic" "nl_nanoisa_last_error" 1)
-    let filesystem_names: array<string> = ["fs_walkdir", "file_append", "fs_mkdir_p", "file_copy", "dir_copy"]
+    let filesystem_names: array<string> = ["fs_walkdir", "file_append", "fs_mkdir_p", "file_copy", "dir_copy", "nl_nanoisa_assemble_save", "nl_nanoisa_load_print", "nl_nanoisa_load_pretty", "nl_nanoisa_last_error"]
     let mut filesystem_index: int = 0
     while (< filesystem_index (array_length filesystem_names)) {
         let name: string = (at filesystem_names filesystem_index)

@@ -7535,21 +7535,26 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
             let end_code: string = (generate_expression parser end_arg.node_id end_arg.node_type env "int")
             let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
             set parts (cg_append parts (gen_indent indent))
+            # My source locals carry nl_; these scoped snapshots cannot capture them.
+            set parts (cg_append parts "{ int64_t __nl_range_start = ")
+            set parts (cg_append parts start_code)
+            set parts (cg_append parts "; int64_t __nl_range_end = ")
+            set parts (cg_append parts end_code)
+            set parts (cg_append parts ";\n")
+            set parts (cg_append parts (gen_indent (+ indent 1)))
             set parts (cg_append parts "for (int64_t ")
             set parts (cg_append parts c_var)
-            set parts (cg_append parts " = ")
-            set parts (cg_append parts start_code)
+            set parts (cg_append parts " = __nl_range_start")
             set parts (cg_append parts "; ")
             set parts (cg_append parts c_var)
-            set parts (cg_append parts " < ")
-            set parts (cg_append parts end_code)
+            set parts (cg_append parts " < __nl_range_end")
             set parts (cg_append parts "; ")
             set parts (cg_append parts c_var)
             set parts (cg_append parts "++) {\n")
             let body_env: GenEnv = (genenv_put env for_stmt.var_name "int" false)
-            set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 1) body_env return_type))
+            set parts (cg_append parts (generate_block parser for_stmt.body (+ indent 2) body_env return_type))
             set parts (cg_append parts (gen_indent indent))
-            set parts (cg_append parts "}\n")
+            set parts (cg_append parts "} }\n")
         } else {
             set parts (cg_append parts (gen_indent indent))
             set parts (cg_append parts "/* unsupported for-in call */;\n")
@@ -7665,7 +7670,14 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
 }
 
 shadow generate_for_stmt {
-    assert (== 1 1)
+    let source: string = "fn main() -> int { for value in (range 1 3) { assert (> value 0) } return 0 }"
+    let tokens: List<LexerToken> = (tokenize_string source "range.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "range.nano")
+    let loop: ASTFor = (parser_get_for parser 0)
+    let code: string = (generate_for_stmt parser loop 0 (genenv_new "test") "int")
+    assert (str_contains code "int64_t __nl_range_start = 1;")
+    assert (str_contains code "int64_t __nl_range_end = 3;")
+    assert (str_contains code "nl_value < __nl_range_end")
 }
 
 /* Generate C code for a while loop
