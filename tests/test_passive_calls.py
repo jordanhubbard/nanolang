@@ -56,6 +56,14 @@ class PassiveCalls(unittest.TestCase):
                                 '.par_node 1\nCALL callee\nPUSH_I64 17')
         self.paired_roundtrip(source, b'17\n')
 
+    def test_two_callable_blocks_in_one_function(self):
+        source = program('LOAD_LOCAL 0\nLOAD_LOCAL 0\nI64_MUL\nRET')
+        source = source.replace('owner 1 2 0 int 1', 'owner 1 3 0 int 1')
+        source = source.replace('LOAD_LOCAL 1\nRET\n.end',
+            '.par_begin\n.par_node 2 0\nLOAD_LOCAL 0\nCALL callee\nSTORE_LOCAL 2\n.par_end\n'
+            'LOAD_LOCAL 1\nLOAD_LOCAL 2\nI64_ADD\nRET\n.end')
+        self.paired_roundtrip(source, b'32\n')
+
     def test_arctan_loop_with_two_arguments(self):
         source = """.entry 2
 .function arctan 2 8 0 float 1

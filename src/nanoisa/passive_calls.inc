@@ -16,6 +16,8 @@ typedef struct {
 typedef struct {
     const NvmModule *module;
     uint8_t *state; /* unseen, visiting, proved, refused */
+    uint8_t *node_calls;
+    bool *owners;
     uint32_t depth;
 } ClosedCalls;
 

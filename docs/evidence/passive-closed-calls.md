@@ -15,10 +15,10 @@ modules and version-1 records retain their existing behavior.
 
 I ran `make test-passive-metadata test-verifier test-disasm-roundtrip`:
 
-- 15 Python methods passed, including six new closed-call methods.
+- 16 Python methods passed, including seven new closed-call methods.
 - 249 retained C passive checks, 96 verifier checks and 210 canonical roundtrip
   checks passed.
-- Nested square/cube calls, a counted local loop, a branch assigning its result
+- Nested square/cube calls, two callable blocks in one owner, a counted local loop, a branch assigning its result
   on both paths, zero-argument and void-result calls execute identically in VM
   and strict standalone native products.
 - The two-argument arctangent loop verifies, roundtrips exactly and prints
@@ -27,11 +27,11 @@ I ran `make test-passive-metadata test-verifier test-disasm-roundtrip`:
 
 I also compiled `passive.c` (including the new checker) with ASan and UBSan at
 `-O0`, linked it into a separate assembler using the other ordinary objects,
-and reran all six new methods without sanitizer findings. This instruments the
+and reran all seven new methods without sanitizer findings. This instruments the
 new checker; it is not a claim that every linked object was instrumented.
 
-Evidence logs are `/tmp/nanolang-passive-closed-final3.log` and
-`/tmp/nanolang-passive-closed-sanitizer-final.log`. The retained exact arctangent
+Evidence logs are `/tmp/nanolang-passive-closed-multiblock.log` and
+`/tmp/nanolang-passive-closed-sanitizer-final2.log`. The retained exact arctangent
 module is `/tmp/nanolang-passive-arctan.nvm`.
 
 This completes only verifier prerequisite
