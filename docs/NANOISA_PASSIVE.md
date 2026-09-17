@@ -118,7 +118,17 @@ aggregate operations, shared mutation, printing, and other effects in a callee.
 Ordinary assertion failure remains possible, as with scalar arithmetic traps;
 this is a purity boundary, not a termination theorem. Unreachable instructions
 are outside the callee summary. Ordinary module verification still checks them.
-Calls elsewhere in the owning function remain outside this extension.
+In version 2, direct `CALL` instructions outside marked node intervals execute
+serially under ordinary module target and stack checks. Their callees may have
+effects; I do not summarize those calls as pure. The VM reserves separate callee
+locals, consumes actual arity, and returns the checked result count. A callee
+that owns passive blocks still needs the whole-body purity check when called
+inside a node. I retain guarded parameter immutability and interval entry rules.
+
+This extension admits only direct `CALL`. The existing owner opcode allowlist
+still refuses tail, foreign and indirect calls, aggregate/global operations and
+ownership instructions outside nodes. It is not unrestricted serial code or a
+parallel scheduler. Version 1 retains its original owner restrictions.
 
 The check is bounded: at most 64 active call frames, 65,536 instructions per
 callee, 2,097,152 local-state words per callee, and 1,048,576 worklist steps per
@@ -209,13 +219,3 @@ Ordinary blocks retain their existing source-order visibility rules.
 
 [My scalar flow evidence](evidence/passive-flow-frontends.md) records exact
 paired output, frontend checks and the remaining owner-call boundary.
-
-## Planned serial owner-call boundary
-
-For `task_eccab63d320946d283342bb8fc8eb18f`, I will admit version-2 direct
-`CALL` outside node intervals under ordinary module target/stack verification.
-These calls execute serially in separate callee frames and may have effects;
-I do not summarize them as pure. Calls inside nodes retain the whole-body
-closed-function check, even when the callee owns passive blocks of its own.
-I retain parameter immutability, interval entry rules and all other existing
-owner-opcode restrictions. Version 1 remains unchanged. This is not a scheduler.
