@@ -58,6 +58,51 @@ static void independent_and_input(void) {
     attach(m,missing_read,sizeof missing_read);CHECK(!nvm_verify(m).ok);
     nvm_module_free(m);
 }
+/* Ordinary branches enter a complete passive block, then leave it normally. */
+static void branch_entries(const char *path) {
+    const char *prefix[] = {"JMP entry\n", "PUSH_BOOL 1\nJMP_TRUE entry\n",
+                            "PUSH_BOOL 0\nJMP_FALSE entry\n"};
+    for (unsigned i = 0; i < 3; ++i) {
+        char source[512];
+        snprintf(source, sizeof source,
+            ".entry 0\n.function main 0 1 0 int 1\n%sentry:\n"
+            "PUSH_I64 42\nSTORE_LOCAL 0\nJMP done\ndone:\n"
+            "LOAD_LOCAL 0\nPRINTLN\nPUSH_I64 0\nRET\n.end\n", prefix[i]);
+        AsmResult r;
+        NvmModule *m = asm_assemble(source, &r);
+        CHECK(m != NULL);
+        if (!m) continue;
+        uint32_t entry = i ? 7 : 5, exit = entry + 12;
+        uint32_t fields[] = {1,1,1,0,entry,exit,1, entry,exit,0,0,0,0,0};
+        attach(m, fields, sizeof fields);
+        CHECK(nvm_verify(m).ok);
+        NvmV2Module v2;
+        int error = nvm_v2_from_nvm_module(m, &v2);
+        CHECK(error == NVM_V2_OK);
+        if (error == NVM_V2_OK) {
+            size_t size = 0;
+            CHECK(nvm_v2_module_serialize(&v2, NULL, 0, &size) == NVM_V2_OK);
+            uint8_t *bytes = malloc(size);
+            CHECK(bytes != NULL);
+            if (bytes) {
+                CHECK(nvm_v2_module_serialize(&v2, bytes, size, NULL) == NVM_V2_OK);
+                if (path) {
+                    char name[4096];
+                    snprintf(name, sizeof name, "%s.branch%u", path, i);
+                    FILE *file = fopen(name, "wb");
+                    CHECK(file != NULL);
+                    if (file) {
+                        CHECK(fwrite(bytes, 1, size, file) == size);
+                        CHECK(fclose(file) == 0);
+                    }
+                }
+                free(bytes);
+            }
+            nvm_v2_module_free(&v2);
+        }
+        nvm_module_free(m);
+    }
+}
 static void text_roundtrip(const NvmModule *m, const uint8_t *bytes, size_t size) {
     char *text = disasm_module_styled(m, DISASM_STYLE_CANONICAL);
     CHECK(text && strstr(text, ".passive ") != NULL);
@@ -103,6 +148,7 @@ static void text_roundtrip(const NvmModule *m, const uint8_t *bytes, size_t size
 }
 int main(int argc,char **argv) {
     independent_and_input();
+    branch_entries(argc > 1 ? argv[1] : NULL);
     NvmModule *m=fixture(); if(!m) return 1;
     CHECK(nvm_verify(m).ok);
     uint32_t legacy_size=99; uint8_t *legacy=nvm_serialize(m,&legacy_size);

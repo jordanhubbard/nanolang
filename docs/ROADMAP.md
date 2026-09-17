@@ -632,7 +632,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         strict Darwin C99 must build the parser with overflow-checked portable
         allocation (`task_af9ed9b1529b4c65853e5669d4171126`).
 
-- [ ] I align passive branch targets with instruction-relative NanoISA offsets and verify ordinary entry/exit control flow in VM and native execution (`task_57b72385fb434d559a9fd13e25002f14`).
+- [x] I align passive branch targets with instruction-relative NanoISA offsets and verify ordinary entry/exit control flow in VM and native execution (`task_57b72385fb434d559a9fd13e25002f14`; 249 metadata checks, four VM/native executions and 96 verifier cases; `docs/evidence/passive-branch-targets.md`).
 - [ ] **Passive immutable input proofs.** I prove external input values before
       admitting their reads in eligibility metadata; declared signature tags
       alone do not close the current verifier's unknown call/local types.

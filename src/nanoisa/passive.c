@@ -144,7 +144,8 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
         if (pc == entry) saw_entry = true;
         if (pc == exit) saw_exit = true;
         if (d.opcode == OP_JMP || d.opcode == OP_JMP_TRUE || d.opcode == OP_JMP_FALSE) {
-            int64_t target = (int64_t)pc + length + d.operands[0].i32;
+            /* Relative branches use the instruction start, as in the ISA verifier. */
+            int64_t target = (int64_t)pc + d.operands[0].i32;
             if (target > entry && target < exit) ok = false;
         }
         if (d.opcode == OP_STORE_LOCAL) {
