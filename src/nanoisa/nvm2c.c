@@ -1492,7 +1492,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
                     !integer_array_storage(v.kind) && v.kind != NVM2C_VK_SARR &&
                     v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC && v.kind != NVM2C_VK_VALUE &&
-                    v.kind != NVM2C_VK_BOOL && v.kind != NVM2C_VK_MAP &&
+                    v.kind != NVM2C_VK_BOOL && v.kind != NVM2C_VK_FLOAT && v.kind != NVM2C_VK_MAP &&
                     v.kind != NVM2C_VK_UNK) {
                     nvm2c_fail(b, "function %u at offset %zu: AGG_PACK field %u kind %u requires supported aggregate shape facts (final=%d)",
                                idx, start, (unsigned)(count - 1 - ai), v.kind, facts->final);
@@ -3603,7 +3603,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
                     !integer_array_storage(vk) && vk != NVM2C_VK_SARR &&
                     vk != NVM2C_VK_RARR && vk != NVM2C_VK_REC && vk != NVM2C_VK_VALUE &&
-                    vk != NVM2C_VK_BOOL && vk != NVM2C_VK_MAP) {
+                    vk != NVM2C_VK_BOOL && vk != NVM2C_VK_FLOAT && vk != NVM2C_VK_MAP) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     goto done;
                 }
@@ -3627,6 +3627,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    r[%d].k[%d] = %u;\n", r, ei, (unsigned)fkind[ei]);
                     if (fkind[ei] == NVM2C_VK_STR) {
                         nvm2c_printf(b, "    r[%d].s[%d] = s[%d];\n", r, ei, elems[ei]);
+                    } else if (fkind[ei] == NVM2C_VK_FLOAT) {
+                        nvm2c_printf(b, "    memcpy(&r[%d].f[%d], &f[%d], sizeof f[%d]);\n",
+                                     r, ei, elems[ei], elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_VALUE) {
                         nvm2c_printf(b, "    r[%d].vk[%d] = v[%d].kind;\n"
                                          "    r[%d].f[%d] = v[%d].integer;\n"
@@ -3691,16 +3694,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 /* I preserve an unconstrained scalar's runtime tag. Unknown
                  * is an inference marker, never a valid record storage tag. */
                 nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
-                nvm2c_printf(b, "    if (r[%d].k[%u] != 0 && r[%d].k[%u] != 9 && r[%d].k[%u] != 1 && r[%d].k[%u] != 8) abort();\n",
-                             rec, fi, rec, fi, rec, fi, rec, fi);
-                nvm2c_printf(b, "    if (r[%d].k[%u] == 8 && r[%d].vk[%u] != 0 && r[%d].vk[%u] != 1 && r[%d].vk[%u] != 4 && r[%d].vk[%u] != 5) abort();\n",
+                nvm2c_printf(b, "    if (r[%d].k[%u] != 0 && r[%d].k[%u] != 9 && r[%d].k[%u] != 1 && r[%d].k[%u] != 11 && r[%d].k[%u] != 8) abort();\n",
                              rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
+                nvm2c_printf(b, "    if (r[%d].k[%u] == 8 && r[%d].vk[%u] != 0 && r[%d].vk[%u] != 1 && r[%d].vk[%u] != 3 && r[%d].vk[%u] != 4 && r[%d].vk[%u] != 5) abort();\n",
+                             rec, fi, rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
                 nvm2c_printf(b, "    if ((r[%d].k[%u] == 1 || (r[%d].k[%u] == 8 && r[%d].vk[%u] == 5)) && !r[%d].s[%u]) abort();\n",
                              rec, fi, rec, fi, rec, fi, rec, fi);
                 char expr[384];
                 snprintf(expr, sizeof expr,
-                         "(nmap_value){r[%d].k[%u] == 0 ? 1 : r[%d].k[%u] == 9 ? 4 : r[%d].k[%u] == 1 ? 5 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
-                         rec, fi, rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
+                         "(nmap_value){r[%d].k[%u] == 0 ? 1 : r[%d].k[%u] == 9 ? 4 : r[%d].k[%u] == 1 ? 5 : r[%d].k[%u] == 11 ? 3 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
+                         rec, fi, rec, fi, rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
                 stack_push_value(b, &st, expr);
                 break;
             }
@@ -3715,6 +3718,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
                     snprintf(expr, sizeof expr, "r[%d].s[%u]", rec, (unsigned)fi);
                     stack_push_str(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_FLOAT) {
+                    snprintf(expr, sizeof expr, "nrec_f64(r[%d].f[%u])", rec, (unsigned)fi);
+                    stack_push_float(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_VALUE) {
                     snprintf(expr, sizeof expr,
                              "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
@@ -4852,7 +4858,8 @@ static int infer_nominal_scalar_fields(Nvm2cBuf *b, const NvmModule *mod) {
                     if (!candidate) continue;
                     NvmShapeKind kind = nvm_shape_kind(&b->shapes, candidate);
                     if (kind == NVM_SHAPE_UNKNOWN) continue;
-                    if ((kind != NVM_SHAPE_INT && kind != NVM_SHAPE_BOOL && kind != NVM_SHAPE_STRING) ||
+                    if ((kind != NVM_SHAPE_INT && kind != NVM_SHAPE_BOOL &&
+                         kind != NVM_SHAPE_FLOAT && kind != NVM_SHAPE_STRING) ||
                         (agreed != NVM_SHAPE_UNKNOWN && agreed != kind)) { conflict = 1; break; }
                     agreed = kind;
                 }
@@ -5317,6 +5324,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "/* Generated by nvm2c from NanoISA. Not a VM wrapper. */\n"
             "#include <stddef.h>\n"
             "#include <stdint.h>\n#include <stdlib.h>\n");
+        if (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_AGG_GET))
+            nvm2c_puts(&b, "#include <string.h>\n");
+        if (module_has_opcode(mod, OP_AGG_GET)) nvm2c_puts(&b,
+            "/* I retain binary64 bits in my existing 64-bit aggregate cells. */\n"
+            "static inline double nrec_f64(int64_t cell) {\n"
+            "    double value; memcpy(&value, &cell, sizeof value); return value;\n}\n");
         nvm2c_puts(&b,
             "#include <stdio.h>\n"
             "static inline int64_t nf64_to_i64(double value) {\n"
@@ -5655,6 +5668,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_has_opcode(mod, OP_AGG_GET))
+            nvm2c_puts(&b, "    (void)nrec_f64;\n");
         /* Standard C references keep strict unused-function warnings clean. */
         for (uint32_t i = 0; i < mod->function_count; ++i) {
             if (!b.emitted_functions[i]) continue;
