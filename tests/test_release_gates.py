@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import unittest
+from unittest import mock
 import tempfile
 from pathlib import Path
 
@@ -35,12 +36,17 @@ PRESENTATION = SKILLS / "releasing" / "presentation" / "check_presentation.py"
 
 
 def _run(script: Path, **env: str) -> subprocess.CompletedProcess:
+    child_env = dict(os.environ)
+    # A release-wide acknowledgement applies only to the current-tree gate.
+    # Historical negative controls must still prove that stale prose fails.
+    child_env.pop("RELEASE_DOCS_ACK", None)
+    child_env.update(env)
     return subprocess.run(
         [sys.executable, str(script)],
         capture_output=True,
         text=True,
         cwd=str(ROOT),
-        env={**os.environ, **env},
+        env=child_env,
     )
 
 
@@ -135,9 +141,13 @@ class ReleaseGateTest(unittest.TestCase):
 
     def test_current_tree_is_releasable(self):
         """Whatever else is true, main must not be shipping stale prose."""
+        current_env = {}
+        acknowledgement = os.environ.get("RELEASE_DOCS_ACK")
+        if acknowledgement:
+            current_env["RELEASE_DOCS_ACK"] = acknowledgement
         for script in (DOCUMENTATION, PRESENTATION):
             with self.subTest(gate=script.name):
-                result = _run(script)
+                result = _run(script, **current_env)
                 self.assertEqual(result.returncode, 0, result.stdout)
 
     def test_deck_matches_its_specification(self):
@@ -187,7 +197,8 @@ class ReleaseGateTest(unittest.TestCase):
             evidence=["src/main.c"],
             evidence_total=3,
         )
-        text, code = report.resolve([finding], "Documentation freshness")
+        with mock.patch.dict(os.environ, {"RELEASE_DOCS_ACK": ""}):
+            text, code = report.resolve([finding], "Documentation freshness")
         self.assertEqual(code, 1)
         self.assertIn("README.md", text)
         self.assertIn("src/main.c", text)

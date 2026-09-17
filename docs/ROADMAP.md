@@ -582,6 +582,22 @@ gate as complete. Phase 22 / 6.0 remains separate.
         process-wide reclamation. I reproduce these lifetimes and verify
         bounded loop allocation without freeing reachable values.
         MAC `task_d3310bef8bd541ba9e1e267ee213eb9e`.
+        - [x] I reproduce a caller-map use-after-free under ASan at PR #303's
+          head and replace current-frame-only collection with registered live
+          frames, globals and iterative aggregate tracing. I test caller
+          locals/operands, strings, arrays, nested records, mutable edges,
+          backward conditional branches and 20,000 self-tail restarts. My
+          focused tests require at most 16 live map/string owners and zero
+          after entry cleanup. Remaining PR ancestry reconciliation stays open.
+          Evidence: `docs/evidence/native-map-root-lifetimes.md`.
+        - [ ] **5.0.1 / caller-safe native map reclamation.** I ship the
+          registered-frame repair after verifying globals, nested and mutable
+          aggregates, scalar-float safepoints, backward branches, self-tail
+          restarts and non-self tail teardown under ASan/UBSan. MAC
+          `task_a94efdfee3486a0814f93336cf5c052c`.
+          - [x] I isolate the release-wide documentation acknowledgement from
+            historical negative-control tests, while applying its stated
+            reason to the current-tree documentation and presentation gates.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure

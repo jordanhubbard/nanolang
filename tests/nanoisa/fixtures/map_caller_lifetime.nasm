@@ -1,0 +1,37 @@
+.string key "key"
+.entry main
+.function main 0 1 0 int 1
+HM_NEW 5 1
+PUSH_STR key
+PUSH_I64 42
+HM_SET
+STORE_LOCAL 0
+CALL churn
+LOAD_LOCAL 0
+PUSH_STR key
+HM_GET
+CAST_INT
+PUSH_I64 42
+I64_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end
+.function churn 0 1 0 void 0
+PUSH_I64 0
+STORE_LOCAL 0
+again:
+HM_NEW 5 1
+POP
+LOAD_LOCAL 0
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 0
+LOAD_LOCAL 0
+PUSH_I64 20
+I64_LT_S
+JMP_FALSE done
+JMP again
+done:
+RET
+.end
