@@ -366,6 +366,7 @@ shadow nisa_list_element_tag {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "string_to_int") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
@@ -882,6 +883,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (or (== node_type ParseNodeType.PNODE_CALL) (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
         let call: ASTCall = (nisa_get_call parser node_id node_type)
         let target_name: string = (nisa_call_name parser call)
+        if (== target_name "string_to_int") { return "int" }
         let map_result: string = (nisa_map_result target_name)
         if (!= map_result "") { return map_result }
         let host_symbol: string = (nisa_call_host_symbol parser target_name)
@@ -1164,6 +1166,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         return (nisa_fail "computed function calls are outside the NanoISA subset")
     } else { (print "") }
     let function_name: string = (nisa_call_name parser call)
+    if (== function_name "string_to_int") {
+        if (!= call.arg_count 1) { return (nisa_fail "string_to_int needs one string argument") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+            return (nisa_fail "string_to_int needs one string argument")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+    }
     if (!= (nisa_map_opcode function_name) "") { return (nisa_emit_map_call parser call function_name) }
     let host_symbol: string = (nisa_call_host_symbol parser function_name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }
