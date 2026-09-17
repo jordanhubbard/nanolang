@@ -3067,7 +3067,10 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
             if (not nisa_ok) {
                 return ""
             } else {
-                let mut prelude: string = ".entry "
+                let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
+                set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
+                set prelude (+ prelude (+ " " (int_to_string (parser_get_union_count parser))))
+                set prelude (+ prelude "\n.entry ")
                 set prelude (+ prelude (int_to_string main_idx))
                 set prelude (+ prelude "\n\n")
                 set prelude (+ prelude nisa_import_text)
@@ -3124,6 +3127,7 @@ shadow nisa_emit_module_nasm {
     let source: string = (+ "f" "n unused() -> int { return 9 } fn main() -> int { return 0 }")
     let tokens: List<LexerToken> = (tokenize_string source "program.nano" diagnostics)
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "program.nano")
+    assert (str_starts_with (nisa_emit_module_nasm parser false) ".types 0 0 0\n.entry ")
     assert (str_contains (nisa_emit_module_nasm parser false) ".function unused")
     assert (not (str_contains (nisa_emit_module_nasm parser true) ".function unused"))
 }
