@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I run one newly pinned native full-source acceptance after aggregate reclamation (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). At merged code `a3f321a6`, I rebuild the canonical compiler, require help and verified hello prerequisites, and retain source/helper/host hashes. Each generation has a 1,800-second budget with a 48 GiB owned-RSS threshold and 32 GiB host reserve. I continue to generation two and raw equality only after generation one succeeds; I preserve any incomplete result without retry. This source includes VM shadows, so I make no speed attribution against the older C-shadow pin.
+
 - [x] **Retained NanoISA layouts.** I preserve complete v2 layout tables through
       my execution-module bridge, canonical reconstruction and serialization
       before reference verification consumes them (MAC `task_a794de400f5b400bbc11a6d251e7bd94`, parent ed702).
