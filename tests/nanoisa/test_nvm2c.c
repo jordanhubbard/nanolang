@@ -1188,6 +1188,9 @@ static void test_globals_cross_functions_and_preserve_identity(void) {
 static void test_projected_global_stores(void) {
     const struct { const char *value, *check; } cases[] = {
         {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
+        {"PUSH_F64 1.5", "PUSH_F64 1.5\nF64_EQ\nASSERT"},
+        {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
+         "PUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 1\nEQ\nASSERT"},
         {"PUSH_BOOL 1", "DUP\nTYPE_CHECK 4\nASSERT\nASSERT"},
         {"PUSH_STR text", "PUSH_STR text\nEQ\nASSERT"},
         {"PUSH_I64 42\nARR_LITERAL 1 1", "PUSH_I64 0\nARR_GET\nPUSH_I64 42\nEQ\nASSERT"},
@@ -1217,9 +1220,7 @@ static void test_projected_global_stores(void) {
         }
     }
     const char *unsupported[] = {
-        "PUSH_I64 1\nAGG_PACK 0 0 0 1",
-        "PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
-        "PUSH_F64 1.5"
+        "PUSH_I64 1\nAGG_PACK 0 0 0 1"
     };
     for (size_t i = 0; i < sizeof unsupported / sizeof unsupported[0]; ++i) {
         char source[2048];
@@ -1230,9 +1231,7 @@ static void test_projected_global_stores(void) {
         if (!m) continue;
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(i == 1 ? c != NULL : c == NULL,
-              i == 1 ? "I retain exact record-array global storage after resolving nested fields" :
-                       "I reject unsupported global storage after resolving nested fields");
+        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
         free(c); nvm_module_free(m);
     }
 }
