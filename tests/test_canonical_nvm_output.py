@@ -51,7 +51,9 @@ shadow main { assert (== (main) 0) }
             directory = Path(tmp)
             source, dependency = self.sources(directory)
             other = directory / "other.nano"
-            other.write_text("module Other\npub fn value() -> int { return 12 }\n"
+            other.write_text("module Other\nfn base() -> int { return 12 }\n"
+                             "shadow base { assert (== (base) 12) }\n"
+                             "pub fn value() -> int { return (base) }\n"
                              "shadow value { assert (== (value) 12) }\n")
             source.write_text(f'module "{other}" as other\n' + source.read_text().replace(
                 '(println "canonical-nvm")', 'assert (== (other.value) 12) (println "canonical-nvm")'))
