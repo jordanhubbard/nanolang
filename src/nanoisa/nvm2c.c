@@ -5468,18 +5468,18 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
 #include "nvm2c_map_runtime.inc"
             );
             nvm2c_puts(&b,
+                "static size_t nmap_collection_budget = 65536;\n"
                 "typedef struct nmap_owned { nmap_t map; struct nmap_owned *next; unsigned marked; } nmap_owned;\n"
                 "static nmap_owned *nmap_owned_head;\n"
                 "typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; unsigned marked; } nvalue_owned;\n"
                 "static nvalue_owned *nvalue_owned_head;\n"
                 "static size_t nmap_owned_live, nmap_owned_peak;\n"
-                "static unsigned nmap_allocation_debt;\n"
                 "static nmap_value nmap_owned_get(nmap_t map, const char *key) {\n"
                 "    nmap_value value = nmap_get(map, key);\n"
                 "    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);\n"
                 "        if (!owner) { nmap_release_value(value); abort(); }\n"
                 "        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;\n"
-                "        nmap_allocation_debt = 1;\n"
+                "        nmap_bytes_add(sizeof *owner);\n"
                 "        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }\n"
                 "    return value;\n}\n"
                 "static inline nmap_value nvalue_from_float(double value) {\n"
@@ -5527,14 +5527,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);\n"
                 "    if (!owner) { nmap_destroy(map); abort(); }\n"
                 "    *owner = (nmap_owned){map, nmap_owned_head, 0}; nmap_owned_head = owner;\n"
-                "    nmap_allocation_debt = 1;\n"
+                "    nmap_bytes_add(sizeof *owner);\n"
                 "    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;\n"
                 "    return map;\n}\n"
                 "static void nmap_release_owned(void) {\n"
                 "    while (nvalue_owned_head) { nvalue_owned *owner = nvalue_owned_head;\n"
-                "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); free(owner); --nmap_owned_live; }\n"
+                "        nvalue_owned_head = owner->next; nmap_release_value(owner->value); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }\n"
                 "    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;\n"
-                "        nmap_owned_head = owner->next; nmap_destroy(owner->map); free(owner); --nmap_owned_live; }\n}\n");
+                "        nmap_owned_head = owner->next; nmap_destroy(owner->map); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }\n}\n");
         }
         if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
         emit_walk_adapters(&b, mod);
@@ -5578,11 +5578,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (b.has_owned_strings) nvm2c_puts(&b, "    nstr_sweep(&work);\n");
             if (b.has_owned_aggregates) nvm2c_puts(&b, "    nagg_sweep(&work);\n");
             nvm2c_puts(&b, "    nroot_destroy(&work); nmap_sweep();\n"
-                "    nmap_allocation_debt = 0;\n}\n"
+                "    nmap_allocation_debt = 0;\n"
+                "    nmap_collection_budget = nmap_live_bytes > 65536 ? nmap_live_bytes : 65536;\n}\n"
                 "/* I trace fresh mutable edges for map debt or an owned byte budget.\n"
                 " * Without allocation, dropped owners wait for the next allocating safepoint. */\n"
                 "static inline void nmap_collect_if_needed(void) {\n"
-                "    if (nmap_allocation_debt");
+                "    if (nmap_allocation_debt >= nmap_collection_budget");
             if (b.has_owned_strings)
                 nvm2c_puts(&b, " || nstr_allocation_debt >= nstr_collection_budget");
             if (b.has_owned_aggregates)

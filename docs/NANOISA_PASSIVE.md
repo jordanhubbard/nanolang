@@ -145,3 +145,33 @@ both NanoISA emitters and VM/native execution. The full raw calculator still
 refuses its `strlen` ABI. Foreign identity, broader external inputs, and `flow`
 extraction remain open. [My frontend evidence](evidence/passive-par-frontends.md)
 states the exact boundary.
+
+## Structured flow producer contract
+
+I resolve this interface under `task_d83213c008654ff4a561843889e778aa`.
+It does not admit frontend `flow` syntax.
+
+```
+.flow_begin node-count
+.flow_node source-id result-local dependency-count dependency-id... read-count parameter-local...
+.flow_end
+```
+
+I require a positive node count and exactly one marker for every dense source ID.
+IDs retain source order; marker and instruction order follow the stable
+lowest-source-ID-ready topological order. Dependencies and external reads are
+sorted unique sets. The assembler records each actual instruction range and
+writes existing version-2 nodes in source-ID order. It does not invent guards,
+callee purity, or resource permissions. My existing verifier checks the complete
+graph and authoritative instructions without a binary-format or proof-rule change.
+
+I preserve canonical `.passive` hexadecimal transport and exact byte roundtrips,
+existing `par` markers, and the prohibition on mixing raw bytes with producer
+markers. Ordinary forward chains, diamonds, source-order ties, guarded scalar
+inputs, and closed scalar calls must execute identically in VM and native output.
+Text errors must refuse publication. I retain checked allocation and recovery.
+Frontend extraction, immutable local/aggregate inputs, resources and foreign
+purity remain separate work; this interface provides no scheduler.
+
+[My flow-marker evidence](evidence/passive-flow-markers.md) records paired execution,
+exact records, retained codec checks and bounded assembler sanitizer coverage.

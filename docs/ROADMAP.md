@@ -45,11 +45,35 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I connect affine facts to a bounded decoded-bytecode analysis (MAC
+      `task_4d22d17c96864d9fbc6031cfba2dc927`, parent ed702): exact scalar stack
+      and local facts, read-only parameter record observations, reachable
+      branches/back edges and exit obligations. I refuse observation escape,
+      unsupported transfers and mismatched joins, and test ordinary loops
+      and borrowed field readers without enabling ownership execution.
+      Caller alias substitution, explicit transfer/reference instructions and
+      actual VM/native access remain required independent acceptance. I pass
+      300 checks and 419 allocation/sanitizer checks; my bounded evidence is
+      `docs/evidence/nanoisa-affine-bytecode.md`.
+
 - [x] I update stale raw-emitter refusal fixtures for already supported scalar float and Boolean-array results (`task_64f967c7f1d14b26a2b8134fb94a706e`). I retain previous-output and exact-diagnostic checks against the documented unsupported float-array result, and verify positive scalar/Boolean-array bytecode.
 
 - [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
 
 - [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
+- [x] I implement local-normalized affine instruction transitions from checked
+      ownership declarations before connecting bytecode dataflow (MAC
+      `task_379b04ef0b8d4a7985ad72b2ab244d5b`, parent ed702): explicit record
+      pack/move/whole-record unpack, nested reference regions and scalar
+      access, exact joins and live-owner exit obligations. I test refused
+      transitions preserve state, overlap/reborrow/argument-order cases and
+      ordinary controls. Stack provenance, CFG/opcodes, runtime lowering and
+      paired source producers remain separate required acceptance; current
+      execution refusals remain enabled. I pass 157 transition checks and
+      182 allocation-injection/sanitizer checks; bounded evidence is in
+      `docs/evidence/nanoisa-affine-state.md`.
+- [x] I batch native map and copied-result collection using checked allocation-byte debt (MAC `task_c7931f1c22db473682d077b119b9c87d`). I count map headers, buckets, entries, keys, copied strings and owner records; positive allocation/growth contributes debt and release reduces live bytes. I retain existing published-root safe points, full graph tracing and forced collection, with a 64 KiB minimum budget adjusted to surviving map bytes. My [bounded byte/alias evidence](evidence/native-map-byte-debt.md) records 32 regression methods, 15 integrated methods, 2,412 native translator checks and 1,092 shape checks. An identical-bytecode live-graph workload reduces 5,000 scans to three; retained-byte counters exclude temporary bucket overlap and RSS. Full compilation remains a separate unrerun gate.
+
 - [x] I complete the retained-layout and ownership source closure in every
       explicit NanoISA build list, including the Forth SEE host manifest,
       its examples shared-library rule and the regular/daemon wrapper object
@@ -57,7 +81,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       import failure and run real module load/link gates, not only tool builds.
       Five wrapper links, seven publication methods and two Forth SEE
       host build/load methods pass; evidence is in my ownership-contract report.
-- [ ] I measure remaining native compiler CPU cost after bounded aggregate reclamation (MAC `task_c7931f1c22db473682d077b119b9c87d`). My pinned `b09a16a8` acceptance reached its unchanged 1800-second deadline with no artifact; peak sampled owned RSS was 4,367,660 KiB and neither memory threshold was reached. I require static analysis and bounded ordinary workloads before repair, preserve [the exact outcome](evidence/native-selfcompile-closure-b09a.md), and do not rerun the full compiler or extend its budget merely to obtain success.
+- [x] I measure remaining native compiler CPU cost after bounded aggregate reclamation (MAC `task_c7931f1c22db473682d077b119b9c87d`). My pinned `b09a16a8` acceptance reached its unchanged 1800-second deadline with no artifact; peak sampled owned RSS was 4,367,660 KiB and neither memory threshold was reached. I require static analysis and bounded ordinary workloads before repair, preserve [the exact outcome](evidence/native-selfcompile-closure-b09a.md), and do not rerun the full compiler or extend its budget merely to obtain success.
 
 - [ ] I attempt one clean native compiler acceptance at `b09a16a8`, after the manifest closure and typed-integer projection repairs (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). I retain immutable source/tool/helper/host hashes, require help and verified hello first, then allow two generations only in dependency order. Each full generation retains the 1800-second budget, 48 GiB owned-RSS threshold and 32 GiB host reserve; I preserve any failed or incomplete result without retry.
 
@@ -773,6 +797,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I preserve existing `par` calls to square/cube and arctan_series while adding checked eligibility (`task_1cdbd34dbe514229a0b91270f0d3ef29`; fresh bootstrap, original fixtures across three native stages, exact scalar-closure VM/native comparison; `docs/evidence/passive-par-frontends.md`).
 - [ ] I retain the unexplained artifact-publication VM assertion from the par full gate and investigate if ordinary execution reproduces it (`task_6651883267424a2f907b439de9fba4c6`). The prior run and single isolated rerun passed; source, binary and helper hashes stayed fixed during the latter. A concurrent bootstrap is observed, not established as cause.
 - [x] I retain let-only `par` declarations in both frontends, reject dependencies and unsupported effects before emitting checked NanoISA records, and verify paired behavior (`task_e0c6fd18cfbb49c78e4c509d8444417e`; 86 comparison checks, 84 paired methods, five frontend methods; `docs/evidence/passive-par-frontends.md`). Flow extraction and full passive conformance remain separate. This slice also admits typed scalar arithmetic/logic and immutable string concatenation in version-2 records and resolves parameter signatures by assembler function name.
+- [x] I resolve structured `flow` producer markers with explicit source IDs and dependency sets into existing version-2 passive records, preserving stable serial order, canonical bytes and verifier semantics (`task_d83213c008654ff4a561843889e778aa`; 20 passive methods, 210 roundtrip checks, 96 verifier checks, instrumented assembler allocation recovery; `docs/evidence/passive-flow-markers.md`). I refresh the current contract boundary to distinguish merged `par` support from unfinished frontend `flow` and broader input proofs.
 - [ ] **Passive immutable input proofs.** I prove external input values before
       admitting their reads in eligibility metadata; declared signature tags
       alone do not close the current verifier's unknown call/local types.

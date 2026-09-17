@@ -154,3 +154,94 @@ Actual float-record lowering remains an independent prerequisite
 (`task_93574cf9d200459aa16e959baf68201d`). Retaining a float field tag does not
 establish its VM/native implementation. I keep that reference case refused
 until its runtime gates pass with the other reference semantics.
+
+## Local instruction-state prerequisite
+
+I first check local-normalized transitions before mapping them to bytecode.
+I obtain exact local tags/layouts and parameter modes from my validated
+OWNERSHIP section. Scalar definition cannot manufacture an owned record.
+Record construction names every field in order and moves resource fields;
+a whole-record move invalidates its source. Whole-record unpack consumes
+its source atomically and gives each resource field its own obligation.
+A scalar observation never consumes a containing owner. I reject replacement
+of a live resource and every failed transition preserves the prior state.
+
+I form references in a nested call region, before evaluating later arguments.
+Each reference retains the root and numeric projection; a subordinate
+reborrow preserves that place and cannot strengthen its parent's mode.
+Parent access is suspended when incompatible with a live child. Region end
+invalidates its references; exit requires no regions and no untransferred
+owned locals. I compare joins exactly, including local liveness, reference
+slots, provenance, modes and region depth. An uninitialized or consumed local
+cannot be accessed. I do not merge disagreement into an unknown value.
+
+This transition API is not an executable bytecode verifier. I still require
+operand-stack provenance, instruction decoding, reachable CFG propagation,
+loop/back-edge checks and callee argument/result transfer. I keep all current
+resource/reference execution refusals until those checks and genuine VM/native
+reference lowering pass. No wire opcode is allocated by this prerequisite.
+
+My transition engine uses symbolic invocation `1` within one function analysis.
+Exact join comparison accepts clones sharing that analysis's immutable facts;
+separately created analyses do not become equal by matching printed types.
+Entry borrowed parameters represent obligations supplied by a future checked
+caller. Distinct parameter slots are not proof that actual caller places are
+disjoint. My call-boundary verifier must substitute caller provenance and
+validate argument overlap before it can use those entry assumptions.
+
+I currently support scalar locals and complete finite record trees in this
+API. Reference slots and nested regions are explicit verifier inputs; they
+are not heap-storable values. No API operation copies a reference into an
+ordinary local, packs it into a record or returns it. I retain uninitialized
+and consumed locals as equally unavailable; loop joins require the same live
+obligations and reference provenance, not an identical history of moves.
+
+## Bounded bytecode dataflow contract
+
+My next analysis consumes a decoded function, not a producer-supplied list
+of transitions. I initially admit exact numeric/bool stack values, scalar
+locals and read-only observations of record parameters. `LOAD_LOCAL` of a
+record produces an observation tied to its checked root, never an owned copy.
+Only a checked scalar `AGG_GET`/`STRUCT_GET` may turn that observation into a
+scalar value. I refuse observation duplication, stores, returns, calls,
+aggregate construction and mutation until their distinct transfer/reference
+instruction contracts are connected. An observation does not consume a live
+resource obligation.
+
+I propagate cloned local state and stack tags/provenance along reachable
+branch edges. Each join and loop back edge must match exactly; I do not widen
+missing or conflicting facts. I require explicit returns with the exact
+scalar result tag and no remaining owned obligations. I reject falling off
+the code end. Instructions outside this slice are refused even in dead code,
+so dead branches cannot hide an unimplemented transfer operation.
+
+This analysis initially bounds a function at 4096 decoded instructions,
+256 locals and 256 stack values; exceeding a bound is explicit refusal.
+Those bounds limit analysis storage and do not alter general NanoISA limits.
+Entry references still assume a separately checked caller contract. Analysis
+success does not satisfy `nvm_verify`, install new runtime semantics or lift
+any existing ownership execution refusal. Source producers remain disabled.
+
+### Concrete connection after this slice
+
+My next transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
+local and push its unique owner), `OWN_STORE_LOCAL U16` (consume that owner
+into an exact vacant local), `OWN_PACK U32` (use a retained layout index,
+consume its ordered fields and create an owner), and `OWN_UNPACK_LOCAL U16`
+(invalidate the whole record and push every ordered field and obligation
+atomically). I have not allocated their extended-plane wire codes. Their
+codec, assembly/reconstruction, decoded stack effects and strict provenance
+transitions must land together; plain `LOAD_LOCAL` remains an observation.
+An owner temporarily on the operand stack must neither disappear at a branch
+nor duplicate through `DUP`, storage or a call.
+
+My integration point is `verify_function_impl` in `verifier.c`, after decoded
+structural and stack checks, through `nvm_verify_function`,
+`nvm_verify_function_max_stack` and linked verification. I will connect the
+affine pass there only when the explicit transfer/reference instruction
+contracts are supported. I keep `verify_structure`'s ownership refusal and
+the independent direct VM/native guards now. The next contracts also require
+reference creation/access/end-region instructions, exact caller-place alias
+substitution at direct calls, safe imported-contract handling and actual
+VM/native reference semantics before admission. Passing this analysis alone
+does not authorize removing any of those guards.
