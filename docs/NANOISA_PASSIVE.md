@@ -1,12 +1,12 @@
 # My scalar passive eligibility record
 
-I carry version-1 scalar eligibility records in v2 section `0x0c`, guarded by
+I carry version-1 and version-2 scalar eligibility records in v2 section `0x0c`, guarded by
 feature bit `0x40`. Readers that do not know that feature reject the module.
 Legacy output refuses records rather than dropping them. This is a bounded IR
 foundation for `PASSIVE_PARALLELISM_DESIGN.md`; frontend syntax, call summaries,
 resource metadata and the full conformance matrix remain unfinished.
 
-Every field is a little-endian `u32`. The section starts with `version = 1`
+Every field is a little-endian `u32`. The section starts with `version = 1` or `version = 2`
 and a positive block count. Blocks follow function index and entry offset order,
 without overlapping ranges. Offsets are absolute positions in the code section;
 exit offsets are exclusive. Each block contains:
@@ -56,3 +56,43 @@ full canonical v2 bytes, including this section and its feature bit.
 
 This is lossless textual transport. Editing instructions still requires updating
 and revalidating their claims; this does not establish transformation equivalence.
+
+## Version 2 guarded scalar inputs
+
+I use record version `2` for a bounded extension with the same field layout.
+Version `1` keeps its zero-external-read rule. Older readers reject version `2`;
+I do not erase the version or the claim to obtain compatibility.
+
+An external parameter read in version `2` requires an executable guard in a
+straight-line prefix at the owning function entry. Each guard is exactly
+`LOAD_LOCAL parameter; TYPE_CHECK tag; ASSERT`. Guards use strictly increasing
+parameter indices and declared tags from `int`, `bool`, `string`, or `float`.
+Every external read must have its matching guard before the passive block.
+Annotations alone are not evidence of the runtime value. Calls enter at the
+function start, and a failed guard stops execution before the block.
+
+I forbid writes to each recorded external parameter throughout the function.
+This preserves the checked value even when ordinary branches revisit the block.
+Node operations and dependency restrictions stay unchanged. `TYPE_CHECK` is
+permitted outside node ranges in version `2`; it does not itself make a node
+eligible. I retain ordinary stack and instruction verification.
+
+This acceptance excludes `u8`, aggregates, captures, transitive calls and foreign
+purity summaries. It does not implement either frontend's `par` or `flow`
+syntax. The complete external-input task remains open until its broader
+acceptance is met. Guarded scalar validation and paired execution evidence are
+in [my acceptance record](evidence/passive-guarded-inputs.md).
+
+## Structured producer markers
+
+A textual producer may bracket a function-local independent block with
+`.par_begin` and `.par_end`. Before each binding's instructions it writes
+`.par_node result-local [external-parameter ...]`, with sorted external indices.
+The assembler resolves current function and instruction offsets into the
+existing version-2 record. It does not invent guards, purity facts, dependencies,
+or resource permissions. Ordinary passive verification remains authoritative.
+
+Markers must be complete, nonnested, and inside one function. A block needs at
+least one node. Raw `.passive` chunks and producer markers cannot be mixed in
+one input. Canonical disassembly continues to emit exact `.passive` hexadecimal
+chunks; producer convenience syntax is not a second binary format.

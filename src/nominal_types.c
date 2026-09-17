@@ -61,14 +61,10 @@ static bool nominal_signature(ASTNode *program, Environment *env, FunctionSignat
     return nominal_scoped_signature(program, env, signature, NULL, 0);
 }
 static bool nominal_parameter(ASTNode *program, Environment *env, Parameter *parameter) {
-    if (parameter->type == TYPE_BORROW_MUT) {
-        fprintf(stderr, "I retain borrow annotations, but call-scoped ownership lowering is not implemented\n");
-        return false;
-    }
     if (!nominal_slot(program, env, &parameter->struct_type_name) ||
         !nominal_signature(program, env, parameter->fn_sig) ||
         !nominal_info(program, env, parameter->type_info)) return false;
-    if (parameter->type != TYPE_BORROW_SHARED) return true;
+    if (parameter->type != TYPE_BORROW_SHARED && parameter->type != TYPE_BORROW_MUT) return true;
     TypeInfo *inner = parameter->type_info ? parameter->type_info->element_type : NULL;
     if (inner && inner->base_type == TYPE_STRUCT && !inner->type_param_count && inner->generic_name) {
         for (int i = 0; i < program->as.program.count; ++i) {
@@ -96,7 +92,7 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
         case AST_PROGRAM: CHILDREN(node->as.program.items, node->as.program.count); break;
         case AST_FUNCTION:
             for (int i = 0; i < node->as.function.param_count; ++i)
-                if (node->as.function.is_extern && node->as.function.params[i].type == TYPE_BORROW_SHARED) {
+                if (node->as.function.is_extern && (node->as.function.params[i].type == TYPE_BORROW_SHARED || node->as.function.params[i].type == TYPE_BORROW_MUT)) {
                     fprintf(stderr, "I require a checked body for a borrowed parameter\n"); return false;
                 }
             for (int i = 0; i < node->as.function.param_count; ++i)

@@ -321,6 +321,7 @@ struct ASTNode {
         struct {
             char *name;
             ASTNode *value;
+            char *field_name; /* Optional scalar field of an exclusive referent. */
         } set;
         struct {
             ASTNode *condition;

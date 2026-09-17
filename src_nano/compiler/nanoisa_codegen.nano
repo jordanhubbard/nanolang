@@ -2857,6 +2857,9 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
+                if (!= s.field_name "") {
+                    return (nisa_fail "I require reference IR before lowering field-place assignment")
+                }
                 let slot: int = (nisa_local_find s.target)
                 if (< slot 0) {
                     let global: int = (nisa_global_find s.target s.line)
@@ -3529,4 +3532,12 @@ shadow nanoisa_emit_program_nasm {
     assert (str_contains output "TAIL_CALL helper")
     assert (not (str_contains output "unused_host"))
     assert (== (nanoisa_emit_parser_nasm parser) "")
+}
+
+shadow nanoisa_emit_nasm {
+    let source: string = (+ "struct Item { value: int } f" "n main() -> int { let mut item: Item = Item { value: 1 } set item.value 2 return 0 }")
+    assert (== (nanoisa_emit_nasm source) "")
+    assert (str_contains (nanoisa_last_lowering_error) "reference IR")
+    let control: string = (+ "f" "n main() -> int { let mut value: int = 1 set value 2 return value }")
+    assert (str_contains (nanoisa_emit_nasm control) "STORE_LOCAL")
 }

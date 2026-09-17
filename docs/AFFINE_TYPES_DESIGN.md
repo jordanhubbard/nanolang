@@ -62,9 +62,12 @@ I use one ownership spelling:
   passed to a consuming function.
 
 My paired frontends test whole-record owned destructuring for their supported
-nongeneric records. They do not establish `&T` or `&mut T` support. Borrow
-spellings become language syntax only when both frontends pass the same
-conformance cases.
+nongeneric records. I also test call-scoped shared and exclusive native borrows
+of fixed resource records with numeric/bool fields. My
+[borrow evidence](evidence/call-scoped-exclusive-borrows.md) records actual
+reference identity and mutation across the C seed and both self-hosted stages.
+Broader resource shapes, nested projected borrows and NanoISA reference lowering
+remain required work; the normative rules below are not all implemented.
 
 ## Ownership States
 

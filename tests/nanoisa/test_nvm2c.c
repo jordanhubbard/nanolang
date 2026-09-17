@@ -5687,6 +5687,31 @@ static void test_array_set_aliases_bounds_and_types(void) {
     }
 }
 
+static void test_wrapper_names_are_ordinary_string_data(void) {
+    const char *values[] = {"bin/nano_vm", "nvm_blob", "prefix /* nano_vm */ suffix",
+                            "prefix // nvm_blob", "\\\"nano_vm", "nvm_blob\\\\"};
+    for (size_t i = 0; i < sizeof values / sizeof values[0]; i++) {
+        char assembly[512];
+        snprintf(assembly, sizeof assembly,
+            ".string text \"%s\"\n.entry main\n.function main 0 0 0 int 1\n"
+            "PUSH_STR text\nSTR_LEN\nPUSH_I64 0\nI64_GT_S\nASSERT\n"
+            "PUSH_I64 0\nRET\n.end\n", values[i]);
+        NvmModule *module = assemble_ok(assembly, "ordinary wrapper-name data");
+        CHECK(module != NULL, "wrapper-name string assembles");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "wrapper-name string emits native C");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0, "wrapper-name data builds without VM linkage");
+            CHECK(status == 0, "wrapper-name data executes as an ordinary string");
+            free(source);
+        }
+        nvm_module_free(module);
+    }
+}
+
 static void test_string_edges_run_as_native_c(void) {
     const struct { const char *text, *part; int starts, ends; } cases[] = {
         {"", "", 1, 1}, {"abc", "", 1, 1}, {"", "a", 0, 0},
@@ -6522,6 +6547,7 @@ int main(int argc, char **argv) {
     test_self_tail_rejects_malformed_calls();
     test_array_set_aliases_bounds_and_types();
     test_string_edges_run_as_native_c();
+    test_wrapper_names_are_ordinary_string_data();
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_1024_locals_compile_and_run();
     test_arity_exceeding_locals_is_refused();

@@ -1057,6 +1057,19 @@ static void test_borrow_postcondition_copy(void) {
     free_ast(program);
 }
 
+static void test_exclusive_field_place_retention(void) {
+    ASTNode *program = parse_ok("fn update(view: &mut Handle) -> int { set view.fd 8 return view.fd }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *function = program->as.program.items[0];
+    ASSERT_EQ(function->as.function.params[0].type, TYPE_BORROW_MUT);
+    ASTNode *assignment = function->as.function.body->as.block.statements[0];
+    ASSERT_EQ(assignment->type, AST_SET);
+    ASSERT(strcmp(assignment->as.set.name, "view") == 0);
+    ASSERT(strcmp(assignment->as.set.field_name, "fd") == 0);
+    ASSERT_EQ(assignment->as.set.value->as.number, 8);
+    free_ast(program);
+}
+
 int main(void) {
     printf("=== Parser Tests ===\n");
 
@@ -1064,6 +1077,7 @@ int main(void) {
     TEST(parse_minimal);
     TEST(borrow_annotation_retention);
     TEST(borrow_postcondition_copy);
+    TEST(exclusive_field_place_retention);
     TEST(nested_generic_annotation_metadata);
     TEST(nested_generic_annotation_errors);
     TEST(parse_empty_program);

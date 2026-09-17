@@ -5740,6 +5740,20 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
         case AST_SET: {
             Value value = eval_expression(stmt->as.set.value, env);
             if (value.is_return) return value;
+            if (stmt->as.set.field_name) {
+                Symbol *owner = env_get_var(env, stmt->as.set.name);
+                if (owner && owner->value.type == VAL_STRUCT) {
+                    StructValue *record = owner->value.as.struct_val;
+                    for (int i = 0; i < record->field_count; ++i) {
+                        if (!strcmp(record->field_names[i], stmt->as.set.field_name)) {
+                            record->field_values[i] = value;
+                            return create_void();
+                        }
+                    }
+                }
+                fprintf(stderr, "I cannot resolve a borrowed field during evaluation\n");
+                return create_void();
+            }
             env_set_var(env, stmt->as.set.name, value);
             
             /* Trace variable assignment */
