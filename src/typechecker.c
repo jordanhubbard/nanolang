@@ -1270,7 +1270,16 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
         return true;
     }
     TypeInfo *info = try_get_expr_type_info(argument, env);
-    return !info || type_infos_equal(expected, info);
+    if (info) return type_infos_equal(expected, info);
+    if (expected->base_type == TYPE_STRUCT && expected->generic_name) {
+        const char *actual_name = get_struct_type_name(argument, env);
+        if (!actual_name) return false;
+        StructDef *wanted = env_get_struct(env, expected->generic_name);
+        StructDef *found = env_get_struct(env, actual_name);
+        if (wanted || found) return wanted && wanted == found;
+        return strcmp(expected->generic_name, actual_name) == 0;
+    }
+    return true;
 }
 
 static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *sig) {

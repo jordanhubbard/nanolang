@@ -140,6 +140,23 @@ fn choose() -> fn(array<array<int>>) -> int { return read }
 shadow choose { assert true }
 fn main() -> int { return ((choose) [[true]]) }''', reject=True)
 
+    def test_indirect_record_literal_identity(self):
+        self.check('''struct First { value: int }
+fn read(value: First) -> int { return value.value }
+shadow read { assert (== (read First { value: 7 }) 7) }
+fn apply(f: fn(First) -> int) -> int { return (f First { value: 7 }) }
+shadow apply { assert (== (apply read) 7) }
+fn main() -> int { return (- (apply read) 7) }''')
+
+    def test_reject_indirect_wrong_record_literal(self):
+        self.check('''struct First { value: int }
+struct Second { value: int }
+fn read(value: First) -> int { return value.value }
+shadow read { assert (== (read First { value: 7 }) 7) }
+fn apply(f: fn(First) -> int) -> int { return (f Second { value: 7 }) }
+shadow apply { assert true }
+fn main() -> int { return (- (apply read) 7) }''', reject=True)
+
     def test_qualified_import_callback_signatures(self):
         module = '''pub fn apply(f: fn(array<array<int>>) -> array<array<int>>, values: array<array<int>>) -> array<array<int>> { return (f values) }
 shadow apply { assert true }
