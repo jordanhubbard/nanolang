@@ -68,6 +68,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         update the documentation and run full platform acceptance before a
         subsequent release claims the complete roadmap.
 
+- [x] **Native call argument ordering restoration.** I restore ordinary and
+      module-qualified argument evaluation once in source order on the corrected
+      release tree. I preserve effects, foreign ABI checks and existing lowering,
+      test nested calls and side effects, and submit only the focused patch.
+      MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
+
 - [x] **Hosted VM example shadow budget.** I allow a finite explicit
       budget for instrumented VM-example compiler children while preserving
       normal and deadline-regression behavior elsewhere in the full suite.

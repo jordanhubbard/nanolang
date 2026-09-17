@@ -769,6 +769,29 @@ static int try_eval_bool_const(ASTNode *expr) {
 
 /* Forward declarations */
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
+
+/* I bind arguments in source order before entering an ordinary C call. */
+static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
+                                        int arg_count, Environment *env) {
+    static _Thread_local unsigned next_call_id;
+    unsigned call_id;
+    bool available;
+    do {
+        call_id = next_call_id++;
+        available = true;
+        for (int i = 0; i < arg_count; ++i) {
+            char name[64];
+            snprintf(name, sizeof(name), "__nl_arg_%u_%d", call_id, i);
+            if (env && env_get_var(env, name)) available = false;
+        }
+    } while (!available);
+    for (int i = 0; i < arg_count; ++i) {
+        emit_formatted(list, "__auto_type __nl_arg_%u_%d = ", call_id, i);
+        build_expr(list, args[i], env);
+        emit_literal(list, "; ");
+    }
+    return call_id;
+}
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry);
 
@@ -2383,12 +2406,23 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
+                /* I retain the callee name before recursive lowering reuses its buffer. */
+                char *call_name = strdup(mapped_name);
+                if (!call_name) {
+                    fprintf(stderr, "I could not retain the native call name.\n");
+                    exit(1);
+                }
+                emit_literal(list, "({ ");
+                unsigned call_id = build_ordered_call_args(list, expr->as.call.args,
+                                                           expr->as.call.arg_count, env);
+
                 /* If wrapping needed, emit gc_wrap_external( */
                 if (needs_wrapping) {
                     emit_literal(list, "gc_wrap_external(");
                 }
 
-                emit_foreign_reference(list, mapped_name, func_info);
+                emit_foreign_reference(list, call_name, func_info);
+                free(call_name);
                 emit_literal(list, "(");
 
                 /* Emit arguments - unwrap if opaque type */
@@ -2412,10 +2446,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                     if (needs_unwrap) {
                         emit_literal(list, "gc_unwrap(");
-                        build_expr(list, expr->as.call.args[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                         emit_literal(list, ")");
                     } else {
-                        build_expr(list, expr->as.call.args[i], env);
+                        emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                     }
                 }
 
@@ -2427,6 +2461,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, func_info->cleanup_function);
                     emit_literal(list, ")");
                 }
+                emit_literal(list, "; })");
             }
             break;
         }
@@ -2441,19 +2476,25 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             sprintf(qualified_name, "%s.%s", module_alias, function_name);
             
             /* Map to C function name */
-            const char *c_name = map_function_name(qualified_name, env);
-            
+            char *c_name = strdup(map_function_name(qualified_name, env));
+            if (!c_name) {
+                fprintf(stderr, "I could not retain the qualified native call name.\n");
+                exit(1);
+            }
+            emit_literal(list, "({ ");
+            unsigned call_id = build_ordered_call_args(list, expr->as.module_qualified_call.args,
+                                                       expr->as.module_qualified_call.arg_count, env);
             emit_foreign_reference(list, c_name, env_get_function(env, qualified_name));
             emit_literal(list, "(");
             
             /* Emit arguments */
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
-                build_expr(list, expr->as.module_qualified_call.args[i], env);
+                emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
             }
             
-            emit_literal(list, ")");
-            
+            emit_literal(list, "); })");
+            free(c_name);
             free(qualified_name);
             break;
         }
