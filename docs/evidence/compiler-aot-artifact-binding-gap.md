@@ -18,7 +18,7 @@ I track the repair in MAC `task_600074c773904b119b39bdafd85c07a5`. Acceptance re
 compiler-bytecode-to-native-to-program test, actual generated compiler execution,
 typed facade behavior and rejection of unsupported artifact imports. I do not
 count a removed import, disabled test or relaxed guard as a repair. This is a
-required full v5.0.1 architecture gate, not a generic-classification pass.
+required full v5.1.0 architecture gate, not a generic-classification pass.
 
 Local baseline evidence is `/tmp/nanolang-main385-compiler-aot-baseline.log`
 (5.821 seconds); the independent generic-tree reproduction is

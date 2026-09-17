@@ -55,6 +55,27 @@ int main(void) {
                                 check=True, capture_output=True, text=True)
         self.assertEqual(result.stdout.splitlines()[0], "nanoc " + version)
 
+    def test_current_candidate_version_is_named_consistently(self):
+        version = json.loads((ROOT / "package.json").read_text())["version"]
+        release_documents = (
+            ROOT / "CHANGELOG.md",
+            ROOT / "README.md",
+            ROOT / "docs" / "NANOISA_ONLY.md",
+            ROOT / "docs" / "RELEASE_5.0.md",
+            ROOT / "docs" / "ROADMAP.md",
+            ROOT / "docs" / "presentation" / "README.md",
+        )
+        for document in release_documents:
+            with self.subTest(document=document.relative_to(ROOT)):
+                self.assertIn("v" + version, document.read_text())
+
+        stale_candidate = "v5.0.1"
+        for document in release_documents:
+            if document.name == "ROADMAP.md":
+                continue
+            with self.subTest(stale=document.relative_to(ROOT)):
+                self.assertNotIn(stale_candidate, document.read_text())
+
 
 if __name__ == "__main__":
     unittest.main()

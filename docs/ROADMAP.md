@@ -12,7 +12,7 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**The full 5.0 roadmap is my v5.0.1 completion contract.** On 2026-09-16
+**The full 5.0 roadmap is my v5.1.0 completion contract.** On 2026-09-16
 my user explicitly selected every 5.0 obligation, including NanoISA-only
 compilation and matching Stage 1/Stage 2 bytecode. My published
 [`v5.0.0`](https://github.com/jordanhubbard/nanolang/releases/tag/v5.0.0)
@@ -20,11 +20,25 @@ contains tested language/runtime repairs, but it does not complete that
 architecture. `docs/RELEASE_5.0.md` records that historical release;
 `docs/NANOISA_ONLY.md` and the unchecked 5.0 milestones below govern the
 remaining work. I preserve the published tag and do not redefine an unfinished
-gate as complete. My user assigned all remaining work to v5.0.1 on
-2026-09-16. I hold release publication until these gates pass; the native map
+gate as complete. My user assigned all remaining work to v5.1.0 on
+2026-09-16, superseding the earlier `v5.0.1` candidate name. I hold release
+publication until these gates pass; the native map
 lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separate.
 
 ## Active Execution Queue
+
+- [x] **Adopt v5.1.0 as my full-roadmap release target.** I preserve the
+      published `v5.0.0` tag and move every unreleased `v5.0.1` contract,
+      version identifier, candidate note and presentation obligation to
+      `v5.1.0`. My package metadata, public compiler version, changelog,
+      release-facing prose and focused release tests must agree before I call
+      the rename complete. The publication hold follows the renamed release.
+      MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
+      My six version methods and release-workflow checks pass, as do fifteen
+      markdown/document-pair methods. My documentation-freshness gate still
+      correctly requires CONTRIBUTING and user-guide review for post-5.0.0
+      language changes; that is a v5.1.0 release gate, not evidence against
+      this completed identity change.
 
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
@@ -38,7 +52,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       real VM/native execution and malformed import contracts pass. Full
       compiler execution remains blocked by the boxed-index prerequisite.
 
-- [ ] **v5.0.1 concrete generic resource classification.** I substitute generic
+- [ ] **v5.1.0 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish
       ordinary instantiations from resource-bearing ones, and preserve declaring
       module identity. MAC `task_27d3d1bee3f84b5a9c1fc79e1f0c0748`.
@@ -76,18 +90,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         recorded exact artifact-binding repair. Owned payload transfer above
         remains open; I do not claim the complete generic ownership contract.
 
-- [x] **v5.0.1 passive metadata text preservation.** I preserve validated
+- [x] **v5.1.0 passive metadata text preservation.** I preserve validated
       eligibility records through canonical disassembly and reassembly,
       reject malformed textual payloads, and compare canonical v2 bytes.
       MAC: `task_64dda3aeaab042df96a914ccd974209a`.
 
-- [x] **v5.0.1 self-hosted enum metadata.** I retain ordered enum variant
+- [x] **v5.1.0 self-hosted enum metadata.** I retain ordered enum variant
       names and signed explicit/implicit values in my shared AST instead of
       discarding them during parsing. I verify all bootstrap stages and
       schema consumers before my NanoISA emitter uses these facts.
       MAC: `task_e66b50097fe343e3b78e6b750a5c7315`.
 
-- [x] **v5.0.1 C-seed global initializer context.** I apply declared map and
+- [x] **v5.1.0 C-seed global initializer context.** I apply declared map and
       array types before checking top-level initializers, matching local
       declarations. I test typed constant maps, empty string arrays, and
       rejected mismatches through my native and VM frontends.
@@ -108,7 +122,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and ownership cleanup. Native tag guards remain enforced. MAC
       `task_f64074441cf64f47b5f40ccefc78233c`.
 
-- [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
+- [x] **v5.1.0 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
       preserve declaring-module identity through classification and flow lookup,
       and test aliases, nested fields, moves and unresolved owners. I keep
@@ -184,7 +198,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       89 NanoVirt tests pass.
       MAC `task_8555af61281944eb9ac4ca9043849a94`.
 
-- [x] **Standalone VM guest arguments for v5.0.1.** I separate VM options
+- [x] **Standalone VM guest arguments for v5.1.0.** I separate VM options
       from guest arguments with `--`, expose the module path as guest argument
       zero, preserve empty arguments, and reject ambiguous module paths and
       unsupported daemon argument transport. I test compiler-style flags.
@@ -199,7 +213,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       the intended call-order fix separately and require a focused reapplication.
       MAC `task_3665bd4322b35fb959ef77a46f761a0a`.
 
-- [ ] **Complete the full 5.0 acceptance contract for v5.0.1.** I reconcile dated and
+- [ ] **Complete the full 5.0 acceptance contract for v5.1.0.** I reconcile dated and
       duplicate ledger entries against current code, then complete the remaining
       5.0 work in dependency order. I distinguish a closed repair from a complete
       architectural milestone. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
@@ -861,7 +875,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           focused tests require at most 16 live map/string owners and zero
           after entry cleanup. Remaining PR ancestry reconciliation stays open.
           Evidence: `docs/evidence/native-map-root-lifetimes.md`.
-        - [x] **5.0.1 / caller-safe native map reclamation.** I ship the
+        - [x] **5.1.0 / caller-safe native map reclamation.** I ship the
           registered-frame repair after verifying globals, nested and mutable
           aggregates, scalar-float safepoints, backward branches, self-tail
           restarts and non-self tail teardown under ASan/UBSan. MAC
@@ -7116,18 +7130,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `34591153105` also passed in 2m22s. It identified checkout v4's deprecated
       Node 20 runtime; I pin checkout v6 (Node 24) for the new job. Repository
       branch-protection requirements remain a separate release-control check.
-- [ ] **5.0 audit — native runtime services.** I run a useful native
+- [ ] **5.1 audit — native runtime services.** I run a useful native
       NanoLang service in a separate worker through typed NSI calls, with
       scoped capabilities, restart supervision, tracing, and module packaging.
       I expose mailboxes, monitoring, links, supervision, and upgrade behavior
       through native NanoLang runtime APIs; laboratory frontends remain tests.
       Acceptance exercises real operations, worker death, recovery, denied
       authority, bounded queues, and version compatibility end to end.
-- [ ] **5.0 audit — FFI authority.** I resolve declared typed imports by
+- [ ] **5.1 audit — FFI authority.** I resolve declared typed imports by
       module identity, remove ambient symbol fallback from the secure path,
       validate manifests, and isolate untrusted native code. I test symbol
       collisions, undeclared imports, unload lifetime, and crash containment.
-- [ ] **5.0 audit — measured ergonomics.** I benchmark human authoring and
+- [ ] **5.1 audit — measured ergonomics.** I benchmark human authoring and
       LLM generation/repair with representative programs and recorded compiler
       diagnostics. I use correctness, repair rounds, and author feedback to
       improve imports, operator grouping, shadow policy, and standard-library
@@ -7137,12 +7151,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       later tokens to merged modules. A Stage 2 regression compiles and runs
       multiline literals across an import boundary.
       `tests/test_selfhost_module_bindings.py`.
-- [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
+- [ ] **5.1 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
       the only compiler product. Native AOT does not embed `nano_vm`.
-      Public GitHub Release `v5.0.0` after 4.6 and this phase close.
+      Public GitHub Release `v5.1.0` after this phase closes.
       `docs/NANOISA_ONLY.md`.
 
-- [ ] **5.0 audit — enforceable release evidence.** I require successful
+- [ ] **5.1 audit — enforceable release evidence.** I require successful
       CI and review before merging, make lint and proof gates blocking, pin
       build dependencies and Actions, and publish reproducible artifacts with
       signed checksums, SBOMs, and provenance. I remove destructive release
@@ -7249,7 +7263,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
   (`task_d36c571fef9a4dcca2d2a1a845040b27`)
 - [x] freeze-frame isolation test reads the eval result before destroy so the
   string is not a dangling pointer (`tests/test_nano_emacs_worker.c`).
-- [x] I recorded the 5.0 One IR rewrite (`docs/NANOISA_ONLY.md`, Phase 20;
+- [x] I recorded the 5.1 One IR rewrite (`docs/NANOISA_ONLY.md`, Phase 20;
       `task_87bcff8dad43407884c4dc9e06837f98`). Frontends twice, one verified
       `.nvm`, translators as host tools, bootstrap that compares `.nvm`,
       native AOT that does not embed `nano_vm`. I do not execute that rewrite
@@ -7344,7 +7358,7 @@ Patch releases may ship completed fixes without changing this dependency order.
 | **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. The SDL editor's walker and freeze-ISA children become first clients of that fabric (option C); the dedicated-pipe astronaut in the active queue is the earlier isolation cut, not the fabric. |
 | **4.5** | Effects, policy, and replay | I derive deployment policy from effects, record nondeterministic traps, replay executions deterministically, inject failures, and audit service interactions. |
 | **4.6** | Multi-language laboratory | I validate NanoISA with bounded Scheme, ML, actor, dataflow, object, shell, and logic frontends, each chosen to test a distinct semantic pressure. |
-| **5.0** | One IR: NanoISA-only compilation | I emit verified `.nvm` as the only compiler product. C11 AOT, LLVM, Wasm, and GPU targets are translators of that module. Self-host proof compares `.nvm`. Native binaries do not embed `nano_vm`. Contract: `docs/NANOISA_ONLY.md`. |
+| **5.1** | One IR: NanoISA-only compilation | I emit verified `.nvm` as the only compiler product. C11 AOT, LLVM, Wasm, and GPU targets are translators of that module. Self-host proof compares `.nvm`. Native binaries do not embed `nano_vm`. Contract: `docs/NANOISA_ONLY.md`. |
 | **6.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
 
 My 3.5 release presentation is [NanoLang 3.5](RELEASE_3.5.md). It records my
@@ -7376,7 +7390,7 @@ Release dependencies:
 4.6 multi-language laboratory
               |
               v
-5.0 One IR (NanoISA-only compilation; docs/NANOISA_ONLY.md)
+5.1 One IR (NanoISA-only compilation; docs/NANOISA_ONLY.md)
               |
               v
 6.0 operating environment and kernel adapters
@@ -7717,12 +7731,12 @@ Tests, examples, and SDL IDE:
       `make test-forth-jackson`.
       MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
 
-### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.0)
+### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.1)
 
 Goal: 4.0 records that NanoISA is the common IR and that a closed integer
 subset can become structured C11 without embedding the VM. The ambitious
 rewrite — I emit only `.nvm`; C/LLVM/Wasm are translators; bootstrap
-compares `.nvm`; `transpiler.nano` leaves the compiler — is **5.0**.
+compares `.nvm`; `transpiler.nano` leaves the compiler — is **5.1**.
 Contract: `docs/NANOISA_ONLY.md`. I do not delete the AST→C path in 4.x.
 
 Architecture:
@@ -7749,7 +7763,7 @@ Direct backend retirement:
 - [x] I removed LLVM and Wasm from the direct cross-backend CI matrix.
 - [x] I retain the retired direct backends in Git history rather than carry dormant implementation files in the active tree.
 
-I moved these 4.0-or-later rewrite items to Phase 20 (5.0): frontend facts as
+I moved these 4.0-or-later rewrite items to Phase 20 (5.1): frontend facts as
 metadata, compute profiles, C11 as the canonical AOT backend, LLVM/Wasm/GPU
 translators, semantic equivalence across targets, a second HLL surface from
 the same `.nvm`, and the published reconstruction finding. `nano_virt`'s
@@ -8092,7 +8106,7 @@ Observability and provenance (MAC `task_860edd8c08843bf90ad9559d0b821cef`):
 - [x] I will test that localized logs do not alter stable audit fields or replay behavior.
       `nl_obs_localize_log`, `make test-nsi-obs`.
 
-### Phase 20 - One IR: NanoISA-only compilation (5.0)
+### Phase 20 - One IR: NanoISA-only compilation (5.1)
 
 Goal: I emit one portable product — a verified `.nvm` v2 module — and I treat
 C, LLVM, Wasm, RISC-V, and GPU targets as translators of that module. Native
@@ -8100,7 +8114,7 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 `docs/NANOISA_ONLY.md`. I do not start this phase by deleting
 `transpiler.nano`.
 
-- [x] I recorded the 5.0 compilation contract in `docs/NANOISA_ONLY.md`
+- [x] I recorded the 5.1 compilation contract in `docs/NANOISA_ONLY.md`
       (`task_87bcff8dad43407884c4dc9e06837f98`): frontend twice (C seed and
       `src_nano`), one IR, translators as host tools, honest bootstrap by
       comparing `.nvm`, host ABI distinct from `CALL_EXTERN` / `nano_cop`.
@@ -8132,11 +8146,11 @@ Ownership and proposal closure:
 - [ ] I migrate real file, socket, GPU, and capability/service handles only
       after that contract and IR are enforceable
       (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
-- [ ] I gate 5.0 on one affine acceptance matrix across both frontends,
+- [ ] I gate 5.1 on one affine acceptance matrix across both frontends,
       NanoISA, NanoVM, and AOT C
       (`task_28f2fb4b1f3c8a5ce93df628bb569d76`).
 - [ ] I take the bounded One-IR slice of `PASSIVE_PARALLELISM_DESIGN.md` into
-      5.0: verified purity/independence, deterministic serial semantics, and
+      5.1: verified purity/independence, deterministic serial semantics, and
       NanoISA eligibility metadata. Scheduler optimization, async I/O, SoA,
       and hardware speedup claims remain outside this task
       (`task_90b123edcc301b464a031c55e4ba1a11`).
@@ -8541,9 +8555,9 @@ Acceptance (from `docs/NANOISA_ONLY.md`):
 
 Goal: I will package the language, VM, services, capabilities, policy, and
 supervision layers as a complete operating environment. Kernel choice remains
-a deployment decision below the stable Nano service ABI. This follows 5.0
+a deployment decision below the stable Nano service ABI. This follows 5.1
 (NanoISA-only compilation). Signing and kernel adapters are 6.0, not 4.0
-and not 5.0.
+and not 5.1.
 
 System image and lifecycle:
 - [ ] I will define signed manifests for NanoISA modules, service interfaces, implementations, capabilities, and policy.
@@ -9028,7 +9042,7 @@ Target Completion: Q1 2026
 - [x] First-Class Functions - I treat functions as values (December 2025).
 - [x] Affine Types MVP - I parse `resource struct` and perform basic
       identifier-state checks in the C seed (December 2025).
-      Path-sensitive, dual-frontend, One-IR ownership is a 5.0 release gate.
+      Path-sensitive, dual-frontend, One-IR ownership is a 5.1 release gate.
 
 ## Future Enhancements
 
@@ -9043,7 +9057,7 @@ I may add these features after I am fully self-hosting:
 - [x] Algebraic data types — tagged unions with `union` keyword
 - [x] Tuples — heterogeneous tuples
 - [x] Parallel independence blocks — `par { }` annotation
-- [ ] WASM as a NanoISA translator (5.0). Direct AST `--target wasm` was retired.
+- [ ] WASM as a NanoISA translator (5.1). Direct AST `--target wasm` was retired.
 - [ ] Explicit type conversions (`float_to_int`, `int_to_float`) in compiled mode
 - [ ] Arrays of structs in compiled mode
 
@@ -9222,9 +9236,10 @@ I aim to be:
 ---
 
 Last Updated: September 16, 2026
-Current Phase: I am validating the 5.0 language/runtime release described in
-`docs/RELEASE_5.0.md`, including the 4.6 laboratory frontends.
-Next Public Release: `v5.0.0`, after the final clean-tree and platform gates.
+Current Phase: I am completing the One IR contract for `v5.1.0`. The published
+`v5.0.0` language/runtime release remains described in `docs/RELEASE_5.0.md`.
+Next Public Release: `v5.1.0`, after the full Phase 20, clean-tree and platform
+gates pass.
 My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
