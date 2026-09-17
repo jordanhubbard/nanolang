@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class OwnedRuntime(unittest.TestCase):
     executable = "test_owned_runtime"
     case_count = 8
+    max_live_records = 3
+    case_live_records = {}
     refusal_count = 7
     noninteger_cases = {5, 6}
     def test_paired_execution_lifetimes_and_refusals(self):
@@ -51,13 +53,13 @@ static void release(void *p){assert(live);live--;free(p);}
  for(size_t failure=1;;failure++){
   int64_t result=0;attempt=peak=0;fail_at=failure;
   int status=nvm_owned_entry(&result);
-  assert(live==0);assert(peak<=3);
+  assert(live==0);assert(peak<=MAX_LIVE_RECORDS);
   if(!status){assert(result==(int64_t)UINT64_C(EXPECTED));break;}
   assert(failure<1100);
  }
  puts("owned cleanup passed");return 0;
 }
-'''.replace("EXPECTED", str(int(expected) & ((1 << 64) - 1))))
+'''.replace("EXPECTED", str(int(expected) & ((1 << 64) - 1))).replace("MAX_LIVE_RECORDS", str(self.case_live_records.get(int(number), self.max_live_records))))
                     binary = tmp / f"check{number}"
                     compiled = subprocess.run([os.environ.get("CC", "cc"), "-std=c11", "-Wall", "-Wextra", "-Werror",
                                                "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g",

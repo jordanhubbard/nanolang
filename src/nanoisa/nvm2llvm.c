@@ -10,7 +10,7 @@ static int refuse(char *error, size_t size, const char *format, ...) {
     va_start(ap, format); vsnprintf(error, size, format, ap); va_end(ap);
     return 0;
 }
-static int scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
+static int scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
 static int supported(uint8_t op) {
     switch (op) {
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
@@ -18,7 +18,7 @@ static int supported(uint8_t op) {
     case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
     case OP_CAST_INT: case OP_CAST_FLOAT:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
+    case OP_NOP: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S: case OP_I64_REM_S:
     case OP_I64_NEG: case OP_I64_EQ: case OP_I64_NE: case OP_I64_LT_S: case OP_I64_LE_S:
@@ -107,12 +107,12 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         fprintf(out, "b%u:\n", pc);
         switch (ins.opcode) {
         case OP_NOP: break;
-        case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
+        case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
             int64_t float_bits = 0;
             if (ins.opcode == OP_PUSH_F64) memcpy(&float_bits, &ins.operands[0].f64, sizeof float_bits);
             fprintf(out, " call void @push(ptr %%stack, ptr %%sp, %%V { i64 %" PRId64 ", i8 %u })\n",
-                ins.opcode == OP_PUSH_F64 ? float_bits : ins.opcode == OP_PUSH_I64 ? ins.operands[0].i64 : ins.opcode == OP_PUSH_BOOL ? (int64_t)(ins.operands[0].u8 != 0) : 0,
-                ins.opcode == OP_PUSH_F64 ? TAG_FLOAT : ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
+                ins.opcode == OP_PUSH_U8 ? (int64_t)ins.operands[0].u8 : ins.opcode == OP_PUSH_F64 ? float_bits : ins.opcode == OP_PUSH_I64 ? ins.operands[0].i64 : ins.opcode == OP_PUSH_BOOL ? (int64_t)(ins.operands[0].u8 != 0) : 0,
+                ins.opcode == OP_PUSH_U8 ? TAG_U8 : ins.opcode == OP_PUSH_F64 ? TAG_FLOAT : ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
             break;
         }
         case OP_POP: pop(out, pc, "a"); break;
@@ -276,7 +276,7 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         if (name && !strcmp(name, "__init__"))
             return refuse(error, size, "I refuse module initializers in my scalar LLVM profile");
         if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
-            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT))))
+            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT))))
             return refuse(error, size, "I require zero void results or one numeric/bool result and no captures in function %u", i);
         for (uint16_t p = 0; p < f->arity; ++p)
             if (m->function_param_types && m->function_param_types[i] && !scalar(m->function_param_types[i][p]))

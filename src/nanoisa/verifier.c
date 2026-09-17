@@ -524,6 +524,8 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
         /* Validate operands based on opcode */
         switch (instr.opcode) {
 
+        case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
+        case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
         case OP_REGION_BEGIN: case OP_REGION_END:
         case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
         case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
@@ -875,7 +877,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
             uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
             if (!count) break;
             if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_OWN_UNPACK_LOCAL) ||
-                (instruction.opcode>=OP_REGION_BEGIN && instruction.opcode<=OP_REF_SET)) return true;
+                (instruction.opcode>=OP_REGION_BEGIN && instruction.opcode<=OP_REBORROW_EXCLUSIVE)) return true;
             offset+=count;
         }
     }
@@ -885,6 +887,8 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
 /* I keep runtime admission closed even if affine analysis grows new operations. */
 static bool owned_runtime_opcode(uint8_t op) {
     switch (op) {
+    case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
+    case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:

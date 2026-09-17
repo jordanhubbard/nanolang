@@ -1,6 +1,6 @@
 # My LLVM translator boundary
 
-I translate a verified v2 module directly to LLVM IR. My current bounded profile covers integer/bool/float/void scalar storage, integer/bool/float helper results, zero-result void helpers, locals, direct calls, branches and assertions. Executable entries return one int/bool value. I retain value tags through calls and joins and check typed operations at runtime when verification cannot establish their inputs. My integer arithmetic wraps at 64 bits; division by zero returns zero, and INT64_MIN divided by -1 returns INT64_MIN. I use explicit control before division to avoid LLVM poison.
+I translate a verified v2 module directly to LLVM IR. My current bounded profile covers integer/bool/U8/float/void scalar storage, integer/bool/U8/float helper results, zero-result void helpers, locals, direct calls, branches and assertions. Executable entries return one int/bool value. I retain value tags through calls and joins and check typed operations at runtime when verification cannot establish their inputs. My integer arithmetic wraps at 64 bits; division by zero returns zero, and INT64_MIN divided by -1 returns INT64_MIN. I use explicit control before division to avoid LLVM poison.
 
 I reject imports, linked modules, heap values, nominal layouts, ownership/passive metadata, named module initializers and unsupported instructions. Explicit RET and verified code-end exits retain declared result-count and tag checks. I do not embed NanoVM or resurrect AST target paths. I publish named output only after verification, profile checks and complete emission succeed, using an exclusive temporary beside the destination. Existing output and source survive failures.
 
@@ -53,3 +53,13 @@ The later VM/C repair now resumes ordinary implicit returns and admits native sc
 Task `task_4fd2bff257a44da0b0c4bb62b52b91b8` follows the merged VM/C ordinary return repair. I admit zero-result void helpers and one-result int/bool/float helpers; an executable entry still requires exactly one int/bool result and no arguments. Explicit RET and reaching code end share result-count/tag checks. A void call executes without placing any result on the NanoISA operand stack. I preserve caller operands and branch-to-end behavior, retain atomic output on refusal, and do not admit heap/multiple results, captures or initializers.
 
 The completed continuation passes all 38 shared LLVM/Wasm methods in 73.715 seconds (`/tmp/nanolang-llvm-implicit-combined.log`). Twenty-one LLVM/float/implicit methods also pass in 42.344 seconds with the host translator sources instrumented by ASan/UBSan/LSan (`/tmp/nanolang-llvm-implicit-sanitizer.log`); linked existing ISA objects and generated LLVM machine code are not fully instrumented in that run. Five new methods cover empty and explicit void helpers, caller operand preservation, recursive void calls, nested scalar/bool/float fallthrough, conditional edges to code end, runtime tag failure and unsupported result-profile publication preservation. Positive modules execute unchanged in VM, C, LLVM interpreter, optimized/native LLVM, Wasmtime and import-free Node. The source base is merged VM/C repair `79968058`, with lowering checkpoint `9a8353ab`; no full compiler rebuild or frozen acceptance mutation was needed.
+
+## My unsigned-byte continuation
+
+I preserve TAG_U8 through scalar constants, locals, calls, results and joins.
+CAST_INT/FLOAT produce the exact unsigned byte value; CAST_BOOL and eager
+logical operations use zero/nonzero truthiness. Typed I64/F64/BOOL operations
+retain their exact tag checks. I compare bytes in this common profile through
+explicit CAST_INT and typed I64 comparison; generic comparison opcodes remain
+refused until their separate contract is implemented. My [U8 evidence](evidence/scalar-u8-contract.md)
+distinguishes these gates from the VM/C same-U8 generic comparison repair.

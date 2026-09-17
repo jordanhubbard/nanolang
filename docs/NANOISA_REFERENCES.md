@@ -285,7 +285,8 @@ subset, including the four explicit transfers, scalar field observations and
 branches/loops whose joins preserve exact obligations. My subsequent
 [same-frame reference contract](NANOISA_SAME_FRAME_REFERENCES.md) adds root-only
 shared/exclusive slots and int/bool/u8 field access within that standalone frame.
-It does not admit caller references, nested reference paths or reborrows.
+My [nested extension](NANOISA_NESTED_REFERENCES.md) adds bounded numeric paths
+and checked reborrows within that frame. Caller references remain refused.
 
 A move transfers a record pointer and clears the source slot. A store consumes
 its stack owner into its exact declared slot. Pack allocates one record shell

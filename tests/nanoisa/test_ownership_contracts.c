@@ -8,6 +8,7 @@
 #include "disassembler.h"
 #include "verifier.h"
 #include "isa.h"
+#include "nvm2c.h"
 
 static unsigned checks;
 #define CHECK(c) do { checks++; assert(c); } while (0)
@@ -34,6 +35,57 @@ static void check_status(NvmModule *module, bool valid, bool needs) {
     NvmV2Result result = nvm_ownership_contracts_validate(module, &found);
     CHECK((result == NVM_V2_OK) == valid);
     if (valid) CHECK(found == needs);
+    else {
+        CHECK(!nvm_verify(module).ok);
+        char error[256];CHECK(nvm2c_emit(module,error,sizeof(error))==NULL);
+    }
+}
+
+static void check_path_transport(NvmModule *module) {
+    uint8_t *original=module->ownership_data;uint32_t old_size=module->ownership_size;
+    uint16_t fields[32]={99},count=99;
+    CHECK(nvm_ownership_path(module,0,fields,32,&count)==NVM_V2_ERR_FORMAT_VERSION);
+    CHECK(fields[0]==99 && count==99);
+    module->ownership_size=old_size+20;module->ownership_data=calloc(module->ownership_size,1);
+    CHECK(module->ownership_data);memcpy(module->ownership_data,original,old_size);
+    uint8_t *data=module->ownership_data;
+    word(data,0,NVM_OWNERSHIP_PATH_VERSION);word(data,old_size,2);
+    data[old_size+4]=1; /* path0: field0, followed by alignment padding */
+    data[old_size+12]=2;data[old_size+18]=1; /* path1: fields0,1 */
+    check_status(module,true,false);
+    CHECK(nvm_ownership_path(module,0,fields,32,&count)==NVM_V2_OK && count==1 && fields[0]==0);
+    CHECK(nvm_ownership_path(module,1,fields,32,&count)==NVM_V2_OK && count==2 && fields[0]==0 && fields[1]==1);
+    fields[0]=99;count=99;
+    CHECK(nvm_ownership_path(module,2,fields,32,&count)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(fields[0]==99 && count==99);
+    CHECK(nvm_ownership_path(module,1,fields,1,&count)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(fields[0]==99 && count==99);
+    size_t size;uint8_t *bytes=wire(module,&size,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==module->ownership_size && !memcmp(copy->ownership_data,data,module->ownership_size));
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(module,DISASM_STYLE_CANONICAL);CHECK(text);
+    AsmResult error;copy=asm_assemble(text,&error);CHECK(copy);
+    CHECK(copy->ownership_size==module->ownership_size && !memcmp(copy->ownership_data,data,module->ownership_size));
+    nvm_module_free(copy);free(text);
+    data[old_size+6]=1;check_status(module,false,false);data[old_size+6]=0;
+    data[old_size+4]=33;check_status(module,false,false);data[old_size+4]=1;
+    data[old_size+10]=1;check_status(module,false,false);data[old_size+10]=0;
+    word(data,old_size,257);check_status(module,false,false);word(data,old_size,2);
+    word(data,0,3);check_status(module,false,false);word(data,0,2);
+    module->ownership_size=old_size+4;word(data,old_size,0);check_status(module,true,false);
+    size_t cap_size=old_size+4+256*8;
+    data=realloc(data,cap_size);CHECK(data);module->ownership_data=data;module->ownership_size=cap_size;
+    memset(data+old_size,0,cap_size-old_size);word(data,old_size,256);
+    for(unsigned i=0;i<256;i++)data[old_size+4+i*8]=1;
+    check_status(module,true,false);
+    CHECK(nvm_ownership_path(module,255,fields,32,&count)==NVM_V2_OK && count==1 && fields[0]==0);
+    module->ownership_size=old_size+72;memset(data+old_size,0,72);word(data,old_size,1);data[old_size+4]=32;
+    check_status(module,true,false);
+    CHECK(nvm_ownership_path(module,0,fields,32,&count)==NVM_V2_OK && count==32 && fields[31]==0);
+    free(data);module->ownership_data=original;module->ownership_size=old_size;
+    check_status(module,true,false);CHECK(nvm_verify(module).ok);
 }
 
 int main(int argc, char **argv) {
@@ -76,6 +128,8 @@ int main(int argc, char **argv) {
     CHECK(copy->ownership_size == module->ownership_size);
     CHECK(!memcmp(copy->ownership_data, data, module->ownership_size));
     nvm_module_free(copy); free(text);
+
+    check_path_transport(module);
 
     /* Shared/exclusive declarations remain transportable but cannot execute
      * before genuine references and instruction lifetimes are implemented. */

@@ -96,7 +96,7 @@ the checked module format rather than an agreement hidden in host code.
 |-----|------|-------------|
 | `TAG_VOID` | 0x00 | No value |
 | `TAG_INT` | 0x01 | 64-bit signed integer |
-| `TAG_U8` | 0x02 | Unsigned byte |
+| `TAG_U8` | 0x02 | Unsigned byte (0 through 255) |
 | `TAG_FLOAT` | 0x03 | 64-bit IEEE 754 double |
 | `TAG_BOOL` | 0x04 | true/false |
 | `TAG_STRING` | 0x05 | Heap-allocated, GC-managed, immutable |
@@ -159,6 +159,14 @@ behavior from this raw missing-value operation.
 
 **Type Casts (0x88-0x8F):**
 `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK`
+
+I convert U8 to int or float by its unsigned numeric value, without sign
+extension; U8 truthiness is zero/nonzero. CAST_STRING produces unsigned
+decimal text with no padding or prefix, using the ordinary managed-string
+lifetime. Same-U8 generic comparisons use
+unsigned numeric order. This does not introduce mixed-tag promotion rules or
+byte arithmetic. My [scalar byte contract](evidence/scalar-u8-contract.md)
+records backend admission boundaries.
 
 For a float input to `CAST_INT`, I truncate toward zero only within the finite interval `[-2^63, 2^63)`. I diagnose NaN, either infinity and values outside that interval before converting to an integer. My VM and native NanoISA translator use this same boundary for concrete and tagged floats. My legacy interpreter and both C-emitter paths use the same float interval and diagnostic; I retain their separate validation in [my legacy conversion evidence](evidence/legacy-float-conversion.md).
 

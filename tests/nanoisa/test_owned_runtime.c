@@ -25,8 +25,7 @@ static void write_artifact(NvmModule *m,const char *path) {
     FILE *f=fopen(path,"wb");CHECK(f);CHECK(fwrite(bytes,1,size,f)==size);CHECK(!fclose(f));
     free(bytes);nvm_v2_module_free(&v2);
 }
-static void execute(const char *body,int64_t expected,const char *dir,unsigned number,uint8_t tag) {
-    NvmModule *m=fixture(body,false,false);
+static void execute_module(NvmModule *m,int64_t expected,const char *dir,unsigned number,uint8_t tag) {
     if (tag!=TAG_INT) {
         NvmV2Layouts layouts={0};CHECK(nvm_v2_layouts_decode(m->layout_data,m->layout_size,&layouts)==NVM_V2_OK);
         layouts.items[0].fields[0].type_tag=tag;layouts.items[1].fields[0].type_tag=tag;
@@ -53,6 +52,9 @@ static void execute(const char *body,int64_t expected,const char *dir,unsigned n
     FILE *f=fopen(path,"w");CHECK(f);CHECK(fputs(source,f)>=0);CHECK(!fclose(f));free(source);
     snprintf(path,sizeof(path),"%s/case%u.nvm",dir,number);write_artifact(m,path);
     printf("case %u %lld\n",number,(long long)expected);nvm_module_free(m);
+}
+static void execute(const char *body,int64_t expected,const char *dir,unsigned number,uint8_t tag) {
+    execute_module(fixture(body,false,false),expected,dir,number,tag);
 }
 static void refused(NvmModule *m,const char *dir,unsigned number) {
     CHECK(!nvm_verify_owned_module(m).ok);CHECK(!nvm_verify(m).ok);

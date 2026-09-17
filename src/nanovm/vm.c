@@ -1240,6 +1240,10 @@ VmTrap vm_core_execute(VmState *vm) {
     if (vm_labels[OP_NOP] == NULL) {
         for (int label_index = 0; label_index < 256; label_index++)
             vm_labels[label_index] = &&L_vm_default;
+        vm_labels[OP_BORROW_PATH_SHARED] = &&L_OP_BORROW_PATH_SHARED;
+        vm_labels[OP_BORROW_PATH_EXCLUSIVE] = &&L_OP_BORROW_PATH_EXCLUSIVE;
+        vm_labels[OP_REBORROW_SHARED] = &&L_OP_REBORROW_SHARED;
+        vm_labels[OP_REBORROW_EXCLUSIVE] = &&L_OP_REBORROW_EXCLUSIVE;
         vm_labels[OP_REGION_BEGIN] = &&L_OP_REGION_BEGIN;
         vm_labels[OP_REGION_END] = &&L_OP_REGION_END;
         vm_labels[OP_BORROW_LOCAL_SHARED] = &&L_OP_BORROW_LOCAL_SHARED;
@@ -1641,6 +1645,8 @@ vm_dispatch_top:
                     vm->references.slots[i]=(VmReferenceSlot){0};
             --vm->references.region;
             VM_NEXT();
+        VM_CASE(OP_BORROW_PATH_SHARED)
+        VM_CASE(OP_BORROW_PATH_EXCLUSIVE)
         VM_CASE(OP_BORROW_LOCAL_SHARED)
         VM_CASE(OP_BORROW_LOCAL_EXCLUSIVE) {
             uint16_t ref=instr.operands[0].u16,root=instr.operands[1].u16;
@@ -1648,7 +1654,24 @@ vm_dispatch_top:
                 !vm->references.region || vm->references.slots[ref].region)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need an available reference slot and owner");
             vm->references.slots[ref]=(VmReferenceSlot){root,vm->references.region,
-                instr.opcode==OP_BORROW_LOCAL_EXCLUSIVE};
+                instr.opcode==OP_BORROW_LOCAL_EXCLUSIVE || instr.opcode==OP_BORROW_PATH_EXCLUSIVE,
+                (instr.opcode==OP_BORROW_PATH_SHARED || instr.opcode==OP_BORROW_PATH_EXCLUSIVE)?
+                    instr.operands[2].u32:NVM_V2_NO_INDEX,UINT16_MAX};
+            VM_NEXT();
+        }
+        VM_CASE(OP_REBORROW_SHARED)
+        VM_CASE(OP_REBORROW_EXCLUSIVE) {
+            uint16_t ref=instr.operands[0].u16,parent=instr.operands[1].u16;
+            bool exclusive=instr.opcode==OP_REBORROW_EXCLUSIVE;
+            if (!owned_execution || ref>=frame->local_count || parent>=frame->local_count ||
+                vm->references.slots[ref].region || !vm->references.slots[parent].region ||
+                vm->references.slots[parent].region>=vm->references.region ||
+                (exclusive && !vm->references.slots[parent].exclusive))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need parent authority in an enclosing region");
+            vm->references.slots[ref]=vm->references.slots[parent];
+            vm->references.slots[ref].parent=parent;
+            vm->references.slots[ref].region=vm->references.region;
+            vm->references.slots[ref].exclusive=exclusive;
             VM_NEXT();
         }
         VM_CASE(OP_REF_GET)
@@ -1658,6 +1681,16 @@ vm_dispatch_top:
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference slot");
             VmReferenceSlot slot=vm->references.slots[ref];
             NanoValue owner=vm->stack[frame->stack_base+slot.root];
+            if (slot.path!=NVM_V2_NO_INDEX) {
+                uint16_t fields[NVM_OWNERSHIP_MAX_PATH_DEPTH],count;
+                if (nvm_ownership_path(vm->module,slot.path,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a retained reference path");
+                for (uint16_t i=0;i<count;i++) {
+                    if (owner.tag!=TAG_STRUCT || fields[i]>=owner.as.sval->field_count)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I need an owner matching its reference path");
+                    owner=owner.as.sval->fields[fields[i]];
+                }
+            }
             if (owner.tag!=TAG_STRUCT || field>=owner.as.sval->field_count ||
                 (instr.opcode==OP_REF_SET && !slot.exclusive))
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a permitted scalar reference field");
@@ -3814,6 +3847,7 @@ vm_return_values: ;
             switch (v.tag) {
                 case TAG_FLOAT: stack_push(vm, v); break;
                 case TAG_INT:   stack_push(vm, val_float((double)v.as.i64)); break;
+                case TAG_U8:    stack_push(vm, val_float((double)v.as.u8)); break;
                 case TAG_BOOL:  stack_push(vm, val_float(v.as.boolean ? 1.0 : 0.0)); break;
                 case TAG_STRING: {
                     const char *str = vmstring_cstr(v.as.string);
@@ -3843,21 +3877,30 @@ vm_return_values: ;
             VmString *s;
             switch (v.tag) {
                 case TAG_STRING: stack_push(vm, v); break; /* already a string */
+                case TAG_U8:
+                    s = vm_string_from_int(&vm->heap, (int64_t)v.as.u8);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the byte string.");
+                    stack_push(vm, val_string(s));
+                    break;
                 case TAG_INT:
                     s = vm_string_from_int(&vm->heap, v.as.i64);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
                 case TAG_FLOAT:
                     s = vm_string_from_float(&vm->heap, v.as.f64);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
                 case TAG_BOOL:
                     s = vm_string_from_bool(&vm->heap, v.as.boolean);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
                 default:
                     vm_release(&vm->heap, v);
                     s = vm_string_new(&vm->heap, "", 0);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the converted string.");
                     stack_push(vm, val_string(s));
                     break;
             }

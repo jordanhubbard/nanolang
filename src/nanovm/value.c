@@ -188,6 +188,8 @@ int val_compare(NanoValue a, NanoValue b) {
     }
     if (a.tag != b.tag) return (int)a.tag - (int)b.tag;
     switch (a.tag) {
+        case TAG_U8:
+            return (int)a.as.u8 - (int)b.as.u8;
         case TAG_INT:
             if (a.as.i64 < b.as.i64) return -1;
             if (a.as.i64 > b.as.i64) return 1;
