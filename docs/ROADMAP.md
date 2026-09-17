@@ -143,6 +143,19 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/instantiated-ownership-metadata.md`. MAC
       `task_d329989e8acf43149c38d6a998bd730f`.
 
+- [x] **Keep the resource-flow allocation boundary test aligned with ownership
+      metadata.** I pass an explicit absent type tree for the deliberately
+      metadata-free overflow fixture after `own_add` gained concrete `TypeInfo`
+      context. The focused allocation target and all 12 instantiated-ownership
+      methods pass. MAC: `task_a822c3af6ff10226a2dde139a8ac1d7c`.
+
+- [ ] **Restore my Darwin bootstrap within the ordinary shadow deadline.** At
+      source `1277bce2`, the first self-hosted compiler finishes under an
+      explicit bounded 300-second budget but reproducibly exceeds my default
+      10-second shadow deadline. I will diagnose the regression or justify a
+      platform budget without weakening mandatory dependency shadows. MAC:
+      `task_0ea74f24799d9c9604bdf8abc7250d3d`.
+
 - [x] **Substitute generic selected-variant patterns.** I retain concrete
       arguments through complete-field validation, hidden payload captures and
       inferred projections. Ordinary integer, string, empty and nested selected
