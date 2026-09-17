@@ -2,7 +2,8 @@
 
 I implement MAC `task_48dcff3ff3314e9aad325209387968d1` under my
 [call contract](../NANOISA_CALLER_REFERENCE.md). My source checkpoint is
-`ec5dddd6`, based on merged nested-reference main `925b2127`.
+`ec5dddd6`, based on merged nested-reference main `925b2127`. My final
+integrated compiler checkpoint is `bfc22dd0`, including main `68cf61c7`.
 
 I connect CALL_REF (primary 0x0f) to actual caller-place substitution,
 affine helper analysis, two bounded VM descriptor contexts and a private native
@@ -41,7 +42,15 @@ At `ec5dddd6` I pass:
 - ASan/UBSan caller execution and heap allocation recovery, emitted native
   programs with leak detection, and exact serialized/reconstructed native output;
 - the genuine canonical native compiler seed build, help, hello bytecode
-  publication, verification and execution through its host module.
+  publication, verification and execution through its host module;
+- 2,414 native translator checks, 1,092 shape checks, 16 LLVM methods and
+  32 WebAssembly/scalar methods.
+
+At `bfc22dd0` I repeat all 1,548 caller checks, 43 heap and 55 parameter
+allocation checks, 83 caller-analysis checks, ordinary metadata controls and
+33 schema checks. Eight scalar-join methods and 91 CAST_STRING allocation
+checks also pass after the additive integration. The broad translator and
+compiler-host counts above remain evidence for their named earlier checkpoint.
 
 My initial integrated gate exposed an overbroad host-entry guard: it also
 refused ordinary metadata-bearing helper functions. I narrowed the guard to
@@ -53,7 +62,9 @@ failure in `/tmp/nanolang-caller-integration.log` and the corrected result in
 My other retained local logs are `/tmp/nanolang-caller-final-focused.log`,
 `/tmp/nanolang-caller-computed.log`, `/tmp/nanolang-caller-asan.log`,
 `/tmp/nanolang-caller-seed-build.log`, `/tmp/nanolang-caller-seed.log`,
-`/tmp/nanolang-caller-help.log` and `/tmp/nanolang-caller-hello.log`.
+`/tmp/nanolang-caller-help.log`, `/tmp/nanolang-caller-hello.log`,
+`/tmp/nanolang-caller-translators.log`, `/tmp/nanolang-caller-final-adjacent.log`,
+`/tmp/nanolang-caller-state-asan.log` and `/tmp/nanolang-caller-restack.log`.
 Checked-in tests are my durable repeatable evidence; these logs are not
 published release assets.
 
