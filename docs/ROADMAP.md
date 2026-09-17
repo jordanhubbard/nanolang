@@ -8751,6 +8751,7 @@ Ownership and proposal closure:
 
 Compiler product:
 - [ ] I route my default native product and `--target c` through verified NanoISA and `nvm2c`, preserving shadow selection, staging, previous output on failure, and declared artifact linkage (`task_d76ae44a12fd4d27a2b4aa84c30d7bc6`).
+  - I rename the generated compiler phase and diagnostic helper from transpiler to lowering, keeping numeric enum positions and making seed, canonical and retained legacy compiler consumers agree. I validate schema regeneration and diagnostic behavior before integration.
   - I make an unqualified source invocation publish a sibling `.nvm`; explicit `-o binary` keeps native translation, `--target native` defaults to `a.out`, and `--target c` keeps sibling C output. I test explicit bytecode selection and conflicting target options before publishing this default-policy change.
   - I found a transitive legacy transpiler import in my module loader for a suffix helper. I remove that dependency before claiming a NanoISA-only source closure; it does not explain the retained native startup abort.
 - [ ] I remove `transpiler.nano` and the AST-to-C path from the product driver's dependency closure, update phase/help descriptions, and keep the C seed as a bootstrap tool for that same source.
