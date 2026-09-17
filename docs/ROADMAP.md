@@ -221,6 +221,26 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       1,092 shape checks and 22 tagged-local regressions. This closes the
       bounded AOT bridge, not my NanoISA-only bootstrap or Stage 1/Stage 2
       canonical `.nvm` fixed point.
+      That PR #426 result is a historical checkpoint, not evidence that the
+      gate remains green on every later commit. At `a16b2d8a`, the same gate
+      rejected the new `tc_is_opaque_name` call because a projected optional
+      string no longer satisfied its exact string parameter. PR #445 repaired
+      that regression under MAC `task_031b36c92dbe44e49cea3888878d1963`.
+      My fresh Darwin rerun then exposed and repaired the separate portable-C
+      facade failure below before the unchanged gate passed again.
+
+- [x] **Keep my compiler artifact facade portable under strict C11.** I replace
+      the GNU-only `asprintf` path construction introduced with PR #439 by
+      checked standard-C allocation and formatting. I require direct strict-C
+      compilation on Darwin, the facade behavior suite, and the unchanged
+      compiler-bytecode-to-native-to-program gate before closing MAC
+      `task_3fd3b526b480593968aa41337fd3e00b`.
+      Direct strict compilation and all four facade methods pass. After a fresh
+      build of `nvm2c` and its AOT runtime, the unchanged full compiler gate
+      passes in 25.320 seconds: bytecode translates to strict native C, the
+      generated compiler runs `--help`, compiles `nl_hello.nano`, and its
+      executable prints the expected output. This is still not my NanoISA-only
+      fixed-point proof.
 
 - [ ] **v5.1.0 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish

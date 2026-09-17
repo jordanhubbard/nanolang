@@ -42,6 +42,15 @@ class CompilerArtifactSupport(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout.strip(), result.stderr
 
+    def test_facade_source_is_strict_c11_portable(self):
+        result = subprocess.run([
+            os.environ.get("CC", "cc"), "-std=c11",
+            "-Werror=implicit-function-declaration", "-I.", "-Isrc",
+            "-Isrc/runtime", "-Imodules/compiler_support", "-fsyntax-only",
+            ROOT / "modules/compiler_support/compiler_support.c",
+        ], cwd=ROOT, capture_output=True, text=True, timeout=120)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def fixture(self, directory):
         module = directory / "foreign space ' owner"
         module.mkdir()
