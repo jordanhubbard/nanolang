@@ -94,8 +94,9 @@ class OneIrCompiler(unittest.TestCase):
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                 self.run_checked([binary])
 
-    def run_checked(self, args, timeout=180):
+    def run_checked(self, args, timeout=180, extra_env=None):
         env = dict(os.environ, NANO_MODULE_PATH=str(ROOT / "modules"))
+        env.update(extra_env or {})
         process = subprocess.Popen([str(arg) for arg in args], cwd=ROOT, env=env,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    start_new_session=True)
@@ -245,6 +246,40 @@ static inline void tracked_free(void *p) {
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
                               hello_c, "-o", hello_aot])
             self.assertEqual(self.run_checked([hello_aot], timeout=10), b"Hello from NanoLang!\n")
+
+    def test_selfhost_emitted_compiler_to_native_nanoisa_product(self):
+        """I execute my canonical emitter before translating its compiler product."""
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        helper_env = ({"NANO_AS_CAPTURE_HELPER": str(ROOT / "bin/nano_as_capture.so")}
+                      if sys.platform.startswith("linux") else {})
+        with tempfile.TemporaryDirectory(prefix="nano-selfhost-native-product-") as tmp:
+            work = Path(tmp)
+            seed, module, source, compiler = (work / name for name in
+                                              ("seed", "compiler.nvm", "compiler.c", "compiler"))
+            self.run_checked([ROOT / "bin/nanoc_c", ROOT / "src_nano/nanoc_v06.nano",
+                              "-o", seed], timeout=600)
+            # I retain the canonical frontend's dependency and root shadow checks.
+            self.run_checked([seed, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
+                              "-o", module], timeout=600, extra_env=helper_env)
+            self.assertGreater(module.stat().st_size, 0)
+            self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
+            self.assertNotIn("nano_vm", source.read_text())
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
+                              source, "-o", compiler, *HOST_RUNTIME], timeout=240)
+            self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
+            hello_module, hello_c, hello_native = (work / name for name in
+                                                   ("hello.nvm", "hello.c", "hello"))
+            self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano",
+                              "--emit-nvm", "-o", hello_module], extra_env=helper_env)
+            self.assertGreater(hello_module.stat().st_size, 0)
+            self.assertEqual(self.run_checked([ROOT / "bin/nano_vm", hello_module], timeout=10),
+                             b"Hello from NanoLang!\n")
+            self.run_checked([ROOT / "bin/nvm2c", hello_module, "-o", hello_c])
+            self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                              hello_c, "-o", hello_native])
+            self.assertEqual(self.run_checked([hello_native], timeout=10),
+                             b"Hello from NanoLang!\n")
 
     def test_nanoisa_artifact_contracts_remain_exact(self):
         contracts = {
