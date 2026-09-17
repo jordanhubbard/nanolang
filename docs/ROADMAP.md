@@ -191,6 +191,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       record/global emission remains separate. MAC
       `task_ef807591eb104cc8b664cd55581ec505`, before the global boundary below.
 
+- [ ] **Emit ordinary concrete generic union record fields.** I preserve
+      `Box<int>` when emitting a local `Outer { boxed: Box<int> }` field and
+      its empty/nonempty constructors. My C seed currently emits a `void*`
+      field and both self-hosted stages emit `nl_Box`; all fail native
+      compilation even without globals. I require paired execution and nested
+      record controls, separately from global lifetime support and classification
+      acceptance. MAC `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
+
 - [ ] **Define my global resource boundary.** I first reject resource-bearing
       global declarations explicitly in both frontends, using concrete payload
       classification and a precise unsupported-ownership diagnostic. A current

@@ -195,6 +195,8 @@ shadow resource_fixed_payload_bearing {
 # I expand concrete payloads against current fixed-point facts, preserving
 # formal names until their declaring union supplies concrete arguments.
 fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, formals: array<string>, bearing: array<string>, collections: array<string>, collections_only: bool, active: array<string>, depth: int) -> bool {
+    # Reserved scalar types cannot contain a nominal resource payload.
+    if (or (== spelling "int") (or (== spelling "float") (or (== spelling "bool") (or (== spelling "string") (== spelling "void"))))) { return false }
     if (> depth 128) { return true }
     if (resource_name_in formals spelling) { return false }
     let raw_base: string = (base_type_name spelling)
@@ -243,18 +245,26 @@ shadow resource_concrete_payload_fact {
     assert (not (resource_concrete_payload_fact parser "Marker<T>" 1 [] roots [] false [] 0))
     assert (not (resource_concrete_payload_fact parser "Cycle<int>" 1 [] roots [] false [] 0))
     assert (resource_concrete_payload_fact parser "array<Box<T>>" 1 [] roots [] true [] 0)
-    let records: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { number: int } } struct Owned { boxed: Box<Handle> } struct Ordinary { boxed: Box<int> } struct Phantom { boxed: Marker<Handle> } struct Nested { owned: Owned } struct Collection { boxed: Box<array<Handle>> } struct Cycle { children: array<Cycle> } union Chain<T> { More { children: array<Chain<T>> }, Value { value: T }, None {} } struct Recursive { chain: Chain<Handle> }")
+    # Each fixture isolates one fixed-point relation; I retain every query
+    # without repeatedly traversing unrelated generic declaration graphs.
+    let records: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } struct Owned { boxed: Box<Handle> } struct Nested { owned: Owned }")
     assert (resource_classify records "Owned" false)
     assert (not (resource_classify records "Owned" true))
-    assert (not (resource_classify records "Ordinary" false))
-    assert (not (resource_classify records "Phantom" false))
     assert (resource_classify records "Nested" false)
-    assert (resource_classify records "Collection" true)
-    assert (not (resource_classify records "Cycle" false))
-    assert (resource_classify records "Recursive" true)
+    let ordinary: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { number: int } } struct Ordinary { boxed: Box<int> } struct Phantom { boxed: Marker<Handle> }")
+    assert (not (resource_classify ordinary "Ordinary" false))
+    assert (not (resource_classify ordinary "Phantom" false))
+    let collection: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } struct Collection { boxed: Box<array<Handle>> }")
+    assert (resource_classify collection "Collection" true)
+    let cycle: Parser = (resource_test_parser "resource struct Handle { fd: int } struct Cycle { children: array<Cycle> }")
+    assert (not (resource_classify cycle "Cycle" false))
+    let recursive: Parser = (resource_test_parser "resource struct Handle { fd: int } union Chain<T> { More { children: array<Chain<T>> }, Value { value: T }, None {} } struct Recursive { chain: Chain<Handle> }")
+    assert (resource_classify recursive "Recursive" true)
 }
 
 fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
+    # Reserved scalar types cannot contain a nominal resource payload.
+    if (or (== type_name "int") (or (== type_name "float") (or (== type_name "bool") (or (== type_name "string") (== type_name "void"))))) { return false }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
     let mut collections: array<string> = []
     let mut bearing: array<string> = []
