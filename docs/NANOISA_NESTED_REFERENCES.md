@@ -61,6 +61,10 @@ movable value storage. Native lowering follows the same owner fields. Terminal
 errors and completion clear all descriptors; suspended activations preserve
 them. I do not add references to value locals, stack values or heap fields.
 
+I rely on the verifier for overlap and parent-suspension guarantees. Runtime
+descriptors implement verified traces; their fields alone do not establish
+permission to execute an unverified program.
+
 ## My required gates
 
 I require matching VM/native observations for depth-two paths, disjoint sibling

@@ -8,6 +8,7 @@
 #include "disassembler.h"
 #include "verifier.h"
 #include "isa.h"
+#include "nvm2c.h"
 
 static unsigned checks;
 #define CHECK(c) do { checks++; assert(c); } while (0)
@@ -34,6 +35,10 @@ static void check_status(NvmModule *module, bool valid, bool needs) {
     NvmV2Result result = nvm_ownership_contracts_validate(module, &found);
     CHECK((result == NVM_V2_OK) == valid);
     if (valid) CHECK(found == needs);
+    else {
+        CHECK(!nvm_verify(module).ok);
+        char error[256];CHECK(nvm2c_emit(module,error,sizeof(error))==NULL);
+    }
 }
 
 static void check_path_transport(NvmModule *module) {
@@ -70,6 +75,15 @@ static void check_path_transport(NvmModule *module) {
     word(data,old_size,257);check_status(module,false,false);word(data,old_size,2);
     word(data,0,3);check_status(module,false,false);word(data,0,2);
     module->ownership_size=old_size+4;word(data,old_size,0);check_status(module,true,false);
+    size_t cap_size=old_size+4+256*8;
+    data=realloc(data,cap_size);CHECK(data);module->ownership_data=data;module->ownership_size=cap_size;
+    memset(data+old_size,0,cap_size-old_size);word(data,old_size,256);
+    for(unsigned i=0;i<256;i++)data[old_size+4+i*8]=1;
+    check_status(module,true,false);
+    CHECK(nvm_ownership_path(module,255,fields,32,&count)==NVM_V2_OK && count==1 && fields[0]==0);
+    module->ownership_size=old_size+72;memset(data+old_size,0,72);word(data,old_size,1);data[old_size+4]=32;
+    check_status(module,true,false);
+    CHECK(nvm_ownership_path(module,0,fields,32,&count)==NVM_V2_OK && count==32 && fields[31]==0);
     free(data);module->ownership_data=original;module->ownership_size=old_size;
     check_status(module,true,false);CHECK(nvm_verify(module).ok);
 }

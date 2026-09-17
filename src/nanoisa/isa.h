@@ -83,6 +83,11 @@ typedef enum {
     OP_REF_GET = 0x1A,
     OP_REF_SET = 0x1B,
 
+    OP_BORROW_PATH_SHARED = 0x1C,
+    OP_BORROW_PATH_EXCLUSIVE = 0x1D,
+    OP_REBORROW_SHARED = 0x1E,
+    OP_REBORROW_EXCLUSIVE = 0x1F,
+
     /* Arithmetic (0x20-0x27) */
     OP_ADD          = 0x20,  /* pop b, pop a, push a+b (also string concat) */
     OP_SUB          = 0x21,
