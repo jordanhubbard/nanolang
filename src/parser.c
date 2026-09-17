@@ -657,198 +657,72 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         }
                     }
                     
-                    /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
-                    if (type_info_out) {
-                        TypeInfo *info = calloc(1, sizeof(TypeInfo));
-                        info->base_type = TYPE_UNION;  /* Assume union for now */
-                        info->generic_name = type_name;  /* Transfer ownership */
-                        info->type_param_count = 0;
-                        info->type_params = NULL;
-                        info->element_type = NULL;
-                        info->tuple_types = NULL;
-                        info->tuple_type_names = NULL;
-                        info->tuple_element_count = 0;
-                        info->opaque_type_name = NULL;
-                        info->fn_sig = NULL;
-                        
-                        /* Parse comma-separated type parameters */
-                        int capacity = 4;
-                        info->type_params = malloc(sizeof(TypeInfo*) * capacity);
-                        
-                        while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-                            if (info->type_param_count >= capacity) {
-                                capacity *= 2;
-                                info->type_params = realloc(info->type_params, sizeof(TypeInfo*) * capacity);
-                            }
-                            
-                            /* Parse each type parameter */
-                            TypeInfo *param_info = calloc(1, sizeof(TypeInfo));
-                            param_info->element_type = NULL;
-                            param_info->generic_name = NULL;
-                            param_info->type_params = NULL;
-                            param_info->type_param_count = 0;
-                            param_info->tuple_types = NULL;
-                            param_info->tuple_type_names = NULL;
-                            param_info->tuple_element_count = 0;
-                            param_info->opaque_type_name = NULL;
-                            param_info->fn_sig = NULL;
-                            
-                            Token *param_tok = current_token(p);
-                            if (param_tok->token_type == TOKEN_TYPE_INT) {
-                                param_info->base_type = TYPE_INT;
-                                advance(p);
-                            } else if (param_tok->token_type == TOKEN_TYPE_U8) {
-                                param_info->base_type = TYPE_U8;
-                                advance(p);
-                            } else if (param_tok->token_type == TOKEN_TYPE_STRING) {
-                                param_info->base_type = TYPE_STRING;
-                                advance(p);
-                            } else if (param_tok->token_type == TOKEN_TYPE_BOOL) {
-                                param_info->base_type = TYPE_BOOL;
-                                advance(p);
-                            } else if (param_tok->token_type == TOKEN_TYPE_FLOAT) {
-                                param_info->base_type = TYPE_FLOAT;
-                                advance(p);
-                            } else if (param_tok->token_type == TOKEN_ARRAY) {
-                                /* Support array<T> as a generic type parameter (e.g., Result<array<int>, string>) */
-                                param_info->base_type = TYPE_ARRAY;
-                                advance(p);  /* consume 'array' */
-
-                                if (!expect(p, TOKEN_LT, "Expected '<' after 'array' in type parameter")) {
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
-                                elem_info->element_type = NULL;
-                                elem_info->generic_name = NULL;
-                                elem_info->type_params = NULL;
-                                elem_info->type_param_count = 0;
-                                elem_info->tuple_types = NULL;
-                                elem_info->tuple_type_names = NULL;
-                                elem_info->tuple_element_count = 0;
-                                elem_info->opaque_type_name = NULL;
-                                elem_info->fn_sig = NULL;
-
-                                Token *elem_tok = current_token(p);
-                                if (elem_tok->token_type == TOKEN_TYPE_INT) {
-                                    elem_info->base_type = TYPE_INT;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_U8) {
-                                    elem_info->base_type = TYPE_U8;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_STRING) {
-                                    elem_info->base_type = TYPE_STRING;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_BOOL) {
-                                    elem_info->base_type = TYPE_BOOL;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_TYPE_FLOAT) {
-                                    elem_info->base_type = TYPE_FLOAT;
-                                    advance(p);
-                                } else if (elem_tok->token_type == TOKEN_IDENTIFIER) {
-                                    elem_info->base_type = TYPE_STRUCT;
-                                    elem_info->generic_name = strdup(elem_tok->value);
-                                    advance(p);
-                                } else {
-                                    parser_error(p, elem_tok->line, elem_tok->column, "Error at line %d, column %d: Expected array element type in type parameter\n",
-                                            elem_tok->line, elem_tok->column);
-                                    free(elem_info);
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                if (!expect(p, TOKEN_GT, "Expected '>' after array element type in type parameter")) {
-                                    if (elem_info->generic_name) free(elem_info->generic_name);
-                                    free(elem_info);
-                                    free(param_info);
-                                    for (int i = 0; i < info->type_param_count; i++) {
-                                        free(info->type_params[i]);
-                                    }
-                                    free(info->type_params);
-                                    free(info->generic_name);
-                                    free(info);
-                                    return TYPE_UNKNOWN;
-                                }
-
-                                param_info->element_type = elem_info;
-                            } else if (param_tok->token_type == TOKEN_IDENTIFIER) {
-                                param_info->base_type = TYPE_STRUCT;
-                                param_info->generic_name = strdup(param_tok->value);
-                                advance(p);
-                            } else {
-                                parser_error(p, param_tok->line, param_tok->column, "Error at line %d, column %d: Expected type parameter\n",
-                                        param_tok->line, param_tok->column);
-                                free(param_info);
-                                /* Free info and its type_params */
-                                for (int i = 0; i < info->type_param_count; i++) {
-                                    free(info->type_params[i]);
-                                }
-                                free(info->type_params);
-                                free(info->generic_name);
-                                free(info);
-                                return TYPE_UNKNOWN;
-                            }
-                            
-                            info->type_params[info->type_param_count] = param_info;
-                            info->type_param_count++;
-                            
-                            /* Check for comma */
-                            if (match(p, TOKEN_COMMA)) {
-                                advance(p);
-                            } else if (!match(p, TOKEN_GT)) {
-                                parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected ',' or '>' in generic type parameters\n",
-                                        current_token(p)->line, current_token(p)->column);
-                                /* Free info and its type_params */
-                                for (int i = 0; i < info->type_param_count; i++) {
-                                    free(info->type_params[i]);
-                                }
-                                free(info->type_params);
-                                free(info->generic_name);
-                                free(info);
-                                return TYPE_UNKNOWN;
-                            }
+                    /* I retain complete nested arguments using the same type parser. */
+                    TypeInfo *info = calloc(1, sizeof(TypeInfo));
+                    if (!info) { free(type_name); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_UNION;
+                    info->generic_name = type_name;
+                    int capacity = 4;
+                    info->type_params = calloc((size_t)capacity, sizeof(TypeInfo*));
+                    if (!info->type_params) { free_payload_type_info(info); return TYPE_UNKNOWN; }
+                    while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
+                        if (info->type_param_count == capacity) {
+                            capacity *= 2;
+                            TypeInfo **grown = realloc(info->type_params, sizeof(TypeInfo*) * (size_t)capacity);
+                            if (!grown) { free_payload_type_info(info); return TYPE_UNKNOWN; }
+                            info->type_params = grown;
                         }
-                        
-                        if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
-                            /* Free info and its type_params */
-                            for (int i = 0; i < info->type_param_count; i++) {
-                                free(info->type_params[i]);
-                            }
-                            free(info->type_params);
-                            free(info->generic_name);
-                            free(info);
+                        TypeInfo *argument = NULL;
+                        char *argument_name = NULL;
+                        FunctionSignature *signature = NULL;
+                        if (++p->recursion_depth > MAX_RECURSION_DEPTH) {
+                            --p->recursion_depth;
+                            parser_error(p, tok->line, tok->column, "I cannot parse generic arguments beyond my nesting limit\n");
+                            free_payload_type_info(info);
                             return TYPE_UNKNOWN;
                         }
-                        
-                        *type_info_out = info;
-                        return TYPE_UNION;  /* Generic unions/structs use TYPE_UNION */
-                    } else {
-                        /* No type_info_out provided, just consume the parameters */
-                        while (!match(p, TOKEN_GT) && !match(p, TOKEN_EOF)) {
-                            advance(p);
-                        }
-                        if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
-                            free(type_name);
+                        Type argument_type = parse_type_with_element(p, NULL, &argument_name, &signature, &argument);
+                        --p->recursion_depth;
+                        if (argument_type == TYPE_UNKNOWN) {
+                            free(argument_name);
+                            free_function_signature(signature);
+                            free_payload_type_info(argument);
+                            free_payload_type_info(info);
                             return TYPE_UNKNOWN;
                         }
-                        free(type_name);
-                        return TYPE_UNION;
+                        if (!argument) {
+                            argument = calloc(1, sizeof(TypeInfo));
+                            if (!argument) {
+                                free(argument_name);
+                                free_function_signature(signature);
+                                free_payload_type_info(info);
+                                return TYPE_UNKNOWN;
+                            }
+                            argument->base_type = argument_type;
+                            argument->generic_name = argument_name;
+                            argument->fn_sig = signature;
+                        } else {
+                            free(argument_name);
+                            free_function_signature(signature);
+                        }
+                        info->type_params[info->type_param_count++] = argument;
+                        if (match(p, TOKEN_COMMA)) advance(p);
+                        else if (!match(p, TOKEN_GT)) {
+                            parser_error(p, current_token(p)->line, current_token(p)->column,
+                                         "I require ',' or '>' after a generic type argument\n");
+                            free_payload_type_info(info);
+                            return TYPE_UNKNOWN;
+                        }
                     }
+                    if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
+                        free_payload_type_info(info);
+                        return TYPE_UNKNOWN;
+                    }
+                    if (type_info_out) *type_info_out = info;
+                    else free_payload_type_info(info);
+                    return TYPE_UNION;
                 }
-                
+
                 /* Not a generic type - just a regular struct/union */
             if (type_param_name_out) {
                     *type_param_name_out = type_name;  /* Transfer ownership */
