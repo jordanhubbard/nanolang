@@ -123,8 +123,8 @@ class PassiveInputs(unittest.TestCase):
         cases = {
             'missing assertion': source.replace('ASSERT\n', 'POP\n'),
             'different guard tag': source.replace('TYPE_CHECK 1', 'TYPE_CHECK 4'),
-            'unknown declaration': source.replace('.parameters 0 int', '.parameters 0 void'),
-            'unsupported declaration': source.replace('.parameters 0 int', '.parameters 0 u8'),
+            'unknown declaration': source.replace('.parameters 0 int', '.parameters 0 void').replace('TYPE_CHECK 1', 'TYPE_CHECK 0'),
+            'unsupported declaration': source.replace('.parameters 0 int', '.parameters 0 u8').replace('TYPE_CHECK 1', 'TYPE_CHECK 2'),
             'parameter write': source.replace('LOAD_LOCAL 1\nPRINTLN',
                                              'PUSH_I64 3\nSTORE_LOCAL 0\nLOAD_LOCAL 1\nPRINTLN'),
         }
