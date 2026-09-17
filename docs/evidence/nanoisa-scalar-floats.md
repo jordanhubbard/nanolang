@@ -8,14 +8,14 @@ consumes the same distinction. I refuse mixed numeric operands, implicit integer
 initializers for float locals, float remainder/logical operations and float
 aggregate fields/arrays outside this slice.
 
-My focused fixture compares eleven functions against C-seed bytecode: 24 checks
+My focused fixture compares twelve functions against C-seed bytecode: 26 checks
 pass. Both modules verify and execute in NanoVM. A fresh native three-stage
 bootstrap succeeds, and my C seed, Stage 1 and Stage 2 compile and execute the
 fixture (one method, three compiler cases, 7.908 seconds). The fixture checks
 precision, prefix/bare unary minus, signed zero versus binary subtraction,
 arithmetic, six comparisons, calls and mutable global transport.
 
-My broader gate currently passes 86 existing comparisons and 78 of 79 Python
+My earlier broader checkpoint passes 86 existing comparisons and 78 of 79 Python
 methods. The remaining scalar-fixture method reaches native translation and
 refuses `F64_NEG`; native task `task_fd4c63cf9f3e46f09ece380ce00c7a58` owns typed
 F64 instructions and required scalar transport. I keep this test enabled and do
@@ -31,3 +31,10 @@ Local evidence: `/tmp/nanolang-float-gate2.log`,
 `/tmp/nanolang-float-exact.log`, `/tmp/nanolang-selfhost-float-bootstrap.log`
 (the bootstrap passes; its original format assertions expose the separate
 suffix discrepancy), and `/tmp/nanolang-selfhost-float-values2.log`.
+
+After adding direct formatting returns and call-return type refusal guards, eight
+focused refusal/shadow methods pass in 16.822 seconds. My C-seed-built and
+Stage2-built emitters produce identical scalar-fixture assembly. The additive
+restack onto `ae4aa585` also passes a fresh native three-stage bootstrap and the
+three-compiler fixture; the later return-type guard is covered by the focused
+negative tests.
