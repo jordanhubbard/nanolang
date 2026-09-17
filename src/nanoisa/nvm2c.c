@@ -871,10 +871,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_STORE_GLOBAL: {
             Nvm2cSimSlot value;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            /* I collect final-pass graph facts before resolving nested fields.
+             * Emission still requires supported concrete or tagged storage. */
             if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_BOOL &&
                 value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_VALUE &&
                 !integer_array_storage(value.kind) && value.kind != NVM2C_VK_SARR &&
-                !(value.kind == NVM2C_VK_UNK && !facts->final)) {
+                value.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I cannot yet store an aggregate or unresolved global in function %u at offset %zu", idx, start);
                 return 0;
             }

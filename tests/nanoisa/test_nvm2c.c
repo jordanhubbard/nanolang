@@ -1183,6 +1183,56 @@ static void test_globals_cross_functions_and_preserve_identity(void) {
     nvm_module_free(m);
 }
 
+static void test_projected_global_stores(void) {
+    const struct { const char *value, *check; } cases[] = {
+        {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
+        {"PUSH_BOOL 1", "DUP\nTYPE_CHECK 4\nASSERT\nASSERT"},
+        {"PUSH_STR text", "PUSH_STR text\nEQ\nASSERT"},
+        {"PUSH_I64 42\nARR_LITERAL 1 1", "PUSH_I64 0\nARR_GET\nPUSH_I64 42\nEQ\nASSERT"},
+        {"PUSH_BOOL 1\nARR_LITERAL 4 1", "PUSH_I64 0\nARR_GET\nDUP\nTYPE_CHECK 4\nASSERT\nASSERT"},
+        {"PUSH_STR text\nARR_LITERAL 5 1", "PUSH_I64 0\nARR_GET\nPUSH_STR text\nEQ\nASSERT"},
+    };
+    const char *store = ".function store 1 1 0 void 0\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\nSTORE_GLOBAL 0\nRET\n.end\n";
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        for (int before = 0; before < 2; ++before) {
+            char main[2048], source[8192];
+            snprintf(main, sizeof main,
+                ".function main 0 0 0 int 1\n%s\nAGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\n"
+                "CALL store\nLOAD_GLOBAL 0\n%s\nPUSH_I64 0\nRET\n.end\n",
+                cases[i].value, cases[i].check);
+            snprintf(source, sizeof source, ".string text \"retained\"\n.entry main\n%s%s",
+                     before ? store : main, before ? main : store);
+            NvmModule *m = assemble_ok(source, "projected global storage");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I resolve nested global-store projections after collecting all shape facts");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I preserve scalar and primitive-array values across nested-record global stores");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    const char *unsupported[] = {
+        "PUSH_I64 1\nAGG_PACK 0 0 0 1",
+        "PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
+        "PUSH_F64 1.5"
+    };
+    for (size_t i = 0; i < sizeof unsupported / sizeof unsupported[0]; ++i) {
+        char source[2048];
+        snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%s\n"
+            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 0\nRET\n.end\n%s",
+            unsupported[i], store);
+        NvmModule *m = assemble_ok(source, "unsupported projected global storage");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_uninitialized_global_result_traps(void) {
     NvmModule *m = assemble_ok(
         ".entry main\n.function main 0 0 0 int 1\n"
@@ -6231,6 +6281,7 @@ int main(int argc, char **argv) {
     test_float_comparison_transport();
     test_globals_cross_functions_and_preserve_identity();
     test_uninitialized_global_result_traps();
+    test_projected_global_stores();
     test_builtin_host_imports();
     test_character_host_imports();
     test_builtin_text_reader();
