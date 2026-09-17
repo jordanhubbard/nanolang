@@ -3092,6 +3092,10 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     }
 
     case AST_SET: {
+        if (node->as.set.field_name) {
+            cg_error(cg, node->line, "I require reference IR before lowering field-place assignment");
+            break;
+        }
         int16_t slot = local_find(cg, node->as.set.name);
         if (slot >= 0) {
             compile_stored_expr(cg, node->as.set.value);

@@ -44,6 +44,40 @@ class ExclusiveBorrows(unittest.TestCase):
                     ran = subprocess.run([output], capture_output=True, text=True, timeout=30)
                     self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 
+    def test_raw_nanoisa_field_target_refusal_preserves_output(self):
+        with tempfile.TemporaryDirectory(prefix='nano-raw-field-place-') as directory:
+            work = Path(directory)
+            driver, binary = work/'driver.nano', work/'driver'
+            driver.write_text('''import "src_nano/compiler/nanoisa_codegen.nano"
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+fn main() -> int {
+ if (!= (get_argc) 3) { return 0 }
+ let assembly: string = (nanoisa_emit_nasm (file_read (get_argv 1)))
+ if (== assembly "") { (println (nanoisa_last_lowering_error)) return 1 }
+ let result: int = (file_write (get_argv 2) assembly)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+            built = subprocess.run([ROOT/'bin/nanoc_c', driver, '-o', binary], cwd=ROOT,
+                                   capture_output=True, text=True, timeout=180)
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            source, output = work/'input.nano', work/'output.nasm'
+            source.write_text('struct Item { value: int } fn main() -> int { '
+                              'let mut item: Item = Item { value: 1 } set item.value 2 return 0 }')
+            output.write_text('prior artifact')
+            rejected = subprocess.run([binary, source, output], cwd=ROOT,
+                                      capture_output=True, text=True, timeout=30)
+            self.assertEqual(rejected.returncode, 1, rejected.stdout + rejected.stderr)
+            self.assertIn('reference IR', rejected.stdout)
+            self.assertEqual(output.read_text(), 'prior artifact')
+            source.write_text('fn main() -> int { let mut value: int = 1 set value 2 return value }')
+            accepted = subprocess.run([binary, source, output], cwd=ROOT,
+                                      capture_output=True, text=True, timeout=30)
+            self.assertEqual(accepted.returncode, 0, accepted.stdout + accepted.stderr)
+            self.assertIn('STORE_LOCAL', output.read_text())
+
     def test_mutation_is_visible_to_caller_and_forwarded_reference(self):
         self.check(PRELUDE + '''fn forward(view: &mut Handle) -> int { let value: int = (bump &mut view) assert (== (read &view) value) return value }
 shadow forward { let mut h: Handle = Handle { fd: 1 } assert (== (forward &mut h) 2) assert (== (consume h) 2) }
