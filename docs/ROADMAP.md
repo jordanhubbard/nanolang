@@ -70,6 +70,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         both self-hosted stages, retain malformed-input artifact rejection,
         and rerun the classifier/payload gates before integration.
 
+- [ ] **Bind concrete C generic union constructor contracts.** My fixed
+      `Values.Some` array annotation can be checked, but an inline `Box.Some`
+      AST does not retain the expected `Box<Plain>` arguments. I currently
+      accept `[Other {...}]` there. I require contextual substitution and
+      nominal identity rejection while preserving formal shadowing; the paired
+      negative remains a blocked gate. Root owns this C-checker prerequisite.
+      MAC `task_dd2be49bc494483f9bb18646a0013055`.
+
 - [ ] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
       scrutinee move, per-arm payload obligations and complete qualified variant

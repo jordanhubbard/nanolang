@@ -18,6 +18,7 @@
  */
 
 import "src_nano/compiler/ir.nano"
+from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 import "src_nano/compiler/module_bindings.nano"
 from "src_nano/compiler/nominal_bindings.nano" import nb_type
 import "src_nano/ast_shared.nano"
@@ -2034,6 +2035,42 @@ shadow lookup_struct_field_type {
     assert (== t "int")
     let t2: string = (lookup_struct_field_type p "Point" "z")
     assert (== t2 "")
+}
+
+# I retain the concrete field annotation when a literal is nested in a union.
+fn lookup_union_payload_type(parser: Parser, union_name: string, variant: string, field_name: string, concrete: string) -> string {
+    let mut ui: int = 0
+    while (< ui (parser_get_union_count parser)) {
+        let definition: ASTUnion = (parser_get_union parser ui)
+        if (== definition.name union_name) {
+            let mut offset: int = 0
+            let mut vi: int = 0
+            while (< vi definition.variant_count) {
+                let count: int = (at definition.variant_field_counts vi)
+                if (== (at definition.variant_names vi) variant) {
+                    let mut fi: int = 0
+                    while (< fi count) {
+                        if (== (at definition.variant_field_names (+ offset fi)) field_name) {
+                            return (substitute_type_parameters (at definition.variant_field_types (+ offset fi)) definition.generic_params (extract_type_args concrete))
+                        }
+                        set fi (+ fi 1)
+                    }
+                }
+                set offset (+ offset count)
+                set vi (+ vi 1)
+            }
+        }
+        set ui (+ ui 1)
+    }
+    return ""
+}
+shadow lookup_union_payload_type {
+    let source: string = "union Box<T> { None {}, Some { values: array<T> } }"
+    let tokens: List<LexerToken> = (tokenize_string source "payload.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "payload.nano")
+    assert (== (lookup_union_payload_type parser "Box" "Some" "values" "Box<Plain>") "array<Plain>")
+    assert (== (lookup_union_payload_type parser "Box" "Some" "values" "Box<array<int>>") "array<array<int>>")
+    assert (== (lookup_union_payload_type parser "Box" "None" "values" "Box<int>") "")
 }
 
 fn declared_call_argument_type(parser: Parser, name: string, index: int) -> string {
@@ -6023,7 +6060,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                             let fname: string = (at uc.field_names i)
                                             let vid: int = (at uc.field_value_ids i)
                                             let vty: int = (at uc.field_value_types i)
-                                            let vcode: string = (generate_expression parser vid vty env "")
+                                            let field_expected: string = (lookup_union_payload_type parser uc.union_name uc.variant_name fname expected_type)
+                                            let vcode: string = (generate_expression parser vid vty env field_expected)
 
                                             set union_construct_parts (cg_append union_construct_parts ".")
                                             set union_construct_parts (cg_append union_construct_parts (mangle_name fname))

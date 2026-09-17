@@ -23,6 +23,7 @@ import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
+from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/generated/purity_intrinsics.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
@@ -467,34 +468,8 @@ shadow tc_generic_arguments {
     assert (== (array_length (tc_generic_arguments "int")) 0)
 }
 
-fn tc_type_word_char(value: int) -> bool {
-    return (or (or (and (>= value 65) (<= value 90)) (and (>= value 97) (<= value 122))) (or (and (>= value 48) (<= value 57)) (or (== value 95) (== value 46))))
-}
-shadow tc_type_word_char {
-    assert (tc_type_word_char 84)
-    assert (not (tc_type_word_char 60))
-}
-
 fn tc_substitute_generic(spelling: string, params: array<string>, args: array<string>) -> string {
-    let mut result: string = ""
-    let mut i: int = 0
-    while (< i (str_length spelling)) {
-        if (tc_type_word_char (char_at spelling i)) {
-            let start: int = i
-            while (and (< i (str_length spelling)) (tc_type_word_char (char_at spelling i))) { set i (+ i 1) }
-            let mut word: string = (str_substring spelling start (- i start))
-            let mut j: int = 0
-            while (and (< j (array_length params)) (< j (array_length args))) {
-                if (== word (at params j)) { set word (at args j) break }
-                set j (+ j 1)
-            }
-            set result (+ result word)
-        } else {
-            set result (+ result (str_substring spelling i 1))
-            set i (+ i 1)
-        }
-    }
-    return result
+    return (substitute_type_parameters spelling params args)
 }
 shadow tc_substitute_generic {
     assert (== (tc_substitute_generic "Pair<T,array<E>>" ["T", "E"] ["int", "Handle"]) "Pair<int,array<Handle>>")

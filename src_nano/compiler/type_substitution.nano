@@ -1,0 +1,37 @@
+# I substitute complete type-name tokens and preserve nested spelling.
+# Checking and native emission use the same concrete generic field annotation.
+fn type_parameter_word_char(value: int) -> bool {
+    return (or (or (and (>= value 65) (<= value 90)) (and (>= value 97) (<= value 122))) (or (and (>= value 48) (<= value 57)) (or (== value 95) (== value 46))))
+}
+shadow type_parameter_word_char {
+    assert (type_parameter_word_char 84)
+    assert (not (type_parameter_word_char 60))
+}
+
+pub fn substitute_type_parameters(spelling: string, params: array<string>, args: array<string>) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (str_length spelling)) {
+        if (type_parameter_word_char (char_at spelling i)) {
+            let start: int = i
+            while (and (< i (str_length spelling)) (type_parameter_word_char (char_at spelling i))) { set i (+ i 1) }
+            let mut word: string = (str_substring spelling start (- i start))
+            let mut j: int = 0
+            while (and (< j (array_length params)) (< j (array_length args))) {
+                if (== word (at params j)) { set word (at args j) break }
+                set j (+ j 1)
+            }
+            set result (+ result word)
+        } else {
+            set result (+ result (str_substring spelling i 1))
+            set i (+ i 1)
+        }
+    }
+    return result
+}
+shadow substitute_type_parameters {
+    assert (== (substitute_type_parameters "Pair<T,array<E>>" ["T", "E"] ["int", "Handle"]) "Pair<int,array<Handle>>")
+    assert (== (substitute_type_parameters "Tree" ["T"] ["int"]) "Tree")
+    assert (== (substitute_type_parameters "module.T" ["T"] ["int"]) "module.T")
+    assert (== (substitute_type_parameters "array<T>" ["T"] ["array<Plain>"]) "array<array<Plain>>")
+}
