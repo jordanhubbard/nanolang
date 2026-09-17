@@ -31,3 +31,9 @@ self-hosted stages in 56.802 seconds. Logs:
 `/tmp/nanolang-nominal-order-reviewed-bootstrap.log` and
 `/tmp/nanolang-nominal-order-reviewed-paired.log`. The ordinary prior compiler
 failure is in `/tmp/nanolang-native-nominal-order-baseline.log`.
+
+After rebasing onto main `a4e5ee69`, fresh bootstrap and the combined nominal
+ordering/selected-pattern suite pass: 14 methods in 63.621 seconds. I require
+my ordering suite from `test-units`. Final logs:
+`/tmp/nanolang-nominal-order-integrated-bootstrap.log` and
+`/tmp/nanolang-nominal-order-integrated-tests.log`.
