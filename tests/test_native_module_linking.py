@@ -11,7 +11,7 @@ COMPILER = Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_s
 
 
 class NativeModuleLinking(unittest.TestCase):
-    def compile_fixture(self, duplicate_runtime):
+    def compile_fixture(self, duplicate_runtime, external_root=False):
         with tempfile.TemporaryDirectory(prefix="native_link_", dir=ROOT / "modules") as tmp:
             module = Path(tmp)
             source = module / "api.nano"
@@ -37,7 +37,8 @@ class NativeModuleLinking(unittest.TestCase):
                 "name": module.name, "c_sources": ["bridge.c", extra_source],
                 "include_dirs": ["src"], "pkg_config": ["openssl"],
             }))
-            with tempfile.TemporaryDirectory(prefix="native-link-program-", dir=ROOT / "tests") as work:
+            with tempfile.TemporaryDirectory(prefix="native-link-program-",
+                                              dir=None if external_root else ROOT / "tests") as work:
                 root = Path(work)
                 program, binary = root / "main.nano", root / "main"
                 program.write_text('module "' + str(source) + '" as fixture\n'
@@ -51,6 +52,9 @@ class NativeModuleLinking(unittest.TestCase):
 
     def test_runtime_source_is_not_linked_twice_and_crypto_follows_objects(self):
         self.compile_fixture(True)
+
+    def test_external_source_retains_repository_module_manifest(self):
+        self.compile_fixture(True, external_root=True)
 
     def test_different_source_with_runtime_basename_is_retained(self):
         self.compile_fixture(False)

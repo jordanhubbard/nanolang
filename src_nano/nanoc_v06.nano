@@ -401,6 +401,7 @@ shadow nlc_hashset_add_string {
  * ============================================================================= */
 
 fn nl_path_dirname(path: string) -> string {
+    if (== path "/") { return "/" }
     let mut p: string = path
     if (nlc_str_ends_with p "/") {
         set p (str_substring p 0 (- (str_length p) 1))
@@ -415,6 +416,7 @@ fn nl_path_dirname(path: string) -> string {
 }
 
 shadow nl_path_dirname {
+    assert (== (nl_path_dirname "/") "/")
     assert (== (nl_path_dirname "/file") "/")
     assert (== (nl_path_dirname "/path/to/file") "/path/to")
     assert (== (nl_path_dirname "file") ".")
@@ -2177,7 +2179,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if verbose {
                 (println "[4.5/5] Collecting module build flags...")
             } else { (print "") }
-            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files merge_repo_root verbose)
+            let mut module_root: string = merge_repo_root
+            if (== module_root "") { set module_root repo_root }
+            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files module_root verbose)
 
             if verbose {
                 (println "[5/5] Compiling C to executable...")
