@@ -8437,9 +8437,14 @@ Compiler product:
 - [ ] I propagate required foreign header search paths through transitive
       C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`). My
       module compiler currently omits a dependency manifest's header directory.
-- [ ] I preserve aliases when my shadow interpreter appends to an empty
-      array (`task_adb9b837ce4144a68a9d91ea00749ae0`). Converting the empty
-      static representation currently creates a separate dynamic array.
+- [ ] I reclaim shared static-array containers and their owned elements at an
+      alias-safe interpreter lifetime boundary
+      (`task_5eba51e216e343549c8ca7846713b6a3`). My current environment cleanup
+      ignores static arrays; append alias tests do not establish leak freedom.
+- [x] I preserve aliases when my shadow interpreter appends to an empty
+      array (`task_adb9b837ce4144a68a9d91ea00749ae0`). I initialize shared
+      static storage in place and preserve pop/remove compatibility. See
+      `docs/evidence/interpreter-empty-array-alias.md`.
 - [x] I let my module builder source pass its own conservative PCH capture
       scan without changing the runtime marker or rejection policy
       (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.

@@ -67,11 +67,16 @@ shadow main { assert (== (main) 0) }
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             source = root/'main.nano'
-            source.write_text(source_text)
-            self.run_checked([ROOT/'bin/nanoc_c', source, '-o', root/'native'])
-            self.run_checked([root/'native'])
-            self.run_checked([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', root/'module.nvm'])
-            self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
+            empty = source_text.replace('[Item { number: 0, label: "initial" }]', '[]')
+            empty = empty.replace('(array_length holder.items) 2', '(array_length holder.items) 1')
+            empty = empty.replace('(at result 1)', '(at result 0)')
+            for initial, program in (('nonempty', source_text), ('empty', empty)):
+                with self.subTest(initial=initial):
+                    source.write_text(program)
+                    self.run_checked([ROOT/'bin/nanoc_c', source, '-o', root/'native'])
+                    self.run_checked([root/'native'])
+                    self.run_checked([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', root/'module.nvm'])
+                    self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
 
     def test_mixed_nominal_elements_reject(self):
         with tempfile.TemporaryDirectory() as tmp:
