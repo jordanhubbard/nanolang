@@ -2079,7 +2079,7 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
                            const NvmFunctionEntry *fn, const uint8_t *kinds,
                            uint32_t idx) {
     if (!b->has_maps) return;
-    nvm2c_puts(b, "    nroots.live.count = 0;\n");
+    nvm2c_puts(b, "    nroot_reset(&nroots.live);\n");
     for (uint16_t i = 0; i < fn->local_count; ++i) {
         uint8_t k = fn_local_kind(b, kinds, idx, i);
         if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
@@ -3761,7 +3761,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         goto done;
     }
     nvm2c_puts(b, "L_return:\n    free(r);\n");
-    if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; free(nroots.live.items);\n");
+    if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
     nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     /* I emit the body once, then insert declarations using its actual
@@ -5136,7 +5136,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);\n");
             if (b.global_count) nvm2c_printf(&b,
                 "    for (size_t i = 0; i < %zu; ++i) nroot_value(&work, nglobal[i]);\n", b.global_count);
-            nvm2c_puts(&b, "    nroot_trace(&work); free(work.items); nmap_sweep();\n}\n");
+            nvm2c_puts(&b, "    nroot_trace(&work); nroot_destroy(&work); nmap_sweep();\n}\n");
         }
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
