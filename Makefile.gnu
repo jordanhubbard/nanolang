@@ -4290,3 +4290,8 @@ test-global-resource-boundary: bootstrap
 test-units: test-resource-generic-records
 test-resource-generic-records: $(COMPILER_C)
 	python3 -m unittest -v tests.test_resource_generic_records
+
+.PHONY: test-native-generic-record-fields
+test-units: test-native-generic-record-fields
+test-native-generic-record-fields: bootstrap
+	@python3 -m unittest tests.test_native_generic_record_fields

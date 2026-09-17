@@ -7212,6 +7212,17 @@ register_function_pass1:;
         }
     }
 
+    /* I retain concrete field-only union instances after all declarations
+     * are visible, including forward declarations in the same module. */
+    for (int record = 0; record < env->struct_count; ++record) {
+        StructDef *definition = &env->structs[record];
+        char *saved_module = env->current_module;
+        env->current_module = definition->module_name;
+        for (int field = 0; definition->field_type_info && field < definition->field_count; ++field)
+            register_native_union_context(env, definition->field_type_info[field], 0);
+        env->current_module = saved_module;
+    }
+
     /* Second pass: link shadow tests to functions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -7946,6 +7957,17 @@ register_function_pass2:;
                 env_add_module_exported_function(env, env->current_module, func_name);
             }
         }
+    }
+
+    /* I retain concrete field-only union instances after all declarations
+     * are visible, including forward declarations in the same module. */
+    for (int record = 0; record < env->struct_count; ++record) {
+        StructDef *definition = &env->structs[record];
+        char *saved_module = env->current_module;
+        env->current_module = definition->module_name;
+        for (int field = 0; definition->field_type_info && field < definition->field_count; ++field)
+            register_native_union_context(env, definition->field_type_info[field], 0);
+        env->current_module = saved_module;
     }
 
     /* Second pass: link shadow tests to functions */
