@@ -3426,6 +3426,82 @@ static void test_optional_record_arguments(void) {
     }
 }
 
+static void test_projected_string_call_storage(void) {
+    for (int boxed = 0; boxed < 2; ++boxed) {
+        for (int reverse = 0; reverse < 2; ++reverse) {
+            for (int tail = 0; tail < 2; ++tail) {
+                for (int before = 0; before < 2; ++before) {
+                    char body[3072], workers[768], source[8192], nested[1024];
+                    const char *value = boxed ? "LOAD_GLOBAL 0\n" : "LOAD_LOCAL 1\nPUSH_STR key\nHM_GET\n";
+                    const char *plain = "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nCALL length\nPUSH_I64 4\nEQ\nASSERT\n";
+                    snprintf(nested, sizeof nested,
+                        "%sAGG_PACK 0 0 0 1\nAGG_PACK 1 0 0 1\nCALL project\nPUSH_I64 4\nEQ\nASSERT\n", value);
+                    snprintf(body, sizeof body,
+                        ".function main 0 2 0 int 1\nPUSH_STR text\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n"
+                        "PUSH_STR text\nSTORE_GLOBAL 0\nHM_NEW 5 5\nSTORE_LOCAL 1\n"
+                        "LOAD_LOCAL 1\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPOP\n%s%s"
+                        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                        reverse ? nested : plain, reverse ? plain : nested);
+                    snprintf(workers, sizeof workers,
+                        ".function project 1 2 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\n"
+                        "LOAD_LOCAL 1\nAGG_GET 0\n%s length\n%s.end\n"
+                        ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n",
+                        tail ? "TAIL_CALL" : "CALL", tail ? "" : "RET\n");
+                    snprintf(source, sizeof source, ".string text \"kept\"\n.string key \"key\"\n.entry main\n%s%s",
+                             before ? workers : body, before ? body : workers);
+                    NvmModule *m = assemble_ok(source, "projected string parameter storage");
+                    if (!m) continue;
+                    char *c = emit_or_fail(m, "I separate parameter storage from exact string producers");
+                    if (c) {
+                        int status = -1;
+                        CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                              "I accept projected tagged strings independent of caller, tail-call and function order");
+                        free(c);
+                    }
+                    nvm_module_free(m);
+                }
+            }
+        }
+    }
+    const char *invalid[] = {"PUSH_I64 7", "PUSH_BOOL 0", "LOAD_GLOBAL 1", "ARR_NEW 1",
+        "HM_NEW 5 5\nPUSH_STR key\nHM_GET"};
+    for (size_t v = 0; v < sizeof invalid / sizeof invalid[0]; ++v) {
+        for (int taken = 0; taken < 2; ++taken) {
+            char source[3072];
+            snprintf(source, sizeof source,
+                ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+                "%s\nSTORE_GLOBAL 0\nPUSH_BOOL %d\nJMP_FALSE done\nLOAD_GLOBAL 0\n"
+                "AGG_PACK 0 0 0 1\nAGG_PACK 1 0 0 1\nCALL project\nPOP\n"
+                "done:\nPUSH_I64 0\nRET\n.end\n"
+                ".function project 1 2 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\n"
+                "LOAD_LOCAL 1\nAGG_GET 0\nCALL length\nRET\n.end\n"
+                ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n", invalid[v], taken);
+            NvmModule *m = assemble_ok(source, "checked projected string consumption");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I retain runtime checks for a projected string parameter");
+            if (c) {
+                int status = 0;
+                CHECK(compile_and_run(c, &status) == 0 && (taken ? status != 0 : status == 0),
+                      "I reject wrong or absent tags only when the string consumer executes");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    NvmModule *m = assemble_ok(
+        ".string key \"key\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "HM_NEW 5 1\nPUSH_STR key\nHM_GET\nAGG_PACK 0 0 0 1\nAGG_PACK 1 0 0 1\nCALL project\nRET\n.end\n"
+        ".function project 1 2 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nAGG_GET 0\nCALL length\nRET\n.end\n"
+        ".function length 1 1 0 int 1\nLOAD_LOCAL 0\nSTR_LEN\nRET\n.end\n",
+        "exact projected payload conflict");
+    if (m) {
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, "shape"), "I keep exact optional payload conflicts rejected");
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void test_optional_record_results(void) {
     test_optional_record_arguments();
     const char *main_body =
@@ -3476,6 +3552,7 @@ static void test_optional_record_results(void) {
 }
 
 static void test_tagged_record_fields(void) {
+    test_projected_string_call_storage();
     test_optional_record_results();
     for (int strings = 0; strings < 2; ++strings) {
         char source[4096];

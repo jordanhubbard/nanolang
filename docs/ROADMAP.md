@@ -320,10 +320,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       mutations through all bootstrap compilers.
       MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
-- [ ] **Current native compiler shape convergence.** I restore aggregate
+- [x] **Current native compiler shape convergence.** I restore aggregate
       conversion solving for current compiler bytecode without weakening exact
       string constraints. Current and pre-read-fix translators both reject the
       same retained module before C emission. MAC `task_031b36c92dbe44e49cea3888878d1963`.
+      I now separate inferred string parameter storage from exact producer
+      shapes; focused parity and the fresh native compiler bridge pass.
+      Evidence: `docs/evidence/native-projected-string-call-storage.md`.
 
 - [ ] **NanoCore exporter sanitizer build.** I diagnose the GCC O1
       null-format warning in `sbuf_appendf`; default O3 sanitizer checks
