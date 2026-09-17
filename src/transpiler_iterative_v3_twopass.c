@@ -70,6 +70,8 @@ static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, si
 
 static const char *hashmap_suffix_from_expr(ASTNode *hm_expr, Environment *env, char *buf, size_t buf_size) {
     if (!hm_expr || !env) return NULL;
+    if (hm_expr->type == AST_FIELD_ACCESS)
+        return hashmap_suffix_from_typeinfo(hm_expr->as.field_access.resolved_type_info, buf, buf_size);
     if (hm_expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, hm_expr->as.identifier, hm_expr->line, hm_expr->column);
         if (sym && sym->type_info) {

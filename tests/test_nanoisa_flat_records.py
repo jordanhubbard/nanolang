@@ -1055,6 +1055,37 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertFalse(output.exists())
 
+    def test_nominal_counts_preserve_unused_declarations_and_bounds(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/nominal_type_counts.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-nominal-counts-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            text = assembly.read_text()
+            self.assertTrue(text.startswith(".types 2 2 1\n.entry "), text[:100])
+            self.assertIn("AGG_PACK 0 1 0 2", text)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "copy_message", "main")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                with self.subTest(module=module.name):
+                    dump = self.run_checked(ROOT / "bin/nanoisa", "dump", module).stdout
+                    self.assertIn(".types 2 2 1", dump)
+                    self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                    self.run_checked(ROOT / "bin/nano_vm", module)
+                    source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                    self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                    self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                    self.run_checked(binary)
+            assembly.write_text(text.replace(".types 2 2 1", ".types 1 2 1", 1))
+            prior = emitted.read_bytes()
+            result = subprocess.run([ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted],
+                                    cwd=ROOT, capture_output=True, text=True, timeout=30)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("struct_count 1", result.stderr)
+            self.assertEqual(emitted.read_bytes(), prior)
+
     def test_boolean_record_returns_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/flat_record_results.nano"
         with tempfile.TemporaryDirectory(prefix="nano-flat-record-") as tmp:

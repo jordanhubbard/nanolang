@@ -316,6 +316,8 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
     }
 }
 
+const char *get_struct_type_name(ASTNode *expr, Environment *env);
+
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
@@ -323,8 +325,34 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (sym) return sym->type_info;
     }
-    if (expr->type == AST_FIELD_ACCESS && expr->as.field_access.resolved_type_info)
-        return expr->as.field_access.resolved_type_info;
+    if (expr->type == AST_FIELD_ACCESS) {
+        if (expr->as.field_access.resolved_type_info)
+            return expr->as.field_access.resolved_type_info;
+        const char *owner = get_struct_type_name(expr->as.field_access.object, env);
+        if (owner) {
+            for (int u = 0; u < env->union_count; ++u) {
+                UnionDef *def = &env->unions[u];
+                size_t length = strlen(def->name);
+                if (strncmp(owner, def->name, length) || owner[length] != '.') continue;
+                int arm = env_get_union_variant_index(env, def->name, owner + length + 1);
+                if (arm < 0) continue;
+                for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
+                    if (strcmp(def->variant_field_names[arm][field], expr->as.field_access.field_name)) continue;
+                    TypeInfo *arguments = try_get_expr_type_info(expr->as.field_access.object, env);
+                    expr->as.field_access.resolved_type_info =
+                        resolve_union_payload_type_info(def, arm, field, arguments);
+                    return expr->as.field_access.resolved_type_info;
+                }
+            }
+        }
+        StructDef *record = owner ? env_get_struct(env, owner) : NULL;
+        if (record && record->field_type_info) {
+            for (int i = 0; i < record->field_count; ++i)
+                if (record->field_types[i] == TYPE_HASHMAP &&
+                    strcmp(record->field_names[i], expr->as.field_access.field_name) == 0)
+                    return record->field_type_info[i];
+        }
+    }
     if (expr->type == AST_CALL && expr->as.call.name) {
         if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
             (strcmp(expr->as.call.name, "at") == 0 ||
@@ -542,7 +570,6 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
 }
 
 /* I borrow nominal element identity from the array declaration. */
-const char *get_struct_type_name(ASTNode *expr, Environment *env);
 static const char *array_record_name(ASTNode *array, Environment *env) {
     if (!array) return NULL;
     if (array->type == AST_ARRAY_LITERAL && array->as.array_literal.element_count > 0)
@@ -2146,29 +2173,37 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_put") == 0 || strcmp(expr->as.call.name, "map_set") == 0) {
                     if (expr->as.call.arg_count != 3) {
-                        fprintf(stderr, "Error at line %d, column %d: %s requires 3 arguments\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s requires 3 arguments.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     Type key_t = check_expression(expr->as.call.args[1], env);
                     Type val_t = check_expression(expr->as.call.args[2], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s expects HashMap as first argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
                     Type exp_k = TYPE_UNKNOWN;
                     Type exp_v = TYPE_UNKNOWN;
                     if (!hashmap_extract_kv(hm_info, &exp_k, &exp_v)) {
-                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     if (!types_match(key_t, exp_k) || !types_match(val_t, exp_v)) {
-                        fprintf(stderr, "Error at line %d, column %d: %s expects key %s and value %s\n",
-                                expr->line, expr->column, expr->as.call.name, type_to_string(exp_k), type_to_string(exp_v));
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s expects key %s and value %s.", expr->as.call.name, type_to_string(exp_k), type_to_string(exp_v));
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_VOID;
@@ -2176,28 +2211,36 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_get") == 0) {
                     if (expr->as.call.arg_count != 2) {
-                        fprintf(stderr, "Error at line %d, column %d: map_get requires 2 arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_get requires 2 arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     Type key_t = check_expression(expr->as.call.args[1], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: map_get expects HashMap as first argument\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_get expects HashMap as first argument.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
                     Type exp_k = TYPE_UNKNOWN;
                     Type exp_v = TYPE_UNKNOWN;
                     if (!hashmap_extract_kv(hm_info, &exp_k, &exp_v)) {
-                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     if (!types_match(key_t, exp_k)) {
-                        fprintf(stderr, "Error at line %d, column %d: map_get expects key type %s\n",
-                                expr->line, expr->column, type_to_string(exp_k));
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_get expects key type %s.", type_to_string(exp_k));
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return exp_v;
@@ -2205,27 +2248,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_has") == 0) {
                     if (expr->as.call.arg_count != 2) {
-                        fprintf(stderr, "Error at line %d, column %d: map_has requires 2 arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_has requires 2 arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     Type key_t = check_expression(expr->as.call.args[1], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: map_has expects HashMap as first argument\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_has expects HashMap as first argument.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
                     Type exp_k = TYPE_UNKNOWN;
                     if (!hashmap_extract_kv(hm_info, &exp_k, NULL)) {
-                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     if (!types_match(key_t, exp_k)) {
-                        fprintf(stderr, "Error at line %d, column %d: map_has expects key type %s\n",
-                                expr->line, expr->column, type_to_string(exp_k));
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_has expects key type %s.", type_to_string(exp_k));
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_BOOL;
@@ -2233,27 +2284,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_remove") == 0) {
                     if (expr->as.call.arg_count != 2) {
-                        fprintf(stderr, "Error at line %d, column %d: map_remove requires 2 arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_remove requires 2 arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     Type key_t = check_expression(expr->as.call.args[1], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: map_remove expects HashMap as first argument\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_remove expects HashMap as first argument.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     TypeInfo *hm_info = try_get_expr_type_info(expr->as.call.args[0], env);
                     Type exp_k = TYPE_UNKNOWN;
                     if (!hashmap_extract_kv(hm_info, &exp_k, NULL)) {
-                        fprintf(stderr, "Error at line %d, column %d: Cannot infer HashMap<K,V> type arguments\n",
-                                expr->line, expr->column);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: Cannot infer HashMap<K,V> type arguments.");
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     if (!types_match(key_t, exp_k)) {
-                        fprintf(stderr, "Error at line %d, column %d: map_remove expects key type %s\n",
-                                expr->line, expr->column, type_to_string(exp_k));
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: map_remove expects key type %s.", type_to_string(exp_k));
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_VOID;
@@ -2261,14 +2320,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_length") == 0 || strcmp(expr->as.call.name, "map_size") == 0) {
                     if (expr->as.call.arg_count != 1) {
-                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s requires 1 argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s expects HashMap as first argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_INT;
@@ -2276,14 +2339,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_clear") == 0 || strcmp(expr->as.call.name, "map_free") == 0) {
                     if (expr->as.call.arg_count != 1) {
-                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s requires 1 argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s expects HashMap as first argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_VOID;
@@ -2291,14 +2358,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 if (strcmp(expr->as.call.name, "map_keys") == 0 || strcmp(expr->as.call.name, "map_values") == 0) {
                     if (expr->as.call.arg_count != 1) {
-                        fprintf(stderr, "Error at line %d, column %d: %s requires 1 argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s requires 1 argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     Type hm_t = check_expression(expr->as.call.args[0], env);
                     if (hm_t != TYPE_HASHMAP) {
-                        fprintf(stderr, "Error at line %d, column %d: %s expects HashMap as first argument\n",
-                                expr->line, expr->column, expr->as.call.name);
+                        char message[256];
+                        snprintf(message, sizeof(message), "I cannot accept this map call: %s expects HashMap as first argument.", expr->as.call.name);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Match the map operation arity and declared key/value types.");
                         return TYPE_UNKNOWN;
                     }
                     return TYPE_ARRAY;
@@ -3457,6 +3528,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             const char *field_name = expr->as.field_access.field_name;
             for (int i = 0; i < sdef->field_count; i++) {
                 if (strcmp(sdef->field_names[i], field_name) == 0) {
+                    if (sdef->field_types[i] == TYPE_HASHMAP && sdef->field_type_info) {
+                        free_payload_type_info(expr->as.field_access.resolved_type_info);
+                        expr->as.field_access.resolved_type_info =
+                            copy_payload_type_info(sdef->field_type_info[i]);
+                    }
                     return sdef->field_types[i];
                 }
             }
