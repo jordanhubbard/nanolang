@@ -8023,10 +8023,19 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower array-bearing records required by canonical `MergeResult`,
+- [ ] I lower finite nested compiler record and typed-list field shapes;
+      after `MergeResult`, actual canonical emission first refuses
+      `List<CompilerDiagnostic>` because its location is a nested record
+      (`task_2c3445862de74affa5d2bf624c8c5986`).
+- [ ] I infer scalar array literal tags from computed element types; direct
+      `[(int_to_string 7)]` currently emits the integer element tag
+      (`task_0a57dab79901497b8e5a6a5ae87df9fb`).
+- [x] I lower scalar-array-bearing records required by canonical `MergeResult`,
       preserving typed fields through construction, access, calls and returns
-      (`task_468477ec7699402a8dfb92830c5ed40f`). My program compiler probe after globals
-      first refuses `unsupported local type MergeResult`.
+      (`task_468477ec7699402a8dfb92830c5ed40f`). All 86 checks and 25
+      integration methods pass, including VM/AOT array identity and empty
+      element tags. Nested records and other array element kinds remain
+      refused; `docs/evidence/selfhost-array-record-fields.md` records scope.
 - [ ] I carry record and map globals through standalone AOT with runtime
       tags, field/map access and lifetime roots; generic scalar global values
       do not establish this support (`task_95796f5f49564ed4a911fd05a1aac5b4`).

@@ -1,0 +1,50 @@
+struct MergeResult {
+    source: string,
+    files: array<string>,
+    file_starts: array<int>,
+    ready: bool
+}
+
+fn make_result(source: string, files: array<string>, starts: array<int>) -> MergeResult {
+    return MergeResult { source: source, files: files, file_starts: starts, ready: true }
+}
+shadow make_result {
+    let result: MergeResult = (make_result "source" ["file"] [1])
+    assert (== (at result.files 0) "file")
+}
+
+fn forward(result: MergeResult) -> MergeResult { return result }
+shadow forward {
+    let result: MergeResult = (forward (make_result "source" ["file"] [1]))
+    assert result.ready
+}
+
+fn empty() -> MergeResult {
+    return MergeResult { source: "empty", files: [], file_starts: [], ready: false }
+}
+shadow empty {
+    let result: MergeResult = (empty)
+    assert (== (array_length result.files) 0)
+}
+
+fn main() -> int {
+    let result: MergeResult = (forward (make_result "source" ["first", "second"] [1, 9]))
+    assert (== result.source "source")
+    assert result.ready
+    assert (== (at result.files 1) "second")
+    assert (== (at result.file_starts 1) 9)
+    let files: array<string> = result.files
+    let expanded: array<string> = (array_push files "third")
+    assert (== (array_length expanded) 3)
+    assert (== (array_length result.files) 3)
+    let results: List<MergeResult> = (list_MergeResult_new)
+    (list_MergeResult_push results result)
+    let stored: MergeResult = (list_MergeResult_get results 0)
+    assert (== (at stored.files 2) "third")
+    let blank: MergeResult = (empty)
+    assert (== (array_length blank.files) 0)
+    assert (== (array_length blank.file_starts) 0)
+    assert (not blank.ready)
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -543,7 +543,8 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
         let mut i: int = 0
         while (< i s.field_count) {
             let ft: string = (at s.field_types i)
-            if (and (!= ft "int") (and (!= ft "string") (!= ft "bool"))) {
+            if (and (!= ft "int") (and (!= ft "string") (and (!= ft "bool")
+                    (and (!= ft "array<int>") (!= ft "array<string>"))))) {
                 return false
             } else {
                 set i (+ i 1)
@@ -1384,7 +1385,13 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                     if (== vty ParseNodeType.PNODE_STRUCT_LITERAL) {
                         return (nisa_fail "nested records are not in the pinned subset")
                     } else {
-                        set out (+ out (nisa_emit_expr parser vid vty))
+                        let expected: string = (at sd.field_types i)
+                        let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
+                            (or (== expected "array<int>") (== expected "array<string>")))
+                        if (and (not contextual_array) (!= (nisa_expr_type parser vid vty) expected)) {
+                            return (nisa_fail (+ "I require the declared type for record field " fname))
+                        }
+                        set out (+ out (nisa_emit_expected_expr parser vid vty expected))
                         set found true
                         set j lit.field_count
                     }
