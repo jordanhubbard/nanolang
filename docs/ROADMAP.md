@@ -8421,6 +8421,12 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I select actual nested generic union instances instead of matching an
+      enclosing type by substring (`task_b25eef03a0874cf8b0c7f0fa23c05289`).
+      My C registration and emission share recursive specialization names;
+      `Box<Result<int,string>>` copies and payloads execute under all three
+      native compiler stages. Other constructor contexts remain task633.
+      Evidence: `docs/evidence/native-nested-generic-identity.md`.
 - [x] I retain native foreign module metadata for root sources outside my
       repository (`task_c6b698326e0f4e6296299ddfdf172ebd`). Source-ancestry root
       discovery preserves `/` as its own parent; when no source root exists,

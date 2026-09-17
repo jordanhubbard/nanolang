@@ -4230,3 +4230,8 @@ test-native-module-linking: bootstrap3
 test-units: test-compiler-artifact-support
 test-compiler-artifact-support: $(COMPILER_C)
 	@python3 -m unittest tests.test_compiler_artifact_support
+
+.PHONY: test-native-nested-generics
+test-units: test-native-nested-generics
+test-native-nested-generics: bootstrap
+	python3 -m unittest tests.test_native_nested_generics

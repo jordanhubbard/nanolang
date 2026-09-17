@@ -114,54 +114,13 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
                                                    TypeInfo **type_params, 
                                                    int type_param_count) {
     if (!dest || !base_name || dest_size == 0) return false;
-    if (type_param_count == 0) {
-        return snprintf(dest, dest_size, "%s", base_name) < (int)dest_size;
-    }
-    
-    /* Extract type names from TypeInfo structures */
-    const char *type_names[32];  /* Max 32 type parameters */
-    char tmp_names[32][128];
-    if (type_param_count > 32) return false;
-    
-    for (int i = 0; i < type_param_count; i++) {
-        TypeInfo *param = type_params[i];
-        if (!param) {
-            type_names[i] = "unknown";
-            continue;
-        }
-        
-        if (param->base_type == TYPE_INT) {
-            type_names[i] = "int";
-        } else if (param->base_type == TYPE_U8) {
-            type_names[i] = "u8";
-        } else if (param->base_type == TYPE_STRING) {
-            type_names[i] = "string";
-        } else if (param->base_type == TYPE_BOOL) {
-            type_names[i] = "bool";
-        } else if (param->base_type == TYPE_FLOAT) {
-            type_names[i] = "float";
-        } else if (param->base_type == TYPE_ARRAY) {
-            /* Name arrays as array_<elem>, e.g. array_int, array_u8, array_Point */
-            const char *elem = "unknown";
-            if (param->element_type) {
-                TypeInfo *et = param->element_type;
-                if (et->base_type == TYPE_INT) elem = "int";
-                else if (et->base_type == TYPE_U8) elem = "u8";
-                else if (et->base_type == TYPE_STRING) elem = "string";
-                else if (et->base_type == TYPE_BOOL) elem = "bool";
-                else if (et->base_type == TYPE_FLOAT) elem = "float";
-                else if ((et->base_type == TYPE_STRUCT || et->base_type == TYPE_UNION || et->base_type == TYPE_ENUM) && et->generic_name) elem = et->generic_name;
-            }
-            snprintf(tmp_names[i], sizeof(tmp_names[i]), "array_%s", elem);
-            type_names[i] = tmp_names[i];
-        } else if (param->base_type == TYPE_STRUCT && param->generic_name) {
-            type_names[i] = param->generic_name;
-        } else {
-            type_names[i] = "unknown";
-        }
-    }
-    
-    return build_monomorphized_name(dest, dest_size, base_name, type_names, type_param_count);
+    TypeInfo info = { .base_type = TYPE_UNION, .generic_name = (char *)base_name,
+                      .type_params = type_params, .type_param_count = type_param_count };
+    char *name = typeinfo_to_generic_arg_name(&info);
+    if (!name) return false;
+    int written = snprintf(dest, dest_size, "%s", name);
+    free(name);
+    return written >= 0 && (size_t)written < dest_size;
 }
 
 /* Forward declarations */

@@ -49,58 +49,13 @@ extern const char *g_trace_func_name; /* function name for tracing guard */
  * GENERIC TYPE NAME HELPERS
  * ========================================================================= */
 
-static bool typeinfo_to_monomorph_segment(TypeInfo *ti, char *out, size_t out_size) {
-    if (!out || out_size == 0) return false;
-    if (!ti) return snprintf(out, out_size, "unknown") < (int)out_size;
-
-    switch (ti->base_type) {
-        case TYPE_INT:
-            return snprintf(out, out_size, "int") < (int)out_size;
-        case TYPE_U8:
-            return snprintf(out, out_size, "u8") < (int)out_size;
-        case TYPE_STRING:
-            return snprintf(out, out_size, "string") < (int)out_size;
-        case TYPE_BOOL:
-            return snprintf(out, out_size, "bool") < (int)out_size;
-        case TYPE_FLOAT:
-            return snprintf(out, out_size, "float") < (int)out_size;
-        case TYPE_STRUCT:
-        case TYPE_UNION:
-        case TYPE_ENUM:
-            if (ti->generic_name) return snprintf(out, out_size, "%s", ti->generic_name) < (int)out_size;
-            return snprintf(out, out_size, "unknown") < (int)out_size;
-        case TYPE_ARRAY: {
-            char elem[128];
-            if (!typeinfo_to_monomorph_segment(ti->element_type, elem, sizeof(elem))) {
-                return snprintf(out, out_size, "array_unknown") < (int)out_size;
-            }
-            return snprintf(out, out_size, "array_%s", elem) < (int)out_size;
-        }
-        default:
-            return snprintf(out, out_size, "unknown") < (int)out_size;
-    }
-}
-
 static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_size, TypeInfo *info) {
-    if (!dest || dest_size == 0) return false;
-    if (!info || !info->generic_name || info->type_param_count <= 0) return false;
-
-    int written = snprintf(dest, dest_size, "%s", info->generic_name);
-    if (written < 0 || (size_t)written >= dest_size) return false;
-
-    size_t pos = (size_t)written;
-    for (int i = 0; i < info->type_param_count; i++) {
-        char seg[128];
-        if (!typeinfo_to_monomorph_segment(info->type_params[i], seg, sizeof(seg))) {
-            return false;
-        }
-
-        written = snprintf(dest + pos, dest_size - pos, "_%s", seg);
-        if (written < 0 || (size_t)written >= dest_size - pos) return false;
-        pos += (size_t)written;
-    }
-
-    return true;
+    if (!dest || !dest_size || !info || !info->generic_name || info->type_param_count <= 0) return false;
+    char *name = typeinfo_to_generic_arg_name(info);
+    if (!name) return false;
+    int written = snprintf(dest, dest_size, "%s", name);
+    free(name);
+    return written >= 0 && (size_t)written < dest_size;
 }
 
 static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, size_t buf_size) {

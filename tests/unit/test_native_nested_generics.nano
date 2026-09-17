@@ -1,0 +1,7 @@
+resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+union Result<T,E> { Ok { value: T }, Err { error: E } }
+fn read(value: Box<Result<int,string>>) -> int { match value { Some(payload) => { let result: Result<int,string> = payload.value match result { Ok(inner) => { return inner.value } Err(inner) => { return (str_length inner.error) } } } None(payload) => { return 0 } } }
+shadow read { let inner: Result<int,string> = Result.Ok { value: 7 } let outer: Box<Result<int,string>> = Box.Some { value: inner } assert (== (read outer) 7) }
+fn main() -> int { let inner: Result<int,string> = Result.Err { error: "failure" } let outer: Box<Result<int,string>> = Box.Some { value: inner } let copy: Box<Result<int,string>> = outer return (- (+ (read outer) (read copy)) 14) }
+shadow main { assert (== (main) 0) }
