@@ -34,6 +34,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       native compiler execution and continued rejection of unsupported imports.
       MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
       `docs/evidence/compiler-aot-artifact-binding-gap.md`.
+      My five exact facade adapters now preserve borrowed string snapshots;
+      real VM/native execution and malformed import contracts pass. Full
+      compiler execution remains blocked by the boxed-index prerequisite.
 
 - [ ] **v5.0.1 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish
@@ -83,18 +86,6 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       declarations. I test typed constant maps, empty string arrays, and
       rejected mismatches through my native and VM frontends.
       MAC: `task_026e73d59e9e45b0b732b43883feea9a`.
-- [ ] **Restore compiler AOT artifact binding.** I preserve exact library
-      bindings and typed adapters for the NanoISA facade imports introduced by
-      my canonical bytecode route. My unchanged main baseline rejects import
-      `nl_nanoisa_load_print` during compiler-bytecode translation. I retain
-      that rejection until a correct binding exists, then require generated
-      native compiler execution and continued rejection of unsupported imports.
-      MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
-      `docs/evidence/compiler-aot-artifact-binding-gap.md`.
-      My five exact facade adapters now preserve borrowed string snapshots;
-      real VM/native execution and malformed import contracts pass. Full
-      compiler execution remains blocked by the following index prerequisite.
-
 - [ ] **Checked boxed indices in native array updates.** I reconcile declared
       integer indices that inference boxes as dynamic values, preserving tag
       checks and rejecting wrong tags. My compiler currently stops in
