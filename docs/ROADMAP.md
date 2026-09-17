@@ -173,13 +173,22 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `task_08428ceb1d674de49383aab1ba9a78c8`, after
       `task_bbda7f126bda403aa74034a762930f24`.
 
+- [x] I retain owned parameter and return annotation trees inside my C
+      function signatures, including deep copies and parser/interpreter teardown
+      (`task_42ad1f3109374581a3f88f5dc58c049c`). This representation prerequisite
+      does not close the paired callback execution and ownership boundary below.
+      See `docs/evidence/function-signature-storage.md`.
+
 - [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
       stores flattened nominal names rather than complete parameter and return
       `TypeInfo`. I require parse/copy/lifetime preservation and paired ordinary
       generic callback execution plus conservative resource rejection before
       claiming complete function-value ownership. This representation gap does
-      not establish an executable ownership escape. MAC
-      `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
+      not establish an executable ownership escape. My `fn()->Box<int>` probe
+      fails native emission in the C seed and loses generic identity in both
+      selfhost stages; NanoVirt publishes while later printing missing-signature
+      errors. I require each boundary to retain metadata or fail before publication.
+      MAC `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
 - [ ] **Define my global resource boundary.** My duplicate-consumption probe
       reaches native emission without an ownership diagnostic in the C seed

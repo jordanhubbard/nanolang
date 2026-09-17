@@ -70,7 +70,7 @@ typedef struct {
 static FunctionSignature *copy_function_signature(const FunctionSignature *sig) {
     if (!sig) return NULL;
 
-    FunctionSignature *out = malloc(sizeof(FunctionSignature));
+    FunctionSignature *out = calloc(1, sizeof(FunctionSignature));
     if (!out) {
         fprintf(stderr, "Error: Out of memory copying function signature\n");
         exit(1);
@@ -80,6 +80,16 @@ static FunctionSignature *copy_function_signature(const FunctionSignature *sig) 
     out->return_type = sig->return_type;
     out->return_struct_name = sig->return_struct_name ? strdup(sig->return_struct_name) : NULL;
     out->return_fn_sig = copy_function_signature(sig->return_fn_sig);
+    out->return_type_info = copy_payload_type_info(sig->return_type_info);
+    if (sig->param_type_info) {
+        out->param_type_info = calloc((size_t)sig->param_count, sizeof(TypeInfo*));
+        if (sig->param_count && !out->param_type_info) {
+            fprintf(stderr, "I cannot allocate copied function parameter annotations\n");
+            exit(1);
+        }
+        for (int i = 0; i < sig->param_count; ++i)
+            out->param_type_info[i] = copy_payload_type_info(sig->param_type_info[i]);
+    }
 
     if (sig->param_count > 0) {
         out->param_types = malloc(sizeof(Type) * sig->param_count);

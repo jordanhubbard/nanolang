@@ -238,6 +238,8 @@ typedef struct FunctionSignature {
     Type *param_types;           /* Array of parameter types */
     int param_count;             /* Number of parameters */
     char **param_struct_names;   /* For struct/enum/union parameters */
+    TypeInfo **param_type_info;  /* Owned complete parameter annotations */
+    TypeInfo *return_type_info;  /* Owned complete return annotation */
     Type return_type;            /* Return type */
     char *return_struct_name;    /* For struct/enum/union return */
     struct FunctionSignature *return_fn_sig;  /* For function return types: fn() -> fn() -> int */

@@ -1374,7 +1374,7 @@ void env_register_union_instantiation(Environment *env, const char *union_name,
 
 /* Create a function signature */
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type) {
-    FunctionSignature *sig = malloc(sizeof(FunctionSignature));
+    FunctionSignature *sig = calloc(1, sizeof(FunctionSignature));
     sig->param_count = param_count;
     sig->return_type = return_type;
     sig->return_struct_name = NULL;
@@ -1417,6 +1417,11 @@ void free_function_signature(FunctionSignature *sig) {
         free(sig->return_struct_name);
     }
     
+    for (int i = 0; sig->param_type_info && i < sig->param_count; ++i)
+        free_payload_type_info(sig->param_type_info[i]);
+    free(sig->param_type_info);
+    free_payload_type_info(sig->return_type_info);
+
     /* Free nested function signature if present */
     if (sig->return_fn_sig) {
         free_function_signature(sig->return_fn_sig);
@@ -1492,6 +1497,7 @@ static void payload_free_names(char **names, int count) {
     for (int i = 0; i < count; ++i) free(names[i]);
     free(names);
 }
+static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth);
 static FunctionSignature *payload_signature(const FunctionSignature *source, unsigned depth) {
     if (!source) return NULL;
     if (depth > 512) {
@@ -1508,6 +1514,13 @@ static FunctionSignature *payload_signature(const FunctionSignature *source, uns
     copy->param_struct_names = payload_names(source->param_struct_names, source->param_count);
     copy->return_struct_name = payload_name(source->return_struct_name);
     copy->return_fn_sig = payload_signature(source->return_fn_sig, depth + 1);
+    copy->param_type_info = NULL;
+    if (source->param_type_info) {
+        copy->param_type_info = payload_alloc((size_t)source->param_count, sizeof(TypeInfo*));
+        for (int i = 0; i < source->param_count; ++i)
+            copy->param_type_info[i] = payload_copy(source->param_type_info[i], depth + 1);
+    }
+    copy->return_type_info = payload_copy(source->return_type_info, depth + 1);
     return copy;
 }
 static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {

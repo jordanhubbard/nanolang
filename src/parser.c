@@ -215,7 +215,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     advance(p);  /* consume '(' */
     
     /* Allocate signature */
-    FunctionSignature *sig = malloc(sizeof(FunctionSignature));
+    FunctionSignature *sig = calloc(1, sizeof(FunctionSignature));
     sig->param_count = 0;
     sig->param_types = NULL;
     sig->param_struct_names = NULL;
@@ -236,10 +236,14 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
         while (1) {
             char *struct_name = NULL;
             FunctionSignature *nested_fn_sig = NULL;
-            Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig, NULL);
+            TypeInfo *param_info = NULL;
+            Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig, &param_info);
             
             if (param_type == TYPE_UNKNOWN) {
                 /* Error already reported */
+                free(struct_name);
+                free_payload_type_info(param_info);
+                free_function_signature(nested_fn_sig);
                 free_function_signature(sig);
                 return NULL;
             }
@@ -253,6 +257,13 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             
             sig->param_types[sig->param_count - 1] = param_type;
             sig->param_struct_names[sig->param_count - 1] = struct_name;  /* May be NULL */
+            sig->param_type_info = realloc(sig->param_type_info, sizeof(TypeInfo*) * sig->param_count);
+            if (!param_info) {
+                param_info = calloc(1, sizeof(TypeInfo));
+                param_info->base_type = param_type;
+                param_info->generic_name = struct_name ? strdup(struct_name) : NULL;
+            }
+            sig->param_type_info[sig->param_count - 1] = param_info;
             
             /* TODO: Handle nested function signatures in function parameters */
             /* For now, we don't support fn(fn(int)->int)->int */
@@ -311,7 +322,12 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     /* Parse return type */
     char *return_struct_name = NULL;
     FunctionSignature *return_fn_sig = NULL;
-    sig->return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig, NULL);
+    sig->return_type = parse_type_with_element(p, NULL, &return_struct_name, &return_fn_sig, &sig->return_type_info);
+    if (!sig->return_type_info) {
+        sig->return_type_info = calloc(1, sizeof(TypeInfo));
+        sig->return_type_info->base_type = sig->return_type;
+        sig->return_type_info->generic_name = return_struct_name ? strdup(return_struct_name) : NULL;
+    }
     sig->return_struct_name = return_struct_name;  /* May be NULL */
     sig->return_fn_sig = return_fn_sig;  /* Store function signature for function return types */
     
