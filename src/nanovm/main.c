@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--verify-only | --daemon] [--debug] [--profile-isa FILE] <file.nvm>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--verify-only | --daemon] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
         return 1;
     }
 
@@ -252,12 +252,21 @@ int main(int argc, char *argv[]) {
     bool verify_only = false;
     bool repeat_requested = false;
     const char *nvm_path = NULL;
+    int module_index = 0;
+    int guest_start = 0;
 
     /* Honour DEBUG env var before parsing flags */
     if (getenv("DEBUG")) g_debug_mode = true;
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--verify-only") == 0) {
+        if (strcmp(argv[i], "--") == 0) {
+            if (!nvm_path) {
+                fprintf(stderr, "I require a module path before guest arguments.\n");
+                return 1;
+            }
+            guest_start = i;
+            break;
+        } else if (strcmp(argv[i], "--verify-only") == 0) {
             verify_only = true;
         } else if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
             daemon_mode = true;
@@ -275,7 +284,12 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             return 1;
         } else {
+            if (nvm_path) {
+                fprintf(stderr, "I accept one module path; place guest arguments after --.\n");
+                return 1;
+            }
             nvm_path = argv[i];
+            module_index = i;
         }
     }
 
@@ -292,6 +306,22 @@ int main(int argc, char *argv[]) {
     if (daemon_mode && g_profile_path) {
         fprintf(stderr, "Error: --profile-isa requires in-process execution\n");
         return 1;
+    }
+
+    if (guest_start && (daemon_mode || verify_only)) {
+        fprintf(stderr, "I accept guest arguments only for standalone execution.\n");
+        return 1;
+    }
+
+    /* Give the guest its module name, without the VM options or delimiter. */
+    if (guest_start) {
+        argv[guest_start] = argv[module_index];
+        g_argc = argc - guest_start;
+        g_argv = argv + guest_start;
+    } else {
+        g_argc = 1;
+        g_argv = argv + module_index;
+        g_argv[1] = NULL;
     }
 
     if (daemon_mode) {
