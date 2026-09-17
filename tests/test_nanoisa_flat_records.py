@@ -1,6 +1,7 @@
 """I compare and execute the flat-record emitter subset across VM and AOT."""
 from pathlib import Path
 import os
+import signal
 import subprocess
 import tempfile
 import unittest
@@ -259,6 +260,68 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
+
+    def test_list_set_matches_and_executes(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/list_set.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-list-set-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "make", "receiver", "index", "replacement", "update", "main")
+            self.assertIn("14 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+    def test_list_set_rejects_bad_operands(self):
+        operations = [
+            '(list_int_set values 0)',
+            '(list_int_set values true 7)',
+            '(list_int_set values 0 "wrong")',
+            '(list_string_set values 0 "wrong")',
+            '(array_set 7 0 8)',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-list-set-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for operation in operations:
+                with self.subTest(operation=operation):
+                    source.write_text('fn main() -> int { let values: array<int> = [1] ' + operation + ' return 0 }')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I refused that program:", result.stdout)
+                    self.assertFalse(output.exists())
+
+    def test_list_set_bounds_trap_in_both_backends(self):
+        with tempfile.TemporaryDirectory(prefix="nano-list-set-bounds-") as tmp:
+            work = Path(tmp)
+            source, assembly = work / "bounds.nano", work / "bounds.nasm"
+            seed, emitted = work / "seed.nvm", work / "emitted.nvm"
+            for index in (-1, 1, 4294967296):
+                with self.subTest(index=index):
+                    source.write_text('fn main() -> int { let values: List<int> = (list_int_new) '
+                                      '(list_int_push values 1) (list_int_set values ' + str(index) + ' 7) return 0 }')
+                    self.run_checked(ROOT / "bin/nano_virt", source, "--emit-nvm", "--strip-debug", "-o", seed)
+                    self.run_checked(ROOT / "bin/nanoisa_emit", source, "-o", assembly)
+                    self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+                    for module in (seed, emitted):
+                        native, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                        self.run_checked(ROOT / "bin/nvm2c", module, "-o", native)
+                        self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
+                        for command in ([ROOT / "bin/nano_vm", module], [binary]):
+                            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=20)
+                            if command[0] == binary:
+                                self.assertEqual(result.returncode, -signal.SIGABRT)
+                            else:
+                                self.assertEqual(result.returncode, 1)
+                                self.assertRegex(result.stdout + result.stderr, r'(?i)(index|bound)')
 
     def test_enum_values_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/enum_values.nano"

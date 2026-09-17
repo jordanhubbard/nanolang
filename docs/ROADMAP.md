@@ -8274,6 +8274,12 @@ Compiler product:
 - [ ] I check declared nominal record-array assignment contracts across
       annotations, fields, parameters and returns (`task_8c736631e97043729bf465a2d6bdc2d5`). My C
       frontend currently accepts a homogeneous array of the wrong record type.
+- [ ] I lower `string_from_char` through the existing scalar string contract
+      (`task_292f60fa2cfa431990494d079cc8630c`); actual compiler emission after
+      typed list replacement first refuses this builtin.
+- [ ] I release returned record-array allocations in native AOT output
+      (`task_0916ab0afb014b5984d69fbb11b0432d`). Unsuppressed LeakSanitizer
+      reports a 14,344-byte leak in a minimized returned list without setters.
 - [ ] I preserve nested aggregate state after direct record-array projection
       in my VM (`task_911461243652466fb0af1fb706d4ac01`). The existing fixture passes with a typed
       temporary but a direct projection before its nested array read fails a
@@ -8286,10 +8292,11 @@ Compiler product:
 - [ ] I prevent ordinary user record names from colliding with internal native
       compiler-schema typedefs (`task_1d90fd4257bb43c599a79ab11cfa7aec`). The
       fixture's `NSType` currently produces conflicting C declarations.
-- [ ] I lower typed list element replacement through my existing array ABI
+- [x] I lower typed list element replacement through my existing array ABI
       (`task_0b7d7221b3fd44d5a8055a84e72397a1`), preserving operand order,
-      shared identity and owned payloads. The actual compiler first refuses
-      `list_CompilerDiagnostic_set` after enum lowering.
+      shared identity and owned payloads. Fourteen opcode comparisons and
+      VM/AOT checks pass; AOT returned-array cleanup remains separately
+      tracked. See `docs/evidence/selfhost-list-set.md`.
 - [ ] I align enum-array access type metadata and equality bytecode
       (`task_d2b541318e964ea4946542bffe3990ae`): my C seed infers a struct
       for `at(array<Enum>)`, rejecting typed enum locals and emitting generic
