@@ -30,6 +30,7 @@
 #include "isa.h"
 #include "verifier.h"
 #include "passive.h"
+#include "retained_layouts.h"
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -58,7 +59,8 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
-    if (!nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
+    if (!nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
+        !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
     out->passive_data = mod->passive_data;
     out->passive_size = mod->passive_size;
 
@@ -256,7 +258,12 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
      * as that many field-less layouts of each kind. They carry no shape
      * because v1 has none to give; a v2-native producer emits real ones. */
     uint32_t n_lay = mod->struct_count + mod->enum_count + mod->union_count;
-    if (n_lay) {
+    if (mod->layout_size) {
+        NvmV2Result retained = nvm_v2_layouts_decode(mod->layout_data,
+                                                    mod->layout_size, &out->layouts);
+        if (retained != NVM_V2_OK) { nvm_v2_module_free(out); return retained; }
+        out->extra_features |= NVM_V2_FEATURE_RETAINED_LAYOUTS;
+    } else if (n_lay) {
         NvmV2Layout *lay = calloc(n_lay, sizeof *lay);
         if (!lay) goto oom;
         uint32_t k = 0;
@@ -425,6 +432,12 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         case NVM_V2_LAYOUT_UNION:  mod->union_count++;  break;
         default: break;   /* a tuple layout has no v1 counterpart */
         }
+    }
+
+    if ((m->extra_features & NVM_V2_FEATURE_RETAINED_LAYOUTS) ||
+        nvm_layouts_have_facts(&m->layouts)) {
+        NvmV2Result retained = nvm_retain_layouts(mod, &m->layouts);
+        if (retained != NVM_V2_OK) { nvm_module_free(mod); return retained; }
     }
 
     /* Every v1 header flag restates something v2 encodes structurally, so all

@@ -23,11 +23,13 @@ through record-only paths. Tuple, union, collection, generic and unknown
 referents remain refused until their independent contracts are implemented.
 A descriptor never substitutes for the owning local's authoritative type.
 
-My current v2 bridge synthesizes field-less layouts from legacy type counts
-and reconstructs only those counts. Those placeholders are not authoritative
-record shapes, even though the v2 layout codec can preserve full fields. I
-must retain actual layouts in the execution module and both conversion
-directions before using them as reference-verification evidence.
+My v2 bridge now preserves complete layouts through owned canonical bytes,
+required feature bit 7 and canonical `.layouts` reconstruction. Count-only
+legacy modules still produce field-less placeholders. Those placeholders do
+not establish authoritative record shapes. My producers must populate actual
+layouts and resource/function contracts before reference verification can
+use them. My [transport evidence](evidence/nanoisa-retained-layouts.md)
+distinguishes retention from producer completeness and ownership verification.
 
 My first implementation slice supplies descriptor validation and pure overlap
 queries against v2 layouts. It does not install a new section or opcode.
