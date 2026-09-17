@@ -243,6 +243,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       wrappers around arrays: immutable handles are not deep-immutability proof.
       I also reject explicit extern declarations that collide with intrinsic
       names; a spelling alone does not establish a builtin effect contract.
+      I remove the unsupported `pure` claim from `complex_exp`, whose `exp`
+      dependency is an extern declaration rather than a checked body.
       This is an eligibility prerequisite, not completed `par`/`flow` semantics.
       MAC `task_41966fd9c9da4f1babfab0a8a25a66c4`.
       My three-stage bootstrap, shared Cseed/Stage 2 conformance, typechecker,
@@ -251,6 +253,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I also preserve complete imported parameter metadata: my old module
       registration left `type_info` uninitialized, which resource-signature
       inspection exposed during bootstrap.
+
+- [ ] **Map-valued global factory initialization.** I preserve function
+      declarations and initialized map handles when a global calls a typed
+      map factory. Cseed currently reports a late prototype and Stage 2
+      crashes when that global is read. MAC `task_83a9577deffb4f998924e9cd4a5cddc1`.
+
+- [ ] **Verified foreign intrinsic purity identities.** I establish exact
+      intrinsic ABI/binding contracts before restoring closed eligibility
+      to wrappers such as `complex_exp`. I reject user extern collisions
+      and wrong bindings in both frontends and IR facts. This remains full
+      passive scope. MAC `task_20f6cb36fbf24bba987b4ea503529438`.
 
 - [ ] **Selfhost bool-array record-field mutation.** I must select the bool
       setter for `array_set record.flags`, preserving mandatory native shadows.

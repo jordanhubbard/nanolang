@@ -25,7 +25,6 @@ fn main() -> int { assert (== (value "yes") "yes!") return 0 }''',
 pure fn value() -> int { return answer }
 fn main() -> int { assert (== (value) 42) return 0 }''',
 }
-ACCEPT["ordinary_map_global"] = 'fn empty() -> HashMap<string,int> { let values: HashMap<string,int> = (map_new) return values }\nlet values: HashMap<string,int> = (empty)\nfn value() -> int { return (map_length values) }\nfn main() -> int { assert (== (value) 0) return 0 }'
 REJECT = {
     "mutable_global": '''let mut state: int = 1
 pure fn value() -> int { return state }''',

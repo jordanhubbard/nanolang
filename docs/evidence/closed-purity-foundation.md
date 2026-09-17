@@ -24,7 +24,7 @@ I do not export this analysis as trusted NanoISA metadata. The `par`/`flow`
 syntax, place/dependency analysis and complete eligibility proof remain open.
 This change is a frontend prerequisite, not the passive-parallelism cutover.
 
-My shared conformance test compiles six positive and nineteen negative programs
+My shared conformance test compiles six positive and twenty negative programs
 with Cseed and Stage 2. It also checks a bound imported helper before and after
 adding an observable effect. Positive native programs execute their assertions;
 negative cases require the closed-summary diagnostic and preserve prior output.
@@ -60,3 +60,13 @@ I track this foundation as `task_41966fd9c9da4f1babfab0a8a25a66c4`.
 
 I construct qualified call names with standard C99 `malloc`/`snprintf`; I do not
 require a platform-specific `asprintf` declaration in this analysis.
+
+I reject explicit extern declarations that reuse intrinsic names, including
+`abs` in an unsafe module. Both frontends inspect the declaration before
+using the intrinsic contract. My immutable-map negative uses a typed local
+factory, so it reaches this purity check without a constructor-context error.
+
+My `complex_exp` wrapper retains its behavior and shadows but no longer claims
+a closed summary for its explicit foreign `exp` dependency. Verified foreign
+intrinsic binding contracts remain a full-scope continuation, tracked as
+`task_20f6cb36fbf24bba987b4ea503529438`.

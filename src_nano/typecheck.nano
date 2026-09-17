@@ -4438,7 +4438,7 @@ fn purity_call(parser: Parser, context: PurityContext, name: string, count: int)
     while (< i parser.functions_count) {
         let f: ASTFunction = (parser_get_function parser i)
         if (== f.name name) {
-            if (or f.is_extern (< f.body 0)) { return 8 }
+            if (< f.body 0) { return 8 }
             return (purity_function parser context i)
         }
         set i (+ i 1)
