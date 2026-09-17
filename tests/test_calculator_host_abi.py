@@ -16,10 +16,10 @@ class CalculatorHostAbi(unittest.TestCase):
         self.assertEqual(result.returncode,0,(result.stdout+result.stderr)[-6000:])
         return result
 
-    def paired(self, source):
+    def paired(self, source, frontends=('nano_virt', 'nanoisa_emit')):
         with tempfile.TemporaryDirectory(prefix='nano-calculator-abi-') as tmp:
             work=Path(tmp); program=work/'input.nano';program.write_text(source)
-            for frontend in ('nano_virt','nanoisa_emit'):
+            for frontend in frontends:
                 with self.subTest(frontend=frontend):
                     module=work/(frontend+'.nvm'); c_file=work/(frontend+'.c')
                     self.checked([ROOT/'bin'/frontend,program,'--emit-nvm','-o',module])
@@ -55,6 +55,20 @@ fn main() -> int {
 shadow main { assert true }
 ''')
 
+    def test_scalar_cast_int_through_both_producers(self):
+        self.paired('''fn truncate(value: float) -> int { return (cast_int value) }
+shadow truncate { assert (== (truncate -2.5) -2) }
+fn main() -> int {
+ assert (== (truncate 2.5) 2)
+ assert (== (truncate -2.5) -2)
+ assert (== (cast_int 7) 7)
+ assert (== (cast_int true) 1)
+ assert (== (cast_int "12") 12)
+ return 0
+}
+shadow main { assert true }
+''')
+
     def test_declared_function_keeps_its_body(self):
         self.paired('''fn atan(value: float) -> float { return (+ value 42.0) }
 shadow atan { assert true }
@@ -63,6 +77,15 @@ shadow strlen { assert true }
 fn main() -> int { assert (== (atan 0.0) 42.0) assert (== (strlen "abc") 17) return 0 }
 shadow main { assert true }
 ''')
+
+    def test_canonical_scalar_cast_does_not_replace_a_declared_body(self):
+        # My raw canonical emitter preserves declarations; the C-seed language
+        # checker separately prohibits redefining this builtin name.
+        self.paired('''fn cast_int(value: float) -> int { return 29 }
+shadow cast_int { assert true }
+fn main() -> int { assert (== (cast_int 2.5) 29) return 0 }
+shadow main { assert true }
+''', frontends=('nanoisa_emit',))
 
     def test_named_library_does_not_acquire_builtin_adapter(self):
         with tempfile.TemporaryDirectory(prefix='nano-host-identity-') as tmp:

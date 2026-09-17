@@ -3650,7 +3650,13 @@ dynamic_div:
             NanoValue v = stack_pop(vm);
             switch (v.tag) {
                 case TAG_INT:   stack_push(vm, v); break;
-                case TAG_FLOAT: stack_push(vm, val_int((int64_t)v.as.f64)); break;
+                case TAG_FLOAT:
+                    /* I check the exact binary64 interval before truncating. */
+                    if (!(v.as.f64 >= -0x1p63 && v.as.f64 < 0x1p63))
+                        return trap_error(vm, VM_ERR_TYPE_ERROR,
+                            "I cannot convert this float to int: I require a finite value in [-2^63, 2^63).");
+                    stack_push(vm, val_int((int64_t)v.as.f64));
+                    break;
                 case TAG_BOOL:  stack_push(vm, val_int(v.as.boolean ? 1 : 0)); break;
                 case TAG_U8:    stack_push(vm, val_int(v.as.u8)); break;
                 case TAG_ENUM:  stack_push(vm, val_int(v.as.i64)); break;
