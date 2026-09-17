@@ -4543,3 +4543,8 @@ test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_scalar_joins
 
 test-units: test-native-scalar-joins
+
+.PHONY: test-native-underscore-bindings
+test-units: test-native-underscore-bindings
+test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
+	python3 -m unittest -v tests.test_native_underscore_bindings

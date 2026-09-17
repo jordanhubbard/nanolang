@@ -1,0 +1,119 @@
+let mut order: int = 0
+
+fn step(value: int) -> int {
+    set order (+ (* order 10) value)
+    return value
+}
+shadow step {
+    set order 0
+    assert (== (step 2) 2)
+    assert (== order 2)
+}
+
+fn scalar_bindings() -> int {
+    set order 0
+    let __nl_underscore_0: int = 90
+    let _: int = (step 1)
+    assert (== _ 1)
+    let _: int = (+ _ (step 2))
+    assert (== _ 3)
+    assert (== f"value {_}" "value 3")
+    let mut _: int = (+ _ (step 3))
+    set _ (+ _ 1)
+    if true {
+        let _: int = (+ _ 10)
+        assert (== _ 17)
+        let _: bool = true
+        assert _
+    }
+    assert (== _ 7)
+    assert (== order 123)
+    assert (== __nl_underscore_0 90)
+    return _
+}
+shadow scalar_bindings { assert (== (scalar_bindings) 7) }
+
+fn aggregate_bindings() -> int {
+    let _: string = "first"
+    let saved: string = _
+    let _: string = (+ _ " second")
+    assert (== saved "first")
+    assert (== _ "first second")
+    assert (== f"value {_}" "value first second")
+    let _: array<int> = [4, 5]
+    let array_alias: array<int> = _
+    let _: array<int> = [6]
+    assert (== (array_length _) 1)
+    assert (== (array_get _ 0) 6)
+    if true {
+        let _: array<int> = array_alias
+        assert (== (array_get _ 1) 5)
+    }
+    assert (== (array_get _ 0) 6)
+    return (array_get array_alias 0)
+}
+shadow aggregate_bindings { assert (== (aggregate_bindings) 4) }
+
+fn parameter_binding(_: int) -> int {
+    let _: int = (+ _ 1)
+    return _
+}
+shadow parameter_binding { assert (== (parameter_binding 8) 9) }
+
+fn loop_bindings() -> int {
+    let _: int = 40
+    for _ in (range 1 3) {
+        assert (< _ 3)
+        let _: int = (+ _ 10)
+        assert (>= _ 11)
+    }
+    assert (== _ 40)
+    let _: array<int> = [2, 3]
+    let values: array<int> = _
+    for value in _ { assert (> value 1) }
+    for _ in values {
+        assert (< _ 4)
+        let _: int = (+ _ 20)
+        assert (> _ 21)
+    }
+    assert (== (array_length _) 2)
+    return (array_get _ 1)
+}
+shadow loop_bindings { assert (== (loop_bindings) 3) }
+
+fn named_loop_binding() -> int {
+    let item: array<int> = [5, 6]
+    let values: array<int> = item
+    let mut total: int = 0
+    for item in values {
+        let increment: int = (+ item 1)
+        set total (+ total increment)
+    }
+    assert (== (array_get item 0) 5)
+    return total
+}
+shadow named_loop_binding { assert (== (named_loop_binding) 13) }
+
+fn cleanup_bindings() -> int {
+    if true {
+        let _: HashMap<string, int> = (map_new)
+        (map_put _ "first" 1)
+        assert (== (map_get _ "first") 1)
+        let _: HashMap<string, int> = (map_new)
+        (map_put _ "second" 2)
+        assert (== (map_get _ "second") 2)
+    }
+    return 0
+}
+shadow cleanup_bindings { assert (== (cleanup_bindings) 0) }
+
+fn main() -> int {
+    assert (== (scalar_bindings) 7)
+    assert (== (aggregate_bindings) 4)
+    assert (== (parameter_binding 8) 9)
+    assert (== (loop_bindings) 3)
+    assert (== (cleanup_bindings) 0)
+    assert (== (named_loop_binding) 13)
+    return 0
+}
+shadow main { assert (== (main) 0) }
