@@ -215,7 +215,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       kinds, require paired typed/direct reads and nested/multiargument controls,
       and reject wrong concrete arguments without weakening equality. This is
       a prerequisite of native field layout acceptance, separate from selected
-      union payload-field origin `task_7bc727`.
+      union payload-field origin `task_7bc727794375435ca72e6fef466ff161`.
       MAC `task_9ad126f2c5a61aadfa672f29134aa9ec`.
 
 - [ ] **Emit ordinary concrete generic union record fields.** I preserve

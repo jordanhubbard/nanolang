@@ -4064,7 +4064,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             if (== field_t.kind TypeKind.TYPE_UNKNOWN) {
                 return (check_variant_field_type parser obj_t.name fa.field_name obj_t.element_type_name)
             }
-            return field_t
+            return (type_from_string_with_parser parser (type_to_string field_t))
         } else {
             if (== obj_t.kind TypeKind.TYPE_UNION) {
                 let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
@@ -4250,6 +4250,13 @@ shadow check_expr_node {
     let result: NSType = (check_expr_node parsed ret.value ret.value_type symbols diags "test.nano")
     assert (== result.kind TypeKind.TYPE_STRING)
     assert (== (list_CompilerDiagnostic_length diags) 0)
+    let record_parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } struct Outer { boxed: Box<int> } fn main() -> int { let boxed: Box<int> = outer.boxed return 0 }")
+    let record_symbols: array<Symbol> = [(symbol_new "outer" (type_from_string_with_parser record_parser "Outer") false false 0 (empty_param_types) (type_void))]
+    let record_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let field: NSType = (check_expr_node record_parser 0 ParseNodeType.PNODE_FIELD_ACCESS record_symbols record_diags "record.nano")
+    assert (== field.kind TypeKind.TYPE_UNION)
+    assert (== (type_to_string field) "Box<int>")
+
 }
 
 /* NSType check a return statement expression

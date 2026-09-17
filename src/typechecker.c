@@ -348,8 +348,7 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         StructDef *record = owner ? env_get_struct(env, owner) : NULL;
         if (record && record->field_type_info) {
             for (int i = 0; i < record->field_count; ++i)
-                if (record->field_types[i] == TYPE_HASHMAP &&
-                    strcmp(record->field_names[i], expr->as.field_access.field_name) == 0)
+                if (strcmp(record->field_names[i], expr->as.field_access.field_name) == 0)
                     return record->field_type_info[i];
         }
     }
@@ -1031,6 +1030,9 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             /* Find the field */
             for (int i = 0; i < sdef->field_count; i++) {
                 if (strcmp(sdef->field_names[i], expr->as.field_access.field_name) == 0) {
+                    TypeInfo *info = sdef->field_type_info ? sdef->field_type_info[i] : NULL;
+                    if (info && info->generic_name && env_get_union(env, info->generic_name))
+                        return info->generic_name;
                     /* Check if this field is a struct/union type */
                     if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION) &&
                         sdef->field_type_names && sdef->field_type_names[i]) {
@@ -3528,10 +3530,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             const char *field_name = expr->as.field_access.field_name;
             for (int i = 0; i < sdef->field_count; i++) {
                 if (strcmp(sdef->field_names[i], field_name) == 0) {
-                    if (sdef->field_types[i] == TYPE_HASHMAP && sdef->field_type_info) {
+                    if (sdef->field_type_info && sdef->field_type_info[i]) {
                         free_payload_type_info(expr->as.field_access.resolved_type_info);
-                        expr->as.field_access.resolved_type_info =
-                            copy_payload_type_info(sdef->field_type_info[i]);
+                        TypeInfo *info = copy_payload_type_info(sdef->field_type_info[i]);
+                        expr->as.field_access.resolved_type_info = info;
+                        if (info && info->generic_name && env_get_union(env, info->generic_name)) {
+                            info->base_type = TYPE_UNION;
+                            return TYPE_UNION;
+                        }
                     }
                     return sdef->field_types[i];
                 }
@@ -3713,6 +3719,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             }
                         }
                     }
+                }
+            }
+
+            if (match_expr_node->type == AST_FIELD_ACCESS) {
+                TypeInfo *field_info = try_get_expr_type_info(match_expr_node, env);
+                if (field_info && field_info->generic_name && env_get_union(env, field_info->generic_name)) {
+                    union_type_info = field_info;
+                    union_type_name = field_info->generic_name;
                 }
             }
 
@@ -5162,6 +5176,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             }
                         }
                     }
+                }
+            }
+
+            if (match_expr_node->type == AST_FIELD_ACCESS) {
+                TypeInfo *field_info = try_get_expr_type_info(match_expr_node, tc->env);
+                if (field_info && field_info->generic_name && env_get_union(tc->env, field_info->generic_name)) {
+                    union_type_info = field_info;
+                    union_type_name = field_info->generic_name;
                 }
             }
 
