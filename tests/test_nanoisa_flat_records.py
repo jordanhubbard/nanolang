@@ -260,6 +260,56 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_enum_values_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/enum_values.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-enum-values-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "low", "forward", "state", "values", "entries", "main")
+            self.assertIn("14 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+            direct = work / "direct.nano"
+            direct.write_text(fixture.read_text().replace('assert (== (array_length current.history) 2)',
+                                                         'assert (== (at current.history 1) 17)').replace(
+                'assert (== (array_length (values)) 3)', 'assert (== (at (values) 2) 18)'))
+            self.run_checked(ROOT / "bin/nano_virt", direct, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", direct, "-o", assembly)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+    def test_enum_members_preserve_refusals(self):
+        programs = [
+            'enum Mode { Low = -3 } fn main() -> int { return Mode.Missing }',
+            'enum Mode { Low = -3 } fn main() -> int { let Mode: int = 9 return Mode.Low }',
+            'enum Mode { Low = -3 } enum Mode { Low = 4 } fn main() -> Mode { return Mode.Low }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-enum-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program)
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I refused that program:", result.stdout)
+                    self.assertFalse(output.exists())
+
     def test_unsafe_blocks_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/unsafe_blocks.nano"
         with tempfile.TemporaryDirectory(prefix="nano-unsafe-blocks-") as tmp:
