@@ -916,6 +916,56 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
             self.run_checked(binary)
 
+    def test_projected_record_array_global_field_executes_in_both_orders(self):
+        store = (
+            ".function store 1 1 0 void 0\n"
+            "LOAD_LOCAL 0\n"
+            "AGG_GET 0\n"
+            "AGG_GET 0\n"
+            "STORE_GLOBAL 0\n"
+            "RET\n"
+            ".end\n"
+        )
+        main = (
+            ".function main 0 0 0 int 1\n"
+            "PUSH_I64 1\n"
+            "AGG_PACK 0 0 0 1\n"
+            "ARR_LITERAL 8 1\n"
+            "AGG_PACK 0 0 0 1\n"
+            "AGG_PACK 0 0 0 1\n"
+            "CALL store\n"
+            "LOAD_GLOBAL 0\n"
+            "PUSH_I64 0\n"
+            "ARR_GET\n"
+            "AGG_GET 0\n"
+            "PUSH_I64 1\n"
+            "EQ\n"
+            "ASSERT\n"
+            "PUSH_I64 0\n"
+            "RET\n"
+            ".end\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="nano-projected-global-") as tmp:
+            work = Path(tmp)
+            for label, functions in (("store-first", store + main),
+                                     ("main-first", main + store)):
+                with self.subTest(order=label):
+                    assembly = work / (label + ".nasm")
+                    module = work / (label + ".nvm")
+                    native_c = work / (label + ".c")
+                    binary = work / label
+                    assembly.write_text(".entry main\n" + functions)
+                    self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+                    self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                    self.run_checked(ROOT / "bin/nano_vm", module)
+                    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                    self.run_checked(
+                        "cc", "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer",
+                        "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+                        native_c, "-lm", "-o", binary,
+                    )
+                    self.run_checked(binary)
+
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
         with tempfile.TemporaryDirectory(prefix="nano-escaped-strings-") as tmp:
