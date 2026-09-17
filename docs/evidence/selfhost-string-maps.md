@@ -35,3 +35,10 @@ Both native map fixtures pass ASan/UBSan with leak detection enabled
 (`/tmp/nanolang-string-maps-sanitizers.log`). This covers the supported local,
 return, argument and record paths, including the retained overwritten value;
 it does not establish native global-map support.
+
+The fresh canonical whole-compiler probe now reaches assembly publication
+without hitting the emitter failure breakpoint. Publication rejects
+`Expected quoted string after .string`; no compiler module is produced.
+I retain `/tmp/nanolang-maps-fullcompiler-probe.log` and track the next
+quoting/publication boundary as `task_c77ac0644fda463a8a2d0ae7dd735908`. This is progress through lowering,
+not a complete bytecode compiler or bootstrap fixed point.

@@ -8481,11 +8481,15 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I preserve the full compiler string literals through assembly publication
+      (`task_c77ac0644fda463a8a2d0ae7dd735908`). Full lowering reaches publication, but my assembler
+      rejects `Expected quoted string after .string`; no module is published.
+      Evidence: `/tmp/nanolang-maps-fullcompiler-probe.log`.
 - [ ] I reject incompatible map key/value types at typed boundaries
       (`task_d0438e26b84147cdb9fd16b654c44a6a`). My C seed currently accepts integer-valued maps
       where string-valued maps are declared in returns, bindings and arguments;
       `/tmp/nanolang-cseed-map-mismatches/` retains all four accepted probes.
-- [ ] I lower the string-valued maps required by my compiler
+- [x] I lower the string-valued maps required by my compiler
       (`task_d32f896911e1447da9c6b69059f6d6ea`), preserving key/value metadata and ownership.
       Full emission now reaches `HashMap<string,string>`; the retained probe is
       `/tmp/nanolang-edges-fullcompiler-probe.log`.
