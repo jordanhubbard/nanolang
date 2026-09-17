@@ -118,7 +118,17 @@ aggregate operations, shared mutation, printing, and other effects in a callee.
 Ordinary assertion failure remains possible, as with scalar arithmetic traps;
 this is a purity boundary, not a termination theorem. Unreachable instructions
 are outside the callee summary. Ordinary module verification still checks them.
-Calls elsewhere in the owning function remain outside this extension.
+In version 2, direct `CALL` instructions outside marked node intervals execute
+serially under ordinary module target and stack checks. Their callees may have
+effects; I do not summarize those calls as pure. The VM reserves separate callee
+locals, consumes actual arity, and returns the checked result count. A callee
+that owns passive blocks still needs the whole-body purity check when called
+inside a node. I retain guarded parameter immutability and interval entry rules.
+
+This extension admits only direct `CALL`. The existing owner opcode allowlist
+still refuses tail, foreign and indirect calls, aggregate/global operations and
+ownership instructions outside nodes. It is not unrestricted serial code or a
+parallel scheduler. Version 1 retains its original owner restrictions.
 
 The check is bounded: at most 64 active call frames, 65,536 instructions per
 callee, 2,097,152 local-state words per callee, and 1,048,576 worklist steps per

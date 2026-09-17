@@ -13,6 +13,7 @@
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
 #include "affine_bytecode.h"
+#include "affine_state.h"
 #include "isa.h"
 #include "../nanovm/vm.h"
 #include "../nanovm/vm_decode.h"
@@ -428,7 +429,8 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only) 
             if (!analysis.ok) return fail("I refuse reference lifetime and ownership instruction dataflow in function[%u] at %u: %s",
                                           i,analysis.byte_offset,analysis.message);
         }
-        return fail("I require reference lifetime and ownership instruction execution semantics before execution");
+        NvmVerifyResult admission = nvm_verify_owned_module(mod);
+        if (!admission.ok) return admission;
     }
 
     if (!nvm_retained_layouts_valid(mod))
@@ -493,6 +495,11 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
     if (fn_idx >= mod->function_count)
         return fail("function index %u >= function_count %u",
                     fn_idx, mod->function_count);
+    if (mod->ownership_size && nvm_verify_owned_module(mod).ok) {
+        if (linked_count) return fail("I refuse linked ownership execution contracts");
+        if (out_max_stack) *out_max_stack = NVM_AFFINE_MAX_STACK;
+        return ok_result();
+    }
     const NvmFunctionEntry *fn = &mod->functions[fn_idx];
     VmDecodedFunction decoded;
     char decode_error[VM_DECODE_ERROR_SIZE];
@@ -852,6 +859,93 @@ NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx
     return ok_result();
 }
 
+/* I refuse transfer instructions even without their required declarations. */
+bool nvm_uses_owned_transfers(const NvmModule *mod) {
+    if (!mod) return true;
+    if (mod->function_count && !mod->functions) return true;
+    for (uint32_t f=0;f<mod->function_count;f++) {
+        const NvmFunctionEntry *fn=&mod->functions[f];
+        if (fn->code_offset>mod->code_size || fn->code_length>mod->code_size-fn->code_offset ||
+            (fn->code_length && !mod->code)) return true;
+        uint32_t offset=0;
+        while (offset<fn->code_length) {
+            DecodedInstruction instruction;
+            uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
+            if (!count) break;
+            if (instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_OWN_UNPACK_LOCAL) return true;
+            offset+=count;
+        }
+    }
+    return false;
+}
+
+/* I keep runtime admission closed even if affine analysis grows new operations. */
+static bool owned_runtime_opcode(uint8_t op) {
+    switch (op) {
+    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL:
+    case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
+    case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
+    case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
+    case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
+    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET:
+        return true;
+    default: return false;
+    }
+}
+
+NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
+    NvmVerifyResult structure = verify_structure(mod, true);
+    if (!structure.ok) return structure;
+    if (!mod->ownership_size || mod->function_count != 1 || mod->header.entry_point != 0 ||
+        mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
+        return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    const NvmFunctionEntry *fn = &mod->functions[0];
+    const char *name = nvm_get_string(mod, fn->name_idx);
+    if (fn->arity || fn->upvalue_count || fn->result_count != 1 ||
+        (fn->result_tag != TAG_INT && fn->result_tag != TAG_BOOL && fn->result_tag != TAG_U8) ||
+        (name && !strcmp(name, "__init__")))
+        return fail("I require zero-argument scalar-result ownership instruction execution semantics");
+    NvmAffineState *state=nvm_affine_state_create(mod, 0, fn->local_count);
+    if (!state) return fail("I require complete ownership local declarations");
+    bool locals_supported=true;
+    for (uint16_t i=0; i<fn->local_count; i++) {
+        NvmAffineType type;
+        if (!nvm_affine_local_type(state,i,&type) ||
+            (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 && type.tag!=TAG_STRUCT))
+            locals_supported=false;
+    }
+    nvm_affine_state_free(state);
+    if (!locals_supported) return fail("I require non-reference integer, Boolean, byte or record locals");
+    NvmV2Layouts layouts = {0};
+    if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
+        return fail("I require complete owned record layouts");
+    bool supported = true;
+    for (uint32_t i=0; i<layouts.count; i++) {
+        const NvmV2Layout *layout = &layouts.items[i];
+        if (!(mod->ownership_data[8+i] & NVM_LAYOUT_COMPLETE) ||
+            layout->kind != NVM_V2_LAYOUT_STRUCT || layout->field_count > NVM_AFFINE_MAX_STACK)
+            supported = false;
+        for (uint16_t f=0; f<layout->field_count; f++) {
+            uint8_t tag=layout->fields[f].type_tag;
+            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT) supported=false;
+        }
+    }
+    nvm_v2_layouts_free(&layouts);
+    if (!supported) return fail("I require integer, Boolean or byte owned record fields before execution");
+    VmDecodedFunction decoded; char error[VM_DECODE_ERROR_SIZE];
+    if (!vm_decode_function(mod, 0, &decoded, error)) return fail("%s", error);
+    bool transfer=false;
+    for (uint32_t i=0; i<decoded.instruction_count; i++) {
+        uint8_t op=decoded.instructions[i].instruction.opcode;
+        if (op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
+        if (!owned_runtime_opcode(op)) supported=false;
+    }
+    vm_decoded_function_free(&decoded);
+    if (!supported || !transfer) return fail("I require explicit non-floating ownership instruction execution semantics");
+    return nvm_verify_affine_function(mod, 0);
+}
+
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
     return verify_function_impl(mod, fn_idx, NULL, 0, NULL);
 }
@@ -886,6 +980,16 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     if (linked_count > 0 && !linked_modules)
         return fail("linked_count %u but linked_modules table is NULL", linked_count);
 
+    if (linked_count) {
+        bool needs = false;
+        if (mod && ((nvm_ownership_contracts_validate(mod, &needs)==NVM_V2_OK && needs) || nvm_uses_owned_transfers(mod)))
+            return fail("I refuse linked ownership execution contracts");
+        for (uint32_t i=0; i<linked_count; i++) {
+            needs=false;
+            if (linked_modules[i] && ((nvm_ownership_contracts_validate(linked_modules[i], &needs)==NVM_V2_OK && needs) || nvm_uses_owned_transfers(linked_modules[i])))
+                return fail("I refuse linked ownership execution contracts");
+        }
+    }
     /* Phase 1: structural validation */
     NvmVerifyResult r = verify_structure(mod, false);
     if (!r.ok) return r;

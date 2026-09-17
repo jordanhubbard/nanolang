@@ -647,7 +647,7 @@ shadow nisa_value_type_matches {
 fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<string>) -> bool {
     if (>= (nisa_enum_index parser field) 0) { return true }
     if (!= (nisa_map_value_type field) "") { return true }
-    if (or (== field "int") (or (== field "string") (== field "bool"))) { return true }
+    if (or (== field "float") (or (== field "int") (or (== field "string") (== field "bool")))) { return true }
     if (or (== field "array<bool>") (or (== field "array<int>") (== field "array<string>"))) { return true }
     if (or (== field "List<int>") (== field "List<string>")) { return true }
     if (and (str_starts_with field "array<") (str_ends_with field ">")) {
@@ -668,6 +668,8 @@ shadow nisa_field_shape_supported {
     assert (nisa_field_shape_supported parser "HashMap<string,int>" [])
     assert (not (nisa_field_shape_supported parser "HashMap<int,int>" []))
     assert (nisa_field_shape_supported parser "array<bool>" [])
+    assert (nisa_field_shape_supported parser "float" [])
+    assert (not (nisa_field_shape_supported parser "array<float>" []))
 }
 
 fn nisa_record_shape_supported(parser: Parser, name: string, ancestors: array<string>) -> bool {

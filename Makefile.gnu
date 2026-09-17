@@ -400,6 +400,8 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
+$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/nvm2c_owned.h
+
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
@@ -725,6 +727,13 @@ test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovm/test_vm_ffi
 	@rm -f tests/nanovm/test_vm_ffi
+
+.PHONY: test-vm-path-normalize-sanitizers
+test-vm-path-normalize-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -fno-sanitize-recover=all -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_vm_path_normalize \
+		tests/nanovm/test_vm_ffi.c src/nanovm/vm_ffi.c $(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NANO_TEST_PATH_ALIASES_ONLY=1 ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_vm_path_normalize
 
 .PHONY: test-wrapper-gen
 test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o
@@ -4358,6 +4367,12 @@ test-native-floats: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-floats
 
+.PHONY: test-native-float-records
+test-native-float-records: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest -v tests.test_native_float_records
+
+test-units: test-native-float-records
+
 .PHONY: test-native-jump-true
 test-native-jump-true: nvm2c nanoisa_dump nano_vm
 	@python3 -m unittest -v tests.test_native_jump_true
@@ -4468,3 +4483,31 @@ test-owned-transfers: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DOWN_TRANSFER_ALLOCATION_TEST -o obj/test_owned_transfer_alloc tests/nanoisa/test_owned_transfers.c obj/test_owned_transfer_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_owned_transfer_alloc
 	python3 -m unittest tests.test_owned_transfers
+
+# I translate verified modules; this is independent of the AST compiler paths.
+$(OBJ_DIR)/nanoisa/nvm2llvm.o: $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_DIR)/verifier.h
+$(OBJ_DIR)/nanoisa/nvm2llvm_main.o: $(NANOISA_DIR)/nvm2llvm_main.c $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
+
+.PHONY: nvm2llvm test-nvm2llvm
+nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2llvm $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
+
+.PHONY: nvm2wasm test-nvm2wasm
+nvm2wasm: nvm2llvm | bin
+	cp scripts/nvm2wasm.py bin/nvm2wasm
+	chmod +x bin/nvm2wasm
+
+test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness
+.PHONY: test-owned-runtime
+test-units: test-owned-runtime
+test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_runtime tests/nanoisa/test_owned_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_runtime_alloc tests/nanoisa/test_owned_runtime_alloc.c obj/test_owned_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_runtime_alloc
+	python3 -m unittest tests.test_owned_runtime

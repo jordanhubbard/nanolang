@@ -96,7 +96,6 @@ static bool node_code(const NvmModule *m, const NvmFunctionEntry *f,
             uint32_t callee = d.operands[0].u32;
             if (!closed_function(calls, callee)) { ok = false; break; }
             pop = m->functions[callee].arity; push = m->functions[callee].result_count;
-            calls->node_calls[pc / 8] |= (uint8_t)(1u << (pc % 8));
         }
         if (pop < 0 || push < 0 || depth < (uint32_t)pop ||
             depth - (uint32_t)pop > UINT32_MAX - (uint32_t)push) { ok = false; break; }
@@ -132,7 +131,6 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
     if (f->code_offset > m->code_size || f->code_length > m->code_size - f->code_offset ||
         entry < f->code_offset || exit > f->code_offset + f->code_length ||
         (!first && (function < *previous_function || (function == *previous_function && entry < *previous_exit)))) return false;
-    calls->owners[function] = true;
     Node *nodes = calloc(count, sizeof(Node));
     if (!nodes) return false;
     bool ok = true;
@@ -216,29 +214,14 @@ bool nvm_passive_valid(const NvmModule *m) {
     uint32_t version = word(&r), count = word(&r);
     if (!r.ok || (version != 1 && version != 2) || !count || count > r.left / 48) return false;
     uint32_t function = 0, exit = 0;
-    ClosedCalls calls = {m, NULL, NULL, NULL, 0};
+    ClosedCalls calls = {m, NULL, 0};
     calls.state = calloc(m->function_count ? m->function_count : 1, 1);
-    calls.owners = calloc(m->function_count ? m->function_count : 1, sizeof(bool));
-    calls.node_calls = calloc((size_t)(m->code_size / 8) + 1, 1);
-    if (!calls.state || !calls.owners || !calls.node_calls) {
-        free(calls.state); free(calls.owners); free(calls.node_calls); return false;
-    }
+    if (!calls.state) return false;
     bool ok = true;
     for (uint32_t i = 0; ok && i < count; ++i)
         ok = block(&r, m, &function, &exit, i == 0, version, &calls);
-    /* A function may own multiple blocks. I wait until all their nodes have
-     * been checked before requiring every owner CALL to belong to a node. */
-    for (uint32_t f = 0; ok && f < m->function_count; ++f) {
-        if (!calls.owners[f]) continue;
-        uint32_t end = m->functions[f].code_offset + m->functions[f].code_length;
-        for (uint32_t pc = m->functions[f].code_offset; ok && pc < end;) {
-            DecodedInstruction d;
-            uint32_t length = isa_decode(m->code + pc, end - pc, &d);
-            if (!length || (d.opcode == OP_CALL &&
-                !(calls.node_calls[pc / 8] & (uint8_t)(1u << (pc % 8))))) { ok = false; break; }
-            pc += length;
-        }
-    }
-    free(calls.state); free(calls.owners); free(calls.node_calls);
+    /* I check purity only inside node ranges. Ordinary version-2 direct calls
+     * elsewhere retain the module verifier's target and stack checks. */
+    free(calls.state);
     return ok && r.ok && r.left == 0;
 }
