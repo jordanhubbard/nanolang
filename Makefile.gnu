@@ -4242,7 +4242,7 @@ test-compiler-artifact-support: $(COMPILER_C)
 
 .PHONY: test-native-nested-generics
 test-units: test-native-nested-generics
-test-native-nested-generics: bootstrap
+test-native-nested-generics: bootstrap nano_virt
 	python3 -m unittest tests.test_native_nested_generics
 
 .PHONY: test-generic-selected-patterns
@@ -4254,12 +4254,21 @@ test-selfhost-generic-contexts: bootstrap
 	python3 -m unittest -v tests.test_selfhost_generic_contexts
 
 test-units: test-selfhost-generic-contexts
+
+.PHONY: test-generic-selected-ownership
+test-units: test-generic-selected-ownership
+test-generic-selected-ownership: bootstrap
+	python3 -m unittest -v tests.test_generic_selected_ownership
 .PHONY: test-map-constructor-contexts
 test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest tests.test_map_constructor_contexts
 
 test-units: test-map-constructor-contexts
 
+.PHONY: test-match-aggregate-results
+test-units: test-match-aggregate-results
+test-match-aggregate-results: bootstrap
+	python3 -m unittest -v tests.test_match_aggregate_results
 .PHONY: test-map-type-boundaries
 test-map-type-boundaries: $(COMPILER_C) nano_virt
 	@python3 tests/test_map_type_boundaries.py

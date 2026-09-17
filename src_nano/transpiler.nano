@@ -6637,14 +6637,14 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         set parts (cg_append parts scr_code)
         set parts (cg_append parts "; ")
         set parts (cg_append parts out_c)
-        set parts (cg_append parts " _out = 0; switch (_m) { ")
+        set parts (cg_append parts " _out = {0}; switch (_m) { ")
     } else {
         set parts (cg_append parts union_c)
         set parts (cg_append parts " _m = ")
         set parts (cg_append parts scr_code)
         set parts (cg_append parts "; ")
         set parts (cg_append parts out_c)
-        set parts (cg_append parts " _out = 0; switch (_m.tag) { ")
+        set parts (cg_append parts " _out = {0}; switch (_m.tag) { ")
     }
 
     let mut i: int = 0
@@ -6709,7 +6709,14 @@ shadow generate_match_expr {
     let m: ASTMatch = (parser_get_match p 0)
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
     let code: string = (generate_match_expr p m env0 "int")
-    assert (str_contains code "switch")
+    assert (str_contains code "int64_t _out = {0};")
+    let aggregate: string = (generate_match_expr p m env0 "Option")
+    assert (str_contains aggregate "nl_Option _out = {0};")
+    let int_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return match 1 { 1 => 7, _ => 8 } }" "int.nano" (list_CompilerDiagnostic_new))
+    let int_parser: Parser = (parse_program int_tokens (list_LexerToken_length int_tokens) "int.nano")
+    let int_match: ASTMatch = (parser_get_match int_parser 0)
+    let int_code: string = (generate_match_expr int_parser int_match (genenv_new "main") "int")
+    assert (str_contains int_code "int64_t _out = {0}; switch (_m)")
 }
 
 /* Get the NanoLang type of the first field of a union variant (for env registration).

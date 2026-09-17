@@ -54,12 +54,12 @@ shadow main { assert (== (main) 0) }
     def test_nested_resource_parameter_rejected(self):
         self.check(PREFIX + 'fn abandon(value: Box<Result<int,Handle>>) -> void { }\n' + ENDING, False)
 
-    def test_resource_return_metadata_rejected(self):
-        self.check(PREFIX + 'fn identity(value: Result<Handle,string>) -> Result<Handle,string> { return value }\n' + ENDING, False)
+    def test_resource_return_metadata_transfers(self):
+        self.check(PREFIX + 'fn identity(value: Result<Handle,string>) -> Result<Handle,string> { return value }\n' + ENDING, True)
 
-    def test_generic_selected_transfer_still_rejected(self):
+    def test_generic_selected_transfer(self):
         self.check(PREFIX + '''fn consume(value: Box<Handle>) -> int { match value { Some(payload) => { let Box.Some { value } = payload let Handle { fd } = value return fd } None(payload) => { return 0 } } }
-''' + ENDING, False)
+''' + ENDING, True)
 
     def test_generic_resource_collection_payload_rejected(self):
         self.check(PREFIX + 'fn abandon(value: Box<array<Handle>>) -> void { }\n' + ENDING, False)

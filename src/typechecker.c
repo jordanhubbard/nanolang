@@ -877,8 +877,34 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                 if (name) return name;
             }
             return NULL;
-        case AST_STRUCT_LITERAL:
-            return expr->as.struct_literal.struct_name;
+        case AST_UNION_CONSTRUCT: {
+            TypeInfo *info = expr->as.union_construct.type_info;
+            if (info && info->generic_name && info->type_param_count > 0) {
+                char *name = typeinfo_to_generic_arg_name(info);
+                const char *registered = NULL;
+                for (int i = 0; name && i < env->generic_instance_count; i++) {
+                    if (strcmp(env->generic_instances[i].concrete_name, name) == 0) {
+                        registered = env->generic_instances[i].concrete_name;
+                        break;
+                    }
+                }
+                free(name);
+                return registered;
+            }
+            return expr->as.union_construct.union_name;
+        }
+        case AST_STRUCT_LITERAL: {
+            const char *name = expr->as.struct_literal.struct_name;
+            /* A dotted constructor produces the union, not its selected payload. */
+            for (int i = 0; name && i < env->union_count; ++i) {
+                UnionDef *def = &env->unions[i];
+                size_t length = strlen(def->name);
+                if (strncmp(name, def->name, length) || name[length] != '.') continue;
+                for (int v = 0; v < def->variant_count; ++v)
+                    if (!strcmp(name + length + 1, def->variant_names[v])) return def->name;
+            }
+            return name;
+        }
             
         case AST_IDENTIFIER: {
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
