@@ -2677,8 +2677,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         - [ ] I retain map key/value metadata when a native map operation takes
           a direct call result. `map_get (returned true)` currently falls back
           to an integer result for a declared string/string map; a typed local
-          isolates lexical cleanup tests. I require all scalar-pair execution
-          and preserved evaluation order. MAC `task_e018b78bc20a47d18619fce55a20e567`.
+          isolates lexical cleanup tests. I consume retained function result
+          annotations and checked callback signatures, then capture receiver,
+          key and value expressions once in source order. I require all scalar
+          pairs, returned-expression controls and preserved-output rejection.
+          Cleanup/lifetime behavior remains separate.
+          MAC `task_e018b78bc20a47d18619fce55a20e567`.
         - [ ] I define early-return cleanup with explicit retain/transfer of
           computed or borrowed results, preserving evaluation order and separate
           control-flow paths. Current native HashMap allocations use malloc;
