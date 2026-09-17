@@ -3905,7 +3905,7 @@ static void emit_narr_get(Nvm2cBuf *b) {
 
 static void emit_narr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static narr_t narr_push(narr_t a, int64_t v) {\n"
+        "static inline narr_t narr_push(narr_t a, int64_t v) {\n"
         "    if (!a || a->len == SIZE_MAX) abort();\n"
         "    narr_reserve(a, a->len + 1); a->data[a->len++] = v; return a;\n}\n");
 }
@@ -3978,7 +3978,7 @@ static void emit_nsarr_get(Nvm2cBuf *b) {
 
 static void emit_nsarr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
-        "static nsarr_t nsarr_push(nsarr_t a, const char *v) {\n"
+        "static inline nsarr_t nsarr_push(nsarr_t a, const char *v) {\n"
         "    if (!a || a->len == SIZE_MAX) abort();\n"
         "    size_t n = a->len + 1;\n"
         "    nsarr_reserve(a, n);\n"

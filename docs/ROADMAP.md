@@ -59,18 +59,24 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I verify same-module duplicate rejection separately from legal imports.
       Long module names also expose silent truncation in my native formatted
       output builder; I retain complete generated identities and test execution.
-      All 42 compiler/order cases pass across my C seed and both self-hosted
+      All 49 compiler/order cases pass across my C seed and both self-hosted
       stages. Foreign collisions remain explicitly unsupported; union/enum
       identity, generic/borrow/capture rules and IR ownership metadata remain
       separate unfinished obligations.
       - [x] I include the new nominal-binding object in the manual NanoVirt
         wrapper link manifest and verify actual foreign-module wrapper execution.
         PR review exposed an unresolved `bind_nominal_records` reference.
+      - [x] I zero-initialize all generic annotation metadata before nominal
+        traversal. A `Box<Handle>` annotation exposed uninitialized row fields
+        and a C-seed crash; I retain generic resource rejection and test ordinary
+        scalar/array generic annotations under allocator perturbation.
 
-- [ ] **Map constructor diagnostics.** I resolve NanoVirt success accompanied
-      by `map_new` type errors for direct returns and nested calls, preserving
-      real type rejection and checking output publication.
-      MAC `task_306e982151974f42bd7c191ad017201a`.
+- [x] **Map constructor diagnostics.** I count constructor type errors through
+      my structured diagnostic path, rejecting direct untyped returns, nested
+      calls, discarded calls and invalid arity before artifact publication.
+      Both C and NanoVirt preserve prior output; typed maps still execute.
+      MAC `task_306e982151974f42bd7c191ad017201a`. Two focused methods and
+      the full C typechecker unit suite pass.
 
 - [x] **Emitter build diagnostics.** I retain each native function parameter's
       declared nominal metadata instead of inheriting a same-name parameter
@@ -157,6 +163,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `make test-nanoisa-shadow-isolation` passes four concurrent compiler
       runs, fixture cleanup, prior sentinel preservation and unavailable-temp
       rejection without an output artifact.
+
+- [x] **Self-hosted string prefix runtime.** I implement my `str_starts_with`
+      native runtime contract so importing NanoISA lowering does not leave an
+      undefined `nl_str_starts_with` while compiling Stage 2 shadows.
+      MAC `task_894769717bba4e0f8ea11432098406fc`. I rebuilt Stage 2,
+      passed native/no-C-seed smoke checks and seven prefix-boundary assertions.
+
+- [x] **Canonical checked frontend NanoISA output route.** I accept explicit
+      `--emit-nvm` after import merging, binding, typechecking and dependency/root
+      shadow checks, publishing verified module bytes without reparsing raw text.
+      I retain native C as my default and C-hosted shadows as a prerequisite;
+      this route does not establish my NanoISA-only fixedpoint.
+      MAC `task_d176e9deba444b1e9445e1b4f41aef01`.
+      Evidence: [canonical module output](evidence/canonical-nvm-output.md).
 
 - [x] **Self-hosted NanoISA driver module output.** I add explicit `--emit-nvm`
       through my assembler facade, verify deterministic v2 bytes and publish with
@@ -7990,7 +8010,24 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower compiler-required `string_to_int` after map transport; real
+- [ ] I escape compiler string literals in NanoISA assembly; after scalar
+      array results, real compiler emission first reaches quotes/control
+      characters (`task_98ec870924bf4b82b9ba5e2591576488`).
+- [x] I keep conservatively emitted scalar-array push helpers valid under
+      strict native compilation when only one array kind is pushed
+      (`task_2dedfc5f181f41d4951eed8927648306`).
+- [x] I preserve declared scalar element tags for empty array locals,
+      assignments, arguments and returns; a typed empty string local currently
+      differs from my C seed (`task_0443ff4ed6224f5683301055555f4209`).
+- [x] I lower supported scalar array results; real compiler emission first
+      refuses `array<string>` after scalar conversion lowering
+      (`task_4ea96b68ae4b43f7a0cfc16cd7c19649`). I require C-seed and VM/native
+      parity for direct/tail returns and preserve unsupported-shape refusal.
+- [x] I resolve ordinary and qualified calls through the canonical module
+      bindings when lowering a merged Parser, preserving result types, void
+      calls, tail returns and raw-source invocation isolation
+      (`task_39dd3479c5174b299fb8555c6da8b0af`).
+- [x] I lower compiler-required `string_to_int` after map transport; real
       compiler emission first refuses that builtin
       (`task_62d9f8ab389e4299b1b16a33ed591630`). I require C-seed and VM/native parity.
 - [x] I expose one parsed-program lowering entrypoint for my canonical

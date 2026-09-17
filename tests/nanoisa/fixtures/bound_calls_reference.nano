@@ -1,0 +1,21 @@
+fn dep_a_value() -> int { return 37 }
+fn dep_a_relay() -> int { return (dep_a_value) }
+fn dep_a_ping() -> void { (println "A") }
+fn dep_b_value() -> int { return 12 }
+fn dep_b_relay() -> int { return (dep_b_value) }
+fn dep_b_ping() -> void { (println "B") }
+fn main() -> int {
+    assert (== (dep_a_relay) 37)
+    assert (== (dep_b_relay) 12)
+    assert (== (dep_a_value) 37)
+    (dep_a_ping)
+    (dep_b_ping)
+    return 0
+}
+shadow dep_a_value { assert (== (dep_a_value) 37) }
+shadow dep_a_relay { assert (== (dep_a_relay) 37) }
+shadow dep_b_value { assert (== (dep_b_value) 12) }
+shadow dep_b_relay { assert (== (dep_b_relay) 12) }
+shadow main { assert (== (main) 0) }
+shadow dep_a_ping { (dep_a_ping) assert true }
+shadow dep_b_ping { (dep_b_ping) assert true }

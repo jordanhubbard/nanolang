@@ -109,6 +109,46 @@ shadow main { assert (== (main) 0) }
         for reverse in (False, True):
             self.check_modules("let moved: Handle = value return (close_owned moved)", True, reverse, long_names=True)
 
+    def test_generic_annotation_metadata(self):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+            # I exercise nested TypeInfo allocation in my C parser. My
+            # self-hosted nested-generic union emission is a separate open gate.
+            arguments = ("int", "Handle") if compiler in ("nanoc_stage1", "nanoc_stage2") else ("int", "array<int>", "Handle")
+            for argument in arguments:
+                with self.subTest(compiler=compiler, argument=argument), tempfile.TemporaryDirectory(prefix="nano-affine-generic-") as directory:
+                    work = Path(directory)
+                    source = work / "main.nano"
+                    output = work / "program"
+                    output.write_bytes(b"prior artifact")
+                    if argument == "Handle":
+                        program = """resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn main() -> int { let boxed: Box<Handle> = Box.Some { value: Handle { fd: 7 } } return 0 }
+shadow main { assert (== (main) 0) }
+"""
+                    else:
+                        program = f"""union Box<T> {{ Some {{ value: int }}, None {{}} }}
+fn read(value: Box<{argument}>) -> int {{
+    match value {{ Some(v) => {{ return v.value }} None(n) => {{ return 0 }} }}
+}}
+shadow read {{ let boxed: Box<{argument}> = Box.Some {{ value: 7 }} assert (== (read boxed) 7) }}
+fn main() -> int {{ let boxed: Box<{argument}> = Box.Some {{ value: 7 }} let copy: Box<{argument}> = boxed return (- (read copy) 7) }}
+shadow main {{ assert (== (main) 0) }}
+"""
+                    source.write_text(program)
+                    env = os.environ.copy()
+                    env["MALLOC_PERTURB_"] = "165"
+                    result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, env=env, capture_output=True, text=True, timeout=120)
+                    messages = result.stdout + result.stderr
+                    if argument == "Handle":
+                        self.assertGreater(result.returncode, 0, messages)
+                        self.assertRegex(messages, OWNERSHIP)
+                        self.assertEqual(output.read_bytes(), b"prior artifact")
+                    else:
+                        self.assertEqual(result.returncode, 0, messages)
+                        run = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
+                        self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
     def test_foreign_record_collision_is_rejected(self):
         for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
             for reverse in (False, True):

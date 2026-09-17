@@ -15,6 +15,7 @@
 
 import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/module_bindings.nano"
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
 let mut nisa_names: array<string> = []
@@ -25,6 +26,7 @@ let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 let mut nisa_void_return: bool = false
+let mut nisa_return_type: string = ""
 let mut nisa_loop_top: string = ""
 let mut nisa_loop_end: string = ""
 let mut nisa_import_names: array<string> = []
@@ -39,6 +41,7 @@ fn nisa_reset() -> int {
     set nisa_err ""
     set nisa_label 0
     set nisa_void_return false
+    set nisa_return_type ""
     set nisa_loop_top ""
     set nisa_loop_end ""
     set nisa_import_names []
@@ -365,6 +368,7 @@ shadow nisa_list_element_tag {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "string_to_int") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
@@ -808,6 +812,51 @@ shadow nisa_emit_host_call {
     let _2: int = (nisa_reset)
 }
 
+# I preserve argument storage while adapting qualified calls to one call path.
+fn nisa_get_call(parser: Parser, node_id: int, node_type: int) -> ASTCall {
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let qualified: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+        return ASTCall { node_type: ParseNodeType.PNODE_CALL, line: qualified.line,
+            column: qualified.column, function: node_id,
+            function_type: ParseNodeType.PNODE_MODULE_QUALIFIED_CALL,
+            arg_start: qualified.arg_start, arg_count: qualified.arg_count }
+    }
+    return (parser_get_call parser node_id)
+}
+shadow nisa_get_call {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n main() -> int { return (lib.value 7) }")
+    let tokens: List<LexerToken> = (tokenize_string source "call.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "call.nano")
+    let call: ASTCall = (nisa_get_call parser 0 ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)
+    assert (== call.arg_count 1)
+    assert (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)
+}
+
+fn nisa_call_name(parser: Parser, call: ASTCall) -> string {
+    if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let qualified: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser call.function)
+        return (mb_lookup (mb_owner qualified.line) qualified.function_name)
+    }
+    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
+    let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
+    return (mb_resolve identifier.name identifier.line nisa_names)
+}
+shadow nisa_call_name {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n main() -> int { return (answer) }")
+    let tokens: List<LexerToken> = (tokenize_string source "call.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "call.nano")
+    let _: int = (nisa_reset)
+    (mb_reset [1])
+    (mb_add 0 "answer" "bound_answer")
+    assert (== (nisa_call_name parser (parser_get_call parser 0)) "bound_answer")
+    set nisa_names ["answer"]
+    assert (== (nisa_call_name parser (parser_get_call parser 0)) "answer")
+    let _2: int = (nisa_reset)
+    (mb_reset [])
+}
+
 fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" }
     if (== node_type ParseNodeType.PNODE_BOOL) { return "bool" }
@@ -833,21 +882,21 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         }
         return ""
     }
-    if (== node_type ParseNodeType.PNODE_CALL) {
-        let call: ASTCall = (parser_get_call parser node_id)
-        if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
-        let target: ASTIdentifier = (parser_get_identifier parser call.function)
-        let map_result: string = (nisa_map_result target.name)
+    if (or (== node_type ParseNodeType.PNODE_CALL) (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let call: ASTCall = (nisa_get_call parser node_id node_type)
+        let target_name: string = (nisa_call_name parser call)
+        if (== target_name "string_to_int") { return "int" }
+        let map_result: string = (nisa_map_result target_name)
         if (!= map_result "") { return map_result }
-        let host_symbol: string = (nisa_call_host_symbol parser target.name)
+        let host_symbol: string = (nisa_call_host_symbol parser target_name)
         if (!= host_symbol "") { return (nisa_host_result host_symbol) }
-        if (or (== target.name "str_substring") (== target.name "int_to_string")) { return "string" }
-        if (or (== target.name "not") (== target.name "str_contains")) { return "bool" }
-        if (or (== target.name "str_length")
-               (or (== target.name "char_at") (== target.name "str_char_at"))) { return "int" }
-        if (or (== target.name "array_length")
-               (and (nisa_is_list_call target.name) (str_ends_with target.name "_length"))) { return "int" }
-        let function_index: int = (nisa_fn_index parser target.name)
+        if (or (== target_name "str_substring") (== target_name "int_to_string")) { return "string" }
+        if (or (== target_name "not") (== target_name "str_contains")) { return "bool" }
+        if (or (== target_name "str_length")
+               (or (== target_name "char_at") (== target_name "str_char_at"))) { return "int" }
+        if (or (== target_name "array_length")
+               (and (nisa_is_list_call target_name) (str_ends_with target_name "_length"))) { return "int" }
+        let function_index: int = (nisa_fn_index parser target_name)
         if (< function_index 0) { return "" }
         let function: ASTFunction = (parser_get_function parser function_index)
         return function.return_type
@@ -905,12 +954,52 @@ shadow nisa_expr_is_string {
     let _2: int = (nisa_reset)
 }
 
+# I carry declared scalar array context into empty literals without changing the AST.
+fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL)
+            (or (== expected "array<int>") (== expected "array<string>"))) {
+        let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        let mut tag: string = "1"
+        let mut element: string = "int"
+        if (== expected "array<string>") { set tag "5" set element "string" }
+        let mut output: string = ""
+        let mut i: int = 0
+        while (< i literal.element_count) {
+            let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+            if (!= (nisa_expr_type parser value.node_id value.node_type) element) {
+                return (nisa_fail "array element does not match my declared scalar type")
+            }
+            set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
+            set i (+ i 1)
+        }
+        return (+ output (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string literal.element_count)))))
+    }
+    return (nisa_emit_expr parser node_id node_type)
+}
+shadow nisa_emit_expected_expr {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n main() -> array<string> { return [] }")
+    let tokens: List<LexerToken> = (tokenize_string source "array.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "array.nano")
+    assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<string>") "  ARR_LITERAL 5 0\n")
+    assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
+}
+
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
     let mut args: string = ""
     let mut i: int = 0
     while (< i call.arg_count) {
         let a: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-        set args (+ args (nisa_emit_expr parser a.node_id a.node_type))
+        let mut expected: string = ""
+        let function_index: int = (nisa_fn_index parser (nisa_call_name parser call))
+        if (>= function_index 0) {
+            let function: ASTFunction = (parser_get_function parser function_index)
+            if (< i function.param_count) {
+                let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+                set expected parameter.var_type
+            }
+        }
+        set args (+ args (nisa_emit_expected_expr parser a.node_id a.node_type expected))
         set i (+ i 1)
     }
     return args
@@ -1115,98 +1204,106 @@ shadow nisa_emit_field_access {
 }
 
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
-    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+    if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
         return (nisa_fail "computed function calls are outside the NanoISA subset")
     } else { (print "") }
-    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-    if (!= (nisa_map_opcode func_id.name) "") { return (nisa_emit_map_call parser call func_id.name) }
-    let host_symbol: string = (nisa_call_host_symbol parser func_id.name)
+    let function_name: string = (nisa_call_name parser call)
+    if (== function_name "string_to_int") {
+        if (!= call.arg_count 1) { return (nisa_fail "string_to_int needs one string argument") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+            return (nisa_fail "string_to_int needs one string argument")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+    }
+    if (!= (nisa_map_opcode function_name) "") { return (nisa_emit_map_call parser call function_name) }
+    let host_symbol: string = (nisa_call_host_symbol parser function_name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }
-    if (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_new")) {
+    if (and (nisa_is_list_call function_name) (str_ends_with function_name "_new")) {
         if (!= call.arg_count 0) {
             return (nisa_fail "list_T_new needs 0 arguments")
         } else {
-            return (nisa_line_imm "ARR_NEW" (nisa_list_element_tag parser func_id.name))
+            return (nisa_line_imm "ARR_NEW" (nisa_list_element_tag parser function_name))
         }
     } else {
-    if (or (== func_id.name "array_length") (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_length"))) {
+    if (or (== function_name "array_length") (and (nisa_is_list_call function_name) (str_ends_with function_name "_length"))) {
         if (!= call.arg_count 1) {
             return (nisa_fail "array_length needs 1 argument")
         } else {
             return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_LEN"))
         }
     } else {
-        if (or (== func_id.name "array_get") (or (== func_id.name "at") (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_get")))) {
+        if (or (== function_name "array_get") (or (== function_name "at") (and (nisa_is_list_call function_name) (str_ends_with function_name "_get")))) {
             if (!= call.arg_count 2) {
                 return (nisa_fail "array_get needs 2 arguments")
             } else {
                 return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_GET"))
             }
         } else {
-            if (or (== func_id.name "array_push") (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_push"))) {
+            if (or (== function_name "array_push") (and (nisa_is_list_call function_name) (str_ends_with function_name "_push"))) {
                 if (!= call.arg_count 2) {
                     return (nisa_fail "array_push needs 2 arguments")
                 } else {
                     return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_PUSH"))
                 }
             } else {
-                if (== func_id.name "str_contains") {
+                if (== function_name "str_contains") {
                     if (!= call.arg_count 2) {
                         return (nisa_fail "str_contains needs 2 arguments")
                     } else {
                         return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CONTAINS"))
                     }
                 } else {
-                    if (== func_id.name "int_to_string") {
+                    if (== function_name "int_to_string") {
                         if (!= call.arg_count 1) {
                             return (nisa_fail "int_to_string needs 1 argument")
                         } else {
                             return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
                         }
                     } else {
-                        if (== func_id.name "str_length") {
+                        if (== function_name "str_length") {
                             if (!= call.arg_count 1) {
                                 return (nisa_fail "str_length needs 1 argument")
                             } else {
                                 return (+ (nisa_emit_call_args parser call) (nisa_line "STR_LEN"))
                             }
                         } else {
-                            if (== func_id.name "str_substring") {
+                            if (== function_name "str_substring") {
                                 if (!= call.arg_count 3) {
                                     return (nisa_fail "str_substring needs 3 arguments")
                                 } else {
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SUBSTR"))
                                 }
                             } else {
-                            if (or (== func_id.name "char_at") (== func_id.name "str_char_at")) {
+                            if (or (== function_name "char_at") (== function_name "str_char_at")) {
                                 if (!= call.arg_count 2) {
                                     return (nisa_fail "char_at needs 2 arguments")
                                 } else {
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CHAR_AT"))
                                 }
                             } else {
-                            if (== func_id.name "not") {
+                            if (== function_name "not") {
                                 if (!= call.arg_count 1) {
                                     return (nisa_fail "not needs 1 argument")
                                 } else {
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "BOOL_NOT"))
                                 }
                             } else {
-                                if (nisa_is_print_builtin func_id.name) {
+                                if (nisa_is_print_builtin function_name) {
                                     if (!= call.arg_count 1) {
                                         return (nisa_fail "print needs 1 argument")
                                     } else {
-                                        if (== func_id.name "println") {
+                                        if (== function_name "println") {
                                             return (+ (nisa_emit_call_args parser call) (nisa_line "PRINTLN"))
                                         } else {
                                             return (+ (nisa_emit_call_args parser call) (nisa_line "PRINT"))
                                         }
                                     }
                                 } else {
-                                    if (< (nisa_fn_index parser func_id.name) 0) {
-                                        return (nisa_fail (+ "undefined function " func_id.name))
+                                    if (< (nisa_fn_index parser function_name) 0) {
+                                        return (nisa_fail (+ "undefined function " function_name))
                                     } else {
-                                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" function_name))
                                     }
                                 }
                             }
@@ -1242,6 +1339,9 @@ shadow nisa_emit_call {
 }
 
 fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        return (nisa_emit_call parser (nisa_get_call parser node_id node_type))
+    }
     if (== node_type ParseNodeType.PNODE_NUMBER) {
         let num: ASTNumber = (parser_get_number parser node_id)
         return (nisa_line_imm "PUSH_I64" num.value)
@@ -1542,6 +1642,7 @@ shadow nisa_emit_while {
     let func: ASTFunction = (parser_get_function p 0)
     set nisa_names (array_push nisa_names "n")
     set nisa_names (array_push nisa_names "i")
+    set nisa_types ["int", "int"]
     let block: ASTBlock = (parser_get_block p func.body)
     let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
     let w: ASTWhile = (parser_get_while p stmt.node_id)
@@ -1574,11 +1675,10 @@ shadow nisa_emit_assert {
 
 # I describe the emitted stack effect; list push still needs its trailing POP.
 fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
-    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return true }
-    let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
-    if (nisa_is_print_builtin identifier.name) { return false }
-    if (== (nisa_map_opcode identifier.name) "HM_SET") { return false }
-    let index: int = (nisa_fn_index parser identifier.name)
+    let name: string = (nisa_call_name parser call)
+    if (nisa_is_print_builtin name) { return false }
+    if (== (nisa_map_opcode name) "HM_SET") { return false }
+    let index: int = (nisa_fn_index parser name)
     if (< index 0) { return true }
     let function: ASTFunction = (parser_get_function parser index)
     return (!= function.return_type "void")
@@ -1609,38 +1709,38 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             if nisa_void_return { return (nisa_line "RET") }
             return (nisa_fail "a value-result function needs a return value")
         }
-        if (== r.value_type ParseNodeType.PNODE_CALL) {
-            let result_call: ASTCall = (parser_get_call parser r.value)
+        if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+            let result_call: ASTCall = (nisa_get_call parser r.value r.value_type)
             if (== nisa_void_return (nisa_call_has_result parser result_call)) {
                 return (nisa_fail "return call result count does not match my function")
             }
         } else {
             if nisa_void_return { return (nisa_fail "a void function cannot return a value") }
         }
-        if (== r.value_type ParseNodeType.PNODE_CALL) {
-            let call: ASTCall = (parser_get_call parser r.value)
-            if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+        if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+            let call: ASTCall = (nisa_get_call parser r.value r.value_type)
+            if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
                 return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
-                let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                if (or (nisa_is_inline_call func_id.name) (!= (nisa_call_host_symbol parser func_id.name) "")) {
+                let function_name: string = (nisa_call_name parser call)
+                if (or (nisa_is_inline_call function_name) (!= (nisa_call_host_symbol parser function_name) "")) {
                     return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                 } else {
-                    if (< (nisa_fn_index parser func_id.name) 0) {
-                        return (nisa_fail (+ "undefined function " func_id.name))
+                    if (< (nisa_fn_index parser function_name) 0) {
+                        return (nisa_fail (+ "undefined function " function_name))
                     } else {
-                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" function_name))
                     }
                 }
             }
         } else {
-            let val: string = (nisa_emit_expr parser r.value r.value_type)
+            let val: string = (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type)
             return (+ val (nisa_line "RET"))
         }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let l: ASTLet = (parser_get_let parser stmt.node_id)
-            let val: string = (nisa_emit_expr parser l.value l.value_type)
+            let val: string = (nisa_emit_expected_expr parser l.value l.value_type l.var_type)
             if (not (nisa_type_ok parser l.var_type)) {
                 return (nisa_fail (+ "unsupported local type " l.var_type))
             } else {
@@ -1656,7 +1756,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 if (< slot 0) {
                     return (nisa_fail (+ "undefined local " s.target))
                 } else {
-                    let val: string = (nisa_emit_expr parser s.value s.value_type)
+                    let val: string = (nisa_emit_expected_expr parser s.value s.value_type (at nisa_types slot))
                     return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
                 }
             } else {
@@ -1672,8 +1772,8 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                             let node: ASTAssert = (parser_get_assert parser stmt.node_id)
                             return (nisa_emit_assert parser node)
                         } else {
-                        if (== stmt.node_type ParseNodeType.PNODE_CALL) {
-                            let call: ASTCall = (parser_get_call parser stmt.node_id)
+                        if (or (== stmt.node_type ParseNodeType.PNODE_CALL) (== stmt.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+                            let call: ASTCall = (nisa_get_call parser stmt.node_id stmt.node_type)
                             if (not (nisa_call_has_result parser call)) {
                                 return (nisa_emit_call parser call)
                             }
@@ -1744,6 +1844,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (or (== t "array<int>") (== t "array<string>")) { return "array" }
     if (== t "HashMap<string,int>") { return "hashmap" }
     if (or (== t "void") (or (== t "int") (or (== t "string") (== t "bool")))) {
         return t
@@ -1783,6 +1884,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_types []
     let result_tag: string = (nisa_result_tag parser func.return_type)
     set nisa_void_return (== func.return_type "void")
+    set nisa_return_type func.return_type
     set nisa_loop_top ""
     set nisa_loop_end ""
     if (== result_tag "") {
@@ -2062,6 +2164,7 @@ shadow nisa_emit_function {
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
+    (mb_reset [])
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let toks: List<LexerToken> = (tokenize_string source "cut_a.nano" diags)
     let parser: Parser = (parse_program toks (list_LexerToken_length toks) "cut_a.nano")
@@ -2148,4 +2251,18 @@ shadow nanoisa_emit_parser_nasm {
     let host_text: string = (nanoisa_emit_nasm with_host)
     assert (str_contains host_text "vm_getenv")
     assert (== (nanoisa_emit_parser_nasm parser) raw)
+}
+
+shadow nanoisa_emit_parser_nasm {
+    let source: string = (+ "f" "n bound_answer() -> int { return 42 } fn main() -> int { return (answer) }")
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source "bound.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "bound.nano")
+    (mb_reset [1])
+    (mb_add 0 "answer" "bound_answer")
+    let assembly: string = (nanoisa_emit_parser_nasm parser)
+    assert (str_contains assembly "TAIL_CALL bound_answer")
+    let raw: string = (nanoisa_emit_nasm (+ "f" "n answer() -> int { return 7 } fn main() -> int { return (answer) }"))
+    assert (str_contains raw "TAIL_CALL answer")
+    assert (not (mb_active))
 }
