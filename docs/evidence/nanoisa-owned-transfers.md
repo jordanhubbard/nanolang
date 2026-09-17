@@ -62,3 +62,16 @@ Other local logs are `/tmp/nanolang-owned-transfer-final.log`,
 My full ownership and release parents remain open. Float-record transport is
 still the independently tracked task93574. No source borrow producer or
 runtime ownership admission is enabled by this work.
+
+After restacking onto merged PR554 (`71e433b6`), my code checkpoint
+`f01bec1f` passes the transfer 187/275, bytecode 300/419 and state 157/182
+checks again, plus both declaration and owned-artifact publication guards.
+I rebuild the C seed and compile the actual `src_nano/nanoc_v06.nano` native
+compiler through its host-module manifest. That compiler runs `--help`, emits
+`examples/language/nl_hello.nano` to bytecode, and the emitted artifact verifies
+and executes. These integrated logs are
+`/tmp/nanolang-owned-transfer-integrated.log`,
+`/tmp/nanolang-owned-transfer-seed-build.log`,
+`/tmp/nanolang-owned-transfer-seed.log` and
+`/tmp/nanolang-owned-transfer-seed-hello.log`. My final documentation correction
+does not change the tested compiler or test sources.

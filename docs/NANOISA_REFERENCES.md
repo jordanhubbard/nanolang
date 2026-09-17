@@ -222,9 +222,9 @@ Entry references still assume a separately checked caller contract. Analysis
 success does not satisfy `nvm_verify`, install new runtime semantics or lift
 any existing ownership execution refusal. Source producers remain disabled.
 
-### Concrete connection after this slice
+### Concrete transfer connection
 
-My next transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
+My transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
 local and push its unique owner), `OWN_STORE_LOCAL U16` (consume that owner
 into an exact vacant local), `OWN_PACK U32` (use a retained layout index,
 consume its ordered fields and create an owner), and `OWN_UNPACK_LOCAL U16`
@@ -237,15 +237,16 @@ transitions must land together; plain `LOAD_LOCAL` remains an observation.
 An owner temporarily on the operand stack must neither disappear at a branch
 nor duplicate through `DUP`, storage or a call.
 
-My integration point is `verify_function_impl` in `verifier.c`, after decoded
-structural and stack checks, through `nvm_verify_function`,
-`nvm_verify_function_max_stack` and linked verification. I will connect the
-affine pass there only when the explicit transfer/reference instruction
-contracts are supported. I keep `verify_structure`'s ownership refusal and
-the independent direct VM/native guards now. The next contracts also require
-reference creation/access/end-region instructions, exact caller-place alias
-substitution at direct calls, safe imported-contract handling and actual
-VM/native reference semantics before admission. Passing this analysis alone
+My non-admitting entry point is `nvm_verify_affine_function` in `verifier.c`.
+It checks structural declarations before the affine pass. Ordinary structure
+verification consults this pass before its runtime refusal; the normal
+function verifier also refuses explicit transfer instructions, including
+instructions without ownership metadata. I keep the independent direct
+VM/native guards. Eventual executable admission through
+`nvm_verify_function`, `nvm_verify_function_max_stack` and linked verification
+still requires reference creation/access/end-region instructions, exact
+caller-place alias substitution at direct calls, safe imported contracts and
+actual VM/native transfer and reference semantics. Passing this analysis alone
 does not authorize removing any of those guards.
 
 
