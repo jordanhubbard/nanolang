@@ -45,6 +45,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I restore my standalone ownership allocation gate after retained-type
+      queries outgrew its fixture stubs. I account for call-hold calloc and
+      strdup, preserve 300-binding growth checks, and inject failures through
+      held places with zero outstanding tracked allocations (MAC `task_8b86bcc52b8a48dab3e39215c0042dbe`).
+      The missing-symbol failure is reproduced on main; I do not classify it
+      as a new language defect.
+
 - [ ] **Nested resource borrow places.** I continue my call-scoped reference
       contract with resolved named roots and record-field paths (MAC `task_0ae2a64d17b0405b880ef7ad310f002c`).
   - [ ] I preserve actual nested field identity in both frontends and reject
