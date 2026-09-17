@@ -8599,14 +8599,27 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I measure and bound the VM compiler bootstrap's repeated declaration
+- [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
+      bytecode is input, then two VM-executed compiler generations compile the
+      same clean source and immutable host closure. I compare raw generation
+      outputs, verify both and execute a product of the final compiler. Native
+      C shadow generation and the NanoISA-only architecture remain separate
+      (`task_36ceaa830d7d46ba8a5471326f525aac`).
+      Clean pin `1277bce2` produces identical 352,236-byte Stage 1/2 outputs;
+      the permanent gate passes in 601.921 seconds with unchanged host hashes
+      and a verified executable final-compiler product. Evidence:
+      `docs/evidence/vm-bytecode-fixedpoint.md`.
+- [x] I measure and bound the VM compiler bootstrap's repeated declaration
       scans and cycle collection (`task_36ceaa830d7d46ba8a5471326f525aac`).
-      My 1,800-second self-compilation probe made progress through NanoISA
-      lowering and reached native-shadow C generation before its diagnostic
-      timeout; this is not a compiler correctness failure. I preserve bytecode
-      and shadow semantics while completing the independent VM route. AOT
-      stage equality cannot close this acceptance item. Evidence:
-      `docs/evidence/vm-bootstrap-budget.md`.
+      My historical 1,800-second probe reached native-shadow C generation
+      before its diagnostic timeout. Shared declaration classification now
+      preserves the tested bytecode/shadow semantics and completes two real VM
+      compiler generations in 297.05 and 296.60 seconds on clean `1277bce2`.
+      Their raw outputs match exactly; the full permanent gate verifies them,
+      checks host closure stability and executes the final compiler's product.
+      This closes the bounded VM budget gate, not the full NanoISA-only
+      architecture. Evidence: `docs/evidence/vm-bootstrap-budget.md` and
+      `docs/evidence/vm-bytecode-fixedpoint.md`.
   - [x] I share the existing linear local-declaration classification across
         typechecking, NanoISA lowering and native-shadow C generation, replacing
         the three repeated transpiler scans without importing the full
