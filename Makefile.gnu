@@ -4543,3 +4543,15 @@ test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_scalar_joins
 
 test-units: test-native-scalar-joins
+
+.PHONY: test-multi-caller-references
+test-units: test-multi-caller-references
+test-multi-caller-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_references tests/nanoisa/test_multi_caller_references.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=multi_state_malloc -Dcalloc=multi_state_calloc -c src/nanoisa/affine_state.c -o obj/test_multi_caller_state_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_state_alloc tests/nanoisa/test_multi_caller_state_alloc.c $(NANOVM_OBJECTS) obj/test_multi_caller_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multi_caller_state_alloc
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_multi_caller_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_heap_alloc tests/nanoisa/test_multi_caller_heap_alloc.c obj/test_multi_caller_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multi_caller_heap_alloc
+	python3 -m unittest tests.test_multi_caller_references
