@@ -4537,3 +4537,8 @@ test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_scalar_joins
 
 test-units: test-native-scalar-joins
+
+.PHONY: test-metadata-lowering-state
+test-units: test-metadata-lowering-state
+test-metadata-lowering-state: bootstrap nano_vm nvm2c
+	python3 -m unittest -v tests.test_metadata_lowering_state
