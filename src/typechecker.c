@@ -834,6 +834,22 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                 if (name) return name;
             }
             return NULL;
+        case AST_UNION_CONSTRUCT: {
+            TypeInfo *info = expr->as.union_construct.type_info;
+            if (info && info->generic_name && info->type_param_count > 0) {
+                char *name = typeinfo_to_generic_arg_name(info);
+                const char *registered = NULL;
+                for (int i = 0; name && i < env->generic_instance_count; i++) {
+                    if (strcmp(env->generic_instances[i].concrete_name, name) == 0) {
+                        registered = env->generic_instances[i].concrete_name;
+                        break;
+                    }
+                }
+                free(name);
+                return registered;
+            }
+            return expr->as.union_construct.union_name;
+        }
         case AST_STRUCT_LITERAL:
             return expr->as.struct_literal.struct_name;
             

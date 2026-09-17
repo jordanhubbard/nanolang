@@ -4264,3 +4264,8 @@ test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest tests.test_map_constructor_contexts
 
 test-units: test-map-constructor-contexts
+
+.PHONY: test-match-aggregate-results
+test-units: test-match-aggregate-results
+test-match-aggregate-results: bootstrap
+	python3 -m unittest -v tests.test_match_aggregate_results
