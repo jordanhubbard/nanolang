@@ -27,16 +27,23 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Primitive List record fields.** I preserve `List<int>` and
+      `List<string>` during native token lowering; keyword element tokens
+      currently produce an invalid `nl_List` field. MAC `task_f0a59def9afe4a08ae63c55d4ba22109`.
+
 - [ ] **Record-valued call pushes.** I capture a record-returning call once
       before taking its address for native `array_push`; the current direct
       form produces invalid C while a typed local works. MAC `task_6ce6ece22ae34698a178bf29ee04412b`.
 
-- [ ] **Mixed native nominal definition order.** I order record and union
+- [x] **Mixed native nominal definition order.** I order record and union
       definitions by their by-value dependencies, preserve pointer-backed
       collection boundaries, and diagnose unsatisfied layout cycles. I test
       both dependency directions and alternating chains before enabling
       selected resource payload execution in both self-hosted stages. MAC
-      `task_68a6b53f768245bfacfc79b6db78b621`.
+      `task_68a6b53f768245bfacfc79b6db78b621`. Fresh bootstrap and ten
+      source cases in both self-hosted stages pass; I preserve anonymous
+      primitive-list runtime typedefs. Evidence:
+      `docs/evidence/native-nominal-definition-order.md`.
 
 - [x] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
       TypeInfo before implementing selected-variant ownership transfer. MAC

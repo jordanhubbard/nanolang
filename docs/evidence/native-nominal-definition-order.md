@@ -19,3 +19,15 @@ field does not require the later specialization typedef.
 My focused cases cover record payload execution, both dependency directions,
 an alternating chain, reverse declaration order, array/List recursive handles,
 and record/mixed cycle rejection with prior-output preservation.
+
+Independent review caught that my integer/string runtime lists use anonymous
+struct typedefs. I preserve those exact typedefs and test both through union
+construction and runtime list operations. The separate pre-existing record
+`List<int>` token-parser defect is tracked as
+`task_f0a59def9afe4a08ae63c55d4ba22109`.
+
+Fresh native bootstrap passes. Nine test methods (ten source cases) pass in both
+self-hosted stages in 56.802 seconds. Logs:
+`/tmp/nanolang-nominal-order-reviewed-bootstrap.log` and
+`/tmp/nanolang-nominal-order-reviewed-paired.log`. The ordinary prior compiler
+failure is in `/tmp/nanolang-native-nominal-order-baseline.log`.

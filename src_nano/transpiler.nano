@@ -1646,6 +1646,7 @@ shadow generate_enum_definitions_from_tokens {
 }
 
 fn native_nominal_field_type(c_type: string) -> string {
+    if (or (== c_type "List_int*") (== c_type "List_string*")) { return c_type } else { (print "") }
     if (and (transp_str_starts_with c_type "List_") (== (str_substring c_type (- (str_length c_type) 1) 1) "*")) {
         return (+ "struct " c_type)
     } else { (print "") }
@@ -1655,6 +1656,8 @@ fn native_nominal_field_type(c_type: string) -> string {
 shadow native_nominal_field_type {
     assert (== (native_nominal_field_type "List_Node*") "struct List_Node*")
     assert (== (native_nominal_field_type "nl_Node") "nl_Node")
+    assert (== (native_nominal_field_type "List_int*") "List_int*")
+    assert (== (native_nominal_field_type "List_string*") "List_string*")
 }
 
 struct NativeNominalDefinition {

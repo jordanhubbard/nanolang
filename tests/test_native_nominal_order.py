@@ -52,6 +52,16 @@ shadow main { assert (== (main) 0) }
     def test_pointer_backed_list_is_not_a_layout_cycle(self):
         self.check('struct Node { children: List<Node>, value: int }\n'+MAIN)
 
+    def test_primitive_list_union_fields_keep_runtime_typedefs(self):
+        for element, value in [('int', '7'), ('string', '"kept"')]:
+            with self.subTest(element=element):
+                self.check(f'''union Choice {{ Some {{ values: List<{element}> }} }}
+fn size(value: Choice) -> int {{ match value {{ Some(payload) => {{ return (list_{element}_length payload.values) }} }} }}
+shadow size {{ let values: List<{element}> = (list_{element}_new) (list_{element}_push values {value}) let value: Choice = Choice.Some {{ values: values }} assert (== (size value) 1) }}
+fn main() -> int {{ let values: List<{element}> = (list_{element}_new) (list_{element}_push values {value}) let value: Choice = Choice.Some {{ values: values }} return (- (size value) 1) }}
+shadow main {{ assert (== (main) 0) }}
+''')
+
     def test_record_cycle_preserves_previous_output(self):
         self.check('struct Left { right: Right }\nstruct Right { left: Left }\n'+MAIN, False)
 
