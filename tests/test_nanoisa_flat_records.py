@@ -261,6 +261,78 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_filled_arrays_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/filled_arrays.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-filled-arrays-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            comparison = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                          "count", "fill", "words", "integers", "rows", "modes", "main")
+            self.assertIn("16 passed, 0 failed", comparison.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.run_checked(binary)
+
+    def test_filled_arrays_refuse_unsupported_operands(self):
+        programs = [
+            'fn main() -> int { (array_new) return 0 }',
+            'fn main() -> int { (array_new 2) return 0 }',
+            'fn main() -> int { (array_new 2 1 3) return 0 }',
+            'fn main() -> int { (array_new "two" 1) return 0 }',
+            'fn main() -> int { (array_new true 1) return 0 }',
+            'fn main() -> int { (array_new 2 true) return 0 }',
+            'fn main() -> int { (array_new 2 [1]) return 0 }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-filled-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program + '\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertFalse(output.exists())
+
+    def test_filled_arrays_reject_negative_after_both_operands(self):
+        with tempfile.TemporaryDirectory(prefix="nano-filled-negative-") as tmp:
+            work = Path(tmp)
+            source, seed, assembly, emitted = (work / n for n in ("input.nano", "seed.nvm", "emitter.nasm", "emitter.nvm"))
+            # The fill assertion checks the ordered effects before the size guard.
+            # A file write makes both calls observable even when native abort does not flush stdout.
+            marker = work / "fill-ran.txt"
+            source.write_text(
+                'extern fn file_write(path: string, text: string) -> int\n'
+                'fn count(trace: array<int>) -> int { (array_set trace 0 1) return -1 }\n'
+                'shadow count { assert true }\n'
+                'fn fill(trace: array<int>) -> int { assert (== (at trace 0) 1) '
+                'unsafe { assert (== (file_write "' + str(marker) + '" "fill") 0) } return 7 }\n'
+                'shadow fill { assert true }\n'
+                'fn main() -> int { let trace: array<int> = [0] '
+                'let xs: array<int> = (array_new (count trace) (fill trace)) return 0 }\n'
+                'shadow main { assert true }\n')
+            self.run_checked(ROOT / "bin/nano_virt", source, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", source, "-o", assembly)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                for command in ([ROOT / "bin/nano_vm", module], [binary]):
+                    with self.subTest(module=module.name, backend=command[0].name):
+                        marker.unlink(missing_ok=True)
+                        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+                        self.assertEqual(result.returncode, 1 if len(command) == 2 else -signal.SIGABRT,
+                                         result.stdout + result.stderr)
+                        self.assertEqual(marker.read_text(), "fill")
+
     def test_string_from_char_matches_and_executes(self):
         fixture = ROOT / "tests/nanoisa/fixtures/string_from_char.nano"
         with tempfile.TemporaryDirectory(prefix="nano-from-char-") as tmp:

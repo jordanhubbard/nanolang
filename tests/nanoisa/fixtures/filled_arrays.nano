@@ -1,0 +1,55 @@
+# I evaluate count then fill once, even when the count is zero.
+struct FilledRow { label: string, value: int }
+enum FilledMode { First = -3, Last = 12 }
+fn count(trace: array<int>, size: int) -> int {
+    (array_set trace 0 (+ (* (at trace 0) 10) 1))
+    return size
+}
+shadow count { let trace: array<int> = [0] assert (== (count trace 2) 2) assert (== (at trace 0) 1) }
+fn fill(trace: array<int>) -> string {
+    (array_set trace 0 (+ (* (at trace 0) 10) 2))
+    return (+ "fi" "ll")
+}
+shadow fill { let trace: array<int> = [0] assert (== (fill trace) "fill") assert (== (at trace 0) 2) }
+fn words(size: int, trace: array<int>) -> array<string> {
+    return (array_new (count trace size) (fill trace))
+}
+shadow words { let trace: array<int> = [0] let xs: array<string> = (words 2 trace) assert (== (at xs 1) "fill") assert (== (at trace 0) 12) }
+fn integers() -> array<int> { return (array_new 3 7) }
+shadow integers { let xs: array<int> = (integers) assert (== (at xs 2) 7) }
+fn rows() -> array<FilledRow> { return (array_new 2 FilledRow { label: "row", value: 9 }) }
+shadow rows { let xs: array<FilledRow> = (rows) let row: FilledRow = (at xs 1) assert (== row.value 9) }
+fn modes() -> array<FilledMode> { return (array_new 2 FilledMode.Last) }
+shadow modes { let xs: array<FilledMode> = (modes) assert (== (array_length xs) 2) }
+fn main() -> int {
+    let trace: array<int> = [0]
+    let empty: array<string> = (words 0 trace)
+    assert (== (array_length empty) 0)
+    assert (== (at trace 0) 12)
+    (array_set trace 0 0)
+    let xs: array<string> = (words 3 trace)
+    assert (== (at trace 0) 12)
+    assert (== (array_length xs) 3)
+    assert (== (at xs 0) "fill")
+    assert (== (at xs 2) "fill")
+    let nums: array<int> = (integers)
+    assert (== (array_length nums) 3)
+    assert (== (at nums 1) 7)
+    let records: array<FilledRow> = (rows)
+    let record: FilledRow = (at records 1)
+    assert (== record.label "row")
+    let tags: array<FilledMode> = (modes)
+    assert (== (array_length tags) 2)
+    # I do not let constructor temporaries hide source names or enclosing loops.
+    let __anew_sz__: int = 8
+    let __anew_fill__: int = 6
+    let mut i: int = 0
+    while (< i 2) {
+        let nested: array<int> = (array_new (array_length (array_new 1 9)) __anew_fill__)
+        assert (== (at nested 0) 6)
+        set i (+ i 1)
+    }
+    assert (== __anew_sz__ 8)
+    return 0
+}
+shadow main { assert (== (main) 0) }
