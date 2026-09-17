@@ -987,7 +987,7 @@ int main(int argc, char **argv) {
         nrec_t result = nl_walk(input, 12);
         if (result.n != 75 || result.f[0] != 24 || live) return 1;
     }
-''' + ('if (peak != 1) return 2;\n' if mode == "self_tail" else 'if (peak < 13) return 2;\n') + 'return 0;\n}\n')
+''' + ('if (peak != 2) return 2;\n' if mode == "self_tail" else 'if (peak < 26) return 2;\n') + 'return 0;\n}\n')
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0", source, "-o", binary])
                 result = subprocess.run([binary], capture_output=True, timeout=30, preexec_fn=bounded_stack)
                 self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
