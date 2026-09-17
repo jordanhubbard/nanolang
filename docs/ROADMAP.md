@@ -8818,6 +8818,15 @@ Compiler product:
       shadow probe reaches `substitute_union_field_type` and rejects its nested
       string appends to `[]`. I retain negative type controls and require exact
       C-seed bytecode plus VM/native execution before rerunning the closure.
+- [ ] I retain unary-minus provenance for exact float lowering
+      (`task_ef26778894c441c2b1002128fd0a8c37`), before float dependency-shadow task
+      `task_8bc58d33e73f4e24a474d3724d862c94`. My parser currently rewrites unary
+      minus as subtraction from zero. I preserve the distinction explicitly
+      through schema/parser metadata and test negative zero and opcode parity.
+- [ ] I lower scalar float literals, results and comparisons in dependency
+      shadows (`task_8bc58d33e73f4e24a474d3724d862c94`), retaining source lexemes
+      and the unchanged canonical dependency-shadow regression. I require
+      C-seed bytecode, VM/native execution and output-preservation controls.
 - [x] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
       lexical scope and nested break/continue/return behavior. My integrated
