@@ -8332,6 +8332,16 @@ Compiler product:
       (`task_6b4240883d7d461c8266257aaffb2471`). Sixteen exact
       opcode comparisons and VM/native execution pass; see
       `docs/evidence/selfhost-filled-arrays.md`.
+- [ ] I retain concrete generic union types during native emission at globals,
+      inline call arguments, mutable assignment and nested union construction
+      (`task_633f2402ec5944cfba0911a56a9f4eb1`). Correctly typed controls
+      currently reach malformed C; frontend nominal rejection remains separate.
+- [x] I apply concrete generic union constructor context before accepting
+      nominal array payloads (`task_dd2be49bc494483f9bb18646a0013055`).
+      I reject wrong record identities at local/global, argument, return,
+      assignment and nested payload boundaries before output publication.
+      Native emission context remains separate. Evidence:
+      `docs/evidence/concrete-union-array-contracts.md`.
 - [ ] I track native `string_from_char` allocations for cleanup
       (`task_d2b7c2616e2148a1871c25e1a7ac127d`). Unsuppressed LeakSanitizer
       reports 16 leaked bytes from eight calls to the existing host adapter.

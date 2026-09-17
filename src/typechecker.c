@@ -71,6 +71,7 @@ typedef struct {
     Environment *env;
     Type current_function_return_type;
     Type current_function_return_element_type;
+    const TypeInfo *current_function_return_info;
     const char *current_function_return_struct_name;  /* For struct return types */
     bool has_error;
     bool warnings_enabled;
@@ -620,6 +621,83 @@ static void check_union_record_array_contract(Environment *env, UnionDef *def,
         check_record_array_contract(env, TYPE_ARRAY, element->base_type,
                                     element->generic_name, value);
         return;
+    }
+}
+
+/* I resolve constructor payload annotations against their enclosing concrete
+ * declaration without attaching borrowed context to the expression AST. */
+static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
+                                        ASTNode *value, unsigned depth) {
+    if (!expected || !value) return;
+    if (depth > 128) {
+        emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+            "I cannot resolve this deeply nested payload context.", "Reduce the nesting depth.");
+        return;
+    }
+    if (expected->base_type == TYPE_ARRAY && expected->element_type) {
+        const TypeInfo *element = expected->element_type;
+        if (element->base_type == TYPE_STRUCT)
+            check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
+        else if (value->type == AST_ARRAY_LITERAL) {
+            for (int i = 0; i < value->as.array_literal.element_count; ++i)
+                check_concrete_union_arrays(env, element, value->as.array_literal.elements[i], depth + 1);
+        } else if (element->base_type == TYPE_ARRAY) {
+            const TypeInfo *wanted = expected;
+            const TypeInfo *actual = try_get_expr_type_info(value, env);
+            while (wanted && wanted->base_type == TYPE_ARRAY) {
+                wanted = wanted->element_type;
+                actual = actual && actual->base_type == TYPE_ARRAY ? actual->element_type : NULL;
+            }
+            StructDef *record = wanted && wanted->base_type == TYPE_STRUCT && wanted->generic_name
+                ? env_get_struct(env, wanted->generic_name) : NULL;
+            if (record && (!actual || actual->base_type != TYPE_STRUCT || !actual->generic_name ||
+                           env_get_struct(env, actual->generic_name) != record))
+                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                    "I require the declared nominal record type for this array.",
+                    "Match the nested array element declaration, including its module identity.");
+        }
+        return;
+    }
+    if (!expected->generic_name) return;
+    UnionDef *def = env_get_union(env, expected->generic_name);
+    if (!def) return;
+    const char *variant = NULL;
+    char **names = NULL;
+    ASTNode **values = NULL;
+    int count = 0;
+    if (value->type == AST_STRUCT_LITERAL && value->as.struct_literal.struct_name) {
+        const char *spelling = value->as.struct_literal.struct_name;
+        const char *dot = strrchr(spelling, '.');
+        if (!dot) return;
+        size_t length = (size_t)(dot - spelling);
+        char *owner = malloc(length + 1);
+        if (!owner) return;
+        memcpy(owner, spelling, length);
+        owner[length] = '\0';
+        bool matches = env_get_union(env, owner) == def;
+        free(owner);
+        if (!matches) return;
+        variant = dot + 1;
+        names = value->as.struct_literal.field_names;
+        values = value->as.struct_literal.field_values;
+        count = value->as.struct_literal.field_count;
+    } else if (value->type == AST_UNION_CONSTRUCT) {
+        if (env_get_union(env, value->as.union_construct.union_name) != def) return;
+        variant = value->as.union_construct.variant_name;
+        names = value->as.union_construct.field_names;
+        values = value->as.union_construct.field_values;
+        count = value->as.union_construct.field_count;
+    } else return;
+    int arm = env_get_union_variant_index(env, expected->generic_name, variant);
+    if (arm < 0) return;
+    for (int i = 0; i < count; ++i) {
+        for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
+            if (strcmp(names[i], def->variant_field_names[arm][field])) continue;
+            TypeInfo *payload = resolve_union_payload_type_info(def, arm, field, expected);
+            check_concrete_union_arrays(env, payload, values[i], depth + 1);
+            free_payload_type_info(payload);
+            break;
+        }
     }
 }
 
@@ -2397,6 +2475,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             }
                         }
                         
+                        check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
                         check_record_array_contract(env, func->params[i].type,
                             func->params[i].element_type, func->params[i].struct_type_name, arg);
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
@@ -2690,6 +2769,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
                 ASTNode *arg = expr->as.module_qualified_call.args[i];
                 check_expression(arg, env);
+                check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
                 check_record_array_contract(env, func->params[i].type, func->params[i].element_type,
                                             func->params[i].struct_type_name, arg);
                 if (arg->type == AST_ARRAY_LITERAL &&
@@ -4107,6 +4187,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             
             /* Now check the expression - the specialized functions are registered */
             Type value_type = check_expression(stmt->as.let.value, tc->env);
+            check_concrete_union_arrays(tc->env, stmt->as.let.type_info, stmt->as.let.value, 0);
             if (!check_record_array_contract(tc->env, stmt->as.let.var_type,
                     stmt->as.let.element_type, stmt->as.let.type_name, stmt->as.let.value))
                 tc->has_error = true;
@@ -4391,6 +4472,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             Type value_type = check_expression(stmt->as.set.value, tc->env);
+            check_concrete_union_arrays(tc->env, sym->type_info, stmt->as.set.value, 0);
             if (!check_record_array_contract(tc->env, sym->type, sym->element_type,
                     sym->struct_type_name, stmt->as.set.value)) tc->has_error = true;
 
@@ -4549,6 +4631,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
                 
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
+                check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         stmt->as.return_stmt.value)) tc->has_error = true;
@@ -4960,6 +5043,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     nested.loop_depth = 0;
                     nested.current_function_return_type = func.return_type;
                     nested.current_function_return_element_type = func.return_element_type;
+                    nested.current_function_return_info = func.return_type_info;
                     nested.current_function_return_struct_name = func.return_struct_type_name;
                     check_statement(&nested, stmt->as.function.body);
                     tc->has_error = tc->has_error || nested.has_error;
@@ -6871,6 +6955,7 @@ register_function_pass1:;
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             Type value_type = check_expression(item->as.let.value, env);
+            check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
@@ -6943,6 +7028,7 @@ register_function_pass1:;
             tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
             tc.current_function_return_struct_name = func_def ? func_def->return_struct_type_name : NULL;
             tc.current_function_return_element_type = func_def ? func_def->return_element_type : TYPE_UNKNOWN;
+            tc.current_function_return_info = func_def ? func_def->return_type_info : NULL;
             
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
@@ -7602,6 +7688,7 @@ register_function_pass2:;
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             Type value_type = check_expression(item->as.let.value, env);
+            check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
@@ -7681,6 +7768,7 @@ register_function_pass2:;
             /* Set current function return type for return statement checking */
             tc.current_function_return_type = item->as.function.return_type;
             tc.current_function_return_element_type = item->as.function.return_element_type;
+            tc.current_function_return_info = item->as.function.return_type_info;
             tc.current_function_return_struct_name = item->as.function.return_struct_type_name;
 
             /* Register generic union instantiation for function return type */
