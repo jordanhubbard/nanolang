@@ -381,6 +381,26 @@ uint64_t vm_gc_collect_cycles(VmHeap *heap) {
     for (uint32_t i = 0; i < kept; i++)
         scan(heap, value_from_obj(buf[i]));
 
+    /* Releasing old dead roots can queue new candidates during phase 1a.
+     * Trial deletion may then reach those deferred roots through an old
+     * candidate. They remain buffered, so collect_white will leave their
+     * fields intact. Restore their outgoing counts before leaving those edges
+     * for a later ordinary release; otherwise that release subtracts twice.
+     *
+     * Restore all touched subgraphs before normalizing any root's colour:
+     * scan_black uses BLACK to avoid restoring overlapping descendants twice.
+     * A fresh PURPLE root was never trial-deleted and needs no restoration. */
+    for (uint32_t i = 0; i < heap->cycle_count; i++) {
+        NanoValue v = value_from_obj(heap->cycle_buf[i]);
+        VmHeapHeader *h = header_of(v);
+        if (h && (h->colour == VM_GC_GRAY || h->colour == VM_GC_WHITE))
+            scan_black(heap, v);
+    }
+    for (uint32_t i = 0; i < heap->cycle_count; i++) {
+        VmHeapHeader *h = (VmHeapHeader *)heap->cycle_buf[i];
+        if (h) h->colour = h->ref_count > 0 ? VM_GC_PURPLE : VM_GC_BLACK;
+    }
+
     /* Phase 3: what is still white was only holding itself up. The buffered
      * flags come off first: collect_white refuses to free a buffered object,
      * which is what would otherwise stop it freeing a root at all. */
