@@ -2547,9 +2547,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           alias-visible clear and repeated empty clear. All 69 code-generation
           tests pass. Strict corpus: 175 selected, 168 identical, seven failures,
           zero skipped. This does not establish all constructor contexts.
-        - [ ] I carry map constructor key/value types through returns, globals,
+        - [x] I carry map constructor key/value types through returns, globals,
           fields, arguments and nested generic contexts instead of defaulting to
-          string/int tags. MAC `task_f4e1871af407805219770d7620d58349`.
+          string/int tags. I retain checked scalar tags on each constructor
+          and complete record field annotations on the parsed declaration.
+          All four int/string pairs pass VM values, including empty extraction.
+          See `docs/evidence/map-constructor-contexts.md`.
+          MAC `task_f4e1871af407805219770d7620d58349`.
+        - [ ] I keep native map cleanup inside the binding scope. A map local
+          declared in a selected arm currently reaches function cleanup as an
+          undeclared C name; VM execution passes.
+          MAC `task_1edadd5eb33a445d9bf6516744bc405e`.
         - [x] I advance my bytecode for-loop index on continue, including
           unconditional and nested paths, without advancing an enclosing loop
           on an inner while continue. My new regression and both former timeout

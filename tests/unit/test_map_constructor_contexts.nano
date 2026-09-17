@@ -1,0 +1,38 @@
+struct Holder { values: HashMap<string,string> }
+union Box<T> { Some { value: T } }
+let global: HashMap<string,string> = (map_new)
+fn fresh() -> HashMap<string,string> { return (map_new) }
+shadow fresh { assert (== (map_size (fresh)) 0) }
+fn choose(flag: bool) -> HashMap<string,string> { return (cond (flag (map_new)) (else (map_new))) }
+shadow choose { assert (== (map_size (choose true)) 0) assert (== (map_size (choose false)) 0) }
+fn exercise(values: HashMap<string,string>) -> int {
+ let before: array<string> = (map_keys values)
+ assert (== (array_length before) 0)
+ let grown: array<string> = (array_push before "new")
+ assert (== (at grown 0) "new")
+ (map_put values "answer" "kept")
+ let keys: array<string> = (map_keys values)
+ let items: array<string> = (map_values values)
+ assert (== (at keys 0) "answer")
+ assert (== (at items 0) "kept")
+ (map_clear values)
+ return 0
+}
+shadow exercise { let values: HashMap<string,string> = (map_new) assert (== (exercise values) 0) }
+fn main() -> int {
+ assert (== (exercise (fresh)) 0)
+ assert (== (exercise (choose true)) 0)
+ assert (== (exercise (choose false)) 0)
+ assert (== (exercise (map_new)) 0)
+ assert (== (exercise global) 0)
+ let holder: Holder = Holder { values: (map_new) }
+ let field: HashMap<string,string> = holder.values
+ assert (== (exercise field) 0)
+ let box: Box<HashMap<string,string>> = Box.Some { value: (map_new) }
+ match box { Some(payload) => { let nested: HashMap<string,string> = payload.value assert (== (exercise nested) 0) } }
+ let mut values: HashMap<string,string> = (map_new)
+ set values (map_new)
+ assert (== (exercise values) 0)
+ return 0
+}
+shadow main { assert (== (main) 0) }

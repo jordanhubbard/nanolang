@@ -10,7 +10,6 @@ ROOT = Path(__file__).resolve().parents[1]
 class MapConstructorDiagnostics(unittest.TestCase):
     def test_invalid_constructors_do_not_publish(self):
         programs = [
-            'fn build() -> HashMap<string,int> { return (map_new) }',
             'fn build() -> int { return (map_size (map_new)) }',
             'fn build() -> int { (map_new) return 0 }',
             'fn build() -> int { let m: HashMap<string,int> = (map_new 1) return 0 }',
