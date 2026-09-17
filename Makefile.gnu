@@ -4190,3 +4190,8 @@ test-union-resource-collections: bootstrap test-resource-classification
 test-units: test-nominal-record-array-contracts
 test-nominal-record-array-contracts: $(COMPILER_C) nano_virt nano_vm
 	python3 tests/test_nominal_record_array_contracts.py
+
+test-units: test-array-new-evaluation
+.PHONY: test-array-new-evaluation
+test-array-new-evaluation: $(COMPILER_C) $(INTERPRETER)
+	@python3 -m unittest tests.test_array_new_evaluation

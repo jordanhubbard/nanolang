@@ -8317,6 +8317,9 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I evaluate native filled-array count then fill exactly once, including
+      zero and rejected negative counts (`task_dbdd78cd11a6412aa0904d82ea013434`).
+      I capture both operands before the guard; three regression methods pass.
 - [ ] I reject negative filled-array lengths consistently across backends
       (`task_50c84fa002c14b3fa880d3d260bb8a33`). My evaluator rejects them,
       while C-seed bytecode currently returns an empty array.

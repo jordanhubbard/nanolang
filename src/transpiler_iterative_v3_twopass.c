@@ -2177,25 +2177,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Special handling for array_new() - creates new dynamic array with size and initial value */
             else if (strcmp(func_name, "array_new") == 0 && expr->as.call.arg_count == 2) {
                 /* array_new(size, default_value) -> DynArray* */
-                ASTNode *size_arg = expr->as.call.args[0];
                 ASTNode *value_arg = expr->as.call.args[1];
-                
-                /* Infer element type from default value */
                 Type elem_type = check_expression(value_arg, env);
-                const char *struct_name = NULL;
-                
-                /* For structs, get the struct name */
-                if (elem_type == TYPE_STRUCT) {
-                    if (value_arg->type == AST_IDENTIFIER) {
-                        Symbol *value_sym = env_get_var_visible_at(env, value_arg->as.identifier, value_arg->line, value_arg->column);
-                        if (value_sym && value_sym->struct_type_name) {
-                            struct_name = value_sym->struct_type_name;
-                        }
-                    } else if (value_arg->type == AST_STRUCT_LITERAL) {
-                        struct_name = value_arg->as.struct_literal.struct_name;
-                    }
-                }
-                
+
                 /* Map element type to ElementType enum */
                 const char *elem_type_str = "ELEM_INT";
                 if (elem_type == TYPE_U8) {
@@ -2213,19 +2197,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type_str = "ELEM_STRUCT";
                 }
                 
-                /* Generate initialization code using a compound statement */
-                /* ({ DynArray* _arr = dyn_array_new(ELEM_TYPE); for (...) { dyn_array_push_*(_arr, val); } _arr; }) */
-                emit_formatted(list, "({ DynArray* _arr = dyn_array_new(%s); ", elem_type_str);
-                emit_literal(list, "int64_t _size = ");
-                build_expr(list, size_arg, env);
-                emit_literal(list, "; for (int64_t _i = 0; _i < _size; _i++) { ");
-                
-                /* Generate appropriate push call based on type */
-                if (elem_type == TYPE_STRUCT && struct_name) {
-                    /* For structs: dyn_array_push_struct(_arr, &value, sizeof(nl_StructName)) */
-                    emit_literal(list, "dyn_array_push_struct(_arr, &(");
-                    build_expr(list, value_arg, env);
-                    emit_formatted(list, "), sizeof(nl_%s)); ", struct_name);
+                /* I capture both operands once, before checking the count. */
+                emit_literal(list, "({ ");
+                unsigned call_id = build_ordered_call_args(list, expr->as.call.args, 2, env, NULL);
+                emit_formatted(list, "if (__nl_arg_%u_0 < 0) { fputs(\"I require a non-negative array count\\n\", stderr); abort(); } ", call_id);
+                emit_formatted(list, "DynArray* _arr = dyn_array_new(%s); ", elem_type_str);
+                emit_formatted(list, "for (int64_t _i = 0; _i < __nl_arg_%u_0; _i++) { ", call_id);
+
+                if (elem_type == TYPE_STRUCT) {
+                    emit_formatted(list, "dyn_array_push_struct(_arr, &__nl_arg_%u_1, sizeof(__nl_arg_%u_1)); ", call_id, call_id);
                 } else {
                     /* For primitives: dyn_array_push_<type>(_arr, value) */
                     const char *type_suffix = "int";
@@ -2242,9 +2222,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         type_suffix = "array";
                     }
                     
-                    emit_formatted(list, "dyn_array_push_%s(_arr, ", type_suffix);
-                    build_expr(list, value_arg, env);
-                    emit_literal(list, "); ");
+                    emit_formatted(list, "dyn_array_push_%s(_arr, __nl_arg_%u_1); ", type_suffix, call_id);
                 }
                 
                 emit_literal(list, "} _arr; })");
