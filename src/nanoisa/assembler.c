@@ -581,6 +581,43 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return false;
         }
 
+        /* I append lossless metadata chunks; normal verification checks the graph. */
+        if (strcmp(directive, "passive") == 0) {
+            char hex[4096];
+            uint32_t length;
+            if (state->in_function || !parse_quoted_string(&p, hex, sizeof(hex), &length) ||
+                !length || length % 2 || !require_line_end(p, result)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "I expect a nonempty quoted hexadecimal passive chunk outside functions");
+                return false;
+            }
+            for (uint32_t i = 0; i < length; ++i) {
+                if (!isxdigit((unsigned char)hex[i])) {
+                    result->error = ASM_ERR_SYNTAX;
+                    snprintf(result->message, sizeof(result->message), "I require hexadecimal passive bytes");
+                    return false;
+                }
+            }
+            uint32_t bytes = length / 2;
+            if (bytes > UINT32_MAX - state->mod->passive_size) {
+                result->error = ASM_ERR_MEMORY;
+                return false;
+            }
+            uint8_t *data = realloc(state->mod->passive_data, state->mod->passive_size + bytes);
+            if (!data) { result->error = ASM_ERR_MEMORY; return false; }
+            for (uint32_t i = 0; i < bytes; ++i) {
+                unsigned char a = (unsigned char)tolower((unsigned char)hex[i * 2]);
+                unsigned char b = (unsigned char)tolower((unsigned char)hex[i * 2 + 1]);
+                unsigned high = a <= '9' ? a - '0' : a - 'a' + 10;
+                unsigned low = b <= '9' ? b - '0' : b - 'a' + 10;
+                data[state->mod->passive_size + i] = (uint8_t)(high * 16 + low);
+            }
+            state->mod->passive_data = data;
+            state->mod->passive_size += bytes;
+            return true;
+        }
+
         if (strcmp(directive, "string") == 0) {
             char buf[4096];
             char name[128];

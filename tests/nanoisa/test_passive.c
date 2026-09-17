@@ -1,4 +1,5 @@
 #include "assembler.h"
+#include "disassembler.h"
 #include "passive.h"
 #include "verifier.h"
 #include "nvm_v2_sections.h"
@@ -57,6 +58,49 @@ static void independent_and_input(void) {
     attach(m,missing_read,sizeof missing_read);CHECK(!nvm_verify(m).ok);
     nvm_module_free(m);
 }
+static void text_roundtrip(const NvmModule *m, const uint8_t *bytes, size_t size) {
+    char *text = disasm_module_styled(m, DISASM_STYLE_CANONICAL);
+    CHECK(text && strstr(text, ".passive ") != NULL);
+    if (!text) return;
+    AsmResult result;
+    NvmModule *copy = asm_assemble(text, &result);
+    CHECK(copy != NULL);
+    if (copy) {
+        CHECK(copy->passive_size == m->passive_size &&
+              memcmp(copy->passive_data, m->passive_data, m->passive_size) == 0);
+        CHECK(copy->code_size == m->code_size && memcmp(copy->code, m->code, m->code_size) == 0);
+        NvmV2Module converted;
+        CHECK(nvm_v2_from_nvm_module(copy, &converted) == NVM_V2_OK);
+        size_t needed = 0;
+        CHECK(nvm_v2_module_serialize(&converted, NULL, 0, &needed) == NVM_V2_OK);
+        uint8_t *output = malloc(needed);
+        CHECK(output != NULL);
+        if (output) {
+            CHECK(nvm_v2_module_serialize(&converted, output, needed, NULL) == NVM_V2_OK);
+            CHECK(needed == size && memcmp(output, bytes, size) == 0);
+            free(output);
+        }
+        nvm_v2_module_free(&converted);
+        nvm_module_free(copy);
+    }
+    /* Replacing a valid version with an unsupported one cannot erase the claim. */
+    char *claim = strstr(text, ".passive \"");
+    if (claim) {
+        claim[10] = '2';
+        copy = asm_assemble(text, &result);
+        CHECK(!copy && result.error == ASM_ERR_VERIFY);
+        nvm_module_free(copy);
+    }
+    free(text);
+    const char *invalid[] = {".passive \"\"\n", ".passive \"0\"\n",
+        ".passive \"zz\"\n", ".passive \"00\" trailing\n",
+        ".function main 0 0 0 void 0\n.passive \"00\"\nRET\n.end\n"};
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        copy = asm_assemble(invalid[i], &result);
+        CHECK(!copy && result.error == ASM_ERR_SYNTAX);
+        nvm_module_free(copy);
+    }
+}
 int main(int argc,char **argv) {
     independent_and_input();
     NvmModule *m=fixture(); if(!m) return 1;
@@ -68,6 +112,7 @@ int main(int argc,char **argv) {
     size_t size=0; CHECK(nvm_v2_module_serialize(&v2,NULL,0,&size)==NVM_V2_OK);
     uint8_t *bytes=malloc(size),*again=malloc(size);
     CHECK(nvm_v2_module_serialize(&v2,bytes,size,NULL)==NVM_V2_OK);
+    text_roundtrip(m,bytes,size);
     NvmV2Header header; CHECK(nvm_v2_read_header(bytes,size,&header)==NVM_V2_OK);
     CHECK((header.feature_bits & NVM_V2_FEATURE_PASSIVE)!=0);
     NvmV2Module decoded; CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);

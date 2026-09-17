@@ -44,3 +44,15 @@ the unchanged instruction stream. Loading, verifying, or serializing malformed
 eligibility claims fails; metadata-free modules retain their existing behavior.
 The bridge copies the exact payload. Code transforms that change offsets must
 rebuild valid records; they cannot retain stale claims or silently discard them.
+
+## Canonical text
+
+I write exact eligibility bytes as ordered `.passive "hexadecimal"` chunks in
+canonical disassembly. Each emitted chunk carries at most 32 bytes. The
+assembler appends chunks outside functions and verifies the complete record
+against the assembled code; invalid hex, incomplete records, stale offsets and
+false graph claims reject assembly. Reassembling canonical text preserves the
+full canonical v2 bytes, including this section and its feature bit.
+
+This is lossless textual transport. Editing instructions still requires updating
+and revalidating their claims; this does not establish transformation equivalence.

@@ -94,6 +94,19 @@ shadow main { assert (== (main) 0) }
             self.assertIn(b"after failed shadows", rejected.stdout + rejected.stderr)
             self.assertEqual(output.read_bytes(), accepted)
 
+    def test_reachable_refusal_reports_precise_boundary(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-program-route-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "main.nano", directory / "main.nvm"
+            output.write_bytes(b"prior")
+            source.write_text('fn required() -> float { return 1.5 }\n'
+                              'fn main() -> int { (required) return 0 }\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
+            self.assertIn(b"I cannot lower this checked program: unsupported result type float",
+                          rejected.stdout + rejected.stderr)
+            self.assertEqual(output.read_bytes(), b"prior")
+
     def test_dependency_and_root_shadow_failures_preserve_output(self):
         with tempfile.TemporaryDirectory(prefix="canonical-nvm-shadows-") as tmp:
             directory = Path(tmp)

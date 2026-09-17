@@ -55,8 +55,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         wrongly rejected `Box<int>` on all three stages. I also repair declared
         one-letter C record identities, empty union-arm metadata cleanup and
         imported concrete union parameter prototypes. I add ordinary self-hosted
-        match traversal with ownership
-        joins and visits ordinary union constructor fields while retaining
+        match traversal with ownership joins and visit ordinary union
+        constructor fields while retaining
         resource-payload rejection and unsupported guards.
         I retain inline union constructor identity in C ownership lookup. All
         sixteen generic methods pass across three stages, including ordinary
@@ -72,6 +72,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [ ] I restore the required full compiler AOT gate through the separately
         recorded exact artifact-binding repair. Owned payload transfer above
         remains open; I do not claim the complete generic ownership contract.
+
+- [x] **v5.0.1 passive metadata text preservation.** I preserve validated
+      eligibility records through canonical disassembly and reassembly,
+      reject malformed textual payloads, and compare canonical v2 bytes.
+      MAC: `task_64dda3aeaab042df96a914ccd974209a`.
 
 - [x] **v5.0.1 C-seed global initializer context.** I apply declared map and
       array types before checking top-level initializers, matching local
@@ -229,6 +234,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       reject publication without replacing prior output.
       MAC `task_771b3fdc89aa42f7bf100ce7bfd0d40d`.
       My fresh three-stage bootstrap and all five canonical driver methods pass.
+      - [x] I report the lowerer's exact refusal at this checked boundary and
+            preserve prior output when a reachable declaration is unsupported
+            (`task_6c940d99e2674a9fabe6b27ce16517eb`).
 
 - [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
@@ -8070,10 +8078,16 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower finite nested compiler record and typed-list field shapes;
-      after `MergeResult`, actual canonical emission first refuses
-      `List<CompilerDiagnostic>` because its location is a nested record
+- [ ] I lower compiler `array<Symbol>` and its enum-bearing fields, retaining
+      source-enum integer representation and typed enum/record array tags
+      (`task_8e7c52236ee645d3b877266acf84ce19`). Actual emission after nested records
+      first refuses this local type.
+- [x] I lower finite nested compiler record and typed-list field shapes,
+      including `CompilerDiagnostic` and its nested source location. I reject
+      cyclic shapes and mismatched nested values; 86 checks and 28 integration
+      methods pass with VM/AOT construction, projection, calls and mutation
       (`task_2c3445862de74affa5d2bf624c8c5986`).
+      `docs/evidence/selfhost-nested-record-shapes.md` records the boundary.
 - [x] I infer scalar array literal tags from computed element types; direct
       `[(int_to_string 7)]` now retains its string element tag. The old module
       fails its VM assertion; repaired C-seed/VM/AOT parity and malformed
