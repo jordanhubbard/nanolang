@@ -4475,3 +4475,11 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm
+
+.PHONY: nvm2wasm test-nvm2wasm
+nvm2wasm: nvm2llvm | bin
+	cp scripts/nvm2wasm.py bin/nvm2wasm
+	chmod +x bin/nvm2wasm
+
+test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_nvm2wasm

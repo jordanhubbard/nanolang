@@ -17,3 +17,9 @@ The final eleven methods pass in 6.098 seconds, and again in 5.292 seconds with 
 I do not yet lower generic arithmetic/comparison, floating point, globals, tail calls, strings, aggregate allocation, imports, linked modules, effects or resource/passive contracts here. Those remain explicit refusals or signature/profile exclusions. This foundation does not close the full LLVM release requirement, and I have not implemented Wasm.
 
 My initial implicit-return fixture exposed a separate VM caller-resumption defect: a nested implicit return ended execution before the caller resumed. Task `task_4b3800f46af143fbb171f9565f92b8e0` retains `/tmp/nanolang-llvm-implicit-tests.log`. Entry implicit return executes in VM but C AOT refuses it; task `task_8a18a76c86884299ac3f7880ea617978` retains `/tmp/nanolang-llvm-profile-tests.log`. I refuse all such exits in this foundation rather than claim common coverage. My tests verify both refusals and a VM/LLVM runtime-unknown declared-result tag rejection. Named initializers are also explicitly refused because VM executes `__init__` before entry and this profile has no initializer contract.
+
+My default executable entry is `main`. `--entry-name nano_NAME` selects an
+ASCII identifier in my reserved target-entry namespace; other names are
+refused before publication. My Wasm translator uses this API to avoid the
+wasm32 C-main startup convention. The underlying scalar result remains i32
+at the host entry boundary.

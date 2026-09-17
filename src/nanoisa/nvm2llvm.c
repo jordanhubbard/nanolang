@@ -153,7 +153,13 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
     }
     fprintf(out, "b%u:\n %%fallthrough = call %%V @pop(ptr %%stack, ptr %%sp)\n call i64 @integer(%%V %%fallthrough, i8 %u)\n ret %%V %%fallthrough\n}\n", f->code_length, f->result_tag);
 }
-int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
+int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry) {
+    if (!entry || (strcmp(entry, "main") && strncmp(entry, "nano_", 5)))
+        return refuse(error, size, "I require main or a nano_ entry identifier");
+    for (const char *p = entry; *p; ++p)
+        if (!((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
+              (*p >= '0' && *p <= '9') || *p == '_'))
+            return refuse(error, size, "I require an ASCII entry identifier");
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok) return refuse(error, size, "I refuse unverified bytecode: %s", verified.error_msg);
@@ -192,7 +198,11 @@ int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
         if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
         function(out, m, i, depth);
     }
-    fprintf(out, "define i32 @main() {\n %%value = call %%V @f%u()\n %%n = extractvalue %%V %%value, 0\n %%status = trunc i64 %%n to i32\n ret i32 %%status\n}\n", m->header.entry_point);
+    fprintf(out, "define i32 @%s() {\n %%value = call %%V @f%u()\n %%n = extractvalue %%V %%value, 0\n %%status = trunc i64 %%n to i32\n ret i32 %%status\n}\n", entry, m->header.entry_point);
     if (ferror(out)) return refuse(error, size, "I could not write LLVM IR");
     return 1;
+}
+
+int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
+    return nvm2llvm_emit_entry(m, out, error, size, "main");
 }

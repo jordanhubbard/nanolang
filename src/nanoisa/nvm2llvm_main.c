@@ -9,12 +9,16 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-    const char *input = NULL, *output = NULL;
+    const char *input = NULL, *output = NULL, *entry = "main";
+    int entry_seen = 0;
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
-            puts("I translate verified scalar NanoISA v2 to LLVM IR.\nUsage: nvm2llvm input.nvm [-o output.ll]\nI refuse unsupported profiles; I do not embed NanoVM."); return 0;
+            puts("I translate verified scalar NanoISA v2 to LLVM IR.\nUsage: nvm2llvm input.nvm [-o output.ll] [--entry-name main|nano_NAME]\nI refuse unsupported profiles; I do not embed NanoVM."); return 0;
         }
         if (!strcmp(argv[i], "-o") && i + 1 < argc && !output) output = argv[++i];
+        else if (!strcmp(argv[i], "--entry-name") && i + 1 < argc && !entry_seen) {
+            entry = argv[++i]; entry_seen = 1;
+        }
         else if (argv[i][0] == '-' || input) { fputs("I require one input and an optional -o output\n", stderr); return 2; }
         else input = argv[i];
     }
@@ -51,7 +55,7 @@ int main(int argc, char **argv) {
         free(temporary); nvm_module_free(m); return 1;
     }
     char error[512];
-    int ok = nvm2llvm_emit(m, stream, error, sizeof error);
+    int ok = nvm2llvm_emit_entry(m, stream, error, sizeof error, entry);
     nvm_module_free(m);
     if (!ok) fprintf(stderr, "%s\n", error);
     if (ok && fflush(stream)) ok = 0;
