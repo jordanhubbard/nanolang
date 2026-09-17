@@ -2910,7 +2910,7 @@ shadow nisa_emit_typed_let {
     let emitted: string = (nisa_emit_typed_let parser (parser_get_let parser 0) "int")
     assert (str_contains emitted "STORE_LOCAL 0")
     assert (== (at nisa_types 0) "int")
-    let _: int = (nisa_reset)
+    assert (== (nisa_reset) 0)
 }
 
 fn nisa_emit_flow(parser: Parser, block: ASTBlock) -> string {

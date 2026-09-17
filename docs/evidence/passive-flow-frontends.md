@@ -66,3 +66,9 @@ canonical bound module owners, raw self-hosted emission, exact function code and
 metadata, verified VM/strict native execution, and output preservation on
 refusal. I do not infer full passive scheduling or arbitrary capture support
 from this bounded slice.
+
+A new helper shadow originally declared two `let _` locals. C-seed built it,
+but Stage1 emitted two `nl__` C locals and Stage2's native shadow build refused
+them. I retain `/tmp/nanolang-flow-final2-gates.log` and record the general
+discard-local boundary as `task_31bb6c9161ad4498a085905d26d1f666`. The helper
+shadow now asserts the reset return value directly; its checks remain intact.
