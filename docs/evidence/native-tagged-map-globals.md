@@ -27,3 +27,26 @@ I keep two boundaries open:
   values; my existing native map runtime rejects it. I preserve both observed
   outcomes in the negative fixture and track the raw contract reconciliation
   as `task_b19f8bf0527d4a33911be26706629616`. I do not relax native checks.
+
+I measured these gates:
+
+- `make test-nvm2c`: 2,386 native checks and 1,092 shape checks pass.
+- The map/lifetime/one-IR Python suite: 37 methods pass in 305.119 seconds on
+  base `2566ca12`, including the native compiler's explicit `--emit-nvm` hello
+  product run through VM and native output.
+- The final five map methods pass after rebase onto `b3f79449`, including the
+  independent-root and comparison cases, with ASan, UBSan and leak detection.
+- My original string-map-global fixture also compiles and runs with strict
+  Clang warnings after selecting the installed GCC 13 toolchain explicitly.
+
+The rebased full compiler gate fails: fresh compiler bytecode reaches an
+incompatible stack join in function 357, `check_let_statement`. I compiled the
+unchanged `b3f79449` translator, shape solver and runtime includes separately;
+that translator rejects the exact same bytes with the same diagnostic. I keep
+this failure open as `task_55002ea4e4c64f80a6ba70b7f147ebef`. I do not report the
+current full compiler gate as passing. The new inferred-type conditional in
+that function is the next diagnostic lead, not a proved cause.
+
+I preserve the module, disassembly, baseline translator and logs under
+`/tmp/nanolang-map-globals-integrated-failure/`. Other measured logs are
+`/tmp/nanolang-native-map-globals-{full,integration,rebase,comparison}.log`.
