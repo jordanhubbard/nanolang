@@ -7911,10 +7911,12 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower loop `break` and `continue` in my NanoISA emitter
+- [x] I lower loop `break` and `continue` in my NanoISA emitter
       (task_942fb307760a4460a49eb49986049103), including nested-loop targets and
-      out-of-loop refusal. Real compiler emission now reaches a `break`
-      in `parse_options` and reports a statement outside my subset.
+      out-of-loop refusal. Twelve named bytecode checks and both VM/native
+      executions pass, including nested loops and unreachable statements.
+      Real compiler emission passes `parse_options` and next refuses
+      `getenv`, which needs host-builtin lowering (2026-09-16).
 - [x] I lower void-result functions and zero-result call statements in my
       self-hosted NanoISA emitter (task_862889b9369e4511a465fe838e69224e), including
       bare and implicit returns. I require C-seed bytecode comparisons and
