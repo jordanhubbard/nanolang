@@ -2433,19 +2433,27 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             arg->as.array_literal.element_type = resolved_array_element(func->params[i].element_type, func->params[i].struct_type_name, env);
                         }
                         
-                        /* Check for opaque type parameters - allow 0 (null) as argument */
+                        /* Check for opaque type parameters. I accept only the
+                         * literal integer zero as the source spelling of null;
+                         * arbitrary integers are not pointer values. */
                         bool is_opaque_param = false;
-                        if (func->params[i].type == TYPE_STRUCT && func->params[i].struct_type_name) {
-                            OpaqueTypeDef *opaque = env_get_opaque_type(env, func->params[i].struct_type_name);
-                            if (opaque) {
+                        bool named_opaque =
+                            func->params[i].type == TYPE_STRUCT &&
+                            func->params[i].struct_type_name &&
+                            env_get_opaque_type(env, func->params[i].struct_type_name);
+                        if (func->params[i].type == TYPE_OPAQUE || named_opaque) {
+                                const char *opaque_name = func->params[i].struct_type_name
+                                    ? func->params[i].struct_type_name : "opaque";
+                                bool null_literal = arg_type == TYPE_INT &&
+                                    arg->type == AST_NUMBER && arg->as.number == 0;
                                 is_opaque_param = true;
-                                /* For opaque types, allow TYPE_INT (for passing 0 as NULL) */
-                                if (arg_type != TYPE_INT && arg_type != TYPE_STRUCT && arg_type != TYPE_OPAQUE) {
+                                if (!null_literal && arg_type != TYPE_STRUCT &&
+                                    arg_type != TYPE_OPAQUE) {
                                     char message[256];
                                     snprintf(message, sizeof(message),
                                             "Argument %d expects opaque type `%s` or 0 (null), got %s.",
                                             i + 1,
-                                            func->params[i].struct_type_name,
+                                            opaque_name,
                                             type_to_string(arg_type));
                                     emit_context_error(
                                         "E001 TYPE MISMATCH",
@@ -2456,7 +2464,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                         "Pass the opaque handle or 0 (null)."
                                     );
                                 }
-                            }
                         }
                         
                         /* Check for reverse case: parameter is int but argument is opaque type

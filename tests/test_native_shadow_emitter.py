@@ -90,6 +90,13 @@ class NativeShadowEmitter(unittest.TestCase):
     def test_helper_assertions_are_enabled(self):
         self.check("fn f() -> int { assert false return 7 } shadow f { assert (== (f) 7) }", expected=None, ndebug=True)
 
+    def test_opaque_null_arguments_compile(self):
+        self.check("opaque type SDL_Window\n"
+                   "fn is_null(value: SDL_Window) -> bool { return (== value 0) }\n"
+                   "shadow is_null { assert (is_null 0) }\n"
+                   "fn main() -> int { assert (is_null 0) return 0 }\n"
+                   "shadow main { assert (== (main) 0) }")
+
     def test_invalid_selection_does_not_emit(self):
         for emitter in self.emitters:
             with self.subTest(compiler=emitter.name):

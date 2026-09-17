@@ -823,6 +823,20 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
     return call_id;
 }
 
+/* I preserve the source-level zero spelling for an opaque null after call
+ * arguments have been snapshotted into typed C temporaries.  An integer
+ * temporary is not a C null-pointer constant, so the final call boundary must
+ * restore the declared pointer type explicitly. */
+static bool call_parameter_is_opaque(const Function *function, int index,
+                                     Environment *env) {
+    if (!function || !function->params || index < 0 ||
+        index >= function->param_count) return false;
+    const Parameter *parameter = &function->params[index];
+    if (parameter->type == TYPE_OPAQUE) return true;
+    return parameter->type == TYPE_STRUCT && parameter->struct_type_name && env &&
+           env_get_opaque_type(env, parameter->struct_type_name) != NULL;
+}
+
 static unsigned next_nested_array_id(Environment *env) {
     static _Thread_local unsigned next_id;
     unsigned id;
@@ -2437,6 +2451,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     if (i > 0) emit_literal(list, ", ");
 
+                    bool opaque_parameter =
+                        call_parameter_is_opaque(func_info, i, env);
+
                     /* ARC: Check if parameter is opaque type that needs unwrapping */
                     bool needs_unwrap = false;
                     if (needs_unwrap_check && func_info && i < func_info->param_count && env) {
@@ -2454,9 +2471,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                     if (needs_unwrap) {
                         emit_literal(list, "gc_unwrap(");
+                        if (opaque_parameter) emit_literal(list, "(void*)");
                         emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                         emit_literal(list, ")");
                     } else {
+                        if (opaque_parameter) emit_literal(list, "(void*)");
                         emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                     }
                 }
@@ -2492,12 +2511,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             emit_literal(list, "({ ");
             unsigned call_id = build_ordered_call_args(list, expr->as.module_qualified_call.args,
                                                        expr->as.module_qualified_call.arg_count, env, NULL);
-            emit_foreign_reference(list, c_name, env_get_function(env, qualified_name));
+            Function *qualified_function = env_get_function(env, qualified_name);
+            emit_foreign_reference(list, c_name, qualified_function);
             emit_literal(list, "(");
             
             /* Emit arguments */
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
+                if (call_parameter_is_opaque(qualified_function, i, env))
+                    emit_literal(list, "(void*)");
                 emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
             }
             

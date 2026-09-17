@@ -164,6 +164,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       stale task and correct release-tree restoration evidence after its owner
       closes the ledger row. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
+- [x] **Preserve opaque null arguments in native call snapshots.** I retain my
+      accepted integer-zero spelling for an opaque null when foreign call
+      arguments are evaluated once into ordered temporaries. I reject nonzero
+      integers, compare my C seed and self-hosted native emitters, require
+      strict C compilation, and restore the current quick GLUT gate. MAC
+      `task_77dab245060bc54e6f445bdde3431ec1`.
+      Six native call-order/null methods, both bootstrap stages, 22 self-hosted
+      compiler cases, the paired native shadow emitters and the GLUT boundary
+      gate pass. My broader quick gate advances through that repaired boundary
+      and stops later at the separately owned VM example-purity failures under
+      `task_7ee12d8737363c126a040fde905a7114`.
+
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
       my canonical bytecode route. My unchanged main baseline rejects import
