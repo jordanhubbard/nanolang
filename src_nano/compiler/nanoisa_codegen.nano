@@ -1033,8 +1033,9 @@ shadow nisa_emit_map_call {
 
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
+    if (== name "atan") { return "float" }
     let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
-    let integers: array<string> = ["get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv"]
+    let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv"]
     let booleans: array<string> = ["vm_is_alnum", "file_exists", "vm_file_exists", "vm_dir_exists"]
     let mut i: int = 0
     while (< i (array_length strings)) {
@@ -1054,6 +1055,8 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "strlen") "int")
+    assert (== (nisa_host_result "atan") "float")
     assert (== (nisa_host_result "vm_getenv") "string")
     assert (== (nisa_host_result "vm_string_from_char") "string")
     assert (== (nisa_host_result "get_argc") "int")
@@ -1077,11 +1080,14 @@ shadow nisa_host_arity {
 }
 
 fn nisa_host_parameter(name: string) -> string {
+    if (== name "atan") { return "float" }
     if (<= (nisa_host_arity name) 0) { return "" }
     if (or (== name "vm_is_alnum") (or (== name "get_argv") (== name "vm_string_from_char"))) { return "int" }
     return "string"
 }
 shadow nisa_host_parameter {
+    assert (== (nisa_host_parameter "strlen") "string")
+    assert (== (nisa_host_parameter "atan") "float")
     assert (== (nisa_host_parameter "get_argv") "int")
     assert (== (nisa_host_parameter "vm_is_alnum") "int")
     assert (== (nisa_host_parameter "vm_string_from_char") "int")
