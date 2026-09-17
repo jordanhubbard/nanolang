@@ -317,6 +317,7 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
 }
 
 const char *get_struct_type_name(ASTNode *expr, Environment *env);
+static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
@@ -350,6 +351,20 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
             for (int i = 0; i < record->field_count; ++i)
                 if (strcmp(record->field_names[i], expr->as.field_access.field_name) == 0)
                     return record->field_type_info[i];
+        }
+    }
+    if (expr->type == AST_CALL) {
+        if (expr->as.call.checked_signature)
+            return expr->as.call.checked_signature->return_type_info;
+        if (expr->as.call.func_expr) {
+            FunctionSignature *signature = function_result_signature(expr->as.call.func_expr, env);
+            return signature ? signature->return_type_info : NULL;
+        }
+        if (expr->as.call.name) {
+            Symbol *symbol = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
+            if (symbol && symbol->type == TYPE_FUNCTION && symbol->type_info &&
+                symbol->type_info->base_type == TYPE_FUNCTION && symbol->type_info->fn_sig)
+                return symbol->type_info->fn_sig->return_type_info;
         }
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
@@ -1210,6 +1225,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
 /* I borrow declared signatures; the parser/environment owns their storage. */
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env) {
     if (!call || call->type != AST_CALL) return NULL;
+    if (call->as.call.checked_signature) return call->as.call.checked_signature->return_fn_sig;
     if (call->as.call.func_expr) {
         FunctionSignature *callee = function_result_signature(call->as.call.func_expr, env);
         return callee ? callee->return_fn_sig : NULL;
@@ -1236,7 +1252,29 @@ static const char *inline_variant_union(ASTNode *node, Environment *env) {
     return definition ? definition->name : NULL;
 }
 
+/* I check literal leaves against the complete callback annotation. */
+static bool indirect_argument_matches(ASTNode *argument, Environment *env,
+                                      const TypeInfo *expected, Type fallback,
+                                      int depth) {
+    if (depth > 128) return false;
+    Type actual = check_expression(argument, env);
+    if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
+    if (!expected) return true;
+    if (expected->base_type == TYPE_ARRAY && expected->element_type &&
+        argument->type == AST_ARRAY_LITERAL) {
+        for (int i = 0; i < argument->as.array_literal.element_count; ++i) {
+            if (!indirect_argument_matches(argument->as.array_literal.elements[i], env,
+                    expected->element_type, expected->element_type->base_type, depth + 1))
+                return false;
+        }
+        return true;
+    }
+    TypeInfo *info = try_get_expr_type_info(argument, env);
+    return !info || type_infos_equal(expected, info);
+}
+
 static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *sig) {
+    if (!sig) sig = call->as.call.checked_signature;
     if (!sig) {
         emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
                            "I cannot determine this function value's signature.",
@@ -1250,15 +1288,26 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
         return TYPE_UNKNOWN;
     }
     for (int i = 0; i < call->as.call.arg_count; i++) {
-        Type actual = check_expression(call->as.call.args[i], env);
-        if (!types_match(actual, sig->param_types[i])) {
+        ASTNode *argument = call->as.call.args[i];
+        TypeInfo *expected = sig->param_type_info ? sig->param_type_info[i] : NULL;
+        check_concrete_union_arrays(env, expected, argument, 0);
+        bool matches = indirect_argument_matches(argument, env, expected,
+                                                  sig->param_types[i], 0);
+        if (!matches) {
             emit_context_error("E001 TYPE MISMATCH", call->as.call.args[i]->line,
                                call->as.call.args[i]->column, 1,
                                "I require the declared argument type for this function value.",
                                "Match the function signature.");
         }
     }
-    return sig->return_type;
+    FunctionSignature *retained = copy_function_signature(sig);
+    Type result = sig->return_type;
+    char *name = sig->return_struct_name ? strdup(sig->return_struct_name) : NULL;
+    free_function_signature(call->as.call.checked_signature);
+    call->as.call.checked_signature = retained;
+    free(call->as.call.return_struct_type_name);
+    call->as.call.return_struct_type_name = name;
+    return result;
 }
 
 static Type check_perform(ASTNode *expr, Environment *env) {
@@ -2988,42 +3037,21 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
             }
 
+            /* I share the ordinary call checker, including complete callback
+             * signatures. The argument ASTs remain owned by the qualified node. */
+            ASTNode call = {0};
+            call.type = AST_CALL;
+            call.line = expr->line;
+            call.column = expr->column;
+            call.as.call.name = qualified_name;
+            call.as.call.args = expr->as.module_qualified_call.args;
+            call.as.call.arg_count = expr->as.module_qualified_call.arg_count;
+            Type result = check_expression(&call, env);
+            free(call.as.call.return_struct_type_name);
+            free(call.as.call.concrete_func_name);
+            free_function_signature(call.as.call.checked_signature);
             free(qualified_name);
-            
-            /* Type check arguments (basic check - just verify count and type check expressions) */
-            if (expr->as.module_qualified_call.arg_count != func->param_count) {
-                char message[256];
-                snprintf(message, sizeof(message),
-                        "Function `%s.%s` expects %d argument(s), but got %d.",
-                        module_alias, function_name,
-                        func->param_count, expr->as.module_qualified_call.arg_count);
-                emit_context_error(
-                    "E003 ARITY MISMATCH",
-                    expr->line,
-                    expr->column,
-                    (int)safe_strlen(function_name),
-                    message,
-                    "Add or remove arguments to match the function signature."
-                );
-                return TYPE_UNKNOWN;
-            }
-            
-            /* Type check each argument expression */
-            for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
-                ASTNode *arg = expr->as.module_qualified_call.args[i];
-                check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
-                check_expression(arg, env);
-                check_record_array_contract(env, func->params[i].type, func->params[i].element_type,
-                                            func->params[i].struct_type_name, arg);
-                if (arg->type == AST_ARRAY_LITERAL &&
-                    arg->as.array_literal.element_count == 0 &&
-                    func->params[i].type == TYPE_ARRAY &&
-                    func->params[i].element_type != TYPE_UNKNOWN) {
-                    arg->as.array_literal.element_type = resolved_array_element(func->params[i].element_type, func->params[i].struct_type_name, env);
-                }
-            }
-            
-            return func->return_type;
+            return result;
         }
 
         case AST_ARRAY_LITERAL: {

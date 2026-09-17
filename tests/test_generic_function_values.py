@@ -94,4 +94,84 @@ fn apply(f: fn(array<array<int>>) -> array<array<int>>) -> int { return 0 }
 shadow apply { assert true }
 fn main() -> int { return (apply identity) }''', reject=True)
 
+    def test_reject_wrong_indirect_generic_argument(self):
+        self.check('''fn read_bool(box: Box<bool>) -> int {
+ match box { Some(payload) => { if payload.value { return 1 } else { return 0 } } }
+}
+shadow read_bool { let value: Box<bool> = Box.Some { value: true } assert (== (read_bool value) 1) }
+fn apply(read: fn(Box<bool>) -> int) -> int { return (read (make_box)) }
+shadow apply { assert true }
+fn main() -> int { return (apply read_bool) }''', reject=True)
+
+    def test_vm_generic_callback_context(self):
+        source = PRELUDE + '''fn apply(make: fn() -> Box<int>) -> int { return (read_box (make)) }
+shadow apply { assert (== (apply make_box) 7) }
+fn main() -> int { return (- (apply make_box) 7) }
+shadow main { assert (== (main) 0) }
+'''
+        with tempfile.TemporaryDirectory(prefix='nano-vm-callback-') as directory:
+            path, output = Path(directory)/'input.nano', Path(directory)/'output.nvm'
+            path.write_text(source)
+            result = subprocess.run([ROOT/'bin/nano_virt', path, '--emit-nvm', '-o', output],
+                                    cwd=ROOT, capture_output=True, text=True, timeout=120)
+            diagnostic = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 0, diagnostic)
+            self.assertNotIn('cannot determine this function value', diagnostic)
+            result = subprocess.run([ROOT/'bin/nano_vm', output], cwd=ROOT,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_reject_wrong_indirect_nested_array_argument(self):
+        self.check('''fn read(values: array<array<int>>) -> int { return 0 }
+shadow read { assert true }
+fn apply(f: fn(array<array<int>>) -> int) -> int { return (f [[true]]) }
+shadow apply { assert true }
+fn main() -> int { return (apply read) }''', reject=True)
+
+    def test_computed_generic_callback(self):
+        self.check('''fn choose() -> fn(Box<int>) -> int { return read_box }
+shadow choose { assert (== ((choose) (make_box)) 7) }
+fn main() -> int { return (- ((choose) (make_box)) 7) }''')
+
+    def test_reject_computed_nested_array_argument(self):
+        self.check('''fn read(values: array<array<int>>) -> int { return 0 }
+shadow read { assert true }
+fn choose() -> fn(array<array<int>>) -> int { return read }
+shadow choose { assert true }
+fn main() -> int { return ((choose) [[true]]) }''', reject=True)
+
+    def test_qualified_import_callback_signatures(self):
+        module = '''pub fn apply(f: fn(array<array<int>>) -> array<array<int>>, values: array<array<int>>) -> array<array<int>> { return (f values) }
+shadow apply { assert true }
+'''
+        for compiler in COMPILERS:
+            for mismatch in (False, True):
+                with self.subTest(compiler=compiler, mismatch=mismatch), tempfile.TemporaryDirectory(prefix='nano-qualified-callback-') as directory:
+                    directory = Path(directory)
+                    (directory/'callbacks.nano').write_text(module)
+                    element, literal = ('string', '"value"') if mismatch else ('int', '7')
+                    source = f'''import "callbacks.nano" as cb
+fn identity(values: array<array<{element}>>) -> array<array<{element}>> {{ return values }}
+shadow identity {{ assert (== (array_length (identity [[{literal}]])) 1) }}
+fn main() -> int {{
+ let result: array<array<int>> = (cb.apply identity [[7]])
+ return (- (at (at result 0) 0) 7)
+}}
+shadow main {{ assert (== (main) 0) }}
+'''
+                    path, output = directory/'main.nano', directory/'output'
+                    path.write_text(source)
+                    output.write_text('prior artifact')
+                    result = subprocess.run([ROOT/'bin'/compiler, path, '-o', output], cwd=ROOT,
+                                            capture_output=True, text=True, timeout=120)
+                    diagnostic = result.stdout + result.stderr
+                    if mismatch:
+                        self.assertNotEqual(result.returncode, 0, diagnostic)
+                        self.assertEqual(output.read_text(), 'prior artifact')
+                        self.assertNotIn('C compilation failed', diagnostic)
+                    else:
+                        self.assertEqual(result.returncode, 0, diagnostic)
+                        result = subprocess.run([output], capture_output=True, text=True, timeout=15)
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
 if __name__ == '__main__': unittest.main()

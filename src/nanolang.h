@@ -286,6 +286,7 @@ struct ASTNode {
             Type map_key_type; /* Checked scalar constructor context. */
             Type map_value_type;
             bool map_context_checked;
+            FunctionSignature *checked_signature; /* Owned indirect-call context after lexical checking. */
             char *concrete_func_name;  /* For generic function calls: monomorphized name (e.g., "identity_int") */
         } call;
         struct {
