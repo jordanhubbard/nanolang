@@ -200,6 +200,7 @@ typedef struct {
     uint16_t param_count;     /* declared parameter count */
     uint8_t return_type;      /* NanoValueTag of the return value */
     bool all_float;           /* true when return + all params are TAG_FLOAT */
+    void (*string_release)(const char *); /* optional provider cleanup, after copying */
 } NvmCallDescriptor;
 
 /* ========================================================================

@@ -4484,15 +4484,22 @@ static void emit_nstr_storage(Nvm2cBuf *b) {
         "static nstr_owned *nstr_owners;\n"
         "static size_t nstr_live_bytes, nstr_peak_bytes, nstr_allocation_debt;\n"
         "static size_t nstr_collection_budget = 65536;\n"
-        "static char *nstr_allocate(size_t n) {\n"
-        "    if (n > SIZE_MAX - sizeof(nstr_owned) - 1) abort();\n"
+        "static char *nstr_try_allocate(size_t n) {\n"
+        "    if (n > SIZE_MAX - sizeof(nstr_owned) - 1) return NULL;\n"
         "    size_t bytes = sizeof(nstr_owned) + n + 1;\n"
-        "    if (bytes > SIZE_MAX - nstr_live_bytes || bytes > SIZE_MAX - nstr_allocation_debt) abort();\n"
+        "    if (bytes > SIZE_MAX - nstr_live_bytes || bytes > SIZE_MAX - nstr_allocation_debt) return NULL;\n"
         "    nstr_owned *owner = malloc(bytes);\n"
-        "    if (!owner) { abort(); } owner->next = nstr_owners; nstr_owners = owner;\n"
+        "    if (!owner) { return NULL; } owner->next = nstr_owners; nstr_owners = owner;\n"
         "    owner->bytes = bytes; nstr_live_bytes += bytes; nstr_allocation_debt += bytes;\n"
         "    if (nstr_live_bytes > nstr_peak_bytes) nstr_peak_bytes = nstr_live_bytes;\n"
         "    owner->data[n] = 0; return owner->data;\n}\n"
+        "static char *nstr_allocate(size_t n) {\n"
+        "    char *value = nstr_try_allocate(n); if (!value) abort(); return value;\n}\n"
+        "static inline const char *nstr_copy_release(const char *value, void (*release)(const char *)) {\n"
+        "    size_t length = value ? strlen(value) : 0;\n"
+        "    char *copy = value ? nstr_try_allocate(length) : NULL;\n"
+        "    if (copy) memcpy(copy, value, length + 1);\n"
+        "    release(value); if (!copy) abort(); return copy;\n}\n"
         "static inline const char *nstr_copy(const char *value) {\n"
         "    if (!value) value = \"\";\n"
         "    size_t length = strlen(value);\n"
@@ -4971,15 +4978,28 @@ static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_puts(b, "#include <dlfcn.h>\n#include <stdbool.h>\n");
         nvm2c_printf(b, "static inline %s nhost_artifact_%u(%s) {\n", result, i, parameters);
         nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n", result, types);
+        if (host->result == TAG_STRING)
+            nvm2c_puts(b, "    static void (*release)(const char *);\n");
         nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
         const NvmImportEntry *imp = &mod->imports[i];
         emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
         nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) abort();\n");
         nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n", result, types, host->name);
-        nvm2c_puts(b, "        if (!function) abort();\n    }\n");
+        nvm2c_puts(b, "        if (!function) abort();\n");
+        if (host->result == TAG_STRING) {
+            nvm2c_printf(b, "        void *cleanup = dlsym(library, \"%s__nano_string_release_v1\");\n", host->name);
+            nvm2c_puts(b,
+                "        if (cleanup) {\n            Dl_info origin, companion;\n"
+                "            if (!dladdr((void *)function, &origin) || !dladdr(cleanup, &companion) ||\n"
+                "                origin.dli_fbase != companion.dli_fbase) abort();\n"
+                "            release = (void (*)(const char *))cleanup;\n        }\n");
+        }
+        nvm2c_puts(b, "    }\n");
         nvm2c_printf(b, "    %s value = function(%s);\n", result,
                       host->argc == 2 ? "a, z" : host->argc == 1 ? "a" : "");
-        if (host->result == TAG_STRING) nvm2c_puts(b, "    if (!value) abort();\n");
+        if (host->result == TAG_STRING) nvm2c_puts(b,
+            "    if (release) return nstr_copy_release(value, release);\n"
+            "    if (!value) abort();\n");
         if (!strcmp(host->c_name, "nhost_snapshot")) {
             nvm2c_puts(b, "    return nstr_copy(value);\n}\n");
         } else nvm2c_puts(b, "    return value;\n}\n");
@@ -5320,11 +5340,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.has_owned_strings = module_has_opcode(mod, OP_STR_CONCAT) ||
         module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_CAST_STRING) ||
         module_uses_host(mod, "nhost_from_char");
-    /* I own builtin string results and copies of borrowed facade snapshots;
-     * generic artifact string results retain their existing borrowed contract. */
+    /* I reserve string roots for explicit artifact cleanup companions too;
+     * artifacts without a companion retain their existing borrowed contract. */
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
-        if (host && host->result == TAG_STRING && strcmp(host->c_name, "nhost_artifact"))
+        if (host && host->result == TAG_STRING)
             b.has_owned_strings = 1;
     }
     int has_global_store = 0, has_record_array_constructor = 0;
@@ -5690,6 +5710,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "#ifndef _POSIX_C_SOURCE\n#define _POSIX_C_SOURCE 200809L\n#endif\n");
         if (module_uses_host(mod, "nhost_mktemp_dir")) nvm2c_puts(&b,
             "#ifdef __APPLE__\n#ifndef _DARWIN_C_SOURCE\n#define _DARWIN_C_SOURCE\n#endif\n#endif\n");
+        nvm2c_puts(&b,
+            "#ifndef _GNU_SOURCE\n#define _GNU_SOURCE 1\n#endif\n"
+            "#ifndef _DARWIN_C_SOURCE\n#define _DARWIN_C_SOURCE 1\n#endif\n");
         nvm2c_puts(&b,
             "/* Generated by nvm2c from NanoISA. Not a VM wrapper. */\n"
             "#include <stddef.h>\n"

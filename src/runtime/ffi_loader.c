@@ -231,6 +231,43 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
     return ptr;
 }
 
+bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
+                               void *function, void (**release)(const char *),
+                               char *error, size_t error_size) {
+    if (!release) return false;
+    *release = NULL;
+    if (!module_name || !symbol_name || !function) return false;
+    const char suffix[] = "__nano_string_release_v1";
+    size_t length = strlen(symbol_name);
+    if (length > SIZE_MAX - sizeof suffix) return false;
+    char *name = malloc(length + sizeof suffix);
+    if (!name) {
+        if (error && error_size) snprintf(error, error_size, "I could not allocate the string cleanup symbol");
+        return false;
+    }
+    memcpy(name, symbol_name, length);
+    memcpy(name + length, suffix, sizeof suffix);
+    bool valid = false;
+    pthread_rwlock_rdlock(&ffi_lock);
+    for (int i = 0; i < module_count; ++i) {
+        if (strcmp(modules[i].name, module_name)) continue;
+        void *cleanup = dlsym(modules[i].handle, name);
+        if (!cleanup) { valid = true; break; }
+        Dl_info origin, companion;
+        if (dladdr(function, &origin) && dladdr(cleanup, &companion) &&
+            origin.dli_fbase == companion.dli_fbase) {
+            *release = (void (*)(const char *))cleanup;
+            valid = true;
+        }
+        break;
+    }
+    pthread_rwlock_unlock(&ffi_lock);
+    free(name);
+    if (!valid && error && error_size)
+        snprintf(error, error_size, "I require string cleanup from the called function's own image");
+    return valid;
+}
+
 bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name,
                                 void *function, uint32_t expected,
                                 char *error, size_t error_size) {
