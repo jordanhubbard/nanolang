@@ -26,6 +26,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **v5.0.1 C-seed global initializer context.** I apply declared map and
+      array types before checking top-level initializers, matching local
+      declarations. I test typed constant maps, empty string arrays, and
+      rejected mismatches through my native and VM frontends.
+      MAC: `task_026e73d59e9e45b0b732b43883feea9a`.
+
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
       preserve declaring-module identity through classification and flow lookup,
