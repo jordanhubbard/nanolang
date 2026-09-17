@@ -49,6 +49,7 @@ NvmVerifyResult nvm_verify(const NvmModule *mod);
 /* I admit only the documented paired standalone owned-transfer subset. */
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod);
 /* I conservatively report undecodable function ranges as requiring checks. */
+/* I also detect region/reference instructions that require ownership metadata. */
 bool nvm_uses_owned_transfers(const NvmModule *mod);
 
 /* I validate structural metadata and affine transfer dataflow, not executable

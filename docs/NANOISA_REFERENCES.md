@@ -277,12 +277,15 @@ I admit one function containing an explicit owned-transfer instruction at entry 
 imports or initializer, and exactly one int, bool or u8 result. I require ownership metadata,
 complete finite record layouts with only those scalar leaves or earlier record
 layouts, and successful structural plus affine analysis. All locals have value
-mode. I reject floats, calls, reference modes/operations, globals, collections,
+mode. I reject floats, calls, reference parameter modes, globals, collections,
 aggregate results and linked ownership contracts. The same eligibility query
 must govern normal verification, VM execution and native translation; there is
 no separate bypass API. My supported instruction set is the non-floating affine
 subset, including the four explicit transfers, scalar field observations and
-branches/loops whose joins preserve exact obligations.
+branches/loops whose joins preserve exact obligations. My subsequent
+[same-frame reference contract](NANOISA_SAME_FRAME_REFERENCES.md) adds root-only
+shared/exclusive slots and int/bool/u8 field access within that standalone frame.
+It does not admit caller references, nested reference paths or reborrows.
 
 A move transfers a record pointer and clears the source slot. A store consumes
 its stack owner into its exact declared slot. Pack allocates one record shell

@@ -45,6 +45,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I execute same-frame shared/exclusive reference slots after standalone owned transfers (MAC `task_e31a51fc661f4102b68ad81432369a1d`, parents ed702/718). I first record [the instruction and lifetime contract](NANOISA_SAME_FRAME_REFERENCES.md), then connect region/borrow/field operations to exact affine CFG verification, persistent VM descriptors and direct native owner access. I require paired mutation/lifetime/join/loop, transport and refusal gates. I pass [the bounded paired gates](evidence/nanoisa-same-frame-references.md). Nested reference paths, reborrows, caller provenance and frontend admission remain separate required work.
 - [x] I execute shared LLVM/Wasm implicit-return continuation `task_4fd2bff257a44da0b0c4bb62b52b91b8`: zero-result void helpers use LLVM void calls/returns and never push a fabricated operand; one int/bool/float helper or int/bool entry returns its declared scalar at explicit RET or code end. I preserve verifier shape checks and runtime result tags, branch-to-end edges, caller operands and atomic publication. I require same-module VM/C/LLVM/Wasmtime/import-free Node tests; heap/multiple results, captures, initializers and void/float executable entries remain refused.
 
 

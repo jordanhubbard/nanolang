@@ -75,6 +75,14 @@ typedef enum {
     OP_LOAD_UPVALUE  = 0x14, /* operands: u16 depth, u16 index */
     OP_STORE_UPVALUE = 0x15, /* operands: u16 depth, u16 index */
 
+    /* Same-frame reference slots, separate from value locals. */
+    OP_REGION_BEGIN = 0x16,
+    OP_REGION_END = 0x17,
+    OP_BORROW_LOCAL_SHARED = 0x18,
+    OP_BORROW_LOCAL_EXCLUSIVE = 0x19,
+    OP_REF_GET = 0x1A,
+    OP_REF_SET = 0x1B,
+
     /* Arithmetic (0x20-0x27) */
     OP_ADD          = 0x20,  /* pop b, pop a, push a+b (also string concat) */
     OP_SUB          = 0x21,

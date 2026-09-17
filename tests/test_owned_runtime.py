@@ -8,18 +8,34 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class OwnedRuntime(unittest.TestCase):
+    executable = "test_owned_runtime"
+    case_count = 8
+    refusal_count = 7
+    noninteger_cases = {5, 6}
     def test_paired_execution_lifetimes_and_refusals(self):
         with tempfile.TemporaryDirectory(prefix="nano-owned-runtime-") as name:
             tmp = Path(name)
-            run = subprocess.run([os.environ.get("NANO_OWNED_RUNTIME_TEST", str(ROOT / "obj/test_owned_runtime")), tmp],
+            run = subprocess.run([os.environ.get("NANO_OWNED_RUNTIME_TEST", str(ROOT / "obj" / self.executable)), tmp],
                                  capture_output=True, text=True, timeout=90, cwd=ROOT)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             print(run.stdout, end="")
             cases = [line.split() for line in run.stdout.splitlines() if line.startswith("case ")]
-            self.assertEqual(len(cases), 8)
+            self.assertEqual(len(cases), self.case_count)
             for _, number, expected in cases:
                 with self.subTest(case=number):
+                    artifact = tmp / f"case{number}.nvm"
+                    verified = subprocess.run([ROOT / "bin/nano_vm", "--verify-only", artifact], capture_output=True, timeout=30)
+                    self.assertEqual(verified.returncode, 0, verified.stdout + verified.stderr)
+                    vm_result = subprocess.run([ROOT / "bin/nano_vm", artifact], capture_output=True, timeout=30)
+                    # The CLI uses only int results as process exit codes; the C
+                    # fixture checks exact bool/u8 tags and values separately.
+                    exit_code = 0 if int(number) in self.noninteger_cases else int(expected) & 255
+                    self.assertEqual(vm_result.returncode, exit_code, vm_result.stdout + vm_result.stderr)
+                    translated = tmp / f"roundtrip{number}.c"
+                    rebuilt = subprocess.run([ROOT / "bin/nvm2c", artifact, "-o", translated], capture_output=True, timeout=30)
+                    self.assertEqual(rebuilt.returncode, 0, rebuilt.stdout + rebuilt.stderr)
                     generated = tmp / f"case{number}.c"
+                    self.assertEqual(translated.read_bytes(), generated.read_bytes())
                     harness = tmp / f"check{number}.c"
                     harness.write_text('''#include <assert.h>
 #include <stdint.h>
@@ -51,7 +67,7 @@ static void release(void *p){assert(live);live--;free(p);}
                                               env={**os.environ, "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"})
                     self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
                     self.assertIn("owned cleanup passed", executed.stdout)
-            self.assertEqual(len(list(tmp.glob("refused*.nvm"))), 7)
+            self.assertEqual(len(list(tmp.glob("refused*.nvm"))), self.refusal_count)
             for artifact in sorted(tmp.glob("refused*.nvm")):
                 with self.subTest(refusal=artifact.name):
                     previous = tmp / "previous.c"

@@ -4489,6 +4489,14 @@ test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUN
 	./obj/test_owned_runtime_alloc
 	python3 -m unittest tests.test_owned_runtime
 
+.PHONY: test-same-frame-references
+test-units: test-same-frame-references
+test-same-frame-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_same_frame_references tests/nanoisa/test_same_frame_references.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_reference_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_same_frame_references_alloc tests/nanoisa/test_same_frame_references_alloc.c obj/test_reference_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_same_frame_references_alloc
+	python3 -m unittest tests.test_same_frame_references
 .PHONY: test-implicit-returns
 test-units: test-implicit-returns
 test-implicit-returns: nano_vm nvm2c nanoisa_dump
