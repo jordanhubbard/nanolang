@@ -123,6 +123,48 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.assertEqual(self.run_checked(binary).stdout, "init\n")
 
+    def test_scalar_float_values_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/scalar_floats.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-scalar-float-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                             "precise", "negate", "bare", "negative_zero", "difference_zero", "arithmetic",
+                             "comparisons", "relay", "change", "main", "__init__")
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.run_checked(binary)
+            binary = work / "reference"
+            self.run_checked(ROOT / "bin/nanoc_c", fixture, "-o", binary)
+            self.run_checked(binary)
+
+    def test_scalar_float_operands_preserve_refusals(self):
+        bodies = [
+            'return (+ 1.5 true)', 'return (+ 1.5 "bad")',
+            'return (+ 1.5 1)', 'let value: float = 1 return value',
+            'let value: int = 1.0 return 1.0',
+            'return (% 1.5 1.0)', 'return (and 1.5 1.0)',
+            'let text: string = (float_to_string 1) return 1.0',
+            'let text: string = (float_to_string 1.0 2.0) return 1.0',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-float-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for body in bodies:
+                with self.subTest(body=body):
+                    source.write_text('fn main() -> float { ' + body + ' }')
+                    output.write_text("previous accepted assembly")
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output], cwd=ROOT,
+                                            capture_output=True, text=True, timeout=30)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(output.read_text(), "previous accepted assembly")
+
     def test_range_for_loops_match_scope_and_control_flow(self):
         fixture = ROOT / "tests/nanoisa/fixtures/range_for.nano"
         with tempfile.TemporaryDirectory(prefix="nano-range-for-") as tmp:

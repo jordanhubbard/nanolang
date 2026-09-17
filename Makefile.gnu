@@ -4359,3 +4359,8 @@ test-native-jump-true: nvm2c nanoisa_dump nano_vm
 	@python3 -m unittest -v tests.test_native_jump_true
 
 test-units: test-native-jump-true
+
+.PHONY: test-selfhost-float-values
+test-selfhost-float-values: bootstrap
+	python3 -m unittest -v tests.test_selfhost_float_values
+test-units: test-selfhost-float-values

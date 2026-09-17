@@ -102,6 +102,19 @@ shadow __nanoisa_shadow_0 { assert (== (__nanoisa_shadow_0) 7) assert (== (__nan
         self.assertIn(".function __nanoisa_shadow_0__ ", assembly)
         self.execute(assembly)
 
+    def test_unused_float_function_still_runs_selected_shadow(self):
+        source = '''fn unused() -> float { return 1.5 }
+shadow unused { assert (> (unused) 1.0) }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+'''
+        assembly = self.emit(source).stdout
+        self.assertIn(".function unused", assembly)
+        self.assertIn("F64_GT", assembly)
+        self.execute(assembly)
+        failed = source.replace("assert (> (unused) 1.0)", "assert false")
+        self.execute(self.emit(failed).stdout, success=False)
+
     def test_reachable_unsupported_shadow_refused(self):
         source = '''extern fn unsupported() -> array<float>
 fn unused() -> array<float> { return (unsupported) }

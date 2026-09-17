@@ -8818,6 +8818,16 @@ Compiler product:
       shadow probe reaches `substitute_union_field_type` and rejects its nested
       string appends to `[]`. I retain negative type controls and require exact
       C-seed bytecode plus VM/native execution before rerunning the closure.
+- [ ] I preserve exact `float_to_string` formatting across interpreter, native and VM
+      (`task_29976241a36244f7b0ce4ad75cb10b3f`). My C-seed interpreter/native runtime
+      appends `.0` for whole floats; my VM cast and self-hosted native path omit it.
+      I retain signed-zero checks independently and require explicit formatting
+      parity before claiming this builtin agrees across backends.
+- [ ] I lower typed F64 opcodes in native AOT with strict float operands
+      (`task_fd4c63cf9f3e46f09ece380ce00c7a58`). The exact C-seed/self-hosted scalar fixture
+      verifies and runs in NanoVM, but native translation first refuses F64_NEG.
+      I retain signed zero, comparison tags and VM division behavior, with
+      malformed-operand controls and the actual fixture before claiming parity.
 - [ ] I retain unary-minus provenance for exact float lowering
       (`task_ef26778894c441c2b1002128fd0a8c37`), before float dependency-shadow task
       `task_8bc58d33e73f4e24a474d3724d862c94`. My parser currently rewrites unary
