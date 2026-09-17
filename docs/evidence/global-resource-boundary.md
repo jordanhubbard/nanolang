@@ -63,6 +63,13 @@ lifetimes and 240 direct classifier/API lifetimes. Imported globals are covered
 by driver tests. Leak detection remains disabled under
 `task_00c47a5d65d04c48914864ec0de553d6`; this is not a leak-freedom claim.
 
+At `3168885d`, I integrated the independently tested callback identity change
+from PR #481. A fresh normal-budget full bootstrap, all 16 affected
+classifier/global methods (25.070 seconds), and the complete C typechecker
+suite passed. The C classifier and lifetime code are unchanged from the
+520 sanitizer checks above. Final logs are `classify-bootstrap-final.log`,
+`classify-paired-final.log` and `typechecker-final.log`.
+
 Local logs are under `/tmp/nanolang-global-boundary-audit/`, including
 `classify-bootstrap-r3.log`, `classify-bootstrap-integrated.log`,
 `typechecker-integrated-complete.log`, `global-asan-integrated.log` and

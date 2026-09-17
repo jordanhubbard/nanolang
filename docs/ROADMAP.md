@@ -198,15 +198,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       errors. I require each boundary to retain metadata or fail before publication.
       MAC `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
-- [ ] **Classify concrete generic payloads retained inside records.** I use
-      full retained record field annotations and substitute union arguments
-      before classifying an enclosing record. `Outer { boxed: Box<Handle> }`
-      currently reaches native emission without a global ownership diagnostic
-      in both frontends. I require paired resource/ordinary and phantom controls,
-      nested chains and ordinary cycles, preserving declaration identity and
-      collection guards. This is not evidence of executable misuse; native
-      record/global emission remains separate. MAC
-      `task_ef807591eb104cc8b664cd55581ec505`, before the global boundary below.
+- [x] **Classify concrete generic payloads retained inside records.** I use
+      full retained field annotations and substituted union arguments in the
+      same fixed point as nominal and public TypeInfo queries. My paired
+      resource/ordinary/phantom controls, nested chains, cycles and collection
+      guards pass. Fresh bootstrap, 68 adjacent methods and 520 ASan/UBSan
+      lifetimes are recorded in `docs/evidence/global-resource-boundary.md`.
+      This establishes classification, not native record layout or global
+      ownership support. MAC `task_ef807591eb104cc8b664cd55581ec505`.
 
 - [ ] **Emit ordinary concrete generic union record fields.** I preserve
       `Box<int>` when emitting a local `Outer { boxed: Box<int> }` field and
@@ -216,16 +215,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       record controls, separately from global lifetime support and classification
       acceptance. MAC `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
 
-- [ ] **Define my global resource boundary.** I first reject resource-bearing
-      global declarations explicitly in both frontends, using concrete payload
-      classification and a precise unsupported-ownership diagnostic. A current
-      unused global `Box<Handle>` publishes in all three compilers; ordinary
-      `Box<int>` globals compile and run. I require rejection before artifact
-      publication, mutable/immutable and nested/generic controls, imported
-      declaration checks and ordinary global/local positives. This guard does
-      not implement global lifetime or transfer semantics. Plain record-global
-      emission remains separate under `task_95796f5f49564ed4a911fd05a1aac5b4`.
-      MAC `task_8afaef937f934a6e9919e41b91b7a41c`.
+- [x] **Define my unsupported global resource boundary.** I reject owning
+      global declarations explicitly in both frontends before artifact
+      publication. Mutable/immutable, inferred, nested/generic and imported
+      rejections preserve prior output; ordinary scalar/union globals and
+      local owners remain executable controls. At `3168885d`, a fresh bootstrap,
+      16 affected methods and the complete C typechecker suite pass after
+      callback identity integration. I do not implement global lifetime or
+      transfer semantics here; whole-record global emission remains separate
+      under `task_95796f5f49564ed4a911fd05a1aac5b4`. Evidence:
+      `docs/evidence/global-resource-boundary.md`. MAC
+      `task_8afaef937f934a6e9919e41b91b7a41c`.
 
 - [x] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
