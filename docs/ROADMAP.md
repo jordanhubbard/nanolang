@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I execute shared LLVM/Wasm implicit-return continuation `task_4fd2bff257a44da0b0c4bb62b52b91b8`: zero-result void helpers use LLVM void calls/returns and never push a fabricated operand; one int/bool/float helper or int/bool entry returns its declared scalar at explicit RET or code end. I preserve verifier shape checks and runtime result tags, branch-to-end edges, caller operands and atomic publication. I require same-module VM/C/LLVM/Wasmtime/import-free Node tests; heap/multiple results, captures, initializers and void/float executable entries remain refused.
+
 - [ ] I admit declared scalar implicit exits and zero-result void calls in shared LLVM/Wasm lowering (MAC `task_4fd2bff257a44da0b0c4bb62b52b91b8`) after VM/C return repair. I require exact stack effects and caller continuation across all execution paths; current LLVM still requires one scalar result and explicit returns. Heap/aggregate/multiple results remain separate.
 
 - [x] I align ordinary implicit function exits with declared result signatures and caller resumption (VM `task_4b3800f46af143fbb171f9565f92b8e0`, native `task_8a18a76c86884299ac3f7880ea617978`). I share ordinary VM return validation/cleanup while preserving explicit effect-owner lexical unwind. I admit native zero-result void or one int/bool/float fallthrough, test entry/nested/conditional end paths and wrong shapes, and keep aggregate/heap/multiple implicit results and LLVM/Wasm admission separate.
