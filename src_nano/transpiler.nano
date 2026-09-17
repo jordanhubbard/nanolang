@@ -4431,23 +4431,48 @@ shadow substitute_union_field_type {
     assert (== (substitute_union_field_type "bool" params args) "bool")
 }
 
+# I visit complete type nodes, so an outer Box is never a Result instance.
+fn collect_native_union_instances(type_name: string, base_name: string, seen: HashMap<string, int>, initial: array<string>) -> array<string> {
+    let mut results: array<string> = initial
+    let mut pending: array<string> = [type_name]
+    let mut i: int = 0
+    while (< i (array_length pending)) {
+        let current: string = (at pending i)
+        let args: array<string> = (extract_type_args current)
+        if (and (> (array_length args) 0) (== (extract_base_type_name current) base_name)) {
+            if (not (map_has seen current)) {
+                (map_put seen current 1)
+                set results (array_push results current)
+            }
+        }
+        let mut j: int = 0
+        while (< j (array_length args)) {
+            set pending (array_push pending (at args j))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return results
+}
+shadow collect_native_union_instances {
+    let seen: HashMap<string, int> = (map_new)
+    let results: array<string> = (collect_native_union_instances "Box<Result<int,string>>" "Result" seen [])
+    assert (== (array_length results) 1)
+    assert (== (at results 0) "Result<int,string>")
+    assert (== (array_length (collect_native_union_instances "Box<Result<int,string>>" "Result" seen results)) 1)
+}
+
 /* Find all unique instantiations of a generic union in the codebase */
 fn find_union_instantiations(parser: Parser, base_name: string) -> array<string> {
     let mut seen: HashMap<string, int> = (map_new)
     let mut results: array<string> = []
-    let search: string = (+ base_name "<")
 
     /* Scan let statements */
     let let_count: int = (parser_get_let_count parser)
     let mut i: int = 0
     while (< i let_count) {
         let l: ASTLet = (parser_get_let parser i)
-        if (str_contains l.var_type search) {
-            if (not (map_has seen l.var_type)) {
-                (map_put seen l.var_type 1)
-                set results (array_push results l.var_type)
-            } else { (print "") }
-        } else { (print "") }
+        set results (collect_native_union_instances l.var_type base_name seen results)
         set i (+ i 1)
     }
 
@@ -4456,22 +4481,12 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
     set i 0
     while (< i func_count) {
         let f: ASTFunction = (parser_get_function parser i)
-        if (str_contains f.return_type search) {
-            if (not (map_has seen f.return_type)) {
-                (map_put seen f.return_type 1)
-                set results (array_push results f.return_type)
-            } else { (print "") }
-        } else { (print "") }
+        set results (collect_native_union_instances f.return_type base_name seen results)
         /* Scan parameter types */
         let mut j: int = 0
         while (< j f.param_count) {
             let param: ASTLet = (parser_get_let parser (+ f.param_start j))
-            if (str_contains param.var_type search) {
-                if (not (map_has seen param.var_type)) {
-                    (map_put seen param.var_type 1)
-                    set results (array_push results param.var_type)
-                } else { (print "") }
-            } else { (print "") }
+            set results (collect_native_union_instances param.var_type base_name seen results)
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -4574,6 +4589,9 @@ shadow emit_union_typedefs {
 /* I keep exact emitted field types, so pointer-backed collections do not
  * introduce by-value layout dependencies. */
 fn native_union_definition(u: ASTUnion, name: string, args: array<string>) -> NativeNominalDefinition {
+    if (!= (array_length args) u.generic_param_count) {
+        return NativeNominalDefinition { c_name: (+ "nl_" name), code: "\n#error I require the declared generic union argument count\n", field_types: [] }
+    }
     let mut fields: array<string> = []
     let mut i: int = 0
     while (< i (array_length u.variant_field_types)) {

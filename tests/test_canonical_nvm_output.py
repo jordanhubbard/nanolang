@@ -1,5 +1,6 @@
 """I preserve canonical frontend checks before explicit NanoISA publication."""
 import os
+import sys
 from pathlib import Path
 import subprocess
 import tempfile
@@ -26,6 +27,31 @@ class CanonicalNvmOutput(unittest.TestCase):
                           'fn main() -> int { assert (== (values.value) 37) (println "canonical-nvm") return 0 }\n'
                           'shadow main { assert (== (values.value) 37) }\n')
         return source, dependency
+
+    def test_artifact_paths_preserve_library_identity_and_execution(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-artifact-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "paths.nano", directory / "paths.nvm"
+            source.write_text('module "modules/std/fs.nano" as fs\n'
+                              'fn main() -> int { '
+                              'assert (== (fs.basename "/tmp/one.txt") "one.txt") '
+                              'assert (== (fs.dirname "/tmp/one.txt") "/tmp") '
+                              'assert (== (fs.join "/tmp" "one.txt") "/tmp/one.txt") '
+                              'assert (== (fs.normalize "/tmp/./one.txt") "/tmp/one.txt") '
+                              'return 0 }\nshadow main { assert (== (main) 0) }\n')
+            self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
+            first = output.read_bytes()
+            self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
+            self.assertEqual(first, output.read_bytes())
+            self.run_command([ROOT / "bin/nano_vm", "--verify-only", output])
+            self.run_command([ROOT / "bin/nano_vm", output])
+            c_file, executable = directory / "out.c", directory / "native"
+            self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
+            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file,
+                              ROOT / "bin/nano_aot_runtime.o", "-lm",
+                              *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                              "-o", executable])
+            self.run_command([executable])
 
     def test_native_string_prefix_builtin(self):
         with tempfile.TemporaryDirectory(prefix="canonical-prefix-") as tmp:

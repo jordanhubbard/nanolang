@@ -31,9 +31,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `List<string>` during native token lowering; keyword element tokens
       currently produce an invalid `nl_List` field. MAC `task_f0a59def9afe4a08ae63c55d4ba22109`.
 
-- [ ] **Record-valued call pushes.** I capture a record-returning call once
-      before taking its address for native `array_push`; the current direct
-      form produces invalid C while a typed local works. MAC `task_6ce6ece22ae34698a178bf29ee04412b`.
+- [x] **Record-valued call pushes.** I capture the receiver and record-returning
+      value once in source order before taking its address for native
+      `array_push`. MAC `task_6ce6ece22ae34698a178bf29ee04412b`; evidence:
+      `docs/evidence/native-record-array-append.md`.
 
 - [x] **Mixed native nominal definition order.** I order record and union
       definitions by their by-value dependencies, preserve pointer-backed
@@ -97,10 +98,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       both self-hosted stages after fresh bootstrap. MAC
       `task_7eb80289f352425aa2abd26af55d0ffc`.
 
-- [ ] **Parse complete nested generic arguments.** My C annotation parser
-      currently stops at the inner `<` in `Box<Result<int,string>>`. I retain
-      recursive argument `TypeInfo` and require ordinary execution plus nested
-      resource rejection before classifying instantiated ownership. MAC
+- [x] **Parse complete nested generic arguments.** My C annotation parser
+      preserves the inner arguments in `Box<Result<int,string>>`. I retain
+      recursive argument `TypeInfo`; 64 parser checks, focused parser sanitizer
+      checks, fresh bootstrap and 16 paired generic-affine methods pass. Native nested
+      emission remains task `task_633f2402ec5944cfba0911a56a9f4eb1`. MAC
       `task_8178b6b71fe147bd851629713e7be14d`.
 
 - [ ] **Retain instantiated ownership metadata.** I preserve complete concrete
@@ -194,34 +196,42 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       work targeted to this session, and leave genuinely unfinished follow-ons
       explicit. I verify the Darwin parser portability gate before closing its
       stale task and correct release-tree restoration evidence after its owner
-      closes the ledger row. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
+      closes the ledger row. I have reconciled the native opaque-null duplicate
+      and the completed compiler AOT bridge below; the remaining active rows
+      still require the same evidence check. MAC
+      `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
       arguments are evaluated once into ordered temporaries. I reject nonzero
       integers, compare my C seed and self-hosted native emitters, require
       strict C compilation, and restore the current quick GLUT gate. MAC
-      `task_77dab245060bc54e6f445bdde3431ec1`.
+      `task_64b0d006cff713ffa197dcec1d22a894`. I cancelled
+      `task_77dab245060bc54e6f445bdde3431ec1` as its duplicate after attaching
+      the merged implementation and fresh test evidence to the authoritative
+      row.
       Six native call-order/null methods, both bootstrap stages, 22 self-hosted
       compiler cases, the paired native shadow emitters and the GLUT boundary
       gate pass. My broader quick gate advances through that repaired boundary
       and stops later at the separately owned VM example-purity failures under
       `task_7ee12d8737363c126a040fde905a7114`.
 
-- [ ] **Restore compiler AOT artifact binding.** I preserve exact library
+- [x] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
-      my canonical bytecode route. My unchanged main baseline rejects import
-      `nl_nanoisa_load_print` during compiler-bytecode translation. I retain
-      that rejection until a correct binding exists, then require generated
-      native compiler execution and continued rejection of unsupported imports.
+      my canonical bytecode route. I continue to reject unsupported imports and
+      require generated native compiler execution rather than treating adapter
+      unit coverage as the completed bridge.
       MAC `task_600074c773904b119b39bdafd85c07a5`. Evidence:
       `docs/evidence/compiler-aot-artifact-binding-gap.md`.
-      My five exact facade adapters now preserve borrowed string snapshots;
-      real VM/native execution and malformed import contracts pass. The boxed
-      primitive-array prerequisite is complete. Fresh compiler execution now
-      reaches the exact `vm_is_alnum` host contract and projected global-store
-      follow-ons recorded below; I keep this full AOT gate open until generated
-      compiler execution passes.
+      My five exact facade adapters preserve borrowed string snapshots; real
+      VM/native execution and malformed import contracts pass. After the boxed
+      array, character-host, projected-global and tagged-local prerequisites,
+      PR #426 compiles my compiler bytecode to strict native C, runs the
+      generated compiler's help, compiles `nl_hello.nano`, and verifies its
+      executable output on a fresh unchanged gate. I pass 2,215 native checks,
+      1,092 shape checks and 22 tagged-local regressions. This closes the
+      bounded AOT bridge, not my NanoISA-only bootstrap or Stage 1/Stage 2
+      canonical `.nvm` fixed point.
 
 - [ ] **v5.1.0 concrete generic resource classification.** I substitute generic
       union payload types before classifying concrete ownership, distinguish
@@ -257,7 +267,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         resource consumption; classification alone does not complete this gate.
       - [x] I bootstrap and pass the scoped generic/ownership/import checks,
         recording the initial missing-tool setup correction explicitly.
-      - [ ] I restore the required full compiler AOT gate through the separately
+      - [x] I restore the required full compiler AOT gate through the separately
         recorded exact artifact-binding repair. Owned payload transfer above
         remains open; I do not claim the complete generic ownership contract.
         MAC task `task_27d3d1bee3f84b5a9c1fc79e1f0c0748` closed its bounded
@@ -329,10 +339,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       mutations through all bootstrap compilers.
       MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
-- [ ] **Current native compiler shape convergence.** I restore aggregate
+- [x] **Current native compiler shape convergence.** I restore aggregate
       conversion solving for current compiler bytecode without weakening exact
       string constraints. Current and pre-read-fix translators both reject the
       same retained module before C emission. MAC `task_031b36c92dbe44e49cea3888878d1963`.
+      I now separate inferred string parameter storage from exact producer
+      shapes; focused parity and the fresh native compiler bridge pass.
+      Evidence: `docs/evidence/native-projected-string-call-storage.md`.
 
 - [ ] **NanoCore exporter sanitizer build.** I diagnose the GCC O1
       null-format warning in `sbuf_appendf`; default O3 sanitizer checks
@@ -8419,15 +8432,48 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I select actual nested generic union instances instead of matching an
+      enclosing type by substring (`task_b25eef03a0874cf8b0c7f0fa23c05289`).
+      My C registration and emission share recursive specialization names;
+      `Box<Result<int,string>>` copies and payloads execute under all three
+      native compiler stages. Other constructor contexts remain task633.
+      Evidence: `docs/evidence/native-nested-generic-identity.md`.
+- [x] I retain native foreign module metadata for root sources outside my
+      repository (`task_c6b698326e0f4e6296299ddfdf172ebd`). Source-ancestry root
+      discovery preserves `/` as its own parent; when no source root exists,
+      native metadata uses my established runtime root. Three native link
+      regressions pass; see `docs/evidence/native-external-root-metadata.md`.
+- [x] I place native module objects before their link libraries and omit
+      already supplied canonical runtime sources (`task_59b46df66b0d480b83cf9cde4a416c07`).
+      The artifact facade exposes duplicate cJSON symbols and unresolved SHA256
+      during the three-stage bootstrap.
+- [ ] I lower the exact `nl_nanoisa_assemble_text_save` artifact signature
+      required by compiler publication (`task_3560b1472ae64d73b0449b7df6933914`).
+      Full compiler emission reaches this int-result extern after path imports.
+- [x] I apply my existing `nano_aot_runtime.o` host-link contract to the
+      canonical artifact regression (`task_e56bc32177f04739ae5a8935ead863b1`).
+      Its initial native invocation omitted the required runtime exports.
+- [ ] I propagate required foreign header search paths through transitive
+      C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`). My
+      module compiler currently omits a dependency manifest's header directory.
+- [ ] I reclaim shared static-array containers and their owned elements at an
+      alias-safe interpreter lifetime boundary
+      (`task_5eba51e216e343549c8ca7846713b6a3`). My current environment cleanup
+      ignores static arrays; append alias tests do not establish leak freedom.
+- [x] I preserve aliases when my shadow interpreter appends to an empty
+      array (`task_adb9b837ce4144a68a9d91ea00749ae0`). I initialize shared
+      static storage in place and preserve pop/remove compatibility. See
+      `docs/evidence/interpreter-empty-array-alias.md`.
 - [x] I let my module builder source pass its own conservative PCH capture
       scan without changing the runtime marker or rejection policy
       (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.
 - [x] I emit enum array literals with integer dynamic storage and preserve
       that representation during native access and append
       (`task_0e901805aea04c8aa644995602612a64`).
-- [ ] I lower the exact path host contracts required by my compiler
-      (`task_81e682a57a3d431e845b0f41f140352e`); after boolean arrays, actual emission
-      refuses the `path_basename` extern declaration.
+- [x] I lower the exact path artifact contracts required by my compiler
+      (`task_81e682a57a3d431e845b0f41f140352e`), preserving immutable library
+      identities, owner bindings and exact signatures across VM and native
+      execution. See `docs/evidence/selfhost-artifact-imports.md`.
 - [x] I validate array/list append element types before emitting bytecode
       (`task_e354c7131ebf40e3b177ba5a6cab1aba`); malformed append types now refuse publication.
 - [ ] I define boolean List syntax and backend parity before claiming support
@@ -8489,10 +8535,10 @@ Compiler product:
       projection now selects the right field when records reuse field names;
       typed, `at` and `array_get` fixtures retain nested arrays and shadows.
       Evidence: `docs/evidence/nested-record-projection.md`.
-- [ ] I preserve record element storage when appending through an array field
-      (`task_12805797d36043cd875792788f330520`). My native C helper currently
-      selects integer storage for `array_push value.symbols (symbol "third" 3)`;
-      this is separate from the repaired VM projection metadata.
+- [x] I preserve record element storage when appending through an array field
+      (`task_12805797d36043cd875792788f330520`). I use declared element metadata
+      and addressable snapshots. Native execution now passes the original
+      nested projection fixture; `docs/evidence/native-record-array-append.md`.
 - [x] I represent nonempty record-array literals as dynamic arrays in my C
       seed, preserving child order and nominal element identity
       (`task_a5fc558cbfa34f14b4d580923de4209c`). Native/VM execution,

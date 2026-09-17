@@ -2270,6 +2270,76 @@ void test_eval_array_literal_evaluates_once_in_order(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_empty_array_aliases(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "struct Holder { items: array<Item> }\n"
+        "let mut trace: int = 0\n"
+        "fn receiver(a: array<Item>) -> array<Item> { set trace (+ (* trace 10) 1) return a }\n"
+        "fn item() -> Item { set trace (+ (* trace 10) 2) return Item { value: 7, label: (+ \"keep\" \"me\") } }\n"
+        "fn append_inner(rows: array<array<int>>, inner: array<int>) -> array<array<int>> {\n"
+        " (array_push rows inner) return rows }\n"
+        "fn check() -> int {\n"
+        " let ints: array<int> = [] let ia: array<int> = ints\n"
+        " let floats: array<float> = [] let fa: array<float> = floats\n"
+        " let bools: array<bool> = [] let ba: array<bool> = bools\n"
+        " let strings: array<string> = [] let sa: array<string> = strings\n"
+        " (array_push ints 3) (array_push floats 1.5) (array_push bools true)\n"
+        " (array_push strings (+ \"keep\" \"me\"))\n"
+        " assert (== (at ia 0) 3) assert (== (at fa 0) 1.5) assert (at ba 0)\n"
+        " assert (== (at sa 0) \"keepme\")\n"
+        " let h: Holder = Holder { items: [] } let alias: array<Item> = h.items\n"
+        " set trace 0\n"
+        " let result: array<Item> = (array_push (receiver h.items) (item))\n"
+        " assert (== trace 12) assert (== (array_length alias) 1)\n"
+        " assert (== (at result 0).label \"keepme\")\n"
+        " let rows: array<array<int>> = [] let ra: array<array<int>> = rows\n"
+        " let inner: array<int> = [] (array_push rows inner) (array_push inner 8)\n"
+        " assert (== (at (at ra 0) 0) 8)\n"
+        " let mut i: int = 0 while (< i 32) { (array_push ints i) set i (+ i 1) }\n"
+        " assert (== (array_length ia) 33) assert (== (at ia 32) 31)\n"
+        " (array_remove_at ints 0) assert (== (at ia 0) 0)\n"
+        " assert (== (array_pop ints) 31) assert (== (array_length ia) 31)\n"
+        " assert (== (array_pop strings) \"keepme\") assert (== (array_length sa) 0)\n"
+        " (array_push sa \"again\") assert (== (at strings 0) \"again\")\n"
+        " let popped: Item = (array_pop alias) assert (== popped.label \"keepme\")\n"
+        " assert (== (array_length h.items) 0) (array_push h.items popped)\n"
+        " (array_push h.items Item { value: 9, label: \"second\" })\n"
+        " (array_remove_at alias 0) assert (== (at h.items 0).label \"second\")\n"
+        " let popped_row: array<int> = (array_pop rows) (array_push popped_row 9)\n"
+        " assert (== (at inner 1) 9) assert (== (array_length ra) 0)\n"
+        " (array_push rows inner) (array_remove_at rows 0)\n"
+        " assert (== (array_length inner) 2)\n"
+        " return 0 }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow check { assert (== (check) 0) }\n"));
+    for (int i = 0; i < 20; i++) {
+        Value result = call_function("check", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 0);
+    }
+    /* I retain the nested runtime tag and shared identity too. */
+    DynArray *dynamic = dyn_array_new(ELEM_INT);
+    dyn_array_push_int(dynamic, 41);
+    Value rows = create_array(VAL_INT, 0, 0);
+    Value arguments[] = {rows, {.type = VAL_DYN_ARRAY, .as.dyn_array_val = dynamic}};
+    Value appended = call_function("append_inner", arguments, 2, ctx.env);
+    ASSERT_EQ(appended.type, VAL_ARRAY);
+    ASSERT(appended.as.array_val == rows.as.array_val);
+    ASSERT_EQ(rows.as.array_val->length, 1);
+    Value stored = ((Value*)rows.as.array_val->data)[0];
+    ASSERT_EQ(stored.type, VAL_DYN_ARRAY);
+    ASSERT(stored.as.dyn_array_val == dynamic);
+    dyn_array_push_int(dynamic, 42);
+    ASSERT_EQ(dyn_array_length(stored.as.dyn_array_val), 2);
+    free(rows.as.array_val->data);
+    free(rows.as.array_val);
+    gc_release(dynamic);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
 void test_eval_array_append_and_dynamic_write(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
@@ -2798,6 +2868,7 @@ int main(void) {
     TEST(eval_indexed_read_aliases);
     TEST(eval_struct_array_literal);
     TEST(eval_array_literal_evaluates_once_in_order);
+    TEST(eval_empty_array_aliases);
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
     TEST(eval_record_alias_across_direct_calls);

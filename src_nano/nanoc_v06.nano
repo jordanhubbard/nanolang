@@ -27,6 +27,7 @@ import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
+module "std/fs.nano" as compiler_fs
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -39,9 +40,6 @@ extern fn file_exists(path: string) -> bool
 extern fn file_delete(path: string) -> int
 extern fn file_compare_identity(source: string, candidate: string) -> int
 extern fn file_compare_destinations(first: string, second: string) -> int
-
-/* Path operations */
-extern fn path_normalize(path: string) -> string
 
 /* System commands - wrapper to avoid stdlib.h system() conflict */
 extern fn nl_exec_shell(cmd: string) -> int
@@ -403,6 +401,7 @@ shadow nlc_hashset_add_string {
  * ============================================================================= */
 
 fn nl_path_dirname(path: string) -> string {
+    if (== path "/") { return "/" }
     let mut p: string = path
     if (nlc_str_ends_with p "/") {
         set p (str_substring p 0 (- (str_length p) 1))
@@ -417,6 +416,7 @@ fn nl_path_dirname(path: string) -> string {
 }
 
 shadow nl_path_dirname {
+    assert (== (nl_path_dirname "/") "/")
     assert (== (nl_path_dirname "/file") "/")
     assert (== (nl_path_dirname "/path/to/file") "/path/to")
     assert (== (nl_path_dirname "file") ".")
@@ -1001,6 +1001,7 @@ shadow merged_qualified_calls_valid {
 
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
+    (mb_set_sources merge.files)
     let prefix: string = (merged_binding_prefix parser)
     if (not (nb_register parser prefix)) { return false }
     let root_owner: int = (- (array_length merge.files) 1)
@@ -1049,14 +1050,14 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
                             if (< s (array_length imp.import_aliases)) {
                                 if (!= (at imp.import_aliases s) "") { set alias (at imp.import_aliases s) }
                             }
-                            (mb_add owner alias target)
+                            (mb_add_target owner alias target target_owner)
                         }
                         set s (+ s 1)
                     }
                 } else {
                     let mut name: string = original
                     if (!= imp.module_name "") { set name (+ imp.module_name (+ "." original)) }
-                    (mb_add owner name target)
+                    (mb_add_target owner name target target_owner)
                 }
             }
             set f (+ f 1)
@@ -1234,10 +1235,22 @@ shadow collect_module_dirs {
     assert (== 1 1)
 }
 
+# My native driver already compiles this runtime source into every output.
+fn native_source_already_linked(source: string, runtime_json: string) -> bool {
+    return (and (!= source "") (== source runtime_json))
+}
+shadow native_source_already_linked {
+    assert (native_source_already_linked "/repo/src/cJSON.c" "/repo/src/cJSON.c")
+    assert (not (native_source_already_linked "/other/cJSON.c" "/repo/src/cJSON.c"))
+    assert (not (native_source_already_linked "" ""))
+}
+
 fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: bool) -> ModuleBuildFlags {
     let module_dirs: array<string> = (collect_module_dirs files repo_root)
     let mut cflags: string = ""
     let mut ldflags: string = ""
+    let mut objects: string = ""
+    let runtime_json: string = (canonical (nl_path_join repo_root "src/cJSON.c"))
     let mut processed_pkgs: array<string> = []
 
     let mut i: int = 0
@@ -1356,6 +1369,10 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                 let mut csi: int = 0
                 while (< csi (array_length c_sources)) {
                     let csrc: string = (nl_path_join dir (at c_sources csi))
+                    if (native_source_already_linked (canonical csrc) runtime_json) {
+                        set csi (+ csi 1)
+                        continue
+                    }
                     let base: string = (nlc_path_basename csrc)
                     let blen: int = (str_length base)
                     let stem: string = (str_substring base 0 (- blen 2))
@@ -1375,7 +1392,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                     } else { (print "") }
                     let cr: int = (nl_exec_shell compile_cmd)
                     if (== cr 0) {
-                        set ldflags (+ ldflags (+ " " obj))
+                        set objects (+ objects (+ " " obj))
                     } else {
                         (print "    Warning: failed to compile module source: ")
                         (println csrc)
@@ -1437,7 +1454,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
         } else { (print "") }
         set i (+ i 1)
     }
-    return ModuleBuildFlags { compile_flags: cflags, link_flags: ldflags }
+    return ModuleBuildFlags { compile_flags: cflags, link_flags: (+ objects ldflags) }
 }
 
 shadow collect_module_build_flags {
@@ -1535,7 +1552,7 @@ fn collect_introspection(files: array<string>, repo_root: string) -> Introspecti
     # The final DFS entry is the program itself, not an imported module.
     while (< i (- (array_length files) 1)) {
         let path: string = (at files i)
-        let base: string = (path_basename path)
+        let base: string = (compiler_fs.basename path)
         let dot: int = (last_dot_index base)
         let mut fallback: string = base
         if (> dot 0) { set fallback (str_substring base 0 dot) }
@@ -1555,7 +1572,7 @@ fn collect_introspection(files: array<string>, repo_root: string) -> Introspecti
         let mut is_unsafe: bool = raw.is_unsafe
         set j 0
         while (< j (array_length unsafe_paths)) {
-            if (== (at unsafe_paths j) (path_normalize path)) { set is_unsafe true }
+            if (== (at unsafe_paths j) (compiler_fs.normalize path)) { set is_unsafe true }
             set j (+ j 1)
         }
         let info: ModuleIntrospection = ModuleIntrospection {
@@ -2162,7 +2179,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if verbose {
                 (println "[4.5/5] Collecting module build flags...")
             } else { (print "") }
-            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files merge_repo_root verbose)
+            let mut module_root: string = merge_repo_root
+            if (== module_root "") { set module_root repo_root }
+            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files module_root verbose)
 
             if verbose {
                 (println "[5/5] Compiling C to executable...")

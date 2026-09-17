@@ -82,8 +82,12 @@ typedef struct {
 /* I retain the enclosing function context when checking expression blocks. */
 static _Thread_local TypeChecker *active_statement_checker;
 
-static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
+static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info);
+
+char *typeinfo_to_generic_arg_name(TypeInfo *param) {
     if (!param) return strdup("unknown");
+    if (param->generic_name && param->type_param_count > 0)
+        return typeinfo_to_monomorphized_generic_name(param);
 
     switch (param->base_type) {
         case TYPE_INT:

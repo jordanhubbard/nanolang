@@ -49,58 +49,13 @@ extern const char *g_trace_func_name; /* function name for tracing guard */
  * GENERIC TYPE NAME HELPERS
  * ========================================================================= */
 
-static bool typeinfo_to_monomorph_segment(TypeInfo *ti, char *out, size_t out_size) {
-    if (!out || out_size == 0) return false;
-    if (!ti) return snprintf(out, out_size, "unknown") < (int)out_size;
-
-    switch (ti->base_type) {
-        case TYPE_INT:
-            return snprintf(out, out_size, "int") < (int)out_size;
-        case TYPE_U8:
-            return snprintf(out, out_size, "u8") < (int)out_size;
-        case TYPE_STRING:
-            return snprintf(out, out_size, "string") < (int)out_size;
-        case TYPE_BOOL:
-            return snprintf(out, out_size, "bool") < (int)out_size;
-        case TYPE_FLOAT:
-            return snprintf(out, out_size, "float") < (int)out_size;
-        case TYPE_STRUCT:
-        case TYPE_UNION:
-        case TYPE_ENUM:
-            if (ti->generic_name) return snprintf(out, out_size, "%s", ti->generic_name) < (int)out_size;
-            return snprintf(out, out_size, "unknown") < (int)out_size;
-        case TYPE_ARRAY: {
-            char elem[128];
-            if (!typeinfo_to_monomorph_segment(ti->element_type, elem, sizeof(elem))) {
-                return snprintf(out, out_size, "array_unknown") < (int)out_size;
-            }
-            return snprintf(out, out_size, "array_%s", elem) < (int)out_size;
-        }
-        default:
-            return snprintf(out, out_size, "unknown") < (int)out_size;
-    }
-}
-
 static bool build_monomorphized_name_from_typeinfo_iter(char *dest, size_t dest_size, TypeInfo *info) {
-    if (!dest || dest_size == 0) return false;
-    if (!info || !info->generic_name || info->type_param_count <= 0) return false;
-
-    int written = snprintf(dest, dest_size, "%s", info->generic_name);
-    if (written < 0 || (size_t)written >= dest_size) return false;
-
-    size_t pos = (size_t)written;
-    for (int i = 0; i < info->type_param_count; i++) {
-        char seg[128];
-        if (!typeinfo_to_monomorph_segment(info->type_params[i], seg, sizeof(seg))) {
-            return false;
-        }
-
-        written = snprintf(dest + pos, dest_size - pos, "_%s", seg);
-        if (written < 0 || (size_t)written >= dest_size - pos) return false;
-        pos += (size_t)written;
-    }
-
-    return true;
+    if (!dest || !dest_size || !info || !info->generic_name || info->type_param_count <= 0) return false;
+    char *name = typeinfo_to_generic_arg_name(info);
+    if (!name) return false;
+    int written = snprintf(dest, dest_size, "%s", name);
+    free(name);
+    return written >= 0 && (size_t)written < dest_size;
 }
 
 static const char *hashmap_suffix_from_typeinfo(TypeInfo *hm_info, char *buf, size_t buf_size) {
@@ -2247,81 +2202,26 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             /* Special handling for array_push() and array_pop() - dynamic array operations */
             else if (strcmp(func_name, "array_push") == 0 && expr->as.call.arg_count == 2) {
-                /* Detect element type from array argument (first arg) or value argument (second arg) */
-                Type elem_type = TYPE_INT;  /* Default to int */
-                const char *struct_name = NULL;
-                
-                ASTNode *array_arg = expr->as.call.args[0];
-                ASTNode *value_arg = expr->as.call.args[1];
-                
-                if (array_arg->type == AST_IDENTIFIER) {
-                    /* Array is a variable - look up its element type */
-                    const char *array_name = array_arg->as.identifier;
-                    Symbol *sym = env_get_var_visible_at(env, array_name, array_arg->line, array_arg->column);
-                    if (sym && sym->element_type != TYPE_UNKNOWN) {
-                        elem_type = sym->element_type;
-                        /* For array<struct>, the struct name is stored in struct_type_name */
-                        if (elem_type == TYPE_STRUCT && sym->struct_type_name) {
-                            struct_name = sym->struct_type_name;
-                        }
-                    } else {
-                        /* Try to infer from value type */
-                        elem_type = check_expression(value_arg, env);
-                    }
+                Type elem_type = infer_array_element_type(expr->as.call.args[0], env);
+                if (elem_type == TYPE_UNKNOWN)
+                    elem_type = check_expression(expr->as.call.args[1], env);
+                /* I capture the receiver then the value. A returned record needs
+                 * addressable storage, and either operand may have effects. */
+                emit_literal(list, "({ ");
+                unsigned call_id = build_ordered_call_args(list, expr->as.call.args, 2, env, NULL);
+                if (elem_type == TYPE_STRUCT) {
+                    emit_formatted(list,
+                        "dyn_array_push_struct(__nl_arg_%u_0, &__nl_arg_%u_1, sizeof(__nl_arg_%u_1)); })",
+                        call_id, call_id, call_id);
                 } else {
-                    /* Try to infer from value type */
-                    elem_type = check_expression(value_arg, env);
-                }
-                
-                /* If we still don't have struct name, try to infer from value argument */
-                if (elem_type == TYPE_STRUCT && !struct_name) {
-                    /* Check if value is a variable with struct type */
-                    if (value_arg->type == AST_IDENTIFIER) {
-                        Symbol *value_sym = env_get_var_visible_at(env, value_arg->as.identifier, value_arg->line, value_arg->column);
-                        if (value_sym && value_sym->type == TYPE_STRUCT && value_sym->struct_type_name) {
-                            struct_name = value_sym->struct_type_name;
-                        }
-                    } else if (value_arg->type == AST_STRUCT_LITERAL) {
-                        /* Struct literal has the name directly */
-                        struct_name = value_arg->as.struct_literal.struct_name;
-                    }
-                }
-                
-                elem_type = resolved_array_element(elem_type, struct_name, env);
-                /* For structs, use dyn_array_push_struct with sizeof */
-                if (elem_type == TYPE_STRUCT && struct_name) {
-                    /* Generate: dyn_array_push_struct(arr, &value, sizeof(nl_StructName)) */
-                    emit_literal(list, "dyn_array_push_struct(");
-                    build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_literal(list, ", &(");
-                    build_expr(list, expr->as.call.args[1], env);  /* value */
-                    emit_formatted(list, "), sizeof(nl_%s))", struct_name);
-                } else {
-                    /* Map element type to suffix for primitive types */
-                    const char *type_suffix = "int";
-                    if (elem_type == TYPE_U8) {
-                        type_suffix = "u8";
-                    }
-                    if (elem_type == TYPE_FLOAT) {
-                        type_suffix = "float";
-                    } else if (elem_type == TYPE_STRING) {
-                        type_suffix = "string";
-                    } else if (elem_type == TYPE_BOOL) {
-                        type_suffix = "bool";
-                    } else if (elem_type == TYPE_ARRAY) {
-                        type_suffix = "array";  /* For nested arrays */
-                    }
-                    
-                    /* Generate: dyn_array_push_<type>(arr, value) */
-                    char func_buf[64];
-                    snprintf(func_buf, sizeof(func_buf), "dyn_array_push_%s", type_suffix);
-                    
-                    emit_literal(list, func_buf);
-                    emit_literal(list, "(");
-                    build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_literal(list, ", ");
-                    build_expr(list, expr->as.call.args[1], env);  /* value */
-                    emit_literal(list, ")");
+                    const char *suffix = "int";
+                    if (elem_type == TYPE_U8) suffix = "u8";
+                    else if (elem_type == TYPE_FLOAT) suffix = "float";
+                    else if (elem_type == TYPE_STRING) suffix = "string";
+                    else if (elem_type == TYPE_BOOL) suffix = "bool";
+                    else if (elem_type == TYPE_ARRAY) suffix = "array";
+                    emit_formatted(list, "dyn_array_push_%s(__nl_arg_%u_0, __nl_arg_%u_1); })",
+                                   suffix, call_id, call_id);
                 }
             }
             else if (strcmp(func_name, "array_pop") == 0 && expr->as.call.arg_count == 1) {

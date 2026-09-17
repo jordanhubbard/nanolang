@@ -521,7 +521,7 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
     return child;
 }
 
-/* A flat field fact can omit a nested caller's optional representation.
+/* A flat string fact can omit a nested caller's optional representation.
  * I seed inferred string storage with a directed flow, not an exact type.
  * Constructors and native array/map payload constraints remain exact. */
 static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
@@ -553,7 +553,8 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
         return 0;
     }
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
-    if (b->shape_opcode == OP_AGG_GET) {
+    if (b->shape_opcode == OP_AGG_GET ||
+        (b->shape_opcode == OP_LOAD_LOCAL && slot.kind == NVM2C_VK_STR)) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     stk[*sp] = slot;
@@ -1447,6 +1448,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
+                } else if (facts->parameters[at] == NVM2C_VK_STR &&
+                           (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_UNK)) {
+                    /* A projected string can resolve to tagged storage later.
+                     * I convert into parameter storage without equating it to
+                     * a producer's exact constructor or array element shape. */
+                    if (!shape_field_kind(b, parameter, NVM2C_VK_STR)) return 0;
+                    if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
                            (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
                             arg.kind == NVM2C_VK_BOOL || integer_array_storage(arg.kind) ||

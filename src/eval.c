@@ -1329,75 +1329,55 @@ static ElementType value_type_to_elem_type(ValueType vtype) {
     }
 }
 
+static void discard_literal_record(StructValue *record);
+
+static size_t static_array_element_width(ValueType type) {
+    switch (type) {
+        case VAL_ARRAY: return sizeof(Value);
+        case VAL_INT: return sizeof(long long);
+        case VAL_FLOAT: return sizeof(double);
+        case VAL_BOOL: return sizeof(bool);
+        case VAL_STRING: return sizeof(char*);
+        case VAL_STRUCT: return sizeof(StructValue*);
+        default:
+            fprintf(stderr, "I cannot mutate this array element representation.\n");
+            exit(1);
+    }
+}
+
+/* I release only storage owned by a static array slot. Nested array Values
+ * keep their shared identity; create_struct clones record/string fields. */
+static void static_array_remove(Array *arr, int index) {
+    size_t width = static_array_element_width(arr->element_type);
+    if (arr->element_type == VAL_STRING) free(((char**)arr->data)[index]);
+    else if (arr->element_type == VAL_STRUCT)
+        discard_literal_record(((StructValue**)arr->data)[index]);
+    memmove((char*)arr->data + (size_t)index * width,
+            (char*)arr->data + ((size_t)index + 1) * width,
+            (size_t)(arr->length - index - 1) * width);
+    arr->length--;
+    memset((char*)arr->data + (size_t)arr->length * width, 0, width);
+}
+
 static Value builtin_array_push(Value *args) {
     /* array_push(array, value) -> array
      * For empty array literal [], infers type from first push
      * For dynamic arrays, appends element
      */
     
-    /* I retain each inner Value's representation and identity. A static
-     * literal and a dynamic array can inhabit the same nested array. */
-    if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0 &&
-        (args[1].type == VAL_ARRAY || args[1].type == VAL_DYN_ARRAY)) {
-        Value nested = create_array(VAL_ARRAY, 1, 1);
-        ((Value*)nested.as.array_val->data)[0] = args[1];
-        return nested;
-    }
-
-    /* If arg[0] is an empty static array, convert to dynamic */
-    if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0) {
-        /* Create new dynamic array with element type from value */
-        ElementType elem_type = value_type_to_elem_type(args[1].type);
-        DynArray *arr = dyn_array_new(elem_type);
-        
-        /* Push the first element */
-        switch (args[1].type) {
-            case VAL_INT:
-                dyn_array_push_int(arr, args[1].as.int_val);
-                break;
-            case VAL_FLOAT:
-                dyn_array_push_float(arr, args[1].as.float_val);
-                break;
-            case VAL_BOOL:
-                dyn_array_push_bool(arr, args[1].as.bool_val);
-                break;
-            case VAL_STRING:
-                dyn_array_push_string_copy(arr, args[1].as.string_val);
-                break;
-            case VAL_DYN_ARRAY:
-                dyn_array_push_array(arr, args[1].as.dyn_array_val);
-                break;
-            case VAL_STRUCT: {
-                Value copy = create_struct(args[1].as.struct_val->struct_name,
-                    args[1].as.struct_val->field_names,
-                    args[1].as.struct_val->field_values,
-                    args[1].as.struct_val->field_count);
-                StructValue *sv_copy = copy.as.struct_val;
-                dyn_array_push_struct(arr, &sv_copy, sizeof(StructValue*));
-                break;
-            }
-            default:
-                fprintf(stderr, "Error: Unsupported array element type\n");
-                gc_release(arr);
-                return create_void();
-        }
-        
-        return create_dyn_array(arr);
-    }
-    
     if (args[0].type == VAL_ARRAY) {
         Array *arr = args[0].as.array_val;
-        size_t width;
-        switch (arr->element_type) {
-            case VAL_ARRAY: width = sizeof(Value); break;
-            case VAL_INT: width = sizeof(long long); break;
-            case VAL_FLOAT: width = sizeof(double); break;
-            case VAL_BOOL: width = sizeof(bool); break;
-            case VAL_STRING: width = sizeof(char*); break;
-            case VAL_STRUCT: width = sizeof(StructValue*); break;
-            default:
-                fprintf(stderr, "I cannot append this array element representation.\n");
-                exit(1);
+        /* I keep the shared Array identity when its first value establishes
+         * storage. Empty literals start with an integer placeholder type. */
+        ValueType element_type = arr->length == 0
+            ? (args[1].type == VAL_DYN_ARRAY ? VAL_ARRAY : args[1].type)
+            : arr->element_type;
+        size_t width = static_array_element_width(element_type);
+        if (arr->length == 0 && element_type != arr->element_type) {
+            free(arr->data);
+            arr->data = NULL;
+            arr->capacity = 0;
+            arr->element_type = element_type;
         }
         bool nested_value = arr->element_type == VAL_ARRAY &&
             (args[1].type == VAL_ARRAY || args[1].type == VAL_DYN_ARRAY);
@@ -1473,6 +1453,17 @@ static Value builtin_array_push(Value *args) {
 
 static Value builtin_array_pop(Value *args) {
     /* array_pop(array) -> value */
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        if (!arr->length) {
+            fprintf(stderr, "I cannot pop an empty array.\n");
+            return create_void();
+        }
+        Value read_args[] = {args[0], create_int(arr->length - 1)};
+        Value result = builtin_at(read_args);
+        static_array_remove(arr, arr->length - 1);
+        return result;
+    }
     if (args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_pop() requires a dynamic array\n");
         return create_void();
@@ -1523,6 +1514,21 @@ static Value builtin_array_pop(Value *args) {
 
 static Value builtin_array_remove_at(Value *args) {
     /* array_remove_at(array, index) -> array */
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        if (args[1].type != VAL_INT) {
+            fprintf(stderr, "I require an integer array removal index.\n");
+            return create_void();
+        }
+        long long index = args[1].as.int_val;
+        if (index < 0 || index >= arr->length) {
+            fprintf(stderr, "I cannot remove array index %lld outside [0..%d).\n",
+                    index, arr->length);
+            exit(1);
+        }
+        static_array_remove(arr, (int)index);
+        return args[0];
+    }
     if (args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_remove_at() requires a dynamic array\n");
         return create_void();
