@@ -9,7 +9,7 @@
   - [x] I verify native semantics, record/map/string lifetime and tail calls, measure reduced static frames of 17904 and 19024 bytes, and pass both ordinary compiler product compilation gates. I preserve the initial independent shadow-deadline failure under `task_628759a2daf743b9bf13c9a7fea2ced0`.
   - [x] I publish the measured storage and acceptance boundary; full native self-compilation remains a separate acceptance result.
 
-- [ ] I support verified `JMP_TRUE` in native translation while preserving VM truthiness semantics (MAC `task_211f22859e164287a07a63cba74ace5b`). My record-local fixtures pass VM execution but expose the existing native classifier refusal; this storage repair uses the supported `BOOL_NOT`/`JMP_FALSE` equivalent.
+- [x] I support verified `JMP_TRUE` in native translation while preserving VM truthiness semantics (MAC `task_211f22859e164287a07a63cba74ace5b`). My bounded companion covers control-flow discovery, local initialization, taken-edge transfers and loop-root collection, with VM/native true/false branch effects and actual float-format artifacts before acceptance. My original record-local fixture exposed the classifier refusal; my [true-branch evidence](evidence/native-jump-true.md) now records four focused methods,34polarity cases,2390native checks and1092shape checks, plus both actual float-format artifacts in VM and sanitized native products.
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
@@ -52,10 +52,23 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       function value while Stage1 admits it. I require paired stored/returned/
       forwarded refusal and prior-output controls until callback transfer is
       implemented. MAC `task_5647b9905ea3eb914389f660d54634bd`.
+- [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
+
+- [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
+  - [x] I implement checked float storage/transport and typed operations without substituting generic opcodes or admitting implicit integer conversion.
+  - [x] I verify all typed operations, signed-zero/global/function transport, malformed operand tags and the paired real scalar fixture in VM/native, with focused sanitizer and adjacent native gates: four methods including33bad-tag cases,2390native checks and1092shape checks pass. My [scalar evidence](evidence/native-typed-floats.md) distinguishes generic NaN ordering, typed IEEE comparisons and the remaining conversion boundary.
 
 - [ ] I retain nominal record identity through nested empty-array append results. My C-seed checker currently refuses `array_push (array_push [] Item {...}) Item {...}` before VM lowering; I retain the fixture separately from supported scalar append inference (MAC `task_439297c5a6934857a90cbec93bb7958d`).
 
 - [x] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).
+- [x] I release my owned Environment import-tracker array and container during teardown (MAC `task_73162d300ee44cb4a16d723bd49beeec`). The symbol-index LSan fixture exposes a pre-existing 208-byte leak; I retain the failure and keep entry-payload ownership separate.
+
+- [x] I restore margin within my ordinary compiler-shadow deadline without changing its value or selected tests (MAC `task_628759a2daf743b9bf13c9a7fea2ced0`). One diagnostic sample completes 823 shadows in 9.953 seconds; bounded stack samples identify repeated variable-name scans, including misses before ordinary function calls.
+  - [x] I retain the timeout/pass evidence, a 60-second diagnostic timing sample, and 24 stack samples without changing host profiling policy. These samples select a cost to investigate; they do not prove every timeout's cause.
+  - [x] I audit insertion, same-file lookup, lexical rollback, reused slots, imported constants and environment teardown before indexing symbol names. Normal declarations synchronize before insertion; the separate imported C-constant append will explicitly invalidate the index.
+  - [x] I index names without changing reverse-most selection, owner/source filtering or value lifetime; allocation failure retains correct linear lookup.
+  - [x] I verify scope reuse, metadata preservation, imported names and function-variable shadowing, then compare unchanged-source full shadow timing at the default deadline and publish the [measured boundary](evidence/interpreter-symbol-index.md). All 826 shadows complete in 2.392 seconds on the same source whose baseline reaches the default deadline; fresh bootstrap and imported callback checks pass.
+
 
 - [ ] **Paired call-scoped resource borrows.** I implement the existing
       `&T` / `&mut T` contract with retained annotation identity and explicit
@@ -8714,6 +8727,18 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I restore trial-deleted child counts for newly deferred VM cycle roots
+      (`task_72433f501ddd4736a45e6244c44ae4fa`). Roots queued during collection
+      can be reached by the old candidate graph while remaining buffered for
+      the next pass. I restore their touched subgraphs before collecting old
+      white objects, then normalize deferred root colours in a separate pass.
+      My existing positive VM lifecycle/collector suite passes 272579 checks.
+      Ordinary supervised execution of my retained 555412-byte full compiler
+      shadow module now passes, resolving the baseline assertion under
+      `task_fdf43892a1104b1facddc2553af390af`. Fresh current-main closure and
+      canonical cutover remain separate; see `evidence/vm-deferred-cycle-counts.md`.
+- [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). The complete compiler shadow assertion remains open under `task_fdf43892a1104b1facddc2553af390af`; this repair does not resolve it.
+- [x] I retain stack context for assertion failures under VM debug mode or module debug metadata, as I already do for ordinary runtime errors. My VM suite passes 272595 checks, including assertion function/source context and unchanged ordinary output (`task_10e6ea8cf0f34321b9dff21594eb9e8a`).
 - [x] I retain checked filesystem foreign signatures in the complete
       dependency shadow closure, including `fs_walkdir` string arrays and
       scalar filesystem operations. I preserve owning artifact identity and
@@ -8808,6 +8833,29 @@ Compiler product:
       shadow probe reaches `substitute_union_field_type` and rejects its nested
       string appends to `[]`. I retain negative type controls and require exact
       C-seed bytecode plus VM/native execution before rerunning the closure.
+- [ ] I preserve exact `float_to_string` formatting across interpreter, native and VM
+      (`task_29976241a36244f7b0ce4ad75cb10b3f`). My C-seed interpreter/native runtime
+      appends `.0` for whole floats; my VM cast and self-hosted native path omit it.
+      I retain signed-zero checks independently and require explicit formatting
+      parity before claiming this builtin agrees across backends.
+- [x] I lower typed F64 opcodes in native AOT with strict float operands
+      (`task_fd4c63cf9f3e46f09ece380ce00c7a58`). The exact C-seed/self-hosted scalar fixture
+      now verifies and runs in NanoVM and native after PR513. I retain signed
+      zero, comparison tags and VM division behavior; the integrated paired
+      emitter gate passes 86 comparisons and 81 Python methods.
+- [x] I retain unary-minus provenance for exact float lowering
+      (`task_ef26778894c441c2b1002128fd0a8c37`), before float dependency-shadow task
+      `task_8bc58d33e73f4e24a474d3724d862c94`. I preserve the distinction from
+      subtraction explicitly through schema/parser metadata. Negative-zero and
+      exact opcode checks pass, as do fresh native bootstrap and three-compiler
+      execution; see `evidence/nanoisa-scalar-floats.md`.
+- [x] I lower scalar float literals, results and comparisons in dependency
+      shadows (`task_8bc58d33e73f4e24a474d3724d862c94`), retaining source lexemes
+      and the unchanged canonical dependency-shadow regression. I require
+      C-seed bytecode, VM/native execution and output-preservation controls.
+      Direct returns of float formatting must use inline builtin lowering,
+      rather than ordinary function tail-call resolution. Float call results must
+      also match the declared return type before inline or tail-call emission.
 - [x] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
       lexical scope and nested break/continue/return behavior. My integrated

@@ -626,12 +626,15 @@ void vm_array_remove(VmHeap *heap, VmArray *a, uint32_t index) {
     }
     /* The array owned a reference to the element being dropped; nothing else
      * will decrement it, so this is the only place it can happen. */
-    vm_release(heap, a->elements[index]);
+    NanoValue previous = a->elements[index];
+    /* I remove the edge before release can collect cycles. */
     /* Shift elements left */
     for (uint32_t i = index; i < a->length - 1; i++) {
         a->elements[i] = a->elements[i + 1];
     }
     a->length--;
+    a->elements[a->length] = val_void();
+    vm_release(heap, previous);
 }
 
 /* ========================================================================
@@ -832,9 +835,10 @@ void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) 
     if (!hm_find_slot(m, key, &slot, &found)) return;
     VmHMEntry *entry = &m->entries[slot];
     if (found) {
-        vm_release(heap, entry->value);
-        entry->value = value;
+        NanoValue previous = entry->value;
         vm_retain(heap, value);
+        entry->value = value;
+        vm_release(heap, previous);
         return;
     }
     if (entry->state == 2) m->tombstone_count--;
@@ -857,11 +861,14 @@ void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
     bool found;
     if (!hm_find_slot(m, key, &slot, &found) || !found) return;
     VmHMEntry *entry = &m->entries[slot];
-    vm_release(heap, entry->key);
-    vm_release(heap, entry->value);
+    NanoValue previous_key = entry->key, previous_value = entry->value;
+    entry->key = val_void();
+    entry->value = val_void();
     entry->state = 2;
     m->count--;
     m->tombstone_count++;
+    vm_release(heap, previous_key);
+    vm_release(heap, previous_value);
 }
 
 VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {

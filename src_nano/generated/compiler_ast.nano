@@ -59,7 +59,8 @@ extern struct ASTBinaryOp {
     left: int,
     right: int,
     left_type: int,
-    right_type: int
+    right_type: int,
+    is_unary: bool
 }
 
 extern struct ASTCall {

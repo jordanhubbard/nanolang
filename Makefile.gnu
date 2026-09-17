@@ -1108,6 +1108,13 @@ test-typechecker: stage1
 	@./tests/test_typechecker
 	@rm -f tests/test_typechecker
 
+.PHONY: test-env-symbol-index
+test-env-symbol-index: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_symbol_index tests/test_env_symbol_index.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_symbol_index
+
+test-units: test-env-symbol-index
+
 .PHONY: test-env-scoping
 .PHONY: test-resource-classification
 test-resource-classification: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -4345,3 +4352,19 @@ test-units: test-selfhost-range-bounds
 test-units: test-exclusive-borrows
 test-exclusive-borrows: bootstrap nano_virt
 	python3 tests/test_exclusive_borrows.py
+.PHONY: test-native-floats
+test-native-floats: nvm2c nanoisa_dump nano_vm
+	@python3 -m unittest -v tests.test_native_floats
+
+test-units: test-native-floats
+
+.PHONY: test-native-jump-true
+test-native-jump-true: nvm2c nanoisa_dump nano_vm
+	@python3 -m unittest -v tests.test_native_jump_true
+
+test-units: test-native-jump-true
+
+.PHONY: test-selfhost-float-values
+test-selfhost-float-values: bootstrap
+	python3 -m unittest -v tests.test_selfhost_float_values
+test-units: test-selfhost-float-values

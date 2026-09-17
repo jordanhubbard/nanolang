@@ -1536,7 +1536,8 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
         left: left_id,
         right: right_id,
         left_type: left_type,
-        right_type: right_type
+        right_type: right_type,
+        is_unary: false
     }
     let node_id: int = p.binary_ops_count
     (list_ASTBinaryOp_push p.binary_ops node)
@@ -1623,6 +1624,23 @@ fn parser_store_binary_op(p: Parser, op: int, left_id: int, right_id: int, left_
 shadow parser_store_binary_op {
     /* Tested via integration tests in parse_program */
     assert (== 1 1)
+}
+
+# I retain unary provenance while keeping the existing operand representation.
+fn parser_mark_unary(p: Parser) -> Parser {
+    let node: ASTBinaryOp = (list_ASTBinaryOp_get p.binary_ops p.last_expr_node_id)
+    (list_ASTBinaryOp_set p.binary_ops p.last_expr_node_id (ASTBinaryOp {
+        node_type: node.node_type, line: node.line, column: node.column,
+        op: node.op, left: node.left, right: node.right,
+        left_type: node.left_type, right_type: node.right_type, is_unary: true
+    }))
+    return p
+}
+shadow parser_mark_unary {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> float { return (- 0.0) }" "unary.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "unary.nano")
+    let node: ASTBinaryOp = (parser_get_binary_op parser 0)
+    assert node.is_unary
 }
 
 /* Helper: Store function call node */
@@ -2515,7 +2533,7 @@ fn parse_primary(p: Parser) -> Parser {
             let zero_id: int = zero.last_expr_node_id
             let operand: Parser = (parse_primary zero)
             if (parser_has_error operand) { return operand }
-            return (parser_store_binary_op operand (token_minus) zero_id operand.last_expr_node_id ParseNodeType.PNODE_NUMBER operand.last_expr_node_type tok.line tok.column)
+            return (parser_mark_unary (parser_store_binary_op operand (token_minus) zero_id operand.last_expr_node_id ParseNodeType.PNODE_NUMBER operand.last_expr_node_type tok.line tok.column))
         }
         
         /* match expression */
@@ -2696,7 +2714,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                     let zero_id: int = p_zero.last_expr_node_id
                                                     let zero_type: int = p_zero.last_expr_node_type
                                                     let p_bin: Parser = (parser_store_binary_op p_zero op_type zero_id left_id zero_type left_type tok.line tok.column)
-                                                    return (parser_expect p_bin (token_rparen))
+                                                    return (parser_expect (parser_mark_unary p_bin) (token_rparen))
                                                 } else {
                                                     return (parser_with_error p_left true)
                                                 }

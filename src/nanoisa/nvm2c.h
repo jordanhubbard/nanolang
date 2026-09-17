@@ -8,7 +8,7 @@
  * The generated process does not require nano_vm, nano_cop, or nano_vmd.
  *
  * Closed subset: i64 constants, locals, integer arithmetic and comparisons,
- * CALL/TAIL_CALL, JMP/JMP_FALSE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
+ * CALL/TAIL_CALL, JMP/JMP_FALSE/JMP_TRUE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
  * ARR_LITERAL, ARR_GET, ARR_LEN, ARR_PUSH of array<int> and array<string>,
  * ARR_NEW of array<int> or a string list as a heap object so ARR_PUSH then
  * POP mutates the local the way the VM does (void list_int_push /
@@ -23,6 +23,12 @@
  * handle. I reject incompatible representations and abort on invalid indices.
  * I emit UTF-8 and control bytes with fixed-width C escapes; embedded NUL
  * remains refused because these helpers use NUL-terminated strings.
+ * I also lower typed F64 arithmetic/negation/comparison, scalar float locals,
+ * call/return/tail transport and checked tagged globals. Typed operations require
+ * float operands; F64_DIV returns positive zero for either signed zero divisor.
+ * CAST_STRING retains VM `%g` formatting, while printing keeps a decimal for
+ * whole floats in the VM's bounded range. Explicit float-to-int conversion and
+ * float arrays/record fields remain outside this scalar contract.
  * Anything else is refused with an error.
  * I lower exact builtin CALL_EXTERN signatures for get_argc, get_argv,
  * vm_getcwd, vm_tmp_dir, vm_getenv and nl_os_getenv to native host helpers.

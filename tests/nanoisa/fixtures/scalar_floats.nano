@@ -1,0 +1,46 @@
+fn render_float(value: float) -> string { return (float_to_string value) }
+shadow render_float { assert (== (render_float 1.25) "1.25") }
+let mut stored: float = 1.25
+fn precise() -> float { return 1.2345678901234567 }
+shadow precise { assert (== (precise) 1.2345678901234567) }
+fn negate(value: float) -> float { return (- value) }
+shadow negate { assert (== (negate 2.5) -2.5) }
+fn bare(value: float) -> float { return -value }
+shadow bare { assert (== (bare 2.5) -2.5) }
+fn negative_zero() -> float { return (- 0.0) }
+shadow negative_zero { assert (== (str_substring (render_float (negative_zero)) 0 1) "-") }
+fn difference_zero() -> float { return (- 0.0 0.0) }
+shadow difference_zero { assert (== (str_substring (render_float (difference_zero)) 0 1) "0") }
+fn arithmetic() -> float {
+    let operand: float = 2.0
+    let mut value: float = (+ (* operand 1.5) (/ (- 5.0 2.0) 2.0))
+    set value (+ value 0.5)
+    return value
+}
+shadow arithmetic { assert (== (arithmetic) 5.0) }
+fn comparisons() -> bool {
+    assert (== 1.5 1.5)
+    assert (!= 1.5 2.0)
+    assert (< 1.5 2.0)
+    assert (<= 2.0 2.0)
+    assert (> 2.5 2.0)
+    return (>= 3.0 3.0)
+}
+shadow comparisons { assert (comparisons) }
+fn relay(value: float) -> float { return (negate value) }
+shadow relay { assert (== (relay 2.0) -2.0) }
+fn change() -> float { set stored (- stored 0.25) return stored }
+shadow change { let before: float = stored assert (== (change) (- before 0.25)) set stored before }
+fn main() -> int {
+    set stored 1.25
+    assert (== (precise) 1.2345678901234567)
+    assert (== (arithmetic) 5.0)
+    assert (comparisons)
+    assert (== (relay 2.0) -2.0)
+    assert (== (bare 2.5) -2.5)
+    assert (== (change) 1.0)
+    assert (== (str_substring (render_float (negative_zero)) 0 1) "-")
+    assert (== (str_substring (render_float (difference_zero)) 0 1) "0")
+    return 0
+}
+shadow main { let before: float = stored assert (== (main) 0) set stored before }

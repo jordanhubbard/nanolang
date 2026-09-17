@@ -5056,6 +5056,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 /* Binary operation - RECURSIVE! */
                 let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                if binop.is_unary {
+                    let operand: string = (generate_expression parser binop.right binop.right_type env expected_type)
+                    return (+ "(-(" (+ operand "))"))
+                }
                 
                 /* For comparison operators, don't propagate expected_type to operands.
                    The return type (bool) differs from operand types. */

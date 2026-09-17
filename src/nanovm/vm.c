@@ -1646,8 +1646,9 @@ vm_dispatch_top:
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
             }
             NanoValue v = stack_pop(vm);
-            vm_release(&vm->heap, vm->stack[abs_idx]);
+            NanoValue previous = vm->stack[abs_idx];
             vm->stack[abs_idx] = v;
+            vm_release(&vm->heap, previous);
             VM_NEXT();
         }
 
@@ -1673,8 +1674,9 @@ vm_dispatch_top:
                 return trap_error(vm, VM_ERR_MEMORY, "Failed to allocate global %u", idx);
             }
             NanoValue v = stack_pop(vm);
-            vm_release(&vm->heap, vm->globals[idx]);
+            NanoValue previous = vm->globals[idx];
             vm->globals[idx] = v;
+            vm_release(&vm->heap, previous);
             if (idx >= vm->global_count) vm->global_count = idx + 1;
             VM_NEXT();
         }
@@ -1698,8 +1700,9 @@ vm_dispatch_top:
             /* depth (operands[0]) always 0 — see OP_LOAD_UPVALUE note above */
             NanoValue v = stack_pop(vm);
             if (frame->closure && idx < frame->closure->capture_count) {
-                vm_release(&vm->heap, frame->closure->captures[idx]);
+                NanoValue previous = frame->closure->captures[idx];
                 frame->closure->captures[idx] = v;
+                vm_release(&vm->heap, previous);
             } else {
                 vm_release(&vm->heap, v);
             }
@@ -3159,8 +3162,10 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "I require an ARR_SET index within the array.");
             }
             uint32_t idx = (uint32_t)idx_v.as.i64;
-            vm_release(&vm->heap, vm_array_get(arr.as.array, idx));
+            NanoValue previous = vm_array_get(arr.as.array, idx);
+            /* I publish the new edge before release can collect cycles. */
             vm_array_set(arr.as.array, idx, v);
+            vm_release(&vm->heap, previous);
             stack_push(vm, arr);
             VM_NEXT();
         }
@@ -3266,8 +3271,9 @@ dynamic_div:
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "STRUCT_SET: field %u out of range", field_idx);
             }
-            vm_release(&vm->heap, sv.as.sval->fields[field_idx]);
+            NanoValue previous = sv.as.sval->fields[field_idx];
             sv.as.sval->fields[field_idx] = v;
+            vm_release(&vm->heap, previous);
             stack_push(vm, sv);
             VM_NEXT();
         }
@@ -3465,8 +3471,9 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                                   "AGG_SET field %u is unavailable", index);
             }
-            vm_release(&vm->heap, *field);
+            NanoValue previous = *field;
             *field = value;
+            vm_release(&vm->heap, previous);
             stack_push(vm, aggregate);
             VM_NEXT();
         }
@@ -4086,7 +4093,13 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         case TRAP_ASSERT:
             if (!val_truthy(trap.data.assert_check.condition)) {
                 vm_release(&vm->heap, trap.data.assert_check.condition);
-                return vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
+                VmResult result = vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
+                if (vm->debug_mode || (vm->module->header.flags & NVM_FLAG_DEBUG_INFO)) {
+                    FILE *trace_out = vm->output ? vm->output : stderr;
+                    fprintf(trace_out, "\nRuntime error: %s\n", vm_error_string(result));
+                    vm_stack_trace(vm, trace_out);
+                }
+                return result;
             }
             vm_release(&vm->heap, trap.data.assert_check.condition);
             break;

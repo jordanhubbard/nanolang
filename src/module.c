@@ -781,6 +781,8 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
                                 env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
                             }
                             
+                            /* I bypass normal insertion for header constants. */
+                            env_symbol_index_invalidate(env);
                             Symbol *sym = &env->symbols[env->symbol_count++];
                             memset(sym, 0, sizeof(*sym));
                             sym->is_global = true;
