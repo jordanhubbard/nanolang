@@ -1,0 +1,31 @@
+fn announce() -> int { (println "init") return 7 }
+shadow announce { assert (== (announce) 7) }
+
+let mut count: int = (announce)
+let next: int = (+ count 1)
+let mut title: string = "start"
+let mut words: array<string> = ["initial"]
+
+fn change() -> void {
+    set count (+ count 2)
+    set title (+ title "!")
+    set words ["yes"]
+}
+shadow change { assert true }
+
+fn local() -> int { let count: int = 100 return count }
+shadow local { assert (== (local) 100) }
+
+fn main() -> int {
+    assert (== count 7)
+    assert (== next 8)
+    assert (== (array_length words) 1)
+    assert (== (local) 100)
+    (change)
+    assert (== count 9)
+    assert (== title "start!")
+    let word: string = (at words 0)
+    assert (== word "yes")
+    return 0
+}
+shadow main { assert true }

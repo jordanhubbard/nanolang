@@ -8017,10 +8017,31 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower canonical program globals and ordered runtime initialization
-      (`task_5a019d3f83cc43d1beb7ace8c8c7388c`). The intermediate executable
-      closure pass refuses top-level lets instead of omitting their effects.
-      This remains required for full compiler emission and bootstrap.
+- [ ] I lower array-bearing records required by canonical `MergeResult`,
+      preserving typed fields through construction, access, calls and returns
+      (`task_468477ec7699402a8dfb92830c5ed40f`). My program compiler probe after globals
+      first refuses `unsupported local type MergeResult`.
+- [ ] I carry record and map globals through standalone AOT with runtime
+      tags, field/map access and lifetime roots; generic scalar global values
+      do not establish this support (`task_95796f5f49564ed4a911fd05a1aac5b4`).
+- [ ] I preserve declared global constructor contexts in my C seed, accepting
+      typed map construction and emitting the string tag for empty string
+      arrays (`task_026e73d59e9e45b0b732b43883feea9a`).
+- [ ] I infer array and typed-list element access results in expression
+      contexts instead of requiring an explicit intermediate local
+      (`task_1c4da3f9cf804bbf95005ad3f603ef26`).
+- [ ] I bind imported global values and their selective/qualified aliases
+      across canonical checking, native and NanoISA emission without confusing
+      same-name declarations from different owners
+      (`task_2713a842846b417fbfd6aa4b8059d0dd`). Owner-local storage does
+      not establish imported-value binding support.
+- [x] I lower supported owner-local globals and ordered runtime initialization
+      through `__init__`, retaining every initializer as an executable root
+      (`task_5a019d3f83cc43d1beb7ace8c8c7388c`). Scalar/string-array globals
+      match my C seed and run in VM/AOT; flat-record/map globals match and run
+      in VM. Imported-value binding and aggregate AOT remain separate required
+      tasks. All 86 checks and 21 integration methods pass;
+      `docs/evidence/selfhost-global-initialization.md` records the boundary.
 - [x] I expose an explicit executable API that roots main and preserves its
       bound direct-call closure, including recursion. I refuse globals and
       unresolved function values until their lowering preserves initialization
