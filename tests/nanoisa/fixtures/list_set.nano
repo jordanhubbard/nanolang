@@ -1,0 +1,48 @@
+struct LogEntry { message: string, code: int }
+fn make() -> List<LogEntry> {
+    let entries: List<LogEntry> = (list_LogEntry_new)
+    (list_LogEntry_push entries LogEntry { message: "before", code: 1 })
+    return entries
+}
+shadow make { assert (== (list_LogEntry_length (make)) 1) }
+fn receiver(entries: List<LogEntry>, trace: array<int>) -> List<LogEntry> {
+    (array_set trace 0 1)
+    return entries
+}
+shadow receiver { let trace: array<int> = [0] let entries: List<LogEntry> = (receiver (make) trace) assert (== (at trace 0) 1) }
+fn index(trace: array<int>) -> int {
+    assert (== (at trace 0) 1)
+    (array_set trace 0 2)
+    return 0
+}
+shadow index { let trace: array<int> = [1] assert (== (index trace) 0) assert (== (at trace 0) 2) }
+fn replacement(trace: array<int>) -> LogEntry {
+    assert (== (at trace 0) 2)
+    (array_set trace 0 3)
+    return LogEntry { message: (int_to_string 42), code: 42 }
+}
+shadow replacement { let trace: array<int> = [2] assert (== (replacement trace).message "42") }
+fn update(entries: List<LogEntry>, trace: array<int>) -> void {
+    (list_LogEntry_set (receiver entries trace) (index trace) (replacement trace))
+}
+shadow update { let trace: array<int> = [0] (update (make) trace) assert (== (at trace 0) 3) }
+fn main() -> int {
+    let entries: List<LogEntry> = (make)
+    let alias: List<LogEntry> = entries
+    let before: LogEntry = (list_LogEntry_get entries 0)
+    let trace: array<int> = [0]
+    (update entries trace)
+    let after: LogEntry = (list_LogEntry_get alias 0)
+    assert (== before.message "before")
+    assert (== after.message "42")
+    assert (== after.code 42)
+    assert (== (at trace 0) 3)
+    let words: List<string> = (list_string_new)
+    (list_string_push words (+ "old" " value"))
+    let old: string = (list_string_get words 0)
+    (list_string_set words 0 (+ "new" " value"))
+    assert (== old "old value")
+    assert (== (list_string_get words 0) "new value")
+    return 0
+}
+shadow main { assert (== (main) 0) }
