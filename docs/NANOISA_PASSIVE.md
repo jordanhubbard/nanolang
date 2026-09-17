@@ -83,7 +83,7 @@ syntax. The complete external-input task remains open until its broader
 acceptance is met. Guarded scalar validation and paired execution evidence are
 in [my acceptance record](evidence/passive-guarded-inputs.md).
 
-## Structured producer markers — pending implementation
+## Structured producer markers
 
 A textual producer may bracket a function-local independent block with
 `.par_begin` and `.par_end`. Before each binding's instructions it writes
