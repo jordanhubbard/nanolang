@@ -47,6 +47,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       frontend negative tests before admitting collection ownership. MAC
       `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
 
+- [ ] **Diagnose unsupported tuple ownership before emission.** For
+      `Bundle<T>.Some { value: (T,int) }` with `Bundle<Handle>`, my C seed
+      rejects ownership but both self-hosted stages fail later on generated
+      `Tuple_T_int`. I require deliberate rejection or complete substitution
+      and ownership lowering; absence of an executable is not diagnostic parity.
+      MAC `task_bcd773ad3c084ce099a3da5aef682fef`.
+
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
       exposed 245 bytes retained by existing registered field-name/formal arrays
       and the environment import tracker. I establish borrower ownership before

@@ -4,9 +4,11 @@ I continue the affine prerequisite tracked by
 `task_1f64c9b88a5248dcbda2258dcbee99f7`. I retain parsed payload annotations in
 independently owned AST, environment and module metadata trees. My nominal
 binding preserves declaration formals inside arrays and generic parameters.
-My supported generic substitution replaces complete argument trees inside
-array/generic payloads; this does not establish tuple, row or callback generic
-substitution, owned collection transfer or selected-variant ownership transfer.
+My supported generic substitution recurses only through `element_type` and
+`type_params`, replacing complete argument trees there. Copying tuple, row and
+function metadata does not substitute formal names embedded in those shapes.
+I do not claim those substitutions, owned collection transfer or selected-variant
+ownership transfer.
 
 On 2026-09-17, my C baseline at merged PR388 rejected ordinary `array<T>` and
 `array<array<T>>` match projections as non-arrays. After metadata preservation,
@@ -40,3 +42,18 @@ That classification gap is tracked separately by
 `task_e1ce4d21563d4fb3bbb998e30fc9652f`; generic rejection does not prove that
 fixed nested resource fields are guarded. I keep both ownership obligations
 open and the full roadmap publication hold in place.
+
+My final integrated source `51ec1cd9` includes PR398 and PR410 through main
+`48bc99e0`. Fresh bootstrap, module metadata and five paired payload methods
+pass (31.700 seconds), as do sixteen existing generic methods across all three
+frontends (48 decisions, 55.612 seconds). The integrated ASan/UBSan metadata
+executable also passes with leak detection explicitly disabled. These are
+prerequisite gates, not full affine or release acceptance.
+
+A separate boundary probe uses `Bundle<T>.Some { value: (T,int) }` with
+`Bundle<Handle>`. My C seed rejects it with an ownership diagnostic. Both
+self-hosted stages emit no executable, but fail later on generated
+`Tuple_T_int`; I do not misdescribe that as an intentional ownership diagnostic.
+MAC `task_bcd773ad3c084ce099a3da5aef682fef` tracks early rejection or complete
+substitution/lowering. I retain the existing generic-array rejection checks and
+do not remove diagnostics to admit these unsupported shapes.
