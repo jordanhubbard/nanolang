@@ -23,3 +23,8 @@ first refuses strings needing assembly escaping. I recorded continuation
 `task_4ea96b68ae4b43f7a0cfc16cd7c19649` and
 `task_0443ff4ed6224f5683301055555f4209` track these array fixes. Full compiler
 emission and bootstrap equality remain open.
+
+On Darwin ARM64, six focused driver cases also prove that I report the
+lowerer's precise refusal while retaining the generic fallback when no
+diagnostic exists. Refusal does not publish a new output or replace prior
+output.

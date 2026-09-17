@@ -8009,6 +8009,9 @@ Compiler product:
 - [x] I keep conservatively emitted scalar-array push helpers valid under
       strict native compilation when only one array kind is pushed
       (`task_2dedfc5f181f41d4951eed8927648306`).
+      - [x] I keep the same optional helpers warning-clean under Clang, which
+        still diagnoses an unused `static inline` helper under `-Werror`
+        (`task_4c32ccf895f5435998cd4982c7dd4087`).
 - [x] I preserve declared scalar element tags for empty array locals,
       assignments, arguments and returns; a typed empty string local currently
       differs from my C seed (`task_0443ff4ed6224f5683301055555f4209`).
@@ -8016,6 +8019,9 @@ Compiler product:
       refuses `array<string>` after scalar conversion lowering
       (`task_4ea96b68ae4b43f7a0cfc16cd7c19649`). I require C-seed and VM/native
       parity for direct/tail returns and preserve unsupported-shape refusal.
+      - [x] I expose the lowerer's precise refusal through the driver instead
+        of collapsing every failure to `outside the pinned subset`, and prove
+        that rejected output is still not published.
 - [x] I resolve ordinary and qualified calls through the canonical module
       bindings when lowering a merged Parser, preserving result types, void
       calls, tail returns and raw-source invocation isolation

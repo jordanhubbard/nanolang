@@ -80,6 +80,18 @@ shadow nisa_fail {
     let _2: int = (nisa_reset)
 }
 
+pub fn nanoisa_last_lowering_error() -> string {
+    return nisa_err
+}
+
+shadow nanoisa_last_lowering_error {
+    let _: int = (nisa_reset)
+    let ignored: string = (nisa_fail "precise refusal")
+    assert (== ignored "")
+    assert (== (nanoisa_last_lowering_error) "precise refusal")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_local_find(name: string) -> int {
     let mut i: int = 0
     while (< i (array_length nisa_names)) {
