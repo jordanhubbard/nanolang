@@ -30,3 +30,5 @@ The old map tests required immediate collection after every allocation and tiny 
 The first native translator run retained four strict-C failures because a collector-only budget variable was initially declared in the standalone map-runtime fragment. I moved it into the emitter's collector scope; I did not suppress warnings. The original and final logs remain `/tmp/nanolang-map-byte-nvm2c{,-final}.log`.
 
 Full native self-compilation and raw fixed-point acceptance remain open. No source or binary from the preserved timed-out attempt was changed by this repair.
+
+After restacking onto `c3287dba`, I rebuilt the tools and passed all 15 map/debt/lifetime methods in 35.743 seconds. The source merge was clean; I retained additive roadmap entries.
