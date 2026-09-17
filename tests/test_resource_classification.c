@@ -94,6 +94,35 @@ int main(void) {
     assert(is_resource_type(&env, "Choice"));
     counts[1] = 1;
     assert(!is_resource_type(&env, "Choice"));
+    /* I preserve declaration identity through nested fixed arrays and propagate
+     * the unsupported-collection fact into ordinary enclosing records. */
+    TypeInfo handle_info = {.base_type = TYPE_STRUCT, .generic_name = "Handle"};
+    TypeInfo inner_array = {.base_type = TYPE_ARRAY, .element_type = &handle_info};
+    TypeInfo outer_array = {.base_type = TYPE_ARRAY, .element_type = &inner_array};
+    TypeInfo *payload_info[] = {&outer_array};
+    TypeInfo **variant_info[] = {NULL, payload_info};
+    choices[1].variant_field_type_info = variant_info;
+    payload_types[0] = TYPE_ARRAY;
+    payload_names[0] = "Handle";
+    assert(is_resource_type(&env, "Choice"));
+    assert(has_resource_collection_payload(&env, "Choice"));
+    assert(has_resource_collection_payload(&env, "Box"));
+    assert(!has_resource_collection_payload(&env, "Handle"));
+    env.current_module = "caller";
+    assert(!has_resource_collection_payload(&env, "Choice"));
+    assert(has_resource_collection_payload(&env, "Box"));
+    assert(env.current_module == caller);
+    env.current_module = "owner";
+    char *formals[] = {"Handle"};
+    choices[1].generic_params = formals;
+    choices[1].generic_param_count = 1;
+    assert(!is_resource_type(&env, "Choice"));
+    assert(!has_resource_collection_payload(&env, "Choice"));
+    choices[1].generic_param_count = 0;
+    handle_info.base_type = TYPE_UNION;
+    handle_info.generic_name = "Choice";
+    assert(!is_resource_type(&env, "Choice"));
+    assert(!has_resource_collection_payload(&env, "Choice"));
     puts("I passed nested, cyclic, deep and module-owned record/union classification checks.");
     return 0;
 }

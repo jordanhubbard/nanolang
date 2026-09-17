@@ -56,6 +56,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         transfer as a separate reviewed slice with branch-local obligations,
         complete destructuring, joins and post-match use-after-move checks.
 
+- [ ] **Transfer selected owned union payloads.** After fixed collection
+      rejection, I implement exhaustive unguarded nongeneric matching with one
+      scrutinee move, per-arm payload obligations and complete qualified variant
+      destructuring. I require both frontends to accept resolved payloads and
+      reject ignored fields, repeated use, unresolved exits and incompatible
+      joins. I keep unsupported guarded/generic/tuple/borrow cases rejected and
+      do not infer NanoISA ownership verification from native execution. MAC
+      `task_c17b55115379414980609a5d867ccad1`, dependent on
+      `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
+
 - [ ] **Diagnose unsupported tuple ownership before emission.** For
       `Bundle<T>.Some { value: (T,int) }` with `Bundle<Handle>`, my C seed
       rejects ownership but both self-hosted stages fail later on generated
