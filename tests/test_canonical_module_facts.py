@@ -104,6 +104,36 @@ class CanonicalModuleFacts(unittest.TestCase):
                     self.assertIn(b'introspection', result.stdout + result.stderr)
                     self.assertEqual(module.read_bytes(), b'previous module')
 
+    def test_public_pure_modifier_exports(self):
+        with tempfile.TemporaryDirectory(prefix='nano-pure-facts-') as directory:
+            work = Path(directory)
+            dependency = work / 'pure_exports.nano'
+            dependency.write_text(
+                'module pure_exports\n'
+                'pub pure fn visible() -> int { return 7 }\n'
+                'shadow visible { assert (== (visible) 7) }\n'
+                'pure fn hidden() -> int { return 3 }\n'
+                'shadow hidden { assert (== (hidden) 3) }\n'
+                'pub fn ordinary() -> int { return 9 }\n'
+                'shadow ordinary { assert (== (ordinary) 9) }\n')
+            source = work / 'main.nano'
+            source.write_text(f'module {json.dumps(str(dependency))} as dependency\n'
+                'extern fn ___module_function_count_pure_exports() -> int\n'
+                'extern fn ___module_function_name_pure_exports(index: int) -> string\n'
+                'fn main() -> int { unsafe {\n'
+                'assert (== (___module_function_count_pure_exports) 2)\n'
+                'assert (== (___module_function_name_pure_exports 0) "visible")\n'
+                'assert (== (___module_function_name_pure_exports 1) "ordinary")\n'
+                'assert (== (___module_function_name_pure_exports 2) "")\n'
+                '} assert (== (dependency.visible) 7) return 0 }\n'
+                'shadow main { assert true }\n')
+            module, binary = work / 'program.nvm', work / 'program'
+            self.checked([DRIVER, source, '--emit-nvm', '-o', module])
+            self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
+            self.checked([ROOT / 'bin/nano_vm', module])
+            self.checked([DRIVER, source, '-o', binary])
+            self.checked([binary])
+
     def test_existing_flags_and_export_shadows(self):
         with tempfile.TemporaryDirectory(prefix='nano-facts-existing-') as directory:
             work = Path(directory)
