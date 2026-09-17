@@ -100,23 +100,15 @@ shadow nisa_local_find {
 }
 
 fn nisa_intern(lit: string) -> string {
-    if (or (str_contains lit "\"") (or (str_contains lit "\\") (str_contains lit "\n"))) {
-        return (nisa_fail "string literal needs escaping I do not emit yet")
-    } else {
-        let mut i: int = 0
-        while (< i (array_length nisa_str_vals)) {
-            if (== (at nisa_str_vals i) lit) {
-                return (at nisa_str_names i)
-            } else {
-                (print "")
-            }
-            set i (+ i 1)
-        }
-        let name: string = (+ "s" (int_to_string (array_length nisa_str_vals)))
-        set nisa_str_vals (array_push nisa_str_vals lit)
-        set nisa_str_names (array_push nisa_str_names name)
-        return name
+    let mut i: int = 0
+    while (< i (array_length nisa_str_vals)) {
+        if (== (at nisa_str_vals i) lit) { return (at nisa_str_names i) }
+        set i (+ i 1)
     }
+    let name: string = (+ "s" (int_to_string (array_length nisa_str_vals)))
+    set nisa_str_vals (array_push nisa_str_vals lit)
+    set nisa_str_names (array_push nisa_str_names name)
+    return name
 }
 
 shadow nisa_intern {
@@ -127,6 +119,70 @@ shadow nisa_intern {
     let _2: int = (nisa_reset)
 }
 
+# My parser stores source spellings; I decode the C-seed string contract first.
+fn nisa_decode_string(raw: string) -> string {
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length raw)) {
+        let mut part: string = (str_substring raw i 1)
+        if (and (== (char_at raw i) 92) (< (+ i 1) (str_length raw))) {
+            set i (+ i 1)
+            let code: int = (char_at raw i)
+            set part (str_substring raw i 1)
+            # My C-string ABI ends at the first decoded NUL.
+            if (== code 48) { return output }
+            if (== code 110) { set part "\n" }
+            if (== code 116) { set part "\t" }
+            if (== code 114) { set part "\r" }
+            if (not (or (== code 110) (or (== code 116) (or (== code 114)
+                    (or (== code 92) (or (== code 34) (== code 39))))))) {
+                set part (+ "\\" part)
+            }
+        }
+        set output (+ output part)
+        set i (+ i 1)
+    }
+    return output
+}
+shadow nisa_decode_string {
+    assert (== (nisa_decode_string "\\n\\r\\t") "\n\r\t")
+    assert (== (nisa_decode_string "\\\"\\\\\\'") "\"\\'")
+    assert (== (nisa_decode_string "a\\qb") "a\\qb")
+    assert (== (nisa_decode_string "a\\0b") "a")
+}
+
+# I escape bytes using the assembler quoted-string grammar.
+fn nisa_escape_string(value: string) -> string {
+    let digits: string = "0123456789abcdef"
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let octet: int = (char_at value i)
+        let mut escaped: string = (str_substring value i 1)
+        if (== octet 34) { set escaped "\\\"" }
+        if (== octet 92) { set escaped "\\\\" }
+        if (== octet 10) { set escaped "\\n" }
+        if (== octet 13) { set escaped "\\r" }
+        if (== octet 9) { set escaped "\\t" }
+        if (and (or (< octet 32) (== octet 127))
+                (and (!= octet 10) (and (!= octet 13) (!= octet 9)))) {
+            set escaped (+ "\\x" (+ (str_substring digits (/ octet 16) 1)
+                                      (str_substring digits (% octet 16) 1)))
+        }
+        set output (+ output escaped)
+        set i (+ i 1)
+    }
+    return output
+}
+shadow nisa_escape_string {
+    assert (== (nisa_escape_string "plain") "plain")
+    assert (== (nisa_escape_string "\n\r\t") "\\n\\r\\t")
+    assert (== (nisa_escape_string "\"\\") "\\\"\\\\")
+    assert (== (nisa_escape_string "café") "café")
+    assert (== (nisa_escape_string (string_from_char 1)) "\\x01")
+    assert (== (nisa_escape_string (string_from_char 127)) "\\x7f")
+}
+
 fn nisa_str_prelude() -> string {
     let mut out: string = ""
     let mut i: int = 0
@@ -134,7 +190,7 @@ fn nisa_str_prelude() -> string {
         set out (+ out ".string ")
         set out (+ out (at nisa_str_names i))
         set out (+ out " \"")
-        set out (+ out (at nisa_str_vals i))
+        set out (+ out (nisa_escape_string (at nisa_str_vals i)))
         set out (+ out "\"\n")
         set i (+ i 1)
     }
@@ -1348,7 +1404,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
     } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            let name: string = (nisa_intern s.value)
+            let name: string = (nisa_intern (nisa_decode_string s.value))
             return (nisa_line_imm "PUSH_STR" name)
         } else {
             if (== node_type ParseNodeType.PNODE_IDENTIFIER) {

@@ -15,6 +15,28 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_escaped_strings_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-escaped-strings-") as tmp:
+            work = Path(tmp)
+            seed, assembly, repeated, emitted = (work / n for n in
+                ("seed.nvm", "emitter.nasm", "repeated.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", repeated)
+            self.assertEqual(assembly.read_bytes(), repeated.read_bytes())
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "escaped", "unicode_text", "repeated", "unknown_escape", "nul_prefix", "main")
+            self.assertIn("14 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
     def test_scalar_array_results_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/scalar_array_results.nano"
         with tempfile.TemporaryDirectory(prefix="nano-array-results-") as tmp:

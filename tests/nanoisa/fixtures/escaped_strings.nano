@@ -1,0 +1,29 @@
+fn escaped() -> string { return "\"\\\n\r\t" }
+shadow escaped { assert (== (str_length (escaped)) 5) }
+fn unicode_text() -> string { return "café" }
+shadow unicode_text { assert (== (str_length (unicode_text)) 5) }
+fn repeated() -> string { return "\"\\\n\r\t" }
+shadow repeated { assert (== (repeated) (escaped)) }
+fn unknown_escape() -> string { return "\q" }
+shadow unknown_escape { assert (== (str_length (unknown_escape)) 2) }
+fn nul_prefix() -> string { return "a\0b" }
+shadow nul_prefix { assert (== (nul_prefix) "a") }
+fn main() -> int {
+    let value: string = (escaped)
+    assert (== (char_at value 0) 34)
+    assert (== (char_at value 1) 92)
+    assert (== (char_at value 2) 10)
+    assert (== (char_at value 3) 13)
+    assert (== (char_at value 4) 9)
+    assert (== (repeated) value)
+    let unicode_value: string = (unicode_text)
+    assert (== (str_length unicode_value) 5)
+    assert (== (char_at unicode_value 3) 195)
+    assert (== (char_at unicode_value 4) 169)
+    let unknown: string = (unknown_escape)
+    assert (== (char_at unknown 0) 92)
+    assert (== (char_at unknown 1) 113)
+    assert (== (nul_prefix) "a")
+    return 0
+}
+shadow main { assert (== (main) 0) }
