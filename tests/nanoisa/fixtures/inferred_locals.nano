@@ -1,0 +1,56 @@
+enum Mode { Low = -3, High = 7 }
+struct Pair { value: int, label: string }
+
+fn once() -> int { (println "once") return 7 }
+shadow once { assert (== (once) 7) }
+
+fn pair() -> Pair { return Pair { value: 5, label: "pair" } }
+shadow pair { assert (== (pair).value 5) }
+
+fn fresh() -> HashMap<string,string> { return (map_new) }
+shadow fresh { assert (== (map_size (fresh)) 0) }
+
+fn values() -> int {
+    let number = (once)
+    let alias = number
+    let mut changed = (+ alias 1)
+    set changed (+ changed 1)
+    let text = "hello"
+    let joined = (+ text " world")
+    let flag = (== joined "hello world")
+    let real = 1.5
+    let sum = (+ real 0.5)
+    let mode = Mode.Low
+    let record = Pair { value: 4, label: "literal" }
+    let returned = (pair)
+    let integers = [1, 2, 3]
+    let strings = ["a", "b"]
+    let flags = [true, false]
+    let modes = [Mode.Low, Mode.High]
+    let map = (fresh)
+    (map_put map "key" "value")
+    let fetched = (map_get map "key")
+    let empty: array<string> = []
+    let explicit_map: HashMap<string,string> = (map_new)
+    assert (== number 7)
+    assert (== changed 9)
+    assert flag
+    assert (== sum 2.0)
+    assert (== mode -3)
+    assert (== record.value 4)
+    assert (== returned.value 5)
+    assert (== (at integers 2) 3)
+    assert (== (at strings 1) "b")
+    assert (not (at flags 1))
+    assert (== (at modes 1) 7)
+    assert (== fetched "value")
+    assert (== (array_length empty) 0)
+    assert (== (map_size explicit_map) 0)
+    if true { let number = 99 assert (== number 99) }
+    assert (== number 7)
+    return number
+}
+shadow values { assert (== (values) 7) }
+
+fn main() -> int { (println (values)) return 0 }
+shadow main { assert (== (main) 0) }
