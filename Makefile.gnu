@@ -437,7 +437,7 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_map_byte_debt tests.test_native_string_retention tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_string_joins tests.test_nanovm_guest_args
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_map_byte_debt tests.test_native_string_retention tests.test_native_host_strings tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_string_joins tests.test_nanovm_guest_args
 
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
@@ -4420,6 +4420,11 @@ test-nanoisa-host-closure: $(COMPILER_C)
 test-units: test-passive-par-frontends
 test-passive-par-frontends: bootstrap nanoisa_emit
 	python3 -m unittest tests.test_passive_par_frontends
+
+.PHONY: test-passive-flow-frontends
+test-units: test-passive-flow-frontends
+test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump
+	python3 -m unittest tests.test_passive_flow_frontends
 .PHONY: test-affine-state
 test-units: test-affine-state
 test-affine-state: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -4438,7 +4443,8 @@ test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode_alloc
 
-.PHONY: test-passive-flow-frontends
-test-units: test-passive-flow-frontends
-test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump
-	python3 -m unittest tests.test_passive_flow_frontends
+.PHONY: test-legacy-float-conversion
+test-legacy-float-conversion: bootstrap $(INTERPRETER)
+	@python3 -m unittest tests.test_legacy_float_conversion
+
+test-units: test-legacy-float-conversion

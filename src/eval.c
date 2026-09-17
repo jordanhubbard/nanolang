@@ -582,6 +582,10 @@ static Value builtin_cast_int(Value *args) {
     if (arg.type == VAL_INT) {
         return arg;  /* Already an int */
     } else if (arg.type == VAL_FLOAT) {
+        if (!(arg.as.float_val >= -0x1p63 && arg.as.float_val < 0x1p63)) {
+            fprintf(stderr, "I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\n");
+            exit(EXIT_FAILURE);
+        }
         return create_int((long long)arg.as.float_val);  /* Truncate */
     } else if (arg.type == VAL_BOOL) {
         return create_int(arg.as.bool_val ? 1 : 0);
