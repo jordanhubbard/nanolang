@@ -3677,6 +3677,59 @@ static void test_scalar_arithmetic_boundaries(void) {
     }
 }
 
+static void test_array_read_index_contract(void) {
+    uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0, OP_ARR_GET, OP_RET};
+    NvmModule *mod = make_module(code, sizeof code, 2, 2);
+    /* The in-memory embedder result permits a present string or missing void. */
+    mod->functions[0].result_tag = TAG_VOID;
+    VmState vm;
+    vm_init(&vm, mod);
+    for (unsigned test = 0; test < 13; ++test) {
+        size_t before = vm.heap.stats.num_objects;
+        VmArray *array = vm_array_new(&vm.heap, TAG_STRING, 1);
+        if (test != 10) {
+            VmString *value = vm_string_new(&vm.heap, "kept", 4);
+            ASSERT(vm_array_push(&vm.heap, array, val_string(value)), "I initialize a read payload");
+            vm_release(&vm.heap, val_string(value));
+        }
+        NanoValue index = val_int(0);
+        if (test == 1) index = val_bool(false);
+        if (test == 2 || test == 11) index = val_string(vm_string_new(&vm.heap, "index", 5));
+        if (test == 3) index = val_void();
+        if (test == 4) index = val_float(0.0);
+        if (test == 5) index = val_int(-1);
+        if (test == 6) index = val_int(1);
+        if (test == 7) index = val_int(INT64_C(4294967296));
+        if (test == 8) index = val_int(INT64_MAX);
+        if (test == 9) index = val_int(INT64_MIN);
+        if (test == 12) index = val_array(vm_array_new(&vm.heap, TAG_INT, 0));
+        NanoValue receiver = test == 11 ? val_string(vm_string_new(&vm.heap, "receiver", 8)) : val_array(array);
+        NanoValue args[] = {receiver, index};
+        NanoValue result = val_void();
+        bool bad_tag = (test >= 1 && test <= 4) || test >= 11;
+        ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &result), bad_tag ? VM_ERR_TYPE_ERROR : VM_OK,
+                      "I reject invalid read tags and preserve missing integer reads as void");
+        ASSERT_EQ_INT(vm.stack_size, 0, "I restore the read operand stack");
+        ASSERT_EQ_INT(vm.frame_count, 0, "I restore read call frames");
+        ASSERT_EQ_INT(result.tag, test == 0 ? TAG_STRING : TAG_VOID,
+                      "I retain valid values without narrowing a missing index into range");
+        if (test == 0) ASSERT_EQ_STR(result.as.string->data, "kept", "I retain the read payload");
+        vm_release(&vm.heap, result);
+        ASSERT_EQ_INT(array->header.ref_count, 1, "I release the consumed array reference after reads");
+        if (index.tag == TAG_STRING)
+            ASSERT_EQ_INT(index.as.string->header.ref_count, 1, "I release a rejected string index");
+        if (index.tag == TAG_ARRAY)
+            ASSERT_EQ_INT(index.as.array->header.ref_count, 1, "I release a rejected array index");
+        vm_release(&vm.heap, index);
+        if (test == 11) vm_release(&vm.heap, receiver);
+        vm_release(&vm.heap, val_array(array));
+        vm_gc_collect_cycles(&vm.heap);
+        ASSERT_EQ_INT(vm.heap.stats.num_objects, before, "I retain no heap objects after read cleanup");
+    }
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_array_update_index_contract(void) {
     uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
                       OP_LOAD_LOCAL, 2, 0, OP_ARR_SET, OP_RET};
@@ -5662,6 +5715,7 @@ int main(void) {
     RUN_TEST(test_add_array_array);
     RUN_TEST(test_add_array_scalar);
     RUN_TEST(test_array_arithmetic_values);
+    RUN_TEST(test_array_read_index_contract);
     RUN_TEST(test_array_update_index_contract);
     RUN_TEST(test_scalar_arithmetic_boundaries);
     RUN_TEST(test_array_arithmetic_boundaries);

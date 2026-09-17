@@ -136,6 +136,13 @@ The retained string primitives are `STR_LEN`, `STR_CONCAT`, `STR_CHAR_AT`, `STR_
 **Array Ops (0x50-0x5F):**
 `ARR_NEW`, `ARR_PUSH`, `ARR_POP`, `ARR_GET`, `ARR_SET`, `ARR_LEN`, `ARR_SLICE`, `ARR_REMOVE`, `ARR_LITERAL`
 
+For raw VM `ARR_GET`, I require an array and an integer index. I check the
+complete signed index before narrowing; a missing index returns `void`. My
+tagged native array-read helper follows the same rule. Source-level bounds
+panics and statically typed native reads have a separate lowering contract
+under review (`task_c9561b3912a84a67a491cf9a78c1cc4b`); I do not infer their
+behavior from this raw missing-value operation.
+
 **Struct Ops (0x60-0x67):**
 `STRUCT_NEW`, `STRUCT_GET`, `STRUCT_SET`, `STRUCT_LITERAL`
 
