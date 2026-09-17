@@ -7949,6 +7949,10 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I resolve ordinary and qualified calls through the canonical module
+      bindings when lowering a merged Parser, preserving result types, void
+      calls, tail returns and raw-source invocation isolation
+      (`task_39dd3479c5174b299fb8555c6da8b0af`).
 - [ ] I lower compiler-required `string_to_int` after map transport; real
       compiler emission first refuses that builtin
       (`task_62d9f8ab389e4299b1b16a33ed591630`). I require C-seed and VM/native parity.
