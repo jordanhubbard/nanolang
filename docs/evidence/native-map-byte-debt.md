@@ -32,3 +32,5 @@ The first native translator run retained four strict-C failures because a collec
 Full native self-compilation and raw fixed-point acceptance remain open. No source or binary from the preserved timed-out attempt was changed by this repair.
 
 After restacking onto `c3287dba`, I rebuilt the tools and passed all 15 map/debt/lifetime methods in 35.743 seconds. The source merge was clean; I retained additive roadmap entries.
+
+The corrected native translator gate passed 2,412 checks with zero failures, alongside 1,092 shape checks and the opcode/sanitizer-driver checks. The final overflow-control rerun requires the intended SIGABRT for each checked overflow/underflow boundary and passed.
