@@ -264,6 +264,7 @@ shadow resource_concrete_payload_fact {
 }
 
 fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
+    if (tc_str_starts_with type_name "fn(") { return false }
     # Reserved scalar types cannot contain a nominal resource payload.
     if (or (== type_name "int") (or (== type_name "float") (or (== type_name "bool") (or (== type_name "string") (== type_name "void"))))) { return false }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
@@ -666,6 +667,7 @@ shadow tc_substitute_generic {
 }
 
 fn resource_instantiated_classify(parser: Parser, spelling: string, line: int, depth: int, collections_only: bool) -> bool {
+    if (tc_str_starts_with spelling "fn(") { return false }
     # I fail closed at my finite substitution boundary.
     if (> depth 128) { return true }
     if (and (tc_str_starts_with spelling "(") (tc_str_ends_with spelling ")")) {
@@ -748,6 +750,8 @@ shadow resource_generic_contains {
     assert (resource_generic_contains parser "array<Box<Handle>>" 1 0)
     assert (not (resource_generic_contains parser "Box<int>" 1 0))
     assert (not (resource_generic_contains parser "Marker<Handle>" 1 0))
+    assert (not (resource_generic_contains parser "fn()->Marker<Handle>" 1 0))
+    assert (not (resource_type_is_declared parser "fn()->Marker<Handle>"))
 }
 
 # I admit only closed payload shapes whose selected fields can transfer.
