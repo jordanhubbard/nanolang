@@ -20,20 +20,25 @@ worklist prevents cycles from causing unbounded recursion. This collector
 reclaims map objects and owned map-lookup strings; it is not a claim of
 complete native allocation reclamation or a concurrent runtime collector.
 
-Evidence on the integration branch:
+Evidence on the 5.0.1 release candidate:
 
-- Regular translator gate: 1,723 checks and 1,073 shape checks pass.
+- Regular translator gate: 1,761 checks and 1,076 shape checks pass.
 - Fresh ASan/UBSan translator gate: the same counts pass; the runner checks
   actual instrumentation in translator and shape objects.
 - Existing native/compiler tests plus the initial lifetime matrix: 26 methods
   pass.
-- Expanded lifetime gate: four methods pass, including eleven retained-value
+- Expanded lifetime gate: five methods pass, including thirteen retained-value
   cases, the original caller-map fixture, mutation during a callee's loop,
-  backward conditional branches and 20,000 self-tail restarts.
+  backward conditional branches, 20,000 self-tail restarts and non-self-tail
+  root-frame teardown.
 - Every lifetime program executes in NanoVM and generated C with ASan/UBSan.
   Generated C checks a peak of at most 16 map/string owners and zero owners
   after entry cleanup. Leak detection is disabled because other native owner
   families remain separate work.
+- `make test TEST_TIMEOUT=3600` completes successfully with the acknowledgement
+  below. Its comprehensive source run reports 225 passed and 0 failed; its
+  additional compiler, runtime, example, documentation, Forth and failure-path
+  gates also complete successfully.
 
 `make test-one-ir-compiler` now includes this lifetime gate. PR #303's other
 commits and ancestry still require reconciliation; this repair alone does not
@@ -43,3 +48,9 @@ For 5.0.1 I also verify scalar floats at local and operand-stack safepoints and
 non-self tail-call frame teardown. Float and integer-array storage are never
 interpreted as pointers. I track the patch release as
 `task_a94efdfee3486a0814f93336cf5c052c`.
+
+I ran a clean three-stage bootstrap before the full release suite. The release
+documentation acknowledgement is: “5.0.1 changes internal native map
+reclamation only; syntax, CLI, README guidance, and presentation claims are
+unchanged.” I keep that acknowledgement out of the historical negative-control
+tests so they continue to prove that stale release prose fails closed.

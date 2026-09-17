@@ -595,6 +595,9 @@ gate as complete. Phase 22 / 6.0 remains separate.
           aggregates, scalar-float safepoints, backward branches, self-tail
           restarts and non-self tail teardown under ASan/UBSan. MAC
           `task_a94efdfee3486a0814f93336cf5c052c`.
+          - [x] I isolate the release-wide documentation acknowledgement from
+            historical negative-control tests, while applying its stated
+            reason to the current-tree documentation and presentation gates.
 - [x] **Portable write-failure injection.** Main's `a9f105e1` adds unconditional
       GNU linker `--wrap` flags to three test targets. My Darwin linker rejects
       those flags before tests can run. I preserve injected write/close failure
