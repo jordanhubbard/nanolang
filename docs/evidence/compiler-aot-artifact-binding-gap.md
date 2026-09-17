@@ -56,3 +56,27 @@ Local evidence: `/tmp/nanolang-compiler-aot-facade.log`,
 `/tmp/nanolang-compiler-aot-nvm2c.log`,
 `/tmp/nanolang-compiler-aot-adapter-proof.log`, and retained bytecode, assembly and
 GDB output in `/tmp/nanolang-compiler-aot-retained/`.
+
+## My integrated completion checkpoint
+
+The later boxed-array, character-host, projected-global and tagged-local
+repairs remove the downstream refusals exposed above. On merged PR #426 I run
+the unchanged full acceptance from a fresh integrated build:
+
+```sh
+python3 -m unittest -v \
+  tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program
+```
+
+In 81.319 seconds I compile my compiler to bytecode, translate it to strict
+native C, build and run that generated compiler's help, use it to compile
+`nl_hello.nano`, and verify the resulting executable output. The supporting
+translator gate passes 2,215 native checks and 1,092 shape checks; 22 focused
+tagged-local cases cover the final representation boundary. MAC
+`task_600074c773904b119b39bdafd85c07a5` is complete with PR #426 as its merged
+repository and test evidence.
+
+This proves the bounded compiler-to-native execution bridge. It does not prove
+that my self-hosted compiler emits `.nvm` as its only product, that Stage 1 and
+Stage 2 canonical `.nvm` files match, or that the full v5.1.0 release contract
+passes. Those gates remain open.
