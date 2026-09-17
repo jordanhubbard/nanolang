@@ -53,7 +53,7 @@ shadow main {{ assert (== (main) 0) }}
     def test_substituted_type_mismatch(self):
         self.check(self.ordinary('let Box.Some { value } = payload', 'string', '"kept"'), False)
 
-    def test_owned_generic_transfer_still_rejected(self):
+    def test_owned_generic_transfer(self):
         generic.GenericAffineIdentity().check("""resource struct Handle { fd: int }
 union Box<T> { Some { value: T }, None {} }
 fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
@@ -62,9 +62,9 @@ fn consume(boxed: Box<Handle>) -> int { match boxed {
  Some(payload) => { let Box.Some { value } = payload return (close_handle value) }
  None(payload) => { return 0 }
 } }
-fn main() -> int { return 0 }
+fn main() -> int { let owner: Handle = Handle { fd: 7 } let boxed: Box<Handle> = Box.Some { value: owner } return (- (consume boxed) 7) }
 shadow main { assert (== (main) 0) }
-""", False)
+""", True)
 
     def test_nested(self):
         source = '''union Result<T, E> { Ok { value: T }, Err { error: E } }
