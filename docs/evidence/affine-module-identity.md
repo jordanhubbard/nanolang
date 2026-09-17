@@ -25,7 +25,7 @@ after unresolved-owner or use-after-move rejection.
 
 ## My acceptance boundary
 
-`tests/test_affine_module_identity.py` contains eight methods and 42
+`tests/test_affine_module_identity.py` contains nine methods and 49
 compiler/order cases across my C seed, Stage 1 and Stage 2. Positive cases
 compile and execute native programs and dependency/root shadows. They cover
 plain copies, owned moves, nested records, both import orders, long module
@@ -82,3 +82,20 @@ object, all five wrapper-generation and seven publication methods pass,
 including foreign-module wrapper execution and daemon linking. Logs:
 `/tmp/nanolang-nominal-wrapper-baseline.log` and
 `/tmp/nanolang-nominal-wrapper-final.log`.
+
+A subsequent generic annotation probe reproduced a C-seed crash in nominal
+traversal: three parser allocations initialized older TypeInfo fields but left
+row/type-scheme fields indeterminate. I zero-initialize those objects. The new
+regression runs under allocator perturbation, executes ordinary scalar generic
+annotations on all three stages, exercises the nested-array metadata allocation
+on my C seed, and requires resource-generic rejection with artifact preservation
+on all three stages. My self-hosted nested-generic union representation remains
+a separately recorded continuation; I do not claim it from the C-only case.
+The exact crash input and GDB trace are retained under
+`/tmp/nanolang-generic-resource-probe/`. My revised instrumented corpus passes
+all nine methods with ASan+UBSan and leak detection disabled.
+
+The revised fresh bootstrap, all nine native methods (49 compiler/order cases
+in 66.305 seconds), parser/typechecker units, five wrapper-generation and seven
+publication methods pass. Final logs use `/tmp/nanolang-nominal-metadata-`
+with suffixes `bootstrap.log`, `all.log`, `units.log` and `asan.log`.

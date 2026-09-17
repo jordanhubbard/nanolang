@@ -646,7 +646,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                     
                     /* Generic union/struct types: Result<int, string>, Option<T>, etc. */
                     if (type_info_out) {
-                        TypeInfo *info = malloc(sizeof(TypeInfo));
+                        TypeInfo *info = calloc(1, sizeof(TypeInfo));
                         info->base_type = TYPE_UNION;  /* Assume union for now */
                         info->generic_name = type_name;  /* Transfer ownership */
                         info->type_param_count = 0;
@@ -669,7 +669,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                             }
                             
                             /* Parse each type parameter */
-                            TypeInfo *param_info = malloc(sizeof(TypeInfo));
+                            TypeInfo *param_info = calloc(1, sizeof(TypeInfo));
                             param_info->element_type = NULL;
                             param_info->generic_name = NULL;
                             param_info->type_params = NULL;
@@ -712,7 +712,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                                     return TYPE_UNKNOWN;
                                 }
 
-                                TypeInfo *elem_info = malloc(sizeof(TypeInfo));
+                                TypeInfo *elem_info = calloc(1, sizeof(TypeInfo));
                                 elem_info->element_type = NULL;
                                 elem_info->generic_name = NULL;
                                 elem_info->type_params = NULL;

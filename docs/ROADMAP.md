@@ -41,13 +41,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I verify same-module duplicate rejection separately from legal imports.
       Long module names also expose silent truncation in my native formatted
       output builder; I retain complete generated identities and test execution.
-      All 42 compiler/order cases pass across my C seed and both self-hosted
+      All 49 compiler/order cases pass across my C seed and both self-hosted
       stages. Foreign collisions remain explicitly unsupported; union/enum
       identity, generic/borrow/capture rules and IR ownership metadata remain
       separate unfinished obligations.
       - [x] I include the new nominal-binding object in the manual NanoVirt
         wrapper link manifest and verify actual foreign-module wrapper execution.
         PR review exposed an unresolved `bind_nominal_records` reference.
+      - [x] I zero-initialize all generic annotation metadata before nominal
+        traversal. A `Box<Handle>` annotation exposed uninitialized row fields
+        and a C-seed crash; I retain generic resource rejection and test ordinary
+        scalar/array generic annotations under allocator perturbation.
 
 - [ ] **Map constructor diagnostics.** I resolve NanoVirt success accompanied
       by `map_new` type errors for direct returns and nested calls, preserving
