@@ -104,6 +104,57 @@ fn main() -> int { return (+ (generic.result) (plain.result)) }
 shadow main { assert (== (main) 0) }
 ''', False, modules)
 
+    def test_ordinary_match_closes_outer_owner_in_each_arm(self):
+        self.check('''resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 4 }) 4) }
+fn choose(value: Box<int>, owner: Handle) -> int {
+    match value {
+        Some(v) => { return (+ v.value (close_handle owner)) }
+        None(n) => { return (close_handle owner) }
+    }
+}
+shadow choose { let some: Box<int> = Box.Some { value: 3 } let none: Box<int> = Box.None {} assert (== (choose some Handle { fd: 4 }) 7) assert (== (choose none Handle { fd: 4 }) 4) }
+fn main() -> int { let some: Box<int> = Box.Some { value: 3 } return (- (choose some Handle { fd: 4 }) 7) }
+shadow main { assert (== (main) 0) }
+''', True)
+
+    def test_ordinary_match_rejects_unresolved_return_arm(self):
+        self.check('''resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 4 }) 4) }
+fn choose(value: Box<int>, owner: Handle) -> int {
+    match value { Some(v) => { return (close_handle owner) } None(n) => { return 0 } }
+}
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False)
+
+    def test_ordinary_match_rejects_disagreeing_join(self):
+        self.check('''resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 4 }) 4) }
+fn choose(value: Box<int>, owner: Handle) -> int {
+    match value { Some(v) => { let used: int = (close_handle owner) } None(n) => { } }
+    return (close_handle owner)
+}
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False)
+
+    def test_inline_resource_payload_match_stays_rejected(self):
+        self.check('''resource struct Handle { fd: int }
+union Choice { Some { value: Handle }, None {} }
+fn inspect(owner: Handle) -> int {
+    match Choice.Some { value: owner } { Some(v) => { return v.value.fd } None(n) => { return 0 } }
+}
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False)
+
     def test_string_payload_copy_and_match(self):
         self.check('''union Box<T> { Some { value: T }, None {} }
 fn read(value: Box<string>) -> string {

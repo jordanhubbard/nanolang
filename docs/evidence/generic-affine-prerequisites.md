@@ -118,3 +118,18 @@ The expanded fixtures pair ordinary native copy/match execution with rejected
 resource instantiations, both within a module and across same-named module
 records. Rejection must retain the prior artifact. I have not admitted resource
 union payload transfer, generic records, or unimplemented collection ownership.
+
+
+My first formal-scope bootstrap passed, but its 21-method follow-on run exposed
+four self-hosted positive-case failures: ordinary matches had no ownership
+walker case whenever any resource was declared. The retained log is
+`/tmp/nanolang-generic-formal-conformance.log`. I add ordinary match traversal,
+arm-local scopes and joins over continuing branches. Return arms retain their
+scope-exit checks. Resource-bearing scrutinees and literal payloads remain
+rejected until ownership lowering exists. My self-hosted AST has no match guard
+metadata; this change does not claim guard support.
+
+New paired cases consume an outer owner in every returning arm and reject an
+unresolved return arm or disagreeing continuing branches. An inline owned union
+payload remains a negative case. My expanded C-only corpus passes sixteen
+methods in the checkpoint log `/tmp/nanolang-generic-formal-c-match.log`.

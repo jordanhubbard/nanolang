@@ -349,7 +349,18 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
         let index: int = (resource_find states id.name)
         if (>= index 0) { let state: ResourceState = (at states index) return state.type_name }
     }
-    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { let value: ASTStructLiteral = (parser_get_struct_literal parser node_id) return (resource_type_identity parser value.struct_name value.line) }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let value: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        let mut ui: int = 0
+        while (< ui (parser_get_union_count parser)) {
+            let union_def: ASTUnion = (parser_get_union parser ui)
+            if (tc_str_starts_with value.struct_name (+ union_def.name ".")) {
+                return (resource_type_identity parser union_def.name value.line)
+            }
+            set ui (+ ui 1)
+        }
+        return (resource_type_identity parser value.struct_name value.line)
+    }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { let value: ASTUnionConstruct = (parser_get_union_construct parser node_id) return (resource_type_identity parser value.union_name value.line) }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
@@ -585,6 +596,44 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         let left: ResourceFlow = (resource_flow_node parser branch.then_body ParseNodeType.PNODE_BLOCK (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name)
         let right: ResourceFlow = (resource_flow_node parser branch.else_body ParseNodeType.PNODE_BLOCK (resource_copy flow.states (array_length flow.states)) move loop_entry diags file_name)
         return (resource_join parser left right diags file_name)
+    }
+    if (== node_type ParseNodeType.PNODE_MATCH) {
+        let matched: ASTMatch = (parser_get_match parser node_id)
+        let input: string = (resource_value_type parser matched.scrutinee matched.scrutinee_type states)
+        if (resource_generic_contains parser input matched.line 0) {
+            (resource_flow_error diags file_name matched.line matched.column "resource match payloads need ownership lowering")
+        }
+        if (== matched.scrutinee_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+            let literal: ASTStructLiteral = (parser_get_struct_literal parser matched.scrutinee)
+            let mut field: int = 0
+            while (< field literal.field_count) {
+                let field_type: string = (resource_value_type parser (at literal.field_value_ids field) (at literal.field_value_types field) states)
+                if (resource_generic_contains parser field_type literal.line 0) {
+                    (resource_flow_error diags file_name literal.line literal.column "resource match payloads need ownership lowering")
+                }
+                set field (+ field 1)
+            }
+        }
+        set flow (resource_flow_node parser matched.scrutinee matched.scrutinee_type states false loop_entry diags file_name)
+        if (not flow.next) { return flow }
+        let first: int = (array_length flow.states)
+        let mut joined: ResourceFlow = ResourceFlow { states: flow.states, next: false }
+        let mut arm: int = 0
+        while (< arm matched.arm_count) {
+            let mut arm_states: array<ResourceState> = (resource_copy flow.states first)
+            if (< arm (array_length matched.arm_bindings)) {
+                let binding: string = (at matched.arm_bindings arm)
+                if (and (!= binding "") (!= binding "_")) {
+                    set arm_states (array_push arm_states ResourceState { name: binding, type_name: "", moved: false, line: matched.line, column: matched.column })
+                }
+            }
+            let branch: ResourceFlow = (resource_flow_node parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) arm_states move loop_entry diags file_name)
+            if branch.next { (resource_resolve_exit parser branch.states first diags file_name) }
+            let outer: ResourceFlow = ResourceFlow { states: (resource_copy branch.states first), next: branch.next }
+            set joined (resource_join parser joined outer diags file_name)
+            set arm (+ arm 1)
+        }
+        return joined
     }
     if (or (== node_type ParseNodeType.PNODE_WHILE) (== node_type ParseNodeType.PNODE_FOR)) {
         let mut body: int = -1

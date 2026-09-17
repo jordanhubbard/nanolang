@@ -55,6 +55,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         my C emitter also mistakes a declared one-letter record for a free type
         variable; the cross-module fixture exposes an invalid metadata release.
         Imported generic union parameters also lose their native prototype type.
+        My self-hosted ownership walker also rejects every ordinary match when
+        a resource declaration exists; I add branch traversal with ownership
+        joins while retaining resource-payload rejection and unsupported guards.
         I repair these prerequisites before accepting the positive cases.
       - [ ] I complete nested generic List/HashMap type preservation and paired
         ownership diagnostics while retaining conservative rejection.
