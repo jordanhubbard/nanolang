@@ -21,9 +21,12 @@ and union payloads to a least fixed point. Module-owned record identity now has
 paired native acceptance (`evidence/affine-module-identity.md`). My self-hosted
 checker substitutes concrete generic union payload types for ordinary native
 values and rejects resource-bearing generic annotations before emission
-(`evidence/generic-affine-prerequisites.md`). Owned union payload transfer,
-general generic substitution and module-owned union/enum identity remain
-incomplete.
+(`evidence/generic-affine-prerequisites.md`). Exhaustive unguarded nongeneric
+union matches now move one scrutinee and transfer complete selected payloads
+across all three compiler stages (`evidence/selected-variant-ownership.md`).
+General generic owned union transfer, known-empty generic payload obligations,
+general generic substitution, global resource lifetimes and module-owned
+union/enum identity remain incomplete.
 
 The self-hosted frontend does not yet implement this complete contract. Neither
 frontend currently demonstrates all of the cases in the conformance matrix

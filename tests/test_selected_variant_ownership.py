@@ -32,7 +32,7 @@ shadow main { assert (== (main) 0) }
 '''
         self.program(source, accepted)
 
-    def program(self, source, accepted):
+    def program(self, source, accepted, diagnostics=None):
         for compiler in generic.COMPILERS:
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix='nano-selected-owner-') as tmp:
                 root = Path(tmp)
@@ -46,7 +46,7 @@ shadow main { assert (== (main) 0) }
                     self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
                 else:
                     self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
-                    self.assertRegex(result.stdout + result.stderr, '(?i)(ownership|resource|moved)')
+                    self.assertRegex(result.stdout + result.stderr, diagnostics[compiler] if diagnostics else '(?i)(ownership|resource|moved)')
                     self.assertEqual(output.read_bytes(), b'prior artifact')
 
     def test_two_resources_and_ordinary_sibling_arms(self):
@@ -64,6 +64,22 @@ shadow statement { set calls 0 assert (== (statement) 7) assert (== calls 1) }
 fn main() -> int { set calls 0 assert (== (expression) 7) assert (== calls 1) set calls 0 assert (== (statement) 7) assert (== calls 1) return 0 }
 shadow main { assert (== (main) 0) }
 ''', True)
+
+    def test_guarded_owned_match_remains_rejected(self):
+        self.program('''resource struct Handle { fd: int }
+union Choice { Some { owner: Handle }, None {} }
+fn consume(value: Choice) -> int { match value {
+ Some(payload) if true => { let Choice.Some { owner } = payload let Handle { fd } = owner return fd }
+ None(payload) => { return 0 }
+} }
+shadow consume { let value: Choice = Choice.Some { owner: Handle { fd: 7 } } assert (== (consume value) 7) }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False, {
+            'nanoc_c': 'exhaustive unguarded nongeneric owned match',
+            'nanoc_stage1': "Parse error.*unexpected token 'if'",
+            'nanoc_stage2': "Parse error.*unexpected token 'if'",
+        })
 
     def test_ignored_selected_payload(self):
         self.check('return 7', False)

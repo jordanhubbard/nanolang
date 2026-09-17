@@ -91,14 +91,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       prerequisite PR423 and PR430. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
       Evidence: `docs/evidence/union-literal-context.md`.
 
-- [ ] **Preserve direct-call match identity.** I infer the declared union return
+- [x] **Preserve direct-call match identity.** I infer the declared union return
       type for statement and expression scrutinees without evaluating the call
-      again. My exactly-once counter fixture currently passes the C seed but
-      emits `nl_UNKNOWN` in both self-hosted stages. I require paired ordinary
-      and owned execution before selected transfer is complete. MAC
+      again. My ordinary and owned exactly-once controls pass the C seed and
+      both self-hosted stages after fresh bootstrap. MAC
       `task_7eb80289f352425aa2abd26af55d0ffc`.
 
-- [ ] **Transfer selected owned union payloads.** After fixed collection
+- [ ] **Define my global resource boundary.** My duplicate-consumption probe
+      reaches native emission without an ownership diagnostic in the C seed
+      and Stage1, then fails global-record initialization. This is not evidence
+      of executable duplicate use. I require paired frontend rejection or a
+      verified global lifetime model, with ordinary global controls. MAC
+      `task_8afaef937f934a6e9919e41b91b7a41c`.
+
+- [x] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
       scrutinee move, per-arm payload obligations and complete qualified variant
       destructuring. I require both frontends to accept resolved payloads and
@@ -112,11 +118,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         Five methods pass across the C seed and both self-hosted stages,
         alongside a fresh bootstrap and 44 adjacent methods. That prerequisite
         checkpoint retained owned-match rejection; my later transfer checkpoint
-        is recorded in `docs/evidence/selected-variant-ownership.md` and remains
-        blocked on paired native execution.
-      - [ ] I move an exhaustive unguarded nongeneric scrutinee once, classify
+        is recorded in `docs/evidence/selected-variant-ownership.md`: fresh
+        bootstrap, 21 paired methods and 58 adjacent methods pass.
+      - [x] I move an exhaustive unguarded nongeneric scrutinee once, classify
         each selected payload independently and transfer its complete fields.
-      - [ ] I test ordinary and owned arms, empty variants, nested resources,
+      - [x] I test ordinary and owned arms, empty variants, nested resources,
         unresolved fields, repeated use, outer joins and terminating exits on
         the C seed and both self-hosted stages before relaxing the owned guard.
 
