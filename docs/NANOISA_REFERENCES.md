@@ -180,3 +180,18 @@ operand-stack provenance, instruction decoding, reachable CFG propagation,
 loop/back-edge checks and callee argument/result transfer. I keep all current
 resource/reference execution refusals until those checks and genuine VM/native
 reference lowering pass. No wire opcode is allocated by this prerequisite.
+
+My transition engine uses symbolic invocation `1` within one function analysis.
+Exact join comparison accepts clones sharing that analysis's immutable facts;
+separately created analyses do not become equal by matching printed types.
+Entry borrowed parameters represent obligations supplied by a future checked
+caller. Distinct parameter slots are not proof that actual caller places are
+disjoint. My call-boundary verifier must substitute caller provenance and
+validate argument overlap before it can use those entry assumptions.
+
+I currently support scalar locals and complete finite record trees in this
+API. Reference slots and nested regions are explicit verifier inputs; they
+are not heap-storable values. No API operation copies a reference into an
+ordinary local, packs it into a record or returns it. I retain uninitialized
+and consumed locals as equally unavailable; loop joins require the same live
+obligations and reference provenance, not an identical history of moves.
