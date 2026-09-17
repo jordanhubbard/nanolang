@@ -786,6 +786,7 @@ typedef struct {
     Symbol *symbols;
     int symbol_count;
     int symbol_capacity;
+    struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
     int function_count;
     int function_capacity;
@@ -901,6 +902,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
 /* Environment */
 Environment *create_environment(void);
+/* I invalidate cached names before replacing/appending symbols outside env_define_var. */
+void env_symbol_index_invalidate(Environment *env);
 
 /* The file whose code is currently being processed.
  *

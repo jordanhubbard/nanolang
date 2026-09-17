@@ -3,6 +3,120 @@
 #include "runtime/gc.h"
 #include <string.h>
 
+typedef struct {
+    uint64_t hash;
+    int previous; /* I encode slot + 1; -1 marks a slot without a name. */
+} EnvSymbolLink;
+
+struct EnvSymbolIndex {
+    int *heads;
+    EnvSymbolLink *links;
+    size_t bucket_count, capacity;
+    int count;
+};
+
+void env_symbol_index_invalidate(Environment *env) {
+    if (!env || !env->symbol_index) return;
+    free(env->symbol_index->heads);
+    free(env->symbol_index->links);
+    free(env->symbol_index);
+    env->symbol_index = NULL;
+}
+
+static uint64_t symbol_name_hash(const char *name) {
+    uint64_t hash = UINT64_C(14695981039346656037);
+    for (const unsigned char *p = (const unsigned char *)name; *p; ++p) {
+        hash ^= *p;
+        hash *= UINT64_C(1099511628211);
+    }
+    return hash;
+}
+
+/* I store indices and hashes, not borrowed names or Symbol pointers. Scope
+ * cleanup may free names before lowering symbol_count; popping only needs the
+ * saved links. Normal insertion synchronizes before reusing a popped slot. */
+static struct EnvSymbolIndex *symbol_index_sync(Environment *env) {
+    struct EnvSymbolIndex *index = env->symbol_index;
+    if (!index) {
+        index = calloc(1, sizeof *index);
+        if (!index) return NULL;
+        env->symbol_index = index;
+    }
+    while (index->count > env->symbol_count) {
+        EnvSymbolLink *link = &index->links[--index->count];
+        if (link->previous >= 0)
+            index->heads[link->hash & (index->bucket_count - 1)] = link->previous;
+    }
+    size_t needed = (size_t)env->symbol_count;
+    if (needed > index->capacity) {
+        size_t capacity = index->capacity ? index->capacity : 16;
+        while (capacity < needed) {
+            if (capacity > SIZE_MAX / 2) goto unavailable;
+            capacity *= 2;
+        }
+        if (capacity > SIZE_MAX / sizeof *index->links) goto unavailable;
+        EnvSymbolLink *links = realloc(index->links, capacity * sizeof *links);
+        if (!links) goto unavailable;
+        index->links = links;
+        index->capacity = capacity;
+    }
+    if (!index->bucket_count || needed > index->bucket_count / 2) {
+        size_t buckets = index->bucket_count ? index->bucket_count : 32;
+        while (needed > buckets / 2) {
+            if (buckets > SIZE_MAX / 2) goto unavailable;
+            buckets *= 2;
+        }
+        if (buckets > SIZE_MAX / sizeof *index->heads) goto unavailable;
+        int *heads = calloc(buckets, sizeof *heads);
+        if (!heads) goto unavailable;
+        for (int i = 0; i < index->count; ++i) {
+            EnvSymbolLink *link = &index->links[i];
+            if (link->previous < 0) continue;
+            size_t bucket = link->hash & (buckets - 1);
+            link->previous = heads[bucket];
+            heads[bucket] = i + 1;
+        }
+        free(index->heads);
+        index->heads = heads;
+        index->bucket_count = buckets;
+    }
+    while (index->count < env->symbol_count) {
+        int slot = index->count++;
+        EnvSymbolLink *link = &index->links[slot];
+        const char *name = env->symbols[slot].name;
+        link->previous = -1;
+        if (!name) continue;
+        link->hash = symbol_name_hash(name);
+        size_t bucket = link->hash & (index->bucket_count - 1);
+        link->previous = index->heads[bucket];
+        index->heads[bucket] = slot + 1;
+    }
+    return index;
+
+unavailable:
+    /* I retain correct lookup when an optional index allocation fails. */
+    env_symbol_index_invalidate(env);
+    return NULL;
+}
+
+static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file) {
+    if (!env || !name) return NULL;
+    struct EnvSymbolIndex *index = symbol_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int next = index ? index->heads[hash & (index->bucket_count - 1)] : env->symbol_count;
+    while (next) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
+        if (!sym->name || safe_strcmp(sym->name, name) != 0) continue;
+        if (!same_file || sym->def_file == env->current_file ||
+            (sym->def_file && env->current_file && strcmp(sym->def_file, env->current_file) == 0))
+            return sym;
+    }
+    return NULL;
+}
+
 /* Create environment */
 Environment *create_environment(void) {
     /* calloc, not malloc: every field below is set explicitly, but zeroing
@@ -123,6 +237,7 @@ static void env_free_value(Value v) {
 
 /* Free environment */
 void free_environment(Environment *env) {
+    env_symbol_index_invalidate(env);
     for (int i = 0; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].struct_type_name) {
@@ -131,6 +246,10 @@ void free_environment(Environment *env) {
         env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
+    if (env->import_tracker) {
+        free(env->import_tracker->imports);
+        free(env->import_tracker);
+    }
 
     for (int i = 0; i < env->function_count; i++) {
         /* Note: function names are not owned by environment - they point to AST */
@@ -292,15 +411,7 @@ void env_define_var_with_element_type(Environment *env, const char *name, Type t
  * which is the same cross-file confusion that made source-position lookups
  * wrong. */
 static Symbol *env_get_var_same_file(Environment *env, const char *name) {
-    if (!env || !name) return NULL;
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
-        if (!sym->name || safe_strcmp(sym->name, name) != 0) continue;
-        if (sym->def_file == env->current_file) return sym;
-        if (sym->def_file && env->current_file
-                && strcmp(sym->def_file, env->current_file) == 0) return sym;
-    }
-    return NULL;
+    return symbol_lookup(env, name, true);
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
@@ -373,16 +484,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
 
 /* Get variable */
 Symbol *env_get_var(Environment *env, const char *name) {
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        /* Skip symbols with NULL names */
-        if (!env->symbols[i].name) {
-            continue;
-        }
-        if (safe_strcmp(env->symbols[i].name, name) == 0) {
-            return &env->symbols[i];
-        }
-    }
-    return NULL;
+    return symbol_lookup(env, name, false);
 }
 
 void env_set_current_file(Environment *env, const char *path) {

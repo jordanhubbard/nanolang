@@ -1108,6 +1108,13 @@ test-typechecker: stage1
 	@./tests/test_typechecker
 	@rm -f tests/test_typechecker
 
+.PHONY: test-env-symbol-index
+test-env-symbol-index: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_env_symbol_index tests/test_env_symbol_index.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_env_symbol_index
+
+test-units: test-env-symbol-index
+
 .PHONY: test-env-scoping
 .PHONY: test-resource-classification
 test-resource-classification: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
