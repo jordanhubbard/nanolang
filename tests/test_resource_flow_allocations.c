@@ -12,6 +12,18 @@ static void *checked_malloc(size_t size) {
     if (result) allocations++;
     return result;
 }
+static void *checked_calloc(size_t count, size_t size) {
+    if (++attempts == fail_at) return NULL;
+    void *result = calloc(count, size);
+    if (result) allocations++;
+    return result;
+}
+static char *checked_strdup(const char *value) {
+    size_t size = strlen(value) + 1;
+    char *result = checked_malloc(size);
+    if (result) memcpy(result, value, size);
+    return result;
+}
 static void *checked_realloc(void *old, size_t size) {
     if (++attempts == fail_at) return NULL;
     bool fresh = old == NULL;
@@ -27,6 +39,13 @@ static void checked_free(void *value) {
 bool is_resource_type(Environment *env, const char *name) {
     (void)env;
     return name && !strcmp(name, "Handle");
+}
+/* I isolate allocation behavior; classification has its own real-environment gate. */
+bool is_resource_type_info(Environment *env, const TypeInfo *info) {
+    return info && info->base_type == TYPE_STRUCT && is_resource_type(env, info->generic_name);
+}
+bool has_resource_collection_type_info(Environment *env, const TypeInfo *info) {
+    (void)env; (void)info; return false;
 }
 Function *env_get_function(Environment *env, const char *name) {
     (void)env; (void)name; return NULL;
@@ -49,10 +68,14 @@ void free_payload_type_info(TypeInfo *info) {
 }
 
 #define malloc checked_malloc
+#define calloc checked_calloc
+#define strdup checked_strdup
 #define realloc checked_realloc
 #define free checked_free
 #include "../src/resource_flow.c"
 #undef malloc
+#undef calloc
+#undef strdup
 #undef realloc
 #undef free
 
@@ -61,7 +84,8 @@ int main(void) {
     char names[COUNT][24];
     ASTNode values[COUNT] = {0}, bindings[COUNT] = {0};
     ASTNode identifiers[COUNT] = {0}, calls[COUNT] = {0};
-    ASTNode *arguments[COUNT], *statements[COUNT * 2 + 1];
+    ASTNode addresses[COUNT] = {0}, borrow_calls[COUNT] = {0};
+    ASTNode *arguments[COUNT], *borrow_arguments[COUNT][2], *statements[COUNT * 3 + 1];
     for (int i = 0; i < COUNT; ++i) {
         snprintf(names[i], sizeof(names[i]), "owner_%d", i);
         values[i].type = AST_STRUCT_LITERAL;
@@ -77,8 +101,18 @@ int main(void) {
         calls[i].as.call.name = "consume";
         calls[i].as.call.args = &arguments[i];
         calls[i].as.call.arg_count = 1;
-        statements[i * 2] = &bindings[i];
-        statements[i * 2 + 1] = &calls[i];
+        addresses[i].type = AST_CALL;
+        addresses[i].as.call.borrow_mode = 1;
+        addresses[i].as.call.args = &arguments[i];
+        addresses[i].as.call.arg_count = 1;
+        borrow_arguments[i][0] = borrow_arguments[i][1] = &addresses[i];
+        borrow_calls[i].type = AST_CALL;
+        borrow_calls[i].as.call.name = "observe";
+        borrow_calls[i].as.call.args = borrow_arguments[i];
+        borrow_calls[i].as.call.arg_count = 2;
+        statements[i * 3] = &bindings[i];
+        statements[i * 3 + 1] = &borrow_calls[i];
+        statements[i * 3 + 2] = &calls[i];
     }
     ASTNode condition = {.type = AST_BOOL}, empty = {.type = AST_BLOCK};
     ASTNode branch = {.type = AST_IF};
@@ -86,10 +120,10 @@ int main(void) {
     branch.as.if_stmt.condition = &condition;
     branch.as.if_stmt.then_branch = &empty;
     branch.as.if_stmt.else_branch = &empty;
-    statements[COUNT * 2] = &branch;
+    statements[COUNT * 3] = &branch;
     ASTNode body = {.type = AST_BLOCK};
     body.as.block.statements = statements;
-    body.as.block.count = COUNT * 2 + 1;
+    body.as.block.count = COUNT * 3 + 1;
     ASTNode function = {.type = AST_FUNCTION};
     function.as.function.body = &body;
     StructDef record = {.name = "Handle", .is_resource = true};
@@ -109,7 +143,7 @@ int main(void) {
         assert(allocations == 0);
     }
     fail_at = 0;
-    body.as.block.count = COUNT * 2 - 1;
+    body.as.block.count = COUNT * 3 - 1;
     error = false;
     check_function_ownership(&env, &function, &error);
     assert(error);

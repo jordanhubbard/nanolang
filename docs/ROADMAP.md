@@ -45,6 +45,28 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I restore my standalone ownership allocation gate after retained-type
+      queries outgrew its fixture stubs. I account for call-hold calloc and
+      strdup, preserve 300-binding growth checks, and inject failures through
+      held places with zero outstanding tracked allocations (MAC `task_8b86bcc52b8a48dab3e39215c0042dbe`).
+      The missing-symbol failure is reproduced on main; I do not classify it
+      as a new language defect.
+
+- [x] **Nested resource borrow places.** I continue my call-scoped reference
+      contract with resolved named roots and record-field paths (MAC `task_0ae2a64d17b0405b880ef7ad310f002c`).
+  - [x] I preserve actual nested field identity in both frontends and reject
+        unknown, moved, temporary or nominally different places.
+  - [x] I track prefix overlap across live shared/exclusive call holds, permit
+        checked disjoint fields, and prevent whole-owner moves or conflicting
+        reads/writes until the call ends.
+  - [x] I pass native field addresses, test visible mutation and forwarding,
+        and retain partial-move/escape/NanoISA guards.
+  - [x] I run paired C-seed/Stage1/Stage2 positive and negative controls,
+        prior-output checks, fresh bootstrap and adjacent ownership gates.
+        Fixed scalar-field referent limits remain; the full borrow parent
+        stays open. My [nested-place evidence](evidence/nested-resource-borrow-places.md)
+        records the paired controls and allocation failures.
+
 - [ ] I adopt exact owned native host-result buffers into tracked string reclamation after checking each adapter contract (MAC `task_d5f899966241452a900422938fff3265`). Environment/argument copies, path normalization, file/capture/mktemp results and artifact snapshots remain separate from the temporary-expression pool; I preserve borrowed/TLS/foreign ownership and require bounded lifetime tests.
 
 - [ ] I bound temporary string retention in my native AOT runtime (MAC `task_4d3105329e73454083846ad41473500d`). My [static lifetime audit](evidence/native-string-retention-audit.md) finds that concat, substring, formatting and character strings stay in `nstr_owners` until entry returns; existing map collection does not reclaim them. I keep the resource-budget-limited full native compiler acceptance open without attributing its whole RSS to this pool.

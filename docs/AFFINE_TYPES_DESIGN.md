@@ -66,8 +66,10 @@ nongeneric records. I also test call-scoped shared and exclusive native borrows
 of fixed resource records with numeric/bool fields. My
 [borrow evidence](evidence/call-scoped-exclusive-borrows.md) records actual
 reference identity and mutation across the C seed and both self-hosted stages.
-Broader resource shapes, nested projected borrows and NanoISA reference lowering
-remain required work; the normative rules below are not all implemented.
+I also test [nested record-field borrow places](evidence/nested-resource-borrow-places.md)
+with the same fixed scalar-record referent limit and field-path overlap checks.
+Broader resource shapes and NanoISA reference lowering remain required work;
+the normative rules below are not all implemented.
 
 ## Ownership States
 

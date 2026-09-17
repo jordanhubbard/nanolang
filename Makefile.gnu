@@ -4369,6 +4369,10 @@ test-selfhost-float-values: bootstrap
 	python3 -m unittest -v tests.test_selfhost_float_values
 test-units: test-selfhost-float-values
 
+.PHONY: test-nested-borrows
+test-units: test-nested-borrows
+test-nested-borrows: bootstrap nano_virt
+	python3 -m unittest -v tests.test_nested_borrows
 .PHONY: test-nanoisa-introspection
 test-nanoisa-introspection: nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_nanoisa_introspection
