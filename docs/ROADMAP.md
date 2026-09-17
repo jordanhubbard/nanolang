@@ -45,6 +45,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I extend native stack joins to explicit void plus concrete scalars (MAC `task_ca11c365f9e742d090f09ab59c6de45c`). My ordinary void/int join verifies and executes VM/LLVM but C refuses tagged-kind8 versus int-kind0. I preserve that refusal until edge boxing and shapes retain exact tags; direct void/local transport and bool-valued joins are the current truthiness boundary.
+
+- [ ] I preserve explicit PUSH_VOID as tagged void in native scalar transport (MAC `task_96e1b3c367da476e9fb4f4cf8df68932`). My shared truthiness gate exposed the existing classifier refusal at opcode0x05; I add stack/local transport with type-tag and false-truthiness checks, without broadening void-return calls.
+
 - [ ] I implement scalar CAST_BOOL and generic AND/OR/NOT across C, LLVM and shared Wasm (MAC `task_59c773b34bec49f4b46d5a0b4a8f2de7`). I preserve VM truthiness for void/int/bool/float, exact bool tags and already-evaluated operand order through calls/locals/joins. I require same-module VM/C/LLVM/Wasmtime/import-free Node positives and explicit heap/U8 profile refusals.
 - [ ] I audit U8 transport and conversion/ordering before common-profile admission (MAC `task_ad1c498801b34aa38d82f58a588f1d5a`). Current VM CAST_FLOAT(U8) defaults to zero and same-U8 val_compare defaults to equality; this slice does not redefine them.
 - [ ] I specify generic mixed numeric arithmetic and comparisons separately from typed scalar operations (MAC `task_01d3e7ca2b6a47b0bef9504f2fd04006`). I retain VM promotion, NaN and cross-tag ordering observations before changing any backend semantics.
