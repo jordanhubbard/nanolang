@@ -7955,9 +7955,11 @@ Compiler product:
       bindings when lowering a merged Parser, preserving result types, void
       calls, tail returns and raw-source invocation isolation
       (`task_39dd3479c5174b299fb8555c6da8b0af`).
-- [ ] I lower compiler-required `string_to_int` after map transport; real
-      compiler emission first refuses that builtin
-      (`task_62d9f8ab389e4299b1b16a33ed591630`). I require C-seed and VM/native parity.
+- [x] I lower compiler-required `string_to_int` to `CAST_INT` after map
+      transport (`task_62d9f8ab389e4299b1b16a33ed591630`). I compare C-seed
+      bytecode, execute VM/native modules, and refuse wrong arity and non-string
+      inputs. Real compiler emission passes this boundary and still reaches a
+      later unsupported form; full compiler emission remains open.
 - [x] I expose one parsed-program lowering entrypoint for my canonical
       compiler after module merging and typechecking, retaining the raw-source
       wrapper and testing identical assembly and state reset

@@ -372,7 +372,7 @@ fn nisa_is_inline_call(name: string) -> bool {
                    (or (nisa_is_list_call name)
                        (or (== name "not")
                            (or (== name "str_contains")
-                               (or (== name "int_to_string")
+                               (or (or (== name "int_to_string") (== name "string_to_int"))
                                    (or (== name "str_length")
                                        (or (== name "str_substring")
                                            (or (== name "char_at") (== name "str_char_at"))))))))))
@@ -384,6 +384,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "print")
     assert (nisa_is_inline_call "str_contains")
     assert (nisa_is_inline_call "int_to_string")
+    assert (nisa_is_inline_call "string_to_int")
     assert (nisa_is_inline_call "str_length")
     assert (nisa_is_inline_call "str_substring")
     assert (nisa_is_inline_call "list_int_new")
@@ -888,8 +889,9 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (!= host_symbol "") { return (nisa_host_result host_symbol) }
         if (or (== target_name "str_substring") (== target_name "int_to_string")) { return "string" }
         if (or (== target_name "not") (== target_name "str_contains")) { return "bool" }
-        if (or (== target_name "str_length")
-               (or (== target_name "char_at") (== target_name "str_char_at"))) { return "int" }
+        if (or (== target_name "string_to_int")
+               (or (== target_name "str_length")
+                   (or (== target_name "char_at") (== target_name "str_char_at")))) { return "int" }
         if (or (== target_name "array_length")
                (and (nisa_is_list_call target_name) (str_ends_with target_name "_length"))) { return "int" }
         let function_index: int = (nisa_fn_index parser target_name)
@@ -1209,6 +1211,18 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
                         }
                     } else {
+                        if (== function_name "string_to_int") {
+                            if (!= call.arg_count 1) {
+                                return (nisa_fail "string_to_int needs 1 argument")
+                            } else {
+                                let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                                if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+                                    return (nisa_fail "string_to_int needs a string argument")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+                                }
+                            }
+                        } else {
                         if (== function_name "str_length") {
                             if (!= call.arg_count 1) {
                                 return (nisa_fail "str_length needs 1 argument")
@@ -1258,6 +1272,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             }
                             }
                         }
+                        }
                     }
                 }
             }
@@ -1283,6 +1298,14 @@ shadow nisa_emit_call {
     let text: string = (nisa_emit_call p call)
     assert (str_contains text "ARR_LEN")
     assert (str_contains text "LOAD_LOCAL 0")
+    let src2: string = (+ "f" "n parse(s: string) -> int { return (string_to_int s) } shadow parse { assert true }")
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    set nisa_names ["s"]
+    set nisa_types ["string"]
+    let parse_call: ASTCall = (parser_get_call p2 0)
+    let parsed: string = (nisa_emit_call p2 parse_call)
+    assert (str_contains parsed "CAST_INT")
     let _2: int = (nisa_reset)
 }
 

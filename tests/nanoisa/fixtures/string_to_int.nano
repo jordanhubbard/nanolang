@@ -1,0 +1,29 @@
+fn parse_number(text: string) -> int {
+    return (string_to_int text)
+}
+
+shadow parse_number {
+    assert (== (parse_number "42") 42)
+    assert (== (parse_number "-17") -17)
+    assert (== (parse_number "not-a-number") 0)
+}
+
+fn literal_number() -> int {
+    return (string_to_int "73")
+}
+
+shadow literal_number {
+    assert (== (literal_number) 73)
+}
+
+fn main() -> int {
+    assert (== (parse_number "42") 42)
+    assert (== (parse_number "-17") -17)
+    assert (== (parse_number "not-a-number") 0)
+    assert (== (literal_number) 73)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
