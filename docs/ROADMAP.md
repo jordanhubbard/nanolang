@@ -45,13 +45,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Borrowed first-class callback boundary.** I reject unsupported
+- [x] **Borrowed first-class callback boundary.** I reject unsupported
       shared/exclusive borrowed callback values before native publication,
       preserving ordinary and already-supported owned callback signatures.
-      My C seed currently reaches generated-C failure for an inferred borrowed
-      function value while Stage1 admits it. I require paired stored/returned/
-      forwarded refusal and prior-output controls until callback transfer is
-      implemented. MAC `task_5647b9905ea3eb914389f660d54634bd`.
+      My earlier C-seed generated-C failure and Stage1 admission are now
+      guarded by paired stored/returned/forwarded refusal and prior-output
+      controls. Borrowed callback transfer itself remains unsupported. MAC `task_5647b9905ea3eb914389f660d54634bd`.
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
@@ -85,23 +84,25 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         parser-copy, paired refusal/retention and ordinary ownership controls
         pass; `evidence/call-scoped-borrow-annotations.md` distinguishes the
         diagnostic bootstrap budget from the open default-deadline task.
-      - [ ] I first admit explicit shared borrows of fixed resource records
+      - [x] I first admit explicit shared borrows of fixed resource records
         with scalar fields, passing the caller's address to native code and
         preserving interpreter identity. I prove repeated reads, forwarding,
         post-call consumption and refusal of consumption, mutation, escape or
         a later argument that moves a borrowed owner. Unsupported generic,
         aggregate, foreign and callback shapes remain explicit boundaries.
-      - [ ] I then retain an explicit field target for `set view.field value`
+      - [x] I then retain an explicit field target for `set view.field value`
         in both parsers and my shared AST schema. I check scalar field identity
         and reject mutation through shared parameters before lowering.
-      - [ ] I add exclusive mutable-pointer parameters and explicit `&mut`
+      - [x] I add exclusive mutable-pointer parameters and explicit `&mut`
         call arguments, with observable caller field updates and paired
         overlapping shared/exclusive argument rejection in either order.
         I reject moving, storing, returning or replacing a borrowed owner;
         whole-owner replacement is not field mutation. I require a mutable
         owner or an existing exclusive capability, and prove forwarding,
         post-call consumption and output preservation on refusal. Broader
-        projections and shape support follow their own paired gates.
+        projections and shape support follow their own paired gates. My
+        [exclusive evidence](evidence/call-scoped-exclusive-borrows.md) records
+        the three-compiler controls and keeps the full borrow parent open.
 - [x] I lower my declared NanoISA file assembly and disassembly artifact contracts with exact parameter and result validation, and execute their real module shadows in VM and native products (MAC `task_f5f873fccfff4b5b88f14f4d825ba3b4`).
 
 - [ ] **Concrete native specialization closure.** I discover union instances

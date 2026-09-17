@@ -35,5 +35,36 @@ when borrowed bindings are destroyed.
 Generic and aggregate/string-bearing referents, nested field places, ordinary
 record field assignment, stored references, foreign/callback borrow ABIs and
 NanoISA reference lowering remain explicit unsupported boundaries. I do not
-claim their completion from these native scalar-record controls. Completed
-validation is recorded below after the exact-source gates finish.
+claim their completion from these native scalar-record controls. My
+completed checks below establish only that bounded support.
+
+## My integrated checks
+
+On 2026-09-17, my source checkpoint `1bc18a1e` integrates main `8e56e9cf`,
+including shared borrows, the symbol lookup repair and unary-float provenance.
+I regenerate my combined AST schema without losing any of those fields.
+
+- My fresh three-stage bootstrap passes with the ordinary shadow deadline.
+- My exclusive, shared, annotation and resource-callback suites pass all
+  36 methods in 117.834 seconds across the C seed, Stage 1 and Stage 2.
+- My parser and typechecker unit gates pass; my environment suite passes
+  45 checks and the adjacent lexical-scope suite passes ten methods.
+- My schema consistency check and 33 schema methods pass.
+- A focused ASan/UBSan build of `env.c` and the environment test passes all
+  45 checks. Other linked compiler objects are ordinary builds. I disable
+  leak accounting for this focused alias/lifetime check; I do not call it
+  whole-compiler sanitizer coverage.
+
+I also guard borrowed first-class callback values before publication, including
+stored, returned, forwarded and inferred/global cases. I preserve ordinary
+and supported by-value owned callback controls. This closes the bounded
+diagnostic discrepancy in `task_5647b9905ea3eb914389f660d54634bd` only after
+reviewed integration; it does not implement a borrowed callback ABI.
+
+Before integration, my old-base core invocation reached the ten-second shadow
+deadline. I preserve `/tmp/nanolang-exclusive-core-development.log` alongside
+my successful integrated `/tmp/nanolang-exclusive-bootstrap-integrated.log`;
+I do not assign a new cause from those two observations. My paired, core and
+focused sanitizer logs are `/tmp/nanolang-exclusive-paired-integrated.log`,
+`/tmp/nanolang-exclusive-core-integrated.log` and
+`/tmp/nanolang-exclusive-env-asan.log`.
