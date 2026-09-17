@@ -1087,6 +1087,8 @@ shadow nisa_import_add {
 }
 
 fn nisa_artifact_arity(name: string) -> int {
+    if (== name "nl_nanoisa_assemble_text_save") { return 2 }
+    if (== name "nl_nanoisa_last_error") { return 0 }
     if (or (== name "path_join") (== name "path_relpath")) { return 2 }
     let names: array<string> = ["path_basename", "path_dirname", "path_normalize", "path_canonical", "nlc_module_artifact"]
     let mut i: int = 0
@@ -1100,7 +1102,21 @@ shadow nisa_artifact_arity {
     assert (== (nisa_artifact_arity "path_basename") 1)
     assert (== (nisa_artifact_arity "path_join") 2)
     assert (== (nisa_artifact_arity "nlc_module_artifact") 1)
+    assert (== (nisa_artifact_arity "nl_nanoisa_assemble_text_save") 2)
+    assert (== (nisa_artifact_arity "nl_nanoisa_last_error") 0)
     assert (== (nisa_artifact_arity "arbitrary") -1)
+}
+
+fn nisa_artifact_result(name: string) -> string {
+    if (== name "nl_nanoisa_assemble_text_save") { return "int" }
+    if (>= (nisa_artifact_arity name) 0) { return "string" }
+    return ""
+}
+shadow nisa_artifact_result {
+    assert (== (nisa_artifact_result "nl_nanoisa_assemble_text_save") "int")
+    assert (== (nisa_artifact_result "nl_nanoisa_last_error") "string")
+    assert (== (nisa_artifact_result "path_join") "string")
+    assert (== (nisa_artifact_result "unknown") "")
 }
 
 fn nisa_artifact_path(owner: int) -> string {
@@ -1130,7 +1146,8 @@ shadow nisa_artifact_path {
 
 fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
     let arity: int = (nisa_artifact_arity function.name)
-    if (or (< arity 0) (or (!= function.return_type "string") (!= function.param_count arity))) {
+    let result: string = (nisa_artifact_result function.name)
+    if (or (< arity 0) (or (!= function.return_type result) (!= function.param_count arity))) {
         let rejected: string = (nisa_fail "I require the exact artifact result and arity")
         return -1
     }
@@ -1151,7 +1168,7 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
     if (== path "") { return -1 }
     let index: int = (array_length nisa_import_names)
     set nisa_import_names (array_push nisa_import_names key)
-    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string path) (+ "\" \"" (+ function.name "\" string")))))
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string path) (+ "\" \"" (+ function.name (+ "\" " result))))))
     set i 0
     while (< i arity) { set nisa_import_text (+ nisa_import_text " string") set i (+ i 1) }
     set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " artifact\n")))

@@ -1,5 +1,6 @@
 """I preserve canonical frontend checks before explicit NanoISA publication."""
 import os
+import json
 import sys
 from pathlib import Path
 import subprocess
@@ -52,6 +53,31 @@ class CanonicalNvmOutput(unittest.TestCase):
                               *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
                               "-o", executable])
             self.run_command([executable])
+
+    def test_assembly_publication_status_and_error_run_in_both_backends(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-publisher-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "publisher.nano", directory / "publisher.nvm"
+            target = directory / "published.nvm"
+            assembly = '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
+            source.write_text('module "modules/nanoisa/nanoisa.nano" as isa\n'
+                              'fn main() -> int { assert (== (isa.assemble_text_save ' + json.dumps(assembly) + ' ' + json.dumps(str(target)) + ') 0) '
+                              'assert (!= (isa.assemble_text_save "bad assembly" ' + json.dumps(str(target)) + ') 0) '
+                              'assert (> (str_length (isa.last_error)) 0) return 0 }\nshadow main { assert true }\n')
+            self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
+            self.run_command([ROOT / "bin/nano_vm", output])
+            published = target.read_bytes()
+            self.assertEqual(published[:4], b"NVM\x02")
+            self.run_command([ROOT / "bin/nano_vm", "--verify-only", target])
+            self.run_command([ROOT / "bin/nano_vm", target])
+            native_c, binary = directory / "publisher.c", directory / "publisher"
+            self.run_command([ROOT / "bin/nvm2c", output, "-o", native_c])
+            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c,
+                              ROOT / "bin/nano_aot_runtime.o", "-lm",
+                              *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                              "-o", binary])
+            self.run_command([binary])
+            self.assertEqual(published, target.read_bytes())
 
     def test_native_string_prefix_builtin(self):
         with tempfile.TemporaryDirectory(prefix="canonical-prefix-") as tmp:
