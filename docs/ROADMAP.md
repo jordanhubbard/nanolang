@@ -210,9 +210,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       malformed-import rejection and test 232 VM/native boundary assertions. MAC
       `task_9e4e686f52bc426bbe4d2e694fa565bc`.
 
-- [ ] **Native compiler projected global-store facts.** I resolve projected
-      scalar record fields before deciding whether a global store is supported;
-      I retain rejection for unsupported aggregate stores. MAC
+- [ ] **Checked tagged native scalar-local assignments.** I retain runtime
+      tag checks when a local receives a concrete loop index and a tagged
+      global-array read, preserving exact payload constraints. MAC
+      `task_9d72bb9f29074e51ad826bc26e87b13a`.
+
+- [x] **Native compiler projected global-store facts.** I resolve nested
+      field shapes before deciding whether a global store is supported.
+      Fifteen cases retain scalar/array stores and reject unsupported
+      representations; twelve pass VM/native and sanitizer parity. MAC
       `task_3636ea1587cd41a88e4660abe94acb53`.
 
 - [ ] **Tagged native array-update bounds.** I reject negative and full-width
