@@ -36,7 +36,14 @@ const char *nlc_module_artifact(const char *source_path) {
     const char *extension = "so";
 #endif
     /* I bind the immutable generation returned by this build, not .build/current. */
-    if (asprintf(&library, "%s/lib%s.%s", generation, metadata->name, extension) < 0) {
+    int library_length = snprintf(NULL, 0, "%s/lib%s.%s",
+                                  generation, metadata->name, extension);
+    if (library_length < 0) goto done;
+    library = malloc((size_t)library_length + 1U);
+    if (!library || snprintf(library, (size_t)library_length + 1U,
+                             "%s/lib%s.%s", generation, metadata->name,
+                             extension) != library_length) {
+        free(library);
         library = NULL;
         goto done;
     }
