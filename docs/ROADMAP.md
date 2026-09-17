@@ -97,6 +97,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       both self-hosted stages after fresh bootstrap. MAC
       `task_7eb80289f352425aa2abd26af55d0ffc`.
 
+- [ ] **Retain instantiated ownership metadata.** I preserve complete concrete
+      C `TypeInfo` and matching self-hosted generic identities through ownership
+      bindings, aliases and calls. I substitute ordinary `Result<T,E>`/`Box<T>`
+      fields before resource classification, with paired positive and negative
+      controls and lifetime checks. Generic owned matching remains rejected
+      until this prerequisite is verified; resource collections remain rejected.
+      I do not infer complete tuple/row/function substitution from copying their
+      metadata. MAC `task_d329989e8acf43149c38d6a998bd730f`.
+
 - [ ] **Define my global resource boundary.** My duplicate-consumption probe
       reaches native emission without an ownership diagnostic in the C seed
       and Stage1, then fails global-record initialization. This is not evidence
