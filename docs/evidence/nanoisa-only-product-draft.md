@@ -9,3 +9,10 @@ My fresh `make bootstrap` builds and executes Stage 1. Stage 2 reaches verified 
 This draft is not cutover acceptance. Module introspection must move from removed C helper generation into canonical NanoISA facts/lowering (`task_faa47ec22a2545348aa9c9d705580321`). Default no-output CLI policy, canonical phase naming, ownership/reference IR coverage, full native self-compilation resource practicality and the final current-source bytecode fixed point remain open. I do not publish a release from these focused results.
 
 With the wrapper-string checker correction, my next bounded bootstrap creates Stage 2 successfully. Its ordinary `examples/language/nl_hello.nano` smoke invocation then aborts without a compiler diagnostic. I retain `/tmp/nanolang-only-product-bootstrap-wrapper-fixed.log`, the Stage 2 executable, and task `task_57eb1d541d084ec4930b8764c591bad3`. This supersedes the translation blocker for that attempt, but does not pass native product acceptance.
+
+
+## My integrated product gate after typed projection repair
+
+At clean pin `599d75585521b6734f4227e66ae3049eefde9dbb`, I combined the module-facts, default-output and lowering-phase drafts with main through PR538 and the PR540 host-manifest repair. Fresh tools built; Stage 1 built and passed hello. Stage 2 translation stopped with `I cannot yet store an aggregate or unresolved global in function 125 at offset 4`. My new `array<ModuleIntrospection>` global requires record-array global transport that native lowering currently refuses. Task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` records this before repair.
+
+The log is `/tmp/nanolang-product-integrated-bootstrap.log`. This is an explicit unsupported product boundary before the later native startup check, not evidence that the original abort has recurred or been resolved. The original Stage2 binary is preserved separately at `/tmp/nanolang-product-startup-original-stage2`, SHA-256 `24f6036049c1376b3d2f709e1af799d74ebc70d8985539d07a95ba0ada876b51`. I have not run it again.

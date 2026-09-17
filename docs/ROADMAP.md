@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I retain native record-array global transport for canonical module facts (`task_1e569db4d8f1486abdd7d5ed3ca00bc1`). At integrated product pin `599d7558`, Stage 1 and hello pass, but Stage 2 translation explicitly refuses an aggregate global store. I require exact element/shape transport and rooted lifetimes before enabling it; I preserve the original bootstrap log and keep the product draft open.
+
 - [x] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure and repaired gate](evidence/native-selfcompile-aggregate-a3f3.md); adding the defining source restores normal canonical seed linking, help and VM-shadow-checked hello publication/execution before another acceptance pin.
 
 - [ ] I run one newly pinned native full-source acceptance after aggregate reclamation (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). At merged code `a3f321a6`, I rebuild the canonical compiler, require help and verified hello prerequisites, and retain source/helper/host hashes. Each generation has a 1,800-second budget with a 48 GiB owned-RSS threshold and 32 GiB host reserve. I continue to generation two and raw equality only after generation one succeeds; I preserve any incomplete result without retry. This source includes VM shadows, so I make no speed attribution against the older C-shadow pin.
