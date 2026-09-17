@@ -4479,7 +4479,7 @@ nvm2wasm: nvm2llvm | bin
 	chmod +x bin/nvm2wasm
 
 test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8
+	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
 test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
@@ -4501,3 +4501,8 @@ test-same-frame-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECT
 test-units: test-implicit-returns
 test-implicit-returns: nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_implicit_returns
+
+.PHONY: test-u8-strings
+test-units: test-u8-strings
+test-u8-strings: nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_u8_string_conversion.U8Strings.test_all_unsigned_decimal_values_and_tags tests.test_u8_string_conversion.U8Strings.test_returned_alias_survives_conversion_churn

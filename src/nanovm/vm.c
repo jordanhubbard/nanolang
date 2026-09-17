@@ -3844,6 +3844,11 @@ vm_return_values: ;
             VmString *s;
             switch (v.tag) {
                 case TAG_STRING: stack_push(vm, v); break; /* already a string */
+                case TAG_U8:
+                    s = vm_string_from_int(&vm->heap, (int64_t)v.as.u8);
+                    if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the byte string.");
+                    stack_push(vm, val_string(s));
+                    break;
                 case TAG_INT:
                     s = vm_string_from_int(&vm->heap, v.as.i64);
                     stack_push(vm, val_string(s));

@@ -161,7 +161,9 @@ behavior from this raw missing-value operation.
 `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK`
 
 I convert U8 to int or float by its unsigned numeric value, without sign
-extension; U8 truthiness is zero/nonzero. Same-U8 generic comparisons use
+extension; U8 truthiness is zero/nonzero. CAST_STRING produces unsigned
+decimal text with no padding or prefix, using the ordinary managed-string
+lifetime. Same-U8 generic comparisons use
 unsigned numeric order. This does not introduce mixed-tag promotion rules or
 byte arithmetic. My [scalar byte contract](evidence/scalar-u8-contract.md)
 records backend admission boundaries.
