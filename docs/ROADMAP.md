@@ -8432,9 +8432,10 @@ Compiler product:
 - [x] I emit enum array literals with integer dynamic storage and preserve
       that representation during native access and append
       (`task_0e901805aea04c8aa644995602612a64`).
-- [ ] I lower the exact path host contracts required by my compiler
-      (`task_81e682a57a3d431e845b0f41f140352e`); after boolean arrays, actual emission
-      refuses the `path_basename` extern declaration.
+- [x] I lower the exact path artifact contracts required by my compiler
+      (`task_81e682a57a3d431e845b0f41f140352e`), preserving immutable library
+      identities, owner bindings and exact signatures across VM and native
+      execution. See `docs/evidence/selfhost-artifact-imports.md`.
 - [x] I validate array/list append element types before emitting bytecode
       (`task_e354c7131ebf40e3b177ba5a6cab1aba`); malformed append types now refuse publication.
 - [ ] I define boolean List syntax and backend parity before claiming support

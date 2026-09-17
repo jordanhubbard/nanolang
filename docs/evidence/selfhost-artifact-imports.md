@@ -19,6 +19,10 @@ mutable `current` selector. It does not compile NanoLang expressions or run a
 VM. My NanoLang wrapper snapshots the C helper's borrowed result before another
 call can replace it.
 
+My integrated emitter gate passes 86 checks and 49 regression methods. The
+fresh native bootstrap and 12 Stage 2 driver/helper regression methods pass.
+Stage 1 and Stage 2 native binaries differ; this does not establish a fixed point.
+
 I tested:
 
 - Three facade methods: stable cache reuse, changed-source generation identity,
