@@ -48,6 +48,11 @@ log, rebuilt the complete combined source, held it unchanged and ran both
 compiler variants successfully. Logs remain under
 `/tmp/nanolang-artifact-release-*`.
 
+After PR #582, I resolved only appended Make targets, retaining both. The eight
+artifact methods passed again in 7.838s at integrated code `2a8627ff`. The first
+local resolution script stopped before writing; make rejected the retained
+markers before tests. I corrected the local merge and retained that setup log.
+
 This completes the bounded file_read adapter contract in MAC
 `task_bdc323f270d44f02b38ba728f1f93184`. Broader host-result ownership, other
 filesystem helper contracts and callback/co-process/interpreter artifact
