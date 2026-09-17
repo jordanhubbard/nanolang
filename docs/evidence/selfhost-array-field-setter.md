@@ -8,11 +8,11 @@ nested arrays. My existing generic fallback remains unchanged for unknown
 receiver forms.
 
 My fresh three-stage bootstrap and six existing array compatibility methods
-pass. The new regression runs bool/string/float fields, nested record fields,
-returned arrays and nested-array replacements. Eleven of twelve compiler/case
-combinations pass. The remaining C-seed nested-array literal case fails with
-an incompatible pointer before executing the setter; I track that prerequisite
-as `task_c2ebfd28c24345daaa8c31dac75b45ac` and retain the failing assertion.
-This checkpoint is not ready to merge until that case passes as well.
+pass. The regression runs bool/string/float fields, nested record fields,
+returned arrays and nested-array replacements. All twelve compiler/case
+combinations now pass. The original C-seed nested-array literal failure is
+preserved in earlier evidence; PR #405 completed that prerequisite
+(`task_c2ebfd28c24345daaa8c31dac75b45ac`) without removing the failing case.
+The integrated gate log is `/tmp/nanolang-array-field-final.log`.
 
 I track the receiver repair as `task_d32adbdff13241dc8ad9b0a889071352`.
