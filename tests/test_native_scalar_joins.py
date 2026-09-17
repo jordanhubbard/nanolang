@@ -97,6 +97,30 @@ class NativeScalarJoins(unittest.TestCase):
             'inner:\nJMP end\nend:\nCAST_BOOL\nBOOL_NOT\nRET\n.end\n')
         self.compare(self.program('PUSH_BOOL 0\nCALL choose\nASSERT\nPUSH_BOOL 1\nCALL choose\nASSERT\n', functions))
 
+    def test_three_way_void_integer_boolean_join_stays_refused(self):
+        boolean_values = [
+            'PUSH_BOOL 1',
+            'PUSH_I64 1\nPUSH_I64 1\nI64_EQ',
+            'PUSH_BOOL 1\nSTORE_LOCAL 1\nLOAD_LOCAL 1',
+            'CALL boolean_value',
+        ]
+        function = ('.function boolean_value 0 0 0 bool 1\n'
+                    'PUSH_BOOL 1\nRET\n.end\n')
+        for boolean in boolean_values:
+            for first, second in [(boolean, 'PUSH_I64 1'), ('PUSH_I64 1', boolean)]:
+                with self.subTest(first=first, second=second):
+                    source = self.program(
+                        'PUSH_BOOL 0\nJMP_TRUE one\nPUSH_VOID\nJMP join\none:\n'
+                        'PUSH_BOOL 0\nJMP_TRUE two\n'+first+'\nJMP join\ntwo:\n'+
+                        second+'\njoin:\nPOP\n', function)
+                    module = self.module(source)
+                    target = self.work/'retained.c'
+                    target.write_text('previous')
+                    result = subprocess.run([NVM2C, module, '-o', target],
+                        capture_output=True, text=True, timeout=60)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(target.read_text(), 'previous')
+
     def test_heap_and_unrelated_union_still_refuse_publication(self):
         for left,right in [('PUSH_VOID','ARR_NEW 1'), ('ARR_NEW 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0','PUSH_I64 1'),
                            ('PUSH_BOOL 1','PUSH_I64 1'),
