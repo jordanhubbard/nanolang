@@ -90,7 +90,7 @@ static void result(FILE *out, uint32_t pc, uint8_t tag) {
 }
 static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth) {
     const NvmFunctionEntry *f = &m->functions[index];
-    fprintf(out, "define internal %%V @f%u(", index);
+    fprintf(out, "define internal %s @f%u(", f->result_count ? "%V" : "void", index);
     for (uint16_t i = 0; i < f->arity; ++i) fprintf(out, "%s%%V %%arg%u", i ? ", " : "", i);
     fprintf(out, ") {\nentry:\n %%stack = alloca [%u x %%V]\n %%sp = alloca i64\n"
         " store i64 0, ptr %%sp\n %%locals = alloca [%u x %%V]\n"
@@ -139,14 +139,17 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             uint32_t callee = ins.operands[0].u32;
             for (uint16_t i = m->functions[callee].arity; i > 0; --i)
                 fprintf(out, " %%p%u_arg%u = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, i - 1);
-            fprintf(out, " %%p%u_a = call %%V @f%u(", pc, callee);
+            if (m->functions[callee].result_count)
+                fprintf(out, " %%p%u_a = call %%V @f%u(", pc, callee);
+            else fprintf(out, " call void @f%u(", callee);
             for (uint16_t i = 0; i < m->functions[callee].arity; ++i)
                 fprintf(out, "%s%%V %%p%u_arg%u", i ? ", " : "", pc, i);
-            fputs(")\n", out); push(out, pc, "a"); break;
+            fputs(")\n", out);
+            if (m->functions[callee].result_count) push(out, pc, "a");
+            break;
         }
         case OP_RET:
-            pop(out, pc, "a");
-            fprintf(out, " call i64 @integer(%%V %%p%u_a, i8 %u)\n ret %%V %%p%u_a\n", pc, f->result_tag, pc);
+            fputs(" br label %return_result\n", out);
             terminates = 1; break;
         case OP_ASSERT:
             pop(out, pc, "a");
@@ -238,7 +241,13 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         if (!terminates) fprintf(out, " br label %%b%u\n", next);
         pc = next;
     }
-    fprintf(out, "b%u:\n %%fallthrough = call %%V @pop(ptr %%stack, ptr %%sp)\n call i64 @integer(%%V %%fallthrough, i8 %u)\n ret %%V %%fallthrough\n}\n", f->code_length, f->result_tag);
+    fprintf(out, "b%u:\n br label %%return_result\nreturn_result:\n"
+        " %%result_count = load i64, ptr %%sp\n %%result_shape = icmp eq i64 %%result_count, %u\n"
+        " call void @check(i1 %%result_shape)\n", f->code_length, f->result_count);
+    if (f->result_count)
+        fprintf(out, " %%returned = call %%V @pop(ptr %%stack, ptr %%sp)\n"
+            " call i64 @integer(%%V %%returned, i8 %u)\n ret %%V %%returned\n}\n", f->result_tag);
+    else fputs(" ret void\n}\n", out);
 }
 int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry) {
     if (!entry || (strcmp(entry, "main") && strncmp(entry, "nano_", 5)))
@@ -255,8 +264,9 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         return refuse(error, size, "I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
     if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
         return refuse(error, size, "I require an explicit executable entry point");
-    if (m->functions[m->header.entry_point].result_tag != TAG_INT &&
-        m->functions[m->header.entry_point].result_tag != TAG_BOOL)
+    if (m->functions[m->header.entry_point].result_count != 1 ||
+        (m->functions[m->header.entry_point].result_tag != TAG_INT &&
+         m->functions[m->header.entry_point].result_tag != TAG_BOOL))
         return refuse(error, size, "I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return refuse(error, size, "I require a zero-argument scalar entry point");
@@ -265,21 +275,18 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         const char *name = nvm_get_string(m, f->name_idx);
         if (name && !strcmp(name, "__init__"))
             return refuse(error, size, "I refuse module initializers in my scalar LLVM profile");
-        if (f->upvalue_count || f->result_count != 1 || (f->result_tag != TAG_INT && f->result_tag != TAG_BOOL && f->result_tag != TAG_FLOAT))
-            return refuse(error, size, "I require one numeric/bool result and no captures in function %u", i);
+        if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
+            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT))))
+            return refuse(error, size, "I require zero void results or one numeric/bool result and no captures in function %u", i);
         for (uint16_t p = 0; p < f->arity; ++p)
             if (m->function_param_types && m->function_param_types[i] && !scalar(m->function_param_types[i][p]))
                 return refuse(error, size, "I require scalar parameters in function %u", i);
-        uint8_t last = OP_NOP;
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
             if (!width || !supported(ins.opcode)) return refuse(error, size, "I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
-            last = ins.opcode;
             pc += width;
         }
-        if (last != OP_RET && last != OP_JMP)
-            return refuse(error, size, "I require explicit returns until VM/C implicit exits share a supported contract");
     }
     runtime(out);
     float_runtime(out);
