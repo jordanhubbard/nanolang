@@ -4290,3 +4290,8 @@ test-global-resource-boundary: bootstrap
 test-units: test-resource-generic-records
 test-resource-generic-records: $(COMPILER_C)
 	python3 -m unittest -v tests.test_resource_generic_records
+
+# I keep this full compiler-source acceptance gate explicit: it takes minutes.
+.PHONY: test-vm-bytecode-bootstrap
+test-vm-bytecode-bootstrap: nano_virt nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_vm_bytecode_bootstrap
