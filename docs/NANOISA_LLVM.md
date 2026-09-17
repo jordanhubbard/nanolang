@@ -23,3 +23,9 @@ ASCII identifier in my reserved target-entry namespace; other names are
 refused before publication. My Wasm translator uses this API to avoid the
 wasm32 C-main startup convention. The underlying scalar result remains i32
 at the host entry boundary.
+
+## My bounded float continuation
+
+Task `task_4b6401a64a3b4accaae1d087c4c1aea2` adds typed F64 values to the existing tagged scalar ABI. I preserve exact constant bits and tags through locals, branches, calls and checked returns. I use ordered float comparisons except `F64_NE`, whose unordered predicate keeps NaN unequal. Division by either zero returns positive zero, and float truthiness treats both signed zeros as false and NaN as true.
+
+For admitted int/bool/float/void scalars, CAST_FLOAT and CAST_BOOL follow VM conversion. CAST_INT guards the ordered interval [-2^63,2^63) before fptosi, rejecting NaN, infinity and out-of-range values rather than producing LLVM poison. I do not enable fast-math flags, generic cross-type comparisons, heap values, imports or initializer/implicit-exit support here. The executable entry remains integer/bool; float helper results are supported.
