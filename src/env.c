@@ -1211,7 +1211,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     snprintf(func_name, sizeof(func_name), "%s_push", specialized);
     func.name = strdup(func_name);
     func.param_count = 2;
-    params = malloc(sizeof(Parameter) * 2);
+    params = calloc(2, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
@@ -1232,7 +1232,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     snprintf(func_name, sizeof(func_name), "%s_get", specialized);
     func.name = strdup(func_name);
     func.param_count = 2;
-    params = malloc(sizeof(Parameter) * 2);
+    params = calloc(2, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;
@@ -1253,7 +1253,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     snprintf(func_name, sizeof(func_name), "%s_length", specialized);
     func.name = strdup(func_name);
     func.param_count = 1;
-    params = malloc(sizeof(Parameter));
+    params = calloc(1, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
     params[0].struct_type_name = NULL;

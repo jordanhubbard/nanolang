@@ -47,6 +47,18 @@ class ModuleSignatureMetadata(unittest.TestCase):
                 run = subprocess.run([output], capture_output=True, text=True, timeout=10)
                 self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
 
+    def test_generated_compiler_contracts_import_executes(self):
+        with tempfile.TemporaryDirectory(prefix='nano-generated-signatures-') as name:
+            source, output = Path(name) / 'main.nano', Path(name) / 'program'
+            source.write_text('import "src_nano/generated/compiler_contracts.nano"\n'
+                              'fn main() -> int { return 0 }\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            result = subprocess.run([COMPILER, source, '-o', output], cwd=ROOT,
+                                    capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            run = subprocess.run([output], capture_output=True, text=True, timeout=10)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+
     def test_imported_nested_array_callback_executes(self):
         self.check(False)
 
