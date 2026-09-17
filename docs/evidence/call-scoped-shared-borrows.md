@@ -32,3 +32,12 @@ and a fresh integrated bootstrap before this checkpoint is ready. I use the
 explicit 60-second shadow budget already tracked under
 `task_628759a2daf743b9bf13c9a7fea2ced0`; the production default remains ten
 seconds. I record exact completed gate results below after they finish.
+
+At source checkpoint `6ed82ee9`, I completed the fresh three-stage bootstrap,
+C parser and typechecker suites, generated-schema consistency and 33 schema
+methods. My final combined annotation/shared suite passed 13 methods in
+59.541 seconds across the C seed, Stage 1 and Stage 2. Generated-C assertions
+check actual const-pointer parameters and address arguments. My bytecode
+negative covers all three relevant drivers. I retain the wider borrow task;
+these results do not prove exclusive mutation, full shape support, ownership
+IR, or release acceptance.
