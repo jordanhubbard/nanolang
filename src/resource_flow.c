@@ -662,6 +662,19 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
     return OWN_NEXT;
 }
 
+/* I reject global owners until I have a program-wide lifetime model. */
+void check_global_ownership(Environment *env, ASTNode *global, bool *has_error) {
+    if (!global || global->type != AST_LET) return;
+    OwnFlow flow = {.env = env, .error = has_error};
+    bool resource = own_resource(&flow, global->as.let.type_name) ||
+        own_info_resource(&flow, global, global->as.let.type_info, 0);
+    if (!resource && global->as.let.value)
+        resource = own_resource(&flow, own_type(&flow, global->as.let.value)) ||
+            own_info_resource(&flow, global, own_expr_info(&flow, global->as.let.value), 0);
+    if (resource)
+        own_error(&flow, global, "global resource ownership is not supported", global->as.let.name);
+}
+
 void check_function_ownership(Environment *env, ASTNode *function, bool *has_error) {
     if (!function || function->type != AST_FUNCTION) return;
     bool any_resource = false;

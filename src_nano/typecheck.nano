@@ -1023,6 +1023,25 @@ shadow resource_flow_node {
     assert (== (Diagnostics.diag_list_count diags) 1)
 }
 
+# I do not pretend independent function states describe a global owner.
+fn resource_check_global(parser: Parser, global: ASTLet, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let declared: string = (resource_type_identity parser global.var_type global.line)
+    let inferred: string = (resource_value_type parser global.value global.value_type [])
+    if (or (resource_generic_contains parser declared global.line 0) (resource_generic_contains parser inferred global.line 0)) {
+        (resource_flow_error diags file_name global.line global.column "global resource ownership is not supported")
+    }
+}
+
+shadow resource_check_global {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } let owner: Box<Handle> = Box.None {} let ordinary: Box<int> = Box.Some { value: 7 }")
+    let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_check_global parser (parser_get_let parser 0) rejected "global.nano")
+    assert (> (Diagnostics.diag_list_count rejected) 0)
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_check_global parser (parser_get_let parser 1) accepted "global.nano")
+    assert (== (Diagnostics.diag_list_count accepted) 0)
+}
+
 fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<CompilerDiagnostic>, file_name: string) -> void {
     let mut any_resource: bool = false
     let mut i: int = 0
@@ -5054,6 +5073,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     while (< gli global_let_count) {
         let gl: ASTLet = (parser_get_let parser gli)
         if (not (at local_lets gli)) {
+            (resource_check_global parser gl env.diagnostics file_name)
             let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
             if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
                 let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))

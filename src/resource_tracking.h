@@ -22,5 +22,6 @@ void check_resource_leaks(Environment *env, bool *has_error);
 
 /* I check ownership independently of reusable typechecker symbol metadata. */
 void check_function_ownership(Environment *env, ASTNode *function, bool *has_error);
+void check_global_ownership(Environment *env, ASTNode *global, bool *has_error);
 
 #endif /* NANOLANG_RESOURCE_TRACKING_H */
