@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. This first subset does not complete heap, host, reference or full-language Wasm coverage.
+
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
       their dataflow to verifier entry points (MAC
       `task_026799f971e34152b6c6898e3de700d2`, parent ed702). I allocate vacant
