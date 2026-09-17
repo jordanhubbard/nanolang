@@ -1134,6 +1134,14 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
                            "Pass an int or u8 index.");
         valid = false;
     }
+    if (valid) {
+        /* I retain element identity while the lexical environment is available.
+         * Bytecode field selection runs after these local scopes are gone. */
+        const char *name = array_record_name(array, env);
+        char *retained = name ? strdup(name) : NULL;
+        free(call->as.call.return_struct_type_name);
+        call->as.call.return_struct_type_name = retained;
+    }
     return valid;
 }
 

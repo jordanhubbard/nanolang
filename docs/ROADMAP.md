@@ -8430,10 +8430,15 @@ Compiler product:
       homogeneous array of the wrong record type and preserves prior output.
       Generic union constructor substitution remains separate. Evidence:
       `docs/evidence/nominal-record-array-contracts.md`.
-- [ ] I preserve nested aggregate state after direct record-array projection
-      in my VM (`task_911461243652466fb0af1fb706d4ac01`). The existing fixture passes with a typed
-      temporary but a direct projection before its nested array read fails a
-      shadow assertion. I retain both cases as diagnostic evidence.
+- [x] I retain nominal record identity on checked array access before local
+      type scopes end (`task_911461243652466fb0af1fb706d4ac01`). Direct VM
+      projection now selects the right field when records reuse field names;
+      typed, `at` and `array_get` fixtures retain nested arrays and shadows.
+      Evidence: `docs/evidence/nested-record-projection.md`.
+- [ ] I preserve record element storage when appending through an array field
+      (`task_12805797d36043cd875792788f330520`). My native C helper currently
+      selects integer storage for `array_push value.symbols (symbol "third" 3)`;
+      this is separate from the repaired VM projection metadata.
 - [x] I represent nonempty record-array literals as dynamic arrays in my C
       seed, preserving child order and nominal element identity
       (`task_a5fc558cbfa34f14b4d580923de4209c`). Native/VM execution,

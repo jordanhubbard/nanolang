@@ -21,6 +21,23 @@ class RecordArrayLiterals(unittest.TestCase):
             vm=self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
             self.assertEqual(native.stdout, vm.stdout)
 
+    def test_direct_nested_projections_retain_record_identity(self):
+        baseline = (ROOT / 'tests/nanoisa/fixtures/record_arrays.nano').read_text()
+        baseline = baseline.replace('NSType', 'ValueType')
+        direct = baseline.replace('first.name', '(at value.symbols 0).name')
+        direct = direct.replace('third.location.line', '(at more 2).location.line')
+        direct = direct.replace('    let empty_table:',
+                                '    assert (== (at (entries) 1).name \"second\")\n    let empty_table:')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for label, program in (('typed', baseline), ('at', direct),
+                                   ('get', direct.replace('(at ', '(array_get '))):
+                with self.subTest(form=label):
+                    source = root / (label + '.nano')
+                    source.write_text(program)
+                    self.run_checked([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', root/'module.nvm'])
+                    self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
+
     def test_mixed_nominal_elements_reject(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); source=root/'bad.nano'; output=root/'prior'
