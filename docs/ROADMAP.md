@@ -66,6 +66,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         Fixed scalar-field referent limits remain; the full borrow parent
         stays open. My [nested-place evidence](evidence/nested-resource-borrow-places.md)
         records the paired controls and allocation failures.
+- [ ] I bound native record-snapshot and array-owner retention (MAC `task_7ff98f74f0ee40afba708605c01fad52`). My [static pool audit](evidence/native-aggregate-retention-audit.md) confirms entry-only cleanup independently of the full compiler's RSS. I require explicit aggregate-owner roots, allocation/growth-byte debt, complete graph tracing before sweeping, borrowed-handle discipline and sanitizer-backed alias/return/tail tests before implementation acceptance. I preserve the separate full-source resource gate and do not infer allocation attribution from its memory samples.
 
 - [ ] I adopt exact owned native host-result buffers into tracked string reclamation after checking each adapter contract (MAC `task_d5f899966241452a900422938fff3265`). Environment/argument copies, path normalization, file/capture/mktemp results and artifact snapshots remain separate from the temporary-expression pool; I preserve borrowed/TLS/foreign ownership and require bounded lifetime tests.
 
