@@ -62,7 +62,7 @@ refusal after successful assembly and VM execution. I record it as
 
 The native semantic/shape suites, adjacent ownership checks and both ordinary
 compiler-product gates are the acceptance checks for this storage change.
-Their measured outcomes are recorded below when complete. Full native
+I record their measured outcomes below. Full native
 self-compilation and release-wide bootstrap acceptance remain separate results.
 
 My first full product run passes 56 of 57 methods in 341.462 seconds, including
@@ -71,4 +71,23 @@ at its first C-seed command, before native translation, with `I stopped shadow
 execution after 10 seconds.` I retain this failure in
 `/tmp/nanolang-record-local-product-gate.log`; it is not evidence of a
 record-local failure and I do not relabel it as infrastructure without proof.
+I attach this occurrence to existing deadline task
+`task_628759a2daf743b9bf13c9a7fea2ced0`.
 The native suite passes 2390 checks and shape constraints pass 1092 checks.
+
+After rebasing the unchanged storage implementation onto main `274bab44`, I
+rebuild the tools and rerun the canonical compiler-product gate once. It passes
+in 300.152 seconds with the default shadow deadline: C-seed compiler build,
+canonical compiler emission, strict native compiler build, help, NanoISA hello
+emission and VM/native hello execution all complete. I use no timeout override.
+The earlier timeout remains recorded rather than being explained by this pass.
+The targeted log is `/tmp/nanolang-record-local-canonical-recheck.log`.
+
+Together, the first 56 passing methods and this targeted pass exercise all 57
+methods in the product suite; I do not call the earlier full invocation green.
+My new static/recursive and tail-root regressions are included in
+`make test-one-ir-compiler`. The retained canonical compiler product is
+`/tmp/nanolang-record-local-canonical-compiler.nvm`, SHA-256
+`f7fcec8bd5c25e2fa7e20dac1c7c3d6fe4b5c5bc2d896b72a7fb5c0e2392f1bb`.
+Its embedded immutable artifact paths belong to this checkout; the hash is
+local evidence, not a claim of portable artifact identity.
