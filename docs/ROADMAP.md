@@ -45,6 +45,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       stages. Foreign collisions remain explicitly unsupported; union/enum
       identity, generic/borrow/capture rules and IR ownership metadata remain
       separate unfinished obligations.
+      - [x] I include the new nominal-binding object in the manual NanoVirt
+        wrapper link manifest and verify actual foreign-module wrapper execution.
+        PR review exposed an unresolved `bind_nominal_records` reference.
 
 - [ ] **Map constructor diagnostics.** I resolve NanoVirt success accompanied
       by `map_new` type errors for direct returns and nested calls, preserving

@@ -74,3 +74,11 @@ The local logs are `/tmp/nanolang-nominal-integrated-bootstrap-r2.log`,
 `/tmp/nanolang-nominal-introspection.log`,
 `/tmp/nanolang-nominal-asan-final.log` and
 `/tmp/nanolang-nominal-integrated-units.log` on sparky.
+
+PR review found a missing `nominal_types.o` in the manual NanoVirt wrapper
+link manifest. My actual foreign-module publication regression reproduced the
+unresolved `bind_nominal_records` reference before the fix. After adding the
+object, all five wrapper-generation and seven publication methods pass,
+including foreign-module wrapper execution and daemon linking. Logs:
+`/tmp/nanolang-nominal-wrapper-baseline.log` and
+`/tmp/nanolang-nominal-wrapper-final.log`.
