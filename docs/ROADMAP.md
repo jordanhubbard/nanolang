@@ -121,6 +121,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       invalid-range indices in NanoVM while preserving valid alias mutation
       and ownership cleanup. Native tag guards remain enforced. MAC
       `task_f64074441cf64f47b5f40ccefc78233c`.
+- [ ] **v5.0.1 self-hosted array field mutation.** I select native array setters
+      from the complete receiver type, including record fields, nested fields,
+      and returned arrays. I execute bool, string, float and nested-array
+      mutations through all bootstrap compilers.
+      MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
 - [x] **v5.1.0 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
