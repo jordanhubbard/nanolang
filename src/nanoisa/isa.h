@@ -66,6 +66,7 @@ typedef enum {
     OP_OWN_STORE_LOCAL  = 0x0C,
     OP_OWN_PACK         = 0x0D,
     OP_OWN_UNPACK_LOCAL = 0x0E,
+    OP_CALL_REF        = 0x0F, /* u32 callee, u16 reference slot */
 
     /* Variable Access (0x10-0x1F) */
     OP_LOAD_LOCAL   = 0x10,  /* operand: u16 (FP-relative index) */

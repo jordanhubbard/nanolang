@@ -876,7 +876,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
             DecodedInstruction instruction;
             uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
             if (!count) break;
-            if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_OWN_UNPACK_LOCAL) ||
+            if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_CALL_REF) ||
                 (instruction.opcode>=OP_REGION_BEGIN && instruction.opcode<=OP_REBORROW_EXCLUSIVE)) return true;
             offset+=count;
         }
@@ -887,6 +887,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
 /* I keep runtime admission closed even if affine analysis grows new operations. */
 static bool owned_runtime_opcode(uint8_t op) {
     switch (op) {
+    case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
@@ -906,26 +907,30 @@ static bool owned_runtime_opcode(uint8_t op) {
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     NvmVerifyResult structure = verify_structure(mod, true);
     if (!structure.ok) return structure;
-    if (!mod->ownership_size || mod->function_count != 1 || mod->header.entry_point != 0 ||
+    if (!mod->ownership_size || (mod->function_count != 1 && mod->function_count != 2) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
-    const NvmFunctionEntry *fn = &mod->functions[0];
-    const char *name = nvm_get_string(mod, fn->name_idx);
-    if (fn->arity || fn->upvalue_count || fn->result_count != 1 ||
-        (fn->result_tag != TAG_INT && fn->result_tag != TAG_BOOL && fn->result_tag != TAG_U8) ||
-        (name && !strcmp(name, "__init__")))
-        return fail("I require zero-argument scalar-result ownership instruction execution semantics");
-    NvmAffineState *state=nvm_affine_state_create(mod, 0, fn->local_count);
-    if (!state) return fail("I require complete ownership local declarations");
-    bool locals_supported=true;
-    for (uint16_t i=0; i<fn->local_count; i++) {
-        NvmAffineType type;
-        if (!nvm_affine_local_type(state,i,&type) ||
-            (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 && type.tag!=TAG_STRUCT))
-            locals_supported=false;
+    for(uint32_t function=0;function<mod->function_count;function++) {
+        const NvmFunctionEntry *fn=&mod->functions[function];
+        const char *name=nvm_get_string(mod,fn->name_idx);
+        if (fn->arity!=(function?1:0) || fn->upvalue_count || fn->result_count!=1 ||
+            (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8) ||
+            fn->local_count>NVM_AFFINE_MAX_LOCALS || (name && !strcmp(name,"__init__")))
+            return fail("I require entry and optional one-parameter scalar-result helper signatures");
+        NvmAffineState *state=nvm_affine_state_create(mod,function,fn->local_count);
+        if(!state) return fail("I require complete ownership local declarations");
+        bool valid=true;
+        for(uint16_t i=0;i<fn->local_count;i++) {
+            NvmAffineType type;NvmReferenceMode mode;
+            if(function && !i) {
+                if(!nvm_affine_parameter_type(state,&type,&mode)) valid=false;
+            } else if(!nvm_affine_local_type(state,i,&type) ||
+                (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
+                 (function || type.tag!=TAG_STRUCT))) valid=false;
+        }
+        nvm_affine_state_free(state);
+        if(!valid) return fail("I require value entry locals and one borrowed helper parameter with scalar locals");
     }
-    nvm_affine_state_free(state);
-    if (!locals_supported) return fail("I require non-reference integer, Boolean, byte or record locals");
     NvmV2Layouts layouts = {0};
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
         return fail("I require complete owned record layouts");
@@ -942,16 +947,26 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     }
     nvm_v2_layouts_free(&layouts);
     if (!supported) return fail("I require integer, Boolean or byte owned record fields before execution");
-    VmDecodedFunction decoded; char error[VM_DECODE_ERROR_SIZE];
-    if (!vm_decode_function(mod, 0, &decoded, error)) return fail("%s", error);
     bool transfer=false;
-    for (uint32_t i=0; i<decoded.instruction_count; i++) {
-        uint8_t op=decoded.instructions[i].instruction.opcode;
-        if (op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
-        if (!owned_runtime_opcode(op)) supported=false;
+    for(uint32_t function=0;function<mod->function_count;function++) {
+        VmDecodedFunction decoded;char error[VM_DECODE_ERROR_SIZE];
+        if(!vm_decode_function(mod,function,&decoded,error)) return fail("%s",error);
+        for(uint32_t i=0;i<decoded.instruction_count;i++) {
+            const DecodedInstruction *in=&decoded.instructions[i].instruction;
+            uint8_t op=in->opcode;
+            if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
+            if(!owned_runtime_opcode(op)) supported=false;
+            if(op==OP_CALL_REF && (function || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
+            if(function && ((op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) ||
+                op==OP_BORROW_LOCAL_SHARED || op==OP_BORROW_LOCAL_EXCLUSIVE ||
+                op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE ||
+                op==OP_AGG_GET || op==OP_STRUCT_GET ||
+                ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL) && !in->operands[0].u16))) supported=false;
+        }
+        vm_decoded_function_free(&decoded);
+        if(function && !nvm_affine_analyze_function(mod,function).ok) supported=false;
     }
-    vm_decoded_function_free(&decoded);
-    if (!supported || !transfer) return fail("I require explicit non-floating ownership instruction execution semantics");
+    if(!supported || !transfer) return fail("I require explicit owned entry execution and a non-escaping scalar helper");
     return nvm_verify_affine_function(mod, 0);
 }
 

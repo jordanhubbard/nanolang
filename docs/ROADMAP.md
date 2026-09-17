@@ -45,6 +45,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I execute one borrowed-parameter caller-origin reference call (MAC `task_48dcff3ff3314e9aad325209387968d1`, parents ed702/718). I first record [the bounded call contract](NANOISA_CALLER_REFERENCE.md), then connect actual caller root/path substitution, checked reborrow permissions, two activation contexts and paired VM/native scalar execution. I pass [the bounded paired gates](evidence/nanoisa-caller-reference.md). Helper local 0 remains non-authoritative; source and broader call admission stay separate. My integrated metadata gate caught an overbroad host-entry refusal for ordinary metadata-bearing helpers; I scope that guard to actual owned/reference instructions and retain ordinary module controls.
+- [ ] I verify multiple borrowed parameters using pairwise actual caller-place alias substitution (MAC `task_7a2c8017c0c04b82a48ba069561e9d36`, parents ed702/718). I require argument-order holds, shared aliases, disjoint exclusive paths, conflicting overlaps and exact restoration; the one-parameter foundation cannot close this criterion.
+
 - [x] I execute nested same-frame reference paths and reborrows (MAC `task_556d6702b3c74377b0cb830b6d988c68`, parents ed702/718). I first preserve format-1 ownership bytes and specify the bounded format-2 numeric path table, then connect four vacant opcodes to authoritative layout resolution, exact parent/region dataflow and matched VM/native owner access. I pass [transport, authority, resume and lifetime gates](evidence/nanoisa-nested-references.md); caller provenance and frontend production remain separate required work.
 
 - [x] I execute same-frame shared/exclusive reference slots after standalone owned transfers (MAC `task_e31a51fc661f4102b68ad81432369a1d`, parents ed702/718). I first record [the instruction and lifetime contract](NANOISA_SAME_FRAME_REFERENCES.md), then connect region/borrow/field operations to exact affine CFG verification, persistent VM descriptors and direct native owner access. I require paired mutation/lifetime/join/loop, transport and refusal gates. I pass [the bounded paired gates](evidence/nanoisa-same-frame-references.md). Nested reference paths, reborrows, caller provenance and frontend admission remain separate required work.
@@ -58,10 +61,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I preserve explicit PUSH_VOID as tagged void in native scalar transport (MAC `task_96e1b3c367da476e9fb4f4cf8df68932`). My shared truthiness gate exposed the existing classifier refusal at opcode0x05; I add stack/local transport with type-tag and false-truthiness checks, without broadening void-return calls.
 
 - [x] I implement scalar CAST_BOOL and generic AND/OR/NOT across C, LLVM and shared Wasm (MAC `task_59c773b34bec49f4b46d5a0b4a8f2de7`). I preserve VM truthiness for void/int/bool/float, exact bool tags and already-evaluated operand order through calls/locals/joins. I require same-module VM/C/LLVM/Wasmtime/import-free Node positives and explicit heap/U8 profile refusals.
-- [x] I establish unsigned-byte scalar transport and exact conversions across VM/C/LLVM/Wasm (MAC `task_ad1c498801b34aa38d82f58a588f1d5a`). I first repair same-U8 numeric ordering and CAST_FLOAT, then retain TAG_U8 through scalar locals/calls/results and checked conversions. I pass 45 shared scalar methods, exhaustive VM byte casts/order checks and native ownership gates. Common-profile comparisons use explicit CAST_INT and typed I64 operations; generic LLVM comparisons and mixed-tag numeric policy remain task01d. My contract is in [scalar U8](evidence/scalar-u8-contract.md).
+- [x] I establish unsigned-byte scalar transport and exact conversions across VM/C/LLVM/Wasm (MAC `task_ad1c498801b34aa38d82f58a588f1d5a`). I first repair same-U8 numeric ordering and CAST_FLOAT, then retain TAG_U8 through scalar locals/calls/results and checked conversions. I pass 45 shared scalar methods, exhaustive VM byte casts/order checks and native ownership gates. That byte checkpoint used explicit CAST_INT and typed I64 comparisons; the later completed task01d admits generic scalar comparisons with the existing VM compatibility contract. My contract is in [scalar U8](evidence/scalar-u8-contract.md).
 - [x] I define and implement U8 string conversion consistently (MAC `task_d08968be827a4d26942123825229ac8e`). I make CAST_STRING produce the unsigned decimal representation (0 through 255), matching numeric display and CAST_INT. I reuse existing managed string allocation, test all 256 VM/C results plus alias cleanup, and preserve LLVM/Wasm string refusal. My contract is in [U8 string conversion](evidence/u8-string-conversion.md).
 - [x] I report allocation failure from existing scalar CAST_STRING arms (MAC `task_822750774e0040298e8297e96145f3d5`). Integer/float/bool and default empty-string dispatcher arms now report VM_ERR_MEMORY when their helper returns NULL. I pass 91 isolated post-repair allocation-failure/cleanup checks normally and under VM/heap ASan/UBSan/LSan, plus 274,416 existing VM checks, preserving ordinary formatting and identity conversion. My [contract](evidence/cast-string-allocation-failure.md) precedes implementation.
-- [ ] I specify generic mixed numeric arithmetic and comparisons separately from typed scalar operations (MAC `task_01d3e7ca2b6a47b0bef9504f2fd04006`). I retain VM promotion, NaN and cross-tag ordering observations before changing any backend semantics.
+- [x] I preserve existing generic scalar comparison compatibility across VM/C/LLVM/Wasm (MAC `task_01d3e7ca2b6a47b0bef9504f2fd04006`). I keep equality separate from ordering, preserve generic versus typed NaN distinctions and int-to-double rounding, retain heap/string exclusions and test every scalar tag pair. My [contract](evidence/generic-scalar-comparisons.md) precedes implementation.
+- [ ] I establish generic scalar arithmetic backend parity separately (MAC `task_66a6dd8ca51d415f9efb0f2904f85b49`). ADD/SUB/MUL/DIV/MOD/NEG promotion, overflow and tag rules need their own audit and admission; comparison support does not complete arithmetic.
 
 - [x] I complete native full-source compiler generations at frozen source `2f50d7a0` after map-byte debt and builtin host ownership repair (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). Both generations finish under their original 1800-second bounds, verify and match raw bytes; help/hello and immutable source/tool/host integrity pass. I retain [measured evidence and boundaries](evidence/native-full-fixedpoint-host-owned.md). This does not close other full-roadmap release requirements.
 
@@ -263,6 +267,24 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       Darwin generated-C regressions now pass with all 2,418 native translator
       checks and 1,092 shape checks
       (`task_6363b1e55bd145749ef892d71a552735`).
+- [ ] I select and validate one coherent Darwin SDK/libffi toolchain for release
+      qualification (`task_5bdfd4ed14eb27b98bd509243c4af9a1`). On Darwin
+      26.6.2 at `045fb5a2`, Command Line Tools select Clang 21 and
+      `/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk` version 27.0, while
+      Homebrew's `libffi.pc` comes from
+      `/opt/homebrew/Library/Homebrew/os/mac/pkgconfig/26` and injects the
+      `MacOSX26.sdk/usr/include/ffi` path. The actual default-budget
+      `make bootstrap1` emits `ld: warning: ignoring unexpected dylib` for the
+      SDK 27 `libSystem.B.tbd`, then completes Stage 1 and its hello smoke. A
+      full `make test-quick` at `765ec87b` also passes under the default shadow
+      deadline while emitting the same warning, including all 244 eligible VM
+      examples. A trivial libffi link does not emit the warning, so I do not
+      claim the mixed include path is its cause. I will isolate the
+      generated-product link closure, preserve explicit `LIBFFI_CFLAGS` and
+      `LIBFFI_LIBS` overrides, add a bounded preflight or regression, remove
+      the bootstrap warning and rerun `make test-quick` without widening the
+      shadow deadline. The fleet verifier image's missing `ffi.h` task 865
+      remains separate unless shared evidence establishes one cause.
 - [x] I complete unchanged-calculator acceptance through both producers (MAC `task_668e98f3e13e4fcebb3a2f92e671c713`, checked conversion `task_b927827f37734658bce360d7ecf913aa` and builtin ownership child `task_7f2b7373646341d5a317f374d302e390`). Both retained modules print `Result: 3.14159` and pass GCC ASan/UBSan/LSan plus strict Clang after PR553; [evidence](evidence/native-host-string-ownership.md). The earlier two-byte argv-copy leak is resolved history. Generic artifact-result ownership under parent `task_d5f899966241452a900422938fff3265` remains open.
 - [x] I emit the registered C-seed `string_to_float` helper (`task_5909147f37c2478a8c07494935d7e24a`). The real conversion fixture reached an implicit-declaration error; I retain that failure and match the existing interpreter/self-hosted `strtod` contract.
 - [x] I align legacy interpreter and C-emitter float-to-int helpers with the checked conversion policy (`task_f801bf5769f9489da5ea973574dd156c`). Static inspection found direct double-to-integer casts; NanoISA validation does not cover those paths. I use the same finite `[-2^63, 2^63)` interval and diagnostic as NanoISA before conversion. A fresh bootstrap and 64 interpreter/C-seed/Stage-1/Stage-2 cases pass; [evidence](evidence/legacy-float-conversion.md).

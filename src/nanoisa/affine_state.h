@@ -54,4 +54,12 @@ bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffin
 bool nvm_affine_record_fields(const NvmAffineState *state, uint32_t layout,
                                NvmAffineType *fields, uint16_t capacity, uint16_t *count);
 bool nvm_affine_can_exit_type(const NvmAffineState *state, NvmAffineType type);
+/* I substitute a checked caller place into a fresh one-parameter helper.
+ * I copy its path, preserve caller facts and refuse conflicting live children.
+ * Bound parameter value locals are non-authoritative; only reference access
+ * can use them. This API alone does not admit runtime calls. */
+bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
+                             uint32_t reference);
+bool nvm_affine_parameter_type(const NvmAffineState *state,NvmAffineType *type,
+                                 NvmReferenceMode *mode);
 #endif

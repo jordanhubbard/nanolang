@@ -123,6 +123,14 @@ the checked module format rather than an agreement hidden in host code.
 
 **Comparison (0x28-0x2F):** `EQ`, `NE`, `LT`, `LE`, `GT`, `GE`
 
+My generic scalar comparison compatibility preserves tagged equality separately
+from three-way ordering. In float/float or int/float comparisons, an unordered
+NaN gives generic ordering zero: LE/GE are true while EQ is false. Typed F64
+comparisons retain IEEE unordered behavior. Mixed int/float comparison first
+converts the integer to binary64, including its rounding; other mixed scalar
+tags compare unequal and order by tag number. My [bounded backend contract](evidence/generic-scalar-comparisons.md)
+records the admitted tags and exact boundary tests.
+
 **Logic (0x30-0x37):** `AND`, `OR`, `NOT`
 
 **Control Flow (0x38-0x3F):**
