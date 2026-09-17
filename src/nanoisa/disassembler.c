@@ -411,6 +411,16 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         }
     }
 
+    if (style == DISASM_STYLE_CANONICAL && mod->passive_size) {
+        /* I preserve absolute ranges and graph claims exactly, in bounded lines. */
+        for (uint32_t i = 0; i < mod->passive_size; ++i) {
+            if (i % 32 == 0) fprintf(out, ".passive \"");
+            fprintf(out, "%02x", mod->passive_data[i]);
+            if (i % 32 == 31 || i + 1 == mod->passive_size) fprintf(out, "\"\n");
+        }
+        fprintf(out, "\n");
+    }
+
     /* Entry point */
     if (mod->header.flags & NVM_FLAG_HAS_MAIN) {
         fprintf(out, ".entry %u\n\n", mod->header.entry_point);
