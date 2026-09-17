@@ -86,22 +86,34 @@ class PassiveFlowFrontends(unittest.TestCase):
                 self.assertIn('guarded parameters', result.stdout+result.stderr)
                 self.assertEqual(output.read_text(), 'prior output')
 
-    def test_calls_outside_passive_nodes_remain_refused(self):
+    def test_serial_owner_calls_execute_between_blocks_in_both_producers(self):
         with tempfile.TemporaryDirectory(prefix='nano-flow-owner-') as tmp:
-            source, output = Path(tmp)/'owner.nano', Path(tmp)/'prior'
-            source.write_text('fn value() -> int { return 7 } shadow value { assert (== (value) 7) }\n'
-                              'fn main() -> int { flow { let a: int = 1 } assert (== (value) 7) return (- a 1) }\n'
-                              'shadow main { assert true }\n')
-            output.write_text('prior module')
-            refused = self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', output)
-            self.assertNotEqual(refused.returncode, 0)
-            self.assertIn('passive eligibility', refused.stdout+refused.stderr)
-            self.assertEqual(output.read_text(), 'prior module')
+            source = Path(tmp)/'owner.nano'
+            source.write_text(
+                'fn emit_value(x: int) -> int { let scratch: int = 99 (println x) return scratch }\n'
+                'shadow emit_value { assert (== (emit_value 0) 99) }\n'
+                'fn owner(x: int) -> int { assert (== (emit_value 10) 99) '
+                'par { let a: int = (+ x 1) } assert (== (emit_value 20) 99) '
+                'flow { let b: int = (+ c 3) let c: int = (+ x 2) } '
+                'assert (== (emit_value 30) 99) assert (== x 4) '
+                'assert (== a 5) assert (== c 6) return b }\n'
+                'shadow owner { assert (== (owner 4) 9) }\n'
+                'fn main() -> int { (println (owner 4)) return 0 }\n'
+                'shadow main { assert (== (main) 0) }\n')
             assembly = Path(tmp)/'owner.nasm'
             self.checked(ROOT/'bin/nanoisa_emit', source, '-o', assembly)
-            refused = self.command(ROOT/'bin/nanoisa', 'asm', assembly, '-o', output)
-            self.assertNotEqual(refused.returncode, 0)
-            self.assertEqual(output.read_text(), 'prior module')
+            for producer in ('seed', 'self'):
+                module = Path(tmp)/(producer+'.nvm')
+                if producer == 'seed':
+                    self.checked(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+                else:
+                    self.checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.checked(ROOT/'bin/nano_vm', '--verify-only', module)
+                self.assertEqual(self.checked(ROOT/'bin/nano_vm', module).stdout, '10\n20\n30\n9\n')
+                generated, native = Path(tmp)/(producer+'.c'), Path(tmp)/producer
+                self.checked(ROOT/'bin/nvm2c', module, '-o', generated)
+                self.checked('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', generated, '-lm', '-o', native)
+                self.assertEqual(self.checked(native).stdout, '10\n20\n30\n9\n')
 
     def test_bound_module_owners_and_forward_dependencies(self):
         with tempfile.TemporaryDirectory(prefix='nano-flow-owners-') as tmp:
