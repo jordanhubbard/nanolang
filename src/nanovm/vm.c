@@ -4093,7 +4093,13 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         case TRAP_ASSERT:
             if (!val_truthy(trap.data.assert_check.condition)) {
                 vm_release(&vm->heap, trap.data.assert_check.condition);
-                return vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
+                VmResult result = vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
+                if (vm->debug_mode || (vm->module->header.flags & NVM_FLAG_DEBUG_INFO)) {
+                    FILE *trace_out = vm->output ? vm->output : stderr;
+                    fprintf(trace_out, "\nRuntime error: %s\n", vm_error_string(result));
+                    vm_stack_trace(vm, trace_out);
+                }
+                return result;
             }
             vm_release(&vm->heap, trap.data.assert_check.condition);
             break;
