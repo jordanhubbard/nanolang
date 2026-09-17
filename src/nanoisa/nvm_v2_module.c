@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nvm_v2_sections.h"
+#include "retained_layouts.h"
 #include "isa.h"
 #include "nvm_format.h"   /* nvm_crc32 */
 
@@ -47,6 +48,7 @@ static uint32_t required_features(const NvmV2Module *m) {
     if (m->imports.count) f |= NVM_V2_FEATURE_FFI;
     if (m->callbacks.count) f |= NVM_V2_FEATURE_CALLBACKS;
     if (m->passive_size) f |= NVM_V2_FEATURE_PASSIVE;
+    if (nvm_layouts_have_facts(&m->layouts)) f |= NVM_V2_FEATURE_RETAINED_LAYOUTS;
     if (m->has_debug) f |= NVM_V2_FEATURE_DEBUG;
     for (uint32_t i = 0; i < m->imports.count; i++)
         if (m->imports.items[i].kind == NVM_V2_IMPORT_COPROCESS)

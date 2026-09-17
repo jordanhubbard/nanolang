@@ -46,7 +46,8 @@
 #define NVM_V2_FEATURE_CLOSURES  (1u << 4)  /* constructs heap closures */
 #define NVM_V2_FEATURE_CALLBACKS (1u << 5)  /* retained callback import contracts */
 #define NVM_V2_FEATURE_PASSIVE   (1u << 6)
-#define NVM_V2_FEATURE_KNOWN_MASK 0x0000007Fu
+#define NVM_V2_FEATURE_RETAINED_LAYOUTS (1u << 7)
+#define NVM_V2_FEATURE_KNOWN_MASK 0x000000FFu
 
 /* Section types. Renumbered from v1: the clean break makes v1 numbering
  * irrelevant, and reusing it would invite confusion between the two. */

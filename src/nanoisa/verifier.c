@@ -10,6 +10,7 @@
 
 #include "verifier.h"
 #include "passive.h"
+#include "retained_layouts.h"
 #include "isa.h"
 #include "../nanovm/vm.h"
 #include "../nanovm/vm_decode.h"
@@ -415,6 +416,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
             }
         }
     }
+
+    if (!nvm_retained_layouts_valid(mod))
+        return fail("I found invalid retained layout metadata");
 
     if (!nvm_passive_valid(mod))
         return fail("I found invalid passive eligibility metadata");

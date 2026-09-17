@@ -421,6 +421,16 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         fprintf(out, "\n");
     }
 
+    if (style == DISASM_STYLE_CANONICAL && mod->layout_size) {
+        /* I retain exact layout indices; reassembly validates names/counts. */
+        for (uint32_t i = 0; i < mod->layout_size; ++i) {
+            if (i % 32 == 0) fprintf(out, ".layouts \"");
+            fprintf(out, "%02x", mod->layout_data[i]);
+            if (i % 32 == 31 || i + 1 == mod->layout_size) fprintf(out, "\"\n");
+        }
+        fprintf(out, "\n");
+    }
+
     /* Entry point */
     if (mod->header.flags & NVM_FLAG_HAS_MAIN) {
         fprintf(out, ".entry %u\n\n", mod->header.entry_point);
