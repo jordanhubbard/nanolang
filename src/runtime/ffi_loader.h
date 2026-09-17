@@ -77,6 +77,12 @@ void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module);
 /* I resolve only through the named library handle, without global fallback. */
 void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name);
 
+/* I accept an optional versioned cleanup companion only from the called
+ * function's own image. A missing companion preserves borrowed results. */
+bool ffi_loader_string_release(const char *module_name, const char *symbol_name,
+                               void *function, void (**release)(const char *),
+                               char *error, size_t error_size);
+
 /* I check a per-function native array ABI declaration in the function's own
  * loaded image. Missing declarations mean legacy version 1. This checks a
  * trusted native declaration, not the memory safety of arbitrary C code.

@@ -509,6 +509,23 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
+    if (imp->kind == NVM_IMPORT_ARTIFACT && imp->return_type == TAG_STRING) {
+        if (!ffi_loader_string_release(mod_name, func_name, func_ptr,
+                                       &desc->string_release, error_msg, error_msg_size)) {
+            desc->state = NVM_CALL_FAILED;
+            return NULL;
+        }
+        if (desc->string_release) {
+            bool supported = desc->param_count <= 2;
+            for (uint16_t i = 0; i < desc->param_count; ++i)
+                supported = supported && desc->param_types && desc->param_types[i] == TAG_STRING;
+            if (!supported) {
+                desc->state = NVM_CALL_FAILED;
+                snprintf(error_msg, error_msg_size, "I require up to two string parameters for provider string cleanup");
+                return NULL;
+            }
+        }
+    }
     desc->func_ptr = func_ptr;
     desc->state = NVM_CALL_RESOLVED;
     return desc;
@@ -845,6 +862,30 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     if (arg_count != desc->param_count || (arg_count && !args)) {
         snprintf(error_msg, error_msg_size, "I require the declared foreign argument count and values");
         return false;
+    }
+
+    if (desc->string_release) {
+        const char *arguments[2] = {NULL, NULL};
+        for (int i = 0; i < arg_count; ++i) {
+            if (args[i].tag != TAG_STRING || !args[i].as.string) {
+                snprintf(error_msg, error_msg_size, "I require string values for provider string cleanup");
+                return false;
+            }
+            arguments[i] = vmstring_cstr(args[i].as.string);
+        }
+        const char *text = arg_count == 0 ? ((const char *(*)(void))func_ptr)() :
+            arg_count == 1 ? ((const char *(*)(const char *))func_ptr)(arguments[0]) :
+            ((const char *(*)(const char *, const char *))func_ptr)(arguments[0], arguments[1]);
+        bool copied = false;
+        bool has_text = text != NULL;
+        NanoValue snapshot = marshal_result((int64_t)(intptr_t)text, TAG_STRING, heap, &copied);
+        desc->string_release(text);
+        if (!copied || !has_text) {
+            snprintf(error_msg, error_msg_size, "I could not retain the provider string result");
+            return false;
+        }
+        *result = snapshot;
+        return true;
     }
 
     /* A bytecode function index is not an executable C address. I reject it

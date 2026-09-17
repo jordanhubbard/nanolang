@@ -135,6 +135,11 @@ I require explicit function parameter and return types. Local bindings can
 infer their type from an initializer; annotate empty, generic, foreign and
 otherwise unclear values.
 
+Outside match patterns, `_` is an ordinary readable identifier. A later
+`let _` shadows the previous binding after its initializer has been evaluated.
+Leaving a nested block restores the outer binding; `_` does not discard its
+initializer or change ownership rules.
+
 ```nano
 let x = 42
 let name: string = "Alice"

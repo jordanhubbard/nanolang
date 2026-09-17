@@ -4490,7 +4490,7 @@ nvm2wasm: nvm2llvm | bin
 	chmod +x bin/nvm2wasm
 
 test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion
+	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
 test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
@@ -4526,6 +4526,23 @@ test-units: test-u8-strings
 test-u8-strings: nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_u8_string_conversion.U8Strings.test_all_unsigned_decimal_values_and_tags tests.test_u8_string_conversion.U8Strings.test_returned_alias_survives_conversion_churn
 
+.PHONY: test-caller-reference-analysis
+test-units: test-caller-reference-analysis
+test-caller-reference-analysis: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_reference_analysis tests/nanoisa/test_caller_reference_analysis.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_caller_reference_analysis
+
+.PHONY: test-caller-references
+test-units: test-caller-references
+test-caller-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_references tests/nanoisa/test_caller_references.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_caller_reference_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_references_alloc tests/nanoisa/test_caller_references_alloc.c obj/test_caller_reference_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_caller_references_alloc
+	$(CC) $(CFLAGS) -Dcalloc=caller_state_calloc -Dmalloc=caller_state_malloc -c src/nanoisa/affine_state.c -o obj/test_caller_state_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_reference_state_alloc tests/nanoisa/test_caller_reference_state_alloc.c $(NANOVM_OBJECTS) obj/test_caller_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_caller_reference_state_alloc
+	python3 -m unittest tests.test_caller_references
 .PHONY: test-cast-string-allocation
 test-units: test-cast-string-allocation
 test-cast-string-allocation: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -4537,3 +4554,12 @@ test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_scalar_joins
 
 test-units: test-native-scalar-joins
+
+.PHONY: test-artifact-string-release
+test-units: test-artifact-string-release
+test-artifact-string-release: nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_artifact_string_release
+.PHONY: test-native-underscore-bindings
+test-units: test-native-underscore-bindings
+test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
+	python3 -m unittest -v tests.test_native_underscore_bindings

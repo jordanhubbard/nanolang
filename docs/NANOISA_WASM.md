@@ -59,5 +59,7 @@ My shared typed F64 continuation adds arithmetic, comparisons, exact constants, 
 I now admit verified implicit scalar exits and zero-result void helper calls through the shared LLVM return block (`task_4fd2bff257a44da0b0c4bb62b52b91b8`). A void call adds no operand-stack result. My executable entry remains one int/bool result; void/float entries, heap/multiple-result helpers and initializers remain refused with prior output preserved. The [38-method combined gate](NANOISA_LLVM.md#my-shared-implicit-return-admission-contract) includes unchanged-module Wasmtime and import-free Node execution.
 
 My shared lowering also preserves U8 scalar tags, exact casts and explicit
-CAST_INT followed by typed I64 comparisons. I retain generic comparison
-refusals; [my byte contract](evidence/scalar-u8-contract.md) records that boundary.
+CAST_INT followed by typed I64 comparisons. That byte checkpoint retained generic comparison refusals; my subsequent
+[generic scalar comparison continuation](evidence/generic-scalar-comparisons.md)
+admits the six comparison opcodes with exact VM tag, NaN and integer-rounding
+behavior. Generic arithmetic and strings remain refused.

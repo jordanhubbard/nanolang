@@ -1,14 +1,14 @@
 /* I lower the already verified standalone ownership contract to direct C
  * operations and constant-index temporaries. I emit no bytecode interpreter. */
-static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) {
+static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *err,size_t err_len) {
     Nvm2cBuf b={0}; b.err=err; b.err_len=err_len;
     VmDecodedFunction code={0}; char decode_error[VM_DECODE_ERROR_SIZE];
     NvmAffineState *state=NULL; NvmV2Layouts layouts={0};
     int *depth=NULL; uint32_t *queue=NULL;
-    const NvmFunctionEntry *fn=&mod->functions[0];
-    if (!vm_decode_function(mod,0,&code,decode_error) ||
+    const NvmFunctionEntry *fn=&mod->functions[function];
+    if (!vm_decode_function(mod,function,&code,decode_error) ||
         nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&layouts)!=NVM_V2_OK ||
-        !(state=nvm_affine_state_create(mod,0,fn->local_count))) goto fail;
+        !(state=nvm_affine_state_create(mod,function,fn->local_count))) goto fail;
     depth=malloc(code.instruction_count*sizeof(*depth));
     queue=malloc(code.instruction_count*sizeof(*queue));
     if (!depth || !queue) goto fail;
@@ -41,7 +41,7 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
             else if (depth[target]!=value) goto fail;
         }
     }
-    nvm2c_puts(&b,
+    if (!function) nvm2c_puts(&b,
         "/* I transfer unique owners; field observations retain only their shell. */\n"
         "#include <stdint.h>\n#include <stdlib.h>\n#include <stddef.h>\n#include <limits.h>\n"
         "#ifndef NOWN_ALLOC\n#define NOWN_ALLOC calloc\n#endif\n"
@@ -59,11 +59,25 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
         "  for(size_t i=0;i<v.record->count;i++) nown_release(v.record->fields[i]);\n"
         "  NOWN_FREE(v.record);\n }\n}\n"
         "static void nown_retain(nown_value v) { if(v.record) ++v.record->refs; }\n"
-        "/* I return status separately so allocation failure still cleans every root. */\n"
-        "int nvm_owned_entry(int64_t *result) {\n"
+        "/* I return status separately so allocation failure still cleans every root. */\n");
+    if (!function && mod->function_count==2) {
+        char *helper=emit_owned_function(mod,1,err,err_len);
+        if(!helper) goto fail;
+        nvm2c_puts(&b,helper);free(helper);
+    }
+    nvm2c_puts(&b,function?
+        "static int nown_helper(nown_value *origin,nown_reference borrowed,int64_t *result) {\n":
+        "int nvm_owned_entry(int64_t *result) {\n");
+    nvm2c_puts(&b,
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0};\n"
         " nown_reference refs[256]={{0}}; unsigned region=0;\n"
-        " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region; (void)nown_referent;\n goto L0;\n");
+        " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region; (void)nown_referent;\n");
+    if(function) {
+        NvmAffineType param;NvmReferenceMode mode;
+        if(!nvm_affine_parameter_type(state,&param,&mode)) goto fail;
+        nvm2c_printf(&b," (void)origin; refs[0]=borrowed; refs[0].region=0; refs[0].parent=UINT16_MAX; refs[0].exclusive=%u;\n",mode==NVM_REFERENCE_EXCLUSIVE);
+    }
+    nvm2c_puts(&b," goto L0;\n");
     for (uint32_t i=0;i<code.instruction_count;i++) {
         if (depth[i]<0) continue;
         const VmDecodedInstruction *d=&code.instructions[i];
@@ -71,6 +85,8 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
         unsigned local=in->operands[0].u16;
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
+        case OP_CALL_REF:
+            nvm2c_printf(&b," if(nown_helper(l,refs[%u],&t[%d].scalar)){status=1;goto cleanup;}\n",in->operands[1].u16,n);break;
         case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;
         case OP_REGION_END:
             nvm2c_puts(&b," for(unsigned r=0;r<256;r++) if(refs[r].region==region) refs[r].region=0;\n --region;\n");break;
@@ -89,9 +105,9 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
             nvm2c_printf(&b," refs[%u]=refs[%u]; refs[%u].region=region; refs[%u].exclusive=%u; refs[%u].parent=%u;\n",
                 local,in->operands[1].u16,local,local,op==OP_REBORROW_EXCLUSIVE,local,in->operands[1].u16);break;
         case OP_REF_GET:
-            nvm2c_printf(&b," t[%d]=nown_referent(l,&refs[%u])->fields[%u];\n",n,local,in->operands[1].u16);break;
+            nvm2c_printf(&b," t[%d]=nown_referent(%s,&refs[%u])->fields[%u];\n",n,function?"origin":"l",local,in->operands[1].u16);break;
         case OP_REF_SET:
-            nvm2c_printf(&b," nown_referent(l,&refs[%u])->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",local,in->operands[1].u16,n-1,n-1);break;
+            nvm2c_printf(&b," nown_referent(%s,&refs[%u])->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",function?"origin":"l",local,in->operands[1].u16,n-1,n-1);break;
         case OP_NOP: break;
         case OP_PUSH_I64:
             nvm2c_printf(&b," t[%d]=(nown_value){(int64_t)UINT64_C(%llu),NULL};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64);break;
@@ -141,11 +157,16 @@ static char *emit_owned_module(const NvmModule *mod, char *err, size_t err_len) 
         }
         nvm2c_printf(&b," goto L%u;\n",d->next_byte_offset);
     }
-    nvm2c_puts(&b,"cleanup:;\n for(size_t i=0;i<256;i++){nown_release(t[i]);nown_release(l[i]);}\n return status;\n}\n#ifndef NVM2C_NO_MAIN\nint main(void){int64_t result=0;return nvm_owned_entry(&result)?1:(int)result;}\n#endif\n");
+    nvm2c_puts(&b,"cleanup:;\n for(size_t i=0;i<256;i++){nown_release(t[i]);nown_release(l[i]);}\n return status;\n}\n");
+    if(!function) nvm2c_puts(&b,"#ifndef NVM2C_NO_MAIN\nint main(void){int64_t result=0;return nvm_owned_entry(&result)?1:(int)result;}\n#endif\n");
     free(depth);free(queue);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);
     if (b.failed) {free(b.data);return NULL;}return b.data;
 fail:
     free(depth);free(queue);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);free(b.data);
     if(err && err_len)snprintf(err,err_len,"I cannot lower this verified owned-transfer function");
     return NULL;
+}
+
+static char *emit_owned_module(const NvmModule *mod,char *err,size_t err_len) {
+    return emit_owned_function(mod,0,err,err_len);
 }
