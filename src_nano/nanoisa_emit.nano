@@ -12,6 +12,7 @@ extern fn get_argv(index: int) -> string
 extern fn file_exists(path: string) -> bool
 extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
+extern fn file_compare_identity(source: string, candidate: string) -> int
 
 fn show_usage() -> void {
     (println "I lower a pinned integer and string subset to NanoISA assembly.")
@@ -21,6 +22,22 @@ fn show_usage() -> void {
 shadow show_usage {
     (show_usage)
     assert true
+}
+
+# I check current file identities; I do not lock the filesystem namespace.
+fn output_preserves_source(source: string, destination: string) -> bool {
+    if (== destination "") { return true }
+    let mut identity: int = -1
+    unsafe { set identity (file_compare_identity source destination) }
+    if (!= identity 0) {
+        (println "I cannot publish output that aliases my source or has unresolved identity.")
+        return false
+    }
+    return true
+}
+
+shadow output_preserves_source {
+    assert (output_preserves_source "" "")
 }
 
 fn main() -> int {
@@ -61,6 +78,7 @@ fn main() -> int {
             (println (+ "I cannot read " input))
             return 1
         } else {
+            if (not (output_preserves_source input output)) { return 1 }
             let src: string = (file_read input)
             let nasm: string = (nanoisa_emit_nasm src)
             if (== nasm "") {

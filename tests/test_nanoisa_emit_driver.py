@@ -54,6 +54,43 @@ class NanoisaEmitDriver(unittest.TestCase):
             self.run_command([DRIVER, source, "--emit-nvm", "-o", direct])
             self.assertEqual(module.read_bytes(), direct.read_bytes())
 
+    def test_output_aliases_preserve_source(self):
+        for mode in ([], ["--emit-nvm"]):
+            for alias in ("same", "relative", "symlink", "hardlink"):
+                with self.subTest(mode=mode, alias=alias), tempfile.TemporaryDirectory(prefix="nano-source-guard-") as tmp:
+                    directory = Path(tmp)
+                    source = directory / "source.nano"
+                    source.write_text(SOURCE)
+                    output = source
+                    if alias == "relative":
+                        output = directory / "child" / ".." / "source.nano"
+                        (directory / "child").mkdir()
+                    elif alias == "symlink":
+                        output = directory / "alias.nano"
+                        output.symlink_to(source)
+                    elif alias == "hardlink":
+                        output = directory / "alias.nano"
+                        output.hardlink_to(source)
+                    result = self.run_command([DRIVER, source, *mode, "-o", output], expected=1)
+                    self.assertIn(b"aliases my source", result.stdout + result.stderr)
+                    self.assertEqual(source.read_text(), SOURCE)
+                    self.assertEqual(output.read_text(), SOURCE)
+                    if alias == "symlink":
+                        self.assertTrue(output.is_symlink())
+                    self.assertEqual(list(directory.glob("*.tmp.*")), [])
+
+    def test_unresolved_output_identity_preserves_source(self):
+        with tempfile.TemporaryDirectory(prefix="nano-source-identity-") as tmp:
+            directory = Path(tmp)
+            source, output = directory / "source.nano", directory / "loop"
+            source.write_text(SOURCE)
+            output.symlink_to(output.name)
+            for mode in ([], ["--emit-nvm"]):
+                result = self.run_command([DRIVER, source, *mode, "-o", output], expected=1)
+                self.assertIn(b"unresolved identity", result.stdout + result.stderr)
+                self.assertEqual(source.read_text(), SOURCE)
+                self.assertTrue(output.is_symlink())
+
     def test_rejection_preserves_previous_output(self):
         with tempfile.TemporaryDirectory(prefix="nano-driver-errors-") as tmp:
             directory = Path(tmp)

@@ -26,10 +26,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Emitter source preservation.** I reject input/output identity aliases
+- [x] **Emitter source preservation.** I reject input/output identity aliases
       before assembly or bytecode publication, including hardlinks and symlinks.
       I fail closed on identity errors and test unchanged source bytes.
-      MAC `task_f430ed807f1743fdafc2f95cf67cb530`.
+      MAC `task_f430ed807f1743fdafc2f95cf67cb530`. Five driver tests pass,
+      including both output modes, four alias forms and identity errors.
 
 - [x] **Inline union match metadata.** I preserve the union identity of
       variant literals in expression and statement matches, and test payloads,
