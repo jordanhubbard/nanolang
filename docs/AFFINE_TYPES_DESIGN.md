@@ -17,8 +17,13 @@ checks. My lexical lookup repair and self-hosted recursive flow pass now pass
 the shared bounded ownership matrix on all three compiler stages. I record
 that boundary in `evidence/affine-selfhost-flow.md`; it does not establish the
 complete contract. My self-hosted classifier now follows named record fields
-and union payloads to a least fixed point; generic substitution and module-owned
-nominal identity remain incomplete.
+and union payloads to a least fixed point. Module-owned record identity now has
+paired native acceptance (`evidence/affine-module-identity.md`). My self-hosted
+checker substitutes concrete generic union payload types for ordinary native
+values and rejects resource-bearing generic annotations before emission
+(`evidence/generic-affine-prerequisites.md`). Owned union payload transfer,
+general generic substitution and module-owned union/enum identity remain
+incomplete.
 
 The self-hosted frontend does not yet implement this complete contract. Neither
 frontend currently demonstrates all of the cases in the conformance matrix
@@ -53,9 +58,10 @@ I use one ownership spelling:
   no explicit terminal operation, and resource-bearing values must be moved or
   passed to a consuming function.
 
-The current parsers do not establish support for `&T`, `&mut T`, or owned
-destructuring. Those spellings become language syntax only when both frontends
-pass the same conformance cases.
+My paired frontends test whole-record owned destructuring for their supported
+nongeneric records. They do not establish `&T` or `&mut T` support. Borrow
+spellings become language syntax only when both frontends pass the same
+conformance cases.
 
 ## Ownership States
 

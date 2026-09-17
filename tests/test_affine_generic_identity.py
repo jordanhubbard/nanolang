@@ -50,6 +50,34 @@ fn main() -> int { let boxed: Box<string> = Box.Some { value: "kept" } let copy:
 shadow main { assert (== (main) 0) }
 ''', True)
 
+    def test_array_payload_copy_and_match(self):
+        self.check('''union Box<T> { Some { value: T }, None {} }
+fn read(value: Box<array<int>>) -> array<int> {
+    match value { Some(v) => { return v.value } None(n) => { return [] } }
+}
+shadow read { let boxed: Box<array<int>> = Box.Some { value: [7, 8] } let result: array<int> = (read boxed) assert (== (at result 1) 8) }
+fn main() -> int { let boxed: Box<array<int>> = Box.Some { value: [7, 8] } let copy: Box<array<int>> = boxed let result: array<int> = (read copy) let again: array<int> = (read boxed) return (- (+ (at result 0) (at again 1)) 15) }
+shadow main { assert (== (main) 0) }
+''', True)
+
+    def test_second_payload_parameter(self):
+        self.check('''union Choice<T, E> { Left { value: T }, Right { value: E } }
+fn read(value: Choice<int,string>) -> string {
+    match value { Left(v) => { return (int_to_string v.value) } Right(v) => { return v.value } }
+}
+shadow read { let left: Choice<int,string> = Choice.Left { value: 7 } let right: Choice<int,string> = Choice.Right { value: "kept" } assert (== (read left) "7") assert (== (read right) "kept") }
+fn main() -> int { let right: Choice<int,string> = Choice.Right { value: "kept" } assert (== (read right) "kept") return 0 }
+shadow main { assert (== (main) 0) }
+''', True)
+
+    def test_second_resource_parameter_requires_lowering(self):
+        self.check('''resource struct Handle { fd: int }
+union Choice<T, E> { Left { value: T }, Right { value: E } }
+fn abandon(value: Choice<int,Handle>) -> void { }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False)
+
     def test_resource_parameter_requires_lowering(self):
         self.check('''resource struct Handle { fd: int }
 union Box<T> { Some { value: T }, None {} }

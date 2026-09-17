@@ -2789,7 +2789,7 @@ fn type_to_c(nano_type: string) -> string {
                                 }
                             }
                         } else {
-                        if (str_contains nano_type "array<") {
+                        if (transp_str_starts_with nano_type "array<") {
                             return "DynArray*"
                         } else {
                             if (is_tuple_type nano_type) {

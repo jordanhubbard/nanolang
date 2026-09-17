@@ -379,9 +379,103 @@ shadow resource_value_type {
     assert (== (resource_value_type (resource_test_parser "") -1 ParseNodeType.PNODE_IDENTIFIER [] ) "")
 }
 
+# I preserve argument nesting when substituting concrete union payload types.
+fn tc_generic_arguments(spelling: string) -> array<string> {
+    let text: string = (strip_spaces spelling)
+    let start: int = (tc_str_index_of text "<")
+    if (or (< start 0) (not (tc_str_ends_with text ">"))) { return [] }
+    return (split_tuple_type_names (+ "(" (+ (str_substring text (+ start 1) (- (str_length text) (+ start 2))) ")")))
+}
+shadow tc_generic_arguments {
+    let args: array<string> = (tc_generic_arguments "Pair<int,Box<string>>")
+    assert (== (array_length args) 2)
+    assert (== (at args 1) "Box<string>")
+    assert (== (array_length (tc_generic_arguments "int")) 0)
+}
+
+fn tc_type_word_char(value: int) -> bool {
+    return (or (or (and (>= value 65) (<= value 90)) (and (>= value 97) (<= value 122))) (or (and (>= value 48) (<= value 57)) (or (== value 95) (== value 46))))
+}
+shadow tc_type_word_char {
+    assert (tc_type_word_char 84)
+    assert (not (tc_type_word_char 60))
+}
+
+fn tc_substitute_generic(spelling: string, params: array<string>, args: array<string>) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (str_length spelling)) {
+        if (tc_type_word_char (char_at spelling i)) {
+            let start: int = i
+            while (and (< i (str_length spelling)) (tc_type_word_char (char_at spelling i))) { set i (+ i 1) }
+            let mut word: string = (str_substring spelling start (- i start))
+            let mut j: int = 0
+            while (and (< j (array_length params)) (< j (array_length args))) {
+                if (== word (at params j)) { set word (at args j) break }
+                set j (+ j 1)
+            }
+            set result (+ result word)
+        } else {
+            set result (+ result (str_substring spelling i 1))
+            set i (+ i 1)
+        }
+    }
+    return result
+}
+shadow tc_substitute_generic {
+    assert (== (tc_substitute_generic "Pair<T,array<E>>" ["T", "E"] ["int", "Handle"]) "Pair<int,array<Handle>>")
+    assert (== (tc_substitute_generic "Tree" ["T"] ["int"]) "Tree")
+}
+
+fn resource_generic_contains(parser: Parser, spelling: string, line: int, depth: int) -> bool {
+    # I fail closed at my finite substitution boundary.
+    if (> depth 128) { return true }
+    let base: string = (base_type_name spelling)
+    if (resource_type_is_declared parser (resource_type_identity parser base line)) { return true }
+    let args: array<string> = (tc_generic_arguments spelling)
+    if (== (array_length args) 0) { return false }
+    let mut i: int = 0
+    while (< i (parser_get_union_count parser)) {
+        let def: ASTUnion = (parser_get_union parser i)
+        if (== def.name base) {
+            if (!= def.generic_param_count (array_length args)) { return true }
+            let mut field: int = 0
+            while (< field (array_length def.variant_field_types)) {
+                let concrete: string = (tc_substitute_generic (at def.variant_field_types field) def.generic_params args)
+                if (resource_generic_contains parser concrete def.line (+ depth 1)) { return true }
+                set field (+ field 1)
+            }
+            return false
+        }
+        set i (+ i 1)
+    }
+    # Collections and unknown generic boundaries retain conservative rejection.
+    set i 0
+    while (< i (array_length args)) {
+        if (resource_generic_contains parser (at args i) line (+ depth 1)) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow resource_generic_contains {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { value: int } }")
+    assert (resource_generic_contains parser "Box<Handle>" 1 0)
+    assert (resource_generic_contains parser "array<Box<Handle>>" 1 0)
+    assert (not (resource_generic_contains parser "Box<int>" 1 0))
+    assert (not (resource_generic_contains parser "Marker<Handle>" 1 0))
+}
+
 fn resource_check_annotation(parser: Parser, spelling: string, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
     let typ: NSType = (type_from_string spelling)
-    if (not (or (== typ.kind TypeKind.TYPE_ARRAY) (or (== typ.kind TypeKind.TYPE_LIST_GENERIC) (tc_str_starts_with spelling "HashMap<")))) { return }
+    let collection: bool = (or (== typ.kind TypeKind.TYPE_ARRAY) (or (== typ.kind TypeKind.TYPE_LIST_GENERIC) (tc_str_starts_with spelling "HashMap<")))
+    if (and (not collection) (== (array_length (tc_generic_arguments spelling)) 0)) { return }
+    if (resource_generic_contains parser spelling line 0) {
+        if collection { (resource_flow_error diags file_name line column "resource-bearing collections are not supported") }
+        else { if (> (array_length (tc_generic_arguments spelling)) 0) {
+            (resource_flow_error diags file_name line column "generic resource ownership needs lowering")
+        } }
+    }
+    if (not collection) { return }
     let tokens: List<LexerToken> = (tokenize_string spelling file_name (list_CompilerDiagnostic_new))
     let mut i: int = 0
     while (< i (list_LexerToken_length tokens)) {
@@ -1782,7 +1876,8 @@ fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
     if (== t.kind TypeKind.TYPE_STRUCT) {
         let base: string = (base_type_name s)
         if (is_union_name parser base) {
-            return (type_union base)
+            return NSType { kind: TypeKind.TYPE_UNION, name: base,
+                element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: s }
         } else { (print "") }
         if (is_enum_name parser base) {
             return NSType {
@@ -3011,7 +3106,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
                     kind: TypeKind.TYPE_STRUCT,
                     name: variant_label,
                     element_type_kind: TypeKind.TYPE_UNKNOWN,
-                    element_type_name: ""
+                    element_type_name: scrutinee_type.element_type_name
                 }
                 let binding_sym: Symbol = (symbol_new binding_name binding_type false false 0 (empty_param_types) (type_void))
                 set arm_symbols (env_add_symbol arm_symbols binding_sym)
@@ -3050,7 +3145,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
 
 shadow check_match_expr { assert true }
 
-fn check_variant_field_type(parser: Parser, variant_label: string, field_name: string) -> NSType {
+fn check_variant_field_type(parser: Parser, variant_label: string, field_name: string, concrete: string) -> NSType {
     let mut ui: int = 0
     while (< ui (parser_get_union_count parser)) {
         let u: ASTUnion = (parser_get_union parser ui)
@@ -3062,7 +3157,7 @@ fn check_variant_field_type(parser: Parser, variant_label: string, field_name: s
                 let mut fi: int = 0
                 while (< fi count) {
                     if (== field_name (at u.variant_field_names (+ offset fi))) {
-                        return (type_from_string_with_parser parser (at u.variant_field_types (+ offset fi)))
+                        return (type_from_string_with_parser parser (tc_substitute_generic (at u.variant_field_types (+ offset fi)) u.generic_params (tc_generic_arguments concrete)))
                     }
                     set fi (+ fi 1)
                 }
@@ -3078,9 +3173,9 @@ fn check_variant_field_type(parser: Parser, variant_label: string, field_name: s
 shadow check_variant_field_type {
     let toks: List<LexerToken> = (tokenize_string "union Choice { Some { value: string }, None {} }" "variant.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program toks (list_LexerToken_length toks) "variant.nano")
-    let found: NSType = (check_variant_field_type parser "Choice.Some" "value")
+    let found: NSType = (check_variant_field_type parser "Choice.Some" "value" "Choice")
     assert (== found.kind TypeKind.TYPE_STRING)
-    let missing: NSType = (check_variant_field_type parser "Choice.None" "value")
+    let missing: NSType = (check_variant_field_type parser "Choice.None" "value" "Choice")
     assert (== missing.kind TypeKind.TYPE_UNKNOWN)
 }
 
@@ -3396,7 +3491,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
             let field_t: NSType = (lookup_field_type metadata obj_t.name fa.field_name)
             if (== field_t.kind TypeKind.TYPE_UNKNOWN) {
-                return (check_variant_field_type parser obj_t.name fa.field_name)
+                return (check_variant_field_type parser obj_t.name fa.field_name obj_t.element_type_name)
             }
             return field_t
         } else {
