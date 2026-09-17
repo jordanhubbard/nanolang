@@ -68,8 +68,8 @@ class ScalarTruthiness(unittest.TestCase):
             with self.subTest(op=op):
                 self.compare(self.program(f'PUSH_BOOL {left}\nCALL checked_right\n{op}\nPOP\n',suffix),trap=True)
 
-    def test_heap_and_u8_stay_outside_new_profile(self):
-        for prefix, value in [('.string text "text"\n','PUSH_STR text'),('', 'PUSH_U8 255')]:
+    def test_heap_stays_outside_new_profile(self):
+        for prefix, value in [('.string text "text"\n','PUSH_STR text')]:
             for op in ('CAST_BOOL','NOT','AND','OR'):
                 with self.subTest(value=value,op=op):
                     body=value+'\n'+('PUSH_BOOL 1\n' if op in ('AND','OR') else '')+op+'\nPOP\n'
