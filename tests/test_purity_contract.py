@@ -105,6 +105,29 @@ class PurityContract(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0, result.stdout)
                     self.assertIn("closed empty effect summary", result.stdout)
 
+    def test_c_global_summary_uses_source_owner(self):
+        with tempfile.TemporaryDirectory(prefix="nano-purity-owner-") as temporary:
+            root = Path(temporary)
+            other, plain, source = (root / name for name in ("other.nano", "plain.nano", "main.nano"))
+            other.write_text('module Other\nlet mut state: int = 9\npub fn unused() -> int { return state }\nshadow unused { assert (== (unused) 9) }\n')
+            plain_text = 'module Plain\nlet state: int = 7\npub pure fn answer() -> int { return state }\nshadow answer { assert (== (answer) 7) }\n'
+            for reverse in (False, True):
+                paths = [plain, other] if reverse else [other, plain]
+                source.write_text(''.join(f'module "{path}" as module{i}\n' for i, path in enumerate(paths)) + f'pure fn value() -> int {{ return (module{paths.index(plain)}.answer) }}\nfn main() -> int {{ assert (== (value) 7) return 0 }}\n')
+                for mutable in (False, True):
+                    with self.subTest(reverse=reverse, mutable=mutable):
+                        plain.write_text(plain_text.replace('let state', 'let mut state') if mutable else plain_text)
+                        output = root / 'program'
+                        output.write_bytes(b'prior-output')
+                        result = self.command([COMPILERS[0], source, '-o', output])
+                        if mutable:
+                            self.assertNotEqual(result.returncode, 0, result.stdout)
+                            self.assertIn('closed empty effect summary', result.stdout)
+                            self.assertEqual(output.read_bytes(), b'prior-output')
+                        else:
+                            self.assertEqual(result.returncode, 0, result.stdout[-6000:])
+                            self.assertEqual(self.command([output]).returncode, 0)
+
     def test_generated_intrinsic_contract(self):
         result = self.command(["python3", ROOT / "scripts/gen_purity_intrinsics.py", "--check"])
         self.assertEqual(result.returncode, 0, result.stdout)

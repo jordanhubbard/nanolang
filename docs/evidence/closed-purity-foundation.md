@@ -70,3 +70,15 @@ My `complex_exp` wrapper retains its behavior and shadows but no longer claims
 a closed summary for its explicit foreign `exp` dependency. Verified foreign
 intrinsic binding contracts remain a full-scope continuation, tracked as
 `task_20f6cb36fbf24bba987b4ea503529438`.
+
+I preserve each checked function's source identity through module loading.
+Imported global symbols and function bodies borrow the module cache's canonical
+path, which remains owned alongside their retained AST; metadata extraction
+clears this pointer together with the body. I restore the caller's current file
+immediately after each module typecheck. Four Cseed cases cover both import
+orders, unrelated mutable globals, actual same-owner mutable rejection, and a
+root pure caller that revisits the imported body after loading returns.
+
+My shared frontend gate now has 56 decisions plus these four Cseed ownership
+cases. The imported-global shape is not claimed as shared selfhost acceptance:
+its ordinary baseline exposes a separate existing nominal emission limitation.

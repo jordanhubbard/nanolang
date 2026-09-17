@@ -250,6 +250,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       My three-stage bootstrap, shared Cseed/Stage 2 conformance, typechecker,
       runtime-list and schema checks pass; see
       [`closed-purity-foundation.md`](evidence/closed-purity-foundation.md).
+      I bind global reads to their function source owner, so same-named
+      globals in unrelated modules do not contaminate the summary.
       I also preserve complete imported parameter metadata: my old module
       registration left `type_info` uninitialized, which resource-signature
       inspection exposed during bootstrap.

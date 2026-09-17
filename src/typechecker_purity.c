@@ -4,6 +4,7 @@
 enum { PURE_IO=1, PURE_READ=2, PURE_WRITE=4, PURE_UNKNOWN=8, PURE_UNSAFE=16, PURE_RESOURCE=32 };
 typedef struct {
     Environment *env;
+    const char *source_file;
     bool *seen;
     const char **locals;
     bool *mutable;
@@ -101,6 +102,7 @@ static unsigned purity_identifier(PurityWalk *p,const char *name) {
     for (int i=0;i<p->env->symbol_count;++i) {
         Symbol *sym=&p->env->symbols[i];
         if (!sym->is_global || strcmp(sym->name,name)) continue;
+        if (sym->def_file && p->source_file && strcmp(sym->def_file,p->source_file)) continue;
         found=true;
         if (sym->is_mut || !purity_input_value(p,sym->type,sym->struct_type_name,0)) effects|=PURE_READ;
         effects|=purity_type(p,sym->type,sym->struct_type_name,sym->type_info,0);
@@ -175,6 +177,8 @@ static unsigned purity_function(PurityWalk *parent,Function *fn) {
     if (parent->seen[index]) return 0;
     parent->seen[index]=true;
     PurityWalk p={0}; p.env=parent->env; p.seen=parent->seen;
+    p.source_file=parent->source_file;
+    if (fn->source_file) p.source_file=fn->source_file;
     char *saved=p.env->current_module; p.env->current_module=fn->module_name;
     unsigned result=purity_type(&p,fn->return_type,fn->return_struct_type_name,fn->return_type_info,0);
     for(int i=0;i<fn->param_count;++i) {
@@ -190,7 +194,7 @@ static unsigned purity_function(PurityWalk *parent,Function *fn) {
 }
 static void check_purity(ASTNode *body,Environment *env,const char *name) {
     if (!body) return; /* An extern annotation is not a verified call summary. */
-    PurityWalk p={0}; p.env=env;
+    PurityWalk p={0}; p.env=env; p.source_file=env_current_file(env);
     p.seen=calloc((size_t)env->function_count,sizeof(bool));
     unsigned effects=p.seen ? purity_function(&p,env_get_function(env,name)) : PURE_UNKNOWN;
     free(p.seen);

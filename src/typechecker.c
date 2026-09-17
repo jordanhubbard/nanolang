@@ -6612,6 +6612,7 @@ register_function_pass1:;
             }
             
             Function func = (Function){0};
+            func.source_file = env_current_file(env);
             func.name = strdup(func_name);  /* Create copy to avoid const qualifier warning */
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
@@ -7361,6 +7362,7 @@ register_function_pass2:;
             
             /* Register function signature */
             Function f = (Function){0};
+            f.source_file = env_current_file(env);
             f.name = strdup(func_name);
             f.param_count = item->as.function.param_count;
             f.params = malloc(sizeof(Parameter) * f.param_count);
