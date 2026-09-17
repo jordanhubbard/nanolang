@@ -7886,6 +7886,22 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I infer projected string-field expressions in my NanoISA emitter
+      (task_8e367aeda3394b0bb1ed1c37f56edeef). I currently reject a direct field/string
+      comparison; an explicitly typed local is the supported workaround.
+      I also select generic bool equality instead of the current I64_EQ.
+      I also infer builtin string results: real compiler emission next stops
+      at `(+ (str_substring input 0 extension) ".c")` in
+      `c_source_output_path`. I retain failing probes and require C-seed,
+      VM and native parity.
+- [x] I lower boolean fields and record-valued returns for my supported flat
+      records in the self-hosted NanoISA emitter (task_7eb936723f594d5b81c6cd307dc25e6d).
+      I compare C-seed bytecode, execute VM/native construction, projection
+      and returned records, retain nested-record refusal, and retry compiler
+      emission to identify the next unsupported form. This is a compiler-subset
+      slice; matching compiler bytecode across bootstrap stages remains open.
+      My focused gate passes 86 existing comparisons and ten new named-function
+      checks, both VM/native executions, and nested-record refusal (2026-09-16).
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
 - [x] Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits `.nasm` for
