@@ -1,0 +1,29 @@
+struct Options { enabled: bool, label: string }
+
+fn suffix(input: string) -> string { return (+ (str_substring input 0 3) ".c") }
+shadow suffix { assert (== (suffix "file.nano") "fil.c") }
+
+fn rendered(options: Options) -> string { return (+ options.label (int_to_string 42)) }
+shadow rendered { assert (== (rendered Options { enabled: true, label: "ready" }) "ready42") }
+
+fn check(options: Options, expected: bool) -> int {
+    assert (== options.label "ready")
+    assert (== options.enabled expected)
+    assert (!= options.enabled (not expected))
+    assert (== (str_contains options.label "ea") true)
+    assert (== (> (str_length options.label) 0) true)
+    return 0
+}
+shadow check {
+    assert (== (check Options { enabled: true, label: "ready" } true) 0)
+    assert (== (check Options { enabled: false, label: "ready" } false) 0)
+}
+
+fn main() -> int {
+    assert (== (suffix "file.nano") "fil.c")
+    assert (== (rendered Options { enabled: true, label: "ready" }) "ready42")
+    assert (== (check Options { enabled: true, label: "ready" } true) 0)
+    assert (== (check Options { enabled: false, label: "ready" } false) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

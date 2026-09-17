@@ -1,7 +1,0 @@
-# I retain the next real compiler blocker for task_8e367aeda3394b0bb1ed1c37f56edeef.
-fn suffix(input: string) -> string {
-    return (+ (str_substring input 0 3) ".c")
-}
-shadow suffix { assert (== (suffix "file.nano") "fil.c") }
-fn main() -> int { assert (== (suffix "file.nano") "fil.c") return 0 }
-shadow main { assert (== (main) 0) }

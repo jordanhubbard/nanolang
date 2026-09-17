@@ -19,8 +19,9 @@ passes lowering, but the full source still exits 1 without an output. The first
 `c_source_output_path`, concatenates a `str_substring` result whose type my
 emitter does not infer. Projected string comparisons and bool equality also
 need scalar expression typing. Task `task_8e367aeda3394b0bb1ed1c37f56edeef`
-tracks that continuation; I retain its probes under
-`tests/nanoisa/fixtures/pending_*.nano.txt`. The passing record fixture uses a
+tracks that continuation. Its original pending probes are now covered by
+`tests/nanoisa/fixtures/scalar_expression_types.nano`; the later scalar-expression
+evidence records their implementation. The passing record fixture uses a
 typed string local and explicit boolean branch assertions; it does not claim
 those unsupported expression forms.
 
