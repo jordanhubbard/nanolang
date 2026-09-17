@@ -1,12 +1,13 @@
-# 5.0 — I emit one thing
+# 5.1 — I emit one thing
 
 **Release boundary:** I retain this document as my architecture target.
-The public 5.0 cut still builds the compiler through C transpilation; it does
+The public `v5.0.0` cut still builds the compiler through C transpilation; it does
 not complete the NanoISA-only bootstrap described below. See
 [the shipped scope](RELEASE_5.0.md) and the unchecked roadmap milestones.
 
-This is the compilation contract for release **5.0**. It is a major-version
-rewrite of how I become a process image. It is not 4.x work. 4.0 keeps the
+This is the compilation contract for release **5.1** (`v5.1.0`). I first
+recorded it as my 5.0 architecture target, but the narrower published
+`v5.0.0` did not close it. It is not 4.x work. 4.0 keeps the
 decision and a closed-subset spike (`nvm2c` for i64 arithmetic). 4.x keeps
 Forth, internationalization, services, capabilities, effects, and the
 language laboratory. I do not delete `transpiler.nano` until this contract
@@ -51,7 +52,7 @@ Those arrows were the matrix I am done paying for.
 `nano_virt -o` today still embeds `.nvm` plus `nano_vm` (`wrapper_gen.c`),
 and may talk to `nano_cop` or `nano_vmd`. That is a **packaged interpreter**.
 It is allowed as a debug and Forth-session path. It is not a native
-binary in the 5.0 sense. A 5.0 native process computes with C operators
+binary in the 5.1 sense. A 5.1 native process computes with C operators
 (or LLVM machine code, or Wasm) and does not require `nano_vm`,
 `nano_cop`, or `nano_vmd` to add two integers.
 
@@ -62,7 +63,7 @@ Self-hosting then pretty-prints C twice. Stage 3 compares native binaries
 and apologizes for UUID noise. That is a translator property pretending
 to be a compiler property.
 
-5.0 bootstrap:
+5.1 bootstrap:
 
 ```
 Stage 0  cc builds nanoc_c (frontend + NanoISA codegen) and nvm2c
@@ -92,7 +93,7 @@ CLI, generated AST/schema. Those do not care what the last pass emits.
 to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
 → `.nvm`. That dual does not exist in `src_nano` today. That is the real
-self-hosting work of 5.0.
+self-hosting work of 5.1.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool
@@ -112,7 +113,7 @@ to codegen. It does not grow a C AST.
 Today a language feature is 2× because **frontend and C emission** exist
 twice.
 
-After 5.0 a language feature is 2× because **frontend and NanoISA
+After 5.1 a language feature is 2× because **frontend and NanoISA
 lowering** exist twice. The cost moves. I stop duplicating `nl_` mangling,
 `gc_release` placement, and include graphs. I start duplicating bytecode
 lowering (locals, jumps, imports, layouts) which so far exists only in C.
@@ -123,7 +124,7 @@ is the reason LLVM frontends do not each emit C.
 ## The module as a product
 
 v2 already has `FUNCTIONS`, `SIGNATURES`, `LAYOUTS`, `IMPORTS`, `LINKS`,
-`CONSTANTS`, `METADATA`, `DEBUG`. 5.0 makes that the *only* portable
+`CONSTANTS`, `METADATA`, `DEBUG`. 5.1 makes that the *only* portable
 compiler product:
 
 - **Local names**, not only slot numbers, so reconstructed C and NanoLang
@@ -172,7 +173,7 @@ leave the product compiler. Mixing the two stories recreates the matrix.
 `nano_cop` remains process-isolated FFI for the VM path. `nano_vmd` remains
 an optional daemon for that path.
 
-5.0 AOT binaries do not spawn those processes to compute. Host calls go
+5.1 AOT binaries do not spawn those processes to compute. Host calls go
 through the declared ABI. If a module needs isolation, 4.4's capability
 fabric supervises it; isolation is not a substitute for a C backend.
 
@@ -182,7 +183,7 @@ need it. Keeping it is a product choice.
 ## Forth already lives here
 
 Forth on NanoISA already compiles words to verified functions and runs
-them in one session. 5.0 makes NanoLang the same citizen: one module
+them in one session. 5.1 makes NanoLang the same citizen: one module
 format, one verifier, one set of translators. Forth does not grow a C
 pretty-printer.
 
@@ -206,11 +207,11 @@ language feature is still lexer/parser/types plus NanoISA lowering,
 twice. What disappears is the third and fourth copy of every feature
 as C pretty-printing, LLVM-from-AST, Wasm-from-AST, and GPU-from-AST.
 That matrix is how I paid twice for the language and N times for
-targets. 5.0 pays twice for the language and once per translator.
+targets. 5.1 pays twice for the language and once per translator.
 
 ## How I walk there
 
-I do not start 5.0 by deleting the C path. I walk it in named cuts.
+I do not start 5.1 by deleting the C path. I walk it in named cuts.
 Each cut has a test that can fail without stranding bootstrap.
 
 **A — Emitter exists.** `src_nano` grows a dual of
@@ -306,7 +307,7 @@ I do not skip to E. A cut that cannot compile `src_nano` is not done.
 
 These are product decisions, not a cleanup pass:
 
-| Today | 5.0 |
+| Today | 5.1 |
 | --- | --- |
 | `src/transpiler.c`, `src_nano/compiler/transpiler.nano` | Freeze, then remove from the product compiler |
 | `src/c_backend.c` | Driver of `nvm2c`, or gone; not a second IR |
@@ -322,7 +323,7 @@ These are product decisions, not a cleanup pass:
 ## Linking, debug, and equivalence
 
 v2 already refuses to flatten dependency modules into the root file.
-5.0 AOT respects that: translators consume a linked module graph, not a
+5.1 AOT respects that: translators consume a linked module graph, not a
 single mashed C translation unit, unless a translator documents a
 flatten as its own lowering. `CALL_MODULE` stays a module index, the
 same one `vm_link_named_module` already checks.
@@ -349,10 +350,10 @@ ABI. Until that subset is closed, `transpiler.nano` stays as
 bootstrap-only. I freeze it, then delete it once `stage1.nvm` is the
 artifact that builds the next compiler.
 
-I do not start 5.0 by deleting the C path. I start by writing the
+I do not start 5.1 by deleting the C path. I start by writing the
 NanoISA emitter in `src_nano` until it compiles `src_nano`.
 
-## What 5.0 is not
+## What 5.1 is not
 
 - Not 4.2 catalogs, 4.3 service schemas, 4.4 capability fabric, 4.5
   replay, or 4.6 extra frontends. Those remain 4.x.
@@ -365,7 +366,7 @@ NanoISA emitter in `src_nano` until it compiles `src_nano`.
 
 ## Acceptance
 
-5.0 closes when all of these are true:
+5.1 closes when all of these are true:
 
 1. `src_nano` emits `.nvm` as its only compiler product.
 2. `nvm2c` translates that module to structured C11 that `cc` builds into
