@@ -5839,6 +5839,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"
             "    (void)nroot_reset; (void)nmap_collect_if_needed;\n");
+        if (b.has_owned_aggregates) nvm2c_puts(&b,
+            "    (void)nagg_add; (void)nagg_drop;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN))
             nvm2c_puts(&b, "    (void)nf64_print;\n");
         if (b.has_string_arrays) nvm2c_puts(&b,

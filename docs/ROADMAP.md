@@ -213,9 +213,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       compilation now retains explicit references when either helper is defined
       but unused (`task_5b98593f4d7fa6ec667fd315091f7e48`; two generated-C
       fixtures plus the six adjacent native-float methods).
-- [ ] I keep aggregate accounting helpers warning-clean when an owned-aggregate
-      module does not call `nagg_add` or `nagg_drop`; three strict generated-C
-      cases fail on Darwin after the aggregate-retention merge
+- [x] I keep aggregate accounting helpers warning-clean when an owned-aggregate
+      module does not call `nagg_add` or `nagg_drop`. I retain explicit Standard
+      C references without changing allocation-debt behavior; the three strict
+      Darwin generated-C regressions now pass with all 2,418 native translator
+      checks and 1,092 shape checks
       (`task_6363b1e55bd145749ef892d71a552735`).
 - [ ] I complete unchanged-calculator bytecode/native acceptance through both producers after the float-to-int contract lands (`task_668e98f3e13e4fcebb3a2f92e671c713`, depends on `task_b927827f37734658bce360d7ecf913aa`). At `c2c7a74c` my C-seed module verifies and prints `Result: 3.14159` in the VM; native translation explicitly refuses the float cast in `format_float`. After the checked float conversion, the native program prints the expected result, but LeakSanitizer retains a two-byte `nhost_argv` copied-result leak under `task_d5f899966241452a900422938fff3265`; I require ownership repair without disabling leak checks.
 - [x] I emit the registered C-seed `string_to_float` helper (`task_5909147f37c2478a8c07494935d7e24a`). The real conversion fixture reached an implicit-declaration error; I retain that failure and match the existing interpreter/self-hosted `strtod` contract.
