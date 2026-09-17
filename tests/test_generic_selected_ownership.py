@@ -128,6 +128,15 @@ shadow joined { let empty: Result<Handle,string> = Result.Err { error: "empty" }
 } }
 ''' + ENDING, False)
 
+    def test_guarded_generic_match_remains_rejected(self):
+        from tests import test_selected_variant_ownership as selected
+        source = PREFIX + CONSUME.replace('Ok(payload) =>', 'Ok(payload) if true =>') + MAIN
+        selected.SelectedVariantOwnership().program(source, False, {
+            'nanoc_c': 'exhaustive unguarded owned match',
+            'nanoc_stage1': "Parse error.*unexpected token 'if'",
+            'nanoc_stage2': "Parse error.*unexpected token 'if'",
+        })
+
     def test_resource_collection_still_rejected(self):
         self.check(PREFIX + 'fn abandon(value: Box<array<Handle>>) -> void { }\n' + ENDING, False)
 
