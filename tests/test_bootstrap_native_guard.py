@@ -39,6 +39,12 @@ class BootstrapNativeGuard(unittest.TestCase):
                                    capture_output=True, timeout=30)
             self.assertEqual(probe.returncode, 0, probe.stderr)
             self.assertIn('host-cache-probe', calls.read_text())
+            marker.unlink()
+            for option in ('--version', '-Wl,--version', '-print-prog-name=as'):
+                identity = subprocess.run([wrapper, option], env=environment,
+                                          capture_output=True, timeout=30)
+                self.assertEqual(identity.returncode, 0, identity.stderr)
+            self.assertFalse(marker.exists())
 
 
 if __name__ == '__main__':

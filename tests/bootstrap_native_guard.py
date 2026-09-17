@@ -1,4 +1,5 @@
 """I distinguish native host artifact work from NanoLang-generated C in bootstrap checks."""
+import json
 import os
 import sys
 from pathlib import Path
@@ -6,7 +7,8 @@ from pathlib import Path
 
 def main(config):
     args = sys.argv[1:]
-    probe = any(arg in ('-E', '-###', '-print-prog-name=as') for arg in args)
+    probe = any(arg in ('-E', '-###', '-print-prog-name=as', '--version',
+                                  '-Wl,--version', '-Wl,-version_details') for arg in args)
     active = os.environ.get('NANOLANG_BOOTSTRAP_NO_CC') == '1'
 
     def host_input(value):
@@ -35,7 +37,9 @@ def main(config):
         if primary:
             inputs.append(primary)
         if not probe and (not inputs or not all(host_input(value) for value in inputs)):
-            Path(config['native_marker']).write_text('I rejected NanoLang native code generation.\n')
+            with open(config['native_marker'], 'a') as log:
+                log.write(json.dumps({'message': 'I rejected unclassified compiler work.',
+                                      'inputs': inputs, 'options': [arg for arg in args if arg.startswith('-')]}) + '\n')
             sys.exit(91)
         with open(config['probe_log'], 'a') as log:
             log.write('host-cache-probe\n' if probe else 'native-host-artifact\n')
