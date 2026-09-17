@@ -1311,6 +1311,7 @@ struct GenEnv {
     types: array<string>,
     mut_flags: array<bool>,
     global_flags: array<bool>,
+    underscore_name: string,
     scope: string
 }
 
@@ -2314,7 +2315,7 @@ shadow guard_native_array_reference {
 }
 
 fn genenv_new(scope: string) -> GenEnv {
-    return GenEnv { names: [], types: [], mut_flags: [], global_flags: [], scope: scope }
+    return GenEnv { names: [], types: [], mut_flags: [], global_flags: [], underscore_name: "nl__", scope: scope }
 }
 
 shadow genenv_new {
@@ -2339,7 +2340,7 @@ fn genenv_copy(env: GenEnv) -> GenEnv {
         set globals (array_push globals (at env.global_flags i))
         set i (+ i 1)
     }
-    return GenEnv { names: names, types: types, mut_flags: flags, global_flags: globals, scope: env.scope }
+    return GenEnv { names: names, types: types, mut_flags: flags, global_flags: globals, underscore_name: env.underscore_name, scope: env.scope }
 }
 shadow genenv_copy {
     let outer: GenEnv = (genenv_put (genenv_new "outer") "selected" "fn() -> int" false)
@@ -2360,7 +2361,7 @@ fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
     let new_types: array<string> = (array_push copy.types t)
     let new_flags: array<bool> = (array_push copy.mut_flags is_mut)
     let new_globals: array<bool> = (array_push copy.global_flags false)
-    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
+    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, underscore_name: (cond ((== name "_") "nl__") (else env.underscore_name)), scope: env.scope }
 }
 
 shadow genenv_put {
@@ -2383,7 +2384,7 @@ fn genenv_put_global(env: GenEnv, name: string, t: string, is_mut: bool) -> GenE
     let new_types: array<string> = (array_push copy.types t)
     let new_flags: array<bool> = (array_push copy.mut_flags is_mut)
     let new_globals: array<bool> = (array_push copy.global_flags true)
-    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
+    return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, underscore_name: (cond ((== name "_") "nl__") (else env.underscore_name)), scope: env.scope }
 }
 
 shadow genenv_put_global {
@@ -2392,6 +2393,36 @@ shadow genenv_put_global {
     assert (== (at env2.global_flags 0) true)
     assert (== (at env2.mut_flags 0) true)
     assert (== (at env2.types 0) "int")
+}
+
+fn genenv_with_underscore(env: GenEnv, name: string) -> GenEnv {
+    return GenEnv { names: env.names, types: env.types, mut_flags: env.mut_flags,
+        global_flags: env.global_flags, underscore_name: name, scope: env.scope }
+}
+
+shadow genenv_with_underscore {
+    let outer: GenEnv = (genenv_new "main")
+    let inner: GenEnv = (genenv_with_underscore outer "__nl_underscore_1")
+    assert (== outer.underscore_name "nl__")
+    assert (== inner.underscore_name "__nl_underscore_1")
+    assert (== inner.scope "main")
+}
+
+# I keep source identities while assigning each underscore local its own C name.
+fn genenv_c_name(env: GenEnv, name: string) -> string {
+    if (== name "_") { return env.underscore_name }
+    return (+ "nl_" (mangle_name name))
+}
+
+shadow genenv_c_name {
+    let mut env: GenEnv = (genenv_new "main")
+    assert (== (genenv_c_name env "_") "nl__")
+    set env (genenv_with_underscore env "__nl_underscore_4")
+    assert (== (genenv_c_name env "_") "__nl_underscore_4")
+    assert (== (genenv_c_name env "value") "nl_value")
+    let inner: GenEnv = (genenv_copy env)
+    assert (== (genenv_c_name inner "_") "__nl_underscore_4")
+    assert (== (genenv_c_name (genenv_put env "_" "int" false) "_") "nl__")
 }
 
 fn genenv_get(env: GenEnv, name: string) -> string {
@@ -2488,8 +2519,8 @@ shadow transp_is_ident_char_str {
 
 /* Given an identifier and its type, emit the C expression that converts it to const char*.
    Uses nl_int_to_string / nl_float_to_string as emitted by gen_c_runtime. */
-fn interp_to_str_expr(ident: string, type_str: string) -> string {
-    let c_name: string = (+ "nl_" (mangle_name ident))
+fn interp_to_str_expr(ident: string, type_str: string, env: GenEnv) -> string {
+    let c_name: string = (genenv_c_name env ident)
     if (== type_str "int") {
         return (+ (+ "nl_int_to_string(" c_name) ")")
     } else { if (== type_str "float") {
@@ -2503,10 +2534,11 @@ fn interp_to_str_expr(ident: string, type_str: string) -> string {
 }
 
 shadow interp_to_str_expr {
-    assert (== (interp_to_str_expr "x" "int") "nl_int_to_string(nl_x)")
-    assert (== (interp_to_str_expr "val" "float") "nl_float_to_string(nl_val)")
-    assert (== (interp_to_str_expr "msg" "string") "nl_msg")
-    assert (== (interp_to_str_expr "flag" "bool") "nl_int_to_string(nl_flag)")
+    assert (== (interp_to_str_expr "_" "int" (genenv_with_underscore (genenv_new "test") "__nl_underscore_1")) "nl_int_to_string(__nl_underscore_1)")
+    assert (== (interp_to_str_expr "x" "int" (genenv_new "test")) "nl_int_to_string(nl_x)")
+    assert (== (interp_to_str_expr "val" "float" (genenv_new "test")) "nl_float_to_string(nl_val)")
+    assert (== (interp_to_str_expr "msg" "string" (genenv_new "test")) "nl_msg")
+    assert (== (interp_to_str_expr "flag" "bool" (genenv_new "test")) "nl_int_to_string(nl_flag)")
 }
 
 /* Expand "Hello, {name}!" into nl_str_concat(...) chain if interpolation present.
@@ -2536,7 +2568,7 @@ fn expand_string_interp(raw: string, env: GenEnv) -> string {
                             set current_lit ""
                         }
                         let type_str: string = (genenv_get env ident)
-                        set parts (array_push parts (interp_to_str_expr ident type_str))
+                        set parts (array_push parts (interp_to_str_expr ident type_str env))
                         set i (+ j 1)
                     } else {
                         set current_lit (+ current_lit ch)
@@ -5043,7 +5075,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 if (!= mapped "") { set foreign_name mapped }
                 return (guard_native_array_reference parser resolved_name foreign_name)
             }
-            let c_var: string = (+ "nl_" (mangle_name (mb_resolve id.name id.line env.names)))
+            let c_var: string = (genenv_c_name env (mb_resolve id.name id.line env.names))
             if (transp_str_starts_with (genenv_get env id.name) "&") { return (+ "(*" (+ c_var ")")) }
             if (and (genenv_get_global env id.name) (is_guarded_primitive (genenv_get env id.name))) {
                 let c_type: string = (type_to_c (genenv_get env id.name))
@@ -5877,7 +5909,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     if (== (genenv_get env func_id.name) "") {
                         set c_func_name (guard_native_array_reference parser func_name c_func_name)
                     } else {
-                        set c_func_name (+ "nl_" (mangle_name func_name))
+                        set c_func_name (genenv_c_name env func_name)
                     }
                     set parts (cg_append parts c_func_name)
                     set parts (cg_append parts "(")
@@ -6577,8 +6609,8 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
     let c_type: string = (cond (let_stmt.is_destructure "__auto_type") (else (type_to_c let_stmt.var_type)))
     set parts (cg_append parts c_type)
     set parts (cg_append parts " ")
-    set parts (cg_append parts "nl_")
-    set parts (cg_append parts (mangle_name let_stmt.name))
+    let c_name: string = (cond ((== let_stmt.name "_") (+ "__nl_underscore_" (int_to_string (array_length env.names)))) (else (genenv_c_name env let_stmt.name)))
+    set parts (cg_append parts c_name)
     set parts (cg_append parts " = ")
     if (< let_stmt.value 0) {
         set parts (cg_append parts "0")
@@ -7304,7 +7336,10 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
     if (== stmt.node_type ParseNodeType.PNODE_LET) {
         let let_stmt: ASTLet = (parser_get_let parser stmt.node_id)
         let code: string = (generate_let_stmt parser let_stmt indent env)
-        let env2: GenEnv = (genenv_put env let_stmt.name let_stmt.var_type let_stmt.is_mut)
+        let mut env2: GenEnv = (genenv_put env let_stmt.name let_stmt.var_type let_stmt.is_mut)
+        if (== let_stmt.name "_") {
+            set env2 (genenv_with_underscore env2 (+ "__nl_underscore_" (int_to_string (array_length env.names))))
+        }
         return StmtGenResult { code: code, env: env2 }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_SET) {
@@ -7462,7 +7497,7 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
     set parts (cg_append parts (gen_indent indent))
 
     let target_t: string = (genenv_get env set_stmt.target)
-    let c_var: string = (+ "nl_" (mangle_name set_stmt.target))
+    let c_var: string = (genenv_c_name env set_stmt.target)
     if (!= set_stmt.field_name "") {
         let value: string = (generate_expression parser set_stmt.value set_stmt.value_type env (lookup_struct_field_type parser (str_substring target_t 5 (str_length target_t)) set_stmt.field_name))
         return (+ (gen_indent indent) (+ c_var (+ "->" (+ (mangle_name set_stmt.field_name) (+ " = " (+ value ";\n"))))))
@@ -7606,7 +7641,7 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
                 let c_elem_type: string = (c_type_from_elem_type elem_type)
                 let get_fn: string = (get_fn_from_elem_type elem_type)
                 let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
-                let arr_c_name: string = (+ "nl_" (mangle_name id.name))
+                let arr_c_name: string = (genenv_c_name env id.name)
                 set parts (cg_append parts (gen_indent indent))
                 set parts (cg_append parts "{\n")
                 set parts (cg_append parts (gen_indent (+ indent 1)))
@@ -7637,7 +7672,7 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
             /* Extract element type name from "List<ElemType>" */
             let elem_name: string = (transp_extract_list_element_type list_type)
             let c_var: string = (+ "nl_" (mangle_name for_stmt.var_name))
-            let list_c_name: string = (+ "nl_" (mangle_name id.name))
+            let list_c_name: string = (genenv_c_name env id.name)
             set parts (cg_append parts (gen_indent indent))
             set parts (cg_append parts "{\n")
             set parts (cg_append parts (gen_indent (+ indent 1)))
@@ -8326,7 +8361,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
             (print "")
         } else {
             set emitted_bodies (array_push emitted_bodies func.name)
-            let mut env0: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, scope: func.name }
+            let mut env0: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, underscore_name: global_env.underscore_name, scope: func.name }
             /* Seed env with parameters */
             let mut k: int = 0
             while (< k func.param_count) {
@@ -8358,7 +8393,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     while (< si parser.shadows_count) {
         let sh: ASTShadow = (list_ASTShadow_get parser.shadows si)
         let scope: string = (+ "__nano_shadow_" (int_to_string si))
-        let env: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, scope: scope }
+        let env: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, underscore_name: global_env.underscore_name, scope: scope }
         set tests (cg_append tests (+ "static void " (+ scope "(void) {\n")))
         set tests (cg_append tests (generate_block parser sh.body 1 env "void"))
         set tests (cg_append tests "}\n")

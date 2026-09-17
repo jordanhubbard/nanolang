@@ -54,6 +54,9 @@ const char* path_relpath(const char* target, const char* base);
 
 /* Read file content as string */
 const char* file_read(const char* path);
+/* I consume one original file_read result after its escaping text is copied.
+ * NULL and my private allocation-failure sentinel need no release. */
+void file_read__nano_string_release_v1(const char* result);
 
 /* Write string to file */
 int64_t file_write(const char* path, const char* content);

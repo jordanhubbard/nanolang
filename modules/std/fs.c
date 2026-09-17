@@ -233,10 +233,15 @@ const char* path_relpath(const char* target, const char* base) {
     return result;
 }
 
-/* Read file content as string */
+/* I keep my legacy non-NULL fallback identifiable by my cleanup companion. */
+static const char file_read_empty_result[] = "";
 const char* file_read(const char* path) {
     char *text = nl_read_file_text(path);
-    return text ? text : "";
+    return text ? text : file_read_empty_result;
+}
+
+void file_read__nano_string_release_v1(const char *result) {
+    if (result != file_read_empty_result) free((void *)result);
 }
 
 /* Write string to file */

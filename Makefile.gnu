@@ -4555,3 +4555,11 @@ test-multi-caller-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJE
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_heap_alloc tests/nanoisa/test_multi_caller_heap_alloc.c obj/test_multi_caller_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_multi_caller_heap_alloc
 	python3 -m unittest tests.test_multi_caller_references
+.PHONY: test-artifact-string-release
+test-units: test-artifact-string-release
+test-artifact-string-release: nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_artifact_string_release
+.PHONY: test-native-underscore-bindings
+test-units: test-native-underscore-bindings
+test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
+	python3 -m unittest -v tests.test_native_underscore_bindings
