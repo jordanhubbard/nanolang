@@ -12,10 +12,12 @@ frees the original AST, then reads and frees the independent copy. The full
 parser suite passes with ASan and UBSan; leak detection remains disabled for
 existing unrelated metadata leaks. Parser and typechecker suites, the full
 native bootstrap, and both existing first-class function execution fixtures
-pass. Independent source review found no scoped blocker; the copied annotation
+pass, including the integrated parser/typechecker and full native bootstrap
+after the generic selected ownership merge. Independent source review found no scoped blocker; the copied annotation
 array also checks allocation failure.
 
 Evidence logs are `/tmp/nanolang-signature-storage-tests.log`,
+`/tmp/nanolang-signature-storage-integrated.log`,
 `/tmp/nanolang-signature-parser-asan.log`,
 `/tmp/nanolang-signature-firstclass.log`, and
 `/tmp/nanolang-signature-functions-final.log`.
