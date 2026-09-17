@@ -83,6 +83,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       prerequisite PR423 and PR430. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
       Evidence: `docs/evidence/union-literal-context.md`.
 
+- [ ] **Preserve direct-call match identity.** I infer the declared union return
+      type for statement and expression scrutinees without evaluating the call
+      again. My exactly-once counter fixture currently passes the C seed but
+      emits `nl_UNKNOWN` in both self-hosted stages. I require paired ordinary
+      and owned execution before selected transfer is complete. MAC
+      `task_7eb80289f352425aa2abd26af55d0ffc`.
+
 - [ ] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
       scrutinee move, per-arm payload obligations and complete qualified variant
