@@ -4186,3 +4186,7 @@ test-cseed-record-array-literals: $(COMPILER_C) nano_virt nano_vm
 .PHONY: test-union-resource-collections
 test-union-resource-collections: bootstrap test-resource-classification
 	python3 -m unittest tests.test_union_resource_collections
+.PHONY: test-nominal-record-array-contracts
+test-units: test-nominal-record-array-contracts
+test-nominal-record-array-contracts: $(COMPILER_C) nano_virt nano_vm
+	python3 tests/test_nominal_record_array_contracts.py

@@ -8319,9 +8319,6 @@ Compiler product:
 - [ ] I reject negative filled-array lengths consistently across backends
       (`task_50c84fa002c14b3fa880d3d260bb8a33`). My evaluator rejects them,
       while C-seed bytecode currently returns an empty array.
-- [ ] I check declared nominal record-array assignment contracts across
-      annotations, fields, parameters and returns (`task_8c736631e97043729bf465a2d6bdc2d5`). My C
-      frontend currently accepts a homogeneous array of the wrong record type.
 - [ ] I lower typed count/fill `array_new` construction with ordered operands
       (`task_6b4240883d7d461c8266257aaffb2471`). Actual compiler emission after
       character conversion stops at `ModuleCache.parsers = (array_new 0 "")`.
@@ -8335,6 +8332,12 @@ Compiler product:
 - [ ] I release returned record-array allocations in native AOT output
       (`task_0916ab0afb014b5984d69fbb11b0432d`). Unsuppressed LeakSanitizer
       reports a 14,344-byte leak in a minimized returned list without setters.
+- [x] I check fixed nominal record-array assignment contracts across
+      annotations, record and union fields, parameters and returns
+      (`task_8c736631e97043729bf465a2d6bdc2d5`). My C frontend rejects a
+      homogeneous array of the wrong record type and preserves prior output.
+      Generic union constructor substitution remains separate. Evidence:
+      `docs/evidence/nominal-record-array-contracts.md`.
 - [ ] I preserve nested aggregate state after direct record-array projection
       in my VM (`task_911461243652466fb0af1fb706d4ac01`). The existing fixture passes with a typed
       temporary but a direct projection before its nested array read fails a
