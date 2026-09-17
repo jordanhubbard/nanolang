@@ -136,3 +136,21 @@ defect: an inline owned union literal loses its union identity in the C
 ownership walker and is incorrectly accepted. I retain that failing log at
 `/tmp/nanolang-generic-formal-c-match.log` and repair identity lookup before
 claiming the sixteen-method gate.
+
+
+The next run confirmed that ordinary union constructors also lacked an
+ownership-walker case. I visit their fields and retain explicit rejection of
+resource-bearing payloads. I stopped the superseded conformance runner after
+its confirmed failures; it is not final acceptance. The expanded C corpus now
+passes all sixteen methods in 10.873 seconds.
+
+My isolated ASan+UBSan C build passes the same sixteen methods in 10.885
+seconds, with leak detection disabled. I retain two setup failures: the `-O1`
+GCC instrumented build diagnoses a null format string in existing nanocore
+export code under `-Werror`, and the first `-O0` invocation cannot find runtime
+sources next to its `/tmp` binary. The corrected `-O0` run retains `-Werror`
+and both sanitizers and supplies source/module links for that isolated binary.
+Logs are `/tmp/nanolang-generic-formal-asan-build.log`,
+`/tmp/nanolang-generic-formal-asan-o0.log` and
+`/tmp/nanolang-generic-formal-asan-o0-corrected.log`. I do not claim a clean
+initial setup or leak-checking acceptance from this result.

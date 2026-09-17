@@ -707,6 +707,22 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         let printed: ASTPrint = (list_ASTPrint_get parser.prints node_id)
         return (resource_flow_node parser printed.value printed.value_type states false loop_entry diags file_name)
     }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+        let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+        if (resource_generic_contains parser literal.union_name literal.line 0) {
+            (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
+        }
+        let mut field: int = 0
+        while (and flow.next (< field literal.field_count)) {
+            let field_type: string = (resource_value_type parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states)
+            if (resource_generic_contains parser field_type literal.line 0) {
+                (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
+            }
+            set flow (resource_flow_node parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name)
+            set field (+ field 1)
+        }
+        return flow
+    }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
         let mut i: int = 0
@@ -729,7 +745,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         return flow
     }
     if (or (== node_type ParseNodeType.PNODE_NUMBER) (or (== node_type ParseNodeType.PNODE_FLOAT) (or (== node_type ParseNodeType.PNODE_STRING) (== node_type ParseNodeType.PNODE_BOOL)))) { return flow }
-    (resource_flow_error diags file_name 0 0 "this expression still needs ownership lowering")
+    (resource_flow_error diags file_name 0 0 (+ "this expression still needs ownership lowering: node " (int_to_string node_type)))
     return flow
 }
 

@@ -57,7 +57,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         Imported generic union parameters also lose their native prototype type.
         My self-hosted ownership walker also rejects every ordinary match when
         a resource declaration exists; I add branch traversal with ownership
-        joins while retaining resource-payload rejection and unsupported guards.
+        joins and visits ordinary union constructor fields while retaining
+        resource-payload rejection and unsupported guards.
         I also retain inline union constructor identity in C ownership lookup;
         the new negative case otherwise incorrectly admits an unresolved owner.
         I repair these prerequisites before accepting the positive cases.
