@@ -966,6 +966,20 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
     return sig ? sig->return_fn_sig : NULL;
 }
 
+/* I retain the union identity of the parser's dotted variant literals. */
+static const char *inline_variant_union(ASTNode *node, Environment *env) {
+    if (!node || node->type != AST_STRUCT_LITERAL || !node->as.struct_literal.struct_name)
+        return NULL;
+    const char *name = node->as.struct_literal.struct_name;
+    const char *dot = strchr(name, '.');
+    if (!dot) return NULL;
+    char *prefix = strndup(name, (size_t)(dot - name));
+    if (!prefix) return NULL;
+    UnionDef *definition = env_get_union(env, prefix);
+    free(prefix);
+    return definition ? definition->name : NULL;
+}
+
 static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *sig) {
     if (!sig) {
         emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
@@ -3318,6 +3332,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
+            } else if (match_expr_node->type == AST_STRUCT_LITERAL) {
+                union_type_name = inline_variant_union(match_expr_node, env);
             } else if (match_expr_node->type == AST_CALL) {
                 Function *func = env_get_function(env, match_expr_node->as.call.name);
                 if (func && func->return_struct_type_name) {
@@ -4721,6 +4737,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             } else if (match_expr_node->type == AST_UNION_CONSTRUCT) {
                 union_type_name = match_expr_node->as.union_construct.union_name;
+            } else if (match_expr_node->type == AST_STRUCT_LITERAL) {
+                union_type_name = inline_variant_union(match_expr_node, tc->env);
             } else if (match_expr_node->type == AST_CALL) {
                 Function *func = env_get_function(tc->env, match_expr_node->as.call.name);
                 if (func && func->return_struct_type_name) {
