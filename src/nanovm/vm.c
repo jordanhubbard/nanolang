@@ -1587,6 +1587,10 @@ vm_dispatch_top:
                     if (value.tag!=TAG_STRUCT || !value.as.sval)
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned record");
                     if (op==OP_OWN_MOVE_LOCAL) {
+                        /* I preserve the owner even if this handler is later
+                         * separated from the common instruction preflight. */
+                        if (stack_reserve(vm,(uint64_t)vm->stack_size+1)!=VM_OK)
+                            return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve a moved owner");
                         vm->stack[index]=val_void();
                         stack_push(vm,value);
                     } else {

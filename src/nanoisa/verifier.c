@@ -879,6 +879,21 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
     return false;
 }
 
+/* I keep runtime admission closed even if affine analysis grows new operations. */
+static bool owned_runtime_opcode(uint8_t op) {
+    switch (op) {
+    case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL:
+    case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
+    case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
+    case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
+    case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
+    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET:
+        return true;
+    default: return false;
+    }
+}
+
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     NvmVerifyResult structure = verify_structure(mod, true);
     if (!structure.ok) return structure;
@@ -924,7 +939,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     for (uint32_t i=0; i<decoded.instruction_count; i++) {
         uint8_t op=decoded.instructions[i].instruction.opcode;
         if (op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
-        if (op==OP_PUSH_F64 || (op>=OP_F64_ADD && op<=OP_F64_GE)) supported=false;
+        if (!owned_runtime_opcode(op)) supported=false;
     }
     vm_decoded_function_free(&decoded);
     if (!supported || !transfer) return fail("I require explicit non-floating ownership instruction execution semantics");
