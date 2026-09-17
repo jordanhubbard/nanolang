@@ -570,6 +570,22 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
         let index: int = (resource_find states id.name)
         if (>= index 0) { let state: ResourceState = (at states index) return state.type_name }
+        let mut fi: int = 0
+        while (< fi (parser_get_function_count parser)) {
+            let func: ASTFunction = (parser_get_function parser fi)
+            if (== func.name (mb_lookup (mb_owner id.line) id.name)) {
+                let mut signature: string = "fn("
+                let mut pi: int = 0
+                while (< pi func.param_count) {
+                    if (> pi 0) { set signature (+ signature ",") }
+                    let param: ASTLet = (parser_get_let parser (+ func.param_start pi))
+                    set signature (+ signature param.var_type)
+                    set pi (+ pi 1)
+                }
+                return (+ (+ signature ")->") func.return_type)
+            }
+            set fi (+ fi 1)
+        }
     }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let value: ASTStructLiteral = (parser_get_struct_literal parser node_id)
@@ -622,6 +638,9 @@ shadow resource_value_type {
     let plain: array<ResourceState> = [ResourceState { name: "payload", type_name: "#variant:0:0<int>", moved: false, line: 1, column: 1 }]
     assert (== (resource_value_type parser ret.value ret.value_type owned) "#record:0")
     assert (== (resource_value_type parser ret.value ret.value_type plain) "int")
+    let callbacks: Parser = (resource_test_parser "fn make() -> int { return 7 } fn main() -> int { let factory = make return 0 }")
+    let binding: ASTLet = (parser_get_let callbacks 0)
+    assert (== (resource_value_type callbacks binding.value binding.value_type []) "fn()->int")
 }
 
 # I preserve argument nesting when substituting concrete union payload types.
@@ -776,7 +795,41 @@ shadow resource_transfer_supported {
     assert (not (resource_transfer_supported parser "Bundle<Handle>" 1 0))
 }
 
+# I walk function annotations separately from owned values: a callback is
+# ordinary, but its resource transfer contract can still be unsupported.
+fn resource_callback_unsupported(parser: Parser, spelling: string, line: int, depth: int) -> bool {
+    if (> depth 128) { return true }
+    if (tc_str_starts_with spelling "fn(") {
+        let params: array<NSType> = (fn_type_param_types spelling)
+        let mut i: int = 0
+        while (< i (array_length params)) {
+            if (resource_callback_unsupported parser (type_to_string (at params i)) line (+ depth 1)) { return true }
+            set i (+ i 1)
+        }
+        return (resource_callback_unsupported parser (type_to_string (fn_type_return_type spelling)) line (+ depth 1))
+    }
+    if (resource_instantiated_classify parser spelling line 0 true) { return true }
+    if (not (resource_generic_contains parser spelling line 0)) { return false }
+    if (> (array_length (tc_generic_arguments spelling)) 0) { return true }
+    return (not (resource_transfer_supported parser spelling line 0))
+}
+shadow resource_callback_unsupported {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { value: int } }")
+    assert (resource_callback_unsupported parser "fn()->Box<Handle>" 1 0)
+    assert (resource_callback_unsupported parser "fn(Box<Handle>)->int" 1 0)
+    assert (resource_callback_unsupported parser "fn()->fn()->Box<Handle>" 1 0)
+    assert (not (resource_callback_unsupported parser "fn()->Handle" 1 0))
+    assert (not (resource_callback_unsupported parser "fn()->Marker<Handle>" 1 0))
+    assert (not (resource_callback_unsupported parser "fn()->Box<int>" 1 0))
+}
+
 fn resource_check_annotation(parser: Parser, spelling: string, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
+    if (tc_str_starts_with spelling "fn(") {
+        if (resource_callback_unsupported parser spelling line 0) {
+            (resource_flow_error diags file_name line column "generic resource callback signatures need ownership lowering")
+        }
+        return
+    }
     if (resource_has_collection_payload parser (resource_type_identity parser spelling line)) {
         (resource_flow_error diags file_name line column "resource-bearing union collection payloads are not supported")
         return
@@ -1241,6 +1294,9 @@ shadow resource_flow_node {
 
 # I do not pretend independent function states describe a global owner.
 fn resource_check_global(parser: Parser, global: ASTLet, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    if (tc_str_starts_with global.var_type "fn(") {
+        (resource_check_annotation parser global.var_type diags file_name global.line global.column)
+    }
     let declared: string = (resource_type_identity parser global.var_type global.line)
     let inferred: string = (resource_value_type parser global.value global.value_type [])
     if (or (resource_generic_contains parser declared global.line 0) (resource_generic_contains parser inferred global.line 0)) {
