@@ -4192,6 +4192,15 @@ static void emit_nstr_storage(Nvm2cBuf *b) {
         "    owner->bytes = bytes; nstr_live_bytes += bytes; nstr_allocation_debt += bytes;\n"
         "    if (nstr_live_bytes > nstr_peak_bytes) nstr_peak_bytes = nstr_live_bytes;\n"
         "    owner->data[n] = 0; return owner->data;\n}\n"
+        "static inline const char *nstr_copy(const char *value) {\n"
+        "    if (!value) value = \"\";\n"
+        "    size_t length = strlen(value);\n"
+        "    char *copy = nstr_allocate(length);\n"
+        "    memcpy(copy, value, length + 1); return copy;\n}\n"
+        "/* I consume only exact malloc-owned builtin temporaries. */\n"
+        "static inline const char *nstr_take(char *value) {\n"
+        "    if (!value) abort();\n"
+        "    const char *copy = nstr_copy(value); free(value); return copy;\n}\n"
         "static void nstr_release_owned(void) {\n"
         "    while (nstr_owners) { nstr_owned *owner = nstr_owners;\n"
         "        nstr_owners = owner->next; free(owner); }\n"
@@ -4538,7 +4547,7 @@ static void emit_host_normalize(Nvm2cBuf *b) {
         "    if (!path) path = \"\";\n"
         "    size_t length = strlen(path), slots = length / 2 + 1;\n"
         "    if (length > SIZE_MAX - 2 || slots > SIZE_MAX / sizeof(size_t)) abort();\n"
-        "    char *out = malloc(length + 2);\n"
+        "    char *out = nstr_allocate(length + 1);\n"
         "    size_t *bases = malloc(slots * sizeof *bases);\n"
         "    if (!out || !bases) abort();\n"
         "    int absolute = path[0] == '/';\n"
@@ -4645,7 +4654,7 @@ static void emit_host_file_read(Nvm2cBuf *b) {
         "        if (fclose(file) != 0) invalid = 1;\n"
         "    }\n"
         "    text[invalid ? 0 : used] = 0;\n"
-        "    return text;\n}\n");
+        "    return nstr_take(text);\n}\n");
 }
 
 static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
@@ -4671,13 +4680,7 @@ static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
                       host->argc == 2 ? "a, z" : host->argc == 1 ? "a" : "");
         if (host->result == TAG_STRING) nvm2c_puts(b, "    if (!value) abort();\n");
         if (!strcmp(host->c_name, "nhost_snapshot")) {
-            nvm2c_puts(b,
-                "    size_t length = strlen(value);\n"
-                "    if (length == SIZE_MAX) abort();\n"
-                "    char *copy = malloc(length + 1);\n"
-                "    if (!copy) abort();\n"
-                "    memcpy(copy, value, length + 1);\n"
-                "    return copy;\n}\n");
+            nvm2c_puts(b, "    return nstr_copy(value);\n}\n");
         } else nvm2c_puts(b, "    return value;\n}\n");
     }
 }
@@ -5011,6 +5014,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.has_owned_strings = module_has_opcode(mod, OP_STR_CONCAT) ||
         module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_CAST_STRING) ||
         module_uses_host(mod, "nhost_from_char");
+    /* I own builtin string results and copies of borrowed facade snapshots;
+     * generic artifact string results retain their existing borrowed contract. */
+    for (uint32_t i = 0; i < mod->import_count; ++i) {
+        const Nvm2cHost *host = import_host(mod, i);
+        if (host && host->result == TAG_STRING && strcmp(host->c_name, "nhost_artifact"))
+            b.has_owned_strings = 1;
+    }
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
      * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
@@ -5314,6 +5324,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "        fputs(\"I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\\n\", stderr);\n"
             "        exit(EXIT_FAILURE);\n    }\n"
             "    return (int64_t)value;\n}\n");
+        if (b.has_owned_strings) {
+            nvm2c_puts(&b, "#include <string.h>\n");
+            emit_nstr_storage(&b);
+        }
         if (module_has_opcode(mod, OP_PUSH_F64)) nvm2c_puts(&b,
             "#include <string.h>\n"
             "static inline double nf64_from_bits(uint64_t bits) {\n"
@@ -5362,7 +5376,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (!prefix) prefix = \"nano_\";\n"
                 "    size_t a = strlen(root), z = strlen(prefix);\n"
                 "    if (z > SIZE_MAX - 8 || a > SIZE_MAX - z - 8) abort();\n"
-                "    char *path = malloc(a + z + 8);\n"
+                "    char *path = nstr_allocate(a + z + 7);\n"
                 "    if (!path) abort();\n"
                 "    memcpy(path, root, a); path[a] = '/';\n"
                 "    memcpy(path + a + 1, prefix, z);\n"
@@ -5379,13 +5393,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (!output) abort();\n"
                 "    output[0] = 0;\n"
                 "    FILE *pipe = popen(command, \"r\");\n"
-                "    if (!pipe) return output;\n"
+                "    if (!pipe) return nstr_take(output);\n"
                 "    size_t used = fread(output, 1, 65535, pipe);\n"
                 "    output[used] = 0;\n"
                 "    char discard[4096];\n"
                 "    while (fread(discard, 1, sizeof discard, pipe)) {}\n"
                 "    pclose(pipe);\n"
-                "    return output;\n}\n");
+                "    return nstr_take(output);\n}\n");
             int identity_used = module_uses_host(mod, "nhost_identity");
             int destinations_used = module_uses_host(mod, "nhost_destinations");
             if (identity_used || destinations_used) emit_host_identity(&b, identity_used, destinations_used);
@@ -5411,12 +5425,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    return from && to && rename(from, to) == 0 ? 0 : -1;\n}\n");
             if (argv_used || env_used || tmp_used || cwd_used) nvm2c_puts(&b,
                 "static inline const char *nhost_copy(const char *value) {\n"
-                "    if (!value) value = \"\";\n"
-                "    size_t n = strlen(value);\n"
-                "    if (n == SIZE_MAX) abort();\n"
-                "    char *copy = malloc(n + 1);\n"
-                "    if (!copy) abort();\n"
-                "    memcpy(copy, value, n + 1); return copy;\n}\n");
+                "    return nstr_copy(value);\n}\n");
             if (module_uses_host(mod, "nhost_argc")) nvm2c_puts(&b,
                 "static inline int64_t nhost_argc(void) { return nhost_arg_count; }\n");
             if (argv_used) nvm2c_puts(&b,
@@ -5462,7 +5471,6 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
         if (need_iarr) { b.has_integer_arrays = 1; emit_narr_storage(&b); }
-        if (b.has_owned_strings) emit_nstr_storage(&b);
         if (b.has_maps) {
             nvm2c_puts(&b,
 #include "nvm2c_map_runtime.inc"
@@ -5675,6 +5683,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)
             nvm2c_puts(&b, "    (void)narr_push;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
+        if (b.has_owned_strings) nvm2c_puts(&b, "    (void)nstr_copy; (void)nstr_take;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64; (void)nstr_from_f64;\n");
         if (b.has_maps && (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN)))
             nvm2c_puts(&b, "    (void)nvalue_array_print;\n");
