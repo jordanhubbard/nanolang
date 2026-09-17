@@ -61,7 +61,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       exact candidates connected through the final shape graph without turning
       dynamic or unstored globals into exact storage, then publish the proved
       record-array kind and fields. Both function orders execute with the same
-      result in NanoVM and strict ASan/UBSan native builds; all 2,418 structured-C
+      result in NanoVM and strict ASan/UBSan native builds; all 2,414 structured-C
       checks and 1,092 shape checks pass. This closes only exact array projection
       after nested record/global flow; merged float-record scalar transport
       (#559) and typed F64 LLVM/Wasm support (#560) remain independently proved
