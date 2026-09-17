@@ -8361,16 +8361,23 @@ Compiler product:
       assignment and nested payload boundaries before output publication.
       Native emission context remains separate. Evidence:
       `docs/evidence/concrete-union-array-contracts.md`.
-- [ ] I track native `string_from_char` allocations for cleanup
+- [ ] I reconcile the legacy raw `string_from_char` host alias: my AOT
+      adapter accepts it, while my VM resolves only canonical
+      `vm_string_from_char`. I preserve the canonical emitted contract.
+      (`task_dbe0c69106984f22b59c241f3be08919`).
+- [x] I track native `string_from_char` allocations for cleanup
       (`task_d2b7c2616e2148a1871c25e1a7ac127d`). Unsuppressed LeakSanitizer
-      reports 16 leaked bytes from eight calls to the existing host adapter.
+      previously reported 16 leaked bytes from eight calls. My owned-string
+      cleanup now passes leak and allocation-balance checks.
 - [x] I lower `string_from_char` through the existing scalar string contract
       (`task_292f60fa2cfa431990494d079cc8630c`); eight exact opcode comparisons
       and VM/AOT byte conversion checks pass. Host-result cleanup remains
       separate; see `docs/evidence/selfhost-string-from-char.md`.
-- [ ] I release returned record-array allocations in native AOT output
+- [x] I release returned record-array allocations in native AOT output
       (`task_0916ab0afb014b5984d69fbb11b0432d`). Unsuppressed LeakSanitizer
-      reports a 14,344-byte leak in a minimized returned list without setters.
+      previously reported a 14,344-byte leak without setters. Repeated return
+      and alias cases now pass leak and allocation-balance checks; see
+      `docs/evidence/native-returned-value-cleanup.md`.
 - [x] I check fixed nominal record-array assignment contracts across
       annotations, record and union fields, parameters and returns
       (`task_8c736631e97043729bf465a2d6bdc2d5`). My C frontend rejects a

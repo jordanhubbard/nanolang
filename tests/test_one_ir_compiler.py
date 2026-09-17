@@ -137,6 +137,83 @@ class OneIrCompiler(unittest.TestCase):
                 self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary])
                 self.run_checked([binary])
 
+    def test_returned_native_values_release_owned_allocations(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        rows = ('.function rows 0 0 0 array 1\nARR_NEW 8\nPUSH_I64 7\n'
+                'AGG_PACK 0 0 0 1\nARR_PUSH\nRET\n.end\n')
+        repeated = ('PUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 64\nI64_LT_S\n'
+                    'JMP_FALSE done\nCALL rows\nPOP\nLOAD_LOCAL 2\nPUSH_I64 1\nI64_ADD\n'
+                    'STORE_LOCAL 2\nJMP loop\ndone:\n')
+        fixtures = {
+            "returned_record_array": (
+                '.entry main\n.function main 0 3 0 int 1\nCALL rows\nSTORE_LOCAL 0\n' +
+                repeated + 'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 7\nEQ\nASSERT\n'
+                'PUSH_I64 0\nRET\n.end\n' + rows),
+            "aliased_record_array": (
+                '.entry main\n.function main 0 3 0 int 1\nCALL rows\nSTORE_LOCAL 0\n'
+                'LOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 9\n'
+                'AGG_PACK 0 0 0 1\nARR_SET\nPOP\n' + repeated +
+                'LOAD_LOCAL 1\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 9\nEQ\nASSERT\n'
+                'PUSH_I64 0\nRET\n.end\n' + rows),
+            "unused_character_string": (
+                '.import "" "vm_string_from_char" string int\n.entry main\n'
+                '.function main 0 0 0 int 1\nPUSH_I64 65\nCALL_EXTERN 0\nPOP\nPUSH_I64 0\nRET\n.end\n'),
+        }
+        for name in ("vm_string_from_char", "string_from_char"):
+            fixtures[name] = (
+                f'.import "" "{name}" string int\n.entry main\n.function main 0 2 0 int 1\n'
+                'PUSH_I64 65\nCALL_EXTERN 0\nSTORE_LOCAL 0\nPUSH_I64 0\nSTORE_LOCAL 1\n'
+                'loop:\nLOAD_LOCAL 1\nPUSH_I64 64\nI64_LT_S\nJMP_FALSE done\n'
+                'LOAD_LOCAL 1\nCALL_EXTERN 0\nPOP\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\n'
+                'STORE_LOCAL 1\nJMP loop\ndone:\nLOAD_LOCAL 0\nPUSH_I64 0\nSTR_CHAR_AT\n'
+                'PUSH_I64 65\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        environment = os.environ.copy()
+        if sys.platform.startswith("linux"):
+            # I require the reported leaks to fail this focused regression.
+            environment["ASAN_OPTIONS"] = environment.get("ASAN_OPTIONS", "") + ":detect_leaks=1"
+        for name, text in fixtures.items():
+            with self.subTest(case=name), tempfile.TemporaryDirectory(prefix="nano-owned-return-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in
+                                                    ("input.nasm", "input.nvm", "input.c", "input"))
+                assembly.write_text(text)
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                # The legacy unprefixed AOT alias is not a registered VM host.
+                if name != "string_from_char":
+                    self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                # I count actual allocation/free calls as well as checking leaks:
+                # a global owner list alone must not hide unreleased memory.
+                generated = source.read_text().replace("int main(", "int generated_main(")
+                allocation_probe = r'''#include <stdlib.h>
+#include <stdio.h>
+static size_t live_allocations, total_allocations;
+static inline void *tracked_malloc(size_t n) {
+    void *p = malloc(n); if (p) { ++live_allocations; ++total_allocations; } return p;
+}
+static inline void *tracked_calloc(size_t n, size_t width) {
+    void *p = calloc(n, width); if (p) { ++live_allocations; ++total_allocations; } return p;
+}
+static inline void tracked_free(void *p) {
+    if (p) { --live_allocations; }
+    free(p);
+}
+#define malloc tracked_malloc
+#define calloc tracked_calloc
+#define free tracked_free
+'''
+                invoke = "generated_main(0, NULL)" if ".import " in text else "generated_main()"
+                source.write_text(allocation_probe + generated + "\n#undef malloc\n#undef calloc\n#undef free\n" +
+                                  "int main(void) { int result = " + invoke + ";\n" +
+                                  'if (live_allocations || !total_allocations) { fprintf(stderr, "I retained %zu allocations.\\n", live_allocations); return 97; }\n' +
+                                  "return result; }\n")
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-g",
+                                  "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                  "-fno-omit-frame-pointer", source, "-o", binary])
+                result = subprocess.run([binary], env=environment, capture_output=True, timeout=30)
+                self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
+
     def test_compiler_bytecode_to_native_to_program(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
