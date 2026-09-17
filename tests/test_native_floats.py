@@ -64,6 +64,17 @@ class NativeFloats(unittest.TestCase):
         body += 'PUSH_F64 inf\nPUSH_F64 inf\nF64_EQ\nASSERT\n'
         body += 'PUSH_F64 nan\nPUSH_F64 nan\nF64_NE\nASSERT\n'
         body += 'PUSH_F64 nan\nPUSH_F64 1\nF64_LE\nBOOL_NOT\nASSERT\n'
+        # Generic ordering uses val_compare: unordered NaN compares as zero.
+        # Typed comparisons deliberately preserve IEEE unordered behavior instead.
+        for tagged in (False, True):
+            operand = ('PUSH_F64 nan\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+                       if tagged else 'PUSH_F64 nan\n')
+            for op, truth in [('EQ', False), ('NE', True), ('LT', False),
+                              ('LE', True), ('GT', False), ('GE', True)]:
+                body += operand + f'PUSH_F64 1\n{op}\n'
+                if not truth:
+                    body += 'BOOL_NOT\n'
+                body += 'ASSERT\n'
         with tempfile.TemporaryDirectory(prefix='nano-native-float-') as tmp:
             work = Path(tmp)
             module = self.assemble(work, body, helpers)

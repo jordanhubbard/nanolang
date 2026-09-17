@@ -17,7 +17,10 @@ My `CAST_STRING` uses the VM's `%g` conversion and the existing owned string
 allocator. Printing is a separate contract: whole floats within the VM's
 bounded range retain one decimal place. I check the range before the integer
 cast used to detect whole values. Generic comparisons and truthiness of tagged
-floats use decoded numeric values, including negative zero. I leave typed
+floats use decoded numeric values, including negative zero. Generic ordering
+retains `val_compare`: unordered NaN compares as zero, so generic `LE`/`GE`
+return true. Typed F64 comparisons retain IEEE unordered behavior, and equality
+remains false for NaN. My direct and tagged tests distinguish these contracts. I leave typed
 integer-to-float coercion refused.
 
 I retain a separate explicit float-to-int gap in
@@ -45,5 +48,11 @@ fixture, including a direct string-format return. Commands/results are retained
 in `/tmp/nanolang-native-f64-paired-artifacts.log`. I leave source builtin
 formatting parity and `JMP_TRUE` support on their independently recorded tasks.
 
-My focused final matrix and adjacent native suite are running; I record their
-measured outcomes before publication.
+My four-method focused matrix passes in 55.531 seconds. The additional direct
+and tagged NaN contract extension passes with ASan/UBSan/LSan in 0.435 seconds.
+My adjacent native suite passes 2390 checks and the shape solver passes 1092;
+classifier/emitter opcode coverage and sanitizer-driver tests also pass. Logs:
+`/tmp/nanolang-native-f64-tests-final.log`,
+`/tmp/nanolang-native-f64-nan-parity.log`, and
+`/tmp/nanolang-native-f64-regressions-final.log`. I do not infer complete native
+self-compilation or release readiness from this scalar gate.
