@@ -4393,6 +4393,23 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let receiver: ASTIdentifier = (parser_get_identifier parser fa.object)
+            if (< (env_lookup symbols (tc_bound_name receiver.name receiver.line symbols)) 0) {
+                let mut enum_index: int = 0
+                while (< enum_index (parser_get_enum_count parser)) {
+                    let definition: ASTEnum = (parser_get_enum parser enum_index)
+                    if (== definition.name receiver.name) {
+                        if (resource_name_in definition.variant_names fa.field_name) {
+                            return (type_from_string_with_parser parser definition.name)
+                        }
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I cannot find this member in the declared enum." (Diagnostics.diag_location file_name fa.line fa.column)))
+                        return (type_unknown_named "enum member")
+                    }
+                    set enum_index (+ enum_index 1)
+                }
+            }
+        }
         let obj_t: NSType = (check_expr_node parser fa.object fa.object_type symbols diags file_name)
         if (== obj_t.kind TypeKind.TYPE_STRUCT) {
             let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
@@ -4592,6 +4609,15 @@ shadow check_expr_node {
     let field: NSType = (check_expr_node record_parser 0 ParseNodeType.PNODE_FIELD_ACCESS record_symbols record_diags "record.nano")
     assert (== field.kind TypeKind.TYPE_UNION)
     assert (== (type_to_string field) "Box<int>")
+    let enumerated: Parser = (resource_test_parser "enum Mode { Low = -3, High = 7 } struct Box { Low: string } fn main() -> int { let value = Mode.Low return 0 }")
+    let enum_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let member: NSType = (check_expr_node enumerated 0 ParseNodeType.PNODE_FIELD_ACCESS [] enum_diags "enum.nano")
+    assert (== member.kind TypeKind.TYPE_ENUM)
+    assert (== member.name "Mode")
+    let shadowed_symbols: array<Symbol> = [(symbol_new "Mode" (type_from_string "Box") false false 0 (empty_param_types) (type_void))]
+    let shadowed_member: NSType = (check_expr_node enumerated 0 ParseNodeType.PNODE_FIELD_ACCESS shadowed_symbols enum_diags "enum.nano")
+    assert (== shadowed_member.kind TypeKind.TYPE_STRING)
+    assert (== (list_CompilerDiagnostic_length enum_diags) 0)
 
 }
 

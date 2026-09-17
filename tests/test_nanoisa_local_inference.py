@@ -55,5 +55,19 @@ shadow main { assert (== (main) 0) }
                     self.assertEqual(output.read_bytes(), original)
 
 
+    def test_missing_enum_member_refuses_publication(self):
+        with tempfile.TemporaryDirectory(prefix='nano-enum-inferred-') as tmp:
+            source, output = Path(tmp)/'input.nano', Path(tmp)/'output.nvm'
+            source.write_text('enum Mode { Low = -3 }\nfn main() -> int { let value = Mode.Missing return 0 }\nshadow main { assert true }\n')
+            for stage in ('nanoc_stage1', 'nanoc_stage2'):
+                with self.subTest(stage=stage):
+                    output.write_text('previous artifact')
+                    result = subprocess.run([ROOT/'bin'/stage, source, '--emit-nvm', '-o', output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                    self.assertIn('member in the declared enum', result.stdout+result.stderr)
+                    self.assertEqual(output.read_text(), 'previous artifact')
+
+
 if __name__ == '__main__':
     unittest.main()
