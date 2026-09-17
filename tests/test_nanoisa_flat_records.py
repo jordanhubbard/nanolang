@@ -15,6 +15,29 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_bound_parser_calls_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/bound_calls_reference.nano"
+        driver_fixture = ROOT / "tests/nanoisa/fixtures/bound_calls_driver.nano.txt"
+        with tempfile.TemporaryDirectory(prefix="nano-bound-calls-") as tmp:
+            work = Path(tmp)
+            driver, tool = work / "driver.nano", work / "driver"
+            driver.write_text(driver_fixture.read_text())
+            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool)
+            assembly, seed, emitted = work / "bound.nasm", work / "seed.nvm", work / "bound.nvm"
+            assembly.write_text(self.run_checked(tool).stdout)
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "dep_a_value", "dep_a_relay", "dep_a_ping", "dep_b_value", "dep_b_relay", "dep_b_ping", "main")
+            self.assertIn("16 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "A\nB\n")
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.assertEqual(self.run_checked(binary).stdout, "A\nB\n")
+
     def test_string_int_maps_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/string_int_maps.nano"
         with tempfile.TemporaryDirectory(prefix="nano-map-values-") as tmp:
