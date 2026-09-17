@@ -209,3 +209,13 @@ Ordinary blocks retain their existing source-order visibility rules.
 
 [My scalar flow evidence](evidence/passive-flow-frontends.md) records exact
 paired output, frontend checks and the remaining owner-call boundary.
+
+## Planned serial owner-call boundary
+
+For `task_eccab63d320946d283342bb8fc8eb18f`, I will admit version-2 direct
+`CALL` outside node intervals under ordinary module target/stack verification.
+These calls execute serially in separate callee frames and may have effects;
+I do not summarize them as pure. Calls inside nodes retain the whole-body
+closed-function check, even when the callee owns passive blocks of its own.
+I retain parameter immutability, interval entry rules and all other existing
+owner-opcode restrictions. Version 1 remains unchanged. This is not a scheduler.
