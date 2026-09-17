@@ -176,3 +176,13 @@ above uses the same C source; its later changes are self-hosted traversal only.
 These gates establish the bounded classification and ordinary-value slice,
 not complete generic resource transfer, borrows, purity, or compiler fixed-point
 acceptance. I keep those roadmap obligations open.
+
+
+After merging main through PR401 (`59072013`) into `20df34e6`, I repeated the
+fresh bootstrap and all sixteen generic methods / 48 frontend cases. Both
+pass; the conformance run takes 56.873 seconds. Only roadmap additions needed
+conflict resolution. I preserved both sets of entries; the earlier 45-method
+and 15-method checkpoints above remain unchanged evidence for their tested
+source. Latest integration logs are
+`/tmp/nanolang-generic-main401-bootstrap.log` and
+`/tmp/nanolang-generic-main401-conformance.log`.
