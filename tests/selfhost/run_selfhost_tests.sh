@@ -30,6 +30,7 @@ test_loop_control.nano
 test_recursion.nano
 test_function_calls.nano
 test_returned_function_calls.nano
+test_opaque_null_argument.nano
 test_nested_array_indexing.nano
 test_let_set.nano
 test_if_else.nano
@@ -49,6 +50,7 @@ test_requires_bool.nano
 test_function_arg_type_errors.nano
 test_returned_function_arg_type_error.nano
 test_returned_function_arity_error.nano
+test_opaque_nonzero_argument.nano
 "
 
 PASSED=0

@@ -77,6 +77,22 @@ shadow main { assert true }
 
 CALLEE_MUTATION = 'union Choice { Some { value: int }, None { } }\nfn first(x: int) -> int { return (+ x 100) }\nshadow first { assert (== (first 1) 101) }\nfn second(x: int) -> int { return (+ x 200) }\nshadow second { assert (== (second 1) 201) }\nfn main() -> int {\n let mut target: fn(int) -> int = first\n let choice: Choice = Choice.Some { value: 1 }\n let result: int = (target (match choice { Some(item) => { set target second 1 } None(empty) => { 0 } }))\n assert (== result 101)\n assert (== (target 1) 201)\n return 0\n}\nshadow main { assert true }\n'
 
+OPAQUE_NULL = """opaque type LocalHandle
+
+fn is_null(value: LocalHandle) -> bool {
+    return (== value 0)
+}
+
+shadow is_null { assert (is_null 0) }
+
+fn main() -> int {
+    assert (is_null 0)
+    return 0
+}
+
+shadow main { assert (== (main) 0) }
+"""
+
 class NativeCallArgumentOrder(unittest.TestCase):
     def test_interpreter_vm_and_native_agree(self):
         with tempfile.TemporaryDirectory(prefix="nano-call-order-") as tmp:
@@ -131,6 +147,31 @@ class NativeCallArgumentOrder(unittest.TestCase):
             executable = directory / "native"
             self._run([str(NANOC), str(source), "-o", str(executable)], directory)
             self._run([str(executable)], directory)
+
+    def test_native_snapshot_restores_opaque_null_pointer_type(self):
+        with tempfile.TemporaryDirectory(prefix="nano-opaque-null-") as tmp:
+            directory = Path(tmp)
+            source = directory / "opaque_null.nano"
+            source.write_text(OPAQUE_NULL)
+            executable = directory / "native"
+            self._run([str(NANOC), str(source), "--keep-c", "-o", str(executable)], directory)
+            self._run([str(executable)], directory)
+            generated = executable.with_suffix(".c").read_text()
+            self.assertRegex(generated, r"is_null\(\(void\*\)__nl_arg_\d+_0\)")
+
+    def test_native_rejects_nonzero_integer_for_opaque_parameter(self):
+        with tempfile.TemporaryDirectory(prefix="nano-opaque-nonzero-") as tmp:
+            directory = Path(tmp)
+            source = directory / "opaque_nonzero.nano"
+            source.write_text(OPAQUE_NULL.replace("assert (is_null 0)\n    return 0",
+                                                  "assert (is_null 1)\n    return 0"))
+            executable = directory / "preserved"
+            executable.write_bytes(b"preserve")
+            result = subprocess.run([str(NANOC), str(source), "-o", str(executable)],
+                                    cwd=directory, capture_output=True, timeout=90)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(executable.read_bytes(), b"preserve")
+            self.assertIn(b"or 0 (null)", result.stderr)
 
     def _run(self, command, directory):
         result = subprocess.run(command, cwd=directory, capture_output=True, timeout=90)
