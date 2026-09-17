@@ -8734,6 +8734,7 @@ Compiler product:
       I retain dependency selection, completion/deadline checks and previous
       output on failure; complete compiler shadow lowering remains required
       (`task_c5a7a4835d364b50b747018c794a07d0`).
+      My fixed-point guard keeps the seed compiler identity stable so cached host artifacts remain valid, then rejects compiler calls during both VM generations.
 - [x] I supervise standalone VM shadow execution with a verified module,
       completion handshake and bounded parent deadline. I reject early exit,
       failed execution and incompatible CLI modes before canonical publication

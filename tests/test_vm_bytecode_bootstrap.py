@@ -7,6 +7,7 @@ from pathlib import Path
 import shlex
 import signal
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -26,6 +27,21 @@ class VMBytecodeBootstrap(unittest.TestCase):
         print(f'I retain my bootstrap evidence at {evidence}', flush=True)
         env = os.environ.copy()
         env['NANO_AS_CAPTURE_HELPER'] = str(ROOT / 'bin/nano_as_capture.so')
+        native_marker = evidence / 'unexpected-native-compiler'
+        guarded_cc = evidence / 'guard-native-compiler'
+        compiler_command = shlex.split(env.get('NANO_CC') or env.get('CC') or 'cc')
+        self.assertTrue(compiler_command)
+        guarded_cc.write_text(
+            '#!' + sys.executable + '\nimport os, sys\nfrom pathlib import Path\n' +
+            'if os.environ.get("NANOLANG_BOOTSTRAP_NO_CC") == "1":\n' +
+            '    Path(' + repr(str(native_marker)) + ').write_text("I rejected a native compiler call.\\n")\n' +
+            '    sys.exit(91)\n' +
+            'command = ' + repr(compiler_command) + '\n' +
+            'os.execvp(command[0], command + sys.argv[1:])\n')
+        guarded_cc.chmod(0o755)
+        env['CC'] = str(guarded_cc)
+        env['NANO_CC'] = str(guarded_cc)
+        env.pop('NANOLANG_BOOTSTRAP_NO_CC', None)
         manifest = {'root': str(ROOT), 'stages': {}, 'stage_timeout_seconds': budget,
                     'boundary': 'I execute VM-generation shadows as bytecode and reject native compiler calls. The product still contains its separate legacy C backend.'}
 
@@ -80,12 +96,9 @@ class VMBytecodeBootstrap(unittest.TestCase):
         hosts = imports(seed, 'seed')
         manifest['host_libraries'] = hosts
         save()
-        native_marker = evidence / 'unexpected-native-compiler'
-        rejected_cc = evidence / 'reject-native-compiler'
-        rejected_cc.write_text('#!/bin/sh\n: > ' + shlex.quote(str(native_marker)) + '\nexit 91\n')
-        rejected_cc.chmod(0o755)
-        env['CC'] = str(rejected_cc)
-        env['NANO_CC'] = str(rejected_cc)
+        # I retain the seed's compiler identity and immutable artifact cache.
+        # Changing CC here would request new host-library builds before shadows.
+        env['NANOLANG_BOOTSTRAP_NO_CC'] = '1'
         env['NANO_VM'] = str(ROOT / 'bin/nano_vm')
         for label, compiler, output in [('stage1', seed, first), ('stage2', first, second)]:
             run(label, [ROOT / 'bin/nano_vm', compiler, '--', source, '--emit-nvm', '-o', output])
