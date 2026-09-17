@@ -375,6 +375,7 @@ struct ASTNode {
         } assert;
         struct {
             char *name;               // Struct name
+            char *original_name;      /* Source spelling before module binding */
             char **field_names;       // Array of field names
             Type *field_types;        // Array of field types
             char **field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
@@ -634,6 +635,7 @@ typedef struct {
 /* Struct definition entry */
 typedef struct {
     char *name;
+    char *original_name;
     char **field_names;
     Type *field_types;
     char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
@@ -908,6 +910,7 @@ bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
+bool bind_nominal_records(ASTNode *program, Environment *env);
 void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,

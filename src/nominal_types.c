@@ -1,0 +1,190 @@
+/* I retain source names while binding module-owned record identities. */
+#include "nanolang.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+static const char *nominal_name(ASTNode *program, Environment *env, const char *name) {
+    if (!name) return NULL;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_STRUCT_DEF &&
+            (!strcmp(item->as.struct_def.name, name) ||
+             (item->as.struct_def.original_name && !strcmp(item->as.struct_def.original_name, name))))
+            return item->as.struct_def.name;
+    }
+    StructDef *record = env_get_struct(env, name);
+    return record ? record->name : name;
+}
+
+static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
+    if (!slot || !*slot) return true;
+    const char *name = nominal_name(program, env, *slot);
+    if (!strcmp(name, *slot)) return true;
+    char *bound = strdup(name);
+    if (!bound) return false;
+    free(*slot);
+    *slot = bound;
+    return true;
+}
+
+static bool nominal_signature(ASTNode *, Environment *, FunctionSignature *);
+static bool nominal_info(ASTNode *program, Environment *env, TypeInfo *info) {
+    if (!info) return true;
+    if (!nominal_slot(program, env, &info->generic_name) ||
+        !nominal_info(program, env, info->element_type) ||
+        !nominal_signature(program, env, info->fn_sig)) return false;
+    for (int i = 0; i < info->type_param_count; ++i)
+        if (info->type_params && !nominal_info(program, env, info->type_params[i])) return false;
+    for (int i = 0; i < info->tuple_element_count; ++i)
+        if (info->tuple_type_names && !nominal_slot(program, env, &info->tuple_type_names[i])) return false;
+    for (int i = 0; i < info->row_field_count; ++i)
+        if (info->row_field_type_names && !nominal_slot(program, env, &info->row_field_type_names[i])) return false;
+    return true;
+}
+static bool nominal_signature(ASTNode *program, Environment *env, FunctionSignature *signature) {
+    if (!signature) return true;
+    for (int i = 0; i < signature->param_count; ++i)
+        if (signature->param_struct_names && !nominal_slot(program, env, &signature->param_struct_names[i])) return false;
+    return nominal_slot(program, env, &signature->return_struct_name) &&
+           nominal_signature(program, env, signature->return_fn_sig);
+}
+static bool nominal_parameter(ASTNode *program, Environment *env, Parameter *parameter) {
+    return nominal_slot(program, env, &parameter->struct_type_name) &&
+           nominal_signature(program, env, parameter->fn_sig) &&
+           nominal_info(program, env, parameter->type_info);
+}
+
+static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
+    if (!node) return true;
+#define CHILD(value) do { if (!nominal_node(program, env, (value))) return false; } while (0)
+#define SLOT(value) do { if (!nominal_slot(program, env, &(value))) return false; } while (0)
+#define CHILDREN(values, count) do { for (int n = 0; n < (count); ++n) CHILD((values)[n]); } while (0)
+    switch (node->type) {
+        case AST_PROGRAM: CHILDREN(node->as.program.items, node->as.program.count); break;
+        case AST_FUNCTION:
+            for (int i = 0; i < node->as.function.param_count; ++i)
+                if (!nominal_parameter(program, env, &node->as.function.params[i])) return false;
+            SLOT(node->as.function.return_struct_type_name);
+            if (!nominal_signature(program, env, node->as.function.return_fn_sig) ||
+                !nominal_info(program, env, node->as.function.return_type_info)) return false;
+            CHILD(node->as.function.body); break;
+        case AST_STRUCT_DEF:
+            for (int i = 0; i < node->as.struct_def.field_count; ++i)
+                if (node->as.struct_def.field_type_names) SLOT(node->as.struct_def.field_type_names[i]);
+            break;
+        case AST_UNION_DEF:
+            for (int i = 0; i < node->as.union_def.variant_count; ++i)
+                for (int j = 0; j < node->as.union_def.variant_field_counts[i]; ++j)
+                    if (node->as.union_def.variant_field_type_names && node->as.union_def.variant_field_type_names[i])
+                        SLOT(node->as.union_def.variant_field_type_names[i][j]);
+            break;
+        case AST_STRUCT_LITERAL:
+            SLOT(node->as.struct_literal.struct_name);
+            CHILDREN(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
+            CHILD(node->as.struct_literal.spread_source); break;
+        case AST_UNION_CONSTRUCT:
+            if (!nominal_info(program, env, node->as.union_construct.type_info)) return false;
+            CHILDREN(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
+        case AST_LET:
+            SLOT(node->as.let.type_name);
+            if (!nominal_signature(program, env, node->as.let.fn_sig) || !nominal_info(program, env, node->as.let.type_info)) return false;
+            CHILD(node->as.let.value); break;
+        case AST_SET: CHILD(node->as.set.value); break;
+        case AST_BLOCK: CHILDREN(node->as.block.statements, node->as.block.count); break;
+        case AST_UNSAFE_BLOCK: CHILDREN(node->as.unsafe_block.statements, node->as.unsafe_block.count); break;
+        case AST_SHADOW: CHILD(node->as.shadow.body); break;
+        case AST_RETURN: CHILD(node->as.return_stmt.value); break;
+        case AST_IF:
+            CHILD(node->as.if_stmt.condition); CHILD(node->as.if_stmt.then_branch); CHILD(node->as.if_stmt.else_branch); break;
+        case AST_COND:
+            CHILDREN(node->as.cond_expr.conditions, node->as.cond_expr.clause_count);
+            CHILDREN(node->as.cond_expr.values, node->as.cond_expr.clause_count); CHILD(node->as.cond_expr.else_value); break;
+        case AST_WHILE: CHILD(node->as.while_stmt.condition); CHILD(node->as.while_stmt.body); break;
+        case AST_FOR: CHILD(node->as.for_stmt.range_expr); CHILD(node->as.for_stmt.body); break;
+        case AST_CALL:
+            SLOT(node->as.call.return_struct_type_name); CHILD(node->as.call.func_expr);
+            CHILDREN(node->as.call.args, node->as.call.arg_count); break;
+        case AST_MODULE_QUALIFIED_CALL:
+            SLOT(node->as.module_qualified_call.return_struct_type_name);
+            CHILDREN(node->as.module_qualified_call.args, node->as.module_qualified_call.arg_count); break;
+        case AST_PREFIX_OP: CHILDREN(node->as.prefix_op.args, node->as.prefix_op.arg_count); break;
+        case AST_ARRAY_LITERAL: CHILDREN(node->as.array_literal.elements, node->as.array_literal.element_count); break;
+        case AST_FIELD_ACCESS: CHILD(node->as.field_access.object); break;
+        case AST_TUPLE_LITERAL: CHILDREN(node->as.tuple_literal.elements, node->as.tuple_literal.element_count); break;
+        case AST_TUPLE_INDEX: CHILD(node->as.tuple_index.tuple); break;
+        case AST_ASSERT: CHILD(node->as.assert.condition); break;
+        case AST_PRINT: CHILD(node->as.print.expr); break;
+        case AST_MATCH:
+            CHILD(node->as.match_expr.expr); CHILDREN(node->as.match_expr.arm_bodies, node->as.match_expr.arm_count);
+            if (node->as.match_expr.guard_exprs) CHILDREN(node->as.match_expr.guard_exprs, node->as.match_expr.arm_count);
+            break;
+        case AST_TRY_OP: CHILD(node->as.try_op.operand); break;
+        case AST_PAR_BLOCK: CHILDREN(node->as.par_block.bindings, node->as.par_block.count); break;
+        case AST_PAR_LET: CHILDREN(node->as.par_let.values, node->as.par_let.count); CHILD(node->as.par_let.body); break;
+        case AST_EFFECT_DECL:
+            for (int i = 0; i < node->as.effect_decl.op_count; ++i) {
+                if (node->as.effect_decl.op_return_type_names) SLOT(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_param_type_names) SLOT(node->as.effect_decl.op_param_type_names[i]);
+                if (node->as.effect_decl.op_params && node->as.effect_decl.op_params[i])
+                    for (int j = 0; j < node->as.effect_decl.op_param_counts[i]; ++j)
+                        if (!nominal_parameter(program, env, &node->as.effect_decl.op_params[i][j])) return false;
+            }
+            break;
+        case AST_EFFECT_OP: CHILDREN(node->as.effect_op.args, node->as.effect_op.arg_count); break;
+        case AST_HANDLE_EXPR:
+            CHILD(node->as.handle_expr.body); CHILDREN(node->as.handle_expr.handler_bodies, node->as.handle_expr.handler_count); break;
+        case AST_EFFECT_HANDLER:
+            CHILD(node->as.effect_handler.body); CHILDREN(node->as.effect_handler.handler_bodies, node->as.effect_handler.handler_count); break;
+        case AST_ASYNC_FN: CHILD(node->as.async_fn.function); break;
+        case AST_AWAIT: CHILD(node->as.await_expr.expr); break;
+        default: break;
+    }
+#undef CHILD
+#undef SLOT
+#undef CHILDREN
+    return true;
+}
+
+bool bind_nominal_records(ASTNode *program, Environment *env) {
+    const char *owner = env->current_module;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_MODULE_DECL) owner = program->as.program.items[i]->as.module_decl.name;
+    {
+        const char hex[] = "0123456789abcdef";
+        size_t length = owner ? strlen(owner) : 0;
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type != AST_STRUCT_DEF || item->as.struct_def.original_name) continue;
+            /* I retain existing non-colliding ABI spellings. A later module's
+             * colliding declaration gets an owned internal identity. */
+            StructDef *existing = env_get_struct(env, item->as.struct_def.name);
+            if (!existing) continue;
+            bool same_owner = (!owner && !existing->module_name) ||
+                (owner && existing->module_name && strcmp(owner, existing->module_name) == 0);
+            if (same_owner) continue;
+            if (item->as.struct_def.is_extern || existing->is_extern) {
+                fprintf(stderr, "I cannot bind colliding foreign record declarations without an ABI identity: %s\n", item->as.struct_def.name);
+                return false;
+            }
+            size_t name_length = strlen(item->as.struct_def.name);
+            if (length > (SIZE_MAX - name_length - 32) / 2) return false;
+            char *bound = malloc(2 * length + name_length + 32);
+            if (!bound) return false;
+            strcpy(bound, owner ? "__nano_record_" : "__nano_root_record_");
+            size_t offset = strlen(bound);
+            for (size_t j = 0; j < length; ++j) {
+                unsigned char c = (unsigned char)owner[j];
+                bound[offset++] = hex[c >> 4]; bound[offset++] = hex[c & 15];
+            }
+            bound[offset++] = '_'; strcpy(bound + offset, item->as.struct_def.name);
+            item->as.struct_def.original_name = item->as.struct_def.name;
+            item->as.struct_def.name = bound;
+        }
+    }
+    if (!nominal_node(program, env, program)) {
+        fprintf(stderr, "I cannot allocate module-owned record identities\n");
+        return false;
+    }
+    return true;
+}

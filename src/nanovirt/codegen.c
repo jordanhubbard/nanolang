@@ -3561,6 +3561,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 static void register_imported_struct(Environment *env, ASTNode *item) {
     if (!env || !item || item->type != AST_STRUCT_DEF) return;
     StructDef sdef;
+    sdef.original_name = NULL;
     memset(&sdef, 0, sizeof(sdef));
     sdef.name = strdup(item->as.struct_def.name);
     sdef.field_count = item->as.struct_def.field_count;

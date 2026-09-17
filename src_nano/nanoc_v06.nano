@@ -22,6 +22,7 @@ import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
 import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/module_bindings.nano"
+import "src_nano/compiler/nominal_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
 
@@ -988,6 +989,7 @@ shadow merged_qualified_calls_valid {
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
     let prefix: string = (merged_binding_prefix parser)
+    if (not (nb_register parser prefix)) { return false }
     let root_owner: int = (- (array_length merge.files) 1)
     let mut originals: array<string> = []
     let mut owners: array<int> = []
@@ -1020,6 +1022,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
             (println (+ "I cannot bind an import outside the merged source set: " path))
             return false
         }
+        (nb_import parser imp target_owner)
         let mut f: int = 0
         while (< f count) {
             if (== (at owners f) target_owner) {
@@ -1047,6 +1050,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         }
         set i (+ i 1)
     }
+    (nb_rewrite parser)
     set i 0
     while (< i parser.shadows_count) {
         let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)

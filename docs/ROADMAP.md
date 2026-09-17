@@ -34,6 +34,11 @@ gate as complete. Phase 22 / 6.0 remains separate.
       type-name collisions. I repair declaration identity and representation
       before claiming ownership parity; my failing baseline and dependency
       order are in `docs/evidence/affine-module-identity.md`.
+      I preserve qualified record annotations in both parsers and exported
+      source names while giving generated record layouts distinct identities.
+      I verify same-module duplicate rejection separately from legal imports.
+      Long module names also expose silent truncation in my native formatted
+      output builder; I retain complete generated identities and test execution.
 
 - [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
       the published `v5.0.0` tag and restore the released compiler, tests and

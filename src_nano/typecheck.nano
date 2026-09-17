@@ -88,12 +88,54 @@ shadow resource_name_in {
     assert (not (resource_name_in ["Handle"] "int"))
 }
 
+# I qualify ownership facts by declaration, independently of source spelling.
+fn resource_type_identity(parser: Parser, type_name: string, line: int) -> string {
+    let owner: int = (mb_owner line)
+    let mut found: string = ""
+    let mut matches: int = 0
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let def: ASTStruct = (parser_get_struct_def parser i)
+        let key: string = (+ "#record:" (int_to_string i))
+        if (== type_name key) { return key }
+        if (== def.name type_name) {
+            if (== (mb_owner def.line) owner) { return key }
+            set found key set matches (+ matches 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_union_count parser)) {
+        let def: ASTUnion = (parser_get_union parser i)
+        let key: string = (+ "#union:" (int_to_string i))
+        if (== type_name key) { return key }
+        if (== def.name type_name) {
+            if (== (mb_owner def.line) owner) { return key }
+            set found key set matches (+ matches 1)
+        }
+        set i (+ i 1)
+    }
+    # I retain the existing unique imported-name boundary; ambiguous names
+    # require an explicit module binding before they can be used as types.
+    if (== matches 1) { return found }
+    return type_name
+}
+shadow resource_type_identity {
+    let parser: Parser = (resource_test_parser "struct Handle { plain: int }\nresource struct Handle { fd: int }\n")
+    (mb_reset [1, 2])
+    assert (!= (resource_type_identity parser "Handle" 1) (resource_type_identity parser "Handle" 2))
+    assert (== (resource_type_identity parser "int" 1) "int")
+    assert (not (resource_type_is_declared parser (resource_type_identity parser "Handle" 1)))
+    assert (resource_type_is_declared parser (resource_type_identity parser "Handle" 2))
+    (mb_reset [])
+}
+
 fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
     let mut bearing: array<string> = []
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
         let def: ASTStruct = (parser_get_struct_def parser i)
-        if def.is_resource { set bearing (array_push bearing def.name) }
+        if def.is_resource { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) }
         set i (+ i 1)
     }
     # A cycle alone creates no obligation. I propagate only from resource roots.
@@ -103,33 +145,33 @@ fn resource_type_is_declared(parser: Parser, type_name: string) -> bool {
         set i 0
         while (< i (parser_get_struct_def_count parser)) {
             let def: ASTStruct = (parser_get_struct_def parser i)
-            if (not (resource_name_in bearing def.name)) {
+            if (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) {
                 let mut field: int = 0
                 let mut owns: bool = false
                 while (< field (array_length def.field_types)) {
-                    if (resource_name_in bearing (at def.field_types field)) { set owns true }
+                    if (resource_name_in bearing (resource_type_identity parser (at def.field_types field) def.line)) { set owns true }
                     set field (+ field 1)
                 }
-                if owns { set bearing (array_push bearing def.name) set changed true }
+                if owns { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) set changed true }
             }
             set i (+ i 1)
         }
         set i 0
         while (< i (parser_get_union_count parser)) {
             let def: ASTUnion = (parser_get_union parser i)
-            if (not (resource_name_in bearing def.name)) {
+            if (not (resource_name_in bearing (resource_type_identity parser def.name def.line))) {
                 let mut field: int = 0
                 let mut owns: bool = false
                 while (< field (array_length def.variant_field_types)) {
-                    if (resource_name_in bearing (at def.variant_field_types field)) { set owns true }
+                    if (resource_name_in bearing (resource_type_identity parser (at def.variant_field_types field) def.line)) { set owns true }
                     set field (+ field 1)
                 }
-                if owns { set bearing (array_push bearing def.name) set changed true }
+                if owns { set bearing (array_push bearing (resource_type_identity parser def.name def.line)) set changed true }
             }
             set i (+ i 1)
         }
     }
-    return (resource_name_in bearing type_name)
+    return (resource_name_in bearing (resource_type_identity parser type_name 0))
 }
 
 shadow resource_type_is_declared {
@@ -286,10 +328,10 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
         let mut i: int = 0
         while (< i (parser_get_struct_def_count parser)) {
             let record: ASTStruct = (parser_get_struct_def parser i)
-            if (== record.name owner) {
+            if (== (resource_type_identity parser record.name record.line) owner) {
                 let mut j: int = 0
                 while (< j (array_length record.field_names)) {
-                    if (== (at record.field_names j) field.field_name) { return (at record.field_types j) }
+                    if (== (at record.field_names j) field.field_name) { return (resource_type_identity parser (at record.field_types j) record.line) }
                     set j (+ j 1)
                 }
             }
@@ -301,8 +343,18 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
         let index: int = (resource_find states id.name)
         if (>= index 0) { let state: ResourceState = (at states index) return state.type_name }
     }
-    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { let value: ASTStructLiteral = (parser_get_struct_literal parser node_id) return value.struct_name }
-    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { let value: ASTUnionConstruct = (parser_get_union_construct parser node_id) return value.union_name }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { let value: ASTStructLiteral = (parser_get_struct_literal parser node_id) return (resource_type_identity parser value.struct_name value.line) }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { let value: ASTUnionConstruct = (parser_get_union_construct parser node_id) return (resource_type_identity parser value.union_name value.line) }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+        let target: string = (mb_lookup (mb_owner call.line) call.function_name)
+        let mut i: int = 0
+        while (< i (parser_get_function_count parser)) {
+            let func: ASTFunction = (parser_get_function parser i)
+            if (== func.name target) { return (resource_type_identity parser func.return_type func.line) }
+            set i (+ i 1)
+        }
+    }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser node_id)
         let callee: string = (resource_value_type parser call.function call.function_type states)
@@ -315,7 +367,7 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
             let mut i: int = 0
             while (< i (parser_get_function_count parser)) {
                 let func: ASTFunction = (parser_get_function parser i)
-                if (== func.name id.name) { return func.return_type }
+                if (== func.name (mb_lookup (mb_owner id.line) id.name)) { return (resource_type_identity parser func.return_type func.line) }
                 set i (+ i 1)
             }
         }
@@ -334,7 +386,7 @@ fn resource_check_annotation(parser: Parser, spelling: string, diags: List<Compi
     let mut i: int = 0
     while (< i (list_LexerToken_length tokens)) {
         let token: LexerToken = (list_LexerToken_get tokens i)
-        if (resource_type_is_declared parser token.value) {
+        if (resource_type_is_declared parser (resource_type_identity parser token.value line)) {
             (resource_flow_error diags file_name line column "resource-bearing collections are not supported")
         }
         set i (+ i 1)
@@ -403,7 +455,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if flow.next {
             let updated: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
-            return ResourceFlow { states: (array_push updated ResourceState { name: binding.name, type_name: nominal, moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
+            return ResourceFlow { states: (array_push updated ResourceState { name: binding.name, type_name: (resource_type_identity parser nominal binding.line), moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
         }
         return flow
     }
@@ -463,6 +515,19 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         return (resource_flow_node parser field.object field.object_type states false loop_entry diags file_name)
     }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+        let mut i: int = 0
+        while (and flow.next (< i call.arg_count)) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            set flow (resource_flow_node parser arg.node_id arg.node_type flow.states true loop_entry diags file_name)
+            set i (+ i 1)
+        }
+        if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
+            (resource_flow_error diags file_name call.line call.column "resource result has no resolved owner")
+        }
+        return flow
+    }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser node_id)
         set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name)
@@ -500,7 +565,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             set flow (resource_flow_node parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name)
             set i (+ i 1)
         }
-        if (and flow.next (and (not move) (resource_type_is_declared parser literal.struct_name))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
+        if (and flow.next (and (not move) (resource_type_is_declared parser (resource_type_identity parser literal.struct_name literal.line)))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
         return flow
     }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
@@ -551,7 +616,7 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
     while (< i func.param_count) {
         let param: ASTLet = (parser_get_let parser (+ func.param_start i))
         (resource_check_annotation parser param.var_type diags file_name param.line param.column)
-        set states (array_push states ResourceState { name: param.name, type_name: param.var_type, moved: false, line: param.line, column: param.column })
+        set states (array_push states ResourceState { name: param.name, type_name: (resource_type_identity parser param.var_type param.line), moved: false, line: param.line, column: param.column })
         set i (+ i 1)
     }
     if (< func.body 0) { return }

@@ -365,19 +365,6 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
 
-                /* Module-qualified type sugar: Alias.TypeName
-                 * For now, treat as TypeName (module structs are registered globally).
-                 */
-                if (current_token(p)->token_type == TOKEN_DOT) {
-                    Token *next_ident = peek_token(p, 1);
-                    if (next_ident && next_ident->token_type == TOKEN_IDENTIFIER) {
-                        advance(p);  /* consume '.' */
-                        free(type_name);
-                        type_name = strdup(next_ident->value);
-                        advance(p);  /* consume TypeName */
-                    }
-                }
-                
                 /* Check for Module.Type pattern */
                 if (current_token(p)->token_type == TOKEN_DOT) {
                     advance(p);  /* consume '.' */
@@ -389,10 +376,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         return TYPE_UNKNOWN;
                     }
                     /* Build qualified name: Module.Type */
-                    char qualified_name[512];
-                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", type_name, type_tok->value);
+                    char *qualified_name = NULL;
+                    if (asprintf(&qualified_name, "%s.%s", type_name, type_tok->value) < 0) {
+                        free(type_name);
+                        parser_error(p, type_tok->line, type_tok->column, "I cannot allocate a qualified type name\n");
+                        return TYPE_UNKNOWN;
+                    }
                     free(type_name);
-                    type_name = strdup(qualified_name);
+                    type_name = qualified_name;
                     advance(p);  /* consume type name */
                 }
                 
@@ -1064,11 +1055,15 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             Token *type_token = current_token(p);
             char *struct_name = NULL;
             if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
+                /* I retain the declaring-module qualifier. */
                 Token *dot = peek_token(p, 1);
                 Token *rhs = peek_token(p, 2);
                 if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    struct_name = strdup(rhs->value);
+                    if (asprintf(&struct_name, "%s.%s", type_token->value, rhs->value) < 0) {
+                        free(param_list);
+                        parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified parameter type\n");
+                        return false;
+                    }
                 } else {
                     struct_name = strdup(type_token->value);
                 }
@@ -3127,11 +3122,15 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                     /* Capture type name if it's a struct/union type (identifier) */
                     Token *type_token = current_token(p);
                     if (type_token->token_type == TOKEN_IDENTIFIER) {
-                        /* Module-qualified type sugar: Alias.TypeName -> treat as TypeName */
+                        /* I retain the declaring-module qualifier. */
                         Token *dot = peek_token(p, 1);
                         Token *rhs = peek_token(p, 2);
                         if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                            type_name = strdup(rhs->value);
+                            if (asprintf(&type_name, "%s.%s", type_token->value, rhs->value) < 0) {
+                                free(name);
+                                parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified local type\n");
+                                return NULL;
+                            }
                         } else {
                             type_name = strdup(type_token->value);
                         }
@@ -6037,6 +6036,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_STRUCT_DEF:
             free(node->as.struct_def.name);
+            free(node->as.struct_def.original_name);
             for (int i = 0; i < node->as.struct_def.field_count; i++) {
                 free(node->as.struct_def.field_names[i]);
                 if (node->as.struct_def.field_type_names && node->as.struct_def.field_type_names[i]) {

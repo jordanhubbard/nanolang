@@ -19,6 +19,7 @@
 
 import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/module_bindings.nano"
+from "src_nano/compiler/nominal_bindings.nano" import nb_type
 import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
@@ -1494,7 +1495,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
     } else { (print "") }
 
     if (== t0.token_type LexerTokenType.TOKEN_IDENTIFIER) {
-        let name: string = t0.value
+        let name: string = (nb_type t0.value t0.line)
 
         /* List<T> */
         if (== name "List") {
@@ -1503,7 +1504,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
                 let t2: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 2))
                 let t3: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 3))
                 if (and (== t1.token_type LexerTokenType.TOKEN_LT) (and (== t2.token_type LexerTokenType.TOKEN_IDENTIFIER) (== t3.token_type LexerTokenType.TOKEN_GT))) {
-                    let elem: string = t2.value
+                    let elem: string = (nb_type t2.value t2.line)
                     if (== elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
                     if (== elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
                     let mut list_parts: array<string> = []
@@ -1657,7 +1658,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
             let name_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 1))
             let brace_tok: LexerToken = (list_LexerToken_get parser.tokens (+ i 2))
             if (and (== name_tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== brace_tok.token_type LexerTokenType.TOKEN_LBRACE)) {
-                let sname: string = name_tok.value
+                let sname: string = (nb_type name_tok.value name_tok.line)
                 if (not (is_schema_struct_name sname)) {
 
                 /* Deduplicate: skip if already emitted (merged source may contain duplicates) */

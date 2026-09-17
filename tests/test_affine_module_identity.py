@@ -11,8 +11,8 @@ OWNERSHIP = r"(?i)(ownership|resource.{0,80}(scope|leak|live|consum)|moved value
 
 
 class AffineModuleIdentity(unittest.TestCase):
-    def check_modules(self, resource_body, accepted, reverse=False, nested=False):
-        for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
+    def check_modules(self, resource_body, accepted, reverse=False, nested=False, long_names=False):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
             with self.subTest(compiler=compiler, reverse=reverse, nested=nested), tempfile.TemporaryDirectory(prefix="nano-affine-modules-") as directory:
                 work = Path(directory)
                 plain = "struct Handle { plain_value: int }\n"
@@ -40,9 +40,11 @@ class AffineModuleIdentity(unittest.TestCase):
                 owned += f"pub fn run_owned() -> int {{ let value: {kind} = {value} {resource_body} }}\n"
                 if accepted:
                     owned += "shadow run_owned { assert (== (run_owned) 7) }\n"
-                (work / "plain.nano").write_text(plain)
-                (work / "owned.nano").write_text(owned)
-                imports = ['module "plain.nano" as ordinary', 'module "owned.nano" as owning']
+                plain_name = ("p" * 244 + "a.nano") if long_names else "plain.nano"
+                owned_name = ("p" * 244 + "b.nano") if long_names else "owned.nano"
+                (work / plain_name).write_text(plain)
+                (work / owned_name).write_text(owned)
+                imports = [f'module "{plain_name}" as ordinary', f'module "{owned_name}" as owning']
                 if reverse:
                     imports.reverse()
                 source = work / "main.nano"
@@ -58,11 +60,66 @@ class AffineModuleIdentity(unittest.TestCase):
                 else:
                     self.assertGreater(result.returncode, 0, messages)
                     self.assertRegex(messages, OWNERSHIP)
+                    self.assertIn("owned.nano", messages)
                     self.assertEqual(output.read_bytes(), b"prior artifact")
+
+    def test_qualified_public_record_identity(self):
+        fixtures = {
+            'owned.nano': """resource struct Handle { fd: int }
+pub struct Envelope { inner: Handle }
+pub fn make_owner() -> Envelope { return Envelope { inner: Handle { fd: 7 } } }
+pub fn close_owner(value: Envelope) -> int { let Envelope { inner } = value let Handle { fd } = inner return fd }
+shadow make_owner { assert (== (close_owner (make_owner)) 7) }
+shadow close_owner { assert (== (close_owner (make_owner)) 7) }
+""",
+            'plain.nano': """pub struct Envelope { value: int }
+pub fn make_plain() -> Envelope { return Envelope { value: 5 } }
+shadow make_plain { let value: Envelope = (make_plain) assert (== value.value 5) }
+""",
+            'main.nano': """module "owned.nano" as owning
+module "owned.nano" as same_owner
+module "plain.nano" as ordinary
+fn route(value: owning.Envelope) -> same_owner.Envelope { return value }
+shadow route { assert (== (owning.close_owner (route (owning.make_owner))) 7) }
+fn main() -> int {
+    let plain: ordinary.Envelope = (ordinary.make_plain)
+    let copy: ordinary.Envelope = plain
+    assert (== copy.value 5)
+    return (- (owning.close_owner (route (owning.make_owner))) 7)
+}
+shadow main { assert (== (main) 0) }
+""",
+        }
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-affine-qualified-") as directory:
+                work = Path(directory)
+                for name, source in fixtures.items():
+                    (work / name).write_text(source)
+                output = work / "program"
+                result = subprocess.run([str(COMPILER_ROOT / compiler), str(work / "main.nano"), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                run = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
+                self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
 
     def test_plain_copy_and_owned_move(self):
         for reverse in (False, True):
             self.check_modules("let moved: Handle = value return (close_owned moved)", True, reverse)
+
+    def test_long_module_identity(self):
+        for reverse in (False, True):
+            self.check_modules("let moved: Handle = value return (close_owned moved)", True, reverse, long_names=True)
+
+    def test_same_module_duplicate_is_rejected(self):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-affine-duplicate-") as directory:
+                source = Path(directory) / "duplicate.nano"
+                output = Path(directory) / "program"
+                source.write_text("struct Handle { first: int }\nresource struct Handle { second: int }\nfn main() -> int { return 0 }\n")
+                output.write_bytes(b"prior artifact")
+                result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
+                self.assertRegex(result.stdout + result.stderr, r"(?i)(already defined|twice in one module)")
+                self.assertEqual(output.read_bytes(), b"prior artifact")
 
     def test_nested_plain_copy_and_owned_move(self):
         for reverse in (False, True):
