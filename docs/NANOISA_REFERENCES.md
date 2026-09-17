@@ -122,3 +122,35 @@ The first slice is a tested prerequisite, not completion of any later row.
 My publication hold remains. The old equivalence task's references to explicit
 `discard` or replacing borrows do not override my accepted design: I support
 real call-scoped borrows and reject `drop`/`discard` syntax.
+
+## Function and root metadata prerequisite
+
+My required declaration section is OWNERSHIP (section 13, feature bit 8), version 1.
+It requires retained layouts and does not permit reference execution by itself.
+All words are little-endian. I encode the version and retained layout count as
+u32, one u8 flag per layout (bit 0 complete, bit 1 resource), zero padding to
+four-byte alignment, and a u32 function count. For every function in table
+order I encode u16 local count, u16 parameter count, one result descriptor,
+and one descriptor per local. The parameter descriptors are the first locals.
+A descriptor is u8 value tag, u8 mode (0 value, 1 shared, 2 exclusive), two
+zero reserved bytes, and u32 retained layout index or `0xffffffff`.
+
+The counts must match my authoritative tables. A record descriptor with a
+layout uses that exact complete record layout. Reference modes require the
+currently supported fixed scalar-field resource referent and may appear
+only among parameters. Results are values, never references. A void tag
+without a layout denotes unknown ordinary local information, not permission
+to forget reference provenance. Record fields referring to resource layouts
+must propagate resource classification to their complete containing layout.
+The metadata declares types; it does not prove a live owner or a correct
+instruction trace. I continue to refuse execution of resource/reference
+contracts until the instruction verifier and runtime implement them.
+
+My [declaration evidence](evidence/nanoisa-ownership-contracts.md) records
+codec and canonical seed checks, ordinary execution controls and explicit
+refusal by verified assembly, direct VM APIs and native translation.
+
+Actual float-record lowering remains an independent prerequisite
+(`task_93574cf9d200459aa16e959baf68201d`). Retaining a float field tag does not
+establish its VM/native implementation. I keep that reference case refused
+until its runtime gates pass with the other reference semantics.

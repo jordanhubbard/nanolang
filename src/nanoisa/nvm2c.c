@@ -10,6 +10,7 @@
 #include "isa.h"
 #include "utf8.h"
 #include "nvm2c_shape.h"
+#include "ownership_contracts.h"
 
 #include <stdarg.h>
 #include <limits.h>
@@ -4966,6 +4967,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
     if (!mod) {
         if (err && err_len) snprintf(err, err_len, "module is null");
+        return NULL;
+    }
+    bool needs_ownership = false;
+    if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership) {
+        if (err && err_len) snprintf(err, err_len,
+            "I require valid reference lifetime and ownership instruction verification before translation");
         return NULL;
     }
     if (mod->function_count == 0) {

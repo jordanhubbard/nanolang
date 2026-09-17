@@ -31,6 +31,7 @@
 #include "verifier.h"
 #include "passive.h"
 #include "retained_layouts.h"
+#include "ownership_contracts.h"
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -61,6 +62,11 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     out->isa_version = NVM_V2_ISA_VERSION;
     if (!nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
         !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
+    bool needs_ownership = false;
+    NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
+    if (ownership != NVM_V2_OK) return ownership;
+    out->ownership_data = mod->ownership_data;
+    out->ownership_size = mod->ownership_size;
     out->passive_data = mod->passive_data;
     out->passive_size = mod->passive_size;
 
@@ -461,6 +467,16 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         memcpy(mod->passive_data, m->passive_data, m->passive_size);
         mod->passive_size = m->passive_size;
     }
+    if (m->ownership_size) {
+        if (!m->ownership_data) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
+        mod->ownership_data = malloc(m->ownership_size);
+        if (!mod->ownership_data) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+        memcpy(mod->ownership_data, m->ownership_data, m->ownership_size);
+        mod->ownership_size = m->ownership_size;
+    }
+    bool needs_ownership = false;
+    NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
+    if (ownership != NVM_V2_OK) { nvm_module_free(mod); return ownership; }
     if (!nvm_passive_valid(mod)) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
     *out = mod;
     return NVM_V2_OK;
