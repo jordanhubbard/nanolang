@@ -799,7 +799,7 @@ shadow nisa_fn_index {
 
 # I visit each directly required function once, including recursive cycles.
 fn nisa_require_function(index: int) -> void {
-    if (not nisa_program_mode) { return }
+    if (or (not nisa_ok) (not nisa_program_mode)) { return }
     let mut i: int = 0
     while (< i (array_length nisa_function_queue)) {
         if (== (at nisa_function_queue i) index) { return }
@@ -817,6 +817,11 @@ shadow nisa_require_function {
     assert (== (at nisa_function_queue 0) 2)
     assert (== (at nisa_function_queue 1) 1)
     let _2: int = (nisa_reset)
+    let saved: int = (array_length nisa_function_queue)
+    let failed: string = (nisa_fail "recorded failure")
+    (nisa_require_function 99)
+    assert (== (array_length nisa_function_queue) saved)
+    let reset_again: int = (nisa_reset)
 }
 
 # My Parser stores top-level lets with locals and parameters. I exclude every
@@ -915,6 +920,7 @@ shadow nisa_global_find {
 }
 
 fn nisa_emit_globals(parser: Parser) -> string {
+    if (not nisa_ok) { return "" }
     let global_flags: array<bool> = (nisa_global_let_flags parser)
     let mut i: int = 0
     while (< i (array_length global_flags)) {
@@ -941,15 +947,16 @@ fn nisa_emit_globals(parser: Parser) -> string {
     set nisa_types []
     let mut body: string = ""
     set i 0
-    while (< i (array_length nisa_global_nodes)) {
+    while (and nisa_ok (< i (array_length nisa_global_nodes))) {
         let declaration: ASTLet = (parser_get_let parser (at nisa_global_nodes i))
         set body (+ body (nisa_emit_expected_expr parser declaration.value declaration.value_type declaration.var_type))
-        set body (+ body (nisa_line_imm "STORE_GLOBAL" (int_to_string i)))
+        if nisa_ok { set body (+ body (nisa_line_imm "STORE_GLOBAL" (int_to_string i))) }
         set i (+ i 1)
     }
     let locals: int = (array_length nisa_names)
     set nisa_names []
     set nisa_types []
+    if (not nisa_ok) { return "" }
     let header: string = (+ ".function __init__ 0 " (+ (int_to_string locals) " 0 void 0\n"))
     return (+ header (+ body "  RET\n.end\n\n"))
 }
@@ -3346,6 +3353,7 @@ shadow nisa_result_tag {
 }
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
+    if (not nisa_ok) { return "" }
     set nisa_param_count func.param_count
     set nisa_has_par false
     set nisa_names []
@@ -3371,6 +3379,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
             }
         }
         let mut body: string = (nisa_emit_block parser func.body)
+        if (not nisa_ok) { return "" }
         if (nisa_block_falls_through parser func.body) {
             set body (+ body (nisa_line "RET"))
         } else {
@@ -3727,7 +3736,7 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     set out (+ out (+ ".function " (+ entry_name " 0 0 0 int 1\n")))
     set out (+ out (+ entry_body "  PUSH_I64 0\n  RET\n.end\n"))
     set i 0
-    while (< i (array_length nisa_function_queue)) {
+    while (and nisa_ok (< i (array_length nisa_function_queue))) {
         let function: ASTFunction = (parser_get_function parser (at nisa_function_queue i))
         if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
         else { set out (+ out (nisa_emit_function parser function)) }
@@ -3774,19 +3783,21 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
     } else {
         let n: int = (parser_get_function_count parser)
         let mut declaration_index: int = 0
-        while (and (not program) (< declaration_index n)) {
+        while (and nisa_ok (and (not program) (< declaration_index n))) {
             let declaration: ASTFunction = (parser_get_function parser declaration_index)
             if (< declaration.body 0) {
                 let imported: int = (nisa_register_extern parser declaration)
             }
             set declaration_index (+ declaration_index 1)
         }
+        if (not nisa_ok) { return "" }
         let initializers: string = (nisa_emit_globals parser)
+        if (not nisa_ok) { return "" }
         let mut out: string = ""
         let mut main_idx: int = (- 0 1)
         let mut emitted: int = 0
         let mut i: int = 0
-        while (or (and (not program) (< i n)) (and program (< i (array_length nisa_function_queue)))) {
+        while (and nisa_ok (or (and (not program) (< i n)) (and program (< i (array_length nisa_function_queue))))) {
             let mut function_index: int = i
             if program { set function_index (at nisa_function_queue i) }
             let func: ASTFunction = (parser_get_function parser function_index)
@@ -3799,6 +3810,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
                     (print "")
                 }
                 set out (+ out (nisa_emit_function parser func))
+                if (not nisa_ok) { return "" }
                 set out (+ out "\n")
                 set emitted (+ emitted 1)
             }
@@ -3868,6 +3880,26 @@ shadow nanoisa_emit_parser_nasm {
 }
 
 shadow nisa_emit_module_nasm {
+    let good_source: string = "fn main() -> int { return 7 }"
+    let good: string = (nanoisa_emit_nasm good_source)
+    assert (!= good "")
+    let rejected_declaration: string = (nanoisa_emit_nasm "extern fn unsupported(xs: array<float>) -> int fn main() -> int { return 0 }")
+    assert (== rejected_declaration "")
+    assert (== (array_length nisa_names) 0)
+    assert (== nisa_import_text "")
+    assert (== (nanoisa_emit_nasm good_source) good)
+    let rejected_global: string = (nanoisa_emit_nasm "let first: int = missing let later: string = \"unvisited\" fn main() -> int { return 0 }")
+    assert (== rejected_global "")
+    assert (str_contains nisa_err "missing")
+    assert (== (array_length nisa_names) 0)
+    assert (== (array_length nisa_types) 0)
+    assert (== (array_length nisa_str_vals) 0)
+    assert (== (nanoisa_emit_nasm good_source) good)
+    let rejected_body: string = (nanoisa_emit_nasm "fn first() -> int { let x: int = missing return 0 } fn later() -> string { return \"unvisited\" } fn main() -> int { return 0 }")
+    assert (== rejected_body "")
+    assert (str_contains nisa_err "missing")
+    assert (== (array_length nisa_str_vals) 0)
+    assert (== (nanoisa_emit_nasm good_source) good)
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "f" "n unused() -> int { return 9 } fn main() -> int { return 0 }")
     let tokens: List<LexerToken> = (tokenize_string source "program.nano" diagnostics)
