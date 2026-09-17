@@ -19,31 +19,76 @@ static bool resource_field_bearing(Environment *env, Type type, const char *name
     return false;
 }
 
-/* I walk fixed array payload annotations without mistaking declaration formals
- * for unrelated resource records. Generic substitution remains a separate step. */
-static bool resource_payload_bearing(Environment *env, const TypeInfo *info,
-                                      const UnionDef *owner, const bool *bearing,
-                                      unsigned depth) {
+typedef struct ResourceExpansion {
+    const UnionDef *declaration;
+    const char *identity;
+    bool collections_only;
+    const struct ResourceExpansion *previous;
+} ResourceExpansion;
+
+/* I expand concrete union fields against the current fixed-point facts. A
+ * repeated instantiation is an edge, not evidence of an owned resource. */
+static bool resource_payload_fact(Environment *env, const TypeInfo *info,
+                                  char *module, const UnionDef *formals,
+                                  const bool *bearing, const bool *collections,
+                                  bool collections_only, unsigned depth,
+                                  const ResourceExpansion *active) {
     if (!info) return false;
-    if (depth > 512) return true;
+    if (depth > 128) return true;
     if (info->base_type == TYPE_ARRAY)
-        return resource_payload_bearing(env, info->element_type, owner, bearing, depth + 1);
+        return resource_payload_fact(env, info->element_type, module, formals,
+            bearing, collections, false, depth + 1, active);
+    if (info->base_type == TYPE_LIST_GENERIC || info->base_type == TYPE_HASHMAP) {
+        for (int i = 0; i < info->type_param_count; ++i)
+            if (resource_payload_fact(env, info->type_params[i], module, formals,
+                    bearing, collections, false, depth + 1, active)) return true;
+        return false;
+    }
     const char *name = info->generic_name;
     if (!name) return false;
-    for (int i = 0; i < owner->generic_param_count; ++i)
-        if (!strcmp(name, owner->generic_params[i])) return false;
+    for (int i = 0; formals && i < formals->generic_param_count; ++i)
+        if (!strcmp(name, formals->generic_params[i])) return false;
     if (info->base_type != TYPE_STRUCT && info->base_type != TYPE_UNION) return false;
-    return resource_field_bearing(env, TYPE_STRUCT, name, owner->module_name, bearing) ||
-           resource_field_bearing(env, TYPE_UNION, name, owner->module_name, bearing);
+    char *caller = env->current_module;
+    env->current_module = module;
+    UnionDef *def = env_get_union(env, name);
+    env->current_module = caller;
+    if (def && info->type_param_count > 0) {
+        if (def->generic_param_count != info->type_param_count) return true;
+        char *identity = typeinfo_to_generic_arg_name((TypeInfo*)info);
+        if (!identity) return true;
+        for (const ResourceExpansion *seen = active; seen; seen = seen->previous) {
+            if (seen->declaration == def && seen->collections_only == collections_only && !strcmp(seen->identity, identity)) {
+                free(identity);
+                return false;
+            }
+        }
+        ResourceExpansion expansion = {def, identity, collections_only, active};
+        bool result = false;
+        for (int arm = 0; !result && arm < def->variant_count; ++arm) {
+            for (int field = 0; !result && field < def->variant_field_counts[arm]; ++field) {
+                TypeInfo *payload = resolve_union_payload_type_info(def, arm, field, info);
+                if (!payload) result = true;
+                else result = resource_payload_fact(env, payload, def->module_name, formals,
+                    bearing, collections, collections_only, depth + 1, &expansion);
+                free_payload_type_info(payload);
+            }
+        }
+        free(identity);
+        return result;
+    }
+    const bool *facts = collections_only ? collections : bearing;
+    return resource_field_bearing(env, TYPE_STRUCT, name, module, facts) ||
+           resource_field_bearing(env, TYPE_UNION, name, module, facts);
 }
 
 /* I propagate both obligations and unsupported collection boundaries to a least
  * fixed point. A recursive declaration alone creates neither fact. */
-static bool resource_classify(Environment *env, const char *name, bool collections_only) {
-    if (!name) return false;
-    StructDef *sdef = env_get_struct(env, name);
-    UnionDef *udef = sdef ? NULL : env_get_union(env, name);
-    if (!sdef && !udef) return false;
+static bool resource_classify(Environment *env, const char *name, const TypeInfo *info, bool collections_only) {
+    if (!name && !info) return false;
+    StructDef *sdef = name ? env_get_struct(env, name) : NULL;
+    UnionDef *udef = name && !sdef ? env_get_union(env, name) : NULL;
+    if (!sdef && !udef && !info) return false;
     bool roots = false;
     for (int i = 0; i < env->struct_count; ++i) roots |= env->structs[i].is_resource;
     if (!roots) return false;
@@ -64,11 +109,16 @@ static bool resource_classify(Environment *env, const char *name, bool collectio
             StructDef *record = &env->structs[i];
             for (int field = 0; field < record->field_count; ++field) {
                 if (!record->field_types || !record->field_type_names) continue;
-                if (!bearing[i] && resource_field_bearing(env, record->field_types[field],
-                        record->field_type_names[field], record->module_name, bearing))
+                const TypeInfo *info = record->field_type_info ? record->field_type_info[field] : NULL;
+                if (!bearing[i] && (resource_payload_fact(env, info, record->module_name, NULL,
+                        bearing, collections, false, 0, NULL) ||
+                        resource_field_bearing(env, record->field_types[field],
+                            record->field_type_names[field], record->module_name, bearing)))
                     bearing[i] = changed = true;
-                if (!collections[i] && resource_field_bearing(env, record->field_types[field],
-                        record->field_type_names[field], record->module_name, collections))
+                if (!collections[i] && (resource_payload_fact(env, info, record->module_name, NULL,
+                        bearing, collections, true, 0, NULL) ||
+                        resource_field_bearing(env, record->field_types[field],
+                            record->field_type_names[field], record->module_name, collections)))
                     collections[i] = changed = true;
             }
         }
@@ -86,14 +136,14 @@ static bool resource_classify(Environment *env, const char *name, bool collectio
                         if (!strcmp(field_name, variant->generic_params[param])) formal = true;
                     const TypeInfo *info = variant->variant_field_type_info && variant->variant_field_type_info[arm]
                         ? variant->variant_field_type_info[arm][field] : NULL;
-                    if (!bearing[index] && (resource_payload_bearing(env, info, variant, bearing, 0) ||
+                    if (!bearing[index] && (resource_payload_fact(env, info, variant->module_name, variant, bearing, collections, false, 0, NULL) ||
                         (!formal && resource_field_bearing(env, variant->variant_field_types[arm][field],
                             field_name, variant->module_name, bearing)))) bearing[index] = changed = true;
                     /* An array of an owned aggregate is unsupported even when a
                      * function merely passes the enclosing union through. */
                     if (!collections[index] &&
-                        (resource_payload_bearing(env, info, variant,
-                            info && info->base_type == TYPE_ARRAY ? bearing : collections, 0) ||
+                        (resource_payload_fact(env, info, variant->module_name, variant,
+                            bearing, collections, true, 0, NULL) ||
                          (!formal && resource_field_bearing(env, variant->variant_field_types[arm][field],
                             field_name, variant->module_name, collections)))) collections[index] = changed = true;
                 }
@@ -106,17 +156,27 @@ static bool resource_classify(Environment *env, const char *name, bool collectio
         if (sdef == &env->structs[i]) result = facts[i];
     for (int i = 0; i < env->union_count; ++i)
         if (udef == &env->unions[i]) result = facts[(size_t)env->struct_count + (size_t)i];
+    if (info) result = resource_payload_fact(env, info, env->current_module, NULL,
+        bearing, collections, collections_only, 0, NULL);
     free(bearing);
     free(collections);
     return result;
 }
 
 bool is_resource_type(Environment *env, const char *name) {
-    return resource_classify(env, name, false);
+    return resource_classify(env, name, NULL, false);
 }
 
 bool has_resource_collection_payload(Environment *env, const char *name) {
-    return resource_classify(env, name, true);
+    return resource_classify(env, name, NULL, true);
+}
+
+bool is_resource_type_info(Environment *env, const TypeInfo *info) {
+    return resource_classify(env, NULL, info, false);
+}
+
+bool has_resource_collection_type_info(Environment *env, const TypeInfo *info) {
+    return resource_classify(env, NULL, info, true);
 }
 
 /* Mark a variable as a resource if its type is a resource struct */

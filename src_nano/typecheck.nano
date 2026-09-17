@@ -193,7 +193,79 @@ shadow resource_fixed_payload_bearing {
     assert (not (resource_fixed_payload_bearing parser "array<int>" 1 [] roots 0))
 }
 
+# I expand concrete payloads against current fixed-point facts, preserving
+# formal names until their declaring union supplies concrete arguments.
+fn resource_concrete_payload_fact(parser: Parser, spelling: string, line: int, formals: array<string>, bearing: array<string>, collections: array<string>, collections_only: bool, active: array<string>, depth: int) -> bool {
+    # Reserved scalar types cannot contain a nominal resource payload.
+    if (or (== spelling "int") (or (== spelling "float") (or (== spelling "bool") (or (== spelling "string") (== spelling "void"))))) { return false }
+    if (> depth 128) { return true }
+    if (resource_name_in formals spelling) { return false }
+    let raw_base: string = (base_type_name spelling)
+    let args: array<string> = (tc_generic_arguments spelling)
+    let collection: bool = (or (== raw_base "array") (or (== raw_base "List") (== raw_base "HashMap")))
+    if collection {
+        let mut i: int = 0
+        while (< i (array_length args)) {
+            if (resource_concrete_payload_fact parser (at args i) line formals bearing collections false active (+ depth 1)) { return true }
+            set i (+ i 1)
+        }
+        return false
+    }
+    let identity: string = (resource_type_identity parser spelling line)
+    let base: string = (base_type_name identity)
+    if (> (array_length args) 0) {
+        let mut key: string = (+ identity ":owned")
+        if collections_only { set key (+ identity ":collections") }
+        if (resource_name_in active key) { return false }
+        let next: array<string> = (array_push active key)
+        let mut i: int = 0
+        while (< i (parser_get_union_count parser)) {
+            let def: ASTUnion = (parser_get_union parser i)
+            if (== base (resource_type_identity parser def.name def.line)) {
+                if (!= def.generic_param_count (array_length args)) { return true }
+                let mut field: int = 0
+                while (< field (array_length def.variant_field_types)) {
+                    let concrete: string = (tc_substitute_generic (at def.variant_field_types field) def.generic_params args)
+                    if (resource_concrete_payload_fact parser concrete def.line formals bearing collections collections_only next (+ depth 1)) { return true }
+                    set field (+ field 1)
+                }
+                return false
+            }
+            set i (+ i 1)
+        }
+    }
+    if collections_only { return (resource_name_in collections identity) }
+    return (resource_name_in bearing identity)
+}
+
+shadow resource_concrete_payload_fact {
+    let parser: Parser = (resource_test_parser "resource struct T { fd: int } union Box<X> { Some { value: X }, None {} } union Marker<X> { Mark { number: int } } union Cycle<X> { Next { next: Cycle<X> }, None {} }")
+    let roots: array<string> = [(resource_type_identity parser "T" 1)]
+    assert (resource_concrete_payload_fact parser "Box<T>" 1 [] roots [] false [] 0)
+    assert (not (resource_concrete_payload_fact parser "Box<T>" 1 ["T"] roots [] false [] 0))
+    assert (not (resource_concrete_payload_fact parser "Marker<T>" 1 [] roots [] false [] 0))
+    assert (not (resource_concrete_payload_fact parser "Cycle<int>" 1 [] roots [] false [] 0))
+    assert (resource_concrete_payload_fact parser "array<Box<T>>" 1 [] roots [] true [] 0)
+    # Each fixture isolates one fixed-point relation; I retain every query
+    # without repeatedly traversing unrelated generic declaration graphs.
+    let records: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } struct Owned { boxed: Box<Handle> } struct Nested { owned: Owned }")
+    assert (resource_classify records "Owned" false)
+    assert (not (resource_classify records "Owned" true))
+    assert (resource_classify records "Nested" false)
+    let ordinary: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } union Marker<T> { Mark { number: int } } struct Ordinary { boxed: Box<int> } struct Phantom { boxed: Marker<Handle> }")
+    assert (not (resource_classify ordinary "Ordinary" false))
+    assert (not (resource_classify ordinary "Phantom" false))
+    let collection: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } struct Collection { boxed: Box<array<Handle>> }")
+    assert (resource_classify collection "Collection" true)
+    let cycle: Parser = (resource_test_parser "resource struct Handle { fd: int } struct Cycle { children: array<Cycle> }")
+    assert (not (resource_classify cycle "Cycle" false))
+    let recursive: Parser = (resource_test_parser "resource struct Handle { fd: int } union Chain<T> { More { children: array<Chain<T>> }, Value { value: T }, None {} } struct Recursive { chain: Chain<Handle> }")
+    assert (resource_classify recursive "Recursive" true)
+}
+
 fn resource_classify(parser: Parser, type_name: string, collections_only: bool) -> bool {
+    # Reserved scalar types cannot contain a nominal resource payload.
+    if (or (== type_name "int") (or (== type_name "float") (or (== type_name "bool") (or (== type_name "string") (== type_name "void"))))) { return false }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_instantiated_classify parser type_name 0 0 collections_only) }
     let mut collections: array<string> = []
     let mut bearing: array<string> = []
@@ -216,9 +288,9 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                 let mut owns: bool = false
                 let mut unsupported: bool = false
                 while (< field (array_length def.field_types)) {
-                    let field_key: string = (resource_type_identity parser (at def.field_types field) def.line)
-                    if (resource_name_in bearing field_key) { set owns true }
-                    if (resource_name_in collections field_key) { set unsupported true }
+                    let spelling: string = (at def.field_types field)
+                    if (resource_concrete_payload_fact parser spelling def.line [] bearing collections false [] 0) { set owns true }
+                    if (resource_concrete_payload_fact parser spelling def.line [] bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
                 let key: string = (resource_type_identity parser def.name def.line)
@@ -236,12 +308,8 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                 let mut unsupported: bool = false
                 while (< field (array_length def.variant_field_types)) {
                     let spelling: string = (at def.variant_field_types field)
-                    if (resource_fixed_payload_bearing parser spelling def.line def.generic_params bearing 0) { set owns true }
-                    if (== (base_type_name spelling) "array") {
-                        if (resource_fixed_payload_bearing parser spelling def.line def.generic_params bearing 0) { set unsupported true }
-                    } else {
-                        if (resource_fixed_payload_bearing parser spelling def.line def.generic_params collections 0) { set unsupported true }
-                    }
+                    if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections false [] 0) { set owns true }
+                    if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
                 let key: string = (resource_type_identity parser def.name def.line)
@@ -265,9 +333,9 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
                 let mut field: int = 0
                 while (< field count) {
                     let spelling: string = (at def.variant_field_types (+ offset field))
-                    let field_owned: bool = (resource_fixed_payload_bearing parser spelling def.line def.generic_params bearing 0)
+                    let field_owned: bool = (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections false [] 0)
                     if field_owned { set owned true }
-                    if (or (and field_owned (== (base_type_name spelling) "array")) (resource_name_in collections (resource_type_identity parser spelling def.line))) { set unsupported true }
+                    if (resource_concrete_payload_fact parser spelling def.line def.generic_params bearing collections true [] 0) { set unsupported true }
                     set field (+ field 1)
                 }
                 if collections_only { return unsupported }
@@ -1169,6 +1237,25 @@ shadow resource_flow_node {
     let rejected: ResourceFlow = (resource_flow_node parser ret.value ret.value_type moved false [] diags "test.nano" "" "")
     assert rejected.next
     assert (== (Diagnostics.diag_list_count diags) 1)
+}
+
+# I do not pretend independent function states describe a global owner.
+fn resource_check_global(parser: Parser, global: ASTLet, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let declared: string = (resource_type_identity parser global.var_type global.line)
+    let inferred: string = (resource_value_type parser global.value global.value_type [])
+    if (or (resource_generic_contains parser declared global.line 0) (resource_generic_contains parser inferred global.line 0)) {
+        (resource_flow_error diags file_name global.line global.column "global resource ownership is not supported")
+    }
+}
+
+shadow resource_check_global {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T }, None {} } let owner: Box<Handle> = Box.None {} let ordinary: Box<int> = Box.Some { value: 7 }")
+    let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_check_global parser (parser_get_let parser 0) rejected "global.nano")
+    assert (> (Diagnostics.diag_list_count rejected) 0)
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_check_global parser (parser_get_let parser 1) accepted "global.nano")
+    assert (== (Diagnostics.diag_list_count accepted) 0)
 }
 
 fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<CompilerDiagnostic>, file_name: string) -> void {
@@ -5180,6 +5267,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     while (< gli global_let_count) {
         let gl: ASTLet = (parser_get_let parser gli)
         if (not (at local_lets gli)) {
+            (resource_check_global parser gl env.diagnostics file_name)
             let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
             if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
                 let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))

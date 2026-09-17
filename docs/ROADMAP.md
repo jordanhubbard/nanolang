@@ -198,11 +198,33 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       errors. I require each boundary to retain metadata or fail before publication.
       MAC `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
-- [ ] **Define my global resource boundary.** My duplicate-consumption probe
-      reaches native emission without an ownership diagnostic in the C seed
-      and Stage1, then fails global-record initialization. This is not evidence
-      of executable duplicate use. I require paired frontend rejection or a
-      verified global lifetime model, with ordinary global controls. MAC
+- [x] **Classify concrete generic payloads retained inside records.** I use
+      full retained field annotations and substituted union arguments in the
+      same fixed point as nominal and public TypeInfo queries. My paired
+      resource/ordinary/phantom controls, nested chains, cycles and collection
+      guards pass. Fresh bootstrap, 68 adjacent methods and 520 ASan/UBSan
+      lifetimes are recorded in `docs/evidence/global-resource-boundary.md`.
+      This establishes classification, not native record layout or global
+      ownership support. MAC `task_ef807591eb104cc8b664cd55581ec505`.
+
+- [ ] **Emit ordinary concrete generic union record fields.** I preserve
+      `Box<int>` when emitting a local `Outer { boxed: Box<int> }` field and
+      its empty/nonempty constructors. My C seed currently emits a `void*`
+      field and both self-hosted stages emit `nl_Box`; all fail native
+      compilation even without globals. I require paired execution and nested
+      record controls, separately from global lifetime support and classification
+      acceptance. MAC `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
+
+- [x] **Define my unsupported global resource boundary.** I reject owning
+      global declarations explicitly in both frontends before artifact
+      publication. Mutable/immutable, inferred, nested/generic and imported
+      rejections preserve prior output; ordinary scalar/union globals and
+      local owners remain executable controls. At `3168885d`, a fresh bootstrap,
+      16 affected methods and the complete C typechecker suite pass after
+      callback identity integration. I do not implement global lifetime or
+      transfer semantics here; whole-record global emission remains separate
+      under `task_95796f5f49564ed4a911fd05a1aac5b4`. Evidence:
+      `docs/evidence/global-resource-boundary.md`. MAC
       `task_8afaef937f934a6e9919e41b91b7a41c`.
 
 - [x] **Transfer selected owned union payloads.** After fixed collection

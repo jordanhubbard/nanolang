@@ -3,10 +3,15 @@
 
 #include "nanolang.h"
 
-/* I classify registered named record/union payloads, not generic substitutions. */
+/* I classify retained record/union payloads, including concrete nested unions. */
 bool is_resource_type(Environment *env, const char *struct_name);
 /* I reject named aggregates that hide unsupported fixed resource arrays. */
 bool has_resource_collection_payload(Environment *env, const char *name);
+/* I query concrete record/union/collection metadata against the same facts.
+ * Function signatures are queried through each parameter/result; unsupported
+ * tuple/row/function payload substitution still requires its separate guard. */
+bool is_resource_type_info(Environment *env, const TypeInfo *info);
+bool has_resource_collection_type_info(Environment *env, const TypeInfo *info);
 
 /* Mark a variable as a resource if its type is a resource struct */
 void mark_variable_as_resource_if_needed(Environment *env, const char *var_name, const char *struct_type_name);
@@ -22,5 +27,6 @@ void check_resource_leaks(Environment *env, bool *has_error);
 
 /* I check ownership independently of reusable typechecker symbol metadata. */
 void check_function_ownership(Environment *env, ASTNode *function, bool *has_error);
+void check_global_ownership(Environment *env, ASTNode *global, bool *has_error);
 
 #endif /* NANOLANG_RESOURCE_TRACKING_H */

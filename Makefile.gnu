@@ -4280,3 +4280,13 @@ test-map-field-operations: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_map_field_operations.py
 
 test-units: test-map-field-operations
+
+.PHONY: test-global-resource-boundary
+test-units: test-global-resource-boundary
+test-global-resource-boundary: bootstrap
+	python3 -m unittest -v tests.test_global_resource_boundary
+
+.PHONY: test-resource-generic-records
+test-units: test-resource-generic-records
+test-resource-generic-records: $(COMPILER_C)
+	python3 -m unittest -v tests.test_resource_generic_records
