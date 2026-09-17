@@ -80,3 +80,7 @@ canonical native compiler seed against the updated host module.
 
 These gates do not establish caller alias substitution or source borrow
 production. My affine/borrow parents and full v5.1 publication hold stay open.
+
+My subsequent [one-parameter caller extension](NANOISA_CALLER_REFERENCE.md)
+connects this place representation to one checked helper. Multi-parameter
+alias substitution and source production remain separate requirements.

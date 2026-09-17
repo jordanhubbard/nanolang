@@ -60,7 +60,70 @@ static void consume_pair(NvmAffineState *s) {
     CHECK(nvm_affine_unpack(s,2,&fd,1));CHECK(nvm_affine_unpack(s,3,&fd,1));
     CHECK(nvm_affine_can_exit(s,UINT16_MAX));
 }
+static void caller_binding_checks(void) {
+    NvmModule *m=fixture();
+    NvmAffineState *caller=nvm_affine_state_create(m,0,8);CHECK(caller);
+    make_pair(caller);CHECK(nvm_affine_region_begin(caller));
+    uint16_t left=0,right=1;
+    CHECK(nvm_affine_borrow(caller,0,5,&left,1,NVM_REFERENCE_EXCLUSIVE));
+    CHECK(nvm_affine_borrow(caller,1,5,&right,1,NVM_REFERENCE_EXCLUSIVE));
+    NvmAffineState *before=nvm_affine_state_clone(caller);CHECK(before);
+    NvmAffineState *callee=nvm_affine_state_create(m,1,4);CHECK(callee);
+    CHECK(nvm_affine_bind_caller(callee,caller,0));
+    CHECK(nvm_affine_state_equal(caller,before));
+    uint8_t tag,mode;
+    CHECK(!nvm_affine_local_info(callee,0,&tag,&mode));
+    CHECK(!nvm_affine_take_local(callee,0,&(NvmAffineType){0}));
+    CHECK(nvm_affine_reference_field(callee,0,0,true,&tag) && tag==TAG_INT);
+    CHECK(nvm_affine_region_begin(callee));
+    CHECK(nvm_affine_reborrow(callee,1,0,NVM_REFERENCE_EXCLUSIVE));
+    CHECK(!nvm_affine_reference_access(callee,0,0,false));
+    CHECK(nvm_affine_reference_access(callee,1,0,true));
+    CHECK(!nvm_affine_can_exit(callee,UINT16_MAX));
+    CHECK(nvm_affine_region_end(callee));
+    CHECK(nvm_affine_reference_access(callee,0,0,true));
+    CHECK(nvm_affine_can_exit(callee,UINT16_MAX));
+    NO_CHANGE(callee,nvm_affine_bind_caller(callee,caller,1));
+    nvm_affine_state_free(callee);
+    /* An active child suspends the caller parent; a disjoint sibling does not. */
+    CHECK(nvm_affine_region_begin(caller));
+    CHECK(nvm_affine_reborrow(caller,2,0,NVM_REFERENCE_SHARED));
+    callee=nvm_affine_state_create(m,1,4);CHECK(callee);
+    NO_CHANGE(callee,nvm_affine_bind_caller(callee,caller,0));
+    CHECK(nvm_affine_bind_caller(callee,caller,1));
+    nvm_affine_state_free(callee);
+    /* Shared downgrade coexists with a shared child; no upgrade is inferred. */
+    m->ownership_data[105]=NVM_REFERENCE_SHARED;
+    callee=nvm_affine_state_create(m,1,4);CHECK(callee);
+    CHECK(nvm_affine_bind_caller(callee,caller,0));
+    CHECK(nvm_affine_reference_access(callee,0,0,false));
+    CHECK(!nvm_affine_reference_access(callee,0,0,true));
+    nvm_affine_state_free(callee);
+    m->ownership_data[105]=NVM_REFERENCE_EXCLUSIVE;
+    callee=nvm_affine_state_create(m,1,4);CHECK(callee);
+    NO_CHANGE(callee,nvm_affine_bind_caller(callee,caller,2));
+    nvm_affine_state_free(callee);
+    /* A same-shaped different nominal declaration cannot bind. */
+    slot(m->ownership_data+104,TAG_STRUCT,2,2);
+    callee=nvm_affine_state_create(m,1,4);CHECK(callee);
+    NO_CHANGE(callee,nvm_affine_bind_caller(callee,caller,1));
+    nvm_affine_state_free(callee);
+    slot(m->ownership_data+104,TAG_STRUCT,2,0);
+#ifdef AFFINE_ALLOCATION_TEST
+    callee=nvm_affine_state_create(m,1,4);CHECK(callee);
+    NvmAffineState *unbound=nvm_affine_state_clone(callee);CHECK(unbound);
+    allocation_attempts=0;fail_at=1;
+    CHECK(!nvm_affine_bind_caller(callee,caller,1));
+    fail_at=0;CHECK(nvm_affine_state_equal(callee,unbound));
+    nvm_affine_state_free(unbound);nvm_affine_state_free(callee);
+#endif
+    CHECK(nvm_affine_region_end(caller));
+    CHECK(nvm_affine_state_equal(caller,before));
+    CHECK(nvm_affine_region_end(caller));consume_pair(caller);
+    nvm_affine_state_free(before);nvm_affine_state_free(caller);nvm_module_free(m);
+}
 int main(void) {
+    caller_binding_checks();
     NvmModule *m=fixture();NvmAffineState *s=nvm_affine_state_create(m,0,8);CHECK(s);
     CHECK(nvm_affine_can_exit(s,UINT16_MAX));
     NO_CHANGE(s,nvm_affine_scalar_define(s,2));
