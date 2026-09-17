@@ -3156,8 +3156,8 @@ static void test_grow_t_runs_without_nano_vm(void) {
         return;
     }
     CHECK(strstr(c, "nano_vm") == NULL, "grow_t C does not name nano_vm");
-    CHECK(strstr(c, "nrec_t data[NVM2C_RECORD_ARRAY_CAP]") != NULL,
-          "grow_t C stores bounded record elements by value");
+    CHECK(strstr(c, "nrec_t *data; size_t len; struct nrarr_owner *owner;") != NULL,
+          "grow_t C stores dynamically allocated record elements by value");
     CHECK(strstr(c, "nrarr_push") != NULL, "grow_t C uses record-array helpers");
     int status = -1;
     CHECK(compile_and_run(c, &status) == 0, "grow_t C compiles and runs");
