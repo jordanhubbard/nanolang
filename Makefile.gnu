@@ -4368,3 +4368,8 @@ test-units: test-native-jump-true
 test-selfhost-float-values: bootstrap
 	python3 -m unittest -v tests.test_selfhost_float_values
 test-units: test-selfhost-float-values
+
+.PHONY: test-nested-borrows
+test-units: test-nested-borrows
+test-nested-borrows: bootstrap nano_virt
+	python3 -m unittest -v tests.test_nested_borrows
