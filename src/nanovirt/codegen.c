@@ -9,6 +9,7 @@
  * local variable table, and jump patch list.
  */
 
+#include "../checked_loop_binding.h"
 #include "nanovirt/codegen.h"
 #include "nanolang.h"
 #include "nanoisa/isa.h"
@@ -3495,6 +3496,13 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         uint16_t var_slot = local_add(cg, node->as.for_stmt.var_name, node->line);
         emit_op(cg, OP_STORE_LOCAL, (int)var_slot);
 
+        /* Emitted outer lets must not hide the exact checked loop declaration. */
+        if (!reestablish_checked_loop_binding(cg->env, node)) {
+            cg_error(cg, node->line, "I require checked loop binding metadata");
+            cg->loop_depth--;
+            cg->local_binding_count = saved_binding_count;
+            break;
+        }
         /* Compile body */
         compile_stmt(cg, node->as.for_stmt.body);
 
