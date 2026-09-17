@@ -63,6 +63,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       native emission. I preserve their output-artifact rejection, use typed
       array temporaries to isolate classification, and repair concrete payload
       context before claiming inline parity. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
+      - [ ] I share the existing token-aware generic substitution helper between
+        checking and emission, then supply concrete variant field annotations
+        to recursive literal emission instead of an empty expected type.
+      - [ ] I execute nongeneric/generic record arrays and nested payloads in
+        both self-hosted stages, retain malformed-input artifact rejection,
+        and rerun the classifier/payload gates before integration.
 
 - [ ] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
