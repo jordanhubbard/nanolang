@@ -1,0 +1,28 @@
+enum Shade { Dark = -2, Light = 4 }
+struct Palette { values: array<Shade> }
+let initial: array<Shade> = [Shade.Dark]
+fn values() -> array<Shade> { return [Shade.Dark, Shade.Light] }
+shadow values { assert (== (array_length (values)) 2) }
+fn read(items: array<Shade>) -> Shade { return (at items 0) }
+shadow read { assert (== (read [Shade.Dark]) Shade.Dark) }
+fn main() -> int {
+    let mut items: array<Shade> = [Shade.Dark, Shade.Light]
+    let first: Shade = (at items 0)
+    assert (== first Shade.Dark)
+    assert (== (array_get items 1) Shade.Light)
+    let palette: Palette = Palette { values: items }
+    let field: Shade = (at palette.values 1)
+    assert (== field Shade.Light)
+    assert (== (at (values) 0) Shade.Dark)
+    assert (== (at initial 0) Shade.Dark)
+    (array_set items 0 Shade.Light)
+    set items (array_push items Shade.Dark)
+    assert (== (read items) Shade.Light)
+    assert (== (at items 2) Shade.Dark)
+    let filled: array<Shade> = (array_new 2 Shade.Light)
+    assert (== (at filled 1) Shade.Light)
+    let empty: Palette = Palette { values: [] }
+    assert (== (array_length empty.values) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }
