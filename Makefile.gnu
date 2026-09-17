@@ -4209,5 +4209,10 @@ test-union-literal-context: bootstrap
 	python3 -m unittest tests.test_union_literal_context
 
 .PHONY: test-selected-variant-ownership
+test-units: test-selected-variant-ownership
 test-selected-variant-ownership: bootstrap
 	python3 -m unittest -v tests.test_selected_variant_patterns tests.test_selected_variant_ownership
+.PHONY: test-native-nominal-order
+test-units: test-native-nominal-order
+test-native-nominal-order: bootstrap
+	@python3 -m unittest -v tests.test_native_nominal_order
