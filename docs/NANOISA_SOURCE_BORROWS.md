@@ -19,3 +19,18 @@ I derive nominal IDs from the resolved declaration identity, preserving same-sha
  C-seed and Stage1/Stage2 selfhost emitters retain matching canonical metadata/instructions; ordinary source demonstrates repeated shared reads, caller-visible exclusive mutation and post-call owner consumption; serialized modules verify and execute unchanged in VM and native. All selected passing/failing shadows execute through normal supervision and failures preserve old output. Existing source ownership/borrow refusal corpus stays unchanged. Unsupported shapes remain explicit refusal, and full affine/borrow parents remain open.
 
 My source child is `task_5057848888b246f686fd2b8e48d2c19a`. My immediate assertion prerequisite is `task_f259c8fa53c945e6a990f112dc9415c1`. Scalar-only owner disposal releases the owned record shell and discards each scalar field; it does not call an invented resource destructor or extend this profile to service handles.
+
+## My immediate assertion prerequisite
+
+I first admit `ASSERT` with an exact verified Boolean condition in my owned
+profile. A true assertion consumes only that condition. A false assertion
+terminates the current entry/helper execution, releases all actual owner
+roots and clears both caller/reference contexts through the host's terminal
+lifecycle. Native helpers propagate a separate failure status through caller
+cleanup; they do not abort before freeing live owner storage. Ordinary
+non-owned `ASSERT` semantics remain unchanged.
+
+I require true and false assertions in both entry and borrowed helper, native
+allocation accounting, VM invocation and direct execution cleanup, and a true
+assertion after suspension/resumption. I add this after the active
+multi-parameter runtime slice; I do not modify its running source pin.
