@@ -1,0 +1,18 @@
+fn convert(input: string) -> int { return (string_to_int input) }
+shadow convert {
+    assert (== (convert "42") 42)
+    assert (== (convert "-17") -17)
+}
+fn sum(left: string, right: string) -> int {
+    return (+ (string_to_int left) (string_to_int right))
+}
+shadow sum { assert (== (sum "40" "2") 42) }
+fn main() -> int {
+    assert (== (convert "42") 42)
+    assert (== (convert "-17") -17)
+    assert (== (convert "0") 0)
+    assert (== (sum "40" "2") 42)
+    assert (== (string_to_int (int_to_string 123)) 123)
+    return 0
+}
+shadow main { assert (== (main) 0) }
