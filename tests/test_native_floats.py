@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -11,8 +12,11 @@ OPS = ('ADD', 'SUB', 'MUL', 'DIV', 'NEG', 'EQ', 'NE', 'LT', 'LE', 'GT', 'GE')
 
 class NativeFloats(unittest.TestCase):
     def run_command(self, args):
+        leak_detection = '0' if sys.platform == 'darwin' else '1'
         return subprocess.run([str(x) for x in args], text=True, capture_output=True,
-                              timeout=90, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                              timeout=90,
+                              env={**os.environ,
+                                   'ASAN_OPTIONS': f'detect_leaks={leak_detection}'})
 
     def checked(self, args):
         result = self.run_command(args)
@@ -186,3 +190,17 @@ class NativeFloats(unittest.TestCase):
             native = self.checked([self.native(work, module, sanitize=True)])
             self.assertEqual(native.stdout, vm.stdout)
             self.assertEqual(vm.stdout, '10.0\n')
+
+    def test_optional_float_helpers_remain_warning_clean(self):
+        fixtures = {
+            'tagged_runtime_without_float_transport': 'HM_NEW 5 1\nPOP\n',
+            'integer_only_print': 'PUSH_I64 42\nPRINTLN\n',
+        }
+        with tempfile.TemporaryDirectory(prefix='nano-native-float-helpers-') as tmp:
+            work = Path(tmp)
+            for name, body in fixtures.items():
+                with self.subTest(name=name):
+                    module = self.assemble(work, body)
+                    vm = self.checked([ROOT / 'bin/nano_vm', module])
+                    native = self.checked([self.native(work, module)])
+                    self.assertEqual(native.stdout, vm.stdout)
