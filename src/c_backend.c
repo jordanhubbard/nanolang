@@ -838,11 +838,15 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
     case AST_PAR_BLOCK: {
         ASTNode **bindings = node->as.par_block.bindings;
         int cnt = node->as.par_block.count;
-        for (int i = 0; i < cnt; i++) {
+        int *order = node->as.par_block.is_flow ? passive_binding_order(node) : NULL;
+        if (node->as.par_block.is_flow && !order) return -1;
+        int status = 0;
+        for (int i = 0; i < cnt && !status; i++) {
             emit_indent(c);
-            if (emit_stmt(c, bindings[i])) return -1;
+            status = emit_stmt(c, bindings[order ? order[i] : i]);
         }
-        return 0;
+        free(order);
+        return status;
     }
     case AST_PAR_LET: {
         /* par-let: emit each binding value as a statement, then the body */

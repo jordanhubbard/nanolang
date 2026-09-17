@@ -16,6 +16,44 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_passive_flow_bytecode_and_source_order_metadata_match(self):
+        import re
+        import struct
+        fixture = ROOT / "tests/nanoisa/fixtures/passive_flow.nano"
+        with tempfile.TemporaryDirectory(prefix='nano-flow-producers-') as tmp:
+            directory = Path(tmp)
+            seed, assembly, emitted = (directory/name for name in ('seed.nvm', 'self.nasm', 'self.nvm'))
+            self.run_checked(ROOT/'bin/nano_virt', fixture, '--emit-nvm', '--strip-debug', '-o', seed)
+            self.run_checked(ROOT/'bin/nanoisa_emit', fixture, '-o', assembly)
+            self.run_checked(ROOT/'tests/nanoisa/test_nanoisa_src_nano', seed, assembly,
+                         'square', 'diamond', 'scalars', 'multiple', 'main')
+            self.run_checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', emitted)
+            records = []
+            for module in (seed, emitted):
+                self.run_checked(ROOT/'bin/nano_vm', '--verify-only', module)
+                dump = self.run_checked(ROOT/'bin/nanoisa', 'dump', module).stdout
+                records.append(bytes.fromhex(''.join(re.findall(r'^\.passive "([0-9a-f]+)"', dump, re.M))))
+                self.assertEqual(self.run_checked(ROOT/'bin/nano_vm', module).stdout, '15\n')
+                source, native = directory/'native.c', directory/'native'
+                self.run_checked(ROOT/'bin/nvm2c', module, '-o', source)
+                self.run_checked('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', source, '-lm', '-o', native)
+                self.assertEqual(self.run_checked(native).stdout, '15\n')
+            self.assertEqual(records[0], records[1])
+            words = struct.unpack('<'+'I'*(len(records[0])//4), records[0])
+            self.assertEqual(words[:2], (2, 4))
+            self.assertEqual(words[2], 2)  # flow record
+            self.assertEqual(words[6], 4)  # four source nodes in diamond
+            cursor, nodes = 7, []
+            for _ in range(4):
+                header = words[cursor:cursor+7]
+                deps = words[cursor+7:cursor+7+header[3]]
+                reads = words[cursor+7+header[3]:cursor+7+header[3]+header[4]]
+                nodes.append((header, deps, reads))
+                cursor += 7+header[3]+header[4]
+            self.assertEqual([node[1] for node in nodes], [(1, 2), (3,), (3,), ()])
+            self.assertEqual(nodes[3][2], (0,))
+            self.assertEqual(sorted(range(4), key=lambda i: nodes[i][0][0]), [3, 1, 2, 0])
+
     def test_passive_par_records_and_scalar_execution(self):
         import re
         fixture = ROOT / "tests/nanoisa/fixtures/passive_par.nano"

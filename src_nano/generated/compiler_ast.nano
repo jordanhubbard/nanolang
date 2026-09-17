@@ -164,7 +164,8 @@ extern struct ASTBlock {
     line: int,
     column: int,
     statements: List<ASTStmtRef>,
-    is_par: bool
+    is_par: bool,
+    is_flow: bool
 }
 
 extern struct ASTUnsafeBlock {

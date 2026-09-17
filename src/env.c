@@ -442,6 +442,8 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.from_c_header = false;  /* Not from C header (normal nanolang variable) */
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
+    sym.flow_start_line = 0;
+    sym.flow_start_column = 0;
     sym.scope_end_line = 0;
     sym.scope_end_column = 0;
     sym.def_file = env->current_file;   /* NULL when no file is in scope */
@@ -519,8 +521,8 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
-        int sline = sym->def_line;
-        int scol = sym->def_column;
+        int sline = sym->flow_start_line > 0 ? sym->flow_start_line : sym->def_line;
+        int scol = sym->flow_start_line > 0 ? sym->flow_start_column : sym->def_column;
         if (sline <= 0) {
             continue;
         }

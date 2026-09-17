@@ -197,3 +197,10 @@ effects remain refused. I add no scheduler or new verifier rule. Acceptance
 requires forward chains, diamonds, source-order ties, exact metadata, bound
 module identities, all three native compiler stages, serial VM/native agreement,
 publication-preserving refusals, schema checks and fresh bootstrap.
+
+I recognize `flow { ... }` contextually at a statement boundary. I preserve
+`flow` as an ordinary identifier elsewhere, including in my compiler source.
+Only completed graph dependencies enter the checking environment. I retain
+the graph visibility start separately from original declaration locations
+for later emission.
+Ordinary blocks retain their existing source-order visibility rules.

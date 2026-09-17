@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_graph.nano" import passive_order
 /* =============================================================================
  * nanolang Transpiler (Self-Hosted) - Minimal Version
  * =============================================================================
@@ -7283,12 +7284,16 @@ shadow get_stmt_line {
 fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv, return_type: string) -> StmtGenResult {
     if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
         let block: ASTBlock = (parser_get_block parser stmt.node_id)
-        if block.is_par {
+        if (or block.is_par block.is_flow) {
             let mut code: string = ""
             let mut current: GenEnv = env
+            let order: array<int> = (passive_order parser block)
+            if (or (== (array_length order) 0) (!= (array_length order) (list_ASTStmtRef_length block.statements))) {
+                return StmtGenResult { code: "\n#error I cannot establish my passive execution order\n", env: env }
+            }
             let mut i: int = 0
-            while (< i (list_ASTStmtRef_length block.statements)) {
-                let result: StmtGenResult = (generate_statement parser (list_ASTStmtRef_get block.statements i) indent current return_type)
+            while (< i (array_length order)) {
+                let result: StmtGenResult = (generate_statement parser (list_ASTStmtRef_get block.statements (at order i)) indent current return_type)
                 set code (+ code result.code)
                 set current result.env
                 set i (+ i 1)

@@ -1,0 +1,49 @@
+fn square(x: int) -> int { return (* x x) }
+shadow square { assert (== (square 3) 9) }
+
+fn diamond(x: int) -> int {
+    flow {
+        let total: int = (+ left right)
+        let left: int = (square base)
+        let right: int = (+ base base)
+        let base: int = (+ x 1)
+    }
+    return total
+}
+shadow diamond { assert (== (diamond 2) 15) }
+
+fn scalars(flag: bool, text: string, value: float) -> float {
+    flow {
+        let sum: float = (+ copy 0.5)
+        let copy: float = value
+        let yes: bool = flag
+        let word: string = text
+        let same: bool = (and yes (== word text))
+    }
+    assert same
+    return sum
+}
+shadow scalars { assert (== (scalars true "flow" 1.5) 2.0) }
+
+fn multiple() -> int {
+    flow {
+        let first: int = (+ second 1)
+        let second: int = 4
+    }
+    flow {
+        let third: int = (+ fourth 1)
+        let fourth: int = 7
+    }
+    assert (== first 5)
+    assert (== third 8)
+    return (+ first third)
+}
+shadow multiple { assert (== (multiple) 13) }
+
+fn main() -> int {
+    assert (== (multiple) 13)
+    assert (== (scalars true "flow" 1.5) 2.0)
+    (println (diamond 2))
+    return 0
+}
+shadow main { assert (== (main) 0) }
