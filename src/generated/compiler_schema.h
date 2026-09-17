@@ -544,6 +544,8 @@ typedef struct nl_ASTBlock {
     int line;
     int column;
     List_ASTStmtRef * statements;
+    bool is_par;
+    bool is_flow;
 } nl_ASTBlock;
 typedef nl_ASTBlock ASTBlock;
 #endif

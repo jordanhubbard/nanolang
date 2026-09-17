@@ -4660,6 +4660,7 @@ shadow parser_store_assert {
 /* Helper: Store block node */
 fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int) -> Parser {
     let node: ASTBlock = ASTBlock {
+        is_par: false, is_flow: false,
         node_type: ParseNodeType.PNODE_BLOCK,
         line: line,
         column: column,
@@ -5578,7 +5579,7 @@ shadow parse_for_statement {
 }
 
 /* Parse statement (dispatcher) */
-fn parser_with_statement(p: Parser, kind: int) -> Parser {
+fn parser_with_node(p: Parser, kind: int, node_id: int) -> Parser {
     return Parser {
         tokens: p.tokens, file_name: p.file_name,
 
@@ -5653,9 +5654,18 @@ fn parser_with_statement(p: Parser, kind: int) -> Parser {
         tuple_literals_count: p.tuple_literals_count,
         tuple_indices_count: p.tuple_indices_count,
         next_node_id: p.next_node_id,
-        last_expr_node_id: -1,
+        last_expr_node_id: node_id,
         last_expr_node_type: kind
     }
+}
+
+shadow parser_with_node {
+    let p: Parser = (parser_with_node (parser_init_ast_lists) ParseNodeType.PNODE_BLOCK 3)
+    assert (== p.last_expr_node_id 3)
+    assert (== p.last_expr_node_type ParseNodeType.PNODE_BLOCK)
+}
+fn parser_with_statement(p: Parser, kind: int) -> Parser {
+    return (parser_with_node p kind -1)
 }
 
 shadow parser_with_statement {
@@ -5664,7 +5674,45 @@ shadow parser_with_statement {
     assert (== p.last_expr_node_id -1)
 }
 
+fn parser_mark_passive(p: Parser, is_flow: bool) -> Parser {
+    if (parser_has_error p) { return p }
+    let block: ASTBlock = (parser_get_block p p.last_expr_node_id)
+    (list_ASTBlock_set p.blocks p.last_expr_node_id (ASTBlock {
+        node_type: block.node_type, line: block.line, column: block.column,
+        statements: block.statements, is_par: (not is_flow), is_flow: is_flow
+    }))
+    return (parser_with_node p ParseNodeType.PNODE_BLOCK p.last_expr_node_id)
+}
+
+shadow parser_mark_passive {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { flow { let a: int = 1 } return a }" "flow.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "flow.nano")
+    assert (not (parser_has_error p))
+    let body: ASTBlock = (parser_get_block p (parser_get_function p 0).body)
+    let block: ASTBlock = (parser_get_block p (list_ASTStmtRef_get body.statements 0).node_id)
+    assert block.is_flow
+    assert (not block.is_par)
+}
+fn parser_mark_par(p: Parser) -> Parser { return (parser_mark_passive p false) }
+
+shadow parser_mark_par {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { par { let answer: int = 42 } return answer }" "par.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "par.nano")
+    assert (not (parser_has_error parsed))
+    let body: ASTBlock = (parser_get_block parsed (parser_get_function parsed 0).body)
+    let block_ref: ASTStmtRef = (list_ASTStmtRef_get body.statements 0)
+    assert (== block_ref.node_type ParseNodeType.PNODE_BLOCK)
+    assert (parser_get_block parsed block_ref.node_id).is_par
+    assert (not body.is_par)
+}
+
 fn parse_statement(p: Parser) -> Parser {
+    if (and (== (parser_current p).token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== (parser_current p).value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
+        return (parser_mark_passive (parse_block (parser_advance p)) true)
+    }
+    if (== (parser_current p).token_type LexerTokenType.TOKEN_PAR) {
+        return (parser_mark_par (parse_block (parser_advance p)))
+    }
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {

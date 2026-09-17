@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_graph.nano" import passive_order
 /* =============================================================================
  * nanolang Transpiler (Self-Hosted) - Minimal Version
  * =============================================================================
@@ -3704,7 +3705,7 @@ fn gen_c_runtime() -> string {
 
     set sb (cg_append sb "double nl_cast_float(int64_t x) { return (double)x; }\n")
     set sb (cg_append sb "double nl_cast_float_from_float(double x) { return x; }\n")
-    set sb (cg_append sb "int64_t nl_cast_int(double x) { return (int64_t)x; }\n")
+    set sb (cg_append sb "int64_t nl_cast_int(double x) { if (!(x >= -0x1p63 && x < 0x1p63)) { fputs(\"I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\\n\", stderr); exit(EXIT_FAILURE); } return (int64_t)x; }\n")
     set sb (cg_append sb "int64_t nl_cast_int_from_int(int64_t x) { return x; }\n\n")
     
     /* String operations */
@@ -7281,6 +7282,25 @@ shadow get_stmt_line {
 }
 
 fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv, return_type: string) -> StmtGenResult {
+    if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser stmt.node_id)
+        if (or block.is_par block.is_flow) {
+            let mut code: string = ""
+            let mut current: GenEnv = env
+            let order: array<int> = (passive_order parser block)
+            if (or (== (array_length order) 0) (!= (array_length order) (list_ASTStmtRef_length block.statements))) {
+                return StmtGenResult { code: "\n#error I cannot establish my passive execution order\n", env: env }
+            }
+            let mut i: int = 0
+            while (< i (array_length order)) {
+                let result: StmtGenResult = (generate_statement parser (list_ASTStmtRef_get block.statements (at order i)) indent current return_type)
+                set code (+ code result.code)
+                set current result.env
+                set i (+ i 1)
+            }
+            return StmtGenResult { code: code, env: current }
+        }
+    }
     if (== stmt.node_type ParseNodeType.PNODE_LET) {
         let let_stmt: ASTLet = (parser_get_let parser stmt.node_id)
         let code: string = (generate_let_stmt parser let_stmt indent env)

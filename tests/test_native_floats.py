@@ -1,7 +1,9 @@
 """I preserve typed float bytecode and checked scalar transport in native code."""
 import os
+import shlex
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -11,8 +13,11 @@ OPS = ('ADD', 'SUB', 'MUL', 'DIV', 'NEG', 'EQ', 'NE', 'LT', 'LE', 'GT', 'GE')
 
 class NativeFloats(unittest.TestCase):
     def run_command(self, args):
+        leak_detection = '0' if sys.platform == 'darwin' else '1'
         return subprocess.run([str(x) for x in args], text=True, capture_output=True,
-                              timeout=90, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                              timeout=90,
+                              env={**os.environ,
+                                   'ASAN_OPTIONS': f'detect_leaks={leak_detection}'})
 
     def checked(self, args):
         result = self.run_command(args)
@@ -32,7 +37,8 @@ class NativeFloats(unittest.TestCase):
         source, binary = work / 'input.c', work / 'program'
         self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
         flags = ['-fsanitize=address,undefined', '-fno-sanitize-recover=all'] if sanitize else []
-        self.checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+        compiler = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc'))
+        self.checked([*compiler, '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                       *flags, source, '-o', binary])
         return binary
 
@@ -113,14 +119,42 @@ class NativeFloats(unittest.TestCase):
             self.assertIn('expects float', result.stderr)
             self.assertEqual(output.read_text(), 'retained')
 
-    def test_tagged_float_integer_conversion_is_explicitly_refused(self):
+    def test_float_integer_conversion_truncates_concrete_and_tagged_values(self):
+        cases = [('2.5', 2), ('-2.5', -2), ('0', 0), ('-0', 0),
+                 ('0.999', 0), ('-0.999', 0),
+                 ('-9223372036854775808', -9223372036854775808),
+                 ('9223372036854774784', 9223372036854774784)]
+        body = ''
+        for value, expected in cases:
+            for tagged in (False, True):
+                body += f'PUSH_F64 {value}\n'
+                if tagged:
+                    body += 'STORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+                body += f'CAST_INT\nPUSH_I64 {expected}\nI64_EQ\nASSERT\n'
         with tempfile.TemporaryDirectory(prefix='nano-native-float-conversion-') as tmp:
             work = Path(tmp)
-            module = self.assemble(work, 'PUSH_F64 2.5\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nCAST_INT\nPUSH_I64 2\nEQ\nASSERT\n')
+            module = self.assemble(work, body)
+            self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
             self.checked([ROOT / 'bin/nano_vm', module])
-            # I retain the native gap instead of accepting the old silent zero.
-            binary = self.native(work, module)
-            self.assertNotEqual(self.run_command([binary]).returncode, 0)
+            self.checked([self.native(work, module, sanitize=True)])
+
+    def test_float_integer_conversion_checks_its_range_before_casting(self):
+        for value in ('nan', 'inf', '-inf', '9223372036854775808',
+                      '-9223372036854777856'):
+            for tagged in (False, True):
+                with self.subTest(value=value, tagged=tagged), tempfile.TemporaryDirectory(prefix='nano-checked-cast-') as tmp:
+                    work = Path(tmp)
+                    body = f'PUSH_F64 {value}\n'
+                    if tagged:
+                        body += 'STORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+                    module = self.assemble(work, body + 'CAST_INT\nPOP\n')
+                    self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
+                    binary = self.native(work, module, sanitize=True)
+                    for command in ([ROOT / 'bin/nano_vm', module], [binary]):
+                        result = self.run_command(command)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn('I cannot convert this float to int', result.stderr)
+                        self.assertNotIn('runtime error:', result.stderr)
 
     def test_cast_float_matches_vm_scalar_conversions(self):
         strings = {
@@ -186,3 +220,17 @@ class NativeFloats(unittest.TestCase):
             native = self.checked([self.native(work, module, sanitize=True)])
             self.assertEqual(native.stdout, vm.stdout)
             self.assertEqual(vm.stdout, '10.0\n')
+
+    def test_optional_float_helpers_remain_warning_clean(self):
+        fixtures = {
+            'tagged_runtime_without_float_transport': 'HM_NEW 5 1\nPOP\n',
+            'integer_only_print': 'PUSH_I64 42\nPRINTLN\n',
+        }
+        with tempfile.TemporaryDirectory(prefix='nano-native-float-helpers-') as tmp:
+            work = Path(tmp)
+            for name, body in fixtures.items():
+                with self.subTest(name=name):
+                    module = self.assemble(work, body)
+                    vm = self.checked([ROOT / 'bin/nano_vm', module])
+                    native = self.checked([self.native(work, module)])
+                    self.assertEqual(native.stdout, vm.stdout)

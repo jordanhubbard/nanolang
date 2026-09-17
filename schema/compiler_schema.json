@@ -719,6 +719,14 @@
         [
           "statements",
           "List<ASTStmtRef>"
+        ],
+        [
+          "is_par",
+          "bool"
+        ],
+        [
+          "is_flow",
+          "bool"
         ]
       ],
       "emit_c": true

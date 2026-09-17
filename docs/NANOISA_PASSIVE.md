@@ -3,7 +3,7 @@
 I carry version-1 and version-2 scalar eligibility records in v2 section `0x0c`, guarded by
 feature bit `0x40`. Readers that do not know that feature reject the module.
 Legacy output refuses records rather than dropping them. This is a bounded IR
-foundation for `PASSIVE_PARALLELISM_DESIGN.md`; frontend syntax, call summaries,
+foundation for `PASSIVE_PARALLELISM_DESIGN.md`; broader frontend eligibility,
 resource metadata and the full conformance matrix remain unfinished.
 
 Every field is a little-endian `u32`. The section starts with `version = 1` or `version = 2`
@@ -26,7 +26,7 @@ internal edges. Ranges exactly partition the block, with no gaps or overlaps.
 The node's final instruction stores its result, which serves as the serial
 binding commit; the next node begins with an empty stack.
 
-This first verifier permits straight-line scalar stack operations and arithmetic.
+The version-1 verifier permits straight-line scalar stack operations and arithmetic.
 Each node may read declared completed node results and may write only its
 distinct result local. External read counts must be zero in this version: the
 ordinary verifier does not yet prove caller values from parameter annotations. It cannot access
@@ -78,8 +78,9 @@ permitted outside node ranges in version `2`; it does not itself make a node
 eligible. I retain ordinary stack and instruction verification.
 
 The guarded-input acceptance excludes `u8`, aggregates, captures and foreign
-purity summaries. Closed local calls have the additional checks below. It does not implement either frontend's `par` or `flow`
-syntax. The complete external-input task remains open until its broader
+purity summaries. Closed local calls have the additional checks below. Frontend
+`par` emission has the separate bounded contract below; `flow` remains open.
+The complete external-input task remains open until its broader
 acceptance is met. Guarded scalar validation and paired execution evidence are
 in [my acceptance record](evidence/passive-guarded-inputs.md).
 
@@ -125,6 +126,86 @@ callee. Exceeding a bound refuses the claim. Allocation failure also refuses it.
 Version 1 remains unchanged. Version 2 additionally admits typed integer/float/
 boolean arithmetic and string concatenation with the same scalar provenance.
 
-This verifier prerequisite does not publish frontend `par` support. Existing
-callable source fixtures must retain their behavior before that cutover. Foreign
-intrinsic identity, broader external inputs, and `flow` extraction remain open.
+## Bounded source emission
+
+I retain `par` identity in both frontends and require distinct immutable `let`
+bindings with scalar initializers. I inspect all initializers against the
+pre-block environment before introducing their names. Sibling references,
+mutable inputs, aggregates, and unsupported effects are refused.
+
+Closed scalar source calls require resolved body inspection; scalar local `while` loops
+and reassignment are permitted. My separate `pure fn` rules are unchanged. The
+NanoISA emitters require guarded parameter inputs and retain every admitted
+binding in version-2 records, which undergo independent bytecode verification.
+Native source compilation retains the same lexical binding behavior.
+
+I test the original square/cube fixture and calculator on all three native
+compiler stages, and compare the unchanged calculator scalar closure across
+both NanoISA emitters and VM/native execution. The original par checkpoint
+recorded a full raw calculator `strlen` ABI refusal; scalar ABI acceptance is
+tracked separately. Foreign identity and broader external inputs remain open.
+[My par frontend evidence](evidence/passive-par-frontends.md) records that
+checkpoint; the scalar flow source contract follows below.
+
+## Structured flow producer contract
+
+I resolve this interface under `task_d83213c008654ff4a561843889e778aa`.
+This section defines the assembler interface used by the source contract below.
+
+```
+.flow_begin node-count
+.flow_node source-id result-local dependency-count dependency-id... read-count parameter-local...
+.flow_end
+```
+
+I require a positive node count and exactly one marker for every dense source ID.
+IDs retain source order; marker and instruction order follow the stable
+lowest-source-ID-ready topological order. Dependencies and external reads are
+sorted unique sets. The assembler records each actual instruction range and
+writes existing version-2 nodes in source-ID order. It does not invent guards,
+callee purity, or resource permissions. My existing verifier checks the complete
+graph and authoritative instructions without a binary-format or proof-rule change.
+
+I preserve canonical `.passive` hexadecimal transport and exact byte roundtrips,
+existing `par` markers, and the prohibition on mixing raw bytes with producer
+markers. Ordinary forward chains, diamonds, source-order ties, guarded scalar
+inputs, and closed scalar calls must execute identically in VM and native output.
+Text errors must refuse publication. I retain checked allocation and recovery.
+The source contract below adds bounded frontend extraction. Immutable
+local/aggregate inputs, resources and foreign purity remain separate work;
+this interface provides no scheduler.
+
+[My flow-marker evidence](evidence/passive-flow-markers.md) records paired execution,
+exact records, retained codec checks and bounded assembler sanitizer coverage.
+
+## Bounded scalar flow frontend contract
+
+I retain this contract under `task_a1bedc94472e491ea40ae8773f3b7ca0`. A nonempty
+`flow` block contains distinct immutable scalar `let` bindings. Original source
+IDs remain unchanged in the AST and emitted node arrays. Reads resolve against
+the complete block name set, so forward references and outer-name shadowing
+produce the same lexical dependencies. Repeated reads create one sorted edge.
+Cycles refuse eligibility.
+
+I type and execute the lowest-source-ID ready binding at each step. Both native
+frontends, interpreted shadows, and both NanoISA producers must agree on that
+stable serial order. Emitted code follows execution order; metadata retains
+source IDs, actual ranges and complete dependencies. Results enter the enclosing
+scope after the block. An initializer trap stops execution at that node.
+
+I reuse guarded scalar parameter and closed-call proofs. Mutable inputs,
+unproved local captures in NanoISA, resources, aggregates, and unknown or foreign
+effects remain refused. I add no scheduler or new verifier rule. My tests cover
+forward chains, diamonds, source-order ties, exact metadata, bound
+module identities, all three native compiler stages, serial VM/native agreement,
+publication-preserving refusals, schema checks and fresh bootstrap.
+
+I recognize `flow { ... }` contextually at a statement boundary. I preserve
+`flow` as an ordinary identifier elsewhere, including in my compiler source.
+Only completed graph dependencies enter the checking environment. I retain
+the graph visibility start separately from original declaration locations
+for later emission.
+Ordinary blocks retain their existing source-order visibility rules.
+
+[My scalar flow evidence](evidence/passive-flow-frontends.md) records exact
+paired output, frontend checks and the remaining owner-call boundary.

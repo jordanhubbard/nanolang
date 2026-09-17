@@ -1,0 +1,15 @@
+# My scalar calculator host contracts
+
+I add only the existing empty builtin namespace contracts `strlen(string) -> int` and `atan(float) -> float`. My canonical emitter validates their declaration signatures. Native translation recognizes their complete namespace/signature identity and transports float host arguments/results using float storage, with checks when inputs retain runtime tags. A same-named user function keeps its body; another library does not acquire the builtin adapter. `strlen` reports UTF-8 byte length, matching its C contract.
+
+Three focused methods pass through both C-seed and self-hosted bytecode producers, verified VM execution, and generated native execution under ASan/UBSan. I ran them with GCC and Clang, including empty/UTF-8 strings, direct/called/tagged float values and both signs. The local Clang initially refused its ambiguous GCC installation choice under strict warnings; I selected the installed GCC 13 toolchain explicitly, without suppressing the warning. All three methods then passed.
+
+My full native gate passes 2,412 translator checks and 1,092 shape checks. Seven raw-emitter driver methods pass. Two old negative fixtures assumed scalar float and Boolean-array results were unsupported; task `task_64f967c7f1d14b26a2b8134fb94a706e` replaces them with the still-unsupported float-array boundary and adds positive float/Boolean-array verification. Previous output and exact diagnostics remain checked.
+
+An initial extra float-record fixture exposed existing aggregate limitations. Task `task_93574cf9d200459aa16e959baf68201d` retains those refusals and the original fixture/log; this scalar ABI change does not lift them. After integrating the par frontend, my fresh bootstrap and all 15 scalar ABI, raw-emitter and par frontend methods pass. The initial frontend run lacked Stage 1/2 executables; I retained its missing-file log, built those prerequisites, and reran the same checks.
+
+The unchanged full calculator now emits through the C-seed bytecode producer, verifies and executes with argument `5`, printing `Result: 3.14159`. Native translation explicitly refuses its float `CAST_INT` in `format_float` (source line 121), the already recorded float-to-int boundary `task_b927827f37734658bce360d7ecf913aa`. I track complete two-producer native acceptance in dependent task `task_668e98f3e13e4fcebb3a2f92e671c713`; I do not replace the fixture or claim this acceptance passed. Broader foreign-call contracts remain open.
+
+Task `task_9493ea33bbb54404acc47c256644a05a` owns this bounded ABI change. Logs use `/tmp/nanolang-calculator-abi-`: `scalar-final.log`, `clang-final.log`, `native-gate.log`, `emitter-final.log`, plus initial `tests.log` and `emitter-gate.log`. The original aggregate fixture is `/tmp/nanolang-calculator-abi-initial-tests.py`.
+
+Integration source: `c2c7a74c5833f4e77372b0e1ae720fec9e519d83`. Logs: `/tmp/nanolang-calculator-par-bootstrap.log`, `/tmp/nanolang-calculator-par-verified-tests.log` (15 methods, 36.770 seconds), initial `/tmp/nanolang-calculator-par-tests.log`, and `/tmp/nanolang-calculator-full-acceptance/results.json` with retained assembly.

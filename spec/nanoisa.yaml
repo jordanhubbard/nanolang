@@ -51,6 +51,10 @@ legacy_opcodes:
   - {name: POP, code: 0x08, operands: [], pops: 1, pushes: 0}
   - {name: SWAP, code: 0x09, operands: [], pops: 2, pushes: 2}
   - {name: ROT3, code: 0x0a, operands: [], pops: 3, pushes: 3}
+  - {name: OWN_MOVE_LOCAL, code: 0x0b, operands: [U16], pops: 0, pushes: 1}
+  - {name: OWN_STORE_LOCAL, code: 0x0c, operands: [U16], pops: 1, pushes: 0}
+  - {name: OWN_PACK, code: 0x0d, operands: [U32], pops: -1, pushes: 1}
+  - {name: OWN_UNPACK_LOCAL, code: 0x0e, operands: [U16], pops: 0, pushes: -1}
   - {name: LOAD_LOCAL, code: 0x10, operands: [U16], pops: 0, pushes: 1}
   - {name: STORE_LOCAL, code: 0x11, operands: [U16], pops: 1, pushes: 0}
   - {name: LOAD_GLOBAL, code: 0x12, operands: [U32], pops: 0, pushes: 1}

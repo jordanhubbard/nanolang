@@ -160,6 +160,8 @@ behavior from this raw missing-value operation.
 **Type Casts (0x88-0x8F):**
 `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK`
 
+For a float input to `CAST_INT`, I truncate toward zero only within the finite interval `[-2^63, 2^63)`. I diagnose NaN, either infinity and values outside that interval before converting to an integer. My VM and native NanoISA translator use this same boundary for concrete and tagged floats. My legacy interpreter and both C-emitter paths use the same float interval and diagnostic; I retain their separate validation in [my legacy conversion evidence](evidence/legacy-float-conversion.md).
+
 **Closures (0x90-0x97):**
 `CLOSURE_NEW` (fn_idx + capture_count). Closures are invoked with `CALL_INDIRECT`, which handles both plain function values and closures.
 

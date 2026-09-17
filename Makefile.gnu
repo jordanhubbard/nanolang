@@ -386,7 +386,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -437,7 +437,7 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_string_retention tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_string_joins tests.test_nanovm_guest_args
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_map_byte_debt tests.test_native_string_retention tests.test_native_host_strings tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_record_array_globals tests.test_native_string_joins tests.test_nanovm_guest_args
 
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
@@ -3189,7 +3189,7 @@ $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
 
 # Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
-$(OBJ_DIR)/typechecker.o: $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/generated/purity_intrinsics.h
+$(OBJ_DIR)/typechecker.o: $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/typechecker_passive.c $(SRC_DIR)/generated/purity_intrinsics.h
 
 $(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
@@ -4411,3 +4411,60 @@ test-units: test-retained-layouts
 test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_retained_layouts tests/nanoisa/test_retained_layouts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest tests.test_retained_layouts
+
+.PHONY: test-calculator-host-abi
+test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
+	python3 -m unittest -v tests.test_calculator_host_abi
+test-units: test-calculator-host-abi
+.PHONY: test-ownership-contracts
+test-units: test-ownership-contracts
+test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_ownership_contracts tests/nanoisa/test_ownership_contracts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	python3 -m unittest tests.test_ownership_contracts
+
+.PHONY: test-nanoisa-host-closure
+test-units: test-nanoisa-host-closure
+test-nanoisa-host-closure: $(COMPILER_C)
+	python3 -m unittest tests.test_nanoisa_host_closure
+
+.PHONY: test-passive-par-frontends
+test-units: test-passive-par-frontends
+test-passive-par-frontends: bootstrap nanoisa_emit
+	python3 -m unittest tests.test_passive_par_frontends
+
+.PHONY: test-passive-flow-frontends
+test-units: test-passive-flow-frontends
+test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump
+	python3 -m unittest tests.test_passive_flow_frontends
+.PHONY: test-affine-state
+test-units: test-affine-state
+test-affine-state: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_state tests/nanoisa/test_affine_state.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_affine_state
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_test_malloc -Dcalloc=affine_test_calloc -c src/nanoisa/affine_state.c -o obj/test_affine_state_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_ALLOCATION_TEST -o obj/test_affine_state_alloc tests/nanoisa/test_affine_state.c obj/test_affine_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_affine_state_alloc
+
+.PHONY: test-affine-bytecode
+test-units: test-affine-bytecode
+test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_affine_bytecode
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_affine_bytecode_alloc
+
+.PHONY: test-legacy-float-conversion
+test-legacy-float-conversion: bootstrap $(INTERPRETER)
+	@python3 -m unittest tests.test_legacy_float_conversion
+
+test-units: test-legacy-float-conversion
+.PHONY: test-owned-transfers
+test-units: test-owned-transfers
+test-owned-transfers: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_transfers tests/nanoisa/test_owned_transfers.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_owned_transfers
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -c src/nanoisa/affine_bytecode.c -o obj/test_owned_transfer_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DOWN_TRANSFER_ALLOCATION_TEST -o obj/test_owned_transfer_alloc tests/nanoisa/test_owned_transfers.c obj/test_owned_transfer_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_owned_transfer_alloc
+	python3 -m unittest tests.test_owned_transfers

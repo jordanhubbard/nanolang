@@ -3060,7 +3060,10 @@ static ASTNode *parse_statement(Stage1Parser *p) {
     }
     ASTNode *node;
 
-    switch (tok->token_type) {
+    Token *following = peek_token(p, 1);
+    bool is_flow = tok->token_type == TOKEN_IDENTIFIER && !strcmp(tok->value, "flow") &&
+                   following && following->token_type == TOKEN_LBRACE;
+    switch (is_flow ? TOKEN_PAR : tok->token_type) {
         case TOKEN_LET: {
             int line = tok->line;
             int column = tok->column;
@@ -3346,7 +3349,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
 
             /* Check for par-let syntax: par-let x=e1\ny=e2\nin body
              * Lexed as: TOKEN_PAR TOKEN_MINUS TOKEN_LET bindings... TOKEN_IN body */
-            if (match(p, TOKEN_MINUS)) {
+            if (!is_flow && match(p, TOKEN_MINUS)) {
                 Token *next_after_minus = peek_token(p, 1);
                 if (next_after_minus && next_after_minus->token_type == TOKEN_LET) {
                     advance(p); /* consume '-' */
@@ -3402,7 +3405,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                 }
             }
 
-            if (!expect(p, TOKEN_LBRACE, "Expected '{' after 'par'")) {
+            if (!expect(p, TOKEN_LBRACE, is_flow ? "Expected '{' after 'flow'" : "Expected '{' after 'par'")) {
                 return NULL;
             }
 
@@ -3423,7 +3426,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                 }
             }
 
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' after par block")) {
+            if (!expect(p, TOKEN_RBRACE, is_flow ? "Expected '}' after flow block" : "Expected '}' after par block")) {
                 for (int i = 0; i < count; i++) free_ast(bindings[i]);
                 free(bindings);
                 return NULL;
@@ -3432,6 +3435,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             node = create_node(AST_PAR_BLOCK, line, column);
             node->as.par_block.bindings = bindings;
             node->as.par_block.count = count;
+            node->as.par_block.is_flow = is_flow;
             return node;
         }
 
@@ -6190,4 +6194,70 @@ void free_ast(ASTNode *node) {
     }
 
     free(node);
+}
+
+/* I retain source IDs while deriving the same serial order for every producer. */
+bool passive_expression_reads_name(const ASTNode *node, const char *name) {
+    if (!node || !name) return false;
+    switch (node->type) {
+    case AST_IDENTIFIER: return !strcmp(node->as.identifier, name);
+    case AST_PREFIX_OP:
+        for (int i = 0; i < node->as.prefix_op.arg_count; ++i)
+            if (passive_expression_reads_name(node->as.prefix_op.args[i], name)) return true;
+        return false;
+    case AST_CALL:
+        if (node->as.call.name && !strcmp(node->as.call.name, name)) return true;
+        if (passive_expression_reads_name(node->as.call.func_expr, name)) return true;
+        for (int i = 0; i < node->as.call.arg_count; ++i)
+            if (passive_expression_reads_name(node->as.call.args[i], name)) return true;
+        return false;
+    case AST_MODULE_QUALIFIED_CALL:
+        for (int i = 0; i < node->as.module_qualified_call.arg_count; ++i)
+            if (passive_expression_reads_name(node->as.module_qualified_call.args[i], name)) return true;
+        return false;
+    default: return false; /* The separate scalar/effect classifier refuses other forms. */
+    }
+}
+
+int *passive_binding_order(const ASTNode *block) {
+    if (!block || block->type != AST_PAR_BLOCK || block->as.par_block.count <= 0) return NULL;
+    size_t count = (size_t)block->as.par_block.count;
+    if (count > SIZE_MAX / count || count > SIZE_MAX / sizeof(int)) return NULL;
+    for (size_t i = 0; i < count; ++i) {
+        ASTNode *binding = block->as.par_block.bindings[i];
+        if (!binding || binding->type != AST_LET || binding->as.let.is_mut ||
+            binding->as.let.is_destructure || !binding->as.let.name) return NULL;
+        for (size_t j = 0; j < i; ++j)
+            if (!strcmp(binding->as.let.name, block->as.par_block.bindings[j]->as.let.name)) return NULL;
+    }
+    int *order = malloc(count * sizeof(int));
+    if (!order) return NULL;
+    if (!block->as.par_block.is_flow) {
+        /* Existing par checking proves independence; preserve its serial order. */
+        for (size_t i = 0; i < count; ++i) order[i] = (int)i;
+        return order;
+    }
+    bool *done = calloc(count, sizeof(bool));
+    bool *edges = calloc(count * count, sizeof(bool));
+    if (!order || !done || !edges) { free(order); free(done); free(edges); return NULL; }
+    for (size_t i = 0; i < count; ++i)
+        for (size_t j = 0; j < count; ++j)
+            edges[i * count + j] = passive_expression_reads_name(
+                block->as.par_block.bindings[i]->as.let.value,
+                block->as.par_block.bindings[j]->as.let.name);
+    for (size_t step = 0; step < count; ++step) {
+        size_t next = count;
+        for (size_t i = 0; i < count && next == count; ++i) {
+            if (done[i]) continue;
+            bool ready = true;
+            for (size_t j = 0; j < count; ++j)
+                if (edges[i * count + j] && !done[j]) ready = false;
+            if (ready) next = i;
+        }
+        if (next == count) { free(order); order = NULL; break; }
+        order[step] = (int)next;
+        done[next] = true;
+    }
+    free(done); free(edges);
+    return order;
 }

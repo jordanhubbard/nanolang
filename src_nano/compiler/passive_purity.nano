@@ -1,0 +1,195 @@
+# I check scalar frame-local effects for par independently of pure-fn annotations.
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/module_bindings.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+
+pub fn par_scalar_type(name: string) -> bool {
+    return (or (== name "int") (or (== name "float") (or (== name "bool") (== name "string"))))
+}
+shadow par_scalar_type {
+    assert (par_scalar_type "float")
+    assert (not (par_scalar_type "u8"))
+    assert (not (par_scalar_type "array<int>"))
+}
+
+fn par_local(names: array<string>, count: int, name: string) -> bool {
+    let mut i: int = 0
+    while (< i count) {
+        if (== (at names i) name) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow par_local {
+    assert (par_local ["x", "y"] 1 "x")
+    assert (not (par_local ["x", "y"] 1 "y"))
+}
+
+pub fn par_call_index(parser: Parser, original: string, line: int) -> int {
+    let name: string = (mb_lookup (mb_owner line) original)
+    let owner: int = (mb_target_owner (mb_owner line) original)
+    let mut fallback: int = -1
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (== f.name name) {
+            if (< fallback 0) { set fallback i }
+            if (and (>= owner 0) (== (mb_owner f.line) owner)) { return i }
+        }
+        set i (+ i 1)
+    }
+    if (or (< owner 0) (< fallback 0)) { return fallback }
+    if (>= (parser_get_function parser fallback).body 0) { return fallback }
+    return -1
+}
+shadow par_call_index {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "par.nano")
+    assert (== (par_call_index p "absent" 1) -1)
+}
+
+fn par_closed_target(parser: Parser, name: string, line: int, arity: int, seen: array<bool>, depth: int) -> bool {
+    let index: int = (par_call_index parser name line)
+    if (>= index 0) {
+        let f: ASTFunction = (parser_get_function parser index)
+        return (and (== arity f.param_count) (par_closed_function parser index seen depth))
+    }
+    let resolved: string = (mb_lookup (mb_owner line) name)
+    return (and (== arity 1) (== resolved "not"))
+}
+shadow par_closed_target {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "par.nano")
+    assert (par_closed_target p "not" 1 1 [] 0)
+    assert (not (par_closed_target p "int_to_float" 1 1 [] 0))
+    assert (not (par_closed_target p "println" 1 1 [] 0))
+}
+
+fn par_closed_node(parser: Parser, id: int, kind: int, names: array<string>, count: int, seen: array<bool>, depth: int) -> bool {
+    if (or (== kind ParseNodeType.PNODE_BREAK) (== kind ParseNodeType.PNODE_CONTINUE)) { return true }
+    if (< id 0) { return false }
+    if (or (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_FLOAT)) (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL))) { return true }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (par_local names count (parser_get_identifier parser id).name) }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let n: ASTBinaryOp = (parser_get_binary_op parser id)
+        if n.is_unary { return (par_closed_node parser n.right n.right_type names count seen depth) }
+        return (and (par_closed_node parser n.left n.left_type names count seen depth) (par_closed_node parser n.right n.right_type names count seen depth))
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let mut target: string = ""
+        let mut line: int = 0
+        let mut start: int = 0
+        let mut length: int = 0
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let n: ASTCall = (parser_get_call parser id)
+            if (or (!= n.function_type ParseNodeType.PNODE_IDENTIFIER) (!= n.borrow_mode 0)) { return false }
+            let ident: ASTIdentifier = (parser_get_identifier parser n.function)
+            if (par_local names count ident.name) { return false }
+            set target ident.name set line ident.line set start n.arg_start set length n.arg_count
+        } else {
+            let n: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+            set target n.function_name set line n.line set start n.arg_start set length n.arg_count
+        }
+        if (not (par_closed_target parser target line length seen depth)) { return false }
+        let mut i: int = 0
+        while (< i length) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            if (not (par_closed_node parser arg.node_id arg.node_type names count seen depth)) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    if (== kind ParseNodeType.PNODE_BLOCK) {
+        let n: ASTBlock = (parser_get_block parser id)
+        if (or n.is_par n.is_flow) { return false }
+        let mut local_count: int = count
+        let mut i: int = 0
+        while (< i (list_ASTStmtRef_length n.statements)) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get n.statements i)
+            if (not (par_closed_node parser stmt.node_id stmt.node_type names local_count seen depth)) { return false }
+            if (== stmt.node_type ParseNodeType.PNODE_LET) {
+                if (>= local_count (array_length names)) { return false }
+                (array_set names local_count (parser_get_let parser stmt.node_id).name)
+                set local_count (+ local_count 1)
+            }
+            set i (+ i 1)
+        }
+        return true
+    }
+    if (== kind ParseNodeType.PNODE_LET) {
+        let n: ASTLet = (parser_get_let parser id)
+        if (or n.is_destructure (and (!= n.var_type "") (not (par_scalar_type n.var_type)))) { return false }
+        return (par_closed_node parser n.value n.value_type names count seen depth)
+    }
+    if (== kind ParseNodeType.PNODE_SET) {
+        let n: ASTSet = (parser_get_set parser id)
+        return (and (and (== n.field_name "") (par_local names count n.target)) (par_closed_node parser n.value n.value_type names count seen depth))
+    }
+    if (== kind ParseNodeType.PNODE_IF) {
+        let n: ASTIf = (parser_get_if parser id)
+        if (not (par_closed_node parser n.condition n.condition_type names count seen depth)) { return false }
+        if (not (par_closed_node parser n.then_body ParseNodeType.PNODE_BLOCK names count seen depth)) { return false }
+        if (< n.else_body 0) { return true }
+        return (par_closed_node parser n.else_body ParseNodeType.PNODE_BLOCK names count seen depth)
+    }
+    if (== kind ParseNodeType.PNODE_WHILE) {
+        let n: ASTWhile = (parser_get_while parser id)
+        return (and (par_closed_node parser n.condition n.condition_type names count seen depth) (par_closed_node parser n.body ParseNodeType.PNODE_BLOCK names count seen depth))
+    }
+    if (== kind ParseNodeType.PNODE_RETURN) {
+        let n: ASTReturn = (parser_get_return parser id)
+        if (< n.value 0) { return true }
+        return (par_closed_node parser n.value n.value_type names count seen depth)
+    }
+    if (== kind ParseNodeType.PNODE_ASSERT) {
+        let n: ASTAssert = (parser_get_assert parser id)
+        return (par_closed_node parser n.condition n.condition_type names count seen depth)
+    }
+    return false
+}
+shadow par_closed_node {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "par.nano")
+    assert (par_closed_node p 0 ParseNodeType.PNODE_NUMBER [] 0 [] 0)
+    assert (not (par_closed_node p 0 ParseNodeType.PNODE_PRINT [] 0 [] 0))
+}
+
+fn par_closed_function(parser: Parser, index: int, seen: array<bool>, depth: int) -> bool {
+    if (or (>= depth 64) (at seen index)) { return false }
+    let f: ASTFunction = (parser_get_function parser index)
+    if (or (< f.body 0) (and (!= f.return_type "void") (not (par_scalar_type f.return_type)))) { return false }
+    let mut names: array<string> = []
+    let mut i: int = 0
+    while (< i parser.lets_count) { set names (array_push names "") set i (+ i 1) }
+    set i 0
+    while (< i f.param_count) {
+        let param: ASTLet = (parser_get_let parser (+ f.param_start i))
+        if (not (par_scalar_type param.var_type)) { return false }
+        (array_set names i param.name)
+        set i (+ i 1)
+    }
+    (array_set seen index true)
+    let result: bool = (par_closed_node parser f.body ParseNodeType.PNODE_BLOCK names f.param_count seen (+ depth 1))
+    (array_set seen index false)
+    return result
+}
+shadow par_closed_function {
+    let tokens: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return (+ x 1) }" "par.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "par.nano")
+    assert (par_closed_function p 0 [false] 0)
+    assert (not (par_closed_function p 0 [true] 0))
+}
+
+pub fn par_closed_call(parser: Parser, name: string, line: int, arity: int) -> bool {
+    let mut seen: array<bool> = []
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) { set seen (array_push seen false) set i (+ i 1) }
+    return (par_closed_target parser name line arity seen 0)
+}
+shadow par_closed_call {
+    let source: string = "fn f(x: int) -> int { let mut result: int = 0 let mut i: int = 0 while (< i x) { set result (+ result i) set i (+ i 1) } return result }"
+    let tokens: List<LexerToken> = (tokenize_string source "par.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "par.nano")
+    assert (par_closed_call p "f" 1 1)
+    let bad_tokens: List<LexerToken> = (tokenize_string "fn bad() -> int { (println 1) return 1 }" "par.nano" (diag_list_new))
+    let bad: Parser = (parse_program bad_tokens (list_LexerToken_length bad_tokens) "par.nano")
+    assert (not (par_closed_call bad "bad" 1 0))
+}

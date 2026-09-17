@@ -45,11 +45,80 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I retain native record-array global transport for canonical module facts (`task_1e569db4d8f1486abdd7d5ed3ca00bc1`). At integrated product pin `599d7558`, Stage 1 and hello pass, but Stage 2 translation explicitly refuses an aggregate global store. I require exact element/shape transport and rooted lifetimes before enabling it; I preserve the original bootstrap log and keep the product draft open.
+- [ ] I verify product bootstrap after native record-array global transport merged in PR #551; I retain the original refusal evidence for for canonical module facts (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; product integration remains open). At integrated product pin `599d7558`, Stage 1 and hello pass, but Stage 2 translation explicitly refuses an aggregate global store. I require exact element/shape transport and rooted lifetimes before enabling it; I preserve the original bootstrap log and keep the product draft open.
+- [x] I encode explicit owned move/store/pack/unpack instructions and connect
+      their dataflow to verifier entry points (MAC
+      `task_026799f971e34152b6c6898e3de700d2`, parent ed702). I allocate vacant
+      primary bytes 0x0b–0x0e without renumbering, close schema/codec/assembly/
+      reconstruction transport, and test ordinary positive transfers plus
+      double-consume/escape/join/nominal refusals.
+      I preserve wire-buffer lifetime through the bridge copy in my roundtrip
+      fixture; its initial sanitizer failure exposed an early fixture free,
+      corrected before acceptance (same task026799).
+      Runtime and frontend admission remain held until execution semantics,
+      caller aliases and reference lifetime operations are connected; float
+      record support remains task93574. My bounded transfer and refusal gates
+      are recorded in `docs/evidence/nanoisa-owned-transfers.md`.
+
+- [x] I connect affine facts to a bounded decoded-bytecode analysis (MAC
+      `task_4d22d17c96864d9fbc6031cfba2dc927`, parent ed702): exact scalar stack
+      and local facts, read-only parameter record observations, reachable
+      branches/back edges and exit obligations. I refuse observation escape,
+      unsupported transfers and mismatched joins, and test ordinary loops
+      and borrowed field readers without enabling ownership execution.
+      Caller alias substitution, explicit transfer/reference instructions and
+      actual VM/native access remain required independent acceptance. I pass
+      300 checks and 419 allocation/sanitizer checks; my bounded evidence is
+      `docs/evidence/nanoisa-affine-bytecode.md`.
+- [ ] I reconcile my native path-normalization builtin aliases with VM FFI resolution (MAC `task_4c21884a6a8b417eb6b07b7f82c80d55`). Verified raw `path_normalize` bytecode is accepted by native translation but the VM cannot find that builtin name; I preserve `/tmp/nanolang-host-adoption-tests.log`. I keep native ownership checks distinct from this missing VM alias.
+
+- [ ] I track exact builtin host strings and facade snapshot copies in my native string pool (MAC `task_7f2b7373646341d5a317f374d302e390`, parent `task_d5f899966241452a900422938fff3265`). I route owned argv/environment/path/file/capture/temp buffers and copies of borrowed facade results through checked pool allocation, preserving published-root safe points, aliases and return handoffs. I require no-map churn, failure/empty results and sanitizer-backed final cleanup; generic artifact results stay borrowed. My strict Clang check also requires explicit references for optional generated copy/transfer helpers when an artifact only uses one of them.
+- [ ] I define explicit owned artifact-string results before freeing filesystem return buffers (MAC `task_bdc323f270d44f02b38ba728f1f93184`). My existing generic path adapters allow borrowed literals, and artifact `file_read` mixes owned empty text with a borrowed allocation-failure literal. I must audit callers and establish an explicit owned-or-NULL ABI/adapter contract; I never infer ownership from text contents, a symbol spelling or a library filename.
+
+- [x] I update stale raw-emitter refusal fixtures for already supported scalar float and Boolean-array results (`task_64f967c7f1d14b26a2b8134fb94a706e`). I retain previous-output and exact-diagnostic checks against the documented unsupported float-array result, and verify positive scalar/Boolean-array bytecode.
+
+- [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
+
+- [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
+- [x] I implement local-normalized affine instruction transitions from checked
+      ownership declarations before connecting bytecode dataflow (MAC
+      `task_379b04ef0b8d4a7985ad72b2ab244d5b`, parent ed702): explicit record
+      pack/move/whole-record unpack, nested reference regions and scalar
+      access, exact joins and live-owner exit obligations. I test refused
+      transitions preserve state, overlap/reborrow/argument-order cases and
+      ordinary controls. Stack provenance, CFG/opcodes, runtime lowering and
+      paired source producers remain separate required acceptance; current
+      execution refusals remain enabled. I pass 157 transition checks and
+      182 allocation-injection/sanitizer checks; bounded evidence is in
+      `docs/evidence/nanoisa-affine-state.md`.
+- [x] I batch native map and copied-result collection using checked allocation-byte debt (MAC `task_c7931f1c22db473682d077b119b9c87d`). I count map headers, buckets, entries, keys, copied strings and owner records; positive allocation/growth contributes debt and release reduces live bytes. I retain existing published-root safe points, full graph tracing and forced collection, with a 64 KiB minimum budget adjusted to surviving map bytes. My [bounded byte/alias evidence](evidence/native-map-byte-debt.md) records 32 regression methods, 15 integrated methods, 2,412 native translator checks and 1,092 shape checks. An identical-bytecode live-graph workload reduces 5,000 scans to three; retained-byte counters exclude temporary bucket overlap and RSS. Full compilation remains a separate unrerun gate.
+
+- [x] I complete the retained-layout and ownership source closure in every
+      explicit NanoISA build list, including the Forth SEE host manifest,
+      its examples shared-library rule and the regular/daemon wrapper object
+      list (MAC `task_f27d1997764b4c19a5cc0f2705ec37bf`). I preserve a normal
+      import failure and run real module load/link gates, not only tool builds.
+      Five wrapper links, seven publication methods and two Forth SEE
+      host build/load methods pass; evidence is in my ownership-contract report.
+- [x] I measure remaining native compiler CPU cost after bounded aggregate reclamation (MAC `task_c7931f1c22db473682d077b119b9c87d`). My pinned `b09a16a8` acceptance reached its unchanged 1800-second deadline with no artifact; peak sampled owned RSS was 4,367,660 KiB and neither memory threshold was reached. I require static analysis and bounded ordinary workloads before repair, preserve [the exact outcome](evidence/native-selfcompile-closure-b09a.md), and do not rerun the full compiler or extend its budget merely to obtain success.
+
+- [ ] I attempt one clean native compiler acceptance at `b09a16a8`, after the manifest closure and typed-integer projection repairs (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). I retain immutable source/tool/helper/host hashes, require help and verified hello first, then allow two generations only in dependency order. Each full generation retains the 1800-second budget, 48 GiB owned-RSS threshold and 32 GiB host reserve; I preserve any failed or incomplete result without retry.
 
 - [x] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure and repaired gate](evidence/native-selfcompile-aggregate-a3f3.md); adding the defining source restores normal canonical seed linking, help and VM-shadow-checked hello publication/execution before another acceptance pin.
 
 - [ ] I run one newly pinned native full-source acceptance after aggregate reclamation (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). At merged code `a3f321a6`, I rebuild the canonical compiler, require help and verified hello prerequisites, and retain source/helper/host hashes. Each generation has a 1,800-second budget with a 48 GiB owned-RSS threshold and 32 GiB host reserve. I continue to generation two and raw equality only after generation one succeeds; I preserve any incomplete result without retry. This source includes VM shadows, so I make no speed attribution against the older C-shadow pin.
+- [x] **Reference parameter and root contracts.** I preserve complete/resource
+      layout declarations and exact value/shared/exclusive parameter modes,
+      root-local types and result types in versioned required metadata (MAC
+      `task_dcec6dcfb3d6442fbb9db131c7ebc0a3`, parent ed702).
+  - [x] I validate signature/count/layout agreement and retain the contracts
+        across codec, execution-module bridge and canonical reconstruction.
+  - [x] I test ordinary typed-root transport plus reference retention/refusal;
+        runtime admission still requires instruction-level lifetime/ownership
+        verification and genuine reference lowering, not metadata alone. My
+        [declaration evidence](evidence/nanoisa-ownership-contracts.md) records
+        the canonical host-module seed, 62 checks and 272,612 VM checks.
+
 
 - [x] **Retained NanoISA layouts.** I preserve complete v2 layout tables through
       my execution-module bridge, canonical reconstruction and serialization
@@ -125,12 +194,29 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
   - [ ] If Stage 1 passes, I translate it to native and compile the same pinned source to Stage 2, comparing raw module bytes and their exact immutable host closure.
   - [ ] I check the generated compiler product and publish the observed boundary separately from canonical VM bootstrap and the pending VM-shadow cutover.
 
+- [x] I retain exact native record-array globals without widening them into my
+      tagged primitive-array contract. I preserve element shapes and trace both
+      global and aliased record-array owners through overwrite and collection
+      (`task_1e569db4d8f1486abdd7d5ed3ca00bc1`; two focused VM/native and refusal
+      methods under ASan/UBSan; 2,409 native checks plus three known unrelated
+      aggregate-helper warning failures; 1,092 shape checks).
+
 - [x] I lower native `CAST_FLOAT` with the VM scalar conversion contract, including concrete and tagged int/bool/float/string inputs, while preserving the separate float-to-int refusal (`task_3d6c3314d8924dd2b0aca679647e7048`; six float methods, 2,412 native and 1,092 shape checks; `docs/evidence/native-cast-float.md`). I require unchanged arctangent VM/native output before passive frontend cutover.
-- [ ] I keep generated float helpers warning-clean after `CAST_FLOAT` adds
+- [x] I keep generated float helpers warning-clean after `CAST_FLOAT` adds
       `nvalue_from_float` and float modules add `nf64_print`; strict native
-      tests currently fail on Darwin when either helper is defined but unused
-      (`task_5b98593f4d7fa6ec667fd315091f7e48`).
-- [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
+      compilation now retains explicit references when either helper is defined
+      but unused (`task_5b98593f4d7fa6ec667fd315091f7e48`; two generated-C
+      fixtures plus the six adjacent native-float methods).
+- [ ] I keep aggregate accounting helpers warning-clean when an owned-aggregate
+      module does not call `nagg_add` or `nagg_drop`; three strict generated-C
+      cases fail on Darwin after the aggregate-retention merge
+      (`task_6363b1e55bd145749ef892d71a552735`).
+- [ ] I complete unchanged-calculator bytecode/native acceptance through both producers after the float-to-int contract lands (`task_668e98f3e13e4fcebb3a2f92e671c713`, depends on `task_b927827f37734658bce360d7ecf913aa`). At `c2c7a74c` my C-seed module verifies and prints `Result: 3.14159` in the VM; native translation explicitly refuses the float cast in `format_float`. After the checked float conversion, the native program prints the expected result, but LeakSanitizer retains a two-byte `nhost_argv` copied-result leak under `task_d5f899966241452a900422938fff3265`; I require ownership repair without disabling leak checks.
+- [x] I emit the registered C-seed `string_to_float` helper (`task_5909147f37c2478a8c07494935d7e24a`). The real conversion fixture reached an implicit-declaration error; I retain that failure and match the existing interpreter/self-hosted `strtod` contract.
+- [x] I align legacy interpreter and C-emitter float-to-int helpers with the checked conversion policy (`task_f801bf5769f9489da5ea973574dd156c`). Static inspection found direct double-to-integer casts; NanoISA validation does not cover those paths. I use the same finite `[-2^63, 2^63)` interval and diagnostic as NanoISA before conversion. A fresh bootstrap and 64 interpreter/C-seed/Stage-1/Stage-2 cases pass; [evidence](evidence/legacy-float-conversion.md).
+- [x] I retain scalar `cast_int` in my canonical bytecode emitter (`task_1c172729873542a78d36fcd64ee7fda3`), including exact arity/type checks and declared-function identity. Both unchanged-calculator modules now emit, verify, execute in the VM and translate to native C; host-result leak acceptance remains separate.
+- [x] I implement my NanoISA float-to-int contract (`task_b927827f37734658bce360d7ecf913aa`): truncate finite values in `[-2^63, 2^63)` toward zero; stop with an explicit conversion diagnostic for NaN, infinities or values outside that interval before any C integer cast. My VM and concrete/tagged native paths must agree. Legacy interpreter/C-emitter conversion policy remains separately audited; I do not infer it from NanoISA checks.
+- [x] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries, matching my VM for concrete and tagged operands (MAC `task_b927827f37734658bce360d7ecf913aa`; [checked conversion evidence](evidence/checked-float-to-int.md)). Eight float methods, 2,412 translator and 1,092 shape checks pass; seven targeted Clang sanitizer methods pass after the strict unused-helper correction.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
   - [x] I implement checked float storage/transport and typed operations without substituting generic opcodes or admitting implicit integer conversion.
@@ -733,9 +819,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I checked the suspected native bool/int guard mismatch: generated C retains bool and emits a false integer-tag check before node output. The test had incorrectly required translation refusal; no native source repair is needed (`task_f7ed4e430c9b41458b4ca9123671765d`, cancelled as not applicable).
 - [x] I define and verify version-2 guarded int/bool/string/float passive inputs, preserving version-1 refusal and paired serial behavior (`task_b26c733ca21841768b4dd6c67e7ed094`; six methods, 249 retained metadata checks and exact codec roundtrips; `docs/evidence/passive-guarded-inputs.md`; bounded child of `task_bf571298c10d4cc5a387b9f233ff3c40`).
 - [x] I resolve structured `.par_begin`, `.par_node`, and `.par_end` assembly markers into authoritative version-2 record offsets, preserving canonical bytes and verifier checks (`task_6798838c50b74d698505602f06b70194`; nine passive methods, 96 verifier and 210 roundtrip checks, plus instrumented allocation recovery; `docs/evidence/passive-producer-markers.md`).
-- [x] I preserve exact native scalar `CAST_FLOAT` semantics for the unchanged arctangent loop and require paired VM/native output `3.14159` in the passive gate (`task_3d6c3314d8924dd2b0aca679647e7048`; `docs/evidence/native-cast-float.md`). Float-to-int remains separate.
+- [x] I preserve exact native scalar `CAST_FLOAT` semantics for the retained assembled arctangent loop and require paired VM/native output `3.14159` in the passive gate (`task_3d6c3314d8924dd2b0aca679647e7048`; `docs/evidence/native-cast-float.md`). The original calculator defines a source-loop conversion helper; float-to-int remains separate.
 - [x] I verify concrete closed scalar calls in passive nodes with actual scalar argument/result derivation, bounded transitive inspection, local loop support, and conservative recursion/foreign/indirect refusal (`task_7689d21c7fac465287e90a425ea4b9eb`; 16 methods, 249 retained checks, seven instrumented methods; `docs/evidence/passive-closed-calls.md`). I preserve existing callable `par` behavior before frontend cutover (`task_1cdbd34dbe514229a0b91270f0d3ef29`).
-- [ ] I retain let-only `par` declarations in both frontends, reject dependencies and unsupported effects before emitting checked NanoISA records, and verify paired behavior (`task_e0c6fd18cfbb49c78e4c509d8444417e`). Flow extraction and full passive conformance remain separate.
+- [x] I preserve existing `par` calls to square/cube and arctan_series while adding checked eligibility (`task_1cdbd34dbe514229a0b91270f0d3ef29`; fresh bootstrap, original fixtures across three native stages, exact scalar-closure VM/native comparison; `docs/evidence/passive-par-frontends.md`).
+- [ ] I retain the unexplained artifact-publication VM assertion from the par full gate and investigate if ordinary execution reproduces it (`task_6651883267424a2f907b439de9fba4c6`). The prior run and single isolated rerun passed; source, binary and helper hashes stayed fixed during the latter. A concurrent bootstrap is observed, not established as cause.
+- [x] I retain let-only `par` declarations in both frontends, reject dependencies and unsupported effects before emitting checked NanoISA records, and verify paired behavior (`task_e0c6fd18cfbb49c78e4c509d8444417e`; 86 comparison checks, 84 paired methods, five frontend methods; `docs/evidence/passive-par-frontends.md`). Flow extraction and full passive conformance remain separate. This slice also admits typed scalar arithmetic/logic and immutable string concatenation in version-2 records and resolves parameter signatures by assembler function name.
+- [x] I resolve structured `flow` producer markers with explicit source IDs and dependency sets into existing version-2 passive records, preserving stable serial order, canonical bytes and verifier semantics (`task_d83213c008654ff4a561843889e778aa`; 20 passive methods, 210 roundtrip checks, 96 verifier checks, instrumented assembler allocation recovery; `docs/evidence/passive-flow-markers.md`). I refresh the current contract boundary to distinguish merged `par` support from unfinished frontend `flow` and broader input proofs.
+- [x] I retain scalar let-only `flow` source identities, derive forward/diamond dependencies and stable lowest-ready serial order in both frontends, and compare exact emitted records and backend results (`task_a1bedc94472e491ea40ae8773f3b7ca0`; tested contract in `docs/NANOISA_PASSIVE.md`, evidence in `docs/evidence/passive-flow-frontends.md`). Fresh native bootstrap, 86 comparison checks, 85 paired methods, six flow/five par/20 passive methods, environment/schema and 79 checker cases passed. Unsupported captures/effects remain refused; scalar ABI/calculator work stays separate.
+- [ ] **Repeated discard locals across native stages** (`task_31bb6c9161ad4498a085905d26d1f666`): I must reconcile two `let _` declarations in one scope. C-seed accepted the new typed-let helper shadow, while Stage1 emitted duplicate `nl__` C locals and refused Stage2 compilation. I retain the diagnostic and use a direct reset-result assertion in the flow shadow without claiming the general discard boundary repaired.
+- [ ] **Passive owner calls outside node ranges** (`task_eccab63d320946d283342bb8fc8eb18f`): I retain the existing refusal of CALL outside a passive node in an owning function. I will define and test a bounded independently verified call contract before extending this scope; scalar flow emission does not silently admit it. Ordinary source evidence is retained with the flow frontend gate.
 - [ ] **Passive immutable input proofs.** I prove external input values before
       admitting their reads in eligibility metadata; declared signature tags
       alone do not close the current verifier's unknown call/local types.
@@ -894,7 +986,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       intrinsic ABI/binding contracts before restoring closed eligibility
       to wrappers such as `complex_exp`. I reject user extern collisions
       and wrong bindings in both frontends and IR facts. This remains full
-      passive scope. MAC `task_20f6cb36fbf24bba987b4ea503529438`.
+      passive scope. MAC `task_20f6cb36fbf24bba987b4ea503529438`. The unchanged full calculator still refuses its declared `strlen` before raw NanoISA lowering; scalar closed-call parity does not satisfy this ABI boundary.
 
 - [ ] **Selfhost bool-array record-field mutation.** I must select the bool
       setter for `array_set record.flags`, preserving mandatory native shadows.
