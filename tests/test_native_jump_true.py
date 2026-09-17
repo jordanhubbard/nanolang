@@ -88,3 +88,18 @@ class NativeJumpTrue(unittest.TestCase):
                     result = self.run_command([ROOT / 'bin/nanoisa', 'asm', source, '-o', output])
                     self.assertNotEqual(result.returncode, 0)
                     self.assertEqual(output.read_text(), 'retained')
+
+    def test_skipped_record_initialization_preserves_refusal(self):
+        with tempfile.TemporaryDirectory(prefix='nano-true-initialization-') as tmp:
+            work = Path(tmp)
+            source, module, output = (work / x for x in ('input.nasm', 'input.nvm', 'existing.c'))
+            source.write_text(self.source(
+                'PUSH_BOOL 1\nJMP_TRUE done\nPUSH_I64 4\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n'
+                'done:\nLOAD_LOCAL 0\nTYPE_CHECK 0\nASSERT\n'))
+            self.checked([ROOT / 'bin/nanoisa', 'asm', source, '-o', module])
+            self.checked([ROOT / 'bin/nano_vm', module])
+            output.write_text('retained')
+            result = self.run_command([ROOT / 'bin/nvm2c', module, '-o', output])
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('record to optional', result.stderr)
+            self.assertEqual(output.read_text(), 'retained')

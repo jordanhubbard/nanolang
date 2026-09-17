@@ -21,12 +21,14 @@ bytecode representations remain refused.
 
 ## Validation
 
-Three focused methods pass under ASan/UBSan with leak detection. Seventeen
+Four focused methods pass in 0.426 seconds under ASan/UBSan with leak detection. Seventeen
 condition values select exactly one observable branch effect under each of the
 two branch polarities (34 cases). A taken branch
 transfers live integer/string stack values, and a 1000-iteration backward branch
 preserves a retained global string while consuming newly owned string
-conditions. Three malformed branches preserve a prior artifact.
+conditions. Three malformed branches preserve a prior artifact. Skipping a record
+initialization still yields void in VM and retains my native optional-record
+storage refusal; I do not invent a constructed record on that path.
 
 I also execute both retained actual compiler-produced formatting artifacts,
 `/tmp/nanolang-format-seed.nvm` and `/tmp/nanolang-format-self.nvm`, in VM and
@@ -34,8 +36,9 @@ sanitized standalone native products. Their exact output is `inf`, `-inf`, and
 `nan`, on separate lines. Their internal assertions retain whole-float suffix,
 precision, exponent and once-only operand behavior. Commands and results are
 in `/tmp/nanolang-jump-true-format-artifacts.log`; focused output is
-`/tmp/nanolang-jump-true-tests.log`.
+`/tmp/nanolang-jump-true-tests-initialization.log`.
 
-My adjacent native and shape gates are running; I record their final outcomes
-before marking this slice complete. This branch companion does not claim full
+My adjacent suite passes 2390 native checks and 1092 shape checks, plus
+classifier/emitter opcode coverage and sanitizer-driver checks. I retain its
+output in `/tmp/nanolang-jump-true-native-regressions.log`. This branch companion does not claim full
 native compiler convergence or completion of the release contract.
