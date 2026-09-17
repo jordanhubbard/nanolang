@@ -68,10 +68,30 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       the rename complete. The publication hold follows the renamed release.
       MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
       My six version methods and release-workflow checks pass, as do fifteen
-      markdown/document-pair methods. My documentation-freshness gate still
-      correctly requires CONTRIBUTING and user-guide review for post-5.0.0
-      language changes; that is a v5.1.0 release gate, not evidence against
-      this completed identity change.
+      markdown/document-pair methods. The focused review below now satisfies
+      my documentation-freshness gate for post-v5.0.0 language changes; I keep
+      it distinct from this completed identity change.
+
+- [x] **Refresh my v5.1.0 release documentation after frontend and verifier
+      changes.** I review the contributor contract and selected user-guide
+      lessons against every post-v5.0.0 change to my C parser, typechecker and
+      NanoISA verifier. I document only implemented behavior, compile every
+      checked guide example, build every guide edition and require the release
+      documentation freshness gate to pass without an override. My contributor
+      rules now name passive-metadata and closed-purity gates; my guide records
+      checked purity, typed global collection context and qualified nominal
+      identity. The freshness gate, 24 release-document tests, 40 checked
+      snippets and all six rendered guide editions pass. MAC
+      `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
+
+- [x] **Establish explicit v5.1.0 GitHub release scope.** I inspect every open
+      issue and pull request, create `release/v5.1.0`, and apply it to the only
+      release-scoped open item, PR #414. My baseline finds zero open issues and
+      six open pull requests; five old drafts are visible but unscoped, so I do
+      not close them to make the gate green. I record the exact queries and
+      require a fresh zero-blocker audit before tagging. Evidence:
+      `docs/evidence/v5.1-release-readiness.md`. MAC
+      `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
@@ -251,11 +271,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       This is driver coverage, not compiler bytecode fixed-point acceptance.
       MAC `task_d36776ab4ed143118c577f74f88ad3be`.
 
-- [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
+- [x] **Restore the accepted compiler baseline after PR #359.** I preserve
       the published `v5.0.0` tag and restore the released compiler, tests and
       documentation removed by the reviewed whole-tree replacement. I preserve
       the intended call-order fix separately and require a focused reapplication.
-      MAC `task_3665bd4322b35fb959ef77a46f761a0a`.
+      PR #360 restored the accepted tree and merged as `4077b505`; its exact
+      tree comparison, release-document check and nine release-gate methods
+      passed. PR #365 then reapplied call ordering independently. The MAC row
+      remains administratively open for its targeted owner to close; that does
+      not make the restored product tree pending. MAC
+      `task_3665bd4322b35fb959ef77a46f761a0a`.
 
 - [ ] **Complete the full 5.0 acceptance contract for v5.1.0.** I reconcile dated and
       duplicate ledger entries against current code, then complete the remaining
@@ -277,16 +302,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         update the documentation and run full platform acceptance before a
         subsequent release claims the complete roadmap.
 
-- [ ] **Inline union literal match dispatch.** I resolve the union type when
+- [x] **Inline union literal match dispatch.** I resolve the union type when
       matching a constructed literal directly, preserving branch values and side
       effects instead of emitting an unknown-union zero placeholder.
-      MAC `task_c28c39b66f704cf8af71827955c9edc0`.
+      This duplicated my completed inline-union metadata row above; its four
+      cross-backend regressions and typechecker suite already pass. MAC
+      `task_c28c39b66f704cf8af71827955c9edc0`.
 
-- [ ] **Mutable callee capture across backends.** I retain a named function
+- [x] **Mutable callee capture across backends.** I retain a named function
       value before its argument expressions mutate that binding. I repair my
       interpreter's invalid-name lifetime and my VM's replacement-callee call,
       preserving the original call and subsequent replacement behavior.
-      MAC `task_8555af61281944eb9ac4ca9043849a94`.
+      This duplicated my completed callee-snapshot row above; the evaluator
+      suite and all 89 NanoVirt tests already pass. MAC
+      `task_8555af61281944eb9ac4ca9043849a94`.
 
 - [x] **Native call argument ordering restoration.** I restore ordinary and
       module-qualified argument evaluation once in source order on the corrected
