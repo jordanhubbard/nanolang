@@ -45,6 +45,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I adopt exact owned native host-result buffers into tracked string reclamation after checking each adapter contract (MAC `task_d5f899966241452a900422938fff3265`). Environment/argument copies, path normalization, file/capture/mktemp results and artifact snapshots remain separate from the temporary-expression pool; I preserve borrowed/TLS/foreign ownership and require bounded lifetime tests.
+
+- [ ] I bound temporary string retention in my native AOT runtime (MAC `task_4d3105329e73454083846ad41473500d`). My [static lifetime audit](evidence/native-string-retention-audit.md) finds that concat, substring, formatting and character strings stay in `nstr_owners` until entry returns; existing map collection does not reclaim them. I keep the resource-budget-limited full native compiler acceptance open without attributing its whole RSS to this pool.
+  - [x] I introduce safe published-root string reclamation with allocation-byte debt, including string-only modules, caller/global/aggregate aliases, return handoff and self-tail staging.
+  - [x] I test bounded normal allocation churn, escaped aliases, aggregate mutation and final cleanup under sanitizers before any new bounded full-source acceptance run.
+  - [x] I inventory separate host-result allocations and record their exact ownership/adoption follow-up as `task_d5f899966241452a900422938fff3265`; borrowed artifact or environment strings must not be freed as owned storage. The distinct C-runtime array-copy ownership contract remains open as `task_93bb44374587a757753418fc28c2095d`.
+
 - [x] **Borrowed first-class callback boundary.** I reject unsupported
       shared/exclusive borrowed callback values before native publication,
       preserving ordinary and already-supported owned callback signatures.
