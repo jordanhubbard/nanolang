@@ -70,6 +70,7 @@ static void emit_context_error(
 typedef struct {
     Environment *env;
     Type current_function_return_type;
+    Type current_function_return_element_type;
     const char *current_function_return_struct_name;  /* For struct return types */
     bool has_error;
     bool warnings_enabled;
@@ -532,9 +533,11 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
 const char *get_struct_type_name(ASTNode *expr, Environment *env);
 static const char *array_record_name(ASTNode *array, Environment *env) {
     if (!array) return NULL;
+    if (array->type == AST_ARRAY_LITERAL && array->as.array_literal.element_count > 0)
+        return get_struct_type_name(array->as.array_literal.elements[0], env);
     TypeInfo *info = try_get_expr_type_info(array, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type &&
-        info->element_type->base_type == TYPE_STRUCT)
+        info->element_type->base_type == TYPE_STRUCT && info->element_type->generic_name)
         return info->element_type->generic_name;
     if (array->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, array->as.identifier, array->line, array->column);
@@ -551,14 +554,73 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
                 record->field_element_types[i] == TYPE_STRUCT && record->field_type_names)
                 return record->field_type_names[i];
     }
+    if (array->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *alias = array->as.module_qualified_call.module_alias;
+        const char *name = array->as.module_qualified_call.function_name;
+        size_t length = strlen(alias) + strlen(name) + 2;
+        char *qualified = malloc(length);
+        if (!qualified) return NULL;
+        snprintf(qualified, length, "%s.%s", alias, name);
+        Function *function = env_get_function(env, qualified);
+        free(qualified);
+        if (function && function->return_type == TYPE_ARRAY && function->return_element_type == TYPE_STRUCT)
+            return function->return_struct_type_name;
+        return NULL;
+    }
     if (array->type == AST_CALL && !array->as.call.func_expr && array->as.call.name) {
-        if (!strcmp(array->as.call.name, "array_push") && array->as.call.arg_count == 2)
+        const char *name = array->as.call.name;
+        if (((!strcmp(name, "array_push") || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
+            (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
+        if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
+            return get_struct_type_name(array->as.call.args[1], env);
+        if (!strcmp(name, "map") && array->as.call.arg_count == 2 &&
+            array->as.call.args[1]->type == AST_IDENTIFIER) {
+            ASTNode *callback = array->as.call.args[1];
+            if (!env_get_var_visible_at(env, callback->as.identifier, callback->line, callback->column)) {
+                Function *transform = env_get_function(env, callback->as.identifier);
+                if (transform && transform->return_type == TYPE_STRUCT)
+                    return transform->return_struct_type_name;
+            }
+        }
         Function *function = env_get_function(env, array->as.call.name);
         if (function && function->return_type == TYPE_ARRAY && function->return_element_type == TYPE_STRUCT)
             return function->return_struct_type_name;
     }
     return NULL;
+}
+
+/* I compare declarations, including their module identity, at array boundaries. */
+static bool check_record_array_contract(Environment *env, Type type, Type element,
+                                         const char *name, ASTNode *value) {
+    if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
+    StructDef *expected = env_get_struct(env, name);
+    if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
+    if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) return true;
+    const char *actual_name = array_record_name(value, env);
+    StructDef *actual = actual_name ? env_get_struct(env, actual_name) : NULL;
+    if (actual == expected) return true;
+    emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+        "I require the declared nominal record type for this array.",
+        "Match the array element declaration, including its module identity.");
+    return false;
+}
+
+/* I retain fixed union field contracts without resolving formal parameters here. */
+static void check_union_record_array_contract(Environment *env, UnionDef *def,
+                                              int arm, const char *field, ASTNode *value) {
+    if (!def->variant_field_type_info || !def->variant_field_type_info[arm]) return;
+    for (int i = 0; i < def->variant_field_counts[arm]; ++i) {
+        if (strcmp(def->variant_field_names[arm][i], field)) continue;
+        TypeInfo *info = def->variant_field_type_info[arm][i];
+        if (!info || info->base_type != TYPE_ARRAY || !info->element_type) return;
+        TypeInfo *element = info->element_type;
+        for (int j = 0; element->generic_name && j < def->generic_param_count; ++j)
+            if (!strcmp(element->generic_name, def->generic_params[j])) return;
+        check_record_array_contract(env, TYPE_ARRAY, element->base_type,
+                                    element->generic_name, value);
+        return;
+    }
 }
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
@@ -2335,6 +2397,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             }
                         }
                         
+                        check_record_array_contract(env, func->params[i].type,
+                            func->params[i].element_type, func->params[i].struct_type_name, arg);
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
                             char message[256];
                             snprintf(message, sizeof(message),
@@ -2626,6 +2690,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
                 ASTNode *arg = expr->as.module_qualified_call.args[i];
                 check_expression(arg, env);
+                check_record_array_contract(env, func->params[i].type, func->params[i].element_type,
+                                            func->params[i].struct_type_name, arg);
                 if (arg->type == AST_ARRAY_LITERAL &&
                     arg->as.array_literal.element_count == 0 &&
                     func->params[i].type == TYPE_ARRAY &&
@@ -2805,6 +2871,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
                     Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                     Type expected = udef->variant_field_types[variant_idx][i];
+                    check_union_record_array_contract(env, udef, variant_idx,
+                        expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_values[i]);
 
                     /* If the expected field type refers to a generic parameter name (T, E, etc.),
                      * treat it as a wildcard here. This struct-literal path does not carry the
@@ -2919,6 +2987,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                check_record_array_contract(env, sdef->field_types[field_index],
+                    sdef->field_element_types ? sdef->field_element_types[field_index] : TYPE_UNKNOWN,
+                    sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, field_value);
                 if (sdef->field_types[field_index] == TYPE_ARRAY &&
                     sdef->field_element_types &&
                     field_value->type == AST_ARRAY_LITERAL &&
@@ -3216,6 +3287,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type expected_type = udef->variant_field_types[variant_idx][field_index];
                 Type actual_type = check_expression(expr->as.union_construct.field_values[i], env);
+                check_union_record_array_contract(env, udef, variant_idx, field_name,
+                    expr->as.union_construct.field_values[i]);
 
                 /* For generic unions, accept any type for generic type parameters */
                 /* TODO: Proper type substitution for generic instantiations */
@@ -4034,6 +4107,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             
             /* Now check the expression - the specialized functions are registered */
             Type value_type = check_expression(stmt->as.let.value, tc->env);
+            if (!check_record_array_contract(tc->env, stmt->as.let.var_type,
+                    stmt->as.let.element_type, stmt->as.let.type_name, stmt->as.let.value))
+                tc->has_error = true;
             
             /* If declared type is STRUCT, check if it's actually an enum or union */
             if (declared_type == TYPE_STRUCT && stmt->as.let.type_name) {
@@ -4315,6 +4391,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             Type value_type = check_expression(stmt->as.set.value, tc->env);
+            if (!check_record_array_contract(tc->env, sym->type, sym->element_type,
+                    sym->struct_type_name, stmt->as.set.value)) tc->has_error = true;
 
             /* Propagate element type to array literals for correct transpilation */
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
@@ -4471,6 +4549,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
                 
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
+                if (!check_record_array_contract(tc->env, tc->current_function_return_type,
+                        tc->current_function_return_element_type, tc->current_function_return_struct_name,
+                        stmt->as.return_stmt.value)) tc->has_error = true;
                 if (!types_match(return_type, tc->current_function_return_type)) {
                     char message[256];
                     snprintf(message, sizeof(message), "Return type mismatch: got %s, expected %s.",
@@ -4878,6 +4959,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     TypeChecker nested = *tc;
                     nested.loop_depth = 0;
                     nested.current_function_return_type = func.return_type;
+                    nested.current_function_return_element_type = func.return_element_type;
                     nested.current_function_return_struct_name = func.return_struct_type_name;
                     check_statement(&nested, stmt->as.function.body);
                     tc->has_error = tc->has_error || nested.has_error;
@@ -6192,7 +6274,7 @@ bool type_check(ASTNode *program, Environment *env) {
 
     g_typecheck_error_count = 0;
 
-    TypeChecker tc;
+    TypeChecker tc = {0};
     tc.env = env;
     tc.has_error = false;
     tc.warnings_enabled = true;  /* Enable unused variable warnings */
@@ -6200,6 +6282,7 @@ bool type_check(ASTNode *program, Environment *env) {
     tc.loop_depth = 0;           /* Start outside loops */
     tc.current_function_return_type = TYPE_VOID;
     tc.current_function_return_struct_name = NULL;
+    tc.current_function_return_element_type = TYPE_UNKNOWN;
 
     /* Register built-in functions */
     register_builtin_functions(env);
@@ -6788,6 +6871,8 @@ register_function_pass1:;
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             Type value_type = check_expression(item->as.let.value, env);
+            if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
+                    item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
                 item->as.let.element_type != TYPE_UNKNOWN &&
                 item->as.let.value->type == AST_ARRAY_LITERAL) {
@@ -6857,6 +6942,7 @@ register_function_pass1:;
             Function *func_def = env_get_function(env, item->as.function.name);
             tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
             tc.current_function_return_struct_name = func_def ? func_def->return_struct_type_name : NULL;
+            tc.current_function_return_element_type = func_def ? func_def->return_element_type : TYPE_UNKNOWN;
             
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
@@ -7076,7 +7162,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
 
     g_typecheck_error_count = 0;
 
-    TypeChecker tc;
+    TypeChecker tc = {0};
     tc.env = env;
     tc.has_error = false;
     tc.warnings_enabled = true;
@@ -7516,6 +7602,8 @@ register_function_pass2:;
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
             Type value_type = check_expression(item->as.let.value, env);
+            if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
+                    item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
                 item->as.let.element_type != TYPE_UNKNOWN &&
                 item->as.let.value->type == AST_ARRAY_LITERAL) {
@@ -7592,6 +7680,8 @@ register_function_pass2:;
             
             /* Set current function return type for return statement checking */
             tc.current_function_return_type = item->as.function.return_type;
+            tc.current_function_return_element_type = item->as.function.return_element_type;
+            tc.current_function_return_struct_name = item->as.function.return_struct_type_name;
 
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
