@@ -100,7 +100,7 @@ pub fn mi_scan(source: string, path: string, fallback_name: string) -> ModuleInt
                 set unsafe_decl false
                 set extern_decl false
             }
-            else if (!= kind LexerTokenType.TOKEN_RESOURCE) {
+            else if (and (!= kind LexerTokenType.TOKEN_RESOURCE) (!= kind LexerTokenType.TOKEN_PURE)) {
                 set public_decl false
                 set unsafe_decl false
                 set extern_decl false
@@ -124,3 +124,17 @@ shadow mi_scan {
     assert (== (array_length info.functions) 1)
 }
 
+
+shadow mi_scan {
+    let source: string = "module modifiers pub pure fn visible() -> int { return 7 } pure fn hidden() -> int { return 3 } pub pure extern fn external(value: int) -> int pub resource struct Owned { value: int } pub fn ordinary() -> int { let text: string = \"pub pure fn pretend\" return 1 }"
+    let info: ModuleIntrospection = (mi_scan source "modifiers.nano" "fallback")
+    assert info.ok
+    assert info.has_ffi
+    assert (== info.name "modifiers")
+    assert (== (array_length info.functions) 3)
+    assert (== (at info.functions 0) "visible")
+    assert (== (at info.functions 1) "external")
+    assert (== (at info.functions 2) "ordinary")
+    assert (== (array_length info.structs) 1)
+    assert (== (at info.structs 0) "Owned")
+}
