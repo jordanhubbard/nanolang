@@ -2845,6 +2845,42 @@ static void test_stack_trace_debug_mode(void) {
     ASSERT(strstr(buf, "10") != NULL, "debug_trace: output contains line 10");
 }
 
+static void test_assertion_stack_context(void) {
+    /* I retain assertion context under either explicit debug or module metadata. */
+    for (int mode = 0; mode < 3; ++mode) {
+        uint8_t code[64];
+        uint32_t off = 0;
+        off += emit(code + off, OP_DEBUG_LINE, (uint32_t)17);
+        off += emit(code + off, OP_PUSH_BOOL, (int)0);
+        off += emit(code + off, OP_ASSERT);
+        off += emit(code + off, OP_RET);
+        NvmModule *mod = make_module(code, off, 0, 0);
+        nvm_add_debug_entry(mod, 0, 17, 4);
+        if (mode == 2) mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+        else mod->header.flags &= ~NVM_FLAG_DEBUG_INFO;
+        mod->source_file_idx = nvm_add_string(mod, "assert.nano", 11);
+        char buf[2048] = {0};
+        FILE *out = fmemopen(buf, sizeof(buf) - 1, "w");
+        ASSERT(out != NULL, "assert context stream");
+        VmState vm;
+        vm_init(&vm, mod);
+        vm.debug_mode = mode == 1;
+        vm.output = out;
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_ASSERT_FAILED, "assert result preserved");
+        fclose(out);
+        ASSERT(strcmp(vm.error_msg, "Assertion failed") == 0, "assert message preserved");
+        if (mode) {
+            ASSERT(strstr(buf, "Stack trace") != NULL, "assert stack context");
+            ASSERT(strstr(buf, "main") != NULL, "assert function context");
+            ASSERT(strstr(buf, "assert.nano:17") != NULL, "assert source context");
+        } else {
+            ASSERT(strstr(buf, "Stack trace") == NULL, "ordinary assert remains quiet");
+        }
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
 static void test_stack_trace_col(void) {
     /*
      * Verify col appears in the trace when source_col > 0 in the debug entry.
@@ -5655,6 +5691,7 @@ int main(void) {
 
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);
+    RUN_TEST(test_assertion_stack_context);
     RUN_TEST(test_stack_trace_col);
     RUN_TEST(test_stack_trace_multi_frame);
 
