@@ -329,6 +329,22 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         if (expr->as.field_access.resolved_type_info)
             return expr->as.field_access.resolved_type_info;
         const char *owner = get_struct_type_name(expr->as.field_access.object, env);
+        if (owner) {
+            for (int u = 0; u < env->union_count; ++u) {
+                UnionDef *def = &env->unions[u];
+                size_t length = strlen(def->name);
+                if (strncmp(owner, def->name, length) || owner[length] != '.') continue;
+                int arm = env_get_union_variant_index(env, def->name, owner + length + 1);
+                if (arm < 0) continue;
+                for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
+                    if (strcmp(def->variant_field_names[arm][field], expr->as.field_access.field_name)) continue;
+                    TypeInfo *arguments = try_get_expr_type_info(expr->as.field_access.object, env);
+                    expr->as.field_access.resolved_type_info =
+                        resolve_union_payload_type_info(def, arm, field, arguments);
+                    return expr->as.field_access.resolved_type_info;
+                }
+            }
+        }
         StructDef *record = owner ? env_get_struct(env, owner) : NULL;
         if (record && record->field_type_info) {
             for (int i = 0; i < record->field_count; ++i)
