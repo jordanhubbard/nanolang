@@ -49,3 +49,17 @@ my fresh integrated bootstrap, complete C parser/typechecker suites, schema
 consistency and 33 schema methods passed. The 13 paired methods passed again
 in 59.407 seconds, including meaningful helper shadows for repeated sharing
 and forwarding. My compiler sources remained unchanged during each build.
+
+My first exclusive-mutation probe then exposed an existing environment binding
+copy that this shared implementation had not exempted: a borrowed parameter
+was copied by `env_define_var_with_type_info`. This was an omission in my new
+borrow integration, not a change introduced by PR502. At `89a442f7`, borrowed
+bindings retain the caller's exact record pointer and their environment
+teardown does not own that payload. Ordinary record bindings still copy.
+Two identity assertions failed before the repair. All 42 environment checks
+and ten lexical-scope methods passed afterward, along with the rebuilt
+three-stage bootstrap and 13 paired methods in 61.183 seconds. A focused
+ASan/UBSan build of the environment and its test passed all 42 checks; I
+excluded unrelated legacy leak accounting from this focused lifetime run.
+The separate exclusive prototype now observes caller mutation in its C-seed
+shadows and native executable, but exclusive acceptance remains a later gate.
