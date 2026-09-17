@@ -4748,6 +4748,13 @@ fn purity_identifier(parser: Parser, context: PurityContext, name: string, count
         if (== (list_ASTEnum_get parser.enums i).name name) { return 0 }
         set i (+ i 1)
     }
+    # Taking a resolved declaration's function value is effect-free. Calling a
+    # function-typed local stays unknown in purity_call until its type proves it.
+    set i 0
+    while (< i parser.functions_count) {
+        if (== (parser_get_function parser i).name name) { return 0 }
+        set i (+ i 1)
+    }
     return 8
 }
 shadow purity_identifier {
@@ -4755,6 +4762,10 @@ shadow purity_identifier {
     let c: PurityContext = PurityContext { names: ["x"], mutable: [true], seen: [], globals: [] }
     assert (== (purity_identifier p c "x" 1) 2)
     assert (== (purity_identifier p c "absent" 1) 8)
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "fn helper(x: int) -> int { return x }" "purity.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
+    assert (== (purity_identifier parsed c "helper" 0) 0)
 }
 
 fn purity_call(parser: Parser, context: PurityContext, name: string, count: int) -> int {
@@ -4847,6 +4858,24 @@ fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count
         let n: ASTIf = (parser_get_if parser id)
         return (purity_join (purity_node parser n.condition n.condition_type context count) (purity_join (purity_node parser n.then_body ParseNodeType.PNODE_BLOCK context count) (purity_node parser n.else_body ParseNodeType.PNODE_BLOCK context count)))
     }
+    if (== kind ParseNodeType.PNODE_MATCH) {
+        let n: ASTMatch = (parser_get_match parser id)
+        let mut result: int = (purity_node parser n.scrutinee n.scrutinee_type context count)
+        let mut i: int = 0
+        while (< i n.arm_count) {
+            let mut body_count: int = count
+            if (< i (array_length n.arm_bindings)) {
+                let binding: string = (at n.arm_bindings i)
+                if (and (!= binding "") (!= binding "_")) {
+                    (purity_add context binding false body_count)
+                    set body_count (+ body_count 1)
+                }
+            }
+            set result (purity_join result (purity_node parser (at n.arm_body_ids i) (at n.arm_body_types i) context body_count))
+            set i (+ i 1)
+        }
+        return result
+    }
     if (== kind ParseNodeType.PNODE_RETURN) {
         let n: ASTReturn = (parser_get_return parser id)
         return (purity_node parser n.value n.value_type context count)
@@ -4907,6 +4936,11 @@ shadow purity_node {
     assert (== (purity_node p -1 ParseNodeType.PNODE_BLOCK c 0) 0)
     assert (== (purity_node p 0 ParseNodeType.PNODE_UNSAFE_BLOCK c 0) 24)
     assert (== (purity_node p 0 ParseNodeType.PNODE_WHILE c 0) 8)
+    let diagnostics: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "union Choice { Number { value: int }, Empty {} } fn f(choice: Choice) -> int { return match choice { Number(n) => n.value Empty(_e) => 0 } }" "purity.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
+    let match_context: PurityContext = PurityContext { names: ["choice", ""], mutable: [false, false], seen: [false], globals: [] }
+    assert (== (purity_node parsed 0 ParseNodeType.PNODE_MATCH match_context 1) 0)
 }
 
 fn purity_function(parser: Parser, parent: PurityContext, index: int) -> int {
@@ -4917,8 +4951,15 @@ fn purity_function(parser: Parser, parent: PurityContext, index: int) -> int {
     (array_set visited index true)
     let mut names: array<string> = []
     let mut flags: array<bool> = []
+    let mut capacity: int = parser.lets_count
+    let mut match_index: int = 0
+    while (< match_index (parser_get_match_count parser)) {
+        let matched: ASTMatch = (parser_get_match parser match_index)
+        set capacity (+ capacity matched.arm_count)
+        set match_index (+ match_index 1)
+    }
     let mut slot: int = 0
-    while (< slot parser.lets_count) {
+    while (< slot capacity) {
         set names (array_push names "")
         set flags (array_push flags false)
         set slot (+ slot 1)

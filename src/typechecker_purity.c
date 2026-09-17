@@ -74,8 +74,8 @@ static bool purity_input_value(PurityWalk *p, Type type, const char *name, int d
     default: return false;
     }
 }
-static unsigned purity_call(PurityWalk *p, const char *name) {
-    if (!name || purity_local(p,name)>=0) return PURE_UNKNOWN;
+static Function *purity_function_decl(PurityWalk *p, const char *name) {
+    if (!name) return NULL;
     Function *fn=env_get_function(p->env,name);
     /* I prefer an explicit declaration in this owner over a registry spelling. */
     for (int i=0; i<p->env->function_count; ++i) {
@@ -88,6 +88,11 @@ static unsigned purity_call(PurityWalk *p, const char *name) {
             break;
         }
     }
+    return fn;
+}
+static unsigned purity_call(PurityWalk *p, const char *name) {
+    if (!name || purity_local(p,name)>=0) return PURE_UNKNOWN;
+    Function *fn=purity_function_decl(p,name);
     if (fn && fn->is_extern) return PURE_UNKNOWN;
     if (fn && fn->body) return purity_function(p,fn);
     if (purity_builtin(name)) return 0;
@@ -108,6 +113,9 @@ static unsigned purity_identifier(PurityWalk *p,const char *name) {
         effects|=purity_type(p,sym->type,sym->struct_type_name,sym->type_info,0);
     }
     if (found || env_get_enum(p->env,name)) return effects;
+    /* Taking a resolved declaration's function value has no observable effect.
+     * Calling a function-typed local remains unknown in purity_call. */
+    if (purity_function_decl(p,name)) return 0;
     return PURE_UNKNOWN;
 }
 static unsigned purity_node(PurityWalk *p, ASTNode *node) {
@@ -151,6 +159,19 @@ static unsigned purity_node(PurityWalk *p, ASTNode *node) {
     case AST_COND:
         MANY(node->as.cond_expr.conditions,node->as.cond_expr.clause_count);
         MANY(node->as.cond_expr.values,node->as.cond_expr.clause_count); CHILD(node->as.cond_expr.else_value); break;
+    case AST_MATCH:
+        CHILD(node->as.match_expr.expr);
+        for (int i=0; i<node->as.match_expr.arm_count; ++i) {
+            int saved=p->count;
+            const char *binding=node->as.match_expr.pattern_bindings
+                ? node->as.match_expr.pattern_bindings[i] : NULL;
+            if (binding && binding[0] && strcmp(binding,"_") &&
+                !purity_add(p,binding,false)) result|=PURE_UNKNOWN;
+            if (node->as.match_expr.guard_exprs) CHILD(node->as.match_expr.guard_exprs[i]);
+            if (node->as.match_expr.arm_bodies) CHILD(node->as.match_expr.arm_bodies[i]);
+            p->count=saved;
+        }
+        break;
     case AST_WHILE: case AST_FOR: result|=PURE_UNKNOWN; break;
     case AST_RETURN: CHILD(node->as.return_stmt.value); break;
     case AST_PRINT: result|=PURE_IO; CHILD(node->as.print.expr); break;
@@ -163,7 +184,7 @@ static unsigned purity_node(PurityWalk *p, ASTNode *node) {
     case AST_TUPLE_LITERAL: MANY(node->as.tuple_literal.elements,node->as.tuple_literal.element_count); break;
     case AST_TUPLE_INDEX: CHILD(node->as.tuple_index.tuple); break;
     case AST_UNSAFE_BLOCK: result|=PURE_UNSAFE|PURE_UNKNOWN; break;
-    /* I keep unclassified matching, effects, async and higher-order constructs open. */
+    /* I keep unclassified effects, async and higher-order constructs open. */
     default: result|=PURE_UNKNOWN; break;
     }
 #undef CHILD
