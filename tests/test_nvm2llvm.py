@@ -73,8 +73,10 @@ class ScalarLLVM(unittest.TestCase):
         result = self.run_cmd([LLVM, module], success=False)
         self.assertIn('explicit returns', result.stderr)
         self.assertEqual(result.stdout, '')
-        result = self.run_cmd([C, module], success=False)
-        self.assertIn('falls off the end', result.stderr)
+        source, executable = self.work/'implicit.c', self.work/'implicit'
+        self.run_cmd([C, module, '-o', source])
+        self.run_cmd(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', source, '-o', executable])
+        self.run_cmd([executable])
 
     def test_integer_boundaries(self):
         checks = []
