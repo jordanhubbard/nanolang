@@ -15,7 +15,10 @@ existing string join implementation without extending its backward-edge
 contract. Heap/reference widening and unrelated concrete scalar unions remain
 refused.
 
-The source checkpoint is `b957c6ca`, based on merged U8 carrier PR #574. My
+The initial source checkpoint is `b957c6ca`, based on merged U8 carrier PR #574.
+I restacked it as `e2bd826b` onto main `925b2127`, preserving PR #575
+U8 formatting and PR #576 nested references. Only additive Makefile targets
+conflicted; the native source merged without conflict. My
 eight focused methods verify and execute the same modules in NanoVM and native
 C, covering both branch orders, aliases, explicit void locals, nested and
 parallel joins, carried loops, signed zero, and preserved publication on
@@ -26,6 +29,13 @@ Measured checks:
 - Initial seven focused methods: GCC 1.249s; generated-program ASan/UBSan/LSan 2.755s;
   freshly instrumented translator ASan/UBSan/LSan 1.516s; Clang 1.438s.
 - Eight methods after the independent review controls: 1.203s.
+- After restacking: 16 join/truthiness/U8 methods passed in 14.259s; all
+  eight join methods passed generated-C ASan/UBSan/LSan in 2.974s and Clang
+  in 1.561s.
+- The fresh private translator sanitizer gate passed 2,414 native checks and
+  1,092 shape checks, then verified ASan/UBSan instrumentation in both objects.
+  Its broad existing harness disables leak reporting; the focused translator
+  and generated-program checks above explicitly enabled it.
 - Six existing scalar truthiness methods across VM/C/LLVM/Wasm: 10.995s.
 - Full native compiler checks: 2,414 passed, zero failed; shape checks: 1,092
   passed, zero failed. Opcode coverage and sanitizer-driver checks passed.
