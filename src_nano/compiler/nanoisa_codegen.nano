@@ -4,8 +4,8 @@
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, let, set, string literals, string concat, array<int>
- * literals, array_length, array_get, int- and string-field records
- * (AGG_PACK/AGG_GET),
+ * literals, array_length, array_get, int-, bool-, and string-field records
+ * (AGG_PACK/AGG_GET), flat-record results,
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
  * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
  * print (PRINT), println (PRINTLN), and assert (ASSERT).
@@ -445,7 +445,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
         let mut i: int = 0
         while (< i s.field_count) {
             let ft: string = (at s.field_types i)
-            if (and (!= ft "int") (!= ft "string")) {
+            if (and (!= ft "int") (and (!= ft "string") (!= ft "bool"))) {
                 return false
             } else {
                 set i (+ i 1)
@@ -458,11 +458,13 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_pin_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Flags { enabled: bool, label: string } struct Nested { child: Flags } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_pin_record p "Point")
     assert (nisa_is_pin_record p "Tok")
+    assert (nisa_is_pin_record p "Flags")
+    assert (not (nisa_is_pin_record p "Nested"))
     assert (not (nisa_is_pin_record p "Nope"))
     assert (not (nisa_is_int_record p "Tok"))
 }
@@ -1378,7 +1380,11 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
                 return ""
             }
         } else {
-            return ""
+            if (nisa_is_pin_record parser t) {
+                return "struct"
+            } else {
+                return ""
+            }
         }
     }
 }
@@ -1386,9 +1392,11 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 shadow nisa_result_tag {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Tok { t: int, s: string } struct Box { p: Tok } " (+ "f" "n main() -> int { return 0 } shadow main { assert true }"))
+    let src: string = (+ "struct Tok { t: int, s: string, flag: bool } struct Box { p: Tok } " (+ "f" "n main() -> int { return 0 } shadow main { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_result_tag p "Tok") "struct")
+    assert (== (nisa_result_tag p "Box") "")
     assert (== (nisa_result_tag p "List<Tok>") "array")
     assert (== (nisa_result_tag p "List<Box>") "")
 }

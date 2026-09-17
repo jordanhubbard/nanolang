@@ -176,6 +176,20 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    /* Optional named fixtures share the same operand-aware bytecode check. */
+    if (argc > 3) {
+        for (int i = 3; i < argc; ++i) {
+            const NvmFunctionEntry *c_fn = fn_by_name(c_mod, argv[i]);
+            const NvmFunctionEntry *s_fn = fn_by_name(s_mod, argv[i]);
+            CHECK(c_fn && s_fn, argv[i]);
+            CHECK(code_equal(c_mod, c_fn, s_mod, s_fn), argv[i]);
+        }
+        nvm_module_free(c_mod);
+        nvm_module_free(s_mod);
+        printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
+        return g_fail ? 1 : 0;
+    }
+
     CHECK(c_mod->function_count >= 39, "C seed emitted add through via_one_t");
     CHECK(s_mod->function_count >= 39, "src_nano emitted add through via_one_t");
 
