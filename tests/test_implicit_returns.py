@@ -39,10 +39,13 @@ class ImplicitReturns(unittest.TestCase):
         self.compare('.entry main\n.function main 0 0 0 int 1\nCALL empty\nPUSH_I64 17\nRET\n.end\n'
                      '.function empty 0 0 0 void 0\n.end\n',17)
 
+    def test_empty_void_entry(self):
+        self.compare('.entry main\n.function main 0 0 0 void 0\n.end\n',0)
+
     def test_nested_scalar_chain_and_entry_fallthrough(self):
-        self.compare('.entry main\n.function main 0 0 0 int 1\nCALL outer\nPUSH_I64 2\nI64_ADD\n.end\n'
+        self.compare('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 5\nCALL outer\nI64_ADD\nPUSH_I64 2\nI64_ADD\n.end\n'
                      '.function outer 0 0 0 int 1\nCALL inner\nPUSH_I64 3\nI64_ADD\n.end\n'
-                     '.function inner 0 0 0 int 1\nPUSH_I64 9\n.end\n',14)
+                     '.function inner 0 0 0 int 1\nPUSH_I64 9\n.end\n',19)
 
     def test_float_and_bool_result_tags(self):
         self.compare('.entry main\n.function main 0 0 0 int 1\nCALL number\nPUSH_F64 -2.5\nF64_EQ\nASSERT\n'
