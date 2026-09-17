@@ -17,6 +17,12 @@ static void *literal_malloc(size_t size) {
     remember(pointer);
     return pointer;
 }
+static void *literal_calloc(size_t count, size_t size) {
+    if (reject_allocation) return NULL;
+    void *pointer = calloc(count, size);
+    remember(pointer);
+    return pointer;
+}
 static void *table_realloc(void *pointer, size_t size) {
     if (reject_growth) return NULL;
     int index = 0;
@@ -50,12 +56,14 @@ static uint32_t literal_add_function(NvmModule *module, const NvmFunctionEntry *
 }
 #define nvm_add_function literal_add_function
 #define malloc literal_malloc
+#define calloc literal_calloc
 #define realloc table_realloc
 #define free literal_free
 #define nvm_add_string literal_add_string
 #include "../../src/nanoisa/assembler.c"
 #undef nvm_add_function
 #undef malloc
+#undef calloc
 #undef realloc
 #undef free
 #undef nvm_add_string
@@ -172,7 +180,45 @@ static void function_failures(void) {
     nvm_module_free(state.mod);
     assert(!outstanding);
 }
+static void flow_allocation_failures(void) {
+    for (int phase = 0; phase < 2; ++phase) {
+        AsmState state;
+        asm_state_init(&state);
+        state.mod = nvm_module_new();
+        assert(state.mod);
+        AsmResult result = {0};
+        assert(add_symbol(&state, SYMBOL_FUNCTION, "main", 0, &result));
+        assert(process_line(&state, ".function main 0 1 0 int 1", &result));
+        if (!phase) {
+            reject_allocation = 1;
+            assert(!process_line(&state, ".flow_begin 1", &result));
+            assert(result.error == ASM_ERR_MEMORY && !state.flow_nodes);
+            reject_allocation = 0;
+        } else {
+            assert(process_line(&state, ".flow_begin 1", &result));
+            assert(process_line(&state, ".flow_node 0 0 0 0", &result));
+            assert(process_line(&state, "PUSH_I64 42", &result));
+            assert(process_line(&state, "STORE_LOCAL 0", &result));
+            uint32_t size = state.mod->passive_size;
+            reject_allocation = 1;
+            assert(!process_line(&state, ".flow_end", &result));
+            assert(result.error == ASM_ERR_MEMORY && state.flow_nodes);
+            assert(state.mod->passive_size == size && state.par_active);
+            reject_allocation = 0;
+            result = (AsmResult){0};
+            assert(process_line(&state, ".flow_end", &result));
+            assert(!state.flow_nodes && !state.par_active);
+        }
+        literal_free(state.mod->passive_data);
+        state.mod->passive_data = NULL;
+        state.mod->passive_size = 0;
+        asm_state_cleanup(&state);
+        nvm_module_free(state.mod);
+        assert(!outstanding);
+    }
+}
 int main(void) {
+    flow_allocation_failures();
     function_failures();
     passive_allocation_failures();
     literal_failures();

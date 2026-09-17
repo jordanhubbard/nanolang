@@ -146,10 +146,10 @@ refuses its `strlen` ABI. Foreign identity, broader external inputs, and `flow`
 extraction remain open. [My frontend evidence](evidence/passive-par-frontends.md)
 states the exact boundary.
 
-## Planned structured flow producer contract
+## Structured flow producer contract
 
-This interface is recorded before implementation under
-`task_d83213c008654ff4a561843889e778aa`. It does not admit frontend `flow` syntax.
+I resolve this interface under `task_d83213c008654ff4a561843889e778aa`.
+It does not admit frontend `flow` syntax.
 
 ```
 .flow_begin node-count
@@ -172,3 +172,6 @@ inputs, and closed scalar calls must execute identically in VM and native output
 Text errors must refuse publication. I retain checked allocation and recovery.
 Frontend extraction, immutable local/aggregate inputs, resources and foreign
 purity remain separate work; this interface provides no scheduler.
+
+[My flow-marker evidence](evidence/passive-flow-markers.md) records paired execution,
+exact records, retained codec checks and bounded assembler sanitizer coverage.

@@ -16,8 +16,10 @@ semantics.
 Neither the C frontend nor the self-hosted frontend currently implements the
 complete syntax, effect analysis, dependency analysis, or conformance matrix
 below. I carry and verify a bounded scalar metadata record described in
-[NANOISA_PASSIVE.md](NANOISA_PASSIVE.md); external inputs, calls and resource
-claims remain outside that record. I make no production-readiness claim for
+[NANOISA_PASSIVE.md](NANOISA_PASSIVE.md), including guarded scalar parameters,
+checked closed scalar calls, bounded frontend `par` emission, and structured
+`flow` producer markers. Broader input proofs, resource claims, and frontend
+`flow` extraction remain unfinished. I make no production-readiness claim for
 the complete passive-parallelism contract in the current release.
 
 I check the current `pure fn` spelling in both frontends by traversing known
