@@ -911,10 +911,19 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
         }
 
         if (strcmp(directive, "parameters") == 0) {
-            uint32_t index;
-            if (!parse_uint32(&p, &index) || index >= state->mod->function_count) {
+            uint32_t index = UINT32_MAX;
+            const char *start = p;
+            if (!parse_uint32(&p, &index)) {
+                char name[128];
+                p = start;
+                if (parse_identifier(&p, name, sizeof(name))) {
+                    int found = find_symbol(state, SYMBOL_FUNCTION, name);
+                    if (found >= 0) index = state->symbols[found].value;
+                }
+            }
+            if (index >= state->mod->function_count) {
                 result->error = ASM_ERR_BAD_OPERAND;
-                snprintf(result->message, sizeof(result->message), "I need an existing function index for .parameters");
+                snprintf(result->message, sizeof(result->message), "I need an existing function name or index for .parameters");
                 return false;
             }
             uint16_t arity = state->mod->functions[index].arity;

@@ -3,7 +3,7 @@
 I carry version-1 and version-2 scalar eligibility records in v2 section `0x0c`, guarded by
 feature bit `0x40`. Readers that do not know that feature reject the module.
 Legacy output refuses records rather than dropping them. This is a bounded IR
-foundation for `PASSIVE_PARALLELISM_DESIGN.md`; frontend syntax, call summaries,
+foundation for `PASSIVE_PARALLELISM_DESIGN.md`; broader frontend eligibility,
 resource metadata and the full conformance matrix remain unfinished.
 
 Every field is a little-endian `u32`. The section starts with `version = 1` or `version = 2`
@@ -26,7 +26,7 @@ internal edges. Ranges exactly partition the block, with no gaps or overlaps.
 The node's final instruction stores its result, which serves as the serial
 binding commit; the next node begins with an empty stack.
 
-This first verifier permits straight-line scalar stack operations and arithmetic.
+The version-1 verifier permits straight-line scalar stack operations and arithmetic.
 Each node may read declared completed node results and may write only its
 distinct result local. External read counts must be zero in this version: the
 ordinary verifier does not yet prove caller values from parameter annotations. It cannot access
@@ -78,8 +78,9 @@ permitted outside node ranges in version `2`; it does not itself make a node
 eligible. I retain ordinary stack and instruction verification.
 
 The guarded-input acceptance excludes `u8`, aggregates, captures and foreign
-purity summaries. Closed local calls have the additional checks below. It does not implement either frontend's `par` or `flow`
-syntax. The complete external-input task remains open until its broader
+purity summaries. Closed local calls have the additional checks below. Frontend
+`par` emission has the separate bounded contract below; `flow` remains open.
+The complete external-input task remains open until its broader
 acceptance is met. Guarded scalar validation and paired execution evidence are
 in [my acceptance record](evidence/passive-guarded-inputs.md).
 
@@ -125,6 +126,22 @@ callee. Exceeding a bound refuses the claim. Allocation failure also refuses it.
 Version 1 remains unchanged. Version 2 additionally admits typed integer/float/
 boolean arithmetic and string concatenation with the same scalar provenance.
 
-This verifier prerequisite does not publish frontend `par` support. Existing
-callable source fixtures must retain their behavior before that cutover. Foreign
-intrinsic identity, broader external inputs, and `flow` extraction remain open.
+## Bounded source emission
+
+I retain `par` identity in both frontends and require distinct immutable `let`
+bindings with scalar initializers. I inspect all initializers against the
+pre-block environment before introducing their names. Sibling references,
+mutable inputs, aggregates, and unsupported effects are refused.
+
+Closed scalar source calls require resolved body inspection; scalar local `while` loops
+and reassignment are permitted. My separate `pure fn` rules are unchanged. The
+NanoISA emitters require guarded parameter inputs and retain every admitted
+binding in version-2 records, which undergo independent bytecode verification.
+Native source compilation retains the same lexical binding behavior.
+
+I test the original square/cube fixture and calculator on all three native
+compiler stages, and compare the unchanged calculator scalar closure across
+both NanoISA emitters and VM/native execution. The full raw calculator still
+refuses its `strlen` ABI. Foreign identity, broader external inputs, and `flow`
+extraction remain open. [My frontend evidence](evidence/passive-par-frontends.md)
+states the exact boundary.

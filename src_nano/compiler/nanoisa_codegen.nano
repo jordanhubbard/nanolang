@@ -1,3 +1,4 @@
+from "src_nano/compiler/passive_purity.nano" import par_closed_call
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 /* =============================================================================
  * NanoISA lowering (src_nano dual of src/nanovirt/codegen.c, pinned subset)
@@ -27,6 +28,8 @@ let mut nisa_str_names: array<string> = []
 let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
+let mut nisa_param_count: int = 0
+let mut nisa_has_par: bool = false
 let mut nisa_void_return: bool = false
 let mut nisa_return_type: string = ""
 let mut nisa_loop_top: string = ""
@@ -51,6 +54,8 @@ fn nisa_reset() -> int {
     set nisa_ok true
     set nisa_err ""
     set nisa_label 0
+    set nisa_param_count 0
+    set nisa_has_par false
     set nisa_void_return false
     set nisa_return_type ""
     set nisa_loop_top ""
@@ -2768,7 +2773,154 @@ shadow nisa_call_has_result {
     assert (nisa_call_has_result parser (parser_get_call parser 2))
 }
 
+fn nisa_par_scalar(t: string) -> bool {
+    return (or (== t "int") (or (== t "bool") (or (== t "string") (== t "float"))))
+}
+shadow nisa_par_scalar {
+    assert (nisa_par_scalar "float")
+    assert (not (nisa_par_scalar "array<int>"))
+}
+
+fn nisa_par_expression(parser: Parser, id: int, kind: int, names: array<string>) -> bool {
+    if (or (== kind ParseNodeType.PNODE_NUMBER) (or (== kind ParseNodeType.PNODE_FLOAT)
+           (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL)))) { return true }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let name: string = (parser_get_identifier parser id).name
+        let mut i: int = 0
+        while (< i (array_length names)) {
+            if (== name (at names i)) { return false }
+            set i (+ i 1)
+        }
+        let slot: int = (nisa_local_find name)
+        return (and (and (>= slot 0) (< slot nisa_param_count))
+                    (nisa_par_scalar (nisa_expr_type parser id kind)))
+    }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let node: ASTBinaryOp = (parser_get_binary_op parser id)
+        if node.is_unary { return (nisa_par_expression parser node.right node.right_type names) }
+        return (and (nisa_par_expression parser node.left node.left_type names)
+                    (nisa_par_expression parser node.right node.right_type names))
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let call: ASTCall = (nisa_get_call parser id kind)
+        let resolved: string = (nisa_call_name parser call)
+        if (== resolved "") { return false }
+        let mut original: string = ""
+        if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+            set original (parser_get_module_qualified_call parser call.function).function_name
+        } else {
+            set original (parser_get_identifier parser call.function).name
+        }
+        if (not (par_closed_call parser original call.line call.arg_count)) { return false }
+        let mut i: int = 0
+        while (< i call.arg_count) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (not (nisa_par_expression parser arg.node_id arg.node_type names)) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    return false
+}
+shadow nisa_par_expression {
+    let _: int = (nisa_reset)
+    let parser: Parser = (parse_program (tokenize_string "" "par.nano" (diag_list_new)) 0 "par.nano")
+    let names: array<string> = []
+    assert (nisa_par_expression parser 0 ParseNodeType.PNODE_NUMBER names)
+    assert (not (nisa_par_expression parser 0 ParseNodeType.PNODE_ARRAY_LITERAL names))
+}
+
+fn nisa_par_reads(parser: Parser, id: int, kind: int, name: string) -> bool {
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (== (parser_get_identifier parser id).name name) }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let node: ASTBinaryOp = (parser_get_binary_op parser id)
+        if node.is_unary { return (nisa_par_reads parser node.right node.right_type name) }
+        return (or (nisa_par_reads parser node.left node.left_type name)
+                   (nisa_par_reads parser node.right node.right_type name))
+    }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        let call: ASTCall = (nisa_get_call parser id kind)
+        let mut i: int = 0
+        while (< i call.arg_count) {
+            let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (nisa_par_reads parser arg.node_id arg.node_type name) { return true }
+            set i (+ i 1)
+        }
+    }
+    return false
+}
+shadow nisa_par_reads {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return 1 }" "par.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "par.nano")
+    assert (not (nisa_par_reads parser 0 ParseNodeType.PNODE_NUMBER "x"))
+}
+
+fn nisa_emit_par(parser: Parser, block: ASTBlock) -> string {
+    let count: int = (list_ASTStmtRef_length block.statements)
+    if (== count 0) { return (nisa_fail "I require a nonempty par block") }
+    let mut names: array<string> = []
+    let mut i: int = 0
+    while (< i count) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        if (!= statement.node_type ParseNodeType.PNODE_LET) { return (nisa_fail "I require let bindings in par") }
+        let binding: ASTLet = (parser_get_let parser statement.node_id)
+        if binding.is_mut { return (nisa_fail "I require immutable par bindings") }
+        let mut j: int = 0
+        while (< j (array_length names)) {
+            if (== binding.name (at names j)) { return (nisa_fail "I require distinct par names") }
+            set j (+ j 1)
+        }
+        set names (array_push names binding.name)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i count) {
+        let binding: ASTLet = (parser_get_let parser (list_ASTStmtRef_get block.statements i).node_id)
+        if (not (nisa_par_expression parser binding.value binding.value_type names)) {
+            return (nisa_fail "I require independent scalar expressions over guarded parameters in par")
+        }
+        let actual: string = (nisa_expr_type parser binding.value binding.value_type)
+        if (or (not (nisa_par_scalar actual)) (and (!= binding.var_type "") (!= binding.var_type actual))) {
+            return (nisa_fail "I require the declared scalar par binding type")
+        }
+        set i (+ i 1)
+    }
+    set nisa_has_par true
+    let mut output: string = ".par_begin\n"
+    set i 0
+    while (< i count) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        let binding: ASTLet = (parser_get_let parser statement.node_id)
+        let mut marker: string = (+ ".par_node " (int_to_string (array_length nisa_names)))
+        let mut parameter: int = 0
+        while (< parameter nisa_param_count) {
+            if (nisa_par_reads parser binding.value binding.value_type (at nisa_names parameter)) {
+                set marker (+ marker (+ " " (int_to_string parameter)))
+            }
+            set parameter (+ parameter 1)
+        }
+        set output (+ output (+ marker "\n"))
+        set output (+ output (nisa_emit_stmt parser statement))
+        set i (+ i 1)
+    }
+    return (+ output ".par_end\n")
+}
+shadow nisa_emit_par {
+    let text: string = (nanoisa_emit_nasm "fn main() -> int { par { let a: int = 1 let b: int = 2 } return (+ a b) }")
+    assert nisa_ok
+    assert (str_contains text ".par_begin")
+    assert (str_contains text ".par_node 1")
+    let refused: string = (nanoisa_emit_nasm "fn main() -> int { par { let a: int = 1 let b: int = a } return b }")
+    assert (== refused "")
+    assert (not nisa_ok)
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
+    if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser stmt.node_id)
+        if block.is_par { return (nisa_emit_par parser block) }
+    }
     if (== stmt.node_type ParseNodeType.PNODE_FOR) {
         return (nisa_emit_for parser (parser_get_for parser stmt.node_id))
     }
@@ -3017,6 +3169,8 @@ shadow nisa_result_tag {
 }
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
+    set nisa_param_count func.param_count
+    set nisa_has_par false
     set nisa_names []
     set nisa_types []
     let result_tag: string = (nisa_result_tag parser func.return_type)
@@ -3045,6 +3199,29 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         } else {
             (print "")
         }
+        let mut parameters: string = ""
+        if nisa_has_par {
+            set parameters (+ ".parameters " func.name)
+            let mut guards: string = ""
+            let mut parameter: int = 0
+            while (< parameter func.param_count) {
+                let t: string = (parser_get_let parser (+ func.param_start parameter)).var_type
+                set parameters (+ parameters (+ " " (nisa_result_tag parser t)))
+                let mut tag: int = 0
+                if (== t "int") { set tag 1 }
+                if (== t "float") { set tag 3 }
+                if (== t "bool") { set tag 4 }
+                if (== t "string") { set tag 5 }
+                if (> tag 0) {
+                    set guards (+ guards (nisa_line_imm "LOAD_LOCAL" (int_to_string parameter)))
+                    set guards (+ guards (nisa_line_imm "TYPE_CHECK" (int_to_string tag)))
+                    set guards (+ guards (nisa_line "ASSERT"))
+                }
+                set parameter (+ parameter 1)
+            }
+            set parameters (+ parameters "\n")
+            set body (+ guards body)
+        }
         let locals: int = (array_length nisa_names)
         let mut header: string = ".function "
         set header (+ header func.name)
@@ -3059,7 +3236,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         } else {
             set header (+ header " 1\n")
         }
-        return (+ (+ header body) ".end\n")
+        return (+ (+ (+ header parameters) body) ".end\n")
     }
 }
 

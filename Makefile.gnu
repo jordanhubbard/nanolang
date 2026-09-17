@@ -3189,7 +3189,7 @@ $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
 
 # Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
-$(OBJ_DIR)/typechecker.o: $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/generated/purity_intrinsics.h
+$(OBJ_DIR)/typechecker.o: $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/typechecker_passive.c $(SRC_DIR)/generated/purity_intrinsics.h
 
 $(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
@@ -4411,3 +4411,8 @@ test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-units: test-nanoisa-host-closure
 test-nanoisa-host-closure: $(COMPILER_C)
 	python3 -m unittest tests.test_nanoisa_host_closure
+
+.PHONY: test-passive-par-frontends
+test-units: test-passive-par-frontends
+test-passive-par-frontends: bootstrap nanoisa_emit
+	python3 -m unittest tests.test_passive_par_frontends
