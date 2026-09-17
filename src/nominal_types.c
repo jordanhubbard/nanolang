@@ -61,6 +61,10 @@ static bool nominal_signature(ASTNode *program, Environment *env, FunctionSignat
     return nominal_scoped_signature(program, env, signature, NULL, 0);
 }
 static bool nominal_parameter(ASTNode *program, Environment *env, Parameter *parameter) {
+    if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT) {
+        fprintf(stderr, "I retain borrow annotations, but call-scoped ownership lowering is not implemented\n");
+        return false;
+    }
     return nominal_slot(program, env, &parameter->struct_type_name) &&
            nominal_signature(program, env, parameter->fn_sig) &&
            nominal_info(program, env, parameter->type_info);

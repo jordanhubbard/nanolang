@@ -106,7 +106,9 @@ typedef enum {
     TYPE_TUPLE,        /* Tuple type: (int, string, bool) */
     TYPE_OPAQUE,       /* Opaque C pointer type: GLFWwindow, SDL_Window, etc. */
     TYPE_OPEN_RECORD,  /* Row-polymorphic record: {f1:T1, f2:T2 | r} */
-    TYPE_UNKNOWN
+    TYPE_UNKNOWN,
+    TYPE_BORROW_SHARED, /* Parser annotation; lowering remains guarded. */
+    TYPE_BORROW_MUT
 } Type;
 
 /* Extended type information for arrays and generics */

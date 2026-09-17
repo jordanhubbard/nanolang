@@ -39,6 +39,24 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Paired call-scoped resource borrows.** I implement the existing
+      `&T` / `&mut T` contract with retained annotation identity and explicit
+      borrowed call arguments. I first preserve syntax and metadata, then
+      enforce shared/exclusive access and call-argument overlap, then prove
+      observable shared reads and exclusive mutation on C seed, Stage 1 and
+      Stage 2. I reject moved, escaping, stored and unsupported callback
+      borrows before publication; I do not pass exclusive mutation by value.
+      My positive/negative matrix and fresh bootstrap precede closure. This
+      is a prerequisite to verified NanoISA ownership facts, not that IR gate.
+      MAC `task_71821d84befc46e198795122c1112a27`.
+      - [x] I retain shared/exclusive named-parameter annotations in both
+        parsers and explicitly reject them before unsupported lowering. My
+        parser-copy, paired refusal/retention and ordinary ownership controls
+        pass; `evidence/call-scoped-borrow-annotations.md` distinguishes the
+        diagnostic bootstrap budget from the open default-deadline task.
+      - [ ] I implement call-scoped shared reads and exclusive mutation with
+        paired overlap, move and escape rejection before admitting borrows.
+
 - [ ] **Concrete native specialization closure.** I discover union instances
       reachable only through substituted payload fields, including checked
       cyclic and expanding-type boundaries. MAC `task_98dab2489ab749e7b9053f944b3fe489`.
