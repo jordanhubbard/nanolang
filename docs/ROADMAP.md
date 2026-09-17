@@ -8146,10 +8146,21 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower scoped unsafe blocks through my existing supported host ABI,
+- [ ] I lower declared enum values/types from preserved self-host AST metadata
+      (`task_3ef1df55630e4199b825ff5d8a0043f1`), including signed values and
+      exact scalar transport. The actual compiler first stops at
+      `TOKEN_DOUBLE_COLON` after unsafe-block lowering.
+- [x] I propagate unsafe-block termination through C-seed bytecode control flow
+      (`task_ed2788c9071249d2a8c8ce3fbec37a74`); recursive analysis now
+      preserves exact nested-return bytecode comparisons.
+- [x] I preserve lexical local bindings during self-hosted block lowering
+      (`task_64cc83f059264bf983a449c3312cde4f`), including unsafe/if/while
+      shadowing, outer mutation, and monotonically allocated local slots.
+- [x] I lower scoped unsafe blocks through my existing supported host ABI,
       retaining control flow and stack balance
-      (`task_750341a5ccb04cffa9b2e0cc92e1f7d6`). Actual compiler emission after
-      map fields first refuses `PNODE_UNSAFE_BLOCK`, not an unknown host call.
+      (`task_750341a5ccb04cffa9b2e0cc92e1f7d6`). Twelve opcode comparisons
+      and VM/AOT execution cover nested scopes and loop exits; see
+      `docs/evidence/selfhost-unsafe-blocks.md`.
 - [ ] I retain HashMap field generic types through C-seed builtin inference
       (`task_160826784e8a4aa4ac9d5e589a54c814`); direct `map_get`/`map_has`
       on a declared string/int map field currently fails inference.
