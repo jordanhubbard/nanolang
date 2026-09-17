@@ -4326,3 +4326,8 @@ test-units: test-vm-shadow-supervision
 test-units: test-native-returned-maps
 test-native-returned-maps: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest tests.test_native_returned_maps
+
+.PHONY: test-borrow-annotations
+test-units: test-borrow-annotations
+test-borrow-annotations: bootstrap
+	python3 tests/test_borrow_annotations.py

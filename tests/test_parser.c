@@ -1008,11 +1008,40 @@ static void test_owned_generic_function_annotations(void) {
     free_payload_type_info(copy);
 }
 
+static void test_borrow_annotation_retention(void) {
+    ASTNode *program = parse_ok("extern fn observe(a: &owned.Handle, b: &mut Box<array<int>>) -> int");
+    ASSERT_NOT_NULL(program);
+    ASTNode *function = program->as.program.items[0];
+    ASSERT_EQ(function->as.function.param_count, 2);
+    TypeInfo *shared = function->as.function.params[0].type_info;
+    TypeInfo *exclusive = function->as.function.params[1].type_info;
+    ASSERT_NOT_NULL(shared);
+    ASSERT_EQ(shared->base_type, TYPE_BORROW_SHARED);
+    ASSERT_EQ(shared->element_type->base_type, TYPE_STRUCT);
+    ASSERT(strcmp(shared->element_type->generic_name, "owned.Handle") == 0);
+    ASSERT_EQ(exclusive->base_type, TYPE_BORROW_MUT);
+    ASSERT(strcmp(exclusive->element_type->generic_name, "Box") == 0);
+    ASSERT_EQ(exclusive->element_type->type_params[0]->base_type, TYPE_ARRAY);
+    ASSERT_EQ(exclusive->element_type->type_params[0]->element_type->base_type, TYPE_INT);
+    TypeInfo *copy = copy_payload_type_info(exclusive);
+    ASSERT(type_infos_equal(copy, exclusive));
+    copy->base_type = TYPE_BORROW_SHARED;
+    ASSERT(!type_infos_equal(copy, exclusive));
+    copy->base_type = TYPE_BORROW_MUT;
+    free_ast(program);
+    ASSERT_EQ(copy->element_type->type_params[0]->element_type->base_type, TYPE_INT);
+    free_payload_type_info(copy);
+    ASSERT_NULL(parse_ok("extern fn invalid(a: &&int) -> int"));
+    ASSERT_NULL(parse_ok("extern fn invalid() -> &int"));
+    ASSERT_NULL(parse_ok("struct Invalid { value: &int }"));
+}
+
 int main(void) {
     printf("=== Parser Tests ===\n");
 
     printf("\n--- Valid programs ---\n");
     TEST(parse_minimal);
+    TEST(borrow_annotation_retention);
     TEST(nested_generic_annotation_metadata);
     TEST(nested_generic_annotation_errors);
     TEST(parse_empty_program);

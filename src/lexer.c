@@ -560,6 +560,7 @@ Token *tokenize(const char *source, int *token_count) {
             case '[': tokens[count++] = create_token(TOKEN_LBRACKET, NULL, line, column); i++; break;
             case ']': tokens[count++] = create_token(TOKEN_RBRACKET, NULL, line, column); i++; break;
             case ',': tokens[count++] = create_token(TOKEN_COMMA, NULL, line, column); i++; break;
+            case '&': tokens[count++] = create_token(TOKEN_AMPERSAND, NULL, line, column); i++; break;
             case ':': tokens[count++] = create_token(TOKEN_COLON, NULL, line, column); i++; break;
             case '.': tokens[count++] = create_token(TOKEN_DOT, NULL, line, column); i++; break;
             case '+': tokens[count++] = create_token(TOKEN_PLUS, NULL, line, column); i++; break;
@@ -686,6 +687,7 @@ const char *token_type_name(TokenType type) {
         case TOKEN_ASYNC: return "ASYNC";
         case TOKEN_AWAIT: return "AWAIT";
         case TOKEN_PURE: return "PURE";
+        case TOKEN_AMPERSAND: return "AMPERSAND";
         default: return "UNKNOWN";
     }
 }

@@ -932,6 +932,14 @@ shadow is_type_start_token_type {
 }
 
 fn parse_type_string(p: Parser) -> TypeParseResult {
+    if (not (parser_is_at_end p)) {
+        let first: LexerToken = (parser_current p)
+        if (== first.token_type LexerTokenType.TOKEN_AMPERSAND) {
+            (println "I support borrow annotations only on named parameters until ownership lowering lands")
+            return TypeParseResult { p: (parser_with_error p true), type_name: "", ok: false }
+        }
+    }
+
     if (parser_is_at_end p) {
         return TypeParseResult { p: p, type_name: "", ok: false }
     } else {
@@ -2471,6 +2479,11 @@ fn parse_primary(p: Parser) -> Parser {
         return (parser_with_error p true)
     } else {
         let tok: LexerToken = (parser_current p)
+
+        if (== tok.token_type LexerTokenType.TOKEN_AMPERSAND) {
+            (println "I cannot lower borrowed argument expressions yet")
+            return (parser_with_error p true)
+        }
 
         # I bind a bare unary operator to the next primary, before infix parsing.
         if (== tok.token_type (token_not)) {
@@ -6579,6 +6592,36 @@ struct ParamParseResult {
     param_count: int
 }
 
+# I retain the annotation without claiming a runtime reference representation.
+fn parse_parameter_type(p: Parser) -> TypeParseResult {
+    if (parser_is_at_end p) { return (parse_type_string p) }
+    let first: LexerToken = (parser_current p)
+    if (!= first.token_type LexerTokenType.TOKEN_AMPERSAND) { return (parse_type_string p) }
+    let mut cur: Parser = (parser_advance p)
+    let mut prefix: string = "&"
+    if (not (parser_is_at_end cur)) {
+        let next: LexerToken = (parser_current cur)
+        if (== next.token_type (token_mut)) {
+            set prefix "&mut "
+            set cur (parser_advance cur)
+        }
+    }
+    let referent: TypeParseResult = (parse_type_string cur)
+    return TypeParseResult { p: referent.p, type_name: (+ prefix referent.type_name), ok: referent.ok }
+}
+shadow parse_parameter_type {
+    let shared_tokens: List<LexerToken> = (tokenize_string "&Handle" "test.nano" (list_CompilerDiagnostic_new))
+    let shared: Parser = (parser_new shared_tokens (list_LexerToken_length shared_tokens) "test.nano")
+    let exclusive_tokens: List<LexerToken> = (tokenize_string "&mut Box<int>" "test.nano" (list_CompilerDiagnostic_new))
+    let exclusive: Parser = (parser_new exclusive_tokens (list_LexerToken_length exclusive_tokens) "test.nano")
+    let a: TypeParseResult = (parse_parameter_type shared)
+    let b: TypeParseResult = (parse_parameter_type exclusive)
+    assert a.ok
+    assert b.ok
+    assert (== a.type_name "&Handle")
+    assert (== b.type_name "&mut Box<int>")
+}
+
 /* Helper: Parse function parameters */
 fn parse_function_params(p: Parser, param_count: int) -> ParamParseResult {
     if (parser_has_error p) {
@@ -6619,7 +6662,7 @@ fn parse_function_params(p: Parser, param_count: int) -> ParamParseResult {
                         if (parser_has_error p2) {
                             return ParamParseResult { p: p2, param_count: param_count }
                         } else {
-                            let t: TypeParseResult = (parse_type_string p2)
+                            let t: TypeParseResult = (parse_parameter_type p2)
                             if (not t.ok) {
                                 return ParamParseResult { p: (parser_with_error t.p true), param_count: param_count }
                             } else {

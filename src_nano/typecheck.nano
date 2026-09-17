@@ -5337,6 +5337,22 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     /* Get function count using accessor */
     let func_count: int = (parser_get_function_count parser)
 
+    # I refuse parser-only annotations before building signatures or publishing output.
+    let mut borrow_fn: int = 0
+    while (< borrow_fn func_count) {
+        let item: ASTFunction = (parser_get_function parser borrow_fn)
+        let mut argument: int = 0
+        while (< argument item.param_count) {
+            let parameter: ASTLet = (parser_get_let parser (+ item.param_start argument))
+            if (str_starts_with parameter.var_type "&") {
+                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0036" "I retain borrow annotations, but call-scoped ownership lowering is not implemented" (Diagnostics.diag_location file_name parameter.line parameter.column)))
+                return (typecheck_output env.diagnostics 1 true)
+            }
+            set argument (+ argument 1)
+        }
+        set borrow_fn (+ borrow_fn 1)
+    }
+
     /* Validate we have at least one function */
     if (<= func_count 0) {
         (println "Error: No functions found")

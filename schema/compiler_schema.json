@@ -87,7 +87,8 @@
     "TOKEN_GPU",
     "TOKEN_ASYNC",
     "TOKEN_AWAIT",
-    "TOKEN_PURE"
+    "TOKEN_PURE",
+    "TOKEN_AMPERSAND"
   ],
   "parse_nodes": [
     "PNODE_NUMBER",

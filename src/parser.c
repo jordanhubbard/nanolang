@@ -353,6 +353,9 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
     Token *tok = current_token(p);
 
     switch (tok->token_type) {
+        case TOKEN_AMPERSAND:
+            parser_error(p, tok->line, tok->column, "I support borrow annotations only on named parameters until ownership lowering lands\n");
+            return TYPE_UNKNOWN;
         case TOKEN_TYPE_INT: type = TYPE_INT; break;
         case TOKEN_TYPE_U8: type = TYPE_U8; break;
         case TOKEN_TYPE_FLOAT: type = TYPE_FLOAT; break;
@@ -954,6 +957,13 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 return false;
             }
 
+            Type borrow_type = TYPE_UNKNOWN;
+            if (match(p, TOKEN_AMPERSAND)) {
+                advance(p);
+                borrow_type = TYPE_BORROW_SHARED;
+                if (match(p, TOKEN_MUT)) { advance(p); borrow_type = TYPE_BORROW_MUT; }
+            }
+
             /* Type - check if it's a struct type (identifier) */
             Token *type_token = current_token(p);
             char *struct_name = NULL;
@@ -982,7 +992,21 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
             param_list[count].struct_type_name = type_param_name;  /* Store generic type param here */
             param_list[count].element_type = element_type;
             param_list[count].fn_sig = fn_sig;  /* Store function signature if it's a function type */
-            param_list[count].type_info = type_info;  /* Store full type info for generic types */
+            if (borrow_type != TYPE_UNKNOWN) {
+                TypeInfo *underlying = type_info;
+                if (!underlying) {
+                    underlying = calloc(1, sizeof(*underlying));
+                    if (!underlying) abort();
+                    underlying->base_type = param_list[count].type;
+                    underlying->generic_name = type_param_name ? strdup(type_param_name) : NULL;
+                }
+                type_info = calloc(1, sizeof(*type_info));
+                if (!type_info) abort();
+                type_info->base_type = borrow_type;
+                type_info->element_type = underlying;
+                param_list[count].type = borrow_type;
+            }
+            param_list[count].type_info = type_info;  /* Retain the borrow and referent separately. */
             
             /* If it's a struct type, save the struct name */
             if (param_list[count].type == TYPE_STRUCT && struct_name) {
@@ -1268,6 +1292,9 @@ static ASTNode *parse_primary(Stage1Parser *p) {
     ASTNode *node;
 
     switch (tok->token_type) {
+        case TOKEN_AMPERSAND:
+            parser_error(p, tok->line, tok->column, "I cannot lower borrowed argument expressions yet\n");
+            return NULL;
         case TOKEN_NOT: {
             /* Unary not: not expr */
             int line = tok->line;
