@@ -6500,7 +6500,8 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
     let mut parts: array<string> = []
     set parts (cg_append parts (gen_indent indent))
 
-    let c_type: string = (type_to_c let_stmt.var_type)
+    # I capture a checked payload once, retaining its concrete native layout.
+    let c_type: string = (cond (let_stmt.is_destructure "__auto_type") (else (type_to_c let_stmt.var_type)))
     set parts (cg_append parts c_type)
     set parts (cg_append parts " ")
     set parts (cg_append parts "nl_")
@@ -6524,6 +6525,10 @@ shadow generate_let_stmt {
     let env: GenEnv = (genenv_new "test")
     let code: string = (generate_let_stmt p l 0 env)
     assert (== code "int64_t nl_x = 1;\n")
+    let pattern_tokens: List<LexerToken> = (tokenize_string "fn unpack(payload: Box.Some) -> int { let Box.Some { value } = payload return value }" "pattern.nano" (list_CompilerDiagnostic_new))
+    let pattern: Parser = (parse_program pattern_tokens (list_LexerToken_length pattern_tokens) "pattern.nano")
+    let captured: string = (generate_let_stmt pattern (parser_get_let pattern 1) 0 env)
+    assert (transp_str_starts_with captured "__auto_type nl_")
 }
 
 fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) -> string {
