@@ -4321,3 +4321,8 @@ test-resource-callback-boundary: bootstrap
 test-vm-shadow-supervision: nano_vm nanoisa_dump
 	python3 -m unittest tests.test_vm_shadow_supervision tests.test_shadow_runner
 test-units: test-vm-shadow-supervision
+
+.PHONY: test-native-returned-maps
+test-units: test-native-returned-maps
+test-native-returned-maps: $(COMPILER_C) nano_virt nano_vm
+	python3 -m unittest tests.test_native_returned_maps
