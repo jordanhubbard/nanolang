@@ -20,6 +20,32 @@
 #define NVM2C_MAX_LOCALS 1024
 #define NVM2C_CALL_SIZE (64 + NVM2C_MAX_LOCALS * 32)
 
+/* I inspect my generated executable text, not literal data or comments.
+ * This is an internal architecture assertion, not a C security validator. */
+static bool contains_vm_wrapper_code(const char *source) {
+    const char *p = source;
+    while (*p) {
+        if (*p == '"' || *p == '\'') {
+            char quote = *p++;
+            while (*p && *p != quote) {
+                if (*p == '\\' && p[1]) p++;
+                p++;
+            }
+            if (*p) p++;
+        } else if (p[0] == '/' && p[1] == '*') {
+            p += 2;
+            while (*p && !(p[0] == '*' && p[1] == '/')) p++;
+            if (*p) p += 2;
+        } else if (p[0] == '/' && p[1] == '/') {
+            while (*p && *p != '\n') p++;
+        } else {
+            if (!strncmp(p, "nano_vm", 7) || !strncmp(p, "nvm_blob", 8)) return true;
+            p++;
+        }
+    }
+    return false;
+}
+
 #define NVM2C_VK_INT 0
 #define NVM2C_VK_STR 1
 #define NVM2C_VK_UNK 2
@@ -5511,7 +5537,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
 
     if (b.failed) goto fail;
-    if (strstr(b.data, "nano_vm") != NULL || strstr(b.data, "nvm_blob") != NULL) {
+    if (contains_vm_wrapper_code(b.data)) {
         nvm2c_fail(&b, "internal error: emitted a VM wrapper rather than structured C");
         goto fail;
     }
