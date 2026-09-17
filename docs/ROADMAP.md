@@ -8441,13 +8441,17 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower the existing `is_alnum` call required by my compiler
+      (`task_9e5bf751b8614b599f0bff8e1bdc2a77`), preserving its precise operand/result contract.
+      Full emission reaches it after `str_concat`; the probe is retained in
+      `/tmp/nanolang-concat-fullcompiler-probe.log`.
 - [x] I select actual nested generic union instances instead of matching an
       enclosing type by substring (`task_b25eef03a0874cf8b0c7f0fa23c05289`).
       My C registration and emission share recursive specialization names;
       `Box<Result<int,string>>` copies and payloads execute under all three
       native compiler stages. Other constructor contexts remain task633.
       Evidence: `docs/evidence/native-nested-generic-identity.md`.
-- [ ] I lower the existing two-string `str_concat` builtin required by my
+- [x] I lower the existing two-string `str_concat` builtin required by my
       compiler (`task_9ab740ec43654cedb0c1de224856735d`), preserving argument
       order and typed refusals. Full emission reaches it after publication calls.
 - [x] I retain native foreign module metadata for root sources outside my

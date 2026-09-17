@@ -17,3 +17,10 @@ executes its body in VM/native code; this is not canonical source acceptance.
 The initially filed task `task_a7db79fc3318472094eb32dfdaa6fab6` was an invalid
 bug report, resolved by the complete redefinition diagnostic retained in
 `/tmp/nanolang-string-concat-gate3.log`.
+
+My final integrated emitter gate passes 86 comparison checks and all 55
+regression methods (`/tmp/nanolang-string-concat-final-gate.log`). My fresh
+canonical driver builds and whole-compiler emission advances to
+`undefined function is_alnum`. I track that next boundary as `task_9e5bf751b8614b599f0bff8e1bdc2a77` and retain
+`/tmp/nanolang-concat-fullcompiler-probe.log`. I have not published a complete
+compiler module or established a bytecode fixed point.
