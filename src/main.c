@@ -473,7 +473,7 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
             return false;
         }
     }
-    int shadow_seconds = nl_shadow_timeout_seconds(10);
+    int shadow_seconds = nl_shadow_timeout_seconds(NL_SHADOW_TIMEOUT_DEFAULT_SECONDS);
     if (shadow_seconds < 0) return false;
     int completion[2];
     if (pipe(completion) != 0) {

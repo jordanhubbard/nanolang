@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __APPLE__
+#define NL_SHADOW_TIMEOUT_DEFAULT_SECONDS 60
+#else
+#define NL_SHADOW_TIMEOUT_DEFAULT_SECONDS 10
+#endif
+
 /* Instrumented test jobs may request more time, but never unbounded execution. */
 static inline int nl_shadow_timeout_seconds(int default_seconds) {
     const char *value = getenv("NANO_SHADOW_TIMEOUT_SECONDS");

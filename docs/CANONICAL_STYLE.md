@@ -484,14 +484,15 @@ variants. A shadow shows behavior for the cases it executes. It does not prove
 the function for all inputs.
 
 Execution is currently backend-dependent. My C seed checks dependency and root
-shadows, then executes them in a separate interpreter child with a ten-second
-parent deadline; foreign-call syntax does not exempt an explicit shadow.
+shadows, then executes them in a separate interpreter child with a 60-second
+parent deadline on Darwin and a ten-second deadline elsewhere; foreign-call
+syntax does not exempt an explicit shadow.
 My `nano_virt` CLI runs dependency and root-file shadows in a separate
-verified NanoVM test module before publishing output, with a 10-second parent
+verified NanoVM test module before publishing output, with the same platform
 deadline. Production bytecode omits that test harness. This child process is
 not a security sandbox: tests can have side effects. My self-hosted native
-driver also runs dependency and root shadows in a separate test executable with a ten-second
-parent deadline before publishing native output. Test stdout is redirected to
+driver also runs dependency and root shadows in a separate test executable with
+the same platform deadline before publishing native output. Test stdout is redirected to
 stderr. Source-only `--target c` checks types but does not execute shadows or
 invoke a native compiler. My creator chose dependency shadows by default for
 5.0. My C-seed, bytecode and self-hosted native drivers implement that choice.
@@ -513,7 +514,7 @@ establish colliding nominal type identity. My self-hosted merger uses the same
 physical-path rule; it is still line-oriented import discovery, not a complete
 syntax-aware loader.
 
-All selected shadows share one test process and its ten-second parent deadline.
+All selected shadows share one test process and its platform parent deadline.
 Foreign calls, printing and other side effects still happen with host authority;
 the test child is not a sandbox. A failed type check, assertion, runtime trap or
 deadline prevents publication. I do not put shadow entry functions in production

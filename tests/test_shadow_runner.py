@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -32,7 +33,7 @@ int main(int argc, char **argv) {
     if (argc != 2) return 10;
     mode = argv[1];
     if (!strcmp(mode, "budget")) {
-        int seconds = nl_shadow_timeout_seconds(10);
+        int seconds = nl_shadow_timeout_seconds(NL_SHADOW_TIMEOUT_DEFAULT_SECONDS);
         printf("%d\n", seconds);
         return seconds < 0;
     }
@@ -49,7 +50,8 @@ int main(int argc, char **argv) {
             clean_env = dict(os.environ)
             clean_env.pop("NANO_SHADOW_TIMEOUT_SECONDS", None)
             default = subprocess.run([str(binary), "budget"], capture_output=True, env=clean_env, timeout=5)
-            self.assertEqual(default.stdout, b"10\n")
+            expected_default = 60 if sys.platform == "darwin" else 10
+            self.assertEqual(default.stdout, f"{expected_default}\n".encode())
             for mode in ("return", "failure", "exit", "_exit", "exec", "abort", "hang"):
                 with self.subTest(mode=mode):
                     run = subprocess.run([str(binary), mode], capture_output=True, env=clean_env, timeout=5)

@@ -8327,7 +8327,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
         set si (+ si 1)
     }
     set tests (cg_append tests "    return 0;\n}\n")
-    set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n    return nl_run_shadow_entry(__nano_shadow_entry, 10);\n}\n")
+    set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n    return nl_run_shadow_entry(__nano_shadow_entry, NL_SHADOW_TIMEOUT_DEFAULT_SECONDS);\n}\n")
     return (cg_build tests)
 }
 
@@ -8336,6 +8336,7 @@ shadow transpile_parser_mode {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "shadow.nano")
     assert (not (str_contains (transpile_parser_mode p -1) "__nano_shadow_"))
     assert (str_contains (transpile_parser_mode p 0) "__nano_shadow_0();")
+    assert (str_contains (transpile_parser_mode p 0) "NL_SHADOW_TIMEOUT_DEFAULT_SECONDS")
 }
 
 pub fn transpile_parser(parser: Parser) -> string {

@@ -51,12 +51,12 @@ opt-out. Source-only C emission does not execute shadows. These supervised
 processes have deadlines, but are not security sandboxes. See
 `docs/CANONICAL_STYLE.md` for the current flags and boundaries.
 
-My shadow deadline defaults to 10 seconds. Instrumented bootstrap jobs can set
-`NANO_SHADOW_TIMEOUT_SECONDS` to an integer from 1 through 300; invalid values
-fail before executing shadows. My sanitizer bootstrap uses 60 seconds. This
-changes only the execution budget: successful completion and every assertion
-remain required before I publish output. The parent still enforces the deadline
-if foreign code cancels the child alarm.
+My shadow deadline defaults to 60 seconds on Darwin and 10 seconds elsewhere.
+Instrumented bootstrap jobs can set `NANO_SHADOW_TIMEOUT_SECONDS` to an integer
+from 1 through 300; invalid values fail before executing shadows. My sanitizer
+bootstrap uses 60 seconds. This changes only the execution budget: successful
+completion and every assertion remain required before I publish output. The
+parent still enforces the deadline if foreign code cancels the child alarm.
 
 Before calling a feature complete, compare actual results and failure behavior
 across the supported paths. Passing one path does not establish the others.

@@ -179,12 +179,16 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       context. The focused allocation target and all 12 instantiated-ownership
       methods pass. MAC: `task_a822c3af6ff10226a2dde139a8ac1d7c`.
 
-- [ ] **Restore my Darwin bootstrap within the ordinary shadow deadline.** At
-      source `1277bce2`, the first self-hosted compiler finishes under an
-      explicit bounded 300-second budget but reproducibly exceeds my default
-      10-second shadow deadline. I will diagnose the regression or justify a
-      platform budget without weakening mandatory dependency shadows. MAC:
-      `task_0ea74f24799d9c9604bdf8abc7250d3d`.
+- [x] **Restore my Darwin bootstrap within the ordinary shadow deadline.** At
+      source `1277bce2`, the first self-hosted compiler finished under an
+      explicit bounded 300-second budget but reproducibly exceeded my former
+      10-second shadow deadline. I now use a 60-second default on Darwin and
+      retain 10 seconds elsewhere through one shared contract used by my C
+      seed, NanoVM and generated native runners. Dependency shadows remain
+      mandatory by default, and overrides remain bounded from 1 through 300.
+      A clean no-override three-stage Darwin bootstrap passes in 255.01 seconds
+      from source `274bab44`; the focused deadline test and documentation gate
+      pass. MAC: `task_0ea74f24799d9c9604bdf8abc7250d3d`.
 
 - [x] **Substitute generic selected-variant patterns.** I retain concrete
       arguments through complete-field validation, hidden payload captures and

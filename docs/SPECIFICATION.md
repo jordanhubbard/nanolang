@@ -733,7 +733,7 @@ I use shadow tests to state executable expectations. My current paths differ:
 | Path | Observed failing-shadow behavior |
 | --- | --- |
 | C seed | I run selected shadows during compilation and reject a failing assertion. |
-| Self-hosted native driver | I typecheck root shadows and run a separate native test executable before publishing native output. A failed assertion, signal, or ten-second execution deadline rejects compilation. |
+| Self-hosted native driver | I typecheck root shadows and run a separate native test executable before publishing native output. A failed assertion, signal, or execution deadline rejects compilation. |
 | Self-hosted `--target c` | I check types and emit production C without invoking a native compiler or executing shadows; I report that distinction. |
 | `nano_virt` bytecode CLI | I typecheck root-file shadow bodies, compile them into a separate verified NanoISA module, execute it in NanoVM and reject failures before publishing output. |
 
@@ -744,7 +744,8 @@ and product execution. Min/max preserve left-to-right, exactly-once evaluation.
 My shared checker validates array-literal element kinds before applying let/set
 annotations. These checks do not establish complete lexical or generic typing.
 `make test-bytecode-shadows` checks bytecode test execution, failure handling
-and output preservation. Its compiler parent enforces a 10-second deadline;
+and output preservation. Its compiler parent enforces a 60-second deadline on
+Darwin and a 10-second deadline elsewhere;
 test output goes to stderr. The child process is not a security sandbox.
 My VM retains a `.nano` import's directory when locating its shared library.
 I test foreign calls from absolute and relative nested paths, both with a

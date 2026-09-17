@@ -169,7 +169,7 @@ bool build_ffi_modules(ModuleList *modules, FfiBinding *bindings) {
 
 bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
                            const char *input, FfiBinding *bindings, bool include_imports) {
-    int shadow_seconds = nl_shadow_timeout_seconds(10);
+    int shadow_seconds = nl_shadow_timeout_seconds(NL_SHADOW_TIMEOUT_DEFAULT_SECONDS);
     if (shadow_seconds < 0) return false;
     bool present = false;
     for (int i = 0; i < program->as.program.count; i++) {
