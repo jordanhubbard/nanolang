@@ -47,8 +47,8 @@ acceptance. Existing explicit unsupported boundaries remain in force.
 On Linux ARM64, the integrated source includes the independent PR #379
 parameter-metadata repair. A fresh bootstrap passed. All eight identity methods
 (42 compiler/order cases) passed in 55.446 seconds. The existing affine parity,
-contract-boundary and owned-record-pattern suites passed with the original
-seven identity methods as a combined 41-method run. Nine existing self-hosted
+contract-boundary and owned-record-pattern suites passed in a combined
+41-method run. Nine existing self-hosted
 module-binding methods and my C-seed module-introspection identity rejection
 also passed. My focused C-seed corpus
 also passed with AddressSanitizer and UndefinedBehaviorSanitizer at `-O0`,

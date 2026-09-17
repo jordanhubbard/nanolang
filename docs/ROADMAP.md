@@ -39,19 +39,24 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       union payload types before classifying concrete ownership, distinguish
       ordinary instantiations from resource-bearing ones, and preserve declaring
       module identity. MAC `task_27d3d1bee3f84b5a9c1fc79e1f0c0748`.
-      - [ ] I record paired baseline cases and the parser/emitter prerequisites.
+      - [x] I record paired baseline cases and the parser/emitter prerequisites.
         Both self-hosted stages reject explicit `Box<int>.Some` constructors,
         leave match payload `T` unsubstituted, and emit `DynArray*` for a
         `Box<array<int>>` parameter/local. My C union declaration parser drops
         nested payload TypeInfo; I retain that metadata before substitution.
-      - [ ] I reject unsupported generic resource obligations consistently in
+      - [x] I reject unsupported generic resource obligations consistently in
         both frontends while executing ordinary-generic positive fixtures.
-      - [ ] I retain resource-bearing array/List/HashMap rejection through nested
-        concrete generic payloads, and test diagnostics/artifact preservation.
+      - [x] I reject arrays of concrete generic resource payloads in both
+        frontends, with ownership diagnostics and prior-artifact preservation.
+      - [ ] I complete nested generic List/HashMap type preservation and paired
+        ownership diagnostics while retaining conservative rejection.
       - [ ] I implement resource union payload transfer before admitting generic
         resource consumption; classification alone does not complete this gate.
-      - [ ] I bootstrap, run the shared conformance gates, and record tested
-        boundaries before coordinated integration.
+      - [x] I bootstrap and pass the scoped generic/ownership/import checks,
+        recording the initial missing-tool setup correction explicitly.
+      - [ ] I restore the required full compiler AOT gate through the separately
+        recorded exact artifact-binding repair. Owned payload transfer above
+        remains open; I do not claim the complete generic ownership contract.
 
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,

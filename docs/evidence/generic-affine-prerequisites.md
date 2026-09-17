@@ -66,3 +66,26 @@ My named tests use annotation-driven constructors already supported by both
 frontends. They do not establish explicit generic constructor syntax, generic
 record declarations, recursive nominal signature compatibility, complete C
 payload TypeInfo preservation, or ownership metadata in bytecode.
+
+## My final measured checkpoint
+
+A frozen-source bootstrap passed. The combined conformance invocation ran 63
+methods: the 51 generic, module-identity, boundary, parity, import and canonical
+bytecode methods passed. Its owned-pattern cases initially encountered twelve
+missing-`nano_virt` setup errors in the new worktree. After building that tool,
+I reran the entire affected twelve-method suite; all passed in 80.862 seconds.
+I retain the failed setup log rather than call it a clean combined pass.
+
+Resource classification and allocation-failure gates pass. All five wrapper
+creation and seven publication methods pass. The 34-method compiler/backend
+suite has 33 passes and one failure: compiler-bytecode-to-native translation
+rejects the artifact-backed NanoISA facade import without an exact binding.
+The unchanged integration baseline fails identically. MAC
+`task_600074c773904b119b39bdafd85c07a5` and
+`compiler-aot-artifact-binding-gap.md` preserve that required architecture gate;
+I have not relaxed it or claimed full backend acceptance.
+
+Local logs on sparky are `/tmp/nanolang-generic-affine-final-bootstrap.log`,
+`/tmp/nanolang-generic-affine-final-conformance.log`,
+`/tmp/nanolang-generic-affine-owned-patterns.log` and
+`/tmp/nanolang-generic-affine-final-backends.log`.
