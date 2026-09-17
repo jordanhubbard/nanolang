@@ -56,3 +56,19 @@ log are `/tmp/nanolang-full-shadow-probe.nano`,
 The probe exits 1 without producing its `.nvm` output. Its earlier invocation
 omitted the capture-helper setting and also reported host capture refusals;
 that setup error is not the final product evidence.
+
+My fresh three-stage native bootstrap passes, including installed compiler
+verification without `nanoc_c`. All five focused module methods also pass
+with harnesses built by the C seed (15.910 seconds) and Stage 2 (9.895 seconds).
+Native bootstrap binaries differ; I make no native fixed-point claim. Logs:
+`/tmp/nanolang-shadow-emitter-bootstrap.log`,
+`/tmp/nanolang-shadow-emitter-cseed-final.log`, and
+`/tmp/nanolang-shadow-emitter-stage2.log`.
+
+The shared existing initializer emitter has a separate temporary-frame gap:
+a global `(array_new 3 7)` emits `STORE_LOCAL 0` while `__init__` declares zero
+locals. Assembly verification rejects that module. I retain this as
+`task_3ed43e842d704748af03f82883793652`, before range-expression lowering,
+with `/tmp/nanolang-global-filled-shadow.nano` and its `.nasm` output. Literal
+and direct-call initializers in the passing shadow tests do not establish
+that temporary-using initializers work.

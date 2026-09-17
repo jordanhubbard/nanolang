@@ -8659,21 +8659,26 @@ Compiler product:
       required, while an ordinary imported `apply` rejects it. I retain this
       distinct checker gap under `task_e05a42e2e09b47cc9c53fa6923eeeaef`;
       metadata serialization does not claim to repair call dispatch checks.
-- [ ] I lower selected shadows from the same bound Parser to a separate
+- [x] I lower selected shadows from the same bound Parser to a separate
       NanoISA module (`task_57fc2c62eb504a579dc2ca37ce72e2e8`), after compiled
       signature metadata lands. I preserve ordered selection, module identity,
       callable user main, local scopes and global initialization; reachable
       unsupported operations fail instead of disappearing from the test scope.
-  - [ ] I correct the architecture document's stale emitter status and label
+  - [x] I correct the architecture document's stale emitter status and label
         the measured seed / first canonical generation / second canonical
         generation comparison without claiming C-seed/self-hosted codegen equality.
-  - [ ] I add an explicit first-shadow suffix emitter with empty/invalid
+  - [x] I add an explicit first-shadow suffix emitter with empty/invalid
         selection, imported duplicate names, global state and assertion tests,
         retaining existing program-emitter bytecode/parity gates.
-  - [ ] I verify the emitted shadow module in NanoVM and retain the next full
+  - [x] I verify the emitted shadow module in NanoVM and retain the next full
         compiler-shadow blocker. Supervised execution and the driver cutover
         remain separate prerequisites: deadlines and completion protocol must
         reject an early exit(0), and normal native C shadows remain until then.
+- [ ] I declare the actual temporary-local capacity of NanoISA `__init__`
+      (`task_3ed43e842d704748af03f82883793652`) before adding range expressions.
+      A global `(array_new 3 7)` currently emits `STORE_LOCAL 0` in a zero-local
+      initializer; assembly verification rejects it. I preserve verifier
+      enforcement and require C-seed/VM initialization and ordering tests.
 - [ ] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
       My correctly captured full probe stops at `tokenize_string` because
