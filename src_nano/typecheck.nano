@@ -4183,6 +4183,22 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
+            let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+            let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
+            if (and (== receiver_type.kind TypeKind.TYPE_STRUCT) (== (base_type_name receiver_type.name) "HashMap")) {
+                let arguments: array<string> = (tc_generic_arguments receiver_type.name)
+                if (== (array_length arguments) 2) {
+                    let key: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start 1))
+                    let key_type: NSType = (check_expr_node parser key.node_id key.node_type symbols diags file_name)
+                    let expected_key: NSType = (type_from_string_with_parser parser (at arguments 0))
+                    if (not (types_equal key_type expected_key)) {
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared map key type." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                    }
+                    return (type_from_string_with_parser parser (at arguments 1))
+                }
+            }
+        }
         if (or (== fn_name "map") (== fn_name "array_map")) {
             return (check_map_call parser call_node symbols diags file_name)
         }
@@ -4377,6 +4393,23 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+        if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let receiver: ASTIdentifier = (parser_get_identifier parser fa.object)
+            if (< (env_lookup symbols (tc_bound_name receiver.name receiver.line symbols)) 0) {
+                let mut enum_index: int = 0
+                while (< enum_index (parser_get_enum_count parser)) {
+                    let definition: ASTEnum = (parser_get_enum parser enum_index)
+                    if (== definition.name receiver.name) {
+                        if (resource_name_in definition.variant_names fa.field_name) {
+                            return (type_from_string_with_parser parser definition.name)
+                        }
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I cannot find this member in the declared enum." (Diagnostics.diag_location file_name fa.line fa.column)))
+                        return (type_unknown_named "enum member")
+                    }
+                    set enum_index (+ enum_index 1)
+                }
+            }
+        }
         let obj_t: NSType = (check_expr_node parser fa.object fa.object_type symbols diags file_name)
         if (== obj_t.kind TypeKind.TYPE_STRUCT) {
             let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
@@ -4576,6 +4609,15 @@ shadow check_expr_node {
     let field: NSType = (check_expr_node record_parser 0 ParseNodeType.PNODE_FIELD_ACCESS record_symbols record_diags "record.nano")
     assert (== field.kind TypeKind.TYPE_UNION)
     assert (== (type_to_string field) "Box<int>")
+    let enumerated: Parser = (resource_test_parser "enum Mode { Low = -3, High = 7 } struct Box { Low: string } fn main() -> int { let value = Mode.Low return 0 }")
+    let enum_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let member: NSType = (check_expr_node enumerated 0 ParseNodeType.PNODE_FIELD_ACCESS [] enum_diags "enum.nano")
+    assert (== member.kind TypeKind.TYPE_ENUM)
+    assert (== member.name "Mode")
+    let shadowed_symbols: array<Symbol> = [(symbol_new "Mode" (type_from_string "Box") false false 0 (empty_param_types) (type_void))]
+    let shadowed_member: NSType = (check_expr_node enumerated 0 ParseNodeType.PNODE_FIELD_ACCESS shadowed_symbols enum_diags "enum.nano")
+    assert (== shadowed_member.kind TypeKind.TYPE_STRING)
+    assert (== (list_CompilerDiagnostic_length enum_diags) 0)
 
 }
 
@@ -4746,7 +4788,26 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
                 }
             }
         }
-        let init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
+        let mut init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
+        if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
+            let literal: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
+            let mut has_enum: bool = false
+            let mut integer_elements: bool = true
+            let mut element_index: int = 0
+            while (< element_index literal.element_count) {
+                let element: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start element_index))
+                let actual: NSType = (check_expr_node parser element.node_id element.node_type symbols diags file_name)
+                if (== actual.kind TypeKind.TYPE_ENUM) { set has_enum true }
+                if (not (or (== actual.kind TypeKind.TYPE_INT) (== actual.kind TypeKind.TYPE_ENUM))) { set integer_elements false }
+                set element_index (+ element_index 1)
+            }
+            if has_enum {
+                if integer_elements { set init_type declared_type }
+                else {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require integer or enum scalar elements in this integer array literal." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+                }
+            }
+        }
         if (not (types_equal init_type declared_type)) {
             let detail: string = (+ "Variable " let_node.name)
             let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string declared_type) (type_to_string init_type) detail)
@@ -4779,6 +4840,20 @@ shadow check_let_statement {
     assert (== (list_CompilerDiagnostic_length clean) 0)
     let copied: ASTLet = (parser_get_let generic 0)
     assert (== copied.var_type "Box<int>")
+    let mapped: Parser = (resource_test_parser "fn main() -> int { let fetched = (map_get values \"key\") return 0 }")
+    let map_symbols: array<Symbol> = [(symbol_new "values" (type_from_string "HashMap<string,string>") false false 0 (empty_param_types) (type_void))]
+    let map_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement mapped (parser_get_let mapped 0) 0 map_symbols map_diags "map.nano")
+    assert (== (list_CompilerDiagnostic_length map_diags) 0)
+    assert (== (parser_get_let mapped 0).var_type "string")
+    let explicit_unknown: Parser = (resource_test_parser "fn main() -> int { let fetched: unknown = (map_get values \"key\") return 0 }")
+    (check_let_statement explicit_unknown (parser_get_let explicit_unknown 0) 0 map_symbols map_diags "map.nano")
+    assert (== (parser_get_let explicit_unknown 0).var_type "unknown")
+    let ordinary: Parser = (resource_test_parser "fn main() -> int { let fetched = (map_get values \"key\") return 0 }")
+    let ordinary_symbols: array<Symbol> = (env_add_symbol map_symbols (symbol_new "map_get" (type_int) false true 2 [(type_from_string "HashMap<string,string>"), (type_string)] (type_int)))
+    (check_let_statement ordinary (parser_get_let ordinary 0) 0 ordinary_symbols map_diags "map.nano")
+    assert (== (parser_get_let ordinary 0).var_type "int")
+    assert (== (list_CompilerDiagnostic_length map_diags) 0)
 }
 
 /* NSType check a return statement
