@@ -2893,6 +2893,26 @@ shadow nisa_par_reads {
     assert (not (nisa_par_reads parser 0 ParseNodeType.PNODE_NUMBER "x"))
 }
 
+fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
+    let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type value_type)
+    if (not (nisa_type_ok parser value_type)) {
+        return (nisa_fail (+ "unsupported local type " value_type))
+    }
+    set nisa_names (array_push nisa_names binding.name)
+    set nisa_types (array_push nisa_types value_type)
+    let slot: int = (- (array_length nisa_names) 1)
+    return (+ value (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+}
+shadow nisa_emit_typed_let {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let answer: int = 3 return answer }" "flow.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "flow.nano")
+    let emitted: string = (nisa_emit_typed_let parser (parser_get_let parser 0) "int")
+    assert (str_contains emitted "STORE_LOCAL 0")
+    assert (== (at nisa_types 0) "int")
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_flow(parser: Parser, block: ASTBlock) -> string {
     let count: int = (list_ASTStmtRef_length block.statements)
     let order: array<int> = (passive_order parser block)
@@ -2947,7 +2967,7 @@ fn nisa_emit_flow(parser: Parser, block: ASTBlock) -> string {
         }
         let marker: string = (+ ".flow_node " (+ (int_to_string source_id) (+ " " (+ (int_to_string (array_length nisa_names)) (+ " " (+ (int_to_string dep_count) (+ deps (+ " " (+ (int_to_string read_count) reads)))))))))
         set output (+ output (+ marker "\n"))
-        set output (+ output (nisa_emit_stmt parser statement))
+        set output (+ output (nisa_emit_typed_let parser binding actual))
         set completed (array_push completed binding.name)
         set i (+ i 1)
     }
@@ -3106,16 +3126,8 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
-            let l: ASTLet = (parser_get_let parser stmt.node_id)
-            let val: string = (nisa_emit_expected_expr parser l.value l.value_type l.var_type)
-            if (not (nisa_type_ok parser l.var_type)) {
-                return (nisa_fail (+ "unsupported local type " l.var_type))
-            } else {
-                set nisa_names (array_push nisa_names l.name)
-                set nisa_types (array_push nisa_types l.var_type)
-                let slot: int = (- (array_length nisa_names) 1)
-                return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
-            }
+            let binding: ASTLet = (parser_get_let parser stmt.node_id)
+            return (nisa_emit_typed_let parser binding binding.var_type)
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)

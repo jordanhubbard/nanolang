@@ -55,7 +55,10 @@ The first integrated checkpoint passed fresh bootstrap, 86 baseline comparisons,
 existing par frontend methods, and 20 passive metadata methods. My schema gate
 requires generated artifacts committed before its clean-tree comparison; its
 initial refusal reports those pending generated changes. Final restacked gates
-are pending. My regression sources are
+are pending. The expanded inferred-type fixture first exposed the raw
+self-hosted let emitter requiring an annotation after flow had inferred a scalar
+type. I now pass that checked scalar type through shared typed-let lowering;
+ordinary raw unannotated locals remain outside this change. My regression sources are
 `tests/nanoisa/fixtures/passive_flow.nano`,
 `tests/test_passive_flow_frontends.py`, and the exact paired metadata method in
 `tests/test_nanoisa_flat_records.py`. They cover native C-seed/Stage1/Stage2,
