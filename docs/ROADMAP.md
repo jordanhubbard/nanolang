@@ -8533,6 +8533,13 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I declare truthful parser record, enum and union counts in self-hosted
+      NanoISA assembly (`task_14dca63e4c1146e59ae0a1649ba29060`). My emitted
+      aggregate IDs already follow parser order; omitted `.types` bounds prevent
+      native nominal field proofs in the complete compiler. I preserve those
+      proofs and test unused declarations, exact bounds and VM/native execution
+      before repeating the complete compiler artifact gate (companion to
+      `task_250092bed54749ad988f06af5b88c228`).
 - [ ] I grow checked assembler symbol tables for my complete compiler artifact
       (`task_74ee50b905d242e68c92abf41b427e15`). After literal repair, the fixed 2048-symbol table
       reports a false duplicate at `s1377`; exact assembly remains captured in
