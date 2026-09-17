@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I execute same-frame shared/exclusive reference slots after standalone owned transfers (MAC `task_e31a51fc661f4102b68ad81432369a1d`, parents ed702/718). I first record [the instruction and lifetime contract](NANOISA_SAME_FRAME_REFERENCES.md), then connect region/borrow/field operations to exact affine CFG verification, persistent VM descriptors and direct native owner access. I require paired mutation/lifetime/join/loop, transport and refusal gates. Nested reference paths, reborrows, caller provenance and frontend admission remain separate required work.
+
 - [x] I complete native full-source compiler generations at frozen source `2f50d7a0` after map-byte debt and builtin host ownership repair (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). Both generations finish under their original 1800-second bounds, verify and match raw bytes; help/hello and immutable source/tool/host integrity pass. I retain [measured evidence and boundaries](evidence/native-full-fixedpoint-host-owned.md). This does not close other full-roadmap release requirements.
 
 - [x] I add a freestanding scalar NanoISA Wasm translator (`task_ace02963bdda48b5a3504833217bf0d4`). I reuse the verified scalar LLVM lowering, emit wasm32 machine code, link without unresolved imports, export the scalar entry and publish atomically. I require same-module VM/C/LLVM/Wasmtime assertions and explicit unsupported-profile refusals. Seven Wasm and eleven LLVM methods pass after integration; [evidence](NANOISA_WASM.md). This first subset does not complete heap, host, reference or full-language Wasm coverage.
