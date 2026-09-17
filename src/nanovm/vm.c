@@ -2730,6 +2730,8 @@ dynamic_div:
                 vm->current_fn = frame->fn_idx;
                 for (uint8_t i = 0; i < count; i++) stack_push(vm, results[i]);
             }
+vm_return_values: ;
+            /* Implicit completion shares ordinary cleanup, not lexical effect unwind. */
             const NvmFunctionEntry *returning =
                 &vm->module->functions[frame->fn_idx];
             uint32_t actual_results = vm->stack_size
@@ -4023,48 +4025,9 @@ vm_dispatch_done: ;
     } /* while */
 #endif
 
-    /* Fell off the end of function code without RET or HALT */
-    /* Treat as implicit RET with void */
-    if (vm->frame_count > 0) {
-        const NvmFunctionEntry *returning =
-            &vm->module->functions[frame->fn_idx];
-        uint32_t actual_results = vm->stack_size
-            - frame->stack_base - frame->local_count;
-        if (actual_results != returning->result_count)
-            return trap_error(vm, VM_ERR_TYPE_ERROR,
-                              "Function %u returned %u values, expected %u",
-                              frame->fn_idx, actual_results,
-                              returning->result_count);
-        NanoValue results[UINT8_MAX];
-        for (uint8_t i = 0; i < returning->result_count; i++) {
-            results[i] = vm->stack[vm->stack_size - returning->result_count + i];
-            if (!result_tag_matches(returning->result_tag, results[i].tag)) {
-                return trap_error(vm, VM_ERR_TYPE_ERROR,
-                                  "Function %u returned %s, expected %s",
-                                  frame->fn_idx, isa_tag_name(results[i].tag),
-                                  isa_tag_name(returning->result_tag));
-            }
-        }
-        vm->stack_size -= returning->result_count;
-        while (vm->stack_size > frame->stack_base) {
-            NanoValue v = stack_pop(vm);
-            vm_release(&vm->heap, v);
-        }
-        vm_release(&vm->heap, frame->owned_callable);
-        frame->owned_callable = val_void();
-        vm->frame_count--;
-            effect_prune(vm, vm->frame_count);
-        if (vm->frame_count == 0) {
-            for (uint8_t i = 0; i < returning->result_count; i++)
-                stack_push(vm, results[i]);
-            return trap_none();
-        }
-        frame = &vm->frames[vm->frame_count - 1];
-        vm->current_fn = frame->fn_idx;
-        vm->ip = frame->return_ip;
-        for (uint8_t i = 0; i < returning->result_count; i++)
-            stack_push(vm, results[i]);
-    }
+    /* The verifier requires exactly the declared results at this boundary.
+     * Resume a nested caller through the same activation/module path as RET. */
+    if (vm->frame_count > vm->activation_floor) goto vm_return_values;
 
     return trap_none();
 }

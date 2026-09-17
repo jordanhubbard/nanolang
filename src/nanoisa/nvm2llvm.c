@@ -16,6 +16,7 @@ static int supported(uint8_t op) {
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
     case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
     case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:
+    case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
     case OP_CAST_INT: case OP_CAST_FLOAT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
@@ -151,6 +152,24 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             pop(out, pc, "a");
             fprintf(out, " %%p%u_ok = call i1 @truthy(%%V %%p%u_a)\n call void @check(i1 %%p%u_ok)\n", pc, pc, pc);
             break;
+        case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT: {
+            int binary = ins.opcode == OP_AND || ins.opcode == OP_OR;
+            if (binary) {
+                pop(out, pc, "b");
+                fprintf(out, " %%p%u_right = call i1 @truthy(%%V %%p%u_b)\n", pc, pc);
+            }
+            pop(out, pc, "a");
+            fprintf(out, " %%p%u_left = call i1 @truthy(%%V %%p%u_a)\n", pc, pc);
+            if (binary)
+                fprintf(out, " %%p%u_bool = %s i1 %%p%u_left, %%p%u_right\n",
+                        pc, ins.opcode == OP_AND ? "and" : "or", pc, pc);
+            else
+                fprintf(out, " %%p%u_bool = xor i1 %%p%u_left, %s\n", pc, pc,
+                        ins.opcode == OP_NOT ? "true" : "false");
+            fprintf(out, " %%p%u_result = zext i1 %%p%u_bool to i64\n", pc, pc);
+            result(out, pc, TAG_BOOL);
+            break;
+        }
         case OP_CAST_INT: case OP_CAST_FLOAT:
             pop(out, pc, "a");
             if (ins.opcode == OP_CAST_FLOAT) {

@@ -13,6 +13,7 @@
 #include "module_builder.h"
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
+#include "runtime/path_normalize.h"
 #include "ffi_dispatch_generated.h"
 #include <stdlib.h>
 #include <string.h>
@@ -784,6 +785,36 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     const NvmImportEntry *imp = &module->imports[import_idx];
     const char *func_name = nvm_get_string(module, imp->function_name_idx);
+
+    /* I own only these exact builtin results; selected artifacts retain their
+     * existing symbol identity and result ownership contract. */
+    const char *namespace = nvm_get_string(module, imp->module_name_idx);
+    if (imp->kind == NVM_IMPORT_FFI && namespace && !namespace[0] && func_name &&
+        (!strcmp(func_name, "path_normalize") || !strcmp(func_name, "nl_os_path_normalize"))) {
+        const uint8_t *types = module->import_param_types
+            ? module->import_param_types[import_idx] : NULL;
+        if (imp->param_count != 1 || imp->return_type != TAG_STRING || !types ||
+            types[0] != TAG_STRING || arg_count != 1 || !args ||
+            args[0].tag != TAG_STRING || !args[0].as.string) {
+            snprintf(error_msg, error_msg_size, "I require path normalization to take and return a string");
+            return false;
+        }
+        char *normalized = nl_normalize_path(vmstring_cstr(args[0].as.string));
+        if (!normalized) {
+            snprintf(error_msg, error_msg_size, "I could not allocate my normalized path");
+            return false;
+        }
+        size_t length = strlen(normalized);
+        VmString *value = length <= UINT32_MAX
+            ? vm_string_new(heap, normalized, (uint32_t)length) : NULL;
+        free(normalized);
+        if (!value) {
+            snprintf(error_msg, error_msg_size, "I could not retain my normalized path");
+            return false;
+        }
+        *result = val_string(value);
+        return true;
+    }
 
     /* Module introspection functions (___module_*) are environment- and
      * argument-dependent, so they are dispatched directly and never cached. */

@@ -728,6 +728,13 @@ test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	@./tests/nanovm/test_vm_ffi
 	@rm -f tests/nanovm/test_vm_ffi
 
+.PHONY: test-vm-path-normalize-sanitizers
+test-vm-path-normalize-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -fno-sanitize-recover=all -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_vm_path_normalize \
+		tests/nanovm/test_vm_ffi.c src/nanovm/vm_ffi.c $(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NANO_TEST_PATH_ALIASES_ONLY=1 ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_vm_path_normalize
+
 .PHONY: test-wrapper-gen
 test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o
 	@echo "Running wrapper_gen unit tests..."
@@ -2444,7 +2451,7 @@ test-c-backend: $(COMPILER_C)
 	@NANOLANG_TEST_BACKENDS=c bash tests/cross-backend/run-all.sh $(COMPILER_C)
 	@echo "✅ C backend tests PASSED"
 
-# Cross-backend compile suite: compile canonical test programs across all 5 backends
+# Direct auxiliary suite: C execution and RISC-V/PTX structural checks
 .PHONY: test-cross-backend
 test-cross-backend: $(COMPILER) test-cross-backend-runner
 	@echo "🔀 Running direct cross-backend compile suite (riscv, c, ptx)..."
@@ -3825,12 +3832,10 @@ help:
 	@echo ""
 	@echo "  make examples           - Build examples once with bin/nanoc_c (default backend: c)"
 	@echo "  make examples-available - Build available examples (GRACEFUL: skip missing deps)"
-	@echo "  make - Build examples as LLVM IR"
-	@echo "  make - Build examples as WASM"
 	@echo "  make examples-nanoisa   - Build examples as NanoISA .nvm bytecode"
 	@echo "  make examples-stage2    - Explicitly build/use nanoc_stage1 for examples"
 	@echo "  make examples-stage3    - Explicitly build/use nanoc_stage2 for examples"
-	@echo "  make examples EXAMPLES_BACKEND=c|llvm|wasm|nanoisa EXAMPLES_COMPILER_STAGE=c|stage2|stage3"
+	@echo "  make examples EXAMPLES_BACKEND=c|native|nanoisa|vm EXAMPLES_COMPILER_STAGE=c|stage2|stage3"
 	@echo "  make examples-mac       - Build examples; on failures, auto-create/update mac tasks"
 	@echo "  make launcher           - Launch example browser"
 	@echo "  make clean              - Remove all artifacts"
@@ -4004,29 +4009,14 @@ vscode-ext:
 	@echo "Extension packaged: vscode/nanolang-*.vsix"
 	@echo "Install with: code --install-extension vscode/nanolang-*.vsix"
 
-# ── wasm-playground: build nanolang.wasm for the browser playground ──────────
-# Requires Emscripten SDK: source emsdk/emsdk_env.sh before running.
-WASM_OUT_DIR  = examples/playground/public
-WASM_SRCS     = src/lexer.c src/parser.c src/eval.c src/env.c src/module.c \
-                src/typechecker.c src/builtins.c src/gc.c src/repl.c \
-                src/stdlib_io.c src/stdlib_math.c src/stdlib_string.c \
-                src/stdlib_collections.c src/interpreter_ffi.c
-WASM_EXPORTED = '["_nl_run","_nl_check","_nl_version","_malloc","_free"]'
-WASM_FLAGS    = -O2 -s WASM=1 -s MODULARIZE=1 -s EXPORT_NAME=createNanolang \
-                -s EXPORTED_FUNCTIONS=$(WASM_EXPORTED) \
-                -s EXPORTED_RUNTIME_METHODS='["cwrap","ccall"]' \
-                -s ALLOW_MEMORY_GROWTH=1 -s INITIAL_MEMORY=67108864 \
-                -s ENVIRONMENT=web -s NO_EXIT_RUNTIME=1 \
-                -I src/ -I src/generated/ \
-                --output-file $(WASM_OUT_DIR)/nanolang.js
-
+# I retain the historical browser bundle, not a current interpreter rebuild.
+# My NanoISA Wasm translator has a separate scalar contract and test target.
+.PHONY: wasm-playground
 wasm-playground:
-	@echo "Building NanoLang WASM playground (requires Emscripten)..."
-	@command -v emcc >/dev/null 2>&1 || (echo "ERROR: emcc not found. Source emsdk/emsdk_env.sh first." && exit 1)
-	@mkdir -p $(WASM_OUT_DIR)
-	emcc $(WASM_SRCS) $(WASM_FLAGS)
-	@echo "Built: $(WASM_OUT_DIR)/nanolang.wasm + nanolang.js"
-	@echo "Serve: python3 -m http.server 8000 --directory $(WASM_OUT_DIR)"
+	@echo "I cannot rebuild the historical browser interpreter with this source tree." >&2
+	@echo "I test my separate scalar NanoISA Wasm translator with make test-nvm2wasm." >&2
+	@echo "I retain browser bundle limitations in examples/playground/README.md." >&2
+	@exit 1
 
 # Directory creation
 $(OBJ_DIR):
@@ -4429,6 +4419,11 @@ test-units: test-passive-par-frontends
 test-passive-par-frontends: bootstrap nanoisa_emit
 	python3 -m unittest tests.test_passive_par_frontends
 
+.PHONY: test-nanoisa-local-inference
+test-units: test-nanoisa-local-inference
+test-nanoisa-local-inference: bootstrap nano_vm nvm2c
+	python3 -m unittest tests.test_nanoisa_local_inference
+
 .PHONY: test-passive-flow-frontends
 test-units: test-passive-flow-frontends
 test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump
@@ -4484,7 +4479,7 @@ nvm2wasm: nvm2llvm | bin
 	chmod +x bin/nvm2wasm
 
 test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_nvm2wasm
+	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
 test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
@@ -4502,3 +4497,7 @@ test-same-frame-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECT
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_same_frame_references_alloc tests/nanoisa/test_same_frame_references_alloc.c obj/test_reference_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_same_frame_references_alloc
 	python3 -m unittest tests.test_same_frame_references
+.PHONY: test-implicit-returns
+test-units: test-implicit-returns
+test-implicit-returns: nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_implicit_returns

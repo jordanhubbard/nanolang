@@ -16,6 +16,44 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_inferred_ordinary_locals_match_and_execute(self):
+        fixture = ROOT/'tests/nanoisa/fixtures/inferred_locals.nano'
+        with tempfile.TemporaryDirectory(prefix='nano-inferred-locals-') as tmp:
+            directory = Path(tmp)
+            seed, assembly, emitted = (directory/name for name in ('seed.nvm', 'self.nasm', 'self.nvm'))
+            self.run_checked(ROOT/'bin/nano_virt', fixture, '--emit-nvm', '--strip-debug', '-o', seed)
+            self.run_checked(ROOT/'bin/nanoisa_emit', fixture, '-o', assembly)
+            self.run_checked(ROOT/'tests/nanoisa/test_nanoisa_src_nano', seed, assembly,
+                             'once', 'pair', 'fresh', 'values', 'main')
+            self.run_checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT/'bin/nano_vm', '--verify-only', module)
+                self.assertEqual(self.run_checked(ROOT/'bin/nano_vm', module).stdout, 'once\n7\n')
+                source, native = directory/'native.c', directory/'native'
+                self.run_checked(ROOT/'bin/nvm2c', module, '-o', source)
+                self.run_checked('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', source, '-lm', '-o', native)
+                self.assertEqual(self.run_checked(native).stdout, 'once\n7\n')
+
+    def test_inferred_locals_preserve_ambiguous_and_unsupported_refusals(self):
+        cases = {
+            'empty array': 'let value = []',
+            'empty map': 'let value = (map_new)',
+            'unsupported array': 'let value = [1.5]',
+            'unknown initializer': 'let value = missing',
+            'explicit mismatch': 'let value: int = 1.5',
+        }
+        with tempfile.TemporaryDirectory(prefix='nano-inferred-refusals-') as tmp:
+            source, output = Path(tmp)/'input.nano', Path(tmp)/'output.nasm'
+            for label, statement in cases.items():
+                with self.subTest(case=label):
+                    source.write_text('fn main() -> int { '+statement+' return 0 }\nshadow main { assert true }\n')
+                    output.write_text('retained output')
+                    result = subprocess.run([ROOT/'bin/nanoisa_emit', source, '-o', output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                    self.assertIn('I refused', result.stdout+result.stderr)
+                    self.assertEqual(output.read_text(), 'retained output')
+
     def test_passive_flow_bytecode_and_source_order_metadata_match(self):
         import re
         import struct
@@ -915,6 +953,56 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked(ROOT / "bin/nvm2c", emitted, "-o", native)
             self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
             self.run_checked(binary)
+
+    def test_projected_record_array_global_field_executes_in_both_orders(self):
+        store = (
+            ".function store 1 1 0 void 0\n"
+            "LOAD_LOCAL 0\n"
+            "AGG_GET 0\n"
+            "AGG_GET 0\n"
+            "STORE_GLOBAL 0\n"
+            "RET\n"
+            ".end\n"
+        )
+        main = (
+            ".function main 0 0 0 int 1\n"
+            "PUSH_I64 1\n"
+            "AGG_PACK 0 0 0 1\n"
+            "ARR_LITERAL 8 1\n"
+            "AGG_PACK 0 0 0 1\n"
+            "AGG_PACK 0 0 0 1\n"
+            "CALL store\n"
+            "LOAD_GLOBAL 0\n"
+            "PUSH_I64 0\n"
+            "ARR_GET\n"
+            "AGG_GET 0\n"
+            "PUSH_I64 1\n"
+            "EQ\n"
+            "ASSERT\n"
+            "PUSH_I64 0\n"
+            "RET\n"
+            ".end\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="nano-projected-global-") as tmp:
+            work = Path(tmp)
+            for label, functions in (("store-first", store + main),
+                                     ("main-first", main + store)):
+                with self.subTest(order=label):
+                    assembly = work / (label + ".nasm")
+                    module = work / (label + ".nvm")
+                    native_c = work / (label + ".c")
+                    binary = work / label
+                    assembly.write_text(".entry main\n" + functions)
+                    self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+                    self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                    self.run_checked(ROOT / "bin/nano_vm", module)
+                    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                    self.run_checked(
+                        "cc", "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer",
+                        "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+                        native_c, "-lm", "-o", binary,
+                    )
+                    self.run_checked(binary)
 
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"

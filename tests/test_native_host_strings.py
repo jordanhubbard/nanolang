@@ -69,28 +69,30 @@ class NativeHostStrings(unittest.TestCase):
                   'LOAD_LOCAL 1\nPUSH_STR value\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
             self.build_run(work,text,env={'TMPDIR':str(work)})
 
-    def test_native_builtin_normalize_churn(self):
-        # The VM builtin-name alias gap is separately recorded; I test this exact native adapter.
+    def test_builtin_normalize_churn(self):
         text=('.import "" "path_normalize" string string\n.string path "a/./b/../c"\n'
               '.string normal "a/c"\n.entry main\n.function main 0 1 0 int 1\n'
               'PUSH_I64 0\nSTORE_LOCAL 0\nloop:\nPUSH_STR path\nCALL_EXTERN 0\n'
               'PUSH_STR normal\nEQ\nASSERT\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\n'
               'LOAD_LOCAL 0\nPUSH_I64 10000\nI64_LT_S\nJMP_TRUE loop\nPUSH_I64 0\nRET\n.end\n')
         with tempfile.TemporaryDirectory(prefix='nano-host-normalize-') as tmp:
-            self.build_run(Path(tmp),text,vm=False)
+            for alias in ('path_normalize', 'nl_os_path_normalize'):
+                with self.subTest(alias=alias):
+                    self.build_run(Path(tmp),text.replace('"path_normalize"', '"'+alias+'"'))
 
     def test_snapshot_copies_borrowed_facade_and_preserves_literal_artifact(self):
         with tempfile.TemporaryDirectory(prefix='nano-host-snapshot-') as tmp:
             work=Path(tmp); library=work/'host.so'; host=work/'host.c'
-            host.write_text('#include <stdio.h>\nconst char *nl_nanoisa_last_error(void) { static char text[32]; static int count; snprintf(text,sizeof text,"snapshot-%d",++count); return text; }\nconst char *path_basename(const char *s) { (void)s; return "borrowed-literal"; }\n')
+            host.write_text('#include <stdio.h>\nconst char *nl_nanoisa_last_error(void) { static char text[32]; static int count; snprintf(text,sizeof text,"snapshot-%d",++count); return text; }\nconst char *path_basename(const char *s) { (void)s; return "borrowed-literal"; }\nconst char *path_normalize(const char *s) { (void)s; return "borrowed-literal"; }\n')
             self.command(['cc','-shared','-fPIC',host,'-o',library])
             text=(f'.import {json.dumps(str(library))} "nl_nanoisa_last_error" string\n.import_kind 0 artifact\n'
                   f'.import {json.dumps(str(library))} "path_basename" string string\n.import_kind 1 artifact\n'
+                  f'.import {json.dumps(str(library))} "path_normalize" string string\n.import_kind 2 artifact\n'
                   '.string first "snapshot-1"\n.string literal "borrowed-literal"\n.entry main\n'
                   '.function main 0 2 0 int 1\nCALL_EXTERN 0\nSTORE_LOCAL 1\nPUSH_I64 0\nSTORE_LOCAL 0\n'
                   'loop:\nCALL_EXTERN 0\nPOP\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\n'
                   'LOAD_LOCAL 0\nPUSH_I64 5000\nI64_LT_S\nJMP_TRUE loop\n'
-                  'LOAD_LOCAL 1\nPUSH_STR first\nEQ\nASSERT\nPUSH_STR first\nCALL_EXTERN 1\nPUSH_STR literal\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+                  'LOAD_LOCAL 1\nPUSH_STR first\nEQ\nASSERT\nPUSH_STR first\nCALL_EXTERN 1\nPUSH_STR literal\nEQ\nASSERT\nPUSH_STR first\nCALL_EXTERN 2\nPUSH_STR literal\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
             self.build_run(work,text)
 
 

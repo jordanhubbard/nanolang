@@ -2896,10 +2896,12 @@ shadow nisa_par_reads {
 }
 
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
-    let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type value_type)
+    if (not nisa_ok) { return "" }
     if (not (nisa_type_ok parser value_type)) {
         return (nisa_fail (+ "unsupported local type " value_type))
     }
+    let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type value_type)
+    if (not nisa_ok) { return "" }
     set nisa_names (array_push nisa_names binding.name)
     set nisa_types (array_push nisa_types value_type)
     let slot: int = (- (array_length nisa_names) 1)
@@ -2912,6 +2914,20 @@ shadow nisa_emit_typed_let {
     let emitted: string = (nisa_emit_typed_let parser (parser_get_let parser 0) "int")
     assert (str_contains emitted "STORE_LOCAL 0")
     assert (== (at nisa_types 0) "int")
+    assert (== (nisa_reset) 0)
+    let unsupported_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let values: array<float> = [1.5] return 0 }" "unsupported.nano" (diag_list_new))
+    let unsupported: Parser = (parse_program unsupported_tokens (list_LexerToken_length unsupported_tokens) "unsupported.nano")
+    assert (== (nisa_emit_typed_let unsupported (parser_get_let unsupported 0) "array<float>") "")
+    assert (== nisa_err "unsupported local type array<float>")
+    assert (== (array_length nisa_names) 0)
+    assert (== (nisa_reset) 0)
+    let missing_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value: int = missing return 0 }" "missing.nano" (diag_list_new))
+    let missing: Parser = (parse_program missing_tokens (list_LexerToken_length missing_tokens) "missing.nano")
+    assert (== (nisa_emit_typed_let missing (parser_get_let missing 0) "int") "")
+    assert (not nisa_ok)
+    assert (str_contains nisa_err "missing")
+    assert (== (array_length nisa_names) 0)
+    assert (== (array_length nisa_types) 0)
     assert (== (nisa_reset) 0)
 }
 
@@ -3129,7 +3145,20 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let binding: ASTLet = (parser_get_let parser stmt.node_id)
-            return (nisa_emit_typed_let parser binding binding.var_type)
+            let mut value_type: string = binding.var_type
+            if (== value_type "") {
+                if (== binding.value_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                    let literal: ASTArrayLiteral = (parser_get_array_literal parser binding.value)
+                    if (== literal.element_count 0) {
+                        return (nisa_fail "I require an explicit type for an empty array local")
+                    }
+                }
+                if (nisa_is_map_constructor parser binding.value binding.value_type) {
+                    return (nisa_fail "I require an explicit type for an empty map local")
+                }
+                set value_type (nisa_expr_type parser binding.value binding.value_type)
+            }
+            return (nisa_emit_typed_let parser binding value_type)
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
@@ -3201,13 +3230,18 @@ shadow nisa_emit_stmt {
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT\n  RET")
     assert nisa_ok
+    let inferred: string = (nanoisa_emit_nasm (+ "f" "n main() -> int { let value = 7 let copy = (+ value 1) return copy }"))
+    assert nisa_ok
+    assert (str_contains inferred ".function main 0 2 0 int 1")
+    assert (str_contains inferred "STORE_LOCAL 0")
+    assert (str_contains inferred "STORE_LOCAL 1")
 }
 
 fn nisa_emit_statements(parser: Parser, statements: List<ASTStmtRef>) -> string {
     let first_slot: int = (array_length nisa_names)
     let mut out: string = ""
     let mut i: int = 0
-    while (< i (list_ASTStmtRef_length statements)) {
+    while (and nisa_ok (< i (list_ASTStmtRef_length statements))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get statements i)
         set out (+ out (nisa_emit_stmt parser stmt))
         if (nisa_stmt_terminates parser stmt) { break }
@@ -3235,6 +3269,25 @@ shadow nisa_emit_statements {
     let text: string = (nisa_emit_statements parser block.statements)
     assert (str_contains text "PUSH_I64 3")
     assert (not (str_contains text "PUSH_I64 4"))
+    assert (== (nisa_reset) 0)
+    set nisa_names ["outer"]
+    set nisa_types ["int"]
+    let failed_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let first: int = 1 let second: int = missing let third: int = 3 return first }" "failed.nano" (diag_list_new))
+    let failed: Parser = (parse_program failed_tokens (list_LexerToken_length failed_tokens) "failed.nano")
+    let failed_body: ASTBlock = (parser_get_block failed (parser_get_function failed 0).body)
+    let partial: string = (nisa_emit_statements failed failed_body.statements)
+    assert (not nisa_ok)
+    assert (str_contains partial "PUSH_I64 1")
+    assert (not (str_contains partial "PUSH_I64 3"))
+    assert (== (array_length nisa_names) 2)
+    assert (== (at nisa_names 0) "outer")
+    assert (== (at nisa_names 1) "")
+    let first_error: string = nisa_err
+    assert (str_contains first_error "missing")
+    assert (== (nisa_emit_statements failed failed_body.statements) "")
+    assert (== nisa_err first_error)
+    assert (== (array_length nisa_names) 2)
+    assert (== (nisa_reset) 0)
 }
 
 fn nisa_emit_block(parser: Parser, block_id: int) -> string {

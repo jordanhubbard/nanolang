@@ -64,14 +64,6 @@ class LLVMFloats(unittest.TestCase):
             with self.subTest(value=value):
                 self.compare(self.program(f'PUSH_F64 {value}\nCAST_INT\nPOP\n'), trap=True)
 
-    def test_bool_cast_stays_explicitly_refused(self):
-        module = self.module(self.program('PUSH_F64 -0.0\nCAST_BOOL\nPOP\n'))
-        self.run_cmd([scalar.VM,'--verify-only',module])
-        self.run_cmd([scalar.VM,module])
-        for translator in (scalar.LLVM, scalar.C):
-            result = self.run_cmd([translator,module], success=False)
-            self.assertEqual(result.stdout, '')
-
     def test_float_entry_is_outside_executable_contract(self):
         module = self.module('.entry main\n.function main 0 0 0 float 1\nPUSH_F64 1.0\nRET\n.end\n')
         self.run_cmd([scalar.VM,'--verify-only',module])
