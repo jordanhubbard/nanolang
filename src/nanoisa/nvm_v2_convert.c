@@ -121,11 +121,13 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         const NvmFunctionEntry *f = &mod->functions[i];
         size_t mark = pool_used;
 
-        /* I retain producer-declared tags. Legacy producers leave the zeroed
-         * TAG_VOID placeholders; I do not invent a signature for them. */
+        /* I retain producer-declared tags. Interning can rewind this pool,
+         * so absent declarations must overwrite reused bytes with TAG_VOID. */
         const uint8_t *ptags = f->arity ? pool + pool_used : NULL;
         if (f->arity && mod->function_param_types && mod->function_param_types[i])
             memcpy(pool + pool_used, mod->function_param_types[i], f->arity);
+        else if (f->arity)
+            memset(pool + pool_used, TAG_VOID, f->arity);
         pool_used += f->arity;
 
         const uint8_t *rtags = NULL;
@@ -169,6 +171,8 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
             ptags = pool + pool_used;
             if (mod->import_param_types && mod->import_param_types[i])
                 memcpy(pool + pool_used, mod->import_param_types[i], im->param_count);
+            else
+                memset(pool + pool_used, TAG_VOID, im->param_count);
             pool_used += im->param_count;
         }
 
