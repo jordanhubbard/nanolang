@@ -1051,7 +1051,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     if (node->type == AST_FUNCTION) {
                         func_names[f_idx++] = strdup(node->as.function.name);
                     } else if (node->type == AST_STRUCT_DEF) {
-                        struct_names[s_idx++] = strdup(node->as.struct_def.name);
+                        struct_names[s_idx++] = strdup(node->as.struct_def.original_name ? node->as.struct_def.original_name : node->as.struct_def.name);
                     } else if (node->type == AST_ENUM_DEF) {
                         enum_names[e_idx++] = strdup(node->as.enum_def.name);
                     } else if (node->type == AST_UNION_DEF) {

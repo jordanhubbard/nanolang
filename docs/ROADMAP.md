@@ -26,6 +26,33 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
+      and resource records across modules on my C seed and self-hosted stages,
+      preserve declaring-module identity through classification and flow lookup,
+      and test aliases, nested fields, moves and unresolved owners. I keep
+      unsupported generic and borrow boundaries explicit. MAC
+      `task_d7c2aa83a60b43e792fb02ae7881e397`.
+      Reproduction also exposes cross-module nominal registration and emitted
+      type-name collisions. I preserve declaration identity and representation;
+      my baseline and bounded native acceptance are recorded in
+      `docs/evidence/affine-module-identity.md`.
+      I preserve qualified record annotations in both parsers and exported
+      source names while giving generated record layouts distinct identities.
+      I verify same-module duplicate rejection separately from legal imports.
+      Long module names also expose silent truncation in my native formatted
+      output builder; I retain complete generated identities and test execution.
+      All 49 compiler/order cases pass across my C seed and both self-hosted
+      stages. Foreign collisions remain explicitly unsupported; union/enum
+      identity, generic/borrow/capture rules and IR ownership metadata remain
+      separate unfinished obligations.
+      - [x] I include the new nominal-binding object in the manual NanoVirt
+        wrapper link manifest and verify actual foreign-module wrapper execution.
+        PR review exposed an unresolved `bind_nominal_records` reference.
+      - [x] I zero-initialize all generic annotation metadata before nominal
+        traversal. A `Box<Handle>` annotation exposed uninitialized row fields
+        and a C-seed crash; I retain generic resource rejection and test ordinary
+        scalar/array generic annotations under allocator perturbation.
+
 - [x] **Map constructor diagnostics.** I count constructor type errors through
       my structured diagnostic path, rejecting direct untyped returns, nested
       calls, discarded calls and invalid arity before artifact publication.

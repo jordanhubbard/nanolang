@@ -51,9 +51,26 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
     char buffer[1024];
     va_list args;
     va_start(args, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    int length = vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
-    sb_append(sb, buffer);
+    if (length < 0) {
+        fprintf(stderr, "I cannot format native output\n");
+        exit(1);
+    }
+    if ((size_t)length < sizeof(buffer)) {
+        sb_append(sb, buffer);
+        return;
+    }
+    char *complete = malloc((size_t)length + 1);
+    if (!complete) {
+        fprintf(stderr, "I cannot allocate native formatted output\n");
+        exit(1);
+    }
+    va_start(args, fmt);
+    vsnprintf(complete, (size_t)length + 1, fmt, args);
+    va_end(args);
+    sb_append(sb, complete);
+    free(complete);
 }
 
 /* Safe helper to build monomorphized type names with bounds checking
@@ -220,7 +237,8 @@ static bool conflicts_with_runtime(const char *name) {
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
-    static _Thread_local char buffer[512];
+    static _Thread_local char *buffer;
+    static _Thread_local size_t capacity;
     
     /* Native types */
     if (strcmp(name, "int") == 0) return "int64_t";
@@ -248,7 +266,22 @@ static const char *get_prefixed_type_name(const char *name) {
     }
 
     /* User types: add nl_ prefix */
-    snprintf(buffer, sizeof(buffer), "nl_%s", name);
+    size_t length = strlen(name);
+    if (length > SIZE_MAX - 4) {
+        fprintf(stderr, "I cannot represent this native type name\n");
+        exit(1);
+    }
+    if (capacity < length + 4) {
+        char *grown = realloc(buffer, length + 4);
+        if (!grown) {
+            fprintf(stderr, "I cannot allocate a native type name\n");
+            exit(1);
+        }
+        buffer = grown;
+        capacity = length + 4;
+    }
+    memcpy(buffer, "nl_", 3);
+    memcpy(buffer + 3, name, length + 1);
     return buffer;
 }
 
@@ -2955,7 +2988,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
         const char *prefixed_struct = get_prefixed_type_name(sdef->name);
         sb_appendf(sb, "static const char* nl_to_string_%s(%s v) {\n", sdef->name, prefixed_struct);
         sb_append(sb, "    nl_fmt_sb_t sb = nl_fmt_sb_new(256);\n");
-        sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, \"%s { \");\n", sdef->name);
+        sb_appendf(sb, "    nl_fmt_sb_append_cstr(&sb, \"%s { \");\n", sdef->original_name ? sdef->original_name : sdef->name);
 
         for (int j = 0; j < sdef->field_count; j++) {
             if (j > 0) {

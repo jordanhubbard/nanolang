@@ -140,6 +140,7 @@ void free_environment(Environment *env) {
     
     for (int i = 0; i < env->struct_count; i++) {
         free(env->structs[i].name);
+        free(env->structs[i].original_name);
         for (int j = 0; j < env->structs[i].field_count; j++) {
             free(env->structs[i].field_names[j]);
         }
@@ -796,10 +797,22 @@ Value create_union(const char *union_name, int variant_index, const char *varian
     return v;
 }
 
+/* I test declaration identity without importing another module's fallback. */
+StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner) {
+    if (!env || !name) return NULL;
+    for (int i = 0; i < env->struct_count; ++i) {
+        StructDef *record = &env->structs[i];
+        bool same_owner = (!owner && !record->module_name) ||
+            (owner && record->module_name && strcmp(owner, record->module_name) == 0);
+        if (same_owner && record->name && (strcmp(name, record->name) == 0 || (record->original_name && strcmp(name, record->original_name) == 0))) return record;
+    }
+    return NULL;
+}
+
 /* Define struct */
 void env_define_struct(Environment *env, StructDef struct_def) {
     /* Check if struct already exists - prevent duplicates */
-    if (env_get_struct(env, struct_def.name) != NULL) {
+    if (env_get_struct_owned(env, struct_def.name, struct_def.module_name) != NULL) {
         /* Struct already defined - skip duplicate registration */
         return;
     }
@@ -814,7 +827,7 @@ void env_define_struct(Environment *env, StructDef struct_def) {
      * NOTE: Use the centralized helper to avoid mismatched allocation strategies.
      */
     if (struct_def.is_pub && struct_def.module_name) {
-        env_add_module_exported_struct(env, struct_def.module_name, struct_def.name);
+        env_add_module_exported_struct(env, struct_def.module_name, struct_def.original_name ? struct_def.original_name : struct_def.name);
     }
 
 }
@@ -843,7 +856,7 @@ StructDef *env_get_struct(Environment *env, const char *name) {
                         /* Look up the actual struct by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
                         for (int k = 0; k < env->struct_count; k++) {
-                            if (safe_strcmp(env->structs[k].name, type_name) == 0) {
+                            if ((safe_strcmp(env->structs[k].name, type_name) == 0 || (env->structs[k].original_name && strcmp(env->structs[k].original_name, type_name) == 0))) {
                                 if (!orig_mod || !env->structs[k].module_name ||
                                     strcmp(env->structs[k].module_name, orig_mod) == 0) {
                                     return &env->structs[k];
@@ -861,7 +874,7 @@ StructDef *env_get_struct(Environment *env, const char *name) {
     /* First pass: prefer structs in the current module */
     if (env->current_module) {
         for (int i = 0; i < env->struct_count; i++) {
-            if (env->structs[i].name && safe_strcmp(env->structs[i].name, name) == 0) {
+            if (env->structs[i].name && (safe_strcmp(env->structs[i].name, name) == 0 || (env->structs[i].original_name && strcmp(env->structs[i].original_name, name) == 0))) {
                 if (env->structs[i].module_name && 
                     strcmp(env->structs[i].module_name, env->current_module) == 0) {
                     return &env->structs[i];
@@ -871,7 +884,7 @@ StructDef *env_get_struct(Environment *env, const char *name) {
     }
 
     for (int i = 0; i < env->struct_count; i++) {
-        if (safe_strcmp(env->structs[i].name, name) == 0) {
+        if ((safe_strcmp(env->structs[i].name, name) == 0 || (env->structs[i].original_name && strcmp(env->structs[i].original_name, name) == 0))) {
             return &env->structs[i];
         }
     }

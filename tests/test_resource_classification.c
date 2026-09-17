@@ -33,6 +33,22 @@ int main(void) {
     assert(!is_resource_type(&env, "Missing"));
     assert(!is_resource_type(&env, NULL));
 
+    /* I register distinct module declarations instead of bypassing registration. */
+    Environment registered = {0};
+    registered.struct_capacity = 4;
+    registered.structs = calloc(4, sizeof(StructDef));
+    assert(registered.structs);
+    env_define_struct(&registered, (StructDef){.name = "Handle", .module_name = "plain"});
+    env_define_struct(&registered, (StructDef){.name = "Handle", .module_name = "owned", .is_resource = true});
+    env_define_struct(&registered, (StructDef){.name = "Handle", .module_name = "owned"});
+    assert(registered.struct_count == 2);
+    registered.current_module = "plain";
+    assert(!is_resource_type(&registered, "Handle"));
+    registered.current_module = "owned";
+    assert(is_resource_type(&registered, "Handle"));
+    assert(!env_get_struct_owned(&registered, "Handle", "unrelated"));
+    free(registered.structs);
+
     char *field = "Handle";
     StructDef scoped[] = {
         {.name = "Handle", .module_name = "caller"},

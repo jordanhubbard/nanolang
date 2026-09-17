@@ -6313,6 +6313,8 @@ bool type_check(ASTNode *program, Environment *env) {
         }
     }
 
+    if (!bind_nominal_records(program, env)) return false;
+
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -6337,7 +6339,7 @@ bool type_check(ASTNode *program, Environment *env) {
             const char *struct_name = item->as.struct_def.name;
             
             /* Check if struct already defined */
-            if (env_get_struct(env, struct_name)) {
+            if (env_get_struct_owned(env, struct_name, env->current_module)) {
                 fprintf(stderr, "Error at line %d, column %d: Struct '%s' is already defined\n",
                         item->line, item->column, struct_name);
                 tc.has_error = true;
@@ -6347,6 +6349,7 @@ bool type_check(ASTNode *program, Environment *env) {
             /* Register the struct */
             StructDef sdef;
             sdef.name = strdup(struct_name);
+            sdef.original_name = item->as.struct_def.original_name ? strdup(item->as.struct_def.original_name) : NULL;
             sdef.field_count = item->as.struct_def.field_count;
             
             /* Duplicate field names (AST will be freed) */
@@ -6403,7 +6406,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
 
             /* Module introspection: track exported structs (public only) */
             if (sdef.is_pub && env->current_module) {
-                env_add_module_exported_struct(env, env->current_module, struct_name);
+                env_add_module_exported_struct(env, env->current_module, sdef.original_name ? sdef.original_name : struct_name);
             }
             
         } else if (item->type == AST_UNION_DEF) {
@@ -7116,6 +7119,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
     /* Register built-in functions */
     register_builtin_functions(env);
 
+    if (!bind_nominal_records(program, env)) return false;
+
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -7139,7 +7144,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             const char *struct_name = item->as.struct_def.name;
             
             /* Check if struct already defined */
-            if (env_get_struct(env, struct_name)) {
+            if (env_get_struct_owned(env, struct_name, env->current_module)) {
                 fprintf(stderr, "Error at line %d, column %d: Struct '%s' is already defined\n",
                         item->line, item->column, struct_name);
                 tc.has_error = true;
@@ -7149,6 +7154,7 @@ bool type_check_module(ASTNode *program, Environment *env) {
             /* Register the struct */
             StructDef sdef;
             sdef.name = strdup(struct_name);
+            sdef.original_name = item->as.struct_def.original_name ? strdup(item->as.struct_def.original_name) : NULL;
             sdef.field_count = item->as.struct_def.field_count;
             
             /* Duplicate field names (AST will be freed) */
@@ -7205,7 +7211,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
 
             /* Module introspection: track exported structs (public only) */
             if (sdef.is_pub && env->current_module) {
-                env_add_module_exported_struct(env, env->current_module, struct_name);
+                env_add_module_exported_struct(env, env->current_module, sdef.original_name ? sdef.original_name : struct_name);
             }
             
         } else if (item->type == AST_UNION_DEF) {

@@ -1,0 +1,211 @@
+# I bind colliding record declarations before checking and native emission.
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "src_nano/compiler/module_bindings.nano"
+
+fn nb_key(name: string) -> string { return (+ "#type:" name) }
+shadow nb_key { assert (== (nb_key "Handle") "#type:Handle") }
+
+fn nb_external(parser: Parser, record: ASTStruct) -> bool {
+    let mut i: int = 1
+    while (< i parser.token_count) {
+        let token: LexerToken = (list_LexerToken_get parser.tokens i)
+        if (and (== token.line record.line) (== token.column record.column)) {
+            return (== (list_LexerToken_get parser.tokens (- i 1)).token_type LexerTokenType.TOKEN_EXTERN)
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow nb_external {
+    let tokens: List<LexerToken> = (tokenize_string "extern struct Foreign { fd: int }\nstruct Local { fd: int }" "nominal.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
+    assert (nb_external parser (parser_get_struct_def parser 0))
+    assert (not (nb_external parser (parser_get_struct_def parser 1)))
+}
+
+pub fn nb_register(parser: Parser, prefix: string) -> bool {
+    let mut i: int = 0
+    while (< i parser.structs_count) {
+        let def: ASTStruct = (parser_get_struct_def parser i)
+        let owner: int = (mb_owner def.line)
+        let mut collision: bool = false
+        let mut j: int = 0
+        while (< j parser.structs_count) {
+            let other: ASTStruct = (parser_get_struct_def parser j)
+            if (and (!= i j) (== def.name other.name)) {
+                if (== owner (mb_owner other.line)) {
+                    (println (+ "I cannot define a record twice in one module: " def.name))
+                    return false
+                }
+                if (or (nb_external parser def) (nb_external parser other)) {
+                    (println (+ "I cannot bind colliding foreign record declarations without an ABI identity: " def.name))
+                    return false
+                }
+                set collision true
+            }
+            set j (+ j 1)
+        }
+        let mut target: string = def.name
+        if collision { set target (+ prefix (+ (int_to_string owner) (+ "_type_" def.name))) }
+        (mb_add owner (nb_key def.name) target)
+        set i (+ i 1)
+    }
+    return true
+}
+shadow nb_register {
+    let tokens: List<LexerToken> = (tokenize_string "struct Handle { plain: int }\nresource struct Handle { fd: int }" "nominal.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
+    (mb_reset [1, 2])
+    assert (nb_register parser "__test_")
+    assert (!= (mb_lookup 0 (nb_key "Handle")) (mb_lookup 1 (nb_key "Handle")))
+    (mb_reset [1])
+    assert (not (nb_register parser "__test_"))
+    (mb_reset [])
+}
+
+pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
+    let owner: int = (mb_owner imp.line)
+    let mut i: int = 0
+    while (< i parser.structs_count) {
+        let def: ASTStruct = (parser_get_struct_def parser i)
+        if (== (mb_owner def.line) target_owner) {
+            let target: string = (mb_lookup target_owner (nb_key def.name))
+            if (and imp.is_selective (not imp.is_wildcard)) {
+                let mut j: int = 0
+                while (< j imp.import_symbol_count) {
+                    if (== (at imp.import_symbols j) def.name) {
+                        let mut alias: string = def.name
+                        if (< j (array_length imp.import_aliases)) {
+                            if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
+                        }
+                        (mb_add owner (nb_key alias) target)
+                    }
+                    set j (+ j 1)
+                }
+            } else {
+                let mut name: string = def.name
+                if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
+                (mb_add owner (nb_key name) target)
+            }
+        }
+        set i (+ i 1)
+    }
+}
+shadow nb_import {
+    let tokens: List<LexerToken> = (tokenize_string "struct Handle { fd: int }\nmodule \"owned.nano\" as lib\n" "nominal.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
+    (mb_reset [1, 2])
+    assert (nb_register parser "__test_")
+    (nb_import parser (parser_get_import parser 0) 0)
+    assert (== (mb_lookup 1 (nb_key "lib.Handle")) "Handle")
+    (mb_reset [])
+}
+
+fn nb_name_char(value: int) -> bool {
+    return (or (or (and (>= value 65) (<= value 90)) (and (>= value 97) (<= value 122))) (or (and (>= value 48) (<= value 57)) (or (== value 95) (== value 46))))
+}
+shadow nb_name_char {
+    assert (nb_name_char 65)
+    assert (nb_name_char 46)
+    assert (not (nb_name_char 60))
+}
+
+pub fn nb_type(spelling: string, line: int) -> string {
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i (str_length spelling)) {
+        if (nb_name_char (char_at spelling i)) {
+            let start: int = i
+            while (and (< i (str_length spelling)) (nb_name_char (char_at spelling i))) { set i (+ i 1) }
+            let name: string = (str_substring spelling start (- i start))
+            let key: string = (nb_key name)
+            let target: string = (mb_lookup (mb_owner line) key)
+            if (== target key) { set result (+ result name) }
+            else { set result (+ result target) }
+        } else {
+            set result (+ result (str_substring spelling i 1))
+            set i (+ i 1)
+        }
+    }
+    return result
+}
+
+shadow nb_type {
+    (mb_reset [1])
+    (mb_add 0 (nb_key "Handle") "owned_Handle")
+    assert (== (nb_type "fn(array<Handle>)->Handle" 1) "fn(array<owned_Handle>)->owned_Handle")
+    assert (== (nb_type "array<int>" 1) "array<int>")
+    assert (== (nb_type "" 1) "")
+    (mb_reset [])
+}
+
+fn nb_types(types: array<string>, line: int) -> array<string> {
+    let mut result: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length types)) {
+        set result (array_push result (nb_type (at types i) line))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow nb_types {
+    (mb_reset [1])
+    (mb_add 0 (nb_key "Handle") "owned_Handle")
+    let values: array<string> = (nb_types ["Handle", "int"] 1)
+    assert (== (at values 0) "owned_Handle")
+    assert (== (at values 1) "int")
+    (mb_reset [])
+}
+
+pub fn nb_rewrite(parser: Parser) -> void {
+    let mut structs_index: int = 0
+    while (< structs_index parser.structs_count) {
+        let item: ASTStruct = (list_ASTStruct_get parser.structs structs_index)
+        (list_ASTStruct_set parser.structs structs_index (ASTStruct { node_type: item.node_type, line: item.line, column: item.column, name: (nb_type item.name item.line), field_start: item.field_start, field_count: item.field_count, field_names: item.field_names, field_types: (nb_types item.field_types item.line), is_resource: item.is_resource }))
+        set structs_index (+ structs_index 1)
+    }
+    let mut struct_literals_index: int = 0
+    while (< struct_literals_index parser.struct_literals_count) {
+        let item: ASTStructLiteral = (list_ASTStructLiteral_get parser.struct_literals struct_literals_index)
+        (list_ASTStructLiteral_set parser.struct_literals struct_literals_index (ASTStructLiteral { node_type: item.node_type, line: item.line, column: item.column, struct_name: (nb_type item.struct_name item.line), field_names: item.field_names, field_value_ids: item.field_value_ids, field_value_types: item.field_value_types, field_count: item.field_count }))
+        set struct_literals_index (+ struct_literals_index 1)
+    }
+    let mut lets_index: int = 0
+    while (< lets_index parser.lets_count) {
+        let item: ASTLet = (list_ASTLet_get parser.lets lets_index)
+        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
+        set lets_index (+ lets_index 1)
+    }
+    let mut functions_index: int = 0
+    while (< functions_index parser.functions_count) {
+        let item: ASTFunction = (list_ASTFunction_get parser.functions functions_index)
+        (list_ASTFunction_set parser.functions functions_index (ASTFunction { node_type: item.node_type, line: item.line, column: item.column, name: item.name, param_start: item.param_start, param_count: item.param_count, return_type: (nb_type item.return_type item.line), body: item.body }))
+        set functions_index (+ functions_index 1)
+    }
+    let mut array_literals_index: int = 0
+    while (< array_literals_index parser.array_literals_count) {
+        let item: ASTArrayLiteral = (list_ASTArrayLiteral_get parser.array_literals array_literals_index)
+        (list_ASTArrayLiteral_set parser.array_literals array_literals_index (ASTArrayLiteral { node_type: item.node_type, line: item.line, column: item.column, element_type: (nb_type item.element_type item.line), element_start: item.element_start, element_count: item.element_count }))
+        set array_literals_index (+ array_literals_index 1)
+    }
+    let mut unions_index: int = 0
+    while (< unions_index parser.unions_count) {
+        let item: ASTUnion = (list_ASTUnion_get parser.unions unions_index)
+        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: item.name, variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_types item.variant_field_types item.line), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
+        set unions_index (+ unions_index 1)
+    }
+}
+shadow nb_rewrite {
+    let tokens: List<LexerToken> = (tokenize_string "struct Handle { plain: int }\nresource struct Handle { fd: int }\nfn take(value: Handle) -> Handle { return value }" "nominal.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
+    (mb_reset [1, 2])
+    assert (nb_register parser "__test_")
+    (nb_rewrite parser)
+    let plain_name: string = (parser_get_struct_def parser 0).name
+    let owned_name: string = (parser_get_struct_def parser 1).name
+    let result_type: string = (parser_get_function parser 0).return_type
+    assert (!= plain_name owned_name)
+    assert (== result_type owned_name)
+    (mb_reset [])
+}

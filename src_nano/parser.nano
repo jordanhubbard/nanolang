@@ -1059,6 +1059,19 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
             }
             }
 
+            # I keep a module qualifier as part of the nominal type spelling.
+            let mut qualified: bool = true
+            while (and qualified (not (parser_is_at_end cur))) {
+                if (== (parser_current cur).token_type (token_dot)) {
+                    set cur (parser_advance cur)
+                    if (parser_is_at_end cur) { return TypeParseResult { p: cur, type_name: type_name, ok: false } }
+                    let member: LexerToken = (parser_current cur)
+                    if (!= member.token_type (token_identifier)) { return TypeParseResult { p: cur, type_name: type_name, ok: false } }
+                    set type_name (+ type_name (+ "." member.value))
+                    set cur (parser_advance cur)
+                } else { set qualified false }
+            }
+
             /* Parse optional generic args: NSType<Arg1,Arg2> */
             if (not (parser_is_at_end cur)) {
                 let tgen: LexerToken = (parser_current cur)
@@ -1119,6 +1132,12 @@ shadow parse_type_string {
     let res: TypeParseResult = (parse_type_string p)
     assert (== res.ok true)
     assert (== res.type_name "int")
+    let qualified_tokens: List<LexerToken> = (tokenize_string "array<owned.Handle>" "type.nano" (list_CompilerDiagnostic_new))
+    let qualified_parser: Parser = (parser_new qualified_tokens (list_LexerToken_length qualified_tokens) "type.nano")
+    let qualified_result: TypeParseResult = (parse_type_string qualified_parser)
+    assert qualified_result.ok
+    assert (== qualified_result.type_name "array<owned.Handle>")
+
 }
 
 /* Helper: Store number node and return node ID */
