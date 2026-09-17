@@ -24,7 +24,8 @@ class NativeRootScaling(unittest.TestCase):
             assembly.write_text('.entry main\n.function main 0 0 0 int 1\n'
                                 'HM_NEW 5 5\nPOP\nPUSH_I64 0\nRET\n.end\n')
             self.run_checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
-            self.run_checked([ROOT / 'bin/nvm2c', module, '-o', source])
+            translator = os.environ.get('NANO_ROOT_SCALING_TRANSLATOR', ROOT / 'bin/nvm2c')
+            self.run_checked([translator, module, '-o', source])
             generated = source.read_text()
             # I count actual identity comparisons, avoiding host-speed timing assertions.
             generated = generated.replace('typedef struct { uint8_t kind; const void *ptr; } nroot_ref;',
@@ -41,6 +42,7 @@ class NativeRootScaling(unittest.TestCase):
 #include <time.h>
 #include <stdio.h>
 int main(void) {
+#ifdef NROOT_INDEX_TEST
     nroot_list identity = {0};
     char marker = 0;
     nroot_add(&identity, 1, &marker);
@@ -58,6 +60,7 @@ int main(void) {
     nroot_trace(&identity);
     if (identity.count != 1) abort();
     nroot_destroy(&identity);
+#endif
     int excessive = 0;
     const size_t sizes[] = {1024, 2048, 4096};
     for (size_t trial = 0; trial < 3; ++trial) {
@@ -90,15 +93,20 @@ int main(void) {
         nroot_head = NULL;
         nmap_collect();
         if (nmap_owned_live != 0) abort();
+#ifdef NROOT_INDEX_TEST
         nroot_destroy(&frame.live);
+#else
+        free(frame.live.items);
+#endif
         free(items);
     }
     return excessive;
 }
 ''')
+            flags = ['-DNROOT_INDEX_TEST'] if 'static inline void nroot_reset(' in generated else []
             self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                              source, '-o', binary])
+                              *flags, source, '-o', binary])
             result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
             print(result.stdout, end='')
 

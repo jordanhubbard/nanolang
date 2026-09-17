@@ -14,7 +14,7 @@ My sanitizer regression builds an aliased array containing two references to eac
 | 2048 | 8396802 | 8921 |
 | 4096 | 33570818 | 16726 |
 
-Pointer hashes vary with allocation addresses; my acceptance bound is 64 comparisons per distinct string for this workload. The original implementation fails that bound. At 4096 strings, the observed sanitizer trace CPU time decreased from 0.040681 seconds to 0.000604 seconds. These timings describe this workload and host, not a universal speedup claim.
+Pointer hashes vary with allocation addresses; my acceptance bound is 64 comparisons per distinct string for this workload. The original implementation fails that bound. I rerun the same test against an unchanged translator through `NANO_ROOT_SCALING_TRANSLATOR`, so the before/after workload remains reproducible. At 4096 strings, the observed sanitizer trace CPU time decreased from 0.040681 seconds to 0.000604 seconds. These timings describe this workload and host, not a universal speedup claim.
 
 My native translator passed 2386 checks, shape constraints passed 1092 checks, and the returned-array/string cleanup regression passed. My focused scaling, map lifetime/global, and string-join suite passed 15 methods, with sanitizer checks covering surviving aliases and bounded owner counts. The scaling regression enables AddressSanitizer, UndefinedBehaviorSanitizer, and leak detection. Existing ownership gates retain their documented leak-detection settings.
 
