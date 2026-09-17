@@ -37,3 +37,7 @@ C-backend cutover is complete, or that canonical compiler bytecode reaches a
 fixed point. The separate emitter continuation retains those acceptance
 boundaries; no runtime failure from the historical zero-token report was
 reproduced in this current product path.
+
+After rebasing onto the merged string-concatenation emitter slice at
+`4081b77d`, the complete strengthened test passed again in 90.309 seconds.
+The integrated session log is `/tmp/nanolang-canonical-product-integrated.log`.
