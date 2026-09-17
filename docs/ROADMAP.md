@@ -4,7 +4,8 @@
 - [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
 - [x] I preserve forward projected string branches at native stack joins in the fresh compiler, with the strengthened compiler product gate (MAC `task_55002ea4e4c64f80a6ba70b7f147ebef`). I reproduced the same `check_let_statement` failure with unchanged main `b3f79449` and repaired it with checked join storage. Backward joins and the separate selfhost-emitted artifact remain below.
 - [ ] I converge tagged string storage across backward native stack edges before widening an already classified loop header (MAC `task_ea3c8acd272a49669bd6ae6aa75cdf49`). I preserve the VM-positive loop fixture and native refusal separately from the forward compiler join repair.
-- [ ] I resolve the `purity_node` to `purity_call` parameter conflict when translating the complete selfhost-emitted compiler to native code, then require its own NanoISA product (MAC `task_04376d3e430c478d968af69e26543a0f`). I distinguish this artifact from the Cseed-seeded compiler bridge.
+- [x] I remove the false `purity_node` to `purity_call` parameter conflict by clearing reused signature-pool bytes for undeclared function/import tags (MAC `task_04376d3e430c478d968af69e26543a0f`). My rebuilt selfhost artifact preserves unknown declarations, round-trips identically, runs VM help, and passes the original native guard. Its next native reconstruction blocker remains below; I do not claim its native compiler product complete.
+- [ ] I propagate diagnostic record-array field shapes through native reconstruction in the real selfhost compiler (MAC `task_250092bed54749ad988f06af5b88c228`), then require native help and its own NanoISA hello product. My current artifact stops at `remap_diagnostics` field 0.
 
 I keep this document to outline my development journey.
 
@@ -8553,10 +8554,12 @@ Compiler product:
       I reproduced comment markers stripped inside quotes and the 4095-byte
       literal limit; `/tmp/nanolang-fullcompiler-quoted.nasm` retains the exact
       1,246,064-byte compiler assembly. Both require a checked assembler repair.
-- [ ] I reject incompatible map key/value types at typed boundaries
-      (`task_d0438e26b84147cdb9fd16b654c44a6a`). My C seed currently accepts integer-valued maps
-      where string-valued maps are declared in returns, bindings and arguments;
-      `/tmp/nanolang-cseed-map-mismatches/` retains all four accepted probes.
+- [x] I reject incompatible map key/value types at typed boundaries
+      (`task_d0438e26b84147cdb9fd16b654c44a6a`). I compare both tags for declared map
+      values in returns, bindings, calls, assignments, globals, record construction
+      and conditional arms, and preserve prior output after rejection. My boundary
+      matrix checks all twelve unequal pairs through both shared-checker drivers;
+      field projection metadata remains task `160826784e8a4aa4ac9d5e589a54c814`.
 - [x] I lower the string-valued maps required by my compiler
       (`task_d32f896911e1447da9c6b69059f6d6ea`), preserving key/value metadata and ownership.
       Full emission now reaches `HashMap<string,string>`; the retained probe is

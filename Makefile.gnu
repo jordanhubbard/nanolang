@@ -4269,3 +4269,8 @@ test-units: test-map-constructor-contexts
 test-units: test-match-aggregate-results
 test-match-aggregate-results: bootstrap
 	python3 -m unittest -v tests.test_match_aggregate_results
+.PHONY: test-map-type-boundaries
+test-map-type-boundaries: $(COMPILER_C) nano_virt
+	@python3 tests/test_map_type_boundaries.py
+
+test-units: test-map-type-boundaries

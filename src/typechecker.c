@@ -731,6 +731,22 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         env_register_hashmap_instantiation(env, type_to_string(key), type_to_string(item));
         return;
     }
+    if (expected->base_type == TYPE_HASHMAP) {
+        Type expected_key, expected_value, actual_key, actual_value;
+        TypeInfo *actual = try_get_expr_type_info(value, env);
+        if (hashmap_extract_kv((TypeInfo*)expected, &expected_key, &expected_value) &&
+            hashmap_extract_kv(actual, &actual_key, &actual_value) &&
+            (expected_key != actual_key || expected_value != actual_value)) {
+            char message[256];
+            snprintf(message, sizeof(message),
+                "I require HashMap<%s,%s>, but this value has HashMap<%s,%s>.",
+                type_to_string(expected_key), type_to_string(expected_value),
+                type_to_string(actual_key), type_to_string(actual_value));
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                message, "Match both declared map key and value types.");
+        }
+        return;
+    }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
         if (element->base_type == TYPE_STRUCT)
