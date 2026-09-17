@@ -8348,6 +8348,9 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I let my module builder source pass its own conservative PCH capture
+      scan without changing the runtime marker or rejection policy
+      (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.
 - [ ] I lower the exact path host contracts required by my compiler
       (`task_81e682a57a3d431e845b0f41f140352e`); after boolean arrays, actual emission
       refuses the `path_basename` extern declaration.
