@@ -209,7 +209,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       complete indirect-call and qualified-call contexts, serialization and resource boundaries
       remain in `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
-- [ ] I retain callback call-site context across indirect and qualified calls.
+- [x] I retain callback call-site context across indirect and qualified calls.
       I compare complete arguments, preserve checked signature/result metadata
       after lexical scopes end, and require matching execution plus rejection
       before publication (`task_3ca0e46fbbc64aa8bc39bfdaf65b8833`). Resource

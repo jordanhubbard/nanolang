@@ -23,13 +23,20 @@ qualified call checker compares callback signatures explicitly.
 
 My first repaired native bootstrap passed. Its paired gate exposed that
 qualified imports still accepted a mismatched callback in Stage 1 and Stage
-2; the C seed rejected it. I retained that failure and repaired the separate
-self-hosted branch. A fresh bootstrap and the expanded 16-method callback
-gate are running before I mark this follow-up complete. The methods include
-computed callees, nested literal rejection, qualified import execution and
-rejection, and VM callback execution with retained signature metadata.
+2; I repaired the separate self-hosted branch. Independent review then found
+that a record literal without retained TypeInfo needed a nominal declaration
+comparison. I added matching and mismatched literal regression cases.
 
-This is `task_3ca0e46fbbc64aa8bc39bfdaf65b8833`. I do not infer complete
-callback ownership from these ordinary call checks. The failed paired log is
-`/tmp/nanolang-callback-call-context-all-drivers.log`; the corrected run uses
-`/tmp/nanolang-callback-qualified-{bootstrap,all-drivers}.log`.
+After integrating the resource callback boundary, a fresh default-budget
+native bootstrap and the complete parser/typechecker suites pass. Thirty-five
+paired methods pass in 117.266 seconds: 18 callback methods, 13 resource
+callback boundary methods and four adjacent generic context methods. These
+include computed callees, nested literal rejection, qualified import execution
+and rejection, and VM execution with retained callback signature metadata.
+Rejected programs preserve their existing output artifacts.
+
+This completes `task_3ca0e46fbbc64aa8bc39bfdaf65b8833` after merge. I do not
+infer complete callback ownership from these ordinary call checks. The failed
+paired log is `/tmp/nanolang-callback-call-context-all-drivers.log`; final
+bootstrap, unit and driver evidence is retained under
+`/tmp/nanolang-callback-context-final-{bootstrap,units,drivers}.log`.
