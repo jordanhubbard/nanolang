@@ -45,15 +45,18 @@ class NativeJumpTrue(unittest.TestCase):
                       ('PUSH_I64 4\nAGG_PACK 0 0 0 1', True),
                       ('PUSH_F64 0', False), ('PUSH_F64 -0', False),
                       ('PUSH_F64 1.5', True), ('PUSH_F64 nan', True),
-                      ('LOAD_GLOBAL 0', False),
+                      ('LOAD_GLOBAL 1', False),
                       ('PUSH_STR empty\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0', True),
                       ('PUSH_F64 -0\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0', False),
                       ('PUSH_F64 2.5\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0', True)]
         body = ''
-        for i, (condition, truth) in enumerate(conditions):
-            body += (condition + f'\nJMP_TRUE yes{i}\nPUSH_I64 1\nSTORE_LOCAL 0\nJMP done{i}\n'
-                     f'yes{i}:\nPUSH_I64 2\nSTORE_LOCAL 0\ndone{i}:\n'
-                     f'LOAD_LOCAL 0\nPUSH_I64 {2 if truth else 1}\nEQ\nASSERT\n')
+        for polarity in ('TRUE', 'FALSE'):
+            for index, (condition, truth) in enumerate(conditions):
+                i = f'{polarity}{index}'
+                taken = truth if polarity == 'TRUE' else not truth
+                body += (condition + f'\nJMP_{polarity} yes{i}\nPUSH_I64 1\nSTORE_LOCAL 0\nJMP done{i}\n'
+                         f'yes{i}:\nPUSH_I64 2\nSTORE_LOCAL 0\ndone{i}:\n'
+                         f'LOAD_LOCAL 0\nPUSH_I64 {2 if taken else 1}\nEQ\nASSERT\n')
         with tempfile.TemporaryDirectory(prefix='nano-true-truth-') as tmp:
             self.execute_pair(Path(tmp), body)
 

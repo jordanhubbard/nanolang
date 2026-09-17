@@ -22,7 +22,8 @@ bytecode representations remain refused.
 ## Validation
 
 Three focused methods pass under ASan/UBSan with leak detection. Seventeen
-condition cases select exactly one observable branch effect. A taken branch
+condition values select exactly one observable branch effect under each of the
+two branch polarities (34 cases). A taken branch
 transfers live integer/string stack values, and a 1000-iteration backward branch
 preserves a retained global string while consuming newly owned string
 conditions. Three malformed branches preserve a prior artifact.
