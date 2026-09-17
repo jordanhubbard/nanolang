@@ -10181,3 +10181,5 @@ Next Review: the exact release candidate and its published artifacts.
 
 - [ ] I preserve all eight module introspection operations and exact merged module identities through canonical NanoISA lowering before completing the product cutover (`task_faa47ec22a2545348aa9c9d705580321`).
 - [ ] I distinguish native executable structure from string data when excluding VM-wrapper products; the ordinary compiler carries a legitimate `bin/nano_vm` shadow-runner path (`task_b4a32a35810544f4a0234ab5828b46b4`).
+
+- [ ] I resolve the ordinary native compiler startup abort after the NanoISA-only driver creates Stage 2; I retain the executable and failed hello smoke log, and do not infer a cause from signal status (`task_57eb1d541d084ec4930b8764c591bad3`).
