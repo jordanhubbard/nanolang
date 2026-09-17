@@ -128,7 +128,8 @@ void free_environment(Environment *env) {
         if (env->symbols[i].struct_type_name) {
             free(env->symbols[i].struct_type_name);
         }
-        env_free_value(env->symbols[i].value);
+        if (env->symbols[i].type != TYPE_BORROW_SHARED && env->symbols[i].type != TYPE_BORROW_MUT)
+            env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
 
@@ -304,7 +305,9 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
-    if (value.type == VAL_STRUCT && value.as.struct_val) {
+    /* Borrowed parameters retain their caller's identity and do not own its storage. */
+    if (value.type == VAL_STRUCT && value.as.struct_val &&
+        type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         StructValue *sv = value.as.struct_val;
         value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
     }
