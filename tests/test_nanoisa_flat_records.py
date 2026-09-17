@@ -1055,6 +1055,34 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertFalse(output.exists())
 
+    def test_bytecode_emitter_preserves_global_ownership_and_initialization(self):
+        with tempfile.TemporaryDirectory(prefix="nano-global-ownership-") as tmp:
+            work = Path(tmp)
+            compiler, source = work / "emitter.nvm", work / "input.nano"
+            native_text, vm_text, module = work / "native.nasm", work / "vm.nasm", work / "output.nvm"
+            program = ('let mut trace: int = 0\n'
+                       'fn stamp(n: int) -> int { set trace (+ (* trace 10) n) return n }\n'
+                       'shadow stamp { assert true }\n'
+                       'let first: int = (stamp 1) let second: int = (stamp 2)\n')
+            for i in range(40):
+                program += (f'fn worker{i}(arg: int) -> int {{ let first: int = arg '
+                            'unsafe { let inner: int = first } '
+                            'if true { let nested: int = first } return first }\n'
+                            f'shadow worker{i} {{ let shadow_local: int = (worker{i} 5) '
+                            'assert (== shadow_local 5) }\n')
+            program += ('fn main() -> int { assert (== trace 12) assert (== first 1) '
+                        'assert (== second 2) assert (== (worker39 5) 5) return 0 }\n'
+                        'shadow main { assert (== (main) 0) }\n')
+            source.write_text(program)
+            self.run_checked(ROOT / "bin/nano_virt", ROOT / "src_nano/nanoisa_emit.nano",
+                             "--emit-nvm", "--strip-debug", "-o", compiler)
+            self.run_checked(ROOT / "bin/nanoisa_emit", source, "-o", native_text)
+            self.run_checked(ROOT / "bin/nano_vm", compiler, "--", source, "-o", vm_text)
+            self.assertEqual(vm_text.read_bytes(), native_text.read_bytes())
+            self.run_checked(ROOT / "bin/nanoisa", "asm", vm_text, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+
     def test_nominal_counts_preserve_unused_declarations_and_bounds(self):
         fixture = ROOT / "tests/nanoisa/fixtures/nominal_type_counts.nano"
         with tempfile.TemporaryDirectory(prefix="nano-nominal-counts-") as tmp:
