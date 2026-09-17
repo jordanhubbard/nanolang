@@ -8027,8 +8027,10 @@ Compiler product:
       after `MergeResult`, actual canonical emission first refuses
       `List<CompilerDiagnostic>` because its location is a nested record
       (`task_2c3445862de74affa5d2bf624c8c5986`).
-- [ ] I infer scalar array literal tags from computed element types; direct
-      `[(int_to_string 7)]` currently emits the integer element tag
+- [x] I infer scalar array literal tags from computed element types; direct
+      `[(int_to_string 7)]` now retains its string element tag. The old module
+      fails its VM assertion; repaired C-seed/VM/AOT parity and malformed
+      refusals pass within 86 checks and 26 integration methods
       (`task_0a57dab79901497b8e5a6a5ae87df9fb`).
 - [x] I lower scalar-array-bearing records required by canonical `MergeResult`,
       preserving typed fields through construction, access, calls and returns

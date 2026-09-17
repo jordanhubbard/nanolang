@@ -1,0 +1,11 @@
+fn word() -> string { return "word" }
+shadow word { assert (== (word) "word") }
+
+fn main() -> int {
+    assert (== (at [(int_to_string 7)] 0) "7")
+    assert (== (at [(word), "literal"] 0) "word")
+    assert (== (at ["literal", (word)] 1) "word")
+    assert (== (at [(+ 1 2)] 0) 3)
+    return 0
+}
+shadow main { assert (== (main) 0) }
