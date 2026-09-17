@@ -26,6 +26,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **v5.0.1 concrete generic resource classification.** I substitute generic
+      union payload types before classifying concrete ownership, distinguish
+      ordinary instantiations from resource-bearing ones, and preserve declaring
+      module identity. MAC `task_27d3d1bee3f84b5a9c1fc79e1f0c0748`.
+      - [ ] I record paired baseline cases and the parser/emitter prerequisites.
+      - [ ] I reject unsupported generic resource obligations consistently in
+        both frontends while executing ordinary-generic positive fixtures.
+      - [ ] I retain resource-bearing array/List/HashMap rejection through nested
+        concrete generic payloads, and test diagnostics/artifact preservation.
+      - [ ] I implement resource union payload transfer before admitting generic
+        resource consumption; classification alone does not complete this gate.
+      - [ ] I bootstrap, run the shared conformance gates, and record tested
+        boundaries before coordinated integration.
+
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
       preserve declaring-module identity through classification and flow lookup,
