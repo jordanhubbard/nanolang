@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 from tests import test_nvm2llvm as llvm_tests
+from tests import test_nvm2llvm_floats as float_tests
 
 ROOT = Path(__file__).resolve().parents[1]
 WASM = ROOT / 'bin/nvm2wasm'
@@ -42,6 +43,12 @@ class ScalarWasm(unittest.TestCase):
     test_calls_loops_branch_effects_and_bool_transport = llvm_tests.ScalarLLVM.test_calls_loops_branch_effects_and_bool_transport
     test_scalar_tags_boolean_ops_and_argument_order = llvm_tests.ScalarLLVM.test_scalar_tags_boolean_ops_and_argument_order
     test_recursive_call_and_stack_join = llvm_tests.ScalarLLVM.test_recursive_call_and_stack_join
+
+    program = float_tests.LLVMFloats.program
+    test_float_arithmetic_comparisons_and_nan = float_tests.LLVMFloats.test_arithmetic_comparisons_and_nan
+    test_float_calls_locals_joins_truthiness_and_signed_zero = float_tests.LLVMFloats.test_float_calls_locals_joins_truthiness_and_signed_zero
+    test_checked_float_conversions = float_tests.LLVMFloats.test_checked_integer_and_float_conversions
+    test_invalid_float_to_int_traps = float_tests.LLVMFloats.test_invalid_float_to_int_traps_before_conversion
 
     def test_scalar_entry_result_and_custom_name(self):
         module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 7\nRET\n.end\n')
@@ -86,7 +93,7 @@ class ScalarWasm(unittest.TestCase):
 
     def test_shared_profile_refusals_preserve_output(self):
         for extra, body in (
-            ('', 'PUSH_F64 1.0\nPOP\nPUSH_I64 0\nRET\n'),
+            ('.string outside "outside profile"\n', 'PUSH_STR outside\nPOP\nPUSH_I64 0\nRET\n'),
             ('', 'PUSH_I64 0\n'),
             ('.import "" "get_argc" int\n', 'PUSH_I64 0\nRET\n'),
         ):
