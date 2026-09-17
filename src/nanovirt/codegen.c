@@ -996,18 +996,23 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         if (argc == 2) {
             /* Create array and fill with value */
             compile_expr(cg, args[0]);  /* size */
-            uint16_t sz_slot = local_add(cg, "__anew_sz__", 0);
+            uint16_t sz_slot = local_add(cg, "", 0);
             emit_op(cg, OP_STORE_LOCAL, (int)sz_slot);
             compile_expr(cg, args[1]);  /* fill value */
-            uint16_t fill_slot = local_add(cg, "__anew_fill__", 0);
+            uint16_t fill_slot = local_add(cg, "", 0);
             emit_op(cg, OP_STORE_LOCAL, (int)fill_slot);
+            /* I evaluate both operands once before rejecting a negative size. */
+            emit_op(cg, OP_LOAD_LOCAL, (int)sz_slot);
+            emit_op(cg, OP_PUSH_I64, (int64_t)0);
+            emit_op(cg, OP_I64_GE_S);
+            emit_op(cg, OP_ASSERT);
             Type fill_type = check_expression(args[1], cg->env);
             emit_op(cg, OP_ARR_NEW, (int)type_to_tag(fill_type,
                     infer_expr_struct_type(cg, args[1]), cg->env));
-            uint16_t arr_slot = local_add(cg, "__anew_arr__", 0);
+            uint16_t arr_slot = local_add(cg, "", 0);
             emit_op(cg, OP_STORE_LOCAL, (int)arr_slot);
             emit_op(cg, OP_PUSH_I64, (int64_t)0);
-            uint16_t i_slot = local_add(cg, "__anew_i__", 0);
+            uint16_t i_slot = local_add(cg, "", 0);
             emit_op(cg, OP_STORE_LOCAL, (int)i_slot);
             uint32_t loop_top = cg->code_size;
             emit_op(cg, OP_LOAD_LOCAL, (int)i_slot);

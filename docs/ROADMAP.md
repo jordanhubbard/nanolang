@@ -8317,15 +8317,21 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower boolean arrays required by my compiler, preserving bool/int
+      separation and typed bytecode tags (`task_76a8de9b6d84450faf717fd0333e0cee`).
+      After filled-array lowering, actual compiler emission refuses `array<bool>`.
+- [x] I keep filled-array compiler temporary slots anonymous so legal source
+      names cannot be shadowed by lowering (`task_9f05edac81994a818fd0126c1bf90372`).
 - [x] I evaluate native filled-array count then fill exactly once, including
       zero and rejected negative counts (`task_dbdd78cd11a6412aa0904d82ea013434`).
       I capture both operands before the guard; three regression methods pass.
-- [ ] I reject negative filled-array lengths consistently across backends
-      (`task_50c84fa002c14b3fa880d3d260bb8a33`). My evaluator rejects them,
-      while C-seed bytecode currently returns an empty array.
-- [ ] I lower typed count/fill `array_new` construction with ordered operands
-      (`task_6b4240883d7d461c8266257aaffb2471`). Actual compiler emission after
-      character conversion stops at `ModuleCache.parsers = (array_new 0 "")`.
+- [x] I reject negative filled-array lengths consistently across backends
+      (`task_50c84fa002c14b3fa880d3d260bb8a33`). My evaluator, both bytecode
+      frontends and native C constructor reject them after both operand effects.
+- [x] I lower typed count/fill `array_new` construction with ordered operands
+      (`task_6b4240883d7d461c8266257aaffb2471`). Sixteen exact
+      opcode comparisons and VM/native execution pass; see
+      `docs/evidence/selfhost-filled-arrays.md`.
 - [ ] I track native `string_from_char` allocations for cleanup
       (`task_d2b7c2616e2148a1871c25e1a7ac127d`). Unsuppressed LeakSanitizer
       reports 16 leaked bytes from eight calls to the existing host adapter.
