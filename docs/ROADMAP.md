@@ -24,6 +24,13 @@ gate as complete. Phase 22 / 6.0 remains separate.
 
 ## Active Execution Queue
 
+- [ ] **v5.0.1 module-owned affine identity.** I compare same-named plain
+      and resource records across modules on my C seed and self-hosted stages,
+      preserve declaring-module identity through classification and flow lookup,
+      and test aliases, nested fields, moves and unresolved owners. I keep
+      unsupported generic and borrow boundaries explicit. MAC
+      `task_d7c2aa83a60b43e792fb02ae7881e397`.
+
 - [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
       the published `v5.0.0` tag and restore the released compiler, tests and
       documentation removed by the reviewed whole-tree replacement. I preserve
