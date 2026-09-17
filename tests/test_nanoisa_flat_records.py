@@ -15,6 +15,62 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_executable_closure_preserves_calls_and_refuses_unlowered_roots(self):
+        driver_fixture = ROOT / "tests/nanoisa/fixtures/program_closure_driver.nano.txt"
+        with tempfile.TemporaryDirectory(prefix="nano-program-closure-") as tmp:
+            work = Path(tmp)
+            driver, tool = work / "driver.nano", work / "driver"
+            driver.write_text(driver_fixture.read_text())
+            self.run_checked(ROOT / "bin/nanoc_c", driver, "-o", tool)
+            source, assembly, module = work / "program.nano", work / "program.nasm", work / "program.nvm"
+            source.write_text(
+                'fn dep_a_value(n: int) -> int { if (<= n 0) { return 37 } return (value (- n 1)) }\n'
+                'fn dep_a_relay() -> int { return (value 2) }\n'
+                'fn dep_a_ping() -> void { (println "A") }\n'
+                'fn dep_b_value(n: int) -> int { if (<= n 0) { return 12 } return (value (- n 1)) }\n'
+                'fn dep_b_relay() -> int { return (value 2) }\n'
+                'fn dep_b_ping() -> void { (println "B") }\n'
+                'fn main() -> int { assert (== (values.relay) 37) assert (== (other.relay) 12) '
+                'assert (== (alias 2) 37) (values.ping) (other.ping) assert (> (get_argc) 0) return 0 }\n'
+                'extern fn unavailable_array_host(path: string) -> array<string>\n'
+                'extern fn get_argc() -> int\n'
+                'fn unused() -> array<string> { return (unavailable_array_host "unused") }\n')
+            output = self.run_checked(tool, source, "bound").stdout
+            self.assertEqual(output, self.run_checked(tool, source, "bound").stdout)
+            self.assertNotIn("unavailable_array_host", output)
+            self.assertNotIn(".function unused", output)
+            self.assertIn('.import "" "get_argc" int', output)
+            for name in ("dep_a_value", "dep_a_relay", "dep_b_value", "dep_b_relay", "dep_a_ping", "dep_b_ping"):
+                self.assertIn(".function " + name, output)
+            assembly.write_text(output)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "A\nB\n")
+            native_c, binary = work / "program.c", work / "program"
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.assertEqual(self.run_checked(binary).stdout, "A\nB\n")
+            whole = subprocess.run([tool, source, "whole"], cwd=ROOT, capture_output=True, text=True, timeout=120)
+            self.assertEqual(whole.returncode, 1)
+            self.assertEqual(whole.stdout, "")
+            refused = [
+                'extern fn unavailable_array_host(path: string) -> array<string> '
+                'fn main() -> array<string> { return (unavailable_array_host "live") }',
+                'let initial: int = (effect) fn effect() -> int { (println "effect") return 1 } '
+                'fn main() -> int { return 0 }',
+                'fn target() -> int { return 1 } let stored: fn() -> int = target '
+                'fn main() -> int { return 0 }',
+                'fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
+                'fn main() -> int { return (consume target) }',
+                'fn target() -> int { return 1 } fn main() -> int { let target: int = 0 return (target) }',
+            ]
+            for program in refused:
+                with self.subTest(program=program):
+                    source.write_text(program + '\n')
+                    result = subprocess.run([tool, source, "program"], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertEqual(result.stdout, "")
+
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
         with tempfile.TemporaryDirectory(prefix="nano-escaped-strings-") as tmp:

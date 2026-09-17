@@ -1,0 +1,36 @@
+import "src_nano/compiler/nanoisa_codegen.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/module_bindings.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+
+fn main() -> int {
+    if (!= (get_argc) 3) { return 0 }
+    let source: string = (file_read (get_argv 1))
+    let mode: string = (get_argv 2)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string source "program.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "program.nano")
+    (mb_reset [])
+    if (== mode "bound") {
+        (mb_reset [1, 4, 7])
+        (mb_add 0 "value" "dep_a_value")
+        (mb_add 1 "value" "dep_b_value")
+        (mb_add 2 "values.relay" "dep_a_relay")
+        (mb_add 2 "other.relay" "dep_b_relay")
+        (mb_add 2 "values.ping" "dep_a_ping")
+        (mb_add 2 "other.ping" "dep_b_ping")
+        (mb_add 2 "alias" "dep_a_value")
+    }
+    let mut assembly: string = ""
+    if (== mode "whole") { set assembly (nanoisa_emit_parser_nasm parser) }
+    else { set assembly (nanoisa_emit_program_nasm parser) }
+    if (== assembly "") { return 1 }
+    (print assembly)
+    (mb_reset [])
+    return 0
+}
+shadow main { assert (== (main) 0) }
