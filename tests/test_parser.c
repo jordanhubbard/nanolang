@@ -942,6 +942,50 @@ void test_parse_type_annotations(void) {
  * main
  * ============================================================================ */
 
+static void test_owned_generic_function_annotations(void) {
+    ASTNode *program = parse_ok(
+        "union Box<T> { Some { value: T } } "
+        "union Result<T,E> { Ok { value: T }, Err { error: E } } "
+        "fn apply(callback: fn(Box<array<int>>, HashMap<string,int>) -> Result<Box<int>,string>) -> int { return 0 }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *function = program->as.program.items[2];
+    FunctionSignature *sig = function->as.function.params[0].fn_sig;
+    ASSERT_NOT_NULL(sig);
+    ASSERT_EQ(sig->param_count, 2);
+    ASSERT_NOT_NULL(sig->param_type_info);
+    ASSERT(strcmp(sig->param_type_info[0]->generic_name, "Box") == 0);
+    ASSERT_EQ(sig->param_type_info[0]->type_params[0]->base_type, TYPE_ARRAY);
+    ASSERT_EQ(sig->param_type_info[0]->type_params[0]->element_type->base_type, TYPE_INT);
+    ASSERT(strcmp(sig->param_type_info[1]->generic_name, "HashMap") == 0);
+    ASSERT_EQ(sig->param_type_info[1]->type_params[0]->base_type, TYPE_STRING);
+    ASSERT_NOT_NULL(sig->return_type_info);
+    ASSERT(strcmp(sig->return_type_info->generic_name, "Result") == 0);
+    ASSERT(strcmp(sig->return_type_info->type_params[0]->generic_name, "Box") == 0);
+    TypeInfo wrapper = {0};
+    wrapper.base_type = TYPE_FUNCTION;
+    wrapper.fn_sig = sig;
+    TypeInfo *copy = copy_payload_type_info(&wrapper);
+    ASSERT_NOT_NULL(copy);
+    ASSERT(copy->fn_sig != sig);
+    ASSERT(copy->fn_sig->param_type_info[0] != sig->param_type_info[0]);
+    ASSERT(copy->fn_sig->return_type_info != sig->return_type_info);
+    free_ast(program);
+    ASSERT_EQ(copy->fn_sig->return_type_info->type_params[0]->type_params[0]->base_type, TYPE_INT);
+    ASSERT_EQ(copy->fn_sig->param_type_info[1]->type_params[1]->base_type, TYPE_INT);
+    free_payload_type_info(copy);
+
+    program = parse_ok("fn choose() -> fn() -> fn() -> Box<int> { return choose }");
+    ASSERT_NOT_NULL(program);
+    sig = program->as.program.items[0]->as.function.return_fn_sig;
+    ASSERT_NOT_NULL(sig->return_fn_sig);
+    ASSERT(strcmp(sig->return_fn_sig->return_type_info->generic_name, "Box") == 0);
+    wrapper.fn_sig = sig;
+    copy = copy_payload_type_info(&wrapper);
+    free_ast(program);
+    ASSERT_EQ(copy->fn_sig->return_fn_sig->return_type_info->type_params[0]->base_type, TYPE_INT);
+    free_payload_type_info(copy);
+}
+
 int main(void) {
     printf("=== Parser Tests ===\n");
 
@@ -1018,6 +1062,7 @@ int main(void) {
     TEST(parse_deep_nesting);
     TEST(parse_infix_operators);
     TEST(parse_type_annotations);
+    TEST(owned_generic_function_annotations);
 
     printf("\n✓ All parser tests passed!\n");
     return 0;
