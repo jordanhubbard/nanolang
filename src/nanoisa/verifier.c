@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "verifier.h"
+#include "passive.h"
 #include "isa.h"
 #include "../nanovm/vm.h"
 #include "../nanovm/vm_decode.h"
@@ -414,6 +415,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
             }
         }
     }
+
+    if (!nvm_passive_valid(mod))
+        return fail("I found invalid passive eligibility metadata");
 
     if (!nvm_callback_contracts_valid(mod))
         return fail("I found an invalid retained callback import contract");

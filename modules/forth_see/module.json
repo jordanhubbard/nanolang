@@ -12,6 +12,7 @@
     "forth_see.c",
     "../nanoisa/nanoisa.c",
     "../../src/nanoisa/isa.c",
+    "../../src/nanoisa/passive.c",
     "../../src/nanoisa/nvm_format.c",
     "../../src/nanoisa/nvm_format_v2.c",
     "../../src/nanoisa/nvm_v2_cursor.c",
