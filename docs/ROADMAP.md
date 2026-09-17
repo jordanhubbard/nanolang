@@ -2662,6 +2662,19 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           declared in a selected arm currently reaches function cleanup as an
           undeclared C name; VM execution passes.
           MAC `task_1edadd5eb33a445d9bf6516744bc405e`.
+          I recovered the preserved fleet source/test diff after its build lacked
+          `ffi.h`. I retain only lexical match-arm scope tracking; the recovered
+          early-return cleanup runs before evaluating the result and mutates
+          shared cleanup flags across conditional paths, so I remove that part.
+          I require all four native/VM map tag pairs, alias reuse, computed
+          returns and both conditional paths before closing this bounded repair.
+          The original patch and failed fleet evidence remain preserved.
+        - [ ] I define early-return cleanup with explicit retain/transfer of
+          computed or borrowed results, preserving evaluation order and separate
+          control-flow paths. Current native HashMap allocations use malloc;
+          gc_release does not establish their deallocation. I keep map lifetime
+          and opaque/effect cleanup gates separate from lexical visibility.
+          MAC `task_195cac35e7704e56805932977512ae02`.
         - [x] I advance my bytecode for-loop index on continue, including
           unconditional and nested paths, without advancing an enclosing loop
           on an inner while continue. My new regression and both former timeout
