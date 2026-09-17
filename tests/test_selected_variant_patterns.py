@@ -1,4 +1,4 @@
-"""I check complete qualified variant patterns before enabling owned matching."""
+"""I check complete qualified variant patterns and selected payload transfer."""
 from pathlib import Path
 import subprocess
 import tempfile
@@ -46,7 +46,7 @@ shadow main { assert (== (main) 0) }
     def test_wrong_selected_variant(self):
         self.compile_case('let Choice.Other { number, text } = payload return number', False)
 
-    def test_owned_union_guard_remains(self):
+    def test_owned_selected_variant_transfer(self):
         generic.GenericAffineIdentity().check('''resource struct Handle { fd: int }
 union Choice { Some { owner: Handle }, None {} }
 fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
@@ -58,6 +58,6 @@ fn consume(value: Choice) -> int { match value {
 shadow consume { let value: Choice = Choice.Some { owner: Handle { fd: 3 } } assert (== (consume value) 3) }
 fn main() -> int { return 0 }
 shadow main { assert (== (main) 0) }
-''', False)
+''', True)
 
 if __name__ == '__main__': unittest.main()
