@@ -58,26 +58,26 @@ binary in the 5.1 sense. A 5.1 native process computes with C operators
 
 ## Bootstrap, rewritten
 
-I already compile myself from C: `cc` builds `bin/nanoc_c` from `src/`.
-Self-hosting then pretty-prints C twice. Stage 3 compares native binaries
-and apologizes for UUID noise. That is a translator property pretending
-to be a compiler property.
-
-5.1 bootstrap:
+My C seed builds a compiler bytecode input. Two successive executions of my
+self-hosted compiler then compile the same source and immutable host closure:
 
 ```
-Stage 0  cc builds nanoc_c (frontend + NanoISA codegen) and nvm2c
-Stage 1  nanoc_c --emit-nvm src_nano → stage1.nvm
-         nvm2c stage1.nvm → stage1.c → cc → nanoc_stage1
-Stage 2  nanoc_stage1 --emit-nvm src_nano → stage2.nvm
-         nvm2c stage2.nvm → stage2.c → cc → nanoc_stage2
-Stage 3  compare stage1.nvm and stage2.nvm
+Seed          C frontend + NanoISA codegen → compiler-seed.nvm
+Generation 1  compiler-seed.nvm in NanoVM → compiler-1.nvm
+Generation 2  compiler-1.nvm in NanoVM → compiler-2.nvm
+Fixed point   compare compiler-1.nvm and compiler-2.nvm
 ```
 
-Stage 3 becomes honest. `.nvm` is what I generated. If those match, I
-compiled myself. `nvm2c`+`cc` matching is a **translator** test, kept
-separate: same module through the VM and through AOT C, same observable
-results on a pinned suite.
+I tested this route at source `1277bce2`: both canonical generations produce
+identical 352,236-byte modules. My [reproducible gate and evidence](evidence/vm-bytecode-fixedpoint.md)
+retain raw hashes, timings and immutable host inputs. I do not compare the
+C-seed lowering output with the first self-hosted output. A fixed point does
+not prove compiler semantic correctness.
+
+My current canonical driver still generates C to execute shadows. Removing
+that phase remains an architecture requirement. Native execution of compiler
+bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
+point does not claim completion of native full-source bootstrap.
 
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator
@@ -92,8 +92,9 @@ CLI, generated AST/schema. Those do not care what the last pass emits.
 **Replace, not dual.** `transpiler.nano` (~7.6k lines of C emission) ceases
 to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
-→ `.nvm`. That dual does not exist in `src_nano` today. That is the real
-self-hosting work of 5.1.
+→ `.nvm`. My `compiler/nanoisa_codegen.nano` emitter now lowers the full compiler
+program closure, and the VM bootstrap above exercises it. My driver still
+retains native C shadow generation; the NanoISA-only cutover remains open.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool
