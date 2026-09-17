@@ -42,3 +42,12 @@ Logs: `/tmp/nanolang-generic-pattern-integrated-bootstrap.log`,
 
 Selected generic ownership transfer follows under
 `task_08428ceb1d674de49383aab1ba9a78c8`; this evidence does not close it.
+
+After main integrated PR460, I preserved both additive Makefile targets and
+combined its self-hosted constructor-context repair at source `0f98c3d3`.
+A fresh three-stage bootstrap passed, followed by all eleven affected methods
+in 42.355 seconds: eight pattern methods across all three compilers and three
+constructor-context methods across Stage1/Stage2. My checker source remains
+unchanged from the 59-method and sanitizer checkpoint above. Logs:
+`/tmp/nanolang-generic-pattern-restacked-bootstrap.log` and
+`/tmp/nanolang-generic-pattern-restacked-focused.log`.
