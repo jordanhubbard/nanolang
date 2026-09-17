@@ -8747,6 +8747,25 @@ Compiler product:
       the outer-value assertion but mandatory VM shadows fail. I retain slot
       allocation while restoring binding scope and require native/VM controls
       before using C-seed output as the range-lowering parity reference.
+- [ ] I infer C-seed loop element metadata from inline and computed arrays
+      (`task_911317d4234c46049c3dea1a2d0a153d`). The current `AST_FOR` checker
+      only reads identifier receivers, so inline string/bool literals give an
+      integer loop variable and reject valid bodies. I retain the failing
+      expanded probe and use explicit typed locals as the current control.
+- [ ] I preserve native range bounds once in source order and compile valid
+      early-return array loops without inapplicable vectorization promises
+      (`task_c3d168ec8de94d18a1f63445f2c6cea0`). My current C condition repeats
+      the end expression; an unconditional loop return triggers GCC's ignored
+      loop annotation error. I retain paired native/VM execution regressions.
+- [ ] I snapshot both self-hosted native range bounds before entering the loop
+      (`task_8e80a672c285487dbbad07dd1dbfc9b9`). My current `generate_for_stmt` repeats
+      its end expression in the C condition. I require once-only source order,
+      nested lexical scopes and Stage1/Stage2 paired execution.
+- [ ] I measure my compiler-shadow deadline after range emitter growth
+      (`task_628759a2daf743b9bf13c9a7fea2ced0`). A fresh bootstrap reached the default
+      ten-second shadow deadline without an assertion diagnostic; explicit
+      sixty-second execution advances. I retain both logs, measure the cause
+      and keep deadline tests unchanged. A timeout alone is not a correctness failure.
 - [ ] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
       My correctly captured full probe stops at `tokenize_string` because

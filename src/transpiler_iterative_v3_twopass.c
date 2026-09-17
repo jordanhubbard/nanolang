@@ -3264,6 +3264,36 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
  * PASS 1: BUILD WORK ITEMS (Statement Transpiler)
  * ============================================================================ */
 
+/* Loop exits invalidate my explicit vectorization promise. */
+static bool loop_body_has_exit(const ASTNode *node) {
+    if (!node) return false;
+    switch (node->type) {
+        case AST_RETURN: case AST_BREAK: case AST_CONTINUE: return true;
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++)
+                if (loop_body_has_exit(node->as.block.statements[i])) return true;
+            return false;
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < node->as.unsafe_block.count; i++)
+                if (loop_body_has_exit(node->as.unsafe_block.statements[i])) return true;
+            return false;
+        case AST_IF:
+            return loop_body_has_exit(node->as.if_stmt.then_branch)
+                || loop_body_has_exit(node->as.if_stmt.else_branch);
+        case AST_WHILE: return loop_body_has_exit(node->as.while_stmt.body);
+        case AST_FOR: return loop_body_has_exit(node->as.for_stmt.body);
+        case AST_MATCH:
+            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+                if (loop_body_has_exit(node->as.match_expr.arm_bodies[i])) return true;
+            return false;
+        case AST_COND:
+            for (int i = 0; i < node->as.cond_expr.clause_count; i++)
+                if (loop_body_has_exit(node->as.cond_expr.values[i])) return true;
+            return loop_body_has_exit(node->as.cond_expr.else_value);
+        default: return false;
+    }
+}
+
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
@@ -4022,30 +4052,27 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             break;
             
         case AST_FOR: {
-            /* for i in (range start end) { body } 
-             * Transpiles to: for (int64_t i = start; i < end; i++) { body } 
-             */
+            /* I evaluate both bounds once, in order, before binding the loop variable. */
             const char *var = stmt->as.for_stmt.var_name;
             ASTNode *range = stmt->as.for_stmt.range_expr;
-            
-            /* Expecting range_expr to be (range start end) call */
-            if (range && range->type == AST_CALL && 
+            if (range && range->type == AST_CALL &&
                 range->as.call.name && strcmp(range->as.call.name, "range") == 0 &&
                 range->as.call.arg_count == 2) {
-                
                 emit_indent_item(list, indent);
-                emit_literal(list, "for (int64_t ");
-                emit_literal(list, var);
-                emit_literal(list, " = ");
+                emit_literal(list, "{\n");
+                emit_indent_item(list, indent + 1);
+                emit_literal(list, "int64_t __nl_range_start = ");
                 build_expr(list, range->as.call.args[0], env);
-                emit_literal(list, "; ");
-                emit_literal(list, var);
-                emit_literal(list, " < ");
+                emit_literal(list, ";\n");
+                emit_indent_item(list, indent + 1);
+                emit_literal(list, "int64_t __nl_range_end = ");
                 build_expr(list, range->as.call.args[1], env);
-                emit_literal(list, "; ");
-                emit_literal(list, var);
-                emit_literal(list, "++) ");
-                build_stmt(list, scopes, stmt->as.for_stmt.body, indent, env, fn_registry);
+                emit_literal(list, ";\n");
+                emit_indent_item(list, indent + 1);
+                emit_formatted(list, "for (int64_t %s = __nl_range_start; %s < __nl_range_end; %s++) ", var, var, var);
+                build_stmt(list, scopes, stmt->as.for_stmt.body, indent + 1, env, fn_registry);
+                emit_indent_item(list, indent);
+                emit_literal(list, "}\n");
             } else {
                 /* Check if range is a dyn_array (array<T>) variable */
                 bool is_dyn_array = false;
@@ -4091,7 +4118,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "int64_t __nl_len = dyn_array_length(__nl_arr);\n");
                     /* Vectorization hints for numeric element types */
-                    if (dyn_elem_type == TYPE_INT || dyn_elem_type == TYPE_FLOAT) {
+                    if ((dyn_elem_type == TYPE_INT || dyn_elem_type == TYPE_FLOAT) &&
+                        !loop_body_has_exit(stmt->as.for_stmt.body)) {
                         emit_indent_item(list, indent + 1);
                         emit_literal(list, "#if defined(__GNUC__) && !defined(__clang__)\n");
                         emit_indent_item(list, indent + 1);

@@ -1,0 +1,84 @@
+let mut order: int = 0
+fn lower() -> int { set order (+ (* order 10) 1) return -2 }
+shadow lower { let before: int = order assert (== (lower) -2) set order before }
+fn upper() -> int { set order (+ (* order 10) 2) return 2 }
+shadow upper { let before: int = order assert (== (upper) 2) set order before }
+fn bounds() -> int {
+    set order 0
+    let mut sum: int = 0
+    let mut count: int = 0
+    for value in (range (lower) (upper)) {
+        set sum (+ sum value)
+        set count (+ count 1)
+    }
+    assert (== order 12)
+    assert (== sum -2)
+    assert (== count 4)
+    for value in (range 0 -1) { assert false }
+    for value in (range 4 2) { assert false }
+    for value in (range 2 2) { assert false }
+    return 0
+}
+shadow bounds { assert (== (bounds) 0) }
+fn scoped() -> int {
+    let index: int = 20
+    let mut sum: int = 0
+    for index in (range 0 4) {
+        if (== index 1) { continue }
+        for index in (range 0 2) { set sum (+ sum index) }
+        if (== index 2) { break }
+        set sum (+ sum 10)
+    }
+    assert (== index 20)
+    let mut visits: int = 0
+    for index in (range index (+ index 2)) {
+        assert (>= index 20)
+        set visits (+ visits 1)
+    }
+    assert (== visits 2)
+    assert (== index 20)
+    return sum
+}
+shadow scoped { assert (== (scoped) 12) }
+fn mixed_loops() -> int {
+    let mut sum: int = 0
+    for index in (range 0 3) {
+        let mut inner: int = 0
+        while (< inner 2) { set inner (+ inner 1) continue }
+        set sum (+ sum index)
+    }
+    let mut outer: int = 0
+    while (< outer 2) {
+        set outer (+ outer 1)
+        for index in (range 0 3) { continue assert false }
+        continue
+        assert false
+    }
+    return (+ sum outer)
+}
+shadow mixed_loops { assert (== (mixed_loops) 5) }
+fn first(values: array<int>) -> int {
+    for value in values { return value assert false }
+    return 99
+}
+shadow first { assert (== (first [7]) 7) assert (== (first []) 99) }
+fn scalar_arrays() -> int {
+    let mut text: string = ""
+    let words: array<string> = ["a", "b"]
+    for word in words { set text (+ text word) }
+    assert (== text "ab")
+    let mut count: int = 0
+    let flags: array<bool> = [true, false, true]
+    for flag in flags { if flag { set count (+ count 1) } }
+    return count
+}
+shadow scalar_arrays { assert (== (scalar_arrays) 2) }
+fn main() -> int {
+    assert (== (bounds) 0)
+    assert (== (scoped) 12)
+    assert (== (mixed_loops) 5)
+    assert (== (first [8]) 8)
+    assert (== (scalar_arrays) 2)
+    return 0
+}
+shadow main { assert (== (main) 0) }
