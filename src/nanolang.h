@@ -393,7 +393,6 @@ struct ASTNode {
             char *struct_name;        // Name of struct type
             char **field_names;       // Array of field names (for initialization)
             ASTNode **field_values;   // Array of field value expressions
-            TypeInfo **field_type_info; /* Owned complete field annotations. */
             int field_count;          // Number of fields
             ASTNode *spread_source;   // For {..base, extra:val}: source to spread (NULL if none)
         } struct_literal;

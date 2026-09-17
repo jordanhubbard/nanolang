@@ -26,11 +26,14 @@ separate task `task_d0438e26b84147cdb9fd16b654c44a6a`; native AOT global transpo
 remains separately tracked. I do not claim either from constructor propagation.
 
 Validation: six constructor/diagnostic/concrete-union methods pass; parser,
-typechecker and all eight PGO unit methods pass; a fresh native bootstrap passes.
+typechecker and all eight PGO unit methods pass; all 89 NanoVirt code-generation
+checks pass. A fresh native bootstrap passes again after integration and removal
+of an unused literal annotation member found in independent review.
 Forty ASan/UBSan parser/typechecker/environment/AST teardown iterations pass with
 leak detection disabled under the existing metadata leak follow-up. These checks
 do not establish NanoISA-only bootstrap or its bytecode fixed point.
 
-Logs: `/tmp/nanolang-map-final-tests.log`, `/tmp/nanolang-map-final-unit.log`,
-`/tmp/nanolang-map-final-bootstrap.log`, `/tmp/nanolang-map-final-asan.log`.
+Logs: `/tmp/nanolang-map-reviewed-tests.log`, `/tmp/nanolang-map-final-unit.log`,
+`/tmp/nanolang-map-reviewed-bytecode.log`, `/tmp/nanolang-map-reviewed-bootstrap.log`,
+and `/tmp/nanolang-map-reviewed-asan.log`.
 Task: `task_f4e1871af407805219770d7620d58349`.
