@@ -88,7 +88,7 @@ class FlatRecordEmitter(unittest.TestCase):
             refused = [
                 'let count: int = 1 fn main() -> int { set count 2 return count }',
                 'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
-                'let values: array<bool> = [true] fn main() -> int { return 0 }',
+                'let values: array<float> = [1.5] fn main() -> int { return 0 }',
                 'extern fn unavailable_array_host(path: string) -> array<string> '
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
                 'fn target() -> int { return 1 } let stored: fn() -> int = target '
@@ -199,7 +199,7 @@ class FlatRecordEmitter(unittest.TestCase):
             'struct Box { words: array<string> } fn main() -> Box { return Box { words: [1] } }',
             'struct Box { words: array<string> } fn main() -> Box { let xs: array<int> = [1] return Box { words: xs } }',
             'struct Box { value: int } fn main() -> Box { return Box { value: [1] } }',
-            'struct Box { flags: array<bool> } fn main() -> Box { return Box { flags: [true] } }',
+            'struct Box { flags: array<float> } fn main() -> Box { return Box { flags: [1.5] } }',
             'struct Box { nested: array<array<int>> } fn main() -> Box { return Box { nested: [[1]] } }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-array-record-refusal-") as tmp:
@@ -231,7 +231,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
-            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[true]'):
+            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[1.5]'):
                 with self.subTest(expression=expression):
                     invalid = work / "invalid.nano"
                     output = work / "invalid.nasm"
@@ -261,6 +261,48 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
 
+    def test_boolean_arrays_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/boolean_arrays.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-boolean-arrays-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            comparison = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                          "blank", "values", "filled", "relay", "flags", "main")
+            self.assertIn("14 passed, 0 failed", comparison.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                native_c, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                self.run_checked(binary)
+
+    def test_boolean_arrays_preserve_element_type_refusals(self):
+        programs = [
+            'fn main() -> int { let xs: array<bool> = [1] return 0 }',
+            'fn main() -> int { let xs: array<bool> = [true, 1] return 0 }',
+            'fn main() -> int { let xs: array<bool> = [true] (array_set xs 0 1) return 0 }',
+            'fn main() -> int { let xs: array<bool> = [true] (array_push xs 1) return 0 }',
+            'fn main() -> int { let xs: array<int> = [1] (array_push xs true) return 0 }',
+            'fn main() -> int { let xs: array<string> = ["x"] (array_push xs true) return 0 }',
+            'fn main() -> int { let xs: array<bool> = [true] (array_get xs false) return 0 }',
+            'fn main() -> int { let xs: List<int> = (list_int_new) (list_string_push xs "x") return 0 }',
+            'fn main() -> int { (array_push 1 true) return 0 }',
+            'fn main() -> int { let xs: array<bool> = [true] assert (== (at xs 0) 1) return 0 }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-boolean-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program + '\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertFalse(output.exists())
+
     def test_filled_arrays_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/filled_arrays.nano"
         with tempfile.TemporaryDirectory(prefix="nano-filled-arrays-") as tmp:
@@ -287,7 +329,7 @@ class FlatRecordEmitter(unittest.TestCase):
             'fn main() -> int { (array_new 2 1 3) return 0 }',
             'fn main() -> int { (array_new "two" 1) return 0 }',
             'fn main() -> int { (array_new true 1) return 0 }',
-            'fn main() -> int { (array_new 2 true) return 0 }',
+            'fn main() -> int { (array_new 2 1.5) return 0 }',
             'fn main() -> int { (array_new 2 [1]) return 0 }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-filled-refusal-") as tmp:
@@ -630,7 +672,7 @@ class FlatRecordEmitter(unittest.TestCase):
 
     def test_unsupported_array_results_and_elements_are_refused(self):
         programs = [
-            'fn bad() -> array<bool> { return [true] }',
+            'fn bad() -> array<float> { return [1.5] }',
             'fn bad() -> array<array<int>> { return [[1]] }',
             'fn bad() -> array<string> { return [1] }',
             'fn bad() -> array<int> { return ["wrong"] }',
