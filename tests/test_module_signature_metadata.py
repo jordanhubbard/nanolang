@@ -14,10 +14,10 @@ shadow echo { let values: array<array<int>> = [[7]] let result: array<array<int>
 pub fn apply(f: fn(array<array<int>>) -> array<array<int>>, value: array<array<int>>) -> array<array<int>> { return (f value) }
 shadow apply { let values: array<array<int>> = [[7]] let result: array<array<int>> = (apply echo values) assert (== (at (at result 0) 0) 7) }
 '''
-SOURCE = '''module "callbacks.nano" as cb
+SOURCE = '''from "callbacks.nano" import apply
 fn identity(value: array<array<int>>) -> array<array<int>> { return value }
 shadow identity { let values: array<array<int>> = [[7]] let result: array<array<int>> = (identity values) assert (== (at (at result 0) 0) 7) }
-fn main() -> int { let values: array<array<int>> = [[7]] let result: array<array<int>> = (cb.apply identity values) assert (== (at (at result 0) 0) 7) return 0 }
+fn main() -> int { let values: array<array<int>> = [[7]] let result: array<array<int>> = (apply identity values) assert (== (at (at result 0) 0) 7) return 0 }
 shadow main { assert (== (main) 0) }
 '''
 
