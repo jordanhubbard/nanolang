@@ -193,6 +193,27 @@ static bool ast_references_name(ASTNode *node, const char *name) {
     }
 }
 
+/* I admit only closed scalar expressions in the first passive frontend slice. */
+static bool par_scalar_expression(ASTNode *node, Environment *env) {
+    if (!node) return false;
+    switch (node->type) {
+        case AST_NUMBER: case AST_FLOAT: case AST_BOOL: case AST_STRING:
+            return true;
+        case AST_IDENTIFIER: {
+            Symbol *symbol = env_get_var_visible_at(env, node->as.identifier, node->line, node->column);
+            return symbol && !symbol->is_mut && !symbol->is_resource &&
+                (symbol->type == TYPE_INT || symbol->type == TYPE_FLOAT ||
+                 symbol->type == TYPE_BOOL || symbol->type == TYPE_STRING);
+        }
+        case AST_PREFIX_OP:
+            for (int i = 0; i < node->as.prefix_op.arg_count; ++i)
+                if (!par_scalar_expression(node->as.prefix_op.args[i], env)) return false;
+            return true;
+        default:
+            return false;
+    }
+}
+
 /* Helper: Check if symbol was explicitly imported via selective import */
 static bool is_symbol_imported(const char *symbol_name, const char *module_path, Environment *env) {
     if (!env->import_tracker) return true;  /* No tracking = allow all */
@@ -5077,10 +5098,32 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_PAR_BLOCK: {
-            /* Verify par block bindings: each must be a let, evaluated sequentially */
-            for (int i = 0; i < stmt->as.par_block.count; i++) {
-                check_statement(tc, stmt->as.par_block.bindings[i]);
+            int count = stmt->as.par_block.count;
+            bool valid = count > 0;
+            for (int i = 0; i < count; ++i) {
+                ASTNode *binding = stmt->as.par_block.bindings[i];
+                if (!binding || binding->type != AST_LET || binding->as.let.is_mut) {
+                    valid = false;
+                    continue;
+                }
+                if (!par_scalar_expression(binding->as.let.value, tc->env)) valid = false;
+                for (int j = 0; j < count; ++j) {
+                    ASTNode *other = stmt->as.par_block.bindings[j];
+                    if (!other || other->type != AST_LET) continue;
+                    if ((i != j && !strcmp(binding->as.let.name, other->as.let.name)) ||
+                        ast_references_name(binding->as.let.value, other->as.let.name)) valid = false;
+                }
             }
+            if (!valid) {
+                emit_context_error("E0036 PASSIVE PAR", stmt->line, stmt->column, 3,
+                    "I require nonempty independent immutable scalar let bindings in par; calls and aggregates remain unsupported.",
+                    "Use independent scalar expressions without calls or mutation.");
+                tc->has_error = true;
+                return TYPE_VOID;
+            }
+            /* Only after checking every initializer do bindings enter the scope. */
+            for (int i = 0; i < count; ++i)
+                check_statement(tc, stmt->as.par_block.bindings[i]);
             return TYPE_VOID;
         }
 

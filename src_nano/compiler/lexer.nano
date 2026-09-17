@@ -89,6 +89,7 @@ shadow keyword_group1 {
 }
 
 pure fn keyword_group2(s: string) -> int {
+    if (== s "par") { return LexerTokenType.TOKEN_PAR }
     if (== s "extern") { return LexerTokenType.TOKEN_EXTERN } else {
         if (== s "fn") { return LexerTokenType.TOKEN_FN } else {
             if (== s "let") { return LexerTokenType.TOKEN_LET } else {
@@ -149,6 +150,7 @@ pure fn keyword_group2(s: string) -> int {
 }
 
 shadow keyword_group2 {
+    assert (== (keyword_group2 "par") LexerTokenType.TOKEN_PAR)
     assert (== (keyword_group2 "fn") 24)       /* TOKEN_FN */
     assert (== (keyword_group2 "let") 25)      /* TOKEN_LET */
     assert (== (keyword_group2 "if") 28)       /* TOKEN_IF */
