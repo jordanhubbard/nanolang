@@ -8619,6 +8619,11 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I initialize every generated list parameter annotation before compiled
+      metadata extraction. PR487 exposed unset signature pointers in the three
+      list parameter allocations; I retain a poisoned-allocation regression
+      and require a fresh full native bootstrap before completing this repair
+      (`task_402e6b8289fc4f58b79ef5559a68dce3`).
 - [ ] I investigate GCC 13’s strict `-O1` sanitizer-build diagnostic for
       `nanocore_export.c` `sbuf_appendf`: inlined `vsnprintf` reports a null
       format string. My normal strict build passes; this is a configuration
