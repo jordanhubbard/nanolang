@@ -80,3 +80,12 @@ verifies and executes. Final logs are
 `/tmp/nanolang-owned-runtime-final-seed.log` and
 `/tmp/nanolang-owned-runtime-final-seed-hello.log`. My final documentation commit
 does not alter these compiler or test inputs.
+
+After PR560/563 advance main to `8311aa17`, I restack at `9aec7914` and
+preserve their F64/Wasm gates and fixed-point evidence. The owned VM handlers,
+shared eligibility verifier, private native lowering and focused runtime tests
+are byte-for-byte unchanged from my reviewed implementation. I repeat 1,051
+paired runtime checks, 32 VM allocation checks, 184/272 transfer checks,
+17 LLVM methods and 11 WebAssembly methods on that integrated tree. The log is
+`/tmp/nanolang-owned-runtime-pr564-restack.log`. I resolve only additive roadmap
+conflicts; this checkpoint does not admit reference or caller operations.
