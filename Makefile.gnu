@@ -4514,3 +4514,9 @@ test-nested-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $
 test-units: test-u8-strings
 test-u8-strings: nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_u8_string_conversion.U8Strings.test_all_unsigned_decimal_values_and_tags tests.test_u8_string_conversion.U8Strings.test_returned_alias_survives_conversion_churn
+
+.PHONY: test-caller-reference-analysis
+test-units: test-caller-reference-analysis
+test-caller-reference-analysis: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_caller_reference_analysis tests/nanoisa/test_caller_reference_analysis.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_caller_reference_analysis

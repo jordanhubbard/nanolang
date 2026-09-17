@@ -10,7 +10,9 @@ typedef struct {
     NvmV2Layouts layouts;
     uint8_t *flags;
     Slot result, *locals;
-    uint16_t count;
+    uint16_t count, params;
+    const NvmModule *module;
+    uint32_t function;
 } Facts;
 typedef struct {
     bool live;
@@ -22,6 +24,10 @@ struct NvmAffineState {
     bool *live;
     Reference *refs;
     uint32_t ref_count, region;
+    bool caller_bound;
+    uint64_t invocation, origin_invocation;
+    uint16_t origin_local;
+    uint32_t origin_layout;
 };
 static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT || tag == TAG_BOOL;
@@ -60,7 +66,8 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
     if (!s) return NULL;
     s->facts=calloc(1,sizeof(*s->facts));
     if (!s->facts) { free(s); return NULL; }
-    Facts *f=s->facts; f->users=1;
+    Facts *f=s->facts; f->users=1; f->module=m; f->function=function;
+    s->invocation=1;
     if (nvm_v2_layouts_decode(m->layout_data,m->layout_size,&f->layouts)!=NVM_V2_OK) goto fail;
     NvmV2Cursor c; nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
     uint32_t ignored, count; const uint8_t *flags;
@@ -77,7 +84,7 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
             !slot_read(&c,&result)) goto fail;
         if (i==function) {
             if (result.tag != TAG_VOID && !supported(result)) goto fail;
-            f->count=locals; f->result=result;
+            f->count=locals; f->params=params; f->result=result;
             f->locals=calloc(locals ? locals : 1,sizeof(*f->locals));
             if (!f->locals) goto fail;
         }
@@ -113,6 +120,9 @@ NvmAffineState *nvm_affine_state_clone(const NvmAffineState *s) {
     if (!out) return NULL;
     out->facts=s->facts; out->facts->users++;
     out->ref_count=s->ref_count; out->region=s->region;
+    out->caller_bound=s->caller_bound; out->invocation=s->invocation;
+    out->origin_invocation=s->origin_invocation; out->origin_local=s->origin_local;
+    out->origin_layout=s->origin_layout;
     out->live=malloc((s->facts->count ? s->facts->count : 1)*sizeof(*s->live));
     out->refs=calloc(s->ref_count ? s->ref_count : 1,sizeof(*s->refs));
     if (!out->live || !out->refs) goto fail;
@@ -132,7 +142,9 @@ fail:
 }
 bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b) {
     if (!a || !b || a->facts!=b->facts || a->region!=b->region ||
-        a->ref_count!=b->ref_count || memcmp(a->live,b->live,a->facts->count*sizeof(*a->live))) return false;
+        a->ref_count!=b->ref_count || a->caller_bound!=b->caller_bound ||
+        a->invocation!=b->invocation || a->origin_invocation!=b->origin_invocation ||
+        a->origin_local!=b->origin_local || a->origin_layout!=b->origin_layout || memcmp(a->live,b->live,a->facts->count*sizeof(*a->live))) return false;
     for (uint32_t i=0;i<a->ref_count;i++) {
         const Reference *x=&a->refs[i],*y=&b->refs[i];
         if (x->live!=y->live) return false;
@@ -165,7 +177,7 @@ bool nvm_affine_owner_access(const NvmAffineState *s,uint16_t local,
                               const uint16_t *path,uint16_t count,bool write) {
     Slot slot;
     if (!value_local(s,local) || !s->live[local] || !resolve(s,local,path,count,&slot)) return false;
-    NvmReferencePlace place={1,local,s->facts->locals[local].layout,path,count,
+    NvmReferencePlace place={s->invocation,local,s->facts->locals[local].layout,path,count,
                               slot.layout,NVM_REFERENCE_SHARED};
     for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live &&
         nvm_reference_owner_access_conflicts(&s->refs[i].place,&place,write)) return false;
@@ -236,7 +248,11 @@ static bool ancestor(const NvmAffineState *s,uint32_t possible,uint32_t child) {
 }
 static bool borrow_install(NvmAffineState *s,uint32_t id,NvmReferencePlace place,uint32_t parent) {
     if (!s || !s->region || id>=s->ref_count || s->refs[id].live ||
-        !nvm_reference_place_valid(&s->facts->layouts,s->facts->locals[place.local].layout,&place) ||
+        !nvm_reference_place_valid(&s->facts->layouts,
+            s->caller_bound && place.invocation==s->origin_invocation &&
+            place.local==s->origin_local ? s->origin_layout :
+            (place.invocation==s->invocation && place.local<s->facts->count ?
+                s->facts->locals[place.local].layout : NVM_V2_NO_INDEX),&place) ||
         !resource(s->facts,(Slot){TAG_STRUCT,0,place.referent_layout})) return false;
     for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live &&
         !ancestor(s,i,parent) && nvm_reference_holds_conflict(&s->refs[i].place,&place)) return false;
@@ -252,7 +268,7 @@ bool nvm_affine_borrow(NvmAffineState *s,uint32_t id,uint16_t root,
                         const uint16_t *path,uint16_t count,NvmReferenceMode mode) {
     Slot slot;
     if (!value_local(s,root) || !s->live[root] || !resolve(s,root,path,count,&slot)) return false;
-    return borrow_install(s,id,(NvmReferencePlace){1,root,s->facts->locals[root].layout,
+    return borrow_install(s,id,(NvmReferencePlace){s->invocation,root,s->facts->locals[root].layout,
         path,count,slot.layout,mode},UINT32_MAX);
 }
 bool nvm_affine_reborrow(NvmAffineState *s,uint32_t id,uint32_t parent,NvmReferenceMode mode) {
@@ -292,6 +308,7 @@ bool nvm_affine_local_info(const NvmAffineState *s,uint16_t local,
                             uint8_t *tag,uint8_t *mode) {
     if (!s || local>=s->facts->count || !s->live[local] || !tag || !mode) return false;
     Slot slot=s->facts->locals[local];
+    if (s->caller_bound && slot.mode) return false;
     if (!slot.mode && !nvm_affine_owner_access(s,local,NULL,0,false)) return false;
     *tag=slot.tag; *mode=slot.mode; return true;
 }
@@ -349,5 +366,44 @@ bool nvm_affine_can_exit_type(const NvmAffineState *s,NvmAffineType type) {
     if (!s || s->region || !same(s->facts->result,(Slot){type.tag,0,type.layout})) return false;
     for (uint16_t i=0;i<s->facts->count;i++) if (s->live[i] &&
         !s->facts->locals[i].mode && resource(s->facts,s->facts->locals[i])) return false;
+    return true;
+}
+
+/* I bind only a fresh single-parameter helper. The caller is unchanged: the
+ * whole synchronous call is one checked transition, and its authority is
+ * restored after the separately analyzed callee has discharged its regions. */
+bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
+                             uint32_t reference) {
+    if (!callee || !caller || callee->caller_bound || caller->caller_bound ||
+        callee->facts->module!=caller->facts->module ||
+        caller->facts->function!=0 || callee->facts->function!=1 ||
+        callee->facts->params!=1 || !callee->ref_count || callee->region ||
+        reference>=caller->ref_count || !caller->refs[reference].live)
+        return false;
+    for (uint32_t i=1;i<callee->ref_count;i++) if (callee->refs[i].live) return false;
+    for (uint16_t i=1;i<callee->facts->count;i++) if (callee->live[i]) return false;
+    Slot param=callee->facts->locals[0];
+    NvmReferencePlace place=caller->refs[reference].place;
+    if (param.tag!=TAG_STRUCT || !param.mode || param.layout!=place.referent_layout ||
+        (param.mode==NVM_REFERENCE_EXCLUSIVE && place.mode!=NVM_REFERENCE_EXCLUSIVE))
+        return false;
+    place.mode=(NvmReferenceMode)param.mode;
+    for (uint32_t i=0;i<caller->ref_count;i++) if (caller->refs[i].live &&
+        !ancestor(caller,i,reference) &&
+        nvm_reference_holds_conflict(&caller->refs[i].place,&place)) return false;
+    if (place.invocation!=caller->invocation || place.local>=caller->facts->count ||
+        !nvm_reference_place_valid(&caller->facts->layouts,
+            caller->facts->locals[place.local].layout,&place)) return false;
+    uint16_t *path=NULL;
+    if (place.field_count) {
+        path=malloc(place.field_count*sizeof(*path)); if (!path) return false;
+        memcpy(path,place.fields,place.field_count*sizeof(*path));
+    }
+    free((void*)callee->refs[0].place.fields);
+    place.fields=path;
+    callee->refs[0]=(Reference){true,0,UINT32_MAX,place};
+    callee->caller_bound=true; callee->invocation=2;
+    callee->origin_invocation=place.invocation; callee->origin_local=place.local;
+    callee->origin_layout=caller->facts->locals[place.local].layout;
     return true;
 }

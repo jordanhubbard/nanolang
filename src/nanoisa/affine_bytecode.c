@@ -52,8 +52,11 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
         f->stack[f->count-1].tag!=tag) return false;
     f->count--;return true;
 }
+static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
+                                   const NvmAffineState *caller,uint32_t reference);
 static bool supported(uint8_t op) {
     switch(op) {
+    case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
@@ -71,11 +74,22 @@ static bool supported(uint8_t op) {
     default:return false;
     }
 }
-static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module) {
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
     case OP_NOP: case OP_JMP: return NULL;
+    case OP_CALL_REF: {
+        if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1)
+            return "I require entry-to-helper reference calls without recursion";
+        NvmAffineAnalysis call=analyze(module,1,f->locals,in->operands[1].u16);
+        if (!call.ok) return "I require checked caller authority and a non-escaping helper";
+        tag=module->functions[1].result_tag;
+        if (module->functions[1].result_count!=1 ||
+            (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8))
+            return "I require a single scalar reference-call result";
+        break;
+    }
     case OP_PUSH_I64:tag=TAG_INT;break;
     case OP_PUSH_U8:tag=TAG_U8;break;
     case OP_PUSH_F64:tag=TAG_FLOAT;break;
@@ -234,7 +248,8 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,uint32_t
     }
     return true;
 }
-NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
+static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
+                                   const NvmAffineState *caller,uint32_t reference) {
     NvmAffineAnalysis result={0};
     const char *error="I require checked ownership declarations";
     VmDecodedFunction decoded={0};Frame **frames=NULL;uint32_t *work=NULL;
@@ -247,6 +262,9 @@ NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t functi
     }
     NvmAffineState *initial=nvm_affine_state_create(m,function,entry->local_count);
     if (!initial) goto done;
+    if (caller && !nvm_affine_bind_caller(initial,caller,reference)) {
+        nvm_affine_state_free(initial);error="I require exact caller-origin parameter authority";goto done;
+    }
     char detail[VM_DECODE_ERROR_SIZE];
     if (!vm_decode_function(m,function,&decoded,detail)) {
         nvm_affine_state_free(initial);error="I require decodable function control flow";goto done;
@@ -283,7 +301,7 @@ NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t functi
                 error="I require an exact scalar result and no live owned obligations";goto done;
             }
         } else {
-            error=step(current,&instruction->instruction,entry->local_count,m);
+            error=step(current,&instruction->instruction,entry->local_count,m,function);
             if (error) goto done;
             if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
@@ -305,4 +323,8 @@ done:
     free(frames);free(work);vm_decoded_function_free(&decoded);
     if (error) snprintf(result.message,sizeof(result.message),"%s",error);
     return result;
+}
+
+NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
+    return analyze(m,function,NULL,0);
 }

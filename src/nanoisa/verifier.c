@@ -876,7 +876,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
             DecodedInstruction instruction;
             uint32_t count=isa_decode(mod->code+fn->code_offset+offset,fn->code_length-offset,&instruction);
             if (!count) break;
-            if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_OWN_UNPACK_LOCAL) ||
+            if ((instruction.opcode>=OP_OWN_MOVE_LOCAL && instruction.opcode<=OP_CALL_REF) ||
                 (instruction.opcode>=OP_REGION_BEGIN && instruction.opcode<=OP_REBORROW_EXCLUSIVE)) return true;
             offset+=count;
         }

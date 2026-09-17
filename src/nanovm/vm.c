@@ -1242,6 +1242,7 @@ VmTrap vm_core_execute(VmState *vm) {
             vm_labels[label_index] = &&L_vm_default;
         vm_labels[OP_BORROW_PATH_SHARED] = &&L_OP_BORROW_PATH_SHARED;
         vm_labels[OP_BORROW_PATH_EXCLUSIVE] = &&L_OP_BORROW_PATH_EXCLUSIVE;
+        vm_labels[OP_CALL_REF] = &&L_OP_CALL_REF;
         vm_labels[OP_REBORROW_SHARED] = &&L_OP_REBORROW_SHARED;
         vm_labels[OP_REBORROW_EXCLUSIVE] = &&L_OP_REBORROW_EXCLUSIVE;
         vm_labels[OP_REGION_BEGIN] = &&L_OP_REGION_BEGIN;
@@ -1631,6 +1632,9 @@ vm_dispatch_top:
             }
             VM_NEXT();
         }
+
+        VM_CASE(OP_CALL_REF)
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require connected caller-reference execution semantics");
 
         VM_CASE(OP_REGION_BEGIN)
             if (!owned_execution || vm->references.region==UINT32_MAX)
