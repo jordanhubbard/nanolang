@@ -269,3 +269,29 @@ The canonical assembler still refuses executable publication of such modules;
 its non-executing reconstruction API may retain them for codec/verifier tests.
 I require OWNERSHIP metadata and exact resource declarations; ordinary loads,
 stores and aggregate operations do not become implicit transfers.
+
+## Standalone owned-transfer execution contract
+
+I next admit one function at entry zero with zero parameters and captures, no
+imports, and exactly one int, bool or u8 result. I require ownership metadata,
+complete finite record layouts with only those scalar leaves or earlier record
+layouts, and successful structural plus affine analysis. All locals have value
+mode. I reject floats, calls, reference modes/operations, globals, collections,
+aggregate results and linked ownership contracts. The same eligibility query
+must govern normal verification, VM execution and native translation; there is
+no separate bypass API. My supported instruction set is the non-floating affine
+subset, including the four explicit transfers, scalar field observations and
+branches/loops whose joins preserve exact obligations.
+
+A move transfers a record pointer and clears the source slot. A store consumes
+its stack owner into its exact declared slot. Pack allocates one record shell
+and transfers each field in declaration order. Unpack transfers every field,
+clears the source and shell fields, then releases the empty shell. I neither
+copy a resource nor implement ownership as copy/writeback. Allocation failure
+must leave remaining live roots reclaimable; loop execution must reclaim
+consumed shells instead of accumulating them. VM and emitted native execution
+must agree on scalar results, including nested transfers and balanced branches.
+I require sanitizer-backed cleanup tests and unchanged prior outputs for
+excluded modules before enabling this subset. Caller alias substitution,
+shared/exclusive references, owned call/results and source producer admission
+remain separate acceptance obligations.
