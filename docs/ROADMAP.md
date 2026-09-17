@@ -181,9 +181,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       does not close the paired callback execution and ownership boundary below.
       See `docs/evidence/function-signature-storage.md`.
 
+- [x] I preserve concrete union arguments when I render selfhost function-value
+      signatures and array element types. I test nested ordinary types and
+      distinguish this identity repair from callback lowering and ownership.
+      MAC `task_8ef982b488d8421fb7e5b5ea280e7d2c`; evidence in
+      `docs/evidence/selfhost-callback-identity.md`.
+
 - [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
-      stores flattened nominal names rather than complete parameter and return
-      `TypeInfo`. I require parse/copy/lifetime preservation and paired ordinary
+      now owns complete annotation trees. I still require comparison, lowering,
+      serialization and paired ordinary
       generic callback execution plus conservative resource rejection before
       claiming complete function-value ownership. This representation gap does
       not establish an executable ownership escape. My `fn()->Box<int>` probe
