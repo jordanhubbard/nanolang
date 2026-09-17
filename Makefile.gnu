@@ -4240,6 +4240,10 @@ test-units: test-native-nested-generics
 test-native-nested-generics: bootstrap
 	python3 -m unittest tests.test_native_nested_generics
 
+.PHONY: test-generic-selected-patterns
+test-units: test-generic-selected-patterns
+test-generic-selected-patterns: bootstrap
+	python3 -m unittest -v tests.test_generic_selected_patterns
 .PHONY: test-selfhost-generic-contexts
 test-selfhost-generic-contexts: bootstrap
 	python3 -m unittest -v tests.test_selfhost_generic_contexts

@@ -4105,22 +4105,20 @@ fn owned_pattern_complete(parser: Parser, binding: ASTLet) -> bool {
     set i 0
     while (and (not found) (< i (parser_get_union_count parser))) {
         let definition: ASTUnion = (parser_get_union parser i)
-        if (== (array_length definition.generic_params) 0) {
-            let mut offset: int = 0
-            let mut variant: int = 0
-            while (< variant definition.variant_count) {
-                let count: int = (at definition.variant_field_counts variant)
-                if (== binding.var_type (+ (+ definition.name ".") (at definition.variant_names variant))) {
-                    set found true
-                    let mut field: int = 0
-                    while (< field count) {
-                        set names (array_push names (at definition.variant_field_names (+ offset field)))
-                        set field (+ field 1)
-                    }
+        let mut offset: int = 0
+        let mut variant: int = 0
+        while (< variant definition.variant_count) {
+            let count: int = (at definition.variant_field_counts variant)
+            if (== binding.var_type (+ (+ definition.name ".") (at definition.variant_names variant))) {
+                set found true
+                let mut field: int = 0
+                while (< field count) {
+                    set names (array_push names (at definition.variant_field_names (+ offset field)))
+                    set field (+ field 1)
                 }
-                set offset (+ offset count)
-                set variant (+ variant 1)
             }
+            set offset (+ offset count)
+            set variant (+ variant 1)
         }
         set i (+ i 1)
     }
@@ -4144,12 +4142,23 @@ shadow owned_pattern_complete {
     assert (owned_pattern_complete parsed (parser_get_let parsed 1))
     let bad: Parser = (resource_test_parser "struct Box { item: int } fn unpack(box: Box) -> int { let Box {} = box return 0 }")
     assert (not (owned_pattern_complete bad (parser_get_let bad 1)))
+    let generic: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } fn unpack(box: Box<int>) -> int { match box { Some(payload) => { let Box.Some { value } = payload return value } None(payload) => { return 0 } } }")
+    assert (owned_pattern_complete generic (parser_get_let generic 1))
 }
 
 fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
     if (and let_node.is_destructure (not (owned_pattern_complete parser let_node))) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require every record or selected variant field exactly once in an owned pattern." (Diagnostics.diag_location file_name let_node.line let_node.column)))
         return symbols
+    }
+    if let_node.is_destructure {
+        let selected: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
+        if (or (!= selected.kind TypeKind.TYPE_STRUCT) (!= selected.name let_node.var_type)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require the pattern to name the selected record or variant." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+            return symbols
+        }
+        # Preserve the concrete union arguments on the hidden payload alias.
+        return (env_add_symbol symbols (symbol_new let_node.name selected let_node.is_mut false 0 (empty_param_types) (type_void)))
     }
     # Allow variable redefinition (shadowing) to match C reference compiler behavior.
     # Shadow tests commonly reuse names (e.g., `let result` across multiple asserts).
@@ -4158,7 +4167,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
     if (== let_node.var_type "") {
         if (>= let_node.value 0) {
             let inferred: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
-            let inferred_str: string = (type_to_string inferred)
+            let inferred_str: string = (cond ((and (== inferred.kind TypeKind.TYPE_UNION) (!= inferred.element_type_name "")) inferred.element_type_name) (else (type_to_string inferred)))
             /* Backfill the type into the AST so the transpiler can use it */
             (parser_set_let_var_type parser node_id inferred_str)
             let sym: Symbol = (symbol_new let_node.name inferred let_node.is_mut false 0 (empty_param_types) (type_void))
@@ -4222,6 +4231,14 @@ shadow check_let_statement {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (check_let_statement parser (parser_get_let parser 0) 0 symbols diags "map.nano")
     assert (> (list_CompilerDiagnostic_length diags) 0)
+    let generic: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } fn main() -> int { let copy = source return 0 }")
+    let concrete: NSType = (type_from_string_with_parser generic "Box<int>")
+    let source_symbols: array<Symbol> = [(symbol_new "source" concrete false false 0 (empty_param_types) (type_void))]
+    let clean: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement generic (parser_get_let generic 0) 0 source_symbols clean "generic.nano")
+    assert (== (list_CompilerDiagnostic_length clean) 0)
+    let copied: ASTLet = (parser_get_let generic 0)
+    assert (== copied.var_type "Box<int>")
 }
 
 /* NSType check a return statement

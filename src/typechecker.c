@@ -4148,7 +4148,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     for (int u = 0; u < tc->env->union_count; ++u) {
                         UnionDef *def = &tc->env->unions[u];
                         size_t length = strlen(def->name);
-                        if (def->generic_param_count || strncmp(pattern, def->name, length) || pattern[length] != '.') continue;
+                        if (strncmp(pattern, def->name, length) || pattern[length] != '.') continue;
                         for (int v = 0; v < def->variant_count; ++v) {
                             if (strcmp(pattern + length + 1, def->variant_names[v])) continue;
                             field_count = def->variant_field_counts[v];
@@ -4176,6 +4176,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     fprintf(stderr, "I require every record or selected variant field exactly once in an owned pattern at line %d.\n", stmt->line);
                     tc->has_error = true;
                     return TYPE_VOID;
+                }
+                /* The hidden whole-payload binding owns a copy of the concrete
+                 * arguments. Its projected fields use the same substitution as
+                 * direct selected-variant field access. */
+                TypeInfo *selected = try_get_expr_type_info(stmt->as.let.value, tc->env);
+                if (variant_pattern && selected) {
+                    free_payload_type_info(stmt->as.let.type_info);
+                    stmt->as.let.type_info = copy_payload_type_info(selected);
                 }
             }
             /* INVARIANT (bead nl-ico): declared_type is a local working copy
@@ -4205,6 +4213,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if ((inferred == TYPE_STRUCT || inferred == TYPE_UNION) && !stmt->as.let.type_name) {
                     const char *name = get_struct_type_name(stmt->as.let.value, tc->env);
                     if (name) stmt->as.let.type_name = strdup(name);
+                }
+                if (!stmt->as.let.type_info) {
+                    stmt->as.let.type_info = copy_payload_type_info(
+                        try_get_expr_type_info(stmt->as.let.value, tc->env));
                 }
                 /* Register and add to env */
                 Value val = create_void();
