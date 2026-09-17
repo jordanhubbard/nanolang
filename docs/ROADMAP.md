@@ -12,7 +12,7 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**The full 5.0 roadmap is my active completion contract.** On 2026-09-16
+**The full 5.0 roadmap is my v5.0.1 completion contract.** On 2026-09-16
 my user explicitly selected every 5.0 obligation, including NanoISA-only
 compilation and matching Stage 1/Stage 2 bytecode. My published
 [`v5.0.0`](https://github.com/jordanhubbard/nanolang/releases/tag/v5.0.0)
@@ -20,7 +20,9 @@ contains tested language/runtime repairs, but it does not complete that
 architecture. `docs/RELEASE_5.0.md` records that historical release;
 `docs/NANOISA_ONLY.md` and the unchecked 5.0 milestones below govern the
 remaining work. I preserve the published tag and do not redefine an unfinished
-gate as complete. Phase 22 / 6.0 remains separate.
+gate as complete. My user assigned all remaining work to v5.0.1 on
+2026-09-16. I hold release publication until these gates pass; the native map
+lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separate.
 
 ## Active Execution Queue
 
@@ -30,7 +32,7 @@ gate as complete. Phase 22 / 6.0 remains separate.
       the intended call-order fix separately and require a focused reapplication.
       MAC `task_3665bd4322b35fb959ef77a46f761a0a`.
 
-- [ ] **Complete the full 5.0 acceptance contract.** I reconcile dated and
+- [ ] **Complete the full 5.0 acceptance contract for v5.0.1.** I reconcile dated and
       duplicate ledger entries against current code, then complete the remaining
       5.0 work in dependency order. I distinguish a closed repair from a complete
       architectural milestone. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.

@@ -11,7 +11,8 @@ compilation and matching compiler bytecode. This document records the narrower
 published artifact; it does not replace the acceptance criteria in
 [my roadmap](ROADMAP.md) and [One IR contract](NANOISA_ONLY.md). Those criteria
 remain mandatory. I preserve this tag as history and will publish new evidence
-only after the full contract passes.
+only after the full contract passes. My next release, v5.0.1, must satisfy
+that full contract; it is not limited to the native map lifetime repair.
 
 ## What changes
 
