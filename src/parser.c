@@ -46,6 +46,19 @@ static void parser_error(Stage1Parser *p, int line, int column, const char *fmt,
 }
 
 /* Helper functions */
+static char *join_qualified_type_name(const char *owner, const char *name) {
+    if (!owner || !name) return NULL;
+    size_t owner_len = strlen(owner);
+    size_t name_len = strlen(name);
+    if (name_len > SIZE_MAX - 2 || owner_len > SIZE_MAX - name_len - 2) return NULL;
+    char *qualified = malloc(owner_len + name_len + 2);
+    if (!qualified) return NULL;
+    memcpy(qualified, owner, owner_len);
+    qualified[owner_len] = '.';
+    memcpy(qualified + owner_len + 1, name, name_len + 1);
+    return qualified;
+}
+
 static Token *current_token(Stage1Parser *p) {
     if (!p) {
         return NULL;
@@ -376,8 +389,8 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         return TYPE_UNKNOWN;
                     }
                     /* Build qualified name: Module.Type */
-                    char *qualified_name = NULL;
-                    if (asprintf(&qualified_name, "%s.%s", type_name, type_tok->value) < 0) {
+                    char *qualified_name = join_qualified_type_name(type_name, type_tok->value);
+                    if (!qualified_name) {
                         free(type_name);
                         parser_error(p, type_tok->line, type_tok->column, "I cannot allocate a qualified type name\n");
                         return TYPE_UNKNOWN;
@@ -1059,7 +1072,8 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 Token *dot = peek_token(p, 1);
                 Token *rhs = peek_token(p, 2);
                 if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    if (asprintf(&struct_name, "%s.%s", type_token->value, rhs->value) < 0) {
+                    struct_name = join_qualified_type_name(type_token->value, rhs->value);
+                    if (!struct_name) {
                         free(param_list);
                         parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified parameter type\n");
                         return false;
@@ -3126,7 +3140,8 @@ static ASTNode *parse_statement(Stage1Parser *p) {
                         Token *dot = peek_token(p, 1);
                         Token *rhs = peek_token(p, 2);
                         if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                            if (asprintf(&type_name, "%s.%s", type_token->value, rhs->value) < 0) {
+                            type_name = join_qualified_type_name(type_token->value, rhs->value);
+                            if (!type_name) {
                                 free(name);
                                 parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified local type\n");
                                 return NULL;

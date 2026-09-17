@@ -58,6 +58,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         My self-hosted ownership walker also rejects every ordinary match when
         a resource declaration exists; I add branch traversal with ownership
         joins while retaining resource-payload rejection and unsupported guards.
+        I also retain inline union constructor identity in C ownership lookup;
+        the new negative case otherwise incorrectly admits an unresolved owner.
         I repair these prerequisites before accepting the positive cases.
       - [ ] I complete nested generic List/HashMap type preservation and paired
         ownership diagnostics while retaining conservative rejection.
@@ -68,6 +70,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [ ] I restore the required full compiler AOT gate through the separately
         recorded exact artifact-binding repair. Owned payload transfer above
         remains open; I do not claim the complete generic ownership contract.
+
+- [x] **v5.0.1 C-seed global initializer context.** I apply declared map and
+      array types before checking top-level initializers, matching local
+      declarations. I test typed constant maps, empty string arrays, and
+      rejected mismatches through my native and VM frontends.
+      MAC: `task_026e73d59e9e45b0b732b43883feea9a`.
 
 - [x] **v5.0.1 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
@@ -95,6 +103,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         traversal. A `Box<Handle>` annotation exposed uninitialized row fields
         and a C-seed crash; I retain generic resource rejection and test ordinary
         scalar/array generic annotations under allocator perturbation.
+      - [x] I preserve those qualified annotations without GNU `asprintf`;
+        strict Darwin C99 must build the parser with overflow-checked portable
+        allocation (`task_af9ed9b1529b4c65853e5669d4171126`).
 
 - [ ] **Passive immutable input proofs.** I prove external input values before
       admitting their reads in eligibility metadata; declared signature tags
@@ -208,6 +219,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       undefined `nl_str_starts_with` while compiling Stage 2 shadows.
       MAC `task_894769717bba4e0f8ea11432098406fc`. I rebuilt Stage 2,
       passed native/no-C-seed smoke checks and seven prefix-boundary assertions.
+
+- [x] **Canonical executable NanoISA reachability.** I route explicit
+      `nanoc_v06 --emit-nvm` through the program-closure API after full binding,
+      type checks and shadow execution. Unreachable unsupported helpers may be
+      excluded from executable bytecode; their shadows must still run and can
+      reject publication without replacing prior output.
+      MAC `task_771b3fdc89aa42f7bf100ce7bfd0d40d`.
+      My fresh three-stage bootstrap and all five canonical driver methods pass.
 
 - [x] **Canonical checked frontend NanoISA output route.** I accept explicit
       `--emit-nvm` after import merging, binding, typechecking and dependency/root
@@ -8049,10 +8068,44 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower canonical program globals and ordered runtime initialization
-      (`task_5a019d3f83cc43d1beb7ace8c8c7388c`). The intermediate executable
-      closure pass refuses top-level lets instead of omitting their effects.
-      This remains required for full compiler emission and bootstrap.
+- [ ] I lower finite nested compiler record and typed-list field shapes;
+      after `MergeResult`, actual canonical emission first refuses
+      `List<CompilerDiagnostic>` because its location is a nested record
+      (`task_2c3445862de74affa5d2bf624c8c5986`).
+- [x] I infer scalar array literal tags from computed element types; direct
+      `[(int_to_string 7)]` now retains its string element tag. The old module
+      fails its VM assertion; repaired C-seed/VM/AOT parity and malformed
+      refusals pass within 86 checks and 26 integration methods
+      (`task_0a57dab79901497b8e5a6a5ae87df9fb`).
+- [x] I lower scalar-array-bearing records required by canonical `MergeResult`,
+      preserving typed fields through construction, access, calls and returns
+      (`task_468477ec7699402a8dfb92830c5ed40f`). All 86 checks and 25
+      integration methods pass, including VM/AOT array identity and empty
+      element tags. Nested records and other array element kinds remain
+      refused; `docs/evidence/selfhost-array-record-fields.md` records scope.
+- [ ] I carry record and map globals through standalone AOT with runtime
+      tags, field/map access and lifetime roots; generic scalar global values
+      do not establish this support (`task_95796f5f49564ed4a911fd05a1aac5b4`).
+- [x] I preserve declared global constructor contexts in my C seed, accepting
+      typed map construction and emitting the string tag for empty string
+      arrays (`task_026e73d59e9e45b0b732b43883feea9a`).
+- [x] I infer array and typed-list element access results in expression
+      contexts instead of requiring an explicit intermediate local. I reject
+      invalid containers, indices and mismatched typed accessors; 86 checks
+      and 23 integration methods pass
+      (`task_1c4da3f9cf804bbf95005ad3f603ef26`).
+- [ ] I bind imported global values and their selective/qualified aliases
+      across canonical checking, native and NanoISA emission without confusing
+      same-name declarations from different owners
+      (`task_2713a842846b417fbfd6aa4b8059d0dd`). Owner-local storage does
+      not establish imported-value binding support.
+- [x] I lower supported owner-local globals and ordered runtime initialization
+      through `__init__`, retaining every initializer as an executable root
+      (`task_5a019d3f83cc43d1beb7ace8c8c7388c`). Scalar/string-array globals
+      match my C seed and run in VM/AOT; flat-record/map globals match and run
+      in VM. Imported-value binding and aggregate AOT remain separate required
+      tasks. All 86 checks and 21 integration methods pass;
+      `docs/evidence/selfhost-global-initialization.md` records the boundary.
 - [x] I expose an explicit executable API that roots main and preserves its
       bound direct-call closure, including recursion. I refuse globals and
       unresolved function values until their lowering preserves initialization
@@ -8066,6 +8119,9 @@ Compiler product:
 - [x] I keep conservatively emitted scalar-array push helpers valid under
       strict native compilation when only one array kind is pushed
       (`task_2dedfc5f181f41d4951eed8927648306`).
+      - [x] I keep the same optional helpers warning-clean under Clang, which
+        still diagnoses an unused `static inline` helper under `-Werror`
+        (`task_4c32ccf895f5435998cd4982c7dd4087`).
 - [x] I preserve declared scalar element tags for empty array locals,
       assignments, arguments and returns; a typed empty string local currently
       differs from my C seed (`task_0443ff4ed6224f5683301055555f4209`).
@@ -8073,6 +8129,9 @@ Compiler product:
       refuses `array<string>` after scalar conversion lowering
       (`task_4ea96b68ae4b43f7a0cfc16cd7c19649`). I require C-seed and VM/native
       parity for direct/tail returns and preserve unsupported-shape refusal.
+      - [x] I expose the lowerer's precise refusal through the driver instead
+        of collapsing every failure to `outside the pinned subset`, and prove
+        that rejected output is still not published.
 - [x] I resolve ordinary and qualified calls through the canonical module
       bindings when lowering a merged Parser, preserving result types, void
       calls, tail returns and raw-source invocation isolation

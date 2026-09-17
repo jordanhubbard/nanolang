@@ -53,11 +53,43 @@ class FlatRecordEmitter(unittest.TestCase):
             whole = subprocess.run([tool, source, "whole"], cwd=ROOT, capture_output=True, text=True, timeout=120)
             self.assertEqual(whole.returncode, 1)
             self.assertEqual(whole.stdout, "")
+            # Every initializer is a root, even when main never reads its slot.
+            source.write_text('let unused: int = (effect) fn effect() -> int { (println "effect") return 1 } '
+                              'let words: array<string> = [] fn main() -> int { assert (== (array_length words) 0) return 0 }\n')
+            rooted = self.run_checked(tool, source, "program").stdout
+            self.assertIn(".function effect", rooted)
+            self.assertIn(".function __init__", rooted)
+            self.assertIn("ARR_LITERAL 5 0", rooted)
+            assembly.write_text(rooted)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "effect\n")
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.assertEqual(self.run_checked(binary).stdout, "effect\n")
+            # Same-spelling globals belong to their source modules.
+            source.write_text('let count: int = 37\nfn dep_a_relay() -> int { return count }\n\n'
+                              'let count: int = 12\nfn dep_b_relay() -> int { return count }\n\n'
+                              'fn main() -> int { assert (== (values.relay) 37) '
+                              'assert (== (other.relay) 12) return 0 }\n')
+            assembly.write_text(self.run_checked(tool, source, "bound").stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+            self.run_checked(ROOT / "bin/nano_vm", module)
+            self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+            self.run_checked(binary)
+            source.write_text('let count: int = 37\nfn dep_a_relay() -> int { return count }\n\n'
+                              'let count: int = 12\nfn dep_b_relay() -> int { return count }\n\n'
+                              'fn main() -> int { return count }\n')
+            wrong_owner = subprocess.run([tool, source, "bound"], cwd=ROOT, capture_output=True,
+                                         text=True, timeout=120)
+            self.assertEqual(wrong_owner.returncode, 1)
+            self.assertEqual(wrong_owner.stdout, "")
             refused = [
+                'let count: int = 1 fn main() -> int { set count 2 return count }',
+                'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
+                'let values: array<bool> = [true] fn main() -> int { return 0 }',
                 'extern fn unavailable_array_host(path: string) -> array<string> '
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
-                'let initial: int = (effect) fn effect() -> int { (println "effect") return 1 } '
-                'fn main() -> int { return 0 }',
                 'fn target() -> int { return 1 } let stored: fn() -> int = target '
                 'fn main() -> int { return 0 }',
                 'fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
@@ -70,6 +102,144 @@ class FlatRecordEmitter(unittest.TestCase):
                     result = subprocess.run([tool, source, "program"], cwd=ROOT, capture_output=True, text=True, timeout=120)
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                     self.assertEqual(result.stdout, "")
+
+    def test_globals_initialize_once_and_preserve_mutation(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/global_initialization.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-globals-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "announce", "change", "local", "main", "__init__")
+            self.assertIn("12 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "init\n")
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.assertEqual(self.run_checked(binary).stdout, "init\n")
+
+    def test_aggregate_globals_match_and_execute_in_vm(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/global_aggregate_initialization.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-aggregate-globals-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "announce", "new_values", "change", "local", "main", "__init__")
+            self.assertIn("14 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.assertEqual(self.run_checked(ROOT / "bin/nano_vm", module).stdout, "init\n")
+
+    def test_array_access_result_types_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/array_access_types.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-array-access-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "words", "joined", "list_label", "main")
+            self.assertIn("10 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+    def test_array_access_wrong_container_and_index_are_refused(self):
+        programs = [
+            'fn main() -> int { return (at 7 0) }',
+            'fn main() -> int { let xs: array<int> = [1] return (at xs "zero") }',
+            'fn main() -> int { let xs: array<int> = [1] return (at xs) }',
+            'fn main() -> int { let xs: List<string> = (list_string_new) return (list_int_get xs 0) }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-array-access-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program + "\n")
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I refused that program:", result.stdout)
+                    self.assertFalse(output.exists())
+
+    def test_array_record_fields_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/array_record_fields.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-array-record-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "make_result", "forward", "empty", "main")
+            self.assertIn("10 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+    def test_wrong_array_record_fields_are_refused(self):
+        programs = [
+            'struct Box { words: array<string> } fn main() -> Box { return Box { words: [1] } }',
+            'struct Box { words: array<string> } fn main() -> Box { let xs: array<int> = [1] return Box { words: xs } }',
+            'struct Box { value: int } fn main() -> Box { return Box { value: [1] } }',
+            'struct Box { flags: array<bool> } fn main() -> Box { return Box { flags: [true] } }',
+            'struct Box { nested: array<array<int>> } fn main() -> Box { return Box { nested: [[1]] } }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-array-record-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program + "\n")
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I refused that program:", result.stdout)
+                    self.assertFalse(output.exists())
+
+    def test_computed_array_literal_tags_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/computed_array_literals.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-computed-array-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly, "word", "main")
+            self.assertIn("6 passed, 0 failed", result.stdout)
+            self.assertIn("ARR_LITERAL 5 1", assembly.read_text())
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[true]'):
+                with self.subTest(expression=expression):
+                    invalid = work / "invalid.nano"
+                    output = work / "invalid.nasm"
+                    invalid.write_text('fn main() -> int { return (array_length ' + expression + ') }\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", invalid, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("homogeneous supported scalar array elements", result.stdout)
+                    self.assertFalse(output.exists())
 
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
@@ -411,7 +581,7 @@ class FlatRecordEmitter(unittest.TestCase):
             result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
                                     cwd=ROOT, capture_output=True, text=True, timeout=120)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("outside the pinned subset", result.stdout)
+            self.assertIn("I refused that program: unsupported result type Nested", result.stdout)
             self.assertFalse(output.exists())
 
 

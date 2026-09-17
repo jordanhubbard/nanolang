@@ -5993,6 +5993,10 @@ static void test_mixed_array_push_helpers(void) {
         char *c = nvm2c_emit(m, error, sizeof error);
         CHECK(c != NULL, "mixed array push fixture translates");
         if (c) {
+            CHECK(strstr(c, "(void)narr_push;") != NULL,
+                  "mixed array output references its integer push helper");
+            CHECK(strstr(c, "(void)nsarr_push;") != NULL,
+                  "mixed array output references its string push helper");
             int status = -1;
             CHECK(compile_and_run(c, &status) == 0, "mixed array helpers compile with strict warnings");
             CHECK(status == 0, "mixed array push retains its value");

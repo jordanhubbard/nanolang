@@ -1,0 +1,41 @@
+struct Settings { enabled: bool, label: string }
+
+fn announce() -> int { (println "init") return 7 }
+shadow announce { assert (== (announce) 7) }
+
+let mut count: int = (announce)
+let next: int = (+ count 1)
+let mut title: string = "start"
+let mut words: array<string> = ["initial"]
+let settings: Settings = Settings { enabled: true, label: "ready" }
+fn new_values() -> HashMap<string, int> { let result: HashMap<string, int> = (map_new) return result }
+shadow new_values { assert (== (map_length (new_values)) 0) }
+let values: HashMap<string, int> = (new_values)
+
+fn change() -> void {
+    set count (+ count 2)
+    set title (+ title "!")
+    set words ["yes"]
+    (map_put values "seen" count)
+}
+shadow change { assert true }
+
+fn local() -> int { let count: int = 100 return count }
+shadow local { assert (== (local) 100) }
+
+fn main() -> int {
+    assert (== count 7)
+    assert (== next 8)
+    assert (== (array_length words) 1)
+    assert settings.enabled
+    assert (== settings.label "ready")
+    assert (== (local) 100)
+    (change)
+    assert (== count 9)
+    assert (== title "start!")
+    let word: string = (at words 0)
+    assert (== word "yes")
+    assert (== (map_get values "seen") 9)
+    return 0
+}
+shadow main { assert true }

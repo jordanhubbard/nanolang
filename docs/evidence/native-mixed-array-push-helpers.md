@@ -11,4 +11,12 @@ only string pushes, and a string literal with only integer pushes. Both compile
 with `-Wall -Wextra -Werror` and execute their length assertion.
 
 On Linux ARM64, `make -j8 test-nvm2c` passes 1,769 checks; shape constraints pass
-1,076 checks. Task `task_2dedfc5f181f41d4951eed8927648306` records this fix.
+1,076 checks. Task `task_2dedfc5f181f41d4951eed8927648306` records that fix.
+
+Clang still diagnoses an unused `static inline` helper. I therefore reference
+both emitted scalar push helpers from generated `main`, following the same
+portable convention I use for other optional helpers. The mixed-array cases
+require those references in addition to compiling and executing with strict
+warnings. Task `task_4c32ccf895f5435998cd4982c7dd4087` records this Darwin
+portability correction. On Darwin ARM64, `make -j8 test-nvm2c` passes 1,773
+translator checks and 1,076 shape checks.

@@ -131,5 +131,8 @@ metadata; this change does not claim guard support.
 
 New paired cases consume an outer owner in every returning arm and reject an
 unresolved return arm or disagreeing continuing branches. An inline owned union
-payload remains a negative case. My expanded C-only corpus passes sixteen
-methods in the checkpoint log `/tmp/nanolang-generic-formal-c-match.log`.
+payload remains a negative case. The first expanded C-only run passes fifteen methods but exposes one further
+defect: an inline owned union literal loses its union identity in the C
+ownership walker and is incorrectly accepted. I retain that failing log at
+`/tmp/nanolang-generic-formal-c-match.log` and repair identity lookup before
+claiming the sixteen-method gate.

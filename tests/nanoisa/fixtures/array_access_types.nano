@@ -1,0 +1,28 @@
+struct Entry { text: string, enabled: bool }
+
+fn words() -> array<string> { return ["hello", "world"] }
+shadow words { assert (== (array_length (words)) 2) }
+
+fn joined() -> string { return (+ (at (words) 0) (array_get (words) 1)) }
+shadow joined { assert (== (joined) "helloworld") }
+
+fn list_label() -> string {
+    let entries: List<Entry> = (list_Entry_new)
+    (list_Entry_push entries Entry { text: "entry", enabled: true })
+    return (list_Entry_get entries 0).text
+}
+shadow list_label { assert (== (list_label) "entry") }
+
+fn main() -> int {
+    assert (== (joined) "helloworld")
+    assert (== (at ["literal"] 0) "literal")
+    let names: List<string> = (list_string_new)
+    (list_string_push names "list")
+    assert (== (+ (list_string_get names 0) "!") "list!")
+    assert (== (list_label) "entry")
+    let numbers: List<int> = (list_int_new)
+    (list_int_push numbers 7)
+    assert (== (+ (list_int_get numbers 0) (at [2] 0)) 9)
+    return 0
+}
+shadow main { assert (== (main) 0) }

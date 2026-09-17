@@ -32,3 +32,22 @@ ordinary calls within an imported module, deterministic v2 bytes, VM/native outp
 parity, actual dependency/root shadow failures, root/import direct and linked
 source preservation, invalid types, unsupported float lowering, and prefix edges.
 The same four cases also pass with the C-seed-built Stage 1 driver.
+
+## Executable reachability
+
+I now call `nanoisa_emit_program_nasm` from my explicit canonical `--emit-nvm`
+route, after the existing merged/bound/typechecked Parser pipeline. The emitter's
+whole-source APIs remain unchanged. This selection can omit an unreachable
+unsupported helper from executable bytecode while retaining every dependency
+and root shadow check before publication.
+
+My added regression imports an unused float-returning helper, emits
+v2 output and runs its result in NanoVM and native AOT. Replacing only that
+helper's shadow with `assert false` then rejects compilation and preserves the
+previous accepted `.nvm`. My existing import, root-shadow, nominal binding,
+source/hardlink/symlink identity and prior-output regressions remain enabled.
+The five canonical driver methods pass after a fresh three-stage bootstrap.
+
+This is MAC `task_771b3fdc89aa42f7bf100ce7bfd0d40d`. It does not complete the
+NanoISA-only bootstrap. Ordered globals and additional lowering remain separate
+emitter work; native C-hosted shadow validation remains part of this route.

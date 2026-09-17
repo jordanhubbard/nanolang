@@ -5017,6 +5017,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    (void)nsarr_new; (void)nsarr_reserve; (void)nsarr_copy_string;\n");
         if (b.has_integer_arrays) nvm2c_puts(&b,
             "    (void)narr_new; (void)narr_reserve;\n");
+        if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_string_arrays)
+            nvm2c_puts(&b, "    (void)nsarr_push;\n");
+        if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)
+            nvm2c_puts(&b, "    (void)narr_push;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64;\n");
         if (b.has_maps && (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN)))
