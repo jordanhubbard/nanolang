@@ -17,6 +17,7 @@
 import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
+import "src_nano/compiler/module_facts.nano"
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
@@ -1554,6 +1555,69 @@ shadow merge_with_imports {
  * COMPILATION PIPELINE
  * ============================================================================= */
 
+struct ModuleFactsOutput { ok: bool, facts: array<ModuleIntrospection> }
+
+fn collect_introspection(files: array<string>, repo_root: string) -> ModuleFactsOutput {
+    let mut unsafe_paths: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        let path: string = (at files i)
+        let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
+        let mut j: int = 0
+        while (< j (array_length info.unsafe_imports)) {
+            let target: string = (resolve_import_path path (at info.unsafe_imports j) repo_root)
+            set unsafe_paths (mi_unique unsafe_paths (canonical target))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let mut names: array<string> = []
+    let mut facts: array<ModuleIntrospection> = []
+    set i 0
+    # The final DFS entry is the program itself, not an imported module.
+    while (< i (- (array_length files) 1)) {
+        let path: string = (at files i)
+        let base: string = (compiler_fs.basename path)
+        let dot: int = (nlc_str_last_index_of base ".")
+        let mut fallback: string = base
+        if (> dot 0) { set fallback (str_substring base 0 dot) }
+        let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
+        let mut j: int = 0
+        while (< j (array_length names)) {
+            if (== (at names j) raw.name) {
+                (println (+ "I reject ambiguous module introspection identity: " raw.name))
+                return ModuleFactsOutput { ok: false, facts: [] }
+            }
+            set j (+ j 1)
+        }
+        if (not raw.ok) {
+            (println (+ "I cannot derive valid module introspection for: " path))
+            return ModuleFactsOutput { ok: false, facts: [] }
+        }
+        let mut is_unsafe: bool = raw.is_unsafe
+        set j 0
+        while (< j (array_length unsafe_paths)) {
+            if (== (at unsafe_paths j) (compiler_fs.normalize path)) { set is_unsafe true }
+            set j (+ j 1)
+        }
+        let info: ModuleIntrospection = ModuleIntrospection {
+            name: raw.name, path: raw.path, functions: raw.functions, structs: raw.structs,
+            unsafe_imports: raw.unsafe_imports, is_unsafe: is_unsafe, has_ffi: raw.has_ffi, ok: raw.ok
+        }
+        set names (array_push names info.name)
+        set facts (array_push facts info)
+        set i (+ i 1)
+    }
+    return ModuleFactsOutput { ok: true, facts: facts }
+}
+
+shadow collect_introspection {
+    let empty: array<string> = []
+    let result: ModuleFactsOutput = (collect_introspection empty "")
+    assert result.ok
+    assert (== (array_length result.facts) 0)
+}
+
 fn llm_escape_json(s: string) -> string {
     let mut out: string = ""
     let n: int = (str_length s)
@@ -2079,14 +2143,16 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 } else { (print "") }
             } else { (print "") }
 
-            # I lower one checked program for every product route.
-            let assembly: string = (nanoisa_emit_program_nasm parser)
+            let introspection: ModuleFactsOutput = (collect_introspection merged_files merge_result.repo_root)
+            if (not introspection.ok) { return 1 }
+            # I lower one checked program and retained module facts for every route.
+            let assembly: string = (nanoisa_emit_program_with_facts parser introspection.facts)
             if (== assembly "") {
                 (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
                 return 1
             }
             if (and has_shadows (not emit_c)) {
-                let shadow_assembly: string = (nanoisa_emit_shadows_nasm parser first_shadow)
+                let shadow_assembly: string = (nanoisa_emit_shadows_with_facts parser first_shadow introspection.facts)
                 if (== shadow_assembly "") {
                     (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
                     return 1
