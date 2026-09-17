@@ -8031,10 +8031,24 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower compiler `array<Symbol>` and its enum-bearing fields, retaining
-      source-enum integer representation and typed enum/record array tags
-      (`task_8e7c52236ee645d3b877266acf84ce19`). Actual emission after nested records
+- [ ] I lower the supported string/int map field in compiler `CollectResult`,
+      preserving map identity through record fields, calls and returns
+      (`task_95a9982edcd04a1dbb57c45639cd7230`). Actual emission after record arrays
       first refuses this local type.
+- [ ] I preserve nominal record element metadata through direct array access
+      and chained field projection in my C seed, including record-array fields
+      (`task_8ddcdb5c824e4a8eb6cc0e2d1bc9ebe3`). Explicit typed locals currently avoid
+      the observed typechecker rejection.
+- [ ] I retain enum member names and signed explicit/implicit values in
+      self-host AST metadata instead of discarding them during parsing
+      (`task_e66b50097fe343e3b78e6b750a5c7315`). NanoISA enum lowering depends on
+      these fields, without adding a token-rescan implementation.
+- [x] I lower compiler `array<Symbol>` and its nested `NSType` record fields,
+      retaining record-array tags through construction, empty literals, field
+      access and calls (`task_8e7c52236ee645d3b877266acf84ce19`).
+      All 86 checks and 29 integration methods pass with VM/AOT evidence.
+      `NSType` is a record whose kind is an integer; source enums remain
+      separate. `docs/evidence/selfhost-record-arrays.md` records scope.
 - [x] I lower finite nested compiler record and typed-list field shapes,
       including `CompilerDiagnostic` and its nested source location. I reject
       cyclic shapes and mismatched nested values; 86 checks and 28 integration

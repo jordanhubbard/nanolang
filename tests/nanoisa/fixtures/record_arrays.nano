@@ -1,0 +1,37 @@
+struct Location { line: int }
+struct NSType { kind: int, name: string }
+struct Symbol { name: string, location: Location, param_types: array<NSType> }
+struct Table { symbols: array<Symbol> }
+
+fn symbol(name: string, line: int) -> Symbol {
+    return Symbol { name: name, location: Location { line: line }, param_types: [NSType { kind: 1, name: "int" }] }
+}
+shadow symbol { assert (== (symbol "x" 1).location.line 1) }
+
+fn empty() -> array<Symbol> { return [] }
+shadow empty { assert (== (array_length (empty)) 0) }
+
+fn entries() -> array<Symbol> { return [(symbol "first" 1), Symbol { name: "second", location: Location { line: 2 }, param_types: [] }] }
+shadow entries { assert (== (array_length (entries)) 2) }
+
+fn table(symbols: array<Symbol>) -> Table { return Table { symbols: symbols } }
+shadow table { let value: Table = (table (entries)) let entry: Symbol = (at value.symbols 1) assert (== entry.location.line 2) }
+
+fn main() -> int {
+    let blank: array<Symbol> = (empty)
+    assert (== (array_length blank) 0)
+    let value: Table = (table (entries))
+    let first: Symbol = (at value.symbols 0)
+    assert (== first.name "first")
+    let parameter: NSType = (at first.param_types 0)
+    assert (== parameter.kind 1)
+    assert (== parameter.name "int")
+    let more: array<Symbol> = (array_push value.symbols (symbol "third" 3))
+    assert (== (array_length value.symbols) 3)
+    let third: Symbol = (at more 2)
+    assert (== third.location.line 3)
+    let empty_table: Table = Table { symbols: [] }
+    assert (== (array_length empty_table.symbols) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }
