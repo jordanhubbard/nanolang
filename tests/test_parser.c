@@ -1009,10 +1009,10 @@ static void test_owned_generic_function_annotations(void) {
 }
 
 static void test_borrow_annotation_retention(void) {
-    ASTNode *program = parse_ok("extern fn observe(a: &owned.Handle, b: &mut Box<array<int>>) -> int");
+    ASTNode *program = parse_ok("extern fn observe(a: &owned.Handle, b: &mut Box<array<int>>, callback: &fn(array<int>)->string) -> int");
     ASSERT_NOT_NULL(program);
     ASTNode *function = program->as.program.items[0];
-    ASSERT_EQ(function->as.function.param_count, 2);
+    ASSERT_EQ(function->as.function.param_count, 3);
     TypeInfo *shared = function->as.function.params[0].type_info;
     TypeInfo *exclusive = function->as.function.params[1].type_info;
     ASSERT_NOT_NULL(shared);
@@ -1023,6 +1023,11 @@ static void test_borrow_annotation_retention(void) {
     ASSERT(strcmp(exclusive->element_type->generic_name, "Box") == 0);
     ASSERT_EQ(exclusive->element_type->type_params[0]->base_type, TYPE_ARRAY);
     ASSERT_EQ(exclusive->element_type->type_params[0]->element_type->base_type, TYPE_INT);
+    TypeInfo *callback = function->as.function.params[2].type_info;
+    ASSERT_EQ(callback->element_type->base_type, TYPE_FUNCTION);
+    ASSERT_NOT_NULL(callback->element_type->fn_sig);
+    ASSERT_EQ(callback->element_type->fn_sig->param_type_info[0]->base_type, TYPE_ARRAY);
+    ASSERT_EQ(callback->element_type->fn_sig->return_type, TYPE_STRING);
     TypeInfo *copy = copy_payload_type_info(exclusive);
     ASSERT(type_infos_equal(copy, exclusive));
     copy->base_type = TYPE_BORROW_SHARED;

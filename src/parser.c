@@ -999,6 +999,7 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                     if (!underlying) abort();
                     underlying->base_type = param_list[count].type;
                     underlying->generic_name = type_param_name ? strdup(type_param_name) : NULL;
+                    underlying->fn_sig = copy_function_signature(fn_sig);
                 }
                 type_info = calloc(1, sizeof(*type_info));
                 if (!type_info) abort();
