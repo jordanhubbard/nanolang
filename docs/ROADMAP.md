@@ -10200,4 +10200,4 @@ My unchecked NanoISA-only architecture milestones remain in
 `docs/NANOISA_ONLY.md`; a release tag does not establish their acceptance.
 Next Review: the exact release candidate and its published artifacts.
 
-- [ ] I exclude VM-wrapper executable structure without rejecting ordinary string constants naming `nano_vm` or `nvm_blob`; canonical compiler shadow-runner paths require this distinction (`task_b4a32a35810544f4a0234ab5828b46b4`).
+- [x] I exclude VM-wrapper executable structure without rejecting ordinary string constants naming `nano_vm` or `nvm_blob`. I skip C literal/comment regions in my internal architecture assertion; six ordinary data cases compile and run without VM linkage, and all 2,414 native translator checks pass (`task_b4a32a35810544f4a0234ab5828b46b4`).
