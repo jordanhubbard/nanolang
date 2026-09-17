@@ -3611,6 +3611,58 @@ static void test_tagged_scalar_returns(void) {
     }
 }
 
+static void test_tagged_array_read_bounds(void) {
+    const struct { int tag; const char *value, *check; } arrays[] = {
+        {1, "PUSH_I64 7", "PUSH_I64 7\nEQ\nASSERT"},
+        {4, "PUSH_BOOL 1", "ASSERT"},
+        {5, "PUSH_STR text", "PUSH_STR text\nEQ\nASSERT"}
+    };
+    const int64_t indices[] = {0, -1, 1, 99, INT64_C(4294967296), INT64_MAX, INT64_MIN};
+    for (size_t a = 0; a < sizeof arrays / sizeof arrays[0]; ++a) {
+        for (unsigned test = 0; test < 12; ++test) {
+            char source[2048], index[128];
+            if (test < 7) snprintf(index, sizeof index, "PUSH_I64 %lld", (long long)indices[test]);
+            else if (test == 7) strcpy(index, "PUSH_I64 0");
+            else if (test == 8) strcpy(index, "PUSH_BOOL 0");
+            else if (test == 9) strcpy(index, "PUSH_STR text");
+            else if (test == 10) strcpy(index, "LOAD_GLOBAL 2");
+            else strcpy(index, "ARR_NEW 1");
+            snprintf(source, sizeof source,
+                ".string text \"kept\"\n.entry main\n.function main 0 0 0 int 1\n"
+                "%s\nARR_LITERAL %d %d\nSTORE_GLOBAL 0\n%s\nSTORE_GLOBAL 1\n"
+                "LOAD_GLOBAL 0\nLOAD_GLOBAL 1\nARR_GET\n%s\nPUSH_I64 0\nRET\n.end\n",
+                test == 7 ? "" : arrays[a].value, arrays[a].tag, test == 7 ? 0 : 1, index,
+                test == 0 ? arrays[a].check : "TYPE_CHECK 0\nASSERT");
+            NvmModule *m = assemble_ok(source, "tagged array read bounds");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "I translate full-width tagged array reads");
+            if (c) {
+                int status = 0;
+                CHECK(compile_and_run(c, &status) == 0 && (test < 8 ? status == 0 : status != 0),
+                      "I preserve valid/missing reads and reject noninteger index tags");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    for (unsigned test = 0; test < 2; ++test) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".string text \"receiver\"\n.entry main\n.function main 0 0 0 int 1\n"
+            "PUSH_STR text\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_I64 %d\nARR_GET\nPOP\nPUSH_I64 0\nRET\n.end\n", test ? -1 : 0);
+        NvmModule *m = assemble_ok(source, "tagged invalid array receiver");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "I retain dynamic array receiver checks before missing-read handling");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0 && status != 0,
+                  "I reject nonarray receivers even when the index is negative");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_tagged_array_update_bounds(void) {
     const struct { int tag; const char *before, *after, *check; } arrays[] = {
         {1, "PUSH_I64 1", "PUSH_I64 2", "PUSH_I64 2\nEQ\nASSERT"},
@@ -3656,13 +3708,12 @@ static void test_array_globals(void) {
             "LOAD_GLOBAL 0\nPUSH_I64 0\n%s\nSTORE_GLOBAL 2\nLOAD_GLOBAL 2\nARR_SET\nPOP\n"
             "PUSH_I64 0\nSTORE_GLOBAL 0\nLOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n%s\nEQ\nASSERT\n"
             "LOAD_LOCAL 0\nPUSH_I64 -1\nARR_GET\nTYPE_CHECK 0\nASSERT\n"
-            "LOAD_LOCAL 0\nPUSH_I64 4294967296\nARR_GET\n%s\nEQ\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_I64 4294967296\nARR_GET\nTYPE_CHECK 0\nASSERT\n"
             "LOAD_LOCAL 0\nPRINTLN\n"
             "PUSH_I64 0\nRET\n.end\n"
             ".function __init__ 0 0 0 void 0\nARR_LITERAL %d 0\nSTORE_GLOBAL 0\nRET\n.end\n"
             ".function append 0 0 0 void 0\nLOAD_GLOBAL 0\n%s\nARR_PUSH\nSTORE_GLOBAL 0\nRET\n.end\n",
             strings ? "PUSH_STR first" : "PUSH_I64 42",
-            strings ? "PUSH_STR next" : "PUSH_I64 7",
             strings ? "PUSH_STR next" : "PUSH_I64 7",
             strings ? "PUSH_STR next" : "PUSH_I64 7",
             strings ? 5 : 1, strings ? "PUSH_STR first" : "PUSH_I64 42");
@@ -3674,7 +3725,7 @@ static void test_array_globals(void) {
             int status = -1;
             CHECK(compile_and_run_capture(c, &status, output, sizeof output) == 0 && status == 0 &&
                   strcmp(output, strings ? "[next]\n" : "[7]\n") == 0,
-                  "I preserve aliases, element tags, missing reads, narrowing and printed array values");
+                  "I preserve aliases, element tags, full-width missing reads and printed array values");
             free(c);
         }
         nvm_module_free(m);
@@ -3702,6 +3753,7 @@ static void test_array_globals(void) {
 
 static void test_scalar_globals(void) {
     test_array_globals();
+    test_tagged_array_read_bounds();
     test_tagged_array_update_bounds();
     const char *source =
         ".string text \"saved\"\n.string yes \"true\"\n.entry main\n"

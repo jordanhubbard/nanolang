@@ -3122,12 +3122,15 @@ dynamic_div:
         VM_CASE(OP_ARR_GET) {
             NanoValue idx_v = stack_pop(vm);
             NanoValue arr = stack_pop(vm);
-            if (arr.tag != TAG_ARRAY) {
+            if (arr.tag != TAG_ARRAY || idx_v.tag != TAG_INT) {
                 vm_release(&vm->heap, arr);
-                return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_GET: not an array");
+                vm_release(&vm->heap, idx_v);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I require an array and an integer ARR_GET index.");
             }
-            uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
-            NanoValue v = vm_array_get(arr.as.array, idx);
+            /* Raw reads preserve a missing value as void. Check before narrowing. */
+            NanoValue v = val_void();
+            if (idx_v.as.i64 >= 0 && (uint64_t)idx_v.as.i64 < arr.as.array->length)
+                v = vm_array_get(arr.as.array, (uint32_t)idx_v.as.i64);
             vm_retain(&vm->heap, v);
             vm_release(&vm->heap, arr);
             stack_push(vm, v);

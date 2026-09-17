@@ -297,13 +297,23 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       mutations through all bootstrap compilers.
       MAC: `task_d32adbdff13241dc8ad9b0a889071352`.
 
-- [ ] **Tagged native array-read bounds.** I preserve missing reads as void
+- [ ] **NanoCore exporter sanitizer build.** I diagnose the GCC O1
+      null-format warning in `sbuf_appendf`; default O3 sanitizer checks
+      pass without warning suppression. MAC `task_c08bf552c04740daa060cbc5759eb19d`.
+
+- [ ] **Source versus raw array-read policy.** I establish how source bounds
+      panics and static native reads relate to raw/dynamic missing-read void
+      results before changing either contract. MAC `task_c9561b3912a84a67a491cf9a78c1cc4b`.
+
+- [x] **Tagged native array-read bounds.** I preserve missing reads as void
       while checking full signed indices before narrowing. I retain strict
       index tags and verify VM/native parity. MAC `task_7f62cc6dc9bc4d748a4fd8e78ca721f9`.
 
-- [ ] **Raw NanoISA array-read index checks.** I check integer tags and
+- [x] **Raw NanoISA array-read index checks.** I check integer tags and
       full-width ranges before reads, preserve native parity, and release
       consumed references on rejection. MAC `task_e4e7048e334e4b9d8eed2086f792bbcf`.
+      I preserve missing reads as void; 38 VM/native cases and normal/sanitized
+      VM suites pass. Evidence: `docs/evidence/checked-array-read-indices.md`.
 
 - [x] **v5.1.0 module-owned affine record identity.** I compare same-named plain
       and resource records across modules on my C seed and self-hosted stages,
