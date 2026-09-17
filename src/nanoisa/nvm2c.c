@@ -70,6 +70,7 @@ static int integer_array_storage(uint8_t kind) {
 
 static int boolean_result(uint8_t opcode) {
     switch (opcode) {
+    case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
     case OP_PUSH_BOOL: case OP_BOOL_AND: case OP_BOOL_OR: case OP_BOOL_NOT:
     case OP_EQ: case OP_NE: case OP_I64_EQ: case OP_I64_NE:
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
@@ -951,6 +952,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_PUSH_BOOL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
+        case OP_PUSH_VOID:
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+            break;
         case OP_PUSH_F64:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
             break;
@@ -1234,6 +1238,21 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             (void)ix;
             if (!mark_string_operand(b, local_kind, nloc, s)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
+        case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT: {
+            unsigned count = ins.opcode == OP_AND || ins.opcode == OP_OR ? 2 : 1;
+            for (unsigned operand = 0; operand < count; ++operand) {
+                Nvm2cSimSlot value;
+                if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+                if (value.kind != NVM2C_VK_UNK && value.kind != NVM2C_VK_INT &&
+                    value.kind != NVM2C_VK_BOOL && value.kind != NVM2C_VK_FLOAT &&
+                    value.kind != NVM2C_VK_VALUE) {
+                    nvm2c_fail(b, "I support scalar truthiness only for void, int, bool and float");
+                    return 0;
+                }
+            }
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_BOOL, -1)) return 0;
             break;
         }
         case OP_CAST_FLOAT: {
@@ -2258,6 +2277,22 @@ static int stack_pop_condition(Nvm2cBuf *b, Nvm2cStack *st, const char *what) {
     return stack_pop_expect(b, st, NVM2C_VK_INT, what);
 }
 
+/* I keep this new opcode profile scalar; existing branch truthiness is unchanged. */
+static int stack_pop_scalar_condition(Nvm2cBuf *b, Nvm2cStack *st) {
+    if (st->sp) {
+        uint8_t kind = st->kinds[st->sp - 1];
+        if (kind == NVM2C_VK_VALUE) {
+            int slot = st->slots[st->sp - 1];
+            nvm2c_printf(b, "    if (v[%d].kind != 0 && v[%d].kind != 1 && v[%d].kind != 3 && v[%d].kind != 4) abort();\n",
+                        slot, slot, slot, slot);
+        } else if (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT) {
+            nvm2c_fail(b, "I support scalar truthiness only for void, int, bool and float");
+            return -1;
+        }
+    }
+    return stack_pop_condition(b, st, "scalar truthiness");
+}
+
 static void scalar_value_expression(Nvm2cBuf *b, char *out, size_t size, uint8_t kind, int slot) {
     if (kind == NVM2C_VK_VALUE) snprintf(out, size, "v[%d]", slot);
     else if (kind == NVM2C_VK_FLOAT) snprintf(out, size, "nvalue_from_float(f[%d])", slot);
@@ -2779,6 +2814,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, rhs);
             break;
         }
+        case OP_PUSH_VOID:
+            stack_push_value(b, &st, "(nmap_value){0, 0, NULL}");
+            break;
         case OP_PUSH_F64: {
             char rhs[80];
             uint64_t bits;
@@ -3336,6 +3374,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expr[48];
             snprintf(expr, sizeof expr, "nstr_from_i64(t[%d])", v);
             stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT: {
+            int binary = ins.opcode == OP_AND || ins.opcode == OP_OR;
+            int rhs = binary ? stack_pop_scalar_condition(b, &st) : -1;
+            int lhs = stack_pop_scalar_condition(b, &st);
+            if (b->failed) goto done;
+            char expression[96];
+            if (binary)
+                snprintf(expression, sizeof expression, "((t[%d] != 0) %s (t[%d] != 0))",
+                         lhs, ins.opcode == OP_AND ? "&" : "|", rhs);
+            else
+                snprintf(expression, sizeof expression, "(t[%d] %s 0)", lhs,
+                         ins.opcode == OP_NOT ? "==" : "!=");
+            stack_push_bool(b, &st, expression);
             break;
         }
         case OP_CAST_FLOAT: {
@@ -5167,6 +5220,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 b.record_width = ins.operands[3].u16;
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
                 ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET) b.has_maps = 1;
+            if (ins.opcode == OP_PUSH_VOID) b.has_maps = 1; /* Tagged void storage. */
             if (ins.opcode == OP_LT || ins.opcode == OP_LE || ins.opcode == OP_GT || ins.opcode == OP_GE)
                 b.has_maps = 1; /* I retain runtime tags for generic ordering. */
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
