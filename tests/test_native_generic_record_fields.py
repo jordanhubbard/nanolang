@@ -47,6 +47,15 @@ fn main() -> int {
  match number { Some(p) => { return (- p.value 42) } None(n) => { return 2 } }
 }''' + SHADOW)
 
+    def test_two_argument_result_field_executes(self):
+        self.check("""union Result<T,E> { Ok { value: T }, Err { error: E } }
+struct State { result: Result<int,string> }
+fn main() -> int {
+ let state: State = State { result: Result.Err { error: "kept" } }
+ let result: Result<int,string> = state.result
+ match result { Ok(p) => { return 1 } Err(p) => { assert (== p.error "kept") return 0 } }
+}""" + SHADOW)
+
     def test_nested_record_executes(self):
         self.check(BOX + '''struct Inner { boxed: Box<int> }
 struct Outer { inner: Inner }

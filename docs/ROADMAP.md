@@ -207,6 +207,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       This establishes classification, not native record layout or global
       ownership support. MAC `task_ef807591eb104cc8b664cd55581ec505`.
 
+- [ ] **Retain concrete union identity when reading record fields.** My
+      self-hosted typed field reads currently compare a record-kind
+      `Box<int>` against its declared union-kind `Box<int>` and reject them.
+      My C direct field match also loses payload metadata. Both reproduce
+      before the layout fix. I retain complete annotations and declaration-aware
+      kinds, require paired typed/direct reads and nested/multiargument controls,
+      and reject wrong concrete arguments without weakening equality. This is
+      a prerequisite of native field layout acceptance, separate from selected
+      union payload-field origin `task_7bc727`.
+      MAC `task_9ad126f2c5a61aadfa672f29134aa9ec`.
+
 - [ ] **Emit ordinary concrete generic union record fields.** I preserve
       `Box<int>` when emitting a local `Outer { boxed: Box<int> }` field and
       its empty/nonempty constructors. My C seed currently emits a `void*`
