@@ -25,6 +25,7 @@ Full compiler emission and matching Stage 1/Stage 2 bytecode remain acceptance
 requirements beyond this shape slice.
 
 A fresh actual canonical-driver probe now first refuses
-`unsupported local type array<Symbol>`. That compiler record includes `NSType`
-enum fields and an enum array. The next enum/record-array continuation is
+`unsupported local type array<Symbol>`. That compiler record includes nested `NSType`
+records and an array of `NSType`; `NSType.kind` is an integer field. The next
+record-array continuation is
 recorded separately. The probe publishes no compiler module.

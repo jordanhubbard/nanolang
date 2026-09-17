@@ -538,6 +538,10 @@ fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<st
     if (or (== field "int") (or (== field "string") (== field "bool"))) { return true }
     if (or (== field "array<int>") (== field "array<string>")) { return true }
     if (or (== field "List<int>") (== field "List<string>")) { return true }
+    if (and (str_starts_with field "array<") (str_ends_with field ">")) {
+        let element: string = (str_substring field 6 (- (str_length field) 7))
+        return (nisa_record_shape_supported parser element ancestors)
+    }
     if (and (str_starts_with field "List<") (str_ends_with field ">")) {
         let element: string = (str_substring field 5 (- (str_length field) 6))
         return (nisa_record_shape_supported parser element ancestors)
@@ -600,6 +604,11 @@ shadow nisa_is_pin_record {
 }
 
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
+    if (and (str_starts_with t "array<") (str_ends_with t ">")) {
+        let element: string = (str_substring t 6 (- (str_length t) 7))
+        if (or (== element "int") (== element "string")) { return true }
+        return (nisa_is_pin_record parser element)
+    }
     if (nisa_local_type_ok t) {
         return true
     } else {
@@ -1110,6 +1119,10 @@ shadow nisa_call_name {
 }
 
 fn nisa_element_type(parser: Parser, container: string) -> string {
+    if (and (str_starts_with container "array<") (str_ends_with container ">")) {
+        let element: string = (str_substring container 6 (- (str_length container) 7))
+        if (nisa_is_pin_record parser element) { return element }
+    }
     if (or (== container "array<int>") (or (== container "List<int>") (== container "list_int"))) { return "int" }
     if (or (== container "array<string>") (or (== container "List<string>") (== container "list_string"))) { return "string" }
     if (and (str_starts_with container "List<") (str_ends_with container ">")) {
@@ -1172,7 +1185,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             if (!= actual element) { return "" }
             set i (+ i 1)
         }
-        if (or (== element "int") (== element "string")) { return (+ "array<" (+ element ">")) }
+        if (or (== element "int") (or (== element "string") (nisa_is_pin_record parser element))) { return (+ "array<" (+ element ">")) }
         return ""
     }
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" }
@@ -1290,20 +1303,21 @@ shadow nisa_expr_is_string {
     let _2: int = (nisa_reset)
 }
 
-# I carry declared scalar array context into empty literals without changing the AST.
+# I carry declared array element context into literals without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
     if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL)
-            (or (== expected "array<int>") (== expected "array<string>"))) {
+            (and (str_starts_with expected "array<") (nisa_type_ok parser expected))) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         let mut tag: string = "1"
-        let mut element: string = "int"
-        if (== expected "array<string>") { set tag "5" set element "string" }
+        let element: string = (nisa_element_type parser expected)
+        if (== element "string") { set tag "5" }
+        if (nisa_is_pin_record parser element) { set tag "8" }
         let mut output: string = ""
         let mut i: int = 0
         while (< i literal.element_count) {
             let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
             if (!= (nisa_expr_type parser value.node_id value.node_type) element) {
-                return (nisa_fail "array element does not match my declared scalar type")
+                return (nisa_fail "array element does not match my declared type")
             }
             set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
             set i (+ i 1)
@@ -1348,7 +1362,7 @@ shadow nisa_emit_call_args {
 fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
     let expected: string = (nisa_expr_type parser node_id ParseNodeType.PNODE_ARRAY_LITERAL)
     if (== expected "") {
-        return (nisa_fail "I require homogeneous supported scalar array elements")
+        return (nisa_fail "I require homogeneous supported array elements")
     }
     return (nisa_emit_expected_expr parser node_id ParseNodeType.PNODE_ARRAY_LITERAL expected)
 }
@@ -1397,7 +1411,7 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                     let vty: int = (at lit.field_value_types j)
                     let expected: string = (at sd.field_types i)
                     let contextual_array: bool = (and (== vty ParseNodeType.PNODE_ARRAY_LITERAL)
-                        (or (== expected "array<int>") (== expected "array<string>")))
+                        (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
                     if (and (not contextual_array) (!= (nisa_expr_type parser vid vty) expected)) {
                         return (nisa_fail (+ "I require the declared type for record field " fname))
                     }
@@ -2153,7 +2167,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
-    if (or (== t "array<int>") (== t "array<string>")) { return "array" }
+    if (and (str_starts_with t "array<") (nisa_type_ok parser t)) { return "array" }
     if (== t "HashMap<string,int>") { return "hashmap" }
     if (or (== t "void") (or (== t "int") (or (== t "string") (== t "bool")))) {
         return t

@@ -238,7 +238,7 @@ class FlatRecordEmitter(unittest.TestCase):
                     result = subprocess.run([ROOT / "bin/nanoisa_emit", invalid, "-o", output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn("homogeneous supported scalar array elements", result.stdout)
+                    self.assertIn("homogeneous supported array elements", result.stdout)
                     self.assertFalse(output.exists())
 
     def test_nested_record_lists_match_and_execute(self):
@@ -259,6 +259,41 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
+
+    def test_record_arrays_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/record_arrays.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-record-arrays-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "symbol", "empty", "entries", "table", "main")
+            self.assertIn("12 passed, 0 failed", result.stdout)
+            self.assertIn("ARR_LITERAL 8 0", assembly.read_text())
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+            # My emitter retains direct element projection while the C-seed
+            # nominal metadata repair remains separately tracked.
+            direct = work / "direct.nano"
+            direct.write_text(fixture.read_text().replace(
+                'let first: Symbol = (at value.symbols 0)\n    assert (== first.name "first")',
+                'let first: Symbol = (at value.symbols 0)\n    assert (== (at value.symbols 0).name "first")').replace(
+                'let third: Symbol = (at more 2)\n    assert (== third.location.line 3)',
+                'assert (== (at more 2).location.line 3)'))
+            self.run_checked(ROOT / "bin/nanoisa_emit", direct, "-o", assembly)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            self.run_checked(ROOT / "bin/nano_vm", emitted)
+            native, binary = work / "direct.c", work / "direct"
+            self.run_checked(ROOT / "bin/nvm2c", emitted, "-o", native)
+            self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
+            self.run_checked(binary)
 
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
@@ -611,6 +646,7 @@ class FlatRecordEmitter(unittest.TestCase):
         programs = [
             'struct Cycle { next: Cycle } fn identity(value: Cycle) -> Cycle { return value }',
             'struct Cycle { next: List<Cycle> } fn identity(value: Cycle) -> Cycle { return value }',
+            'struct Cycle { next: array<Cycle> } fn identity(value: Cycle) -> Cycle { return value }',
             'struct Left { right: Right } struct Right { left: Left } fn identity(value: Left) -> Left { return value }',
             'struct Inner { value: int } struct Outer { inner: Inner } fn bad() -> Outer { return Outer { inner: 7 } }',
             'struct Inner { value: int } struct Other { value: int } struct Outer { inner: Inner } '
