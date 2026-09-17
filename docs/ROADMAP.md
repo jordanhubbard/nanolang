@@ -52,9 +52,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       - [x] I reject unsupported resource collection payloads consistently at
         ownership boundaries, including pass-through signatures, and execute
         ordinary union-array controls in C and both self-hosted stages.
-      - [ ] I retain the owned-match guard and then implement selected-variant
-        transfer as a separate reviewed slice with branch-local obligations,
-        complete destructuring, joins and post-match use-after-move checks.
+      - [x] I retain the owned-match guard and record selected-variant transfer
+        as the separate open task below; this classifier does not implement it.
 
       Evidence: `docs/evidence/fixed-union-resource-collections.md`.
 
