@@ -878,7 +878,7 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
 const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (expr && expr->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
-        if (symbol && symbol->type == TYPE_BORROW_SHARED) return symbol->struct_type_name;
+        if (symbol && (symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT)) return symbol->struct_type_name;
     }
     if (!expr) return NULL;
     
@@ -1426,7 +1426,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             sym->is_used = true;  /* Mark variable as used */
             
-            return sym->type == TYPE_BORROW_SHARED ? TYPE_STRUCT : sym->type;
+            return (sym->type == TYPE_BORROW_SHARED || sym->type == TYPE_BORROW_MUT) ? TYPE_STRUCT : sym->type;
         }
 
         case AST_QUALIFIED_NAME: {
@@ -2636,15 +2636,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     ASTNode *arg = expr->as.call.args[i];
                     
-                    if (func->params[i].type == TYPE_BORROW_SHARED) {
+                    if (func->params[i].type == TYPE_BORROW_SHARED || func->params[i].type == TYPE_BORROW_MUT) {
+                        int borrow_mode = func->params[i].type == TYPE_BORROW_MUT ? 2 : 1;
                         const TypeInfo *inner = func->params[i].type_info ? func->params[i].type_info->element_type : NULL;
-                        ASTNode *place = arg->type == AST_CALL && arg->as.call.borrow_mode == 1 && arg->as.call.arg_count == 1 ? arg->as.call.args[0] : NULL;
+                        ASTNode *place = arg->type == AST_CALL && arg->as.call.borrow_mode == borrow_mode && arg->as.call.arg_count == 1 ? arg->as.call.args[0] : NULL;
                         Symbol *owner = place && place->type == AST_IDENTIFIER ? env_get_var_visible_at(env, place->as.identifier, place->line, place->column) : NULL;
                         const char *actual = owner ? owner->struct_type_name : NULL;
                         if (!owner || !inner || !actual || !inner->generic_name || strcmp(actual, inner->generic_name) ||
-                            (owner->type != TYPE_STRUCT && owner->type != TYPE_BORROW_SHARED)) {
+                            (owner->type != TYPE_STRUCT && owner->type != TYPE_BORROW_SHARED && owner->type != TYPE_BORROW_MUT) ||
+                            (borrow_mode == 2 && !(owner->type == TYPE_BORROW_MUT || (owner->type == TYPE_STRUCT && owner->is_mut)))) {
                             emit_context_error("E0036", arg->line, arg->column, 1,
-                                "I require an explicit shared borrow of the declared owner", "Use &owner with the same nominal record.");
+                                "I require an explicit borrow of the declared owner with matching mutability", "Use &owner or &mut owner with the declared capability and nominal record.");
                             return TYPE_UNKNOWN;
                         }
                         check_expression(place, env);
@@ -4826,6 +4828,27 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     message,
                     "Check spelling or ensure the variable is in scope."
                 );
+                tc->has_error = true;
+                return TYPE_VOID;
+            }
+
+            if (stmt->as.set.field_name) {
+                StructDef *record = sym->struct_type_name ? env_get_struct(tc->env, sym->struct_type_name) : NULL;
+                if (sym->type != TYPE_BORROW_MUT || !record) {
+                    fprintf(stderr, "I require an exclusive borrowed owner for field mutation\n");
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+                for (int i = 0; i < record->field_count; ++i) {
+                    if (strcmp(record->field_names[i], stmt->as.set.field_name)) continue;
+                    Type actual = check_expression(stmt->as.set.value, tc->env);
+                    if (!types_match(actual, record->field_types[i])) {
+                        fprintf(stderr, "I require the declared field type for borrowed mutation\n");
+                        tc->has_error = true;
+                    }
+                    return TYPE_VOID;
+                }
+                fprintf(stderr, "I cannot find the named field in this borrowed owner\n");
                 tc->has_error = true;
                 return TYPE_VOID;
             }
@@ -7544,7 +7567,7 @@ register_function_pass1:;
                     param_sym->def_line = item->line;
                     param_sym->def_column = item->column;
 
-                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED) &&
+                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
@@ -8307,7 +8330,7 @@ register_function_pass2:;
                     param_sym->def_line = item->line;
                     param_sym->def_column = item->column;
 
-                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED) &&
+                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }

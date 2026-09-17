@@ -470,6 +470,7 @@ typedef struct nl_ASTSet {
     const char * target;
     int value;
     int value_type;
+    const char * field_name;
 } nl_ASTSet;
 typedef nl_ASTSet ASTSet;
 #endif

@@ -1046,7 +1046,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
             }
-            if (sym && sym->type == TYPE_BORROW_SHARED) {
+            if (sym && (sym->type == TYPE_BORROW_SHARED || sym->type == TYPE_BORROW_MUT)) {
                 emit_formatted(list, "(*%s)", expr->as.identifier);
                 break;
             }
@@ -4009,6 +4009,16 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         }
         
         case AST_SET:
+            if (stmt->as.set.field_name) {
+                emit_indent_item(list, indent);
+                emit_literal(list, stmt->as.set.name);
+                emit_literal(list, "->");
+                emit_literal(list, stmt->as.set.field_name);
+                emit_literal(list, " = ");
+                build_expr(list, stmt->as.set.value, env);
+                emit_literal(list, ";\n");
+                break;
+            }
             if (env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column) &&
                 env_get_var_visible_at(env, stmt->as.set.name, stmt->line, stmt->column)->type == TYPE_VOID) {
                 emit_indent_item(list, indent);

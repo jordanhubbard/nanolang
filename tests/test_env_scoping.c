@@ -289,8 +289,17 @@ static void test_borrowed_record_identity(void) {
           "I retain the owner's record identity for a shared parameter");
     CHECK(env_get_var(borrow_env, "second")->value.as.struct_val == owner.as.struct_val,
           "I retain the same identity for repeated shared aliases");
+    env_define_var(borrow_env, "exclusive", TYPE_BORROW_MUT, false, owner);
+    StructValue *exclusive = env_get_var(borrow_env, "exclusive")->value.as.struct_val;
+    CHECK(exclusive == owner.as.struct_val,
+          "I retain the owner's identity for an exclusive parameter");
+    exclusive->field_values[0] = create_int(8);
+    CHECK(owner.as.struct_val->field_values[0].as.int_val == 8,
+          "I observe exclusive mutation through the original owner");
+    CHECK(owner.as.struct_val != &initial && initial.field_values[0].as.int_val == 7,
+          "I preserve independent copying for ordinary record bindings");
     free_environment(borrow_env);
-    CHECK(owner.as.struct_val->field_values[0].as.int_val == 7,
+    CHECK(owner.as.struct_val->field_values[0].as.int_val == 8,
           "I leave the owner alive after borrowed bindings are destroyed");
     free_environment(owner_env);
 }

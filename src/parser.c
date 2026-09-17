@@ -3150,10 +3150,22 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             char *name = strdup(current_token(p)->value);
             advance(p);
 
+            char *field_name = NULL;
+            if (match(p, TOKEN_DOT)) {
+                advance(p);
+                if (!match(p, TOKEN_IDENTIFIER)) {
+                    free(name);
+                    parser_error(p, line, column, "I require a named field after '.' in assignment\n");
+                    return NULL;
+                }
+                field_name = strdup(current_token(p)->value);
+                advance(p);
+            }
             ASTNode *value = parse_expression(p);
 
             node = create_node(AST_SET, line, column);
             node->as.set.name = name;
+            node->as.set.field_name = field_name;
             node->as.set.value = value;
             return node;
         }
@@ -5838,6 +5850,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_SET:
             free(node->as.set.name);
+            free(node->as.set.field_name);
             free_ast(node->as.set.value);
             break;
         case AST_IF:
