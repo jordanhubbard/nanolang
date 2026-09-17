@@ -1234,10 +1234,22 @@ shadow collect_module_dirs {
     assert (== 1 1)
 }
 
+# My native driver already compiles this runtime source into every output.
+fn native_source_already_linked(source: string, runtime_json: string) -> bool {
+    return (and (!= source "") (== source runtime_json))
+}
+shadow native_source_already_linked {
+    assert (native_source_already_linked "/repo/src/cJSON.c" "/repo/src/cJSON.c")
+    assert (not (native_source_already_linked "/other/cJSON.c" "/repo/src/cJSON.c"))
+    assert (not (native_source_already_linked "" ""))
+}
+
 fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: bool) -> ModuleBuildFlags {
     let module_dirs: array<string> = (collect_module_dirs files repo_root)
     let mut cflags: string = ""
     let mut ldflags: string = ""
+    let mut objects: string = ""
+    let runtime_json: string = (canonical (nl_path_join repo_root "src/cJSON.c"))
     let mut processed_pkgs: array<string> = []
 
     let mut i: int = 0
@@ -1356,6 +1368,10 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                 let mut csi: int = 0
                 while (< csi (array_length c_sources)) {
                     let csrc: string = (nl_path_join dir (at c_sources csi))
+                    if (native_source_already_linked (canonical csrc) runtime_json) {
+                        set csi (+ csi 1)
+                        continue
+                    }
                     let base: string = (nlc_path_basename csrc)
                     let blen: int = (str_length base)
                     let stem: string = (str_substring base 0 (- blen 2))
@@ -1375,7 +1391,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                     } else { (print "") }
                     let cr: int = (nl_exec_shell compile_cmd)
                     if (== cr 0) {
-                        set ldflags (+ ldflags (+ " " obj))
+                        set objects (+ objects (+ " " obj))
                     } else {
                         (print "    Warning: failed to compile module source: ")
                         (println csrc)
@@ -1437,7 +1453,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
         } else { (print "") }
         set i (+ i 1)
     }
-    return ModuleBuildFlags { compile_flags: cflags, link_flags: ldflags }
+    return ModuleBuildFlags { compile_flags: cflags, link_flags: (+ objects ldflags) }
 }
 
 shadow collect_module_build_flags {
