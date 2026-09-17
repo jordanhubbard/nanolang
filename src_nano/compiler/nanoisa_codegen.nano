@@ -25,6 +25,8 @@ let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 let mut nisa_void_return: bool = false
+let mut nisa_loop_top: string = ""
+let mut nisa_loop_end: string = ""
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -35,6 +37,8 @@ fn nisa_reset() -> int {
     set nisa_err ""
     set nisa_label 0
     set nisa_void_return false
+    set nisa_loop_top ""
+    set nisa_loop_end ""
     return 0
 }
 
@@ -42,6 +46,8 @@ shadow nisa_reset {
     let _: int = (nisa_reset)
     assert nisa_ok
     assert (== nisa_err "")
+    assert (== nisa_loop_top "")
+    assert (== nisa_loop_end "")
 }
 
 fn nisa_fail(msg: string) -> string {
@@ -1125,7 +1131,9 @@ fn nisa_block_falls_through(parser: Parser, block_id: int) -> bool {
         let mut i: int = 0
         while (< i n) {
             let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
-            if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+            if (or (== stmt.node_type ParseNodeType.PNODE_RETURN)
+                   (or (== stmt.node_type ParseNodeType.PNODE_BREAK)
+                       (== stmt.node_type ParseNodeType.PNODE_CONTINUE))) {
                 return false
             } else {
                 if (== stmt.node_type ParseNodeType.PNODE_IF) {
@@ -1161,7 +1169,9 @@ shadow nisa_block_falls_through {
 }
 
 fn nisa_stmt_terminates(parser: Parser, stmt: ASTStmtRef) -> bool {
-    if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+    if (or (== stmt.node_type ParseNodeType.PNODE_RETURN)
+                   (or (== stmt.node_type ParseNodeType.PNODE_BREAK)
+                       (== stmt.node_type ParseNodeType.PNODE_CONTINUE))) {
         return true
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_IF) {
@@ -1234,9 +1244,20 @@ shadow nisa_emit_if {
 fn nisa_emit_while(parser: Parser, w: ASTWhile) -> string {
     let l_top: string = (nisa_fresh)
     let l_end: string = (nisa_fresh)
+    let outer_top: string = nisa_loop_top
+    let outer_end: string = nisa_loop_end
+    set nisa_loop_top l_top
+    set nisa_loop_end l_end
     let mut out: string = (nisa_label_line l_top)
-    set out (+ out (nisa_emit_expr parser w.condition w.condition_type))
-    set out (+ out (nisa_line_imm "JMP_FALSE" l_end))
+    let mut unconditional: bool = false
+    if (== w.condition_type ParseNodeType.PNODE_BOOL) {
+        let condition: ASTBool = (parser_get_bool parser w.condition)
+        set unconditional condition.value
+    }
+    if (not unconditional) {
+        set out (+ out (nisa_emit_expr parser w.condition w.condition_type))
+        set out (+ out (nisa_line_imm "JMP_FALSE" l_end))
+    }
     set out (+ out (nisa_emit_block parser w.body))
     if (nisa_block_falls_through parser w.body) {
         set out (+ out (nisa_line_imm "JMP" l_top))
@@ -1244,6 +1265,8 @@ fn nisa_emit_while(parser: Parser, w: ASTWhile) -> string {
         (print "")
     }
     set out (+ out (nisa_label_line l_end))
+    set nisa_loop_top outer_top
+    set nisa_loop_end outer_end
     return out
 }
 
@@ -1308,6 +1331,14 @@ shadow nisa_call_has_result {
 }
 
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
+    if (== stmt.node_type ParseNodeType.PNODE_BREAK) {
+        if (== nisa_loop_end "") { return (nisa_fail "break needs an enclosing loop") }
+        return (nisa_line_imm "JMP" nisa_loop_end)
+    }
+    if (== stmt.node_type ParseNodeType.PNODE_CONTINUE) {
+        if (== nisa_loop_top "") { return (nisa_fail "continue needs an enclosing loop") }
+        return (nisa_line_imm "JMP" nisa_loop_top)
+    }
     if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
         if (< r.value 0) {
@@ -1487,6 +1518,8 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_types []
     let result_tag: string = (nisa_result_tag parser func.return_type)
     set nisa_void_return (== func.return_type "void")
+    set nisa_loop_top ""
+    set nisa_loop_end ""
     if (== result_tag "") {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
