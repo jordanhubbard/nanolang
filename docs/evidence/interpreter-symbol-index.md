@@ -72,5 +72,8 @@ the corrected check is `/tmp/nanolang-symbol-index-sanitizer-r2.log`.
 
 All 39 environment scoping checks, parser/typechecker/interpreter unit tests,
 ten lexical-boundary methods and two interpreter/VM callee-snapshot methods
-pass. Full bootstrap and imported callback metadata checks are running; I record
-their final results before completing this slice.
+pass. All three imported callback metadata methods pass, including generated
+compiler contracts and output preservation on a mismatched callback. A fresh
+default-budget bootstrap passes both compiler stages, the recorded comparison
+and installed-compiler smoke checks. These checks do not establish full
+NanoISA-only bootstrap or release readiness.

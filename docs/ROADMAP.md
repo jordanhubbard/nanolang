@@ -50,11 +50,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I infer the supported element type of an unbound empty-array append from its value, preserve nested append types and source evaluation order, and reject mismatched established receivers. I require bytecode parity and VM/native execution before advancing my complete compiler-shadow closure (MAC `task_d5ed194093434b5cbfc2e3ec6bc2d37a`).
 - [x] I release my owned Environment import-tracker array and container during teardown (MAC `task_73162d300ee44cb4a16d723bd49beeec`). The symbol-index LSan fixture exposes a pre-existing 208-byte leak; I retain the failure and keep entry-payload ownership separate.
 
-- [ ] I restore margin within my ordinary compiler-shadow deadline without changing its value or selected tests (MAC `task_628759a2daf743b9bf13c9a7fea2ced0`). One diagnostic sample completes 823 shadows in 9.953 seconds; bounded stack samples identify repeated variable-name scans, including misses before ordinary function calls.
+- [x] I restore margin within my ordinary compiler-shadow deadline without changing its value or selected tests (MAC `task_628759a2daf743b9bf13c9a7fea2ced0`). One diagnostic sample completes 823 shadows in 9.953 seconds; bounded stack samples identify repeated variable-name scans, including misses before ordinary function calls.
   - [x] I retain the timeout/pass evidence, a 60-second diagnostic timing sample, and 24 stack samples without changing host profiling policy. These samples select a cost to investigate; they do not prove every timeout's cause.
   - [x] I audit insertion, same-file lookup, lexical rollback, reused slots, imported constants and environment teardown before indexing symbol names. Normal declarations synchronize before insertion; the separate imported C-constant append will explicitly invalidate the index.
-  - [ ] I index names without changing reverse-most selection, owner/source filtering or value lifetime; allocation failure retains correct linear lookup.
-  - [ ] I verify scope reuse, metadata preservation, imported names and function-variable shadowing, then compare unchanged-source full shadow timing at the default deadline and publish the measured boundary.
+  - [x] I index names without changing reverse-most selection, owner/source filtering or value lifetime; allocation failure retains correct linear lookup.
+  - [x] I verify scope reuse, metadata preservation, imported names and function-variable shadowing, then compare unchanged-source full shadow timing at the default deadline and publish the [measured boundary](evidence/interpreter-symbol-index.md). All 826 shadows complete in 2.392 seconds on the same source whose baseline reaches the default deadline; fresh bootstrap and imported callback checks pass.
 
 
 - [ ] **Paired call-scoped resource borrows.** I implement the existing
