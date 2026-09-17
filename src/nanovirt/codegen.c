@@ -796,8 +796,25 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_CAST_BOOL);
         return true;
     }
+    if (strcmp(name, "float_to_string") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_CAST_STRING);
+        const char *markers[] = {".", "e", "n", "i"};
+        uint32_t done[4];
+        for (int i = 0; i < 4; i++) {
+            emit_op(cg, OP_DUP);
+            emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, markers[i], 1));
+            emit_op(cg, OP_STR_CONTAINS);
+            done[i] = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
+        }
+        emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, ".0", 2));
+        emit_op(cg, OP_STR_CONCAT);
+        for (int i = 0; i < 4; i++)
+            patch_jump(cg, done[i] + 1, done[i], cg->code_size);
+        return true;
+    }
     if ((strcmp(name, "cast_string") == 0 || strcmp(name, "to_string") == 0 ||
-         strcmp(name, "int_to_string") == 0 || strcmp(name, "float_to_string") == 0 ||
+         strcmp(name, "int_to_string") == 0 ||
          strcmp(name, "bool_to_string") == 0) && argc == 1) {
         compile_expr(cg, args[0]);
         emit_op(cg, OP_CAST_STRING);
