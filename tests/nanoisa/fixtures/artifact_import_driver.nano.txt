@@ -17,6 +17,8 @@ fn main() -> int {
     (mb_add_target 2 "left.base" "path_basename" 0)
     (mb_add_target 2 "right.base" "path_basename" 1)
     (mb_add_target 2 "selected" "path_basename" 1)
+    (mb_add_target 2 "publish" "nl_nanoisa_assemble_text_save" 0)
+    (mb_add_target 2 "diagnostic" "nl_nanoisa_last_error" 1)
     let mode: string = (get_argv 4)
     let assembly: string = (nanoisa_emit_program_nasm parser)
     if (== mode "raw") {

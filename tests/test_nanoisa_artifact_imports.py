@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -84,6 +85,95 @@ class ArtifactImports(unittest.TestCase):
             assembly.write_text(self.command(self.driver, merged, dependency, dependency, "program").stdout)
             compared = self.command(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly, "main", "--imports")
             self.assertIn("5 passed, 0 failed", compared.stdout)
+
+    def test_integer_status_and_zero_argument_diagnostic_match_cseed(self):
+        with tempfile.TemporaryDirectory(prefix="nano-assembly-contract-") as tmp:
+            directory = Path(tmp)
+            provider = directory / "provider"
+            provider.mkdir()
+            api = provider / "api.nano"
+            declarations = ('extern fn nl_nanoisa_assemble_text_save(source: string, path: string) -> int\n'
+                            'extern fn nl_nanoisa_last_error() -> string\n')
+            api.write_text(declarations)
+            (provider / "module.json").write_text(json.dumps({"name": "publisher", "c_sources": ["api.c"]}))
+            (provider / "api.c").write_text(
+                '#include <string.h>\n'
+                'long long nl_nanoisa_assemble_text_save(const char *source, const char *path) { '
+                'return !strcmp(source,"first") && !strcmp(path,"second") ? 37 : -1; }\n'
+                'const char *nl_nanoisa_last_error(void) { return "fixture-error"; }\n')
+            body = ('fn main() -> int { unsafe { '
+                    'let status: int = (nl_nanoisa_assemble_text_save "first" "second") '
+                    'assert (== status 37) assert (== (nl_nanoisa_last_error) "fixture-error") '
+                    '} return 0 }\n')
+            root, merged = directory / "main.nano", directory / "merged.nano"
+            root.write_text('import "' + str(api) + '"\n' + body + 'shadow main { assert true }\n')
+            merged.write_text(declarations + body.replace('nl_nanoisa_assemble_text_save', 'publish').replace('nl_nanoisa_last_error', 'diagnostic'))
+            seed, text, module = directory / "seed.nvm", directory / "out.nasm", directory / "out.nvm"
+            self.command(ROOT / "bin/nano_virt", root, "--emit-nvm", "--strip-debug", "-o", seed)
+            assembly = self.command(self.driver, merged, api, api, "raw").stdout
+            text.write_text(assembly)
+            self.assertIn('"nl_nanoisa_assemble_text_save" int string string', assembly)
+            self.assertIn('"nl_nanoisa_last_error" string\n', assembly)
+            compared = self.command(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, text, "main", "--imports")
+            self.assertIn("5 passed, 0 failed", compared.stdout)
+            self.command(ROOT / "bin/nanoisa", "asm", text, "-o", module)
+            self.command(ROOT / "bin/nano_vm", module)
+            c_source, binary = directory / "out.c", directory / "native"
+            self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
+            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source, "-ldl", "-o", binary)
+            self.command(binary)
+
+    def test_actual_assembly_publication_and_diagnostic_vm_native(self):
+        with tempfile.TemporaryDirectory(prefix="nano-assembly-publication-") as tmp:
+            directory = Path(tmp)
+            provider = ROOT / "modules/nanoisa/nanoisa.nano"
+            target = directory / "published.nvm"
+            valid = '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
+            merged = directory / "merged.nano"
+            merged.write_text(
+                'extern fn nl_nanoisa_assemble_text_save(source: string, path: string) -> int\n'
+                'extern fn nl_nanoisa_last_error() -> string\n'
+                'fn main() -> int { let status: int = (publish ' + json.dumps(valid) + ' ' + json.dumps(str(target)) + ') '
+                'assert (== status 0) assert (!= (publish "invalid assembly" ' + json.dumps(str(target)) + ') 0) '
+                'assert (> (str_length (diagnostic)) 0) return 0 }\n')
+            assembly = self.command(self.driver, merged, provider, provider, "program").stdout
+            text, module = directory / "out.nasm", directory / "out.nvm"
+            text.write_text(assembly)
+            self.command(ROOT / "bin/nanoisa", "asm", text, "-o", module)
+            self.command(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.command(ROOT / "bin/nano_vm", module)
+            first = target.read_bytes()
+            self.assertEqual(first[:4], b"NVM\x02")
+            self.command(ROOT / "bin/nano_vm", "--verify-only", target)
+            self.command(ROOT / "bin/nano_vm", target)
+            c_source, binary = directory / "out.c", directory / "native"
+            self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
+            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
+                         ROOT / "bin/nano_aot_runtime.o", "-lm",
+                         *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                         "-o", binary)
+            self.command(binary)
+            self.assertEqual(first, target.read_bytes())
+
+    def test_publication_contract_refuses_wrong_result_and_zero_arg_shapes(self):
+        with tempfile.TemporaryDirectory(prefix="nano-assembly-refusal-") as tmp:
+            directory = Path(tmp)
+            provider = ROOT / "modules/nanoisa/nanoisa.nano"
+            merged = directory / "merged.nano"
+            declarations = [
+                ('extern fn nl_nanoisa_assemble_text_save(s: string, p: string) -> string', '(publish "x" "y")'),
+                ('extern fn nl_nanoisa_assemble_text_save(s: string) -> int', '(publish "x")'),
+                ('extern fn nl_nanoisa_assemble_text_save(s: int, p: string) -> int', '(publish 1 "y")'),
+                ('extern fn nl_nanoisa_last_error() -> int', '(diagnostic)'),
+                ('extern fn nl_nanoisa_last_error(p: string) -> string', '(diagnostic "x")'),
+                ('extern fn nl_nanoisa_last_error() -> string', '(diagnostic "x")'),
+            ]
+            for declaration, call in declarations:
+                with self.subTest(declaration=declaration, call=call):
+                    # My diagnostic declaration belongs to the second source owner.
+                    prefix = '\n' + declaration if 'last_error' in declaration else declaration + '\n'
+                    merged.write_text(prefix + '\nfn main() -> int { ' + call + ' return 0 }\n')
+                    self.assertEqual(self.command(self.driver, merged, provider, provider, "program", expected=1).stdout, "")
 
     def test_bad_artifact_signatures_operands_and_missing_owner_refuse(self):
         with tempfile.TemporaryDirectory(prefix="nano-artifact-refusal-") as tmp:

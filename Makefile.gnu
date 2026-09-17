@@ -507,7 +507,7 @@ nanoisa_emit: $(COMPILER_C) | bin
 	$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
 
 .PHONY: test-nanoisa-src-nano
-test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nvm2c-runtime nanoisa_dump $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running src_nano NanoISA Cut A comparison..."
 	$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_add.nano --emit-nvm --strip-debug \
 		-o /tmp/nanolang_cut_a_c.nvm

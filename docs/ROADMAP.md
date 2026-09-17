@@ -8447,6 +8447,9 @@ Compiler product:
       `Box<Result<int,string>>` copies and payloads execute under all three
       native compiler stages. Other constructor contexts remain task633.
       Evidence: `docs/evidence/native-nested-generic-identity.md`.
+- [ ] I lower the existing two-string `str_concat` builtin required by my
+      compiler (`task_9ab740ec43654cedb0c1de224856735d`), preserving argument
+      order and typed refusals. Full emission reaches it after publication calls.
 - [x] I retain native foreign module metadata for root sources outside my
       repository (`task_c6b698326e0f4e6296299ddfdf172ebd`). Source-ancestry root
       discovery preserves `/` as its own parent; when no source root exists,
@@ -8456,9 +8459,10 @@ Compiler product:
       already supplied canonical runtime sources (`task_59b46df66b0d480b83cf9cde4a416c07`).
       The artifact facade exposes duplicate cJSON symbols and unresolved SHA256
       during the three-stage bootstrap.
-- [ ] I lower the exact `nl_nanoisa_assemble_text_save` artifact signature
-      required by compiler publication (`task_3560b1472ae64d73b0449b7df6933914`).
-      Full compiler emission reaches this int-result extern after path imports.
+- [x] I lower the exact `nl_nanoisa_assemble_text_save` and
+      `nl_nanoisa_last_error` artifact signatures used by compiler publication
+      (`task_3560b1472ae64d73b0449b7df6933914`), preserving integer status and
+      zero-argument string diagnostics. Full emission reaches these after paths.
 - [x] I apply my existing `nano_aot_runtime.o` host-link contract to the
       canonical artifact regression (`task_e56bc32177f04739ae5a8935ead863b1`).
       Its initial native invocation omitted the required runtime exports.
