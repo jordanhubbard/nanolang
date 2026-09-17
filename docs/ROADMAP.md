@@ -148,13 +148,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/generic-selected-patterns.md`. MAC
       `task_bbda7f126bda403aa74034a762930f24`, after instantiated ownership metadata.
 
+- [ ] **Emit concrete aggregate match results.** I retain the checked nominal
+      result of contextual union constructors when declaring a match result,
+      and use valid scalar/aggregate initialization in both native emitters.
+      I require ordinary, generic and scalar executable controls across my
+      C seed and both self-hosted stages before generic ownership acceptance.
+      MAC `task_ce96caed26b843ecb1365def0c733b58`.
+
 - [ ] **Transfer concrete generic selected payloads.** After ordinary generic
       pattern validation, I substitute only the selected arm's fields before
       assigning ownership obligations. I retain declared initializer, parameter
       and return contexts while transferring constructor payloads; I do not
       reconstruct missing arguments from sibling variants. I require paired
       executable resource, ordinary and empty-arm controls plus drop, duplicate-consumption,
-      use-after-move and branch-join rejection. Conditional and match-expression
+      use-after-move and branch-join rejection. Conditional statement returns and match-expression
       constructor results remain positive gates while native emission is repaired.
       I preserve guards for unresolved
       payload shapes, collections and incomplete function signatures. Global
