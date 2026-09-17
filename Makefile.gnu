@@ -4457,3 +4457,15 @@ test-owned-transfers: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DOWN_TRANSFER_ALLOCATION_TEST -o obj/test_owned_transfer_alloc tests/nanoisa/test_owned_transfers.c obj/test_owned_transfer_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_owned_transfer_alloc
 	python3 -m unittest tests.test_owned_transfers
+
+# I translate verified modules; this is independent of the AST compiler paths.
+$(OBJ_DIR)/nanoisa/nvm2llvm.o: $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_DIR)/verifier.h
+$(OBJ_DIR)/nanoisa/nvm2llvm_main.o: $(NANOISA_DIR)/nvm2llvm_main.c $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
+
+.PHONY: nvm2llvm test-nvm2llvm
+nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2llvm $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_nvm2llvm
