@@ -19,6 +19,14 @@ fn main() -> int {
     (mb_add_target 2 "selected" "path_basename" 1)
     (mb_add_target 2 "publish" "nl_nanoisa_assemble_text_save" 0)
     (mb_add_target 2 "diagnostic" "nl_nanoisa_last_error" 1)
+    let filesystem_names: array<string> = ["fs_walkdir", "file_append", "fs_mkdir_p", "file_copy", "dir_copy"]
+    let mut filesystem_index: int = 0
+    while (< filesystem_index (array_length filesystem_names)) {
+        let name: string = (at filesystem_names filesystem_index)
+        (mb_add_target 1 name name 0)
+        (mb_add_target 2 name name 0)
+        set filesystem_index (+ filesystem_index 1)
+    }
     let mode: string = (get_argv 4)
     let assembly: string = (nanoisa_emit_program_nasm parser)
     if (== mode "raw") {
