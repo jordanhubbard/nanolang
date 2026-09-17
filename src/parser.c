@@ -2827,18 +2827,33 @@ static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count,
     bool is_mut = next && next->token_type == TOKEN_MUT;
     if (is_mut) offset++;
     Token *type = peek_token(p, offset);
-    Token *brace = peek_token(p, offset + 1);
-    if (!type || !brace || type->token_type != TOKEN_IDENTIFIER || brace->token_type != TOKEN_LBRACE)
-        return false;
+    if (!type || type->token_type != TOKEN_IDENTIFIER) return false;
+    int after_type = offset + 1;
+    size_t type_length = strlen(type->value);
+    while (peek_token(p, after_type) && peek_token(p, after_type)->token_type == TOKEN_DOT) {
+        Token *part = peek_token(p, after_type + 1);
+        if (!part || part->token_type != TOKEN_IDENTIFIER) return false;
+        type_length += strlen(part->value) + 1;
+        after_type += 2;
+    }
+    Token *brace = peek_token(p, after_type);
+    if (!brace || brace->token_type != TOKEN_LBRACE) return false;
+    char *pattern_type = malloc(type_length + 1);
+    if (!pattern_type) { fprintf(stderr, "I cannot allocate an owned pattern type.\n"); exit(1); }
+    strcpy(pattern_type, type->value);
+    for (int i = offset + 1; i < after_type; i += 2) {
+        strcat(pattern_type, ".");
+        strcat(pattern_type, peek_token(p, i + 1)->value);
+    }
     Token *start = current_token(p);
     char temporary[64];
     snprintf(temporary, sizeof temporary, "__owned$%d", p->pos);
     ASTNode *owner = create_node(AST_LET, start->line, start->column);
     owner->as.let.name = strdup(temporary);
     owner->as.let.var_type = TYPE_STRUCT;
-    owner->as.let.type_name = strdup(type->value);
+    owner->as.let.type_name = pattern_type;
     owner->as.let.is_destructure = true;
-    for (int i = 0; i < offset + 2; i++) advance(p);
+    for (int i = 0; i <= after_type; i++) advance(p);
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (!match(p, TOKEN_IDENTIFIER)) {
             parser_error(p, start->line, start->column, "I require every field name in an owned record pattern.\n");

@@ -73,8 +73,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       do not infer NanoISA ownership verification from native execution. MAC
       `task_c17b55115379414980609a5d867ccad1`, dependent on
       `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
-      - [ ] I first preserve a qualified variant pattern name in both parsers
+      - [x] I first preserve a qualified variant pattern name in both parsers
         and validate its complete field set against the selected arm identity.
+        Five methods pass across the C seed and both self-hosted stages,
+        alongside a fresh bootstrap and 44 adjacent methods. I retain the
+        owned-match rejection until the transfer steps below pass.
       - [ ] I move an exhaustive unguarded nongeneric scrutinee once, classify
         each selected payload independently and transfer its complete fields.
       - [ ] I test ordinary and owned arms, empty variants, nested resources,

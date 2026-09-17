@@ -3868,27 +3868,49 @@ shadow array_elem_type_from_array_decl {
  * Returns: Updated symbols array with the new variable
  */
 fn owned_pattern_complete(parser: Parser, binding: ASTLet) -> bool {
+    let mut names: array<string> = []
+    let mut found: bool = false
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
         let record: ASTStruct = (parser_get_struct_def parser i)
-        if (== record.name binding.var_type) {
-            if (!= (array_length record.field_names) (array_length binding.destructure_names)) { return false }
-            let mut field: int = 0
-            while (< field (array_length binding.destructure_names)) {
-                let name: string = (at binding.destructure_names field)
-                if (not (resource_name_in record.field_names name)) { return false }
-                let mut previous: int = 0
-                while (< previous field) {
-                    if (== name (at binding.destructure_names previous)) { return false }
-                    set previous (+ previous 1)
+        if (== record.name binding.var_type) { set names record.field_names set found true }
+        set i (+ i 1)
+    }
+    set i 0
+    while (and (not found) (< i (parser_get_union_count parser))) {
+        let definition: ASTUnion = (parser_get_union parser i)
+        if (== (array_length definition.generic_params) 0) {
+            let mut offset: int = 0
+            let mut variant: int = 0
+            while (< variant definition.variant_count) {
+                let count: int = (at definition.variant_field_counts variant)
+                if (== binding.var_type (+ (+ definition.name ".") (at definition.variant_names variant))) {
+                    set found true
+                    let mut field: int = 0
+                    while (< field count) {
+                        set names (array_push names (at definition.variant_field_names (+ offset field)))
+                        set field (+ field 1)
+                    }
                 }
-                set field (+ field 1)
+                set offset (+ offset count)
+                set variant (+ variant 1)
             }
-            return true
         }
         set i (+ i 1)
     }
-    return false
+    if (or (not found) (!= (array_length names) (array_length binding.destructure_names))) { return false }
+    let mut field: int = 0
+    while (< field (array_length binding.destructure_names)) {
+        let name: string = (at binding.destructure_names field)
+        if (not (resource_name_in names name)) { return false }
+        let mut previous: int = 0
+        while (< previous field) {
+            if (== name (at binding.destructure_names previous)) { return false }
+            set previous (+ previous 1)
+        }
+        set field (+ field 1)
+    }
+    return true
 }
 
 shadow owned_pattern_complete {
@@ -3900,7 +3922,7 @@ shadow owned_pattern_complete {
 
 fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
     if (and let_node.is_destructure (not (owned_pattern_complete parser let_node))) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require every record field exactly once in an owned pattern." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0036" "I require every record or selected variant field exactly once in an owned pattern." (Diagnostics.diag_location file_name let_node.line let_node.column)))
         return symbols
     }
     # Allow variable redefinition (shadowing) to match C reference compiler behavior.

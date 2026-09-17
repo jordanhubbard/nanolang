@@ -55,3 +55,7 @@ build test test-docs test-doc-md examples clean help install uninstall coverage 
 		printf '\nERROR: GNU make is required but "gmake" was not found.\n\n'; \
 		exit 1; \
 	fi
+
+.PHONY: test-selected-variant-patterns
+test-selected-variant-patterns: bootstrap
+	python3 -m unittest -v tests.test_selected_variant_patterns
