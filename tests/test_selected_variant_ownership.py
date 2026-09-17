@@ -52,6 +52,19 @@ shadow main { assert (== (main) 0) }
     def test_two_resources_and_ordinary_sibling_arms(self):
         self.check('let Choice.Some { right, label, left } = payload assert (== label "kept") return (+ (close_handle left) (close_handle right))', True)
 
+    def test_ordinary_call_match_expression_and_statement(self):
+        self.program('''union Value { Some { number: int }, None {} }
+let mut calls: int = 0
+fn make_value() -> Value { set calls (+ calls 1) return Value.Some { number: 7 } }
+shadow make_value { let value: Value = (make_value) match value { Some(payload) => { assert (== payload.number 7) } None(payload) => { assert false } } }
+fn expression() -> int { return match (make_value) { Some(payload) => payload.number None(payload) => 0 } }
+shadow expression { set calls 0 assert (== (expression) 7) assert (== calls 1) }
+fn statement() -> int { match (make_value) { Some(payload) => { return payload.number } None(payload) => { return 0 } } }
+shadow statement { set calls 0 assert (== (statement) 7) assert (== calls 1) }
+fn main() -> int { set calls 0 assert (== (expression) 7) assert (== calls 1) set calls 0 assert (== (statement) 7) assert (== calls 1) return 0 }
+shadow main { assert (== (main) 0) }
+''', True)
+
     def test_ignored_selected_payload(self):
         self.check('return 7', False)
 
