@@ -145,8 +145,20 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked(ROOT / "bin/nanoc_c", fixture, "-o", binary)
             self.run_checked(binary)
 
+    def test_float_call_return_types_preserve_refusals(self):
+        with tempfile.TemporaryDirectory(prefix="nano-float-return-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for declared, actual, value in (("int", "float", "1.0"), ("float", "int", "1")):
+                source.write_text(f"fn value() -> {actual} {{ return {value} }} fn main() -> {declared} {{ return (value) }}")
+                output.write_text("previous accepted assembly")
+                result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output], cwd=ROOT,
+                                        capture_output=True, text=True, timeout=30)
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(output.read_text(), "previous accepted assembly")
+
     def test_scalar_float_operands_preserve_refusals(self):
         bodies = [
+            'return (float_to_string 1.0)',
             'return (+ 1.5 true)', 'return (+ 1.5 "bad")',
             'return (+ 1.5 1)', 'let value: float = 1 return value',
             'let value: int = 1.0 return 1.0',

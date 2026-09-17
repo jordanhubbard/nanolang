@@ -2782,6 +2782,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         }
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let result_call: ASTCall = (nisa_get_call parser r.value r.value_type)
+            let result_type: string = (nisa_expr_type parser r.value r.value_type)
+            if (and (or (== nisa_return_type "float") (== result_type "float")) (!= result_type nisa_return_type)) {
+                return (nisa_fail "I require the declared float return type")
+            }
             if (== nisa_void_return (nisa_call_has_result parser result_call)) {
                 return (nisa_fail "return call result count does not match my function")
             }
