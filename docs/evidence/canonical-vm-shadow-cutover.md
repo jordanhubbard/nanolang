@@ -17,16 +17,17 @@ state and ordered shadows, ordinary user main, dependency/root-only selection,
 assertion and deadline failures, previous-output preservation, missing runner,
 no-shadow compilation, and runner paths containing spaces.
 
-After the filesystem artifact repair in PR #499, my unchanged canonical
-publication gate still has two failing methods out of eight. File assembly
-shadows now reach the undeclared lowering contract `nl_nanoisa_assemble_save`;
-an unused helper's floating-point shadow also remains unsupported. I retain
-those tests and tasks `task_f5f873fccfff4b5b88f14f4d825ba3b4` and
-`task_8bc58d33e73f4e24a474d3724d862c94`. The full compiler shadow closure
-also retains its recorded range-loop prerequisite. This cutover remains a
-draft until its prerequisites and unchanged acceptance checks pass.
+After the filesystem and file-facade artifact repairs in PRs #499 and #503,
+my unchanged canonical publication gate has one failing method out of eight:
+an unused helper's floating-point shadow remains unsupported. I retain that
+test and `task_8bc58d33e73f4e24a474d3724d862c94`. The complete compiler shadow
+closure has additional recorded prerequisites; passing these focused tests
+will not by itself establish its acceptance.
 
-Logs are `/tmp/nanolang-canonical-vm-shadow-fs-{bootstrap,integrated}.log`.
-That integrated run contains 13 methods and records two failures in 8.684s.
+At main `54287161` plus this cutover, a fresh native bootstrap passes with
+the supported explicit 60-second shadow budget. The combined 13-method gate
+passes 12 methods and records the floating-point failure in 8.905 seconds,
+without a budget override. Logs are
+`/tmp/nanolang-canonical-facade-{bootstrap,integrated}.log`.
 This is `task_c5a7a4835d364b50b747018c794a07d0`; I do not claim the full
 NanoISA-only bootstrap or release acceptance yet.
