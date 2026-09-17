@@ -3431,8 +3431,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 int value = stack_pop(b, &st);
                 char expression[360];
                 snprintf(expression, sizeof expression,
-                    "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : v[%d].kind == 1 ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
-                    value, value, value, value, value, value, value, value);
+                    "(v[%d].kind == 3 ? nstr_from_f64(nvalue_require_float(v[%d])) : v[%d].kind == 5 ? v[%d].text : (v[%d].kind == 1 || v[%d].kind == 2) ? nstr_from_i64(v[%d].integer) : v[%d].kind == 4 ? (v[%d].integer ? \"true\" : \"false\") : \"\")",
+                    value, value, value, value, value, value, value, value, value);
                 stack_push_str(b, &st, expression);
                 break;
             }
