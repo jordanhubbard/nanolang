@@ -8705,8 +8705,10 @@ Compiler product:
       the next pass. I restore their touched subgraphs before collecting old
       white objects, then normalize deferred root colours in a separate pass.
       My existing positive VM lifecycle/collector suite passes 272579 checks.
-      The complete compiler assertion remains independently open under
-      `task_fdf43892a1104b1facddc2553af390af`; see `evidence/vm-deferred-cycle-counts.md`.
+      Ordinary supervised execution of my retained 555412-byte full compiler
+      shadow module now passes, resolving the baseline assertion under
+      `task_fdf43892a1104b1facddc2553af390af`. Fresh current-main closure and
+      canonical cutover remain separate; see `evidence/vm-deferred-cycle-counts.md`.
 - [x] I publish replaced heap edges before releasing their former values, because release can synchronously collect cycles. My existing VM suite passes 272579 checks, including ownership and cycle checks (`task_493552bb4a7144188299474314bde470`; [evidence](evidence/vm-heap-edge-publication.md)). The complete compiler shadow assertion remains open under `task_fdf43892a1104b1facddc2553af390af`; this repair does not resolve it.
 - [ ] I retain stack context for assertion failures under VM debug mode, as I already do for ordinary runtime errors (`task_10e6ea8cf0f34321b9dff21594eb9e8a`).
 - [x] I retain checked filesystem foreign signatures in the complete

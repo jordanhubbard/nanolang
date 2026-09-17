@@ -17,10 +17,16 @@ normal release in the next pass.
 I ran the existing positive VM lifecycle and cycle-collection suite on this
 repair: `make -j8 test-nanovm` passes 272,579 checks, plus the existing field
 allocation and stack reserve failure/recovery checks. I added no minimized
-failure input and ran no invalid-access diagnostic. This is a static accounting
-repair with existing-suite evidence; I have not established that it resolves
-the complete compiler shadow assertion under
-`task_fdf43892a1104b1facddc2553af390af`.
+failure input and ran no invalid-access diagnostic. My ordinary supervised execution of the retained full compiler shadow module
+now also passes with this repair: `nano_vm --check-shadows` exits zero using an
+explicit capture helper and sixty-second deadline. The 555,412-byte module at
+`/tmp/nanolang-append-shadow-probe.nvm` has SHA-256
+`e1c128668b4c858c16975e67c353a1e5d02a2a2c2a462d56f49378096c38ed27`.
+The run uses ordinary supervision, without instruction tracing or invalid-access
+diagnostics; its log is `/tmp/nanolang-full-vm-shadows-deferred-fixed.log`.
+This resolves the retained baseline assertion under
+`task_fdf43892a1104b1facddc2553af390af`. It does not establish a freshly emitted
+current-main shadow closure or completion of the canonical driver cutover.
 
 Task: `task_72433f501ddd4736a45e6244c44ae4fa`. Base: `8e329159`.
 Local log: `/tmp/nanolang-vm-deferred-cycles-tests.log`.
