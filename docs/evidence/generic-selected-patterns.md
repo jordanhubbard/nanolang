@@ -24,8 +24,9 @@ explicit selected-pattern projections.
 Task: `task_bbda7f126bda403aa74034a762930f24`.
 
 Source checkpoint `81cc5ebd` includes main through PR457. It passed a fresh
-three-stage bootstrap, all C typechecker tests and 59 paired new/adjacent
-methods in 176.560 seconds. The combined methods include eight new pattern
+three-stage bootstrap, all C typechecker tests and 59 new/adjacent methods in 176.560 seconds
+(58 paired across all three compilers and one C-only constructor-context
+method; the corresponding self-hosted context repair remains separate). The combined methods include eight new pattern
 methods, instantiated ownership, nongeneric selected patterns and transfers,
 generic identity, and the native nested-generic constructor controls.
 

@@ -124,7 +124,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       inferred projections. Ordinary integer, string, empty and nested selected
       patterns execute across my C seed and both self-hosted stages; malformed
       fields and generic owned transfer remain rejected. Source `81cc5ebd`
-      passes fresh bootstrap, 59 paired new/adjacent methods, C typechecker tests
+      passes fresh bootstrap, 59 new/adjacent methods, C typechecker tests
       and 160 sanitizer lifetime checks. Evidence:
       `docs/evidence/generic-selected-patterns.md`. MAC
       `task_bbda7f126bda403aa74034a762930f24`, after instantiated ownership metadata.
