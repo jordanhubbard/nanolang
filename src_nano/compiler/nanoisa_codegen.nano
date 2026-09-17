@@ -228,6 +228,7 @@ shadow nisa_line_imm {
 }
 
 fn nisa_local_type_ok(t: string) -> bool {
+    if (== t "HashMap<string,int>") { return true }
     if (== t "int") {
         return true
     } else {
@@ -364,6 +365,7 @@ shadow nisa_list_element_tag {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (!= (nisa_map_opcode name) "") { return true }
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
                    (or (nisa_is_list_call name)
@@ -554,6 +556,68 @@ shadow nisa_fn_index {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_fn_index p "add") 0)
     assert (== (nisa_fn_index p "nope") (- 0 1))
+}
+
+# I pin string keys and integer values until other map shapes have parity tests.
+fn nisa_map_opcode(name: string) -> string {
+    if (== name "map_new") { return "HM_NEW" }
+    if (== name "map_get") { return "HM_GET" }
+    if (or (== name "map_put") (== name "map_set")) { return "HM_SET" }
+    if (== name "map_has") { return "HM_HAS" }
+    if (or (== name "map_size") (== name "map_length")) { return "HM_LEN" }
+    return ""
+}
+shadow nisa_map_opcode {
+    assert (== (nisa_map_opcode "map_put") "HM_SET")
+    assert (== (nisa_map_opcode "map_new") "HM_NEW")
+    assert (== (nisa_map_opcode "map_keys") "")
+}
+
+fn nisa_map_result(name: string) -> string {
+    let opcode: string = (nisa_map_opcode name)
+    if (== opcode "HM_NEW") { return "HashMap<string,int>" }
+    if (== opcode "HM_SET") { return "void" }
+    if (== opcode "HM_HAS") { return "bool" }
+    if (or (== opcode "HM_GET") (== opcode "HM_LEN")) { return "int" }
+    return ""
+}
+shadow nisa_map_result {
+    assert (== (nisa_map_result "map_new") "HashMap<string,int>")
+    assert (== (nisa_map_result "map_put") "void")
+    assert (== (nisa_map_result "map_has") "bool")
+    assert (== (nisa_map_result "map_get") "int")
+    assert (== (nisa_map_result "unknown") "")
+}
+
+fn nisa_emit_map_call(parser: Parser, call: ASTCall, name: string) -> string {
+    let opcode: string = (nisa_map_opcode name)
+    let mut arity: int = 2
+    if (== opcode "HM_NEW") { set arity 0 }
+    if (== opcode "HM_LEN") { set arity 1 }
+    if (== opcode "HM_SET") { set arity 3 }
+    if (!= call.arg_count arity) { return (nisa_fail "map call arity mismatch") }
+    let mut i: int = 0
+    while (< i arity) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        let mut expected: string = "HashMap<string,int>"
+        if (== i 1) { set expected "string" }
+        if (== i 2) { set expected "int" }
+        if (!= actual expected) { return (nisa_fail "I require a string-keyed integer map and matching arguments") }
+        set i (+ i 1)
+    }
+    if (== opcode "HM_NEW") { return (nisa_line_imm opcode "5 1") }
+    let mut output: string = (+ (nisa_emit_call_args parser call) (nisa_line opcode))
+    if (== opcode "HM_SET") { set output (+ output (nisa_line "POP")) }
+    return output
+}
+shadow nisa_emit_map_call {
+    let _: int = (nisa_reset)
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n main() -> HashMap<string,int> { return (map_new) }")
+    let tokens: List<LexerToken> = (tokenize_string source "t.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    assert (== (nisa_emit_map_call parser (parser_get_call parser 0) "map_new") "  HM_NEW 5 1\n")
 }
 
 # I name a bounded host ABI. Other externs need an explicit future contract.
@@ -773,6 +837,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let call: ASTCall = (parser_get_call parser node_id)
         if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
         let target: ASTIdentifier = (parser_get_identifier parser call.function)
+        let map_result: string = (nisa_map_result target.name)
+        if (!= map_result "") { return map_result }
         let host_symbol: string = (nisa_call_host_symbol parser target.name)
         if (!= host_symbol "") { return (nisa_host_result host_symbol) }
         if (or (== target.name "str_substring") (== target.name "int_to_string")) { return "string" }
@@ -1053,6 +1119,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         return (nisa_fail "computed function calls are outside the NanoISA subset")
     } else { (print "") }
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (!= (nisa_map_opcode func_id.name) "") { return (nisa_emit_map_call parser call func_id.name) }
     let host_symbol: string = (nisa_call_host_symbol parser func_id.name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }
     if (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_new")) {
@@ -1510,6 +1577,7 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
     if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return true }
     let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
     if (nisa_is_print_builtin identifier.name) { return false }
+    if (== (nisa_map_opcode identifier.name) "HM_SET") { return false }
     let index: int = (nisa_fn_index parser identifier.name)
     if (< index 0) { return true }
     let function: ASTFunction = (parser_get_function parser index)
@@ -1676,6 +1744,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (== t "HashMap<string,int>") { return "hashmap" }
     if (or (== t "void") (or (== t "int") (or (== t "string") (== t "bool")))) {
         return t
     } else {

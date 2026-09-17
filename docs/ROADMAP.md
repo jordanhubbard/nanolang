@@ -7943,11 +7943,14 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower compiler-required `string_to_int` after map transport; real
+      compiler emission first refuses that builtin
+      (`task_62d9f8ab389e4299b1b16a33ed591630`). I require C-seed and VM/native parity.
 - [x] I expose one parsed-program lowering entrypoint for my canonical
       compiler after module merging and typechecking, retaining the raw-source
       wrapper and testing identical assembly and state reset
       (`task_4dfcc41fa8e147848662f6e3965746d9`).
-- [ ] I lower the compiler-required `HashMap<string,int>` result/local/call
+- [x] I lower the compiler-required `HashMap<string,int>` result/local/call
       shapes and operations with C-seed and VM/native parity
       (`task_2c74662f99d44f7faac1fe7427e44325`). Real compiler emission first
       reaches this unsupported result type after host-import lowering.
