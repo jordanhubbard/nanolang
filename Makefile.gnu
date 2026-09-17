@@ -4436,6 +4436,11 @@ test-units: test-passive-par-frontends
 test-passive-par-frontends: bootstrap nanoisa_emit
 	python3 -m unittest tests.test_passive_par_frontends
 
+.PHONY: test-nanoisa-local-inference
+test-units: test-nanoisa-local-inference
+test-nanoisa-local-inference: bootstrap nano_vm nvm2c
+	python3 -m unittest tests.test_nanoisa_local_inference
+
 .PHONY: test-passive-flow-frontends
 test-units: test-passive-flow-frontends
 test-passive-flow-frontends: bootstrap nanoisa_emit nano_virt nano_vm nanoisa_dump

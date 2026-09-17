@@ -4183,6 +4183,22 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
+            let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+            let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
+            if (and (== receiver_type.kind TypeKind.TYPE_STRUCT) (== (base_type_name receiver_type.name) "HashMap")) {
+                let arguments: array<string> = (tc_generic_arguments receiver_type.name)
+                if (== (array_length arguments) 2) {
+                    let key: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start 1))
+                    let key_type: NSType = (check_expr_node parser key.node_id key.node_type symbols diags file_name)
+                    let expected_key: NSType = (type_from_string_with_parser parser (at arguments 0))
+                    if (not (types_equal key_type expected_key)) {
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared map key type." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                    }
+                    return (type_from_string_with_parser parser (at arguments 1))
+                }
+            }
+        }
         if (or (== fn_name "map") (== fn_name "array_map")) {
             return (check_map_call parser call_node symbols diags file_name)
         }
@@ -4779,6 +4795,20 @@ shadow check_let_statement {
     assert (== (list_CompilerDiagnostic_length clean) 0)
     let copied: ASTLet = (parser_get_let generic 0)
     assert (== copied.var_type "Box<int>")
+    let mapped: Parser = (resource_test_parser "fn main() -> int { let fetched = (map_get values \"key\") return 0 }")
+    let map_symbols: array<Symbol> = [(symbol_new "values" (type_from_string "HashMap<string,string>") false false 0 (empty_param_types) (type_void))]
+    let map_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement mapped (parser_get_let mapped 0) 0 map_symbols map_diags "map.nano")
+    assert (== (list_CompilerDiagnostic_length map_diags) 0)
+    assert (== (parser_get_let mapped 0).var_type "string")
+    let explicit_unknown: Parser = (resource_test_parser "fn main() -> int { let fetched: unknown = (map_get values \"key\") return 0 }")
+    (check_let_statement explicit_unknown (parser_get_let explicit_unknown 0) 0 map_symbols map_diags "map.nano")
+    assert (== (parser_get_let explicit_unknown 0).var_type "unknown")
+    let ordinary: Parser = (resource_test_parser "fn main() -> int { let fetched = (map_get values \"key\") return 0 }")
+    let ordinary_symbols: array<Symbol> = (env_add_symbol map_symbols (symbol_new "map_get" (type_int) false true 2 [(type_from_string "HashMap<string,string>"), (type_string)] (type_int)))
+    (check_let_statement ordinary (parser_get_let ordinary 0) 0 ordinary_symbols map_diags "map.nano")
+    assert (== (parser_get_let ordinary 0).var_type "int")
+    assert (== (list_CompilerDiagnostic_length map_diags) 0)
 }
 
 /* NSType check a return statement
