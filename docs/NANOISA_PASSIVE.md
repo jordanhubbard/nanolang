@@ -77,8 +77,8 @@ Node operations and dependency restrictions stay unchanged. `TYPE_CHECK` is
 permitted outside node ranges in version `2`; it does not itself make a node
 eligible. I retain ordinary stack and instruction verification.
 
-This acceptance excludes `u8`, aggregates, captures, transitive calls and foreign
-purity summaries. It does not implement either frontend's `par` or `flow`
+The guarded-input acceptance excludes `u8`, aggregates, captures and foreign
+purity summaries. Closed local calls have the additional checks below. It does not implement either frontend's `par` or `flow`
 syntax. The complete external-input task remains open until its broader
 acceptance is met. Guarded scalar validation and paired execution evidence are
 in [my acceptance record](evidence/passive-guarded-inputs.md).
@@ -96,3 +96,35 @@ Markers must be complete, nonnested, and inside one function. A block needs at
 least one node. Raw `.passive` chunks and producer markers cannot be mixed in
 one input. Canonical disassembly continues to emit exact `.passive` hexadecimal
 chunks; producer convenience syntax is not a second binary format.
+
+## Version 2 closed scalar calls
+
+I accept a concrete local `CALL` inside a node only after checking its reachable
+callee instructions. Node inputs already come from executable scalar parameter
+guards, constants, scalar operations, or verified completed-node results. A call
+consumes the target's actual arity and pushes its checked result count; declared
+parameter and result tags do not establish scalar values.
+
+Under those scalar actual arguments, I derive scalar results from instructions.
+I intersect definitely initialized locals at control-flow joins and check every
+reachable local read after convergence. Every admitted producer returns a scalar
+or traps. Local reassignment and loops are permitted. Nested direct calls and
+tail calls require the same check; every successful return has the exact result
+count. I do not accept a declaration as a substitute for this body check.
+
+I refuse recursion, foreign or indirect calls, captures, global access,
+aggregate operations, shared mutation, printing, and other effects in a callee.
+Ordinary assertion failure remains possible, as with scalar arithmetic traps;
+this is a purity boundary, not a termination theorem. Unreachable instructions
+are outside the callee summary. Ordinary module verification still checks them.
+Calls elsewhere in the owning function remain outside this extension.
+
+The check is bounded: at most 64 active call frames, 65,536 instructions per
+callee, 2,097,152 local-state words per callee, and 1,048,576 worklist steps per
+callee. Exceeding a bound refuses the claim. Allocation failure also refuses it.
+Version 1 remains unchanged. Version 2 additionally admits typed integer/float/
+boolean arithmetic and string concatenation with the same scalar provenance.
+
+This verifier prerequisite does not publish frontend `par` support. Existing
+callable source fixtures must retain their behavior before that cutover. Foreign
+intrinsic identity, broader external inputs, and `flow` extraction remain open.

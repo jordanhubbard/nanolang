@@ -55,7 +55,7 @@ static bool guarded_input(const NvmModule *m, uint32_t function,
     }
     return false;
 }
-static bool allowed(uint8_t op) {
+static bool allowed(uint8_t op, uint32_t version) {
     switch (op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_PUSH_U8: case OP_PUSH_STR: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
@@ -64,11 +64,21 @@ static bool allowed(uint8_t op) {
     case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_AND: case OP_OR: case OP_NOT:
         return true;
+    case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
+    case OP_I64_REM_S: case OP_I64_NEG: case OP_I64_EQ: case OP_I64_NE:
+    case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
+    case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
+    case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
+    case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
+    case OP_BOOL_AND: case OP_BOOL_OR: case OP_BOOL_NOT: case OP_STR_CONCAT:
+        return version == 2;
     default: return false;
     }
 }
+#include "passive_calls.inc"
+
 static bool node_code(const NvmModule *m, const NvmFunctionEntry *f,
-                      Node *nodes, uint32_t count, uint32_t index) {
+                      Node *nodes, uint32_t count, uint32_t index, uint32_t version, ClosedCalls *calls) {
     Node *n = &nodes[index];
     uint32_t depth = 0;
     bool *seen_deps = calloc(count, sizeof(bool));
@@ -78,12 +88,19 @@ static bool node_code(const NvmModule *m, const NvmFunctionEntry *f,
     for (uint32_t pc = n->entry; ok && pc < n->exit;) {
         DecodedInstruction d;
         uint32_t length = isa_decode(m->code + pc, n->exit - pc, &d);
-        if (!length || !allowed(d.opcode)) { ok = false; break; }
+        if (!length || (!allowed(d.opcode, version) && !(version == 2 && d.opcode == OP_CALL))) { ok = false; break; }
         const InstructionInfo *info = isa_get_info(d.opcode);
-        if (!info || info->pop_count < 0 || info->push_count < 0 || depth < (uint32_t)info->pop_count) {
-            ok = false; break;
+        if (!info) { ok = false; break; }
+        int32_t pop = info->pop_count, push = info->push_count;
+        if (d.opcode == OP_CALL) {
+            uint32_t callee = d.operands[0].u32;
+            if (!closed_function(calls, callee)) { ok = false; break; }
+            pop = m->functions[callee].arity; push = m->functions[callee].result_count;
+            calls->node_calls[pc / 8] |= (uint8_t)(1u << (pc % 8));
         }
-        depth = depth - (uint32_t)info->pop_count + (uint32_t)info->push_count;
+        if (pop < 0 || push < 0 || depth < (uint32_t)pop ||
+            depth - (uint32_t)pop > UINT32_MAX - (uint32_t)push) { ok = false; break; }
+        depth = depth - (uint32_t)pop + (uint32_t)push;
         if (d.opcode == OP_STORE_LOCAL) {
             if (pc + length != n->exit || d.operands[0].u16 != n->result || depth != 0) ok = false;
         } else if (pc + length == n->exit) ok = false;
@@ -107,7 +124,7 @@ static bool node_code(const NvmModule *m, const NvmFunctionEntry *f,
     return ok && depth == 0;
 }
 static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
-                  uint32_t *previous_exit, bool first, uint32_t version) {
+                  uint32_t *previous_exit, bool first, uint32_t version, ClosedCalls *calls) {
     uint32_t kind = word(r), function = word(r), entry = word(r), exit = word(r), count = word(r);
     if (!r->ok || (kind != 1 && kind != 2) || function >= m->function_count ||
         !count || count > r->left / 28 || entry >= exit || exit > m->code_size) return false;
@@ -115,6 +132,7 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
     if (f->code_offset > m->code_size || f->code_length > m->code_size - f->code_offset ||
         entry < f->code_offset || exit > f->code_offset + f->code_length ||
         (!first && (function < *previous_function || (function == *previous_function && entry < *previous_exit)))) return false;
+    calls->owners[function] = true;
     Node *nodes = calloc(count, sizeof(Node));
     if (!nodes) return false;
     bool ok = true;
@@ -154,7 +172,7 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
             if (ready) { selected = i; break; }
         }
         if (selected == count || nodes[selected].entry != cursor) { ok = false; break; }
-        ok = node_code(m, f, nodes, count, selected);
+        ok = node_code(m, f, nodes, count, selected, version, calls);
         cursor = nodes[selected].exit; nodes[selected].done = true;
     }
     if (cursor != exit) ok = false;
@@ -165,10 +183,11 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
         DecodedInstruction d;
         uint32_t length = isa_decode(m->code + pc, f->code_offset + f->code_length - pc, &d);
         if (!length) { ok = false; break; }
-        if (!allowed(d.opcode) && d.opcode != OP_JMP && d.opcode != OP_JMP_TRUE &&
+        if (!allowed(d.opcode, version) && d.opcode != OP_JMP && d.opcode != OP_JMP_TRUE &&
             d.opcode != OP_JMP_FALSE && d.opcode != OP_RET && d.opcode != OP_HALT &&
             d.opcode != OP_PRINT && d.opcode != OP_PRINTLN && d.opcode != OP_ASSERT &&
-            !(version == 2 && d.opcode == OP_TYPE_CHECK)) {
+            !(version == 2 && (d.opcode == OP_TYPE_CHECK ||
+              d.opcode == OP_CALL))) {
             ok = false; break;
         }
         if (pc == entry) saw_entry = true;
@@ -197,7 +216,29 @@ bool nvm_passive_valid(const NvmModule *m) {
     uint32_t version = word(&r), count = word(&r);
     if (!r.ok || (version != 1 && version != 2) || !count || count > r.left / 48) return false;
     uint32_t function = 0, exit = 0;
-    for (uint32_t i = 0; i < count; ++i)
-        if (!block(&r, m, &function, &exit, i == 0, version)) return false;
-    return r.ok && r.left == 0;
+    ClosedCalls calls = {m, NULL, NULL, NULL, 0};
+    calls.state = calloc(m->function_count ? m->function_count : 1, 1);
+    calls.owners = calloc(m->function_count ? m->function_count : 1, sizeof(bool));
+    calls.node_calls = calloc((size_t)(m->code_size / 8) + 1, 1);
+    if (!calls.state || !calls.owners || !calls.node_calls) {
+        free(calls.state); free(calls.owners); free(calls.node_calls); return false;
+    }
+    bool ok = true;
+    for (uint32_t i = 0; ok && i < count; ++i)
+        ok = block(&r, m, &function, &exit, i == 0, version, &calls);
+    /* A function may own multiple blocks. I wait until all their nodes have
+     * been checked before requiring every owner CALL to belong to a node. */
+    for (uint32_t f = 0; ok && f < m->function_count; ++f) {
+        if (!calls.owners[f]) continue;
+        uint32_t end = m->functions[f].code_offset + m->functions[f].code_length;
+        for (uint32_t pc = m->functions[f].code_offset; ok && pc < end;) {
+            DecodedInstruction d;
+            uint32_t length = isa_decode(m->code + pc, end - pc, &d);
+            if (!length || (d.opcode == OP_CALL &&
+                !(calls.node_calls[pc / 8] & (uint8_t)(1u << (pc % 8))))) { ok = false; break; }
+            pc += length;
+        }
+    }
+    free(calls.state); free(calls.owners); free(calls.node_calls);
+    return ok && r.ok && r.left == 0;
 }
