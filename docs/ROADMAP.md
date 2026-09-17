@@ -119,6 +119,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       runs, fixture cleanup, prior sentinel preservation and unavailable-temp
       rejection without an output artifact.
 
+- [ ] **Canonical checked frontend NanoISA output route.** I accept explicit
+      `--emit-nvm` after import merging, binding, typechecking and dependency/root
+      shadow checks, publishing verified module bytes without reparsing raw text.
+      I retain native C as my default and C-hosted shadows as a prerequisite;
+      this route does not establish my NanoISA-only fixedpoint.
+      MAC `task_d176e9deba444b1e9445e1b4f41aef01`.
+
 - [x] **Self-hosted NanoISA driver module output.** I add explicit `--emit-nvm`
       through my assembler facade, verify deterministic v2 bytes and publish with
       atomic output replacement. I preserve prior files on failure and test VM
