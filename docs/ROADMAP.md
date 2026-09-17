@@ -8317,9 +8317,17 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower boolean arrays required by my compiler, preserving bool/int
+- [ ] I lower the exact path host contracts required by my compiler
+      (`task_81e682a57a3d431e845b0f41f140352e`); after boolean arrays, actual emission
+      refuses the `path_basename` extern declaration.
+- [x] I validate array/list append element types before emitting bytecode
+      (`task_e354c7131ebf40e3b177ba5a6cab1aba`); malformed append types now refuse publication.
+- [ ] I define boolean List syntax and backend parity before claiming support
+      (`task_9556b493260246be8e271b27e29cdf02`); my C parser rejects `List<bool>`.
+- [x] I lower boolean arrays required by my compiler, preserving bool/int
       separation and typed bytecode tags (`task_76a8de9b6d84450faf717fd0333e0cee`).
-      After filled-array lowering, actual compiler emission refuses `array<bool>`.
+      Fourteen opcode comparisons and VM/native execution pass; see
+      `docs/evidence/selfhost-boolean-arrays.md`.
 - [x] I keep filled-array compiler temporary slots anonymous so legal source
       names cannot be shadowed by lowering (`task_9f05edac81994a818fd0126c1bf90372`).
 - [x] I evaluate native filled-array count then fill exactly once, including

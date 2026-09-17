@@ -1,0 +1,30 @@
+struct Flags { values: array<bool> }
+fn blank() -> array<bool> { return [] }
+shadow blank { assert (== (array_length (blank)) 0) }
+fn values() -> array<bool> { return [true, false, (== 7 7)] }
+shadow values { let xs: array<bool> = (values) assert (at xs 0) assert (not (at xs 1)) }
+fn filled() -> array<bool> { return (array_new 3 false) }
+shadow filled { let xs: array<bool> = (filled) assert (not (at xs 2)) }
+fn relay(xs: array<bool>) -> array<bool> { return xs }
+shadow relay { let xs: array<bool> = [true] assert (at (relay xs) 0) }
+fn flags() -> Flags { return Flags { values: [false, true] } }
+shadow flags { let f: Flags = (flags) let xs: array<bool> = f.values assert (at xs 1) }
+fn main() -> int {
+    let empty: array<bool> = (blank)
+    assert (== (array_length empty) 0)
+    let xs: array<bool> = (values)
+    let alias: array<bool> = (relay xs)
+    (array_set alias 0 false)
+    assert (not (at xs 0))
+    assert (== (at xs 2) true)
+    let mut other: array<bool> = (filled)
+    set other (array_push other true)
+    assert (== (array_length other) 4)
+    assert (at other 3)
+    let f: Flags = (flags)
+    let inner: array<bool> = f.values
+    assert (not (at inner 0))
+    assert (at inner 1)
+    return 0
+}
+shadow main { assert (== (main) 0) }
