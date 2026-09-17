@@ -17,10 +17,13 @@ passed. My module metadata gate includes a lifetime test that frees the parsed
 AST and registering environment before inspecting the retained payload copy;
 concrete substitution leaves the declaration unchanged.
 
-My nested-array native execution still meets the independently tracked C
-literal emitter defect `task_c2ebfd28c24345daaa8c31dac75b45ac` and requires the peer repair before the full
-paired gate can pass. A typed temporary reproduces the same `DynArray **`
-initialization error; I preserve both logs instead of claiming success.
+My initial nested-array native execution met the independently tracked C
+literal emitter defect `task_c2ebfd28c24345daaa8c31dac75b45ac`. A typed temporary
+reproduced the same `DynArray **` initialization error. After integrating
+PR405 and the v5.1.0 contract through `6a68f981`, my fresh bootstrap, module
+metadata gate, five paired methods (15 compiler decisions, 31.264 seconds),
+and typechecker unit tests pass. I preserve the initial failures as dependency
+evidence; they no longer describe the integrated result.
 
 My isolated ASan/UBSan metadata execution passes with `detect_leaks=0`.
 LeakSanitizer separately reports 245 bytes in legacy registered field-name,
