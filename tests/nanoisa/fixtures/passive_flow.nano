@@ -40,7 +40,29 @@ fn multiple() -> int {
 }
 shadow multiple { assert (== (multiple) 13) }
 
+fn shadowed(seed: int) -> int {
+    let base: int = 99
+    if true {
+        flow {
+            let answer: int = (+ base 1)
+            let base: int = (+ seed 1)
+        }
+        assert (== answer 4)
+    }
+    assert (== base 99)
+    return 0
+}
+shadow shadowed { assert (== (shadowed 2) 0) }
+
+fn inferred() -> int {
+    flow { let answer = (+ base 1) let base = 6 }
+    return answer
+}
+shadow inferred { assert (== (inferred) 7) }
+
 fn main() -> int {
+    assert (== (shadowed 2) 0)
+    assert (== (inferred) 7)
     assert (== (multiple) 13)
     assert (== (scalars true "flow" 1.5) 2.0)
     (println (diamond 2))

@@ -26,7 +26,7 @@ class FlatRecordEmitter(unittest.TestCase):
             self.run_checked(ROOT/'bin/nano_virt', fixture, '--emit-nvm', '--strip-debug', '-o', seed)
             self.run_checked(ROOT/'bin/nanoisa_emit', fixture, '-o', assembly)
             self.run_checked(ROOT/'tests/nanoisa/test_nanoisa_src_nano', seed, assembly,
-                         'square', 'diamond', 'scalars', 'multiple', 'main')
+                         'square', 'diamond', 'scalars', 'multiple', 'shadowed', 'inferred', 'main')
             self.run_checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', emitted)
             records = []
             for module in (seed, emitted):
@@ -40,7 +40,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.assertEqual(self.run_checked(native).stdout, '15\n')
             self.assertEqual(records[0], records[1])
             words = struct.unpack('<'+'I'*(len(records[0])//4), records[0])
-            self.assertEqual(words[:2], (2, 4))
+            self.assertEqual(words[:2], (2, 6))
             self.assertEqual(words[2], 2)  # flow record
             self.assertEqual(words[6], 4)  # four source nodes in diamond
             cursor, nodes = 7, []
