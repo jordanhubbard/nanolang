@@ -7893,6 +7893,10 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower loop `break` and `continue` in my NanoISA emitter
+      (task_942fb307760a4460a49eb49986049103), including nested-loop targets and
+      out-of-loop refusal. Real compiler emission now reaches a `break`
+      in `parse_options` and reports a statement outside my subset.
 - [x] I lower void-result functions and zero-result call statements in my
       self-hosted NanoISA emitter (task_862889b9369e4511a465fe838e69224e), including
       bare and implicit returns. I require C-seed bytecode comparisons and
@@ -7900,14 +7904,13 @@ Compiler product:
       My gate passes 86 baseline checks, 14 void-function bytecode checks,
       VM/native execution and four result-count refusals (2026-09-16).
       The driver next stops at its unresolved imported `nanoisa_emit_nasm`.
-- [ ] I infer projected string-field expressions in my NanoISA emitter
-      (task_8e367aeda3394b0bb1ed1c37f56edeef). I currently reject a direct field/string
-      comparison; an explicitly typed local is the supported workaround.
-      I also select generic bool equality instead of the current I64_EQ.
-      I also infer builtin string results: real compiler emission next stops
-      at `(+ (str_substring input 0 extension) ".c")` in
-      `c_source_output_path`. I retain failing probes and require C-seed,
-      VM and native parity.
+- [x] I infer projected string-field expressions and supported builtin string
+      results in my NanoISA emitter (task_8e367aeda3394b0bb1ed1c37f56edeef).
+      I select generic bool equality instead of I64_EQ and retain rejection
+      of mixed scalar comparisons. Ten new named bytecode checks and both
+      VM/native executions pass; four mixed-type forms remain refused.
+      Real compiler emission passes `c_source_output_path` and next reaches
+      the loop-control boundary above (2026-09-16).
 - [x] I lower boolean fields and record-valued returns for my supported flat
       records in the self-hosted NanoISA emitter (task_7eb936723f594d5b81c6cd307dc25e6d).
       I compare C-seed bytecode, execute VM/native construction, projection

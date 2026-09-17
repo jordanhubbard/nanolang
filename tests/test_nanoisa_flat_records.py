@@ -55,6 +55,39 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                     self.assertEqual(self.run_checked(binary).stdout, "usage\ncontinued\n")
 
+    def test_scalar_expression_types_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/scalar_expression_types.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-scalar-types-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "suffix", "rendered", "check", "main")
+            self.assertIn("10 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                with self.subTest(module=module.name):
+                    self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                    self.run_checked(ROOT / "bin/nano_vm", module)
+                    source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                    self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                    self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                    self.run_checked(binary)
+
+    def test_mixed_scalar_equality_is_refused(self):
+        expressions = ['(== true 1)', '(== 1 false)', '(!= true "x")', '(== "x" 1)']
+        with tempfile.TemporaryDirectory(prefix="nano-scalar-refusal-") as tmp:
+            work = Path(tmp)
+            for index, expression in enumerate(expressions):
+                with self.subTest(expression=expression):
+                    source, output = work / f"bad{index}.nano", work / f"bad{index}.nasm"
+                    source.write_text('fn main() -> int { assert ' + expression + ' return 0 }\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse(output.exists())
+
     def test_wrong_return_result_counts_are_refused(self):
         programs = [
             'fn bad() -> int { return }',
