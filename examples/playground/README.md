@@ -1,6 +1,8 @@
 # NanoLang Interactive Playground
 
-I run the interpreter in WebAssembly in the browser. A local static server is
+I retain a historical interpreter bundle in WebAssembly for this browser UI.
+I do not claim that this bundle implements my current compiler or language.
+A local static server is
 still required because browsers do not load the Wasm bundle reliably from a
 `file://` URL, and the editor imports CodeMirror from `esm.sh`.
 
@@ -22,13 +24,15 @@ python3 -m http.server 8000 --directory examples/playground/public
 
 ## Build (update nanolang.wasm)
 
-The WASM binary is built from the nanolang interpreter via Emscripten:
+I do not provide a working rebuild of this historical interpreter bundle from
+my current source tree. `make wasm-playground` refuses before changing the
+bundle; its former source list named removed files and omitted the browser
+entry points. Installing Emscripten alone does not repair that build.
 
-```sh
-# Requires emscripten SDK (source emsdk/emsdk_env.sh first)
-make -f Makefile.gnu wasm-playground
-# Outputs: examples/playground/public/nanolang.wasm + nanolang.js
-```
+My separate `make test-nvm2wasm` gate exercises the supported scalar NanoISA
+translator. It does not build this browser interpreter, provide its JavaScript
+API, or establish support for every playground example. I retain full backend
+and browser integration work as separate roadmap acceptance.
 
 ## Architecture
 

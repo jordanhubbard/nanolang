@@ -19,7 +19,7 @@ sys.exit(int(os.environ.get("FAKE_STATUS", "0")))
 
 class CrossBackendRunnerTests(unittest.TestCase):
     def run_case(self, backend="c", status=0, output="ok", xfail=False,
-                 compile_failure=False, wasm3=False):
+                 compile_failure=False):
         with tempfile.TemporaryDirectory(prefix="nanolang-runner-test-") as directory:
             root = Path(directory)
             suite = root / "tests/cross-backend"
@@ -50,7 +50,7 @@ elif kind == "gcc":
 else:
     exec({PAYLOAD!r})
 '''
-            for name in ("compiler", "gcc", "lli", "wasm3" if wasm3 else "wasmtime"):
+            for name in ("compiler", "gcc"):
                 tool = binaries / name
                 tool.write_text(script)
                 tool.chmod(0o700)
@@ -65,19 +65,24 @@ else:
             return result
 
     def test_successful_execution(self):
-        for backend in ("c", "llvm", "wasm"):
-            with self.subTest(backend=backend):
-                result = self.run_case(backend)
-                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                self.assertIn("PASS:          1", result.stdout)
+        result = self.run_case()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS:          1", result.stdout)
 
     def test_matching_stdout_does_not_hide_failure(self):
-        for backend, wasm3 in (("c", False), ("llvm", False), ("wasm", False), ("wasm", True)):
-            with self.subTest(backend=backend, wasm3=wasm3):
-                result = self.run_case(backend, status=7, wasm3=wasm3)
+        result = self.run_case(status=7)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("FAIL:          1", result.stdout)
+        self.assertIn("fixture execution failed", result.stderr)
+
+    def test_retired_backends_refuse_before_compilation(self):
+        for backend in ("llvm", "wasm", "c wasm"):
+            with self.subTest(backend=backend):
+                result = self.run_case(backend, compile_failure=True)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn("FAIL:          1", result.stdout)
-                self.assertIn("fixture execution failed", result.stderr)
+                self.assertIn("I retired direct AST", result.stderr)
+                self.assertNotIn("fixture compile failed", result.stderr)
+                self.assertNotIn("PASS:", result.stdout)
 
     def test_wrong_output_fails(self):
         result = self.run_case(output="wrong")
@@ -107,6 +112,22 @@ else:
                 self.assertEqual(result.returncode, 0)
                 self.assertIn("VALIDATE-ONLY: 1", result.stdout)
                 self.assertIn("PASS:          0", result.stdout)
+
+    def test_auxiliary_build_contract(self):
+        help_result = subprocess.run(["make", "help"], cwd=ROOT,
+                                     capture_output=True, text=True, timeout=20)
+        self.assertEqual(help_result.returncode, 0, help_result.stderr)
+        self.assertIn("EXAMPLES_BACKEND=c|native|nanoisa|vm", help_result.stdout)
+        self.assertNotIn("Build examples as LLVM IR", help_result.stdout)
+        self.assertNotIn("Build examples as WASM", help_result.stdout)
+        bundle = ROOT / "examples/playground/public"
+        before = {p.name: p.read_bytes() for p in bundle.glob("nanolang.*")}
+        result = subprocess.run(["make", "wasm-playground"], cwd=ROOT,
+                                capture_output=True, text=True, timeout=20)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("cannot rebuild the historical browser interpreter", result.stderr)
+        self.assertIn("test-nvm2wasm", result.stderr)
+        self.assertEqual(before, {p.name: p.read_bytes() for p in bundle.glob("nanolang.*")})
 
     def test_invalid_selection_fails(self):
         for backend in ("", "   ", "typo", "c typo"):
