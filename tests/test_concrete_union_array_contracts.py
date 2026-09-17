@@ -45,6 +45,10 @@ class ConcreteUnionArrays(unittest.TestCase):
             'fn main() -> int { let value: Box<Plain> = Box.Some { values: [Plain { value: 7 }] } return 0 }',
             'fn make() -> Box<Plain> { return Box.Some { values: [Plain { value: 7 }] } } shadow make { let value: Box<Plain> = (make) assert true } fn main() -> int { let value: Box<Plain> = (make) return 0 }',
             'fn main() -> int { let value: Box<array<Plain>> = Box.Some { values: [[Plain { value: 7 }]] } return 0 }',
+            'let value: Box<Plain> = Box.Some { values: [Plain { value: 7 }] } fn main() -> int { return 0 }',
+            'fn take(value: Box<Plain>) -> int { return 0 } shadow take { assert true } fn main() -> int { return (take Box.Some { values: [Plain { value: 7 }] }) }',
+            'fn main() -> int { let mut value: Box<Plain> = Box.Some { values: [] } set value Box.Some { values: [Plain { value: 7 }] } return 0 }',
+            'fn main() -> int { let value: Envelope<Plain> = Envelope.Some { item: Box.Some { values: [Plain { value: 7 }] } } return 0 }',
             'struct T { other: string } fn main() -> int { let value: Box<Plain> = Box.Some { values: [Plain { value: 7 }] } return 0 }',
             'fn main() -> int { let value: Box<Plain> = Box.Some { values: [] } return 0 }',
         ]

@@ -1,0 +1,31 @@
+let mut trace: int = 0
+fn text() -> string { set trace (+ (* trace 10) 1) return "alpha-beta" }
+shadow text { set trace 0 assert (== (text) "alpha-beta") assert (== trace 1) set trace 0 }
+fn prefix() -> string { set trace (+ (* trace 10) 2) return "alpha" }
+shadow prefix { set trace 0 assert (== (prefix) "alpha") assert (== trace 2) set trace 0 }
+fn suffix() -> string { set trace (+ (* trace 10) 3) return "beta" }
+shadow suffix { set trace 0 assert (== (suffix) "beta") assert (== trace 3) set trace 0 }
+fn starts() -> bool { return (str_starts_with (text) (prefix)) }
+shadow starts { set trace 0 assert (starts) assert (== trace 12) set trace 0 }
+fn ends() -> bool { return (str_ends_with (text) (suffix)) }
+shadow ends { set trace 0 assert (ends) assert (== trace 13) set trace 0 }
+fn main() -> int {
+    set trace 0
+    assert (starts)
+    assert (== trace 12)
+    set trace 0
+    assert (ends)
+    assert (== trace 13)
+    assert (str_starts_with "" "")
+    assert (str_ends_with "" "")
+    assert (str_starts_with "abc" "")
+    assert (str_ends_with "abc" "")
+    assert (str_starts_with "abc" "abc")
+    assert (str_ends_with "abc" "abc")
+    assert (not (str_starts_with "ab" "abc"))
+    assert (not (str_ends_with "ab" "abc"))
+    assert (not (str_starts_with "abc" "A"))
+    assert (not (str_ends_with "abc" "C"))
+    return 0
+}
+shadow main { assert (== (main) 0) }

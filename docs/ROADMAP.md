@@ -102,8 +102,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] **Parse complete nested generic arguments.** My C annotation parser
       preserves the inner arguments in `Box<Result<int,string>>`. I retain
       recursive argument `TypeInfo`; 64 parser checks, focused parser sanitizer
-      checks, fresh bootstrap and 16 paired generic-affine methods pass. Native nested
-      emission remains task `task_633f2402ec5944cfba0911a56a9f4eb1`. MAC
+      checks, fresh bootstrap and 16 paired generic-affine methods pass. Native constructor
+      context is repaired in the C seed; self-hosted nested/global emission
+      remains task `task_85a8db6e186440eaad80442bfc133dd8`. MAC
       `task_8178b6b71fe147bd851629713e7be14d`.
 
 - [x] **Retain instantiated ownership metadata.** I preserve complete concrete
@@ -235,6 +236,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       gate pass. My broader quick gate advances through that repaired boundary
       and stops later at the separately owned VM example-purity failures under
       `task_7ee12d8737363c126a040fde905a7114`.
+
+- [x] **Native compiler NanoISA product.** I require my compiler built from
+      bytecode to compile `nl_hello.nano` with explicit `--emit-nvm`, execute
+      that module in NanoVM, and translate/run the same product through
+      `nvm2c` and `cc`. The default C-backend hello does not satisfy this
+      acceptance. MAC `task_16425cd8a2404735a5cb246db12c5f59`; evidence:
+      `docs/evidence/native-compiler-bytecode-product.md`. Compiler seeding
+      still uses my C frontend; self-emission and fixed-point gates stay open.
 
 - [x] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
@@ -8472,13 +8481,25 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I lower the string-valued maps required by my compiler
+      (`task_d32f896911e1447da9c6b69059f6d6ea`), preserving key/value metadata and ownership.
+      Full emission now reaches `HashMap<string,string>`; the retained probe is
+      `/tmp/nanolang-edges-fullcompiler-probe.log`.
+- [x] I lower string prefix and suffix tests used by my compiler
+      (`task_891724de0cb5454eb0a575b099aba188`), preserving exact string operands and boolean results.
+      Full emission reaches `str_starts_with` after `is_alnum`; the probe is
+      `/tmp/nanolang-alnum-fullcompiler-probe.log`.
+- [x] I lower the existing `is_alnum` call required by my compiler
+      (`task_9e5bf751b8614b599f0bff8e1bdc2a77`), preserving its precise operand/result contract.
+      Full emission reaches it after `str_concat`; the probe is retained in
+      `/tmp/nanolang-concat-fullcompiler-probe.log`.
 - [x] I select actual nested generic union instances instead of matching an
       enclosing type by substring (`task_b25eef03a0874cf8b0c7f0fa23c05289`).
       My C registration and emission share recursive specialization names;
       `Box<Result<int,string>>` copies and payloads execute under all three
       native compiler stages. Other constructor contexts remain task633.
       Evidence: `docs/evidence/native-nested-generic-identity.md`.
-- [ ] I lower the existing two-string `str_concat` builtin required by my
+- [x] I lower the existing two-string `str_concat` builtin required by my
       compiler (`task_9ab740ec43654cedb0c1de224856735d`), preserving argument
       order and typed refusals. Full emission reaches it after publication calls.
 - [x] I retain native foreign module metadata for root sources outside my
@@ -8538,13 +8559,17 @@ Compiler product:
       (`task_6b4240883d7d461c8266257aaffb2471`). Sixteen exact
       opcode comparisons and VM/native execution pass; see
       `docs/evidence/selfhost-filled-arrays.md`.
-- [ ] I retain concrete generic union types during native emission at globals,
+- [x] I retain concrete generic union types during C-seed native emission at globals,
       inline call arguments, mutable assignment and nested union construction
-      (`task_633f2402ec5944cfba0911a56a9f4eb1`). Correctly typed controls
-      currently reach malformed C; frontend nominal rejection remains separate.
-      My `Box<Result<int,string>>` and nested marker positives now execute
-      after PR450; broader constructor contexts remain open. I retain those
-      controls in `tests/test_instantiated_ownership.py`.
+      (`task_633f2402ec5944cfba0911a56a9f4eb1`). I retain owned constructor
+      and specialization context; executable payload values and nominal refusals
+      pass. See `docs/evidence/native-generic-constructor-context.md`.
+      My existing nested Result and marker controls remain in
+      `tests/test_instantiated_ownership.py`.
+- [ ] I substitute nested generic payloads and initialize union globals in
+      my self-hosted native stages (`task_85a8db6e186440eaad80442bfc133dd8`).
+      The stronger constructor fixture exposes `nl_Box_T` in `Envelope<Plain>`
+      and an invalid aggregate `= 0` initializer after a fresh bootstrap.
 - [x] I apply concrete generic union constructor context before accepting
       nominal array payloads (`task_dd2be49bc494483f9bb18646a0013055`).
       I reject wrong record identities at local/global, argument, return,

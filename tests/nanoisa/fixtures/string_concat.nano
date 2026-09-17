@@ -1,0 +1,16 @@
+let mut trace: int = 0
+fn left() -> string { set trace (+ (* trace 10) 1) return "left" }
+shadow left { set trace 0 assert (== (left) "left") assert (== trace 1) set trace 0 }
+fn right() -> string { set trace (+ (* trace 10) 2) return "right" }
+shadow right { set trace 0 assert (== (right) "right") assert (== trace 2) set trace 0 }
+fn joined() -> string { return (str_concat (left) (right)) }
+shadow joined { set trace 0 assert (== (joined) "leftright") assert (== trace 12) set trace 0 }
+fn main() -> int {
+    set trace 0
+    let value: string = (joined)
+    assert (== value "leftright")
+    assert (== trace 12)
+    assert (== (str_concat "" "tail") "tail")
+    return 0
+}
+shadow main { assert (== (main) 0) }

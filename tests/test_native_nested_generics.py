@@ -8,10 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class NativeNestedGenerics(unittest.TestCase):
     def test_nested_union_copy_parameter_and_payloads(self):
-        source = ROOT / "tests/unit/test_native_nested_generics.nano"
+        self.check_fixture("test_native_nested_generics.nano")
+
+    def test_constructor_contexts_preserve_values(self):
+        self.check_fixture("test_native_generic_contexts.nano", ("nanoc_c",))
+
+    def check_fixture(self, name, compilers=("nanoc_c", "nanoc_stage1", "nanoc_stage2")):
+        source = ROOT / "tests/unit" / name
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "program"
-            for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
+            for compiler in compilers:
                 with self.subTest(compiler=compiler):
                     result = subprocess.run([ROOT / "bin" / compiler, source, "-o", output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)

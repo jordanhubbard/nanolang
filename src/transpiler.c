@@ -2313,6 +2313,16 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
     free((void*)prefixed_union);
 }
 
+static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info) {
+    if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
+        if (env_get_opaque_type(env, info->generic_name)) { sb_append(sb, "void*"); return; }
+        char *name = typeinfo_to_generic_arg_name(info);
+        if (!name) { fprintf(stderr, "I cannot allocate a native payload type\n"); exit(1); }
+        sb_append(sb, get_prefixed_type_name(name));
+        free(name);
+    } else sb_append(sb, type_to_c(info->base_type));
+}
+
 static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb, UnionDef *udef, GenericInstantiation *inst, const char *monomorphized_name) {
     if (!env || !sb || !udef || !inst || !monomorphized_name) return;
 
@@ -2330,6 +2340,15 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
 
         for (int k = 0; k < udef->variant_field_counts[j]; k++) {
             sb_append(sb, "    ");
+
+            TypeInfo *payload = inst->type_info
+                ? resolve_union_payload_type_info(udef, j, k, inst->type_info) : NULL;
+            if (payload) {
+                emit_native_type_info(env, sb, payload);
+                free_payload_type_info(payload);
+                sb_appendf(sb, " %s;\n", udef->variant_field_names[j][k]);
+                continue;
+            }
 
             Type field_type = udef->variant_field_types[j][k];
 
@@ -2532,6 +2551,22 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
 
             for (int v = 0; v < udef->variant_count; v++) {
                 for (int f = 0; f < udef->variant_field_counts[v]; f++) {
+                    TypeInfo *payload = inst->type_info
+                        ? resolve_union_payload_type_info(udef, v, f, inst->type_info) : NULL;
+                    if (payload) {
+                        if ((payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_UNION || payload->base_type == TYPE_ENUM) && payload->generic_name &&
+                            !env_get_opaque_type(env, payload->generic_name)) {
+                            char *name = typeinfo_to_generic_arg_name(payload);
+                            int dep = name ? find_composite_type_item(items, count, name) : -1;
+                            free(name);
+                            if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                                edges[(size_t)dep * (size_t)count + (size_t)i] = true;
+                                indegree[i]++;
+                            }
+                        }
+                        free_payload_type_info(payload);
+                        continue;
+                    }
                     Type ft = udef->variant_field_types[v][f];
                     if (!udef->variant_field_type_names || !udef->variant_field_type_names[v] ||
                         !udef->variant_field_type_names[v][f]) {
@@ -4126,6 +4161,8 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else {
                 sb_append(sb, "void*");
             }
+        } else if (item->as.let.var_type == TYPE_UNION && item->as.let.type_info) {
+            emit_native_type_info(env, sb, item->as.let.type_info);
         } else {
             sb_append(sb, type_to_c(item->as.let.var_type));
         }
