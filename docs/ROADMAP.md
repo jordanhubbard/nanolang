@@ -92,6 +92,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and submit only the focused patch.
       MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
 
+- [ ] **Isolated NanoISA facade shadows.** I replace shared temporary fixture
+      names with exclusive directories, retain assembly/load/error assertions,
+      and verify concurrent execution and cleanup.
+      MAC `task_a91eb62cd7ca44b1b9b6a1865a5f2300`.
+
 - [x] **Self-hosted NanoISA driver module output.** I add explicit `--emit-nvm`
       through my assembler facade, verify deterministic v2 bytes and publish with
       atomic output replacement. I preserve prior files on failure and test VM
