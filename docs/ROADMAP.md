@@ -27,9 +27,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Primitive List record fields.** I preserve `List<int>` and
-      `List<string>` during native token lowering; keyword element tokens
-      currently produce an invalid `nl_List` field. MAC `task_f0a59def9afe4a08ae63c55d4ba22109`.
+- [x] **Primitive List record fields.** I preserve `List<int>` and
+      `List<string>` keyword elements and their runtime typedefs during
+      native token lowering. MAC `task_f0a59def9afe4a08ae63c55d4ba22109`;
+      evidence: `docs/evidence/native-primitive-list-fields.md`.
 
 - [x] **Record-valued call pushes.** I capture the receiver and record-returning
       value once in source order before taking its address for native

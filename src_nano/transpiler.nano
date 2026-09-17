@@ -1515,7 +1515,10 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
                 let t1: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 1))
                 let t2: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 2))
                 let t3: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 3))
-                if (and (== t1.token_type LexerTokenType.TOKEN_LT) (and (== t2.token_type LexerTokenType.TOKEN_IDENTIFIER) (== t3.token_type LexerTokenType.TOKEN_GT))) {
+                # I preserve my primitive runtime typedefs as well as named lists.
+                let named_element: bool = (== t2.token_type LexerTokenType.TOKEN_IDENTIFIER)
+                let primitive_element: bool = (or (== t2.token_type LexerTokenType.TOKEN_TYPE_INT) (== t2.token_type LexerTokenType.TOKEN_TYPE_STRING))
+                if (and (== t1.token_type LexerTokenType.TOKEN_LT) (and (or named_element primitive_element) (== t3.token_type LexerTokenType.TOKEN_GT))) {
                     let elem: string = (nb_type t2.value t2.line)
                     if (== elem "LexerToken") { return TypeCParseResult { ok: true, c_type: "List_LexerToken*", next_pos: (+ start_pos 4) } } else { (print "") }
                     if (== elem "CompilerDiagnostic") { return TypeCParseResult { ok: true, c_type: "List_CompilerDiagnostic*", next_pos: (+ start_pos 4) } } else { (print "") }
@@ -1554,6 +1557,21 @@ shadow parse_type_c_from_tokens {
     let p: Parser = (parser_new toks (list_LexerToken_length toks) "t.nano")
     let r: TypeCParseResult = (parse_type_c_from_tokens p 0)
     assert r.ok
+    assert (== r.c_type "int64_t")
+    let list_tokens: List<LexerToken> = (tokenize_string "List<int> List<string> List<LexerToken>" "t.nano" (list_CompilerDiagnostic_new))
+    let lists: Parser = (parser_new list_tokens (list_LexerToken_length list_tokens) "t.nano")
+    let integers: TypeCParseResult = (parse_type_c_from_tokens lists 0)
+    assert integers.ok
+    assert (== integers.c_type "List_int*")
+    assert (== integers.next_pos 4)
+    let strings: TypeCParseResult = (parse_type_c_from_tokens lists integers.next_pos)
+    assert strings.ok
+    assert (== strings.c_type "List_string*")
+    assert (== strings.next_pos 8)
+    let records: TypeCParseResult = (parse_type_c_from_tokens lists strings.next_pos)
+    assert records.ok
+    assert (== records.c_type "List_LexerToken*")
+    assert (== records.next_pos 12)
 }
 
 /* Generate C enum typedefs and variant #defines by scanning tokens */
