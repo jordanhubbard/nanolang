@@ -1532,6 +1532,35 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
             } else { (print "") }
         } else { (print "") }
 
+        # I consume the complete concrete nominal field annotation.
+        if (and (!= name "List") (!= name "HashMap")) {
+            if (< (+ start_pos 1) n) {
+                let next: LexerToken = (list_LexerToken_get parser.tokens (+ start_pos 1))
+                if (== next.token_type LexerTokenType.TOKEN_LT) {
+                    let mut spelling: string = t0.value
+                    let mut cursor: int = (+ start_pos 1)
+                    let mut depth: int = 0
+                    while (< cursor n) {
+                        let part: LexerToken = (list_LexerToken_get parser.tokens cursor)
+                        let mut text: string = part.value
+                        if (== part.token_type LexerTokenType.TOKEN_LT) { set depth (+ depth 1) set text "<" }
+                        if (== part.token_type LexerTokenType.TOKEN_GT) { set depth (- depth 1) set text ">" }
+                        if (== part.token_type LexerTokenType.TOKEN_COMMA) { set text "," }
+                        if (== part.token_type LexerTokenType.TOKEN_DOT) { set text "." }
+                        if (== part.token_type LexerTokenType.TOKEN_LPAREN) { set text "(" }
+                        if (== part.token_type LexerTokenType.TOKEN_RPAREN) { set text ")" }
+                        if (== part.token_type LexerTokenType.TOKEN_ARROW) { set text "->" }
+                        set spelling (+ spelling text)
+                        set cursor (+ cursor 1)
+                        if (== depth 0) {
+                            return TypeCParseResult { ok: true, c_type: (type_to_c (nb_type spelling t0.line)), next_pos: cursor }
+                        }
+                    }
+                    return TypeCParseResult { ok: false, c_type: "", next_pos: start_pos }
+                }
+            }
+        }
+
         /* Direct schema / built-in types */
         if (is_schema_struct_name name) {
             return TypeCParseResult { ok: true, c_type: name, next_pos: (+ start_pos 1) }
@@ -1573,6 +1602,13 @@ shadow parse_type_c_from_tokens {
     assert records.ok
     assert (== records.c_type "List_LexerToken*")
     assert (== records.next_pos 12)
+    let generic_tokens: List<LexerToken> = (tokenize_string "Box<Box<int>>" "t.nano" (list_CompilerDiagnostic_new))
+    let generic_parser: Parser = (parser_new generic_tokens (list_LexerToken_length generic_tokens) "t.nano")
+    let concrete: TypeCParseResult = (parse_type_c_from_tokens generic_parser 0)
+    assert concrete.ok
+    assert (== concrete.c_type "nl_Box_Box_int")
+    assert (== concrete.next_pos 7)
+
 }
 
 /* Generate C enum typedefs and variant #defines by scanning tokens */
@@ -4490,6 +4526,18 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
         set i (+ i 1)
     }
 
+    # A concrete instance can occur only in a retained record field.
+    let mut record: int = 0
+    while (< record (parser_get_struct_def_count parser)) {
+        let definition: ASTStruct = (parser_get_struct_def parser record)
+        let mut field: int = 0
+        while (< field (array_length definition.field_types)) {
+            set results (collect_native_union_instances (at definition.field_types field) base_name seen results)
+            set field (+ field 1)
+        }
+        set record (+ record 1)
+    }
+
     /* Scan function return types and parameter types */
     let func_count: int = (parser_get_function_count parser)
     set i 0
@@ -4513,6 +4561,12 @@ shadow find_union_instantiations {
     let parser: Parser = (parser_new (list_LexerToken_new) 0 "t.nano")
     let results: array<string> = (find_union_instantiations parser "Result")
     assert (== (array_length results) 0)
+    let tokens: List<LexerToken> = (tokenize_string "struct Outer { boxed: Box<int> } union Box<T> { Some { value: T }, None {} }" "t.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    let fields: array<string> = (find_union_instantiations parsed "Box")
+    assert (== (array_length fields) 1)
+    assert (== (at fields 0) "Box<int>")
+
 }
 
 /* Emit C typedefs for one union instantiation (or non-generic union) */

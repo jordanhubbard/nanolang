@@ -2111,6 +2111,14 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
     if (!= t1.kind t2.kind) {
         return false
     } else {
+        if (== t1.kind TypeKind.TYPE_UNION) {
+            if (!= t1.name t2.name) { return false }
+            # I preserve contextual constructors with no concrete arguments,
+            # while comparing two known instantiations without erasing them.
+            if (and (> (array_length (tc_generic_arguments t1.element_type_name)) 0) (> (array_length (tc_generic_arguments t2.element_type_name)) 0)) {
+                return (== (strip_spaces t1.element_type_name) (strip_spaces t2.element_type_name))
+            }
+        }
         /* For struct/union types, also check name */
         if (or (or (== t1.kind TypeKind.TYPE_STRUCT) (== t1.kind TypeKind.TYPE_UNION)) (== t1.kind TypeKind.TYPE_TUPLE)) {
             return (== t1.name t2.name)
@@ -2176,6 +2184,11 @@ shadow types_equal {
         }
         set i (+ i 1)
     }
+    let boxed_int: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Box", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "Box<int>" }
+    let boxed_string: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Box", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "Box<string>" }
+    assert (types_equal boxed_int boxed_int)
+    assert (not (types_equal boxed_int boxed_string))
+
 }
 
 /* Extract return type from a function type like "fn(int,int)->int" */
@@ -4064,7 +4077,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             if (== field_t.kind TypeKind.TYPE_UNKNOWN) {
                 return (check_variant_field_type parser obj_t.name fa.field_name obj_t.element_type_name)
             }
-            return field_t
+            return (type_from_string_with_parser parser (type_to_string field_t))
         } else {
             if (== obj_t.kind TypeKind.TYPE_UNION) {
                 let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
@@ -4250,6 +4263,13 @@ shadow check_expr_node {
     let result: NSType = (check_expr_node parsed ret.value ret.value_type symbols diags "test.nano")
     assert (== result.kind TypeKind.TYPE_STRING)
     assert (== (list_CompilerDiagnostic_length diags) 0)
+    let record_parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } struct Outer { boxed: Box<int> } fn main() -> int { let boxed: Box<int> = outer.boxed return 0 }")
+    let record_symbols: array<Symbol> = [(symbol_new "outer" (type_from_string_with_parser record_parser "Outer") false false 0 (empty_param_types) (type_void))]
+    let record_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let field: NSType = (check_expr_node record_parser 0 ParseNodeType.PNODE_FIELD_ACCESS record_symbols record_diags "record.nano")
+    assert (== field.kind TypeKind.TYPE_UNION)
+    assert (== (type_to_string field) "Box<int>")
+
 }
 
 /* NSType check a return statement expression

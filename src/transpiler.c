@@ -2177,6 +2177,16 @@ static int find_composite_type_item(NLCompositeTypeItem *items, int count, const
     return -1;
 }
 
+/* I use the same concrete spelling for a record field and its layout edge. */
+static char *native_record_field_name(Environment *env, StructDef *definition, int field) {
+    TypeInfo *info = definition->field_type_info ? definition->field_type_info[field] : NULL;
+    if (info && info->generic_name && info->type_param_count > 0 &&
+        env_get_union(env, info->generic_name))
+        return typeinfo_to_generic_arg_name(info);
+    return definition->field_type_names && definition->field_type_names[field]
+        ? strdup(definition->field_type_names[field]) : NULL;
+}
+
 static void emit_struct_definition_single(Environment *env, StringBuilder *sb, StructDef *sdef) {
     (void)env;
     if (!sdef || !sdef->name) return;
@@ -2197,8 +2207,15 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
     for (int j = 0; j < sdef->field_count; j++) {
         sb_append(sb, "    ");
 
+        TypeInfo *info = sdef->field_type_info ? sdef->field_type_info[j] : NULL;
+        if (info && info->generic_name && info->type_param_count > 0 &&
+            env_get_union(env, info->generic_name)) {
+            char *field_name = native_record_field_name(env, sdef, j);
+            if (!field_name) { fprintf(stderr, "I cannot allocate a native record field type\n"); exit(1); }
+            sb_append(sb, get_prefixed_type_name(field_name));
+            free(field_name);
         /* Opaque types are represented as TYPE_STRUCT with a registered opaque type name */
-        if (sdef->field_types[j] == TYPE_STRUCT && sdef->field_type_names && sdef->field_type_names[j] &&
+        } else if (sdef->field_types[j] == TYPE_STRUCT && sdef->field_type_names && sdef->field_type_names[j] &&
             env_get_opaque_type(env, sdef->field_type_names[j])) {
             sb_append(sb, "void*");
         } else if (sdef->field_types[j] == TYPE_LIST_GENERIC) {
@@ -2493,9 +2510,11 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
         if (it->kind == NL_CT_STRUCT) {
             StructDef *sdef = &env->structs[it->index];
             for (int f = 0; f < sdef->field_count; f++) {
-                if (sdef->field_types[f] == TYPE_STRUCT || sdef->field_types[f] == TYPE_UNION || sdef->field_types[f] == TYPE_ENUM) {
-                    if (!sdef->field_type_names || !sdef->field_type_names[f]) continue;
-                    int dep = find_composite_type_item(items, count, sdef->field_type_names[f]);
+                if (sdef->field_types[f] == TYPE_STRUCT || sdef->field_types[f] == TYPE_UNION || sdef->field_types[f] == TYPE_ENUM || sdef->field_types[f] == TYPE_GENERIC) {
+                    char *field_name = native_record_field_name(env, sdef, f);
+                    if (!field_name) continue;
+                    int dep = find_composite_type_item(items, count, field_name);
+                    free(field_name);
                     if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
                         edges[(size_t)dep * (size_t)count + (size_t)i] = true;
                         indegree[i]++;

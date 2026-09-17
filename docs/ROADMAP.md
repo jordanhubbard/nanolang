@@ -229,13 +229,24 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       This establishes classification, not native record layout or global
       ownership support. MAC `task_ef807591eb104cc8b664cd55581ec505`.
 
-- [ ] **Emit ordinary concrete generic union record fields.** I preserve
-      `Box<int>` when emitting a local `Outer { boxed: Box<int> }` field and
-      its empty/nonempty constructors. My C seed currently emits a `void*`
-      field and both self-hosted stages emit `nl_Box`; all fail native
-      compilation even without globals. I require paired execution and nested
-      record controls, separately from global lifetime support and classification
-      acceptance. MAC `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
+- [x] **Retain concrete union identity when reading record fields.** I retain
+      complete annotations and declaration-aware union kinds for typed reads
+      and direct matches. I reject wrong concrete arguments and wrong union
+      declarations before native compilation. My C seed and both self-hosted
+      stages pass nested and multiargument controls. Evidence is recorded in
+      `docs/evidence/native-generic-record-fields.md`. Selected union payload-field
+      origin remains separate (`task_7bc727794375435ca72e6fef466ff161`).
+      MAC `task_9ad126f2c5a61aadfa672f29134aa9ec`.
+
+- [x] **Emit ordinary concrete generic union record fields.** I preserve
+      complete field spelling, discover field-only instantiations and order
+      concrete by-value dependencies. Empty/nonempty constructors, nested
+      records, imports, forward declarations and typed payload reads execute
+      through my C seed, Stage 1 and Stage 2. Fresh bootstrap, 57 paired methods,
+      25 integrated field/callback methods and 280 ASan/UBSan metadata lifetimes
+      pass; details and limits are in `docs/evidence/native-generic-record-fields.md`.
+      Global lifetime and full ownership remain separate. MAC
+      `task_6e5fc4b3cd4f9e25eea18e792de0f2b0`.
 
 - [x] **Define my unsupported global resource boundary.** I reject owning
       global declarations explicitly in both frontends before artifact
