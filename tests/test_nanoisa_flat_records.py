@@ -15,6 +15,46 @@ class FlatRecordEmitter(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_scalar_array_results_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/scalar_array_results.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-array-results-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "empty", "words", "relay", "integers", "fill", "main")
+            self.assertIn("14 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
+    def test_unsupported_array_results_and_elements_are_refused(self):
+        programs = [
+            'fn bad() -> array<bool> { return [true] }',
+            'fn bad() -> array<array<int>> { return [[1]] }',
+            'fn bad() -> array<string> { return [1] }',
+            'fn bad() -> array<int> { return ["wrong"] }',
+            'fn bad() -> int { let wrong: array<string> = [1] return 0 }',
+            'fn bad() -> int { let mut wrong: array<string> = [] set wrong [true] return 0 }',
+            'fn take(xs: array<string>) -> int { return 0 } fn bad() -> int { return (take [1]) }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-array-result-refusal-") as tmp:
+            work = Path(tmp)
+            for index, program in enumerate(programs):
+                with self.subTest(program=program):
+                    source, output = work / f"bad{index}.nano", work / f"bad{index}.nasm"
+                    source.write_text(program + '\nfn main() -> int { return 0 }\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertFalse(output.exists())
+
     def test_string_to_int_matches_and_executes(self):
         fixture = ROOT / "tests/nanoisa/fixtures/string_to_int.nano"
         with tempfile.TemporaryDirectory(prefix="nano-string-int-") as tmp:

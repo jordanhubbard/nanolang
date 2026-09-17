@@ -5976,7 +5976,34 @@ static void test_string_array_push_rejects_integer_payload(void) {
     nvm_module_free(m);
 }
 
+static void test_mixed_array_push_helpers(void) {
+    const char *fixtures[] = {
+        ".string text \"hello\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 9\nARR_LITERAL 1 1\nPOP\nARR_LITERAL 5 0\n"
+        "PUSH_STR text\nARR_PUSH\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".string text \"hello\"\n.entry main\n.function main 0 0 0 int 1\n"
+        "PUSH_STR text\nARR_LITERAL 5 1\nPOP\nARR_LITERAL 1 0\n"
+        "PUSH_I64 9\nARR_PUSH\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+    };
+    for (size_t i = 0; i < sizeof fixtures / sizeof fixtures[0]; ++i) {
+        NvmModule *m = assemble_ok(fixtures[i], "mixed array push helpers");
+        CHECK(m != NULL, "mixed array push fixture assembles");
+        if (!m) continue;
+        char error[512] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c != NULL, "mixed array push fixture translates");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "mixed array helpers compile with strict warnings");
+            CHECK(status == 0, "mixed array push retains its value");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 int main(int argc, char **argv) {
+    test_mixed_array_push_helpers();
     test_record_temporary_storage_is_function_sized();
     test_uncalled_record_parameter_needs_no_invented_shape();
     test_cast_int_updates_classifier_stack();
