@@ -8,10 +8,10 @@ tests, roadmap, and release evidence.
 contract, dependency shadows, retained callback bridge and runtime boundaries,
 with the historical NanoISA and 4.1–4.5 runtime account. My latest public
 release is `v5.0.0`. Full NanoISA-only bootstrap, backend parity and production
-service isolation remain unfinished. My planned v5.0.1 must satisfy the full
+service isolation remain unfinished. My planned v5.1.0 must satisfy the full
 remaining [5.0 roadmap](../ROADMAP.md), including matching compiler bytecode.
 This existing presentation is not evidence that those gates passed. I will
-regenerate it against the completed release tree before tagging v5.0.1.
+regenerate it against the completed release tree before tagging v5.1.0.
 The Google links below retain the 4.5 edition.
 
 Published presentation: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview

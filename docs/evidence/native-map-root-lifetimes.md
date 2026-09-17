@@ -20,7 +20,7 @@ worklist prevents cycles from causing unbounded recursion. This collector
 reclaims map objects and owned map-lookup strings; it is not a claim of
 complete native allocation reclamation or a concurrent runtime collector.
 
-Evidence on the 5.0.1 release candidate:
+Evidence on the 5.1.0 release candidate:
 
 - Regular translator gate: 1,761 checks and 1,076 shape checks pass.
 - Fresh ASan/UBSan translator gate: the same counts pass; the runner checks
@@ -44,16 +44,16 @@ Evidence on the 5.0.1 release candidate:
 commits and ancestry still require reconciliation; this repair alone does not
 complete the release. MAC: `task_d3310bef8bd541ba9e1e267ee213eb9e`.
 
-For 5.0.1 I also verify scalar floats at local and operand-stack safepoints and
+For 5.1.0 I also verify scalar floats at local and operand-stack safepoints and
 non-self tail-call frame teardown. Float and integer-array storage are never
-interpreted as pointers. I track the patch release as
+interpreted as pointers. I track the minor release as
 `task_a94efdfee3486a0814f93336cf5c052c`.
 
-I ran a clean three-stage bootstrap before the full release suite. The release
-documentation acknowledgement is: “5.0.1 changes internal native map
-reclamation only; syntax, CLI, README guidance, and presentation claims are
-unchanged.” I keep that acknowledgement out of the historical negative-control
-tests so they continue to prove that stale release prose fails closed.
+I ran a clean three-stage bootstrap before the full release suite. The scoped
+documentation acknowledgement is: “This native map repair changes internal
+reclamation only; it does not define the v5.1.0 release scope.” I keep that
+acknowledgement out of the historical negative-control tests so they continue
+to prove that stale release prose fails closed.
 
 PR #361 passes the Linux x64, Linux ARM64 and macOS ARM64 build-and-test jobs,
 the memory-sanitizer and coverage jobs, strict examples on both Linux

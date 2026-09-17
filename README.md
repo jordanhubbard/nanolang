@@ -8,7 +8,7 @@
 
 I transpile to C when you need native performance. NanoISA is my verified bytecode VM; it isolates dangerous external calls in a separate process. After 4.0 I added versioned service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
 
-I published v5.0.0 with the language/runtime changes in [my release contract](docs/RELEASE_5.0.md). My planned v5.0.1 must complete the [full remaining roadmap](docs/ROADMAP.md), including NanoISA-only compilation and matching compiler bytecode. Those architecture gates remain unfinished.
+I published v5.0.0 with the language/runtime changes in [my release contract](docs/RELEASE_5.0.md). My planned v5.1.0 must complete the [full remaining roadmap](docs/ROADMAP.md), including NanoISA-only compilation and matching compiler bytecode. Those architecture gates remain unfinished.
 
 ## Documentation
 

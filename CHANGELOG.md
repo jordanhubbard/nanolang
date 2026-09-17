@@ -4,13 +4,14 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 
 ## [Unreleased]
 
-## [5.0.1] - 2026-09-16
+Release target: `v5.1.0`. I preserve `v5.0.0` as published history and require
+the full unfinished 5.0 roadmap before I publish this release.
 
 ### Changed
 - I add sanitizer regressions for caller frames, globals, nested and mutable
   aggregates, scalar safepoints, loop backedges and tail-call teardown.
-- Documentation acknowledgement: 5.0.1 changes internal native map reclamation
-  only; syntax, CLI, README guidance and presentation claims are unchanged.
+- I retain the native map reclamation repair as one part of 5.1.0. It does not
+  define the release scope; the full One IR contract remains mandatory.
 
 ### Fixed
 - I keep caller-owned native maps and reachable strings alive across generated
