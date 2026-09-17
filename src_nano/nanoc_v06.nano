@@ -2094,7 +2094,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             # below; this explicit route is not my NanoISA-only bootstrap.
             let mut nvm_assembly: string = ""
             if emit_nvm {
-                set nvm_assembly (nanoisa_emit_parser_nasm parser)
+                set nvm_assembly (nanoisa_emit_program_nasm parser)
                 if (== nvm_assembly "") {
                     (println "I cannot lower this checked program to my supported NanoISA subset")
                     return 1

@@ -68,6 +68,32 @@ shadow main { assert (== (main) 0) }
             self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file, "-lm", "-o", executable])
             self.assertEqual(self.run_command([executable]).stdout, b"canonical-nvm\n")
 
+    def test_unreachable_helper_still_runs_dependency_shadows(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-program-") as tmp:
+            directory = Path(tmp)
+            dependency = directory / "unused.nano"
+            dependency.write_text('module Unused\npub fn unused() -> float { return 1.25 }\n'
+                                  'shadow unused { assert (> (unused) 1.0) }\n')
+            source = directory / "main.nano"
+            source.write_text(f'module "{dependency}" as unused\n'
+                              'fn main() -> int { (println "program-closure") return 0 }\n'
+                              'shadow main { assert true }\n')
+            output = directory / "program.nvm"
+            self.run_command([COMPILER, source, "--emit-nvm", "-o", output])
+            accepted = output.read_bytes()
+            self.assertEqual(accepted[:4], b"NVM\x02")
+            self.assertEqual(self.run_command([ROOT / "bin/nano_vm", output]).stdout,
+                             b"program-closure\n")
+            c_file, executable = directory / "out.c", directory / "native"
+            self.run_command([ROOT / "bin/nvm2c", output, "-o", c_file])
+            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file, "-lm", "-o", executable])
+            self.assertEqual(self.run_command([executable]).stdout, b"program-closure\n")
+            # I retain full dependency validation even when its code is unreachable.
+            dependency.write_text(dependency.read_text().replace('assert (> (unused) 1.0)', 'assert false'))
+            rejected = self.run_command([COMPILER, source, "--emit-nvm", "-o", output], 1)
+            self.assertIn(b"after failed shadows", rejected.stdout + rejected.stderr)
+            self.assertEqual(output.read_bytes(), accepted)
+
     def test_dependency_and_root_shadow_failures_preserve_output(self):
         with tempfile.TemporaryDirectory(prefix="canonical-nvm-shadows-") as tmp:
             directory = Path(tmp)
