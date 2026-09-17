@@ -51,6 +51,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       My earlier C-seed generated-C failure and Stage1 admission are now
       guarded by paired stored/returned/forwarded refusal and prior-output
       controls. Borrowed callback transfer itself remains unsupported. MAC `task_5647b9905ea3eb914389f660d54634bd`.
+- [x] I publish refreshed seeded and canonical native compiler product acceptance at `8666cb09` after typed floats and true branches (MAC `task_f1bcd093f86b433a8f3d59139939187b`). Both existing positive gates pass with default shadows and exact hello outputs in VM/native; My [retained hashes and command timings](evidence/native-compiler-readiness-8666.md) record405.053seconds for both gates without claiming full native self-compilation or the pending VM-shadow cutover.
+
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
@@ -8838,11 +8840,12 @@ Compiler product:
       shadow probe reaches `substitute_union_field_type` and rejects its nested
       string appends to `[]`. I retain negative type controls and require exact
       C-seed bytecode plus VM/native execution before rerunning the closure.
-- [ ] I preserve exact `float_to_string` formatting across interpreter, native and VM
-      (`task_29976241a36244f7b0ce4ad75cb10b3f`). My C-seed interpreter/native runtime
-      appends `.0` for whole floats; my VM cast and self-hosted native path omit it.
-      I retain signed-zero checks independently and require explicit formatting
-      parity before claiming this builtin agrees across backends.
+- [x] I preserve exact `float_to_string` formatting across interpreter, native and VM
+      (`task_29976241a36244f7b0ce4ad75cb10b3f`). Both emitters and my self-hosted
+      native helper retain `%g` precision and the reference decimal suffix,
+      including signed zero, exponents and nonfinite values. My full paired gate
+      passes 86 comparisons and 82 methods with native enabled; fresh default
+      bootstrap and six compiler cases pass. See `evidence/float-format-parity.md`.
 - [x] I lower typed F64 opcodes in native AOT with strict float operands
       (`task_fd4c63cf9f3e46f09ece380ce00c7a58`). The exact C-seed/self-hosted scalar fixture
       now verifies and runs in NanoVM and native after PR513. I retain signed

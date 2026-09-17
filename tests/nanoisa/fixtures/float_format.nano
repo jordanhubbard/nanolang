@@ -1,0 +1,36 @@
+let mut calls: int = 0
+fn render_float(value: float) -> string { return (float_to_string value) }
+shadow render_float { assert (== (render_float 2.0) "2.0") }
+fn once() -> float { set calls (+ calls 1) return 3.0 }
+shadow once { let before: int = calls assert (== (once) 3.0) assert (== calls (+ before 1)) set calls before }
+fn huge() -> float {
+    let mut value: float = 100000000.0
+    let mut count: int = 0
+    while (< count 8) { set value (* value value) set count (+ count 1) }
+    return value
+}
+shadow huge { assert (> (huge) 100000000.0) }
+fn main() -> int {
+    assert (== (render_float (huge)) "inf")
+    assert (== (render_float (- (huge))) "-inf")
+    let undefined_value: string = (render_float (- (huge) (huge)))
+    assert (str_contains undefined_value "nan")
+    assert (not (str_contains undefined_value ".0"))
+    (println (render_float (huge)))
+    (println (render_float (- (huge))))
+    (println undefined_value)
+    assert (== (render_float 0.0) "0.0")
+    assert (== (render_float (- 0.0)) "-0.0")
+    assert (== (render_float (- 0.0 0.0)) "0.0")
+    assert (== (render_float 1.0) "1.0")
+    assert (== (render_float -2.0) "-2.0")
+    assert (== (render_float 1.25) "1.25")
+    assert (== (render_float 1.2345678901234567) "1.23457")
+    assert (== (render_float 10000000.0) "1e+07")
+    assert (== (render_float 0.0000001) "1e-07")
+    let before: int = calls
+    assert (== (float_to_string (once)) "3.0")
+    assert (== calls (+ before 1))
+    return 0
+}
+shadow main { let before: int = calls assert (== (main) 0) set calls before }

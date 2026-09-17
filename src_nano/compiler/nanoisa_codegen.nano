@@ -2171,7 +2171,20 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= (nisa_expr_type parser argument.node_id argument.node_type) "float") {
             return (nisa_fail "I require a float to format")
         }
-        return (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
+        let done: string = (nisa_fresh)
+        let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
+        let markers: array<string> = [".", "e", "n", "i"]
+        let mut index: int = 0
+        while (< index 4) {
+            set output (+ output (nisa_line "DUP"))
+            set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern (at markers index))))
+            set output (+ output (nisa_line "STR_CONTAINS"))
+            set output (+ output (nisa_line_imm "JMP_TRUE" done))
+            set index (+ index 1)
+        }
+        set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern ".0")))
+        set output (+ output (nisa_line "STR_CONCAT"))
+        return (+ output (nisa_label_line done))
     }
     let host_symbol: string = (nisa_call_host_symbol parser function_name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }
@@ -2291,6 +2304,10 @@ shadow nisa_emit_call {
     assert (str_contains text "LOAD_LOCAL 0")
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT")
+    let formatted: string = (nanoisa_emit_nasm "fn main() -> string { return (float_to_string 2.0) }")
+    assert (str_contains formatted "CAST_STRING")
+    assert (str_contains formatted "STR_CONTAINS")
+    assert (str_contains formatted "JMP_TRUE")
     assert nisa_ok
     let _2: int = (nisa_reset)
 }
