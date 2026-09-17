@@ -26,6 +26,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Inline union match metadata.** I preserve the union identity of
+      variant literals in expression and statement matches, and test payloads,
+      side effects and lexical returns across interpreter, native and VM paths.
+      MAC `task_c28c39b66f704cf8af71827955c9edc0`.
+
 - [x] **Callee snapshots in VM and interpreter.** I evaluate function values
       before argument side effects and retain the interpreter callee name until
       invocation completes. Both paths pass mutable-binding and computed-callee
