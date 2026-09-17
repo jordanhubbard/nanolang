@@ -8,6 +8,8 @@
 #include "../../src/nanoisa/nvm_v2_sections.h"
 #include "../../src/nanoisa/verifier.h"
 
+#include <errno.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -476,6 +478,79 @@ int64_t nl_nanoisa_assemble_save(const char *nasm_path,
         last_error[0] = '\0';
     }
     return result;
+}
+
+/* I assemble in memory and publish only a complete verified v2 module. */
+int64_t nl_nanoisa_assemble_text_save(const char *source, const char *path) {
+    NanoisaErr err;
+    clear_error(&err);
+    if (!path || !path[0]) {
+        set_error(&err, NANOISA_ERR_ARGUMENT, 0, "I need a module output path.");
+        store_output(NULL, &err);
+        return err.code;
+    }
+    NvmModule *mod = nanoisa_assemble_text(source, &err);
+    if (!mod) {
+        store_output(NULL, &err);
+        return err.code;
+    }
+    NvmVerifyResult verified = nvm_verify_linked(mod, NULL, 0);
+    if (!verified.ok) {
+        set_error(&err, NANOISA_ERR_FORMAT, 0, "I cannot verify the module: %s", verified.error_msg);
+        nvm_module_free(mod);
+        store_output(NULL, &err);
+        return err.code;
+    }
+    uint32_t size = 0;
+    uint8_t *data = nanoisa_save_bytes(mod, &size, &err);
+    nvm_module_free(mod);
+    if (!data) {
+        store_output(NULL, &err);
+        return err.code;
+    }
+    size_t path_len = strlen(path);
+    if (path_len > SIZE_MAX - sizeof(".tmp.XXXXXX")) {
+        free(data);
+        set_error(&err, NANOISA_ERR_ARGUMENT, 0, "I cannot represent that output path.");
+        store_output(NULL, &err);
+        return err.code;
+    }
+    char *temporary = malloc(path_len + sizeof(".tmp.XXXXXX"));
+    if (!temporary) {
+        free(data);
+        set_error(&err, NANOISA_ERR_MEMORY, 0, "I cannot allocate an output path.");
+        store_output(NULL, &err);
+        return err.code;
+    }
+    memcpy(temporary, path, path_len);
+    memcpy(temporary + path_len, ".tmp.XXXXXX", sizeof(".tmp.XXXXXX"));
+    int fd = mkstemp(temporary);
+    int saved_error = fd < 0 ? errno : 0;
+    if (fd >= 0) {
+        size_t offset = 0;
+        while (offset < size) {
+            ssize_t written = write(fd, data + offset, size - offset);
+            if (written < 0 && errno == EINTR) continue;
+            if (written <= 0) {
+                saved_error = written < 0 ? errno : EIO;
+                break;
+            }
+            offset += (size_t)written;
+        }
+        if (!saved_error && fsync(fd) != 0) saved_error = errno;
+        if (close(fd) != 0 && !saved_error) saved_error = errno;
+        if (!saved_error && rename(temporary, path) != 0) saved_error = errno;
+        if (saved_error) unlink(temporary);
+    }
+    free(temporary);
+    free(data);
+    if (saved_error) {
+        set_error(&err, NANOISA_ERR_IO, 0, "I cannot publish '%s': %s", path, strerror(saved_error));
+        store_output(NULL, &err);
+        return err.code;
+    }
+    last_error[0] = '\0';
+    return NANOISA_OK;
 }
 
 const char *nl_nanoisa_last_error(void) {

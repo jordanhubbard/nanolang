@@ -4100,3 +4100,8 @@ test-native-call-argument-order: $(COMPILER_C) $(INTERPRETER) nano_virt nano_vm
 .PHONY: test-inline-union-match
 test-inline-union-match: $(COMPILER_C) $(INTERPRETER) nano_virt
 	@python3 -m unittest tests.test_inline_union_match
+
+test-units: test-nanoisa-emit-driver
+.PHONY: test-nanoisa-emit-driver
+test-nanoisa-emit-driver: nanoisa_emit nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest tests.test_nanoisa_emit_driver

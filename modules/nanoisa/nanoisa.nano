@@ -5,6 +5,7 @@ from "modules/std/fs.nano" import write, delete
 extern fn nl_nanoisa_load_print(_path: string) -> string
 extern fn nl_nanoisa_load_pretty(_path: string) -> string
 extern fn nl_nanoisa_assemble_save(_nasm_path: string, _nvm_path: string) -> int
+extern fn nl_nanoisa_assemble_text_save(_source: string, _path: string) -> int
 extern fn nl_nanoisa_last_error() -> string
 
 pub fn load_print(path: string) -> string {
@@ -69,6 +70,17 @@ shadow assemble_save {
     assert (> (str_length (load_print nvm_path)) 0)
     (delete nasm_path)
     (delete nvm_path)
+}
+
+# I preserve an existing output until complete verified v2 bytes are ready.
+pub fn assemble_text_save(source: string, path: string) -> int {
+    unsafe {
+        return (nl_nanoisa_assemble_text_save source path)
+    }
+}
+
+shadow assemble_text_save {
+    assert (!= (assemble_text_save "" "") 0)
 }
 
 pub fn last_error() -> string {

@@ -92,6 +92,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and submit only the focused patch.
       MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
 
+- [x] **Self-hosted NanoISA driver module output.** I add explicit `--emit-nvm`
+      through my assembler facade, verify deterministic v2 bytes and publish with
+      atomic output replacement. I preserve prior files on failure and test VM
+      and native execution while retaining the C-seed-hosted subset boundary.
+      MAC `task_1b6ed994e19447f6b58305aa52768548`.
+      Evidence: [driver module output](evidence/nanoisa-driver-module-output.md).
+
 - [x] **Hosted VM example shadow budget.** I allow a finite explicit
       budget for instrumented VM-example compiler children while preserving
       normal and deadline-regression behavior elsewhere in the full suite.
