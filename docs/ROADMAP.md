@@ -27,6 +27,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Mixed native nominal definition order.** I order record and union
+      definitions by their by-value dependencies, preserve pointer-backed
+      collection boundaries, and diagnose unsatisfied layout cycles. I test
+      both dependency directions and alternating chains before enabling
+      selected resource payload execution in both self-hosted stages. MAC
+      `task_68a6b53f768245bfacfc79b6db78b621`.
+
 - [x] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
       TypeInfo before implementing selected-variant ownership transfer. MAC
       `task_1f64c9b88a5248dcbda2258dcbee99f7`.
