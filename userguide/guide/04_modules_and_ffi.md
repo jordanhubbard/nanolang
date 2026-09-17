@@ -35,6 +35,24 @@ pub fn transform(value: int) -> int {
 
 Private helpers remain callable within their module. Importers can call only public declarations.
 
+## Qualified Type Identity
+
+Qualify imported record types as well as their constructors:
+
+```nano
+module "geometry.nano" as geometry
+
+fn origin() -> geometry.Point {
+    return geometry.Point { x: 0, y: 0 }
+}
+```
+
+The qualifier is semantic. If two modules export a record with the same short
+name, I keep their declarations distinct; matching field layouts do not make
+them interchangeable. Long qualified names are preserved rather than silently
+truncated. Within the declaring module, the unqualified local name remains the
+ordinary spelling.
+
 ## Foreign Functions
 
 Foreign declarations use `extern fn`. A direct call requires `unsafe` unless the whole imported module is unsafe:
