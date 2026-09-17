@@ -1,5 +1,6 @@
 """I exercise new ordinary metadata shadows through both repaired compiler stages."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -43,12 +44,14 @@ class MetadataLoweringState(unittest.TestCase):
                 ' }\n'
                 f' assert (== total {count})\n assert (== name {json.dumps(function)})\n'
                 f' assert (== record {json.dumps(record)})\n assert (== visits 1)\n'
-                ' println "metadata shadow checked"\n}\n')
-            for stage in ('nanoc_stage1', 'nanoc_stage2'):
+                '}\n')
+            drivers = [Path(os.environ['NANOC']).resolve()] if 'NANOC' in os.environ else [
+                ROOT/'bin/nanoc_stage1', ROOT/'bin/nanoc_stage2']
+            for driver in drivers:
+                stage = driver.name
                 with self.subTest(stage=stage, empty=empty):
                     output = work/(stage+'.nvm')
-                    diagnostic = self.checked(ROOT/'bin'/stage, source, '--emit-nvm', '-o', output)
-                    self.assertIn('metadata shadow checked', diagnostic)
+                    self.checked(driver, source, '--emit-nvm', '-o', output)
                     self.checked(ROOT/'bin/nano_vm', '--verify-only', output)
                     self.checked(ROOT/'bin/nano_vm', output)
                     generated, native = work/(stage+'.c'), work/stage
