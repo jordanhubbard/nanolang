@@ -23,6 +23,12 @@ through record-only paths. Tuple, union, collection, generic and unknown
 referents remain refused until their independent contracts are implemented.
 A descriptor never substitutes for the owning local's authoritative type.
 
+My current v2 bridge synthesizes field-less layouts from legacy type counts
+and reconstructs only those counts. Those placeholders are not authoritative
+record shapes, even though the v2 layout codec can preserve full fields. I
+must retain actual layouts in the execution module and both conversion
+directions before using them as reference-verification evidence.
+
 My first implementation slice supplies descriptor validation and pure overlap
 queries against v2 layouts. It does not install a new section or opcode.
 The later executable representation must carry:
