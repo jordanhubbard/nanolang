@@ -24,6 +24,13 @@ fn main() -> int { assert (== (value "yes") "yes!") return 0 }''',
     "immutable_global": '''let answer: int = 42
 pure fn value() -> int { return answer }
 fn main() -> int { assert (== (value) 42) return 0 }''',
+    "match_expression": '''pure fn value(n: int) -> string {
+    return match n { 0 => "zero" 1 => "one" _ => "many" }
+}
+fn main() -> int { assert (== (value 1) "one") return 0 }''',
+    "function_reference": '''pure fn add(a: int, b: int) -> int { return (+ a b) }
+pure fn factory() -> fn(int, int) -> int { return add }
+fn main() -> int { let op: fn(int, int) -> int = (factory) assert (== (op 20 22) 42) return 0 }''',
 }
 REJECT = {
     "mutable_global": '''let mut state: int = 1
@@ -127,6 +134,23 @@ class PurityContract(unittest.TestCase):
                         else:
                             self.assertEqual(result.returncode, 0, result.stdout[-6000:])
                             self.assertEqual(self.command([output]).returncode, 0)
+
+    def test_c_match_guard_effect_is_not_hidden(self):
+        source = '''fn visible(n: int) -> bool { (println n) return true }
+pure fn value(n: int) -> string {
+    return match n { 0 if (visible n) => "zero" _ => "other" }
+}
+fn main() -> int { return 0 }'''
+        with tempfile.TemporaryDirectory(prefix="nano-purity-guard-") as temporary:
+            root = Path(temporary)
+            path = root / "guard.nano"
+            output = root / "program"
+            path.write_text(source + "\n")
+            output.write_bytes(b"prior-output")
+            result = self.command([COMPILERS[0], path, "-o", output])
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertIn("closed empty effect summary", result.stdout)
+            self.assertEqual(output.read_bytes(), b"prior-output")
 
     def test_generated_intrinsic_contract(self):
         result = self.command(["python3", ROOT / "scripts/gen_purity_intrinsics.py", "--check"])

@@ -3344,11 +3344,21 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       under a self-hosted label.
 - [x] **Nested unary-minus C emission.** I parenthesize nested negation so
       `-(-7)` does not become the C decrement token `--7`.
-- [ ] **Release-gate VM example coverage.** I repair the compilation and
+- [x] **Release-gate VM example coverage.** I repair the compilation and
       dependency-shadow failures reported by `make test-vm-examples` and
       remove eight stale exclusions that now compile to bytecode. I retain
       the default dependency-shadow contract rather than hiding failures.
       MAC `task_7ee12d8737363c126a040fde905a7114`.
+      - [x] I traverse match scrutinees and arm-local immutable bindings in
+        both closed-purity walkers, plus guards in the C AST that represents
+        them. I treat evaluating a resolved function declaration as
+        effect-free, while keeping invocation through an unqualified
+        function-typed value unknown until function types carry a verified
+        closed-purity capability. I keep those higher-order helpers ordinary
+        rather than weakening the purity contract. My three-stage component
+        build and full bootstrap pass, the shared two-frontend purity contract
+        passes five methods, and `make test-vm-examples` lowers all 245
+        eligible examples while preserving all four verified exclusions.
       I verify integer/wildcard/guarded match lowering, block-arm values,
       named union/enum signatures, typed array allocation, inferred record
       names, and foreign runtime boundaries with focused regressions before
@@ -3555,11 +3565,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       names. The integrated VM suite passes 272,247 checks; parser shadows pass under
       AddressSanitizer and without tracing. The full release gate remains open.
       MAC `task_b53374269a1748c5a56a185a75fb6480`.
-- [ ] **Follow-up — C arrays of records.** I retain the nominal element
+- [x] **Follow-up — C arrays of records.** I retain the nominal element
       name and use the dynamic-array representation when lowering record
-      literals or record-returning calls inside array literals. My current
-      C emitter produces `struct[]` without a record name in both cases.
-      MAC `task_967a32569524e07e3c97742cf23234e9`.
+      literals or record-returning calls inside array literals. Four native/VM
+      acceptance methods cover direct and returned record values. PRs #415,
+      #444 and #449 complete the repair. MAC
+      `task_967a32569524e07e3c97742cf23234e9`.
 - [ ] **Follow-up — MAC commands execute once.** My standard-library command
       wrapper captures stdout with one execution, then executes the same
       command again to obtain its status. I replace this with one execution
