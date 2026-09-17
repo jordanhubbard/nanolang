@@ -1,8 +1,9 @@
 # Native artifact string lifetimes
 
-I am defining the remaining artifact-result contract for MAC
-`task_bdc323f270d44f02b38ba728f1f93184`. This document records a static audit
-and a proposed opt-in ABI. It does not claim that consumers implement it.
+I define an opt-in artifact-result contract for MAC
+`task_bdc323f270d44f02b38ba728f1f93184`. My direct VM bridge and native C
+adapters implement this bounded contract; the rest of the host-result audit
+remains under `task_d5f899966241452a900422938fff3265`.
 
 ## Existing boundaries
 
@@ -24,10 +25,10 @@ adapter is a separate declared contract. Ordinary compiled C callers of
 `file_read` also receive the legacy non-NULL result; replacing its allocation
 failure fallback with NULL would change that interface.
 
-## Proposed explicit cleanup contract
+## Explicit cleanup contract
 
-I propose a versioned, optional companion export for each string-returning
-function:
+I recognize a versioned, optional companion export for each admitted
+string-returning function:
 
 ```c
 void file_read__nano_string_release_v1(const char *result);
@@ -46,21 +47,37 @@ sentinel; consumers never call free on the foreign result. NULL cleanup is
 harmless, while the consumer retains its declared result-validation policy.
 The contract permits no retained access to the original pointer after cleanup.
 
-The filesystem provider can preserve its legacy non-NULL file_read interface
+The filesystem provider preserves its legacy non-NULL file_read interface
 using a private stable empty sentinel and releasing only its own allocations.
 This is an alternative to changing the public result to owned-or-NULL. Existing
 C callers remain compatible; consumers that do not opt in retain their
 existing lifetime behavior.
 
-## Required implementation and acceptance
+## Admission and acceptance
 
-I must first review the exact provider/consumer ABI and loader lifetime. Then
-I implement the filesystem companion and the matched native/VM adapters.
-I must cover successful and empty text, missing files, rejected embedded NUL,
-provider allocation failure, consumer copy failure, escaping aliases and
-bounded repeated calls. An artifact without a companion must still return a
-borrowed literal safely. A declaration from a different image must not confer
-cleanup authority. Callback, co-process and interpreter artifact consumers
-require their own explicit audit; this proposal does not silently enroll them.
+My direct VM bridge admits zero, one or two declared string parameters and a
+string result. It refuses a cleanup-bearing artifact with another signature
+before calling the provider. Native admission retains its existing exact
+artifact signature table. No serialized NanoISA import format changes.
 
-The parent host-result task and artifact cleanup task remain open.
+Both consumers require a non-NULL string result when a companion is present.
+They call cleanup exactly once even on a NULL result or failed snapshot; the
+VM reports failure and native C retains its existing abort-on-allocation-failure
+policy. An interned VM string still consumes the provider result. Native copies
+enter the existing traced string pool, so aliases survive until their roots
+are gone. The loader retains its ordinary module lifetime; this adds no
+asynchronous calls or detached cleanup.
+
+My focused acceptance checks successful and empty text, missing files, rejected
+embedded NUL, provider allocation failure, VM/native copy failure, escaping
+aliases and repeated calls. An artifact without a companion still returns a
+borrowed literal safely. A companion from another image is refused before the
+provider is invoked. Two libraries with the same symbol retain distinct
+cleanup identities. The native programs run with ASan/UBSan/LSan.
+
+Callback, co-process and interpreter artifact consumers are not enrolled by
+this change. Legacy C callers retain the original interface and can explicitly
+call the companion after copying escaping text. Other filesystem helpers still
+need their own audited provider contracts; this does not free their results.
+
+Exact measured checks are recorded with the implementation evidence.

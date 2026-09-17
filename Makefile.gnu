@@ -4526,3 +4526,8 @@ test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_scalar_joins
 
 test-units: test-native-scalar-joins
+
+.PHONY: test-artifact-string-release
+test-units: test-artifact-string-release
+test-artifact-string-release: nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_artifact_string_release

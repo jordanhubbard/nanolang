@@ -6093,7 +6093,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)
             nvm2c_puts(&b, "    (void)narr_push;\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
-        if (b.has_owned_strings) nvm2c_puts(&b, "    (void)nstr_copy; (void)nstr_take;\n");
+        if (b.has_owned_strings) nvm2c_puts(&b, "    (void)nstr_copy; (void)nstr_take; (void)nstr_copy_release;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64; (void)nstr_from_f64;\n");
         if (b.has_maps && (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN)))
             nvm2c_puts(&b, "    (void)nvalue_array_print;\n");
