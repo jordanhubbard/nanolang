@@ -36,8 +36,8 @@ I measured these Linux ARM64 gates on 2026-09-17:
   ASan/UBSan and leak detection.
 - The actual canonical compiler native seed builds against the nanoisa host
   module, runs help, emits hello bytecode, and verifies/executes that artifact.
-- Seventeen LLVM and eleven Wasm translator methods pass. Full native
-  translator regression results and integrated return-path gates follow below.
+- 2,418 native translation and 1,092 shape checks, seventeen LLVM and eleven
+  Wasm translator methods pass before the main integration below.
 
 I preserve logs under `/tmp/nanolang-reference-`: `paired-final.log`,
 `integration-final.log`, `computed.log`, `asan.log`, `seed.log`,
@@ -51,3 +51,21 @@ I keep caller-place alias substitution, nested reference paths, reborrows,
 reference parameters/results, floating reference fields and source producer
 admission outside this checkpoint. They remain required work under my affine
 and borrow parents. I do not close full v5.1 acceptance or the publication hold.
+
+## My integrated checkpoint
+
+I integrate main `79968058` through PR569 at `74cb9d42`. I preserve both additive
+Makefile and roadmap entries. The merged common `vm_return_values` path clears
+my activation before return-value extraction; the owned eligibility contract
+still requires explicit returns.
+
+On that integrated source I repeat 1,336 reference and 29 allocation checks,
+1,051 owned-runtime and 32 allocation checks, 2,801 ISA and 33 schema checks,
+272,624 VM checks and all nine ordinary implicit-return methods. Computed-goto
+repeats 272,624 VM and 1,336 reference checks. ASan/UBSan repeats 29 allocation
+and 1,336 reference checks with leak detection. The canonical native seed is
+rebuilt from integrated source; help, ordinary hello emission, verification
+and execution pass again. I retain `restack.log`, `restack-computed.log`,
+`restack-asan.log`, `restack-seed.log` and `restack-hello.log` under the same
+`/tmp/nanolang-reference-` prefix. This final documentation update does not
+change compiler or test source.
