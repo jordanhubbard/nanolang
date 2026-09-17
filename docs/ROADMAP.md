@@ -9100,7 +9100,7 @@ Compiler product:
 - [ ] I keep unreachable-code warnings nonfatal in self-hosted checking
       (`task_47e61dea383042808ccc1a0c89bef064`). My `check_block` currently creates W0002
       through the error constructor, so Stage1/Stage2 reject a valid early-return
-      fixture accepted by C seed. I preserve the warning and original fixture.
+      fixture accepted by C seed. I preserve the warning and original fixture. My repair uses the existing warning constructor, retains checking of unreachable statements, and requires warning-only compilation plus continued rejection of actual type errors in those statements.
 - [x] I snapshot both self-hosted native range bounds before entering the loop
       (`task_8e80a672c285487dbbad07dd1dbfc9b9`). A fresh three-stage bootstrap
       and both paired methods pass across C seed, Stage1 and Stage2, including
