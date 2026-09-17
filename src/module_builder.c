@@ -4689,7 +4689,7 @@ static uint64_t module_snapshot_pch(const char *snapshot, const char *directory,
     unsigned count = 0;
     ModuleAssemblyCapture capture = {directory, 0, 0, hash};
     hash_context_field(&capture.hash, "gcc-retained-pch-v1");
-    static const char marker[] = "#pragma GCC pch_preprocess";
+    static const char marker[] = "#pragma GCC " "pch_preprocess";
     while (ok && (length = getline(&line, &capacity, input)) >= 0) {
         if (memchr(line, 0, (size_t)length)) { ok = false; break; }
         char *pragma = strstr(line, marker);
@@ -4833,7 +4833,7 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             size_t amount;
             uint64_t hash = 14695981039346656037ULL;
             bool nonempty = false;
-            static const char pch_marker[] = "#pragma GCC pch_preprocess";
+            static const char pch_marker[] = "#pragma GCC " "pch_preprocess";
             size_t pch_matched = 0;
             bool external_pch = false;
             while ((amount = fread(buffer, 1, sizeof(buffer), pipe)) > 0) {

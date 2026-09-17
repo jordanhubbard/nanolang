@@ -531,6 +531,10 @@ static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     return NULL;
 }
 
+static Type resolved_array_element(Type element, const char *name, Environment *env) {
+    return element == TYPE_STRUCT && name && env_get_enum(env, name) ? TYPE_ENUM : element;
+}
+
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
@@ -540,7 +544,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 
     const TypeInfo *info = array_expr_type_info(array_expr, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type) {
-        return info->element_type->base_type;
+        return resolved_array_element(info->element_type->base_type, info->element_type->generic_name, env);
     }
 
     if (array_expr->type == AST_MODULE_QUALIFIED_CALL) {
@@ -553,7 +557,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         Function *producer = env_get_function(env, qualified);
         free(qualified);
         if (producer && producer->return_type == TYPE_ARRAY)
-            return producer->return_element_type;
+            return resolved_array_element(producer->return_element_type, producer->return_struct_type_name, env);
     }
 
     if (array_expr->type == AST_CALL && array_expr->as.call.name &&
@@ -572,14 +576,14 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         }
         Function *producer = env_get_function(env, array_expr->as.call.name);
         if (producer && producer->return_type == TYPE_ARRAY) {
-            return producer->return_element_type;
+            return resolved_array_element(producer->return_element_type, producer->return_struct_type_name, env);
         }
     }
 
     if (array_expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, array_expr->as.identifier, array_expr->line, array_expr->column);
         if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
-            return sym->element_type;
+            return resolved_array_element(sym->element_type, sym->struct_type_name, env);
         }
     }
 
@@ -601,7 +605,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
                 for (int i = 0; i < sdef->field_count; i++) {
                     if (strcmp(sdef->field_names[i], field_name) == 0) {
                         if (sdef->field_types[i] == TYPE_ARRAY && sdef->field_element_types[i] != TYPE_UNKNOWN) {
-                            return sdef->field_element_types[i];
+                            return resolved_array_element(sdef->field_element_types[i], sdef->field_type_names ? sdef->field_type_names[i] : NULL, env);
                         }
                         break;
                     }
@@ -817,6 +821,20 @@ static unsigned build_ordered_call_args(WorkList *list, ASTNode **args,
         emit_literal(list, "; ");
     }
     return call_id;
+}
+
+/* I preserve the source-level zero spelling for an opaque null after call
+ * arguments have been snapshotted into typed C temporaries.  An integer
+ * temporary is not a C null-pointer constant, so the final call boundary must
+ * restore the declared pointer type explicitly. */
+static bool call_parameter_is_opaque(const Function *function, int index,
+                                     Environment *env) {
+    if (!function || !function->params || index < 0 ||
+        index >= function->param_count) return false;
+    const Parameter *parameter = &function->params[index];
+    if (parameter->type == TYPE_OPAQUE) return true;
+    return parameter->type == TYPE_STRUCT && parameter->struct_type_name && env &&
+           env_get_opaque_type(env, parameter->struct_type_name) != NULL;
 }
 
 static unsigned next_nested_array_id(Environment *env) {
@@ -2269,6 +2287,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
                 
+                elem_type = resolved_array_element(elem_type, struct_name, env);
                 /* For structs, use dyn_array_push_struct with sizeof */
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: dyn_array_push_struct(arr, &value, sizeof(nl_StructName)) */
@@ -2432,6 +2451,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                     if (i > 0) emit_literal(list, ", ");
 
+                    bool opaque_parameter =
+                        call_parameter_is_opaque(func_info, i, env);
+
                     /* ARC: Check if parameter is opaque type that needs unwrapping */
                     bool needs_unwrap = false;
                     if (needs_unwrap_check && func_info && i < func_info->param_count && env) {
@@ -2449,9 +2471,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                     if (needs_unwrap) {
                         emit_literal(list, "gc_unwrap(");
+                        if (opaque_parameter) emit_literal(list, "(void*)");
                         emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                         emit_literal(list, ")");
                     } else {
+                        if (opaque_parameter) emit_literal(list, "(void*)");
                         emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
                     }
                 }
@@ -2487,12 +2511,15 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             emit_literal(list, "({ ");
             unsigned call_id = build_ordered_call_args(list, expr->as.module_qualified_call.args,
                                                        expr->as.module_qualified_call.arg_count, env, NULL);
-            emit_foreign_reference(list, c_name, env_get_function(env, qualified_name));
+            Function *qualified_function = env_get_function(env, qualified_name);
+            emit_foreign_reference(list, c_name, qualified_function);
             emit_literal(list, "(");
             
             /* Emit arguments */
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
+                if (call_parameter_is_opaque(qualified_function, i, env))
+                    emit_literal(list, "(void*)");
                 emit_formatted(list, "__nl_arg_%u_%d", call_id, i);
             }
             
@@ -2877,7 +2904,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
                 
                 /* Generate call to appropriate constructor */
-                if (elem_type == TYPE_INT) {
+                if (elem_type == TYPE_INT || elem_type == TYPE_ENUM) {
                     emit_literal(list, "dynarray_literal_int(0)");
                 } else if (elem_type == TYPE_U8) {
                     emit_literal(list, "dynarray_literal_u8(0)");
@@ -2905,7 +2932,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
                 
                 /* Generate call to appropriate helper function */
-                if (elem_type == TYPE_INT) {
+                if (elem_type == TYPE_INT || elem_type == TYPE_ENUM) {
                     emit_formatted(list, "dynarray_literal_int(%d", count);
                     for (int i = 0; i < count; i++) {
                         emit_literal(list, ", (int64_t)(");

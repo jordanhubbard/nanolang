@@ -45,6 +45,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       primitive-list runtime typedefs. Evidence:
       `docs/evidence/native-nominal-definition-order.md`.
 
+- [x] **Native module artifact facade adapter.** I accept only the exact
+      artifact-bound `nlc_module_artifact(string) -> string` signature,
+      snapshot its borrowed result before another call, and retain rejection
+      of unsupported namespaces, import kinds and types. Companion to MAC
+      `task_81e682a57a3d431e845b0f41f140352e`. Exact contract tests and
+      a real immutable-generation native call pass; see
+      `docs/evidence/native-module-artifact-adapter.md`.
+
 - [x] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
       TypeInfo before implementing selected-variant ownership transfer. MAC
       `task_1f64c9b88a5248dcbda2258dcbee99f7`.
@@ -164,6 +172,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       explicit. I verify the Darwin parser portability gate before closing its
       stale task and correct release-tree restoration evidence after its owner
       closes the ledger row. MAC `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
+
+- [x] **Preserve opaque null arguments in native call snapshots.** I retain my
+      accepted integer-zero spelling for an opaque null when foreign call
+      arguments are evaluated once into ordered temporaries. I reject nonzero
+      integers, compare my C seed and self-hosted native emitters, require
+      strict C compilation, and restore the current quick GLUT gate. MAC
+      `task_77dab245060bc54e6f445bdde3431ec1`.
+      Six native call-order/null methods, both bootstrap stages, 22 self-hosted
+      compiler cases, the paired native shadow emitters and the GLUT boundary
+      gate pass. My broader quick gate advances through that repaired boundary
+      and stops later at the separately owned VM example-purity failures under
+      `task_7ee12d8737363c126a040fde905a7114`.
 
 - [ ] **Restore compiler AOT artifact binding.** I preserve exact library
       bindings and typed adapters for the NanoISA facade imports introduced by
@@ -8357,6 +8377,12 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [x] I let my module builder source pass its own conservative PCH capture
+      scan without changing the runtime marker or rejection policy
+      (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.
+- [x] I emit enum array literals with integer dynamic storage and preserve
+      that representation during native access and append
+      (`task_0e901805aea04c8aa644995602612a64`).
 - [ ] I lower the exact path host contracts required by my compiler
       (`task_81e682a57a3d431e845b0f41f140352e`); after boolean arrays, actual emission
       refuses the `path_basename` extern declaration.
@@ -8430,10 +8456,11 @@ Compiler product:
       shared identity and owned payloads. Fourteen opcode comparisons and
       VM/AOT checks pass; AOT returned-array cleanup remains separately
       tracked. See `docs/evidence/selfhost-list-set.md`.
-- [ ] I align enum-array access type metadata and equality bytecode
-      (`task_d2b541318e964ea4946542bffe3990ae`): my C seed infers a struct
-      for `at(array<Enum>)`, rejecting typed enum locals and emitting generic
-      equality instead of the integer equality used by my emitter.
+- [x] I align enum-array access type metadata and equality bytecode
+      (`task_d2b541318e964ea4946542bffe3990ae`). Typed locals, returns, fields,
+      globals and array producers retain enum scalar transport; eight exact
+      comparisons and native/VM/AOT execution pass. Evidence:
+      `docs/evidence/enum-array-metadata.md`.
 - [x] I lower declared enum values/types from preserved self-host AST metadata
       (`task_3ef1df55630e4199b825ff5d8a0043f1`), including signed values and
       exact scalar transport. Fourteen bytecode comparisons and VM/AOT

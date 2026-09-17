@@ -1,0 +1,18 @@
+opaque type SDL_Window
+
+fn is_null(value: SDL_Window) -> bool {
+    return (== value 0)
+}
+
+shadow is_null {
+    assert (is_null 0)
+}
+
+fn main() -> int {
+    assert (is_null 0)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

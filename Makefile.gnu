@@ -4216,3 +4216,8 @@ test-selected-variant-ownership: bootstrap
 test-units: test-native-nominal-order
 test-native-nominal-order: bootstrap
 	@python3 -m unittest -v tests.test_native_nominal_order
+
+test-units: test-module-builder-self-capture
+.PHONY: test-module-builder-self-capture
+test-module-builder-self-capture: $(OBJ_DIR)/test_module_generation_probe
+	@python3 -m unittest tests.test_module_builder_self_capture
