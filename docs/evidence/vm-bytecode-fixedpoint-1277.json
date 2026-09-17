@@ -1,0 +1,68 @@
+{
+  "source_commit": "1277bce22e2134173446cb10b09bde07bf7731af",
+  "source_clean": true,
+  "cwd": "/home/jkh/Src/nanolang-vm-bootstrap-shared",
+  "seed": {
+    "path": "/tmp/nanolang-bootstrap-shared-seed.nvm",
+    "sha256": "ab84354ae568fe3065cc006f02e0e2b5fa270d9ce999405708656ae17182b13e"
+  },
+  "host_libraries": [
+    {
+      "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/modules/compiler_support/.build/.nano-gen-vfv4Ov/libcompiler_support.so",
+      "sha256": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/modules/nanoisa/.build/.nano-gen-2IxgFB/libnanoisa.so",
+      "sha256": "693ac72639ed563d409d4a2a25e7a61e11c72ffdcb99325d0563a8bf240a427c"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/modules/std/.build/.nano-gen-oVDEMQ/libstd.so",
+      "sha256": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283"
+    }
+  ],
+  "helper": {
+    "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/bin/nano_as_capture.so",
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6"
+  },
+  "stage_labels": {
+    "seed": "Cseed NanoVirt output",
+    "stage1": "VM execution of seed on identical source; independent VM acceptance probe",
+    "acceptance": "stage1 and subsequent same-source stage2 raw byte equality; not seed equality"
+  },
+  "timeout_seconds": 1800,
+  "stage1": {
+    "path": "/tmp/nanolang-bootstrap-shared-stage1.nvm",
+    "sha256": "fe4f3a55d146bb3b38f7db8719039df265276cb17815c4f58bcb027b22c5198c",
+    "exit_code": 0,
+    "elapsed_seconds": 300.47,
+    "maximum_rss_kb": 237228,
+    "verified": true,
+    "vm_help_passed": true,
+    "host_libraries": [
+      {
+        "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/modules/compiler_support/.build/.nano-gen-vfv4Ov/libcompiler_support.so",
+        "sha256": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5"
+      },
+      {
+        "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/modules/nanoisa/.build/.nano-gen-2IxgFB/libnanoisa.so",
+        "sha256": "693ac72639ed563d409d4a2a25e7a61e11c72ffdcb99325d0563a8bf240a427c"
+      },
+      {
+        "path": "/home/jkh/Src/nanolang-vm-bootstrap-shared/modules/std/.build/.nano-gen-oVDEMQ/libstd.so",
+        "sha256": "238983bcf2d0188b358517bdd99a8a6d3b4a179b3128aeaa8e45a9c73ef6f283"
+      }
+    ]
+  },
+  "stage2": {
+    "path": "/tmp/nanolang-bootstrap-shared-stage2.nvm",
+    "sha256": "fe4f3a55d146bb3b38f7db8719039df265276cb17815c4f58bcb027b22c5198c",
+    "exit_code": 0,
+    "elapsed_seconds": 298.41,
+    "maximum_rss_kb": 237216,
+    "verified": true
+  },
+  "raw_stage1_stage2_equal": true,
+  "stage2_compiles_verified_executable_hello": true,
+  "host_hashes_unchanged_after_stages": true,
+  "source_clean_after_stages": true
+}

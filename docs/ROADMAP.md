@@ -143,6 +143,19 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/instantiated-ownership-metadata.md`. MAC
       `task_d329989e8acf43149c38d6a998bd730f`.
 
+- [x] **Keep the resource-flow allocation boundary test aligned with ownership
+      metadata.** I pass an explicit absent type tree for the deliberately
+      metadata-free overflow fixture after `own_add` gained concrete `TypeInfo`
+      context. The focused allocation target and all 12 instantiated-ownership
+      methods pass. MAC: `task_a822c3af6ff10226a2dde139a8ac1d7c`.
+
+- [ ] **Restore my Darwin bootstrap within the ordinary shadow deadline.** At
+      source `1277bce2`, the first self-hosted compiler finishes under an
+      explicit bounded 300-second budget but reproducibly exceeds my default
+      10-second shadow deadline. I will diagnose the regression or justify a
+      platform budget without weakening mandatory dependency shadows. MAC:
+      `task_0ea74f24799d9c9604bdf8abc7250d3d`.
+
 - [x] **Substitute generic selected-variant patterns.** I retain concrete
       arguments through complete-field validation, hidden payload captures and
       inferred projections. Ordinary integer, string, empty and nested selected
@@ -186,6 +199,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       distinguish this identity repair from callback lowering and ownership.
       MAC `task_8ef982b488d8421fb7e5b5ea280e7d2c`; evidence in
       `docs/evidence/selfhost-callback-identity.md`.
+
+- [ ] I compare retained C callback annotation trees, reconstruct owned
+      signatures from declarations and emit concrete native parameter/result
+      layouts (`task_cf555f2a672e43d9921ca44b817ec631`). I share the deep-copy
+      and structural comparison helpers. Matching ordinary callback execution
+      and wrong named/local/forwarded signature rejection are bounded gates;
+      complete indirect-call contexts, serialization and resource boundaries
+      remain in `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
 
 - [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
       now owns complete annotation trees. I still require comparison, lowering,
@@ -8601,14 +8622,27 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I measure and bound the VM compiler bootstrap's repeated declaration
+- [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
+      bytecode is input, then two VM-executed compiler generations compile the
+      same clean source and immutable host closure. I compare raw generation
+      outputs, verify both and execute a product of the final compiler. Native
+      C shadow generation and the NanoISA-only architecture remain separate
+      (`task_36ceaa830d7d46ba8a5471326f525aac`).
+      Clean pin `1277bce2` produces identical 352,236-byte Stage 1/2 outputs;
+      the permanent gate passes in 601.921 seconds with unchanged host hashes
+      and a verified executable final-compiler product. Evidence:
+      `docs/evidence/vm-bytecode-fixedpoint.md`.
+- [x] I measure and bound the VM compiler bootstrap's repeated declaration
       scans and cycle collection (`task_36ceaa830d7d46ba8a5471326f525aac`).
-      My 1,800-second self-compilation probe made progress through NanoISA
-      lowering and reached native-shadow C generation before its diagnostic
-      timeout; this is not a compiler correctness failure. I preserve bytecode
-      and shadow semantics while completing the independent VM route. AOT
-      stage equality cannot close this acceptance item. Evidence:
-      `docs/evidence/vm-bootstrap-budget.md`.
+      My historical 1,800-second probe reached native-shadow C generation
+      before its diagnostic timeout. Shared declaration classification now
+      preserves the tested bytecode/shadow semantics and completes two real VM
+      compiler generations in 297.05 and 296.60 seconds on clean `1277bce2`.
+      Their raw outputs match exactly; the full permanent gate verifies them,
+      checks host closure stability and executes the final compiler's product.
+      This closes the bounded VM budget gate, not the full NanoISA-only
+      architecture. Evidence: `docs/evidence/vm-bootstrap-budget.md` and
+      `docs/evidence/vm-bytecode-fixedpoint.md`.
   - [x] I share the existing linear local-declaration classification across
         typechecking, NanoISA lowering and native-shadow C generation, replacing
         the three repeated transpiler scans without importing the full

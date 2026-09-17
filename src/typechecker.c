@@ -2589,8 +2589,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         if (sym && sym->type == TYPE_FUNCTION) {
                             /* It's a function-typed variable - mark as used and allow it */
                             sym->is_used = true;
-                            /* TODO: Check signature match when we store signatures in Symbol */
-                            continue;  /* Skip to next argument */
+                            FunctionSignature *actual = sym->type_info ? sym->type_info->fn_sig : NULL;
+                            if (!function_signatures_equal(func->params[i].fn_sig, actual)) {
+                                emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
+                                    "I require the complete declared function signature.",
+                                    "Match the callback parameter and result annotations.");
+                                return TYPE_UNKNOWN;
+                            }
+                            continue;
                         }
                         
                         /* Look up the function */
@@ -2611,21 +2617,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             return TYPE_UNKNOWN;
                         }
                         
-                        /* Create signature from passed function */
-                        FunctionSignature passed_sig = {0};
-                        passed_sig.param_count = passed_func->param_count;
-                        passed_sig.param_types = malloc(sizeof(Type) * passed_func->param_count);
-                        passed_sig.param_struct_names = malloc(sizeof(char*) * passed_func->param_count);
-                        for (int j = 0; j < passed_func->param_count; j++) {
-                            passed_sig.param_types[j] = passed_func->params[j].type;
-                            passed_sig.param_struct_names[j] = passed_func->params[j].struct_type_name;
-                        }
-                        passed_sig.return_type = passed_func->return_type;
-                        passed_sig.return_struct_name = passed_func->return_struct_type_name;
-                        passed_sig.return_fn_sig = passed_func->return_fn_sig;
+                        FunctionSignature *passed_sig = function_signature_from_function(passed_func);
                         
                         /* Compare signatures */
-                        if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
+                        if (!function_signatures_equal(func->params[i].fn_sig, passed_sig)) {
                             char message[256];
                             snprintf(message, sizeof(message),
                                     "Argument %d expects a function with a different signature.",
@@ -2638,14 +2633,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 message,
                                 "Match the parameter's expected function signature."
                             );
-                            free(passed_sig.param_types);
-                            free(passed_sig.param_struct_names);
+                            free_function_signature(passed_sig);
                             return TYPE_UNKNOWN;
                         }
                         
                         /* Clean up temporary signature */
-                        free(passed_sig.param_types);
-                        free(passed_sig.param_struct_names);
+                        free_function_signature(passed_sig);
                     } else {
                         /* Handle anonymous struct literals: infer struct name from parameter type */
                         if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
@@ -4527,6 +4520,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* Both are function types - check if signatures match */
                 FunctionSignature *declared_sig = stmt->as.let.fn_sig;
                 FunctionSignature *value_sig = NULL;
+                bool owns_value_sig = false;
                 
                 /* Get function signature from value expression */
                 if (stmt->as.let.value->type == AST_CALL) {
@@ -4549,20 +4543,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 } else if (stmt->as.let.value->type == AST_IDENTIFIER) {
                     /* Could be function name or function-typed variable */
                     Function *func = env_get_function(tc->env, stmt->as.let.value->as.identifier);
-                    if (func && func->return_type == TYPE_FUNCTION) {
-                        /* Function that returns a function */
-                        value_sig = func->return_fn_sig;
-                    } else if (func) {
-                        /* Function name used as value - create signature from function definition */
-                        Type *param_types = NULL;
-                        if (func->params && func->param_count > 0) {
-                            param_types = malloc(sizeof(Type) * func->param_count);
-                            for (int i = 0; i < func->param_count; i++) {
-                                param_types[i] = func->params[i].type;
-                            }
-                        }
-                        value_sig = create_function_signature(param_types, func->param_count, func->return_type);
-                        if (param_types) free(param_types);
+                    if (func) {
+                        value_sig = function_signature_from_function(func);
+                        owns_value_sig = true;
                     } else {
                         /* Check if it's a function-typed variable */
                         Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
@@ -4587,6 +4570,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* This happens when function signatures aren't fully parsed yet, or when */
                     /* dealing with function-typed parameters where we don't have full signature info */
                 }
+                if (owns_value_sig) free_function_signature(value_sig);
             } else if (!types_match(value_type, declared_type)) {
                 char message[256];
                 snprintf(message, sizeof(message),

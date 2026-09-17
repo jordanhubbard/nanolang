@@ -4295,3 +4295,7 @@ test-resource-generic-records: $(COMPILER_C)
 test-units: test-native-generic-record-fields
 test-native-generic-record-fields: bootstrap
 	@python3 -m unittest tests.test_native_generic_record_fields
+# I keep this full compiler-source acceptance gate explicit: it takes minutes.
+.PHONY: test-vm-bytecode-bootstrap
+test-vm-bytecode-bootstrap: nano_virt nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_vm_bytecode_bootstrap

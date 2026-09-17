@@ -1605,53 +1605,94 @@ TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int fiel
     return info;
 }
 
-/* Check if two function signatures are equal */
-bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2) {
-    if (!sig1 || !sig2) return false;
-    
-    /* Check parameter count */
-    if (sig1->param_count != sig2->param_count) return false;
-    
-    /* Check each parameter type */
-    for (int i = 0; i < sig1->param_count; i++) {
-        if (sig1->param_types[i] != sig2->param_types[i]) return false;
-        
-        /* For struct/enum parameters, check names match */
-        if (sig1->param_types[i] == TYPE_STRUCT || 
-            sig1->param_types[i] == TYPE_ENUM ||
-            sig1->param_types[i] == TYPE_UNION) {
-            
-            const char *name1 = sig1->param_struct_names[i];
-            const char *name2 = sig2->param_struct_names[i];
-            
-            if ((name1 == NULL) != (name2 == NULL)) return false;
-            if (safe_strcmp(name1, name2) != 0) return false;
+FunctionSignature *copy_function_signature(const FunctionSignature *signature) {
+    return payload_signature(signature, 0);
+}
+
+/* I own every annotation in signatures reconstructed from declarations. */
+FunctionSignature *function_signature_from_function(const Function *function) {
+    if (!function) return NULL;
+    FunctionSignature *sig = payload_alloc(1, sizeof *sig);
+    sig->param_count = function->param_count;
+    sig->return_type = function->return_type;
+    sig->return_struct_name = payload_name(function->return_struct_type_name);
+    sig->return_fn_sig = payload_signature(function->return_fn_sig, 0);
+    sig->return_type_info = payload_copy(function->return_type_info, 0);
+    if (sig->param_count) {
+        sig->param_types = payload_alloc((size_t)sig->param_count, sizeof(Type));
+        sig->param_struct_names = payload_alloc((size_t)sig->param_count, sizeof(char*));
+        sig->param_type_info = payload_alloc((size_t)sig->param_count, sizeof(TypeInfo*));
+        for (int i = 0; i < sig->param_count; ++i) {
+            const Parameter *param = &function->params[i];
+            sig->param_types[i] = param->type;
+            sig->param_struct_names[i] = payload_name(param->struct_type_name);
+            sig->param_type_info[i] = payload_copy(param->type_info, 0);
         }
     }
-    
-    /* Check return type */
-    if (sig1->return_type != sig2->return_type) return false;
-    
-    /* For struct/enum returns, check names match */
-    if (sig1->return_type == TYPE_STRUCT || 
-        sig1->return_type == TYPE_ENUM ||
-        sig1->return_type == TYPE_UNION) {
-        
-        const char *name1 = sig1->return_struct_name;
-        const char *name2 = sig2->return_struct_name;
-        
-        if ((name1 == NULL) != (name2 == NULL)) return false;
-        if (name1 && name2 && strcmp(name1, name2) != 0) return false;
+    return sig;
+}
+
+/* I compare annotation trees, including the legacy flattened tuple/row fields.
+ * A recursion limit rejects unresolved cycles instead of accepting a guess. */
+static bool annotation_names_equal(const char *left, const char *right) {
+    return left == right || (left && right && strcmp(left, right) == 0);
+}
+static bool signatures_equal_depth(const FunctionSignature *, const FunctionSignature *, unsigned);
+static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned depth) {
+    if (a == b) return true;
+    if (!a || !b || depth > 128 || a->base_type != b->base_type ||
+        a->type_param_count != b->type_param_count ||
+        a->tuple_element_count != b->tuple_element_count ||
+        a->row_field_count != b->row_field_count || a->type_var_count != b->type_var_count ||
+        a->is_open_row != b->is_open_row ||
+        !annotation_names_equal(a->generic_name, b->generic_name) ||
+        !annotation_names_equal(a->opaque_type_name, b->opaque_type_name) ||
+        !annotation_names_equal(a->row_var_name, b->row_var_name)) return false;
+    if (!annotations_equal(a->element_type, b->element_type, depth + 1)) return false;
+    for (int i = 0; i < a->type_param_count; ++i)
+        if (!a->type_params || !b->type_params ||
+            !annotations_equal(a->type_params[i], b->type_params[i], depth + 1)) return false;
+    for (int i = 0; i < a->tuple_element_count; ++i)
+        if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
+            !annotation_names_equal(a->tuple_type_names ? a->tuple_type_names[i] : NULL,
+                                    b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
+    for (int i = 0; i < a->row_field_count; ++i)
+        if (!a->row_field_types || !b->row_field_types ||
+            a->row_field_types[i] != b->row_field_types[i] ||
+            !annotation_names_equal(a->row_field_names ? a->row_field_names[i] : NULL,
+                                    b->row_field_names ? b->row_field_names[i] : NULL) ||
+            !annotation_names_equal(a->row_field_type_names ? a->row_field_type_names[i] : NULL,
+                                    b->row_field_type_names ? b->row_field_type_names[i] : NULL)) return false;
+    for (int i = 0; i < a->type_var_count; ++i)
+        if (!a->type_var_names || !b->type_var_names ||
+            !annotation_names_equal(a->type_var_names[i], b->type_var_names[i])) return false;
+    return (!a->fn_sig && !b->fn_sig) || signatures_equal_depth(a->fn_sig, b->fn_sig, depth + 1);
+}
+bool type_infos_equal(const TypeInfo *left, const TypeInfo *right) {
+    return annotations_equal(left, right, 0);
+}
+
+static bool signature_annotation_equal(Type a, const char *an, const TypeInfo *ai,
+                                       Type b, const char *bn, const TypeInfo *bi,
+                                       unsigned depth) {
+    TypeInfo af = {.base_type = a, .generic_name = (char*)an};
+    TypeInfo bf = {.base_type = b, .generic_name = (char*)bn};
+    return a == b && annotations_equal(ai ? ai : &af, bi ? bi : &bf, depth + 1);
+}
+static bool signatures_equal_depth(const FunctionSignature *a, const FunctionSignature *b, unsigned depth) {
+    if (!a || !b || depth > 128 || a->param_count != b->param_count) return false;
+    for (int i = 0; i < a->param_count; ++i) {
+        if (!signature_annotation_equal(a->param_types[i], a->param_struct_names ? a->param_struct_names[i] : NULL,
+                a->param_type_info ? a->param_type_info[i] : NULL,
+                b->param_types[i], b->param_struct_names ? b->param_struct_names[i] : NULL,
+                b->param_type_info ? b->param_type_info[i] : NULL, depth)) return false;
     }
-    
-    /* For function returns, check function signatures match */
-    if (sig1->return_type == TYPE_FUNCTION) {
-        if (!function_signatures_equal(sig1->return_fn_sig, sig2->return_fn_sig)) {
-            return false;
-        }
-    }
-    
-    return true;
+    if (!signature_annotation_equal(a->return_type, a->return_struct_name, a->return_type_info,
+                                    b->return_type, b->return_struct_name, b->return_type_info, depth)) return false;
+    return a->return_type != TYPE_FUNCTION || signatures_equal_depth(a->return_fn_sig, b->return_fn_sig, depth + 1);
+}
+bool function_signatures_equal(FunctionSignature *a, FunctionSignature *b) {
+    return signatures_equal_depth(a, b, 0);
 }
 
 /* Create a function value */

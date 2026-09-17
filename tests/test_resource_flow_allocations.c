@@ -34,6 +34,19 @@ Function *env_get_function(Environment *env, const char *name) {
 StructDef *env_get_struct(Environment *env, const char *name) {
     (void)env; (void)name; return NULL;
 }
+UnionDef *env_get_union(Environment *env, const char *name) {
+    (void)env; (void)name; return NULL;
+}
+bool has_resource_collection_payload(Environment *env, const char *name) {
+    (void)env; (void)name; return false;
+}
+TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field,
+                                          const TypeInfo *arguments) {
+    (void)def; (void)arm; (void)field; (void)arguments; return NULL;
+}
+void free_payload_type_info(TypeInfo *info) {
+    assert(info == NULL);
+}
 
 #define malloc checked_malloc
 #define realloc checked_realloc
@@ -103,7 +116,7 @@ int main(void) {
     assert(allocations == 0);
     OwnFlow overflow = {.env = &env, .count = SIZE_MAX, .capacity = SIZE_MAX, .error = &error};
     error = false;
-    assert(!own_add(&overflow, &function, "overflow", "Handle"));
+    assert(!own_add(&overflow, &function, "overflow", "Handle", NULL));
     assert(error);
     assert(allocations == 0);
     printf("I checked 300 owners and %zu allocation-failure positions.\n", sites);
