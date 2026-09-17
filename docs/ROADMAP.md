@@ -156,6 +156,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       C seed and both self-hosted stages before generic ownership acceptance.
       MAC `task_ce96caed26b843ecb1365def0c733b58`.
 
+- [ ] **Retain selected generic array identity before append contracts.** My C
+      seed rejects the existing ordinary `array_push payload.values Plain{...}`
+      control when the selected `Box<Plain>` field metadata is not ready for
+      the nominal array contract. I require that unchanged executable control
+      and wrong-record rejection before the full adjacent ownership gate passes.
+      Root owns this repair after record-map metadata; I do not weaken the
+      contract or infer a PR469 regression from the reproduced baseline failure.
+      MAC `task_17ace696e309484bbff5a59acc2891db`.
+
 - [ ] **Transfer concrete generic selected payloads.** After ordinary generic
       pattern validation, I substitute only the selected arm's fields before
       assigning ownership obligations. I retain declared initializer, parameter
