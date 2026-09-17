@@ -16,12 +16,14 @@ additional generic negative passed across both stages in 3.306 seconds. My 49
 adjacent generic, payload, affine-boundary and collection methods passed in
 105.541 seconds.
 
-My complete new paired gate is **not yet passing**: my C seed accepts both
-wrong-record payloads at this checkpoint. The fixed contract is under separate
-review; concrete generic constructor context is tracked as
-`task_dd2be49bc494483f9bb18646a0013055`. I retain both failing regressions in
-`tests/test_union_literal_context.py`. This checkpoint does not establish
-selected-variant ownership transfer or NanoISA ownership support.
+After integrating PR423 and PR430, my complete paired gate passes: five
+methods across all three compilers (15 decisions) in 30.070 seconds, following
+a fresh three-stage bootstrap. Fixed and concrete generic wrong-record payloads
+now fail before replacing output in every frontend. This does not establish
+selected-variant ownership transfer or NanoISA ownership support. The integrated
+log is `/tmp/nanolang-union-context-integrated.log`. All 49 adjacent methods
+also pass on that integrated source in 105.847 seconds; their log is
+`/tmp/nanolang-union-context-integrated-adjacent.log`.
 
 My local logs are `/tmp/nanolang-union-context-bootstrap.log`,
 `/tmp/nanolang-union-context-selfhost-tests.log`,

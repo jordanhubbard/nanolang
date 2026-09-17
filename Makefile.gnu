@@ -4203,3 +4203,7 @@ test-concrete-union-array-contracts: $(COMPILER_C) nano_virt
 .PHONY: test-selected-variant-patterns
 test-selected-variant-patterns: bootstrap
 	python3 -m unittest -v tests.test_selected_variant_patterns
+.PHONY: test-union-literal-context
+test-units: test-union-literal-context
+test-union-literal-context: bootstrap
+	python3 -m unittest tests.test_union_literal_context

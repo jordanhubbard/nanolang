@@ -57,26 +57,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
       Evidence: `docs/evidence/fixed-union-resource-collections.md`.
 
-- [ ] **Preserve self-hosted union array-literal context.** My C seed now
-      executes `Values.Some { values: [Plain { value: 7 }] }`, but both
-      self-hosted stages choose `dyn_array_push_int` for `nl_Plain` and reject
-      native emission. I preserve their output-artifact rejection, use typed
-      array temporaries to isolate classification, and repair concrete payload
-      context before claiming inline parity. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
-      - [ ] I share the existing token-aware generic substitution helper between
-        checking and emission, then supply concrete variant field annotations
-        to recursive literal emission instead of an empty expected type.
-      - [ ] I execute nongeneric/generic record arrays and nested payloads in
-        both self-hosted stages, retain malformed-input artifact rejection,
-        and rerun the classifier/payload gates before integration.
-
-- [ ] **Bind concrete C generic union constructor contracts.** My fixed
-      `Values.Some` array annotation can be checked, but an inline `Box.Some`
-      AST does not retain the expected `Box<Plain>` arguments. I currently
-      accept `[Other {...}]` there. I require contextual substitution and
-      nominal identity rejection while preserving formal shadowing; the paired
-      negative remains a blocked gate. Root owns this C-checker prerequisite.
-      MAC `task_dd2be49bc494483f9bb18646a0013055`.
+- [x] **Preserve self-hosted union array-literal context.** I retain concrete
+      variant field annotations during recursive literal emission and share
+      token-aware generic substitution with my checker. The C seed and both
+      self-hosted stages execute fixed/generic/nested record-array payloads and
+      reject wrong nominal payloads without replacing prior output, after
+      prerequisite PR423 and PR430. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
+      Evidence: `docs/evidence/union-literal-context.md`.
 
 - [ ] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
