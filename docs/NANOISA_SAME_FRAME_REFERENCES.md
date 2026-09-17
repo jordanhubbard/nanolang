@@ -1,7 +1,7 @@
 # My same-frame reference contract
 
-I extend the standalone owned-transfer contract of PR564. This document states
-my implementation target, not completed runtime acceptance. MAC
+I extend the standalone owned-transfer contract of PR564. My paired execution evidence is recorded
+in [the bounded gate report](evidence/nanoisa-same-frame-references.md). MAC
 `task_e31a51fc661f4102b68ad81432369a1d` depends on that merged transfer runtime.
 
 I reserve these vacant primary bytes against source `0b8ebee8`; I do not
@@ -17,12 +17,15 @@ renumber instructions or implement the extended opcode plane.
 | 0x1b | REF_SET | u16 reference, u16 field | consume scalar |
 
 I retain OWNERSHIP and authoritative layouts. My separate reference namespace
-has `local_count` slots, at most256. A reference is never a value local, stack
+has `local_count` slots, at most 256. A reference is never a value local, stack
 token, heap field, capture, global or result. A live slot names its owner local,
 region and mode. I resolve the local index on each access instead of retaining
 an address into a movable VM stack. Slots survive core suspension/resumption,
-but not activation completion or failure. I refuse nested host invocations
-while this standalone activation is active.
+but not activation completion or failure. A core `TRAP_YIELD` is resumable and
+preserves every descriptor; a core execution error is terminal and clears them.
+I do not claim a separate debugger resume protocol. A rejected attempt to nest
+a host call does not end the suspended activation or erase its references.
+I refuse nested host invocations while this standalone activation is active.
 
 I create references only to complete scalar-leaf resource record roots with
 int, bool or u8 fields. I can first unpack a nested owner into such a root.
