@@ -30,7 +30,7 @@ class NativeMapGlobals(unittest.TestCase):
                     self.assertIn('    nmap_release_owned();', generated)
                     source.write_text(generated.replace('    nmap_release_owned();',
                         '    nmap_release_owned();\n'
-                        '    if (nmap_owned_live || nmap_owned_peak > 32) abort();\n'))
+                        '    if (nmap_owned_live || nmap_live_bytes || nmap_peak_bytes > 69632) abort();\n'))
             for native, command in enumerate(([ROOT/'bin/nano_vm', nvm], [binary])):
                 result = self.command(command)
                 expected_failure = bad if native or vm_bad is None else vm_bad

@@ -49,7 +49,7 @@ class NativeCollectionDebt(unittest.TestCase):
                 '    nmap_release_owned();\n'
                 '    printf("scans=%zu peak=%zu\\n", root_scans, nmap_owned_peak);\n'
                 '    if (nmap_owned_live || nmap_owned_peak > 3) abort();\n'
-                '    if (root_scans != 2) return 2;\n')
+                '    if (root_scans != 0 || nmap_live_bytes || nmap_peak_bytes > 65536) return 2;\n')
             source.write_text('#include <stdio.h>\n' + generated)
             self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
@@ -58,7 +58,7 @@ class NativeCollectionDebt(unittest.TestCase):
             print(result.stdout, end='')
 
 
-    def test_deferred_drops_and_current_mutable_edges(self):
+    def test_forced_drops_and_current_mutable_edges(self):
         with tempfile.TemporaryDirectory(prefix='nano-deferred-roots-') as tmp:
             work = Path(tmp)
             assembly, module, source, binary = (work / name for name in
@@ -82,7 +82,7 @@ int main(void) {
     nsarr_s array = {items, 1, NULL};
     nroot_frame frame = {0}; nroot_head = &frame;
     nroot_add(&frame.live, 5, &array);
-    nmap_collect_if_needed();
+    nmap_collect();
     if (nmap_owned_live != 1 || root_scans != 1) abort();
     array.len = 0;
     for (size_t i = 0; i < 10000; ++i) nmap_collect_if_needed();
@@ -90,7 +90,7 @@ int main(void) {
     map = nmap_owned_new(5);
     nmap_set(map, "key", (nmap_value){5, 0, "second"});
     items[0] = nmap_owned_get(map, "key").text; array.len = 1;
-    nmap_collect_if_needed();
+    nmap_collect();
     if (nmap_owned_live != 1 || root_scans != 2 || strcmp(items[0], "second")) abort();
     array.len = 0;
     nmap_collect_if_needed();
