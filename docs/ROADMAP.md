@@ -46,6 +46,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       currently accepts an `abandon(Owners)` declaration. I require paired
       frontend negative tests before admitting collection ownership. MAC
       `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
+      - [ ] After merged payload metadata PR411, I classify nested fixed array
+        payloads using declaration identity and a least fixed point, preserving
+        ordinary cycles and generic formal shadowing.
+      - [ ] I reject unsupported resource collection payloads consistently at
+        ownership boundaries, including pass-through signatures, and execute
+        ordinary union-array controls in C and both self-hosted stages.
+      - [ ] I retain the owned-match guard and then implement selected-variant
+        transfer as a separate reviewed slice with branch-local obligations,
+        complete destructuring, joins and post-match use-after-move checks.
 
 - [ ] **Diagnose unsupported tuple ownership before emission.** For
       `Bundle<T>.Some { value: (T,int) }` with `Bundle<Handle>`, my C seed
