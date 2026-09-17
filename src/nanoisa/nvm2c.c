@@ -1239,7 +1239,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_ARR_SET) {
                 Nvm2cSimSlot index;
                 if (!sim_pop(b, idx, stk, &sp, &index)) return 0;
-                if (index.kind != NVM2C_VK_INT && index.kind != NVM2C_VK_UNK) {
+                /* I validate dynamic tags with nvalue_require_int at emission. */
+                if (index.kind != NVM2C_VK_INT && index.kind != NVM2C_VK_UNK &&
+                    index.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "ARR_SET index must be an integer");
                     return 0;
                 }
