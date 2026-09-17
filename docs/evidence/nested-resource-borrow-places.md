@@ -88,3 +88,13 @@ My final retained logs are `/tmp/nanolang-nested-borrow-bootstrap-integrated.log
 `/tmp/nanolang-nested-borrow-allocation-fixed.log`. The baseline harness failure
 is `/tmp/nanolang-resource-flow-baseline-link.log`. These checks do not complete
 my full ownership contract or authorize release publication.
+
+Main `a533d08e` then adds indexed NanoISA introspection. My merge `d5b1e74b`
+preserves both appended test targets; the self-hosted compiler sources and my
+C parser/typechecker/ownership bodies are unchanged. I rebuild the C seed and
+NanoVirt, rerun all 25 nested/shared/exclusive methods (103.914 seconds), and
+pass all 89 NanoVirt code-generation checks. I retain the preceding bootstrap
+and wider 44-method evidence with that explicit scope instead of claiming an
+unperformed repeat. The refresh logs are
+`/tmp/nanolang-nested-borrow-final-focused.log` and
+`/tmp/nanolang-nested-borrow-final-codegen.log`.

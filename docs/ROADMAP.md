@@ -57,9 +57,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
   - [x] I preserve actual nested field identity in both frontends and reject
         unknown, moved, temporary or nominally different places.
   - [x] I track prefix overlap across live shared/exclusive call holds, permit
-        proved disjoint fields, and prevent whole-owner moves or conflicting
+        checked disjoint fields, and prevent whole-owner moves or conflicting
         reads/writes until the call ends.
-  - [x] I pass native field addresses, prove visible mutation and forwarding,
+  - [x] I pass native field addresses, test visible mutation and forwarding,
         and retain partial-move/escape/NanoISA guards.
   - [x] I run paired C-seed/Stage1/Stage2 positive and negative controls,
         prior-output checks, fresh bootstrap and adjacent ownership gates.
