@@ -8542,10 +8542,12 @@ Compiler product:
       I reproduced comment markers stripped inside quotes and the 4095-byte
       literal limit; `/tmp/nanolang-fullcompiler-quoted.nasm` retains the exact
       1,246,064-byte compiler assembly. Both require a checked assembler repair.
-- [ ] I reject incompatible map key/value types at typed boundaries
-      (`task_d0438e26b84147cdb9fd16b654c44a6a`). My C seed currently accepts integer-valued maps
-      where string-valued maps are declared in returns, bindings and arguments;
-      `/tmp/nanolang-cseed-map-mismatches/` retains all four accepted probes.
+- [x] I reject incompatible map key/value types at typed boundaries
+      (`task_d0438e26b84147cdb9fd16b654c44a6a`). I compare both tags for declared map
+      values in returns, bindings, calls, assignments, globals, record construction
+      and conditional arms, and preserve prior output after rejection. My boundary
+      matrix checks all twelve unequal pairs through both shared-checker drivers;
+      field projection metadata remains task `160826784e8a4aa4ac9d5e589a54c814`.
 - [x] I lower the string-valued maps required by my compiler
       (`task_d32f896911e1447da9c6b69059f6d6ea`), preserving key/value metadata and ownership.
       Full emission now reaches `HashMap<string,string>`; the retained probe is

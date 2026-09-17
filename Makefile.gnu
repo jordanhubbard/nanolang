@@ -4259,3 +4259,9 @@ test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest tests.test_map_constructor_contexts
 
 test-units: test-map-constructor-contexts
+
+.PHONY: test-map-type-boundaries
+test-map-type-boundaries: $(COMPILER_C) nano_virt
+	@python3 tests/test_map_type_boundaries.py
+
+test-units: test-map-type-boundaries
