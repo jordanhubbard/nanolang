@@ -219,8 +219,9 @@ This analysis initially bounds a function at 4096 decoded instructions,
 256 locals and 256 stack values; exceeding a bound is explicit refusal.
 Those bounds limit analysis storage and do not alter general NanoISA limits.
 Entry references still assume a separately checked caller contract. Analysis
-success does not satisfy `nvm_verify`, install new runtime semantics or lift
-any existing ownership execution refusal. Source producers remain disabled.
+success alone does not satisfy `nvm_verify` or install runtime semantics.
+Executable eligibility additionally requires the standalone contract below.
+Source borrow producers remain disabled.
 
 ### Concrete transfer connection
 
@@ -241,8 +242,8 @@ My non-admitting entry point is `nvm_verify_affine_function` in `verifier.c`.
 It checks structural declarations before the affine pass. Ordinary structure
 verification consults this pass before its runtime refusal; the normal
 function verifier also refuses explicit transfer instructions, including
-instructions without ownership metadata. I keep the independent direct
-VM/native guards. Eventual executable admission through
+instructions without ownership metadata. I keep independent direct
+VM/native guards outside the standalone subset below. General admission through
 `nvm_verify_function`, `nvm_verify_function_max_stack` and linked verification
 still requires reference creation/access/end-region instructions, exact
 caller-place alias substitution at direct calls, safe imported contracts and
@@ -262,10 +263,36 @@ not an observation; scalar fields must have exact tags. Whole-record unpack
 invalidates the source and creates every field obligation atomically.
 
 I expose structural plus affine verification separately from runtime admission.
-Normal verification must consult this dataflow before reporting its remaining
-runtime refusal. Even a successfully verified owned transfer function stays
-non-executable until both VM and native translation implement these operations.
-The canonical assembler still refuses executable publication of such modules;
-its non-executing reconstruction API may retain them for codec/verifier tests.
+Normal verification consults this dataflow before deciding executable
+eligibility. The standalone subset below has paired VM/native semantics; other
+owned functions remain non-executable. The canonical assembler publishes only
+that admitted subset. Its non-executing reconstruction API can retain other
+contracts for codec/verifier tests.
 I require OWNERSHIP metadata and exact resource declarations; ordinary loads,
 stores and aggregate operations do not become implicit transfers.
+
+## Standalone owned-transfer execution contract
+
+I admit one function containing an explicit owned-transfer instruction at entry zero with zero parameters and captures, no
+imports or initializer, and exactly one int, bool or u8 result. I require ownership metadata,
+complete finite record layouts with only those scalar leaves or earlier record
+layouts, and successful structural plus affine analysis. All locals have value
+mode. I reject floats, calls, reference modes/operations, globals, collections,
+aggregate results and linked ownership contracts. The same eligibility query
+must govern normal verification, VM execution and native translation; there is
+no separate bypass API. My supported instruction set is the non-floating affine
+subset, including the four explicit transfers, scalar field observations and
+branches/loops whose joins preserve exact obligations.
+
+A move transfers a record pointer and clears the source slot. A store consumes
+its stack owner into its exact declared slot. Pack allocates one record shell
+and transfers each field in declaration order. Unpack transfers every field,
+clears the source and shell fields, then releases the empty shell. I neither
+copy a resource nor implement ownership as copy/writeback. Allocation failure
+must leave remaining live roots reclaimable; loop execution must reclaim
+consumed shells instead of accumulating them. VM and emitted native execution
+must agree on scalar results, including nested transfers and balanced branches.
+I require sanitizer-backed cleanup tests and unchanged prior outputs for
+excluded modules before enabling this subset. Caller alias substitution,
+shared/exclusive references, owned call/results and source producer admission
+remain separate acceptance obligations.

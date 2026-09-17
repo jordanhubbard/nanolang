@@ -400,6 +400,8 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
+$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/nvm2c_owned.h
+
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
@@ -4483,3 +4485,11 @@ nvm2wasm: nvm2llvm | bin
 
 test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm
+.PHONY: test-owned-runtime
+test-units: test-owned-runtime
+test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_runtime tests/nanoisa/test_owned_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_runtime_alloc tests/nanoisa/test_owned_runtime_alloc.c obj/test_owned_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_runtime_alloc
+	python3 -m unittest tests.test_owned_runtime
