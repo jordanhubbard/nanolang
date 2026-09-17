@@ -45,7 +45,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I verify product bootstrap after native record-array global transport merged in PR #551; I retain the original refusal evidence for for canonical module facts (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; product integration remains open). At integrated product pin `599d7558`, Stage 1 and hello pass, but Stage 2 translation explicitly refuses an aggregate global store. I require exact element/shape transport and rooted lifetimes before enabling it; I preserve the original bootstrap log and keep the product draft open.
+- [ ] I verify product bootstrap after PR #551 adds exact record-array global transport (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; product integration remains open). At earlier product pin `599d7558`, Stage 1 and hello passed, but Stage 2 translation explicitly refused an aggregate global store. I preserve that bootstrap log and keep the product draft open until the integrated compiler passes its gates.
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
       their dataflow to verifier entry points (MAC
       `task_026799f971e34152b6c6898e3de700d2`, parent ed702). I allocate vacant
