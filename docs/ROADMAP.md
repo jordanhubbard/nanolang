@@ -45,7 +45,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
+- [x] I update stale raw-emitter refusal fixtures for already supported scalar float and Boolean-array results (`task_64f967c7f1d14b26a2b8134fb94a706e`). I retain previous-output and exact-diagnostic checks against the documented unsupported float-array result, and verify positive scalar/Boolean-array bytecode.
+
+- [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
+
+- [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
 
 - [x] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure and repaired gate](evidence/native-selfcompile-aggregate-a3f3.md); adding the defining source restores normal canonical seed linking, help and VM-shadow-checked hello publication/execution before another acceptance pin.
 
