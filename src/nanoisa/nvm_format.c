@@ -140,6 +140,7 @@ void nvm_module_free(NvmModule *mod) {
     free(mod->callback_contracts);
     free(mod->passive_data);
     free(mod->layout_data);
+    free(mod->ownership_data);
     free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
 }
@@ -582,7 +583,7 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
-    if (mod->callback_contract_count || mod->passive_size || mod->layout_size) {
+    if (mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
         if (out_size) *out_size = 0;
         return NULL;
     }

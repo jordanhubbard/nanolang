@@ -47,7 +47,8 @@
 #define NVM_V2_FEATURE_CALLBACKS (1u << 5)  /* retained callback import contracts */
 #define NVM_V2_FEATURE_PASSIVE   (1u << 6)
 #define NVM_V2_FEATURE_RETAINED_LAYOUTS (1u << 7)
-#define NVM_V2_FEATURE_KNOWN_MASK 0x000000FFu
+#define NVM_V2_FEATURE_OWNERSHIP (1u << 8)
+#define NVM_V2_FEATURE_KNOWN_MASK 0x000001FFu
 
 /* Section types. Renumbered from v1: the clean break makes v1 numbering
  * irrelevant, and reusing it would invite confusion between the two. */
@@ -63,11 +64,12 @@ typedef enum {
     NVM_V2_SECTION_LINKS      = 0x09,
     NVM_V2_SECTION_DEBUG      = 0x0A,
     NVM_V2_SECTION_CALLBACKS  = 0x0B,
-    NVM_V2_SECTION_PASSIVE    = 0x0C
+    NVM_V2_SECTION_PASSIVE    = 0x0C,
+    NVM_V2_SECTION_OWNERSHIP  = 0x0D
 } NvmV2SectionType;
 
 #define NVM_V2_SECTION_TYPE_MIN NVM_V2_SECTION_METADATA
-#define NVM_V2_SECTION_TYPE_MAX NVM_V2_SECTION_PASSIVE
+#define NVM_V2_SECTION_TYPE_MAX NVM_V2_SECTION_OWNERSHIP
 
 /* No entry_point. 0xFFFFFFFF means the module has none. */
 #define NVM_V2_NO_ENTRY_POINT 0xFFFFFFFFu
