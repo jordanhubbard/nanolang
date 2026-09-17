@@ -34,7 +34,7 @@ class NativeHostStrings(unittest.TestCase):
                       source, '-o', binary, '-lm', '-ldl'])
         return self.command([binary, *args], env={**environment, 'ASAN_OPTIONS': 'detect_leaks=1'})
 
-    def test_argv_environment_copies_without_map_or_string_opcodes(self):
+    def test_argv_environment_copies_without_allocating_string_opcodes(self):
         text = ('.import "" "get_argv" string int\n.import "" "vm_getenv" string string\n'
                 '.import "" "vm_tmp_dir" string\n.import "" "vm_getcwd" string\n'
                 '.string expected "5"\n.string env "NANO_HOST_COPY_TEST"\n.string value "borrowed-env"\n'
@@ -52,7 +52,7 @@ class NativeHostStrings(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-host-argv-') as tmp:
             self.build_run(Path(tmp), text, args=('5',), env={'NANO_HOST_COPY_TEST': 'borrowed-env'})
 
-    def test_builtin_file_normalize_capture_and_temp_results(self):
+    def test_builtin_file_capture_and_temp_results(self):
         with tempfile.TemporaryDirectory(prefix='nano-host-files-') as tmp:
             work=Path(tmp); (work/'text').write_text('retained'); (work/'empty').write_text(''); (work/'nul').write_bytes(b'a\0b')
             strings=''.join(f'.string {name} {json.dumps(str(work/name))}\n' for name in ('text','empty','nul','missing'))
