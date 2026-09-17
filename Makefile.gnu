@@ -4316,3 +4316,8 @@ test-selfhost-generic-contexts: test-generic-function-values
 test-units: test-resource-callback-boundary
 test-resource-callback-boundary: bootstrap
 	python3 -m unittest tests.test_resource_callback_boundary
+
+.PHONY: test-vm-shadow-supervision
+test-vm-shadow-supervision: nano_vm nanoisa_dump
+	python3 -m unittest tests.test_vm_shadow_supervision tests.test_shadow_runner
+test-units: test-vm-shadow-supervision

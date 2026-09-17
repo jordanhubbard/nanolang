@@ -16,6 +16,7 @@
 #include "../nanoisa/verifier.h"
 #include "../nanoisa/nvm_format.h"
 #include "../../modules/nanoisa/nanoisa.h"
+#include "../runtime/shadow_runner.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -239,17 +240,24 @@ static int run_daemon(const char *path) {
     return exit_code;
 }
 
+/* I report completion only after verified VM execution returns normally. */
+static const char *shadow_module_path;
+static int run_shadow_module(void) {
+    return run_standalone(shadow_module_path, false);
+}
+
 int main(int argc, char *argv[]) {
     g_argc = argc;
     g_argv = argv;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--verify-only | --daemon] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--verify-only | --daemon | --check-shadows] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
         return 1;
     }
 
     bool daemon_mode = false;
     bool verify_only = false;
+    bool check_shadows = false;
     bool repeat_requested = false;
     const char *nvm_path = NULL;
     int module_index = 0;
@@ -266,6 +274,8 @@ int main(int argc, char *argv[]) {
             }
             guest_start = i;
             break;
+        } else if (strcmp(argv[i], "--check-shadows") == 0) {
+            check_shadows = true;
         } else if (strcmp(argv[i], "--verify-only") == 0) {
             verify_only = true;
         } else if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
@@ -298,6 +308,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if (check_shadows && (verify_only || daemon_mode || repeat_requested ||
+                          g_profile_path || guest_start)) {
+        fprintf(stderr, "I run shadows once, without daemon, verification-only, profiling or guest arguments.\n");
+        return 1;
+    }
+
     if (verify_only && (daemon_mode || g_profile_path || g_isolate_ffi || repeat_requested)) {
         fprintf(stderr, "I cannot combine verification-only mode with execution options.\n");
         return 1;
@@ -324,7 +340,10 @@ int main(int argc, char *argv[]) {
         g_argv[1] = NULL;
     }
 
-    if (daemon_mode) {
+    if (check_shadows) {
+        shadow_module_path = nvm_path;
+        return nl_run_shadow_entry(run_shadow_module, 10);
+    } else if (daemon_mode) {
         return run_daemon(nvm_path);
     } else {
         return run_standalone(nvm_path, verify_only);

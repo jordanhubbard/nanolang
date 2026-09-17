@@ -8630,7 +8630,7 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I supervise standalone VM shadow execution with a verified module,
+- [x] I supervise standalone VM shadow execution with a verified module,
       completion handshake and bounded parent deadline. I reject early exit,
       failed execution and incompatible CLI modes before canonical publication
       can depend on this host prerequisite
