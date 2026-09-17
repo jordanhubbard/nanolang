@@ -26,9 +26,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Inline union match metadata.** I preserve the union identity of
+- [x] **Inline union match metadata.** I preserve the union identity of
       variant literals in expression and statement matches, and test payloads,
       side effects and lexical returns across interpreter, native and VM paths.
+      All four cross-backend regressions and the typechecker suite pass.
       MAC `task_c28c39b66f704cf8af71827955c9edc0`.
 
 - [x] **Callee snapshots in VM and interpreter.** I evaluate function values
