@@ -175,3 +175,25 @@ purity remain separate work; this interface provides no scheduler.
 
 [My flow-marker evidence](evidence/passive-flow-markers.md) records paired execution,
 exact records, retained codec checks and bounded assembler sanitizer coverage.
+
+## Planned scalar flow frontend contract
+
+I record `task_a1bedc94472e491ea40ae8773f3b7ca0` before implementation. A nonempty
+`flow` block contains distinct immutable scalar `let` bindings. Original source
+IDs remain unchanged in the AST and emitted node arrays. Reads resolve against
+the complete block name set, so forward references and outer-name shadowing
+produce the same lexical dependencies. Repeated reads create one sorted edge.
+Cycles refuse eligibility.
+
+I type and execute the lowest-source-ID ready binding at each step. Both native
+frontends, interpreted shadows, and both NanoISA producers must agree on that
+stable serial order. Emitted code follows execution order; metadata retains
+source IDs, actual ranges and complete dependencies. Results enter the enclosing
+scope after the block. An initializer trap stops execution at that node.
+
+I reuse guarded scalar parameter and closed-call proofs. Mutable inputs,
+unproved local captures in NanoISA, resources, aggregates, and unknown or foreign
+effects remain refused. I add no scheduler or new verifier rule. Acceptance
+requires forward chains, diamonds, source-order ties, exact metadata, bound
+module identities, all three native compiler stages, serial VM/native agreement,
+publication-preserving refusals, schema checks and fresh bootstrap.
