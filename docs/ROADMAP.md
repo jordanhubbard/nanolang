@@ -98,6 +98,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       both self-hosted stages after fresh bootstrap. MAC
       `task_7eb80289f352425aa2abd26af55d0ffc`.
 
+- [ ] **Parse complete nested generic arguments.** My C annotation parser
+      currently stops at the inner `<` in `Box<Result<int,string>>`. I retain
+      recursive argument `TypeInfo` and require metadata structure and parser
+      cleanup checks before classifying instantiated ownership. Native nested
+      emission remains task `task_633f2402ec5944cfba0911a56a9f4eb1`. MAC
+      `task_8178b6b71fe147bd851629713e7be14d`.
+
 - [ ] **Define my global resource boundary.** My duplicate-consumption probe
       reaches native emission without an ownership diagnostic in the C seed
       and Stage1, then fails global-record initialization. This is not evidence
