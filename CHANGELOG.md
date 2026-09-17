@@ -4,6 +4,20 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
 
 ## [Unreleased]
 
+## [5.0.1] - 2026-09-16
+
+### Changed
+- I add sanitizer regressions for caller frames, globals, nested and mutable
+  aggregates, scalar safepoints, loop backedges and tail-call teardown.
+- Documentation acknowledgement: 5.0.1 changes internal native map reclamation
+  only; syntax, CLI, README guidance and presentation claims are unchanged.
+
+### Fixed
+- I keep caller-owned native maps and reachable strings alive across generated
+  calls, extern calls, loop backedges and tail calls.
+- I trace globals and nested aggregates during native map reclamation without
+  interpreting float or integer-array storage as pointers.
+
 ## [5.0.0] - 2026-09-16
 
 ### Changed
