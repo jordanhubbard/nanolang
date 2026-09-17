@@ -233,6 +233,10 @@ typedef struct {
     uint32_t code_size;
     uint32_t code_capacity;
 
+    /* Owned versioned function-mode/root ownership declarations. */
+    uint8_t *ownership_data;
+    uint32_t ownership_size;
+
     /* Owned canonical v2 LAYOUTS bytes; indices and names remain exact. */
     uint8_t *layout_data;
     uint32_t layout_size;

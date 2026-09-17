@@ -431,6 +431,16 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         fprintf(out, "\n");
     }
 
+    if (style == DISASM_STYLE_CANONICAL && mod->ownership_size) {
+        /* I preserve ownership declarations; executable reconstruction stays guarded. */
+        for (uint32_t i = 0; i < mod->ownership_size; ++i) {
+            if (i % 32 == 0) fprintf(out, ".ownership \"");
+            fprintf(out, "%02x", mod->ownership_data[i]);
+            if (i % 32 == 31 || i + 1 == mod->ownership_size) fprintf(out, "\"\n");
+        }
+        fprintf(out, "\n");
+    }
+
     /* Entry point */
     if (mod->header.flags & NVM_FLAG_HAS_MAIN) {
         fprintf(out, ".entry %u\n\n", mod->header.entry_point);

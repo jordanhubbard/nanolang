@@ -123,7 +123,7 @@ static void test_future_format_version_is_rejected(void) {
 static void test_unknown_feature_bit_is_rejected(void) {
     uint8_t buf[FIX_TOTAL];
     build_fixture(buf);
-    buf[9] |= 0x01;  /* a bit outside NVM_V2_FEATURE_KNOWN_MASK */
+    buf[9] |= 0x02;  /* a bit outside NVM_V2_FEATURE_KNOWN_MASK */
     NvmV2Header h;
     CHECK_RESULT(nvm_v2_read_header(buf, FIX_TOTAL, &h), NVM_V2_ERR_UNKNOWN_FEATURE,
                  "an unknown feature bit fails closed");

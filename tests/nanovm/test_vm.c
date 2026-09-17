@@ -16,6 +16,8 @@
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/assembler.h"
 #include "nanoisa/verifier.h"
+#include "nanoisa/retained_layouts.h"
+#include "nanoisa/ownership_contracts.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -5306,6 +5308,65 @@ static void test_verified_fastpath_enabled(void) {
 /* A module the verifier rejects (stack underflow: OP_ADD with an empty
  * stack) must leave the proof flag clear so the guarded handlers stay in
  * force rather than reading below the operand stack. */
+static void test_ownership_contracts_refuse_checked_fallback(void) {
+    AsmResult assembly;
+    NvmModule *module = asm_assemble(
+        ".types 1 0 0\n.entry 0\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 0\nRET\n.end\n", &assembly);
+    ASSERT(module != NULL, "ordinary fixture assembles");
+    NvmV2LayoutField field = {TAG_INT, NVM_V2_NO_INDEX, NVM_V2_NO_INDEX};
+    NvmV2Layout item = {NVM_V2_LAYOUT_STRUCT, 1, NVM_V2_NO_INDEX, &field};
+    NvmV2Layouts layouts = {&item, 1};
+    ASSERT(nvm_retain_layouts(module, &layouts) == NVM_V2_OK, "layout retained");
+    const uint8_t ordinary[] = {
+        1,0,0,0, 1,0,0,0, NVM_LAYOUT_COMPLETE,0,0,0, 1,0,0,0,
+        0,0,0,0, TAG_INT,0,0,0, 255,255,255,255
+    };
+    module->ownership_size = sizeof ordinary;
+    module->ownership_data = malloc(sizeof ordinary);
+    ASSERT(module->ownership_data != NULL, "contract allocated");
+    memcpy(module->ownership_data, ordinary, sizeof ordinary);
+    VmState vm;
+    vm_init(&vm, module);
+    ASSERT(vm_execute(&vm) == VM_OK, "ordinary declarations execute");
+    vm_destroy(&vm);
+    module->ownership_data[8] |= NVM_LAYOUT_RESOURCE;
+    bool needs = false;
+    ASSERT(nvm_ownership_contracts_validate(module, &needs) == NVM_V2_OK && needs,
+           "resource declaration is valid but not executable");
+    vm_init(&vm, module);
+    ASSERT(!vm.verified, "unsupported ownership is not verified");
+    ASSERT(vm_execute(&vm) == VM_ERR_TYPE_ERROR, "raw entry refuses ownership");
+    ASSERT(vm_call_function(&vm, 0, NULL, 0) == VM_ERR_TYPE_ERROR,
+           "raw function call refuses ownership");
+    NanoValue returned = val_int(99);
+    ASSERT(vm_invoke(&vm, 0, NULL, 0, &returned) == VM_ERR_TYPE_ERROR,
+           "raw invoke refuses ownership");
+    ASSERT(returned.tag == TAG_INT && returned.as.i64 == 99, "result remains unchanged");
+    ASSERT(vm_invoke_callable(&vm, val_function_owned(0, 1), NULL, 0, &returned) == VM_ERR_TYPE_ERROR,
+           "callable invoke refuses ownership");
+    ASSERT(vm.frame_count == 0 && vm.stack_size == 0, "refusal creates no activation");
+    /* I set up the ordinary zero-local entry activation for the core API.
+     * Refusal happens before its first instruction changes the stack. */
+    vm.frame_count = 1;
+    vm.current_fn = 0;
+    VmTrap trap = vm_core_execute(&vm);
+    ASSERT(trap.type == TRAP_ERROR && trap.data.error.code == VM_ERR_TYPE_ERROR,
+           "core API refuses ownership");
+    ASSERT(vm.stack_size == 0, "core refusal leaves operands unchanged");
+    vm.frame_count = 0;
+    vm_destroy(&vm);
+    NvmModule *root = asm_assemble(
+        ".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n", &assembly);
+    ASSERT(root != NULL, "ordinary linked caller assembles");
+    vm_init(&vm, root);
+    ASSERT(vm_link_module(&vm, module) != UINT32_MAX, "declarations remain inspectable when linked");
+    ASSERT(vm_execute(&vm) == VM_ERR_TYPE_ERROR, "linked resource contract refuses execution");
+    vm_destroy(&vm);
+    nvm_module_free(root);
+    nvm_module_free(module);
+}
+
 static void test_unverifiable_stays_checked(void) {
     uint8_t code[16];
     uint32_t off = 0;
@@ -5799,6 +5860,7 @@ int main(void) {
     printf("\n[Verified Fast Path]\n");
     RUN_TEST(test_verified_fastpath_enabled);
     RUN_TEST(test_unverifiable_stays_checked);
+    RUN_TEST(test_ownership_contracts_refuse_checked_fallback);
     RUN_TEST(test_verified_flag_tracks_module_lifecycle);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",

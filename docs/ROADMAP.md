@@ -50,10 +50,30 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
 
 - [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
+- [x] I complete the retained-layout and ownership source closure in every
+      explicit NanoISA build list, including the Forth SEE host manifest,
+      its examples shared-library rule and the regular/daemon wrapper object
+      list (MAC `task_f27d1997764b4c19a5cc0f2705ec37bf`). I preserve a normal
+      import failure and run real module load/link gates, not only tool builds.
+      Five wrapper links, seven publication methods and two Forth SEE
+      host build/load methods pass; evidence is in my ownership-contract report.
+
 
 - [x] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure and repaired gate](evidence/native-selfcompile-aggregate-a3f3.md); adding the defining source restores normal canonical seed linking, help and VM-shadow-checked hello publication/execution before another acceptance pin.
 
 - [ ] I run one newly pinned native full-source acceptance after aggregate reclamation (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). At merged code `a3f321a6`, I rebuild the canonical compiler, require help and verified hello prerequisites, and retain source/helper/host hashes. Each generation has a 1,800-second budget with a 48 GiB owned-RSS threshold and 32 GiB host reserve. I continue to generation two and raw equality only after generation one succeeds; I preserve any incomplete result without retry. This source includes VM shadows, so I make no speed attribution against the older C-shadow pin.
+- [x] **Reference parameter and root contracts.** I preserve complete/resource
+      layout declarations and exact value/shared/exclusive parameter modes,
+      root-local types and result types in versioned required metadata (MAC
+      `task_dcec6dcfb3d6442fbb9db131c7ebc0a3`, parent ed702).
+  - [x] I validate signature/count/layout agreement and retain the contracts
+        across codec, execution-module bridge and canonical reconstruction.
+  - [x] I test ordinary typed-root transport plus reference retention/refusal;
+        runtime admission still requires instruction-level lifetime/ownership
+        verification and genuine reference lowering, not metadata alone. My
+        [declaration evidence](evidence/nanoisa-ownership-contracts.md) records
+        the canonical host-module seed, 62 checks and 272,612 VM checks.
+
 
 - [x] **Retained NanoISA layouts.** I preserve complete v2 layout tables through
       my execution-module bridge, canonical reconstruction and serialization

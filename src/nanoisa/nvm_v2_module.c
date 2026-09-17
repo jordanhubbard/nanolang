@@ -28,7 +28,7 @@ typedef struct {
     bool     present;
 } SectionPlan;
 
-#define PLAN_SLOTS 12
+#define PLAN_SLOTS 13
 
 static size_t align4(size_t n) { return (n + 3u) & ~(size_t)3u; }
 
@@ -48,6 +48,7 @@ static uint32_t required_features(const NvmV2Module *m) {
     if (m->imports.count) f |= NVM_V2_FEATURE_FFI;
     if (m->callbacks.count) f |= NVM_V2_FEATURE_CALLBACKS;
     if (m->passive_size) f |= NVM_V2_FEATURE_PASSIVE;
+    if (m->ownership_size) f |= NVM_V2_FEATURE_OWNERSHIP;
     if (nvm_layouts_have_facts(&m->layouts)) f |= NVM_V2_FEATURE_RETAINED_LAYOUTS;
     if (m->has_debug) f |= NVM_V2_FEATURE_DEBUG;
     for (uint32_t i = 0; i < m->imports.count; i++)
@@ -84,6 +85,7 @@ static size_t build_plan(const NvmV2Module *m, SectionPlan *plan) {
                                nvm_v2_callbacks_encoded_size(&m->callbacks), 0,
                                m->callbacks.count != 0 };
     plan[n++] = (SectionPlan){ NVM_V2_SECTION_PASSIVE, m->passive_size, 0, m->passive_size != 0 };
+    plan[n++] = (SectionPlan){ NVM_V2_SECTION_OWNERSHIP, m->ownership_size, 0, m->ownership_size != 0 };
     return n;
 }
 
@@ -95,7 +97,10 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
     if ((m->passive_size && !m->passive_data) ||
         (!m->passive_size && (m->extra_features & NVM_V2_FEATURE_PASSIVE)))
         return NVM_V2_ERR_FEATURE_MISMATCH;
-    if (m->passive_size) {
+    if ((m->ownership_size && !m->ownership_data) ||
+        (!m->ownership_size && (m->extra_features & NVM_V2_FEATURE_OWNERSHIP)))
+        return NVM_V2_ERR_FEATURE_MISMATCH;
+    if (m->passive_size || m->ownership_size) {
         NvmV2Result result = validate_cross_section(m, required_features(m) | m->extra_features);
         if (result != NVM_V2_OK) return result;
         NvmModule *checked = NULL;
@@ -169,6 +174,7 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
         case NVM_V2_SECTION_DEBUG:      nvm_v2_debug_encode(&m->debug, p, z); break;
         case NVM_V2_SECTION_CALLBACKS:  nvm_v2_callbacks_encode(&m->callbacks, p, z); break;
         case NVM_V2_SECTION_PASSIVE: memcpy(p, m->passive_data, z); break;
+        case NVM_V2_SECTION_OWNERSHIP: memcpy(p, m->ownership_data, z); break;
         default: break;
         }
     }
@@ -350,6 +356,9 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
         case NVM_V2_SECTION_IMPORTS:    r = nvm_v2_imports_decode(p, z, &out->imports); break;
         case NVM_V2_SECTION_LINKS:      r = nvm_v2_links_decode(p, z, &out->links); break;
         case NVM_V2_SECTION_CALLBACKS:  r = nvm_v2_callbacks_decode(p, z, &out->callbacks); break;
+        case NVM_V2_SECTION_OWNERSHIP:
+            if (!z || z > UINT32_MAX) { r = NVM_V2_ERR_SECTION_RANGE; break; }
+            out->ownership_data = p; out->ownership_size = (uint32_t)z; break;
         case NVM_V2_SECTION_PASSIVE:
             if (!z || z > UINT32_MAX) { r = NVM_V2_ERR_SECTION_RANGE; break; }
             out->passive_data = p; out->passive_size = (uint32_t)z; break;
@@ -367,7 +376,10 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
     if (((h.feature_bits & NVM_V2_FEATURE_PASSIVE) != 0) != (out->passive_size != 0)) {
         r = NVM_V2_ERR_FEATURE_MISMATCH; goto fail;
     }
-    if (out->passive_size) {
+    if (((h.feature_bits & NVM_V2_FEATURE_OWNERSHIP) != 0) != (out->ownership_size != 0)) {
+        r = NVM_V2_ERR_FEATURE_MISMATCH; goto fail;
+    }
+    if (out->passive_size || out->ownership_size) {
         NvmModule *checked = NULL;
         r = nvm_v2_to_nvm_module(out, &checked);
         nvm_module_free(checked);

@@ -738,11 +738,15 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             strcmp(directive, "par_end") == 0)
             return par_directive(state, directive, p, result);
 
-        if (strcmp(directive, "passive") == 0 || strcmp(directive, "layouts") == 0) {
+        if (strcmp(directive, "passive") == 0 || strcmp(directive, "layouts") == 0 ||
+            strcmp(directive, "ownership") == 0) {
             bool layouts = strcmp(directive, "layouts") == 0;
-            uint8_t **payload = layouts ? &state->mod->layout_data : &state->mod->passive_data;
-            uint32_t *payload_size = layouts ? &state->mod->layout_size : &state->mod->passive_size;
-            if (!layouts && state->passive_structured)
+            bool ownership = strcmp(directive, "ownership") == 0;
+            uint8_t **payload = ownership ? &state->mod->ownership_data :
+                layouts ? &state->mod->layout_data : &state->mod->passive_data;
+            uint32_t *payload_size = ownership ? &state->mod->ownership_size :
+                layouts ? &state->mod->layout_size : &state->mod->passive_size;
+            if (!layouts && !ownership && state->passive_structured)
                 return par_error(result, "I cannot mix raw passive chunks and producer markers.");
             char hex[4096];
             uint32_t length;

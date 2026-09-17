@@ -11,6 +11,7 @@
 #include "verifier.h"
 #include "passive.h"
 #include "retained_layouts.h"
+#include "ownership_contracts.h"
 #include "isa.h"
 #include "../nanovm/vm.h"
 #include "../nanovm/vm_decode.h"
@@ -416,6 +417,12 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
             }
         }
     }
+
+    bool needs_ownership = false;
+    if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
+        return fail("I found invalid ownership declarations");
+    if (needs_ownership)
+        return fail("I require reference lifetime and ownership instruction verification before execution");
 
     if (!nvm_retained_layouts_valid(mod))
         return fail("I found invalid retained layout metadata");
