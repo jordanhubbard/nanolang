@@ -26,9 +26,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] **Emitter build diagnostics.** I trace successful C-seed emitter builds
-      that report missing `ASTAssert.then_body` and `else_body` fields, repair
-      the incorrect binding or diagnostic pass, and retain real type failures.
+- [x] **Emitter build diagnostics.** I retain each native function parameter's
+      declared nominal metadata instead of inheriting a same-name parameter
+      from another function. Three regressions pass, real wrong-field access
+      remains rejected, and the emitter builds without the spurious E004 errors.
       MAC `task_233ab81a36a0437db947eb11a8a4421b`.
 
 - [x] **Emitter source preservation.** I reject input/output identity aliases

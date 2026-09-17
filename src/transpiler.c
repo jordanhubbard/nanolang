@@ -3843,17 +3843,16 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     located_param->scope_end_column = item->as.function.body->scope_end_column;
                 }
                 
-                /* For array<Struct> parameters, set struct_type_name */
-                if (item->as.function.params[j].type == TYPE_ARRAY && 
-                    item->as.function.params[j].element_type == TYPE_STRUCT &&
-                    item->as.function.params[j].struct_type_name) {
-                    Symbol *param_sym = env_get_var(env, item->as.function.params[j].name);
-                    if (param_sym) {
-                        param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
-                        if (!param_sym->struct_type_name) {
-                            fprintf(stderr, "Error: Out of memory duplicating param struct type name\n");
-                            exit(1);
-                        }
+                /* A parameter owns its declared nominal metadata. The generic
+                 * environment helper may inherit a prior same-name symbol;
+                 * that symbol can belong to an unrelated function. */
+                free(located_param->struct_type_name);
+                located_param->struct_type_name = NULL;
+                if (item->as.function.params[j].struct_type_name) {
+                    located_param->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
+                    if (!located_param->struct_type_name) {
+                        fprintf(stderr, "Error: Out of memory duplicating parameter type name\n");
+                        exit(1);
                     }
                 }
             }
