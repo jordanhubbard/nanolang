@@ -46,7 +46,10 @@ v2 output and runs its result in NanoVM and native AOT. Replacing only that
 helper's shadow with `assert false` then rejects compilation and preserves the
 previous accepted `.nvm`. My existing import, root-shadow, nominal binding,
 source/hardlink/symlink identity and prior-output regressions remain enabled.
-The five canonical driver methods pass after a fresh three-stage bootstrap.
+I also surface the lowerer's exact refusal for a reachable unsupported result
+instead of replacing it with a generic frontend message; this failure preserves
+the previous output. The six canonical driver methods pass after a fresh
+three-stage bootstrap.
 
 This is MAC `task_771b3fdc89aa42f7bf100ce7bfd0d40d`. It does not complete the
 NanoISA-only bootstrap. Ordered globals and additional lowering remain separate
