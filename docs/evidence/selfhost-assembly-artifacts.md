@@ -17,9 +17,17 @@ call fails, exposes a diagnostic, and preserves the accepted module. Both
 backends produce the same retained bytes. Native artifact callers use the
 existing host-runtime link contract.
 
-The canonical frontend test initially encounters the separately tracked
-external-source manifest-root bug (`task_c6b698326e0f4e6296299ddfdf172ebd`);
-its companion repair is being validated. I retain that test without skipping it.
+My canonical frontend publication test passes after the separately tracked
+external-source manifest-root repair in PR447. A fresh native three-stage
+bootstrap passes, followed by all 14 canonical-output, native-module-linking
+and compiler-artifact-support methods against Stage 2. My native Stage 1 and
+Stage 2 binaries differ; these checks do not establish a fixed point.
+
+After restacking onto `e07fecfb`, I rerun the emitter gate: 86 checks and all
+52 methods pass. The retained logs are
+`/tmp/nanolang-assembly-restacked-gate.log`,
+`/tmp/nanolang-assembly-bootstrap3.log` and
+`/tmp/nanolang-assembly-stage2-final-tests.log`.
 
 Actual full compiler emission advances past these publication calls to
 `undefined function str_concat`. I record that next lowering slice as

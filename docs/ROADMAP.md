@@ -8459,7 +8459,7 @@ Compiler product:
       already supplied canonical runtime sources (`task_59b46df66b0d480b83cf9cde4a416c07`).
       The artifact facade exposes duplicate cJSON symbols and unresolved SHA256
       during the three-stage bootstrap.
-- [ ] I lower the exact `nl_nanoisa_assemble_text_save` and
+- [x] I lower the exact `nl_nanoisa_assemble_text_save` and
       `nl_nanoisa_last_error` artifact signatures used by compiler publication
       (`task_3560b1472ae64d73b0449b7df6933914`), preserving integer status and
       zero-argument string diagnostics. Full emission reaches these after paths.
