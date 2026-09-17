@@ -897,7 +897,7 @@ test-diagnostics: stage1
 	@rm -f tests/test_diagnostics
 
 .PHONY: test-module-metadata
-test-module-metadata: stage1 nano_virt nano_vm $(OBJ_DIR)/test_module_generation_probe
+test-module-metadata: stage1 nano_virt nano_vm $(OBJ_DIR)/test_module_generation_probe test-generated-list-metadata
 	@echo "Running module metadata unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_module_builder_paths tests/test_module_builder_paths.c
 	@./tests/test_module_builder_paths
@@ -907,6 +907,12 @@ test-module-metadata: stage1 nano_virt nano_vm $(OBJ_DIR)/test_module_generation
 	$(CC) $(CFLAGS) -o tests/test_module_metadata tests/test_module_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_module_metadata
 	@rm -f tests/test_module_metadata
+
+.PHONY: test-generated-list-metadata
+test-generated-list-metadata: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -Dmalloc=nano_metadata_poison_malloc -c src/env.c -o $(OBJ_DIR)/env_metadata_poison.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_generated_list_metadata tests/test_generated_list_metadata.c $(filter-out $(OBJ_DIR)/env.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/env_metadata_poison.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_generated_list_metadata
 
 .PHONY: test-type-infer
 test-type-infer: stage1
