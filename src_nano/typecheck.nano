@@ -1932,7 +1932,7 @@ shadow type_array {
 }
 
 fn type_array_of(element: NSType) -> NSType {
-    if (== element.kind TypeKind.TYPE_ARRAY) {
+    if (or (== element.kind TypeKind.TYPE_ARRAY) (== element.kind TypeKind.TYPE_UNION)) {
         return (type_array element.kind (type_to_string element))
     }
     return (type_array element.kind element.name)
@@ -2990,6 +2990,7 @@ fn type_to_string(t: NSType) -> string {
                                     return t.name
                                 } else {
                                     if (== t.kind TypeKind.TYPE_UNION) {
+                                        if (!= t.element_type_name "") { return t.element_type_name }
                                         return t.name
                                     } else {
                                     if (== t.kind TypeKind.TYPE_TUPLE) {
@@ -3046,6 +3047,12 @@ shadow type_kind_to_string {
 }
 
 shadow type_to_string {
+    let concrete: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Box", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "Box<array<int>>" }
+    assert (== (type_to_string concrete) "Box<array<int>>")
+    assert (== (type_to_string (type_array_of concrete)) "array<Box<array<int>>>")
+    assert (== (type_to_string (type_array_of (type_array_of concrete))) "array<array<Box<array<int>>>>")
+    let plain: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Choice", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    assert (== (type_to_string plain) "Choice")
     assert (== (type_to_string (type_array_of (type_array_of (type_int)))) "array<array<int>>")
     assert (== (type_to_string (type_int)) "int")
     assert (== (type_to_string (type_bool)) "bool")
@@ -3283,8 +3290,11 @@ fn env_get_type(symbols: array<Symbol>, name: string) -> OptionType {
 }
 
 shadow env_get_type {
-    /* Note: array<Symbol> testing skipped in shadow tests */
-    assert (== 1 1)
+    let concrete: NSType = NSType { kind: TypeKind.TYPE_UNION, name: "Box", element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "Box<array<int>>" }
+    let symbols: array<Symbol> = [(symbol_new "produce" (type_void) false true 1 [concrete] concrete)]
+    let result: OptionType = (env_get_type symbols "produce")
+    assert result.has_value
+    assert (== result.value.name "fn(Box<array<int>>)->Box<array<int>>")
 }
 
 /* =============================================================================
@@ -3687,7 +3697,7 @@ fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: 
         return (type_unknown_named "map")
     }
     let parameter: NSType = (at parameters 0)
-    let result: NSType = (fn_type_return_type callback_type.name)
+    let result: NSType = (type_from_string_with_parser parser (type_to_string (fn_type_return_type callback_type.name)))
     if (or (== result.kind TypeKind.TYPE_VOID) (== result.kind TypeKind.TYPE_UNKNOWN)) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known value-producing transform in map." location))
         return (type_unknown_named "map")
@@ -3772,7 +3782,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else { (print "") }
                 set j (+ j 1)
             }
-            return (fn_type_return_type callee_type.name)
+            return (type_from_string_with_parser parser (type_to_string (fn_type_return_type callee_type.name)))
         } else { (print "") }
         let mut i: int = 0
         while (< i call_node.arg_count) {
@@ -3907,7 +3917,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
                             (Diagnostics.diag_list_add diags diag)
                         } else { (print "") }
-                        return (fn_type_return_type sym.sym_type.name)
+                        return (type_from_string_with_parser parser (type_to_string (fn_type_return_type sym.sym_type.name)))
                     } else {
                         return sym.sym_type
                     }
