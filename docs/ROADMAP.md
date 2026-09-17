@@ -100,7 +100,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         whole-owner replacement is not field mutation. I require a mutable
         owner or an existing exclusive capability, and prove forwarding,
         post-call consumption and output preservation on refusal. Broader
-        projections and shape support follow their own paired gates. My
+        projections and shape support follow their own paired gates.
+      - [ ] I explicitly refuse field-place assignment in both NanoISA
+        emitters before reference IR exists, including the raw self-hosted
+        emitter API. I preserve a prior output and never reinterpret a field
+        target as whole-variable assignment (same borrow task). My
         [exclusive evidence](evidence/call-scoped-exclusive-borrows.md) records
         the three-compiler controls and keeps the full borrow parent open.
 - [x] I lower my declared NanoISA file assembly and disassembly artifact contracts with exact parameter and result validation, and execute their real module shadows in VM and native products (MAC `task_f5f873fccfff4b5b88f14f4d825ba3b4`).
