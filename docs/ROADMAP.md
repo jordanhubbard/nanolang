@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure](evidence/native-selfcompile-aggregate-a3f3.md) and require normal native facade/compiler linking before another acceptance pin.
+
 - [ ] I run one newly pinned native full-source acceptance after aggregate reclamation (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). At merged code `a3f321a6`, I rebuild the canonical compiler, require help and verified hello prerequisites, and retain source/helper/host hashes. Each generation has a 1,800-second budget with a 48 GiB owned-RSS threshold and 32 GiB host reserve. I continue to generation two and raw equality only after generation one succeeds; I preserve any incomplete result without retry. This source includes VM shadows, so I make no speed attribution against the older C-shadow pin.
 
 - [x] **Retained NanoISA layouts.** I preserve complete v2 layout tables through
