@@ -8472,7 +8472,11 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower the existing `is_alnum` call required by my compiler
+- [ ] I lower string prefix and suffix tests used by my compiler
+      (`task_891724de0cb5454eb0a575b099aba188`), preserving exact string operands and boolean results.
+      Full emission reaches `str_starts_with` after `is_alnum`; the probe is
+      `/tmp/nanolang-alnum-fullcompiler-probe.log`.
+- [x] I lower the existing `is_alnum` call required by my compiler
       (`task_9e5bf751b8614b599f0bff8e1bdc2a77`), preserving its precise operand/result contract.
       Full emission reaches it after `str_concat`; the probe is retained in
       `/tmp/nanolang-concat-fullcompiler-probe.log`.
