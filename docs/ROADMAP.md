@@ -26,6 +26,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] **Standalone VM guest arguments for v5.0.1.** I separate VM options
+      from guest arguments with `--`, expose the module path as guest argument
+      zero, preserve empty arguments, and reject ambiguous module paths and
+      unsupported daemon argument transport. I test compiler-style flags.
+      Five regression methods pass, including a bytecode emitter invocation
+      that produces and executes the Cut A addition module with result 42.
+      This is driver coverage, not compiler bytecode fixed-point acceptance.
+      MAC `task_d36776ab4ed143118c577f74f88ad3be`.
+
 - [ ] **Restore the accepted compiler baseline after PR #359.** I preserve
       the published `v5.0.0` tag and restore the released compiler, tests and
       documentation removed by the reviewed whole-tree replacement. I preserve
