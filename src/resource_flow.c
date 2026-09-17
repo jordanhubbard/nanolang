@@ -65,6 +65,17 @@ static bool own_resource(OwnFlow *flow, const char *name) {
     return false;
 }
 
+/* Complete copying does not establish substitution inside every metadata shape. */
+static bool own_unresolved_payload_shape(const TypeInfo *info, unsigned depth) {
+    if (!info) return false;
+    if (depth > 512) return true;
+    if (info->tuple_element_count || info->row_field_count || info->row_var_name || info->fn_sig) return true;
+    if (own_unresolved_payload_shape(info->element_type, depth + 1)) return true;
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        if (own_unresolved_payload_shape(info->type_params[i], depth + 1)) return true;
+    return false;
+}
+
 static bool own_info_resource(OwnFlow *flow, ASTNode *at, const TypeInfo *info, unsigned depth) {
     if (!info) return false;
     if (depth > 512) {
@@ -79,6 +90,14 @@ static bool own_info_resource(OwnFlow *flow, ASTNode *at, const TypeInfo *info, 
         }
         for (int arm = 0; arm < def->variant_count; ++arm) {
             for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
+                const TypeInfo *declared = def->variant_field_type_info && def->variant_field_type_info[arm]
+                    ? def->variant_field_type_info[arm][field] : NULL;
+                if (own_unresolved_payload_shape(declared, 0)) {
+                    /* I preserve the prior resource-argument guard until these
+                     * payload shapes have complete formal substitution. */
+                    for (int arg = 0; info->type_params && arg < info->type_param_count; ++arg)
+                        if (own_info_resource(flow, at, info->type_params[arg], depth + 1)) return true;
+                }
                 TypeInfo *concrete = resolve_union_payload_type_info(def, arm, field, info);
                 if (!concrete) {
                     own_error(flow, at, "I require complete generic payload ownership metadata", info->generic_name);

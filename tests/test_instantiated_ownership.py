@@ -21,6 +21,14 @@ fn main() -> int { let value: Marker<Handle> = Marker.Mark { number: 7 } let cop
 shadow main { assert (== (main) 0) }
 ''', True)
 
+    def test_nested_unused_resource_argument_has_no_payload_owner(self):
+        self.check(PREFIX + '''union Marker<T> { Mark { number: int } }
+fn read(value: Box<Marker<Handle>>) -> int { match value { Some(payload) => { let marker: Marker<Handle> = payload.value match marker { Mark(inner) => { return inner.number } } } None(payload) => { return 0 } } }
+shadow read { let inner: Marker<Handle> = Marker.Mark { number: 7 } let outer: Box<Marker<Handle>> = Box.Some { value: inner } assert (== (read outer) 7) }
+fn main() -> int { let inner: Marker<Handle> = Marker.Mark { number: 7 } let outer: Box<Marker<Handle>> = Box.Some { value: inner } let copy: Box<Marker<Handle>> = outer return (- (+ (read outer) (read copy)) 14) }
+shadow main { assert (== (main) 0) }
+''', True)
+
     def test_result_arguments_survive_alias_and_return(self):
         self.check(PREFIX + '''fn identity(value: Result<int,string>) -> Result<int,string> { let copy: Result<int,string> = value return copy }
 shadow identity { let value: Result<int,string> = Result.Ok { value: 7 } let result: Result<int,string> = (identity value) match result { Ok(payload) => { assert (== payload.value 7) } Err(payload) => { assert false } } }
@@ -36,6 +44,12 @@ shadow read { let inner: Result<int,string> = Result.Ok { value: 7 } let outer: 
 fn main() -> int { let inner: Result<int,string> = Result.Err { error: "failure" } let outer: Box<Result<int,string>> = Box.Some { value: inner } let copy: Box<Result<int,string>> = outer return (- (+ (read outer) (read copy)) 14) }
 shadow main { assert (== (main) 0) }
 ''', True)
+
+    def test_unsubstituted_tuple_resource_payload_rejected(self):
+        self.check(PREFIX + 'union Bundle<T> { Some { value: (T,int) }, None {} }\nfn abandon(value: Bundle<Handle>) -> void { }\n' + ENDING, False)
+
+    def test_nested_unsubstituted_tuple_resource_payload_rejected(self):
+        self.check(PREFIX + 'union Bundle<T> { Some { value: (T,int) }, None {} }\nfn abandon(value: Box<Bundle<Handle>>) -> void { }\n' + ENDING, False)
 
     def test_nested_resource_parameter_rejected(self):
         self.check(PREFIX + 'fn abandon(value: Box<Result<int,Handle>>) -> void { }\n' + ENDING, False)

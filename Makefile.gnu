@@ -4221,3 +4221,8 @@ test-units: test-module-builder-self-capture
 .PHONY: test-module-builder-self-capture
 test-module-builder-self-capture: $(OBJ_DIR)/test_module_generation_probe
 	@python3 -m unittest tests.test_module_builder_self_capture
+
+.PHONY: test-instantiated-ownership
+test-units: test-instantiated-ownership
+test-instantiated-ownership: bootstrap
+	python3 -m unittest -v tests.test_instantiated_ownership
