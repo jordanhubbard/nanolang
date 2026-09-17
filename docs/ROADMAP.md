@@ -31,6 +31,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       ordinary instantiations from resource-bearing ones, and preserve declaring
       module identity. MAC `task_27d3d1bee3f84b5a9c1fc79e1f0c0748`.
       - [ ] I record paired baseline cases and the parser/emitter prerequisites.
+        Both self-hosted stages reject explicit `Box<int>.Some` constructors,
+        leave match payload `T` unsubstituted, and emit `DynArray*` for a
+        `Box<array<int>>` parameter/local. My C union declaration parser drops
+        nested payload TypeInfo; I retain that metadata before substitution.
       - [ ] I reject unsupported generic resource obligations consistently in
         both frontends while executing ordinary-generic positive fixtures.
       - [ ] I retain resource-bearing array/List/HashMap rejection through nested
