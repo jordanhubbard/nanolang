@@ -4479,7 +4479,7 @@ nvm2wasm: nvm2llvm | bin
 	chmod +x bin/nvm2wasm
 
 test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion
+	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
 test-owned-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c

@@ -35,26 +35,14 @@ class ScalarU8(unittest.TestCase):
             body += f'LOAD_LOCAL 1\nCAST_INT\nPUSH_I64 {expected}\nI64_EQ\nASSERT\n'
         self.compare(self.program(body, suffix))
 
-    def test_generic_byte_order_vm_c_and_llvm_refusal(self):
+    def test_generic_byte_order_across_scalar_backends(self):
         body = ''
         for a, b in ((0, 255), (128, 127), (255, 255)):
             for op, expected in (('EQ', a == b), ('NE', a != b), ('LT', a < b),
                                  ('LE', a <= b), ('GT', a > b), ('GE', a >= b)):
                 body += f'PUSH_U8 {a}\nPUSH_U8 {b}\n{op}\nDUP\nTYPE_CHECK 4\nASSERT\n'
                 body += ('BOOL_NOT\n' if not expected else '')+'ASSERT\n'
-        module = self.module(self.program(body))
-        self.run_cmd([llvm.VM, '--verify-only', module])
-        self.run_cmd([llvm.VM, module])
-        c, executable = self.work/'bytes.c', self.work/'bytes'
-        self.run_cmd([llvm.C, module, '-o', c])
-        self.run_cmd(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c, '-o', executable])
-        self.run_cmd([executable])
-        for translator in (llvm.LLVM, wasm.WASM):
-            target = self.work/'retained'
-            target.write_text('previous')
-            result = self.run_cmd([translator, module, '-o', target], success=False)
-            self.assertIn('do not support opcode', result.stderr)
-            self.assertEqual(target.read_text(), 'previous')
+        self.compare(self.program(body))
 
     def test_native_byte_display_and_unused_signature(self):
         text = self.program('PUSH_U8 255\nPRINTLN\nPUSH_U8 128\nPRINTLN\n',

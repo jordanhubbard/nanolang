@@ -3355,6 +3355,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "f[%d] %s (double)t[%d]", lhs, op, rhs);
                 stack_push_temp(b, &st, expr);
+            } else if ((lk == NVM2C_VK_BOOL && rk == NVM2C_VK_FLOAT) ||
+                       (lk == NVM2C_VK_FLOAT && rk == NVM2C_VK_BOOL)) {
+                /* I preserve unequal scalar tags, without numeric promotion. */
+                stack_push_temp(b, &st, ins.opcode == OP_EQ ? "0" : "1");
             } else if (lk == NVM2C_VK_STR && rk == NVM2C_VK_STR) {
                 char expr[192];
                 snprintf(expr, sizeof expr,
