@@ -28,26 +28,37 @@ static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
     return true;
 }
 
-static bool nominal_signature(ASTNode *, Environment *, FunctionSignature *);
-static bool nominal_info(ASTNode *program, Environment *env, TypeInfo *info) {
+static bool nominal_scoped_slot(ASTNode *program, Environment *env, char **slot, char **formals, int count) {
+    for (int i = 0; slot && *slot && i < count; ++i)
+        if (!strcmp(*slot, formals[i])) return true;
+    return nominal_slot(program, env, slot);
+}
+static bool nominal_scoped_signature(ASTNode *, Environment *, FunctionSignature *, char **, int);
+static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *info, char **formals, int count) {
     if (!info) return true;
-    if (!nominal_slot(program, env, &info->generic_name) ||
-        !nominal_info(program, env, info->element_type) ||
-        !nominal_signature(program, env, info->fn_sig)) return false;
+    if (!nominal_scoped_slot(program, env, &info->generic_name, formals, count) ||
+        !nominal_scoped_info(program, env, info->element_type, formals, count) ||
+        !nominal_scoped_signature(program, env, info->fn_sig, formals, count)) return false;
     for (int i = 0; i < info->type_param_count; ++i)
-        if (info->type_params && !nominal_info(program, env, info->type_params[i])) return false;
+        if (info->type_params && !nominal_scoped_info(program, env, info->type_params[i], formals, count)) return false;
     for (int i = 0; i < info->tuple_element_count; ++i)
-        if (info->tuple_type_names && !nominal_slot(program, env, &info->tuple_type_names[i])) return false;
+        if (info->tuple_type_names && !nominal_scoped_slot(program, env, &info->tuple_type_names[i], formals, count)) return false;
     for (int i = 0; i < info->row_field_count; ++i)
-        if (info->row_field_type_names && !nominal_slot(program, env, &info->row_field_type_names[i])) return false;
+        if (info->row_field_type_names && !nominal_scoped_slot(program, env, &info->row_field_type_names[i], formals, count)) return false;
     return true;
 }
-static bool nominal_signature(ASTNode *program, Environment *env, FunctionSignature *signature) {
+static bool nominal_scoped_signature(ASTNode *program, Environment *env, FunctionSignature *signature, char **formals, int count) {
     if (!signature) return true;
     for (int i = 0; i < signature->param_count; ++i)
-        if (signature->param_struct_names && !nominal_slot(program, env, &signature->param_struct_names[i])) return false;
-    return nominal_slot(program, env, &signature->return_struct_name) &&
-           nominal_signature(program, env, signature->return_fn_sig);
+        if (signature->param_struct_names && !nominal_scoped_slot(program, env, &signature->param_struct_names[i], formals, count)) return false;
+    return nominal_scoped_slot(program, env, &signature->return_struct_name, formals, count) &&
+           nominal_scoped_signature(program, env, signature->return_fn_sig, formals, count);
+}
+static bool nominal_info(ASTNode *program, Environment *env, TypeInfo *info) {
+    return nominal_scoped_info(program, env, info, NULL, 0);
+}
+static bool nominal_signature(ASTNode *program, Environment *env, FunctionSignature *signature) {
+    return nominal_scoped_signature(program, env, signature, NULL, 0);
 }
 static bool nominal_parameter(ASTNode *program, Environment *env, Parameter *parameter) {
     return nominal_slot(program, env, &parameter->struct_type_name) &&
@@ -75,7 +86,10 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
             break;
         case AST_UNION_DEF:
             for (int i = 0; i < node->as.union_def.variant_count; ++i)
-                for (int j = 0; j < node->as.union_def.variant_field_counts[i]; ++j)
+                for (int j = 0; j < node->as.union_def.variant_field_counts[i]; ++j) {
+                    if (node->as.union_def.variant_field_type_info && node->as.union_def.variant_field_type_info[i] &&
+                        !nominal_scoped_info(program, env, node->as.union_def.variant_field_type_info[i][j],
+                                             node->as.union_def.generic_params, node->as.union_def.generic_param_count)) return false;
                     if (node->as.union_def.variant_field_type_names && node->as.union_def.variant_field_type_names[i]) {
                         const char *name = node->as.union_def.variant_field_type_names[i][j];
                         bool formal = false;
@@ -83,6 +97,7 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
                             if (!strcmp(name, node->as.union_def.generic_params[param])) formal = true;
                         if (!formal) SLOT(node->as.union_def.variant_field_type_names[i][j]);
                     }
+                }
             break;
         case AST_STRUCT_LITERAL:
             SLOT(node->as.struct_literal.struct_name);

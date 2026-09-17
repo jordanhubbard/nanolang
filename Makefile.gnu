@@ -4165,6 +4165,10 @@ test-units: test-purity-contract
 test-units: test-cseed-nested-array-literals
 test-cseed-nested-array-literals: $(COMPILER_C) nano_virt nano_vm
 	@python3 -m unittest tests.test_cseed_nested_array_literals
+
+.PHONY: test-union-payload-metadata
+test-union-payload-metadata: bootstrap test-module-metadata
+	python3 -m unittest tests.test_union_payload_metadata
 .PHONY: test-record-array-projection
 test-units: test-record-array-projection
 test-record-array-projection: $(COMPILER_C) nano_virt nano_vm

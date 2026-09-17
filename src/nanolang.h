@@ -395,6 +395,7 @@ struct ASTNode {
         struct {
             ASTNode *object;          // The struct instance expression
             char *field_name;         // The field being accessed
+            TypeInfo *resolved_type_info; /* Owned concrete union payload type. */
         } field_access;
         struct {
             char *name;               // Enum name
@@ -415,6 +416,7 @@ struct ASTNode {
             char ***variant_field_names;
             Type **variant_field_types;
             char ***variant_field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
+            TypeInfo ***variant_field_type_info; /* Owned complete payload annotations. */
             bool is_pub;              // Visibility: public (pub) vs private
             bool is_extern;           // External C type: do not emit definition
             char **generic_params;    // Generic parameter names: ["T", "E"]
@@ -668,6 +670,7 @@ typedef struct {
     char ***variant_field_names;
     Type **variant_field_types;
     char ***variant_field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type names */
+    TypeInfo ***variant_field_type_info; /* Owned complete payload annotations. */
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_extern;   /* External C type: do not emit definition */
     char *module_name;  /* Module this union belongs to (NULL for global) */
@@ -967,6 +970,9 @@ FunctionSignature *create_function_signature(Type *param_types, int param_count,
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
 void free_type_info(TypeInfo *info);
+TypeInfo *copy_payload_type_info(const TypeInfo *info);
+void free_payload_type_info(TypeInfo *info);
+TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 
 /* Tuple helpers */
 Value create_tuple(Value *elements, int element_count);

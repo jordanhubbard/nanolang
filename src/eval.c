@@ -6092,7 +6092,9 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             
-            UnionDef udef;
+            /* Typechecking may already have registered this declaration. */
+            if (env_get_union(env, stmt->as.union_def.name)) return create_void();
+            UnionDef udef = {0};
             udef.name = strdup(stmt->as.union_def.name);
             udef.variant_count = stmt->as.union_def.variant_count;
             
@@ -6141,6 +6143,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 }
             }
             
+            udef.variant_field_type_info = calloc((size_t)udef.variant_count, sizeof(TypeInfo **));
+            for (int j = 0; j < udef.variant_count; ++j) {
+                int fields = udef.variant_field_counts[j];
+                udef.variant_field_type_info[j] = calloc((size_t)fields, sizeof(TypeInfo *));
+                for (int k = 0; k < fields; ++k)
+                    if (stmt->as.union_def.variant_field_type_info && stmt->as.union_def.variant_field_type_info[j])
+                        udef.variant_field_type_info[j][k] = copy_payload_type_info(stmt->as.union_def.variant_field_type_info[j][k]);
+            }
             env_define_union(env, udef);
             return create_void();
         }

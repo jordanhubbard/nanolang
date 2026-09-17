@@ -27,6 +27,39 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
+      TypeInfo before implementing selected-variant ownership transfer. MAC
+      `task_1f64c9b88a5248dcbda2258dcbee99f7`.
+      - [x] I record nested ordinary execution and resource-rejection baselines.
+      - [x] I preserve metadata through parsing, declaration registration,
+        nominal/formal binding, module copies and teardown with explicit ownership.
+      - [x] I use concrete payload metadata in supported native matching/emission
+        and retain existing conservative generic-resource rejection. Fixed nested
+        resource classification remains explicitly open below.
+      - [x] I pass paired frontend execution/rejection and relevant metadata,
+        bootstrap and instrumented checks before integration.
+      Selected-variant ownership transfer remains a subsequent open obligation.
+
+- [ ] **Classify fixed nested resource union payloads.** I reject unsupported
+      ownership in `Owners.Some { values: array<Handle> }` as consistently as
+      `Box<Handle>` after preserving complete payload metadata. My C seed
+      currently accepts an `abandon(Owners)` declaration. I require paired
+      frontend negative tests before admitting collection ownership. MAC
+      `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
+
+- [ ] **Diagnose unsupported tuple ownership before emission.** For
+      `Bundle<T>.Some { value: (T,int) }` with `Bundle<Handle>`, my C seed
+      rejects ownership but both self-hosted stages fail later on generated
+      `Tuple_T_int`. I require deliberate rejection or complete substitution
+      and ownership lowering; absence of an executable is not diagnostic parity.
+      MAC `task_bcd773ad3c084ce099a3da5aef682fef`.
+
+- [ ] **Release legacy union metadata allocations.** My payload lifetime check
+      exposed 245 bytes retained by existing registered field-name/formal arrays
+      and the environment import tracker. I establish borrower ownership before
+      freeing these and require LeakSanitizer evidence; scoped ASan checks with
+      leak detection disabled do not satisfy this item. MAC `task_00c47a5d65d04c48914864ec0de553d6`.
+
 - [x] **Adopt v5.1.0 as my full-roadmap release target.** I preserve the
       published `v5.0.0` tag and move every unreleased `v5.0.1` contract,
       version identifier, candidate note and presentation obligation to

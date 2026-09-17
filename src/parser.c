@@ -4274,6 +4274,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
     char ***variant_field_names = malloc(sizeof(char**) * capacity);
     Type **variant_field_types = malloc(sizeof(Type*) * capacity);
     char ***variant_field_type_names = malloc(sizeof(char**) * capacity);
+    TypeInfo ***variant_field_type_info = malloc(sizeof(TypeInfo**) * capacity);
     
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (count >= capacity) {
@@ -4283,6 +4284,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
             variant_field_names = realloc(variant_field_names, sizeof(char**) * capacity);
             variant_field_types = realloc(variant_field_types, sizeof(Type*) * capacity);
             variant_field_type_names = realloc(variant_field_type_names, sizeof(char**) * capacity);
+            variant_field_type_info = realloc(variant_field_type_info, sizeof(TypeInfo**) * capacity);
         }
         
         /* Parse variant name */
@@ -4306,6 +4308,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
         char **field_names = malloc(sizeof(char*) * field_capacity);
         Type *field_types = malloc(sizeof(Type) * field_capacity);
         char **field_type_names = malloc(sizeof(char*) * field_capacity);
+        TypeInfo **field_type_info = malloc(sizeof(TypeInfo*) * field_capacity);
         
         while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
             if (field_count >= field_capacity) {
@@ -4313,6 +4316,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
                 field_names = realloc(field_names, sizeof(char*) * field_capacity);
                 field_types = realloc(field_types, sizeof(Type) * field_capacity);
                 field_type_names = realloc(field_type_names, sizeof(char*) * field_capacity);
+                field_type_info = realloc(field_type_info, sizeof(TypeInfo*) * field_capacity);
             }
             
             /* Parse field name */
@@ -4332,12 +4336,22 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
             
             /* Parse field type - capture type name for struct/union types */
             char *type_param_name = NULL;
-            field_types[field_count] = parse_type_with_element(p, NULL, &type_param_name, NULL, NULL);
+            TypeInfo *info = NULL;
+            FunctionSignature *signature = NULL;
+            field_types[field_count] = parse_type_with_element(p, NULL, &type_param_name, &signature, &info);
+            if (!info) {
+                info = calloc(1, sizeof(*info));
+                info->base_type = field_types[field_count];
+                info->generic_name = type_param_name ? strdup(type_param_name) : NULL;
+                info->fn_sig = signature;
+            }
+            field_type_info[field_count] = info;
             field_type_names[field_count] = type_param_name;  /* May be NULL for primitive types */
             
             if (field_types[field_count] == TYPE_UNKNOWN) {
                 free(field_names[field_count]);
                 if (field_type_names[field_count]) free(field_type_names[field_count]);
+                free_payload_type_info(field_type_info[field_count]);
                 break;
             }
             
@@ -4354,10 +4368,12 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
             for (int i = 0; i < field_count; i++) {
                 free(field_names[i]);
                 if (field_type_names[i]) free(field_type_names[i]);
+                free_payload_type_info(field_type_info[i]);
             }
             free(field_names);
             free(field_types);
             free(field_type_names);
+            free(field_type_info);
             free(variant_names[count]);
             break;
         }
@@ -4366,6 +4382,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
         variant_field_names[count] = field_names;
         variant_field_types[count] = field_types;
         variant_field_type_names[count] = field_type_names;
+        variant_field_type_info[count] = field_type_info;
         count++;
         
         /* Optional comma between variants */
@@ -4381,14 +4398,20 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
             free(variant_names[i]);
             for (int j = 0; j < variant_field_counts[i]; j++) {
                 free(variant_field_names[i][j]);
+                free(variant_field_type_names[i][j]);
+                free_payload_type_info(variant_field_type_info[i][j]);
             }
             free(variant_field_names[i]);
             free(variant_field_types[i]);
+            free(variant_field_type_names[i]);
+            free(variant_field_type_info[i]);
         }
         free(variant_names);
         free(variant_field_counts);
         free(variant_field_names);
         free(variant_field_types);
+        free(variant_field_type_names);
+        free(variant_field_type_info);
         for (int i = 0; i < generic_param_count; i++) {
             free(generic_params[i]);
         }
@@ -4404,6 +4427,7 @@ static ASTNode *parse_union_def(Stage1Parser *p) {
     node->as.union_def.variant_field_names = variant_field_names;
     node->as.union_def.variant_field_types = variant_field_types;
     node->as.union_def.variant_field_type_names = variant_field_type_names;
+    node->as.union_def.variant_field_type_info = variant_field_type_info;
     node->as.union_def.variant_count = count;
     node->as.union_def.generic_params = generic_params;
     node->as.union_def.generic_param_count = generic_param_count;
@@ -6079,6 +6103,7 @@ void free_ast(ASTNode *node) {
         case AST_FIELD_ACCESS:
             free_ast(node->as.field_access.object);
             free(node->as.field_access.field_name);
+            free_payload_type_info(node->as.field_access.resolved_type_info);
             break;
         case AST_ENUM_DEF:
             free(node->as.enum_def.name);
@@ -6094,6 +6119,8 @@ void free_ast(ASTNode *node) {
                 free(node->as.union_def.variant_names[i]);
                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {
                     free(node->as.union_def.variant_field_names[i][j]);
+                    if (node->as.union_def.variant_field_type_info && node->as.union_def.variant_field_type_info[i])
+                        free_payload_type_info(node->as.union_def.variant_field_type_info[i][j]);
                     if (node->as.union_def.variant_field_type_names &&
                         node->as.union_def.variant_field_type_names[i] &&
                         node->as.union_def.variant_field_type_names[i][j]) {
@@ -6102,6 +6129,7 @@ void free_ast(ASTNode *node) {
                 }
                 free(node->as.union_def.variant_field_names[i]);
                 free(node->as.union_def.variant_field_types[i]);
+                if (node->as.union_def.variant_field_type_info) free(node->as.union_def.variant_field_type_info[i]);
                 if (node->as.union_def.variant_field_type_names) {
                     free(node->as.union_def.variant_field_type_names[i]);
                 }
@@ -6110,6 +6138,7 @@ void free_ast(ASTNode *node) {
             free(node->as.union_def.variant_field_counts);
             free(node->as.union_def.variant_field_names);
             free(node->as.union_def.variant_field_types);
+            free(node->as.union_def.variant_field_type_info);
             if (node->as.union_def.variant_field_type_names) {
                 free(node->as.union_def.variant_field_type_names);
             }

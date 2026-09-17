@@ -417,8 +417,50 @@ static void test_callback_adapters(void) {
     ASSERT(unlink(path) == 0 && rmdir(directory) == 0);
 }
 
+/* I keep nested annotations alive after the parser and registering environment
+ * are gone, and substitute without mutating either retained declaration. */
+static void test_union_payload_lifetime(void) {
+    int count = 0;
+    Token *tokens = tokenize("union Box<T> { Some { values: array<array<T>> }, None {} }", &count);
+    ASSERT_NOT_NULL(tokens);
+    ASTNode *program = parse_program(tokens, count);
+    ASSERT_NOT_NULL(program);
+    Environment *env = create_environment();
+    typecheck_set_current_file("<payload-metadata>");
+    ASSERT(type_check_module(program, env));
+    UnionDef *registered = env_get_union(env, "Box");
+    ASSERT_NOT_NULL(registered);
+    TypeInfo *payload = registered->variant_field_type_info[0][0];
+    ASSERT(payload->base_type == TYPE_ARRAY);
+    ASSERT(payload->element_type->base_type == TYPE_ARRAY);
+    ASSERT(!strcmp(payload->element_type->element_type->generic_name, "T"));
+    ModuleMetadata *meta = extract_module_metadata(env, "payload");
+    ASSERT_NOT_NULL(meta);
+    ASSERT(meta->union_count == 1);
+    TypeInfo *retained = meta->unions[0].variant_field_type_info[0][0];
+    ASSERT(retained != payload && retained->element_type != payload->element_type);
+    free_ast(program);
+    free_tokens(tokens, count);
+    ASSERT(!strcmp(payload->element_type->element_type->generic_name, "T"));
+    TypeInfo string = { .base_type = TYPE_STRING };
+    TypeInfo *parameters[] = { &string };
+    TypeInfo arguments = { .base_type = TYPE_UNION, .type_params = parameters, .type_param_count = 1 };
+    TypeInfo *concrete = resolve_union_payload_type_info(registered, 0, 0, &arguments);
+    ASSERT(concrete->base_type == TYPE_ARRAY);
+    ASSERT(concrete->element_type->base_type == TYPE_ARRAY);
+    ASSERT(concrete->element_type->element_type->base_type == TYPE_STRING);
+    ASSERT(!strcmp(payload->element_type->element_type->generic_name, "T"));
+    free_environment(env);
+    ASSERT(!strcmp(retained->element_type->element_type->generic_name, "T"));
+    ASSERT(concrete->element_type->element_type->base_type == TYPE_STRING);
+    free_module_metadata(meta);
+    ASSERT(concrete->element_type->element_type->base_type == TYPE_STRING);
+    free_payload_type_info(concrete);
+}
+
 int main(void) {
     printf("=== Module Metadata Tests ===\n");
+    TEST(union_payload_lifetime);
     TEST(serialize_null_returns_null);
     TEST(serialize_empty_module);
     TEST(serialize_single_void_function);
