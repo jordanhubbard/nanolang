@@ -99,3 +99,10 @@ The revised fresh bootstrap, all nine native methods (49 compiler/order cases
 in 66.305 seconds), parser/typechecker units, five wrapper-generation and seven
 publication methods pass. Final logs use `/tmp/nanolang-nominal-metadata-`
 with suffixes `bootstrap.log`, `all.log`, `units.log` and `asan.log`.
+
+On Darwin ARM64, I replaced three GNU `asprintf` calls in qualified return,
+parameter, and local annotations with one overflow-checked C99 allocator. The
+strict parser build passes, both bootstrap stages compile and execute, and
+`make -j8 test-affine-module-identity` passes all nine methods in 57.620
+seconds. Task `task_af9ed9b1529b4c65853e5669d4171126` records this portability
+repair.

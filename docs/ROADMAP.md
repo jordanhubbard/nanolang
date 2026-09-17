@@ -52,6 +52,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         traversal. A `Box<Handle>` annotation exposed uninitialized row fields
         and a C-seed crash; I retain generic resource rejection and test ordinary
         scalar/array generic annotations under allocator perturbation.
+      - [x] I preserve those qualified annotations without GNU `asprintf`;
+        strict Darwin C99 must build the parser with overflow-checked portable
+        allocation (`task_af9ed9b1529b4c65853e5669d4171126`).
 
 - [x] **Map constructor diagnostics.** I count constructor type errors through
       my structured diagnostic path, rejecting direct untyped returns, nested
