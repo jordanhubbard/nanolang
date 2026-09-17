@@ -44,9 +44,11 @@ class NativeUnderscoreBindings(unittest.TestCase):
             self.assertIn(str(SOURCE), code)
 
     def test_legacy_c_par_let_alias(self):
-        source = """fn legacy() -> int {
+        source = """fn consume(value: int) -> int { assert (== value 15) return value }
+shadow consume { assert (== (consume 15) 15) }
+fn legacy() -> int {
  let _: int = 1
- par-let _=7 other=8 in (+ _ other)
+ par-let _=7 other=8 in (consume (+ _ other))
  return _
 }
 shadow legacy { assert (== (legacy) 7) }
