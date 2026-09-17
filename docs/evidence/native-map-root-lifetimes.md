@@ -54,3 +54,8 @@ documentation acknowledgement is: “5.0.1 changes internal native map
 reclamation only; syntax, CLI, README guidance, and presentation claims are
 unchanged.” I keep that acknowledgement out of the historical negative-control
 tests so they continue to prove that stale release prose fails closed.
+
+PR #361 passes the Linux x64, Linux ARM64 and macOS ARM64 build-and-test jobs,
+the memory-sanitizer and coverage jobs, strict examples on both Linux
+architectures, all three compiler-format jobs, NanoCore proofs, documentation,
+code quality, concurrency, performance and packaging checks.

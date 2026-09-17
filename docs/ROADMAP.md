@@ -608,7 +608,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           focused tests require at most 16 live map/string owners and zero
           after entry cleanup. Remaining PR ancestry reconciliation stays open.
           Evidence: `docs/evidence/native-map-root-lifetimes.md`.
-        - [ ] **5.0.1 / caller-safe native map reclamation.** I ship the
+        - [x] **5.0.1 / caller-safe native map reclamation.** I ship the
           registered-frame repair after verifying globals, nested and mutable
           aggregates, scalar-float safepoints, backward branches, self-tail
           restarts and non-self tail teardown under ASan/UBSan. MAC
