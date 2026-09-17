@@ -551,6 +551,10 @@
         [
           "value_type",
           "int"
+        ],
+        [
+          "field_name",
+          "string"
         ]
       ],
       "emit_c": true

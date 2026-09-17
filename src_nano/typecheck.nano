@@ -101,6 +101,7 @@ shadow resource_variant_key {
 
 # I qualify ownership facts by declaration, independently of source spelling.
 fn resource_type_identity(parser: Parser, type_name: string, line: int) -> string {
+    if (str_starts_with type_name "&mut ") { return (+ "&mut " (resource_type_identity parser (str_substring type_name 5 (str_length type_name)) line)) }
     if (str_starts_with type_name "&") { return (+ "&" (resource_type_identity parser (str_substring type_name 1 (str_length type_name)) line)) }
     if (> (array_length (tc_generic_arguments type_name)) 0) { return (resource_concrete_identity parser type_name line 0) }
     let owner: int = (mb_owner line)
@@ -453,6 +454,9 @@ shadow resource_hold {
     assert (== (at held 0).shared_borrows 1)
     assert (== (at states 0).shared_borrows 0)
     assert (== (at (resource_hold held 0 (- 0 1)) 0).shared_borrows 0)
+    let exclusive: array<ResourceState> = (resource_hold states 0 (- 0 1))
+    assert (== (at exclusive 0).shared_borrows (- 0 1))
+    assert (== (at (resource_hold exclusive 0 1) 0).shared_borrows 0)
 }
 
 fn resource_replace(states: array<ResourceState>, index: int, moved: bool) -> array<ResourceState> {
@@ -851,6 +855,10 @@ shadow resource_callback_unsupported {
 
 fn resource_check_annotation(parser: Parser, spelling: string, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
     if (tc_str_starts_with spelling "fn(") {
+        if (str_contains spelling "&") {
+            (resource_flow_error diags file_name line column "I do not support borrowed callback signatures yet")
+            return
+        }
         if (resource_callback_unsupported parser spelling line 0) {
             (resource_flow_error diags file_name line column "generic resource callback signatures need ownership lowering")
         }
@@ -884,7 +892,11 @@ fn resource_check_annotation(parser: Parser, spelling: string, diags: List<Compi
 shadow resource_check_annotation {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (resource_check_annotation (resource_test_parser "") "array<int>" diags "test.nano" 1 1)
+    (resource_check_annotation (resource_test_parser "") "fn(int)->int" diags "test.nano" 1 1)
     assert (== (Diagnostics.diag_list_count diags) 0)
+    let borrowed: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_check_annotation (resource_test_parser "") "fn(&Handle)->int" borrowed "test.nano" 1 1)
+    assert (== (Diagnostics.diag_list_count borrowed) 1)
 }
 
 fn resource_flow_block(parser: Parser, statements: List<ASTStmtRef>, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, return_type: string, expected_type: string) -> ResourceFlow {
@@ -1073,8 +1085,16 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
         let index: int = (resource_find states id.name)
+        let signature: string = (resource_value_type parser node_id node_type states)
+        if (and (tc_str_starts_with signature "fn(") (str_contains signature "&")) {
+            (resource_flow_error diags file_name id.line id.column "I do not support borrowed callback signatures yet")
+        }
         if (>= index 0) {
             let state: ResourceState = (at states index)
+            if (< state.shared_borrows 0) {
+                (resource_flow_error diags file_name id.line id.column "I cannot access an exclusively borrowed owner")
+                return flow
+            }
             if (and move (or (> state.shared_borrows 0) (str_starts_with state.type_name "&"))) {
                 (resource_flow_error diags file_name id.line id.column "I cannot consume or escape a borrowed owner")
                 return flow
@@ -1111,6 +1131,15 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     if (== node_type ParseNodeType.PNODE_SET) {
         let assignment: ASTSet = (parser_get_set parser node_id)
         let index: int = (resource_find states assignment.target)
+        if (!= assignment.field_name "") {
+            let mut allowed: bool = false
+            if (>= index 0) {
+                let owner: ResourceState = (at states index)
+                set allowed (and (str_starts_with owner.type_name "&mut ") (and (not owner.moved) (== owner.shared_borrows 0)))
+            }
+            if (not allowed) { (resource_flow_error diags file_name assignment.line assignment.column "I require an available exclusive borrow for field mutation") }
+            return (resource_flow_node parser assignment.value assignment.value_type states true loop_entry diags file_name return_type "")
+        }
         if (>= index 0) {
             let state: ResourceState = (at states index)
             if (or (> state.shared_borrows 0) (str_starts_with state.type_name "&")) {
@@ -1231,7 +1260,12 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             (resource_flow_error diags file_name call.line call.column "I cannot store or escape a borrow")
             return flow
         }
-        set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name return_type "")
+        let mut direct: bool = false
+        if (== call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+            let callee: ASTIdentifier = (parser_get_identifier parser call.function)
+            set direct (< (resource_find states callee.name) 0)
+        }
+        if (not direct) { set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name return_type "") }
         let mut held: array<int> = []
         let mut i: int = 0
         while (and flow.next (< i call.arg_count)) {
@@ -1244,15 +1278,25 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             let mut borrowed: bool = false
             if (== arg.node_type ParseNodeType.PNODE_CALL) {
                 let address: ASTCall = (parser_get_call parser arg.node_id)
-                if (and (== address.borrow_mode 1) (== address.arg_count 1)) {
+                if (and (> address.borrow_mode 0) (== address.arg_count 1)) {
                     let place: ASTStmtRef = (parser_get_call_arg parser address.arg_start)
                     if (== place.node_type ParseNodeType.PNODE_IDENTIFIER) {
                         let owner: ASTIdentifier = (parser_get_identifier parser place.node_id)
                         let index: int = (resource_find flow.states owner.name)
                         if (and (>= index 0) (str_starts_with context "&")) {
                             set flow (resource_flow_node parser place.node_id place.node_type flow.states false loop_entry diags file_name return_type "")
-                            set flow ResourceFlow { states: (resource_hold flow.states index 1), next: flow.next }
-                            set held (array_push held index)
+                            let state: ResourceState = (at flow.states index)
+                            if (and (== address.borrow_mode 2) (and (str_starts_with state.type_name "&") (not (str_starts_with state.type_name "&mut ")))) {
+                                (resource_flow_error diags file_name address.line address.column "I cannot upgrade a shared borrow to an exclusive borrow")
+                            } else { if (or (< state.shared_borrows 0) (and (== address.borrow_mode 2) (!= state.shared_borrows 0))) {
+                                (resource_flow_error diags file_name address.line address.column "I cannot overlap an exclusive borrow")
+                            } else {
+                                let mut delta: int = 1
+                                let mut held_index: int = index
+                                if (== address.borrow_mode 2) { set delta (- 0 1) set held_index (- 0 (+ index 1)) }
+                                set flow ResourceFlow { states: (resource_hold flow.states index delta), next: flow.next }
+                                set held (array_push held held_index)
+                            } }
                             set borrowed true
                         }
                     }
@@ -1263,7 +1307,10 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         set i 0
         while (< i (array_length held)) {
-            set flow ResourceFlow { states: (resource_hold flow.states (at held i) (- 0 1)), next: flow.next }
+            let mut index: int = (at held i)
+            let mut delta: int = (- 0 1)
+            if (< index 0) { set index (- (- 0 index) 1) set delta 1 }
+            set flow ResourceFlow { states: (resource_hold flow.states index delta), next: flow.next }
             set i (+ i 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
@@ -1360,6 +1407,7 @@ fn resource_check_global(parser: Parser, global: ASTLet, diags: List<CompilerDia
     }
     let declared: string = (resource_type_identity parser global.var_type global.line)
     let inferred: string = (resource_value_type parser global.value global.value_type [])
+    if (tc_str_starts_with inferred "fn(") { (resource_check_annotation parser inferred diags file_name global.line global.column) }
     if (or (resource_generic_contains parser declared global.line 0) (resource_generic_contains parser inferred global.line 0)) {
         (resource_flow_error diags file_name global.line global.column "global resource ownership is not supported")
     }
@@ -1708,6 +1756,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "GenEnv", field_name: "list_types_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTSet fields (schema) */
+    set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "field_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "target", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTSet", field_name: "value_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
@@ -3992,15 +4041,24 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call_node: ASTCall = (parser_get_call parser node_id)
         if (> call_node.borrow_mode 0) {
-            if (and (== call_node.borrow_mode 1) (== call_node.arg_count 1)) {
+            if (and (or (== call_node.borrow_mode 1) (== call_node.borrow_mode 2)) (== call_node.arg_count 1)) {
                 let place: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
                 if (== place.node_type ParseNodeType.PNODE_IDENTIFIER) {
                     let referent: NSType = (check_expr_node parser place.node_id place.node_type symbols diags file_name)
-                    let annotation: string = (+ "&" referent.name)
-                    if (shared_borrow_shape parser annotation) { return (type_from_string annotation) }
+                    let mut prefix: string = "&"
+                    let mut mutable: bool = true
+                    if (== call_node.borrow_mode 2) {
+                        set prefix "&mut "
+                        let identifier: ASTIdentifier = (parser_get_identifier parser place.node_id)
+                        let index: int = (env_lookup symbols identifier.name)
+                        set mutable false
+                        if (>= index 0) { let owner: Symbol = (at symbols index) set mutable owner.is_mutable }
+                    }
+                    let annotation: string = (+ prefix referent.name)
+                    if (and mutable (scalar_borrow_shape parser annotation)) { return (type_from_string annotation) }
                 }
             }
-            (resource_flow_error diags file_name call_node.line call_node.column "I require an explicit shared borrow of a supported owner")
+            (resource_flow_error diags file_name call_node.line call_node.column "I require an explicit borrow of a supported owner with matching mutability")
             return (type_unknown_named "invalid borrow")
         }
         if (!= call_node.function_type ParseNodeType.PNODE_IDENTIFIER) {
@@ -4684,6 +4742,28 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
         return false
     } else {
         let sym: Symbol = (at symbols idx)
+        if (!= set_node.field_name "") {
+            let mut i: int = 0
+            while (< i (parser_get_struct_def_count parser)) {
+                let record: ASTStruct = (parser_get_struct_def parser i)
+                if (== record.name sym.sym_type.name) {
+                    let mut field: int = 0
+                    while (< field record.field_count) {
+                        if (== (at record.field_names field) set_node.field_name) {
+                            let actual: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
+                            let expected: NSType = (type_from_string_with_parser parser (at record.field_types field))
+                            if (types_equal actual expected) { return true }
+                            (resource_flow_error diags file_name set_node.line set_node.column "I require the declared field type for borrowed mutation")
+                            return false
+                        }
+                        set field (+ field 1)
+                    }
+                }
+                set i (+ i 1)
+            }
+            (resource_flow_error diags file_name set_node.line set_node.column "I cannot find the named field in this borrowed owner")
+            return false
+        }
         if (not sym.is_mutable) {
             let msg: string = (encode_immutable_assignment_message set_node.target)
             let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0005" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
@@ -4885,10 +4965,11 @@ shadow check_block { assert true }
  * 
  * Returns: true if valid, false if type errors
  */
-fn shared_borrow_shape(parser: Parser, annotation: string) -> bool {
+fn scalar_borrow_shape(parser: Parser, annotation: string) -> bool {
     if (not (str_starts_with annotation "&")) { return false }
-    if (str_starts_with annotation "&mut ") { return false }
-    let name: string = (str_substring annotation 1 (str_length annotation))
+    let mut offset: int = 1
+    if (str_starts_with annotation "&mut ") { set offset 5 }
+    let name: string = (str_substring annotation offset (str_length annotation))
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
         let record: ASTStruct = (parser_get_struct_def parser i)
@@ -4905,11 +4986,11 @@ fn shared_borrow_shape(parser: Parser, annotation: string) -> bool {
     }
     return false
 }
-shadow shared_borrow_shape {
+shadow scalar_borrow_shape {
     let parser: Parser = (resource_test_parser "resource struct Owner { fd: int } resource struct Unsupported { name: string }")
-    assert (shared_borrow_shape parser "&Owner")
-    assert (not (shared_borrow_shape parser "&mut Owner"))
-    assert (not (shared_borrow_shape parser "&Unsupported"))
+    assert (scalar_borrow_shape parser "&Owner")
+    assert (scalar_borrow_shape parser "&mut Owner")
+    assert (not (scalar_borrow_shape parser "&Unsupported"))
 }
 
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
@@ -4925,9 +5006,11 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     while (< i func.param_count) {
         let param_let: ASTLet = (parser_get_let parser (+ func.param_start i))
         let mut parameter_type: string = param_let.var_type
-        if (str_starts_with parameter_type "&") { set parameter_type (str_substring parameter_type 1 (str_length parameter_type)) }
+        let exclusive: bool = (str_starts_with parameter_type "&mut ")
+        if exclusive { set parameter_type (str_substring parameter_type 5 (str_length parameter_type)) }
+        else { if (str_starts_with parameter_type "&") { set parameter_type (str_substring parameter_type 1 (str_length parameter_type)) } }
         let ptype: NSType = (type_from_string_with_parser parser parameter_type)
-        let psym: Symbol = (symbol_new param_let.name ptype param_let.is_mut false 0 (empty_param_types) (type_void))
+        let psym: Symbol = (symbol_new param_let.name ptype (or param_let.is_mut exclusive) false 0 (empty_param_types) (type_void))
         set func_symbols (env_add_symbol func_symbols psym)
         set i (+ i 1)
     }
@@ -5444,7 +5527,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         while (< argument item.param_count) {
             let parameter: ASTLet = (parser_get_let parser (+ item.param_start argument))
             if (str_starts_with parameter.var_type "&") {
-                if (or (< item.body 0) (not (shared_borrow_shape parser parameter.var_type))) {
+                if (or (< item.body 0) (not (scalar_borrow_shape parser parameter.var_type))) {
                     (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0036" "I currently borrow only checked fixed resource records with numeric or boolean fields" (Diagnostics.diag_location file_name parameter.line parameter.column)))
                     return (typecheck_output env.diagnostics 1 true)
                 }

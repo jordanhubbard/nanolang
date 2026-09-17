@@ -112,7 +112,8 @@ extern struct ASTSet {
     column: int,
     target: string,
     value: int,
-    value_type: int
+    value_type: int,
+    field_name: string
 }
 
 extern struct ASTStmtRef {

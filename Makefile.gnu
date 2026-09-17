@@ -4340,3 +4340,8 @@ test-shared-borrows: bootstrap nano_virt
 test-selfhost-range-bounds: bootstrap
 	python3 -m unittest -v tests.test_selfhost_range_bounds
 test-units: test-selfhost-range-bounds
+
+.PHONY: test-exclusive-borrows
+test-units: test-exclusive-borrows
+test-exclusive-borrows: bootstrap nano_virt
+	python3 tests/test_exclusive_borrows.py

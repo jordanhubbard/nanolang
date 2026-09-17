@@ -126,7 +126,8 @@ extern struct ASTSet {
     column: int,
     target: string,
     value: int,
-    value_type: int
+    value_type: int,
+    field_name: string
 }
 
 extern struct ASTIf {
@@ -2010,7 +2011,8 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
         column: column,
         target: target,
         value: value_id,
-        value_type: value_type
+        value_type: value_type,
+        field_name: ""
     }
     
     (list_ASTSet_push p.sets node)

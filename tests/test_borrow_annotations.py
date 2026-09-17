@@ -31,7 +31,7 @@ class BorrowAnnotations(unittest.TestCase):
                     self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 
     def test_parameters_remain_guarded(self):
-        for annotation in ('&mut Handle', '&array<int>', '&mut Box<int>'):
+        for annotation in ('&mut array<int>', '&array<int>', '&mut Box<int>'):
             with self.subTest(annotation=annotation):
                 self.compile(PRELUDE + 'union Box<T> { Value { value: T } }\n'
                              + f'fn observe(value: {annotation}) -> int {{ return 0 }}\n'

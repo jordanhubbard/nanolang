@@ -3376,12 +3376,13 @@ shadow parser_store_let {
 /* Helper: Store set statement node */
 
 /* Helper: Store set node */
-fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, line: int, column: int) -> Parser {
+fn parser_store_set(p: Parser, target: string, field_name: string, value_id: int, value_type: int, line: int, column: int) -> Parser {
     let node: ASTSet = ASTSet {
         node_type: ParseNodeType.PNODE_SET,
         line: line,
         column: column,
         target: target,
+        field_name: field_name,
         value: value_id,
         value_type: value_type
     }
@@ -3467,7 +3468,13 @@ fn parser_store_set(p: Parser, target: string, value_id: int, value_type: int, l
     }
 }
 shadow parser_store_set {
-    assert (== 1 1)
+    let value: Parser = (parser_store_number (parser_init_ast_lists) "7" 1 1)
+    let parsed: Parser = (parser_store_set value "owner" "fd" value.last_expr_node_id value.last_expr_node_type 1 2)
+    let assignment: ASTSet = (parser_get_set parsed 0)
+    assert (== assignment.target "owner")
+    assert (== assignment.field_name "fd")
+    assert (== assignment.value value.last_expr_node_id)
+    assert (== assignment.column 2)
 }
 
 /* Helper: Store if statement node */
@@ -5654,14 +5661,22 @@ fn parse_statement(p: Parser) -> Parser {
                     let tok2: LexerToken = (parser_current p1)
                     if (== tok2.token_type (token_identifier)) {
                         let var_name: string = tok2.value
-                        let p2: Parser = (parser_advance p1)  /* consume identifier */
+                        let mut p2: Parser = (parser_advance p1)  /* consume identifier */
+                        let mut field_name: string = ""
+                        if (== (parser_current p2).token_type LexerTokenType.TOKEN_DOT) {
+                            set p2 (parser_advance p2)
+                            let field: LexerToken = (parser_current p2)
+                            if (!= field.token_type (token_identifier)) { return (parser_with_error p2 true) }
+                            set field_name field.value
+                            set p2 (parser_advance p2)
+                        }
                         let p3: Parser = (parse_expression p2)
                         if (parser_has_error p3) {
                             return p3
                         } else {
                             let value_id: int = p3.last_expr_node_id
                             let value_type: int = p3.last_expr_node_type
-                            return (parser_store_set p3 var_name value_id value_type tok.line tok.column)
+                            return (parser_store_set p3 var_name field_name value_id value_type tok.line tok.column)
                         }
                     } else {
                         return (parser_with_error p1 true)
@@ -8640,14 +8655,14 @@ shadow parser_get_set_count {
     let p: Parser = (parser_init_ast_lists)
     assert (== (parser_get_set_count p) 0)
     let p1: Parser = (parser_store_number p "1" 1 1)
-    let p2: Parser = (parser_store_set p1 "x" p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let p2: Parser = (parser_store_set p1 "x" "" p1.last_expr_node_id p1.last_expr_node_type 1 1)
     assert (== (parser_get_set_count p2) 1)
 }
 
 shadow parser_get_set {
     let p: Parser = (parser_init_ast_lists)
     let p1: Parser = (parser_store_number p "1" 1 1)
-    let p2: Parser = (parser_store_set p1 "x" p1.last_expr_node_id p1.last_expr_node_type 1 1)
+    let p2: Parser = (parser_store_set p1 "x" "" p1.last_expr_node_id p1.last_expr_node_type 1 1)
     let s: ASTSet = (parser_get_set p2 0)
     assert (== s.target "x")
 }

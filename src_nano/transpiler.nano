@@ -1392,6 +1392,7 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
         let annotation: string = (genenv_get env id.name)
+        if (transp_str_starts_with annotation "&mut ") { return (str_substring annotation 5 (str_length annotation)) }
         if (transp_str_starts_with annotation "&") { return (str_substring annotation 1 (str_length annotation)) }
         return annotation
     } else { (print "") }
@@ -2880,6 +2881,9 @@ shadow tuple_typedef_name {
 }
 
 fn type_to_c(nano_type: string) -> string {
+    if (transp_str_starts_with nano_type "&mut ") {
+        return (+ (type_to_c (str_substring nano_type 5 (str_length nano_type))) "*")
+    }
     if (transp_str_starts_with nano_type "&") {
         return (+ "const " (+ (type_to_c (str_substring nano_type 1 (str_length nano_type))) "*"))
     }
@@ -7431,6 +7435,10 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
 
     let target_t: string = (genenv_get env set_stmt.target)
     let c_var: string = (+ "nl_" (mangle_name set_stmt.target))
+    if (!= set_stmt.field_name "") {
+        let value: string = (generate_expression parser set_stmt.value set_stmt.value_type env (lookup_struct_field_type parser (str_substring target_t 5 (str_length target_t)) set_stmt.field_name))
+        return (+ (gen_indent indent) (+ c_var (+ "->" (+ (mangle_name set_stmt.field_name) (+ " = " (+ value ";\n"))))))
+    }
 
     /* Module-scope mutable primitives use NL_GUARDED_WRITE for thread-safe writes */
     if (and (genenv_get_global env set_stmt.target) (is_guarded_primitive target_t)) {
