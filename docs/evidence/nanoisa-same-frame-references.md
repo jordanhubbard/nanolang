@@ -69,3 +69,10 @@ and execution pass again. I retain `restack.log`, `restack-computed.log`,
 `restack-asan.log`, `restack-seed.log` and `restack-hello.log` under the same
 `/tmp/nanolang-reference-` prefix. This final documentation update does not
 change compiler or test source.
+
+I subsequently integrate main `d8a88cca` through PR571 at `ea8f371b`, preserving
+PR567 projected-global support and the completed LLVM implicit-return roadmap
+row. Only that additive roadmap row conflicts. My VM, affine, owned-native
+and verifier source is unchanged from `74cb9d42`; I repeat the affected
+reference target (1,336 reference plus 29 allocation checks) and all 33 schema
+checks. `/tmp/nanolang-reference-final-restack.log` records that final gate.
