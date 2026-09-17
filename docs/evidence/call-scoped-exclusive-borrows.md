@@ -68,3 +68,27 @@ I do not assign a new cause from those two observations. My paired, core and
 focused sanitizer logs are `/tmp/nanolang-exclusive-paired-integrated.log`,
 `/tmp/nanolang-exclusive-core-integrated.log` and
 `/tmp/nanolang-exclusive-env-asan.log`.
+
+## My raw-emitter review correction
+
+Review found that my raw self-hosted NanoISA API could ignore `ASTSet.field_name`
+and emit a whole-local store. I now refuse nonempty field targets explicitly
+until reference IR exists. My C NanoVirt emitter has the same defensive guard;
+its API requires a typechecked tree and the canonical frontend already refuses
+borrowed parameters for this backend. I do not use that frontend refusal as
+evidence that the raw self-hosted API is safe to lower a field write.
+
+My raw API regression passes a normal record-field target, requires the exact
+reference-IR refusal, and checks that a pre-existing assembly output remains
+unchanged. An ordinary scalar variable assignment then succeeds and replaces
+the output. A mandatory emitter shadow tests the same refusal/control pair.
+
+My final source checkpoint `aae95d86` also integrates main `04c70fe9`, including
+float formatting. Its fresh default-deadline bootstrap and all 89 NanoVirt
+code-generation tests pass. Schema consistency and 33 methods pass; the
+expanded paired suite passes 37 methods in 133.851 seconds. The earlier parser,
+typechecker and environment instrumentation evidence remains scoped to those
+unchanged regions. My final logs are
+`/tmp/nanolang-exclusive-bootstrap-final.log`,
+`/tmp/nanolang-exclusive-schema-final.log` and
+`/tmp/nanolang-exclusive-paired-final.log`.

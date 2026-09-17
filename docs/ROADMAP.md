@@ -103,7 +103,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         owner or an existing exclusive capability, and prove forwarding,
         post-call consumption and output preservation on refusal. Broader
         projections and shape support follow their own paired gates.
-      - [ ] I explicitly refuse field-place assignment in both NanoISA
+      - [x] I explicitly refuse field-place assignment in both NanoISA
         emitters before reference IR exists, including the raw self-hosted
         emitter API. I preserve a prior output and never reinterpret a field
         target as whole-variable assignment (same borrow task). My
