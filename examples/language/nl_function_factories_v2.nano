@@ -47,7 +47,9 @@ shadow get_multiplier {
 }
 
 /* Helper that applies a returned function (uses Phase B1) */
-pure fn apply_returned_function(a: int, b: int, factory: fn() -> fn(int, int) -> int) -> int {
+/* I keep this ordinary because function types do not yet carry a verified
+ * closed-purity capability for indirect invocation. */
+fn apply_returned_function(a: int, b: int, factory: fn() -> fn(int, int) -> int) -> int {
     /* Get the function from factory, then apply it (all in one expression) */
     /* This demonstrates: factory returns a function, we pass it as parameter */
     let result_fn: fn(int, int) -> int = (factory)
@@ -83,4 +85,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

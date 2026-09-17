@@ -18,6 +18,7 @@
 "    list->items[list->count++] = (nroot_ref){kind, ptr};\n}\n"
 "static void nroot_value(nroot_list *work, nmap_value value) {\n"
 "    if (value.kind == 5) nroot_add(work, 1, value.text);\n"
+"    else if (value.kind == 13) nroot_add(work, 7, value.text);\n"
 "    else if (value.kind == 7) nroot_add(work, (uint8_t)value.integer, value.text);\n}\n"
 "static void nroot_trace(nroot_list *work) {\n"
 "    for (size_t cursor = 0; cursor < work->count; ++cursor) {\n"

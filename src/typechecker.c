@@ -685,6 +685,52 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
             "I cannot resolve this deeply nested payload context.", "Reduce the nesting depth.");
         return;
     }
+    if (value->type == AST_IF) {
+        check_concrete_union_arrays(env, expected, value->as.if_stmt.then_branch, depth + 1);
+        check_concrete_union_arrays(env, expected, value->as.if_stmt.else_branch, depth + 1);
+        return;
+    }
+    if (value->type == AST_COND) {
+        for (int i = 0; i < value->as.cond_expr.clause_count; ++i)
+            check_concrete_union_arrays(env, expected, value->as.cond_expr.values[i], depth + 1);
+        check_concrete_union_arrays(env, expected, value->as.cond_expr.else_value, depth + 1);
+        return;
+    }
+    if (value->type == AST_MATCH) {
+        for (int i = 0; i < value->as.match_expr.arm_count; ++i)
+            check_concrete_union_arrays(env, expected, value->as.match_expr.arm_bodies[i], depth + 1);
+        return;
+    }
+    if (value->type == AST_BLOCK) {
+        if (value->as.block.count)
+            check_concrete_union_arrays(env, expected, value->as.block.statements[value->as.block.count - 1], depth + 1);
+        return;
+    }
+    if (value->type == AST_RETURN) {
+        check_concrete_union_arrays(env, expected, value->as.return_stmt.value, depth + 1);
+        return;
+    }
+    if (expected->base_type == TYPE_HASHMAP && value->type == AST_CALL &&
+        !value->as.call.func_expr && value->as.call.name &&
+        strcmp(value->as.call.name, "map_new") == 0) {
+        Type key = TYPE_UNKNOWN, item = TYPE_UNKNOWN;
+        if (!hashmap_extract_kv((TypeInfo*)expected, &key, &item) ||
+            (key != TYPE_INT && key != TYPE_STRING) ||
+            (item != TYPE_INT && item != TYPE_STRING)) {
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require int or string map keys and values.", "Declare HashMap<K,V> with supported scalar types.");
+            return;
+        }
+        char *name = typeinfo_to_generic_arg_name((TypeInfo*)expected);
+        if (!name) return;
+        free(value->as.call.return_struct_type_name);
+        value->as.call.return_struct_type_name = name;
+        value->as.call.map_key_type = key;
+        value->as.call.map_value_type = item;
+        value->as.call.map_context_checked = true;
+        env_register_hashmap_instantiation(env, type_to_string(key), type_to_string(item));
+        return;
+    }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
         if (element->base_type == TYPE_STRUCT)
@@ -2497,6 +2543,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         /* Regular argument type checking */
+                        check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
                         Type arg_type = check_expression(arg, env);
                         if (arg->type == AST_ARRAY_LITERAL &&
                             arg->as.array_literal.element_count == 0 &&
@@ -2564,7 +2611,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             }
                         }
                         
-                        check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
                         check_record_array_contract(env, func->params[i].type,
                             func->params[i].element_type, func->params[i].struct_type_name, arg);
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
@@ -2857,8 +2903,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Type check each argument expression */
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
                 ASTNode *arg = expr->as.module_qualified_call.args[i];
-                check_expression(arg, env);
                 check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
+                check_expression(arg, env);
                 check_record_array_contract(env, func->params[i].type, func->params[i].element_type,
                                             func->params[i].struct_type_name, arg);
                 if (arg->type == AST_ARRAY_LITERAL &&
@@ -3153,6 +3199,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     continue;
                 }
 
+                /* I apply the complete field annotation before checking its constructor. */
+                if (sdef->field_type_info)
+                    check_concrete_union_arrays(env, sdef->field_type_info[field_index],
+                        expr->as.struct_literal.field_values[i], 0);
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
@@ -4306,8 +4356,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Now check the expression - the specialized functions are registered */
-            Type value_type = check_expression(stmt->as.let.value, tc->env);
             check_concrete_union_arrays(tc->env, stmt->as.let.type_info, stmt->as.let.value, 0);
+            Type value_type = check_expression(stmt->as.let.value, tc->env);
             if (!check_record_array_contract(tc->env, stmt->as.let.var_type,
                     stmt->as.let.element_type, stmt->as.let.type_name, stmt->as.let.value))
                 tc->has_error = true;
@@ -4591,8 +4641,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
             }
 
-            Type value_type = check_expression(stmt->as.set.value, tc->env);
             check_concrete_union_arrays(tc->env, sym->type_info, stmt->as.set.value, 0);
+            Type value_type = check_expression(stmt->as.set.value, tc->env);
             if (!check_record_array_contract(tc->env, sym->type, sym->element_type,
                     sym->struct_type_name, stmt->as.set.value)) tc->has_error = true;
 
@@ -4750,8 +4800,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     }
                 }
                 
-                Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
+                Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         stmt->as.return_stmt.value)) tc->has_error = true;
@@ -6583,7 +6633,8 @@ bool type_check(ASTNode *program, Environment *env) {
             }
             
             /* Register the struct */
-            StructDef sdef;
+            StructDef sdef = {0};
+            sdef.field_type_info = item->as.struct_def.field_type_info;
             sdef.name = strdup(struct_name);
             sdef.original_name = item->as.struct_def.original_name ? strdup(item->as.struct_def.original_name) : NULL;
             sdef.field_count = item->as.struct_def.field_count;
@@ -7077,8 +7128,8 @@ register_function_pass1:;
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
-            Type value_type = check_expression(item->as.let.value, env);
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
+            Type value_type = check_expression(item->as.let.value, env);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
@@ -7414,7 +7465,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
             }
             
             /* Register the struct */
-            StructDef sdef;
+            StructDef sdef = {0};
+            sdef.field_type_info = item->as.struct_def.field_type_info;
             sdef.name = strdup(struct_name);
             sdef.original_name = item->as.struct_def.original_name ? strdup(item->as.struct_def.original_name) : NULL;
             sdef.field_count = item->as.struct_def.field_count;
@@ -7813,8 +7865,8 @@ register_function_pass2:;
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
-            Type value_type = check_expression(item->as.let.value, env);
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
+            Type value_type = check_expression(item->as.let.value, env);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&

@@ -281,6 +281,9 @@ struct ASTNode {
             ASTNode **args;
             int arg_count;
             char *return_struct_type_name;  /* For calls that return struct types (e.g., list_Point_get) */
+            Type map_key_type; /* Checked scalar constructor context. */
+            Type map_value_type;
+            bool map_context_checked;
             char *concrete_func_name;  /* For generic function calls: monomorphized name (e.g., "identity_int") */
         } call;
         struct {
@@ -380,6 +383,7 @@ struct ASTNode {
             Type *field_types;        // Array of field types
             char **field_type_names;  // For TYPE_STRUCT/TYPE_UNION fields: actual type names
             Type *field_element_types;  // For TYPE_ARRAY fields: element type
+            TypeInfo **field_type_info; /* Owned complete field annotations. */
             int field_count;          // Number of fields
             bool is_pub;              // Visibility: public (pub) vs private
             bool is_resource;         // Resource type: affine semantics (use at most once)
@@ -643,6 +647,7 @@ typedef struct {
     Type *field_types;
     char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
     Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
+    TypeInfo **field_type_info; /* Borrowed from the defining AST. */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_resource;  /* Resource type: affine semantics (use at most once) */

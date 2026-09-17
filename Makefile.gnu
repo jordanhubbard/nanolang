@@ -437,7 +437,7 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_map_lifetimes tests.test_nanovm_guest_args
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_string_joins tests.test_nanovm_guest_args
 
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
@@ -1459,8 +1459,13 @@ test-nvm-v2-endtoend: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@./tests/nanoisa/test_nvm_v2_endtoend
 	@rm -f tests/nanoisa/test_nvm_v2_endtoend
 
+.PHONY: test-assembler-string-alloc
+test-assembler-string-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_assembler_string_alloc tests/nanoisa/test_assembler_string_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_assembler_string_alloc
+
 .PHONY: test-disasm-roundtrip
-test-disasm-roundtrip: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-disasm-roundtrip: test-assembler-string-alloc $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running canonical disassembly round-trip tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_disasm_roundtrip \
 		tests/nanoisa/test_disasm_roundtrip.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
@@ -4254,3 +4259,8 @@ test-units: test-selfhost-generic-contexts
 test-units: test-generic-selected-ownership
 test-generic-selected-ownership: bootstrap
 	python3 -m unittest -v tests.test_generic_selected_ownership
+.PHONY: test-map-constructor-contexts
+test-map-constructor-contexts: $(COMPILER_C) nano_virt nano_vm
+	python3 -m unittest tests.test_map_constructor_contexts
+
+test-units: test-map-constructor-contexts

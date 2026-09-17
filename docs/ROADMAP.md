@@ -1,5 +1,11 @@
 # My Roadmap
 
+- [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
+- [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
+- [x] I preserve forward projected string branches at native stack joins in the fresh compiler, with the strengthened compiler product gate (MAC `task_55002ea4e4c64f80a6ba70b7f147ebef`). I reproduced the same `check_let_statement` failure with unchanged main `b3f79449` and repaired it with checked join storage. Backward joins and the separate selfhost-emitted artifact remain below.
+- [ ] I converge tagged string storage across backward native stack edges before widening an already classified loop header (MAC `task_ea3c8acd272a49669bd6ae6aa75cdf49`). I preserve the VM-positive loop fixture and native refusal separately from the forward compiler join repair.
+- [ ] I resolve the `purity_node` to `purity_call` parameter conflict when translating the complete selfhost-emitted compiler to native code, then require its own NanoISA product (MAC `task_04376d3e430c478d968af69e26543a0f`). I distinguish this artifact from the Cseed-seeded compiler bridge.
+
 I keep this document to outline my development journey.
 
 I execute active work from top to bottom. Before implementation begins, I add
@@ -2551,9 +2557,17 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           alias-visible clear and repeated empty clear. All 69 code-generation
           tests pass. Strict corpus: 175 selected, 168 identical, seven failures,
           zero skipped. This does not establish all constructor contexts.
-        - [ ] I carry map constructor key/value types through returns, globals,
+        - [x] I carry map constructor key/value types through returns, globals,
           fields, arguments and nested generic contexts instead of defaulting to
-          string/int tags. MAC `task_f4e1871af407805219770d7620d58349`.
+          string/int tags. I retain checked scalar tags on each constructor
+          and complete record field annotations on the parsed declaration.
+          All four int/string pairs pass VM values, including empty extraction.
+          See `docs/evidence/map-constructor-contexts.md`.
+          MAC `task_f4e1871af407805219770d7620d58349`.
+        - [ ] I keep native map cleanup inside the binding scope. A map local
+          declared in a selected arm currently reaches function cleanup as an
+          undeclared C name; VM execution passes.
+          MAC `task_1edadd5eb33a445d9bf6516744bc405e`.
         - [x] I advance my bytecode for-loop index on continue, including
           unconditional and nested paths, without advancing an enclosing loop
           on an inner while continue. My new regression and both former timeout
@@ -3361,11 +3375,21 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       under a self-hosted label.
 - [x] **Nested unary-minus C emission.** I parenthesize nested negation so
       `-(-7)` does not become the C decrement token `--7`.
-- [ ] **Release-gate VM example coverage.** I repair the compilation and
+- [x] **Release-gate VM example coverage.** I repair the compilation and
       dependency-shadow failures reported by `make test-vm-examples` and
       remove eight stale exclusions that now compile to bytecode. I retain
       the default dependency-shadow contract rather than hiding failures.
       MAC `task_7ee12d8737363c126a040fde905a7114`.
+      - [x] I traverse match scrutinees and arm-local immutable bindings in
+        both closed-purity walkers, plus guards in the C AST that represents
+        them. I treat evaluating a resolved function declaration as
+        effect-free, while keeping invocation through an unqualified
+        function-typed value unknown until function types carry a verified
+        closed-purity capability. I keep those higher-order helpers ordinary
+        rather than weakening the purity contract. My three-stage component
+        build and full bootstrap pass, the shared two-frontend purity contract
+        passes five methods, and `make test-vm-examples` lowers all 245
+        eligible examples while preserving all four verified exclusions.
       I verify integer/wildcard/guarded match lowering, block-arm values,
       named union/enum signatures, typed array allocation, inferred record
       names, and foreign runtime boundaries with focused regressions before
@@ -3572,11 +3596,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       names. The integrated VM suite passes 272,247 checks; parser shadows pass under
       AddressSanitizer and without tracing. The full release gate remains open.
       MAC `task_b53374269a1748c5a56a185a75fb6480`.
-- [ ] **Follow-up — C arrays of records.** I retain the nominal element
+- [x] **Follow-up — C arrays of records.** I retain the nominal element
       name and use the dynamic-array representation when lowering record
-      literals or record-returning calls inside array literals. My current
-      C emitter produces `struct[]` without a record name in both cases.
-      MAC `task_967a32569524e07e3c97742cf23234e9`.
+      literals or record-returning calls inside array literals. Four native/VM
+      acceptance methods cover direct and returned record values. PRs #415,
+      #444 and #449 complete the repair. MAC
+      `task_967a32569524e07e3c97742cf23234e9`.
 - [ ] **Follow-up — MAC commands execute once.** My standard-library command
       wrapper captures stdout with one execution, then executes the same
       command again to obtain its status. I replace this with one execution
@@ -8511,10 +8536,16 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I grow checked assembler symbol tables for my complete compiler artifact
+      (`task_74ee50b905d242e68c92abf41b427e15`). After literal repair, the fixed 2048-symbol table
+      reports a false duplicate at `s1377`; exact assembly remains captured in
+      `/tmp/nanolang-fullcompiler-quoted.nasm`.
 - [ ] I preserve the full compiler string literals through assembly publication
       (`task_c77ac0644fda463a8a2d0ae7dd735908`). Full lowering reaches publication, but my assembler
       rejects `Expected quoted string after .string`; no module is published.
-      Evidence: `/tmp/nanolang-maps-fullcompiler-probe.log`.
+      I reproduced comment markers stripped inside quotes and the 4095-byte
+      literal limit; `/tmp/nanolang-fullcompiler-quoted.nasm` retains the exact
+      1,246,064-byte compiler assembly. Both require a checked assembler repair.
 - [ ] I reject incompatible map key/value types at typed boundaries
       (`task_d0438e26b84147cdb9fd16b654c44a6a`). My C seed currently accepts integer-valued maps
       where string-valued maps are declared in returns, bindings and arguments;

@@ -1461,7 +1461,13 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
     /* map_* aliases for hashmap_* operations */
     if (strcmp(name, "map_new") == 0 && argc == 0) {
-        emit_op(cg, OP_HM_NEW, TAG_STRING, TAG_INT);
+        if (!node->as.call.map_context_checked) {
+            cg_error(cg, node->line, "I require checked key/value types for map_new");
+            return true;
+        }
+        emit_op(cg, OP_HM_NEW,
+            (int)type_to_tag(node->as.call.map_key_type, NULL, cg->env),
+            (int)type_to_tag(node->as.call.map_value_type, NULL, cg->env));
         return true;
     }
     if ((strcmp(name, "map_get") == 0 || strcmp(name, "hashmap_get") == 0) && argc == 2) {
@@ -3059,16 +3065,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             node->as.let.element_type != TYPE_UNKNOWN) {
             node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
         }
-        TypeInfo *map_info = node->as.let.type_info;
-        ASTNode *value = node->as.let.value;
-        if (node->as.let.var_type == TYPE_HASHMAP && map_info &&
-            map_info->type_param_count == 2 && value->type == AST_CALL &&
-            !value->as.call.func_expr && value->as.call.name &&
-            strcmp(value->as.call.name, "map_new") == 0 && value->as.call.arg_count == 0) {
-            emit_op(cg, OP_HM_NEW,
-                (int)type_to_tag(map_info->type_params[0]->base_type, NULL, cg->env),
-                (int)type_to_tag(map_info->type_params[1]->base_type, NULL, cg->env));
-        } else if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
+        if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
             compile_numeric_expr(cg, node->as.let.value,
                 check_expression(node->as.let.value, cg->env), node->as.let.var_type == TYPE_FLOAT);
         else compile_stored_expr(cg, node->as.let.value);
@@ -3575,7 +3572,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
  * pointer here is a double free at teardown, which is how I first wrote it. */
 static void register_imported_struct(Environment *env, ASTNode *item) {
     if (!env || !item || item->type != AST_STRUCT_DEF) return;
-    StructDef sdef;
+    StructDef sdef = {0};
     sdef.original_name = NULL;
     memset(&sdef, 0, sizeof(sdef));
     sdef.name = strdup(item->as.struct_def.name);
