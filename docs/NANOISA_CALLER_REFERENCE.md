@@ -2,8 +2,8 @@
 
 I implement MAC `task_48dcff3ff3314e9aad325209387968d1` after nested-reference
 PR576, under affine parent ed702 and borrow parent718. I pass my
-[bounded caller-origin gates](evidence/nanoisa-caller-reference.md). My multi-parameter acceptance stays
-open under `task_7a2c8017c0c04b82a48ba069561e9d36`.
+[bounded caller-origin gates](evidence/nanoisa-caller-reference.md). My subsequent multi-parameter extension is recorded
+under `task_7a2c8017c0c04b82a48ba069561e9d36`.
 
 I admit exactly entry function 0 and one nonrecursive helper function 1. Entry
 has no parameters. The helper has one shared or exclusive scalar-leaf resource
@@ -60,3 +60,7 @@ Multiple borrowed parameters require pairwise actual-place substitution,
 argument-order holds and compatible shared/disjoint-exclusive alias acceptance.
 That separate task cannot be closed by this one-parameter foundation. Source
 production, broader calls and full affine/v5.1 acceptance remain open.
+
+My [bounded batch extension](NANOISA_MULTI_CALLER_REFERENCE.md) now implements
+one through eight borrowed parameters using the same instruction and metadata.
+Broader calls and source production remain separate required work.

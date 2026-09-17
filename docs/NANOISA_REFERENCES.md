@@ -287,8 +287,9 @@ branches/loops whose joins preserve exact obligations. My subsequent
 shared/exclusive slots and int/bool/u8 field access within that standalone frame.
 My [nested extension](NANOISA_NESTED_REFERENCES.md) adds bounded numeric paths
 and checked reborrows within that frame. My [one-parameter caller extension](NANOISA_CALLER_REFERENCE.md)
-admits a checked nonrecursive helper; multi-parameter alias substitution and
-broader caller/reference admission remain required work.
+admits a checked nonrecursive helper. My [batch extension](NANOISA_MULTI_CALLER_REFERENCE.md)
+checks one through eight actual caller origins; broader caller/reference
+admission remains required work.
 
 A move transfers a record pointer and clears the source slot. A store consumes
 its stack owner into its exact declared slot. Pack allocates one record shell

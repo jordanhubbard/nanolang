@@ -1,9 +1,9 @@
-# My bounded multi-parameter caller-origin proposal
+# My bounded multi-parameter caller-origin contract
 
 I extend the merged one-parameter contract under MAC
 `task_7a2c8017c0c04b82a48ba069561e9d36`, with affine parent ed702 and borrow
-parent718 still open. My base is `ce8cc3ee` (merged PR581). This proposal has
-not widened executable admission; I require review before implementation.
+parent718 still open. My base is `ce8cc3ee` (merged PR581). I pass my
+[bounded paired gates](evidence/nanoisa-multi-caller-reference.md).
 
 ## My existing instruction and metadata
 
