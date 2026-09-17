@@ -44,11 +44,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       source cases in both self-hosted stages pass; I preserve anonymous
       primitive-list runtime typedefs. Evidence:
       `docs/evidence/native-nominal-definition-order.md`.
-- [ ] **Native module artifact facade adapter.** I accept only the exact
+
+- [x] **Native module artifact facade adapter.** I accept only the exact
       artifact-bound `nlc_module_artifact(string) -> string` signature,
       snapshot its borrowed result before another call, and retain rejection
       of unsupported namespaces, import kinds and types. Companion to MAC
-      `task_81e682a57a3d431e845b0f41f140352e`.
+      `task_81e682a57a3d431e845b0f41f140352e`. Exact contract tests and
+      a real immutable-generation native call pass; see
+      `docs/evidence/native-module-artifact-adapter.md`.
 
 - [x] **v5.1.0 concrete union payload metadata.** I preserve nested C payload
       TypeInfo before implementing selected-variant ownership transfer. MAC

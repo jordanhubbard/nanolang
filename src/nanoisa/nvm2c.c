@@ -268,6 +268,7 @@ static const Nvm2cHost host_adapters[] = {
  * an arbitrary artifact's ABI from its coarse NanoISA return tag. */
 static const Nvm2cHost artifact_adapters[] = {
     /* I snapshot the facade's transient borrowed strings before its next call. */
+    {"nlc_module_artifact", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
     {"nl_nanoisa_load_print", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
     {"nl_nanoisa_load_pretty", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
     {"nl_nanoisa_last_error", "nhost_snapshot", 0, TAG_VOID, TAG_STRING},
