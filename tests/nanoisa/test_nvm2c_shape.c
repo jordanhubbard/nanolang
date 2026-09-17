@@ -205,6 +205,27 @@ static void test_directed_conversions(void) {
     }
 }
 
+static void test_array_optional_conversion(void) {
+    for (int conflict = 0; conflict < 2; ++conflict) {
+        NvmShapeGraph g = {0};
+        NvmShapeId array = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId element = nvm_shape_child(&g, array, 0);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        NvmShapeId payload = nvm_shape_child(&g, optional, 0);
+        CHECK(nvm_shape_convert(&g, array, optional));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, array) == NVM_SHAPE_ARRAY);
+        CHECK(nvm_shape_kind(&g, payload) == NVM_SHAPE_ARRAY);
+        CHECK(nvm_shape_kind(&g, optional) == NVM_SHAPE_OPTIONAL);
+        /* I retain later-discovered element facts inside the wrapper. */
+        CHECK(nvm_shape_unify(&g, element, nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, payload, 0),
+                              nvm_shape_new(&g, conflict ? NVM_SHAPE_INT : NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_solve_conversions(&g) == !conflict);
+        nvm_shape_destroy(&g);
+    }
+}
+
 int main(void) {
     {
         NvmShapeGraph g = {0};
@@ -216,6 +237,7 @@ int main(void) {
     }
 
     test_directed_conversions();
+    test_array_optional_conversion();
     {
         NvmShapeGraph g = {0};
         NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);

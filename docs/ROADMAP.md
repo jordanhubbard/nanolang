@@ -165,10 +165,27 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       reject invalid tags/bounds, and advance compiler inference. MAC
       `task_959f620cc9294ef693072702f35ba44f`.
 
-- [ ] **Boxed string-array argument inference.** I reconcile the concrete
-      string-array contract at `generate_expression` to `mb_resolve` without
-      weakening conflicting-shape or runtime-tag checks. Full native compiler
-      execution remains open. MAC `task_e3a639dac7b54940ab11546c1ffa5eb9`.
+- [ ] **Native compiler character-classification imports.** I bind emitted
+      `vm_is_alnum` and related supported imports through exact typed host
+      contracts, retaining malformed-import rejection. MAC
+      `task_9e4e686f52bc426bbe4d2e694fa565bc`.
+
+- [ ] **Native compiler projected global-store facts.** I resolve projected
+      scalar record fields before deciding whether a global store is supported;
+      I retain rejection for unsupported aggregate stores. MAC
+      `task_3636ea1587cd41a88e4660abe94acb53`.
+
+- [ ] **Tagged native array-update bounds.** I reject negative and full-width
+      out-of-range indices before narrowing dynamic array updates, preserving
+      aliases and matching the checked VM contract. MAC
+      `task_40b4cf1f065f49609cec599123f06557`.
+
+- [x] **Boxed primitive-array argument inference.** I retain primitive-array
+      identity and exact payload constraints across tagged call parameters.
+      Eighteen cases cover caller order, tail calls, absence, aliases, and
+      incompatible payloads; twelve pass VM/native and sanitizer parity.
+      Full compiler execution remains open. MAC
+      `task_e3a639dac7b54940ab11546c1ffa5eb9`.
 
 - [x] **Raw NanoISA array-update index checks.** I reject noninteger and
       invalid-range indices in NanoVM while preserving valid alias mutation
