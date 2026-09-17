@@ -2655,6 +2655,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check all remaining elements match first element's type */
             for (int i = 1; i < element_count; i++) {
                 Type elem_type = check_expression(expr->as.array_literal.elements[i], env);
+                const char *first_record = first_type == TYPE_STRUCT
+                    ? get_struct_type_name(expr->as.array_literal.elements[0], env) : NULL;
+                const char *next_record = elem_type == TYPE_STRUCT
+                    ? get_struct_type_name(expr->as.array_literal.elements[i], env) : NULL;
+                if (first_type == TYPE_STRUCT && elem_type == TYPE_STRUCT &&
+                    (!first_record || !next_record || strcmp(first_record, next_record))) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the same nominal record type for every array element.",
+                        "Use one declared record type for this array.");
+                    return TYPE_UNKNOWN;
+                }
                 if (elem_type != first_type) {
                     char message[256];
                     snprintf(message, sizeof(message),
