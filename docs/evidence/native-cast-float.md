@@ -25,3 +25,9 @@ Logs: `/tmp/nanolang-native-cast-float-final.log`,
 This is task `task_3d6c3314d8924dd2b0aca679647e7048`. Passive frontend publication
 still requires the existing callable source fixtures to pass, including the
 unchanged arctangent loop. It is not completed by this opcode alone.
+
+After integrating merged PR530, I replaced its explicit native conversion
+refusal with mandatory VM/native arctangent parity. The same structured record
+and unchanged scalar loop now roundtrip exactly and print `3.14159` in both
+products. This is the assembly-level prerequisite; source frontend acceptance
+remains separate.

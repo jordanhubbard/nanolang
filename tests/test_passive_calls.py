@@ -157,22 +157,7 @@ PUSH_I64 0
 RET
 .end
 """
-        # The verifier slice is executable in VM. Exact native CAST_FLOAT
-        # lowering remains task_3d6c3314d8924dd2b0aca679647e7048; the frontend
-        # cutover must retain paired arctan acceptance after that companion.
-        with tempfile.TemporaryDirectory() as tmp:
-            directory = Path(tmp)
-            module = self.assemble(directory, source)
-            original = module.read_bytes()
-            vm = self.command(inputs.ROOT/'bin/nano_vm', module)
-            self.assertEqual(vm.returncode, 0, vm.stderr)
-            self.assertEqual(vm.stdout, b'3.14159\n')
-            dump = self.command(inputs.ROOT/'bin/nanoisa', 'dump', module)
-            self.assertEqual(dump.returncode, 0, dump.stderr)
-            self.assertEqual(self.assemble(directory, dump.stdout.decode()).read_bytes(), original)
-            native = self.command(inputs.ROOT/'bin/nvm2c', module, '-o', directory/'arctan.c')
-            self.assertNotEqual(native.returncode, 0)
-            self.assertIn(b'CAST_FLOAT', native.stderr)
+        self.paired_roundtrip(source, b'3.14159\n')
 
     def test_effectful_recursive_and_uninitialized_callees_refuse(self):
         cases = {
