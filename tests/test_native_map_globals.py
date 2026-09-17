@@ -79,6 +79,14 @@ class NativeMapGlobals(unittest.TestCase):
                            keep + ('PUSH_I64 0\nSTORE_GLOBAL 0\n' if keep else '') + 'CALL churn\n' + read +
                            'PUSH_STR key\nHM_GET\nPUSH_STR text\nEQ\nASSERT\n', HELPERS)
 
+    def test_distinct_maps_keep_identity_and_vm_ordering(self):
+        body = 'HM_NEW 5 1\nSTORE_GLOBAL 0\nHM_NEW 5 1\nSTORE_GLOBAL 1\n'
+        # VM val_compare returns zero for same-tag maps; equality is identity.
+        for opcode, expected in (('EQ', 0), ('NE', 1), ('LT', 0), ('LE', 1), ('GT', 0), ('GE', 1)):
+            body += 'LOAD_GLOBAL 0\nLOAD_GLOBAL 1\n' + opcode + '\n'
+            body += ('BOOL_NOT\n' if not expected else '') + 'ASSERT\n'
+        self.check(body)
+
     def test_mixed_direct_and_tagged_callers(self):
         self.check('HM_NEW 5 1\nCALL length\nPUSH_I64 0\nEQ\nASSERT\n'
                    'HM_NEW 5 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nCALL length\nPUSH_I64 0\nEQ\nASSERT\n',

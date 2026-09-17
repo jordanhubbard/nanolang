@@ -17,7 +17,7 @@ UndefinedBehaviorSanitizer and leak detection, and asserts at most 32 live-owner
 allocations at the peak. My collection fixtures run a helper that creates
 20,000 temporary maps. I also
 check initializer function returns, aliases, reassignment, mixed direct/tagged
-callers, tail calls, missing keys, identity, truthiness and invalid receivers.
+callers, tail calls, missing keys, identity, same-tag ordering, truthiness and invalid receivers.
 
 I keep two boundaries open:
 
