@@ -10210,3 +10210,5 @@ My unchecked NanoISA-only architecture milestones remain in
 Next Review: the exact release candidate and its published artifacts.
 
 - [x] I exclude VM-wrapper executable structure without rejecting ordinary string constants naming `nano_vm` or `nvm_blob`. I skip C literal/comment regions in my internal architecture assertion; six ordinary data cases compile and run without VM linkage, and all 2,414 native translator checks pass (`task_b4a32a35810544f4a0234ab5828b46b4`).
+
+- [ ] I lower indexed module function/struct names in my C NanoISA frontend, retaining empty-string out-of-range results and all eight introspection operations across VM/native products (`task_6940de98b2a9468bac246ad10e221939`). Canonical source-fact retention remains separate under `task_faa47ec22a2545348aa9c9d705580321`.
