@@ -156,6 +156,66 @@ class ArtifactImports(unittest.TestCase):
             self.command(binary)
             self.assertEqual(first, target.read_bytes())
 
+    def test_actual_file_assembly_and_disassembly_preserve_results(self):
+        with tempfile.TemporaryDirectory(prefix="nano-facade-artifact-") as tmp:
+            directory = Path(tmp)
+            provider = ROOT / "modules/nanoisa/nanoisa.nano"
+            source, target = directory / "input.nasm", directory / "published.nvm"
+            source.write_text('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+            declarations = ('extern fn nl_nanoisa_assemble_save(source: string, path: string) -> int '
+                            'extern fn nl_nanoisa_load_print(path: string) -> string '
+                            'extern fn nl_nanoisa_load_pretty(path: string) -> string '
+                            'extern fn nl_nanoisa_last_error() -> string\n')
+            merged = directory / "merged.nano"
+            qsource, qtarget = json.dumps(str(source)), json.dumps(str(target))
+            missing = json.dumps(str(directory / "missing.nvm"))
+            merged.write_text(declarations + 'fn main() -> int { '
+                'assert (== (nl_nanoisa_assemble_save ' + qsource + ' ' + qtarget + ') 0) '
+                'let printed: string = (nl_nanoisa_load_print ' + qtarget + ') '
+                'let pretty: string = (nl_nanoisa_load_pretty ' + qtarget + ') '
+                'assert (> (str_length printed) 0) assert (> (str_length pretty) 0) '
+                'assert (== (nl_nanoisa_load_print ' + missing + ') "") '
+                'assert (> (str_length (nl_nanoisa_last_error)) 0) '
+                'assert (== printed (nl_nanoisa_load_print ' + qtarget + ')) '
+                'assert (== pretty (nl_nanoisa_load_pretty ' + qtarget + ')) '
+                'return 0 }\n')
+            assembly = self.command(self.driver, merged, provider, provider, "program").stdout
+            for name, signature in (("assemble_save", "int string string"),
+                                    ("load_print", "string string"), ("load_pretty", "string string")):
+                self.assertIn('"nl_nanoisa_' + name + '" ' + signature, assembly)
+            text, module = directory / "out.nasm", directory / "out.nvm"
+            text.write_text(assembly)
+            self.command(ROOT / "bin/nanoisa", "asm", text, "-o", module)
+            self.command(ROOT / "bin/nano_vm", "--verify-only", module)
+            self.command(ROOT / "bin/nano_vm", module)
+            self.command(ROOT / "bin/nano_vm", "--verify-only", target)
+            first = target.read_bytes()
+            c_source, binary = directory / "out.c", directory / "native"
+            self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
+            self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
+                         ROOT / "bin/nano_aot_runtime.o", "-lm",
+                         *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                         "-o", binary)
+            self.command(binary)
+            self.assertEqual(first, target.read_bytes())
+
+    def test_file_facade_signature_mismatches_refuse(self):
+        with tempfile.TemporaryDirectory(prefix="nano-facade-refusal-") as tmp:
+            source = Path(tmp) / "merged.nano"
+            provider = ROOT / "modules/nanoisa/nanoisa.nano"
+            for signature, call in (
+                ('nl_nanoisa_assemble_save(s: string, p: string) -> string', '(nl_nanoisa_assemble_save "x" "y")'),
+                ('nl_nanoisa_assemble_save(s: string) -> int', '(nl_nanoisa_assemble_save "x")'),
+                ('nl_nanoisa_load_print(p: string) -> int', '(nl_nanoisa_load_print "x")'),
+                ('nl_nanoisa_load_print(p: int) -> string', '(nl_nanoisa_load_print 1)'),
+                ('nl_nanoisa_load_pretty() -> string', '(nl_nanoisa_load_pretty)'),
+                ('nl_nanoisa_load_pretty(p: string) -> array<string>', '(nl_nanoisa_load_pretty "x")'),
+            ):
+                with self.subTest(signature=signature):
+                    source.write_text('extern fn ' + signature + '\nfn main() -> int { ' + call + ' return 0 }\n')
+                    result = self.command(self.driver, source, provider, provider, "program", expected=1)
+                    self.assertEqual(result.stdout, "")
+
     def test_publication_contract_refuses_wrong_result_and_zero_arg_shapes(self):
         with tempfile.TemporaryDirectory(prefix="nano-assembly-refusal-") as tmp:
             directory = Path(tmp)

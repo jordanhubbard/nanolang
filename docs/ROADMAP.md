@@ -56,6 +56,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         diagnostic bootstrap budget from the open default-deadline task.
       - [ ] I implement call-scoped shared reads and exclusive mutation with
         paired overlap, move and escape rejection before admitting borrows.
+- [ ] I lower my declared NanoISA file assembly and disassembly artifact contracts with exact parameter and result validation, and execute their real module shadows in VM and native products (MAC `task_f5f873fccfff4b5b88f14f4d825ba3b4`).
 
 - [ ] **Concrete native specialization closure.** I discover union instances
       reachable only through substituted payload fields, including checked
