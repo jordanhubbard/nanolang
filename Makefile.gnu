@@ -4147,3 +4147,8 @@ test-passive-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-units: test-global-initializer-context
 test-global-initializer-context: $(COMPILER_C) nano_virt
 	python3 tests/test_global_initializer_context.py
+
+.PHONY: test-selfhost-enum-metadata
+test-units: test-selfhost-enum-metadata
+test-selfhost-enum-metadata: bootstrap3
+	python3 tests/test_selfhost_enum_metadata.py
