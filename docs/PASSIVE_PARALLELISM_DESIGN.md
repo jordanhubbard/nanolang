@@ -203,7 +203,8 @@ The NanoISA verifier rejects an eligibility record unless all of these hold:
 - The record and every node range lie within one function and on instruction
   boundaries.
 - Node identifiers and source-order indices are unique, dense, and complete.
-- Node ranges are nonempty, disjoint, ordered by `node.order`, and exactly
+- Node ranges are nonempty, disjoint, ordered by the recomputed stable
+  topological order (using `node.order` to break ties), and exactly
   partition the block range apart from declared binding-commit instructions.
 - Every dependency names a node in the same record, has no duplicate, and the
   graph is acyclic.

@@ -29,6 +29,7 @@
 #include "nvm_format.h"
 #include "isa.h"
 #include "verifier.h"
+#include "passive.h"
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -57,7 +58,9 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
-    if (!nvm_callback_contracts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
+    if (!nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
+    out->passive_data = mod->passive_data;
+    out->passive_size = mod->passive_size;
 
     const uint32_t n_fn = mod->function_count;
     const uint32_t n_im = mod->import_count;
@@ -434,6 +437,14 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
     if (m->debug.count)   mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
+    if (m->passive_size) {
+        if (!m->passive_data) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
+        mod->passive_data = malloc(m->passive_size);
+        if (!mod->passive_data) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+        memcpy(mod->passive_data, m->passive_data, m->passive_size);
+        mod->passive_size = m->passive_size;
+    }
+    if (!nvm_passive_valid(mod)) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
     *out = mod;
     return NVM_V2_OK;
 }
