@@ -40,23 +40,46 @@ static void own_error(OwnFlow *flow, ASTNode *node, const char *message, const c
     *flow->error = true;
 }
 
+/* I resolve a selected nongeneric arm independently of its sibling variants. */
+static UnionDef *own_variant(Environment *env, const char *name, int *variant) {
+    if (!name) return NULL;
+    for (int i = 0; i < env->union_count; ++i) {
+        UnionDef *def = &env->unions[i];
+        size_t length = strlen(def->name);
+        if (def->generic_param_count || strncmp(name, def->name, length) || name[length] != '.') continue;
+        for (int v = 0; v < def->variant_count; ++v)
+            if (!strcmp(name + length + 1, def->variant_names[v])) { *variant = v; return def; }
+    }
+    return NULL;
+}
+
+static bool own_resource(OwnFlow *flow, const char *name) {
+    int variant = -1;
+    UnionDef *def = own_variant(flow->env, name, &variant);
+    if (!def) return is_resource_type(flow->env, name);
+    for (int f = 0; f < def->variant_field_counts[variant]; ++f)
+        if (def->variant_field_type_names && def->variant_field_type_names[variant] &&
+            is_resource_type(flow->env, def->variant_field_type_names[variant][f])) return true;
+    return false;
+}
+
 static bool own_info_resource(OwnFlow *flow, ASTNode *at, TypeInfo *info, unsigned depth) {
     if (!info) return false;
     if (depth > 512) {
         own_error(flow, at, "ownership type metadata exceeds my checked depth", NULL);
         return true;
     }
-    if (is_resource_type(flow->env, info->generic_name)) return true;
+    if (own_resource(flow, info->generic_name)) return true;
     if (own_info_resource(flow, at, info->element_type, depth + 1)) return true;
     for (int i = 0; i < info->type_param_count; ++i)
         if (info->type_params && own_info_resource(flow, at, info->type_params[i], depth + 1)) return true;
     for (int i = 0; i < info->tuple_element_count; ++i)
-        if (info->tuple_type_names && is_resource_type(flow->env, info->tuple_type_names[i])) return true;
+        if (info->tuple_type_names && own_resource(flow, info->tuple_type_names[i])) return true;
     return false;
 }
 
 static void own_metadata(OwnFlow *flow, ASTNode *at, Type type, const char *name, TypeInfo *info) {
-    bool nominal = is_resource_type(flow->env, name);
+    bool nominal = own_resource(flow, name);
     bool contained = own_info_resource(flow, at, info, 0);
     if (has_resource_collection_payload(flow->env, name)) {
         own_error(flow, at, "resource-bearing union collection payloads are not supported", name);
@@ -91,7 +114,7 @@ static bool own_add(OwnFlow *flow, ASTNode *node, const char *name, const char *
         flow->bindings = bindings;
         flow->capacity = capacity;
     }
-    bool resource = is_resource_type(flow->env, nominal);
+    bool resource = own_resource(flow, nominal);
     flow->bindings[flow->count++] = (OwnBinding){.name = name, .nominal = nominal, .resource = resource};
     if (resource && flow->restricted)
         own_error(flow, node, "this control-flow boundary needs ownership lowering", name);
@@ -208,6 +231,12 @@ static const char *own_type(OwnFlow *flow, ASTNode *node) {
             for (int i = 0; record && i < record->field_count; ++i)
                 if (!strcmp(record->field_names[i], node->as.field_access.field_name))
                     return record->field_type_names ? record->field_type_names[i] : NULL;
+            int variant = -1;
+            UnionDef *def = own_variant(flow->env, name, &variant);
+            for (int i = 0; def && i < def->variant_field_counts[variant]; ++i)
+                if (!strcmp(def->variant_field_names[variant][i], node->as.field_access.field_name))
+                    return def->variant_field_type_names && def->variant_field_type_names[variant] ?
+                        def->variant_field_type_names[variant][i] : NULL;
             return NULL;
         }
         default: return NULL;
@@ -274,7 +303,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
     if (!node) return OWN_NEXT;
     if (node->lambda_definition) own_nested_function(flow, node->lambda_definition);
     const char *nominal = own_type(flow, node);
-    bool resource = is_resource_type(flow->env, nominal);
+    bool resource = own_resource(flow, nominal);
     switch (node->type) {
         case AST_IDENTIFIER: {
             OwnBinding *binding = own_find(flow, node->as.identifier);
@@ -308,7 +337,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             size_t index = binding ? (size_t)(binding - flow->bindings) : SIZE_MAX;
             if (binding && binding->resource && !binding->moved)
                 own_error(flow, node, "I cannot overwrite a live resource", binding->name);
-            if ((!binding || !binding->resource) && is_resource_type(flow->env, own_type(flow, node->as.set.value)))
+            if ((!binding || !binding->resource) && own_resource(flow, own_type(flow, node->as.set.value)))
                 own_error(flow, node, "resource assignment needs an owned destination", node->as.set.name);
             unsigned result = own_node(flow, node->as.set.value, true);
             if (index != SIZE_MAX && (result & OWN_NEXT)) flow->bindings[index].moved = false;
@@ -386,7 +415,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             int count = node->type == AST_ARRAY_LITERAL ? node->as.array_literal.element_count : node->as.tuple_literal.element_count;
             unsigned result = OWN_NEXT;
             for (int i = 0; i < count && (result & OWN_NEXT); ++i) {
-                if (is_resource_type(flow->env, own_type(flow, items[i])))
+                if (own_resource(flow, own_type(flow, items[i])))
                     own_error(flow, items[i], node->type == AST_ARRAY_LITERAL ? "I reject resource array elements" : "resource tuple ownership needs lowering", NULL);
                 result = (result & ~OWN_NEXT) | own_node(flow, items[i], true);
             }
@@ -442,9 +471,23 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         }
         case AST_MATCH: {
             const char *input = own_type(flow, node->as.match_expr.expr);
-            bool owned_match = is_resource_type(flow->env, input);
-            if (owned_match) own_error(flow, node, "resource match payloads need ownership lowering", input);
-            unsigned result = own_node(flow, node->as.match_expr.expr, false);
+            bool owned_match = own_resource(flow, input);
+            UnionDef *def = input ? env_get_union(flow->env, input) : NULL;
+            bool supported = def && !def->generic_param_count &&
+                !has_resource_collection_payload(flow->env, input) &&
+                node->as.match_expr.arm_count == def->variant_count;
+            for (int arm = 0; supported && arm < node->as.match_expr.arm_count; ++arm) {
+                const char *variant = node->as.match_expr.pattern_variants[arm];
+                bool found = false;
+                for (int v = 0; v < def->variant_count; ++v)
+                    if (!strcmp(variant, def->variant_names[v])) found = true;
+                for (int prior = 0; prior < arm; ++prior)
+                    if (!strcmp(variant, node->as.match_expr.pattern_variants[prior])) found = false;
+                if (!found || (node->as.match_expr.guard_exprs && node->as.match_expr.guard_exprs[arm])) supported = false;
+            }
+            if (owned_match && !supported)
+                own_error(flow, node, "I require an exhaustive unguarded nongeneric owned match", input);
+            unsigned result = own_node(flow, node->as.match_expr.expr, owned_match && supported);
             if (!(result & OWN_NEXT)) return result;
             OwnFlow joined;
             if (!own_clone(&joined, flow, node)) return result;
@@ -454,8 +497,20 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 OwnFlow branch;
                 if (!own_clone(&branch, flow, node)) break;
                 size_t first = branch.count;
-                own_add(&branch, node, node->as.match_expr.pattern_bindings[arm], NULL);
-                if (owned_match) branch.restricted++;
+                char *payload_type = NULL;
+                if (supported) {
+                    const char *variant = node->as.match_expr.pattern_variants[arm];
+                    size_t size = strlen(def->name) + strlen(variant) + 2;
+                    payload_type = malloc(size);
+                    if (!payload_type) own_error(flow, node, "I cannot allocate selected ownership identity", input);
+                    else snprintf(payload_type, size, "%s.%s", def->name, variant);
+                }
+                const char *binding = node->as.match_expr.pattern_bindings[arm];
+                if (payload_type && own_resource(&branch, payload_type) &&
+                    (!binding || !strcmp(binding, "_")))
+                    own_error(flow, node, "I require a binding for the selected resource payload", payload_type);
+                own_add(&branch, node, binding, payload_type);
+                if (owned_match && !supported) branch.restricted++;
                 ASTNode *guard = node->as.match_expr.guard_exprs ? node->as.match_expr.guard_exprs[arm] : NULL;
                 unsigned branch_result = own_node(&branch, guard, false);
                 /* A false guard continues with the same scrutinee and owners. */
@@ -475,6 +530,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                     has_next = true;
                 }
                 free(branch.bindings);
+                free(payload_type);
             }
             if (has_next) for (size_t i = 0; i < flow->count; ++i) flow->bindings[i].moved = joined.bindings[i].moved;
             free(joined.bindings);

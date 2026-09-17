@@ -65,6 +65,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       prerequisite PR423 and PR430. MAC `task_de0fb8219008442db8bc83e2a79eba26`.
       Evidence: `docs/evidence/union-literal-context.md`.
 
+- [ ] **Order mixed native nominal declarations.** My self-hosted emitter
+      writes union payload typedefs before their by-value record definitions.
+      Selected ownership execution therefore fails on unknown `nl_Handle` or
+      `nl_Pair`. I require dependency-ordered mixed record/union definitions,
+      including records containing unions, without changing their value layout.
+      This is a prerequisite for paired selected transfer, MAC
+      `task_68a6b53f768245bfacfc79b6db78b621`. I preserve the failures in
+      `/tmp/nanolang-selected-ownership-paired.log`.
+
 - [ ] **Transfer selected owned union payloads.** After fixed collection
       rejection, I implement exhaustive unguarded nongeneric matching with one
       scrutinee move, per-arm payload obligations and complete qualified variant

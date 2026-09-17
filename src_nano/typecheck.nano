@@ -90,6 +90,13 @@ shadow resource_name_in {
     assert (not (resource_name_in ["Handle"] "int"))
 }
 
+fn resource_variant_key(union_index: int, variant_index: int) -> string {
+    return (+ (+ (+ "#variant:" (int_to_string union_index)) ":") (int_to_string variant_index))
+}
+shadow resource_variant_key {
+    assert (== (resource_variant_key 2 3) "#variant:2:3")
+}
+
 # I qualify ownership facts by declaration, independently of source spelling.
 fn resource_type_identity(parser: Parser, type_name: string, line: int) -> string {
     let owner: int = (mb_owner line)
@@ -111,6 +118,16 @@ fn resource_type_identity(parser: Parser, type_name: string, line: int) -> strin
         let def: ASTUnion = (parser_get_union parser i)
         let key: string = (+ "#union:" (int_to_string i))
         if (== type_name key) { return key }
+        let mut variant: int = 0
+        while (< variant def.variant_count) {
+            let variant_key: string = (resource_variant_key i variant)
+            if (== type_name variant_key) { return variant_key }
+            if (== type_name (+ (+ def.name ".") (at def.variant_names variant))) {
+                if (== (mb_owner def.line) owner) { return variant_key }
+                set found variant_key set matches (+ matches 1)
+            }
+            set variant (+ variant 1)
+        }
         if (== def.name type_name) {
             if (== (mb_owner def.line) owner) { return key }
             set found key set matches (+ matches 1)
@@ -207,6 +224,33 @@ fn resource_classify(parser: Parser, type_name: string, collections_only: bool) 
             }
             set i (+ i 1)
         }
+    }
+    let queried: string = (resource_type_identity parser type_name 0)
+    let mut ui: int = 0
+    while (< ui (parser_get_union_count parser)) {
+        let def: ASTUnion = (parser_get_union parser ui)
+        let mut offset: int = 0
+        let mut variant: int = 0
+        while (< variant def.variant_count) {
+            let count: int = (at def.variant_field_counts variant)
+            if (== queried (resource_variant_key ui variant)) {
+                let mut owned: bool = false
+                let mut unsupported: bool = false
+                let mut field: int = 0
+                while (< field count) {
+                    let spelling: string = (at def.variant_field_types (+ offset field))
+                    let field_owned: bool = (resource_fixed_payload_bearing parser spelling def.line def.generic_params bearing 0)
+                    if field_owned { set owned true }
+                    if (or (and field_owned (== (base_type_name spelling) "array")) (resource_name_in collections (resource_type_identity parser spelling def.line))) { set unsupported true }
+                    set field (+ field 1)
+                }
+                if collections_only { return unsupported }
+                return owned
+            }
+            set offset (+ offset count)
+            set variant (+ variant 1)
+        }
+        set ui (+ ui 1)
     }
     if collections_only { return (resource_name_in collections (resource_type_identity parser type_name 0)) }
     return (resource_name_in bearing (resource_type_identity parser type_name 0))
@@ -402,6 +446,31 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
             set i (+ i 1)
         }
     }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser node_id)
+        let owner: string = (resource_value_type parser field.object field.object_type states)
+        let mut ui: int = 0
+        while (< ui (parser_get_union_count parser)) {
+            let def: ASTUnion = (parser_get_union parser ui)
+            let mut offset: int = 0
+            let mut variant: int = 0
+            while (< variant def.variant_count) {
+                let count: int = (at def.variant_field_counts variant)
+                if (== owner (resource_variant_key ui variant)) {
+                    let mut f: int = 0
+                    while (< f count) {
+                        if (== field.field_name (at def.variant_field_names (+ offset f))) {
+                            return (resource_type_identity parser (at def.variant_field_types (+ offset f)) def.line)
+                        }
+                        set f (+ f 1)
+                    }
+                }
+                set offset (+ offset count)
+                set variant (+ variant 1)
+            }
+            set ui (+ ui 1)
+        }
+    }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
         let index: int = (resource_find states id.name)
@@ -565,6 +634,48 @@ shadow resource_flow_block {
     assert (== (array_length flow.states) 0)
 }
 
+fn resource_owned_union_index(parser: Parser, input: string) -> int {
+    let identity: string = (resource_type_identity parser input 0)
+    let mut i: int = 0
+    while (< i (parser_get_union_count parser)) {
+        let def: ASTUnion = (parser_get_union parser i)
+        if (== identity (+ "#union:" (int_to_string i))) {
+            if (or (> def.generic_param_count 0) (resource_has_collection_payload parser identity)) { return -1 }
+            return i
+        }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow resource_owned_union_index {
+    let parser: Parser = (resource_test_parser "union Choice { None {} } union Box<T> { Some { item: T } }")
+    assert (== (resource_owned_union_index parser "Choice") 0)
+    assert (== (resource_owned_union_index parser "Box") -1)
+}
+
+fn resource_match_supported(parser: Parser, matched: ASTMatch, input: string) -> bool {
+    let index: int = (resource_owned_union_index parser input)
+    if (< index 0) { return false }
+    let def: ASTUnion = (parser_get_union parser index)
+    if (!= matched.arm_count def.variant_count) { return false }
+    let mut arm: int = 0
+    while (< arm matched.arm_count) {
+        let name: string = (at matched.arm_variants arm)
+        if (not (resource_name_in def.variant_names name)) { return false }
+        let mut prior: int = 0
+        while (< prior arm) {
+            if (== name (at matched.arm_variants prior)) { return false }
+            set prior (+ prior 1)
+        }
+        set arm (+ arm 1)
+    }
+    return true
+}
+shadow resource_match_supported {
+    let parser: Parser = (resource_test_parser "union Choice { None {} } fn read(value: Choice) -> int { match value { None(payload) => { return 0 } } }")
+    assert (resource_match_supported parser (parser_get_match parser 0) "Choice")
+}
+
 fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>, move: bool, loop_entry: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string) -> ResourceFlow {
     let mut flow: ResourceFlow = ResourceFlow { states: states, next: true }
     if (or (== node_type ParseNodeType.PNODE_BREAK) (== node_type ParseNodeType.PNODE_CONTINUE)) {
@@ -636,31 +747,34 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     if (== node_type ParseNodeType.PNODE_MATCH) {
         let matched: ASTMatch = (parser_get_match parser node_id)
         let input: string = (resource_value_type parser matched.scrutinee matched.scrutinee_type states)
-        if (resource_generic_contains parser input matched.line 0) {
-            (resource_flow_error diags file_name matched.line matched.column "resource match payloads need ownership lowering")
+        let owned: bool = (resource_generic_contains parser input matched.line 0)
+        let supported: bool = (resource_match_supported parser matched input)
+        if (and owned (not supported)) {
+            (resource_flow_error diags file_name matched.line matched.column "I require an exhaustive unguarded nongeneric owned match")
         }
-        if (== matched.scrutinee_type ParseNodeType.PNODE_STRUCT_LITERAL) {
-            let literal: ASTStructLiteral = (parser_get_struct_literal parser matched.scrutinee)
-            let mut field: int = 0
-            while (< field literal.field_count) {
-                let field_type: string = (resource_value_type parser (at literal.field_value_ids field) (at literal.field_value_types field) states)
-                if (resource_generic_contains parser field_type literal.line 0) {
-                    (resource_flow_error diags file_name literal.line literal.column "resource match payloads need ownership lowering")
-                }
-                set field (+ field 1)
-            }
-        }
-        set flow (resource_flow_node parser matched.scrutinee matched.scrutinee_type states false loop_entry diags file_name)
+        set flow (resource_flow_node parser matched.scrutinee matched.scrutinee_type states (and owned supported) loop_entry diags file_name)
         if (not flow.next) { return flow }
         let first: int = (array_length flow.states)
         let mut joined: ResourceFlow = ResourceFlow { states: flow.states, next: false }
         let mut arm: int = 0
         while (< arm matched.arm_count) {
             let mut arm_states: array<ResourceState> = (resource_copy flow.states first)
+            let mut payload: string = ""
+            if supported {
+                let index: int = (resource_owned_union_index parser input)
+                let def: ASTUnion = (parser_get_union parser index)
+                let mut variant: int = 0
+                while (< variant def.variant_count) {
+                    if (== (at def.variant_names variant) (at matched.arm_variants arm)) { set payload (resource_variant_key index variant) }
+                    set variant (+ variant 1)
+                }
+            }
             if (< arm (array_length matched.arm_bindings)) {
                 let binding: string = (at matched.arm_bindings arm)
                 if (and (!= binding "") (!= binding "_")) {
-                    set arm_states (array_push arm_states ResourceState { name: binding, type_name: "", moved: false, line: matched.line, column: matched.column })
+                    set arm_states (array_push arm_states ResourceState { name: binding, type_name: payload, moved: false, line: matched.line, column: matched.column })
+                } else {
+                    if (resource_type_is_declared parser payload) { (resource_flow_error diags file_name matched.line matched.column "I require a binding for the selected resource payload") }
                 }
             }
             let branch: ResourceFlow = (resource_flow_node parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) arm_states move loop_entry diags file_name)
@@ -745,28 +859,35 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
         let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
-        if (resource_generic_contains parser literal.union_name literal.line 0) {
-            (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
-        }
+        let identity: string = (resource_value_type parser node_id node_type states)
+        let supported: bool = (>= (resource_owned_union_index parser identity) 0)
         let mut field: int = 0
         while (and flow.next (< field literal.field_count)) {
             let field_type: string = (resource_value_type parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states)
-            if (resource_generic_contains parser field_type literal.line 0) {
+            if (and (not supported) (resource_generic_contains parser field_type literal.line 0)) {
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
             set flow (resource_flow_node parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name)
             set field (+ field 1)
         }
+        if (and flow.next (and (not move) (resource_type_is_declared parser identity))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
         return flow
     }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        let identity: string = (resource_value_type parser node_id node_type states)
+        let union_literal: bool = (tc_str_starts_with identity "#union:")
+        let supported: bool = (>= (resource_owned_union_index parser identity) 0)
         let mut i: int = 0
         while (and flow.next (< i literal.field_count)) {
+            let field_type: string = (resource_value_type parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states)
+            if (and union_literal (and (not supported) (resource_generic_contains parser field_type literal.line 0))) {
+                (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
+            }
             set flow (resource_flow_node parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name)
             set i (+ i 1)
         }
-        if (and flow.next (and (not move) (resource_type_is_declared parser (resource_type_identity parser literal.struct_name literal.line)))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
+        if (and flow.next (and (not move) (resource_type_is_declared parser identity))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
         return flow
     }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
