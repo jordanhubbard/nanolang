@@ -23,3 +23,15 @@ successful variant without the global are retained under
 `/tmp/nanolang-map-context-repro/`. I preserve VM global coverage separately
 from native-supported constructor contexts; full compiler/native acceptance
 still requires the open AOT task.
+
+The typed gate passes 86 comparison checks and all 62 methods
+(`/tmp/nanolang-string-maps-typed-gate.log`). I also refuse mismatched map
+returns, local bindings and arguments. My C seed currently accepts those
+four probes, separately tracked as `task_d0438e26b84147cdb9fd16b654c44a6a`;
+`/tmp/nanolang-cseed-map-mismatches/` retains their source and diagnostics.
+Constructor propagation does not establish assignment-type checking.
+
+Both native map fixtures pass ASan/UBSan with leak detection enabled
+(`/tmp/nanolang-string-maps-sanitizers.log`). This covers the supported local,
+return, argument and record paths, including the retained overwritten value;
+it does not establish native global-map support.

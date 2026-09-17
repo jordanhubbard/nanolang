@@ -985,6 +985,12 @@ class FlatRecordEmitter(unittest.TestCase):
         programs = [
             'fn bad() -> HashMap<int,int> { return (map_new) }',
             'fn bad(m: HashMap<string,string>) -> void { (map_put m "key" 42) }',
+            'fn bad(m: HashMap<string,int>) -> HashMap<string,string> { return m }',
+            'fn ints() -> HashMap<string,int> { return (map_new) } '
+            'fn bad() -> HashMap<string,string> { return (ints) }',
+            'fn bad(m: HashMap<string,int>) -> void { let words: HashMap<string,string> = m }',
+            'fn consume(m: HashMap<string,string>) -> int { return 0 } '
+            'fn bad(m: HashMap<string,int>) -> int { return (consume m) }',
             'fn bad() -> HashMap<string,bool> { return (map_new) }',
             'fn bad(m: HashMap<string,int>) -> void { (map_put m "key" true) }',
             'fn bad(m: HashMap<string,int>) -> bool { return (map_has m 1) }',

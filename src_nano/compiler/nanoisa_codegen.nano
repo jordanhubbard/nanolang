@@ -1589,6 +1589,10 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         if (== (nisa_map_value_type expected) "string") { return (nisa_line_imm "HM_NEW" "5 5") }
         return (nisa_line_imm "HM_NEW" "5 1")
     }
+    if (and (!= (nisa_map_value_type expected) "")
+            (!= (nisa_expr_type parser node_id node_type) expected)) {
+        return (nisa_fail "I require the declared map key and value types")
+    }
     if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL)
             (and (str_starts_with expected "array<") (nisa_type_ok parser expected))) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
@@ -2490,6 +2494,11 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (< r.value 0) {
             if nisa_void_return { return (nisa_line "RET") }
             return (nisa_fail "a value-result function needs a return value")
+        }
+        if (and (!= (nisa_map_value_type nisa_return_type) "")
+                (and (not (nisa_is_map_constructor parser r.value r.value_type))
+                     (!= (nisa_expr_type parser r.value r.value_type) nisa_return_type))) {
+            return (nisa_fail "I require the declared map return type")
         }
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let result_call: ASTCall = (nisa_get_call parser r.value r.value_type)
