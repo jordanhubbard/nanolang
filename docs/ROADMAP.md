@@ -8712,6 +8712,9 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I route my default native product and `--target c` through verified NanoISA and `nvm2c`, preserving shadow selection, staging, previous output on failure, and declared artifact linkage (`task_d76ae44a12fd4d27a2b4aa84c30d7bc6`).
+- [ ] I remove `transpiler.nano` and the AST-to-C path from the product driver's dependency closure, update phase/help descriptions, and keep the C seed as a bootstrap tool for that same source.
+- [ ] I validate the resulting driver with native/C/bytecode products, artifact modules, mandatory shadows, a full compiler bytecode fixed point and standalone native compiler acceptance; I record each tested boundary before closing this architecture slice.
 - [x] I restore trial-deleted child counts for newly deferred VM cycle roots
       (`task_72433f501ddd4736a45e6244c44ae4fa`). Roots queued during collection
       can be reached by the old candidate graph while remaining buffered for
