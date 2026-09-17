@@ -4358,6 +4358,12 @@ test-native-floats: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-floats
 
+.PHONY: test-native-float-records
+test-native-float-records: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest -v tests.test_native_float_records
+
+test-units: test-native-float-records
+
 .PHONY: test-native-jump-true
 test-native-jump-true: nvm2c nanoisa_dump nano_vm
 	@python3 -m unittest -v tests.test_native_jump_true

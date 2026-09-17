@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I resolve nested projected record-array global field shapes (`task_65d164a9fb204ff7872002f53e708bdf`). A new ordinary positive field read after nested projection, global storage and global reload refuses conflicting optional/record facts; I preserve `/tmp/nanolang-float-records-integrated-gates.log`. Existing exact record-array globals and float scalar transport do not establish this nested shape closure.
+
 - [x] I encode explicit owned move/store/pack/unpack instructions and connect
       their dataflow to verifier entry points (MAC
       `task_026799f971e34152b6c6898e3de700d2`, parent ed702). I allocate vacant
@@ -80,7 +82,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 - [x] I update stale raw-emitter refusal fixtures for already supported scalar float and Boolean-array results (`task_64f967c7f1d14b26a2b8134fb94a706e`). I retain previous-output and exact-diagnostic checks against the documented unsupported float-array result, and verify positive scalar/Boolean-array bytecode.
 
-- [ ] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required.
+- [x] I preserve float record fields through paired aggregate lowering (`task_93574cf9d200459aa16e959baf68201d`). An ordinary float-field host-call fixture reaches the existing native AGG_PACK kind-11 refusal and raw self-hosted record-parameter refusal. I retain `/tmp/nanolang-calculator-abi-tests.log` and the initial fixture separately from scalar host ABI acceptance; exact F64 aggregate storage and paired field operations remain required. My implementation contract keeps binary64 bits in the existing 64-bit field cells through pack/get, nested copies, record arrays and tagged fallback. It adds no raw pointers or reference admission, and requires both source producers plus VM/native sanitizer parity. My first core gate retained a stale float-projection refusal; I replace it with positive native execution for float transport and record-array length after global reload, retaining plain record-global refusal. Deeper record-array field closure remains separately tracked. Final gates pass 2,418 native, 1,092 shape, 86 comparisons and 85 paired methods; [evidence](evidence/native-float-records.md).
 
 - [x] I retain exact builtin-namespace `strlen(string) -> int` and `atan(float) -> float` contracts across canonical emission and native translation (`task_9493ea33bbb54404acc47c256644a05a`). I preserve user-defined function resolution and explicit library identity, add float host argument/result transport, and require paired VM/native acceptance before claiming the unchanged calculator route.
 - [x] I implement local-normalized affine instruction transitions from checked
