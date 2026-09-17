@@ -8,6 +8,7 @@
 typedef struct {
     const char *name;
     const char *nominal;
+    const TypeInfo *type_info; /* Borrowed from the function AST or retained environment. */
     bool resource;
     bool moved;
     FunctionSignature *signature;
@@ -32,6 +33,7 @@ typedef struct {
 enum { OWN_NEXT = 1, OWN_RETURN = 2, OWN_BREAK = 4, OWN_CONTINUE = 8 };
 static unsigned own_node(OwnFlow *, ASTNode *, bool);
 static FunctionSignature *own_signature(OwnFlow *, ASTNode *);
+static const TypeInfo *own_expr_info(OwnFlow *, ASTNode *);
 
 static void own_error(OwnFlow *flow, ASTNode *node, const char *message, const char *name) {
     fprintf(stderr, "I cannot verify affine ownership at line %d, column %d: %s%s%s\n",
@@ -63,11 +65,50 @@ static bool own_resource(OwnFlow *flow, const char *name) {
     return false;
 }
 
-static bool own_info_resource(OwnFlow *flow, ASTNode *at, TypeInfo *info, unsigned depth) {
+/* Complete copying does not establish substitution inside every metadata shape. */
+static bool own_unresolved_payload_shape(const TypeInfo *info, unsigned depth) {
+    if (!info) return false;
+    if (depth > 512) return true;
+    if (info->tuple_element_count || info->row_field_count || info->row_var_name || info->fn_sig) return true;
+    if (own_unresolved_payload_shape(info->element_type, depth + 1)) return true;
+    for (int i = 0; info->type_params && i < info->type_param_count; ++i)
+        if (own_unresolved_payload_shape(info->type_params[i], depth + 1)) return true;
+    return false;
+}
+
+static bool own_info_resource(OwnFlow *flow, ASTNode *at, const TypeInfo *info, unsigned depth) {
     if (!info) return false;
     if (depth > 512) {
         own_error(flow, at, "ownership type metadata exceeds my checked depth", NULL);
         return true;
+    }
+    UnionDef *def = info->generic_name ? env_get_union(flow->env, info->generic_name) : NULL;
+    if (def && def->generic_param_count && info->type_param_count) {
+        if (def->generic_param_count != info->type_param_count) {
+            own_error(flow, at, "my generic ownership arguments do not match the declaration", info->generic_name);
+            return true;
+        }
+        for (int arm = 0; arm < def->variant_count; ++arm) {
+            for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
+                const TypeInfo *declared = def->variant_field_type_info && def->variant_field_type_info[arm]
+                    ? def->variant_field_type_info[arm][field] : NULL;
+                if (own_unresolved_payload_shape(declared, 0)) {
+                    /* I preserve the prior resource-argument guard until these
+                     * payload shapes have complete formal substitution. */
+                    for (int arg = 0; info->type_params && arg < info->type_param_count; ++arg)
+                        if (own_info_resource(flow, at, info->type_params[arg], depth + 1)) return true;
+                }
+                TypeInfo *concrete = resolve_union_payload_type_info(def, arm, field, info);
+                if (!concrete) {
+                    own_error(flow, at, "I require complete generic payload ownership metadata", info->generic_name);
+                    return true;
+                }
+                bool contained = own_info_resource(flow, at, concrete, depth + 1);
+                free_payload_type_info(concrete);
+                if (contained) return true;
+            }
+        }
+        return false;
     }
     if (own_resource(flow, info->generic_name)) return true;
     if (own_info_resource(flow, at, info->element_type, depth + 1)) return true;
@@ -78,7 +119,7 @@ static bool own_info_resource(OwnFlow *flow, ASTNode *at, TypeInfo *info, unsign
     return false;
 }
 
-static void own_metadata(OwnFlow *flow, ASTNode *at, Type type, const char *name, TypeInfo *info) {
+static void own_metadata(OwnFlow *flow, ASTNode *at, Type type, const char *name, const TypeInfo *info) {
     bool nominal = own_resource(flow, name);
     bool contained = own_info_resource(flow, at, info, 0);
     if (has_resource_collection_payload(flow->env, name)) {
@@ -98,7 +139,7 @@ static OwnBinding *own_find(OwnFlow *flow, const char *name) {
     return NULL;
 }
 
-static bool own_add(OwnFlow *flow, ASTNode *node, const char *name, const char *nominal) {
+static bool own_add(OwnFlow *flow, ASTNode *node, const char *name, const char *nominal, const TypeInfo *info) {
     if (!name) return true;
     if (flow->count == flow->capacity) {
         size_t capacity = flow->capacity ? flow->capacity * 2 : 16;
@@ -114,8 +155,8 @@ static bool own_add(OwnFlow *flow, ASTNode *node, const char *name, const char *
         flow->bindings = bindings;
         flow->capacity = capacity;
     }
-    bool resource = own_resource(flow, nominal);
-    flow->bindings[flow->count++] = (OwnBinding){.name = name, .nominal = nominal, .resource = resource};
+    bool resource = own_resource(flow, nominal) || own_info_resource(flow, node, info, 0);
+    flow->bindings[flow->count++] = (OwnBinding){.name = name, .nominal = nominal, .type_info = info, .resource = resource};
     if (resource && flow->restricted)
         own_error(flow, node, "this control-flow boundary needs ownership lowering", name);
     return true;
@@ -205,7 +246,7 @@ static const char *own_type(OwnFlow *flow, ASTNode *node) {
             if (!own_clone(&scope, flow, node)) return NULL;
             for (int i = 0; i + 1 < count; ++i) if (items[i]->type == AST_LET) {
                 const char *type = items[i]->as.let.type_name ? items[i]->as.let.type_name : own_type(&scope, items[i]->as.let.value);
-                if (own_add(&scope, items[i], items[i]->as.let.name, type))
+                if (own_add(&scope, items[i], items[i]->as.let.name, type, items[i]->as.let.type_info ? items[i]->as.let.type_info : own_expr_info(&scope, items[i]->as.let.value)))
                     scope.bindings[scope.count - 1].signature = items[i]->as.let.fn_sig ? items[i]->as.let.fn_sig : own_signature(&scope, items[i]->as.let.value);
             }
             const char *type = count ? own_type(&scope, items[count - 1]) : NULL;
@@ -238,6 +279,49 @@ static const char *own_type(OwnFlow *flow, ASTNode *node) {
                     return def->variant_field_type_names && def->variant_field_type_names[variant] ?
                         def->variant_field_type_names[variant][i] : NULL;
             return NULL;
+        }
+        default: return NULL;
+    }
+}
+
+/* I borrow complete immutable trees whose owners outlive every branch clone.
+ * Substituted temporary payload trees are consumed and freed only in classification. */
+static const TypeInfo *own_expr_info(OwnFlow *flow, ASTNode *node) {
+    if (!node) return NULL;
+    switch (node->type) {
+        case AST_IDENTIFIER: {
+            OwnBinding *binding = own_find(flow, node->as.identifier);
+            return binding ? binding->type_info : NULL;
+        }
+        case AST_LET: return node->as.let.type_info;
+        case AST_UNION_CONSTRUCT: return node->as.union_construct.type_info;
+        case AST_FIELD_ACCESS: return node->as.field_access.resolved_type_info;
+        case AST_CALL:
+        case AST_MODULE_QUALIFIED_CALL: {
+            Function *function = own_function(flow, node);
+            return function ? function->return_type_info : NULL;
+        }
+        case AST_IF: {
+            const TypeInfo *info = own_expr_info(flow, node->as.if_stmt.then_branch);
+            return info ? info : own_expr_info(flow, node->as.if_stmt.else_branch);
+        }
+        case AST_COND:
+            return node->as.cond_expr.clause_count ? own_expr_info(flow, node->as.cond_expr.values[0]) : own_expr_info(flow, node->as.cond_expr.else_value);
+        case AST_MATCH:
+            return node->as.match_expr.arm_count ? own_expr_info(flow, node->as.match_expr.arm_bodies[0]) : NULL;
+        case AST_BLOCK:
+        case AST_UNSAFE_BLOCK: {
+            ASTNode **items = node->type == AST_BLOCK ? node->as.block.statements : node->as.unsafe_block.statements;
+            int count = node->type == AST_BLOCK ? node->as.block.count : node->as.unsafe_block.count;
+            OwnFlow scope;
+            if (!own_clone(&scope, flow, node)) return NULL;
+            for (int i = 0; i + 1 < count; ++i) if (items[i]->type == AST_LET) {
+                const TypeInfo *info = items[i]->as.let.type_info ? items[i]->as.let.type_info : own_expr_info(&scope, items[i]->as.let.value);
+                own_add(&scope, items[i], items[i]->as.let.name, items[i]->as.let.type_name, info);
+            }
+            const TypeInfo *info = count ? own_expr_info(&scope, items[count - 1]) : NULL;
+            free(scope.bindings);
+            return info;
         }
         default: return NULL;
     }
@@ -291,7 +375,7 @@ static void own_nested_function(OwnFlow *flow, ASTNode *function) {
     nested.loop = NULL;
     for (int i = 0; i < function->as.function.param_count; ++i) {
         Parameter *parameter = &function->as.function.params[i];
-        if (own_add(&nested, function, parameter->name, parameter->struct_type_name))
+        if (own_add(&nested, function, parameter->name, parameter->struct_type_name, parameter->type_info))
             nested.bindings[nested.count - 1].signature = parameter->fn_sig;
     }
     unsigned result = own_node(&nested, function->as.function.body, false);
@@ -303,7 +387,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
     if (!node) return OWN_NEXT;
     if (node->lambda_definition) own_nested_function(flow, node->lambda_definition);
     const char *nominal = own_type(flow, node);
-    bool resource = own_resource(flow, nominal);
+    bool resource = own_resource(flow, nominal) || own_info_resource(flow, node, own_expr_info(flow, node), 0);
     switch (node->type) {
         case AST_IDENTIFIER: {
             OwnBinding *binding = own_find(flow, node->as.identifier);
@@ -323,10 +407,11 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         }
         case AST_LET: {
             const char *type = node->as.let.type_name ? node->as.let.type_name : own_type(flow, node->as.let.value);
-            own_metadata(flow, node, node->as.let.var_type, type, node->as.let.type_info);
+            const TypeInfo *info = node->as.let.type_info ? node->as.let.type_info : own_expr_info(flow, node->as.let.value);
+            own_metadata(flow, node, node->as.let.var_type, type, info);
             unsigned result = node->as.let.is_destructure_projection ? OWN_NEXT : own_node(flow, node->as.let.value, true);
             FunctionSignature *signature = node->as.let.fn_sig ? node->as.let.fn_sig : own_signature(flow, node->as.let.value);
-            if ((result & OWN_NEXT) && own_add(flow, node, node->as.let.name, type)) {
+            if ((result & OWN_NEXT) && own_add(flow, node, node->as.let.name, type, info)) {
                 flow->bindings[flow->count - 1].signature = signature;
                 if (node->as.let.is_destructure) flow->bindings[flow->count - 1].moved = true;
             }
@@ -373,7 +458,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             }
             own_loop_edge(flow, node);
             size_t first = flow->count;
-            if (node->type == AST_FOR) own_add(flow, node, node->as.for_stmt.var_name, NULL);
+            if (node->type == AST_FOR) own_add(flow, node, node->as.for_stmt.var_name, NULL, NULL);
             if (result & OWN_NEXT) result = (result & ~OWN_NEXT) | own_node(flow, body, false);
             if (result & OWN_NEXT) own_loop_edge(flow, node);
             flow->count = first;
@@ -452,7 +537,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             for (int i = 0; i < node->as.par_let.count && (result & OWN_NEXT); ++i) {
                 const char *type = own_type(flow, node->as.par_let.values[i]);
                 result = (result & ~OWN_NEXT) | own_node(flow, node->as.par_let.values[i], true);
-                if (result & OWN_NEXT) own_add(flow, node, node->as.par_let.names[i], type);
+                if (result & OWN_NEXT) own_add(flow, node, node->as.par_let.names[i], type, own_expr_info(flow, node->as.par_let.values[i]));
             }
             if (result & OWN_NEXT) result = (result & ~OWN_NEXT) | own_node(flow, node->as.par_let.body, move);
             if (result & OWN_NEXT) own_leaks(flow, first, node);
@@ -471,7 +556,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         }
         case AST_MATCH: {
             const char *input = own_type(flow, node->as.match_expr.expr);
-            bool owned_match = own_resource(flow, input);
+            bool owned_match = own_resource(flow, input) || own_info_resource(flow, node, own_expr_info(flow, node->as.match_expr.expr), 0);
             UnionDef *def = input ? env_get_union(flow->env, input) : NULL;
             bool supported = def && !def->generic_param_count &&
                 !has_resource_collection_payload(flow->env, input) &&
@@ -509,7 +594,7 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
                 if (payload_type && own_resource(&branch, payload_type) &&
                     (!binding || !strcmp(binding, "_")))
                     own_error(flow, node, "I require a binding for the selected resource payload", payload_type);
-                own_add(&branch, node, binding, payload_type);
+                own_add(&branch, node, binding, payload_type, NULL);
                 if (owned_match && !supported) branch.restricted++;
                 ASTNode *guard = node->as.match_expr.guard_exprs ? node->as.match_expr.guard_exprs[arm] : NULL;
                 unsigned branch_result = own_node(&branch, guard, false);
@@ -588,7 +673,7 @@ void check_function_ownership(Environment *env, ASTNode *function, bool *has_err
     for (int i = 0; i < function->as.function.param_count; ++i) {
         Parameter *parameter = &function->as.function.params[i];
         own_metadata(&flow, function, parameter->type, parameter->struct_type_name, parameter->type_info);
-        if (!function->as.function.is_extern && own_add(&flow, function, parameter->name, parameter->struct_type_name))
+        if (!function->as.function.is_extern && own_add(&flow, function, parameter->name, parameter->struct_type_name, parameter->type_info))
             flow.bindings[flow.count - 1].signature = parameter->fn_sig;
     }
     if (function->as.function.is_extern) return;

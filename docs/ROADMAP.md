@@ -106,6 +106,33 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       emission remains task `task_633f2402ec5944cfba0911a56a9f4eb1`. MAC
       `task_8178b6b71fe147bd851629713e7be14d`.
 
+- [x] **Retain instantiated ownership metadata.** I preserve complete concrete
+      C `TypeInfo` and matching self-hosted generic identities through ownership
+      bindings, aliases and calls. I substitute ordinary `Result<T,E>`/`Box<T>`
+      fields before resource classification, with paired positive and negative
+      controls and lifetime checks. Generic owned matching remains rejected
+      until this prerequisite is verified; resource collections remain rejected.
+      I do not infer complete tuple/row/function substitution from copying their
+      metadata. Fresh bootstrap, 12 paired methods, 80 adjacent methods and
+      240 sanitizer lifetime checks pass; evidence is in
+      `docs/evidence/instantiated-ownership-metadata.md`. MAC
+      `task_d329989e8acf43149c38d6a998bd730f`.
+
+- [ ] **Substitute generic selected-variant patterns.** My ordinary `Box<int>`
+      pattern `let Box.Some { value } = payload` currently fails complete-field
+      validation in all three stages. I retain concrete arguments through field
+      validation and projections, prove ordinary patterns and rejecting field
+      controls, and keep generic owned transfer rejected until its next step.
+      MAC `task_bbda7f126bda403aa74034a762930f24`, after instantiated ownership metadata.
+
+- [ ] **Retain generic function-value signatures.** My C `FunctionSignature`
+      stores flattened nominal names rather than complete parameter and return
+      `TypeInfo`. I require parse/copy/lifetime preservation and paired ordinary
+      generic callback execution plus conservative resource rejection before
+      claiming complete function-value ownership. This representation gap does
+      not establish an executable ownership escape. MAC
+      `task_e05a42e2e09b47cc9c53fa6923eeeaef`.
+
 - [ ] **Define my global resource boundary.** My duplicate-consumption probe
       reaches native emission without an ownership diagnostic in the C seed
       and Stage1, then fails global-record initialization. This is not evidence
@@ -135,12 +162,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         unresolved fields, repeated use, outer joins and terminating exits on
         the C seed and both self-hosted stages before relaxing the owned guard.
 
-- [ ] **Diagnose unsupported tuple ownership before emission.** For
-      `Bundle<T>.Some { value: (T,int) }` with `Bundle<Handle>`, my C seed
-      rejects ownership but both self-hosted stages fail later on generated
-      `Tuple_T_int`. I require deliberate rejection or complete substitution
-      and ownership lowering; absence of an executable is not diagnostic parity.
-      MAC `task_bcd773ad3c084ce099a3da5aef682fef`.
+- [x] **Diagnose unsupported tuple ownership before emission.** For
+      `Bundle<T>.Some { value: (T,int) }` with `Bundle<Handle>`, I reject
+      resource ownership before emission in the C seed and both self-hosted
+      stages, including nested `Box<Bundle<Handle>>`. My C classifier retains
+      conservative resource-argument rejection for unresolved payload shapes;
+      my self-hosted classifier recognizes resource leaves in tuple spelling.
+      Both negative methods preserve prior output. This does not implement
+      general tuple substitution or ownership transfer. MAC
+      `task_bcd773ad3c084ce099a3da5aef682fef`.
 
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
       exposed 245 bytes retained by existing registered field-name/formal arrays
@@ -8512,6 +8542,9 @@ Compiler product:
       inline call arguments, mutable assignment and nested union construction
       (`task_633f2402ec5944cfba0911a56a9f4eb1`). Correctly typed controls
       currently reach malformed C; frontend nominal rejection remains separate.
+      My `Box<Result<int,string>>` and nested marker positives now execute
+      after PR450; broader constructor contexts remain open. I retain those
+      controls in `tests/test_instantiated_ownership.py`.
 - [x] I apply concrete generic union constructor context before accepting
       nominal array payloads (`task_dd2be49bc494483f9bb18646a0013055`).
       I reject wrong record identities at local/global, argument, return,
