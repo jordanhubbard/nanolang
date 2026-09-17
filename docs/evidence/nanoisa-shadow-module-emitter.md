@@ -35,3 +35,24 @@ bare successful VM process exit as sufficient shadow completion evidence.
 
 The task is `task_57fc2c62eb504a579dc2ca37ce72e2e8`. Integrated output is retained
 in `/tmp/nanolang-shadow-emitter-gate.log`.
+
+## My full compiler-shadow boundary
+
+I built a temporary copy of `src_nano/nanoc_v06.nano` whose assembly request
+alone calls this shadow API with the existing `first_shadow`. My product
+driver remains unchanged. With `NANO_AS_CAPTURE_HELPER` explicitly pointing
+to this checkout's `bin/nano_as_capture.so`, the full checked compiler source
+rejects before publication:
+
+```
+I cannot lower this checked program: I cannot lower shadow __nano_module___7_tokenize_string at merged line 2381: statement outside the pinned subset
+```
+
+`src_nano/compiler/lexer.nano` uses a range `for` loop in that shadow; my emitter
+has no `PNODE_FOR` lowering. I record the required continuation as
+`task_ef6adaee5e3644c8a8218ede4b01e6b3`. The retained probe source, binary and
+log are `/tmp/nanolang-full-shadow-probe.nano`,
+`/tmp/nanolang-full-shadow-probe`, and `/tmp/nanolang-full-shadow-probe-run2.log`.
+The probe exits 1 without producing its `.nvm` output. Its earlier invocation
+omitted the capture-helper setting and also reported host capture refusals;
+that setup error is not the final product evidence.

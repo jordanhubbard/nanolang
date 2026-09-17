@@ -8674,6 +8674,12 @@ Compiler product:
         compiler-shadow blocker. Supervised execution and the driver cutover
         remain separate prerequisites: deadlines and completion protocol must
         reject an early exit(0), and normal native C shadows remain until then.
+- [ ] I lower range `for` loops required by my full compiler shadow closure
+      (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
+      My correctly captured full probe stops at `tokenize_string` because
+      `PNODE_FOR` has no lowering. I retain range evaluation order, loop scope,
+      nesting and break/continue behavior, require C-seed/VM parity, and rerun
+      the complete shadow closure without exclusions.
 - [x] I retain a reproducible full VM bytecode bootstrap gate: C-seed compiler
       bytecode is input, then two VM-executed compiler generations compile the
       same clean source and immutable host closure. I compare raw generation

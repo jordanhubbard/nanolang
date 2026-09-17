@@ -3070,6 +3070,7 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     }
     if (parser_has_error parser) { return (nisa_fail "parse failed") }
     let initializers: string = (nisa_emit_globals parser)
+    if (not nisa_ok) { return "" }
     let entry_name: string = (nisa_shadow_name parser "__nanoisa_shadow_entry")
     let mut entry_body: string = ""
     let mut out: string = ""
@@ -3083,6 +3084,11 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
             body: selected.body, is_pure: false
         }
         set out (+ out (nisa_emit_function parser function))
+        if (not nisa_ok) {
+            set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
+                (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
+            return ""
+        }
         set entry_body (+ entry_body (nisa_line_imm "CALL" name))
         set i (+ i 1)
     }

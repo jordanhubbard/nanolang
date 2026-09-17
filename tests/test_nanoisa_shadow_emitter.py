@@ -106,5 +106,6 @@ shadow __nanoisa_shadow_0 { assert (== (__nanoisa_shadow_0) 7) assert (== (__nan
 fn unused() -> array<float> { return (unsupported) }
 shadow unused { let values: array<float> = (unused) }
 '''
-        self.emit(source, expected=1)
+        refusal = self.emit(source, expected=1)
+        self.assertIn("I cannot lower shadow unused at merged line", refusal.stdout)
         self.execute(self.emit(source, 1).stdout)
