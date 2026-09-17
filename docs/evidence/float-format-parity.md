@@ -20,7 +20,9 @@ NanoVM, and my C reference normal compilation/shadows and executable pass.
 The permanent tests also compare printed nonfinite results between paths.
 
 A fresh native three-stage bootstrap and paired C-seed/Stage1/Stage2 formatting
-gate are in progress. Native AOT acceptance remains dependent on typed-F64
+gate pass: two methods, six compiler cases, 16.132 seconds. C-seed native and
+both VM artifacts print identical `inf`, `-inf`, and `nan` lines on this host.
+Native AOT acceptance remains dependent on typed-F64
 support (`task_fd4c63cf9f3e46f09ece380ce00c7a58`) and the already recorded
 `JMP_TRUE` companion (`task_211f22859e164287a07a63cba74ace5b`). I keep the native
 checks enabled and do not claim acceptance until they pass.
