@@ -1,5 +1,6 @@
 """I batch complete map allocation bytes without losing published aliases."""
 import os
+import signal
 from pathlib import Path
 import subprocess
 import tempfile
@@ -37,7 +38,7 @@ class NativeMapByteDebt(unittest.TestCase):
             print(self.run_checked([binary], env=env).stdout, end='')
             for mode in refusals:
                 refused = subprocess.run([str(binary), mode], capture_output=True, timeout=30, env=env)
-                self.assertNotEqual(refused.returncode, 0, mode)
+                self.assertEqual(refused.returncode, -signal.SIGABRT, mode)
                 self.assertNotIn(b'AddressSanitizer', refused.stderr)
                 self.assertNotIn(b'runtime error:', refused.stderr)
 
