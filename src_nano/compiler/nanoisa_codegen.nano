@@ -329,6 +329,7 @@ shadow nisa_map_value_type {
 }
 
 fn nisa_local_type_ok(t: string) -> bool {
+    if (== t "float") { return true }
     if (== t "array<bool>") { return true }
     if (!= (nisa_map_value_type t) "") { return true }
     if (== t "int") {
@@ -351,6 +352,7 @@ fn nisa_local_type_ok(t: string) -> bool {
 }
 
 shadow nisa_local_type_ok {
+    assert (nisa_local_type_ok "float")
     assert (nisa_local_type_ok "int")
     assert (nisa_local_type_ok "string")
     assert (nisa_local_type_ok "bool")
@@ -491,6 +493,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
     return (or (nisa_is_arr_builtin name)
@@ -505,6 +508,7 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "array_length")
     assert (nisa_is_inline_call "not")
     assert (nisa_is_inline_call "print")
@@ -1524,6 +1528,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" }
     if (== node_type ParseNodeType.PNODE_BOOL) { return "bool" }
     if (== node_type ParseNodeType.PNODE_NUMBER) { return "int" }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return "float" }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
         let slot: int = (nisa_local_find identifier.name)
@@ -1590,7 +1595,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (!= map_result "") { return map_result }
         let host_symbol: string = (nisa_call_host_symbol parser target_name)
         if (!= host_symbol "") { return (nisa_host_result host_symbol) }
-        if (or (== target_name "str_substring") (== target_name "int_to_string")) { return "string" }
+        if (or (== target_name "float_to_string") (or (== target_name "str_substring") (== target_name "int_to_string"))) { return "string" }
         if (or (== target_name "not") (== target_name "str_contains")) { return "bool" }
         if (or (== target_name "str_length")
                (or (== target_name "char_at") (== target_name "str_char_at"))) { return "int" }
@@ -1603,6 +1608,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
         let binary: ASTBinaryOp = (parser_get_binary_op parser node_id)
+        if binary.is_unary { return (nisa_expr_type parser binary.right binary.right_type) }
         if (or (== binary.op LexerTokenType.TOKEN_EQ)
                (or (== binary.op LexerTokenType.TOKEN_NE)
                    (or (== binary.op LexerTokenType.TOKEN_LT)
@@ -1615,6 +1621,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let right: string = (nisa_expr_type parser binary.right binary.right_type)
         if (and (== binary.op LexerTokenType.TOKEN_PLUS)
                 (and (== left "string") (== right "string"))) { return "string" }
+        if (and (== left "float") (== right "float")) { return "float" }
         if (and (nisa_value_type_matches parser left "int") (nisa_value_type_matches parser right "int")) { return "int" }
     }
     return ""
@@ -1671,6 +1678,12 @@ shadow nisa_is_map_constructor {
 
 # I carry declared constructor context without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (!= expected "") {
+        let actual: string = (nisa_expr_type parser node_id node_type)
+        if (and (or (== expected "float") (== actual "float")) (!= actual expected)) {
+            return (nisa_fail "I require the declared float value type")
+        }
+    }
     if (and (!= (nisa_map_value_type expected) "") (nisa_is_map_constructor parser node_id node_type)) {
         if (== (nisa_map_value_type expected) "string") { return (nisa_line_imm "HM_NEW" "5 5") }
         return (nisa_line_imm "HM_NEW" "5 1")
@@ -2152,6 +2165,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
     }
     if (!= (nisa_map_opcode function_name) "") { return (nisa_emit_map_call parser call function_name) }
+    if (== function_name "float_to_string") {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one float to format") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (!= (nisa_expr_type parser argument.node_id argument.node_type) "float") {
+            return (nisa_fail "I require a float to format")
+        }
+        return (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "CAST_STRING"))
+    }
     let host_symbol: string = (nisa_call_host_symbol parser function_name)
     if (!= host_symbol "") { return (nisa_emit_host_call parser call host_symbol) }
     if (and (nisa_is_list_call function_name) (str_ends_with function_name "_new")) {
@@ -2274,7 +2295,45 @@ shadow nisa_emit_call {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_float_mnemonic(op: int) -> string {
+    if (== op LexerTokenType.TOKEN_PLUS) { return "F64_ADD" }
+    if (== op LexerTokenType.TOKEN_MINUS) { return "F64_SUB" }
+    if (== op LexerTokenType.TOKEN_STAR) { return "F64_MUL" }
+    if (== op LexerTokenType.TOKEN_SLASH) { return "F64_DIV" }
+    if (== op LexerTokenType.TOKEN_EQ) { return "F64_EQ" }
+    if (== op LexerTokenType.TOKEN_NE) { return "F64_NE" }
+    if (== op LexerTokenType.TOKEN_LT) { return "F64_LT" }
+    if (== op LexerTokenType.TOKEN_LE) { return "F64_LE" }
+    if (== op LexerTokenType.TOKEN_GT) { return "F64_GT" }
+    if (== op LexerTokenType.TOKEN_GE) { return "F64_GE" }
+    return ""
+}
+shadow nisa_float_mnemonic {
+    assert (== (nisa_float_mnemonic LexerTokenType.TOKEN_PLUS) "F64_ADD")
+    assert (== (nisa_float_mnemonic LexerTokenType.TOKEN_EQ) "F64_EQ")
+    assert (== (nisa_float_mnemonic LexerTokenType.TOKEN_PERCENT) "")
+}
+
+fn nisa_emit_float_binary(parser: Parser, op: ASTBinaryOp, left_type: string, right_type: string) -> string {
+    if (or (!= left_type "float") (!= right_type "float")) {
+        return (nisa_fail "I require two float operands")
+    }
+    let mnemonic: string = (nisa_float_mnemonic op.op)
+    if (== mnemonic "") { return (nisa_fail "I cannot apply this operator to floats") }
+    let left: string = (nisa_emit_expr parser op.left op.left_type)
+    let right: string = (nisa_emit_expr parser op.right op.right_type)
+    return (+ left (+ right (nisa_line mnemonic)))
+}
+shadow nisa_emit_float_binary {
+    let text: string = (nanoisa_emit_nasm "fn main() -> float { return (+ 1.5 2.0) }")
+    assert (str_contains text "PUSH_F64 1.5")
+    assert (str_contains text "F64_ADD")
+}
+
 fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_FLOAT) {
+        return (nisa_line_imm "PUSH_F64" (parser_get_float parser node_id).value)
+    }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         return (nisa_emit_call parser (nisa_get_call parser node_id node_type))
     }
@@ -2300,6 +2359,17 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
             } else {
                 if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                     let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                    let left_type: string = (nisa_expr_type parser binop.left binop.left_type)
+                    let right_type: string = (nisa_expr_type parser binop.right binop.right_type)
+                    if binop.is_unary {
+                        let operand: string = (nisa_emit_expr parser binop.right binop.right_type)
+                        if (== right_type "float") { return (+ operand (nisa_line "F64_NEG")) }
+                        if (nisa_value_type_matches parser right_type "int") { return (+ operand (nisa_line "I64_NEG")) }
+                        return (nisa_fail "I require a numeric unary operand")
+                    }
+                    if (or (== left_type "float") (== right_type "float")) {
+                        return (nisa_emit_float_binary parser binop left_type right_type)
+                    }
                     let left_s: bool = (nisa_expr_is_string parser binop.left binop.left_type)
                     let right_s: bool = (nisa_expr_is_string parser binop.right binop.right_type)
                     if (and left_s right_s) {
@@ -2328,8 +2398,6 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         } else {
                             let mut mnemonic: string = (nisa_binop_mnemonic binop.op)
                             if (or (== binop.op LexerTokenType.TOKEN_EQ) (== binop.op LexerTokenType.TOKEN_NE)) {
-                                let left_type: string = (nisa_expr_type parser binop.left binop.left_type)
-                                let right_type: string = (nisa_expr_type parser binop.right binop.right_type)
                                 if (or (== left_type "bool") (== right_type "bool")) {
                                     if (!= left_type right_type) {
                                         return (nisa_fail "bool equality needs two bool operands")
@@ -2714,6 +2782,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         }
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let result_call: ASTCall = (nisa_get_call parser r.value r.value_type)
+            let result_type: string = (nisa_expr_type parser r.value r.value_type)
+            if (and (or (== nisa_return_type "float") (== result_type "float")) (!= result_type nisa_return_type)) {
+                return (nisa_fail "I require the declared float return type")
+            }
             if (== nisa_void_return (nisa_call_has_result parser result_call)) {
                 return (nisa_fail "return call result count does not match my function")
             }
@@ -2887,6 +2959,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (== t "float") { return "float" }
     if (>= (nisa_enum_index parser t) 0) { return "int" }
     if (and (str_starts_with t "array<") (nisa_type_ok parser t)) { return "array" }
     if (!= (nisa_map_value_type t) "") { return "hashmap" }

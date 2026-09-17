@@ -396,6 +396,7 @@ typedef struct nl_ASTBinaryOp {
     int right;
     int left_type;
     int right_type;
+    bool is_unary;
 } nl_ASTBinaryOp;
 typedef nl_ASTBinaryOp ASTBinaryOp;
 #endif

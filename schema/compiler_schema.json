@@ -369,6 +369,10 @@
         [
           "right_type",
           "int"
+        ],
+        [
+          "is_unary",
+          "bool"
         ]
       ],
       "emit_c": true

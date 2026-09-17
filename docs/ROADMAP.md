@@ -8818,6 +8818,29 @@ Compiler product:
       shadow probe reaches `substitute_union_field_type` and rejects its nested
       string appends to `[]`. I retain negative type controls and require exact
       C-seed bytecode plus VM/native execution before rerunning the closure.
+- [ ] I preserve exact `float_to_string` formatting across interpreter, native and VM
+      (`task_29976241a36244f7b0ce4ad75cb10b3f`). My C-seed interpreter/native runtime
+      appends `.0` for whole floats; my VM cast and self-hosted native path omit it.
+      I retain signed-zero checks independently and require explicit formatting
+      parity before claiming this builtin agrees across backends.
+- [x] I lower typed F64 opcodes in native AOT with strict float operands
+      (`task_fd4c63cf9f3e46f09ece380ce00c7a58`). The exact C-seed/self-hosted scalar fixture
+      now verifies and runs in NanoVM and native after PR513. I retain signed
+      zero, comparison tags and VM division behavior; the integrated paired
+      emitter gate passes 86 comparisons and 81 Python methods.
+- [x] I retain unary-minus provenance for exact float lowering
+      (`task_ef26778894c441c2b1002128fd0a8c37`), before float dependency-shadow task
+      `task_8bc58d33e73f4e24a474d3724d862c94`. I preserve the distinction from
+      subtraction explicitly through schema/parser metadata. Negative-zero and
+      exact opcode checks pass, as do fresh native bootstrap and three-compiler
+      execution; see `evidence/nanoisa-scalar-floats.md`.
+- [x] I lower scalar float literals, results and comparisons in dependency
+      shadows (`task_8bc58d33e73f4e24a474d3724d862c94`), retaining source lexemes
+      and the unchanged canonical dependency-shadow regression. I require
+      C-seed bytecode, VM/native execution and output-preservation controls.
+      Direct returns of float formatting must use inline builtin lowering,
+      rather than ordinary function tail-call resolution. Float call results must
+      also match the declared return type before inline or tail-call emission.
 - [x] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`). I retain range evaluation order,
       lexical scope and nested break/continue/return behavior. My integrated

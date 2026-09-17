@@ -1582,6 +1582,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     
     /* ASTBinaryOp fields */
     set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "op", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "is_unary", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "left_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBinaryOp", field_name: "right", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
