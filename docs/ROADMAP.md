@@ -31,9 +31,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `List<string>` during native token lowering; keyword element tokens
       currently produce an invalid `nl_List` field. MAC `task_f0a59def9afe4a08ae63c55d4ba22109`.
 
-- [ ] **Record-valued call pushes.** I capture a record-returning call once
-      before taking its address for native `array_push`; the current direct
-      form produces invalid C while a typed local works. MAC `task_6ce6ece22ae34698a178bf29ee04412b`.
+- [x] **Record-valued call pushes.** I capture the receiver and record-returning
+      value once in source order before taking its address for native
+      `array_push`. MAC `task_6ce6ece22ae34698a178bf29ee04412b`; evidence:
+      `docs/evidence/native-record-array-append.md`.
 
 - [x] **Mixed native nominal definition order.** I order record and union
       definitions by their by-value dependencies, preserve pointer-backed
@@ -8426,6 +8427,9 @@ Compiler product:
 - [ ] I propagate required foreign header search paths through transitive
       C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`). My
       module compiler currently omits a dependency manifest's header directory.
+- [ ] I preserve aliases when my shadow interpreter appends to an empty
+      array (`task_adb9b837ce4144a68a9d91ea00749ae0`). Converting the empty
+      static representation currently creates a separate dynamic array.
 - [x] I let my module builder source pass its own conservative PCH capture
       scan without changing the runtime marker or rejection policy
       (`task_c4dc3150e78c4afda7d58fd490801a05`). Four checks preserve canonical PCH capture and refusal cases.
@@ -8494,10 +8498,10 @@ Compiler product:
       projection now selects the right field when records reuse field names;
       typed, `at` and `array_get` fixtures retain nested arrays and shadows.
       Evidence: `docs/evidence/nested-record-projection.md`.
-- [ ] I preserve record element storage when appending through an array field
-      (`task_12805797d36043cd875792788f330520`). My native C helper currently
-      selects integer storage for `array_push value.symbols (symbol "third" 3)`;
-      this is separate from the repaired VM projection metadata.
+- [x] I preserve record element storage when appending through an array field
+      (`task_12805797d36043cd875792788f330520`). I use declared element metadata
+      and addressable snapshots. Native execution now passes the original
+      nested projection fixture; `docs/evidence/native-record-array-append.md`.
 - [x] I represent nonempty record-array literals as dynamic arrays in my C
       seed, preserving child order and nominal element identity
       (`task_a5fc558cbfa34f14b4d580923de4209c`). Native/VM execution,

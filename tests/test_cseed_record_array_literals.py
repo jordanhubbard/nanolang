@@ -35,8 +35,43 @@ class RecordArrayLiterals(unittest.TestCase):
                 with self.subTest(form=label):
                     source = root / (label + '.nano')
                     source.write_text(program)
+                    self.run_checked([ROOT/'bin/nanoc_c', source, '-o', root/'native'])
+                    self.run_checked([root/'native'])
                     self.run_checked([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', root/'module.nvm'])
                     self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
+
+    def test_record_append_captures_receiver_and_returned_value_in_order(self):
+        source_text = """struct Item { number: int, label: string }
+struct Holder { items: array<Item> }
+let mut events: int = 0
+fn receiver(items: array<Item>) -> array<Item> { set events (+ (* events 10) 1) return items }
+shadow receiver { let items: array<Item> = [] assert (== (array_length (receiver items)) 0) }
+fn item(number: int) -> Item { set events (+ (* events 10) 2) return Item { number: number, label: "kept" } }
+shadow item { assert (== (item 7).number 7) }
+fn main() -> int {
+ let holder: Holder = Holder { items: [Item { number: 0, label: "initial" }] }
+ let __nl_arg_0_0: int = 7
+ set events 0
+ let result: array<Item> = (array_push (receiver holder.items) (item __nl_arg_0_0))
+ assert (== events 12)
+ assert (== (array_length holder.items) 2)
+ assert (== (at result 1).number 7)
+ assert (== (at result 1).label "kept")
+ let local: array<Item> = []
+ let appended: array<Item> = (array_push local (item 9))
+ assert (== (at appended 0).number 9)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root/'main.nano'
+            source.write_text(source_text)
+            self.run_checked([ROOT/'bin/nanoc_c', source, '-o', root/'native'])
+            self.run_checked([root/'native'])
+            self.run_checked([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', root/'module.nvm'])
+            self.run_checked([ROOT/'bin/nano_vm', root/'module.nvm'])
 
     def test_mixed_nominal_elements_reject(self):
         with tempfile.TemporaryDirectory() as tmp:
