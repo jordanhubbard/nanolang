@@ -52,6 +52,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       guarded by paired stored/returned/forwarded refusal and prior-output
       controls. Borrowed callback transfer itself remains unsupported. MAC `task_5647b9905ea3eb914389f660d54634bd`.
 - [x] I publish refreshed seeded and canonical native compiler product acceptance at `8666cb09` after typed floats and true branches (MAC `task_f1bcd093f86b433a8f3d59139939187b`). Both existing positive gates pass with default shadows and exact hello outputs in VM/native; My [retained hashes and command timings](evidence/native-compiler-readiness-8666.md) record405.053seconds for both gates without claiming full native self-compilation or the pending VM-shadow cutover.
+- [ ] I test full native self-compilation using my repaired canonical native compiler product from code pin `8666cb09` (MAC `task_fc43d8d1923b40ebb343ae56da535dfc`). I retain a clean immutable source checkout, normal shadows and the existing 1800-second per-stage diagnostic budget.
+  - [ ] I compile the full compiler source to a verified Stage 1 module and retain exact commands, exit status, timings and artifact hashes.
+  - [ ] If Stage 1 passes, I translate it to native and compile the same pinned source to Stage 2, comparing raw module bytes and their exact immutable host closure.
+  - [ ] I check the generated compiler product and publish the observed boundary separately from canonical VM bootstrap and the pending VM-shadow cutover.
 
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
