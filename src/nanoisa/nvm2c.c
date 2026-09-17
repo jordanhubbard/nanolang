@@ -2072,6 +2072,20 @@ static void scalar_value_expression(Nvm2cBuf *b, char *out, size_t size, uint8_t
     else nvm2c_fail(b, "I require a tagged or scalar array element");
 }
 
+/* I give record locals stable invocation-owned addresses. Other locals retain
+ * their scalar/handle storage; every local use shares this spelling. */
+static void local_operand(char out[32], const Nvm2cBuf *b, const uint8_t *kinds,
+                          uint32_t idx, uint16_t slot) {
+    if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_REC) {
+        unsigned record_slot = 0;
+        for (uint16_t i = 0; i < slot; ++i)
+            if (fn_local_kind(b, kinds, idx, i) == NVM2C_VK_REC) ++record_slot;
+        snprintf(out, 32, "rl[%u]", record_slot);
+    } else {
+        snprintf(out, 32, "l%u", (unsigned)slot);
+    }
+}
+
 /* I publish only live operand slots, not stale high-water temporaries. Caller
  * snapshots stay registered while callees run; mutable aggregates are traced
  * from their current contents at collection time. */
@@ -2084,8 +2098,10 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
         uint8_t k = fn_local_kind(b, kinds, idx, i);
         if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
             integer_array_storage(k)) continue;
-        nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %sl%u);\n", k,
-                     k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "", i);
+        char local[32];
+        local_operand(local, b, kinds, idx, i);
+        nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %s%s);\n", k,
+                     k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "", local);
     }
     for (int i = 0; i < st->sp; ++i) {
         uint8_t k = st->kinds[i];
@@ -2322,14 +2338,19 @@ static int emit_self_tail_restart(Nvm2cBuf *b, Nvm2cStack *st, uint32_t idx,
         nvm2c_printf(b, "        %s tc%u = %s[%d];\n", c_local_type(kind),
                      (unsigned)i, stack_array_name(kind), args[i]);
     }
-    for (uint16_t i = 0; i < fn->arity; ++i)
-        nvm2c_printf(b, "        l%u = tc%u;\n", (unsigned)i, (unsigned)i);
+    for (uint16_t i = 0; i < fn->arity; ++i) {
+        char local[32];
+        local_operand(local, b, kinds, idx, i);
+        nvm2c_printf(b, "        %s = tc%u;\n", local, (unsigned)i);
+    }
     for (uint16_t i = fn->arity; i < fn->local_count; ++i) {
         uint8_t kind = fn_local_kind(b, kinds, idx, i);
+        char local[32];
+        local_operand(local, b, kinds, idx, i);
         if (kind == NVM2C_VK_STR)
-            nvm2c_printf(b, "        l%u = \"\";\n", (unsigned)i);
+            nvm2c_printf(b, "        %s = \"\";\n", local);
         else
-            nvm2c_printf(b, "        l%u = (%s){0};\n", (unsigned)i, c_local_type(kind));
+            nvm2c_printf(b, "        %s = (%s){0};\n", local, c_local_type(kind));
     }
     nvm2c_puts(b, "        goto L_tco;\n    }\n");
     return 1;
@@ -2401,8 +2422,23 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     nvm2c_puts(b, ") {\n");
 
+    unsigned record_locals = 0;
+    for (i = 0; i < fn->local_count; i++)
+        if (fn_local_kind(b, kinds, idx, i) == NVM2C_VK_REC) ++record_locals;
+    if (record_locals) {
+        nvm2c_printf(b, "    nrec_t *rl = calloc(%u, sizeof *rl);\n"
+                       "    if (!rl) abort();\n", record_locals);
+    }
     for (i = 0; i < fn->local_count; i++) {
         uint8_t lk = fn_local_kind(b, kinds, idx, i);
+        if (lk == NVM2C_VK_REC) {
+            if (i < fn->arity) {
+                char local[32];
+                local_operand(local, b, kinds, idx, i);
+                nvm2c_printf(b, "    %s = a%u;\n", local, (unsigned)i);
+            }
+            continue;
+        }
         if (i < fn->arity) {
             nvm2c_printf(b, "    %s l%u = a%u;\n", c_local_type(lk), (unsigned)i, (unsigned)i);
         } else if (lk == NVM2C_VK_STR) {
@@ -2413,8 +2449,6 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_printf(b, "    narr_t l%u = {0};\n", (unsigned)i);
         } else if (lk == NVM2C_VK_SARR) {
             nvm2c_printf(b, "    nsarr_t l%u = {0};\n", (unsigned)i);
-        } else if (lk == NVM2C_VK_REC) {
-            nvm2c_printf(b, "    nrec_t l%u = {0};\n", (unsigned)i);
         } else if (lk == NVM2C_VK_RARR) {
             nvm2c_printf(b, "    nrarr_t l%u = {0};\n", (unsigned)i);
         } else if (lk == NVM2C_VK_MAP) {
@@ -2731,7 +2765,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             char rhs[32];
-            snprintf(rhs, sizeof rhs, "l%u", (unsigned)slot);
+            local_operand(rhs, b, kinds, idx, slot);
             if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_STR) {
                 stack_push_str(b, &st, rhs);
             } else if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_FLOAT) {
@@ -2782,7 +2816,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 } else if (expect == NVM2C_VK_SARR) {
                     nvm2c_printf(b, "    l%u = sa[%d];\n", (unsigned)slot, t);
                 } else if (expect == NVM2C_VK_REC) {
-                    nvm2c_printf(b, "    l%u = r[%d];\n", (unsigned)slot, t);
+                    char local[32];
+                    local_operand(local, b, kinds, idx, slot);
+                    nvm2c_printf(b, "    %s = r[%d];\n", local, t);
                 } else if (expect == NVM2C_VK_RARR) {
                     nvm2c_printf(b, "    l%u = ra[%d];\n", (unsigned)slot, t);
                 } else if (expect == NVM2C_VK_MAP) {
@@ -3761,8 +3797,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         nvm2c_fail(b, "function %u: falls off the end without RET or HALT", idx);
         goto done;
     }
-    nvm2c_puts(b, "L_return:\n    free(r);\n");
+    nvm2c_puts(b, "L_return:\n");
     if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
+    nvm2c_puts(b, "    free(r);\n");
+    if (record_locals) nvm2c_puts(b, "    free(rl);\n");
     nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     /* I emit the body once, then insert declarations using its actual
