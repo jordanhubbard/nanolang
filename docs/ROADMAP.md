@@ -8741,6 +8741,12 @@ Compiler product:
       emitter gate passes 86 comparisons and 70 Python methods; C-seed/Stage2
       emitters produce identical fixture assembly. See
       `docs/evidence/nanoisa-initializer-frame.md`.
+- [ ] I restore C-seed NanoVM lexical bindings after a `for` loop
+      (`task_be93f56b6a5848ebbd23ef30ccd7bfd4`). A loop variable named like an
+      outer local currently remains visible after the loop: native C passes
+      the outer-value assertion but mandatory VM shadows fail. I retain slot
+      allocation while restoring binding scope and require native/VM controls
+      before using C-seed output as the range-lowering parity reference.
 - [ ] I lower range `for` loops required by my full compiler shadow closure
       (`task_ef6adaee5e3644c8a8218ede4b01e6b3`), after the shadow-module emitter.
       My correctly captured full probe stops at `tokenize_string` because
