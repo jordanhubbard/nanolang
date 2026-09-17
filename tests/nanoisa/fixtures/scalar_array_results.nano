@@ -1,0 +1,37 @@
+fn empty() -> array<string> { return [] }
+shadow empty { assert (== (array_length (empty)) 0) }
+fn words(prefix: string) -> array<string> {
+    let mut values: array<string> = []
+    set values [prefix, (+ prefix "!")]
+    return values
+}
+shadow words {
+    let values: array<string> = (words "hi")
+    assert (== (array_length values) 2)
+}
+fn relay() -> array<string> { return (words "hi") }
+shadow relay { assert (== (array_length (relay)) 2) }
+fn integers() -> array<int> { return [1, 2] }
+shadow integers { assert (== (array_length (integers)) 2) }
+fn fill(values: array<string>) -> array<string> { return (array_push values "ready") }
+shadow fill { assert (== (array_length (fill [])) 1) }
+fn main() -> int {
+    let blank: array<string> = (empty)
+    assert (== (array_length blank) 0)
+    let mut values: array<string> = (relay)
+    let first: string = (at values 0)
+    let second: string = (at values 1)
+    assert (== first "hi")
+    assert (== second "hi!")
+    set values []
+    set values (array_push values "reset")
+    let reset: string = (at values 0)
+    assert (== reset "reset")
+    let filled: array<string> = (fill [])
+    let ready: string = (at filled 0)
+    assert (== ready "ready")
+    let numbers: array<int> = (integers)
+    assert (== (at numbers 1) 2)
+    return 0
+}
+shadow main { assert (== (main) 0) }

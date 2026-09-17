@@ -7971,10 +7971,10 @@ Compiler product:
 - [x] I keep conservatively emitted scalar-array push helpers valid under
       strict native compilation when only one array kind is pushed
       (`task_2dedfc5f181f41d4951eed8927648306`).
-- [ ] I preserve declared scalar element tags for empty array locals,
+- [x] I preserve declared scalar element tags for empty array locals,
       assignments, arguments and returns; a typed empty string local currently
       differs from my C seed (`task_0443ff4ed6224f5683301055555f4209`).
-- [ ] I lower supported scalar array results; real compiler emission first
+- [x] I lower supported scalar array results; real compiler emission first
       refuses `array<string>` after scalar conversion lowering
       (`task_4ea96b68ae4b43f7a0cfc16cd7c19649`). I require C-seed and VM/native
       parity for direct/tail returns and preserve unsupported-shape refusal.

@@ -26,6 +26,7 @@ let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 let mut nisa_void_return: bool = false
+let mut nisa_return_type: string = ""
 let mut nisa_loop_top: string = ""
 let mut nisa_loop_end: string = ""
 let mut nisa_import_names: array<string> = []
@@ -40,6 +41,7 @@ fn nisa_reset() -> int {
     set nisa_err ""
     set nisa_label 0
     set nisa_void_return false
+    set nisa_return_type ""
     set nisa_loop_top ""
     set nisa_loop_end ""
     set nisa_import_names []
@@ -952,12 +954,52 @@ shadow nisa_expr_is_string {
     let _2: int = (nisa_reset)
 }
 
+# I carry declared scalar array context into empty literals without changing the AST.
+fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (and (== node_type ParseNodeType.PNODE_ARRAY_LITERAL)
+            (or (== expected "array<int>") (== expected "array<string>"))) {
+        let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+        let mut tag: string = "1"
+        let mut element: string = "int"
+        if (== expected "array<string>") { set tag "5" set element "string" }
+        let mut output: string = ""
+        let mut i: int = 0
+        while (< i literal.element_count) {
+            let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+            if (!= (nisa_expr_type parser value.node_id value.node_type) element) {
+                return (nisa_fail "array element does not match my declared scalar type")
+            }
+            set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
+            set i (+ i 1)
+        }
+        return (+ output (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string literal.element_count)))))
+    }
+    return (nisa_emit_expr parser node_id node_type)
+}
+shadow nisa_emit_expected_expr {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let source: string = (+ "f" "n main() -> array<string> { return [] }")
+    let tokens: List<LexerToken> = (tokenize_string source "array.nano" diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "array.nano")
+    assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<string>") "  ARR_LITERAL 5 0\n")
+    assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
+}
+
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
     let mut args: string = ""
     let mut i: int = 0
     while (< i call.arg_count) {
         let a: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-        set args (+ args (nisa_emit_expr parser a.node_id a.node_type))
+        let mut expected: string = ""
+        let function_index: int = (nisa_fn_index parser (nisa_call_name parser call))
+        if (>= function_index 0) {
+            let function: ASTFunction = (parser_get_function parser function_index)
+            if (< i function.param_count) {
+                let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+                set expected parameter.var_type
+            }
+        }
+        set args (+ args (nisa_emit_expected_expr parser a.node_id a.node_type expected))
         set i (+ i 1)
     }
     return args
@@ -1600,6 +1642,7 @@ shadow nisa_emit_while {
     let func: ASTFunction = (parser_get_function p 0)
     set nisa_names (array_push nisa_names "n")
     set nisa_names (array_push nisa_names "i")
+    set nisa_types ["int", "int"]
     let block: ASTBlock = (parser_get_block p func.body)
     let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
     let w: ASTWhile = (parser_get_while p stmt.node_id)
@@ -1691,13 +1734,13 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 }
             }
         } else {
-            let val: string = (nisa_emit_expr parser r.value r.value_type)
+            let val: string = (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type)
             return (+ val (nisa_line "RET"))
         }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let l: ASTLet = (parser_get_let parser stmt.node_id)
-            let val: string = (nisa_emit_expr parser l.value l.value_type)
+            let val: string = (nisa_emit_expected_expr parser l.value l.value_type l.var_type)
             if (not (nisa_type_ok parser l.var_type)) {
                 return (nisa_fail (+ "unsupported local type " l.var_type))
             } else {
@@ -1713,7 +1756,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 if (< slot 0) {
                     return (nisa_fail (+ "undefined local " s.target))
                 } else {
-                    let val: string = (nisa_emit_expr parser s.value s.value_type)
+                    let val: string = (nisa_emit_expected_expr parser s.value s.value_type (at nisa_types slot))
                     return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
                 }
             } else {
@@ -1801,6 +1844,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (or (== t "array<int>") (== t "array<string>")) { return "array" }
     if (== t "HashMap<string,int>") { return "hashmap" }
     if (or (== t "void") (or (== t "int") (or (== t "string") (== t "bool")))) {
         return t
@@ -1840,6 +1884,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_types []
     let result_tag: string = (nisa_result_tag parser func.return_type)
     set nisa_void_return (== func.return_type "void")
+    set nisa_return_type func.return_type
     set nisa_loop_top ""
     set nisa_loop_end ""
     if (== result_tag "") {
