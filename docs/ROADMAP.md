@@ -49,6 +49,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       My positive/negative matrix and fresh bootstrap precede closure. This
       is a prerequisite to verified NanoISA ownership facts, not that IR gate.
       MAC `task_71821d84befc46e198795122c1112a27`.
+      - [x] I retain shared/exclusive named-parameter annotations in both
+        parsers and explicitly reject them before unsupported lowering. My
+        parser-copy, paired refusal/retention and ordinary ownership controls
+        pass; `evidence/call-scoped-borrow-annotations.md` distinguishes the
+        diagnostic bootstrap budget from the open default-deadline task.
+      - [ ] I implement call-scoped shared reads and exclusive mutation with
+        paired overlap, move and escape rejection before admitting borrows.
 
 - [ ] **Concrete native specialization closure.** I discover union instances
       reachable only through substituted payload fields, including checked
