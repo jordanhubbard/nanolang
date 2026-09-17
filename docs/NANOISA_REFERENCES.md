@@ -125,7 +125,8 @@ real call-scoped borrows and reject `drop`/`discard` syntax.
 
 ## Function and root metadata prerequisite
 
-My next required section is OWNERSHIP (section 13, feature bit 8), version 1.
+My required declaration section is OWNERSHIP (section 13, feature bit 8), version 1.
+It requires retained layouts and does not permit reference execution by itself.
 All words are little-endian. I encode the version and retained layout count as
 u32, one u8 flag per layout (bit 0 complete, bit 1 resource), zero padding to
 four-byte alignment, and a u32 function count. For every function in table
@@ -144,3 +145,12 @@ must propagate resource classification to their complete containing layout.
 The metadata declares types; it does not prove a live owner or a correct
 instruction trace. I continue to refuse execution of resource/reference
 contracts until the instruction verifier and runtime implement them.
+
+My [declaration evidence](evidence/nanoisa-ownership-contracts.md) records
+codec and canonical seed checks, ordinary execution controls and explicit
+refusal by verified assembly, direct VM APIs and native translation.
+
+Actual float-record lowering remains an independent prerequisite
+(`task_93574cf9d200459aa16e959baf68201d`). Retaining a float field tag does not
+establish its VM/native implementation. I keep that reference case refused
+until its runtime gates pass with the other reference semantics.

@@ -4406,3 +4406,8 @@ test-units: test-ownership-contracts
 test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_ownership_contracts tests/nanoisa/test_ownership_contracts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest tests.test_ownership_contracts
+
+.PHONY: test-nanoisa-host-closure
+test-units: test-nanoisa-host-closure
+test-nanoisa-host-closure: $(COMPILER_C)
+	python3 -m unittest tests.test_nanoisa_host_closure

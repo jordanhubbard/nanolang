@@ -45,11 +45,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I complete the retained-layout and ownership source closure in every
+- [x] I complete the retained-layout and ownership source closure in every
       explicit NanoISA build list, including the Forth SEE host manifest,
       its examples shared-library rule and the regular/daemon wrapper object
       list (MAC `task_f27d1997764b4c19a5cc0f2705ec37bf`). I preserve a normal
       import failure and run real module load/link gates, not only tool builds.
+      Five wrapper links, seven publication methods and two Forth SEE
+      host build/load methods pass; evidence is in my ownership-contract report.
 
 
 - [x] I restore retained-layout source closure for canonical native seed linking (MAC `task_8b0906d2885749b88bc486ee5a7c7d5d`). Fresh merged `a3f321a6` tools build, but my canonical seed link lacks `nvm_layouts_have_facts`, `nvm_retained_layouts_valid` and `nvm_retain_layouts`. My nanoisa facade manifest omits `retained_layouts.c`; I preserve [the prerequisite failure and repaired gate](evidence/native-selfcompile-aggregate-a3f3.md); adding the defining source restores normal canonical seed linking, help and VM-shadow-checked hello publication/execution before another acceptance pin.
