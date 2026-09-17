@@ -590,6 +590,7 @@ typedef struct nl_ASTFunction {
     int param_count;
     const char * return_type;
     int body;
+    bool is_pure;
 } nl_ASTFunction;
 typedef nl_ASTFunction ASTFunction;
 #endif

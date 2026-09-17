@@ -194,7 +194,8 @@ extern struct ASTFunction {
     param_start: int,
     param_count: int,
     return_type: string,
-    body: int
+    body: int,
+    is_pure: bool
 }
 
 extern struct ASTShadow {

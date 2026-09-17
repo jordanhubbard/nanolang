@@ -235,6 +235,27 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       runs, fixture cleanup, prior sentinel preservation and unavailable-temp
       rejection without an output artifact.
 
+- [x] **Closed purity summary foundation.** I preserve `pure fn` annotations in
+      both frontends, derive transitive effects for known bodies, and reject
+      false purity, mutable state, unknown calls, unsafe operations and resources.
+      I compare shared positive/negative fixtures, including recursive closure.
+      I reject mutable aggregate globals/parameters, including scalar-record
+      wrappers around arrays: immutable handles are not deep-immutability proof.
+      This is an eligibility prerequisite, not completed `par`/`flow` semantics.
+      MAC `task_41966fd9c9da4f1babfab0a8a25a66c4`.
+      My three-stage bootstrap, shared Cseed/Stage 2 conformance, typechecker,
+      runtime-list and schema checks pass; see
+      [`closed-purity-foundation.md`](evidence/closed-purity-foundation.md).
+      I also preserve complete imported parameter metadata: my old module
+      registration left `type_info` uninitialized, which resource-signature
+      inspection exposed during bootstrap.
+
+- [ ] **Selfhost bool-array record-field mutation.** I must select the bool
+      setter for `array_set record.flags`, preserving mandatory native shadows.
+      My purity bootstrap exposed an incorrect int setter; typed local aliases
+      isolate the foundation while this repair remains open.
+      MAC `task_d32adbdff13241dc8ad9b0a889071352`.
+
 - [x] **Self-hosted string prefix runtime.** I implement my `str_starts_with`
       native runtime contract so importing NanoISA lowering does not leave an
       undefined `nl_str_starts_with` while compiling Stage 2 shadows.

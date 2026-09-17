@@ -3170,6 +3170,8 @@ $(OBJ_DIR)/ffi_bindgen.o: src/ffi_bindgen.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c src/ffi_bindgen.c -o $(OBJ_DIR)/ffi_bindgen.o
 
 # Special dependency: transpiler.o depends on transpiler_iterative_v3_twopass.c (which is #included)
+$(OBJ_DIR)/typechecker.o: $(SRC_DIR)/typechecker_purity.c $(SRC_DIR)/generated/purity_intrinsics.h
+
 $(OBJ_DIR)/transpiler.o: $(SRC_DIR)/transpiler.c $(SRC_DIR)/transpiler_iterative_v3_twopass.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/transpiler.c -o $@
 
@@ -4152,3 +4154,9 @@ test-global-initializer-context: $(COMPILER_C) nano_virt
 test-units: test-selfhost-enum-metadata
 test-selfhost-enum-metadata: bootstrap3
 	python3 tests/test_selfhost_enum_metadata.py
+.PHONY: test-purity-contract
+test-purity-contract: bootstrap
+	python3 scripts/gen_purity_intrinsics.py --check
+	python3 tests/test_purity_contract.py
+
+test-units: test-purity-contract

@@ -450,124 +450,7 @@ static bool contains_extern_calls(ASTNode *node, Environment *env) {
     }
 }
 
-/* Check that a pure fn body contains no purity violations.
- * Violations: AST_SET, mutable AST_LET, AST_PRINT (I/O), calls to non-pure functions.
- * Reports errors via emit_context_error and increments g_typecheck_error_count.
- */
-static void check_purity(ASTNode *node, Environment *env, const char *fn_name) {
-    if (!node) return;
-
-    switch (node->type) {
-        case AST_SET:
-            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 3,
-                "Assignment ('set') is not allowed in a pure fn",
-                "Remove 'set' or change 'pure fn' to 'fn'");
-            g_typecheck_error_count++;
-            break;
-
-        case AST_LET:
-            if (node->as.let.is_mut) {
-                emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 7,
-                    "'let mut' is not allowed in a pure fn",
-                    "Use 'let' (immutable) or change 'pure fn' to 'fn'");
-                g_typecheck_error_count++;
-            }
-            check_purity(node->as.let.value, env, fn_name);
-            break;
-
-        case AST_PRINT:
-            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 5,
-                "I/O (print/println) is not allowed in a pure fn",
-                "Remove print/println or change 'pure fn' to 'fn'");
-            g_typecheck_error_count++;
-            break;
-
-        case AST_CALL: {
-            const char *callee = node->as.call.name;
-            Function *callee_fn = env_get_function(env, callee);
-            /* Builtins flagged BUILTIN_PURE in the registry are always allowed */
-            bool callee_is_builtin_pure = false;
-            if (callee_fn) {
-                const BuiltinEntry *be = builtin_find(callee);
-                if (be && (be->flags & BUILTIN_PURE)) callee_is_builtin_pure = true;
-            }
-            /* non-pure functions are impure; pure extern fn / BUILTIN_PURE are allowed */
-            if (callee_fn && !callee_fn->is_pure && !callee_is_builtin_pure) {
-                char msg[256];
-                snprintf(msg, sizeof(msg),
-                    "Call to impure function '%s' is not allowed in a pure fn", callee);
-                emit_context_error("E002 PURITY VIOLATION", node->line, node->column,
-                    (int)strlen(callee), msg,
-                    "Annotate the callee as 'pure fn' or change this fn to 'fn'");
-                g_typecheck_error_count++;
-            }
-            /* Recurse into arguments regardless */
-            for (int i = 0; i < node->as.call.arg_count; i++)
-                check_purity(node->as.call.args[i], env, fn_name);
-            break;
-        }
-
-        case AST_BLOCK:
-            for (int i = 0; i < node->as.block.count; i++)
-                check_purity(node->as.block.statements[i], env, fn_name);
-            break;
-
-        case AST_IF:
-            check_purity(node->as.if_stmt.condition, env, fn_name);
-            check_purity(node->as.if_stmt.then_branch, env, fn_name);
-            check_purity(node->as.if_stmt.else_branch, env, fn_name);
-            break;
-
-        case AST_WHILE:
-            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 5,
-                "'while' loops are not allowed in a pure fn",
-                "Use recursion instead, or change 'pure fn' to 'fn'");
-            g_typecheck_error_count++;
-            break;
-
-        case AST_FOR:
-            emit_context_error("E002 PURITY VIOLATION", node->line, node->column, 3,
-                "'for' loops are not allowed in a pure fn",
-                "Use recursion instead, or change 'pure fn' to 'fn'");
-            g_typecheck_error_count++;
-            break;
-
-        case AST_RETURN:
-            check_purity(node->as.return_stmt.value, env, fn_name);
-            break;
-
-        case AST_PREFIX_OP:
-            for (int i = 0; i < node->as.prefix_op.arg_count; i++)
-                check_purity(node->as.prefix_op.args[i], env, fn_name);
-            break;
-
-        case AST_ARRAY_LITERAL:
-            for (int i = 0; i < node->as.array_literal.element_count; i++)
-                check_purity(node->as.array_literal.elements[i], env, fn_name);
-            break;
-
-        case AST_FIELD_ACCESS:
-            check_purity(node->as.field_access.object, env, fn_name);
-            break;
-
-        case AST_MATCH:
-            check_purity(node->as.match_expr.expr, env, fn_name);
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
-                check_purity(node->as.match_expr.arm_bodies[i], env, fn_name);
-            break;
-
-        case AST_COND:
-            for (int i = 0; i < node->as.cond_expr.clause_count; i++) {
-                check_purity(node->as.cond_expr.conditions[i], env, fn_name);
-                check_purity(node->as.cond_expr.values[i], env, fn_name);
-            }
-            check_purity(node->as.cond_expr.else_value, env, fn_name);
-            break;
-
-        default:
-            break;
-    }
-}
+#include "typechecker_purity.c"
 
 /* Check if types are compatible */
 static Type type_from_typeinfo(TypeInfo *info, const char **out_struct_name);
@@ -7482,6 +7365,8 @@ register_function_pass2:;
             f.param_count = item->as.function.param_count;
             f.params = malloc(sizeof(Parameter) * f.param_count);
             for (int j = 0; j < f.param_count; j++) {
+                /* I preserve borrowed generic/tuple metadata before copying owned names. */
+                f.params[j] = item->as.function.params[j];
                 f.params[j].name = strdup(item->as.function.params[j].name);
                 f.params[j].type = item->as.function.params[j].type;
                 f.params[j].struct_type_name = item->as.function.params[j].struct_type_name ? 
