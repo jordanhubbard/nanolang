@@ -159,6 +159,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       module does not call `nagg_add` or `nagg_drop`; three strict generated-C
       cases fail on Darwin after the aggregate-retention merge
       (`task_6363b1e55bd145749ef892d71a552735`).
+- [ ] I complete unchanged-calculator bytecode/native acceptance through both producers after the float-to-int contract lands (`task_668e98f3e13e4fcebb3a2f92e671c713`, depends on `task_b927827f37734658bce360d7ecf913aa`). At `c2c7a74c` my C-seed module verifies and prints `Result: 3.14159` in the VM; native translation explicitly refuses the float cast in `format_float`.
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
