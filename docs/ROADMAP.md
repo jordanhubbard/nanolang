@@ -8566,6 +8566,15 @@ Compiler product:
       and shadow semantics while completing the independent VM route. AOT
       stage equality cannot close this acceptance item. Evidence:
       `docs/evidence/vm-bootstrap-budget.md`.
+  - [x] I share the existing linear local-declaration classification across
+        typechecking, NanoISA lowering and native-shadow C generation, replacing
+        the three repeated transpiler scans without importing the full
+        typechecker. I preserve parser index semantics and compare generated
+        C/assembly and initialization behavior. My 86 comparison checks and
+        64 Python methods pass, as does a fresh three-stage native bootstrap.
+        A 40-worker fixture produces identical 37,116-byte generated C before
+        and after this extraction; native initialization/mutation checks pass.
+        Evidence: `docs/evidence/shared-declaration-ownership.md`.
   - [x] I precompute per-let global ownership once from ordinary/unsafe block
         statements and function parameters, preserving IDs, declaration order,
         initializer effects and exact fixture bytecode. I compare the old

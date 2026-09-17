@@ -1,3 +1,4 @@
+from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 /* =============================================================================
  * NanoISA lowering (src_nano dual of src/nanovirt/codegen.c, pinned subset)
  * =============================================================================
@@ -849,47 +850,15 @@ shadow nisa_is_global_let {
 }
 
 fn nisa_global_let_flags(parser: Parser) -> array<bool> {
-    let count: int = (parser_get_let_count parser)
-    let mut flags: array<bool> = (array_new count true)
+    let mut flags: array<bool> = (declaration_local_lets parser)
     let mut i: int = 0
-    while (< i (list_ASTBlock_length parser.blocks)) {
-        let block: ASTBlock = (parser_get_block parser i)
-        let mut j: int = 0
-        while (< j (list_ASTStmtRef_length block.statements)) {
-            let item: ASTStmtRef = (list_ASTStmtRef_get block.statements j)
-            if (and (== item.node_type ParseNodeType.PNODE_LET) (and (>= item.node_id 0) (< item.node_id count))) {
-                (array_set flags item.node_id false)
-            }
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    set i 0
-    while (< i (list_ASTUnsafeBlock_length parser.unsafe_blocks)) {
-        let block: ASTUnsafeBlock = (parser_get_unsafe_block parser i)
-        let mut j: int = 0
-        while (< j (list_ASTStmtRef_length block.statements)) {
-            let item: ASTStmtRef = (list_ASTStmtRef_get block.statements j)
-            if (and (== item.node_type ParseNodeType.PNODE_LET) (and (>= item.node_id 0) (< item.node_id count))) {
-                (array_set flags item.node_id false)
-            }
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    set i 0
-    while (< i (parser_get_function_count parser)) {
-        let function: ASTFunction = (parser_get_function parser i)
-        let mut index: int = function.param_start
-        if (< index 0) { set index 0 }
-        while (and (< index count) (< index (+ function.param_start function.param_count))) {
-            (array_set flags index false)
-            set index (+ index 1)
-        }
+    while (< i (array_length flags)) {
+        (array_set flags i (not (at flags i)))
         set i (+ i 1)
     }
     return flags
 }
+
 shadow nisa_global_let_flags {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
     let source: string = (+ "let first: int = 1 f" "n f(arg: int) -> int { let local: int = 2 if true { let nested: int = 3 } unsafe { let inner: int = 4 } return local } shadow f { let test: int = 5 } let last: int = 6 fn main() -> int { return 0 }")
