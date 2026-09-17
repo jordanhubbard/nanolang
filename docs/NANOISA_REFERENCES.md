@@ -154,3 +154,29 @@ Actual float-record lowering remains an independent prerequisite
 (`task_93574cf9d200459aa16e959baf68201d`). Retaining a float field tag does not
 establish its VM/native implementation. I keep that reference case refused
 until its runtime gates pass with the other reference semantics.
+
+## Local instruction-state prerequisite
+
+I first check local-normalized transitions before mapping them to bytecode.
+I obtain exact local tags/layouts and parameter modes from my validated
+OWNERSHIP section. Scalar definition cannot manufacture an owned record.
+Record construction names every field in order and moves resource fields;
+a whole-record move invalidates its source. Whole-record unpack consumes
+its source atomically and gives each resource field its own obligation.
+A scalar observation never consumes a containing owner. I reject replacement
+of a live resource and every failed transition preserves the prior state.
+
+I form references in a nested call region, before evaluating later arguments.
+Each reference retains the root and numeric projection; a subordinate
+reborrow preserves that place and cannot strengthen its parent's mode.
+Parent access is suspended when incompatible with a live child. Region end
+invalidates its references; exit requires no regions and no untransferred
+owned locals. I compare joins exactly, including local liveness, reference
+slots, provenance, modes and region depth. An uninitialized or consumed local
+cannot be accessed. I do not merge disagreement into an unknown value.
+
+This transition API is not an executable bytecode verifier. I still require
+operand-stack provenance, instruction decoding, reachable CFG propagation,
+loop/back-edge checks and callee argument/result transfer. I keep all current
+resource/reference execution refusals until those checks and genuine VM/native
+reference lowering pass. No wire opcode is allocated by this prerequisite.
