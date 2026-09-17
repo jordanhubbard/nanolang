@@ -45,6 +45,21 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] **Checked NanoISA reference places.** I implement the first reference IR
+      prerequisite under `task_ed70242ac4d83be7b2327da7ece387ad`, preserving
+      full borrow parent718 and the release hold (MAC `task_83d7ced8a4e34d93b7193fdf2b841137`).
+  - [ ] I document nominal root/path identity, shared/exclusive overlap,
+        lifetime/non-escape verification and VM/native lowering in
+        [my reference contract](NANOISA_REFERENCES.md).
+  - [ ] I validate nested record paths and scalar referents against retained
+        v2 layouts, and test disjoint/prefix/access decisions without enabling
+        unsupported reference bytecode.
+  - [ ] I retain authoritative function/resource contracts through transport,
+        then implement precise instruction verification and real VM/native
+        references before paired producer admission and artifact equivalence.
+        Service handles and complete affine acceptance remain ed702/d03c/28f.
+
+
 - [x] I restore my standalone ownership allocation gate after retained-type
       queries outgrew its fixture stubs. I account for call-hold calloc and
       strdup, preserve 300-binding growth checks, and inject failures through
