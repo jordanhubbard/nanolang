@@ -144,8 +144,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 - [ ] **Transfer concrete generic selected payloads.** After ordinary generic
       pattern validation, I substitute only the selected arm's fields before
-      assigning ownership obligations. I require paired executable resource,
-      ordinary and empty-arm controls plus drop, duplicate-consumption,
+      assigning ownership obligations. I retain declared initializer, parameter
+      and return contexts while transferring constructor payloads; I do not
+      reconstruct missing arguments from sibling variants. I require paired
+      executable resource, ordinary and empty-arm controls plus drop, duplicate-consumption,
       use-after-move and branch-join rejection. I preserve guards for unresolved
       payload shapes, collections and incomplete function signatures. Global
       ownership and direct nested field-scrutinee inference remain separate. MAC
