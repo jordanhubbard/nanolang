@@ -45,6 +45,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I publish refreshed seeded and canonical native compiler product acceptance at `8666cb09` after typed floats and true branches (MAC `task_f1bcd093f86b433a8f3d59139939187b`). Both existing positive gates pass with default shadows and exact hello outputs in VM/native; My [retained hashes and command timings](evidence/native-compiler-readiness-8666.md) record405.053seconds for both gates without claiming full native self-compilation or the pending VM-shadow cutover.
+
 - [ ] I define explicit native float-to-int conversion for finite values and exceptional/range boundaries before matching VM behavior (MAC `task_b927827f37734658bce360d7ecf913aa`). Static float `CAST_INT` is already refused; tagged float transport must also refuse instead of silently returning zero. I retain that boundary in the typed-float regression.
 
 - [x] I lower typed F64 arithmetic, negation and comparisons in native AOT with strict operand tags, boolean result tags, signed zero and the VM's zero-divisor result (MAC `task_fd4c63cf9f3e46f09ece380ce00c7a58`). The actual paired scalar fixture also requires float global transport and float `CAST_STRING`; I preserve current VM formatting rather than changing the separately tracked source-builtin formatting policy.
