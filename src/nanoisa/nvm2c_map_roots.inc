@@ -5,7 +5,7 @@
 "typedef struct nroot_frame { nroot_list live; struct nroot_frame *prev; } nroot_frame;\n"
 "static nroot_frame *nroot_head;\n"
 "static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {\n"
-"    if (!ptr || kind == 0 || kind == 2 || kind == 3 || kind == 9 || kind == 10) return;\n"
+"    if (!ptr || kind == 0 || kind == 2 || kind == 3 || kind == 9 || kind == 10 || kind == 11) return;\n"
 "    for (size_t i = 0; i < list->count; ++i)\n"
 "        if (list->items[i].kind == kind && list->items[i].ptr == ptr) return;\n"
 "    if (list->count == list->capacity) {\n"

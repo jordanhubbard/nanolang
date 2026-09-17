@@ -1957,13 +1957,15 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
     nvm2c_puts(b, "    nroots.live.count = 0;\n");
     for (uint16_t i = 0; i < fn->local_count; ++i) {
         uint8_t k = fn_local_kind(b, kinds, idx, i);
-        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || integer_array_storage(k)) continue;
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
+            integer_array_storage(k)) continue;
         nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %sl%u);\n", k,
                      k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "", i);
     }
     for (int i = 0; i < st->sp; ++i) {
         uint8_t k = st->kinds[i];
-        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || integer_array_storage(k)) continue;
+        if (k == NVM2C_VK_INT || k == NVM2C_VK_BOOL || k == NVM2C_VK_FLOAT ||
+            integer_array_storage(k)) continue;
         nvm2c_printf(b, "    nroot_add(&nroots.live, %u, %s%s[%d]);\n", k,
                      k == NVM2C_VK_REC || k == NVM2C_VK_VALUE ? "&" : "",
                      stack_array_name(k), st->slots[i]);
@@ -3529,6 +3531,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             terminated = 1;
             break;
         case OP_CALL_EXTERN: {
+            /* A host call may re-enter generated code through a callback. I
+             * publish its caller before consuming the host arguments. */
+            emit_map_roots(b, &st, fn, kinds, idx);
             const Nvm2cHost *host = import_host(mod, ins.operands[0].u32);
             if (!host) {
                 nvm2c_fail(b, "CALL_EXTERN has no exact builtin host ABI");

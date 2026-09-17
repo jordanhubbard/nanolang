@@ -38,3 +38,8 @@ Evidence on the integration branch:
 `make test-one-ir-compiler` now includes this lifetime gate. PR #303's other
 commits and ancestry still require reconciliation; this repair alone does not
 complete the release. MAC: `task_d3310bef8bd541ba9e1e267ee213eb9e`.
+
+For 5.0.1 I also verify scalar floats at local and operand-stack safepoints and
+non-self tail-call frame teardown. Float and integer-array storage are never
+interpreted as pointers. I track the patch release as
+`task_a94efdfee3486a0814f93336cf5c052c`.

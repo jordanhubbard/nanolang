@@ -37,6 +37,7 @@ class NativeMapLifetimes(unittest.TestCase):
             self.run_checked([translator, module, '-o', source])
             generated = source.read_text()
             self.assertIn('    nmap_release_owned();', generated)
+            self.assertNotIn('nroot_add(&nroots.live, 11,', generated)
             # I check bounded live owners, not merely an eventual process exit.
             generated = generated.replace('    nmap_release_owned();',
                 '    nmap_release_owned();\n'
@@ -70,6 +71,9 @@ class NativeMapLifetimes(unittest.TestCase):
                           'PUSH_I64 42\nEQ\nASSERT\n',
             'map_operand': 'HM_NEW 5 1\nPUSH_STR key\nPUSH_I64 42\nHM_SET\nCALL churn\n'
                            'PUSH_STR key\nHM_GET\nPUSH_I64 42\nEQ\nASSERT\n',
+            'float_local': 'PUSH_F64 1.25\nSTORE_LOCAL 0\nCALL churn\nLOAD_LOCAL 0\n'
+                           'PUSH_F64 1.25\nEQ\nASSERT\n',
+            'float_operand': 'PUSH_F64 1.25\nCALL churn\nPUSH_F64 1.25\nEQ\nASSERT\n',
         }
         for name, body in cases.items():
             with self.subTest(name=name):
@@ -95,6 +99,14 @@ class NativeMapLifetimes(unittest.TestCase):
             'PUSH_I64 0\nSTORE_LOCAL 1\nagain:\n' + GET +
             'POP\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 1\n'
             'LOAD_LOCAL 1\nPUSH_I64 20000\nI64_EQ\nJMP_FALSE again\nRET\n.end\n')
+
+    def test_non_self_tail_unregisters_root_frame(self):
+        self.check_program(HEADER +
+            '.function main 0 1 0 int 1\nHM_NEW 5 1\nPUSH_STR key\nPUSH_I64 42\nHM_SET\n'
+            'STORE_LOCAL 0\nLOAD_LOCAL 0\nCALL relay\nPUSH_I64 42\nI64_EQ\nASSERT\n'
+            'CALL churn\nCALL churn\nPUSH_I64 0\nRET\n.end\n' + HELPERS +
+            '.function relay 1 1 0 int 1\nLOAD_LOCAL 0\nTAIL_CALL read\n.end\n'
+            '.function read 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_STR key\nHM_GET\nCAST_INT\nRET\n.end\n')
 
 
 if __name__ == '__main__':
