@@ -1,0 +1,31 @@
+struct Location { file: string, line: int }
+struct Diagnostic { location: Location, message: string }
+struct Report { diagnostics: List<Diagnostic>, first: Location, second: Location }
+
+fn diagnostic(line: int) -> Diagnostic {
+    return Diagnostic { location: Location { file: "source", line: line }, message: "message" }
+}
+shadow diagnostic { let value: Diagnostic = (diagnostic 7) assert (== value.location.line 7) }
+
+fn report() -> Report {
+    let diagnostics: List<Diagnostic> = (list_Diagnostic_new)
+    (list_Diagnostic_push diagnostics (diagnostic 7))
+    return Report { diagnostics: diagnostics, first: Location { file: "first", line: 1 }, second: Location { file: "second", line: 2 } }
+}
+shadow report { let value: Report = (report) assert (== value.first.line 1) }
+
+fn forward(value: Report) -> Report { return value }
+shadow forward { let value: Report = (forward (report)) assert (== value.second.file "second") }
+
+fn main() -> int {
+    let value: Report = (forward (report))
+    assert (== (list_Diagnostic_get value.diagnostics 0).location.file "source")
+    assert (== (list_Diagnostic_get value.diagnostics 0).location.line 7)
+    (list_Diagnostic_push value.diagnostics (diagnostic 9))
+    assert (== (list_Diagnostic_length value.diagnostics) 2)
+    assert (== (list_Diagnostic_get value.diagnostics 1).location.line 9)
+    assert (== value.first.file "first")
+    assert (== value.second.line 2)
+    return 0
+}
+shadow main { assert (== (main) 0) }

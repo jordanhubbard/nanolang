@@ -241,6 +241,25 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.assertIn("homogeneous supported scalar array elements", result.stdout)
                     self.assertFalse(output.exists())
 
+    def test_nested_record_lists_match_and_execute(self):
+        fixture = ROOT / "tests/nanoisa/fixtures/nested_record_lists.nano"
+        with tempfile.TemporaryDirectory(prefix="nano-nested-lists-") as tmp:
+            work = Path(tmp)
+            seed, assembly, emitted = (work / n for n in ("seed.nvm", "emitter.nasm", "emitter.nvm"))
+            self.run_checked(ROOT / "bin/nano_virt", fixture, "--emit-nvm", "--strip-debug", "-o", seed)
+            self.run_checked(ROOT / "bin/nanoisa_emit", fixture, "-o", assembly)
+            result = self.run_checked(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly,
+                                     "diagnostic", "report", "forward", "main")
+            self.assertIn("10 passed, 0 failed", result.stdout)
+            self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", emitted)
+            for module in (seed, emitted):
+                self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                source, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
+                self.run_checked(binary)
+
     def test_escaped_strings_match_and_execute(self):
         fixture = ROOT / "tests/nanoisa/fixtures/escaped_strings.nano"
         with tempfile.TemporaryDirectory(prefix="nano-escaped-strings-") as tmp:
@@ -567,7 +586,7 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertFalse(output.exists())
 
-    def test_nested_record_results_remain_refused(self):
+    def test_nested_record_results_match_and_execute(self):
         with tempfile.TemporaryDirectory(prefix="nano-nested-record-") as tmp:
             work = Path(tmp)
             source, output = work / "nested.nano", work / "nested.nasm"
@@ -578,11 +597,36 @@ class FlatRecordEmitter(unittest.TestCase):
                               'shadow main { assert (== (main) 0) }\n')
             self.run_checked(ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", work / "nested.nvm")
             self.run_checked(ROOT / "bin/nano_vm", work / "nested.nvm")
-            result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
-                                    cwd=ROOT, capture_output=True, text=True, timeout=120)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("I refused that program: unsupported result type Nested", result.stdout)
-            self.assertFalse(output.exists())
+            self.run_checked(ROOT / "bin/nanoisa_emit", source, "-o", output)
+            emitted = work / "emitted.nvm"
+            self.run_checked(ROOT / "bin/nanoisa", "asm", output, "-o", emitted)
+            for module in (work / "nested.nvm", emitted):
+                self.run_checked(ROOT / "bin/nano_vm", module)
+                native, binary = module.with_suffix(".c"), module.with_suffix(".exe")
+                self.run_checked(ROOT / "bin/nvm2c", module, "-o", native)
+                self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-o", binary)
+                self.run_checked(binary)
+
+    def test_recursive_and_malformed_nested_records_are_refused(self):
+        programs = [
+            'struct Cycle { next: Cycle } fn identity(value: Cycle) -> Cycle { return value }',
+            'struct Cycle { next: List<Cycle> } fn identity(value: Cycle) -> Cycle { return value }',
+            'struct Left { right: Right } struct Right { left: Left } fn identity(value: Left) -> Left { return value }',
+            'struct Inner { value: int } struct Outer { inner: Inner } fn bad() -> Outer { return Outer { inner: 7 } }',
+            'struct Inner { value: int } struct Other { value: int } struct Outer { inner: Inner } '
+            'fn bad() -> Outer { return Outer { inner: Other { value: 7 } } }',
+        ]
+        with tempfile.TemporaryDirectory(prefix="nano-nested-refusal-") as tmp:
+            source, output = Path(tmp) / "input.nano", Path(tmp) / "output.nasm"
+            for program in programs:
+                with self.subTest(program=program):
+                    source.write_text(program + '\nfn main() -> int { return 0 }\n')
+                    result = subprocess.run([ROOT / "bin/nanoisa_emit", source, "-o", output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I refused that program:", result.stdout)
+                    self.assertFalse(output.exists())
+
 
 
 if __name__ == "__main__":

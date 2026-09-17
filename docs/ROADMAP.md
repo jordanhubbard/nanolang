@@ -8026,10 +8026,16 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I lower finite nested compiler record and typed-list field shapes;
-      after `MergeResult`, actual canonical emission first refuses
-      `List<CompilerDiagnostic>` because its location is a nested record
+- [ ] I lower compiler `array<Symbol>` and its enum-bearing fields, retaining
+      source-enum integer representation and typed enum/record array tags
+      (`task_8e7c52236ee645d3b877266acf84ce19`). Actual emission after nested records
+      first refuses this local type.
+- [x] I lower finite nested compiler record and typed-list field shapes,
+      including `CompilerDiagnostic` and its nested source location. I reject
+      cyclic shapes and mismatched nested values; 86 checks and 28 integration
+      methods pass with VM/AOT construction, projection, calls and mutation
       (`task_2c3445862de74affa5d2bf624c8c5986`).
+      `docs/evidence/selfhost-nested-record-shapes.md` records the boundary.
 - [x] I infer scalar array literal tags from computed element types; direct
       `[(int_to_string 7)]` now retains its string element tag. The old module
       fails its VM assertion; repaired C-seed/VM/AOT parity and malformed
