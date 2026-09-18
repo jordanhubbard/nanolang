@@ -5175,3 +5175,7 @@ $(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h
 test-units: test-checked-owner-selection
 test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection
+
+.PHONY: test-selfhost-native-array-slice
+test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_selfhost_native_array_slice

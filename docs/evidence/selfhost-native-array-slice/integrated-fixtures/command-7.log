@@ -1,0 +1,2 @@
+('gcc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', '/home/jkh/Src/nanolang-native-array-slice-integrated/src/runtime', '/tmp/nano-native-slice-qualified-h2en0ixq/helper.c', '/home/jkh/Src/nanolang-native-array-slice-integrated/src/runtime/dyn_array.c', '/home/jkh/Src/nanolang-native-array-slice-integrated/src/runtime/gc.c', '/home/jkh/Src/nanolang-native-array-slice-integrated/src/runtime/gc_struct.c', '-lm', '-o', '/tmp/nano-native-slice-qualified-h2en0ixq/helper-gcc')
+

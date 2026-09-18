@@ -1,4 +1,6 @@
-# I retain my original public C acceptance boundary
+# I retain my historical public C acceptance inventory
+
+I retain this pre-options snapshot as historical evidence. My current finite clause/context/option audit is [PUBLIC_C_ORIGINAL_ACCEPTANCE_AUDIT.md](PUBLIC_C_ORIGINAL_ACCEPTANCE_AUDIT.md); the remaining-option descriptions below no longer describe current production.
 
 I audit original `task_6ade6d62ef644390bb9645b15077c8df` against integrated436ea9c8. Its actual requirement is an inventory of supported options and expression contexts, portable lowering or checked refusal, and ordinary C99/C11 controls. It does not require admitting every source construct or inventing new closure/effect ABIs.
 
