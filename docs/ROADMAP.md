@@ -9937,6 +9937,7 @@ Other translators:
 - [ ] I implement portable binary64 string formatting matching the closed VM
       C-locale `%g` contract before removing the floating CAST_STRING boundary.
       MAC `task_4fa62bcd01324cdfa0612d278d3bbaf0`; required under managed parent51da.
+      My pre-code contract is `docs/NANOISA_MANAGED_BINARY64_FORMAT.md`.
 - [ ] I implement portable string-to-binary64 parsing matching the closed VM
       strtod contract before admitting string CAST_FLOAT.
       MAC `task_4d2f69a19d754ac88876f93a0913d1fb`; required under managed parent51da.
