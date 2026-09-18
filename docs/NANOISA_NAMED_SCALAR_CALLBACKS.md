@@ -28,8 +28,8 @@ filter or array_fold expansion in this checkpoint.
 
 The callback must be an ordinary identifier naming a same-module, defined,
 non-extern, non-generic, top-level function with no captures and a known exact
-scalar signature. My admitted scalar kinds are int, u8, float and bool, matching
-the ordinary scalar function ABI. Strings, aggregate/resource types, void and
+scalar signature. My admitted scalar kinds are int, float and bool, matching
+the ordinary scalar function ABI. U8, strings, aggregate/resource types, void and
 unknown signatures remain outside this specialization.
 
 I resolve the identifier in the actual current binding environment and connect
@@ -60,7 +60,7 @@ loads its scalar arguments in order and emits ordinary CALL to the resolved
 function. Reduce stores its result before advancing. Map appends the result with
 the existing ownership/array machinery. An empty source performs no callback.
 
-I can omit the callback value temporary only for this proved named candidate.
+I can omit the callback value temporary only for this checked named candidate.
 Every computed/local/global/captured callback still evaluates once at the
 existing point and remains an indirect call. Initializer mutations of a callable
 binding cannot be bypassed by selecting a same-spelled declaration. Source alias
@@ -81,7 +81,7 @@ callable admission changes belong here.
 3. Execute finite and exact-bit floating map/reduce fixtures through normal VM
    and sanitized native output. Include signed qNaN/sNaN input payloads, canonical
    binary results, NaN divided by signed zero, separate-operation rounding and
-   preserved input/transport bits. Int/u8/bool neighbors exercise candidate tags.
+   preserved input/transport bits. Int/bool neighbors exercise candidate tags; U8 keeps its existing fallback.
 4. Exercise source/initializer order and counts, captured length after initializer
    growth, empty input, multiple callbacks, lexical/global callable shadowing,
    computed callback fallback and user functions named map/reduce. Wrong exact
@@ -99,3 +99,7 @@ Computed callbacks, captures, imports, general callable runtime and full callbac
 acceptance remain separate. I assess d099's original clauses explicitly before
 closing scalar5009; this child alone does not admit binary arithmetic source
 reconstruction or complete aggregate3717/full release.
+
+My implementation audit finds selfhost nisa_par_scalar does not admit U8. I
+retain U8 as an explicit fallback boundary in this paired child; I do not expand
+the selfhost functional ABI solely to enlarge this specialization.
