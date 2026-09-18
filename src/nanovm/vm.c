@@ -3137,6 +3137,8 @@ vm_return_values: ;
             }
             VmString *out = vm_string_new(&vm->heap, str + start, (uint32_t)(end - start));
             vm_release(&vm->heap, s);
+            if (!out)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the trimmed string.");
             stack_push(vm, val_string(out));
             VM_NEXT();
         }

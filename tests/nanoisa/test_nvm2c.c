@@ -1453,24 +1453,24 @@ static void test_call_extern_is_refused(void) {
     nvm_module_free(m);
 }
 
-static void test_str_trim_is_refused(void) {
+static void test_str_to_upper_is_refused(void) {
     const char *src =
         ".string s \"hi\"\n"
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR s\n"
-        "  STR_TRIM\n"
+        "  STR_TO_UPPER\n"
         "  POP\n"
         "  PUSH_I64 0\n"
         "  RET\n"
         ".end\n";
-    NvmModule *m = assemble_ok(src, "trim fixture");
-    CHECK(m != NULL, "trim fixture assembles");
+    NvmModule *m = assemble_ok(src, "uppercase fixture");
+    CHECK(m != NULL, "uppercase fixture assembles");
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "STR_TRIM stays outside the closed subset");
-    CHECK(strstr(err, "STR_TRIM") != NULL, "error names STR_TRIM");
+    CHECK(c == NULL, "STR_TO_UPPER stays outside the closed subset");
+    CHECK(strstr(err, "STR_TO_UPPER") != NULL, "error names STR_TO_UPPER");
     free(c);
     nvm_module_free(m);
 }
@@ -3260,7 +3260,7 @@ static void test_nested_record_values(void) {
 
 static void test_unsupported_classifier_instructions(void) {
     const uint8_t opcodes[] = {OP_HM_KEYS, OP_HM_VALUES,
-        OP_STR_TRIM, OP_CALL_INDIRECT, OP_ROT3};
+        OP_STR_TO_UPPER, OP_CALL_INDIRECT, OP_ROT3};
     for (size_t i = 0; i < sizeof opcodes / sizeof opcodes[0]; ++i) {
         NvmModule *m = assemble_ok(".entry main\n.function main 0 0 0 int 1\n"
             "NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n"
@@ -6645,7 +6645,7 @@ int main(int argc, char **argv) {
     test_owned_artifact_execution();
     test_real_walk_artifact();
     test_call_extern_is_refused();
-    test_str_trim_is_refused();
+    test_str_to_upper_is_refused();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();

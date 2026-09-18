@@ -4843,3 +4843,8 @@ test-units: test-cseed-single-letter-enums
 test-native-record-array-scalar-tags: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_record_array_scalar_tags
 test-units: test-native-record-array-scalar-tags
+
+.PHONY: test-canonical-string-builtins
+test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_canonical_string_builtins
+test-units: test-canonical-string-builtins
