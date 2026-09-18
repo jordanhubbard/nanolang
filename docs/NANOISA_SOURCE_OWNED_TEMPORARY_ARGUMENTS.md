@@ -23,6 +23,8 @@ I preserve exact instance/layout identity, no outstanding reference authority, m
 
 ## My comparison with unused-extern selection
 
+I track this independent selection prerequisite as `task_fa08b9ffba9c40f0bb4ce22a63321589`; it is not production authorization from the temporary-actual contract.
+
 Ignoring a body-less declaration inside `nanoisa_borrow_emit` is insufficient: it still schedules all defined functions, including unreachable probes that call that declaration. The ordinary producer already distinguishes program-mode direct-call closure from full module mode, but the ownership dispatch occurs before that selection. The smaller apparent declaration guard change therefore requires an explicit routing/selection prerequisite, not one deleted condition.
 
 A separate bounded selection contract must keep full parsing, nominal resolution, typechecking and affine checking for all source declarations. It may omit executable definitions and unused extern imports only from an exact selected closure: `main` for program publication, and every selected shadow plus its actual direct dependencies for shadow publication. Local/formal name shadowing, imports, callbacks/function references and unknown indirect targets must not be mistaken for a proved absent dependency. Unsupported or uncertain reachable ownership/ABI stays a checked refusal. Full module emission must retain its existing all-definition contract. Resource layout selection must follow the admitted closure without reclassifying a reachable owner as an ordinary value.
