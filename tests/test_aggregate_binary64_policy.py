@@ -116,4 +116,22 @@ class AggregateBinary64(unittest.TestCase):
         self.legacy(self.source(ORDER,'ordered-broadcast'))
     def test_order_alias_empty_and_neighbors_canonical_vm(self):
         self.canonical(self.source(ORDER,'canonical-order'))
+    def test_selfhost_mixed_numeric_types_preserve_output(self):
+        cases = [('array<float>', '[1.0]', 'int', '1'),
+                 ('array<int>', '[1]', 'float', '1.0'),
+                 ('array<float>', '[1.0]', 'array<int>', '[1]')]
+        for left_type, left, right_type, right in cases:
+            source = self.source(f'fn main()->int {{let a:{left_type} = {left} let b:{right_type} = {right} let result:{left_type} = (+ a b) return 0}}', 'mismatch')
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                for flags in (('--target', 'c'), ('--emit-nvm',)):
+                    with self.subTest(left=left_type, right=right_type, compiler=compiler, flags=flags):
+                        output = self.work/'previous'
+                        output.write_bytes(b'previous output')
+                        args = [str(ROOT/'bin'/compiler), str(source), *flags, '-o', str(output)]
+                        result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=240)
+                        self.serial += 1
+                        (self.work/f'{self.serial}.log').write_text(json.dumps(args)+'\n'+result.stdout+result.stderr)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn('matching flat numeric', result.stdout+result.stderr)
+                        self.assertEqual(output.read_bytes(), b'previous output')
 if __name__=='__main__':unittest.main()
