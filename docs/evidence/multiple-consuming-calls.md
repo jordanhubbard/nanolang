@@ -74,5 +74,11 @@ nominal argument order and an unconsumed helper owner.
 My final focused publication gate passes both methods in 6.022 seconds,
 including 65 serialization/refusal checks, with the same 4,542/210/216
 lifecycle and fault counts (`/tmp/nanolang-multiple-consuming-publication.log`).
-The separately instrumented VM/NanoISA run remains pending; I do not claim
-its sanitizer acceptance from the native generated-code checks above.
+My separately instrumented VM/NanoISA run with the ordinary 16 repetitions
+per API timed out at its explicit 600-second bound. Its last observed progress
+had prepared cases0 through4; I retain
+`/tmp/nanolang-multiple-consuming-sanitizers-final.log` as incomplete. I do not
+classify that timeout as a compiler correctness failure or a passing gate.
+I retain the ordinary 16-repeat default. A separate instrumented qualification
+uses `MULTIPLE_CONSUMING_REPEATS=2`, preserving all eight cases, all four APIs,
+reentry and every lifecycle assertion; its result remains pending.

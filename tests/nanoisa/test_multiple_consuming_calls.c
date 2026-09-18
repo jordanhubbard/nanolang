@@ -130,13 +130,19 @@ static void multiple_refusals(void) {
     CHECK(types[0].layout==0&&types[1].layout==2);nvm_affine_state_free(s);nvm_module_free(m);
 }
 #ifndef MULTIPLE_CONSUMING_ALLOC_TEST
+#ifndef MULTIPLE_CONSUMING_REPEATS
+#define MULTIPLE_CONSUMING_REPEATS 16u
+#endif
+#if MULTIPLE_CONSUMING_REPEATS < 2
+#error I require repeated invocation coverage.
+#endif
 int main(int argc,char **argv) {
     CHECK(argc==2);multiple_refusals();
     for(unsigned index=0;index<8;index++) {
         bool failure=index==4||index==5;uint8_t tag=index==6?TAG_BOOL:index==7?TAG_U8:TAG_INT;
         int expected=index==6?1:index==7?207:42;NvmModule *m=multiple_fixture(index,NULL,NULL);
         consuming_verified(m);artifacts(m,argv[1],index);VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
-        for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<16;repeat++) {
+        for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<MULTIPLE_CONSUMING_REPEATS;repeat++) {
             NanoValue result=val_void();uint64_t generation=vm.reference_generation;
             VmResult status=api==0?vm_invoke(&vm,0,NULL,0,&result):api==1?vm_execute(&vm):
                 api==2?vm_call_function(&vm,0,NULL,0):vm_invoke_callable(&vm,val_function(0),NULL,0,&result);
