@@ -49,6 +49,36 @@ int nms_core_tests(void) {
     CHECK(!nms_reserved_entry("nano_entry") && !nms_reserved_entry("nano_try_entry_other"));
     return 0;
 }
+int nms_format_tests(void) {
+    const struct { uint64_t bits; uint32_t tag, length; const char *expected; } cases[] = {
+        {0,1,1,"0"}, {UINT64_MAX,1,2,"-1"},
+        {INT64_MAX,1,19,"9223372036854775807"},
+        {UINT64_C(1)<<63,1,20,"-9223372036854775808"},
+        {0,2,1,"0"}, {255,2,3,"255"}, {0,4,5,"false"}, {1,4,4,"true"},
+        {0,0,0,""}, {17,9,0,""}
+    };
+    NmsRuntime runtime;
+    nms_init(&runtime, NULL, 0);
+    for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        NmsHandle out = 123;
+        CHECK(nms_format_scalar(&runtime, cases[i].bits, cases[i].tag, &out) == NMS_OK);
+        NmsView view;
+        CHECK(nms_view(&runtime, out, &view) == NMS_OK && view.length == cases[i].length);
+        CHECK(same(view.data, (const unsigned char *)cases[i].expected, view.length));
+        CHECK(nms_release(&runtime, out) == NMS_OK && runtime.live_objects == 0);
+    }
+#ifdef NMS_TESTING
+    nms_test_fail_after(&runtime, 0);
+    NmsHandle out = 123;
+    CHECK(nms_format_scalar(&runtime, UINT64_C(1)<<63, 1, &out) == NMS_MEMORY);
+    CHECK(out == 123 && runtime.live_objects == 0);
+    nms_test_fail_after(&runtime, UINT64_MAX);
+    CHECK(nms_format_scalar(&runtime, 7, 1, &out) == NMS_OK);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+#endif
+    CHECK(nms_dispose(&runtime) == NMS_OK);
+    return 0;
+}
 int nms_decimal_tests(void) {
     const struct { const char *text; uint32_t length; int64_t expected; } cases[] = {
         {"",0,0}, {"+",1,0}, {"-",1,0}, {"  -42tail",9,-42},
@@ -301,6 +331,7 @@ int main(void) {
     if (!result) result = nms_concat_tests();
     if (!result) result = nms_substr_tests();
     if (!result) result = nms_decimal_tests();
+    if (!result) result = nms_format_tests();
     if (!result) result = nms_failure_tests();
     if (!result) result = nms_reuse_tests();
     if (result) { fprintf(stderr,"I failed managed-string check at line %d\n",result); return 1; }

@@ -9929,9 +9929,9 @@ Other translators:
       cleanup, allocation-status propagation and fresh ordinary recovery gates.
       [Bounded evidence](evidence/vm-substring-contract.md); translator admission
       and the managed-runtime parent remain open.
-- [ ] I lower exact non-floating managed CAST_STRING with checked ownership.
+- [x] I lower exact non-floating managed CAST_STRING with checked ownership.
       MAC `task_074f76d564d145b88554a66b4fcfb204`; contract
-      `docs/NANOISA_MANAGED_SCALAR_FORMAT.md`.
+      `docs/NANOISA_MANAGED_SCALAR_FORMAT.md`; [evidence](evidence/managed-scalar-format.md).
 - [ ] I implement portable binary64 string formatting matching the closed VM
       C-locale `%g` contract before removing the floating CAST_STRING boundary.
       MAC `task_4fa62bcd01324cdfa0612d278d3bbaf0`; required under managed parent51da.
