@@ -15,6 +15,23 @@ class MultipleConsumingCalls(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_refusals_preserve_native_output(self):
+        with tempfile.TemporaryDirectory(prefix='nano-consuming-refusals-') as name:
+            tmp = Path(name)
+            run = self.checked([ROOT/'obj/test_multiple_consuming_refusals', tmp])
+            print(run.stdout, end='')
+            for index in range(2):
+                artifact = tmp/f'refused{index}.nvm'
+                checked = subprocess.run([ROOT/'bin/nano_vm', '--verify-only', artifact],
+                                         capture_output=True, timeout=30)
+                self.assertNotEqual(checked.returncode, 0)
+                output = tmp/f'prior{index}.c'
+                output.write_bytes(b'previous output\n')
+                refused = subprocess.run([ROOT/'bin/nvm2c', artifact, '-o', output],
+                                         capture_output=True, timeout=30)
+                self.assertNotEqual(refused.returncode, 0)
+                self.assertEqual(output.read_bytes(), b'previous output\n')
+
     def test_multiple_consuming_calls_and_cleanup(self):
         with tempfile.TemporaryDirectory(prefix='nano-consuming-calls-') as name:
             tmp = Path(name)
