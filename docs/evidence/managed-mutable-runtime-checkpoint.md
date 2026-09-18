@@ -66,3 +66,9 @@ My frozen affected gate passed (`/tmp/nanolang-mutable-runtime-full.log`):
 
 I used `NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13`
 with `make -j4 test-llvm-managed-strings test-verifier-profiles`.
+
+I restacked onto main `66508fe4` with runtime/header/tests byte-identical to
+reviewed `4a429e44`. Integrated head `0158eb61` passed both runtime methods in
+2.799 seconds and the existing profile method in0.378 seconds
+(`/tmp/nanolang-mutable-runtime-integrated.log`). Upstream range/native-label
+changes remain included. This evidence commit changes no tested source.
