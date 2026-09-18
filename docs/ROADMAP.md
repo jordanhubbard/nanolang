@@ -11107,3 +11107,5 @@ I retain reviewed source short-circuit qualification in `docs/evidence/nanovirt-
 
 
 I qualify public C value child33f74 at integrated436ea9c8 with44 GCC and44 Clang methods plus seven existing C programs; [sealed evidence](evidence/public-c-expression-lifting.md) retains first failures and exact local tools. Canonical merge precedes child closure. My [remaining original-scope inventory](PUBLIC_C_REMAINING_PROFILE_INVENTORY.md) keeps option behavior and advertised capture/effect boundaries open under6ade; portable support or checked refusal, not universal admission, is the acceptance criterion.
+
+- [ ] I retain ordinary record authority across forward acyclic declaration order (`task_240f73cd751642beb9d09bba72ace3fe`, required15f). My [preimplementation contract](NANOISA_FORWARD_ORDINARY_AUTHORITY.md) preserves nominal indices, validates ordinary-only complete DAGs, keeps all resource-bearing validation unchanged, and requires fresh paired source/transport/runtime controls without new record admission.
