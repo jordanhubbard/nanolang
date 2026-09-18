@@ -14,7 +14,7 @@ class ArithmeticSource(unittest.TestCase):
         result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
         self.assertEqual(result.returncode,0,f'compiler/tool={args[0]} command={args!r}\n{result.stdout}\n{result.stderr}')
         return result
-    def routes(self,source,scalar=False):
+    def routes(self,source,scalar=False,callback=False):
         self.command(ROOT/'bin/nano',source)
         for name in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
             with self.subTest(legacy=name):
@@ -31,6 +31,14 @@ class ArithmeticSource(unittest.TestCase):
                 self.assertIn('F64_',assembly)
                 (self.work/(name+'.nasm')).write_text(assembly)
                 c=self.work/(name+'.c');exe=self.work/(name+'-native')
+                if callback and name=='nano_virt':
+                    c.write_text('retained')
+                    args=[ROOT/'bin/nvm2c',module,'-o',c]
+                    refused=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60)
+                    self.assertGreater(refused.returncode,0,str(args))
+                    self.assertIn('unsupported opcode FUNCREF',refused.stderr)
+                    self.assertEqual(c.read_text(),'retained')
+                    continue
                 self.command(ROOT/'bin/nvm2c',module,'-o',c)
                 self.command(os.environ.get('CC','cc'),'-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',c,'-lm','-o',exe)
                 self.command(exe)
@@ -66,7 +74,17 @@ class ArithmeticSource(unittest.TestCase):
     def test_map_reduce_scalar_callbacks(self):
         source=self.work/'callbacks.nano'
         source.write_text(CALLBACKS)
-        self.routes(source)
+        self.routes(source,callback=True)
+    def test_direct_reduce_observer_retains_checked_refusal(self):
+        source=self.work/'reduce-refusal.nano'
+        source.write_text(CALLBACKS.replace('let result:float = (reduce values 0.0 combine)\n    assert (== (float_to_bits result)', 'assert (== (float_to_bits (reduce values 0.0 combine))'))
+        for name in ('nanoc_stage1','nanoc_stage2'):
+            output=self.work/(name+'.nvm');output.write_bytes(b'retained')
+            args=[ROOT/'bin'/name,source,'--emit-nvm','-o',output]
+            refused=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=120)
+            self.assertGreater(refused.returncode,0,str(args))
+            self.assertIn('one exactly typed operand',refused.stdout+refused.stderr)
+            self.assertEqual(output.read_bytes(),b'retained')
 GLOBALS='''let mut calls:int = 0
 fn operand(id:int,x:float)->float { set calls (+ (* calls 10) id) return x }
 shadow operand { let saved:int=calls set calls 0 assert (== (operand 2 2.0) 2.0) assert (== calls 2) set calls saved }
@@ -98,7 +116,8 @@ fn main()->int {
     let mapped:array<float> =(map values zero)
     assert (== (float_to_bits (at mapped 0)) 0)
     assert (== (float_to_bits (at mapped 1)) 0)
-    assert (== (float_to_bits (reduce values 0.0 combine)) 9221120237041090560)
+    let result:float = (reduce values 0.0 combine)
+    assert (== (float_to_bits result) 9221120237041090560)
     return 0
 }
 shadow main { assert (== (main) 0) }
