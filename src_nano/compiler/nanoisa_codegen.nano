@@ -655,6 +655,9 @@ fn nisa_union_index(parser: Parser, name: string) -> int {
         }
         set i (+ i 1)
     }
+    if (>= found 0) {
+        if (or (>= (nisa_struct_index parser name) 0) (>= (nisa_enum_index parser name) 0)) { return -1 }
+    }
     return found
 }
 shadow nisa_union_index {
@@ -790,6 +793,7 @@ shadow nisa_union_field_type {
 }
 
 fn nisa_emit_union(parser: Parser, node_id: int) -> string {
+    if (not nisa_ok) { return "" }
     let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
     if (not (nisa_union_supported parser literal.union_name)) { return (nisa_fail "I require an exact scalar union declaration") }
     let index: int = (nisa_union_index parser literal.union_name)
@@ -816,6 +820,7 @@ fn nisa_emit_union(parser: Parser, node_id: int) -> string {
         let kind: int = (at literal.field_value_types i)
         if (!= (nisa_expr_type parser value kind) expected) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
+        if (not nisa_ok) { return "" }
         let slot: int = (array_length nisa_names)
         set nisa_names (array_push nisa_names "")
         set nisa_types (array_push nisa_types expected)
@@ -842,6 +847,7 @@ shadow nisa_emit_union {
 }
 
 fn nisa_emit_match(parser: Parser, node_id: int) -> string {
+    if (not nisa_ok) { return "" }
     let node: ASTMatch = (parser_get_match parser node_id)
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
     if (not (nisa_union_supported parser actual)) { return (nisa_fail "I require an exact scalar union match") }
@@ -879,6 +885,7 @@ fn nisa_emit_match(parser: Parser, node_id: int) -> string {
             set n (+ n 1)
         }
         set nisa_names names
+        if (not nisa_ok) { return "" }
         if (nisa_block_falls_through parser (at node.arm_body_ids i)) { set out (+ out (nisa_line_imm "JMP" end)) }
         set out (+ out (nisa_label_line next))
         set i (+ i 1)

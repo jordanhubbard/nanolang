@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+NVM2C = Path(os.environ.get('NVM2C', str(ROOT/'bin/nvm2c')))
 
 
 class ScalarUnionEmission(unittest.TestCase):
@@ -36,7 +37,7 @@ class ScalarUnionEmission(unittest.TestCase):
         self.command(ROOT/'bin/nano_vm', '--verify-only', module)
         vm = self.command(ROOT/'bin/nano_vm', module)
         source, binary = self.work/'native.c', self.work/'native'
-        self.command(ROOT/'bin/nvm2c', module, '-o', source)
+        self.command(NVM2C, module, '-o', source)
         self.command(os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-lm', '-o', binary)
         native = self.command(binary)
@@ -89,6 +90,7 @@ shadow main { assert (== (main) 0) }
         prefix = 'union One { Pair { first: int, second: int }, Empty {} } union Two { Pair { first: int, second: int }, Empty {} } '
         cases = {
             'duplicate': 'let value: One = One.Pair { first: 1, first: 2 }',
+            'duplicate_declaration': 'let value: Bad = Bad.Item { same: 1, same: 2 }',
             'missing': 'let value: One = One.Pair { first: 1 }',
             'unknown': 'let value: One = One.Pair { first: 1, extra: 2 }',
             'wrong_field_type': 'let value: One = One.Pair { first: true, second: 2 }',
@@ -100,7 +102,8 @@ shadow main { assert (== (main) 0) }
         }
         source, output = self.work/'bad.nano', self.work/'keep.nasm'
         for name, body in cases.items():
-            source.write_text(prefix+'fn accept(value: One) -> int { return 0 } shadow accept { assert true } fn main() -> int { '+body+' return 0 } shadow main { assert true }')
+            extra = 'union Bad { Item { same: int, same: int } } ' if name == 'duplicate_declaration' else ''
+            source.write_text(prefix+extra+'fn accept(value: One) -> int { return 0 } shadow accept { assert true } fn main() -> int { '+body+' return 0 } shadow main { assert true }')
             for emitter in self.raw:
                 with self.subTest(case=name, emitter=emitter.name):
                     output.write_text('retained')
@@ -146,3 +149,28 @@ shadow main { assert true }
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
                     self.assertEqual(output.read_text(), 'retained')
+
+    def test_c_seed_resource_payload_constructor_remains_checked(self):
+        source = self.work/'resource.nano'
+        source.write_text((ROOT/'tests/nanoisa/fixtures/union_resource_constructor_order.nano').read_text())
+        module = self.work/'resource.nvm'
+        result = self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+        self.assertNotIn('E001 TYPE MISMATCH', result.stderr)
+        self.execute(module)
+
+    def test_nominal_payload_offsets_do_not_follow_shared_field_names(self):
+        source = self.work/'nominal.nano'
+        source.write_text('''union First { Item { value: int, other: int } }
+union Second { Item { other: int, value: int } }
+fn read_first(value: First) -> int { match value { Item(p) => { return p.value } } }
+shadow read_first { assert (== (read_first First.Item { value: 3, other: 8 }) 3) }
+fn read_second(value: Second) -> int { match value { Item(p) => { return p.value } } }
+shadow read_second { assert (== (read_second Second.Item { other: 3, value: 8 }) 8) }
+fn main() -> int { assert (== (read_first First.Item { value: 3, other: 8 }) 3) assert (== (read_second Second.Item { other: 3, value: 8 }) 8) return 0 }
+shadow main { assert (== (main) 0) }
+''')
+        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+            module = self.work/'nominal.nvm'
+            result = self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
+            self.assertNotIn('E001 TYPE MISMATCH', result.stderr)
+            self.execute(module)
