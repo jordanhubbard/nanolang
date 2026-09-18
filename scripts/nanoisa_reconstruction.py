@@ -24,7 +24,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
+          'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
           'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
 
 
@@ -135,6 +135,10 @@ class Analyze:
         elif op == 'SWAP':
             right, left = self.pop(stack), self.pop(stack)
             stack.extend((right, left))
+            return
+        elif op == 'ROT3':
+            top, middle, bottom = self.pop(stack), self.pop(stack), self.pop(stack)
+            stack.extend((top, bottom, middle))
             return
         elif op in ('I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'):
             right, left = self.pop(stack, INT), self.pop(stack, INT)
