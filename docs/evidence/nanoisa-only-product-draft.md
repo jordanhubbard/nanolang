@@ -23,3 +23,7 @@ At product source `1fae65efabc0598ea66f031f94882fdba7c4f2f7`, after merged PR558
 At `bd4a2428bd3d8b98d1f1e6d2cb064bde3eb5f456`, after projected-global, implicit-return and worklist repairs, fresh bootstrap still passes. The full ordinary gate again passes 26 of 27 methods in 13.588 seconds; export-shadow compilation still aborts without a diagnostic. I retain this run separately at `/tmp/nanolang-product-exports-bd4a2428`. These independently validated repairs do not resolve or explain dd74. I have not started a new product fixed-point run while this gate remains blocked.
 
 My independent full-source VM fixed-point gate passes at `ae63b248`: initial and both generations match raw 259,428-byte modules, with verified second-generation hello and unchanged host closure. [Pinned evidence](product-vm-fixedpoint-ae63b248.md). The export-shadow product gate remains separate and unresolved.
+
+## My current integration checkpoint
+
+I integrated main through PR592 at `d332ea1f`, preserving the pinned product VM fixed-point evidence and the export-shadow publication hold. The ordinary C-seed, NanoVirt, VM, native translator and NanoISA CLI build passed (`/tmp/nanolang-product-current-integration-build.log`). This is compilation evidence only; I did not rerun historical aborting artifacts or claim new full product acceptance. Draft PR584 and task dd74 remain unresolved.
