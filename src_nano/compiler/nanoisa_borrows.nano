@@ -58,11 +58,12 @@ fn nb_tag(name: string) -> int {
 shadow nb_tag { assert (== (nb_tag "int") 1) assert (== (nb_tag "bool") 4) assert (== (nb_tag "string") 0) }
 # I admit float locals without widening fields or helper signatures.
 fn nb_local_tag(name: string) -> int {
-    if (== name "float") { return 2 }
+    if (== name "float") { return 3 }
     return (nb_tag name)
 }
 shadow nb_local_tag {
-    assert (== (nb_local_tag "float") 2)
+    assert (== (nb_local_tag "float") 3)
+    assert (== (nb_descriptor (nb_local_tag "float") 0 4294967295) "03000000ffffffff")
     assert (== (nb_local_tag "bool") 4)
     assert (== (nb_tag "float") 0)
     assert (== (nb_local_tag "array<float>") 0)
@@ -466,7 +467,7 @@ shadow nb_same_owners {
     set nb_error "" let _: int = (nb_reset_locals)
 }
 fn nb_binary(op: int, tag: int) -> string {
-    if (== tag 2) {
+    if (== tag 3) {
         if (== op LexerTokenType.TOKEN_PLUS) { return "F64_ADD" }
         if (== op LexerTokenType.TOKEN_MINUS) { return "F64_SUB" }
         if (== op LexerTokenType.TOKEN_STAR) { return "F64_MUL" }
@@ -504,8 +505,8 @@ shadow nb_binary {
     assert (== (nb_binary LexerTokenType.TOKEN_PLUS 1) "ADD")
     assert (== (nb_binary LexerTokenType.TOKEN_PLUS 4) "")
     assert (== (nb_binary LexerTokenType.TOKEN_EQ 4) "EQ")
-    assert (== (nb_binary LexerTokenType.TOKEN_LE 2) "F64_LE")
-    assert (== (nb_binary LexerTokenType.TOKEN_PERCENT 2) "")
+    assert (== (nb_binary LexerTokenType.TOKEN_LE 3) "F64_LE")
+    assert (== (nb_binary LexerTokenType.TOKEN_PERCENT 3) "")
 }
 fn nb_function_index(parser: Parser, name: string) -> int {
     let mut i: int = 0
@@ -533,7 +534,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let _: int = (nb_emit (+ "PUSH_I64 " (parser_get_number parser id).value)) return 1
     }
     if (== kind ParseNodeType.PNODE_FLOAT) {
-        let _: int = (nb_emit (+ "PUSH_F64 " (parser_get_float parser id).value)) return 2
+        let _: int = (nb_emit (+ "PUSH_F64 " (parser_get_float parser id).value)) return 3
     }
     if (== kind ParseNodeType.PNODE_BOOL) {
         let mut value: int = 0
@@ -570,7 +571,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             let tag: int = (nb_expr parser op.right op.right_type)
             if (and (== op.op LexerTokenType.TOKEN_NOT) (== tag 4)) { let _: int = (nb_emit "NOT") return 4 }
             if (and (== op.op LexerTokenType.TOKEN_MINUS) (== tag 1)) { let _: int = (nb_emit "NEG") return 1 }
-            if (and (== op.op LexerTokenType.TOKEN_MINUS) (== tag 2)) { let _: int = (nb_emit "F64_NEG") return 2 }
+            if (and (== op.op LexerTokenType.TOKEN_MINUS) (== tag 3)) { let _: int = (nb_emit "F64_NEG") return 3 }
             return (nb_fail "an exact scalar unary operator")
         }
         let left: int = (nb_expr parser op.left op.left_type)
@@ -782,7 +783,7 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         return 0
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
-    if (or (and (!= binding.var_type "") (!= (nb_local_tag binding.var_type) tag)) (and (!= tag 1) (and (!= tag 4) (!= tag 2)))) { return (nb_fail "int/bool/float scalar local types") }
+    if (or (and (!= binding.var_type "") (!= (nb_local_tag binding.var_type) tag)) (and (!= tag 1) (and (!= tag 4) (!= tag 3)))) { return (nb_fail "int/bool/float scalar local types") }
     if (!= nb_error "") { return 0 }
     let slot: int = (nb_slot binding.name tag 4294967295 0 binding.is_mut)
     let _: int = (nb_op1 "STORE_LOCAL" slot)
@@ -1013,11 +1014,11 @@ shadow nb_body_statements {
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "empty-scope.nano")
     let _: int = (nb_reset_locals)
     set nb_error "" set nb_control_depth 1
-    let outer: int = (nb_slot "outer" 2 4294967295 0 false)
+    let outer: int = (nb_slot "outer" 3 4294967295 0 false)
     let _: int = (nb_body_statements parser (list_ASTStmtRef_new) false)
     assert (== nb_error "")
     assert (== (nb_local "outer") outer)
-    assert (== (at nb_tags outer) 2)
+    assert (== (at nb_tags outer) 3)
     set nb_control_depth 0
     let _: int = (nb_reset_locals)
 }
