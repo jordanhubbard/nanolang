@@ -1,5 +1,6 @@
 """I recover a bounded typed region tree; both emitters consume that tree."""
 from dataclasses import dataclass, field
+from pathlib import Path
 
 
 class Refusal(ValueError):
@@ -14,6 +15,8 @@ def require(condition, message):
 INT, FLOAT, BOOL = 1, 3, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
+FLOAT_ARITHMETIC = {'F64_ADD': 'add', 'F64_SUB': 'sub',
+                    'F64_MUL': 'mul', 'F64_DIV': 'div'}
 FLOAT_COMPARE = {'F64_EQ': '==', 'F64_NE': '!=', 'F64_LT': '<',
                  'F64_LE': '<=', 'F64_GT': '>', 'F64_GE': '>='}
 UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
@@ -28,7 +31,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE)
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC)
 
 
 @dataclass(frozen=True)
@@ -189,6 +192,9 @@ class Analyze:
                     left = Expr(INT, 'bool_int', None, (left,))
                     right = Expr(INT, 'bool_int', None, (right,))
                 expr = Expr(BOOL, 'binary', GENERIC_COMPARE[op], (left, right))
+        elif op in FLOAT_ARITHMETIC:
+            right, left = self.pop(stack, FLOAT), self.pop(stack, FLOAT)
+            expr = Expr(FLOAT, 'float_arithmetic', FLOAT_ARITHMETIC[op], (left, right))
         elif op == 'F64_NEG':
             expr = Expr(FLOAT, 'float_neg', None, (self.pop(stack, FLOAT),))
         elif op in FLOAT_COMPARE:
@@ -363,6 +369,11 @@ class Emit:
         if expr.kind == 'temporary':
             return f'nlr_t{expr.value}'
         args = [self.expression(a) for a in expr.args]
+        if expr.kind == 'float_arithmetic':
+            if self.language == 'c':
+                return 'nano_rt_f64_' + expr.value + '(' + ', '.join(args) + ')'
+            operator = {'add': '+', 'sub': '-', 'mul': '*', 'div': '/'}[expr.value]
+            return '(' + ' '.join([operator] + args) + ')'
         if expr.kind == 'float_neg':
             return '(-' + args[0] + ')' if self.language == 'c' else '(- ' + args[0] + ')'
         if expr.kind in ('from_bits', 'to_bits'):
@@ -447,11 +458,25 @@ class Emit:
         self.line('int main(void) {' if c else 'fn main() -> int {')
         if c and self.has_float:
             self.line('(void)nlr_f64_from_bits; (void)nlr_f64_to_bits;', 1)
+        if c and self.has_float_arithmetic:
+            self.line('(void)nano_rt_f64_add; (void)nano_rt_f64_sub; '
+                      '(void)nano_rt_f64_mul; (void)nano_rt_f64_div;', 1)
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
 
     def float_helpers(self):
+        def uses_arithmetic(node):
+            if isinstance(node, Expr):
+                return node.kind == 'float_arithmetic' or uses_arithmetic(node.args)
+            return isinstance(node, (tuple, list)) and any(uses_arithmetic(child) for child in node)
+
+        self.has_float_arithmetic = any(uses_arithmetic(function.body) for function in self.functions)
+        if self.language == 'c' and self.has_float_arithmetic:
+            # I embed the authoritative guarded policy, retaining standalone output.
+            self.line((Path(__file__).resolve().parents[1] / 'src' /
+                       'binary64_arithmetic.h').read_text(encoding='utf-8'))
+
         def contains(node):
             if isinstance(node, Expr):
                 return node.tag == FLOAT or any(contains(arg) for arg in node.args)

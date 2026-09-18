@@ -1,0 +1,6 @@
+test_exact_tag_and_missing_operand_refusals (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_exact_tag_and_missing_operand_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
