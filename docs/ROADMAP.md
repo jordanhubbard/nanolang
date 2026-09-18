@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I reconstruct exact typed signed division and remainder (`task_dc02359771154508bcdd9c25de7b1bbc`, parent4bd034): guarded zero/overflow results, signed truncation/remainder, exact-int refusals and same-module VM/C/pinned-stage sanitizer gates. [Contract](NANOISA_RECONSTRUCT_INTEGER_DIV.md).
+- [x] I reconstruct exact typed signed division and remainder (`task_dc02359771154508bcdd9c25de7b1bbc`, parent4bd034): guarded zero/overflow results, signed truncation/remainder, exact-int refusals and same-module VM/C/pinned-stage sanitizer gates. Fifteen GCC/Clang methods pass, with 242 endpoint pairs, loop/snapshot and refusal coverage; tool hashes and incomplete invocation history are explicit. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_DIV.md).
 
 - [x] I reconstruct total typed I64 multiplication (`task_615c3ccf924d4aaaa964237bcc9d286c`, parent `task_4bd034f6029b7458201db74e2c3aeb32`). I retain defined unsigned C multiplication and at most 64 NanoLang signed-digit steps using tested wrap helpers. Twelve combined GCC/Clang methods pass same-module VM/C/three-stage-NanoLang execution, 121 endpoint/high-bit products, byte roundtrip and exact-tag/output refusal; compiler tool pins are explicit and do not claim a current-main bootstrap. DIV/MOD and full reconstruction remain open. [Contract](NANOISA_RECONSTRUCT_INTEGER_MUL.md).
 
