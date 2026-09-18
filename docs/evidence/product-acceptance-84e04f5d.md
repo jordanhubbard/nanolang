@@ -27,4 +27,13 @@ My separately pinned native run passes. The initial module and both native-gener
 
 My [native manifest](product-native-fixedpoint-84e04f5d.json) and [post-run integrity record](product-native-fixedpoint-84e04f5d-integrity.json) preserve the exact source, tools, closure, argv and results. Source, helper, translator and declared host-library hashes remain unchanged. I retain `/tmp/nanolang-product-native-fixedpoint-84e04f5d.log` and its artifact directory.
 
-Separate embedded artifact paths prevent a VM-versus-native cross-run raw-byte equality claim. Darwin acceptance remains pending. PR522 and publication remain held pending complete product and release gates.
+Separate embedded artifact paths prevent a VM-versus-native cross-run raw-byte equality claim. PR522 and publication remain held pending complete product and release gates.
+
+
+## Darwin qualification
+
+My peer completed isolated macOS 26.6.2 ARM64 qualification with Apple Clang 21.0.0. At exact `84e04f5d65896b383151b4e5a089b637d887b72d`, three-stage bootstrap and 17 core examples pass; the full gate stops at the direct module-facts import fixture issue (exit 2 after 454.28 seconds). The preserved peer log is `/tmp/nanolang-product-84e04f5d-darwin-b2b605a9-test-quick.log`, SHA-256 `c6a6cebd3f38ce1c9888c61c5ff668449cb2dae26573dc3bbd0626c070f4d906`.
+
+At exact `e7bccd998d2af89fa0686701e62ac4613d4a79b1`, the peer confirms identical compiler source trees, successful bootstrap and corrected introspection, all 17 core examples, and compilation of all 244 eligible VM examples. The complete run stops at the same 18 checked generic-union affine refusals as Linux (exit 2 after 752.98 seconds). The preserved peer log is `/tmp/nanolang-product-e7bccd99-darwin-a86b339f-test-quick.log`, SHA-256 `1489385a06b37cf6ba8f0dae59a54b18f30a13be98675f9ae5af5f0cb28d5502`.
+
+My peer attached these results to the existing fixture and generic-union tasks. Neither run qualifies later canonical integrations. Neither run completes the full product gate.
