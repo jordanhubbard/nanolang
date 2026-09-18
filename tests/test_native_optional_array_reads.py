@@ -60,4 +60,11 @@ class OptionalArrayReads(unittest.TestCase):
                     body=f'{value}\nAGG_PACK 0 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK {tag}\nASSERT\n'
                     body+=f'{value}\nARR_LITERAL {tag} 1\nPUSH_I64 {missing}\nARR_GET\nAGG_PACK 0 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK {0 if missing else tag}\nASSERT\n'
                     self.paired('.types 1 0 0\n.string text "kept"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n.function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n')
+    def test_projected_scalar_locals_calls_and_returns(self):
+        for tag,name,value in [(1,'int','PUSH_I64 73'),(4,'bool','PUSH_BOOL 1'),(5,'string','PUSH_STR text')]:
+            with self.subTest(tag=tag):
+                body=f'{value}\nAGG_PACK 0 0 0 1\nCALL unwrap\n{value}\nEQ\nASSERT\n'
+                body+=f'{value}\nARR_LITERAL {tag} 1\nPUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nCALL unwrap\n{value}\nEQ\nASSERT\n'
+                helpers=f'.function unwrap 1 2 0 {name} 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nCALL identity\nRET\n.end\n.function identity 1 1 0 {name} 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                self.paired('.types 1 0 0\n.string text "kept"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+helpers)
 if __name__=='__main__': unittest.main()
