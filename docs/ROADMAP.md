@@ -10020,6 +10020,11 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [ ] I check VM ASCII case-conversion scratch size and final allocation before
+      publishing output, preserving input aliases and correcting ordinary
+      failure/recovery behavior. MAC `task_543fe0e46aa34404b5cae96935267d10`;
+      my [allocation contract](NANOISA_CASE_ALLOCATION.md) precedes managed
+      STR_TO_LOWER/UPPER admission and retains full runtime obligations.
 - [x] I match managed STR_CHAR_AT byte results, signed bounds and existing
       non-integer fallback with allocation-free borrowed views and exact
       two-operand cleanup. MAC `task_32b265f80d604826adc9ac29716598ab`;
