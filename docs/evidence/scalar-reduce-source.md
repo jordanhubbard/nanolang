@@ -66,3 +66,14 @@ log paths and log hashes. All 20 original frozen identities match after both
 final gates. I add the changed adjacent harness hash to that evidence separately.
 My full arithmetic, callback transport, public C-target and release parents stay
 open. I close the source child only after canonical merge.
+
+## My final main integration
+
+I integrate main f922299a at `2b050a71` after all frozen gates terminate. The only
+conflict is additive roadmap text; I preserve both sides. My reduce production
+and source compiler inputs remain unchanged. Main includes a VM STRUCT_NEW
+allocation check and separate private managed runtime/Darwin harness changes.
+I rebuild nano_vm/nano_virt/nvm2c, then freeze their identities with the unchanged
+qualified compiler binaries. The exact-float and unsupported-legacy controls
+pass again: two methods, 23.222s. Every integrated frozen hash matches afterward.
+This is a focused integration check, not a new full bootstrap claim.
