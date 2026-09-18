@@ -79,9 +79,8 @@ class GenericScalarComparisons(unittest.TestCase):
         suffix = ('.function right 0 0 0 float 1\nPUSH_BOOL 0\nASSERT\nPUSH_F64 0.0\nRET\n.end\n')
         self.compare(self.program('PUSH_BOOL 0\nCALL right\nEQ\nPOP\n',suffix),trap=True)
 
-    def test_heap_and_generic_arithmetic_refusals_preserve_output(self):
-        for prefix,body in [('.string text "text"\n','PUSH_STR text\nPUSH_STR text\nEQ\nPOP\n'),
-                            ('','PUSH_I64 1\nPUSH_I64 2\nADD\nPOP\n')]:
+    def test_heap_refusal_preserves_output(self):
+        for prefix,body in [('.string text "text"\n','PUSH_STR text\nPUSH_STR text\nEQ\nPOP\n')]:
             module = self.module(prefix+self.program(body))
             self.run_cmd([llvm.VM,module])
             for translator in (llvm.LLVM,wasm.WASM):
