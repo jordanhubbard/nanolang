@@ -9800,6 +9800,12 @@ Module richness:
       exhaustiveness facts as NanoISA metadata.
 - [ ] I recover structured `if`/`while`/`return` from `JMP` for
       reconstruction. Goto is a translator fallback, not the claim.
+  - [ ] I recover a bounded typed scalar region tree and emit executable C and
+        NanoLang from one verified module, with exact signature/local identity,
+        structured diamonds/loops, paired execution and refusal-before-publication.
+        MAC `task_15c7bd012efc44ffab908df7cd66b71e`; contract
+        `docs/NANOISA_SCALAR_RECONSTRUCTION.md`. Arithmetic, general CFGs and
+        original shadow-test reconstruction remain outside this child.
 - [ ] I define general and restricted compute profiles with verifier-enforced
       feature sets. GPU targets use the restricted profile.
 
