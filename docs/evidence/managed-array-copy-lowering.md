@@ -52,3 +52,11 @@ seconds, all 18 shape methods in 2.716 seconds, the shared verifier profile gate
 and their runtime/package/core prerequisites. I retain
 `/tmp/nanolang-copy-lowering-full.log`. Root independently reviewed production
 `7aefa397` and its frame-cleanup surroundings without a scoped blocker.
+
+I restacked onto main `e01df1f4` (including the reviewed multiple-consuming
+parameter merge). My copy lowering, shape analysis, private runtime and focused
+test source are unchanged; the shared verifier only gains main's separate owned
+parameter check. The integrated run passes all 18 shape methods in 2.482 seconds,
+the shared profile method in 0.457 seconds and all nine actual-target copy
+methods in 7.074 seconds. I retain
+`/tmp/nanolang-copy-lowering-integrated.log`.
