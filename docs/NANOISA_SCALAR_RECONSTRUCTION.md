@@ -82,3 +82,5 @@ limitation without adding a new release requirement. Full high-level roundtrip,
 other producer families, general graph recovery, remaining arithmetic, host imports and
 frontend facts remain required parent obligations.
 I publish sufficient/insufficient findings only for the exact tested subset.
+
+I also reconstruct exact int/bool `CAST_INT`, `CAST_BOOL`, `AND`, `OR` and `NOT` under [my bounded truthiness contract](NANOISA_RECONSTRUCT_TRUTHINESS.md). Evaluated operand snapshots precede boolean combination; other tags remain refused.
