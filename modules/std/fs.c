@@ -233,6 +233,32 @@ const char* path_relpath(const char* target, const char* base) {
     return result;
 }
 
+/* I release only results allocated by these exact provider functions.
+ * Consumers copy escaping text first; allocation failures return NULL. */
+void path_normalize__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+void path_canonical__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+void path_join__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+void path_basename__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+void path_dirname__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+void path_relpath__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
 /* I keep my legacy non-NULL fallback identifiable by my cleanup companion. */
 static const char file_read_empty_result[] = "";
 const char* file_read(const char* path) {

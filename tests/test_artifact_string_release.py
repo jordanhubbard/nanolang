@@ -138,6 +138,73 @@ int64_t file_delete(const char *key) {
             body += 'PUSH_STR expected\nEQ\nASSERT\n' if name == 'text' else 'STR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n'
         self.paired(imports+strings+'.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
 
+    def path_cases(self):
+        existing = self.work/'existing'
+        existing.write_text('retained')
+        return [
+            ('path_normalize', ['/alpha/../beta//'], '/beta', [''], '.'),
+            ('path_canonical', [str(existing)], str(existing.resolve()), [''], ''),
+            ('path_join', ['/alpha', 'beta'], '/alpha/beta', ['', ''], ''),
+            ('path_basename', ['/alpha/beta'], 'beta', [''], '.'),
+            ('path_dirname', ['/alpha/beta'], '/alpha', [''], '.'),
+            ('path_relpath', ['/root/x', '/root/y'], '../x', ['', ''], '.'),
+        ]
+
+    def test_real_path_providers_repeated_results_preserve_aliases(self):
+        lib = self.library('real_paths', '#include "'+str(ROOT/'modules/std/fs.c')+'"\n',
+                           [ROOT/'obj/runtime/gc.o', ROOT/'obj/runtime/dyn_array.o', ROOT/'obj/runtime/gc_struct.o'])
+        cases = self.path_cases()
+        imports = self.imports([(lib, name, 'string' + ' string'*len(args))
+                                for name, args, _, _, _ in cases])
+        strings, normal, empty = '', [], []
+        for i, (_, args, expected, blank, empty_expected) in enumerate(cases):
+            calls = []
+            for label, values in [('normal', args), ('empty', blank)]:
+                call = ''
+                for j, value in enumerate(values):
+                    key = f'{label}_{i}_{j}'
+                    strings += f'.string {key} {json.dumps(value)}\n'
+                    call += f'PUSH_STR {key}\n'
+                calls.append(call + f'CALL_EXTERN {i}\n')
+            normal.append(calls[0])
+            empty.append(calls[1])
+            strings += f'.string expected_{i} {json.dumps(expected)}\n'
+            strings += f'.string empty_expected_{i} {json.dumps(empty_expected)}\n'
+        body = ''.join(call + f'STORE_LOCAL {i}\n' for i, call in enumerate(normal))
+        body += 'PUSH_I64 0\nSTORE_LOCAL 6\nloop:\nLOAD_LOCAL 6\nPUSH_I64 2000\nI64_LT_S\nJMP_FALSE done\n'
+        for i in range(len(cases)):
+            body += normal[i] + f'PUSH_STR expected_{i}\nEQ\nASSERT\n'
+            body += empty[i] + f'PUSH_STR empty_expected_{i}\nEQ\nASSERT\n'
+        body += 'LOAD_LOCAL 6\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 6\nJMP loop\ndone:\n'
+        for i in range(len(cases)):
+            body += f'LOAD_LOCAL {i}\nPUSH_STR expected_{i}\nEQ\nASSERT\n'
+        self.paired(imports+strings+'.entry main\n.function main 0 7 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+
+    def test_real_path_provider_allocation_failure_retains_null_contract(self):
+        # I replace only this provider translation unit's allocating operations.
+        source = ('#include <stdlib.h>\n#include <string.h>\n'
+                  'static void *fixture_malloc(size_t size) { (void)size; return NULL; }\n'
+                  'static char *fixture_strdup(const char *text) { (void)text; return NULL; }\n'
+                  'static char *fixture_realpath(const char *path, char *out) { (void)path; (void)out; return NULL; }\n'
+                  '#define malloc fixture_malloc\n#define strdup fixture_strdup\n#define realpath fixture_realpath\n'
+                  '#include "'+str(ROOT/'modules/std/fs.c')+'"\n'
+                  '#undef malloc\n#undef strdup\n#undef realpath\n')
+        lib = self.library('paths_oom', source,
+                           [ROOT/'obj/runtime/gc.o', ROOT/'obj/runtime/dyn_array.o', ROOT/'obj/runtime/gc_struct.o'])
+        for name, args, _, _, _ in self.path_cases():
+            with self.subTest(provider=name):
+                strings, call = '', ''
+                for i, value in enumerate(args):
+                    strings += f'.string arg_{i} {json.dumps(value)}\n'
+                    call += f'PUSH_STR arg_{i}\n'
+                text = self.imports([(lib, name, 'string'+' string'*len(args))])+strings
+                text += '.entry main\n.function main 0 0 0 int 1\n'+call+'CALL_EXTERN 0\nPOP\nPUSH_I64 0\nRET\n.end\n'
+                module = self.module(text)
+                result = self.command([ROOT/'bin/nano_vm',module], success=False)
+                self.assertIn('could not retain the provider string result', result.stderr)
+                self.command([self.native(module)], success=False,
+                             env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1'})
+
     def test_null_provider_result_is_released_once_then_refused(self):
         lib = self.library('null_result', r'''
 #include <stdio.h>
