@@ -3299,7 +3299,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo "=========================================="
 	@echo "Stage 2: Building Self-Hosted Components"
 	@echo "=========================================="
-	@echo "Compiling components with stage1..."
+	@echo "Compiling components with $(COMPILER)..."
 	@echo ""
 	@# Compile each self-hosted component (STRICT: must produce an executable binary)
 	@# If compiler is ASan-instrumented, disable leak detection during compilation.
