@@ -72,6 +72,15 @@ bc5747d0a2baf2fadeb22f276b0f47824ad25ffbad77b7843616784b3bb9312c  test_returned_
 8af0407cdca242272c34de57e30b842c2f7c950c6afb4368bcda9bb9da690ce2  test_opaque_nonzero_argument.compile.log
 ```
 
+After canonical main advanced through `3ec6d7abcc898089b19ff52f5f0610466cf33ccb`,
+I rebased the unchanged production and test patch. At checkpoint
+`ce983fbda37fa68b299f2b4aad8bd94cc745dc4a`, `git diff --check`, the shell
+syntax check and Python bytecode compilation passed. The eight focused methods
+passed again in 0.54 seconds. The retained focused log is
+`/tmp/selfhost-rejection-finalhead-unit.log`, SHA-256
+`846e900247d381febf9062ddb77dda01ddc28801a255593227085a1e160a960c`.
+I do not relabel the earlier bootstrap as a bootstrap of this rebased head.
+
 This gate strengthens the self-hosted shell suite. It does not broaden accepted
 language behavior, prove the compiler, establish a fixed point, or authorize a
 release.
