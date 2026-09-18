@@ -25,9 +25,10 @@ I refuse unknown signatures rather than defaulting them to int.
 
 My opcode whitelist is NOP, PUSH_I64, PUSH_BOOL, LOAD_LOCAL, STORE_LOCAL, DUP,
 POP, SWAP, signed I64 comparisons, BOOL_AND/OR/NOT, CALL, JMP, JMP_FALSE,
-JMP_TRUE and RET. Arithmetic, generic tagged comparisons, implicit returns,
-multiple returns, tail calls and all other operations remain outside this slice.
-Arithmetic exclusion avoids claiming unimplemented cross-language wrap behavior.
+JMP_TRUE and RET. The exact integer child now also admits I64_ADD, I64_SUB and
+I64_NEG through total cross-language helpers; see [the arithmetic contract](NANOISA_RECONSTRUCT_INTEGER_ADD.md).
+Other arithmetic, generic tagged comparisons, implicit returns, multiple returns,
+tail calls and all other operations remain outside this slice.
 
 I infer exact scalar local types from declared parameters and stores, reject
 mixed-type reuse and uninitialized reads, and require an empty operand stack at
@@ -67,12 +68,12 @@ outcomes, loop zero/one/multiple iterations through scalar state transitions,
 nested regions, scalar calls, shadowed source spelling and absent metadata.
 I inspect generated executable syntax for real if/while/return and the absence
 of interpreter/goto fallback. Negative controls retain prior output for unknown
-signatures, mixed local types, unsupported arithmetic and graph forms.
+signatures, mixed local types, remaining unsupported arithmetic and graph forms.
 
 The test harness supplies independently specified shadow assertions for generated
 NanoLang functions. Those assertions are validation-only: I do not reconstruct
 original mandatory tests that the input module never retained. I state that
 limitation without adding a new release requirement. Full high-level roundtrip,
-other producer families, general graph recovery, arithmetic, host imports and
+other producer families, general graph recovery, remaining arithmetic, host imports and
 frontend facts remain required parent obligations.
 I publish sufficient/insufficient findings only for the exact tested subset.

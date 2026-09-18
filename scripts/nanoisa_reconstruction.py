@@ -15,8 +15,9 @@ INT, BOOL = 1, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
+ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE)
+          'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC)
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,10 @@ class Analyze:
             right, left = self.pop(stack), self.pop(stack)
             stack.extend((right, left))
             return
+        elif op in ARITHMETIC:
+            right = self.pop(stack, INT)
+            args = (right,) if op == 'I64_NEG' else (self.pop(stack, INT), right)
+            expr = Expr(INT, 'arithmetic', ARITHMETIC[op], args)
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
@@ -267,6 +272,9 @@ class Emit:
         if expr.kind == 'temporary':
             return f'nlr_t{expr.value}'
         args = [self.expression(a) for a in expr.args]
+        if expr.kind == 'arithmetic':
+            name = 'nlr_i64_' + expr.value
+            return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
         if expr.kind == 'call':
             name = self.name(expr.value)
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
@@ -322,6 +330,7 @@ class Emit:
                 self.line(self.signature(index) + ';')
         else:
             self.line('# I reconstruct executable scalar regions; original shadows are not retained.')
+        self.arithmetic_helpers()
         for index, function in enumerate(self.functions):
             self.function = function
             self.line(self.signature(index) + ' {')
@@ -337,3 +346,92 @@ class Emit:
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
+
+    def arithmetic_helpers(self):
+        needed = set()
+
+        def collect(node):
+            if isinstance(node, Expr):
+                if node.kind == 'arithmetic':
+                    needed.add(node.value)
+                collect(node.args)
+            elif isinstance(node, (tuple, list)):
+                for child in node:
+                    collect(child)
+
+        for function in self.functions:
+            collect(function.body)
+        if not needed:
+            return
+        if self.language == 'c':
+            self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
+    if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
+    return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
+}''')
+            for op in sorted(needed):
+                args = 'int64_t a' if op == 'neg' else 'int64_t a, int64_t b'
+                expression = {'add': '(uint64_t)a + (uint64_t)b',
+                              'sub': '(uint64_t)a - (uint64_t)b',
+                              'neg': 'UINT64_C(0) - (uint64_t)a'}[op]
+                self.line(f'static int64_t nlr_i64_{op}({args}) {{ return nlr_i64_bits({expression}); }}')
+            return
+        for op in sorted(needed):
+            self.line(NANO_INTEGER_HELPERS[op])
+
+
+# I branch before signed arithmetic so all helper intermediates are representable.
+# These shadows test my helper implementation, not an original source harness.
+NANO_INTEGER_HELPERS = {
+    'add': '''fn nlr_i64_add(a: int, b: int) -> int {
+    let low: int = (- -9223372036854775807 1)
+    let high: int = 9223372036854775807
+    if (> b 0) {
+        let boundary: int = (- high b)
+        if (> a boundary) { return (+ low (- (- a boundary) 1)) }
+    }
+    if (< b 0) {
+        let boundary: int = (- low b)
+        if (< a boundary) { return (+ high (+ (- a boundary) 1)) }
+    }
+    return (+ a b)
+}
+shadow nlr_i64_add {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_add 9223372036854775807 1) low)
+    assert (== (nlr_i64_add low -1) 9223372036854775807)
+    assert (== (nlr_i64_add low low) 0)
+    assert (== (nlr_i64_add 7 -3) 4)
+}''',
+    'sub': '''fn nlr_i64_sub(a: int, b: int) -> int {
+    let low: int = (- -9223372036854775807 1)
+    let high: int = 9223372036854775807
+    if (> b 0) {
+        let boundary: int = (+ low b)
+        if (< a boundary) { return (+ high (+ (- a boundary) 1)) }
+    }
+    if (< b 0) {
+        let boundary: int = (+ high b)
+        if (> a boundary) { return (+ low (- a (+ boundary 1))) }
+    }
+    return (- a b)
+}
+shadow nlr_i64_sub {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_sub low 1) 9223372036854775807)
+    assert (== (nlr_i64_sub 9223372036854775807 -1) low)
+    assert (== (nlr_i64_sub 9223372036854775807 low) -1)
+    assert (== (nlr_i64_sub low low) 0)
+}''',
+    'neg': '''fn nlr_i64_neg(a: int) -> int {
+    let low: int = (- -9223372036854775807 1)
+    if (== a low) { return low }
+    return (- 0 a)
+}
+shadow nlr_i64_neg {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_neg low) low)
+    assert (== (nlr_i64_neg 9223372036854775807) -9223372036854775807)
+    assert (== (nlr_i64_neg -1) 1)
+    assert (== (nlr_i64_neg 0) 0)
+}''',
+}
