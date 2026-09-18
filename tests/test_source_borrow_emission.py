@@ -261,6 +261,55 @@ shadow main { assert true }
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
 
+    def test_explicit_resource_paths_preserve_exact_joins(self):
+        text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
+        consume = 'let Leaf { value, active } = tail assert (== value 3) assert (not active) return 0'
+        retained = 'assert (== (bump &mut tail) 4)'
+        after = 'let Leaf { value, active } = tail assert (== value 4) assert (not active)'
+        tail = 'let mut tail: Leaf = Leaf { value: 3, active: false } '
+        variants = {'normal': text, 'arms_reversed': text.replace('if true {', 'if false {')}
+        for choice in ('true', 'false'):
+            variants['return_then_' + choice] = text.replace('# RETURN_POINT',
+                tail + 'if ' + choice + ' { ' + consume + ' } else { ' + retained + ' } ' + after)
+            variants['return_else_' + choice] = text.replace('# RETURN_POINT',
+                tail + 'if ' + choice + ' { ' + retained + ' } else { ' + consume + ' } ' + after)
+            variants['return_loop_' + choice] = text.replace('# RETURN_POINT',
+                tail + 'while ' + choice + ' { ' + consume + ' } ' + consume)
+        for fixture, content in variants.items():
+            source = self.work / ('resource-path-' + fixture + '.nano')
+            source.write_text(content)
+            seed = self.work / 'nested-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.ownership "02000000', baseline)
+            self.assertIn('JMP_FALSE', baseline)
+            self.assertIn('JMP ', baseline)
+            expected = 'BORROW_PATH_EXCLUSIVE'
+            self.assertIn(expected, baseline)
+            self.names_and_strip(seed)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-nested.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'nested-shadow.nasm', self.work / 'nested-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
     def test_return_paths_preserve_ownership_and_fallthrough(self):
         text = (FIXTURES / 'source_borrow_returns.nano').read_text()
         ending = 'if true { let code: int = 0 return code } else { return 1 }'
@@ -480,6 +529,32 @@ shadow main { assert true }
                                             capture_output=True, text=True, timeout=60)
                     self.assertGreater(result.returncode, 0, (tool, result.stdout, result.stderr))
 
+    def test_resource_path_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
+        cases = {
+            'unconsumed_local': text.replace('let Leaf { value, active } = leaf', 'let value: int = 4 let active: bool = true'),
+            'join_left': text.replace('let Leaf { value, active } = outer', 'let value: int = 5 let active: bool = true'),
+            'join_right': text.replace('let moved: Leaf = outer', 'let moved: Leaf = Leaf { value: 5, active: true }'),
+            'loop_outer': text.replace('if true {\n  let moved: Leaf = outer', 'while true {\n  let moved: Leaf = outer').replace(' } else {\n  let Leaf { value, active } = outer\n  assert (== value 5) assert active\n }', ' }'),
+            'moved_use': text.replace('let mut moved: Pair = tree', 'let mut moved: Pair = tree let again: Pair = tree'),
+            'assignment': text.replace('let mut moved: Leaf = leaf', 'let mut moved: Leaf = leaf set moved Leaf { value: 1, active: true }'),
+            'partial_move': text.replace('let Pair { right, left } = moved', 'let right: Leaf = moved.right let left: Leaf = moved.left'),
+            'helper_owner': text.replace('set view.value (+ view.value 1)', 'let owner: Leaf = Leaf { value: 1, active: true } let Leaf { value, active } = owner set view.value (+ view.value 1)'),
+            'wrong_nominal': text.replace('let mut moved: Pair = tree', 'let moved: Leaf = tree'),
+        }
+        for name, content in cases.items():
+            source = self.work / ('resource-refusal-' + name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'resource-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_text(), 'accepted-output')
+
     def test_control_flow_depth_boundary(self):
         text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
         for depth in (32, 33):
@@ -550,7 +625,7 @@ shadow main { assert true }
                 self.assertEqual(output.read_bytes(), b'accepted-output')
             # Raw lowering does not execute shadows or perform the source
             # ownership check that forbids implicit disposal of live trees.
-            if name not in ('failed_shadow', 'live_tree_exit'):
+            if name != 'failed_shadow':
                 for emitter in self.emitters:
                     output = self.work / 'nested-preserved.nasm'
                     output.write_text('accepted-output')

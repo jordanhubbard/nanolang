@@ -314,6 +314,51 @@ fn nb_cleanup(parser: Parser, first: int) -> int {
     }
     return 0
 }
+fn nb_consumed(first: int) -> bool {
+    let mut i: int = first
+    while (< i (array_length nb_names)) {
+        if (and (at nb_live i) (and (== (at nb_tags i) 8) (and (== (at nb_modes i) 0) (not (at nb_disposal_pending i))))) {
+            let _: int = (nb_fail "explicit source owner consumption at scope exit") return false
+        }
+        set i (+ i 1)
+    }
+    return (== nb_error "")
+}
+shadow nb_consumed {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let _: int = (nb_slot "owner" 8 0 0 false)
+    assert (not (nb_consumed 0)) set nb_error ""
+    (array_set nb_disposal_pending 0 true) assert (nb_consumed 0)
+    let _: int = (nb_slot "view" 8 0 1 false) assert (nb_consumed 0)
+    let _: int = (nb_reset_locals)
+}
+fn nb_copy_flags(values: array<bool>, count: int) -> array<bool> {
+    let mut out: array<bool> = [] let mut i: int = 0
+    while (< i count) { set out (array_push out (at values i)) set i (+ i 1) }
+    return out
+}
+shadow nb_copy_flags {
+    let values: array<bool> = [true, false]
+    let copied: array<bool> = (nb_copy_flags values 2)
+    (array_set values 0 false) assert (at copied 0) assert (not (at copied 1))
+}
+fn nb_same_owners(count: int, live: array<bool>, pending: array<bool>) -> bool {
+    let mut i: int = 0
+    while (< i count) {
+        if (and (== (at nb_tags i) 8) (or (!= (at nb_live i) (at live i)) (!= (at nb_disposal_pending i) (at pending i)))) {
+            let _: int = (nb_fail "matching ownership on every reaching edge") return false
+        }
+        set i (+ i 1)
+    }
+    return (== nb_error "")
+}
+shadow nb_same_owners {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let _: int = (nb_slot "owner" 8 0 0 false)
+    assert (nb_same_owners 1 [true] [false])
+    assert (not (nb_same_owners 1 [false] [false]))
+    set nb_error "" let _: int = (nb_reset_locals)
+}
 fn nb_binary(op: int, tag: int) -> string {
     if (== tag 1) {
         if (== op LexerTokenType.TOKEN_PLUS) { return "ADD" }
@@ -439,9 +484,6 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     return (nb_fail "straight-line scalar expressions and one borrowed helper")
 }
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
-    if (and (> nb_control_depth 0) (or binding.is_destructure (or binding.is_destructure_projection (and (!= binding.var_type "") (and (!= binding.var_type "int") (!= binding.var_type "bool")))))) {
-        return (nb_fail "only lexical int/bool declarations inside control flow")
-    }
     if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
     if (>= layout 0) {
@@ -489,13 +531,13 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
             }
             let _: int = (nb_op1 "OWN_PACK" layout)
         } else {
-            if (and binding.is_destructure (== binding.value_type ParseNodeType.PNODE_IDENTIFIER)) {
+            if (== binding.value_type ParseNodeType.PNODE_IDENTIFIER) {
                 let old: int = (nb_local (parser_get_identifier parser binding.value).name)
                 if (< old 0) { return (nb_fail "an existing destructured owner") }
                 if (or (not (at nb_live old)) (or (!= (at nb_modes old) 0) (!= (at nb_layouts old) layout))) { return (nb_fail "an unborrowed exact destructured owner") }
                 let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
-                (array_set nb_live old false)
-            } else { return (nb_fail "a resource constructor or destructive pattern") }
+                (array_set nb_live old false) (array_set nb_disposal_pending old false)
+            } else { return (nb_fail "a resource constructor, exact owner move or destructive pattern") }
         }
         if (!= nb_error "") { return 0 }
         let slot: int = (nb_slot binding.name 8 layout 0 binding.is_mut)
@@ -553,19 +595,16 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
             if (!= (nb_expr parser condition condition_type) 4) { return (nb_fail "a Boolean control-flow condition") }
             let _: int = (nb_emit (+ "JMP_FALSE " skip))
             let incoming_count: int = (array_length nb_live)
-            let mut incoming_live: array<bool> = []
-            let mut incoming_disposal: array<bool> = []
+            let incoming_live: array<bool> = (nb_copy_flags nb_live incoming_count)
+            let incoming_disposal: array<bool> = (nb_copy_flags nb_disposal_pending incoming_count)
             let mut local: int = 0
-            while (< local incoming_count) {
-                set incoming_live (array_push incoming_live (at nb_live local))
-                set incoming_disposal (array_push incoming_disposal (at nb_disposal_pending local))
-                set local (+ local 1)
-            }
             set nb_control_depth (+ nb_control_depth 1)
             let _: int = (nb_body parser then_body is_shadow)
             set nb_control_depth (- nb_control_depth 1)
             if (!= nb_error "") { return 0 }
             let then_returns: bool = nb_returned
+            let then_live: array<bool> = (nb_copy_flags nb_live incoming_count)
+            let then_disposal: array<bool> = (nb_copy_flags nb_disposal_pending incoming_count)
             if (not then_returns) {
                 if (== stmt.node_type ParseNodeType.PNODE_IF) { let _: int = (nb_emit (+ "JMP " done)) }
                 else { let _: int = (nb_emit (+ "JMP " top)) }
@@ -581,10 +620,18 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     set nb_control_depth (- nb_control_depth 1)
                 }
                 let else_returns: bool = nb_returned
-                set local 0
-                while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) (array_set nb_disposal_pending local (at incoming_disposal local)) set local (+ local 1) }
+                if (not then_returns) {
+                    if (not else_returns) {
+                        if (not (nb_same_owners incoming_count then_live then_disposal)) { return 0 }
+                    } else {
+                        set local 0
+                        while (< local incoming_count) { (array_set nb_live local (at then_live local)) (array_set nb_disposal_pending local (at then_disposal local)) set local (+ local 1) }
+                    }
+                }
                 set nb_returned (and then_returns else_returns)
                 let _: int = (nb_emit (+ done ":"))
+            } else {
+                if (and (not then_returns) (not (nb_same_owners incoming_count then_live then_disposal))) { return 0 }
             }
         } else { if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let _: int = (nb_binding parser (parser_get_let parser stmt.node_id))
@@ -613,15 +660,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     }
                 } else {
                     if (and (== stmt.node_type ParseNodeType.PNODE_RETURN) (not is_shadow)) {
-                        if (> nb_control_depth 0) {
-                            let mut local: int = 0
-                            while (< local (array_length nb_live)) {
-                                if (and (at nb_live local) (and (== (at nb_tags local) 8) (and (== (at nb_modes local) 0) (not (at nb_disposal_pending local))))) {
-                                    return (nb_fail "explicit owner consumption before an early return")
-                                }
-                                set local (+ local 1)
-                            }
-                        }
+                        if (not (nb_consumed 0)) { return 0 }
                         let result: ASTReturn = (parser_get_return parser stmt.node_id)
                         if (!= (nb_expr parser result.value result.value_type) nb_result) { return (nb_fail "the declared scalar result") }
                         let _: int = (nb_cleanup parser 0)
@@ -639,7 +678,10 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
         }
         set i (+ i 1)
     }
-    if is_shadow { let _: int = (nb_cleanup parser first) }
+    if (or is_shadow (> nb_control_depth 0)) {
+        if (not (nb_consumed first)) { return 0 }
+        let _: int = (nb_cleanup parser first)
+    }
     if (or is_shadow (> nb_control_depth 0)) {
         let _: int = (nb_names_end first)
         set i first
