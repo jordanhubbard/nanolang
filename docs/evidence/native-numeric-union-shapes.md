@@ -64,7 +64,10 @@ compile the standalone map-runtime harness after merged PR613 changed its
 runtime text to invoke NVM2C_ABORT. The harness supplies no definition for that
 macro; strict C reports an implicit function declaration before execution.
 I record this integration prerequisite as
-`task_02182f5f162a4bbf9f14803f29d533f3`. I retain the failed full gate and keep
-this PR in draft until the repaired harness passes. This is not a passing
-full-native claim or an attribution to numeric shape inference. Parent generic
+`task_02182f5f162a4bbf9f14803f29d533f3`. I retain the failed full gate as historical integration evidence. The isolated
+harness correction `5971fb58`, cherry-picked as `3e4d544c`, defines the fragment
+caller hook without changing production guards. The corrected full run exits
+zero with 2,422 native checks and 1,139 shape checks passed; its log is
+`/tmp/nanolang-numeric-union-native-harness-fixed.log`. This establishes the
+combined bounded gate, not product compiler startup acceptance. Parent generic
 arithmetic and the full release obligations remain separate.
