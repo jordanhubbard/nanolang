@@ -1,6 +1,26 @@
 import "src_nano/typecheck.nano"
 
 fn main() -> int {
+    let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
+    let mut index: int = 0
+    while (< index (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources index) "component-checker.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-checker.nano")
+        assert (not (parser_has_error parsed))
+        assert (== (parser_get_function_count parsed) 1)
+        let checked: TypecheckPhaseOutput = (typecheck_phase parsed "component-checker.nano")
+        if (== index 0) {
+            assert (not checked.had_error)
+            assert (== checked.environment.error_count 0)
+            assert (== (list_CompilerDiagnostic_length checked.diagnostics) 0)
+        } else {
+            assert checked.had_error
+            assert (> checked.environment.error_count 0)
+            assert (> (list_CompilerDiagnostic_length checked.diagnostics) 0)
+        }
+        set index (+ index 1)
+    }
+    (println "I passed my checker entry assertions.")
     return 0
 }
 

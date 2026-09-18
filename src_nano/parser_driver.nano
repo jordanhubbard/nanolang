@@ -1,6 +1,27 @@
 import "src_nano/parser.nano"
 
 fn main() -> int {
+    let source: string = "fn main() -> int { return 7 } shadow main { assert (== (main) 7) }"
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "component-parser.nano" diagnostics)
+    assert (> (list_LexerToken_length tokens) 1)
+    assert (== (list_CompilerDiagnostic_length diagnostics) 0)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-parser.nano")
+    assert (not (parser_has_error parsed))
+    assert (parser_is_at_end parsed)
+    assert (== (parser_get_function_count parsed) 1)
+    let function: ASTFunction = (parser_get_function parsed 0)
+    assert (== function.name "main")
+    assert (== function.return_type "int")
+    let body: ASTBlock = (parser_get_block parsed function.body)
+    assert (== (list_ASTStmtRef_length body.statements) 1)
+    let statement: ASTStmtRef = (list_ASTStmtRef_get body.statements 0)
+    assert (== statement.node_type ParseNodeType.PNODE_RETURN)
+    let returned: ASTReturn = (parser_get_return parsed statement.node_id)
+    assert (== returned.value_type ParseNodeType.PNODE_NUMBER)
+    assert (== (parser_get_number parsed returned.value).value "7")
+    assert (== parsed.shadows_count 1)
+    (println "I passed my parser entry assertions.")
     return 0
 }
 
