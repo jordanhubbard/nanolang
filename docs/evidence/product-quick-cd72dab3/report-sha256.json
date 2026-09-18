@@ -1,0 +1,19 @@
+{
+  "affine-example-source.json": "4b96298189b33105fb28214f1269b076ee240db7981f05b2be3373f0d588425a",
+  "bootstrap-artifacts-after.json": "8855ea36a2ebdd0f5de50b9853dc775f20ffee664567cdebf1fbe2f67b5f4316",
+  "bootstrap-artifacts-before.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+  "bootstrap.log": "bf99aee2fe9e80262806bb7478aeaceed4086efc09817b8f84dbd9368a0837f9",
+  "component-selection.json": "84e5e569dad9ebf5e41f86c6654155917171b27aa21a226ba0678885a67e37ae",
+  "manifest.json": "cf2a3dca3f567815d10c739a0093a2d678c4ed86591b727428682523a7643296",
+  "runner.py": "1c5cd10495f01e22597dfb2b2679372a35dc645285a131aab1401507b0fba246",
+  "source-after.json": "f7447cbf8c0af68135f3b137fdb7b6221f377db3d1710f9a0d0b009370a8aa6f",
+  "source-before.json": "f7447cbf8c0af68135f3b137fdb7b6221f377db3d1710f9a0d0b009370a8aa6f",
+  "status": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+  "test-quick-artifacts-after.json": "6808a701e4eef26fab79384103d16931d212acd1b36a3ac1cdd086e879220bee",
+  "test-quick-artifacts-before.json": "8ed32cb0ad889731bbed4ed37fb3968588e651743618b84e8fa347cf0a269444",
+  "test-quick.log": "80de94a0c569baca934bf656e1bb81af9e56fc6e22fee00e21d21f8bab0ac70f",
+  "toolchain.json": "967b5fd013ae93be7ccb1e80760000e43764d68395d9b356c887c0a98e2f89d9",
+  "tools-artifacts-after.json": "8ed32cb0ad889731bbed4ed37fb3968588e651743618b84e8fa347cf0a269444",
+  "tools-artifacts-before.json": "8855ea36a2ebdd0f5de50b9853dc775f20ffee664567cdebf1fbe2f67b5f4316",
+  "tools.log": "2ee7671855092851d70287bb83a22ed34055f3e6c923f5c87a6b0ebc46ce1195"
+}

@@ -1,0 +1,23 @@
+{
+  "observed_utc": "2026-09-18T18:11:04.952674+00:00",
+  "phase": "test-quick actual parser component compilation",
+  "head": "cd72dab32f03f0817cffcf1527e75e8a3482f534",
+  "selection": {
+    "nanoc": {
+      "resolved": "/home/jkh/Src/nanolang-product-owned-integration/bin/nanoc_stage2",
+      "sha256": "caec8d5655f4ef28d2017250d68badda6261f78998fe3d301db19bd95365f2d6"
+    },
+    "nanoc_c": {
+      "resolved": "/home/jkh/Src/nanolang-product-owned-integration/bin/nanoc_c",
+      "sha256": "c81dfd5f44ff946de5e80280a16dd2502e0a4812b43935ecefadbeb18cf85ed6"
+    },
+    "nanoc_stage1": {
+      "resolved": "/home/jkh/Src/nanolang-product-owned-integration/bin/nanoc_stage1",
+      "sha256": "855082edd439e7ce03c2d0113e33206733d22496a9f5b5ce619ae70886633a4d"
+    },
+    "nanoc_stage2": {
+      "resolved": "/home/jkh/Src/nanolang-product-owned-integration/bin/nanoc_stage2",
+      "sha256": "caec8d5655f4ef28d2017250d68badda6261f78998fe3d301db19bd95365f2d6"
+    }
+  }
+}

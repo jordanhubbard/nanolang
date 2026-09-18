@@ -1,0 +1,6 @@
+{
+  "path": "examples/language/nl_affine_resource_demo.nano",
+  "sha256": "f9cd44a9bd4112913cc36f01b09b34db544a5e7b4323bf242d29dea6e888ef64",
+  "same_source_as_preserved_fa14": true,
+  "comparison": "Git source blobs only; no old artifact execution"
+}
