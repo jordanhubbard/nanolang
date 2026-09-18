@@ -38,9 +38,14 @@ class OrdinaryAuthority(unittest.TestCase):
                 self.command([ROOT/'bin/nvm2c',owned_forward,'-o',output],False)
                 self.assertEqual(output.read_bytes(),b'prior')
                 for tool in ('nvm2llvm','nvm2wasm'):
-                    output=work/'forward-prior-output';output.write_bytes(b'prior')
-                    self.command([ROOT/'bin'/tool,forward,'-o',output],False)
-                    self.assertEqual(output.read_bytes(),b'prior')
+                    output=work/('forward.ll' if tool=='nvm2llvm' else 'forward.wasm')
+                    self.command([ROOT/'bin'/tool,forward,'-o',output])
+                    if tool=='nvm2wasm':
+                        self.assertEqual(self.command(['wasmtime','run','--invoke','nano_entry',output]).stdout,'0\n')
+                    else:
+                        binary=work/'forward-llvm'
+                        self.command(['clang',*shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS','')),output,'-o',binary])
+                        self.command([binary])
                 self.command([ROOT/'bin/nano_vm',module])
                 for tool in ('nvm2llvm','nvm2wasm'):
                     output=work/'prior';output.write_bytes(b'prior')
