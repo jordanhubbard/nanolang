@@ -34,3 +34,12 @@ I require true and false assertions in both entry and borrowed helper, native
 allocation accounting, VM invocation and direct execution cleanup, and a true
 assertion after suspension/resumption. I add this after the active
 multi-parameter runtime slice; I do not modify its running source pin.
+
+My first producer implementation is straight-line: scalar bindings and
+expressions, assertions, resource construction, direct borrowed calls,
+field reads/exclusive writes, explicit record destructuring and returns.
+I refuse loops, branches, extra functions and imports in this profile. Scalar
+operators use the already verified exact-tag owned instruction contracts.
+Destructuring moves the original owner into its parser-retained temporary;
+scalar projections do not duplicate ownership. Scope disposal consumes any
+remaining scalar-only shell. These bounds precede producer edits.
