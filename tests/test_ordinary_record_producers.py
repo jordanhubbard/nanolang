@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import re
+import shlex
 import struct
 import subprocess
 import tempfile
@@ -16,6 +17,17 @@ shadow length { let p: Parent = Parent { child: Leaf { text: "abc" } } assert (=
 fn main() -> int { let p: Parent = Parent { child: Leaf { text: "abc" } } assert (== (length p) 3) return 0 }
 shadow main { assert true }
 '''
+FORWARD = """struct Root { left: Left, right: Right }
+struct Left { leaf: Leaf }
+struct Right { leaf: Leaf }
+struct Leaf { text: string }
+struct Empty {}
+struct Twin { text: string }
+fn total(root: Root) -> int { return (+ (str_length root.left.leaf.text) (str_length root.right.leaf.text)) }
+shadow total { let root: Root = Root { left: Left { leaf: Leaf { text: "abc" } }, right: Right { leaf: Leaf { text: "defg" } } } assert (== (total root) 7) }
+fn main() -> int { let root: Root = Root { left: Left { leaf: Leaf { text: "abc" } }, right: Right { leaf: Leaf { text: "defg" } } } let twin: Twin = Twin { text: "x" } assert (== (total root) 7) assert (== (str_length twin.text) 1) return 0 }
+shadow main { assert (== (main) 0) }
+"""
 class OrdinaryProducers(unittest.TestCase):
     @classmethod
     def command(cls,*args,ok=True,timeout=900):
@@ -89,6 +101,57 @@ class OrdinaryProducers(unittest.TestCase):
     def test_nested_empty_distinct_records_and_all_stages(self):
         facts=[self.qualify(module) for module in self.modules(POSITIVE)]
         self.assertTrue(all(item==facts[0] for item in facts))
+    def forward_facts(self, layouts):
+        self.assertEqual(struct.unpack_from('<I', layouts)[0], 6)
+        offset = 4
+        children = []
+        for _ in range(6):
+            kind, reserved, count, name = struct.unpack_from('<BBHI', layouts, offset)
+            offset += 8
+            self.assertEqual((kind, reserved, name), (0, 0, 0xffffffff))
+            fields = []
+            for _ in range(count):
+                tag, child, field_name = struct.unpack_from('<B3xII', layouts, offset)
+                offset += 12
+                self.assertEqual(field_name, 0xffffffff)
+                fields.append((tag, child))
+            children.append(fields)
+        self.assertEqual(offset, len(layouts))
+        self.assertEqual(children, [[(8, 1), (8, 2)], [(8, 3)], [(8, 3)],
+                                    [(5, 0xffffffff)], [], [(5, 0xffffffff)]])
+
+    def test_forward_diamond_keeps_indices_vm_and_native(self):
+        facts = []
+        for module in self.modules(FORWARD):
+            layout = self.qualify(module)
+            self.forward_facts(layout)
+            facts.append(layout)
+            output = module.with_suffix('.c')
+            self.command(ROOT/'bin/nvm2c', module, '-o', output)
+            for compiler, flags in [('cc', []), ('clang', shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS', '')))]:
+                binary = module.with_suffix('.'+compiler)
+                self.command(compiler, *flags, '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+                             '-fsanitize=address,undefined', '-fno-sanitize-recover=all', output,
+                             '-lm', '-o', binary)
+                self.command(binary)
+        self.assertTrue(all(layout == facts[0] for layout in facts))
+
+    def test_forward_selected_shadows_keep_authority(self):
+        source = self.source(FORWARD)
+        texts = [self.command(ROOT/'obj/borrow_shadow_names', source)]
+        texts.extend(self.command(driver, source, 0, 'raw') for driver in self.shadows)
+        for index, text in enumerate(texts):
+            assembly = self.work/f'forward-shadow-{index}.nasm'
+            module = assembly.with_suffix('.nvm')
+            assembly.write_text(text)
+            self.command(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.forward_facts(self.qualify(module))
+
+    def test_cyclic_optional_declarations_stay_unknown(self):
+        source = 'struct First { next: Second } struct Second { next: First } fn main() -> int { return 0 } shadow main { assert true }'
+        for module in self.modules(source):
+            self.qualify(module, False)
+
     def test_initializer_and_scalar_fields(self):
         source='''struct Scalars { i: int, f: float, b: bool }
 let initial: Scalars = Scalars { i: 7, f: 2.5, b: true }

@@ -958,6 +958,9 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             supported = false;
         for (uint16_t f=0; f<layout->field_count; f++) {
             uint8_t tag=layout->fields[f].type_tag;
+            /* My owned execution profile retains its prior-only graph. */
+            uint32_t child=layout->fields[f].nested_idx;
+            if(child!=NVM_V2_NO_INDEX && child>=i) supported=false;
             if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT) supported=false;
         }
     }
