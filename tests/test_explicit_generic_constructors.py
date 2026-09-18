@@ -9,6 +9,9 @@ class ExplicitGenericConstructors(matches.ScalarMatchValues):
     def test_explicit_instances_in_locals_calls_returns_and_shadows(self):
         self.paired('''union Box<T> { Some { value: T }, None {} }
 union Choice<T,E> { Left { value: T }, Right { value: E } }
+union Text<T> { Some { value: T }, None {} }
+fn text(value: Text<string>) -> string { match value { Some(v) => { return v.value } None(n) => { return "" } } }
+shadow text { assert (== (text Text<string>.Some { value: "kept" }) "kept") }
 fn fresh() -> Box<int> { return Box<int>.Some { value: 7 } }
 shadow fresh { assert (== (read (fresh)) 7) }
 fn read(value: Box<int>) -> int {
@@ -24,6 +27,7 @@ fn main() -> int {
  let left: int = 3 let right: int = 9
  assert (left < right) assert (< left right)
  assert (== (read value) 7) assert (== (read (fresh)) 7)
+ assert (== (text Text<string>.None {}) "")
  assert (== (choose Choice<int,int>.Left { value: 4 }) 4)
  return 0
 }
