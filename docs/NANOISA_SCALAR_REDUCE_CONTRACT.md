@@ -93,3 +93,10 @@ unsupported-signature/output-preservation contract, not a general error overhaul
 
 Source child `task_8618bac3cb6a42448c0066867deaed69` can close after its bounded source gates and canonical
 merge; d099 retains the separate canonical native FUNCREF obligation.
+
+Static namespace audit also finds the old private runtime name nl_reduce collides
+with an ordinary source function named reduce (legacy user names use nl_). I
+rename only the three existing static reduce helpers into the established
+nano_rt_ runtime namespace, preserving their signatures/bodies and all callers.
+This is necessary to test the approved user-binding distinction without silently
+reserving an ordinary source name. I do not rename unrelated map/filter helpers.
