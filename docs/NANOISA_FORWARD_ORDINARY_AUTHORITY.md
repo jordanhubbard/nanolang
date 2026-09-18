@@ -56,7 +56,10 @@ resource consumer despite the broader structural codec.
 The managed record descriptor preflight retains its existing prior-only
 boundary. Consequently the new field-origin API also continues to refuse
 forward records: this child does not silently widen that independently
-qualified analysis. Array/record executable selectors remain unchanged.
+qualified analysis. I also retain prior-only nested edges explicitly in the owned executable
+verifier: OWN_PACK can otherwise operate on COMPLETE ordinary layouts without
+a RESOURCE flag. Ordinary AGG_PACK VM execution is distinct from that owned
+profile. LLVM/Wasm array/record executable selectors remain unchanged.
 My codec/header documentation names this limited all-record DAG extension;
 I qualify bare codec, retained transport and whole-module round trips, as well
 as the separate authority verdict. Existing cyclic fixtures remain invalid;
