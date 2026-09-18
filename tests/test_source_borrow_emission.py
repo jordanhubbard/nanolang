@@ -1537,7 +1537,7 @@ shadow main { assert (== (main) 0) }
     def test_transitive_wrapper_results_preserve_once_order_and_children(self):
         baseline, shadows = self.graph_positive('transitive-results', self.transitive_wrapper_fixture(), b'ABAB', b'ABAB')
         self.assertIn('.ownership', baseline)
-        self.assertIn('.parameters 2 struct', baseline)
+        self.assertIn('.parameters 3 struct', baseline)
         self.assertGreaterEqual(shadows.count('OWN_UNPACK_LOCAL'), 3)
 
     def test_transitive_wrapper_refusals_preserve_output(self):
