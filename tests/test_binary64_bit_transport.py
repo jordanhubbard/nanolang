@@ -7,7 +7,11 @@ from tests.test_canonical_f64_bits import PATTERNS
 
 class Binary64BitTransport(unittest.TestCase):
     setUp=wasm.ScalarWasm.setUp
-    run_cmd=wasm.ScalarWasm.run_cmd
+    def run_cmd(self, args, success=True):
+        # I instrument generated native C, independently of the LLVM runner.
+        if args[0] == 'cc' and any(str(arg).endswith('.c') for arg in args):
+            args = [*args, '-fsanitize=address,undefined', '-fno-sanitize-recover=all']
+        return wasm.ScalarWasm.run_cmd(self, args, success)
     module=wasm.ScalarWasm.module
     compare=wasm.ScalarWasm.compare
 

@@ -30,4 +30,21 @@ class Binary64SourceTransport(unittest.TestCase):
                     exe=work/(name+'-legacy')
                     self.command(ROOT/'bin'/name,source,'-o',exe)
                     self.command(exe)
+    def test_source_exact_type_and_arity_refusals(self):
+        cases = ('(float_from_bits true)', '(float_from_bits 1.0)',
+                 '(float_to_bits 1)', '(float_to_bits false)',
+                 '(float_from_bits)', '(float_to_bits 1.0 2.0)')
+        with tempfile.TemporaryDirectory(prefix='binary64-source-refusal-') as tmp:
+            work=Path(tmp); source=work/'wrong.nano'; output=work/'retained'
+            for expression in cases:
+                source.write_text('fn main() -> int { let value: int = '+expression+' return 0 }\nshadow main { assert true }\n')
+                for name in ('nanoc_c','nano_virt','nanoc_stage1','nanoc_stage2'):
+                    with self.subTest(compiler=name,expression=expression):
+                        output.write_bytes(b'retained')
+                        args=[ROOT/'bin'/name,source,'-o',output]
+                        if name!='nanoc_c': args.insert(2,'--emit-nvm')
+                        p=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=180)
+                        self.assertGreater(p.returncode,0,f'{args}\n{p.stdout}\n{p.stderr}')
+                        self.assertEqual(output.read_bytes(),b'retained')
+
 if __name__=='__main__':unittest.main()

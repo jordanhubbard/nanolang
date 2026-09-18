@@ -1,5 +1,6 @@
 let mut calls: int = 0
 let mut stored: float = (float_from_bits -4503599627370430)
+let frozen: int = (float_to_bits stored)
 fn make(bits: int) -> float { return (float_from_bits bits) }
 shadow make { assert (== (float_to_bits (make -4503599627370430)) -4503599627370430) }
 fn inspect(value: float) -> int { return (float_to_bits value) }
@@ -9,6 +10,7 @@ shadow operand { let before: int = calls assert (== (operand) -4503599627370430)
 fn roundtrip(bits: int) -> int { return (inspect (make bits)) }
 shadow roundtrip { assert (== (roundtrip 9221120237041090626) 9221120237041090626) }
 fn main() -> int {
+    assert (== frozen -4503599627370430)
     set calls 0
     assert (== (float_to_bits (float_from_bits (operand))) -4503599627370430)
     assert (== calls 1)

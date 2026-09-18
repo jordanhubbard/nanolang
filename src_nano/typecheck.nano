@@ -5438,6 +5438,10 @@ shadow scalar_borrow_shape {
 }
 
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+    if (or (== func.name "float_from_bits") (== func.name "float_to_bits")) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I reserve binary64 bit intrinsic names." (Diagnostics.diag_location file_name func.line func.column)))
+        return false
+    }
     let return_type: NSType = (type_from_string_with_parser parser func.return_type)
     
     /* Create a fresh symbol table for this function.
