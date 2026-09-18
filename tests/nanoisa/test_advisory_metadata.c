@@ -7,6 +7,7 @@
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
 #include "nvm2c.h"
+#include "../../modules/nanoisa/nanoisa.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +60,9 @@ int main(int argc, char **argv) {
     CHECK(!nvm_add_metadata(m, UINT32_MAX, v));
     CHECK(!nvm_add_metadata(m, k, UINT32_MAX));
     legacy_size = 99; CHECK(!nvm_serialize(m, &legacy_size) && legacy_size == 0);
+    NanoisaErr legacy_error;
+    CHECK(!nanoisa_save_bytes_v1(m, &legacy_size, &legacy_error));
+    CHECK(legacy_error.code == NANOISA_ERR_FORMAT && strstr(legacy_error.message, "v2"));
     CHECK(nvm_verify(m).ok);
     NvmModule *b = copy(m); compare_wire(m, b);
     CHECK(b->metadata_count == 4 && b->source_file_idx == last);
@@ -83,6 +87,11 @@ int main(int argc, char **argv) {
     b = copy(m); CHECK(b->metadata_count == 1 && b->metadata[0].key_idx == source);
     CHECK(b->string_count == m->string_count); c = copy(b); compare_wire(b, c);
     CHECK(c->string_count == b->string_count);
+    nvm_module_free(m); nvm_module_free(b); nvm_module_free(c);
+
+    m=ordinary(); m->source_file_idx=nvm_add_string(m,"new-key.nano",12);
+    b=copy(m); CHECK(b->string_count==m->string_count+1 && b->metadata_count==1);
+    c=copy(b); compare_wire(b,c); CHECK(c->string_count==b->string_count);
     nvm_module_free(m); nvm_module_free(b); nvm_module_free(c);
 
     /* I retain an explicit empty source value even at string index zero. */
