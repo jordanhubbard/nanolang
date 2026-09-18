@@ -109,6 +109,13 @@ static void multiple_refusals(void) {
     CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
     for(unsigned arity=0;arity<=9;arity+=9){m=multiple_fixture(2,NULL,NULL);
         m->functions[1].arity=arity;m->ownership_data[158]=arity;
+        uint8_t tags[9];for(unsigned p=0;p<arity;p++) tags[p]=m->ownership_data[168+p*8];
+        CHECK(nvm_set_function_param_types(m,1,tags,arity));
+        bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);
+        NvmAffineState *bounded=nvm_affine_state_create(m,1,16);CHECK(bounded);
+        NvmAffineType parameters[8];uint16_t count=99;
+        CHECK(!nvm_affine_consuming_parameters(bounded,parameters,8,&count));CHECK(count==99);
+        nvm_affine_state_free(bounded);
         CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);}
     m=multiple_fixture(0,NULL,NULL);
     for(unsigned p=0;p<2;p++) {slot(m->ownership_data+168+p*8,TAG_INT,0,NVM_V2_NO_INDEX);m->function_param_types[1][p]=TAG_INT;}
