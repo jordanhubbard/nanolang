@@ -4953,3 +4953,12 @@ test-integer-pair-verification: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nanoisa_dump 
 	$(CC) $(CFLAGS) -o obj/test_integer_pair_type_rules tests/nanoisa/test_integer_pair_type_rules.c $(filter-out $(OBJ_DIR)/nanoisa/verifier_types.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_integer_pair_type_rules
 	python3 -m unittest -v tests.test_integer_pair_verification
+
+.PHONY: test-helper-local-owners
+test-units: test-helper-local-owners
+test-helper-local-owners: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_helper_local_owners tests/nanoisa/test_helper_local_owners.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=helper_heap_malloc -Dcalloc=helper_heap_calloc -Drealloc=helper_heap_realloc -c src/nanovm/heap.c -o obj/test_helper_local_owner_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_helper_local_owner_alloc tests/nanoisa/test_helper_local_owner_alloc.c obj/test_helper_local_owner_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_helper_local_owner_alloc
+	python3 -m unittest -v tests.test_helper_local_owners

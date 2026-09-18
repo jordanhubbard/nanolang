@@ -926,10 +926,10 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                 if(!nvm_affine_parameter_at(state,i,&type,&mode)) valid=false;
             } else if(!nvm_affine_local_type(state,i,&type) ||
                 (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
-                 (function || type.tag!=TAG_STRUCT))) valid=false;
+                 type.tag!=TAG_STRUCT)) valid=false;
         }
         nvm_affine_state_free(state);
-        if(!valid) return fail("I require value entry locals and bounded borrowed helper parameters with scalar locals");
+        if(!valid) return fail("I require value entry locals and bounded borrowed helper parameters with exact value locals");
     }
     NvmV2Layouts layouts = {0};
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
@@ -957,11 +957,12 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
             if(!owned_runtime_opcode(op)) supported=false;
             if(op==OP_CALL_REF && (function || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
-            if(function && ((op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) ||
-                op==OP_BORROW_LOCAL_SHARED || op==OP_BORROW_LOCAL_EXCLUSIVE ||
-                op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE ||
-                op==OP_AGG_GET || op==OP_STRUCT_GET ||
-                ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL) && in->operands[0].u16<mod->functions[function].arity))) supported=false;
+            if(function && (op==OP_AGG_GET || op==OP_STRUCT_GET ||
+                ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL || op==OP_OWN_MOVE_LOCAL ||
+                  op==OP_OWN_STORE_LOCAL || op==OP_OWN_UNPACK_LOCAL) && in->operands[0].u16<mod->functions[function].arity) ||
+                ((op==OP_BORROW_LOCAL_SHARED || op==OP_BORROW_LOCAL_EXCLUSIVE ||
+                  op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE) &&
+                 in->operands[1].u16<mod->functions[function].arity))) supported=false;
         }
         vm_decoded_function_free(&decoded);
         if(function && !nvm_affine_analyze_function(mod,function).ok) supported=false;
