@@ -35,3 +35,11 @@ and Stage1 hello pass. Stage2 translation explicitly refuses aggregate storage
 `task_497e1ba5b9544b81b3614ec37da90e98` before repair. The focused optional-array
 checks did not establish full compiler storage acceptance. This refusal is
 separate from historical export-shadow aborts, which I did not replay.
+
+At `9d49de10`, the corrected optional-storage translator builds Stage2. Its
+ordinary hello smoke aborts without a compiler diagnostic. I preserve this
+new binary, bootstrap log and hashes in
+`/tmp/nanolang-product-startup-9d49de10/evidence.json`. I have not replayed it or
+attributed the failure to either historical abort. PR601 remains draft under
+`task_497e1ba5b9544b81b3614ec37da90e98`; compiler publication and release remain
+held. Translation success does not establish native compiler acceptance.
