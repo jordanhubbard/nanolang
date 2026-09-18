@@ -6,7 +6,7 @@
 /* My private runtime API does not itself grant bytecode/profile admission. */
 typedef enum {
     NMS_OK = 0, NMS_TYPE = 1, NMS_ASSERT = 2, NMS_MEMORY = 3,
-    NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6
+    NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6, NMS_BOUNDS = 7
 } NmsStatus;
 typedef uint64_t NmsHandle;
 /* I share this value tag with the ISA; the emitter asserts its ABI. */
@@ -17,7 +17,7 @@ typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2
 typedef struct {
     unsigned char *data;
     uint64_t references;
-    uint32_t length, next_free, capacity, kind, element_tag;
+    uint32_t length, next_free, capacity, kind, element_tag, vm_array_policy;
 } NmsSlot;
 typedef struct {
     const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
@@ -51,6 +51,10 @@ NmsStatus nms_value_release(NmsRuntime *, NmsValue);
 /* I retain a declared int/U8/float/bool kind; this API grants no opcode admission. */
 NmsStatus nms_packed_array_create(NmsRuntime *, uint32_t, NmsHandle *);
 NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);
+/* I prepare capacity8 and VM checked-doubling semantics before publication. */
+NmsStatus nms_vm_array_create(NmsRuntime *, uint32_t, NmsHandle *);
+/* I consume both strings and build boxed tagged children before publication. */
+NmsStatus nms_split_values_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
 NmsStatus nms_value_array_append(NmsRuntime *, NmsHandle, NmsValue);
 NmsStatus nms_value_array_set(NmsRuntime *, NmsHandle, uint64_t, NmsValue);
 NmsStatus nms_value_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsValue *);

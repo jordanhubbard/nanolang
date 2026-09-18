@@ -188,11 +188,12 @@ static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
                 slots[i].length = runtime->slots[i].length;
                 slots[i].next_free = runtime->slots[i].next_free;
                 slots[i].element_tag = runtime->slots[i].element_tag;
+                slots[i].vm_array_policy = runtime->slots[i].vm_array_policy;
                 slots[i].kind = runtime->slots[i].kind;
                 slots[i].capacity = runtime->slots[i].capacity;
             } else {
                 slots[i].data = NULL; slots[i].references = 0; slots[i].length = 0;
-                slots[i].kind = NMS_SLOT_FREE; slots[i].capacity = 0; slots[i].element_tag = 0;
+                slots[i].kind = NMS_SLOT_FREE; slots[i].capacity = 0; slots[i].element_tag = 0; slots[i].vm_array_policy = 0;
                 slots[i].next_free = i < new_capacity ? (uint32_t)i + 1 : 0;
             }
         }
@@ -205,7 +206,7 @@ static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
     uint32_t index = runtime->free_head;
     runtime->free_head = slots[index].next_free;
     slots[index].data = bytes; slots[index].length = (uint32_t)length;
-    slots[index].element_tag = 0;
+    slots[index].element_tag = 0; slots[index].vm_array_policy = 0;
     slots[index].kind = kind; slots[index].capacity = capacity;
     slots[index].references = 1; slots[index].next_free = 0;
     runtime->live_bytes += storage_bytes; runtime->live_objects++;
@@ -343,6 +344,34 @@ static NmsStatus value_array_slot(const NmsRuntime *runtime, NmsHandle array,
 static uint32_t packed_width(uint32_t tag) {
     return tag == 1 || tag == 3 ? 8 : tag == 2 || tag == 4 ? 1 : 0;
 }
+/* I distinguish VM logical growth from older private empty-buffer factories. */
+static NmsStatus array_next_capacity(uint32_t old, uint32_t width, uint32_t vm_policy,
+                                     uint32_t *out) {
+    uint64_t next = old ? (uint64_t)old * 2 : 4;
+    if (vm_policy) {
+        if (!width || next <= old || next > UINT32_MAX / width) return NMS_MEMORY;
+    } else if (next > UINT32_MAX) next = UINT32_MAX;
+    *out = (uint32_t)next;
+    return NMS_OK;
+}
+NmsStatus nms_vm_array_create(NmsRuntime *runtime, uint32_t tag, NmsHandle *out) {
+    if (!runtime || !out) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (!(tag <= 5 || tag == 9)) return NMS_TYPE;
+    uint32_t width = packed_width(tag);
+    uint32_t kind = width ? NMS_SLOT_PACKED_SCALAR_ARRAY : NMS_SLOT_BOXED_LEAF_ARRAY;
+    if (!width) width = sizeof(NmsValue);
+    uint64_t bytes = (uint64_t)8 * width;
+    unsigned char *buffer = allocate(runtime, bytes);
+    if (!buffer) return NMS_MEMORY;
+    NmsHandle result = 0;
+    NmsStatus status = publish_slot(runtime, buffer, 0, 8, kind, bytes, &result);
+    if (status != NMS_OK) { deallocate(buffer); return status; }
+    NmsSlot *slot = &runtime->slots[(uint32_t)result];
+    slot->element_tag = tag; slot->vm_array_policy = 1;
+    *out = result;
+    return NMS_OK;
+}
 static NmsValue packed_value(const NmsSlot *slot, uint32_t index) {
     uint32_t width = packed_width(slot->element_tag);
     uint64_t offset = (uint64_t)index * width;
@@ -393,8 +422,9 @@ static NmsStatus packed_write(NmsRuntime *runtime, NmsSlot *slot, uint64_t index
     if (!width) return NMS_STATE;
     uint32_t target = append ? slot->length : (uint32_t)index;
     if (append && slot->length == slot->capacity) {
-        uint32_t capacity = slot->capacity ?
-            (slot->capacity > UINT32_MAX / 2 ? UINT32_MAX : slot->capacity * 2) : 4;
+        uint32_t capacity = 0;
+        status = array_next_capacity(slot->capacity, width, slot->vm_array_policy, &capacity);
+        if (status != NMS_OK) return status;
         uint64_t bytes = (uint64_t)capacity * width;
         uint64_t delta = (uint64_t)(capacity - slot->capacity) * width;
         if (bytes > SIZE_MAX || delta > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
@@ -442,8 +472,10 @@ static NmsStatus value_array_write(NmsRuntime *runtime, NmsHandle array,
     if (append && slot->length == UINT32_MAX) return NMS_MEMORY;
     uint32_t target = append ? slot->length : (uint32_t)requested_index;
     uint32_t capacity = slot->capacity;
-    if (append && slot->length == capacity)
-        capacity = capacity ? (capacity > UINT32_MAX / 2 ? UINT32_MAX : capacity * 2) : 4;
+    if (append && slot->length == capacity) {
+        status = array_next_capacity(slot->capacity, sizeof(NmsValue), slot->vm_array_policy, &capacity);
+        if (status != NMS_OK) return status;
+    }
     uint64_t bytes = (uint64_t)capacity * sizeof(NmsValue);
     uint64_t old_bytes = array_storage_bytes(slot);
     if (bytes > SIZE_MAX || bytes - old_bytes > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
@@ -747,7 +779,7 @@ NmsStatus nms_release(NmsRuntime *runtime, NmsHandle handle) {
     } else runtime->live_bytes -= slot->length;
     runtime->live_objects--;
     deallocate(slot->data);
-    slot->data = NULL; slot->length = 0; slot->capacity = 0; slot->kind = NMS_SLOT_FREE; slot->element_tag = 0;
+    slot->data = NULL; slot->length = 0; slot->capacity = 0; slot->kind = NMS_SLOT_FREE; slot->element_tag = 0; slot->vm_array_policy = 0;
     slot->next_free = runtime->free_head; runtime->free_head = index;
     return NMS_OK;
 }
@@ -761,7 +793,7 @@ NmsStatus nms_begin(NmsRuntime *runtime) {
 uint64_t nms_finish(NmsRuntime *runtime, NmsStatus status, int32_t result) {
     if (!runtime || !runtime->active) return (uint64_t)NMS_STATE << 32;
     runtime->active = 0;
-    if ((unsigned)status > NMS_STATE) status = NMS_STATE;
+    if ((unsigned)status > NMS_BOUNDS) status = NMS_STATE;
     return ((uint64_t)status << 32) | (status == NMS_OK ? (uint32_t)result : 0);
 }
 NmsStatus nms_dispose(NmsRuntime *runtime) {
@@ -819,32 +851,34 @@ static int find_bytes(NmsView source, NmsView needle, uint32_t start, uint32_t *
     return 0;
 }
 static NmsStatus append_segment(NmsRuntime *runtime, NmsHandle array,
-                                 const unsigned char *bytes, uint32_t length) {
+                                 const unsigned char *bytes, uint32_t length, int values) {
     NmsHandle child = 0;
     NmsStatus status = nms_create(runtime, bytes, length, &child);
     if (status != NMS_OK) return status;
-    status = nms_string_array_append(runtime, array, child);
+    status = values ? nms_value_array_append(runtime, array, (NmsValue){child, 5}) :
+                      nms_string_array_append(runtime, array, child);
     NmsStatus released = nms_release(runtime, child);
     return status != NMS_OK ? status : released;
 }
-NmsStatus nms_split_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle delimiter,
-                          NmsHandle *out) {
+static NmsStatus split_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle delimiter,
+                               NmsHandle *out, int values) {
     NmsView a, b;
     NmsHandle array = 0;
     NmsStatus status = out ? nms_view(runtime, source, &a) : NMS_STATE;
     if (status == NMS_OK) status = nms_view(runtime, delimiter, &b);
-    if (status == NMS_OK) status = nms_string_array_create(runtime, &array);
+    if (status == NMS_OK) status = values ? nms_vm_array_create(runtime, 5, &array) :
+                                          nms_string_array_create(runtime, &array);
     if (status == NMS_OK && !b.length) {
         for (uint32_t i = 0; i < a.length && status == NMS_OK; i++)
-            status = append_segment(runtime, array, a.data + i, 1);
+            status = append_segment(runtime, array, a.data + i, 1, values);
     } else if (status == NMS_OK) {
         uint32_t position = 0, found = 0;
         while (status == NMS_OK && find_bytes(a, b, position, &found)) {
-            status = append_segment(runtime, array, a.data + position, found - position);
+            status = append_segment(runtime, array, a.data + position, found - position, values);
             position = found + b.length;
         }
         if (status == NMS_OK)
-            status = append_segment(runtime, array, a.data + position, a.length - position);
+            status = append_segment(runtime, array, a.data + position, a.length - position, values);
     }
     /* Views point at retained byte buffers, never relocated slot-table cells.
      * I finish every read before consuming either input owner. */
@@ -857,6 +891,14 @@ NmsStatus nms_split_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle delim
     }
     *out = array;
     return NMS_OK;
+}
+NmsStatus nms_split_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle delimiter,
+                          NmsHandle *out) {
+    return split_owned(runtime, source, delimiter, out, 0);
+}
+NmsStatus nms_split_values_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle delimiter,
+                                 NmsHandle *out) {
+    return split_owned(runtime, source, delimiter, out, 1);
 }
 NmsStatus nms_replace_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle needle,
                             NmsHandle replacement, NmsHandle *out) {
