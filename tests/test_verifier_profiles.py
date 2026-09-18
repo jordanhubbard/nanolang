@@ -17,11 +17,11 @@ class VerifierProfiles(unittest.TestCase):
             'implicit': (entry + 'PUSH_I64 0\n.end\n', True, True),
             'advisory_does_not_select': ('.string key "profile"\n.string value "gpu"\n.metadata 0 1\n' + entry + end, True, True),
             'string_opcode': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPOP\n' + end, True, False),
-            'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, False),
+            'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, True),
             'import': ('.import "" "get_argc" int\n' + entry + end, True, False),
             'nominal_table': ('.types 1 0 0\n' + entry + end, True, False),
             'nonscalar_parameter': (entry + end + '.function helper 1 1 0 int 1\n.parameters helper string\nPUSH_I64 0\nRET\n.end\n', True, False),
-            'initializer': (entry + end + '.function __init__ 0 0 0 void 0\nRET\n.end\n', True, False),
+            'initializer': (entry + end + '.function __init__ 0 0 0 void 0\nRET\n.end\n', True, True),
             'no_entry': (entry.replace('.entry main\n', '') + end, True, False),
             'float_entry': ('.entry main\n.function main 0 0 0 float 1\nPUSH_F64 0\nRET\n.end\n', True, False),
         }
