@@ -665,6 +665,9 @@ shadow nisa_union_index {
     let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "union.nano")
     assert (== (nisa_union_index p "Choice") 0)
     assert (== (nisa_union_index p "Missing") -1)
+    let collision_tokens: List<LexerToken> = (tokenize_string "struct Choice { value: int } union Choice { Empty {} }" "union.nano" (diag_list_new))
+    let collision: Parser = (parse_program collision_tokens (list_LexerToken_length collision_tokens) "union.nano")
+    assert (== (nisa_union_index collision "Choice") -1)
 }
 
 fn nisa_union_variant(definition: ASTUnion, name: string) -> int {
