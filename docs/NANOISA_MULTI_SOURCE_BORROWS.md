@@ -35,3 +35,6 @@ formal. I retain ordinary source refusals for arity, mode, nominal identity,
 exclusive overlap, more than eight parameters and unsupported shapes. Passing
 and failing selected shadows preserve publication semantics. Existing source,
 multi-caller runtime, VM and sanitized native gates remain required.
+
+My [measured paired evidence](evidence/multi-source-borrows.md) records the
+completed bounded acceptance and leaves the broader parents open.
