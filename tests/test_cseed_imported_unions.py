@@ -45,6 +45,9 @@ class CseedImportedUnions(unittest.TestCase):
     def test_module_callback_signature(self):
         self.check('fn main() -> int { let value: Choice = Choice.Some { n: 9 } assert (== (Provider.apply read value) 9) return 0 }', imported='from "choice.nano" import read\nimport "choice.nano" as Provider')
 
+    def test_unbound_function_type_variable(self):
+        self.check('fn identity(value: T) -> T { return value } shadow identity { assert (== (identity 7) 7) } fn main() -> int { assert (== (identity 9) 9) assert (== (identity true) true) return 0 }')
+
     def test_wrong_payload_preserves_output(self):
         self.check('fn main() -> int { return (Provider.read (Choice.Some { n: true })) }', reject=True)
 
