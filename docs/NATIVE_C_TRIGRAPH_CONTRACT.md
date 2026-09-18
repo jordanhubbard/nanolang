@@ -7,3 +7,9 @@ I retain the terminal ordinary source-byte gate from public literal childcf8714:
 My initial build invocation named nonexistent make target nanoisa; I retain
 that setup log, let its jobs terminate, then build the actual nanoisa_dump CLI
 target alongside the VM and translator. No execution test ran before setup.
+
+## My strict shared-provider prerequisite
+
+I record `task_f1726009bb784f44a532c57f3ba6a799` before production.
+
+I preserve strict Clang -Wall/-Wextra/-Werror acceptance for ordinary generated native C after shared formatting provider PR745/752. Fresh normal string-only literal tests passed GCC but Clang refused unused nano_rt_f64_format and nano_rt_f64_print before execution; retain /tmp/nanolang-native-trigraph-clang.log. I add only ordinary-main (void) references to those helpers exactly when need_print || need_cast emits the shared provider, following existing helper retention style. No fake runtime calls, warning suppression, profile widening or provider-body fork. Fresh printing-only and cast-only normal modules plus the literal byte tests qualify strict GCC/Clang O0/O2 sanitizer acceptance. No historical artifact replay. Root e92 remains open.
