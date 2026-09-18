@@ -113,6 +113,33 @@ static const char *match_union_c_name(ASTNode *match, Environment *env, char *bu
     return base;
 }
 
+static bool match_uses_checked_int_domain(ASTNode *match) {
+    if (!match || !match->as.match_expr.scrutinee_type_checked) {
+        fprintf(stderr,
+                "I require a checked match scrutinee domain before native lowering at line %d.\n",
+                match ? match->line : 0);
+        exit(1);
+    }
+
+    if (match->as.match_expr.checked_scrutinee_type == TYPE_INT) return true;
+    if (match->as.match_expr.checked_scrutinee_type == TYPE_UNION) return false;
+
+    fprintf(stderr,
+            "I require an int or known union match scrutinee before native lowering at line %d.\n",
+            match->line);
+    exit(1);
+}
+
+static const char *checked_match_union_name(ASTNode *match) {
+    const char *name = match ? match->as.match_expr.union_type_name : NULL;
+    if (name && name[0] != '\0') return name;
+
+    fprintf(stderr,
+            "I lost the checked union identity before native lowering at line %d.\n",
+            match ? match->line : 0);
+    exit(1);
+}
+
 /* ============================================================================
  * WORK ITEM TYPES - Describe what output to generate
  * ============================================================================ */
@@ -3091,14 +3118,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_MATCH: {
             /* Match expression: match opt { Some(s) => s.value, None(n) => 0 } */
 
-            /* Detect int-pattern match: any non-wildcard arm starts with "INT:" */
-            int is_int_match_expr = 0;
-            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                if (strncmp(expr->as.match_expr.pattern_variants[i], "INT:", 4) == 0) {
-                    is_int_match_expr = 1;
-                    break;
-                }
-            }
+            /* The checker decides the exact match domain. In particular, a
+             * wildcard-only int match has no INT: arm from which to infer it. */
+            bool is_int_match_expr = match_uses_checked_int_domain(expr);
 
             /* Detect if any arm has a guard — if so, use if-else chain instead of switch */
             int has_any_guard_expr = 0;
@@ -3111,12 +3133,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
-            const char *union_c_name = expr->as.match_expr.union_type_name;
-            if (!union_c_name && !is_int_match_expr) {
-                emit_literal(list, "/* match: unknown union type */0");
-                break;
-            }
-            if (!union_c_name) union_c_name = "";  /* safe fallback for int-match */
+            const char *union_c_name = is_int_match_expr
+                ? "" : checked_match_union_name(expr);
 
             /* Look up union definition to check variant field counts.
              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
@@ -3551,15 +3569,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, ";\n");
             break;
         case AST_MATCH: {
-            /* Detect int-pattern match first (before union_c_name check) */
-            int is_int_match_stmt = 0;
-            for (int _pi = 0; _pi < stmt->as.match_expr.arm_count; _pi++) {
-                if (stmt->as.match_expr.pattern_variants[_pi] &&
-                    strncmp(stmt->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
-                    is_int_match_stmt = 1;
-                    break;
-                }
-            }
+            /* Use the checked domain rather than reconstructing it from arms.
+             * This preserves wildcard-only integer matches. */
+            bool is_int_match_stmt = match_uses_checked_int_domain(stmt);
 
             /* Detect if any arm has a guard — if so, use if-else chain instead of switch */
             int has_any_guard_stmt = 0;
@@ -3572,13 +3584,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
 
-            const char *union_c_name = stmt->as.match_expr.union_type_name;
-            if (!union_c_name && !is_int_match_stmt) {
-                emit_indent_item(list, indent);
-                emit_literal(list, "/* match: unknown union type */;\n");
-                break;
-            }
-            if (!union_c_name) union_c_name = "";  /* safe fallback for int-match */
+            const char *union_c_name = is_int_match_stmt
+                ? "" : checked_match_union_name(stmt);
 
             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
              * We still need the base name (e.g. Result) to look up the union definition. */
