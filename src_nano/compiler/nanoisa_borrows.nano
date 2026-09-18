@@ -15,6 +15,10 @@ let mut nb_mutable: array<bool> = []
 let mut nb_strings: array<string> = []
 let mut nb_helper: int = -1
 let mut nb_arity: int = 0
+let mut nb_paths: array<string> = []
+let mut nb_depths: array<int> = []
+let mut nb_projection_parents: array<int> = []
+let mut nb_projection_fields: array<int> = []
 let mut nb_in_helper: bool = false
 let mut nb_returned: bool = false
 let mut nb_transfers_owner: bool = false
@@ -80,6 +84,8 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     if (>= index 256) { return (nb_fail "at most 256 local slots") }
     set nb_names (array_push nb_names name)
     set nb_named (array_push nb_named false)
+    set nb_projection_parents (array_push nb_projection_parents -1)
+    set nb_projection_fields (array_push nb_projection_fields -1)
     set nb_tags (array_push nb_tags tag)
     set nb_layouts (array_push nb_layouts layout)
     set nb_modes (array_push nb_modes mode)
@@ -88,7 +94,8 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     return index
 }
 fn nb_reset_locals() -> int {
-    set nb_names [] set nb_named [] set nb_tags [] set nb_layouts [] set nb_modes []
+    set nb_names [] set nb_named [] set nb_tags []
+    set nb_projection_parents [] set nb_projection_fields [] set nb_layouts [] set nb_modes []
     set nb_live [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
     return 0
 }
@@ -136,15 +143,156 @@ fn nb_field(parser: Parser, local: int, name: string) -> int {
     while (< i record.field_count) { if (== (at record.field_names i) name) { return i } set i (+ i 1) }
     let _: int = (nb_fail "a declared resource field") return -1
 }
+struct NBPlace { root: int, layout: int, path: string }
+fn nb_invalid_place(message: string) -> NBPlace {
+    let _: int = (nb_fail message)
+    return NBPlace { root: -1, layout: -1, path: "" }
+}
+shadow nb_invalid_place { set nb_error "" assert (== (nb_invalid_place "a live place").root -1) assert (!= nb_error "") set nb_error "" }
+fn nb_leaf(parser: Parser, layout: int) -> bool {
+    let record: ASTStruct = (parser_get_struct_def parser layout)
+    let mut i: int = 0
+    while (< i record.field_count) {
+        if (== (nb_tag (at record.field_types i)) 0) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow nb_leaf { assert (nb_leaf (nb_fixture) 0) }
+fn nb_layout_field(parser: Parser, layout: int, name: string) -> int {
+    let record: ASTStruct = (parser_get_struct_def parser layout)
+    let mut i: int = 0
+    while (< i record.field_count) { if (== (at record.field_names i) name) { return i } set i (+ i 1) }
+    let _: int = (nb_fail "a declared resource field") return -1
+}
+shadow nb_layout_field { set nb_error "" assert (== (nb_layout_field (nb_fixture) 0 "value") 0) }
+fn nb_place(parser: Parser, id: int, kind: int) -> NBPlace {
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let local: int = (nb_local (parser_get_identifier parser id).name)
+        if (< local 0) { return (nb_invalid_place "a live resource place") }
+        if (or (not (at nb_live local)) (!= (at nb_tags local) 8)) { return (nb_invalid_place "a live resource place") }
+        return NBPlace { root: local, layout: (at nb_layouts local), path: "" }
+    }
+    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser id)
+        let parent: NBPlace = (nb_place parser field.object field.object_type)
+        if (< parent.root 0) { return parent }
+        let index: int = (nb_layout_field parser parent.layout field.field_name)
+        if (< index 0) { return (nb_invalid_place "a declared resource path") }
+        let record: ASTStruct = (parser_get_struct_def parser parent.layout)
+        let child: int = (nb_record parser (at record.field_types index))
+        if (or (< child 0) (>= (str_length parent.path) 128)) { return (nb_invalid_place "a resource path of at most 32 fields") }
+        return NBPlace { root: parent.root, layout: child, path: (+ parent.path (nb_hex index 2)) }
+    }
+    return (nb_invalid_place "a root-local resource field chain")
+}
+shadow nb_place { set nb_error "" assert (== (nb_place (nb_fixture) 0 ParseNodeType.PNODE_NUMBER).root -1) set nb_error "" }
+fn nb_overlap(left: NBPlace, right: NBPlace) -> bool {
+    return (and (== left.root right.root) (or (str_starts_with left.path right.path) (str_starts_with right.path left.path)))
+}
+shadow nb_overlap {
+    let root: NBPlace = NBPlace { root: 0, layout: 0, path: "" }
+    let child: NBPlace = NBPlace { root: 0, layout: 0, path: "0000" }
+    let sibling: NBPlace = NBPlace { root: 0, layout: 0, path: "0100" }
+    assert (nb_overlap root child) assert (nb_overlap child root) assert (not (nb_overlap child sibling))
+}
+fn nb_reference(parser: Parser, place: NBPlace, reference: int, mode: int) -> int {
+    if (not (nb_leaf parser place.layout)) { return (nb_fail "a scalar-leaf resource referent") }
+    if (== place.path "") {
+        if (== mode 2) { return (nb_op2 "BORROW_LOCAL_EXCLUSIVE" reference place.root) }
+        return (nb_op2 "BORROW_LOCAL_SHARED" reference place.root)
+    }
+    let mut index: int = 0
+    while (< index (array_length nb_paths)) { if (== (at nb_paths index) place.path) { break } set index (+ index 1) }
+    if (== index (array_length nb_paths)) {
+        if (>= index 256) { return (nb_fail "at most 256 numeric resource paths") }
+        set nb_paths (array_push nb_paths place.path)
+    }
+    let mut opcode: string = "BORROW_PATH_SHARED"
+    if (== mode 2) { set opcode "BORROW_PATH_EXCLUSIVE" }
+    return (nb_emit (+ opcode (+ " " (+ (int_to_string reference) (+ " " (+ (int_to_string place.root) (+ " " (int_to_string index))))))))
+}
+shadow nb_reference {
+    set nb_error "" set nb_paths [] set nb_code ""
+    let _: int = (nb_reference (nb_fixture) NBPlace { root: 2, layout: 0, path: "0000" } 1 2)
+    assert (== nb_code "  BORROW_PATH_EXCLUSIVE 1 2 0\n") assert (== (array_length nb_paths) 1)
+    set nb_paths [] set nb_code ""
+}
+fn nb_unpack(parser: Parser, local: int) -> int {
+    let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts local))
+    let mut slots: array<int> = []
+    let mut i: int = 0
+    while (and (== nb_error "") (< i record.field_count)) {
+        let child: int = (nb_record parser (at record.field_types i))
+        let mut tag: int = (nb_tag (at record.field_types i))
+        let mut layout: int = 4294967295
+        if (>= child 0) { set tag 8 set layout child }
+        let slot: int = (nb_slot "" tag layout 0 false)
+        if (!= nb_error "") { return 0 }
+        set slots (array_push slots slot)
+        (array_set nb_projection_parents slot local)
+        (array_set nb_projection_fields slot i)
+        set i (+ i 1)
+    }
+    let _: int = (nb_op1 "OWN_UNPACK_LOCAL" local)
+    (array_set nb_live local false)
+    while (> i 0) {
+        set i (- i 1)
+        let slot: int = (at slots i)
+        if (== (at nb_tags slot) 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+        else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
+    }
+    return 0
+}
+shadow nb_unpack {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let _: int = (nb_slot "owner" 8 0 0 false)
+    let _: int = (nb_unpack (nb_fixture) 0)
+    assert (not (at nb_live 0)) assert (== (array_length nb_names) 3)
+    assert (== (at nb_projection_parents 2) 0)
+    let _: int = (nb_reset_locals)
+}
+fn nb_project_binding(parser: Parser, binding: ASTLet) -> bool {
+    if (or (not binding.is_destructure_projection) (!= binding.value_type ParseNodeType.PNODE_FIELD_ACCESS)) { return false }
+    let field: ASTFieldAccess = (parser_get_field_access parser binding.value)
+    if (!= field.object_type ParseNodeType.PNODE_IDENTIFIER) { return false }
+    let parent: int = (nb_local (parser_get_identifier parser field.object).name)
+    if (< parent 0) { return false }
+    if (or (at nb_live parent) (!= (at nb_tags parent) 8)) { return false }
+    if (nb_leaf parser (at nb_layouts parent)) { return false }
+    let index: int = (nb_layout_field parser (at nb_layouts parent) field.field_name)
+    let mut source: int = -1
+    let mut i: int = 0
+    while (< i (array_length nb_names)) {
+        if (and (== (at nb_projection_parents i) parent) (== (at nb_projection_fields i) index)) { set source i }
+        set i (+ i 1)
+    }
+    if (< source 0) { let _: int = (nb_fail "an exact destructured field") return true }
+    if (not (at nb_live source)) { let _: int = (nb_fail "an unconsumed destructured field") return true }
+    let tag: int = (at nb_tags source)
+    if (== tag 8) { let _: int = (nb_op1 "OWN_MOVE_LOCAL" source) (array_set nb_live source false) }
+    else { let _: int = (nb_op1 "LOAD_LOCAL" source) }
+    let slot: int = (nb_slot binding.name tag (at nb_layouts source) 0 binding.is_mut)
+    if (== tag 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+    else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
+    let _: int = (nb_name_begin slot binding.name)
+    return true
+}
+shadow nb_project_binding {
+    set nb_error "" let _: int = (nb_reset_locals)
+    assert (not (nb_project_binding (nb_fixture) (parser_get_let (nb_fixture) 1)))
+}
 fn nb_cleanup(parser: Parser, first: int) -> int {
     let mut i: int = first
     while (and (== nb_error "") (< i (array_length nb_names))) {
         if (and (at nb_live i) (and (== (at nb_tags i) 8) (== (at nb_modes i) 0))) {
-            let _: int = (nb_op1 "OWN_UNPACK_LOCAL" i)
-            let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts i))
-            let mut field: int = 0
-            while (< field record.field_count) { let _: int = (nb_emit "POP") set field (+ field 1) }
-            (array_set nb_live i false)
+            if (nb_leaf parser (at nb_layouts i)) {
+                let _: int = (nb_op1 "OWN_UNPACK_LOCAL" i)
+                let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts i))
+                let mut field: int = 0
+                while (< field record.field_count) { let _: int = (nb_emit "POP") set field (+ field 1) }
+                (array_set nb_live i false)
+            } else { let _: int = (nb_unpack parser i) }
         }
         set i (+ i 1)
     }
@@ -191,17 +339,20 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser id)
-        if (!= field.object_type ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a root-local field place") }
-        let local: int = (nb_local (parser_get_identifier parser field.object).name)
-        let index: int = (nb_field parser local field.field_name)
+        let place: NBPlace = (nb_place parser field.object field.object_type)
+        if (< place.root 0) { return 0 }
+        let index: int = (nb_layout_field parser place.layout field.field_name)
         if (< index 0) { return 0 }
-        if (== (at nb_modes local) 0) { let _: int = (nb_emit "REGION_BEGIN") let _: int = (nb_op2 "BORROW_LOCAL_SHARED" 0 local) }
+        let record: ASTStruct = (parser_get_struct_def parser place.layout)
+        let tag: int = (nb_tag (at record.field_types index))
+        if (or (== tag 0) (not (nb_leaf parser place.layout))) { return (nb_fail "a scalar field of a leaf resource record") }
         let mut reference: int = 0
-        if (!= (at nb_modes local) 0) { set reference local }
+        if (== (at nb_modes place.root) 0) {
+            let _: int = (nb_emit "REGION_BEGIN") let _: int = (nb_reference parser place 0 1)
+        } else { set reference place.root }
         let _: int = (nb_op2 "REF_GET" reference index)
-        if (== (at nb_modes local) 0) { let _: int = (nb_emit "REGION_END") }
-        let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts local))
-        return (nb_tag (at record.field_types index))
+        if (== (at nb_modes place.root) 0) { let _: int = (nb_emit "REGION_END") }
+        return tag
     }
     if (== kind ParseNodeType.PNODE_BINARY_OP) {
         let op: ASTBinaryOp = (parser_get_binary_op parser id)
@@ -236,7 +387,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let helper: ASTFunction = (parser_get_function parser nb_helper)
         if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.arg_count helper.param_count)) { return (nb_fail "the declared direct borrowed helper arity") }
         if (!= (parser_get_identifier parser call.function).name helper.name) { return (nb_fail "the exact declared borrowed helper") }
-        let mut caller_locals: array<int> = []
+        let mut caller_places: array<NBPlace> = []
         let mut caller_modes: array<int> = []
         let mut argument_index: int = 0
         let _: int = (nb_emit "REGION_BEGIN")
@@ -250,21 +401,20 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             if (str_starts_with parameter.var_type "&mut ") { set mode 2 set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
             if (or (!= borrow.borrow_mode mode) (!= borrow.arg_count 1)) { return (nb_fail "matching explicit borrow authority") }
             let place: ASTStmtRef = (parser_get_call_arg parser borrow.arg_start)
-            if (!= place.node_type ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a root-local argument") }
-            let local: int = (nb_local (parser_get_identifier parser place.node_id).name)
-            if (< local 0) { return (nb_fail "an existing caller owner") }
+            let origin: NBPlace = (nb_place parser place.node_id place.node_type)
+            let local: int = origin.root
+            if (< local 0) { return 0 }
             if (or (not (at nb_live local)) (or (!= (at nb_tags local) 8) (!= (at nb_modes local) 0))) { return (nb_fail "a live caller owner") }
-            if (!= (at nb_layouts local) (nb_record parser nominal)) { return (nb_fail "the exact nominal caller layout") }
+            if (!= origin.layout (nb_record parser nominal)) { return (nb_fail "the exact nominal caller layout") }
             if (and (== mode 2) (not (at nb_mutable local))) { return (nb_fail "mutable exclusive authority") }
             let mut prior: int = 0
             while (< prior argument_index) {
-                if (and (== (at caller_locals prior) local) (or (== mode 2) (== (at caller_modes prior) 2))) { return (nb_fail "disjoint roots for every exclusive argument") }
+                if (and (nb_overlap (at caller_places prior) origin) (or (== mode 2) (== (at caller_modes prior) 2))) { return (nb_fail "disjoint places for every exclusive argument") }
                 set prior (+ prior 1)
             }
-            set caller_locals (array_push caller_locals local)
+            set caller_places (array_push caller_places origin)
             set caller_modes (array_push caller_modes mode)
-            if (== mode 2) { let _: int = (nb_op2 "BORROW_LOCAL_EXCLUSIVE" argument_index local) }
-            else { let _: int = (nb_op2 "BORROW_LOCAL_SHARED" argument_index local) }
+            let _: int = (nb_reference parser origin argument_index mode)
             set argument_index (+ argument_index 1)
         }
         let _: int = (nb_op2 "CALL_REF" 1 0)
@@ -273,6 +423,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     return (nb_fail "straight-line scalar expressions and one borrowed helper")
 }
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
+    if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
     if (>= layout 0) {
         if nb_in_helper { return (nb_fail "only scalar helper locals") }
@@ -290,15 +441,33 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
                 while (< j record.field_count) { if (== (at record.field_names j) (at value.field_names i)) { set index j } set j (+ j 1) }
                 if (< index 0) { return (nb_fail "declared constructor fields") }
                 if (>= (at slots index) 0) { return (nb_fail "distinct constructor fields") }
-                let tag: int = (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i))
-                if (!= tag (nb_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
-                let slot: int = (nb_slot "" tag 4294967295 0 false)
+                let child: int = (nb_record parser (at record.field_types index))
+                let mut tag: int = 8
+                let mut field_layout: int = 4294967295
+                if (>= child 0) {
+                    if (!= (at value.field_value_types i) ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a named exact child owner") }
+                    let source: int = (nb_local (parser_get_identifier parser (at value.field_value_ids i)).name)
+                    if (< source 0) { return (nb_fail "an existing child owner") }
+                    if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (!= (at nb_tags source) 8) (!= (at nb_layouts source) child)))) { return (nb_fail "an exact live child owner") }
+                    let _: int = (nb_op1 "OWN_MOVE_LOCAL" source)
+                    (array_set nb_live source false) set field_layout child
+                } else {
+                    set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i))
+                    if (!= tag (nb_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
+                }
+                let slot: int = (nb_slot "" tag field_layout 0 false)
                 (array_set slots index slot)
-                let _: int = (nb_op1 "STORE_LOCAL" slot)
+                if (== tag 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+                else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
                 set i (+ i 1)
             }
             set i 0
-            while (< i record.field_count) { let _: int = (nb_op1 "LOAD_LOCAL" (at slots i)) set i (+ i 1) }
+            while (< i record.field_count) {
+                let slot: int = (at slots i)
+                if (== (at nb_tags slot) 8) { let _: int = (nb_op1 "OWN_MOVE_LOCAL" slot) (array_set nb_live slot false) }
+                else { let _: int = (nb_op1 "LOAD_LOCAL" slot) }
+                set i (+ i 1)
+            }
             let _: int = (nb_op1 "OWN_PACK" layout)
         } else {
             if (and binding.is_destructure (== binding.value_type ParseNodeType.PNODE_IDENTIFIER)) {
@@ -314,6 +483,23 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         set nb_transfers_owner true
         let _: int = (nb_op1 "OWN_STORE_LOCAL" slot)
         if (not binding.is_destructure) { let _: int = (nb_name_begin slot binding.name) }
+        else {
+            if (not (nb_leaf parser layout)) {
+                let record: ASTStruct = (parser_get_struct_def parser layout)
+                if (!= (array_length binding.destructure_names) record.field_count) { return (nb_fail "every nested pattern field once") }
+                let mut i: int = 0
+                while (< i record.field_count) {
+                    if (< (nb_layout_field parser layout (at binding.destructure_names i)) 0) { return 0 }
+                    let mut prior: int = 0
+                    while (< prior i) {
+                        if (== (at binding.destructure_names prior) (at binding.destructure_names i)) { return (nb_fail "distinct nested pattern fields") }
+                        set prior (+ prior 1)
+                    }
+                    set i (+ i 1)
+                }
+                let _: int = (nb_unpack parser slot)
+            }
+        }
         return 0
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
@@ -452,7 +638,7 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
-    set nb_error "" set nb_strings [] set nb_helper -1 set nb_arity 0
+    set nb_error "" set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_paths [] set nb_depths []
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
     if (or (!= (parser_get_function_count parser) 2) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (or (> parser.unions_count 0) (> parser.opaque_types_count 0)))))) { let _: int = (nb_fail "only resource records, main, one helper and selected shadows") return "" }
@@ -479,7 +665,9 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         let mut nominal: string = ""
         if (str_starts_with parameter.var_type "&mut ") { set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
         else { if (str_starts_with parameter.var_type "&") { set nominal (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1)) } }
-        if (< (nb_record parser nominal) 0) { let _: int = (nb_fail "an exact borrowed record parameter") return "" }
+        let referent: int = (nb_record parser nominal)
+        if (< referent 0) { let _: int = (nb_fail "an exact borrowed record parameter") return "" }
+        if (not (nb_leaf parser referent)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" }
         let mut prior: int = 0
         while (< prior parameter_index) {
             if (== parameter.name (parser_get_let parser (+ helper.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" }
@@ -496,16 +684,26 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         if (!= (nb_record parser record.name) i) { let _: int = (nb_fail "distinct nominal declarations") return "" }
         let name_index: int = (nb_string record.name)
         set layouts (+ layouts (+ "0000" (+ (nb_hex record.field_count 2) (nb_hex name_index 4))))
+        let mut depth: int = 0
         let mut field: int = 0
         while (< field record.field_count) {
-            let tag: int = (nb_tag (at record.field_types field))
-            if (== tag 0) { let _: int = (nb_fail "only int/bool resource fields") return "" }
+            let mut tag: int = (nb_tag (at record.field_types field))
+            let mut child: int = 4294967295
+            if (== tag 0) {
+                set child (nb_record parser (at record.field_types field))
+                if (or (< child 0) (>= child i)) { let _: int = (nb_fail "earlier resource child declarations") return "" }
+                let nested_depth: int = (+ (at nb_depths child) 1)
+                if (> nested_depth 32) { let _: int = (nb_fail "resource depth at most 32") return "" }
+                if (> nested_depth depth) { set depth nested_depth }
+                set tag 8
+            }
             let mut prior: int = 0
             while (< prior field) { if (== (at record.field_names prior) (at record.field_names field)) { let _: int = (nb_fail "distinct field declarations") return "" } set prior (+ prior 1) }
             let field_name: int = (nb_string (at record.field_names field))
-            set layouts (+ layouts (+ (nb_hex tag 1) (+ "000000ffffffff" (nb_hex field_name 4))))
+            set layouts (+ layouts (+ (nb_hex tag 1) (+ "000000" (+ (nb_hex child 4) (nb_hex field_name 4)))))
             set field (+ field 1)
         }
+        set nb_depths (array_push nb_depths depth)
         set ownership (+ ownership "03") set i (+ i 1)
     }
     while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
@@ -524,6 +722,17 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     let second: string = (nb_function parser nb_helper false 0 true)
     set ownership (+ ownership (nb_function_contract true))
     if (!= nb_error "") { return "" }
+    if (> (array_length nb_paths) 0) {
+        set ownership (+ "02000000" (str_substring ownership 8 (- (str_length ownership) 8)))
+        set ownership (+ ownership (nb_hex (array_length nb_paths) 4))
+        set i 0
+        while (< i (array_length nb_paths)) {
+            let path: string = (at nb_paths i)
+            set ownership (+ ownership (+ (nb_hex (/ (str_length path) 4) 2) (+ "0000" path)))
+            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+            set i (+ i 1)
+        }
+    }
     let mut prelude: string = (+ ".types " (+ (int_to_string records) " 0 0\n.entry 0\n"))
     set i 0
     while (< i (array_length nb_strings)) {

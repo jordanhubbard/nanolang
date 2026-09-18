@@ -229,7 +229,50 @@ static void test_array_optional_conversion(void) {
     }
 }
 
+static void test_numeric_union_payload(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId integer = nvm_shape_new(&g, NVM_SHAPE_INT);
+        NvmShapeId floating = nvm_shape_new(&g, NVM_SHAPE_FLOAT);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        NvmShapeId payload = nvm_shape_child(&g, optional, 0);
+        CHECK(nvm_shape_unify(&g, payload, nvm_shape_new(&g, NVM_SHAPE_NUMERIC)));
+        CHECK(nvm_shape_convert(&g, reverse ? floating : integer, optional));
+        CHECK(nvm_shape_convert(&g, reverse ? integer : floating, optional));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, integer) == NVM_SHAPE_INT);
+        CHECK(nvm_shape_kind(&g, floating) == NVM_SHAPE_FLOAT);
+        CHECK(nvm_shape_kind(&g, payload) == NVM_SHAPE_NUMERIC);
+        CHECK(nvm_shape_solve_conversions(&g));
+        nvm_shape_destroy(&g);
+    }
+    for (int kind = NVM_SHAPE_INT; kind <= NVM_SHAPE_FLOAT; ++kind) {
+        NvmShapeGraph g = {0};
+        NvmShapeId numeric = nvm_shape_new(&g, NVM_SHAPE_NUMERIC);
+        NvmShapeId other = nvm_shape_new(&g, (NvmShapeKind)kind);
+        CHECK(!nvm_shape_unify(&g, numeric, other));
+        nvm_shape_destroy(&g);
+        numeric = nvm_shape_new(&g, NVM_SHAPE_NUMERIC);
+        other = nvm_shape_new(&g, (NvmShapeKind)kind);
+        CHECK(nvm_shape_convert(&g, other, numeric));
+        CHECK(nvm_shape_solve_conversions(&g) == (kind == NVM_SHAPE_INT || kind == NVM_SHAPE_FLOAT));
+        nvm_shape_destroy(&g);
+    }
+    for (int kind = NVM_SHAPE_INT; kind <= NVM_SHAPE_FLOAT; kind += NVM_SHAPE_FLOAT - NVM_SHAPE_INT) {
+        NvmShapeGraph g = {0};
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0), nvm_shape_new(&g, (NvmShapeKind)kind)));
+        CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, NVM_SHAPE_NUMERIC), optional));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        nvm_shape_destroy(&g);
+    }
+    NvmShapeGraph g = {0};
+    CHECK(!nvm_shape_child(&g, nvm_shape_new(&g, NVM_SHAPE_NUMERIC), 0));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_numeric_union_payload();
     {
         NvmShapeGraph g = {0};
         NvmShapeId floating = nvm_shape_new(&g, NVM_SHAPE_FLOAT);

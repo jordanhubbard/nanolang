@@ -113,6 +113,11 @@ static uint16_t scalar_kind_tags(uint8_t kind) {
            kind == NVM2C_VK_STR ? 1u << TAG_STRING : NVM2C_SCALAR_UNKNOWN;
 }
 
+static int numeric_union_tags(uint16_t tags) {
+    const unsigned numeric = (1u << TAG_INT) | (1u << TAG_FLOAT);
+    return (tags & numeric) == numeric && !(tags & ~(numeric | (1u << TAG_VOID)));
+}
+
 static int optional_scalar_tags(uint16_t tags) {
     unsigned payload = tags & ~(1u << TAG_VOID);
     return (tags & (1u << TAG_VOID)) && payload && !(payload & (payload - 1)) &&
@@ -648,6 +653,13 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
     return child;
 }
 
+/* I give proved numeric boxed storage an explicit union payload. */
+static int shape_numeric_box(Nvm2cBuf *b, NvmShapeId id) {
+    if (!b->track_shapes) return 1;
+    return shape_type(b, id, NVM_SHAPE_OPTIONAL) &&
+           shape_type(b, shape_child(b, id, 0), NVM_SHAPE_NUMERIC);
+}
+
 /* A flat scalar fact can omit a nested caller's optional representation.
  * I seed inferred scalar storage with a directed flow, not an exact type.
  * Constructors and native array/map payload constraints remain exact. */
@@ -688,6 +700,8 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
+    if (slot.kind == NVM2C_VK_VALUE && numeric_union_tags(slot.scalar_tags) &&
+        !shape_numeric_box(b, slot.shape)) return 0;
     stk[*sp] = slot;
     if (!stk[*sp].rec_k) stk[*sp].rec_k = b->default_fields;
     (*sp)++;
@@ -796,8 +810,8 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             for (int i = 0; i < sp; ++i) {
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
-                    if (!optional_scalar_tags(tags)) {
-                        nvm2c_fail(b, "I require proved void/scalar provenance at a boxed join");
+                    if (!optional_scalar_tags(tags) && !numeric_union_tags(tags)) {
+                        nvm2c_fail(b, "I require proved scalar provenance at a boxed join");
                         return 0;
                     }
                     join->slots[i].kind = NVM2C_VK_VALUE;
@@ -811,6 +825,8 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 NvmShapeId storage = 0;
                 storage = shape_variable(b, &storage);
                 if (!shape_field_kind(b, storage, kind) ||
+                    (kind == NVM2C_VK_VALUE && numeric_union_tags(join->slots[i].scalar_tags) &&
+                     !shape_numeric_box(b, storage)) ||
                     !nvm_shape_convert(&b->shapes, stack[i].shape, storage) || !shape_ok(b)) return 0;
                 join->slots[i].shape = storage;
             }
@@ -825,9 +841,14 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
     }
     for (int i = 0; i < sp; i++) {
         uint16_t tags = join->slots[i].scalar_tags | stack[i].scalar_tags;
-        int scalar_join = optional_scalar_tags(tags);
+        if ((numeric_union_tags(join->slots[i].scalar_tags) || numeric_union_tags(stack[i].scalar_tags)) &&
+            !numeric_union_tags(tags)) {
+            nvm2c_fail(b, "I cannot join proved numeric storage with unproved scalar or heap provenance");
+            return 0;
+        }
+        int scalar_join = optional_scalar_tags(tags) || numeric_union_tags(tags);
         if (plan && plan->tags[i] && !scalar_join) {
-            nvm2c_fail(b, "I require proved void/scalar provenance at a boxed join");
+            nvm2c_fail(b, "I require proved scalar provenance at a boxed join");
             return 0;
         }
         if (scalar_join) {
@@ -1176,11 +1197,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             size_t local_at = (size_t)idx * b->local_width + slot;
-            uint16_t tags = b->local_scalar_tags[local_at] | v.scalar_tags;
+            uint16_t tags = b->local_scalar_tags[local_at] |
+                (v.kind == NVM2C_VK_UNK ? 0 : v.scalar_tags);
+            if (v.kind != NVM2C_VK_UNK &&
+                (numeric_union_tags(b->local_scalar_tags[local_at]) || numeric_union_tags(v.scalar_tags)) &&
+                !numeric_union_tags(tags)) {
+                nvm2c_fail(b, "I cannot mix numeric local storage with unproved scalar or heap provenance");
+                return 0;
+            }
             if (tags != b->local_scalar_tags[local_at]) {
                 b->local_scalar_tags[local_at] = tags; facts->changed = 1;
             }
-            if (v.kind == NVM2C_VK_VALUE && !b->tagged_locals[local_at]) {
+            if ((v.kind == NVM2C_VK_VALUE || numeric_union_tags(tags)) && !b->tagged_locals[local_at]) {
                 /* I retain tagged storage across every assignment and path,
                  * including earlier scalar writes revisited during inference. */
                 b->tagged_locals[local_at] = 1;
@@ -1190,6 +1218,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             NvmShapeId destination = shape_variable(b, &b->shape_locals[local_at]);
             if (b->tagged_locals[(size_t)idx * b->local_width + slot]) {
                 if (!shape_type(b, destination, NVM_SHAPE_OPTIONAL)) return 0;
+                if (numeric_union_tags(tags) && !shape_numeric_box(b, destination)) return 0;
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
                 local_kind[slot] = NVM2C_VK_VALUE;
                 break;
@@ -1302,8 +1331,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 (rhs.kind == NVM2C_VK_VALUE || lhs.kind == NVM2C_VK_VALUE))
                 result = NVM2C_VK_VALUE;
             if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
-            if (result == NVM2C_VK_VALUE)
+            if (result == NVM2C_VK_VALUE) {
                 stk[sp - 1].scalar_tags = (1u << TAG_INT) | (1u << TAG_FLOAT);
+                if (!shape_numeric_box(b, stk[sp - 1].shape)) return 0;
+            }
             break;
         }
         case OP_NEG:
@@ -1321,8 +1352,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_NEG && x.kind == NVM2C_VK_VALUE)
                 result = NVM2C_VK_VALUE;
             if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
-            if (result == NVM2C_VK_VALUE)
+            if (result == NVM2C_VK_VALUE) {
                 stk[sp - 1].scalar_tags = (1u << TAG_INT) | (1u << TAG_FLOAT);
+                if (!shape_numeric_box(b, stk[sp - 1].shape)) return 0;
+            }
             break;
         }
         case OP_STR_LEN: {
@@ -1799,9 +1832,28 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 size_t at = (size_t)callee * b->local_width + i - 1;
-                if (!merge_call_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
+                uint16_t tags = b->local_scalar_tags[at] |
+                    (arg.kind == NVM2C_VK_UNK ? 0 : arg.scalar_tags);
+                if (arg.kind != NVM2C_VK_UNK &&
+                    (numeric_union_tags(b->local_scalar_tags[at]) || numeric_union_tags(arg.scalar_tags)) &&
+                    !numeric_union_tags(tags)) {
+                    nvm2c_fail(b, "I cannot mix numeric parameter storage with unproved scalar or heap provenance");
+                    return 0;
+                }
+                if (tags != b->local_scalar_tags[at]) {
+                    b->local_scalar_tags[at] = tags; facts->changed = 1;
+                }
+                if (numeric_union_tags(tags)) {
+                    if (facts->parameters[at] != NVM2C_VK_VALUE) {
+                        facts->parameters[at] = NVM2C_VK_VALUE; facts->changed = 1;
+                    }
+                    b->tagged_locals[at] = 1;
+                } else if (!merge_call_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
                 NvmShapeId parameter = shape_variable(b, &b->shape_locals[at]);
-                if (arg.kind == NVM2C_VK_REC) {
+                if (numeric_union_tags(tags)) {
+                    if (!shape_numeric_box(b, parameter)) return 0;
+                    if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
+                } else if (arg.kind == NVM2C_VK_REC) {
                     uint8_t *fields = facts->fields + at * b->record_width;
                     if (!merge_record_results(b, facts, fields, arg.rec_k) ||
                         !shape_record_return(b, arg.shape, parameter, arg.rec_k, fields)) return 0;
@@ -5594,7 +5646,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     for (uint32_t f = 0; f < mod->function_count; ++f)
         for (uint16_t local = 0; local < mod->functions[f].local_count; ++local)
             b.local_scalar_tags[(size_t)f * b.local_width + local] =
-                local < mod->functions[f].arity ? NVM2C_SCALAR_UNKNOWN : 1u << TAG_VOID;
+                local < mod->functions[f].arity ? 0 : 1u << TAG_VOID;
     if (!mark_required_functions(&b, mod)) goto fail;
     for (uint32_t f = 0; f < mod->function_count; ++f)
         if (!mark_uninitialized_locals(&b, mod, f)) goto fail;

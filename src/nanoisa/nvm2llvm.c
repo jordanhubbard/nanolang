@@ -216,6 +216,17 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                 fprintf(out, " %%p%u_a = load %%V, ptr %%p%u_local\n", pc, pc); push(out, pc, "a");
             } else { pop(out, pc, "a"); fprintf(out, " store %%V %%p%u_a, ptr %%p%u_local\n", pc, pc); }
             break;
+        case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
+            fprintf(out, " %%p%u_global = getelementptr %%V, ptr @globals, i64 %u\n",
+                    pc, ins.operands[0].u32);
+            if (ins.opcode == OP_LOAD_GLOBAL) {
+                fprintf(out, " %%p%u_a = load %%V, ptr %%p%u_global\n", pc, pc);
+                push(out, pc, "a");
+            } else {
+                pop(out, pc, "a");
+                fprintf(out, " store %%V %%p%u_a, ptr %%p%u_global\n", pc, pc);
+            }
+            break;
         case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: {
             uint32_t target = (uint32_t)((int64_t)pc + ins.operands[0].i32);
             if (ins.opcode == OP_JMP) fprintf(out, " br label %%b%u\n", target);
@@ -388,7 +399,28 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
     NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_SCALAR);
     if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
+    /* I size storage from every verified literal global operand, matching
+     * VM module allocation. Verification bounds index+1 by NVM_MAX_GLOBALS. */
+    uint32_t global_count = 0;
+    uint32_t initializer = m->function_count;
+    for (uint32_t i = 0; i < m->function_count; ++i) {
+        const NvmFunctionEntry *f = &m->functions[i];
+        const char *name = nvm_get_string(m, f->name_idx);
+        if (initializer == m->function_count && name && !strcmp(name, "__init__"))
+            initializer = i;
+        for (uint32_t pc = 0; pc < f->code_length;) {
+            DecodedInstruction ins = {0};
+            uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
+            if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
+                uint32_t count = ins.operands[0].u32 + 1;
+                if (count > global_count) global_count = count;
+            }
+            pc += width;
+        }
+    }
     runtime(out);
+    if (global_count)
+        fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
     numeric_runtime(out);
     comparison_runtime(out);
@@ -398,7 +430,14 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
         function(out, m, i, depth);
     }
-    fprintf(out, "define i32 @%s() {\n %%value = call %%V @f%u()\n %%n = extractvalue %%V %%value, 0\n %%status = trunc i64 %%n to i32\n ret i32 %%status\n}\n", entry, m->header.entry_point);
+    fprintf(out, "define i32 @%s() {\n", entry);
+    if (initializer < m->function_count) {
+        if (m->functions[initializer].result_count)
+            fprintf(out, " %%initialized = call %%V @f%u()\n", initializer);
+        else
+            fprintf(out, " call void @f%u()\n", initializer);
+    }
+    fprintf(out, " %%value = call %%V @f%u()\n %%n = extractvalue %%V %%value, 0\n %%status = trunc i64 %%n to i32\n ret i32 %%status\n}\n", m->header.entry_point);
     if (ferror(out)) return refuse(error, size, "I could not write LLVM IR");
     return 1;
 }

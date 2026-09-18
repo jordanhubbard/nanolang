@@ -258,7 +258,7 @@ RET
         self.run_cmd(['lli', ir], success=False)
 
     def test_refused_profile_preserves_output(self):
-        module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nSTORE_GLOBAL 0\nPUSH_I64 0\nRET\n.end\n')
+        module = self.module('.string outside "heap"\n.entry main\n.function main 0 0 0 int 1\nPUSH_STR outside\nPOP\nPUSH_I64 0\nRET\n.end\n')
         output = self.work/'kept.ll'; output.write_text('prior output')
         result = self.run_cmd([LLVM, module, '-o', output], success=False)
         self.assertIn('scalar LLVM profile', result.stderr)
@@ -286,9 +286,9 @@ RET
                 self.assertEqual(result.stdout, '')
                 self.assertIn('scalar', result.stderr)
 
-    def test_initializer_refused(self):
+    def test_nonzero_arity_initializer_refused(self):
         module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
-                             '.function __init__ 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+                             '.function __init__ 1 1 0 int 1\n.parameters __init__ int\nPUSH_I64 0\nRET\n.end\n')
         self.run_cmd([VM, '--verify-only', module])
         result = self.run_cmd([LLVM, module], success=False)
         self.assertEqual(result.stdout, '')
