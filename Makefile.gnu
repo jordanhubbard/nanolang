@@ -4668,6 +4668,11 @@ test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format tests.test_llvm_managed_replace tests.test_llvm_managed_split tests.test_llvm_managed_mutable_arrays tests.test_llvm_managed_array_copies tests.test_llvm_managed_graphs
 
+.PHONY: test-managed-record-core
+test-managed-record-core:
+	python3 -m unittest -v tests.test_managed_records
+test-managed-string-core: test-managed-record-core
+
 .PHONY: test-managed-array-graph-core
 test-managed-array-graph-core: nvm2wasm nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_managed_array_graphs tests.test_managed_graph_safepoints
