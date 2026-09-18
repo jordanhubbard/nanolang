@@ -354,23 +354,29 @@ static NmsStatus array_next_capacity(uint32_t old, uint32_t width, uint32_t vm_p
     *out = (uint32_t)next;
     return NMS_OK;
 }
-NmsStatus nms_vm_array_create(NmsRuntime *runtime, uint32_t tag, NmsHandle *out) {
+static NmsStatus vm_array_create_capacity(NmsRuntime *runtime, uint32_t tag,
+                                           uint32_t capacity, NmsHandle *out) {
     if (!runtime || !out) return NMS_STATE;
     if (runtime->disposed) return NMS_DISPOSED;
     if (!(tag <= 5 || tag == 9)) return NMS_TYPE;
     uint32_t width = packed_width(tag);
     uint32_t kind = width ? NMS_SLOT_PACKED_SCALAR_ARRAY : NMS_SLOT_BOXED_LEAF_ARRAY;
     if (!width) width = sizeof(NmsValue);
-    uint64_t bytes = (uint64_t)8 * width;
+    if (capacity < 8) capacity = 8;
+    uint64_t bytes = (uint64_t)capacity * width;
+    if (bytes > SIZE_MAX || bytes > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
     unsigned char *buffer = allocate(runtime, bytes);
     if (!buffer) return NMS_MEMORY;
     NmsHandle result = 0;
-    NmsStatus status = publish_slot(runtime, buffer, 0, 8, kind, bytes, &result);
+    NmsStatus status = publish_slot(runtime, buffer, 0, capacity, kind, bytes, &result);
     if (status != NMS_OK) { deallocate(buffer); return status; }
     NmsSlot *slot = &runtime->slots[(uint32_t)result];
     slot->element_tag = tag; slot->vm_array_policy = 1;
     *out = result;
     return NMS_OK;
+}
+NmsStatus nms_vm_array_create(NmsRuntime *runtime, uint32_t tag, NmsHandle *out) {
+    return vm_array_create_capacity(runtime, tag, 8, out);
 }
 static NmsValue packed_value(const NmsSlot *slot, uint32_t index) {
     uint32_t width = packed_width(slot->element_tag);
@@ -547,6 +553,64 @@ NmsStatus nms_value_array_length(const NmsRuntime *runtime, NmsHandle array, uin
     if (status == NMS_OK) *out = runtime->slots[index].length;
     return status;
 }
+/* I borrow complete input arrays; my result remains private until all edges exist. */
+NmsStatus nms_vm_array_literal(NmsRuntime *runtime, uint32_t tag,
+                                const uint64_t *payloads, const uint32_t *tags,
+                                uint32_t count, NmsHandle *out) {
+    if (!runtime || !out || count > UINT16_MAX || (count && (!payloads || !tags))) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (!(tag <= 5 || tag == 9)) return NMS_TYPE;
+    for (uint32_t i = 0; i < count; i++) {
+        NmsValue value = {payloads[i], tags[i]};
+        uint64_t ignored;
+        NmsStatus status = packed_width(tag) ? packed_prepare(tag, value, &ignored) : value_valid(runtime, value);
+        if (status != NMS_OK) return status;
+    }
+    NmsHandle result = 0;
+    NmsStatus status = vm_array_create_capacity(runtime, tag, count, &result);
+    if (status != NMS_OK) return status;
+    for (uint32_t i = 0; i < count; i++) {
+        status = nms_value_array_append(runtime, result, (NmsValue){payloads[i], tags[i]});
+        if (status != NMS_OK) { nms_release(runtime, result); return status; }
+    }
+    *out = result;
+    return NMS_OK;
+}
+NmsStatus nms_vm_array_slice(NmsRuntime *runtime, NmsHandle source,
+                              uint32_t start, uint32_t end, NmsHandle *out) {
+    if (!out) return NMS_STATE;
+    uint32_t source_index;
+    NmsStatus status = value_array_slot(runtime, source, &source_index);
+    if (status != NMS_OK) return status;
+    const NmsSlot *input = &runtime->slots[source_index];
+    uint32_t length = input->length;
+    uint32_t tag = input->kind == NMS_SLOT_STRING_ARRAY ? 5 : input->element_tag;
+    if (start > length) start = length;
+    if (end > length) end = length;
+    uint32_t count = end > start ? end - start : 0;
+    NmsHandle result = 0;
+    status = vm_array_create_capacity(runtime, tag, count, &result);
+    if (status != NMS_OK) return status;
+    /* Descriptor growth may relocate the source slot; its immutable buffer
+     * remains owned by the borrowed source handle. Reacquire both slots. */
+    input = &runtime->slots[source_index];
+    NmsSlot *output = &runtime->slots[(uint32_t)result];
+    if (input->kind == NMS_SLOT_PACKED_SCALAR_ARRAY) {
+        uint32_t width = packed_width(tag);
+        if (count) copy_bytes(output->data, input->data + (uint64_t)start * width,
+                              (uint64_t)count * width);
+        output->length = count;
+    } else {
+        for (uint32_t i = 0; i < count; i++) {
+            NmsValue value = array_value(input, start + i);
+            status = nms_value_array_append(runtime, result, value);
+            if (status != NMS_OK) { nms_release(runtime, result); return status; }
+        }
+    }
+    *out = result;
+    return NMS_OK;
+}
+
 /* I format the exact binary64 rational with decimal integer arithmetic. The
  * largest coefficient needs fewer than 800 digits; 1100 is an explicit cap. */
 static NmsStatus nms_format_binary64(NmsRuntime *runtime, uint64_t bits, NmsHandle *out) {

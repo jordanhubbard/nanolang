@@ -53,6 +53,12 @@ NmsStatus nms_packed_array_create(NmsRuntime *, uint32_t, NmsHandle *);
 NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);
 /* I prepare capacity8 and VM checked-doubling semantics before publication. */
 NmsStatus nms_vm_array_create(NmsRuntime *, uint32_t, NmsHandle *);
+/* I borrow input roots and publish only a complete fresh VM-policy array.
+ * Literal count is uint16-bounded; slice endpoints are already uint32 values.
+ * Input vectors remain valid for the call (outside relocating slot storage).
+ * Failure leaves inputs and output unchanged. These APIs grant no admission. */
+NmsStatus nms_vm_array_literal(NmsRuntime *, uint32_t, const uint64_t *, const uint32_t *, uint32_t, NmsHandle *);
+NmsStatus nms_vm_array_slice(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandle *);
 /* I consume both strings and build boxed tagged children before publication. */
 NmsStatus nms_split_values_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
 NmsStatus nms_value_array_append(NmsRuntime *, NmsHandle, NmsValue);
