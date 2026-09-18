@@ -574,6 +574,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (or (== name "float_from_bits") (== name "float_to_bits")) { return true }
     if (== name "str_trim") { return true }
     if (or (== name "abs") (nisa_functional_name name)) { return true }
     if (== name "cast_int") { return true }
@@ -593,6 +594,8 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "float_from_bits")
+    assert (nisa_is_inline_call "float_to_bits")
     assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "cast_int")
     assert (nisa_is_inline_call "float_to_string")
@@ -2280,6 +2283,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             return (nisa_access_result parser call)
         }
         if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
+        if (and (== target_name "float_from_bits") (< (nisa_call_index parser call) 0)) { return "float" }
+        if (and (== target_name "float_to_bits") (< (nisa_call_index parser call) 0)) { return "int" }
         if (== target_name "string_to_int") { return "int" }
         if (and (== target_name "string_to_float") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "str_trim") (< (nisa_call_index parser call) 0)) { return "string" }
@@ -3183,6 +3188,17 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (nisa_fail "I require int, float, bool or string for cast_int")
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+    }
+    if (and (or (== function_name "float_from_bits") (== function_name "float_to_bits")) (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one operand for binary64 bit transport") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        let mut expected: string = "float"
+        let mut opcode: string = "F64_TO_BITS"
+        if (== function_name "float_from_bits") { set expected "int" set opcode "F64_FROM_BITS" }
+        if (!= (nisa_expr_type parser argument.node_id argument.node_type) expected) {
+            return (nisa_fail "I require the exact input type for binary64 bit transport")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line opcode))
     }
     if (and (== function_name "string_to_float") (< declared_index 0)) {
         if (!= call.arg_count 1) { return (nisa_fail "I require one string operand for string_to_float") }

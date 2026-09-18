@@ -67,6 +67,7 @@ static bool allowed(uint8_t op, uint32_t version) {
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
     case OP_I64_REM_S: case OP_I64_NEG: case OP_I64_EQ: case OP_I64_NE:
     case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
+    case OP_F64_FROM_BITS: case OP_F64_TO_BITS:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
     case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
     case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:

@@ -1120,6 +1120,8 @@ shadow c_name_for_qualified_function {
 
 /* Map builtin function names to their C implementation names */
 fn map_builtin_func_name(func_name: string) -> string {
+    if (== func_name "float_from_bits") { return "nl_float_from_bits" }
+    if (== func_name "float_to_bits") { return "nl_float_to_bits" }
     /* Math builtins that need nl_ prefix */
     if (== func_name "abs") { return "nl_abs" } else { (print "") }
     if (== func_name "min") { return "nl_min" } else { (print "") }
@@ -1236,6 +1238,8 @@ fn map_builtin_func_name(func_name: string) -> string {
 }
 
 shadow map_builtin_func_name {
+    assert (== (map_builtin_func_name "float_from_bits") "nl_float_from_bits")
+    assert (== (map_builtin_func_name "float_to_bits") "nl_float_to_bits")
     assert (== (map_builtin_func_name "abs") "nl_abs")
     assert (== (map_builtin_func_name "sqrt") "nl_sqrt")
     assert (== (map_builtin_func_name "str_length") "strlen")
@@ -1325,6 +1329,7 @@ shadow type_is_float {
 }
 
 fn func_returns_float(name: string) -> bool {
+    if (== name "float_from_bits") { return true }
     if (== name "sqrt") { return true } else { (print "") }
     if (== name "pow") { return true } else { (print "") }
     if (== name "floor") { return true } else { (print "") }
@@ -1465,6 +1470,8 @@ shadow func_returns_string {
 }
 
 shadow func_returns_float {
+    assert (func_returns_float "float_from_bits")
+    assert (not (func_returns_float "float_to_bits"))
     assert (func_returns_float "sqrt")
     assert (func_returns_float "sin")
     assert (not (func_returns_float "print"))
@@ -3749,6 +3756,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return nl_binary64_prefix(s);\n")
     set sb (cg_append sb "}\n\n")
 
+    set sb (cg_append sb "double nl_float_from_bits(int64_t value) { uint64_t bits = (uint64_t)value; double result; memcpy(&result, &bits, sizeof(result)); return result; }\n")
+    set sb (cg_append sb "int64_t nl_float_to_bits(double value) { uint64_t bits; memcpy(&bits, &value, sizeof(bits)); return bits <= INT64_MAX ? (int64_t)bits : -1 - (int64_t)(UINT64_MAX - bits); }\n")
     set sb (cg_append sb "double nl_cast_float(int64_t x) { return (double)x; }\n")
     set sb (cg_append sb "double nl_cast_float_from_float(double x) { return x; }\n")
     set sb (cg_append sb "int64_t nl_cast_int(double x) { if (!(x >= -0x1p63 && x < 0x1p63)) { fputs(\"I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\\n\", stderr); exit(EXIT_FAILURE); } return (int64_t)x; }\n")

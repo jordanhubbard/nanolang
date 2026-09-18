@@ -92,6 +92,9 @@ static bool type_rule_for(uint8_t opcode, TypeRule *out) {
         out->result_count = 2;
         return true;
 
+    case OP_F64_FROM_BITS: RULE1(TAG_INT, TAG_FLOAT);
+    case OP_F64_TO_BITS: RULE1(TAG_FLOAT, TAG_INT);
+
     /* Float arithmetic. */
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
         RULE2(TAG_FLOAT, TAG_FLOAT, TAG_FLOAT);

@@ -888,6 +888,12 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    /* Exact representation copies remain distinct from numeric casts. */
+    if ((strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) && argc == 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, strcmp(name, "float_from_bits") == 0 ? OP_F64_FROM_BITS : OP_F64_TO_BITS);
+        return true;
+    }
     /* Type casts */
     if (strcmp(name, "cast_int") == 0 && argc == 1) {
         compile_expr(cg, args[0]);

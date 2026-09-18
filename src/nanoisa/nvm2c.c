@@ -7,6 +7,7 @@
  */
 
 #include "nvm2c.h"
+#include "../binary64_bits.h"
 #include "binary64_parse_source.h"
 #include "isa.h"
 #include "utf8.h"
@@ -1405,6 +1406,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         && local_kind[slot] != NVM2C_VK_BOOL) {
                 local_kind[slot] = NVM2C_VK_INT;
             }
+            break;
+        }
+        case OP_F64_FROM_BITS: case OP_F64_TO_BITS: {
+            Nvm2cSimSlot value;
+            if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            uint8_t expected = ins.opcode == OP_F64_FROM_BITS ? NVM2C_VK_INT : NVM2C_VK_FLOAT;
+            if (value.kind == NVM2C_VK_UNK) {
+                mark_origin(local_kind, nloc, value.origin, expected);
+                if (!shape_field_kind(b, value.shape, expected)) return 0;
+            } else if (value.kind != expected && value.kind != NVM2C_VK_VALUE) {
+                nvm2c_fail(b, "I require the exact input kind for binary64 bit transport"); return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp,
+                          expected == NVM2C_VK_INT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, -1)) return 0;
             break;
         }
         case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
@@ -3624,6 +3639,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    l%u = t[%d];\n", (unsigned)slot, t);
                 }
             }
+            break;
+        }
+        case OP_F64_FROM_BITS: case OP_F64_TO_BITS: {
+            int from = ins.opcode == OP_F64_FROM_BITS;
+            int value = stack_pop_expect(b, &st, from ? NVM2C_VK_INT : NVM2C_VK_FLOAT, "binary64 bit transport");
+            if (b->failed) goto done;
+            char expression[80];
+            snprintf(expression, sizeof expression, "nl_float_%s_bits(%s[%d])", from ? "from" : "to", from ? "t" : "f", value);
+            if (from) stack_push_float(b, &st, expression);
+            else stack_push_temp(b, &st, expression);
             break;
         }
         case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
@@ -6462,6 +6487,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print || need_cast) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
+        if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
+            nvm2c_puts(&b, NL_BINARY64_BITS_SOURCE);
         if (need_print) nvm2c_puts(&b,
             "static inline void nf64_print(double value) {\n"
             "    if (value >= -1e15 && value <= 1e15 && value == (int64_t)value) printf(\"%.1f\", value);\n"
@@ -6716,6 +6743,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
+            nvm2c_puts(&b, "    (void)nl_float_from_bits; (void)nl_float_to_bits;\n");
         if (module_has_opcode(mod, OP_I64_ADD_CARRY) || module_has_opcode(mod, OP_I64_SUB_BORROW) ||
             module_has_opcode(mod, OP_I64_MUL_WIDE_S) || module_has_opcode(mod, OP_I64_MUL_WIDE_U))
             nvm2c_puts(&b, "    (void)ni64_pair_compute;\n");

@@ -2938,6 +2938,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "string_to_int") { return true }
     if (== fn_name "string_to_float") { return true } else { (print "") }
     if (== fn_name "cast_int") { return true } else { (print "") }
+    if (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) { return true }
     if (== fn_name "cast_float") { return true } else { (print "") }
     if (== fn_name "cast_bool") { return true } else { (print "") }
     if (== fn_name "cast_string") { return true } else { (print "") }
@@ -3112,6 +3113,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "string_to_int") { return (type_int) }
     if (== fn_name "string_to_float") { return (type_float) } else { (print "") }
     if (== fn_name "cast_int") { return (type_int) } else { (print "") }
+    if (== fn_name "float_from_bits") { return (type_float) }
+    if (== fn_name "float_to_bits") { return (type_int) }
     if (== fn_name "cast_float") { return (type_float) } else { (print "") }
     if (== fn_name "cast_bool") { return (type_bool) } else { (print "") }
     if (== fn_name "cast_string") { return (type_string) } else { (print "") }
@@ -3252,6 +3255,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    assert (== (check_builtin_function "float_from_bits").kind TypeKind.TYPE_FLOAT)
+    assert (== (check_builtin_function "float_to_bits").kind TypeKind.TYPE_INT)
     assert (== (check_builtin_function "string_to_float").kind TypeKind.TYPE_FLOAT)
     let t1: NSType = (check_builtin_function "println")
     assert (== t1.kind TypeKind.TYPE_VOID)
@@ -4365,8 +4370,21 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             } else { (print "") }
         } else { (print "") }
         /* Check if it's a builtin function/operator */
+        if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (< (env_lookup symbols fn_name) 0)) {
+            let mut valid_bits: bool = (== call_node.arg_count 1)
+            if valid_bits {
+                let bits_arg: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+                let bits_type: NSType = (check_expr_node parser bits_arg.node_id bits_arg.node_type symbols diags file_name)
+                if (== fn_name "float_from_bits") { set valid_bits (== bits_type.kind TypeKind.TYPE_INT) }
+                else { set valid_bits (== bits_type.kind TypeKind.TYPE_FLOAT) }
+            }
+            if (not valid_bits) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one exactly typed operand for binary64 bit transport." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            }
+            return (check_builtin_function fn_name)
+        }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
-        if (and (== fn_name "string_to_float") (>= (env_lookup symbols fn_name) 0)) {
+        if (and (or (== fn_name "string_to_float") (or (== fn_name "float_from_bits") (== fn_name "float_to_bits"))) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {

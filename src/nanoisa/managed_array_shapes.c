@@ -88,11 +88,11 @@ static int seed(Analysis *a,uint32_t fi,const Value *args) {
 static int fixed_result(uint8_t op) {
     switch(op) {
     case OP_PUSH_I64: case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL:
-    case OP_I64_DIV_S: case OP_I64_REM_S: case OP_I64_NEG: case OP_CAST_INT:
+    case OP_F64_TO_BITS: case OP_I64_DIV_S: case OP_I64_REM_S: case OP_I64_NEG: case OP_CAST_INT:
     case OP_STR_LEN: case OP_STR_CHAR_AT: case OP_ARR_LEN: return TAG_INT;
     case OP_PUSH_U8: return TAG_U8;
     case OP_PUSH_F64: case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL:
-    case OP_F64_DIV: case OP_F64_NEG: case OP_CAST_FLOAT: return TAG_FLOAT;
+    case OP_F64_FROM_BITS: case OP_F64_DIV: case OP_F64_NEG: case OP_CAST_FLOAT: return TAG_FLOAT;
     case OP_PUSH_BOOL: case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_I64_EQ: case OP_I64_NE: case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:

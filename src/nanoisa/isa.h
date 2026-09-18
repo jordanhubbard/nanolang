@@ -186,6 +186,8 @@ typedef enum {
 
     /* Type Casts (0x88-0x8F) */
     OP_CAST_INT    = 0x88,   /* pop value -> push as int */
+    OP_F64_FROM_BITS = 0x8D, /* exact int bits -> float */
+    OP_F64_TO_BITS = 0x8E,   /* exact float bits -> int */
     OP_CAST_FLOAT  = 0x89,   /* pop value -> push as float */
     OP_CAST_BOOL   = 0x8A,   /* pop value -> push as bool */
     OP_CAST_STRING = 0x8B,   /* pop value -> push as string */

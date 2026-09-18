@@ -1881,6 +1881,20 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return check_indirect_call(expr, env, function_result_signature(expr->as.call.func_expr, env));
             }
             
+            /* Representation copies never use implicit numeric promotion. */
+            if (strcmp(expr->as.call.name, "float_from_bits") == 0 ||
+                strcmp(expr->as.call.name, "float_to_bits") == 0) {
+                bool from = strcmp(expr->as.call.name, "float_from_bits") == 0;
+                if (expr->as.call.arg_count != 1 ||
+                    check_expression(expr->as.call.args[0], env) != (from ? TYPE_INT : TYPE_FLOAT)) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require one exactly typed operand for binary64 bit transport.",
+                        "Use int for float_from_bits and float for float_to_bits.");
+                    return TYPE_UNKNOWN;
+                }
+                return from ? TYPE_FLOAT : TYPE_INT;
+            }
+
             /* Regular function call */
             
             /* Special handling for map builtin - check before environment lookup */
@@ -5617,7 +5631,7 @@ static const char *builtin_function_names[] = {
     "abs", "min", "max", "sqrt", "pow", "floor", "ceil", "round",
     "sin", "cos", "tan", "atan2",
     /* Type casting */
-    "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
+    "float_from_bits", "float_to_bits", "cast_int", "cast_float", "cast_bool", "cast_string", "cast_bstring", "to_string", "null_opaque",
     /* String (C strings) */
     "str_length", "str_concat", "str_substring", "str_contains", "str_equals", "format",
     /* Bytes (array<u8>) */

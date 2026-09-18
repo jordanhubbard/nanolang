@@ -146,6 +146,8 @@ legacy_opcodes:
   - {name: CAST_BOOL, code: 0x8a, operands: [], pops: 1, pushes: 1}
   - {name: CAST_STRING, code: 0x8b, operands: [], pops: 1, pushes: 1}
   - {name: TYPE_CHECK, code: 0x8c, operands: [U8], pops: 1, pushes: 1}
+  - {name: F64_FROM_BITS, code: 0x8d, operands: [], pops: 1, pushes: 1}
+  - {name: F64_TO_BITS, code: 0x8e, operands: [], pops: 1, pushes: 1}
   - {name: CLOSURE_NEW, code: 0x90, operands: [U32, U16]}
   - {name: PRINT, code: 0xa0, operands: [], pops: 1, pushes: 0}
   - {name: ASSERT, code: 0xa1, operands: [], pops: 1, pushes: 0}
@@ -295,6 +297,8 @@ instruction_families:
     - {name: i64.mul-wide-s, meaning: "Multiply two integers as signed into a 128-bit high/low pair.", operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none, justification: core-semantics}
     - {name: i64.mul-wide-u, meaning: "Multiply two integers as unsigned into a 128-bit high/low pair.", operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none, justification: core-semantics}
   float:
+    - {name: f64.from-bits, meaning: "Copy an exact i64 bit pattern to f64 without arithmetic or NaN quieting.", operands: [], pops: [i64], pushes: [f64], ownership: none, justification: representation}
+    - {name: f64.to-bits, meaning: "Copy exact f64 bits to a signed i64 bit pattern without arithmetic or NaN quieting.", operands: [], pops: [f64], pushes: [i64], ownership: none, justification: representation}
     - {name: f64.add, meaning: "Add two floats.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
     - {name: f64.sub, meaning: "Subtract the top float from the next.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
     - {name: f64.mul, meaning: "Multiply two floats.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
