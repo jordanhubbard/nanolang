@@ -4011,7 +4011,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     "    if (ra[%d]->data[t[%d]].n != r[%d].n || ra[%d]->data[t[%d]].kind != r[%d].kind) NVM2C_ABORT();\n",
                     arr, ix, val, arr, ix, val);
                 nvm2c_printf(b,
-                    "    for (size_t f = 0; f < r[%d].n; ++f) if (ra[%d]->data[t[%d]].k[f] != r[%d].k[f]) NVM2C_ABORT();\n",
+                    "    for (size_t f = 0; f < r[%d].n; ++f) if (!nrec_field_storage_matches(&ra[%d]->data[t[%d]], &r[%d], f)) NVM2C_ABORT();\n",
                     val, arr, ix, val);
             }
             if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_VALUE)
@@ -6189,6 +6189,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
+        if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b,
+            "static inline int nrec_field_storage_matches(const nrec_t *a, const nrec_t *b, size_t field) {\n"
+            "    unsigned ak = a->k[field], bk = b->k[field];\n"
+            "    if (ak == bk) return 1;\n"
+            "    unsigned at = ak == 0 ? 1 : ak == 9 ? 4 : ak == 1 ? 5 : ak == 8 ? a->vk[field] : 255;\n"
+            "    unsigned bt = bk == 0 ? 1 : bk == 9 ? 4 : bk == 1 ? 5 : bk == 8 ? b->vk[field] : 255;\n"
+            "    return at == bt && (at == 1 || at == 4 || at == 5) &&\n"
+            "           (at != 5 || (a->s[field] && b->s[field]));\n}\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
         if (module_has_opcode(mod, OP_AGG_PACK)) nvm2c_puts(&b,
