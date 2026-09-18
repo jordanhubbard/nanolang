@@ -37,7 +37,7 @@ budgets/272 actual faults, and 117 return-preflight checks. String controls pass
 600 allocation and 150 proof checks with nine admissions. The native suite passes
 2,422 checks; its shape, opcode-inventory and sanitizer-driver prerequisites pass.
 
-My [38-report manifest](owned-binary64/reports.sha256) seals raw logs, statuses,
+My [39-report manifest](owned-binary64/reports.sha256) seals raw logs, statuses,
 source manifests, the runner, compiler identities and the exact Clang wrapper.
 All 1,596 tracked native source/test/build inputs agree before/after each final
 gate. My three core tool hashes were captured during the regression and verified
@@ -59,3 +59,12 @@ I keep mixed managed Samples/PREFIX execution, managed fields inside affine
 Bundle, source float admission and full ownership/release parents open. No
 historical product artifact was replayed, and no refused module was executed.
 Canonical ancestry precedes bounded MAC task completion.
+
+
+I restack in a separate tool-free ready tree at merge c3ba0fdd over canonical
+main dd0fed57 (PR797). The only changed qualification input is the unrelated
+four-line export-buffer test portability correction; all production files and my
+owned-binary64 tests/build target are unchanged. I verify the other 1,595 input
+hashes and all 39 sealed reports. I do not claim a repeated native gate at the
+restacked pin. My original qualified tree/tools remain preserved; this final
+restack changes no relevant executable implementation.
