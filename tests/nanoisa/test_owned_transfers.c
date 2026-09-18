@@ -38,7 +38,7 @@ static void decision(const char *body,bool parameter,bool record_result,bool exp
     if (!admission.ok) {
         /* Failed affine analysis precedes runtime signature admission. */
         const char *guard=expected
-            ? "entry and optional bounded scalar-result helper signatures"
+            ? "scalar entry and exact bounded value-result helper signatures"
             : "ownership instruction dataflow";
         if (!strstr(admission.error_msg,guard)) fprintf(stderr,"Admission reason: %s; expected: %s\n%s",admission.error_msg,guard,body);
         CHECK(strstr(admission.error_msg,guard));
