@@ -1,0 +1,32 @@
+[
+  {
+    "id": "task_71821d84befc46e198795122c1112a27",
+    "title": "Implement paired call-scoped resource borrows",
+    "state": "open",
+    "description": "I implement the existing AFFINE_TYPES_DESIGN.md call-scoped &T / &mut T contract in paired frontends, beginning with nominal resource parameters and explicit borrowed call arguments. PR501 merged my retained borrow syntax prerequisite; completed generic transfer/guard tasks do not satisfy the remaining borrow semantics contract. I preserve ordinary by-value behavior, same-owner nominal identity, and conservative rejection of unsupported stored/returned/generic callback reference shapes. My dependency order is explicit lexer/parser/schema and retained annotation identity; shared/exclusive call argument ownership and overlap checks; observable backend behavior; paired positive/negative tests across C seed and native Stage1/Stage2; then followup IR ownership representation under existing task_ed70242ac4d83be7b2327da7ece387ad. Required positive cases read twice then consume and mutate through an exclusive call then observe/consume; negatives include consumption/mutation through shared borrow, overlapping exclusive/shared arguments, move during a live argument borrow, use after move, escaping/storing references and mismatched annotations. I must not implement exclusive mutation as an invisible value copy. If a prerequisite must land separately, it remains explicitly partial and does not close this task or the full acceptance parent. Root coordinates other active files; publication hold stays.\n\n\n2026-09-17 shared checkpoint: draft PR508 implements genuine native const-pointer references for checked fixed scalar resource records. Source6ed82ee9 passed a fresh three-stage bootstrap with explicit60-second shadow budget, C parser/typechecker, schema consistency+33methods, and13paired annotation/shared methods in59.541s. Repeated aliases/forwarding, post-call consumption, held-owner move/conditional overwrite, escape, nominal mismatch, and unsupported NanoISA-call preservation are covered. Latest-main integrationf30f3f36 is undergoing fresh bootstrap; these are bounded results, not full acceptance. Next I add explicit field-target metadata to ASTSet and actual exclusive mutable-pointer semantics with overlap guards; no value-copy substitute. Task remains open through exclusive and broader shared scope.\n"
+  },
+  {
+    "id": "task_c60a8d2e14b7494f8875e75b16e9b087",
+    "title": "Recover affine ownership implementation and contract-valid conformance gates",
+    "state": "completed",
+    "description": "Supersedes failed task_91ae827be4154eaa8f22698aeecc8cf1 (verification_contract_failed 2026-09-16); source work remains unfinished. Preserve full docs/AFFINE_TYPES_DESIGN.md contract. C-seed quick gate still accepts unresolved owner and misses move diagnostic. Recovery prototype c53e27a7 silently caps256 owners, ignores expressions, does not move initializer source, omits params. Current selfhost treats scalar field observation as consuming its whole resource, so existing valid_move close_file fixture is not normative positive evidence. Establish non-fake ownership conformance tests, implement path-sensitive no-copy/resource-resolution checks across both frontends, owned whole-value destruction and call borrow boundary as designed, emitted ownership facts and full positive/negative matrix. Do not merge prototype or narrow rules to pass smoke tests."
+  },
+  {
+    "id": "task_20048de825616195b9f2bc492231a851",
+    "title": "5.0: Add affine ownership parity to the self-hosted frontend",
+    "state": "completed",
+    "description": "Implement resource declarations and the same ownership analysis in src_nano, rather than relying on the C seed implementation. Keep syntax, state transitions, diagnostics, and acceptance fixtures aligned with the normative contract. Acceptance: the C seed and self-hosted compiler accept and reject the same pinned affine corpus, and bootstrap stages preserve those decisions.\n"
+  },
+  {
+    "id": "task_2dcceeb7ef38459093baaf52cf642239",
+    "title": "Qualify authoritative managed record descriptors and graph-owned private storage",
+    "state": "completed",
+    "description": "Under aggregate488 after generated arrays732, I propose a non-admitting ordinary-record foundation: explicit per-kind VM record identity versus global retained-layout index, complete supported record descriptor extraction, private stable-handle fixed-field record objects, exact tagged scalar/string/array/record child ownership, transactional construction/set, retained get, iterative release and mixed record-array cycle collection. No union/tuple/map/callable or wire/profile/source widening. Contract and independent review precede implementation; native LLVM/import-free Wasm runtime qualification and existing graph/profile refusal gates required."
+  },
+  {
+    "id": "task_707933e34e27f3bcd890a7664e21cf3e",
+    "title": "nvm2c AOT runtime for nanoc_v06 (heap arrays, packed nstr, self-TCO, heap records, hashmap grow, ASTStmtRef)",
+    "state": "open",
+    "description": "Done in tree: nvm2c heap realloc for narr/nsarr/nrarr, packed nstr_hdr, goto L_tco for self TAIL_CALL, nrec_t heap pointers, nhm_reserve, whole-record CALL stays nrec_t. AOT nanoc merges 1081678 bytes / 14 files, lexes 155760 tokens, parses 624 functions, typechecks. make test-nvm2c (911 passed). Hold --no-dispatch."
+  }
+]
