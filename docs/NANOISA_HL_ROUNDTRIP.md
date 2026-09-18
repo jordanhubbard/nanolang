@@ -38,7 +38,7 @@ bin/nvm2hl --language nano program.nvm -o recovered.nano
 ```
 
 The initial grammar admits explicit scalar returns, constants, local snapshots,
-int comparisons, exact wrapping I64 addition/subtraction/negation/multiplication, guarded signed division/remainder, masked integer shifts, integer bitwise operations, boolean operators,
+signed and unsigned int comparisons, exact wrapping I64 addition/subtraction/negation/multiplication, guarded signed division/remainder, masked integer shifts, integer bitwise operations, boolean operators,
 direct acyclic calls, forward if/else
 regions and canonical pretest loops. It requires empty operand stacks at joins
 and loop backedges. I use checked helper implementations for these thirteen integer operations and
