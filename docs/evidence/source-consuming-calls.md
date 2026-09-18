@@ -65,3 +65,17 @@ I leave constructed/computed/projected actuals, mixed signatures, owned
 results, deeper graphs and the full normative ownership matrix outside this
 bounded admission. No historical failing compiler artifact or malformed
 module was executed. Task completion follows actual canonical merge.
+
+## My final shared-verifier restack
+
+I integrate main `fdec4ffd` at `1bc7e313`, preserving PR706's setup-only
+900-second override and ordinary 180-second default, plus PR713's managed-array
+verification/link dependencies. The only conflict is additive roadmap text;
+my three producer files remain byte-identical to reviewed `76ec04a9`.
+
+I rebuild NanoVirt, NanoVM, assembler/disassembler, native translator, local
+binding and shadow-name probes. All four compiler/emitter hashes still match.
+The same three focused consuming methods pass in **24.894 seconds** against
+those rebuilt tools; logs are `/tmp/nanolang-source-consuming-final-tools.log`
+and `/tmp/nanolang-source-consuming-final-focused.log`. I do not relabel the
+31-method result as an execution at this new head.
