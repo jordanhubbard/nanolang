@@ -90,3 +90,5 @@ I reconstruct exact integer `I64_MUL_WIDE_S` and `I64_MUL_WIDE_U` with immutable
 I also reconstruct generic ADD/SUB/MUL/DIV/MOD/NEG when every operand is statically INT, using the unchanged total helpers in [my exact-INT contract](NANOISA_RECONSTRUCT_GENERIC_INTEGER.md). This does not admit dynamic numeric promotion or other tags.
 
 I reconstruct exact INT/BOOL `ROT3` with VM order `a b c -> c a b`, preserving immutable snapshots under [my scalar rotation contract](NANOISA_RECONSTRUCT_ROT3.md).
+
+I reconstruct generic EQ/NE/LT/LE/GT/GE for exact INT/BOOL under [my comparison contract](NANOISA_RECONSTRUCT_COMPARISONS.md), keeping mixed-tag equality distinct from tag ordering and retaining evaluated operand snapshots.

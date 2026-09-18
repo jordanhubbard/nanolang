@@ -16,6 +16,7 @@ COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
 UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
                     'I64_GT_U': 'gt_u', 'I64_GE_U': 'ge_u'}
+GENERIC_COMPARE = {'EQ': '==', 'NE': '!=', 'LT': '<', 'LE': '<=', 'GT': '>', 'GE': '>='}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
 ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 'rem', 'NEG': 'neg',
               'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
@@ -25,7 +26,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE)
 
 
 @dataclass(frozen=True)
@@ -158,6 +159,21 @@ class Analyze:
         elif op in UNSIGNED_COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'unsigned_compare', UNSIGNED_COMPARE[op], (left, right))
+        elif op in GENERIC_COMPARE:
+            right, left = self.pop(stack), self.pop(stack)
+            require(left.tag in (INT, BOOL) and right.tag in (INT, BOOL),
+                    'require exact int/bool generic comparison operands')
+            if left.tag != right.tag:
+                # Ordinary operand evaluations already have immutable statements.
+                result = {'EQ': False, 'NE': True, 'LT': left.tag < right.tag,
+                          'LE': left.tag < right.tag, 'GT': left.tag > right.tag,
+                          'GE': left.tag > right.tag}[op]
+                expr = Expr(BOOL, 'constant', result)
+            else:
+                if left.tag == BOOL and op not in ('EQ', 'NE'):
+                    left = Expr(INT, 'bool_int', None, (left,))
+                    right = Expr(INT, 'bool_int', None, (right,))
+                expr = Expr(BOOL, 'binary', GENERIC_COMPARE[op], (left, right))
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
