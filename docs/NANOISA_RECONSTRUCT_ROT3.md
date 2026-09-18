@@ -20,3 +20,19 @@ My first ordinary fixture assembles but native C classification refuses ROT3
 (opcode0x0A at function0 offset50). No native binary was produced or executed.
 I preserve `/tmp/nanolang-reconstruct-rot3-gcc.log` and record native companion
 `task_18ca25c8fc294c81b1a662fd22fc411b` before any native implementation.
+
+## My measured acceptance
+
+With corrected external native translator production `e8e34083`, three
+focused GCC methods pass in 14.364 seconds. Those three plus the adjacent
+indexed-loop and mocked compiler-diagnostic methods pass Clang in 15.161
+seconds. Four distinct/mixed-tag triples and a call/local/pure-loop program
+execute through VM, native C, reconstructed sanitized C and NanoLang built
+by all three isolated successful compiler copies. Three underflow counts
+are refused by assembly before execution, preserving previous binary output.
+The initial unsupported native translation remains retained separately.
+
+Generator/local-tool/compiler and original/copied host-library hashes remain
+unchanged. I record the external translator hash and exact evidence in
+[my manifest](evidence/reconstruction-scalar-rot3.json). No new compiler
+bootstrap or complete native tag/reconstruction coverage is claimed.
