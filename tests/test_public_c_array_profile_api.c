@@ -3,7 +3,7 @@
 #include "test_public_c_profile_options_api.c"
 #undef main
 int main(int argc,char **argv){
- assert(argc==2);
+ assert(argc==3);
  ASTNode zero={.type=AST_NUMBER};ASTNode ret={.type=AST_RETURN};ret.as.return_stmt.value=&zero;
  ASTNode *statements[]={&ret};ASTNode body={.type=AST_BLOCK};body.as.block.statements=statements;body.as.block.count=1;
  ASTNode fn={.type=AST_FUNCTION};fn.as.function.name="main";fn.as.function.return_type=TYPE_INT;fn.as.function.body=&body;
@@ -39,6 +39,7 @@ int main(int argc,char **argv){
  ASTNode qualified={.type=AST_MODULE_QUALIFIED_CALL};qualified.as.module_qualified_call.module_alias="mod";qualified.as.module_qualified_call.function_name="array_length";
  ret.as.return_stmt.value=&qualified;helper.as.function.body=NULL;
  ASTNode helper_ret={.type=AST_RETURN};helper_ret.as.return_stmt.value=&zero;ASTNode *helper_items[]={&helper_ret};ASTNode helper_body={.type=AST_BLOCK};helper_body.as.block.statements=helper_items;helper_body.as.block.count=1;helper.as.function.body=&helper_body;
+ if(!strcmp(argv[2],"direct")){helper.as.function.name="array_length";call.as.call.name="array_length";ret.as.return_stmt.value=&call;}
  assert(c_backend_emit(&root,argv[1],"ordinary.nano",&opts)==0);
  FILE *stream=tmpfile();assert(stream);assert(c_backend_emit_fp(&root,stream,"ordinary.nano",&opts)==0);assert(!fclose(stream));
  return 0;

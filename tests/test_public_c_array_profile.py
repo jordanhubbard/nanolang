@@ -21,10 +21,11 @@ class ArrayProfile(unittest.TestCase):
         self.run_cmd([os.environ.get('CC','cc'),'-std=c99','-D_POSIX_C_SOURCE=200809L',
             '-Wall','-Wextra','-Werror','-O1','-fsanitize=address,undefined','-fno-sanitize-recover=all',
             '-I',ROOT/'src',ROOT/'tests/test_public_c_array_profile_api.c','-o',api])
-        output=self.work/'recovered.c';self.run_cmd([api,output])
-        for standard in ('c99','c11'):
-            for optimization in ('-O0','-O2'):
-                exe=self.work/(standard+optimization);self.compile(output,exe,standard,optimization);self.run_cmd([exe])
+        for mode in ('direct','qualified'):
+            output=self.work/(mode+'.c');self.run_cmd([api,output,mode])
+            for standard in ('c99','c11'):
+                for optimization in ('-O0','-O2'):
+                    exe=self.work/(mode+standard+optimization);self.compile(output,exe,standard,optimization);self.run_cmd([exe])
     def test_checked_source_array_refusals(self):
         sources=[
             'fn main()->int{let x:array<int> =[] return 0}',
@@ -44,8 +45,14 @@ class ArrayProfile(unittest.TestCase):
             result=self.run_cmd([ROOT/'bin/nanoc_c','--target','c',path,'-o',output],expected=1)
             self.assertIn('array value or call ABI',result.stderr)
             self.assertEqual(output.read_text(),'previous')
-    def test_declared_scalar_builtin_names_remain_ordinary(self):
+    def test_source_reservation_and_nonbuiltin_prefix_remain_distinct(self):
         source='fn array_length(x:int)->int{return (+ x 1)} shadow array_length{assert (== (array_length 6) 7)} fn main()->int{assert (== (array_length 6) 7) return 0}\nshadow main{assert true}\n'
+        path=self.work/'reserved.nano';path.write_text(source)
+        previous=self.work/'previous.c';previous.write_text('previous')
+        result=self.run_cmd([ROOT/'bin/nanoc_c','--target','c',path,'-o',previous],expected=1)
+        self.assertIn("Cannot redefine built-in function 'array_length'",result.stderr)
+        self.assertEqual(previous.read_text(),'previous')
+        source=source.replace('array_length','array_length_like')
         output,_=self.emit(source)
         for standard in ('c99','c11'):
             for optimization in ('-O0','-O2'):
