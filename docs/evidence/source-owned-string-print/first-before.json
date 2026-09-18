@@ -1,0 +1,17 @@
+{
+  "head": "d77c41acdeac83f9e04c48e0fa4ba4c7fa8036a6",
+  "files": {
+    "src/nanovirt/borrow_codegen.inc": "0e07f92550a28c0bf68b8787c2a7ae46ee594c7eb5a97f4970d93a45270472a8",
+    "src_nano/compiler/nanoisa_borrows.nano": "4c8c8cc0c12a2265ae1d30573846e38e1956859d5e580447663dbcff54386d41",
+    "tests/test_source_borrow_emission.py": "8db96f7ad1b2e21757f008b4003bea86f8c42b8f301dfcb6131c67605b179377",
+    "bin/nanoc_c": "37ef8743aea3eee4392d045f125ff1291436735dae239efe7214b5584d5d6891",
+    "bin/nanoc_stage1": "853af8660b0df4153d377aef4df8ae030c2fbea76e4cf26d7b4c4c5ba23afb86",
+    "bin/nanoc_stage2": "28948f10ddb2ac0656466de2ce594cc9af11c454ff2f65a2d603a2ce4044bf5c",
+    "bin/nanoisa_emit": "97d02b270b37fff083be54fd36db3b05bf6df6f30c90488a7d008100f3e29791",
+    "bin/nano_virt": "33089214f1c6f0d2a9f2e21639a473ccd930438112ab0bb10efe88e14bfcce18",
+    "bin/nano_vm": "e80e796d93ab6bbac075d1395610c017c86017f1c64cc5ba288a299fd898e886",
+    "bin/nvm2c": "a3c25b60b6553ba64ad742a0b2fb6907cd83d6fe3de4f78c1145faac92a1be88",
+    "bin/nanoisa": "e2c5288c019ccb80ff936f5cc21bdf4c2b1504accfcf42a7bcd29e27aeae6067",
+    "obj/borrow_shadow_names": "6f6267b504fd903439da050aa3a04f3eb07b0959cfab2ff37c08674f4d7dfd4f"
+  }
+}

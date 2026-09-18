@@ -43,6 +43,7 @@ typedef struct {
     char        prefix[64];
     size_t      operand_slots;
     size_t      string_slots;
+    size_t      match_labels;
     Type        return_type;
     bool        has_globals;
     int         indent;
@@ -156,6 +157,67 @@ static ASTNode *ctx_union_variant(CBCtx *c, const char *name, const char *varian
         return NULL;
     }
     return NULL;
+}
+
+/* I admit only the total guarded statement profile, without deciding other policies. */
+static bool match_arm_unconditional(ASTNode *node, int arm) {
+    ASTNode *guard = node->as.match_expr.guard_exprs ? node->as.match_expr.guard_exprs[arm] : NULL;
+    return !guard || (guard->type == AST_BOOL && guard->as.bool_val);
+}
+
+static ASTNode *ctx_guarded_union_profile(CBCtx *c, ASTNode *node, int *declaration_index) {
+    const char *name = node->as.match_expr.union_type_name;
+    ASTNode *owner = NULL;
+    if (c->root && name) {
+        ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+        int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *item = items[i];
+            if (item && item->type == AST_UNION_DEF && !item->as.union_def.is_extern &&
+                strcmp(item->as.union_def.name, name) == 0) {
+                owner = item; *declaration_index = i; break;
+            }
+        }
+    }
+    if (!owner || owner->as.union_def.generic_param_count != 0 ||
+        owner->as.union_def.variant_count <= 0 || node->as.match_expr.arm_count <= 0) {
+        ctx_error(c, "I require an exact nongeneric C union for guarded match."); return NULL;
+    }
+    for (int v = 0; v < owner->as.union_def.variant_count; ++v) {
+        for (int f = 0; f < owner->as.union_def.variant_field_counts[v]; ++f) {
+            Type type = owner->as.union_def.variant_field_types[v][f];
+            if (type != TYPE_INT && type != TYPE_BOOL && type != TYPE_FLOAT && type != TYPE_STRING) {
+                ctx_error(c, "I require scalar payloads for guarded C match."); return NULL;
+            }
+        }
+    }
+    bool wildcard_covers = false;
+    for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+        const char *variant = node->as.match_expr.pattern_variants[i];
+        if (variant && strcmp(variant, "_") == 0) {
+            const char *binding = node->as.match_expr.pattern_bindings ? node->as.match_expr.pattern_bindings[i] : NULL;
+            if (i != node->as.match_expr.arm_count - 1 || (binding && strcmp(binding, "_") != 0)) {
+                ctx_error(c, "I require at most one final unbound wildcard for C match."); return NULL;
+            }
+            wildcard_covers = match_arm_unconditional(node, i);
+        } else {
+            int declaration, selected;
+            if (ctx_union_variant(c, name, variant, &declaration, &selected) != owner) {
+                ctx_error(c, "I require exact declared variants for guarded C match."); return NULL;
+            }
+        }
+    }
+    for (int v = 0; !wildcard_covers && v < owner->as.union_def.variant_count; ++v) {
+        bool covered = false;
+        for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+            if (strcmp(node->as.match_expr.pattern_variants[i], owner->as.union_def.variant_names[v]) == 0 &&
+                match_arm_unconditional(node, i)) covered = true;
+        }
+        if (!covered) {
+            ctx_error(c, "I require static total coverage for guarded C match."); return NULL;
+        }
+    }
+    return owner;
 }
 
 /* Only unique, unguarded coverage of one exact declaration is exhaustive here. */
@@ -946,6 +1008,68 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
 }
 
 /* ── Statement emitter ────────────────────────────────────────────────────── */
+/* Forward-only jumps preserve the enclosing function and loop control targets. */
+static int emit_guarded_union_match(CBCtx *c, ASTNode *node) {
+    int declaration_index = 0;
+    ASTNode *owner = ctx_guarded_union_profile(c, node, &declaration_index);
+    if (!owner) return -1;
+    if (c->match_labels == SIZE_MAX) {
+        ctx_error(c, "I exceeded my C match label capacity."); return -1;
+    }
+    size_t label = c->match_labels++;
+    int saved_indent = c->indent, saved_scope = c->scope_depth;
+    const char *name = owner->as.union_def.name;
+    fputs("{\n", c->out); c->indent++;
+    emit_indent(c); fprintf(c->out, "NanoUnion_%s %smatch_value = ", name, c->prefix);
+    if (emit_expr(c, node->as.match_expr.expr)) goto failed;
+    fputs(";\n", c->out);
+    for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+        const char *variant = node->as.match_expr.pattern_variants[i];
+        bool wildcard = strcmp(variant, "_") == 0;
+        int variant_index = 0, declaration = 0;
+        if (!wildcard && ctx_union_variant(c, name, variant, &declaration, &variant_index) != owner) {
+            ctx_error(c, "I require an exact declared C match payload."); goto failed;
+        }
+        emit_indent(c);
+        if (wildcard) fputs("{\n", c->out);
+        else fprintf(c->out, "if (%smatch_value.tag == NanoUnion_%s_TAG_%s) {\n", c->prefix, name, variant);
+        c->indent++; ctx_push_scope(c);
+        if (c->error) goto failed;
+        const char *binding = node->as.match_expr.pattern_bindings ? node->as.match_expr.pattern_bindings[i] : NULL;
+        if (!wildcard && binding && strcmp(binding, "_") != 0 &&
+            owner->as.union_def.variant_field_counts[variant_index] > 0) {
+            emit_indent(c);
+            fprintf(c->out, "%spayload_%d_%d %s = %smatch_value.as.%s;\n",
+                    c->prefix, declaration_index, variant_index, binding, c->prefix, variant);
+            ctx_add_nominal(c, binding, TYPE_STRUCT, name, variant);
+            if (c->error) goto failed;
+        }
+        ASTNode *guard = node->as.match_expr.guard_exprs ? node->as.match_expr.guard_exprs[i] : NULL;
+        if (guard) {
+            if (infer_expr_type(c, guard) != TYPE_BOOL) {
+                ctx_error(c, "I require an exact BOOL guard for C match."); goto failed;
+            }
+            emit_indent(c); fputs("if (", c->out);
+            if (emit_expr(c, guard)) goto failed;
+            fputs(") {\n", c->out); c->indent++;
+        }
+        emit_indent(c);
+        if (emit_stmt(c, node->as.match_expr.arm_bodies[i])) goto failed;
+        emit_indent(c); fprintf(c->out, "goto %smatch_end_%zu;\n", c->prefix, label);
+        if (guard) { c->indent--; emit_indent(c); fputs("}\n", c->out); }
+        ctx_pop_scope(c); c->indent--; emit_indent(c); fputs("}\n", c->out);
+    }
+    emit_indent(c);
+    fputs("fputs(\"I require a covered C union tag for match.\\n\", stderr); exit(EXIT_FAILURE);\n", c->out);
+    emit_indent(c); fprintf(c->out, "%smatch_end_%zu: ;\n", c->prefix, label);
+    c->indent--; emit_indent(c); fputs("}\n", c->out);
+    return c->error ? -1 : 0;
+failed:
+    while (c->scope_depth > saved_scope) ctx_pop_scope(c);
+    c->indent = saved_indent;
+    return -1;
+}
+
 static int emit_stmt(CBCtx *c, ASTNode *node) {
     if (!node) return 0;
 
@@ -1157,6 +1281,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
     }
 
     case AST_MATCH: {
+        for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+            if ((node->as.match_expr.guard_exprs && node->as.match_expr.guard_exprs[i]) ||
+                (node->as.match_expr.pattern_variants[i] &&
+                 strcmp(node->as.match_expr.pattern_variants[i], "_") == 0))
+                return emit_guarded_union_match(c, node);
+        }
         ASTNode *expr = node->as.match_expr.expr;
         fprintf(c->out, "/* match */ {\n");
         c->indent++;
@@ -1524,6 +1654,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     c->out = body;
     c->operand_slots = 0;
     c->string_slots = 0;
+    c->match_labels = 0;
 
     ctx_push_scope(c);
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -1618,6 +1749,7 @@ static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
     c->out = body;
     c->operand_slots = 0;
     c->string_slots = 0;
+    c->match_labels = 0;
     c->return_type = TYPE_VOID;
     fprintf(c->out, "  static int %sinitialized;\n  if (%sinitialized) return;\n  %sinitialized = 1;\n",
             c->prefix, c->prefix, c->prefix);
@@ -1769,6 +1901,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.scope_depth = 0;
     c.operand_slots = 0;
     c.string_slots = 0;
+    c.match_labels = 0;
     if (!c.error) {
         emit_preamble(&c, source_file);
         if (emit_program(&c, root) != 0 && !c.error)

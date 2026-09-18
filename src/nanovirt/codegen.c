@@ -2978,7 +2978,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
             /* Match succeeded: bind the entire union to the pattern variable
              * so v.value / v.error etc. can access variant fields via UNION_FIELD */
-            uint16_t arm_scope = cg->local_count;
+            uint16_t arm_bindings = cg->local_binding_count;
             if (binding && binding[0] != '\0' && strcmp(binding, "_") != 0) {
                 emit_op(cg, OP_DUP);  /* keep union on stack */
                 uint16_t bslot = local_add(cg, binding, node->line);
@@ -3015,10 +3015,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
             } else {
                 compile_expr(cg, body);
             }
-            /* Slots remain allocated, but arm-local names cannot escape. */
-            for (uint16_t j = arm_scope; j < cg->local_count; j++) {
-                cg->locals[j].name = "";
-            }
+            /* Runtime slots stay allocated; lexical bindings end with this arm. */
+            local_names_end(cg, arm_bindings);
+            cg->local_binding_count = arm_bindings;
 
             /* Jump to end */
             if (end_count < 64) {

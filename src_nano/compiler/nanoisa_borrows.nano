@@ -56,6 +56,83 @@ fn nb_tag(name: string) -> int {
     return 0
 }
 shadow nb_tag { assert (== (nb_tag "int") 1) assert (== (nb_tag "bool") 4) assert (== (nb_tag "string") 0) }
+# I keep string parameters separate from scalar resource leaves and results.
+fn nb_parameter_tag(name: string) -> int {
+    if (== name "string") { return 5 }
+    return (nb_tag name)
+}
+shadow nb_parameter_tag {
+    assert (== (nb_parameter_tag "string") 5)
+    assert (== (nb_parameter_tag "int") 1)
+    assert (== (nb_tag "string") 0)
+    assert (== (nb_parameter_tag "array<string>") 0)
+}
+fn nb_decode_string(raw: string) -> string {
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length raw)) {
+        let mut part: string = (str_substring raw i 1)
+        if (and (== (char_at raw i) 92) (< (+ i 1) (str_length raw))) {
+            set i (+ i 1)
+            let code: int = (char_at raw i)
+            set part (str_substring raw i 1)
+            # I refuse NUL before my C-string ABI could truncate it.
+            if (== code 48) { let _: int = (nb_fail "string literals without embedded NUL") return "" }
+            if (== code 110) { set part "\n" }
+            if (== code 116) { set part "\t" }
+            if (== code 114) { set part "\r" }
+            if (not (or (== code 110) (or (== code 116) (or (== code 114)
+                    (or (== code 92) (or (== code 34) (== code 39))))))) {
+                set part (+ "\\" part)
+            }
+        }
+        set output (+ output part)
+        set i (+ i 1)
+    }
+    return output
+}
+shadow nb_decode_string {
+    assert (== (nb_decode_string "\\n\\r\\t") "\n\r\t")
+    assert (== (nb_decode_string "\\\"\\\\\\'") "\"\\'")
+    assert (== (nb_decode_string "a\\qb") "a\\qb")
+    set nb_error ""
+    assert (== (nb_decode_string "a\\0b") "")
+    assert (!= nb_error "")
+    set nb_error ""
+}
+
+# I escape bytes using the assembler quoted-string grammar.
+fn nb_escape_string(value: string) -> string {
+    let digits: string = "0123456789abcdef"
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let octet: int = (char_at value i)
+        let mut escaped: string = (str_substring value i 1)
+        if (== octet 34) { set escaped "\\\"" }
+        if (== octet 92) { set escaped "\\\\" }
+        if (== octet 10) { set escaped "\\n" }
+        if (== octet 13) { set escaped "\\r" }
+        if (== octet 9) { set escaped "\\t" }
+        if (and (or (< octet 32) (== octet 127))
+                (and (!= octet 10) (and (!= octet 13) (!= octet 9)))) {
+            set escaped (+ "\\x" (+ (str_substring digits (/ octet 16) 1)
+                                      (str_substring digits (% octet 16) 1)))
+        }
+        set output (+ output escaped)
+        set i (+ i 1)
+    }
+    return output
+}
+shadow nb_escape_string {
+    assert (== (nb_escape_string "plain") "plain")
+    assert (== (nb_escape_string "\n\r\t") "\\n\\r\\t")
+    assert (== (nb_escape_string "\"\\") "\\\"\\\\")
+    assert (== (nb_escape_string "café") "café")
+    assert (== (nb_escape_string (string_from_char 1)) "\\x01")
+    assert (== (nb_escape_string (string_from_char 127)) "\\x7f")
+}
+
 fn nb_hex(value: int, width: int) -> string {
     let digits: string = "0123456789abcdef"
     let mut out: string = ""
@@ -415,6 +492,13 @@ fn nb_result_tag(parser: Parser, name: string) -> int {
 }
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
+    if (== kind ParseNodeType.PNODE_STRING) {
+        if (not nb_value_graph) { return (nb_fail "string literals only in a value-call graph") }
+        let value: string = (nb_decode_string (parser_get_string parser id).value)
+        if (!= nb_error "") { return 0 }
+        let index: int = (nb_string value)
+        let _: int = (nb_op1 "PUSH_STR" index) return 5
+    }
     if (== kind ParseNodeType.PNODE_NUMBER) {
         let _: int = (nb_emit (+ "PUSH_I64 " (parser_get_number parser id).value)) return 1
     }
@@ -477,6 +561,20 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     }
     if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
         let call: ASTCall = (parser_get_call parser id)
+        if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.borrow_mode 0)) {
+            let name: string = (parser_get_identifier parser call.function).name
+            if (and (or (== name "print") (== name "println")) (and (< (nb_local name) 0) (< (nb_function_index parser name) 0))) {
+                if (!= call.arg_count 1) { return (nb_fail "one exact immutable string print operand") }
+                let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                if (!= (nb_expr parser argument.node_id argument.node_type) 5) { return (nb_fail "one exact immutable string print operand") }
+                if (== name "println") { let _: int = (nb_emit "PRINTLN") }
+                else { let _: int = (nb_emit "PRINT") }
+                return 0
+            }
+        }
+    }
+    if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
+        let call: ASTCall = (parser_get_call parser id)
         if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return (nb_fail "a direct mode-zero value call") }
         let name: string = (parser_get_identifier parser call.function).name
         let target: int = (nb_function_index parser name)
@@ -497,7 +595,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
                 (array_set nb_live local false)
                 set nb_any_transfer true
             } else {
-                if (!= (nb_expr parser argument.node_id argument.node_type) (nb_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
+                if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
             }
             set i (+ i 1)
         }
@@ -886,7 +984,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
             }
             let mut layout: int = (nb_record parser nominal)
             let mut tag: int = 8
-            if (< layout 0) { set layout 4294967295 set tag (nb_tag parameter.var_type) }
+            if (< layout 0) { set layout 4294967295 set tag (nb_parameter_tag parameter.var_type) }
             let _: int = (nb_slot parameter.name tag layout mode false)
             let _: int = (nb_name_begin parameter_index parameter.name)
             set parameter_index (+ parameter_index 1)
@@ -1037,7 +1135,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             }
             let layout: int = (nb_record parser nominal)
             if (< layout 0) {
-                if (or (not nb_value_graph) (== (nb_tag nominal) 0)) { let _: int = (nb_fail "an exact positional parameter") return "" }
+                if (or (not nb_value_graph) (== (nb_parameter_tag nominal) 0)) { let _: int = (nb_fail "an exact positional parameter") return "" }
             } else { if (not nb_value_graph) { if (not (nb_leaf parser layout)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } } }
             let mut prior: int = 0
             while (< prior j) { if (== parameter.name (parser_get_let parser (+ function.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" } set prior (+ prior 1) }
@@ -1102,7 +1200,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             while (< j function.param_count) {
                 let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
                 let mut tag_name: string = "struct"
-                if nb_value_graph { if (== spelling "int") { set tag_name "int" } if (== spelling "bool") { set tag_name "bool" } }
+                if nb_value_graph { if (== spelling "int") { set tag_name "int" } if (== spelling "bool") { set tag_name "bool" } if (== spelling "string") { set tag_name "string" } }
                 set parameters (+ parameters (+ " " tag_name)) set j (+ j 1)
             }
             set parameters (+ parameters "\n")
@@ -1145,7 +1243,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     let mut prelude: string = (+ ".types " (+ (int_to_string records) " 0 0\n.entry 0\n"))
     set i 0
     while (< i (array_length nb_strings)) {
-        set prelude (+ prelude (+ ".string \"" (+ (at nb_strings i) "\"\n")))
+        set prelude (+ prelude (+ ".string \"" (+ (nb_escape_string (at nb_strings i)) "\"\n")))
         set i (+ i 1)
     }
     set prelude (+ prelude (+ ".layouts \"" (+ layouts "\"\n")))
