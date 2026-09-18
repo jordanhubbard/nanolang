@@ -4,7 +4,8 @@
  * Emits readable, self-contained C99 source from the nanolang AST.
  * Supports: numeric types, strings, arithmetic, comparisons, logical ops,
  * function definitions, let/set bindings, if/else, while, for, return,
- * print/println, structs, enums, unions, match, and basic effect stubs.
+ * print/println and qualified structs, enums, unions and match.
+ * I refuse arrays, unimplemented effects and unsupported expression profiles.
  *
  * Generated output is C99/C11-compliant and compiles with:
  *   gcc -std=c11 output.c -o output
@@ -75,9 +76,71 @@ static void ctx_error(CBCtx *c, const char *message) {
     if (!c->error) c->error = message;
 }
 
+/* Retained type metadata can contain arrays below a nominal/callable shell. */
+static bool cb_type_has_array(const TypeInfo *type, unsigned depth);
+static bool cb_signature_has_array(const FunctionSignature *sig, unsigned depth) {
+    if (!sig) return false;
+    if (depth >= 64 || (sig->param_count > 0 && !sig->param_types) || sig->return_type == TYPE_ARRAY ||
+        cb_type_has_array(sig->return_type_info, depth+1) ||
+        cb_signature_has_array(sig->return_fn_sig, depth+1)) return true;
+    for (int i=0;i<sig->param_count;i++)
+        if ((sig->param_types && sig->param_types[i]==TYPE_ARRAY) ||
+            (sig->param_type_info && cb_type_has_array(sig->param_type_info[i], depth+1))) return true;
+    return false;
+}
+static bool cb_type_has_array(const TypeInfo *type, unsigned depth) {
+    if (!type) return false;
+    if (depth >= 64 || type->base_type==TYPE_ARRAY ||
+        cb_type_has_array(type->element_type, depth+1) ||
+        cb_signature_has_array(type->fn_sig, depth+1)) return true;
+    for(int i=0;i<type->type_param_count;i++)
+        if(type->type_params && cb_type_has_array(type->type_params[i], depth+1)) return true;
+    for(int i=0;i<type->tuple_element_count;i++)
+        if(type->tuple_types && type->tuple_types[i]==TYPE_ARRAY) return true;
+    for(int i=0;i<type->row_field_count;i++)
+        if(type->row_field_types && type->row_field_types[i]==TYPE_ARRAY) return true;
+    return false;
+}
+static bool cb_node_has_array(const ASTNode *node) {
+    switch(node->type) {
+    case AST_ARRAY_LITERAL: return true;
+    case AST_LET:
+        return node->as.let.var_type==TYPE_ARRAY || cb_type_has_array(node->as.let.type_info,0) ||
+               cb_signature_has_array(node->as.let.fn_sig,0);
+    case AST_FUNCTION:
+        if(node->as.function.return_type==TYPE_ARRAY || cb_type_has_array(node->as.function.return_type_info,0) ||
+           cb_signature_has_array(node->as.function.return_fn_sig,0)) return true;
+        for(int i=0;i<node->as.function.param_count;i++) {
+            const Parameter *p=&node->as.function.params[i];
+            if(p->type==TYPE_ARRAY || cb_type_has_array(p->type_info,0) || cb_signature_has_array(p->fn_sig,0)) return true;
+        }
+        return false;
+    case AST_STRUCT_DEF:
+        for(int i=0;i<node->as.struct_def.field_count;i++)
+            if(node->as.struct_def.field_types[i]==TYPE_ARRAY ||
+               (node->as.struct_def.field_type_info && cb_type_has_array(node->as.struct_def.field_type_info[i],0))) return true;
+        return false;
+    case AST_UNION_DEF:
+        for(int v=0;v<node->as.union_def.variant_count;v++)
+            for(int i=0;i<node->as.union_def.variant_field_counts[v];i++)
+                if(node->as.union_def.variant_field_types[v][i]==TYPE_ARRAY ||
+                   (node->as.union_def.variant_field_type_info && node->as.union_def.variant_field_type_info[v] &&
+                    cb_type_has_array(node->as.union_def.variant_field_type_info[v][i],0))) return true;
+        return false;
+    case AST_FIELD_ACCESS: return cb_type_has_array(node->as.field_access.resolved_type_info,0);
+    case AST_CALL: return cb_signature_has_array(node->as.call.checked_signature,0);
+    default: return false;
+    }
+}
+static int cb_array_refusal(CBCtx *c) {
+    ctx_error(c,"I do not provide an array value or call ABI in this C profile.");
+    return -1;
+}
+
 /* I refuse unimplemented semantics before publishing staged C. */
 static int ctx_profile_node(CBCtx *c, const ASTNode *node) {
     if (!node) return 0;
+    if (cb_node_has_array(node)) return cb_array_refusal(c);
     if (node->lambda_definition ||
         (node->type == AST_FUNCTION && node->as.function.is_anonymous)) {
         ctx_error(c, "I do not provide anonymous or captured callable C lowering.");
@@ -321,6 +384,7 @@ static ASTNode *ctx_function_union(CBCtx *c, ASTNode *function) {
 }
 
 static int emit_result_type(CBCtx *c, ASTNode *function) {
+    if (ctx_profile_node(c, function)) return -1;
     Type type = function->as.function.return_type;
     if (type == TYPE_UNION) {
         ASTNode *owner = ctx_function_union(c, function);
@@ -477,6 +541,44 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
 }
 
 /* I admit only value forms whose complete union identity I can establish. */
+/* Exact registered array families; ordinary bindings/declarations win. */
+static bool cb_array_builtin(const char *name) {
+    static const char *const names[]={"str_split","array_length","array_new","array_set","at",
+        "array_get","array_push","array_pop","array_remove_at","array_slice","array_concat",
+        "array_map","array_filter","array_fold","array_sort","array_reverse","array_contains",
+        "array_index_of","filter","map","reduce"};
+    if(!name)return false;
+    for(size_t i=0;i<sizeof names/sizeof names[0];i++)if(!strcmp(name,names[i]))return true;
+    return false;
+}
+static int cb_array_use(CBCtx *c, ASTNode *node) {
+    if(infer_expr_type(c,node)==TYPE_ARRAY)return cb_array_refusal(c);
+    if(node->type==AST_CALL) {
+        const char *name=node->as.call.name;
+        if(name && !node->as.call.func_expr && !node->as.call.checked_signature &&
+           !ctx_has_binding(c,name) && !ctx_function(c,name) && cb_array_builtin(name))return cb_array_refusal(c);
+        for(int i=0;i<node->as.call.arg_count;i++)
+            if(infer_expr_type(c,node->as.call.args[i])==TYPE_ARRAY)return cb_array_refusal(c);
+    }
+    if(node->type==AST_MODULE_QUALIFIED_CALL) {
+        for(int i=0;i<node->as.module_qualified_call.arg_count;i++)
+            if(infer_expr_type(c,node->as.module_qualified_call.args[i])==TYPE_ARRAY)return cb_array_refusal(c);
+        const char *alias=node->as.module_qualified_call.module_alias;
+        const char *name=node->as.module_qualified_call.function_name;
+        char target[512];
+        int length=alias && name ? snprintf(target,sizeof target,"%s_%s",alias,name) :
+                   name ? snprintf(target,sizeof target,"%s",name) : -1;
+        ASTNode *decl=length>=0 && (size_t)length<sizeof target ? ctx_function(c,target) : NULL;
+        if(decl && cb_node_has_array(decl))return cb_array_refusal(c);
+        /* I preserve the exact emitted declaration identity. This AST form
+         * otherwise retains no checked signature for an array-family call. */
+        if(!decl && cb_array_builtin(name)) {
+            ctx_error(c,"I require a retained exact signature for this qualified C array-family call.");return -1;
+        }
+    }
+    return 0;
+}
+
 static ASTNode *ctx_union_value(CBCtx *c, ASTNode *value) {
     if (!value) { ctx_error(c, "I require a C union result value."); return NULL; }
     if (value->type == AST_STRUCT_LITERAL && value->as.struct_literal.struct_name && c->root) {
@@ -723,7 +825,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         ctx_error(c, "I require a supported statement insertion context for this C value.");
         return -1;
     }
-    if (ctx_profile_node(c, node)) return -1;
+    if (ctx_profile_node(c, node) || cb_array_use(c, node)) return -1;
     switch (node->type) {
     case AST_NUMBER:
         emit_signed_bits(c, (uint64_t)node->as.number);
@@ -1110,16 +1212,6 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
                     return -1;
             }
             fputc('}', c->out);
-        }
-        fputc('}', c->out);
-        return 0;
-    }
-
-    case AST_ARRAY_LITERAL: {
-        fputc('{', c->out);
-        for (int i = 0; i < node->as.array_literal.element_count; i++) {
-            if (i > 0) fputs(", ", c->out);
-            if (emit_expr(c, node->as.array_literal.elements[i])) return -1;
         }
         fputc('}', c->out);
         return 0;
@@ -1637,6 +1729,7 @@ static int emit_block_body(CBCtx *c, ASTNode *node) {
 
 /* ── Type definitions ─────────────────────────────────────────────────────── */
 static void emit_struct_def(CBCtx *c, ASTNode *node) {
+    if (ctx_profile_node(c, node)) return;
     if (node->as.struct_def.is_extern) return;
     fprintf(c->out, "typedef struct {\n");
     for (int i = 0; i < node->as.struct_def.field_count; i++) {
@@ -1676,6 +1769,7 @@ static void emit_enum_def(CBCtx *c, ASTNode *node) {
 }
 
 static void emit_union_def(CBCtx *c, ASTNode *node) {
+    if (ctx_profile_node(c, node)) return;
     if (node->as.union_def.is_extern) return;
     const char *uname = node->as.union_def.name;
     bool has_payload = false;
