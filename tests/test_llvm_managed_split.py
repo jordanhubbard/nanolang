@@ -123,8 +123,8 @@ int main(void){return run();}
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',wasm]).stdout, '0\n')
 
     def test_unsupported_mutation_refusals_preserve_output(self):
-        for op in ('ARR_NEW 7\nPOP\n', 'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_NEW 1\nARR_PUSH\nPOP\n',
-                   'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_I64 0\nARR_NEW 1\nARR_SET\nPOP\n'):
+        for op in ('ARR_NEW 1\nARR_NEW 7\nARR_PUSH\nPOP\n', 'ARR_NEW 1\nPUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_PUSH\nPOP\n',
+                   'ARR_NEW 1\nPUSH_I64 0\nARR_NEW 1\nARR_SET\nPOP\n'):
             asm, mod, output = self.work/'refuse.nasm', self.work/'refuse.nvm', self.work/'old.ll'
             asm.write_text(self.program(op)); self.run_cmd([ROOT/'bin/nanoisa','asm',asm,'-o',mod])
             output.write_text('previous output')
