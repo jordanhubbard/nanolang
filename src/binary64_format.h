@@ -29,8 +29,9 @@ NL_BINARY64_FORMAT_HELPERS
 #define NL_FORMAT_STRINGIFY_INNER(...) #__VA_ARGS__
 #define NL_FORMAT_STRINGIFY(...) NL_FORMAT_STRINGIFY_INNER(__VA_ARGS__)
 #define NL_BINARY64_FORMAT_SOURCE \
+    "#ifndef NANOLANG_BINARY64_FORMAT_H\n#define NANOLANG_BINARY64_FORMAT_H\n" \
     "#include <float.h>\n#include <stdint.h>\n#include <stdio.h>\n#include <string.h>\n" \
     "#if FLT_RADIX != 2 || DBL_MANT_DIG != 53 || DBL_MAX_EXP != 1024 || DBL_MIN_EXP != -1021\n" \
     "#error \"I require binary64 formatting storage.\"\n#endif\n" \
-    NL_FORMAT_STRINGIFY(NL_BINARY64_FORMAT_HELPERS) "\n"
+    NL_FORMAT_STRINGIFY(NL_BINARY64_FORMAT_HELPERS) "\n#endif\n"
 #endif

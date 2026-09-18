@@ -600,6 +600,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
 
 /* Generate string operations */
 void generate_string_operations(StringBuilder *sb) {
+    sb_append(sb, NL_BINARY64_FORMAT_SOURCE);
     sb_append(sb, "/* ========== Advanced String Operations ========== */\n\n");
     
     /* char_at - use strnlen for safety */
