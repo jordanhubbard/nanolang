@@ -39,6 +39,7 @@ typedef struct {
     char        prefix[64];
     size_t      operand_slots;
     Type        return_type;
+    bool        has_globals;
     int         indent;
     bool        verbose;
     const char *error;
@@ -1181,6 +1182,25 @@ static void emit_union_def(CBCtx *c, ASTNode *node) {
 }
 
 /* ── Function emitter ─────────────────────────────────────────────────────── */
+static int emit_staged_body(CBCtx *c, FILE *body, FILE *destination) {
+    if (c->operand_slots) fprintf(c->out, "  double %sl[%zu], %sr[%zu];\n",
+                                  c->prefix, c->operand_slots, c->prefix, c->operand_slots);
+    if (fflush(body) != 0 || fseek(body, 0, SEEK_SET) != 0) {
+        ctx_error(c, "I could not rewind a C function body."); fclose(body); return -1;
+    }
+    char chunk[8192];
+    size_t got;
+    while ((got = fread(chunk, 1, sizeof chunk, body)) != 0) {
+        if (fwrite(chunk, 1, got, destination) != got) {
+            ctx_error(c, "I could not publish a staged C function body."); break;
+        }
+    }
+    if (ferror(body)) ctx_error(c, "I could not read a staged C function body.");
+    if (fclose(body) != 0) ctx_error(c, "I could not close a staged C function body.");
+    if (c->error) return -1;
+    return 0;
+}
+
 static int emit_function(CBCtx *c, ASTNode *node) {
     if (node->as.function.is_extern) return 0;
 
@@ -1224,6 +1244,8 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     }
 
     c->indent = 1;
+    if (c->has_globals && strcmp(node->as.function.name, "main") == 0)
+        fprintf(c->out, "  %sinit();\n", c->prefix);
     if (node->as.function.body) {
         if (node->as.function.body->type == AST_BLOCK) {
             for (int i = 0; i < node->as.function.body->as.block.count; i++) {
@@ -1246,21 +1268,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
 
     ctx_pop_scope(c);
     c->out = destination;
-    if (c->operand_slots) fprintf(c->out, "  double %sl[%zu], %sr[%zu];\n",
-                                  c->prefix, c->operand_slots, c->prefix, c->operand_slots);
-    if (fflush(body) != 0 || fseek(body, 0, SEEK_SET) != 0) {
-        ctx_error(c, "I could not rewind a C function body."); fclose(body); return -1;
-    }
-    char chunk[8192];
-    size_t got;
-    while ((got = fread(chunk, 1, sizeof chunk, body)) != 0) {
-        if (fwrite(chunk, 1, got, destination) != got) {
-            ctx_error(c, "I could not publish a staged C function body."); break;
-        }
-    }
-    if (ferror(body)) ctx_error(c, "I could not read a staged C function body.");
-    if (fclose(body) != 0) ctx_error(c, "I could not close a staged C function body.");
-    if (c->error) return -1;
+    if (emit_staged_body(c, body, destination)) return -1;
     c->indent = 0;
     fputs("}\n\n", c->out);
     return 0;
@@ -1314,6 +1322,36 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
     if (count > 0) fputc('\n', c->out);
 }
 
+static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
+    FILE *destination = c->out;
+    FILE *body = tmpfile();
+    if (!body) { ctx_error(c, "I could not stage scalar global initialization."); return -1; }
+    c->out = body;
+    c->operand_slots = 0;
+    c->return_type = TYPE_VOID;
+    fprintf(c->out, "  static int %sinitialized;\n  if (%sinitialized) return;\n  %sinitialized = 1;\n",
+            c->prefix, c->prefix, c->prefix);
+    for (int i = 0; i < count; ++i) {
+        ASTNode *item = items[i];
+        if (!item || item->type != AST_LET || !item->as.let.value) continue;
+        Type expected = item->as.let.var_type;
+        Type actual = infer_expr_type(c, item->as.let.value);
+        if (actual == TYPE_UNKNOWN || (actual != expected && !(expected == TYPE_FLOAT && actual == TYPE_INT))) {
+            ctx_error(c, "I require a resolved compatible scalar global initializer.");
+            break;
+        }
+        fprintf(c->out, "  %s = ", item->as.let.name);
+        if (emit_expr(c, item->as.let.value)) break;
+        fputs(";\n", c->out);
+    }
+    c->out = destination;
+    if (c->error) { fclose(body); return -1; }
+    fprintf(c->out, "static void %sinit(void) {\n", c->prefix);
+    if (emit_staged_body(c, body, destination)) return -1;
+    fputs("}\n\n", c->out);
+    return 0;
+}
+
 /* ── Top-level program emitter ───────────────────────────────────────────── */
 static int emit_program(CBCtx *c, ASTNode *root) {
     ASTNode **items = NULL;
@@ -1339,8 +1377,30 @@ static int emit_program(CBCtx *c, ASTNode *root) {
         }
     }
 
-    /* Pass 2: forward declarations */
+    /* I declare exact scalar storage before prototypes and ordered startup. */
+    c->has_globals = false;
+    for (int i = 0; i < count; ++i) {
+        ASTNode *item = items[i];
+        if (!item || item->type != AST_LET) continue;
+        Type type = item->as.let.var_type;
+        if (type != TYPE_INT && type != TYPE_FLOAT && type != TYPE_BOOL && type != TYPE_STRING) {
+            ctx_error(c, "I require a supported exact scalar C global binding."); return -1;
+        }
+        ctx_add_sym(c, item->as.let.name, type);
+        fprintf(c->out, "static %s %s;\n", c_type(type), item->as.let.name);
+        c->has_globals = true;
+    }
+    if (c->has_globals && !ctx_function(c, "main")) {
+        ctx_error(c, "I require a hosted main for ordered C global initialization."); return -1;
+    }
+    ASTNode *main_function = ctx_function(c, "main");
+    if (main_function && (main_function->as.function.return_type != TYPE_INT || main_function->as.function.param_count != 0)) {
+        ctx_error(c, "I require main()->int for this hosted C entry."); return -1;
+    }
+
+    /* Pass 2: forward declarations precede calls in global initializers. */
     emit_forward_decls(c, root);
+    if (c->has_globals && emit_global_initializer(c, items, count)) return -1;
 
     /* Pass 3: function definitions */
     for (int i = 0; i < count; i++) {
@@ -1369,6 +1429,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.out = out;
     c.root = root;
     c.verbose = opts ? opts->verbose : false;
+    snprintf(c.prefix, sizeof c.prefix, "nano_cb_plan_");
     if (!root) ctx_error(&c, "I require a program AST.");
     FILE *plan = NULL;
     char *text = NULL;
@@ -1381,6 +1442,8 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
         c.planning = true;
         if (emit_program(&c, root) != 0 && !c.error)
             ctx_error(&c, "I could not plan this C program.");
+        if (opts && opts->no_main && c.has_globals)
+            ctx_error(&c, "I require an initialization entry for scalar C globals.");
         long length = -1;
         if (!c.error && fflush(plan) == 0) length = ftell(plan);
         if (length < 0 || (uintmax_t)length >= SIZE_MAX)
