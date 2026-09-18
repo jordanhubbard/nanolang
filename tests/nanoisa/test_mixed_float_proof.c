@@ -23,7 +23,8 @@ static NvmModule *build(const char *body,const Type *locals,unsigned count,const
     char *text=malloc(size);CHECK(text);
     snprintf(text,size,".types 4 0 0\n.entry main\n.function main 0 %u 0 int 1\n%s.end\n%s",count,body,helpers?helpers:"");
     AsmResult err;NvmModule *m=asm_assemble_unverified(text,&err);free(text);
-    if(!m)fprintf(stderr,"assembly: %s\n",err.message);CHECK(m);
+    if(!m)fprintf(stderr,"assembly: %s\n",err.message);
+    CHECK(m);
     NvmV2LayoutField integer={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2LayoutField array={TAG_ARRAY,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2LayoutField child={TAG_STRUCT,1,NVM_V2_NO_INDEX};
@@ -143,7 +144,8 @@ static void refusal_cases(void) {
 }
 static void budgets_and_calls(void) {
     char *body=calloc(50000,1);CHECK(body);
-    for(unsigned i=0;i<65;i++)strcat(body,"ARR_NEW 3\nPOP\n");strcat(body,"PUSH_I64 0\nRET\n");
+    for(unsigned i=0;i<65;i++)strcat(body,"ARR_NEW 3\nPOP\n");
+    strcat(body,"PUSH_I64 0\nRET\n");
     NvmModule *m=build(body,NULL,0,NULL,false);expect(m,NVM_MIXED_SHAPE_LIMIT);nvm_module_free(m);
     body[0]=0;for(unsigned i=0;i<4097;i++)strcat(body,"NOP\n");strcat(body,"PUSH_I64 0\nRET\n");
     m=build(body,NULL,0,NULL,false);expect(m,NVM_MIXED_SHAPE_LIMIT);nvm_module_free(m);
