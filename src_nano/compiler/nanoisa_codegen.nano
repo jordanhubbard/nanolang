@@ -149,20 +149,22 @@ fn nisa_ordinary_graph(parser: Parser) -> bool {
         if (!= (nisa_ordinary_record_index parser (parser_get_struct_def parser i).name) i) { return false }
         set colors (array_push colors 0)
         set next_fields (array_push next_fields 0)
+        set stack (array_push stack 0)
         set i (+ i 1)
     }
     let mut root: int = 0
     while (< root count) {
         if (== (at colors root) 0) {
             (array_set colors root 1)
-            set stack (array_push stack root)
-            while (> (array_length stack) 0) {
-                let current: int = (at stack (- (array_length stack) 1))
+            (array_set stack 0 root)
+            let mut depth: int = 1
+            while (> depth 0) {
+                let current: int = (at stack (- depth 1))
                 let record: ASTStruct = (parser_get_struct_def parser current)
                 let field: int = (at next_fields current)
                 if (>= field record.field_count) {
                     (array_set colors current 2)
-                    set stack (array_slice stack 0 (- (array_length stack) 1))
+                    set depth (- depth 1)
                 } else {
                     (array_set next_fields current (+ field 1))
                     let t: string = (at record.field_types field)
@@ -172,7 +174,8 @@ fn nisa_ordinary_graph(parser: Parser) -> bool {
                         if (== (at colors child) 1) { return false }
                         if (== (at colors child) 0) {
                             (array_set colors child 1)
-                            set stack (array_push stack child)
+                            (array_set stack depth child)
+                            set depth (+ depth 1)
                         }
                     }
                 }
