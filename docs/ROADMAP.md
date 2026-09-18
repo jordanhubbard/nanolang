@@ -1,6 +1,8 @@
 # My Roadmap
 
-- [ ] I enforce declared key/value tags before ordinary VM map writes (`task_b19f8bf0527d4a33911be26706629616`). HM_NEW records tags and key/value extraction publishes typed arrays, while native writes already check their supported value tags. I require exact HM_SET tags before mutation, release consumed owners on refusal and retain aliases/prior contents; lookup/delete and native non-string-key admission stay separate. [Contract](NANOISA_MAP_DECLARED_TAGS.md).
+- [ ] I handle hashmap allocation failures explicitly (`task_bc7264a337074246953284ef892785d2`). My heap constructor returns NULL but HM_NEW does not check before publishing; my void heap setter silently returns after failed resize. I need checked failure propagation with unchanged prior contents and owner cleanup. This static finding is separate from declared-tag checking; I have not run a failure reproducer.
+
+- [x] I enforce declared key/value tags before ordinary VM map writes (`task_b19f8bf0527d4a33911be26706629616`). HM_NEW records tags and key/value extraction publishes typed arrays, while native writes already check their supported value tags. I require exact HM_SET tags before mutation, release consumed owners on refusal and retain aliases/prior contents; lookup/delete and native non-string-key admission stay separate. The VM gate passes 274,493 checks; seven paired methods and 77 focused VM ownership checks pass with GCC/Clang sanitizers. [Contract and evidence](NANOISA_MAP_DECLARED_TAGS.md).
 
 - [x] I check declared U8 results at my current native runtime boundary (`task_1dfec6598e464afbbcdeb1885a3694b6`). Boxed result transport admits translation while the exact return tag guard remains. I retain the older test mismatch, require precise native invariant termination without sanitizer errors, and pass the combined Wasm39 gate plus targeted Clang control. [Evidence](NANOISA_LLVM_ENUM_SCALARS.md).
 
