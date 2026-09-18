@@ -10034,6 +10034,11 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [ ] I match consuming managed STR_REPLACE with checked byte sizing,
+      bounded reclaiming scratch/final copy and three-owner alias cleanup.
+      MAC `task_4930450b7e4f483f91d47f2e24707f3e`; my
+      [replacement contract](NANOISA_MANAGED_REPLACE.md) requires paired targets,
+      allocation stages and table growth after VM prerequisite6b3.
 - [x] I check VM STR_REPLACE result arithmetic, scratch size and allocation
       before publication, preserving stored-byte replacement and three-owner
       cleanup. MAC `task_6b3d7306179f4a7786adbd29b9acbe6c`; my
