@@ -48,7 +48,12 @@ class OrdinaryAuthority(unittest.TestCase):
                         self.command([binary])
                 self.command([ROOT/'bin/nano_vm',module])
                 for tool in ('nvm2llvm','nvm2wasm'):
-                    output=work/'prior';output.write_bytes(b'prior')
-                    self.command([ROOT/'bin'/tool,module,'-o',output],False)
-                    self.assertEqual(output.read_bytes(),b'prior')
+                    output=work/('ordinary.ll' if tool=='nvm2llvm' else 'ordinary.wasm')
+                    self.command([ROOT/'bin'/tool,module,'-o',output])
+                    if tool=='nvm2wasm':
+                        self.assertEqual(self.command(['wasmtime','run','--invoke','nano_entry',output]).stdout,'0\n')
+                    else:
+                        binary=work/'ordinary-llvm'
+                        self.command(['clang',*shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS','')),output,'-o',binary])
+                        self.command([binary])
 if __name__=='__main__':unittest.main()
