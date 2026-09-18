@@ -4563,3 +4563,16 @@ test-artifact-string-release: nanoisa_dump nano_vm nvm2c
 test-units: test-native-underscore-bindings
 test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
 	python3 -m unittest -v tests.test_native_underscore_bindings
+
+.PHONY: test-advisory-metadata
+test-units: test-advisory-metadata
+test-advisory-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_advisory_metadata tests/nanoisa/test_advisory_metadata.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_advisory_metadata
+	@python3 -m unittest tests.test_advisory_metadata
+
+test-advisory-metadata: test-advisory-metadata-alloc
+.PHONY: test-advisory-metadata-alloc
+test-advisory-metadata-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_advisory_metadata_alloc tests/nanoisa/test_advisory_metadata_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_advisory_metadata_alloc

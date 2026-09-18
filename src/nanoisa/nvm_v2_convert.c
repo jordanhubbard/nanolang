@@ -60,7 +60,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
-    if (!nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
+    if (!nvm_metadata_valid(mod) || !nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
         !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
     bool needs_ownership = false;
     NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
@@ -78,8 +78,17 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     const bool has_source = mod->source_file_idx != 0 &&
                             mod->source_file_idx < mod->string_count;
 
-    /* CONSTANTS: every v1 string, plus the metadata key when it is needed. */
-    uint32_t n_ck = mod->string_count + (has_source ? 1u : 0u);
+    bool explicit_source = false;
+    uint32_t key_idx = NVM_V2_NO_INDEX;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i)
+        if (nvm_metadata_source_key(mod, mod->metadata[i].key_idx)) explicit_source = true;
+    const bool synthesize_source = has_source && !explicit_source;
+    if (synthesize_source)
+        for (uint32_t i = 0; i < mod->string_count; ++i)
+            if (nvm_metadata_source_key(mod, i)) { key_idx = i; break; }
+    bool append_key = synthesize_source && key_idx == NVM_V2_NO_INDEX;
+    if (append_key && mod->string_count == UINT32_MAX) return NVM_V2_ERR_INDEX_RANGE;
+    uint32_t n_ck = mod->string_count + (append_key ? 1u : 0u);
     NvmV2Constant *ck = n_ck ? calloc(n_ck, sizeof *ck) : NULL;
     if (n_ck && !ck) return NVM_V2_ERR_TRUNCATED;
     for (uint32_t i = 0; i < mod->string_count; i++) {
@@ -87,8 +96,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         ck[i].length = mod->string_lengths ? mod->string_lengths[i] : 0;
         ck[i].payload = (const uint8_t *)mod->strings[i];
     }
-    uint32_t key_idx = NVM_V2_NO_INDEX;
-    if (has_source) {
+    if (append_key) {
         key_idx = mod->string_count;
         ck[key_idx].tag = TAG_STRING;
         ck[key_idx].length = (uint32_t)(sizeof SOURCE_FILE_KEY - 1);
@@ -249,13 +257,17 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     out->debug.count = n_db;
     out->has_debug   = n_db > 0;
 
-    if (has_source) {
-        NvmV2MetadataEntry *md = calloc(1, sizeof *md);
+    if (synthesize_source && mod->metadata_count == UINT32_MAX) goto oom;
+    uint32_t metadata_count = mod->metadata_count + (synthesize_source ? 1u : 0u);
+    if (metadata_count) {
+        NvmV2MetadataEntry *md = calloc(metadata_count, sizeof *md);
         if (!md) goto oom;
-        md[0].key_idx   = key_idx;
-        md[0].value_idx = mod->source_file_idx;
+        for (uint32_t i = 0; i < mod->metadata_count; ++i)
+            md[i] = (NvmV2MetadataEntry){mod->metadata[i].key_idx, mod->metadata[i].value_idx};
+        if (synthesize_source)
+            md[mod->metadata_count] = (NvmV2MetadataEntry){key_idx, mod->source_file_idx};
         out->metadata.items = md;
-        out->metadata.count = 1;
+        out->metadata.count = metadata_count;
     }
 
     /* v1 records only how many structs, enums and unions a module defines --
@@ -322,7 +334,6 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     /* The constant pool must map one-to-one onto the v1 string pool, in order,
      * or every recorded index shifts. A non-string constant has no v1
      * representation at all, so it is refused rather than dropped. */
-    uint32_t source_file_idx = 0;
     for (uint32_t i = 0; i < m->constants.count; i++) {
         const NvmV2Constant *c = &m->constants.items[i];
         if (c->tag != TAG_STRING) {
@@ -338,12 +349,11 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
 
     for (uint32_t i = 0; i < m->metadata.count; i++) {
         const NvmV2MetadataEntry *e = &m->metadata.items[i];
-        const NvmV2Constant *k = &m->constants.items[e->key_idx];
-        if (k->length == sizeof SOURCE_FILE_KEY - 1 &&
-            memcmp(k->payload, SOURCE_FILE_KEY, k->length) == 0)
-            source_file_idx = e->value_idx;
+        if (!nvm_add_metadata(mod, e->key_idx, e->value_idx)) {
+            nvm_module_free(mod);
+            return NVM_V2_ERR_INDEX_RANGE;
+        }
     }
-    mod->source_file_idx = source_file_idx;
 
     if (m->code_size) {
         if (m->code_size > UINT32_MAX) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }

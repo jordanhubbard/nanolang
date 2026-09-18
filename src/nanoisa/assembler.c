@@ -839,6 +839,25 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return false;
         }
 
+        if (strcmp(directive, "metadata") == 0) {
+            uint32_t key, value;
+            if (state->in_function || !parse_uint32(&p, &key) ||
+                !parse_uint32(&p, &value) || key >= state->mod->string_count ||
+                value >= state->mod->string_count || !require_line_end(p, result)) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof result->message,
+                         "I require two declared string indices outside functions for metadata");
+                return false;
+            }
+            if (!nvm_add_metadata(state->mod, key, value)) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof result->message,
+                         "I cannot retain this advisory metadata entry");
+                return false;
+            }
+            return true;
+        }
+
         /* I append lossless metadata chunks; normal verification checks the graph. */
         if (strcmp(directive, "par_begin") == 0 || strcmp(directive, "par_node") == 0 ||
             strcmp(directive, "par_end") == 0)

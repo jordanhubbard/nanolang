@@ -11,6 +11,9 @@ API updates that view; serialization refuses a contradictory independently
 modified view. With no explicit source entry, I preserve the existing legacy
 source-file behavior by synthesizing one pair. I reuse an existing key string.
 
+I strip all source-file entries when explicitly stripping debug information,
+while retaining unrelated advisory entries.
+
 I preserve unknown keys without interpreting them. Advisory entries never grant
 ownership authority, pure-call eligibility, capabilities, or execution support.
 My typed ownership and passive verifiers remain authoritative.

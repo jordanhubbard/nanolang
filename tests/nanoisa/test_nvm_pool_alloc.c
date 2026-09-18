@@ -112,6 +112,22 @@ int main(void) {
         assert(m->callback_contract_count == 9);
         nvm_module_free(m);
     }
-    puts("I passed pool, signature, and callback contract allocation failure/recovery scenarios.");
+    {
+        NvmModule *m = nvm_module_new(); assert(m);
+        uint32_t key = nvm_add_string(m, "nano.source_file", 16);
+        uint32_t old_value = nvm_add_string(m, "old", 3);
+        uint32_t new_value = nvm_add_string(m, "new", 3);
+        for (int i = 0; i < 8; ++i) assert(nvm_add_metadata(m, key, old_value));
+        NvmMetadataEntry *old = m->metadata;
+        fail_at = 1;
+        assert(!nvm_add_metadata(m, key, new_value));
+        fail_at = 0;
+        assert(m->metadata == old && m->metadata_count == 8 && m->source_file_idx == old_value);
+        for (int i = 0; i < 8; ++i) assert(m->metadata[i].value_idx == old_value);
+        assert(nvm_add_metadata(m, key, new_value));
+        assert(m->metadata_count == 9 && m->source_file_idx == new_value);
+        nvm_module_free(m);
+    }
+    puts("I passed pool, signature, callback and metadata allocation failure/recovery scenarios.");
     return 0;
 }
