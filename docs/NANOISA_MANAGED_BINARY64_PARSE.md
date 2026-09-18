@@ -15,9 +15,17 @@ or immediately after the point. I introduce no locale/rounding mutation.
 For finite values I retain 800 significant decimal digits or 32 hexadecimal
 digits plus a sticky nonzero suffix bit. Every binary64 rounding midpoint is
 a dyadic number with at most 54 numerator bits and denominator at most 2^1075;
-its finite decimal coefficient has fewer than 800 significant digits. Thus the
-retained prefix cannot cross a midpoint except an exact tie, where sticky makes
-it strictly above. The hexadecimal bound likewise exceeds midpoint precision.
+for a negative binary exponent its decimal coefficient is less than
+2^54 * 5^1075. I bound 2^54 < 10^17 and
+5^1075 = (5^10)^107 * 5^5 < 10^749 * 10^4 = 10^753,
+so that coefficient has at most 770 significant decimal digits. Midpoints
+with nonnegative binary exponent have at most 309 decimal digits. Both bounds
+are strictly below my 800 retained digits. A midpoint cannot lie strictly
+inside the decimal interval selected by that prefix: it would need more than
+800 significant digits. A finite discarded tail cannot reach the upper
+endpoint. Only an exact lower-endpoint tie needs the sticky bit to distinguish
+an exact tie from a value strictly above it. The 32 hexadecimal digits retain
+128 bits, likewise more than the 54 significant midpoint bits.
 I count omitted/fractional digits and saturate enormous explicit exponents far
 beyond any cancellation possible within a uint32 byte length.
 

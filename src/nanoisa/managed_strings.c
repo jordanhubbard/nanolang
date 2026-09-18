@@ -1,5 +1,5 @@
-/* I retain byte strings with context-local handles. No opcode/profile calls
- * this core yet; my later lowering must supply frame/global cleanup. */
+/* I retain byte strings with context-local handles. My managed lowering
+ * supplies frame/global ownership and cleanup around this allocator core. */
 #include "managed_strings.h"
 #include "binary64_parse.h"
 #include <limits.h>
