@@ -78,3 +78,9 @@ hashes, before starting. I use this explicit PATH for every phase; I do not
 change shell startup files or install another LLVM. My source pin, test methods,
 assertions, sanitizer/LTO requirements and deadlines remain unchanged. I stop
 on the first new failure and preserve all previous terminal reports.
+
+I retain both terminal prerequisite outcomes and installation logs in
+[evidence](evidence/darwin-arithmetic-graphs-732/sealed-prerequisite-manifest.json).
+The coordinator copied the sealed files over SSH and independently verified
+every SHA256 against the peer report. No test method passed in either run;
+the task remains open for the newly selected LLVM toolchain qualification.
