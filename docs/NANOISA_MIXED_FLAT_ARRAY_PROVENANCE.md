@@ -223,3 +223,28 @@ ARR_GET obligation, and feeding it to F64 records an unsatisfied exact-FLOAT inp
 obligation. Generic comparisons retain actual scalar alternatives for later
 runtime checking. Report fields never establish scalar-check discharge. I perform
 no runtime checks or execution in this phase.
+
+## My prereview scope clarification
+
+I narrow opaque owner field modeling to the existing executable INT/BOOL/U8
+scalar-leaf subset. FLOAT remains available for ordinary managed fields and scalar
+proof values, but a resource signature/construction with FLOAT fields is unresolved
+here. This avoids implying new owner-field authority from private shape modeling.
+
+NvmModule has no global-declaration count. My explicit opcode inventory refuses
+LOAD_GLOBAL and STORE_GLOBAL everywhere, including unreachable instructions; I do
+not infer absence of global access from a nonexistent header field. All unused
+functions receive declared input states, and every instruction must have a reached,
+checked state before certificate publication. An unvisited instruction is unresolved.
+
+I statically map unchanged Samples/PREFIX to existing emitter operations: the
+ordinary routes emit PUSH_F64 then ARR_LITERAL3 for its literal, AGG_PACK kind0
+for Samples, local stores/loads for record/values/alias, AGG_GET0 for values,
+PUSH_I64 and ARR_GET for at, then F64_EQ or generic EQ and ASSERT. The consuming
+close/shadow routes use OWN_PACK, OWN_STORE_LOCAL/OWN_MOVE_LOCAL as needed,
+OWN_UNPACK_LOCAL, scalar local transfers, CALL, EQ/ASSERT, POP and RET; scalar
+entry/shadow results use PUSH_I64. Those operations are in this query's inventory.
+This is a source inspection of ordinary codegen.c/nanoisa_codegen.nano and owned
+borrow_codegen.inc/nanoisa_borrows.nano, not an emitted mixed artifact: current
+source profile guards still refuse the combined Samples module. I preserve that
+honest boundary until later paired source admission.
