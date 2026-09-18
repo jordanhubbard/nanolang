@@ -8,5 +8,17 @@
   "failure": "exec /usr/local/bin/opam: exec format error",
   "proof_compilation_started": false,
   "pinned_image": "rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2",
-  "peer_status": "queued"
+  "peer_status": "passed",
+  "peer": {
+    "source": "ece241ba56c34ae6e47639cd7d618f43f20ba25d",
+    "exit_code": 0,
+    "seconds": 224.41,
+    "assumption_reports_closed": 43,
+    "log": "product-formal-ece241ba-darwin.log",
+    "log_sha256": "f78c798815337a28e19764774d8067463316b956506c6ec2b86c8ce17a848347",
+    "report": "product-formal-ece241ba-darwin.txt",
+    "report_sha256": "d03899357444473b29575e2d622f7e1fb90510ca4eb31472e9c78262310ee98e",
+    "script_sha256": "3093399e2a9f7bed1cd72b992a0f71c50ac66da17e4973e20e64bf0d75c31c43",
+    "production_correspondence": false
+  }
 }
