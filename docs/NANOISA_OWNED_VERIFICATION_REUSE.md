@@ -96,7 +96,7 @@ qualify the full instrumented corpus.
 ## Public invocation runtime proof proposal
 
 I propose this runtime change only after the timed diagnostic at f78705c4 and
-its recorded outcome at 749ffb27. I have not implemented it. The investigation
+its recorded outcome at 749ffb27. This proposal precedes production071c126c. The investigation
 remains task_5b3e7272ec3f4ae9ad8eb8ffb15a3565, a prerequisite of my graph task.
 
 I keep a private proof on the C invocation stack, never in VmState, NvmModule,
@@ -178,3 +178,7 @@ allocation/preflight controls must continue to pass. The next timed corrected
 case will use a new executable and artifact directory; all earlier 60-second
 artifacts remain untouched. Full instrumented qualification remains separate
 and incomplete until its unchanged corpus actually completes.
+
+My reviewed runtime implementation071c126c is now qualified at integrated42ce55c2.
+The complete unchanged instrumented corpus passes in230.119 seconds; exact
+pins and retained historical outcomes are in [my evidence](evidence/owned-value-call-graphs.md).

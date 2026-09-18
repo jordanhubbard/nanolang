@@ -1,5 +1,9 @@
 # My bounded owned value-call graph evidence
 
+My final integrated qualification at42ce55c2 passes all listed ordinary and
+instrumented gates. I preserve earlier incomplete outcomes below as history;
+they are not the final acceptance result. The last section records exact pins.
+
 I track `task_4ce5cfc5b8034949852255d7307c9f91` under the unchanged affine
 example blocker `task_c4351c720aee424ea9b90187e51a08f2`. My reviewed contract
 is [the first runtime prerequisite](../NANOISA_AFFINE_EXAMPLE_PREREQUISITES.md).
@@ -38,7 +42,7 @@ found the old verifier diagnostic assertion still expecting an entry-to-helper
 message. It now requires the new checked-acyclic-call diagnostic; the same
 refusal remains required.
 
-My current ordinary full run is
+My original ordinary full run is
 `/tmp/nanolang-owned-value-graph-full.log`. The new paired gate passes 1847
 checks plus 338 preflight checks. Each of ten native cases uses strict C
 warnings, ASan/UBSan/LSan, repeated invocation and injected owner allocation
@@ -150,7 +154,7 @@ My final production246f existing full regression run also completes successfully
 274541 VM checks, 2422 native checks, and 1365 shape checks. I preserve
 `/tmp/nanolang-owned-zero-link-full.log` separately from the incomplete diagnostic.
 The focused246f log retains 69 verification-reuse controls, 1847 graph checks,
-338 preflight controls, and adjacent authority gates. My PR remains a draft.
+338 preflight controls, and adjacent authority gates. At this diagnostic checkpoint my PR remains a draft.
 
 ### Completed runtime-invocation qualification
 
@@ -195,3 +199,34 @@ outcomes nor claim the original600-second runs passed. The measured correction
 removes repeated admission across internal assertion resumptions; independent
 artifact generation still has measurable cost. I next integrate current main
 before declaring the PR merge-ready.
+
+### Final integration on canonical main
+
+I merge canonical main25a685ad into my branch at
+42ce55c233ae99e276f30e0187b46e0a1bbf9309. The only conflict is additive Makefile
+content: I retain my graph target and incoming binary64 dependency/flags. The
+incoming float arithmetic and managed profile code merges separately from my
+reviewed ownership/proof logic. I preserve both and rebuild affected tools.
+
+My final own-tool ordinary gate again passes 1847 graph, 338 preflight,
+529 admission-boundary, 69 verifier-reuse, 274541 VM, 2422 native, 1365 shape,
+96 verifier and 28 VM-FFI checks, plus selected owned assertion, multi-borrowed
+and multi-consuming authority/allocation gates. I retain
+`/tmp/nanolang-owned-value-graphs-final-integrated.log`. The final pinned Clang
+suite also passes in3.412 seconds, recorded in
+`/tmp/nanolang-owned-value-graphs-final-clang.log`.
+
+I rebuild every instrumented VM/NanoISA object and driver on this integrated
+source, preserving incoming VM arithmetic flags. The unchanged complete corpus
+again passes all ten cases/all four APIs/two repeats in230.119 seconds, with
+at most two processes and a300-second limit per case. No sanitizer findings
+occur. My exact executable SHA256 is
+`8ee333125940e4be7099a70111bb4ceb77d11494830c7a78591a70f151fb012e`.
+I preserve the build under `/tmp/nanolang-owned-final-sanitizers-build`, all
+per-case logs/status and summary under `/tmp/nanolang-owned-final-sanitizer-parts`,
+and runner/build output in `/tmp/nanolang-owned-final-sanitizers.log`.
+
+This is the final bounded runtime acceptance. Documentation-only publication
+follows this source pin. The unchanged affine example, source admission,
+owned/void results and string/PRINT prerequisites remain open. I reconcile only
+the three bounded tasks after canonical merge; I make no release claim.
