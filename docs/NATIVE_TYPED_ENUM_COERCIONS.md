@@ -32,7 +32,9 @@ runtime. I preserve that exact verifier/output boundary in its own test and use
 a global-boxed operand for the separate runtime guard check. I do not change
 production to make an invalid module admissible. Passing logs are
 `/tmp/nanolang-typed-enum-gcc-final.log` and `clang.log` under the same prefix.
-The full native gate remains pending while this checkpoint is draft.
+The full native gate passes 2,422 checks with zero failures and 1,139 shape
+checks on unchanged production8fe01034. I retain
+`/tmp/nanolang-typed-enum-full.log`.
 
 This is the native part of a77ca. Its original cross-backend obligation remains
 open until the dependent LLVM/Wasm enum lane supplies its own implementation
