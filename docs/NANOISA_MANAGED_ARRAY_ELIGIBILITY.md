@@ -132,3 +132,10 @@ report test can link it directly without adding a production dependency.
 I keep raw-write semantics, nested/nominal tracing, cycles, adapter/lowering
 acceptance and full applicable-language coverage open under parents488/51da.
 Darwin sanitizer7ba and evaluator791a remain distinct historical obligations.
+
+## My consuming profile integration
+
+My analysis API still reports shape evidence only. The mutable-array extension
+now calls it from CLOSED_MANAGED_STRINGS after ordinary/profile verification.
+That consumer admits only its separately implemented instruction helpers; a
+successful report never removes runtime type, bounds or ownership checks.
