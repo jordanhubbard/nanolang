@@ -4548,6 +4548,11 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
+.PHONY: test-managed-array-eligibility
+test-units: test-managed-array-eligibility
+test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	NMA_LINK_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes
+
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
 test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump

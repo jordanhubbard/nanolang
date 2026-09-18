@@ -187,8 +187,11 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(field<0)return TAG_VOID;
         uint8_t tag=borrow_tag(b->records[place.layout]->as.struct_def.field_types[field]);
         if(!tag || !borrow_leaf(b,place.layout)){borrow_error(b,n,"a scalar field of a leaf resource record");return TAG_VOID;}
-        if(!b->modes[place.root]) { emit_op(cg,OP_REGION_BEGIN);borrow_reference(b,&place,0,1); }
-        emit_op(cg,OP_REF_GET,b->modes[place.root]?place.root:0,field);
+        /* I keep temporary local observations after inherited helper formals. */
+        unsigned reference=b->modes[place.root]?(unsigned)place.root:
+            b->helper_body?(unsigned)b->helper->as.function.param_count:0;
+        if(!b->modes[place.root]) { emit_op(cg,OP_REGION_BEGIN);borrow_reference(b,&place,reference,1); }
+        emit_op(cg,OP_REF_GET,reference,field);
         if(!b->modes[place.root])emit_op(cg,OP_REGION_END);
         return tag;
     }
@@ -364,7 +367,6 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             }
             int layout=borrow_record(b,n->as.let.type_name);
             if(layout>=0) {
-                if(b->helper_body){borrow_error(b,n,"only scalar helper locals");break;}
                 ASTNode *value=n->as.let.value;
                 if(value->type==AST_STRUCT_LITERAL && !value->as.struct_literal.spread_source &&
                    !strcmp(value->as.struct_literal.struct_name,n->as.let.type_name)) {
