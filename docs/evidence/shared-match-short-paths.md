@@ -47,6 +47,16 @@ pass at tree `8a17dee9ebe671f0973c0ffd15657ddd773c89fb`. The retained log is
 `/private/tmp/nanolang-match-policy-lexical-scope.log`, SHA-256
 `e6d30c909ecd0ae18288355a1f84dbe6a01c9e6c30339628b4c3ac5881c4bcb1`.
 
+I then repeated the complete focused gate from a fresh detached checkout at
+exact source `780d85136e0d5866896d4ec362d094526bcb3ddf`, tree
+`92f2fe6ba7c94f7fdd3103634e83b59786b83abe`. Before and after inventories
+record the same clean source archive SHA-256
+`40a3c41e001361ecbf0796746833089a26803a34d24cc554d9c5afc168d77231`
+and the same compiler, make, Python and Git identities. The eight requested
+targets pass in 27 seconds. I retain the raw log and status under
+`/private/tmp/nanolang-pr786-final.G39y1a/evidence`; `SHA256SUMS` has SHA-256
+`4ec6a35db273d4362407580010db686985b2d0c27019a03cf47a7beff836fc59`.
+
 ## Preserved failing prerequisites
 
 The aggregate `make test-nanocore` does not pass on this Darwin toolchain for
