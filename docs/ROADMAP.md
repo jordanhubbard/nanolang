@@ -9282,7 +9282,9 @@ Compiler product:
       redirection, and retain every allocation/format failure assertion. I qualify
       corrected source on Darwin and Linux with strict compiler and sanitizer
       controls; my shared-match production and reference-evaluator leak remain
-      separate. Contract: `docs/NANOCORE_EXPORT_BUFFER_DARWIN.md`.
+      separate. Contract: `docs/NANOCORE_EXPORT_BUFFER_DARWIN.md`. My frozen
+      strict Linux/Darwin targets and GCC/Clang sanitizer controls pass at
+      `b59c6aeb`; evidence: `docs/evidence/darwin-export-buffer-fixture.md`.
 - [x] I resolve GCC 13's strict `-O1` sanitizer-build diagnostic for
       `nanocore_export.c` `sbuf_appendf` with an explicit nonnull format guard.
       I retain the original compiler diagnostic and pass the corrected strict
