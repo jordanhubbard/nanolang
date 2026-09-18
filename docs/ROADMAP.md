@@ -10225,7 +10225,8 @@ Other translators:
   - [x] I qualify the separate private record slot/descriptor binding, fixed-field ownership and mixed record-array traversal checkpoint before target admission; descriptor UNKNOWN authority remains unchanged ([checkpoint contract](NANOISA_MANAGED_RECORD_CORE.md#my-private-storage-api-checkpoint), [native/Wasm evidence](evidence/managed-record-storage.md)).
   - [ ] I establish explicit ordinary heap-bearing record authority before shared nominal admission; retained shape and absent ownership remain UNKNOWN, and existing affine/resource contracts are not weakened (task_15f955fae5cf402d92bf88794122e9a2; [staged contract](NANOISA_ORDINARY_RECORD_AUTHORITY.md)).
     - [x] I validate/query explicit ordinary scalar/string/prior-record declarations without relaxing transitive resource eligibility ([transport evidence](evidence/ordinary-record-authority.md)); no descriptor adapter or execution admission is implied.
-    - [ ] I connect the checked descriptor adapter and publish truthful retained layouts/authority in both ordinary source producers.
+    - [x] I connect checked declaration authority to owned record descriptors with failure-atomic batch queries, preserving UNKNOWN absence and unresolved resource/mixed declarations ([adapter evidence](evidence/record-authority-adapter.md)); executable admission remains unchanged.
+    - [ ] I publish truthful retained layouts/authority in both ordinary source producers, including normal entries and all selected shadows.
     - [ ] I retain required array-element ownership, generic/import/forward-order and remaining nominal coverage under15f; absent or unsupported metadata stays UNKNOWN until its own contract qualifies it.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
       MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
