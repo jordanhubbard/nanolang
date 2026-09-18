@@ -4552,3 +4552,8 @@ test-artifact-string-release: nanoisa_dump nano_vm nvm2c
 test-units: test-native-underscore-bindings
 test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
 	python3 -m unittest -v tests.test_native_underscore_bindings
+
+.PHONY: test-unreachable-warning
+test-unreachable-warning: bootstrap
+	python3 -m unittest -v tests.test_unreachable_warning
+test-units: test-unreachable-warning
