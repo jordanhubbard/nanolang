@@ -750,9 +750,15 @@ shadow gcd {
 }
 ```
 
-## 5.7 Match Guards
+## 5.7 Match Order, Guards, and Totality
 
-Pattern arms may include a `if` guard expression. The arm only fires when the pattern matches *and* the guard is true.
+I test match arms in lexical source order. I evaluate the scrutinee once. For
+each arm I test the pattern, bind its payload when it matches, then evaluate
+the optional guard exactly once. The first successful arm wins; I do not
+evaluate later guards or bodies.
+
+Pattern arms may include an `if` guard expression. The arm only fires when the
+pattern matches and the guard is `true`.
 
 ```nano
 union Status {
@@ -777,6 +783,70 @@ shadow describe_status {
 ```
 
 Guards may reference the variables bound by the pattern. They must have type `bool`.
+
+### Wildcards stay where I write them
+
+`_` is an always-matching pattern, not a deferred default case. An early or
+repeated guarded wildcard may fail and let later arms run:
+
+```nano
+fn route_status(s: Status, intercept: bool, defer: bool) -> string {
+    return match s {
+        _ if intercept => "intercepted",
+        Active(a) if (> a.score 0) => "active",
+        _ if defer => "deferred",
+        _ => "ordinary"
+    }
+}
+```
+
+An unguarded wildcard, or `_ if true`, is unconditional. Every arm after it is
+unreachable. This source must be migrated instead of relying on a backend to
+move the wildcard:
+
+```nano
+# Invalid: Active can never be selected.
+match s {
+    _ => { (println "any status") }
+    Active(a) => { (println "active") }
+}
+```
+
+Put the unconditional wildcard last, or give the early wildcard a real BOOL
+condition.
+
+### Every match is total
+
+I require static totality even when a match value is discarded. For a finite
+union, unguarded named/or-pattern arms and arms guarded by the literal `true`
+cover their variants. A reachable unconditional wildcard covers everything
+left. Other guards do not prove coverage because they may be false. An
+integer-literal match therefore needs an unconditional wildcard.
+
+```nano
+# Invalid: Inactive is uncovered when this statement match is reached.
+match s {
+    Active(a) => { (println "active") }
+}
+
+# Valid: the remaining case is explicit.
+match s {
+    Active(a) => { (println "active") }
+    Inactive(_) => { (println "inactive") }
+}
+```
+
+A guard must have the exact checked type `bool`. Replace `if count` with an
+explicit predicate such as `if (> count 0)`.
+
+No accepted source program normally reaches the no-success path. I still keep
+a terminal runtime backstop for malformed values or a compiler/runtime defect.
+It stops execution with a first-person match failure; it does not return
+`void`, manufacture zero or continue with the following statement.
+
+This is my approved source policy for the next release. My routes are being
+aligned in dependency order. A route without support must issue a precise
+checked capability refusal rather than accept a different meaning.
 
 ## 5.8 Or-Patterns
 

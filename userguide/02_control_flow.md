@@ -57,6 +57,43 @@ fn main() -> int {
 shadow main { assert true }
 ```
 
+## `match` selection
+
+My shared match rule is lexical first-success. I evaluate the scrutinee once,
+then test each arm at its written position. A matching pattern creates its
+payload binding before I evaluate that arm's optional guard. A false guard
+ends the arm scope and continues to the next arm.
+
+```nano
+union Reply {
+    Ok { score: int },
+    Empty {}
+}
+
+fn classify(result: Reply, intercept: bool, defer: bool) -> string {
+    return match result {
+        _ if intercept => "intercepted"
+        Ok(value) if (> value.score 0) => "positive"
+        _ if defer => "deferred"
+        _ => "ordinary"
+    }
+}
+```
+
+An early or repeated wildcard is valid only while it is conditional. An
+unguarded wildcard, or `_ if true`, is unconditional; every following arm is
+unreachable. I require both value and statement matches to be statically total,
+and guards must have the exact checked type `bool`.
+
+`return` inside an arm exits the enclosing function. A block arm's final
+expression supplies the match value. If an accepted match reaches no arm
+because of malformed runtime state, I stop with a terminal match failure; I do
+not return `void`, fabricate zero or continue after the match.
+
+This is the approved source policy for the next language release. Routes that
+are still being aligned must refuse unsupported forms precisely. They may not
+silently move a wildcard, accept a partial match or erase a guard.
+
 ## Loops
 
 <!--nl-snippet {"name":"ug_control_flow_loops","check":true}-->
