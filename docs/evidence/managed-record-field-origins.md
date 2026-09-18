@@ -63,3 +63,13 @@ includes both failures, corrected gates and exact host command/status records.
 All results here are Linux aarch64. No Darwin, generated record admission,
 mixed record-array provenance, full authority15f, managed51da, aggregate488 or
 release completion follows from this non-admitting report.
+
+## My current-main integration
+
+I integrate mainfe51ac8c through public-C777 atda8480e2. The reviewed analysis
+production is byte-identical to88d873fd. I rebuild affected tools and pass the
+15 new methods,27 old leaf/graph methods and shared-profile gate again; exact
+command/status/timing and current selected input hashes are sealed alongside
+the earlier results. Main's independent source short-circuit and public-C
+changes do not turn my earlier seed/host run into a new final-head bootstrap.
+I do not repeat the unchanged full managed corpus or claim release acceptance.
