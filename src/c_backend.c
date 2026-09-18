@@ -1321,9 +1321,6 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         } else if (t == TYPE_UNION && node->as.let.type_name) {
             fprintf(c->out, "NanoUnion_%s %s", node->as.let.type_name,
                     node->as.let.name);
-        } else if (t == TYPE_ARRAY) {
-            fprintf(c->out, "%s* %s", c_type(node->as.let.element_type),
-                    node->as.let.name);
         } else {
             fprintf(c->out, "%s %s", c_type(t), node->as.let.name);
         }
@@ -1742,11 +1739,6 @@ static void emit_struct_def(CBCtx *c, ASTNode *node) {
             node->as.struct_def.field_type_names[i]) {
             fprintf(c->out, "NanoStruct_%s %s;\n",
                     node->as.struct_def.field_type_names[i], fname);
-        } else if (ft == TYPE_ARRAY) {
-            Type et = node->as.struct_def.field_element_types
-                    ? node->as.struct_def.field_element_types[i]
-                    : TYPE_INT;
-            fprintf(c->out, "%s* %s;\n", c_type(et), fname);
         } else {
             fprintf(c->out, "%s %s;\n", c_type(ft), fname);
         }
