@@ -2040,6 +2040,44 @@ shadow parser_store_array_element {
     assert (== 1 1)
 }
 
+/* I distinguish a declared union variant from a qualified record name. */
+fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parser {
+    let mut i: int = 0
+    while (< i (parser_get_union_count p)) {
+        let definition: ASTUnion = (parser_get_union p i)
+        let mut v: int = 0
+        while (< v definition.variant_count) {
+            let selected: string = (+ definition.name (+ "." (at definition.variant_names v)))
+            if (== name selected) {
+                let mut matches: int = 0
+                let mut declaration: int = 0
+                while (< declaration (parser_get_union_count p)) {
+                    if (== (parser_get_union p declaration).name definition.name) { set matches (+ matches 1) }
+                    set declaration (+ declaration 1)
+                }
+                if (== matches 1) { return (parse_union_construct p definition.name (at definition.variant_names v) line column) }
+                return (parse_struct_literal p name line column)
+            }
+            set v (+ v 1)
+        }
+        set i (+ i 1)
+    }
+    return (parse_struct_literal p name line column)
+}
+shadow parse_named_literal {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "constructor.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "constructor.nano")
+    assert (not (parser_has_error parsed))
+    assert (== (parser_get_union_construct_count parsed) 1)
+    let value: ASTUnionConstruct = (parser_get_union_construct parsed 0)
+    assert (== value.union_name "Choice")
+    assert (== value.variant_name "Some")
+    let ambiguous_tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } union Choice { Other {} } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "ambiguous.nano" (list_CompilerDiagnostic_new))
+    let ambiguous: Parser = (parse_program ambiguous_tokens (list_LexerToken_length ambiguous_tokens) "ambiguous.nano")
+    assert (== (parser_get_union_construct_count ambiguous) 0)
+    assert (== (parser_get_struct_literal_count ambiguous) 1)
+}
+
 /* Parse union construction: UnionName.Variant{field: value} */
 fn parse_union_construct(p: Parser, union_name: string, variant_name: string, start_line: int, start_column: int) -> Parser {
     /* p should be positioned after { */
@@ -2678,7 +2716,7 @@ fn parse_primary(p: Parser) -> Parser {
                                     let first_char: int = (char_at name 0)
                                     if (and (>= first_char 65) (<= first_char 90)) {
                                         let p_lbrace: Parser = (parser_advance p_after_name) /* consume '{' */
-                                        return (parse_struct_literal p_lbrace name tok.line tok.column)
+                                        return (parse_named_literal p_lbrace name tok.line tok.column)
                                     } else {
                                         (print "")
                                     }
@@ -2828,7 +2866,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                         let first_char: int = (char_at func_name 0)
                                                         if (and (>= first_char 65) (<= first_char 90)) {
                                                             let p_lbrace: Parser = (parser_advance p_after_name)
-                                                            let p_struct: Parser = (parse_struct_literal p_lbrace func_name tok2.line tok2.column)
+                                                            let p_struct: Parser = (parse_named_literal p_lbrace func_name tok2.line tok2.column)
                                                             if (parser_has_error p_struct) {
                                                                 return p_struct
                                                             } else {

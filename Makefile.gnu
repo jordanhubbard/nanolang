@@ -4617,3 +4617,9 @@ test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic
 test-units: test-native-total-arithmetic
+
+.PHONY: test-constructor-call-context
+test-constructor-call-context: bootstrap
+	python3 -m unittest -v tests.test_constructor_call_context
+
+test-units: test-constructor-call-context
