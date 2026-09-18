@@ -44,3 +44,11 @@ hash/ABI, scalar/literal and managed gates must pass. Publication refusal retain
 prior output for unsupported mutation/shape instructions. These are bounded
 collection prerequisites; parent488, parent51da, general cycles/nominal shapes,
 Darwin sanitizer7ba and evaluator791a remain open.
+
+My first focused run rejected a declared array-return helper in the native
+status harness. Static inspection found my new private lowering used tag6,
+while the authoritative ISA declares TAG_ARRAY=7. The VM controls passed;
+three other focused groups passed, but this mixed-target result was not
+acceptance. I correct the private tag to7, add an explicit compiler-side ABI
+assertion and exact TYPE_CHECK7 controls before the next fresh gate. I retain
+`/tmp/nanolang-managed-split-focused.log` as the original failure evidence.
