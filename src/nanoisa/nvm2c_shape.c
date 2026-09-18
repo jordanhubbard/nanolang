@@ -15,7 +15,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar"};
     return names[kind];
 }
 
@@ -58,7 +58,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_NUMERIC)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT_SCALAR)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -197,7 +197,7 @@ static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int
     return 1;
 }
 
-static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *changed) {
+static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *changed, int final) {
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
@@ -213,7 +213,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                 nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
-        if (from == NVM_SHAPE_UNKNOWN) continue;
+        if (from == NVM_SHAPE_UNKNOWN) {
+            if (final && to == NVM_SHAPE_VARIANT_SCALAR) {
+                fail(g, "I require proved scalar producers for variant scalar storage"); break;
+            }
+            continue;
+        }
         if (to == NVM_SHAPE_UNKNOWN) {
             if (!flow_kind(g, target, from, changed)) break;
             to = from;
@@ -246,6 +251,11 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
          * numeric member without changing the producer or OPTIONAL itself. */
         if (to == NVM_SHAPE_NUMERIC &&
             (from == NVM_SHAPE_INT || from == NVM_SHAPE_FLOAT)) continue;
+        /* Only an explicitly seeded variant payload set accepts these
+         * exact scalar producers. I do not change their source constraints. */
+        if (to == NVM_SHAPE_VARIANT_SCALAR &&
+            (from == NVM_SHAPE_INT || from == NVM_SHAPE_BOOL ||
+             from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING)) continue;
         if (from != to) {
             snprintf(g->error_detail, sizeof g->error_detail,
                      "I cannot convert aggregate storage %s to %s at nodes %u/%u",
@@ -292,7 +302,12 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     do {
         changed = 0;
         for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
-            if (!flow_one(g, g->conversions[i], &changed)) return 0;
+            if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
     } while (changed && !g->error);
+    /* Unknown sources may resolve on a later conversion pass. Only after
+     * convergence do I require evidence for explicit scalar-set injection.
+     * Missing record edges never enter this worklist and remain unconstrained. */
+    for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
+        if (!flow_one(g, g->conversions[i], &changed, 1)) return 0;
     return !g->error;
 }

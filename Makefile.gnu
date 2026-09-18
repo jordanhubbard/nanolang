@@ -4881,6 +4881,11 @@ test-units: test-native-record-array-scalar-tags
 test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_string_builtins
 test-units: test-canonical-string-builtins
+.PHONY: test-native-variant-scalar-carriers
+test-native-variant-scalar-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
+	python3 -m unittest -v tests.test_native_variant_scalar_carriers
+test-units: test-native-variant-scalar-carriers
+
 .PHONY: test-native-union-padding
 test-native-union-padding: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_union_padding
