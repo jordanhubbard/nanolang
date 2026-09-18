@@ -4634,3 +4634,9 @@ test-cseed-union-signatures: $(COMPILER_C)
 	@python3 -m unittest -v tests.test_cseed_union_signatures
 
 test-units: test-cseed-union-signatures
+
+.PHONY: test-cseed-imported-unions
+test-cseed-imported-unions: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_cseed_imported_unions
+
+test-units: test-cseed-imported-unions
