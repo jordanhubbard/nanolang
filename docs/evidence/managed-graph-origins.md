@@ -48,3 +48,8 @@ explicit graph collector controls. I retain
 `/tmp/nanolang-graph-origins-adjacent.log`. Root independently reviewed the
 complete production/header delta and surrounding transfers/final checks without
 a scoped blocker. I make no new source-bootstrap or Darwin acceptance claim.
+
+I restack onto main `a0a8fbcf` with independent reconstruction PR726. My analysis
+production/header and probe/tests remain byte-identical to the frozen reviewed
+checkpoint; the Makefile only gains main's separate reconstruction target.
+I retain the completed gates without repeating unaffected tests.
