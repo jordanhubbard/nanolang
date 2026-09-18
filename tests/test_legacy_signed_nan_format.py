@@ -85,6 +85,20 @@ shadow main { assert (== (format "%g" -0.0) "-0") }
         expected=''.join('['+{'0.0':'0','-0.0':'-0','1.0':'1'}.get(text,text)+']|\n' for _,text in CASES)
         self.assertEqual(self.command(ROOT/'bin/nano',path).stdout,expected)
 
+    def test_c_seed_array_print(self):
+        body=[]
+        for i,(bits,text) in enumerate(CASES):
+            body.extend([f'    let value{i}: float = (float_from_bits {signed(bits)})',
+                         f'    let values{i}: array<float> = [value{i}]',
+                         f'    assert (== (float_to_bits (array_get values{i} 0)) {signed(bits)})',
+                         f'    (print values{i})', '    (println "|")'])
+        program='fn main()->int {\n'+'\n'.join(body)+'\n    return 0\n}\nshadow main { assert (== (float_to_string -0.0) "-0.0") }\n'
+        path=self.work/'c-seed-array.nano';path.write_text(program)
+        executable=self.work/'c-seed-array'
+        self.command(ROOT/'bin/nanoc_c',path,'-o',executable)
+        expected=''.join('['+{'0.0':'0','-0.0':'-0','1.0':'1'}.get(text,text)+']|\n' for _,text in CASES)
+        self.assertEqual(self.command(executable).stdout,expected)
+
     def test_generated_provider_identity(self):
         self.command('python3',ROOT/'scripts/embed_binary64_format.py','--check')
         path=self.work/'scalar.nano';path.write_text(source())
