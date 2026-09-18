@@ -9828,12 +9828,13 @@ Module richness:
         [Evidence](evidence/nanoisa-scalar-reconstruction.md).
 - [ ] I define general and restricted compute profiles with verifier-enforced
       feature sets. GPU targets use the restricted profile.
-  - [ ] I share caller-selected general and closed-scalar profile admission,
+  - [x] I share caller-selected general and closed-scalar profile admission,
         preserving ordinary verification and existing LLVM/Wasm eligibility.
         MAC `task_037b12aecc894b86ba335828fa1eb1a2`; contract
         `docs/NANOISA_VERIFIER_PROFILES.md`. I test shared preflight decisions
         and refusal before output publication. GPU eligibility and full
         applicable-language coverage remain separate acceptance obligations.
+        [Evidence](evidence/nanoisa-verifier-profiles.md).
 
 Reconstruction:
 - [x] I spike a second executable high-level surface from the same `.nvm`:
