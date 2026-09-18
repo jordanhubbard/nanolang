@@ -32,7 +32,7 @@ I64_DIV_S and I64_REM_S use [guarded signed division and remainder](NANOISA_RECO
 I64_SHL, I64_SHR_S and I64_SHR_U use [masked-count portable helpers](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md), keeping arithmetic and logical right shift distinct.
 I64_AND/OR/XOR/INVERT preserve [exact64-bit patterns](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md) through unsigned C and bounded NanoLang helpers.
 I64_LT_U/LE_U/GT_U/GE_U retain [unsigned bit-pattern ordering and boolean results](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
-Other arithmetic, generic tagged comparisons, implicit returns, multiple returns,
+Other arithmetic, wider generic tagged comparisons, implicit returns, multiple returns,
 tail calls and all other operations remain outside this slice.
 
 I infer exact scalar local types from declared parameters and stores, reject
@@ -88,3 +88,7 @@ I also reconstruct exact int/bool `CAST_INT`, `CAST_BOOL`, `AND`, `OR` and `NOT`
 I reconstruct exact integer `I64_MUL_WIDE_S` and `I64_MUL_WIDE_U` with immutable low/high word snapshots under [my portable limb contract](NANOISA_RECONSTRUCT_WIDE_MULTIPLY.md). I keep the blocked carry/borrow compiler acceptance separate.
 
 I also reconstruct generic ADD/SUB/MUL/DIV/MOD/NEG when every operand is statically INT, using the unchanged total helpers in [my exact-INT contract](NANOISA_RECONSTRUCT_GENERIC_INTEGER.md). This does not admit dynamic numeric promotion or other tags.
+
+I reconstruct exact INT/BOOL `ROT3` with VM order `a b c -> c a b`, preserving immutable snapshots under [my scalar rotation contract](NANOISA_RECONSTRUCT_ROT3.md).
+
+I reconstruct generic EQ/NE/LT/LE/GT/GE for exact INT/BOOL under [my comparison contract](NANOISA_RECONSTRUCT_COMPARISONS.md), keeping mixed-tag equality distinct from tag ordering and retaining evaluated operand snapshots.

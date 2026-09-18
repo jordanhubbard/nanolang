@@ -6,8 +6,9 @@ I extend source child505 after PR #606 under MAC
 
 I retain exactly entry0 and one nonrecursive helper1. The helper accepts one
 through eight borrowed parameters, each naming an exact finite resource record
-with int/bool leaves and an explicit shared or exclusive mode. All remaining
-helper locals and the result remain scalar under my existing source profile.
+with int/bool leaves and an explicit shared or exclusive mode. My initial slice keeps remaining
+helper locals and the result scalar. My later [helper-owned local contract](NANOISA_SOURCE_HELPER_OWNERS.md) retains these formal modes while admitting
+exact locally consumed owners and disjoint temporary observation descriptors.
 
 I prepare explicit root-local arguments in source order into reference slots
 0 through N-1 inside one region. Earlier holds remain active while later

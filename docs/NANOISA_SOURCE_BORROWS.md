@@ -57,3 +57,9 @@ constructor and hidden destructuring temporaries remain unnamed. Stripping these
 facts preserves execution and grants no reference authority. My
 [paired name evidence](evidence/source-borrow-local-names.md) remains separate
 from full source reconstruction.
+
+My [helper-owned local continuation](NANOISA_SOURCE_HELPER_OWNERS.md) builds on
+qualified caller/helper runtime provenance. Temporary observations follow all
+inherited formal descriptors; exact construction, moves and full consumption
+reuse my existing ownership machinery. The helper result remains scalar, and
+additional calls or owned parameters remain outside this bounded profile.

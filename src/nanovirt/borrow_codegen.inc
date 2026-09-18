@@ -25,7 +25,7 @@ typedef struct {
     bool name_open[256];
     uint8_t tags[256], modes[256];
     uint32_t layouts[256];
-    bool live[256], disposal_pending[256], mutable[256], helper_body, returned, transferred;
+    bool live[256], disposal_pending[256], mutable[256], helper_body, returned, transferred, consuming;
     uint8_t result;
     uint8_t *contracts;
     size_t contract_size, contract_capacity;
@@ -187,8 +187,11 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(field<0)return TAG_VOID;
         uint8_t tag=borrow_tag(b->records[place.layout]->as.struct_def.field_types[field]);
         if(!tag || !borrow_leaf(b,place.layout)){borrow_error(b,n,"a scalar field of a leaf resource record");return TAG_VOID;}
-        if(!b->modes[place.root]) { emit_op(cg,OP_REGION_BEGIN);borrow_reference(b,&place,0,1); }
-        emit_op(cg,OP_REF_GET,b->modes[place.root]?place.root:0,field);
+        /* I keep temporary local observations after inherited helper formals. */
+        unsigned reference=b->modes[place.root]?(unsigned)place.root:
+            b->helper_body?(unsigned)b->helper->as.function.param_count:0;
+        if(!b->modes[place.root]) { emit_op(cg,OP_REGION_BEGIN);borrow_reference(b,&place,reference,1); }
+        emit_op(cg,OP_REF_GET,reference,field);
         if(!b->modes[place.root])emit_op(cg,OP_REGION_END);
         return tag;
     }
@@ -226,6 +229,19 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     if(n->type==AST_CALL && !b->helper_body && !n->as.call.func_expr &&
        n->as.call.name && !strcmp(n->as.call.name,b->helper->as.function.name) &&
        n->as.call.arg_count==b->helper->as.function.param_count) {
+        if(b->consuming) {
+            ASTNode *argument=n->as.call.args[0];
+            int local=argument->type==AST_IDENTIFIER?borrow_local(b,argument->as.identifier):-1;
+            int layout=borrow_record(b,b->helper->as.function.params[0].struct_type_name);
+            if(n->as.call.borrow_mode || local<0 || !b->live[local] || b->modes[local] ||
+               b->tags[local]!=TAG_STRUCT || b->disposal_pending[local] || layout<0 ||
+               b->layouts[local]!=(uint32_t)layout) {
+                borrow_error(b,n,"one named live exact whole owner for my consuming helper");return TAG_VOID;
+            }
+            emit_op(cg,OP_OWN_MOVE_LOCAL,local);b->live[local]=false;
+            emit_op(cg,OP_CALL,(uint32_t)1);
+            return borrow_tag(b->helper->as.function.return_type);
+        }
         BorrowPlace places[8];uint8_t modes[8];
         emit_op(cg,OP_REGION_BEGIN);
         for(int i=0;i<n->as.call.arg_count;i++) {
@@ -364,7 +380,6 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             }
             int layout=borrow_record(b,n->as.let.type_name);
             if(layout>=0) {
-                if(b->helper_body){borrow_error(b,n,"only scalar helper locals");break;}
                 ASTNode *value=n->as.let.value;
                 if(value->type==AST_STRUCT_LITERAL && !value->as.struct_literal.spread_source &&
                    !strcmp(value->as.struct_literal.struct_name,n->as.let.type_name)) {
@@ -482,7 +497,7 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
     if(index) {
         for(int i=0;i<function->as.function.param_count;i++) {
             Parameter *p=&function->as.function.params[i];
-            borrow_slot(b,p->name,TAG_STRUCT,(uint32_t)borrow_record(b,p->struct_type_name),p->type==TYPE_BORROW_MUT?2:1,false);
+            borrow_slot(b,p->name,TAG_STRUCT,(uint32_t)borrow_record(b,p->struct_type_name),b->consuming?0:p->type==TYPE_BORROW_MUT?2:1,false);
             borrow_name_begin(b,(unsigned)i,p->name);
         }
     }
@@ -550,10 +565,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         if(entry->as.function.param_count || entry->as.function.return_type!=TYPE_INT ||
            h->as.function.param_count<1 || h->as.function.param_count>8 || !p || !borrow_tag(h->as.function.return_type))
             borrow_error(b,h,"entry0 and one scalar-result helper with one through eight borrowed parameters");
+        b->consuming=!cg->had_error && h->as.function.param_count==1 && p[0].type==TYPE_STRUCT;
         for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
-            if((p[i].type!=TYPE_BORROW_SHARED && p[i].type!=TYPE_BORROW_MUT) || borrow_record(b,p[i].struct_type_name)<0 ||
-               !borrow_leaf(b,(unsigned)borrow_record(b,p[i].struct_type_name)))
-                borrow_error(b,h,"exact borrowed record parameters");
+            int layout=borrow_record(b,p[i].struct_type_name);
+            if(layout<0 || (!b->consuming &&
+               ((p[i].type!=TYPE_BORROW_SHARED && p[i].type!=TYPE_BORROW_MUT) ||
+                !borrow_leaf(b,(unsigned)layout))))
+                borrow_error(b,h,"exact borrowed parameters or one owned record parameter");
             for(int j=0;j<i;j++)if(!strcmp(p[i].name,p[j].name))borrow_error(b,h,"distinct parameter names");
         }
     }

@@ -67,8 +67,15 @@ int main(int argc,char **argv) {
                 default:break;
             }
             if(i)putchar(',');
-            printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"target\":%u}",di->byte_offset,
+            printf("{\"pc\":%u,\"op\":\"%s\",\"arg\":%" PRId64 ",\"target\":%u",di->byte_offset,
                 isa_get_info(ins->opcode)->name,arg,di->resolved_target==UINT32_MAX?UINT32_MAX:di->resolved_target-fn->code_offset);
+            if(ins->operand_count && ins->operand_types[0]==OPERAND_F64) {
+                uint64_t bits;
+                _Static_assert(sizeof(bits)==sizeof(ins->operands[0].f64), "I require binary64 operand storage.");
+                memcpy(&bits,&ins->operands[0].f64,sizeof(bits));
+                printf(",\"f64_bits\":\"%016" PRIx64 "\"",bits);
+            }
+            putchar('}');
         }
         printf("]}");
     }

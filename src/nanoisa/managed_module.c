@@ -13,7 +13,7 @@ static unsigned nms_module_ready;
 
 void nms_module_fail(uint32_t status) {
     if (!nms_module_error && status)
-        nms_module_error = status <= NMS_STATE ? (NmsStatus)status : NMS_STATE;
+        nms_module_error = status <= NMS_BOUNDS ? (NmsStatus)status : NMS_STATE;
 }
 uint32_t nms_module_status(void) { return nms_module_error; }
 uint32_t nms_module_begin(const NmsView *literals, uint32_t count) {
@@ -75,6 +75,45 @@ uint64_t nms_module_split(uint64_t source, uint64_t delimiter) {
     nms_module_fail(nms_split_owned(&nms_module_instance, source, delimiter, &result));
     return result;
 }
+/* My value accessors borrow arguments; split consumes its two string owners. */
+uint64_t nms_module_array_create(uint32_t tag) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_vm_array_create(&nms_module_instance, tag, &result));
+    return result;
+}
+uint64_t nms_module_split_values(uint64_t source, uint64_t delimiter) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_split_values_owned(&nms_module_instance, source, delimiter, &result));
+    return result;
+}
+uint32_t nms_module_array_append_value(uint64_t array, uint64_t bits, uint32_t tag) {
+    NmsStatus status = nms_value_array_append(&nms_module_instance, array, (NmsValue){bits, tag});
+    nms_module_fail(status);
+    return status;
+}
+uint32_t nms_module_array_set_value(uint64_t array, uint64_t index, uint64_t bits, uint32_t tag) {
+    uint32_t length = 0;
+    NmsStatus status = nms_value_array_length(&nms_module_instance, array, &length);
+    if (status == NMS_OK && index >= length) status = NMS_BOUNDS;
+    if (status == NMS_OK)
+        status = nms_value_array_set(&nms_module_instance, array, index, (NmsValue){bits, tag});
+    nms_module_fail(status);
+    return status;
+}
+uint32_t nms_module_array_get_value(uint64_t array, uint64_t index, uint64_t *bits, uint32_t *tag) {
+    NmsValue result = {0, 0};
+    NmsStatus status = bits && tag ? nms_value_array_get(&nms_module_instance, array, index, &result) : NMS_STATE;
+    if (status == NMS_OK) { *bits = result.payload; *tag = result.tag; }
+    nms_module_fail(status);
+    return status;
+}
+uint32_t nms_module_array_pop_value(uint64_t array, uint64_t *bits, uint32_t *tag) {
+    NmsValue result = {0, 0};
+    NmsStatus status = bits && tag ? nms_value_array_pop(&nms_module_instance, array, &result) : NMS_STATE;
+    if (status == NMS_OK) { *bits = result.payload; *tag = result.tag; }
+    nms_module_fail(status);
+    return status;
+}
 uint64_t nms_module_array_get(uint64_t array, uint64_t index) {
     NmsHandle result = 0;
     nms_module_fail(nms_string_array_get(&nms_module_instance, array, index, &result));
@@ -83,6 +122,11 @@ uint64_t nms_module_array_get(uint64_t array, uint64_t index) {
 uint32_t nms_module_array_length(uint64_t array) {
     uint32_t result = 0;
     nms_module_fail(nms_string_array_length(&nms_module_instance, array, &result));
+    return result;
+}
+uint32_t nms_module_array_value_length(uint64_t array) {
+    uint32_t result = 0;
+    nms_module_fail(nms_value_array_length(&nms_module_instance, array, &result));
     return result;
 }
 uint64_t nms_module_replace(uint64_t source, uint64_t needle, uint64_t replacement) {

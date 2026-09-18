@@ -19,7 +19,9 @@ My [replacement helper](NANOISA_MANAGED_REPLACE.md) admits STR_REPLACE with
 checked nonoverlapping byte replacement and consuming three-owner cleanup.
 It uses reclaiming scratch plus a final copy. My [split-array extension](NANOISA_MANAGED_SPLIT_ARRAYS.md)
 admits STR_SPLIT and read-only ARR_GET/LEN with owned string children, retained
-array aliases and exact missing-value tags; general array mutation remains open.
+array aliases and exact missing-value tags. My bounded scalar/boxed-leaf mutation
+extension follows `NANOISA_MANAGED_MUTABLE_ARRAYS.md`; nested arrays, cycles and
+unsupported element coercions remain open.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
 operations do not complete my required full-language LLVM/Wasm scope.

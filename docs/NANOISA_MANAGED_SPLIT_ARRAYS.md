@@ -2,11 +2,13 @@
 
 I build on the qualified shared string-array core and checked VM array creation
 boundary. I admit STR_SPLIT, ARR_GET and ARR_LEN only in my managed closed
-profile. All arrays originate inside this closed module from STR_SPLIT; I have
+profile. In this read-only slice, arrays originate inside the closed module from STR_SPLIT; I have
 no heap-bearing host inputs/imports. Function parameters/results may carry the
-array tag, but entry remains zero-arity with integer/bool result. ARR_NEW,
-PUSH, SET, POP, SLICE and arbitrary element shapes remain refused. In particular,
-I do not add a string-child rejection to VM-accepted heterogeneous pushes.
+array tag, but entry remains zero-arity with integer/bool result. This original
+slice refused mutation. My later `NANOISA_MANAGED_MUTABLE_ARRAYS.md` extension
+adds shape-checked NEW/PUSH/SET/POP and prepared boxed split storage; SLICE and
+arbitrary element shapes remain refused. I do not add a string-child rejection
+to VM-accepted heterogeneous leaf pushes.
 
 I split stored bytes, including NUL/high bytes. A nonempty delimiter matches
 left-to-right without overlap and retains leading, repeated and trailing empty

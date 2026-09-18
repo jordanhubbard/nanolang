@@ -21,10 +21,10 @@ class SourceBorrowEmission(unittest.TestCase):
         for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
             if compiler != 'nanoc_c':
                 emitter = cls.work / (compiler + '-emit')
-                cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter)
+                cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter, timeout=900)
                 cls.emitters.append(emitter)
             shadow_tool = cls.work / (compiler + '-shadows')
-            cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool)
+            cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool, timeout=900)
             cls.shadow_tools.append(shadow_tool)
 
     @classmethod
@@ -32,9 +32,9 @@ class SourceBorrowEmission(unittest.TestCase):
         cls.temporary.cleanup()
 
     @staticmethod
-    def command(*args, expected=0):
+    def command(*args, expected=0, timeout=180):
         result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
-                                text=True, timeout=180)
+                                text=True, timeout=timeout)
         if result.returncode != expected:
             raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
         return result
@@ -724,6 +724,75 @@ shadow main { assert true }
                                             capture_output=True, text=True, timeout=60)
                     self.assertGreater(result.returncode, 0, (tool, result.stdout, result.stderr))
 
+    def test_helper_owned_locals_preserve_formals_and_shadows(self):
+        text = (FIXTURES / 'source_borrow_helper_owners.nano').read_text()
+        prior = (FIXTURES / 'source_borrow_resource_paths.nano').read_text().replace(
+            'set view.value (+ view.value 1)',
+            'let owner: Leaf = Leaf { value: 1, active: true } let Leaf { value, active } = owner set view.value (+ view.value 1)')
+        variants = {'normal': text, 'alternate': text.replace('if true {', 'if false {').replace('while (< index 2)', 'while (< index 0)'),
+                    'former_refusal': prior}
+        for name, content in variants.items():
+            source = self.work / ('helper-owners-' + name + '.nano')
+            source.write_text(content)
+            baseline = None
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-helper.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if baseline is None:
+                    baseline = actual
+                self.assertEqual(actual, baseline)
+                records = self.names_and_strip(module)
+                if name != 'former_refusal':
+                    self.assertIn('BORROW_PATH_SHARED 2 ', actual)
+                    helper = [row for row in records if row[0] == 'combine']
+                    self.assertEqual([row[4] for row in helper[:2]], ['target', 'source'])
+                    self.assertGreaterEqual(sum(row[4] == 'source' for row in helper), 3)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'helper.nasm', self.work / 'helper.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'helper-shadow.nasm', self.work / 'helper-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
+    def test_helper_owner_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_helper_owners.nano').read_text()
+        cases = {
+            'unconsumed': text.replace('return target.value', 'let extra: Leaf = Leaf { value: 1, active: true } return target.value'),
+            'formal_move': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = source'),
+            'formal_write': text.replace('set target.value (+ target.value source.value)', 'set source.value 9'),
+            'deeper_call': text.replace('return target.value', 'return (combine target source)'),
+            'wrong_nominal': text.replace('let tree: Pair = Pair { right: second, left: first }', 'let tree: Pair = first'),
+            'hidden_owner': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = (cond (true Leaf { value: 100, active: true }) (else Leaf { value: 100, active: true }))'),
+            'local_write': text.replace('assert (== first.value 100)', 'set first.value 100', 1).replace('let first: Leaf', 'let mut first: Leaf', 1),
+        }
+        for name, content in cases.items():
+            source = self.work / ('helper-refusal-' + name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'helper-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_text(), 'accepted-output')
+                self.assertNotRegex(result.stderr + result.stdout, r'(?i)parse (?:error|failed)|unexpected token')
+                self.assertRegex(result.stderr + result.stdout,
+                                 r'(?i)borrow|owner|resource|consum|nominal|constructor|type mismatch|expected|helper|exclusive|mutable')
+
     def test_resource_path_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
         cases = {
@@ -734,7 +803,6 @@ shadow main { assert true }
             'moved_use': text.replace('let mut moved: Pair = tree', 'let mut moved: Pair = tree let again: Pair = tree'),
             'assignment': text.replace('let mut moved: Leaf = leaf', 'let mut moved: Leaf = leaf set moved Leaf { value: 1, active: true }'),
             'partial_move': text.replace('let Pair { right, left } = moved', 'let right: Leaf = moved.right let left: Leaf = moved.left'),
-            'helper_owner': text.replace('set view.value (+ view.value 1)', 'let owner: Leaf = Leaf { value: 1, active: true } let Leaf { value, active } = owner set view.value (+ view.value 1)'),
             'wrong_nominal': text.replace('let mut moved: Pair = tree', 'let moved: Leaf = tree'),
         }
         for name, content in cases.items():
@@ -959,6 +1027,101 @@ shadow main { assert true }
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     if label in ('false shadow', 'false helper'):
                         self.assertIn('shadow', (result.stdout + result.stderr).lower())
+
+    def test_consuming_source_calls_and_exact_metadata(self):
+        for fixture in ('source_consuming_leaf.nano', 'source_consuming_nested.nano',
+                        'source_consuming_bool.nano'):
+            source = FIXTURES / fixture
+            seed = self.work / 'consume-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('CALL 1', baseline)
+            self.assertNotIn('CALL_REF', baseline)
+            self.assertIn('.ownership', baseline)
+            self.assertIn('.layouts', baseline)
+            names = self.names_and_strip(seed)
+            self.assertTrue(any(row[0] == 'take' and row[1] == '0' and row[4] == 'owner' for row in names))
+            for emitter in self.emitters:
+                with self.subTest(fixture=fixture, emitter=emitter):
+                    assembly, module = self.work / 'consume.nasm', self.work / 'consume.nvm'
+                    self.command(emitter, source, '-o', assembly)
+                    self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                    self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                    self.assertEqual(self.names_and_strip(module), names)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-consume.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+
+    def test_consuming_selected_shadows_and_terminal_cleanup(self):
+        source = self.work / 'consuming-shadows.nano'
+        original = (FIXTURES / 'source_consuming_nested.nano').read_text()
+        for failure in (False, True):
+            source.write_text(original.replace('assert owner.right.active',
+                                               'assert false' if failure else 'assert owner.right.active'))
+            baseline = None
+            for tool in self.shadow_tools:
+                text = self.command(tool, source, 0, 'raw').stdout
+                if baseline is None:
+                    baseline = text
+                self.assertEqual(text, baseline)
+                self.assertIn('CALL 1', text)
+                assembly, module = self.work / 'consume-shadow.nasm', self.work / 'consume-shadow.nvm'
+                assembly.write_text(text)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.command(ROOT / 'bin/nano_vm', '--check-shadows', module, expected=1 if failure else 0)
+                self.execute_pair(module, expected=1 if failure else 0)
+            if failure:
+                for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                    output = self.work / 'consume-prior.nvm'
+                    output.write_bytes(b'previous verified publication')
+                    result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=90)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertIn('shadow', (result.stdout + result.stderr).lower())
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+
+    def test_consuming_source_refusals_preserve_publication(self):
+        base = '''resource struct Leaf { value: int, active: bool }
+resource struct Other { value: int, active: bool }
+fn take(owner: Leaf) -> int { let Leaf { value, active } = owner return value }
+shadow take { let item: Leaf = Leaf { value: 7, active: true } assert (== (take item) 7) }
+fn main() -> int { let item: Leaf = Leaf { value: 7, active: true } assert (== (take item) 7) return 0 }
+shadow main { assert true }
+'''
+        cases = {
+            'moved': base.replace('return 0', 'assert (== (take item) 7) return 0'),
+            'nominal': base.replace('let item: Leaf = Leaf {', 'let item: Other = Other {'),
+            'unconsumed': base.replace('let Leaf { value, active } = owner return value', 'return owner.value'),
+            'constructed': base.replace('let item: Leaf = Leaf { value: 7, active: true } assert (== (take item) 7)',
+                                       'assert (== (take Leaf { value: 7, active: true }) 7)'),
+            'deeper': base.replace('let Leaf { value, active } = owner return value', 'return (other owner)')
+                + 'fn other(owner: Leaf) -> int { let Leaf { value, active } = owner return value } shadow other { assert true }\n',
+            'mixed': base.replace('take(owner: Leaf)', 'take(owner: Leaf, view: &Leaf)')
+                .replace('assert (== (take item) 7)', 'let view: Leaf = Leaf { value: 1, active: true } assert (== (take item &view) 7) let Leaf { value, active } = view'),
+            'two_owned': base.replace('take(owner: Leaf)', 'take(owner: Leaf, second: Leaf)')
+                .replace('let Leaf { value, active } = owner', 'let Leaf { value, active } = second let Leaf { value, active } = owner')
+                .replace('assert (== (take item) 7)', 'let second: Leaf = Leaf { value: 1, active: true } assert (== (take item second) 7)'),
+            'projected': base.replace('fn take', 'resource struct Pair { left: Leaf, right: Leaf }\nfn take', 1)
+                .replace('assert (== (take item) 7)', 'let second: Leaf = Leaf { value: 1, active: true } let pair: Pair = Pair { left: item, right: second } assert (== (take pair.left) 7)'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('consume-refusal-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler):
+                    output = self.work / 'consume-refused.nvm'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=90)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr,
+                                     r'(?i)owner|resource|consum|nominal|borrow|helper|parameter|live|type mismatch|expected|named')
 
 
 if __name__ == '__main__':

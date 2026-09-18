@@ -1244,19 +1244,14 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
-    /* range(n) or range(start, end) - create array of integers */
-    if (strcmp(name, "range") == 0 && (argc == 1 || argc == 2)) {
-        /*
-         * range(n):       [0, 1, ..., n-1]
-         * range(start,n): [start, start+1, ..., n-1]
-         */
-        if (argc == 2) {
-            compile_expr(cg, args[0]);  /* start */
-            compile_expr(cg, args[1]);  /* end */
-        } else {
-            emit_op(cg, OP_PUSH_I64, (int64_t)0);  /* start = 0 */
-            compile_expr(cg, args[0]);               /* end */
+    /* I preserve my checked source's explicit start/end range contract. */
+    if (strcmp(name, "range") == 0) {
+        if (argc != 2) {
+            cg_error(cg, node->line, "I require two range bounds");
+            return true;
         }
+        compile_expr(cg, args[0]);  /* start */
+        compile_expr(cg, args[1]);  /* end */
         uint16_t end_slot = local_add(cg, "__range_end__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)end_slot);
         uint16_t i_slot = local_add(cg, "__range_i__", 0);
@@ -4016,8 +4011,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     for (int i = 0; i < env->function_count; ++i) {
         Function *function = &env->functions[i];
         for (int p = 0; p < function->param_count; ++p) {
-            if (function->params && (function->params[p].type == TYPE_BORROW_SHARED ||
-                                     function->params[p].type == TYPE_BORROW_MUT)) {
+            if (!function->params) continue;
+            Parameter *parameter = &function->params[p];
+            StructDef *record = parameter->type == TYPE_STRUCT && parameter->struct_type_name
+                ? env_get_struct(env, parameter->struct_type_name) : NULL;
+            if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
+                (record && record->is_resource)) {
                 return codegen_borrow_compile(program, modules, shadows);
             }
         }

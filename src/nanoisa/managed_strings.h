@@ -6,18 +6,18 @@
 /* My private runtime API does not itself grant bytecode/profile admission. */
 typedef enum {
     NMS_OK = 0, NMS_TYPE = 1, NMS_ASSERT = 2, NMS_MEMORY = 3,
-    NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6
+    NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6, NMS_BOUNDS = 7
 } NmsStatus;
 typedef uint64_t NmsHandle;
 /* I share this value tag with the ISA; the emitter asserts its ABI. */
 #define NMS_ARRAY_TAG 7
 #define NMS_DYNAMIC (UINT64_C(1) << 63)
 typedef struct { const unsigned char *data; uint32_t length; } NmsView;
-typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_LEAF_ARRAY = 3 } NmsSlotKind;
+typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_LEAF_ARRAY = 3, NMS_SLOT_PACKED_SCALAR_ARRAY = 4 } NmsSlotKind;
 typedef struct {
     unsigned char *data;
     uint64_t references;
-    uint32_t length, next_free, capacity, kind;
+    uint32_t length, next_free, capacity, kind, element_tag, vm_array_policy;
 } NmsSlot;
 typedef struct {
     const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
@@ -48,7 +48,13 @@ NmsStatus nms_string_array_length(const NmsRuntime *, NmsHandle, uint32_t *);
 typedef struct { uint64_t payload; uint32_t tag; } NmsValue;
 NmsStatus nms_value_retain(NmsRuntime *, NmsValue);
 NmsStatus nms_value_release(NmsRuntime *, NmsValue);
+/* I retain a declared int/U8/float/bool kind; this API grants no opcode admission. */
+NmsStatus nms_packed_array_create(NmsRuntime *, uint32_t, NmsHandle *);
 NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);
+/* I prepare capacity8 and VM checked-doubling semantics before publication. */
+NmsStatus nms_vm_array_create(NmsRuntime *, uint32_t, NmsHandle *);
+/* I consume both strings and build boxed tagged children before publication. */
+NmsStatus nms_split_values_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
 NmsStatus nms_value_array_append(NmsRuntime *, NmsHandle, NmsValue);
 NmsStatus nms_value_array_set(NmsRuntime *, NmsHandle, uint64_t, NmsValue);
 NmsStatus nms_value_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsValue *);

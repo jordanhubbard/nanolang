@@ -1175,6 +1175,38 @@ static void test_array_set(void) {
 
 /* ── Tests: Range ──────────────────────────────────────────────── */
 
+static void test_range_arity_refusals(void) {
+    fprintf(stderr, "  test_range_arity_refusals...");
+    const char *sources[] = {
+        "fn main() -> int { (range) return 0 }",
+        "fn main() -> int { (range 3) return 0 }",
+        "fn main() -> int { (range 1 2 3) return 0 }"
+    };
+    for (unsigned i = 0; i < sizeof sources / sizeof sources[0]; i++) {
+        int count = 0;
+        Token *tokens = tokenize(sources[i], &count);
+        ASSERT(tokens != NULL, "I tokenize each arity fixture");
+        ASTNode *program = parse_program(tokens, count);
+        ASSERT(program != NULL, "I parse each arity fixture");
+        Environment *env = create_environment();
+        env->suppress_shadow_warnings = true;
+        /* I check the raw API independently of the earlier checker refusal. */
+        CodegenResult cg = codegen_compile(program, env, NULL, NULL);
+        ASSERT(!cg.ok && cg.module == NULL, "I publish no module for unsupported range arity");
+        ASSERT(strstr(cg.error_msg, "I require two range bounds") != NULL,
+               "I reach the explicit raw range arity decision");
+        free_environment(env);
+        env = create_environment();
+        env->suppress_shadow_warnings = true;
+        ASSERT(!type_check(program, env), "I also reject unsupported checked-source arity");
+        free_environment(env);
+        free_ast(program);
+        free_tokens(tokens, count);
+    }
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 static void test_range_two_args(void) {
     fprintf(stderr, "  test_range_two_args...");
     /* range(start, end) used in for loop (typechecker expects 2-arg range) */
@@ -2165,6 +2197,7 @@ int main(void) {
     test_array_set();
 
     fprintf(stderr, "\nRange:\n");
+    test_range_arity_refusals();
     test_range_two_args();
     test_for_in_range();
 
