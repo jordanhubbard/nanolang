@@ -4519,6 +4519,10 @@ test-llvm-generic-numeric: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/generic_numeric_bits tests/nanoisa/generic_numeric_bits.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_llvm_generic_numeric
 
+.PHONY: test-llvm-enum-scalars
+test-llvm-enum-scalars: nvm2llvm nvm2wasm nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_llvm_enum_scalars
+
 .PHONY: test-llvm-scalar-globals
 test-llvm-scalar-globals: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/scalar_global_lifetime tests/nanoisa/scalar_global_lifetime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -4529,12 +4533,16 @@ test-llvm-literal-strings: test-llvm-scalar-globals
 	$(CC) $(CFLAGS) -o obj/literal_string_aliases tests/nanoisa/literal_string_aliases.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_llvm_literal_strings
 
+.PHONY: test-managed-string-core
+test-managed-string-core:
+	python3 -m unittest -v tests.test_managed_string_core
+
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
 	chmod +x bin/nvm2wasm
 
-test-nvm2wasm: test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
+test-nvm2wasm: test-managed-string-core test-llvm-enum-scalars test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
@@ -4721,6 +4729,12 @@ test-native-typed-enum: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-typed-enum
 
+.PHONY: test-native-string-equality-guards
+test-native-string-equality-guards: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_string_equality_guards
+
+test-units: test-native-string-equality-guards
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
@@ -4729,6 +4743,12 @@ test-constructor-call-context: bootstrap
 	python3 -m unittest -v tests.test_constructor_call_context
 
 test-units: test-constructor-call-context
+
+.PHONY: test-conditional-field-types
+test-conditional-field-types: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_conditional_field_types
+
+test-units: test-conditional-field-types
 
 .PHONY: test-debug-text
 test-units: test-debug-text

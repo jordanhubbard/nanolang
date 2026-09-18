@@ -236,8 +236,8 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
     unsigned first=b->count;
     for(int i=0;i<body->as.block.count && !b->cg->had_error && !b->returned;i++) {
         ASTNode *n=body->as.block.statements[i];CG *cg=b->cg;
-        if(b->control_depth && (n->type==AST_LET || n->type==AST_RETURN)) {
-            borrow_error(b,n,"preinitialized locals and no ownership moves or early returns inside control flow");break;
+        if(b->control_depth && n->type==AST_RETURN) {
+            borrow_error(b,n,"no early returns inside control flow");break;
         }
         if(n->type==AST_IF || n->type==AST_WHILE) {
             if(b->control_depth==32){borrow_error(b,n,"at most 32 nested control-flow bodies");break;}
@@ -258,6 +258,10 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 if(!cg->had_error)patch_jump(cg,next+1,next,cg->code_size);
             } else patch_jump(cg,next+1,next,top);
         } else if(n->type==AST_LET) {
+            if(b->control_depth && (n->as.let.is_destructure || n->as.let.is_destructure_projection ||
+               (n->as.let.var_type!=TYPE_UNKNOWN && n->as.let.var_type!=TYPE_INT && n->as.let.var_type!=TYPE_BOOL))) {
+                borrow_error(b,n,"only lexical int/bool declarations inside control flow");break;
+            }
             if(n->as.let.is_destructure_projection && n->as.let.value->type==AST_FIELD_ACCESS &&
                n->as.let.value->as.field_access.object->type==AST_IDENTIFIER) {
                 ASTNode *field=n->as.let.value;
@@ -365,7 +369,8 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             emit_op(cg,OP_POP);
         } else {borrow_error(b,n,"straight-line let/set/assert/call/return statements");break;}
     }
-    if(shadow){borrow_cleanup(b,first);borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
+    if(shadow)borrow_cleanup(b,first);
+    if(shadow || b->control_depth){borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
 }
 static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool shadows,unsigned index) {
     CG *cg=b->cg;b->count=0;b->control_depth=0;b->returned=false;b->helper_body=index==1;

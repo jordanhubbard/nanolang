@@ -1,0 +1,47 @@
+#ifndef NANOISA_MANAGED_STRINGS_H
+#define NANOISA_MANAGED_STRINGS_H
+#include <stddef.h>
+#include <stdint.h>
+
+/* I expose a non-admitting runtime core, not a public bytecode capability. */
+typedef enum {
+    NMS_OK = 0, NMS_TYPE = 1, NMS_ASSERT = 2, NMS_MEMORY = 3,
+    NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6
+} NmsStatus;
+typedef uint64_t NmsHandle;
+#define NMS_DYNAMIC (UINT64_C(1) << 63)
+typedef struct { const unsigned char *data; uint32_t length; } NmsView;
+typedef struct {
+    unsigned char *data;
+    uint64_t references;
+    uint32_t length, next_free;
+} NmsSlot;
+typedef struct {
+    const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
+    NmsSlot *slots;
+    uint64_t live_bytes, live_objects;
+    uint32_t literal_count, capacity, free_head;
+    unsigned active, disposed;
+#ifdef NMS_TESTING
+    uint64_t fail_after;
+#endif
+} NmsRuntime;
+
+/* init requires fresh storage or a previously disposed instance. Handles and
+ * views never cross runtime instances; a view borrows its handle's lifetime. */
+void nms_init(NmsRuntime *, const NmsView *, uint32_t);
+NmsStatus nms_create(NmsRuntime *, const unsigned char *, uint64_t, NmsHandle *);
+NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
+NmsStatus nms_retain(NmsRuntime *, NmsHandle);
+NmsStatus nms_release(NmsRuntime *, NmsHandle);
+/* These only guard exported-entry lifecycle. Frame cleanup is not wired yet. */
+NmsStatus nms_begin(NmsRuntime *);
+uint64_t nms_finish(NmsRuntime *, NmsStatus, int32_t);
+NmsStatus nms_dispose(NmsRuntime *);
+int nms_reserved_entry(const char *);
+#ifdef NMS_TESTING
+void nms_test_fail_after(NmsRuntime *, uint64_t);
+uint64_t nms_test_live_allocations(void);
+uint64_t nms_test_memory_pages(void);
+#endif
+#endif

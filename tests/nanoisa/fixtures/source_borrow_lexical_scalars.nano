@@ -1,0 +1,80 @@
+resource struct Leaf { value: int, enabled: bool }
+fn read(view: &Leaf) -> int {
+ let value: int = 10
+ let mut result: int = 0
+ if view.enabled {
+  let value: int = (+ value view.value)
+  set result value
+ } else {
+  let value = (- value 1)
+  set result value
+ }
+ assert (== value 10)
+ let mut index: int = 0
+ while (< index 2) {
+  let increment: int = 1
+  set result (+ result increment)
+  set index (+ index increment)
+ }
+ return result
+}
+shadow read {
+ let left: Leaf = Leaf { value: 2, enabled: true }
+ let right: Leaf = Leaf { value: 4, enabled: false }
+ let mut index: int = 0
+ let mut total: int = 0
+ while (< index 2) {
+  let delta = (read &left)
+  let flag: bool = (== index 0)
+  if flag {
+   let index: int = (+ index 10)
+   assert (== index 10)
+   set total (+ total delta)
+  } else {
+   let delta: int = (read &right)
+   set total (+ total delta)
+  }
+  assert (< index 2)
+  set index (+ index 1)
+ }
+ assert (== index 2)
+ assert (== total 25)
+ while false { let unused: int = 9 assert (== unused 9) }
+ if false { let sibling: bool = false assert sibling }
+ else { let sibling: bool = true assert sibling }
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 4) assert (not enabled)
+}
+fn main() -> int {
+ let left: Leaf = Leaf { value: 2, enabled: true }
+ let right: Leaf = Leaf { value: 4, enabled: false }
+ let mut index: int = 0
+ let mut total: int = 0
+ while (< index 2) {
+  let delta = (read &left)
+  let flag: bool = (== index 0)
+  if flag {
+   let index: int = (+ index 10)
+   assert (== index 10)
+   set total (+ total delta)
+  } else {
+   let delta: int = (read &right)
+   set total (+ total delta)
+  }
+  assert (< index 2)
+  set index (+ index 1)
+ }
+ assert (== index 2)
+ assert (== total 25)
+ while false { let unused: int = 9 assert (== unused 9) }
+ if false { let sibling: bool = false assert sibling }
+ else { let sibling: bool = true assert sibling }
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 4) assert (not enabled)
+ return 0
+}
+shadow main { if true { let checked: bool = true assert checked } }
