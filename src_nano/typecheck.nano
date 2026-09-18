@@ -4142,6 +4142,59 @@ shadow tc_bound_name {
     (mb_reset [])
 }
 
+fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
+    if (!= call.arg_count 3) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array, initializer and binary callback in reduce." location))
+        return (type_unknown_named "reduce")
+    }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+    let source_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
+    let accumulator: NSType = (check_expr_node parser initial.node_id initial.node_type symbols diags file_name)
+    let callback_type: NSType = (check_expr_node parser callback.node_id callback.node_type symbols diags file_name)
+    if (or (!= source_type.kind TypeKind.TYPE_ARRAY) (!= callback_type.kind TypeKind.TYPE_FUNCTION)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array and a function callback in reduce." location))
+        return (type_unknown_named "reduce")
+    }
+    let parameters: array<NSType> = (fn_type_params_with_parser parser callback_type.name)
+    let result: NSType = (type_from_string_with_parser parser (type_to_string (fn_type_return_type callback_type.name)))
+    if (!= (array_length parameters) 2) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a binary callback in reduce." location))
+        return (type_unknown_named "reduce")
+    }
+    let first: NSType = (at parameters 0)
+    let element: NSType = (at parameters 1)
+    let known: bool = (and (and (!= accumulator.kind TypeKind.TYPE_UNKNOWN) (!= accumulator.kind TypeKind.TYPE_VOID)) (and (!= element.kind TypeKind.TYPE_UNKNOWN) (!= element.kind TypeKind.TYPE_VOID)))
+    let mut matches: bool = (and known (and (types_equal accumulator first) (types_equal accumulator result)))
+    if (== source_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
+        let mut empty_literal: bool = false
+        if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+            set empty_literal (== (parser_get_array_literal parser source.node_id).element_count 0)
+        }
+        set matches (and matches empty_literal)
+    } else {
+        set matches (and matches (types_equal source_type (type_array_of element)))
+    }
+    if (not matches) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require reduce callback fn(A,E)->A to match the initializer and array elements exactly." location))
+        return (type_unknown_named "reduce")
+    }
+    return accumulator
+}
+shadow check_reduce_call {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value = (reduce [1.0] 0.0 combine) return 0 }" "reduce.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reduce.nano")
+    let symbols: array<Symbol> = [(symbol_new "combine" (type_float) false true 2 [(type_float),(type_float)] (type_float))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_reduce_call parser (parser_get_call parser 0) symbols diags "reduce.nano").kind TypeKind.TYPE_FLOAT)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    let wrong: array<Symbol> = [(symbol_new "combine" (type_int) false true 2 [(type_float),(type_float)] (type_int))]
+    assert (== (check_reduce_call parser (parser_get_call parser 0) wrong diags "reduce.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+}
+
 fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
     if (!= call.arg_count 2) {
@@ -4298,6 +4351,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     return (type_from_string_with_parser parser (at arguments 1))
                 }
             }
+        }
+        if (and (or (== fn_name "reduce") (== fn_name "array_fold")) (< (env_lookup symbols fn_name) 0)) {
+            return (check_reduce_call parser call_node symbols diags file_name)
         }
         if (or (== fn_name "map") (== fn_name "array_map")) {
             return (check_map_call parser call_node symbols diags file_name)
