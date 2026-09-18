@@ -113,3 +113,16 @@ first diagnostics to remaining allocator/stream/rename failure returns. I preser
 owned temporary cleanup and the caller-stream partial-I/O limit. My final fresh
 gate also covers a global initializer calling main while initialization is in
 progress, alongside ordinary main reentry after initialization.
+
+My first seven-method gate retains six passing methods and one C API harness link
+failure: the isolated fragment omitted passive_binding_order. That fragment has
+no passive AST cases; I add an explicit unreachable fixture stub, and leave real
+passive qualification with the existing backend suite. No failed API binary ran.
+
+Independent static review also finds that directly changing the user main return
+to C int would narrow same-module language calls to main. Before further execution
+I keep user main as a private int64 function and expose a separate hosted int
+wrapper. I map declarations, direct calls and unshadowed function references
+consistently under the selected private prefix; local main bindings stay local.
+I add a fresh global-initializer/main-reentry high-bit result observer. My previous
+zero-result reentry controls do not qualify this wider result boundary.
