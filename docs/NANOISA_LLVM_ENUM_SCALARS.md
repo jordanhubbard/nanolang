@@ -31,3 +31,11 @@ comparison/cast distinctions, global initialization, calls and invalid-tag
 refusals. Invalid profile publication preserves previous output. Full generic
 arithmetic and typed-enum parent closure requires the combined evidence, not
 only successful LLVM text generation.
+
+My first full same-module gate passes nine of ten enum methods, but the generic
+arithmetic matrix cannot compile its standalone C product at GCC O2: the tagged
+equality fallback triggers a nonnull warning at strcmp. I retain the failure in
+`/tmp/nanolang-llvm-enum-focused.log` and `full.log` under the same prefix.
+I record native prerequisite `task_39453e3f2c76454dab9afd3e346c2483`; I do not
+weaken flags or count this gate as complete. Managed string/cast coverage stays
+under my roadmap's managed-string lifetime/allocator/linkage obligation.
