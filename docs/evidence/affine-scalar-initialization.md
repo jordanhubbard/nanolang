@@ -77,3 +77,13 @@ references, nested references, caller analysis, caller references, multi-caller
 references and owned assertions. The final owned-runtime method took 34.950
 seconds. Its independent authority and allocation checks retain all refusals.
 Only evidence and roadmap status changed afterward.
+
+After PR #601 landed, I preserved its additive roadmap rows and rebased onto
+`26f2f70a` at `7465e942`. The reviewed analysis implementation stayed unchanged.
+The final state/bytecode, owned-transfer and twelve-case VM/sanitized-native
+runtime gates passed again in `/tmp/nanolang-affine-init-storage-final.log`;
+the runtime method took 35.005 seconds. An intermediate command started this
+check before all rebase conflicts were resolved, reaching the already-known
+old harness assertion before its fix reapplied. I stopped that build and retain
+`/tmp/nanolang-affine-init-storage-integration.log`; the final gate ran only
+after the complete rebase. No held compiler product artifact was executed.
