@@ -20,6 +20,7 @@ shadow bump {
   for inner in (range 2) {
    if (== inner 0) { continue }
    set total (+ total index)
+   break
   }
   assert (== (bump &mut owner) (+ 1 (/ index 2)))
  }
@@ -52,6 +53,7 @@ fn main() -> int {
   for inner in (range 2) {
    if (== inner 0) { continue }
    set total (+ total index)
+   break
   }
   assert (== (bump &mut owner) (+ 1 (/ index 2)))
  }
