@@ -3918,6 +3918,8 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
     env_define_struct(env, sdef);
 }
 
+#include "borrow_codegen.inc"
+
 static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
                                               ModuleList *modules, const char *input_file,
                                               bool shadows, bool include_imports) {
@@ -3935,9 +3937,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         for (int p = 0; p < function->param_count; ++p) {
             if (function->params && (function->params[p].type == TYPE_BORROW_SHARED ||
                                      function->params[p].type == TYPE_BORROW_MUT)) {
-                snprintf(result.error_msg, sizeof(result.error_msg),
-                         "I cannot lower borrowed parameters to NanoISA yet");
-                return result;
+                return codegen_borrow_compile(program, modules, shadows);
             }
         }
     }

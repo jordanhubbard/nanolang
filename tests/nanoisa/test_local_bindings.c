@@ -16,6 +16,7 @@ static void roundtrip(NvmModule *m) {
     char *text=disasm_module_styled(b,DISASM_STYLE_CANONICAL);CHECK(text);
     AsmResult ar;NvmModule *c=asm_assemble(text,&ar);CHECK(c);
     uint32_t k;uint8_t *again=nanoisa_save_bytes(c,&k,&err);CHECK(again);
+    CHECK(n==k && !memcmp(wire,again,n));
     CHECK(m->code_size==c->code_size && !memcmp(m->code,c->code,m->code_size));
     CHECK(b->metadata_count==c->metadata_count);
     for(uint32_t i=0;i<b->metadata_count;i++) {
@@ -34,8 +35,9 @@ static void roundtrip(NvmModule *m) {
     free(wire);free(again);free(text);nvm_module_free(b);nvm_module_free(c);
 }
 int main(int argc,char **argv) {
-    if(argc==2) {
+    if(argc==2 || argc==3) {
         NanoisaErr err;NvmModule *m=nanoisa_load_file(argv[1],&err);CHECK(m);
+        if(argc==3) CHECK(!strcmp(argv[2],"--require-debug") && m->debug_count>0);
         CHECK(nvm_local_names_validate(m)==NVM_LOCAL_NAMES_VALID);
         for(uint32_t f=0;f<m->function_count;f++)for(uint16_t s=0;s<m->functions[f].local_count;s++) {
             uint32_t last=UINT32_MAX;

@@ -67,7 +67,17 @@ ifneq ($(filter command line override,$(origin LDFLAGS)),)
 override LDFLAGS += -lcrypto
 endif
 # I use libffi for typed native calls in my interpreter, including doubles.
-LIBFFI_CFLAGS ?= $(shell pkg-config --cflags libffi 2>/dev/null)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+# Homebrew chooses its libffi.pc by the running macOS release. That can name an
+# older SDK than the compiler selected through DEVELOPER_DIR or SDKROOT. I use
+# the active SDK's matching system-libffi headers when they are present. The
+# public LIBFFI_CFLAGS override still wins unchanged.
+DARWIN_SDKROOT ?= $(if $(SDKROOT),$(SDKROOT),$(shell xcrun --sdk macosx --show-sdk-path 2>/dev/null))
+DARWIN_LIBFFI_INCLUDE := $(DARWIN_SDKROOT)/usr/include/ffi
+DARWIN_LIBFFI_CFLAGS := $(if $(wildcard $(DARWIN_LIBFFI_INCLUDE)/ffi.h),-I'$(DARWIN_LIBFFI_INCLUDE)')
+endif
+LIBFFI_CFLAGS ?= $(if $(DARWIN_LIBFFI_CFLAGS),$(DARWIN_LIBFFI_CFLAGS),$(shell pkg-config --cflags libffi 2>/dev/null))
 LIBFFI_LIBS ?= $(shell pkg-config --libs libffi 2>/dev/null || printf '%s' '-lffi')
 override CFLAGS += $(LIBFFI_CFLAGS)
 override LDFLAGS += $(LIBFFI_LIBS)
@@ -80,7 +90,6 @@ override LDFLAGS += $(LIBFFI_LIBS)
 # that is exactly what the sanitizer and coverage jobs do -- they pass their own
 # LDFLAGS and were losing -rdynamic, so every dlsym of a host symbol failed and
 # the FFI tests broke in those builds only.
-UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 EXPORT_DYNAMIC_LDFLAGS = -rdynamic
 override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
@@ -503,6 +512,16 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 .PHONY: nvm2c
 nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: nvm2hl test-scalar-reconstruction
+nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(BIN_DIR)/nanoisa_hl_facts src/nanoisa/hl_facts_main.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
+	chmod +x $(BIN_DIR)/nvm2hl
+
+test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm bootstrap
+	python3 -m unittest -v tests.test_scalar_reconstruction
+test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
 nanoisa_emit: $(COMPILER_C) | bin
@@ -2758,6 +2777,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@$(MAKE) --no-print-directory test-build-toolchain
 	@$(MAKE) --no-print-directory test-bootstrap-dependencies
 	@$(MAKE) --no-print-directory test-parser-parenthesized
 	@$(MAKE) --no-print-directory test-transpiler-externs
@@ -2790,6 +2810,10 @@ else
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 endif
+
+.PHONY: test-build-toolchain
+test-build-toolchain:
+	@python3 -m unittest tests.test_make_toolchain
 
 .PHONY: test-bootstrap-dependencies
 test-bootstrap-dependencies:
@@ -4596,6 +4620,11 @@ test-units: test-unreachable-warning
 test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
 	python3 -m unittest -v tests.test_underscore_payload
 test-units: test-underscore-payload
+.PHONY: test-source-borrow-emission
+test-units: test-source-borrow-emission
+test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest -v tests.test_source_borrow_emission
+
 .PHONY: test-owned-assertions
 test-units: test-owned-assertions
 test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
@@ -4638,4 +4667,42 @@ test-constructor-call-context: bootstrap
 
 test-units: test-constructor-call-context
 
+.PHONY: test-debug-text
+test-units: test-debug-text
+test-debug-text: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_text tests/nanoisa/test_debug_text.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_debug_text
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_alloc tests/nanoisa/test_debug_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_debug_alloc
+
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_asm_alloc tests/nanoisa/test_debug_asm_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_debug_asm_alloc
 test-units: test-native-optional-array-reads
+
+.PHONY: test-cseed-union-signatures
+test-cseed-union-signatures: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_cseed_union_signatures
+
+test-units: test-cseed-union-signatures
+
+.PHONY: test-cseed-imported-unions
+test-cseed-imported-unions: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_cseed_imported_unions
+
+test-units: test-cseed-imported-unions
+
+.PHONY: test-native-nominal-context test-cseed-single-letter-nominals
+test-native-nominal-context: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_native_nominal_context tests/test_native_nominal_context.c $(filter-out $(OBJ_DIR)/transpiler.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_native_nominal_context
+
+test-cseed-single-letter-nominals: $(COMPILER_C) test-native-nominal-context
+	@python3 -m unittest -v tests.test_cseed_single_letter_nominals tests.acceptance_cseed_single_letter_union
+
+test-units: test-cseed-single-letter-nominals
+
+.PHONY: test-cseed-single-letter-enums
+test-cseed-single-letter-enums: $(COMPILER_C) test-native-nominal-context
+	@python3 -m unittest -v tests.test_cseed_single_letter_enums
+
+test-units: test-cseed-single-letter-enums

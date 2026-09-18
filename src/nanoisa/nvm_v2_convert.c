@@ -255,7 +255,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     }
     out->debug.items = dbs;
     out->debug.count = n_db;
-    out->has_debug   = n_db > 0;
+    out->has_debug   = n_db > 0 || (mod->header.flags & NVM_FLAG_DEBUG_INFO) != 0;
 
     if (synthesize_source && mod->metadata_count == UINT32_MAX) goto oom;
     uint32_t metadata_count = mod->metadata_count + (synthesize_source ? 1u : 0u);
@@ -437,8 +437,11 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
             nvm_module_free(mod);
             return NVM_V2_ERR_INDEX_RANGE;
         }
-        nvm_add_debug_entry(mod, (uint32_t)d->bytecode_offset,
-                            d->source_line, d->source_col);
+        if (!nvm_add_debug_entry(mod, (uint32_t)d->bytecode_offset,
+                                 d->source_line, d->source_col)) {
+            nvm_module_free(mod);
+            return NVM_V2_ERR_INDEX_RANGE;
+        }
     }
 
     for (uint32_t i = 0; i < m->layouts.count; i++) {
@@ -468,7 +471,7 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     }
     if (m->imports.count || (m->extra_features & NVM_V2_FEATURE_FFI))
         mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
-    if (m->debug.count)   mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+    if (m->has_debug)     mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
     if (m->passive_size) {
         if (!m->passive_data) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }

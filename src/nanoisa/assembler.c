@@ -881,6 +881,26 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             state->local_tail=m;return true;
         }
 
+        if (strcmp(directive, "debug") == 0) {
+            uint32_t offset, line, column;
+            if (state->in_function || !parse_uint32(&p, &offset) ||
+                !parse_uint32(&p, &line) || !parse_uint32(&p, &column) ||
+                !require_line_end(p, result)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "I require three unsigned 32-bit DEBUG operands outside functions");
+                return false;
+            }
+            if (!nvm_add_debug_entry(state->mod, offset, line, column)) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof(result->message),
+                         "I cannot retain this DEBUG entry");
+                return false;
+            }
+            state->mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+            return true;
+        }
+
         if (strcmp(directive, "metadata") == 0) {
             uint32_t key, value;
             if (state->in_function || !parse_uint32(&p, &key) ||
