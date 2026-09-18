@@ -783,8 +783,8 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         if(h->as.function.param_count>8 || (h->as.function.param_count && !p))borrow_error(b,h,"at most eight exact parameters");
         if(b->value_graph) {
             if(!borrow_tag(h->as.function.return_type) && h->as.function.return_type!=TYPE_VOID &&
-               !(h->as.function.return_type==TYPE_STRUCT && result_layout>=0 && borrow_leaf(b,(unsigned)result_layout)))
-                borrow_error(b,h,"an int/bool, void or exact scalar-leaf owner result");
+               !(h->as.function.return_type==TYPE_STRUCT && result_layout>=0))
+                borrow_error(b,h,"an int/bool, void or exact declared owner result");
         } else if(h->as.function.param_count<1 || !borrow_tag(h->as.function.return_type))borrow_error(b,h,"a scalar-result borrowed helper");
         for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
             int layout=borrow_record(b,p[i].struct_type_name);
