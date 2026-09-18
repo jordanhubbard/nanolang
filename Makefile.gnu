@@ -4903,3 +4903,8 @@ test-native-false-assert: nvm2c nano_vm nanoisa_dump
 .PHONY: test-scalar-match-values
 test-scalar-match-values: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_scalar_match_values
+
+.PHONY: test-canonical-prefix-conversion
+test-canonical-prefix-conversion: bootstrap nano_virt nano_vm nvm2c
+	python3 -m unittest -v tests.test_canonical_prefix_conversion
+test-units: test-canonical-prefix-conversion
