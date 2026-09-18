@@ -199,7 +199,9 @@ shadow difference{assert (== (difference 3.0 2.0) 1.0)}
 fn choose()->fn(float,float)->float{return difference}
 shadow choose{let f:fn(float,float)->float=(choose) assert (== (f 3.0 2.0) 1.0)}
 '''
-GLOBAL_ALIAS = ALIASES + '''let mut selected:fn(float,float)->float=fold
+GLOBAL_ALIAS = ALIASES + '''fn selected(a:float,b:float)->float{return (+ a b)}
+shadow selected{assert (== (selected 1.0 2.0) 3.0)}
+let mut selected:fn(float,float)->float=fold
 fn initial()->float{set selected difference return 10.0}
 shadow initial{set selected fold assert (== (initial) 10.0) set selected fold}
 fn main()->int{
