@@ -280,13 +280,16 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         for(int i=0;i<n->as.call.arg_count && !cg->had_error;i++) {
             Parameter *p=&function->as.function.params[i];ASTNode *argument=n->as.call.args[i];
             if(p->type==TYPE_STRUCT) {
-                int local=argument->type==AST_IDENTIFIER?borrow_local(b,argument->as.identifier):-1;
                 int layout=borrow_record(b,p->struct_type_name);
-                if(local<0 || !b->live[local] || b->modes[local] || b->disposal_pending[local] ||
-                   b->tags[local]!=TAG_STRUCT || layout<0 || b->layouts[local]!=(uint32_t)layout) {
-                    borrow_error(b,argument,"a named live exact whole owner argument");return TAG_VOID;
-                }
-                emit_op(cg,OP_OWN_MOVE_LOCAL,local);b->live[local]=false;
+                if(layout<0) {borrow_error(b,argument,"an exact declared owner parameter");return TAG_VOID;}
+                if(argument->type==AST_IDENTIFIER) {
+                    int local=borrow_local(b,argument->as.identifier);
+                    if(local<0 || !b->live[local] || b->modes[local] || b->disposal_pending[local] ||
+                       b->tags[local]!=TAG_STRUCT || b->layouts[local]!=(uint32_t)layout) {
+                        borrow_error(b,argument,"a named live exact whole owner argument");return TAG_VOID;
+                    }
+                    emit_op(cg,OP_OWN_MOVE_LOCAL,local);b->live[local]=false;
+                } else if(!borrow_owner(b,argument,(unsigned)layout)) return TAG_VOID;
             } else if(borrow_expr(b,argument)!=borrow_parameter_tag(p->type)) {
                 borrow_error(b,argument,"the exact positional scalar argument");return TAG_VOID;
             }
