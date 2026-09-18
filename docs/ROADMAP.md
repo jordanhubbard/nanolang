@@ -9769,6 +9769,11 @@ Module richness:
       sanitizer checks and the genuine canonical compiler host build.
       [Evidence](evidence/nanoisa-advisory-metadata.md).
 - [ ] I store local names, not only slot numbers.
+  - [ ] I retain optional function/slot/PC-interval local names through a
+        versioned advisory convention, assembler markers and paired ordinary
+        parameter/scalar-let producers, with lexical shadow/reused-slot tests.
+        MAC `task_d62e26f741bf47b9810a7cfa43fca44a`; contract
+        `docs/NANOISA_LOCAL_BINDINGS.md`. Other producer families remain open.
 - [ ] I preserve frontend purity, affine-use, generic, effect, and
       exhaustiveness facts as NanoISA metadata.
 - [ ] I recover structured `if`/`while`/`return` from `JMP` for
