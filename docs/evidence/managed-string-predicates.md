@@ -45,3 +45,9 @@ profile/refusal checks. The log is
 `/tmp/nanolang-managed-predicates-integrated-r2.log`; the managed group completes
 in 24.585 seconds. This includes parser/formatter/substr/concat and existing
 allocation-failure/cleanup regressions alongside the new predicates.
+
+I restacked cleanly onto main `cc9c7a1d` through PR663. Restacked production is
+`3a23f0a7`. A direct Git comparison confirms all six changed production files
+and the four affected test files are byte-identical to the frozen passing
+`dec6b1ba` checkpoint. Incoming reconstruction scripts/docs introduce no change
+to this runtime or verifier contract; I do not repeat unchanged acceptance.
