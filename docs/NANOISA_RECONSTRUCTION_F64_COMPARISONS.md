@@ -3,7 +3,8 @@
 I record `task_4b603437748343d48a5f92bf577bc5be` before implementation under
 full reconstruction parent `task_4bd034f6029b7458201db74e2c3aeb32`.
 My starting main is `55208c47`, containing PR723 exact constant/bit transport.
-This document proposes admission; it does not claim completed acceptance.
+My bounded implementation and qualification are recorded in
+[my evidence](evidence/reconstruction-f64-comparisons.md).
 
 ## My exact boundary
 
