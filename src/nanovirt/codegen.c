@@ -47,6 +47,13 @@ typedef struct CgLocalName {
     struct CgLocalName *next;
 } CgLocalName;
 
+typedef struct CgAuthoritySlot {
+    uint32_t function;
+    uint16_t slot;
+    uint8_t tag;
+    struct CgAuthoritySlot *next;
+} CgAuthoritySlot;
+
 typedef struct {
     char *name;
     uint16_t slot;
@@ -129,6 +136,7 @@ struct CG {
     Environment *env;
     CgPassive *passive;
     CgLocalName **local_names;
+    CgAuthoritySlot **authority_slots;
     bool names_enabled;
 
     /* Current function's code buffer */
@@ -283,7 +291,21 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
 static bool local_name_scalar(Type type) {
     return type==TYPE_INT || type==TYPE_FLOAT || type==TYPE_BOOL || type==TYPE_U8 || type==TYPE_STRING;
 }
+static uint8_t ordinary_slot_tag(Type type) {
+    switch(type) {
+    case TYPE_INT:return TAG_INT; case TYPE_U8:return TAG_U8;
+    case TYPE_FLOAT:return TAG_FLOAT; case TYPE_BOOL:return TAG_BOOL;
+    case TYPE_STRING:return TAG_STRING; case TYPE_STRUCT:return TAG_STRUCT;
+    default:return TAG_COUNT;
+    }
+}
 static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int line) {
+    if(cg->names_enabled && !cg->had_error) {
+        CgAuthoritySlot *fact=malloc(sizeof *fact);
+        if(!fact){cg_error(cg,line,"I cannot retain a declared local tag");return;}
+        *fact=(CgAuthoritySlot){cg->current_fn_idx,slot,ordinary_slot_tag(type),*cg->authority_slots};
+        *cg->authority_slots=fact;
+    }
     if(!cg->names_enabled || !local_name_scalar(type) || !name || !*name || cg->had_error)return;
     CgLocalName *entry=calloc(1,sizeof *entry);
     if(!entry){cg_error(cg,line,"I cannot retain a lexical local name");return;}
@@ -4001,6 +4023,7 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
 }
 
 #include "borrow_codegen.inc"
+#include "ordinary_authority.inc"
 
 static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
                                               ModuleList *modules, const char *input_file,
@@ -4034,8 +4057,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,modules,shadows);
 
     CgLocalName *local_names=NULL;
+    CgAuthoritySlot *authority_slots=NULL;
     CG cg = {0};
     cg.local_names=&local_names;
+    cg.authority_slots=&authority_slots;
     cg.module = nvm_module_new();
     cg.env = env;
     cg.code = malloc(CODE_INITIAL);
@@ -4744,6 +4769,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                                      (uint32_t)strlen(input_file));
     }
 
+    if(!cg.had_error) publish_ordinary_authority(&cg,program);
+    while(authority_slots) {
+        CgAuthoritySlot *next=authority_slots->next;free(authority_slots);authority_slots=next;
+    }
     publish_local_names(&cg);
     publish_passive(&cg);
     free(cg.code);
