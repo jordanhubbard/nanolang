@@ -409,6 +409,7 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
+$(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
 
@@ -981,7 +982,7 @@ test-coroutine-scheduler: stage1
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
 
-$(OBJ_DIR)/eval_clock_test.o: src/eval.c $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+$(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
 
 test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
@@ -4585,6 +4586,16 @@ test-managed-runtime-package: check-binary64-parser managed-runtime-package
 
 $(OBJ_DIR)/binary64_parser_vm: tests/nanoisa/binary64_parser_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $< $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-legacy-binary64-eval
+test-legacy-binary64-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_legacy_binary64_eval tests/test_legacy_binary64_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./$(OBJ_DIR)/test_legacy_binary64_eval
+
+.PHONY: test-legacy-binary64-parse
+test-units: test-legacy-binary64-parse
+test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64-eval
+	python3 -m unittest -v tests.test_legacy_binary64_parse
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm

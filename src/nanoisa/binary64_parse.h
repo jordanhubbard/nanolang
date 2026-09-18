@@ -142,7 +142,8 @@ static inline int nbp_word(const unsigned char *text, uint32_t length, uint32_t 
             return 0;
     return 1;
 }
-static inline uint64_t nbp_nan_payload(const unsigned char *text, uint32_t length, uint32_t start) {
+static inline uint64_t nbp_nan_payload(const unsigned char *text, uint32_t length, uint32_t start,
+                                       uint32_t *consumed) {
     if (start >= length || text[start] != '(')
         return 0;
     uint32_t end = start + 1;
@@ -154,6 +155,7 @@ static inline uint64_t nbp_nan_payload(const unsigned char *text, uint32_t lengt
     }
     if (end == length || text[end] != ')')
         return 0;
+    *consumed = end + 1;
     uint32_t i = start + 1;
     unsigned base = 10;
     if (end - i >= 2 && text[i] == '0' && nbp_lower(text[i + 1]) == 'x') {
@@ -175,9 +177,11 @@ static inline uint64_t nbp_nan_payload(const unsigned char *text, uint32_t lengt
     }
     return value;
 }
-static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t *out) {
+static inline int nbp_parse_impl(const unsigned char *text, uint32_t length, uint64_t *out,
+                                 uint32_t *consumed) {
     if (!out || (!text && length))
         return 0;
+    *consumed = 0;
     uint32_t i = 0;
     while (i < length && (text[i] == ' ' || text[i] == '\t' || text[i] == '\n' || text[i] == '\r' ||
                           text[i] == '\v' || text[i] == '\f'))
@@ -189,12 +193,14 @@ static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t
         i++;
     }
     if (nbp_word(text, length, i, "inf", 3)) {
+        *consumed = i + (nbp_word(text, length, i, "infinity", 8) ? 8 : 3);
         *out = sign | UINT64_C(0x7ff0000000000000);
         return 1;
     }
     if (nbp_word(text, length, i, "nan", 3)) {
+        *consumed = i + 3;
         *out = sign | UINT64_C(0x7ff8000000000000) |
-               (nbp_nan_payload(text, length, i + 3) & UINT64_C(0xfffffffffffff));
+               (nbp_nan_payload(text, length, i + 3, consumed) & UINT64_C(0xfffffffffffff));
         return 1;
     }
     unsigned radix = 10, cap = 800;
@@ -242,10 +248,6 @@ static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t
         *out = 0;
         return 1;
     }
-    if (!started) {
-        *out = sign;
-        return 1;
-    }
     int64_t exponent = 0;
     if (i < length && nbp_lower(text[i]) == (radix == 16 ? 'p' : 'e')) {
         uint32_t next = i + 1;
@@ -263,9 +265,15 @@ static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t
                         exponent = cap_exponent;
                 }
             }
+            i = next;
             if (minus)
                 exponent = -exponent;
         }
+    }
+    *consumed = i;
+    if (!started) {
+        *out = sign;
+        return 1;
     }
     int64_t scale = exponent + (omitted - fractional) * (radix == 16 ? 4 : 1);
     int64_t order = (radix == 16 ? (int64_t)nbp_bits(&numerator) - 1 : (int64_t)kept - 1) + scale;
@@ -295,5 +303,23 @@ static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t
         return 0;
     *out = sign | result;
     return 1;
+}
+/* I publish both outputs only after checked parsing succeeds. An input with
+ * no numeric prefix has endpoint zero; optional endpoints preserve values. */
+static inline int nbp_parse_end(const unsigned char *text, uint32_t length, uint64_t *out,
+                                uint32_t *consumed) {
+    if (!out || (!text && length))
+        return 0;
+    uint64_t bits;
+    uint32_t end;
+    if (!nbp_parse_impl(text, length, &bits, &end))
+        return 0;
+    *out = bits;
+    if (consumed)
+        *consumed = end;
+    return 1;
+}
+static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t *out) {
+    return nbp_parse_end(text, length, out, 0);
 }
 #endif

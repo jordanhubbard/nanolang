@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "runtime/binary64_parse.h"
 #include "coroutine.h"
 #include "effects.h"
 #include "runtime/list_int.h"
@@ -615,9 +616,10 @@ static Value builtin_cast_float(Value *args) {
         return create_float(arg.as.bool_val ? 1.0 : 0.0);
     } else if (arg.type == VAL_STRING) {
         /* Parse string to float */
-        char *endptr;
-        double val = strtod(arg.as.string_val, &endptr);
-        if (endptr == arg.as.string_val || *endptr != '\0') {
+        uint32_t consumed;
+        double val;
+        if (!nl_binary64_parse(arg.as.string_val, &val, &consumed) ||
+            consumed == 0 || arg.as.string_val[consumed] != '\0') {
             fprintf(stderr, "Error: cast_float cannot parse '%s' as float\n", arg.as.string_val);
             return create_float(0.0);
         }
@@ -3277,9 +3279,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     if (strcmp(name, "string_to_float") == 0) {
         if (args[0].type != VAL_STRING) return create_float(0.0);
-        char *endptr;
-        double val = strtod(args[0].as.string_val, &endptr);
-        return create_float(val);
+        return create_float(nl_binary64_prefix(args[0].as.string_val));
     }
 
     /* get_argc / get_argv for CLI programs */
