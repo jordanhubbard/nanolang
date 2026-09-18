@@ -29,12 +29,19 @@ old output across the two raw emitters and all three canonical producers.
 The inherited methods retain resource-payload constructor checks, expression
 matches, field order, lexical scope and mandatory shadow controls.
 
+The adjacent wrapper for all 25 unchanged affine module/generic identity
+methods also passes in 43.939 seconds. That separate check uses the external
+native carrier prerequisite `9a45a788` via `NVM2C`, since its mixed-variant
+contract is not yet integrated into this stacked branch. The 15-method syntax
+gate above uses this branch's own translator.
+
 Logs:
 
 - `/tmp/nanolang-explicit-generic-bootstrap.log`
 - `/tmp/nanolang-explicit-generic-paired.log`
 - `/tmp/nanolang-explicit-generic-types-bootstrap.log`
 - `/tmp/nanolang-explicit-generic-types-paired.log`
+- `/tmp/nanolang-explicit-generic-affine.log`
 
 Commands: `make bootstrap`, then
 `make -j4 -o bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump` and
