@@ -38,10 +38,11 @@ bin/nvm2hl --language nano program.nvm -o recovered.nano
 ```
 
 The initial grammar admits explicit scalar returns, constants, local snapshots,
-int comparisons, boolean operators, direct acyclic calls, forward if/else
+int comparisons, exact wrapping I64 addition/subtraction/negation, boolean operators,
+direct acyclic calls, forward if/else
 regions and canonical pretest loops. It requires empty operand stacks at joins
-and loop backedges. It refuses arithmetic until exact cross-language wrapping
-behavior is implemented. Imports, globals, aggregates, ownership/effects,
+and loop backedges. I use checked helper implementations for these three integer operations and
+refuse remaining arithmetic until its exact cross-language behavior is implemented. Imports, globals, aggregates, ownership/effects,
 unknown signatures and unstructured jumps also remain outside this grammar.
 The precise caps and admission rules are in
 [my scalar reconstruction contract](NANOISA_SCALAR_RECONSTRUCTION.md).
@@ -72,7 +73,7 @@ can become two executable high-level surfaces with functions, exact scalar types
 and structured control. I retain the measured pins and cases in
 [my evidence](evidence/nanoisa-scalar-reconstruction.md).
 
-**Insufficient for full high-level reconstruction:** arithmetic, general control
+**Insufficient for full high-level reconstruction:** remaining arithmetic, general control
 flow, wider values and runtime contracts, imported host calls, complete frontend
 facts remain unmet obligations. Original mandatory tests are not reconstructed;
 that limitation does not invent an additional release criterion. A passing
