@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I complete frozen63c26ecd candidate acceptance after a preserved source-borrow setup timeout (`task_ef9261a163f64e0397a93d377d623ed7`, product parentd76ae44). Bootstrap/tools and65executed methods pass, but26borrowed-source methods do not run and full quick gate has not started. Separate setup measurement and VM/native fixed points remain active. [Exact evidence](evidence/product-acceptance-63c26ecd.md).
+- [ ] I complete frozen `63c26ecd` candidate acceptance after a preserved source-borrow setup timeout (`task_ef9261a163f64e0397a93d377d623ed7`, product parent d76ae44). Bootstrap/tools and 65 executed methods pass; the corrected 26-method borrowed-source gate and isolated full Linux quick gate are running. Fresh VM and native full generations each pass raw equality and immutable closure/integrity checks. Current-candidate Darwin acceptance remains open. [Exact evidence](evidence/product-acceptance-63c26ecd.md).
 
 - [x] I complete the earlier-source corrected Darwin comparison at c9c747858ee4: full PTY quick gate passes985.04seconds with compiler/runtime source identical to ece241ba and only the deterministic Forth harness changed. I independently verified source equality and the sealed log hash. Current63c candidate platform acceptance remains separate. [Peer report](evidence/product-acceptance-ece241ba-darwin-corrected.txt).
 
