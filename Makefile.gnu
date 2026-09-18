@@ -4704,6 +4704,12 @@ test-native-u8-tail-results: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-u8-tail-results
 
+.PHONY: test-native-typed-enum
+test-native-typed-enum: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_typed_enum
+
+test-units: test-native-typed-enum
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
