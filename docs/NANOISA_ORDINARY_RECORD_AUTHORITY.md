@@ -154,3 +154,12 @@ ordinary executable behavior and absent optional authority. Canonical raw
 layout/authority roundtrips and projected declaration facts must agree across
 Cseed and fresh selfhost stages, while LLVM/Wasm record admission still refuses
 with prior output preserved. Specialized borrowed emission remains unchanged.
+
+My current selfhost physical slot allocator appends `nisa_types` for parameters,
+lets, match bindings, loops and compiler temporaries. Lexical exits hide names
+without deleting type entries or reusing physical slots. The one temporary type
+array replacement is in match-result inference and restores the saved array
+without emitting instructions. Function and initializer boundaries reset the
+array. I test nested lexical shadowing against these exact emitted slot tags;
+a later slot-reuse optimization must preserve this authority invariant or omit
+publication. My C collector allocates slot facts only when records exist.

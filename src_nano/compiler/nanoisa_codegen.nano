@@ -63,8 +63,8 @@ fn nisa_ordinary_hex(value: int, width: int) -> string {
     let mut result: string = ""
     let mut i: int = 0
     while (< i width) {
-        let byte: int = (% remaining 256)
-        set result (+ result (+ (str_substring digits (/ byte 16) 1) (str_substring digits (% byte 16) 1)))
+        let octet: int = (% remaining 256)
+        set result (+ result (+ (str_substring digits (/ octet 16) 1) (str_substring digits (% octet 16) 1)))
         set remaining (/ remaining 256)
         set i (+ i 1)
     }

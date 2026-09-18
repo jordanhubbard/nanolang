@@ -40,8 +40,9 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program) {
         if(fields && !items[i].fields){cg_error(cg,0,"I cannot allocate ordinary record fields");supported=false;break;}
         for(int j=0;j<fields;j++) {
             TypeInfo *info=node->as.struct_def.field_type_info?node->as.struct_def.field_type_info[j]:NULL;
-            if(!info || info->type_param_count || info->element_type){supported=false;break;}
-            uint8_t tag=ordinary_slot_tag(info->base_type);uint32_t child=NVM_V2_NO_INDEX;
+            if(info && (info->type_param_count || info->element_type)){supported=false;break;}
+            Type declared=info?info->base_type:node->as.struct_def.field_types[j];
+            uint8_t tag=ordinary_slot_tag(declared);uint32_t child=NVM_V2_NO_INDEX;
             if(tag==TAG_STRUCT) {
                 const char *name=node->as.struct_def.field_type_names?node->as.struct_def.field_type_names[j]:NULL;
                 if(name)for(unsigned k=0;k<i;k++)if(!strcmp(name,records[k]->as.struct_def.name))child=k;

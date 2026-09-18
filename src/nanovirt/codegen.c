@@ -300,7 +300,7 @@ static uint8_t ordinary_slot_tag(Type type) {
     }
 }
 static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int line) {
-    if(cg->names_enabled && !cg->had_error) {
+    if(cg->struct_count && cg->names_enabled && !cg->had_error) {
         CgAuthoritySlot *fact=malloc(sizeof *fact);
         if(!fact){cg_error(cg,line,"I cannot retain a declared local tag");return;}
         *fact=(CgAuthoritySlot){cg->current_fn_idx,slot,ordinary_slot_tag(type),*cg->authority_slots};
