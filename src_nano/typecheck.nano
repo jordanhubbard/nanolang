@@ -4142,6 +4142,83 @@ shadow tc_bound_name {
     (mb_reset [])
 }
 
+fn reduce_type_known(parser: Parser, value: NSType) -> bool {
+    if (or (== value.kind TypeKind.TYPE_UNKNOWN) (== value.kind TypeKind.TYPE_GENERIC)) { return false }
+    if (== value.kind TypeKind.TYPE_ARRAY) {
+        if (== value.element_type_kind TypeKind.TYPE_UNKNOWN) { return false }
+        return (reduce_type_known parser (type_from_string_with_parser parser (type_kind_to_string value.element_type_kind value.element_type_name)))
+    }
+    if (== value.kind TypeKind.TYPE_FUNCTION) {
+        if (not (tc_str_starts_with value.name "fn(")) { return false }
+        let parameters: array<NSType> = (fn_type_params_with_parser parser value.name)
+        let mut i: int = 0
+        while (< i (array_length parameters)) {
+            if (not (reduce_type_known parser (at parameters i))) { return false }
+            set i (+ i 1)
+        }
+        return (reduce_type_known parser (type_from_string_with_parser parser (type_to_string (fn_type_return_type value.name))))
+    }
+    if (== value.kind TypeKind.TYPE_TUPLE) {
+        let components: array<string> = (split_tuple_type_names value.name)
+        if (== (array_length components) 0) { return false }
+        let mut i: int = 0
+        while (< i (array_length components)) {
+            if (not (reduce_type_known parser (type_from_string_with_parser parser (at components i)))) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    if (== value.kind TypeKind.TYPE_LIST_GENERIC) {
+        return (reduce_type_known parser (type_from_string_with_parser parser value.element_type_name))
+    }
+    if (or (== value.kind TypeKind.TYPE_STRUCT) (== value.kind TypeKind.TYPE_UNION)) {
+        let spelling: string = (type_to_string value)
+        let base: string = (base_type_name spelling)
+        let arguments: array<string> = (tc_generic_arguments spelling)
+        let mut declared: bool = (tc_is_opaque_name parser base)
+        let mut i: int = 0
+        while (< i (parser_get_struct_def_count parser)) {
+            if (== (parser_get_struct_def parser i).name base) { set declared true }
+            set i (+ i 1)
+        }
+        set i 0
+        while (< i (parser_get_union_count parser)) {
+            let definition: ASTUnion = (parser_get_union parser i)
+            if (== definition.name base) { set declared (== definition.generic_param_count (array_length arguments)) }
+            set i (+ i 1)
+        }
+        if (not declared) { return false }
+        set i 0
+        while (< i (array_length arguments)) {
+            if (not (reduce_type_known parser (type_from_string_with_parser parser (at arguments i)))) { return false }
+            set i (+ i 1)
+        }
+    }
+    return true
+}
+shadow reduce_type_known {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T } }")
+    assert (reduce_type_known parser (type_from_string_with_parser parser "array<Box<int>>"))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "array<array<unknown>>")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<unknown>")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<T>")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "fn(unknown,int)->int")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "fn(int,int)->unknown")))
+}
+
+fn reduce_types_exact(parser: Parser, actual: NSType, expected: NSType) -> bool {
+    if (!= actual.kind expected.kind) { return false }
+    if (not (and (reduce_type_known parser actual) (reduce_type_known parser expected))) { return false }
+    return (== (strip_spaces (type_to_string actual)) (strip_spaces (type_to_string expected)))
+}
+shadow reduce_types_exact {
+    let parser: Parser = (resource_test_parser "enum Number { One } union Box<T> { Some { value: T } }")
+    assert (not (reduce_types_exact parser (type_from_string_with_parser parser "Number") (type_int)))
+    assert (not (reduce_types_exact parser (type_int) (type_from_string "unknown")))
+    assert (not (reduce_types_exact parser (type_from_string_with_parser parser "Box<int>") (type_from_string_with_parser parser "Box<string>")))
+    assert (reduce_types_exact parser (type_from_string_with_parser parser "array<Box<int>>") (type_from_string_with_parser parser "array<Box<int>>"))
+}
+
 fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
     if (!= call.arg_count 3) {
@@ -4166,8 +4243,8 @@ fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diag
     }
     let first: NSType = (at parameters 0)
     let element: NSType = (at parameters 1)
-    let known: bool = (and (and (!= accumulator.kind TypeKind.TYPE_UNKNOWN) (!= accumulator.kind TypeKind.TYPE_VOID)) (and (!= element.kind TypeKind.TYPE_UNKNOWN) (!= element.kind TypeKind.TYPE_VOID)))
-    let mut matches: bool = (and known (and (types_equal accumulator first) (types_equal accumulator result)))
+    let known: bool = (and (and (reduce_type_known parser accumulator) (!= accumulator.kind TypeKind.TYPE_VOID)) (and (reduce_type_known parser element) (!= element.kind TypeKind.TYPE_VOID)))
+    let mut matches: bool = (and known (and (reduce_types_exact parser accumulator first) (reduce_types_exact parser accumulator result)))
     if (== source_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
         let mut empty_literal: bool = false
         if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
@@ -4175,7 +4252,7 @@ fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diag
         }
         set matches (and matches empty_literal)
     } else {
-        set matches (and matches (types_equal source_type (type_array_of element)))
+        set matches (and matches (reduce_types_exact parser source_type (type_array_of element)))
     }
     if (not matches) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require reduce callback fn(A,E)->A to match the initializer and array elements exactly." location))
