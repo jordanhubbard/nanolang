@@ -10225,7 +10225,8 @@ Other translators:
   - [x] I qualify the separate private record slot/descriptor binding, fixed-field ownership and mixed record-array traversal checkpoint before target admission; descriptor UNKNOWN authority remains unchanged ([checkpoint contract](NANOISA_MANAGED_RECORD_CORE.md#my-private-storage-api-checkpoint), [native/Wasm evidence](evidence/managed-record-storage.md)).
   - [ ] I establish explicit ordinary heap-bearing record authority before shared nominal admission; retained shape and absent ownership remain UNKNOWN, and existing affine/resource contracts are not weakened (task_15f955fae5cf402d92bf88794122e9a2; [staged contract](NANOISA_ORDINARY_RECORD_AUTHORITY.md)).
     - [x] I validate/query explicit ordinary scalar/string/prior-record declarations without relaxing transitive resource eligibility ([transport evidence](evidence/ordinary-record-authority.md)); no descriptor adapter or execution admission is implied.
-    - [ ] I connect the checked descriptor adapter and publish truthful retained layouts/authority in both ordinary source producers.
+    - [x] I connect checked declaration authority to owned record descriptors with failure-atomic batch queries, preserving UNKNOWN absence and unresolved resource/mixed declarations ([adapter evidence](evidence/record-authority-adapter.md)); executable admission remains unchanged.
+    - [ ] I publish truthful retained layouts/authority in both ordinary source producers, including normal entries and all selected shadows.
     - [ ] I retain required array-element ownership, generic/import/forward-order and remaining nominal coverage under15f; absent or unsupported metadata stays UNKNOWN until its own contract qualifies it.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
       MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
@@ -10980,3 +10981,4 @@ Next Review: the exact release candidate and its published artifacts.
 
 - [ ] I establish host-independent signed nonfinite conversion and display (`task_e92a45b66a104e9ba3854cd5f994df8b`), following the retained Darwin negative-NaN failure on PR739. My [contract](NANOISA_SIGNED_NAN_FORMAT_POLICY.md) selects explicit signed NaN/Inf bytes, preserves finite formatting and all bit transport, and requires actual VM/native/managed and later legacy/source coverage. The failed full Darwin gate remains open.
 - [ ] I check the VM float-print range before integer conversion (`task_e48563e1f62c4bd89648596c8c55849b`), retaining integral formatting and testing nonfinite/extreme values with float-cast-overflow sanitization after static review.
+- [ ] I retain ownership-query allocation versus malformed-input diagnostic ambiguity as a follow-up (task_31682d93fc3d4647bb1c1523c9c68eab). The record adapter conservatively returns UNRESOLVED; this does not weaken validation or add a release gate.
