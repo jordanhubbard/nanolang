@@ -13,6 +13,9 @@ DynArray* nl_fs_list_files_ci(const char* path, const char* extension);
 // List directories in directory
 DynArray* nl_fs_list_dirs(const char* path);
 
+// I consume one exclusive string listing after its values have been copied.
+bool nl_fs_list_release(DynArray *result);
+
 // I return a borrowed static parent path, "." for null/empty input, or NULL
 // for inputs of 2048 bytes or longer. My static path buffers are not thread-safe.
 const char* nl_fs_parent_dir(const char* path);
