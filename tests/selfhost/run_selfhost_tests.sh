@@ -98,15 +98,41 @@ for test in $NEGATIVE_TESTS; do
 
     printf "Testing %-30s ... " "$test"
 
-    if perl -e 'alarm 60; exec @ARGV' "$NANOC" "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
-        echo "❌ FAIL (expected compilation error)"
-        FAILED=$((FAILED + 1))
-        if [ -f "$TEST_BIN" ]; then
-            rm -f "$TEST_BIN"
-        fi
-    else
+    case "$test" in
+        test_requires_bool.nano)
+            EXPECTED_DIAGNOSTIC="[E0001] assert condition must be bool"
+            ;;
+        test_function_arg_type_errors.nano)
+            EXPECTED_DIAGNOSTIC="[E0010] Argument 1 to 'add': expected int, got string"
+            ;;
+        test_returned_function_arg_type_error.nano)
+            EXPECTED_DIAGNOSTIC="[E0010] Argument 1 to the function expression: expected int, got string"
+            ;;
+        test_returned_function_arity_error.nano)
+            EXPECTED_DIAGNOSTIC="[E0010] The function expression expects 1 argument(s), but I see 2."
+            ;;
+        test_opaque_nonzero_argument.nano)
+            EXPECTED_DIAGNOSTIC="[E0010] Argument 1 to 'is_null': expected SDL_Window, got int"
+            ;;
+        *)
+            echo "❌ FAIL (missing rejection contract)"
+            FAILED=$((FAILED + 1))
+            continue
+            ;;
+    esac
+
+    COMPILE_LOG="$LOG_DIR/$(basename "$test" .nano).compile.log"
+    rm -f "$TEST_BIN"
+    if python3 "$TESTS_DIR/expect_rejection.py" \
+        --timeout 60 --log "$COMPILE_LOG" --output "$TEST_BIN" \
+        --require "$EXPECTED_DIAGNOSTIC" -- \
+        "$NANOC" "$TEST_PATH" -o "$TEST_BIN"; then
         echo "✅ EXPECTED FAIL"
         PASSED=$((PASSED + 1))
+    else
+        echo "❌ FAIL (not the required semantic rejection)"
+        cat "$COMPILE_LOG"
+        FAILED=$((FAILED + 1))
     fi
 done
 

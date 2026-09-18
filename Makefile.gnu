@@ -886,6 +886,10 @@ test-daemon-gate:
 test-selfhost-returned-calls: bootstrap3
 	@python3 -m unittest tests.test_selfhost_returned_calls
 
+.PHONY: test-selfhost-rejection-gate
+test-selfhost-rejection-gate:
+	@python3 -m unittest -v tests.test_selfhost_rejection_gate
+
 .PHONY: test-selfhost-map-types
 test-selfhost-map-types: bootstrap3
 	@python3 -m unittest tests.test_selfhost_map_types
@@ -894,7 +898,7 @@ test-selfhost-map-types: bootstrap3
 test-selfhost-array-compatibility: bootstrap3
 	@python3 -m unittest tests.test_selfhost_array_compatibility
 
-test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls
+test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop

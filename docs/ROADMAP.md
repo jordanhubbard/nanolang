@@ -2953,12 +2953,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         process-name counts cannot prove per-client isolation or lazy launch.
         I require observed owned-worker identity and an actual injected crash,
         not merely successful repeated calls or matching ambient counts.
-      - [ ] I require semantic rejection evidence in the self-hosted shell
+      - [x] I require semantic rejection evidence in the self-hosted shell
         suite. Its negative-test loop currently counts any compiler failure,
         including timeout or launch failure, as a pass and discards diagnostics.
         I preserve the corpus and distinguish expected diagnostics from
         infrastructure failures with injected regressions. MAC
-        `task_4f84d7b8485a467da3909f79e2417233`.
+        `task_4f84d7b8485a467da3909f79e2417233`. Evidence:
+        `docs/evidence/selfhost-semantic-rejections.md`.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
