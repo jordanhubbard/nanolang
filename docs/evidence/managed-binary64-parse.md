@@ -64,3 +64,10 @@ profile decisions with output preservation, 1,269 shape checks and 2,422 native
 checks. Logs are `/tmp/nanolang-managed-parser-integrated.log` (globals/literals)
 and `/tmp/nanolang-managed-parser-integrated-r3.log` (remaining corrected gates).
 The focused parser rerun also passes all three methods in 2.188 seconds.
+
+I restacked cleanly onto main `9a5d6938` (through PR656), preserving its array and
+assertion changes. Restacked parser production is `152f5433`. Rebuilt tools and
+all six focused parser/package/profile methods pass in 4.256 seconds on this
+integrated source; logs are `/tmp/nanolang-managed-parser-restack-build.log` and
+`/tmp/nanolang-managed-parser-restack-tests.log`. The subsequent core opening
+comment correction changes no runtime behavior.
