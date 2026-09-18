@@ -5002,3 +5002,15 @@ test-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(R
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_consuming_call_preflight tests/nanoisa/test_consuming_call_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_consuming_call_preflight
 	python3 -m unittest -v tests.test_consuming_calls
+
+.PHONY: test-multiple-consuming-calls
+test-units: test-multiple-consuming-calls
+test-multiple-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_calls tests/nanoisa/test_multiple_consuming_calls.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=helper_heap_malloc -Dcalloc=helper_heap_calloc -Drealloc=helper_heap_realloc -c src/nanovm/heap.c -o obj/test_multiple_consuming_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_alloc tests/nanoisa/test_multiple_consuming_alloc.c obj/test_multiple_consuming_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multiple_consuming_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_preflight tests/nanoisa/test_multiple_consuming_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multiple_consuming_preflight
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_refusals tests/nanoisa/test_multiple_consuming_refusals.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_multiple_consuming_calls

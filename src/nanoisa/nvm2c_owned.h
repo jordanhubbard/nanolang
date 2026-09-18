@@ -9,8 +9,9 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
     if (!vm_decode_function(mod,function,&code,decode_error) ||
         nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&layouts)!=NVM_V2_OK ||
         !(state=nvm_affine_state_create(mod,function,fn->local_count))) goto fail;
-    NvmAffineType owned_parameter;
-    bool consuming=function && nvm_affine_owned_parameter_type(state,&owned_parameter);
+    NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t parameter_count=0;
+    bool consuming=function && nvm_affine_consuming_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&parameter_count);
+    if (consuming && parameter_count!=fn->arity) goto fail;
     depth=malloc(code.instruction_count*sizeof(*depth));
     queue=malloc(code.instruction_count*sizeof(*queue));
     if (!depth || !queue) goto fail;
@@ -27,7 +28,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
             if (!nvm_affine_local_type(state,in->operands[0].u16,&type)) goto fail;
             pop=0;push=layouts.items[type.layout].field_count;
         }
-        if (op==OP_CALL) {pop=1;push=1;}
+        if (op==OP_CALL) {pop=mod->functions[1].arity;push=1;}
         if (op==OP_RET) continue;
         if (pop<0 || push<0 || depth[i]<pop || depth[i]-pop+push>(int)NVM_AFFINE_MAX_STACK) goto fail;
         uint32_t targets[2],count=0;
@@ -79,7 +80,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region; (void)nown_referent;\n");
     if(function) {
         nvm2c_puts(&b," nown_value *origins[2]={origin,l}; uint64_t generations[2]={caller_generation,generation};\n");
-        if(consuming) nvm2c_puts(&b," l[0]=*argument; *argument=(nown_value){0};\n");
+        if(consuming) for(uint16_t p=0;p<parameter_count;p++)
+            nvm2c_printf(&b," l[%u]=argument[%u]; argument[%u]=(nown_value){0};\n",p,p,p);
         for(uint16_t p=0;!consuming && p<fn->arity;p++) {
             NvmAffineType param;NvmReferenceMode mode;
             if(!nvm_affine_parameter_at(state,p,&param,&mode)) goto fail;
@@ -95,7 +97,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
         case OP_CALL:
-            nvm2c_printf(&b," if(next_generation==UINT64_MAX){status=3;goto cleanup;}\n status=nown_helper(l,&t[%d],generations[0],++next_generation,&t[%d].scalar); if(status)goto cleanup;\n",n-1,n-1);break;
+            nvm2c_printf(&b," if(next_generation==UINT64_MAX){status=3;goto cleanup;}\n status=nown_helper(l,&t[%d],generations[0],++next_generation,&t[%d].scalar); if(status)goto cleanup;\n",n-mod->functions[1].arity,n-mod->functions[1].arity);break;
         case OP_CALL_REF:
             nvm2c_printf(&b," if(next_generation==UINT64_MAX){status=3;goto cleanup;}\n status=nown_helper(l,&refs[%u],generations[0],++next_generation,&t[%d].scalar); if(status)goto cleanup;\n",in->operands[1].u16,n);break;
         case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;

@@ -84,20 +84,26 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1 || !f->count)
             return "I require an entry-to-helper consuming call";
         NvmAffineState *callee=nvm_affine_state_create(module,1,module->functions[1].local_count);
-        NvmAffineType parameter={0};
-        bool valid=nvm_affine_owned_parameter_type(callee,&parameter);
+        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+        bool valid=nvm_affine_consuming_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
         nvm_affine_state_free(callee);
-        Value argument=f->stack[f->count-1];
-        if (!valid || !argument.owned || argument.observation ||
-            argument.tag!=parameter.tag || argument.layout!=parameter.layout)
-            return "I require one exact owned argument for my consuming helper";
+        if (!valid || count!=module->functions[1].arity || f->count<count)
+            return "I require a complete consuming argument list";
+        for (uint16_t p=0;p<count;p++) {
+            Value argument=f->stack[f->count-count+p];
+            NvmAffineType parameter=parameters[p];
+            if (argument.observation || argument.tag!=parameter.tag ||
+                argument.owned!=(parameter.tag==TAG_STRUCT) ||
+                (argument.owned && argument.layout!=parameter.layout))
+                return "I require exact positional consuming argument types";
+        }
         NvmAffineAnalysis call=analyze(module,1,NULL,0);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
         tag=module->functions[1].result_tag;
         if (module->functions[1].result_count!=1 ||
             (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8))
             return "I require a single scalar consuming-call result";
-        f->count--;
+        f->count-=count;
         break;
     }
     case OP_CALL_REF: {
