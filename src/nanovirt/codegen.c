@@ -11,6 +11,7 @@
 
 #include "../checked_loop_binding.h"
 #include "nanovirt/codegen.h"
+#include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
@@ -41,9 +42,15 @@
 
 /* ── Internal structures ────────────────────────────────────────── */
 
+typedef struct CgLocalName {
+    NvmLocalBinding binding;
+    struct CgLocalName *next;
+} CgLocalName;
+
 typedef struct {
     char *name;
     uint16_t slot;
+    CgLocalName *advisory;
     char *struct_type;  /* Struct type name for field resolution (NULL if not a struct) */
 } Local;
 
@@ -121,6 +128,8 @@ struct CG {
     NvmModule *module;
     Environment *env;
     CgPassive *passive;
+    CgLocalName **local_names;
+    bool names_enabled;
 
     /* Current function's code buffer */
     uint8_t *code;
@@ -266,8 +275,38 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     binding->name = (char *)name;
     binding->slot = slot;
     binding->struct_type = NULL;
+    binding->advisory = NULL;
     cg->local_count++;
     return slot;
+}
+
+static bool local_name_scalar(Type type) {
+    return type==TYPE_INT || type==TYPE_FLOAT || type==TYPE_BOOL || type==TYPE_U8 || type==TYPE_STRING;
+}
+static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int line) {
+    if(!cg->names_enabled || !local_name_scalar(type) || !name || !*name || cg->had_error)return;
+    CgLocalName *entry=calloc(1,sizeof *entry);
+    if(!entry){cg_error(cg,line,"I cannot retain a lexical local name");return;}
+    entry->binding=(NvmLocalBinding){.function=cg->current_fn_idx,.slot=slot,
+        .begin=cg->code_size,.end=cg->code_size,.name=(const uint8_t *)name,.name_size=(uint32_t)strlen(name)};
+    entry->next=*cg->local_names;*cg->local_names=entry;
+    cg->locals[cg->local_binding_count-1].advisory=entry;
+}
+static void local_names_end(CG *cg,uint16_t first) {
+    for(uint16_t i=first;i<cg->local_binding_count;i++) {
+        if(cg->locals[i].advisory) {
+            cg->locals[i].advisory->binding.end=cg->code_size;
+            cg->locals[i].advisory=NULL;
+        }
+    }
+}
+static void publish_local_names(CG *cg) {
+    while(*cg->local_names) {
+        CgLocalName *entry=*cg->local_names;
+        if(!cg->had_error && !nvm_add_local_binding(cg->module,&entry->binding))
+            cg_error(cg,0,"I cannot publish this lexical local name");
+        *cg->local_names=entry->next;free(entry);
+    }
 }
 
 /* Find the struct type name for a local variable (for field access resolution) */
@@ -2024,6 +2063,7 @@ static void compile_effect_block(CG *cg, ASTNode *body) {
             } else compile_stmt(cg, statement);
             if (!stmt_falls_through(statement)) break;
         }
+        local_names_end(cg, bindings);
         cg->local_binding_count = bindings;
     } else {
         compile_expr(cg, body);
@@ -2086,7 +2126,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
             starts[i] = cg->local_count;
             int argc = node->as.handle_expr.handler_param_counts[i];
             for (int j = 0; j < argc; j++) local_add(cg, "", node->line);
-            cg->local_binding_count = outer_bindings;
+            local_names_end(cg, outer_bindings);
+        cg->local_binding_count = outer_bindings;
             patches[i] = emit_op(cg, OP_HANDLER_PUSH,
                 effect_operation(cg, node->as.handle_expr.effect_name, node->as.handle_expr.handler_op_names[i]),
                 (int32_t)0, (int)starts[i], argc);
@@ -2107,6 +2148,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             }
             for (int j = 0; j < argc; j++) {
                 Local *local = &cg->locals[cg->local_binding_count++];
+                local->advisory = NULL;
                 local->name = node->as.handle_expr.handler_param_names[i][j];
                 local->slot = starts[i] + j;
                 local->struct_type = operation->params[j].struct_type_name;
@@ -2122,7 +2164,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
             cg->handler_loop_floor = saved_loop_floor;
             emit_op(cg, OP_EFFECT_RESUME);
             cg->env->symbol_count = symbol_start;
-            cg->local_binding_count = outer_bindings;
+            local_names_end(cg, outer_bindings);
+        cg->local_binding_count = outer_bindings;
         }
         cg->effect_depth--;
         if (!cg->had_error) patch_jump(cg, skip + 1, skip, cg->code_size);
@@ -2921,6 +2964,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     memcpy(st->locals, cg->locals, sizeof(cg->locals));
     uint16_t saved_local_count = cg->local_count;
     uint16_t saved_local_binding_count = cg->local_binding_count;
+    bool saved_names_enabled = cg->names_enabled;
+    cg->names_enabled = false;
     uint16_t saved_param_count = cg->param_count;
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
     Type saved_return_element_type = cg->current_return_element_type;
@@ -3004,6 +3049,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     memcpy(cg->locals, st->locals, sizeof(cg->locals));
     cg->local_count = saved_local_count;
     cg->local_binding_count = saved_local_binding_count;
+    cg->names_enabled = saved_names_enabled;
     cg->param_count = saved_param_count;
     cg->current_fn_idx = saved_current_fn_idx;
     cg->current_return_element_type = saved_return_element_type;
@@ -3336,6 +3382,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
                 local_type->struct_type_name = strdup(node->as.let.type_name);
         }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
+        local_name_begin(cg,slot,node->as.let.name,node->as.let.var_type,node->line);
         break;
     }
 
@@ -3500,7 +3547,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (!reestablish_checked_loop_binding(cg->env, node)) {
             cg_error(cg, node->line, "I require checked loop binding metadata");
             cg->loop_depth--;
-            cg->local_binding_count = saved_binding_count;
+            local_names_end(cg, saved_binding_count);
+        cg->local_binding_count = saved_binding_count;
             break;
         }
         /* Compile body */
@@ -3526,6 +3574,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
 
         cg->loop_depth--;
+        local_names_end(cg, saved_binding_count);
         cg->local_binding_count = saved_binding_count;
         break;
     }
@@ -3537,6 +3586,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             compile_stmt(cg, node->as.block.statements[i]);
             if (!stmt_falls_through(node->as.block.statements[i])) break;
         }
+        local_names_end(cg, saved_binding_count);
         cg->local_binding_count = saved_binding_count;
         for (int i = symbol_start; i < cg->env->symbol_count; i++) {
             Symbol *symbol = &cg->env->symbols[i];
@@ -3690,6 +3740,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             compile_stmt(cg, node->as.unsafe_block.statements[i]);
             if (!stmt_falls_through(node->as.unsafe_block.statements[i])) break;
         }
+        local_names_end(cg, saved_binding_count);
         cg->local_binding_count = saved_binding_count;
         for (int i = symbol_start; i < cg->env->symbol_count; i++) {
             Symbol *symbol = &cg->env->symbols[i];
@@ -3751,6 +3802,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
         return;
     }
 
+    cg->names_enabled = true;
     /* Reset per-function state */
     cg->code_size = 0;
     cg->local_count = 0;
@@ -3765,7 +3817,9 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {
-        local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
+        uint16_t slot=local_add(cg, fn_node->as.function.params[i].name, fn_node->line);
+        local_name_begin(cg,slot,fn_node->as.function.params[i].name,
+                         fn_node->as.function.params[i].type,fn_node->line);
         /* Track struct type for field access resolution */
         if (fn_node->as.function.params[i].struct_type_name) {
             cg->locals[cg->local_binding_count - 1].struct_type =
@@ -3808,6 +3862,8 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
         emit_op(cg, OP_RET);
     }
 
+    local_names_end(cg,0);
+    cg->names_enabled = false;
     cg->env->current_module = saved_module;
     if (cg->had_error) return;
 
@@ -3886,7 +3942,9 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
     }
 
+    CgLocalName *local_names=NULL;
     CG cg = {0};
+    cg.local_names=&local_names;
     cg.module = nvm_module_new();
     cg.env = env;
     cg.code = malloc(CODE_INITIAL);
@@ -4595,6 +4653,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                                      (uint32_t)strlen(input_file));
     }
 
+    publish_local_names(&cg);
     publish_passive(&cg);
     free(cg.code);
 
