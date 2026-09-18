@@ -27,5 +27,19 @@
     "/tmp/nanolang-reconstruction-f64-final-gcc.log": "7fa2e201ab010724b8ee280490bdb52c3fb96240f0808cbea2cbd43cb3725843",
     "/tmp/nanolang-reconstruction-f64-final-clang.log": "c75ab27461443edda993d9ba996b5920c7193662a9dcfdb94a66a59c601fb3f8",
     "/tmp/nanolang-reconstruction-f64-refusal-integration.log": "a07bafca0c6fa51fa3a99711aa2481b04a93458a09963f7e43caa95d29d8dc8d"
+  },
+  "integration": {
+    "source": "136e551ae05f973dd025559cca28ab82c0c7ec43",
+    "tools": {
+      "bin/nanoisa": "67bdba511cb8b9a9639f1f8f0da184617fb4107cec8917c3f0fbea01098aeca7",
+      "bin/nanoisa_hl_facts": "6a86dd2cbf7de00268e2b83fff2a7392b8dd98c0a046c1a56e0d17ccd853daee",
+      "bin/nvm2hl": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+      "bin/nano_vm": "b01a101cc004398d9ff06ef6b14475972d7ea04764b68053b9dbb504270ea798",
+      "bin/nvm2c": "2ada20fe228a3d739256b7cc3c8f4422951bbad688d6c4fd9b6320fd7ac1bbef"
+    },
+    "logs": {
+      "/tmp/nanolang-reconstruction-f64-integration-build.log": "2fd831f5cbfe77bbf8103b254c4ea14eda0e124657593c63bd7056730250812d",
+      "/tmp/nanolang-reconstruction-f64-integration.log": "89f25d07b1f848ac86557307763e4148e2cb26098f99f701bbc49215b9651525"
+    }
   }
 }

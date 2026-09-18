@@ -60,3 +60,14 @@ of newly admitted constants/bit copies. No historical PR679 endpoint corpus,
 failed compiler or frozen product candidate was executed or modified. I make
 no full-bootstrap, Darwin, full-product, float-arithmetic or full-reconstruction
 claim from this bounded child; parent `4bd034f6029b7458201db74e2c3aeb32` stays open.
+
+## My canonical-main integration
+
+I integrated the subsequent managed-array lowering at `136e551a` without
+changing my reviewed generator/facts production. After rebuilding the affected
+execution tools, three selected transport/observer/refusal methods passed in
+18.805 seconds. They include all qualified producer routes, both local branches,
+loop snapshots and discarded-call observation. My source producer and embedded
+library hashes remain unchanged; the manifest records rebuilt execution-tool
+hashes separately. This additive integration does not imply a new source-compiler
+bootstrap or close the full reconstruction parent.
