@@ -213,3 +213,15 @@ admitted scalar binary operation normalizes its own result.
 5. After policy completion I return to a separate reconstruction arithmetic
    contract. Existing F64_TO_BITS, transport, negation and comparison admission
    remains intact throughout; no workaround bans are introduced.
+
+## My emission namespace boundary
+
+Review of helper checkpoint `b53be06d` found that nl_f64_add/sub/mul/div
+would collide with legacy C names for ordinary user functions f64_add/sub/mul/div.
+No product path emitted these helpers at that checkpoint. Before tests/integration
+I use the established nano_rt_ runtime prefix (as existing nano_rt_idiv does).
+I do not reserve ordinary f64_* source identifiers. Helper tests retain the old
+nl_f64_* user symbols beside the new helper names; source integration requires
+paired ordinary named-function execution through both producer implementations.
+Foreign explicit ABI symbols remain subject to the existing runtime namespace
+boundary and must not be inferred to be ordinary prefixed source functions.

@@ -1,4 +1,4 @@
-/* I generate this from binary64_arithmetic.h; do not edit. SHA256 796326b7b301fe660e7911c1cfe141b632317e9068c98aaa02e408ee66aa0042 */
+/* I generate this from binary64_arithmetic.h; do not edit. SHA256 abdfe5ed9d66c3a0610fe986058b4962a3fa294c33fd353c443649705688676c */
 #ifndef NANOLANG_BINARY64_ARITHMETIC_SOURCE_H
 #define NANOLANG_BINARY64_ARITHMETIC_SOURCE_H
 static const char nl_binary64_arithmetic_source[] =
@@ -21,7 +21,7 @@ static const char nl_binary64_arithmetic_source[] =
 "_Static_assert(sizeof(double) == sizeof(uint64_t), \"I require eight-byte binary64 storage.\");\n"
 "\n"
 "/* I inspect a rounded result with integer operations, not another FP operation. */\n"
-"static inline double nl_f64_arithmetic_result(double value) {\n"
+"static inline double nano_rt_f64_arithmetic_result(double value) {\n"
 "    uint64_t bits;\n"
 "    memcpy(&bits, &value, sizeof(bits));\n"
 "    if ((bits & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000) &&\n"
@@ -33,25 +33,25 @@ static const char nl_binary64_arithmetic_source[] =
 "}\n"
 "\n"
 "/* Each volatile store/load is a binary64 rounding and noncontraction boundary. */\n"
-"static inline double nl_f64_add(double a, double b) {\n"
+"static inline double nano_rt_f64_add(double a, double b) {\n"
 "    volatile double rounded = a + b;\n"
-"    return nl_f64_arithmetic_result(rounded);\n"
+"    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
-"static inline double nl_f64_sub(double a, double b) {\n"
+"static inline double nano_rt_f64_sub(double a, double b) {\n"
 "    volatile double rounded = a - b;\n"
-"    return nl_f64_arithmetic_result(rounded);\n"
+"    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
-"static inline double nl_f64_mul(double a, double b) {\n"
+"static inline double nano_rt_f64_mul(double a, double b) {\n"
 "    volatile double rounded = a * b;\n"
-"    return nl_f64_arithmetic_result(rounded);\n"
+"    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
-"static inline double nl_f64_div(double a, double b) {\n"
+"static inline double nano_rt_f64_div(double a, double b) {\n"
 "    uint64_t divisor;\n"
 "    memcpy(&divisor, &b, sizeof(divisor));\n"
 "    /* Either signed zero takes precedence even over a signaling NaN numerator. */\n"
 "    if ((divisor & UINT64_C(0x7fffffffffffffff)) == 0) return 0.0;\n"
 "    volatile double rounded = a / b;\n"
-"    return nl_f64_arithmetic_result(rounded);\n"
+"    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
 "#endif\n"
 ;
