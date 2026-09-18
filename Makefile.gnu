@@ -4618,8 +4618,13 @@ test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic
 test-units: test-native-total-arithmetic
 
+.PHONY: test-native-optional-array-reads
+test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
+	python3 -m unittest tests.test_native_optional_array_reads -v
 .PHONY: test-constructor-call-context
 test-constructor-call-context: bootstrap
 	python3 -m unittest -v tests.test_constructor_call_context
 
 test-units: test-constructor-call-context
+
+test-units: test-native-optional-array-reads

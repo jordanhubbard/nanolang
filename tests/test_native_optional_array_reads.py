@@ -1,0 +1,56 @@
+"""I retain missing scalar array elements as void until a consumer checks them."""
+from pathlib import Path
+import os
+import subprocess
+import tempfile
+import unittest
+ROOT=Path(__file__).resolve().parents[1]
+
+class OptionalArrayReads(unittest.TestCase):
+    def checked(self,args):
+        r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60,
+                         env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+        self.assertEqual(r.returncode,0,r.stdout+r.stderr)
+        return r
+    def paired(self,text):
+        with tempfile.TemporaryDirectory(prefix='nano-optional-array-') as d:
+            p=Path(d);assembly=p/'input.nasm';module=p/'input.nvm';source=p/'output.c';binary=p/'output'
+            assembly.write_text(text)
+            self.checked([ROOT/'bin/nanoisa','asm',assembly,'-o',module])
+            self.checked([ROOT/'bin/nano_vm','--verify-only',module])
+            self.checked([ROOT/'bin/nano_vm',module])
+            self.checked([ROOT/'bin/nvm2c',module,'-o',source])
+            self.checked([os.environ.get('CC','cc'),'-std=c11','-O1','-Wall','-Wextra','-Werror',
+                          '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
+            self.checked([binary])
+    def test_tags_bounds_locals_and_calls(self):
+        for tag,value in [(1,'PUSH_I64 73'),(4,'PUSH_BOOL 1'),(5,'PUSH_STR text')]:
+            with self.subTest(tag=tag):
+                body=f'{value}\nARR_LITERAL {tag} 1\nSTORE_LOCAL 0\n'
+                body+=f'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nDUP\nTYPE_CHECK {tag}\nASSERT\n{value}\nEQ\nASSERT\n'
+                for index in (-1,1,4294967296,9223372036854775807):
+                    read=f'LOAD_LOCAL 0\nPUSH_I64 {index}\nARR_GET\n'
+                    body+=read+'POP\n'+read+'STORE_LOCAL 1\nLOAD_LOCAL 1\nTYPE_CHECK 0\nASSERT\n'
+                    body+=read+'CALL missing\nASSERT\n'
+                body+=f'ARR_NEW {tag}\nPUSH_I64 0\nARR_GET\nTYPE_CHECK 0\nASSERT\n'
+                suffix='.function missing 1 1 0 bool 1\nLOAD_LOCAL 0\nTYPE_CHECK 0\nRET\n.end\n'
+                self.paired('.string text "kept"\n.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+suffix)
+    def test_present_values_feed_typed_writes_and_records(self):
+        for tag,value in [(1,'PUSH_I64 73'),(4,'PUSH_BOOL 1'),(5,'PUSH_STR text')]:
+            with self.subTest(tag=tag):
+                body=f'{value}\nARR_LITERAL {tag} 1\nSTORE_LOCAL 0\n'
+                read='LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\n'
+                body+='LOAD_LOCAL 0\n'+read+'ARR_PUSH\nPOP\n'
+                body+='LOAD_LOCAL 0\nPUSH_I64 1\n'+read+'ARR_SET\nPOP\n'
+                body+='LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 2\nI64_EQ\nASSERT\n'
+                body+=read+'AGG_PACK 0 0 0 1\nAGG_GET 0\n'+value+'\nEQ\nASSERT\n'
+                self.paired('.types 1 0 0\n.string text "kept"\n.entry main\n.function main 0 1 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    def test_present_and_missing_branch_join(self):
+        for tag,value in [(1,'PUSH_I64 73'),(4,'PUSH_BOOL 1'),(5,'PUSH_STR text')]:
+            for present in (0,1):
+                with self.subTest(tag=tag,present=present):
+                    body=f'{value}\nARR_LITERAL {tag} 1\nSTORE_LOCAL 0\nPUSH_BOOL {present}\nJMP_FALSE missing\n'
+                    body+='LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nJMP joined\nmissing:\nLOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\njoined:\n'
+                    body+=f'STORE_LOCAL 1\nLOAD_LOCAL 1\nTYPE_CHECK {tag if present else 0}\nASSERT\n'
+                    self.paired('.string text "kept"\n.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+if __name__=='__main__': unittest.main()
