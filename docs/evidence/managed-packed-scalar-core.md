@@ -55,3 +55,8 @@ I used `NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/
 with `make test-llvm-literal-strings test-llvm-managed-strings test-verifier-profiles`.
 Independent production review found no scoped blocker. This is tested Linux
 native/Wasm evidence, not a full platform or release acceptance claim.
+
+I restacked onto main `a3f20b48` after the frozen gate. Production, runtime
+package inputs and affected test files remain byte-identical to `9bb88d3c`;
+the added upstream implementation is the separate generic-integer reconstruction
+script/test with its Make target. I preserve that target and its evidence.
