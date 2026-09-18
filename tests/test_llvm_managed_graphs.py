@@ -80,7 +80,7 @@ class ManagedGraphs(unittest.TestCase):
         self.assertRegex(original_ir,r'declare[^\n]*@malloc\(')
         self.assertRegex(original_ir,r'call[^\n]*@malloc\(')
         controlled_ir=self.work/'allocation-controlled.ll'
-        controlled_ir.write_text(re.sub(r'@malloc\b','@nano_test_graph_malloc',original_ir))
+        controlled_ir.write_text(re.sub(r'@malloc(?=\()','@nano_test_graph_malloc',original_ir))
         extra=('static long budget=-1;'
                'void *nano_test_graph_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}')
         # Fresh executables independently cover begin allocation and subsequent
