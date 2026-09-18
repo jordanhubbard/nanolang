@@ -35,8 +35,8 @@ pin, copied completed Stage2/capture/runtime tools, and `NANO_NVM2C` pointing to
 the repaired translator. `NANO_AOT_RUNTIME` and `NANO_AS_CAPTURE_HELPER` name
 those copies. The compiler still uses three absolute imported host libraries;
 this is not hermetic relocation. I record and recheck tool/library hashes in
-`/tmp/nanolang-map-key-component-manifest.json`. Fresh module and generated C
-retention uses `--keep-c`; compile and execution results are separate gates.
+`/tmp/nanolang-map-key-component-manifest.json`. Generated C retention uses `--keep-c`; this driver still removes the staged
+module. Compile and execution results are separate gates.
 
 ## My completed local gates and setup correction
 
@@ -52,5 +52,29 @@ RSS 2,804,684 KiB. I retain `/tmp/nanolang-map-key-component.log` and
 `/tmp/nanolang-map-key-component-time.log`. This is an explicit missing-tool
 setup failure, not evidence about the repaired translator. I copied the
 unchanged frozen VM, verified all prior hashes, and recorded the corrected
-closure in `/tmp/nanolang-map-key-component-corrected-manifest.json` before a
-corrected component gate. Its result remains required before readiness.
+closure in `/tmp/nanolang-map-key-component-corrected-manifest.json` before the corrected component gate.
+
+## My corrected component result
+
+The corrected tool closure compiles the unchanged `src_nano/transpiler_driver.nano`
+in 443.64s with maximum RSS 2,804,900 KiB and exit 0. Executing the resulting
+native component also exits 0 and prints `I passed my transpiler entry assertions.`
+These observations qualify this repaired translator with source `63c26ecd` and
+the copied Stage2 producer; they are not a new bootstrap or full-quick pass.
+
+All eight recorded tool/import hashes and the original failure-log SHA remain
+unchanged through acceptance. I retain generated C and the native executable,
+with hashes in [my manifest](evidence/native-optional-map-keys.json). The driver's
+`--keep-c` path deletes `program.nvm`, so I make no retained module-hash claim.
+My manifest collection initially expected that file; I corrected the artifact
+inventory without rerunning compilation. I copy the qualified translator to
+`/tmp/nanolang-map-key-qualified-nvm2c` before integration tool rebuilds.
+
+Logs are `/tmp/nanolang-map-key-component-corrected.log`, its `-time.log`,
+`/tmp/nanolang-map-key-component-execution.log` and its `-time.log`.
+I integrate main `fc0533e4` additively with no native classifier changes; fresh
+focused integration checks qualify its updated verifier/build closure separately.
+
+My final integrated focused/adjacent result is `Ran 14 tests in 17.008s`, all passing.
+I retain `/tmp/nanolang-map-key-integrated-build.log` and
+`/tmp/nanolang-map-key-integrated-focused.log`.
