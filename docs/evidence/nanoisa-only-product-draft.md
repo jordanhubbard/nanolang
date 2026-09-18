@@ -27,3 +27,11 @@ My independent full-source VM fixed-point gate passes at `ae63b248`: initial and
 ## My current integration checkpoint
 
 I integrated main through PR592 at `d332ea1f`, preserving the pinned product VM fixed-point evidence and the export-shadow publication hold. The ordinary C-seed, NanoVirt, VM, native translator and NanoISA CLI build passed (`/tmp/nanolang-product-current-integration-build.log`). This is compilation evidence only; I did not rerun historical aborting artifacts or claim new full product acceptance. Draft PR584 and task dd74 remain unresolved.
+
+At integrated product `9808acf6` (main through PR597), a fresh ordinary build
+and Stage1 hello pass. Stage2 translation explicitly refuses aggregate storage
+`optional` to `int` at nodes 225121/8641. I retain
+`/tmp/nanolang-product-through597-bootstrap.log` and record
+`task_497e1ba5b9544b81b3614ec37da90e98` before repair. The focused optional-array
+checks did not establish full compiler storage acceptance. This refusal is
+separate from historical export-shadow aborts, which I did not replay.
