@@ -1404,7 +1404,8 @@ static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expec
     Type actual = check_expression(expression, env);
     if (actual == TYPE_UNKNOWN || actual == TYPE_VOID) return false;
     if (actual == TYPE_ARRAY && expression->type == AST_ARRAY_LITERAL) {
-        if (!reduce_types_exact(expected, expected, env, depth + 1)) return false;
+        if (reduce_identity_kind(expected, env) != TYPE_ARRAY ||
+            !reduce_types_exact(expected, expected, env, depth + 1)) return false;
         for (int i = 0; i < expression->as.array_literal.element_count; ++i)
             if (!reduce_expression_matches(expression->as.array_literal.elements[i],
                     expected->element_type, env, depth + 1)) return false;
