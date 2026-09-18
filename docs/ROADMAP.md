@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I reconstruct total typed I64 multiplication (`task_615c3ccf924d4aaaa964237bcc9d286c`, parent `task_4bd034f6029b7458201db74e2c3aeb32`). I require defined unsigned C multiplication and bounded NanoLang signed-digit accumulation using tested wrap helpers, exact tags, same-module endpoint/loop equivalence and prior-output retention. DIV/MOD and full reconstruction remain open. [Contract](NANOISA_RECONSTRUCT_INTEGER_MUL.md).
+- [x] I reconstruct total typed I64 multiplication (`task_615c3ccf924d4aaaa964237bcc9d286c`, parent `task_4bd034f6029b7458201db74e2c3aeb32`). I retain defined unsigned C multiplication and at most 64 NanoLang signed-digit steps using tested wrap helpers. Twelve combined GCC/Clang methods pass same-module VM/C/three-stage-NanoLang execution, 121 endpoint/high-bit products, byte roundtrip and exact-tag/output refusal; compiler tool pins are explicit and do not claim a current-main bootstrap. DIV/MOD and full reconstruction remain open. [Contract](NANOISA_RECONSTRUCT_INTEGER_MUL.md).
 
 - [x] I reconstruct total typed I64 addition, subtraction and negation (`task_1b40ff24267d45c99e0217352765e39d`, parent `task_4bd034f6029b7458201db74e2c3aeb32`). I retain exact signed-endpoint behavior without intermediate overflow, one typed region tree and unchanged-output refusal. Nine combined GCC/Clang methods pass VM/C/three-stage-NanoLang equivalence, including 106 endpoint/snapshot checks and canonical byte roundtrip; remaining arithmetic and full reconstruction stay open. [Contract](NANOISA_RECONSTRUCT_INTEGER_ADD.md).
 
