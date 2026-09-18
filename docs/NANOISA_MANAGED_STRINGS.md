@@ -219,4 +219,6 @@ Its C layouts are private target-specific implementation types: I must not cast
 my existing LLVM `%S` descriptor directly to `NmsView`, whose length field is
 uint32. Later integration must use generated target types or explicit field
 adapters, and must wire the reserved-entry predicate before introducing those
-runtime symbols to application output. Current translators are unchanged.
+runtime symbols to application output. PR628 left translators unchanged; the
+[managed concat continuation](NANOISA_LLVM_MANAGED_STRINGS.md) connects these
+helpers to emitted frame/global ownership and bounded instruction admission.

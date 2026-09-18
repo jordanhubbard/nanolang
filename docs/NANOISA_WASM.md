@@ -1,6 +1,6 @@
 # My freestanding Wasm translator
 
-I translate verified NanoISA through the same scalar and literal-string lowering as `nvm2llvm`,
+I translate verified NanoISA through the same scalar, literal-string and managed-concat lowering as `nvm2llvm`,
 then LLVM's wasm32 backend and `wasm-ld`. I produce a standalone core Wasm
 module, without an AST backend, Emscripten, NanoVM or host imports.
 
@@ -26,7 +26,7 @@ it only after successful translation and linking. I preserve source files,
 hard-link aliases and prior output on failures. Without `-o`, I write the
 completed binary module to stdout. I do not permit unresolved linker imports.
 
-My current bounded profile includes tagged numeric/bool/void storage, generic numeric operations, calls, recursion, loops, branches, assertions, globals and first-initializer execution. I also retain module-owned literal byte strings through the [literal-string contract](NANOISA_LLVM_LITERAL_STRINGS.md), with whole-module ADD/numeric-cast refusal when strings occur. Computed strings, other heap values, host calls, linked modules, layouts and reference/passive contracts remain required work. I allocate no dynamic string storage in this child; my bare Wasm module still needs no host imports. This does not complete my Wasm release gate.
+My current bounded profile includes tagged numeric/bool/void storage, generic numeric operations, calls, recursion, loops, branches, assertions, globals and first-initializer execution. I also retain module-owned literal byte strings through the [literal-string contract](NANOISA_LLVM_LITERAL_STRINGS.md), with the original literal profile preserved. The [managed continuation](NANOISA_LLVM_MANAGED_STRINGS.md) adds concat/string ADD, reclaiming storage and status/disposal exports; string-bearing numeric casts remain refused. Substring/conversions, other heap values, host calls, linked modules, layouts and reference/passive contracts remain required work. My managed Wasm module still needs no host imports. This does not complete my Wasm release gate.
 
 ## My execution evidence
 

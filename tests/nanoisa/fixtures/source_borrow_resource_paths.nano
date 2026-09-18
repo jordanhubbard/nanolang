@@ -1,0 +1,96 @@
+resource struct Leaf { value: int, active: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+fn bump(view: &mut Leaf) -> int { set view.value (+ view.value 1) return view.value }
+shadow bump {
+ let mut total: int = 0
+ if true {
+  let first: Leaf = Leaf { value: 1, active: true }
+  let second: Leaf = Leaf { value: 2, active: false }
+  let tree: Pair = Pair { left: first, right: second }
+  let mut moved: Pair = tree
+  assert (== (bump &mut moved.left) 2)
+  let Pair { right, left } = moved
+  let Leaf { value, active } = right
+  assert (== value 2) assert (not active)
+  set total (+ total value)
+  let Leaf { value, active } = left
+  assert (== value 2) assert active
+  set total (+ total value)
+ } else {
+  let leaf: Leaf = Leaf { value: 4, active: true }
+  let Leaf { value, active } = leaf
+  assert active set total value
+ }
+ let mut index: int = 0
+ while (< index 2) {
+  let leaf: Leaf = Leaf { value: index, active: true }
+  let mut moved: Leaf = leaf
+  set total (+ total (bump &mut moved))
+  let Leaf { value, active } = moved
+  assert (== value (+ index 1)) assert active
+  set index (+ index 1)
+ }
+ while false {
+  let leaf: Leaf = Leaf { value: 9, active: false }
+  let Leaf { value, active } = leaf
+  assert (== value 9) assert (not active)
+ }
+ let outer: Leaf = Leaf { value: 5, active: true }
+ if true {
+  let moved: Leaf = outer
+  let Leaf { value, active } = moved
+  assert (== value 5) assert active
+ } else {
+  let Leaf { value, active } = outer
+  assert (== value 5) assert active
+ }
+ assert (== total 7)
+}
+fn main() -> int {
+ let mut total: int = 0
+ if true {
+  let first: Leaf = Leaf { value: 1, active: true }
+  let second: Leaf = Leaf { value: 2, active: false }
+  let tree: Pair = Pair { left: first, right: second }
+  let mut moved: Pair = tree
+  assert (== (bump &mut moved.left) 2)
+  let Pair { right, left } = moved
+  let Leaf { value, active } = right
+  assert (== value 2) assert (not active)
+  set total (+ total value)
+  let Leaf { value, active } = left
+  assert (== value 2) assert active
+  set total (+ total value)
+ } else {
+  let leaf: Leaf = Leaf { value: 4, active: true }
+  let Leaf { value, active } = leaf
+  assert active set total value
+ }
+ let mut index: int = 0
+ while (< index 2) {
+  let leaf: Leaf = Leaf { value: index, active: true }
+  let mut moved: Leaf = leaf
+  set total (+ total (bump &mut moved))
+  let Leaf { value, active } = moved
+  assert (== value (+ index 1)) assert active
+  set index (+ index 1)
+ }
+ while false {
+  let leaf: Leaf = Leaf { value: 9, active: false }
+  let Leaf { value, active } = leaf
+  assert (== value 9) assert (not active)
+ }
+ let outer: Leaf = Leaf { value: 5, active: true }
+ if true {
+  let moved: Leaf = outer
+  let Leaf { value, active } = moved
+  assert (== value 5) assert active
+ } else {
+  let Leaf { value, active } = outer
+  assert (== value 5) assert active
+ }
+ assert (== total 7)
+ # RETURN_POINT
+ return 0
+}
+shadow main { assert true }

@@ -4,17 +4,22 @@
 #include <inttypes.h>
 #include <stdarg.h>
 #include <string.h>
+#include "managed_runtime_ir.h"
+#include "nvm2llvm_managed.inc"
 
 static int refuse(char *error, size_t size, const char *format, ...) {
     va_list ap;
     va_start(ap, format); vsnprintf(error, size, format, ap); va_end(ap);
     return 0;
 }
-static void runtime(FILE *out) {
+static void runtime(FILE *out, bool managed) {
     fputs("; I compile verified scalar NanoISA directly.\n"
         "%V = type { i64, i8 }\n"
         "declare void @llvm.trap() cold noreturn nounwind\n"
-        "define internal void @check(i1 %ok) {\nentry:\n br i1 %ok, label %done, label %bad\nbad:\n call void @llvm.trap()\n unreachable\ndone:\n ret void\n}\n"
+        , out);
+    if (managed) fputs("define internal void @check(i1 %ok) {\n %s = select i1 %ok, i32 0, i32 1\n call void @nms_module_fail(i32 %s)\n ret void\n}\n", out);
+    else fputs("define internal void @check(i1 %ok) {\nentry:\n br i1 %ok, label %done, label %bad\nbad:\n call void @llvm.trap()\n unreachable\ndone:\n ret void\n}\n", out);
+    fputs(
         "define internal i64 @integer(%V %v, i8 %expected) {\n"
         " %tag = extractvalue %V %v, 1\n %ok = icmp eq i8 %tag, %expected\n"
         " call void @check(i1 %ok)\n %x = extractvalue %V %v, 0\n ret i64 %x\n}\n"
@@ -55,7 +60,7 @@ static void float_runtime(FILE *out) {
         "fp:\n %x = bitcast i64 %bits to double\n"
         " %lower = fcmp oge double %x, 0xC3E0000000000000\n"
         " %upper = fcmp olt double %x, 0x43E0000000000000\n %valid = and i1 %lower, %upper\n"
-        " call void @check(i1 %valid)\n %answer = fptosi double %x to i64\n ret i64 %answer\n"
+        " call void @check(i1 %valid)\n %safe = select i1 %valid, double %x, double 0.000000e+00\n %answer = fptosi double %safe to i64\n ret i64 %answer\n"
         "scalar:\n ret i64 %bits\n}\n"
         "define internal double @cast_floating(%V %v) {\nentry:\n"
         " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
@@ -236,20 +241,53 @@ static void comparison_runtime(FILE *out) {
         "}\n"
         , out);
 }
-static void pop(FILE *out, uint32_t pc, const char *name) {
-    fprintf(out, " %%p%u_%s = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, name);
+typedef struct {
+    FILE *out;
+    bool managed;
+    unsigned count;
+    const char *names[3];
+    bool active[3];
+} FrameOutput;
+static void consumed(FrameOutput *frame, uint32_t pc) {
+    if (!frame->managed) return;
+    for (unsigned i = 0; i < frame->count; i++) if (frame->active[i]) {
+        fprintf(frame->out, " call void @managed_release(%%V %%p%u_%s)\n", pc, frame->names[i]);
+        frame->active[i] = false;
+    }
 }
-static void push(FILE *out, uint32_t pc, const char *name) {
-    fprintf(out, " call void @push(ptr %%stack, ptr %%sp, %%V %%p%u_%s)\n", pc, name);
+static void transferred(FrameOutput *frame, const char *name) {
+    for (unsigned i = 0; i < frame->count; i++)
+        if (!strcmp(frame->names[i], name)) frame->active[i] = false;
 }
-static void result(FILE *out, uint32_t pc, uint8_t tag) {
-    fprintf(out, " %%p%u_v0 = insertvalue %%V zeroinitializer, i64 %%p%u_result, 0\n"
+static void pop(FrameOutput *frame, uint32_t pc, const char *name) {
+    fprintf(frame->out, " %%p%u_%s = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, name);
+    if (frame->managed) {
+        frame->names[frame->count] = name;
+        frame->active[frame->count++] = true;
+    }
+}
+static void push(FrameOutput *frame, uint32_t pc, const char *name) {
+    for (unsigned i = 0; frame->managed && i < frame->count; i++) {
+        if (strcmp(frame->names[i], name)) continue;
+        if (!frame->active[i]) { /* DUP publishes a second owner. */
+            fprintf(frame->out, " %%p%u_clone = call %%V @managed_retain(%%V %%p%u_%s)\n"
+                " call void @push(ptr %%stack, ptr %%sp, %%V %%p%u_clone)\n", pc, pc, name, pc);
+            return;
+        }
+        frame->active[i] = false;
+        break;
+    }
+    fprintf(frame->out, " call void @push(ptr %%stack, ptr %%sp, %%V %%p%u_%s)\n", pc, name);
+}
+static void result(FrameOutput *frame, uint32_t pc, uint8_t tag) {
+    fprintf(frame->out, " %%p%u_v0 = insertvalue %%V zeroinitializer, i64 %%p%u_result, 0\n"
         " %%p%u_v = insertvalue %%V %%p%u_v0, i8 %u, 1\n", pc, pc, pc, pc, tag);
-    push(out, pc, "v");
+    push(frame, pc, "v");
 }
-static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth) {
+static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed) {
+    FrameOutput frame = {.out = out, .managed = managed};
     const NvmFunctionEntry *f = &m->functions[index];
-    fprintf(out, "define internal %s @f%u(", f->result_count ? "%V" : "void", index);
+    fprintf(out, "define internal %s @f%u(", managed ? "%R" : f->result_count ? "%V" : "void", index);
     for (uint16_t i = 0; i < f->arity; ++i) fprintf(out, "%s%%V %%arg%u", i ? ", " : "", i);
     fprintf(out, ") {\nentry:\n %%stack = alloca [%u x %%V]\n %%sp = alloca i64\n"
         " store i64 0, ptr %%sp\n %%locals = alloca [%u x %%V]\n"
@@ -257,12 +295,19 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         f->local_count ? f->local_count : 1, f->local_count ? f->local_count : 1);
     for (uint16_t i = 0; i < f->arity; ++i)
         fprintf(out, " %%argp%u = getelementptr %%V, ptr %%locals, i64 %u\n store %%V %%arg%u, ptr %%argp%u\n", i, i, i, i);
-    fputs(" br label %b0\n", out);
+    if (managed) {
+        for (uint16_t i = 0; i < f->arity; i++)
+            if (m->function_param_types && m->function_param_types[index])
+                fprintf(out, " call i64 @integer(%%V %%arg%u, i8 %u)\n", i, m->function_param_types[index][i]);
+        fputs(" %entry_status = call i32 @nms_module_status()\n %entry_good = icmp eq i32 %entry_status, 0\n"
+              " br i1 %entry_good, label %b0, label %error_cleanup\n", out);
+    } else fputs(" br label %b0\n", out);
     for (uint32_t pc = 0; pc < f->code_length;) {
         DecodedInstruction ins = {0};
         uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
         uint32_t next = pc + width;
         int terminates = 0;
+        frame.count = 0;
         fprintf(out, "b%u:\n", pc);
         switch (ins.opcode) {
         case OP_NOP: break;
@@ -279,45 +324,64 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                     (uint64_t)ins.operands[0].u32 + 1, TAG_STRING);
             break;
         case OP_STR_LEN:
-            pop(out, pc, "a");
-            fprintf(out, " %%p%u_desc = call %%S @string_descriptor(%%V %%p%u_a)\n"
+            pop(&frame, pc, "a");
+            if (managed) fprintf(out, " %%p%u_handle = call i64 @integer(%%V %%p%u_a, i8 5)\n"
+                " %%p%u_result = call i64 @nms_module_length(i64 %%p%u_handle)\n", pc, pc, pc, pc);
+            else fprintf(out, " %%p%u_desc = call %%S @string_descriptor(%%V %%p%u_a)\n"
                          " %%p%u_result = extractvalue %%S %%p%u_desc, 1\n", pc, pc, pc, pc);
-            result(out, pc, TAG_INT);
+            result(&frame, pc, TAG_INT);
             break;
         case OP_STR_EQ:
-            pop(out, pc, "b"); pop(out, pc, "a");
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
             fprintf(out, " %%p%u_order = call i64 @string_order(%%V %%p%u_a, %%V %%p%u_b)\n"
                          " %%p%u_equal = icmp eq i64 %%p%u_order, 0\n"
                          " %%p%u_result = zext i1 %%p%u_equal to i64\n", pc, pc, pc, pc, pc, pc, pc);
-            result(out, pc, TAG_BOOL);
+            result(&frame, pc, TAG_BOOL);
             break;
-        case OP_POP: pop(out, pc, "a"); break;
-        case OP_DUP: pop(out, pc, "a"); push(out, pc, "a"); push(out, pc, "a"); break;
-        case OP_SWAP: pop(out, pc, "b"); pop(out, pc, "a"); push(out, pc, "b"); push(out, pc, "a"); break;
+        case OP_POP: pop(&frame, pc, "a"); break;
+        case OP_DUP: pop(&frame, pc, "a"); push(&frame, pc, "a"); push(&frame, pc, "a"); break;
+        case OP_SWAP: pop(&frame, pc, "b"); pop(&frame, pc, "a"); push(&frame, pc, "b"); push(&frame, pc, "a"); break;
         case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
             fprintf(out, " %%p%u_local = getelementptr %%V, ptr %%locals, i64 %u\n", pc, ins.operands[0].u16);
             if (ins.opcode == OP_LOAD_LOCAL) {
-                fprintf(out, " %%p%u_a = load %%V, ptr %%p%u_local\n", pc, pc); push(out, pc, "a");
-            } else { pop(out, pc, "a"); fprintf(out, " store %%V %%p%u_a, ptr %%p%u_local\n", pc, pc); }
+                fprintf(out, " %%p%u_loaded = load %%V, ptr %%p%u_local\n", pc, pc);
+                if (managed) fprintf(out, " %%p%u_a = call %%V @managed_retain(%%V %%p%u_loaded)\n", pc, pc);
+                else fprintf(out, " %%p%u_a = select i1 true, %%V %%p%u_loaded, %%V zeroinitializer\n", pc, pc);
+                push(&frame, pc, "a");
+            } else {
+                pop(&frame, pc, "a");
+                if (managed) fprintf(out, " %%p%u_old = load %%V, ptr %%p%u_local\n call void @managed_release(%%V %%p%u_old)\n", pc, pc, pc);
+                fprintf(out, " store %%V %%p%u_a, ptr %%p%u_local\n", pc, pc);
+                transferred(&frame, "a");
+            }
             break;
         case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
             fprintf(out, " %%p%u_global = getelementptr %%V, ptr @globals, i64 %u\n",
                     pc, ins.operands[0].u32);
             if (ins.opcode == OP_LOAD_GLOBAL) {
-                fprintf(out, " %%p%u_a = load %%V, ptr %%p%u_global\n", pc, pc);
-                push(out, pc, "a");
+                fprintf(out, " %%p%u_loaded = load %%V, ptr %%p%u_global\n", pc, pc);
+                if (managed) fprintf(out, " %%p%u_a = call %%V @managed_retain(%%V %%p%u_loaded)\n", pc, pc);
+                else fprintf(out, " %%p%u_a = select i1 true, %%V %%p%u_loaded, %%V zeroinitializer\n", pc, pc);
+                push(&frame, pc, "a");
             } else {
-                pop(out, pc, "a");
+                pop(&frame, pc, "a");
+                if (managed) fprintf(out, " %%p%u_old = load %%V, ptr %%p%u_global\n call void @managed_release(%%V %%p%u_old)\n", pc, pc, pc);
                 fprintf(out, " store %%V %%p%u_a, ptr %%p%u_global\n", pc, pc);
+                transferred(&frame, "a");
             }
             break;
         case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: {
             uint32_t target = (uint32_t)((int64_t)pc + ins.operands[0].i32);
             if (ins.opcode == OP_JMP) fprintf(out, " br label %%b%u\n", target);
             else {
-                pop(out, pc, "a");
-                fprintf(out, " %%p%u_cond = call i1 @truthy(%%V %%p%u_a)\n"
-                    " br i1 %%p%u_cond, label %%b%u, label %%b%u\n", pc, pc, pc,
+                pop(&frame, pc, "a");
+                fprintf(out, " %%p%u_cond = call i1 @truthy(%%V %%p%u_a)\n", pc, pc);
+                consumed(&frame, pc);
+                if (managed) fprintf(out, " %%p%u_edge_status = call i32 @nms_module_status()\n"
+                    " %%p%u_edge_good = icmp eq i32 %%p%u_edge_status, 0\n"
+                    " br i1 %%p%u_edge_good, label %%p%u_dispatch, label %%error_cleanup\n"
+                    "p%u_dispatch:\n", pc, pc, pc, pc, pc, pc);
+                fprintf(out, " br i1 %%p%u_cond, label %%b%u, label %%b%u\n", pc,
                     ins.opcode == OP_JMP_TRUE ? target : next, ins.opcode == OP_JMP_TRUE ? next : target);
             }
             terminates = 1; break;
@@ -326,25 +390,31 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             uint32_t callee = ins.operands[0].u32;
             for (uint16_t i = m->functions[callee].arity; i > 0; --i)
                 fprintf(out, " %%p%u_arg%u = call %%V @pop(ptr %%stack, ptr %%sp)\n", pc, i - 1);
-            if (m->functions[callee].result_count)
+            if (managed) fprintf(out, " %%p%u_call = call %%R @f%u(", pc, callee);
+            else if (m->functions[callee].result_count)
                 fprintf(out, " %%p%u_a = call %%V @f%u(", pc, callee);
             else fprintf(out, " call void @f%u(", callee);
             for (uint16_t i = 0; i < m->functions[callee].arity; ++i)
                 fprintf(out, "%s%%V %%p%u_arg%u", i ? ", " : "", pc, i);
             fputs(")\n", out);
-            if (m->functions[callee].result_count) push(out, pc, "a");
+            if (managed && m->functions[callee].result_count)
+                fprintf(out, " %%p%u_a = extractvalue %%R %%p%u_call, 0\n", pc, pc);
+            if (m->functions[callee].result_count) push(&frame, pc, "a");
             break;
         }
         case OP_RET:
             fputs(" br label %return_result\n", out);
             terminates = 1; break;
         case OP_ASSERT:
-            pop(out, pc, "a");
-            fprintf(out, " %%p%u_ok = call i1 @truthy(%%V %%p%u_a)\n call void @check(i1 %%p%u_ok)\n", pc, pc, pc);
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_ok = call i1 @truthy(%%V %%p%u_a)\n", pc, pc);
+            if (managed) fprintf(out, " %%p%u_assert_status = select i1 %%p%u_ok, i32 0, i32 2\n"
+                " call void @nms_module_fail(i32 %%p%u_assert_status)\n", pc, pc, pc);
+            else fprintf(out, " call void @check(i1 %%p%u_ok)\n", pc);
             break;
         case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE: {
-            pop(out, pc, "b");
-            pop(out, pc, "a");
+            pop(&frame, pc, "b");
+            pop(&frame, pc, "a");
             if (ins.opcode == OP_EQ || ins.opcode == OP_NE) {
                 fprintf(out, " %%p%u_equal = call i1 @scalar_equal(%%V %%p%u_a, %%V %%p%u_b)\n"
                     " %%p%u_bool = xor i1 %%p%u_equal, %s\n", pc, pc, pc, pc, pc,
@@ -356,36 +426,48 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                     " %%p%u_bool = icmp %s i64 %%p%u_order, 0\n", pc, pc, pc, pc, predicate, pc);
             }
             fprintf(out, " %%p%u_result = zext i1 %%p%u_bool to i64\n", pc, pc);
-            result(out, pc, TAG_BOOL);
+            result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_SUBSTR:
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_substr(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
+        case OP_STR_CONCAT:
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_concat(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b"); push(&frame, pc, "value");
+            break;
         case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_NEG: {
             const char *name = ins.opcode == OP_ADD ? "add" : ins.opcode == OP_SUB ? "sub" :
                                ins.opcode == OP_MUL ? "mul" : ins.opcode == OP_DIV ? "div" : "neg";
-            if (ins.opcode != OP_NEG) pop(out, pc, "b");
-            pop(out, pc, "a");
-            fprintf(out, " %%p%u_value = call %%V @numeric_%s(%%V %%p%u_a", pc, name, pc);
+            if (ins.opcode != OP_NEG) pop(&frame, pc, "b");
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @%s_%s(%%V %%p%u_a", pc,
+                managed && ins.opcode == OP_ADD ? "managed" : "numeric", name, pc);
+            if (managed && ins.opcode == OP_ADD) { transferred(&frame, "a"); transferred(&frame, "b"); }
             if (ins.opcode != OP_NEG) fprintf(out, ", %%V %%p%u_b", pc);
             fputs(")\n", out);
-            push(out, pc, "value");
+            push(&frame, pc, "value");
             break;
         }
         case OP_MOD:
-            pop(out, pc, "b");
-            pop(out, pc, "a");
+            pop(&frame, pc, "b");
+            pop(&frame, pc, "a");
             fprintf(out, " %%p%u_x = call i64 @integer(%%V %%p%u_a, i8 1)\n"
                          " %%p%u_y = call i64 @integer(%%V %%p%u_b, i8 1)\n"
                          " %%p%u_result = call i64 @divide(i64 %%p%u_x, i64 %%p%u_y, i1 true)\n",
                     pc, pc, pc, pc, pc, pc, pc);
-            result(out, pc, TAG_INT);
+            result(&frame, pc, TAG_INT);
             break;
         case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT: {
             int binary = ins.opcode == OP_AND || ins.opcode == OP_OR;
             if (binary) {
-                pop(out, pc, "b");
+                pop(&frame, pc, "b");
                 fprintf(out, " %%p%u_right = call i1 @truthy(%%V %%p%u_b)\n", pc, pc);
             }
-            pop(out, pc, "a");
+            pop(&frame, pc, "a");
             fprintf(out, " %%p%u_left = call i1 @truthy(%%V %%p%u_a)\n", pc, pc);
             if (binary)
                 fprintf(out, " %%p%u_bool = %s i1 %%p%u_left, %%p%u_right\n",
@@ -394,23 +476,28 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                 fprintf(out, " %%p%u_bool = xor i1 %%p%u_left, %s\n", pc, pc,
                         ins.opcode == OP_NOT ? "true" : "false");
             fprintf(out, " %%p%u_result = zext i1 %%p%u_bool to i64\n", pc, pc);
-            result(out, pc, TAG_BOOL);
+            result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_CAST_STRING:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_cast_string(%%V %%p%u_a)\n", pc, pc);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
         case OP_CAST_INT: case OP_CAST_FLOAT:
-            pop(out, pc, "a");
+            pop(&frame, pc, "a");
             if (ins.opcode == OP_CAST_FLOAT) {
                 fprintf(out, " %%p%u_fp = call double @cast_floating(%%V %%p%u_a)\n %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc, pc, pc);
             } else {
-                fprintf(out, " %%p%u_result = call i64 @cast_integer(%%V %%p%u_a)\n", pc, pc);
+                fprintf(out, " %%p%u_result = call i64 @%scast_integer(%%V %%p%u_a)\n", pc, managed ? "managed_" : "", pc);
             }
-            result(out, pc, ins.opcode == OP_CAST_FLOAT ? TAG_FLOAT : TAG_INT);
+            result(&frame, pc, ins.opcode == OP_CAST_FLOAT ? TAG_FLOAT : TAG_INT);
             break;
         case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
         case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
         case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: {
-            if (ins.opcode != OP_F64_NEG) pop(out, pc, "b");
-            pop(out, pc, "a");
+            if (ins.opcode != OP_F64_NEG) pop(&frame, pc, "b");
+            pop(&frame, pc, "a");
             fprintf(out, " %%p%u_x = call double @floating(%%V %%p%u_a)\n", pc, pc);
             if (ins.opcode != OP_F64_NEG) fprintf(out, " %%p%u_y = call double @floating(%%V %%p%u_b)\n", pc, pc);
             const char *op = NULL, *cmp = NULL;
@@ -429,19 +516,19 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                 else fprintf(out, " %%p%u_fp = call double @float_divide(double %%p%u_x, double %%p%u_y)\n", pc, pc, pc);
                 fprintf(out, " %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc);
             }
-            result(out, pc, cmp ? TAG_BOOL : TAG_FLOAT);
+            result(&frame, pc, cmp ? TAG_BOOL : TAG_FLOAT);
             break;
         }
         case OP_TYPE_CHECK:
-            pop(out, pc, "a");
+            pop(&frame, pc, "a");
             fprintf(out, " %%p%u_tag = extractvalue %%V %%p%u_a, 1\n %%p%u_cmp = icmp eq i8 %%p%u_tag, %u\n"
                 " %%p%u_result = zext i1 %%p%u_cmp to i64\n", pc, pc, pc, pc, ins.operands[0].u8, pc, pc);
-            result(out, pc, TAG_BOOL); break;
+            result(&frame, pc, TAG_BOOL); break;
         default: {
             int unary = ins.opcode == OP_I64_NEG || ins.opcode == OP_BOOL_NOT;
             int boolean = ins.opcode == OP_BOOL_NOT || ins.opcode == OP_BOOL_AND || ins.opcode == OP_BOOL_OR;
-            if (!unary) pop(out, pc, "b");
-            pop(out, pc, "a");
+            if (!unary) pop(&frame, pc, "b");
+            pop(&frame, pc, "a");
             if (!unary && !boolean) {
                 fprintf(out, " %%p%u_x = call i64 @binary_integer(%%V %%p%u_a)\n"
                              " %%p%u_y = call i64 @binary_integer(%%V %%p%u_b)\n", pc, pc, pc, pc);
@@ -463,12 +550,22 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             else if (ins.opcode == OP_I64_NEG) fprintf(out, " %%p%u_result = sub i64 0, %%p%u_x\n", pc, pc);
             else if (ins.opcode == OP_BOOL_NOT) fprintf(out, " %%p%u_result = xor i64 %%p%u_x, 1\n", pc, pc);
             else fprintf(out, " %%p%u_result = call i64 @divide(i64 %%p%u_x, i64 %%p%u_y, i1 %s)\n", pc, pc, pc, ins.opcode == OP_I64_REM_S ? "true" : "false");
-            result(out, pc, boolean || comparison ? TAG_BOOL : TAG_INT);
+            result(&frame, pc, boolean || comparison ? TAG_BOOL : TAG_INT);
             break;
         }
         }
-        if (!terminates) fprintf(out, " br label %%b%u\n", next);
+        if (!terminates) {
+            consumed(&frame, pc);
+            if (managed) fprintf(out, " %%p%u_status = call i32 @nms_module_status()\n"
+                " %%p%u_good = icmp eq i32 %%p%u_status, 0\n"
+                " br i1 %%p%u_good, label %%b%u, label %%error_cleanup\n", pc, pc, pc, pc, next);
+            else fprintf(out, " br label %%b%u\n", next);
+        }
         pc = next;
+    }
+    if (managed) {
+        managed_return(out, f);
+        return;
     }
     fprintf(out, "b%u:\n br label %%return_result\nreturn_result:\n"
         " %%result_count = load i64, ptr %%sp\n %%result_shape = icmp eq i64 %%result_count, %u\n"
@@ -478,15 +575,21 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             " call i64 @integer(%%V %%returned, i8 %u)\n ret %%V %%returned\n}\n", f->result_tag);
     else fputs(" ret void\n}\n", out);
 }
-int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry) {
+int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry, NvmLlvmTarget target) {
+    if (target != NVM_LLVM_NATIVE && target != NVM_LLVM_WASM32)
+        return refuse(error, size, "I require a native or wasm32 runtime target");
     if (!entry || (strcmp(entry, "main") && strncmp(entry, "nano_", 5)))
         return refuse(error, size, "I require main or a nano_ entry identifier");
     for (const char *p = entry; *p; ++p)
         if (!((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
               (*p >= '0' && *p <= '9') || *p == '_'))
             return refuse(error, size, "I require an ASCII entry identifier");
+    if (!strcmp(entry, "nano_try_entry") || !strcmp(entry, "nano_dispose") || !strncmp(entry, "nano_runtime_", 13))
+        return refuse(error, size, "I reserve managed runtime entry names");
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
     NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS);
+    bool managed = !verified.ok;
+    if (managed) verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_MANAGED_STRINGS);
     if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
     /* I size storage from every verified literal global operand, matching
      * VM module allocation. Verification bounds index+1 by NVM_MAX_GLOBALS. */
@@ -507,18 +610,25 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
             pc += width;
         }
     }
-    runtime(out);
+    if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
+    runtime(out, managed);
     if (global_count)
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
     numeric_runtime(out);
-    literal_runtime(out, m);
+    if (managed) { managed_runtime(out); managed_literals(out, m); }
+    else literal_runtime(out, m);
     comparison_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
         if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
-        function(out, m, i, depth);
+        function(out, m, i, depth, managed);
+    }
+    if (managed) {
+        managed_entry(out, m, entry, initializer, global_count);
+        if (ferror(out)) return refuse(error, size, "I could not write managed LLVM IR");
+        return 1;
     }
     fprintf(out, "define i32 @%s() {\n", entry);
     if (initializer < m->function_count) {
@@ -532,6 +642,9 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
     return 1;
 }
 
+int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry) {
+    return nvm2llvm_emit_target(m, out, error, size, entry, NVM_LLVM_NATIVE);
+}
 int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
     return nvm2llvm_emit_entry(m, out, error, size, "main");
 }

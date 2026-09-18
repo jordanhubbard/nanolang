@@ -31,6 +31,15 @@ typedef struct {
  * views never cross runtime instances; a view borrows its handle's lifetime. */
 void nms_init(NmsRuntime *, const NmsView *, uint32_t);
 NmsStatus nms_create(NmsRuntime *, const unsigned char *, uint64_t, NmsHandle *);
+/* I consume one source owner on every path; output changes only on success. */
+NmsStatus nms_substr_owned(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandle *);
+/* I consume one owned reference per input on success or failure. Equal inputs
+ * require two references. Other aliases survive; out is unchanged on failure. */
+NmsStatus nms_concat_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
+/* I create one owner from non-floating scalar bits; strings transfer in lowering. */
+NmsStatus nms_format_scalar(NmsRuntime *, uint64_t, uint32_t, NmsHandle *);
+/* I borrow the handle, parse C-locale decimal bytes, and allocate nothing. */
+NmsStatus nms_parse_i64(const NmsRuntime *, NmsHandle, int64_t *);
 NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
 NmsStatus nms_retain(NmsRuntime *, NmsHandle);
 NmsStatus nms_release(NmsRuntime *, NmsHandle);

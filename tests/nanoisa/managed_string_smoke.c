@@ -9,9 +9,9 @@ int nms_product_smoke(void) {
     if (nms_begin(&runtime) != NMS_OK ||
         nms_create(&runtime, bytes, sizeof bytes, &value) != NMS_OK ||
         nms_retain(&runtime, value) != NMS_OK ||
-        nms_release(&runtime, value) != NMS_OK ||
-        nms_view(&runtime, value, &view) != NMS_OK || view.length != 3 ||
-        view.data[0] || view.data[1] != 1 || view.data[2] != 255 ||
+        nms_concat_owned(&runtime, value, value, &value) != NMS_OK ||
+        nms_view(&runtime, value, &view) != NMS_OK || view.length != 6 ||
+        view.data[0] || view.data[1] != 1 || view.data[2] != 255 || view.data[3] || view.data[4] != 1 || view.data[5] != 255 ||
         nms_release(&runtime, value) != NMS_OK || runtime.live_objects ||
         nms_finish(&runtime, NMS_OK, 0) != 0 ||
         nms_dispose(&runtime) != NMS_OK) return 1;

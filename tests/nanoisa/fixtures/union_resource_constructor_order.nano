@@ -1,0 +1,13 @@
+resource struct Handle { fd: int }
+union Choice { Some { left: Handle, right: Handle, label: string }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 1 }) 1) }
+fn consume(value: Choice) -> int {
+ match value {
+  Some(payload) => { let Choice.Some { left, right, label } = payload assert (== label "kept") return (+ (close_handle left) (close_handle right)) }
+  None(payload) => { return 0 }
+ }
+}
+shadow consume { let value: Choice = Choice.Some { right: Handle { fd: 4 }, label: "kept", left: Handle { fd: 3 } } assert (== (consume value) 7) }
+fn main() -> int { let value: Choice = Choice.Some { right: Handle { fd: 4 }, label: "kept", left: Handle { fd: 3 } } return (- (consume value) 7) }
+shadow main { assert (== (main) 0) }

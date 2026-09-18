@@ -1,5 +1,13 @@
 # My Roadmap
 
+- [x] I preserve exact float-array source/native transport (`task_ef670a36b03a4df388594c8f1500bd85`, prerequisite of `task_2578ab8cd0e2406786ba38bde307f4a4`). I keep float element identity distinct from integer/bool arrays through constructors, reads/writes, locals, calls, returns and roots. I retain double payloads, aliases, checked bounds and cleanup; My native/shape gates pass 2,422/1,269 checks; emitter comparison passes 86 checks and 88 methods; rebuilt focused GCC/Clang sanitizer and sole-record-root controls pass. Functional filter/map/reduce lowering remains under `task_c83543611db54102b1f75f7a94f9e93d`; parent2578 stays open until its core filter criterion passes. [Contract](NATIVE_FLOAT_ARRAYS.md).
+
+- [x] I invoke my NanoCore reference evaluator through direct argv and pipes (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I preserve literal expression bytes, adjacent/PATH lookup, newline trimming and explicit failure results; I drain output concurrently with input and reap owned children. Seven ordinary quoted/spaced/large-input, benign-stub lifecycle and output-allocation-refusal methods pass GCC/Clang O2 sanitizers. This tests transport, not formal evaluator semantics. [Contract and evidence](NANOCORE_REFERENCE_TRANSPORT.md).
+
+- [x] I handle hashmap allocation failures explicitly (`task_bc7264a337074246953284ef892785d2`). I check constructor failure before publication, return a checked heap-set status, preserve contents and borrowed input ownership on failed insertion, and propagate VM_ERR_MEMORY after releasing consumed arguments. Existing-key replacement is allocation-free. The VM gate passes 274,493 checks, deterministic heap allocation/recovery tests pass GCC/Clang ASan/UBSan/LSan, and seven paired source/native methods pass both compilers. [Contract and evidence](NANOISA_MAP_ALLOCATION.md).
+
+- [x] I enforce declared key/value tags before ordinary VM map writes (`task_b19f8bf0527d4a33911be26706629616`). HM_NEW records tags and key/value extraction publishes typed arrays, while native writes already check their supported value tags. I require exact HM_SET tags before mutation, release consumed owners on refusal and retain aliases/prior contents; lookup/delete and native non-string-key admission stay separate. The VM gate passes 274,493 checks; seven paired methods and 77 focused VM ownership checks pass with GCC/Clang sanitizers. [Contract and evidence](NANOISA_MAP_DECLARED_TAGS.md).
+
 - [x] I check declared U8 results at my current native runtime boundary (`task_1dfec6598e464afbbcdeb1885a3694b6`). Boxed result transport admits translation while the exact return tag guard remains. I retain the older test mismatch, require precise native invariant termination without sanitizer errors, and pass the combined Wasm39 gate plus targeted Clang control. [Evidence](NANOISA_LLVM_ENUM_SCALARS.md).
 
 - [x] I guard native tagged string equality before optimized strcmp (`task_39453e3f2c76454dab9afd3e346c2483`). The enum same-module gate retains a strict GCC O2 nonnull warning. I preserve numeric/heap branches and add VM-matched string pointer/null checks. Three GCC O2 and 23 Clang methods pass with sanitizers, including 36 direct comparisons against the VM value helper. [Contract](NATIVE_STRING_EQUALITY_GUARDS.md).
@@ -79,6 +87,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I repair canonical product export-shadow acceptance (`task_dd74b033c3984805bc27ce5017096c3c`). After the record-array scalar representation repair in PR625, fresh integrated product `aab9d30d` passes both bootstrap stages, hello, installed execution without the C seed and all 28 product methods in 13.533 seconds. Earlier failed artifacts and source-specific logs remain preserved without replay. [Current repair evidence](evidence/native-record-array-scalar-tags.md) and [product history](evidence/nanoisa-only-product-draft.md) retain the boundaries; broader product integration and release gates remain open.
 
 - [x] I verify product bootstrap after PR #551 adds exact record-array global transport (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; full product acceptance remains open). At earlier product pin `599d7558`, Stage 1 and hello passed, but Stage 2 translation explicitly refused an aggregate global store. I preserve that bootstrap log and keep the product draft open until the integrated compiler passes its gates. My fresh `1fae65ef` bootstrap passes both stages, hello and installed execution without the C seed; the distinct export-shadow acceptance task dd74 still blocks the product PR.
+- [x] I keep my bootstrap dependency fixture truthful when the NanoISA-only product adds already-built tool prerequisites (`task_fedcf8e93847494ab2e0887c089b960f`). I model the product's `nano_vm`, `nvm2c` and `nvm2c-runtime` artifacts in the isolated make-query fixture without removing their production edges or weakening source/runtime invalidation. The same eight behavioral checks pass on Darwin against canonical `38f29203` and held product `2c2f6f52`; no production Makefile changed.
+
 - [x] I preserve equivalent present scalar field storage when replacing a native record-array element (`task_a94dd8267d374549b2d578f191b5049f`, parent export-shadow dd74). I retain width and record-kind checks, bridge only plain/boxed int/bool/string with matching actual tags, and preserve heap/absent mismatch refusal and static shape constraints. Paired replacement controls and existing native gates precede fresh corrected-source product acceptance. My first direct mixed-storage assembly controls were refused by existing flat field classification before emission; I retain that log and keep those static constraints intact. Generated representation-helper controls and already admitted ordinary replacement programs test this runtime-only bridge. At `c16f16ac`, 2,422 native and 1,269 shape checks pass; fresh integrated product `aab9d30d` passes bootstrap and all 28 product methods. [Evidence](evidence/native-record-array-scalar-tags.md).
 
 - [x] I preserve optional scalar payloads in native aggregate storage (`task_497e1ba5b9544b81b3614ec37da90e98`). Inferred storage retains exact present int/bool/string tags through projections, calls, returns and typed writes; exact constraints and wrong-tag checks remain enforced. My final typed projection checks boxed payload tags before reading scalar slots. At `d8362cc4`, 2,422 native and 1,269 shape checks pass; six focused methods pass GCC and Clang sanitizers. Fresh integrated product `85d2e294` passes both bootstrap stages, hello and installed execution without the C seed. Its ordinary product suite passes 27 of 28 methods; distinct export-shadow task dd74 still blocks PR522 and release. I retain intermediate failures and exact source checkpoints in [storage evidence](evidence/native-optional-scalar-storage.md).
@@ -86,7 +96,9 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 - [x] I intersect only declared non-reference scalar initialization at owned verifier joins, with bounded convergent propagation and unchanged exact ownership/reference/stack facts (MAC `task_714b48782ed04de19976c790820227b4`). My [contract](NANOISA_AFFINE_SCALAR_INITIALIZATION.md) requires predecessor/loop/authority/allocation acceptance before source expansion. My [integrated acceptance](evidence/affine-scalar-initialization.md) preserves the exact authority, allocation and diagnostic evidence.
 - [x] I admit lexical int/bool declarations in borrowed-source control flow after definite-initialization analysis, preserving initializer order, lexical restoration, names, shadows and paired VM/native execution (MAC `task_d3fdac5a43784608851272407743977b`). My [lexical contract](NANOISA_SOURCE_BORROW_LEXICAL_SCALARS.md) retains unique physical slots, initializer-before-binding order and lexical advisory intervals. My [paired acceptance](evidence/source-borrow-lexical-scalars.md) covers exact metadata, selected shadows, scope restoration, VM and sanitized native. Resource moves and early exits remain separate.
-- [ ] I preserve path-specific fallthrough, ownership snapshots and checked disposal before borrowed-source early returns and broader resource-flow joins (MAC `task_b077ad608868462da669b5a7a427567d`). Only live fallthrough edges contribute; no implicit drops or weakened loop obligations.
+- [x] I retain explicit per-slot pending-disposal provenance for complete destructive patterns before admitting their terminal cleanup on scalar early returns (MAC `task_6a55c8c1e40a4923804e20b450d32cdf`). I preserve moved source owners, snapshot provenance with liveness, and never infer authority from hidden names. My [paired acceptance](evidence/source-borrow-fallthrough.md) retains the first refusal and verifies the corrected fresh bootstrap, nineteen source methods and existing authority gates.
+- [x] I preserve path-specific fallthrough, ownership snapshots and checked disposal for borrowed-source scalar early returns with stable owners (MAC `task_b077ad608868462da669b5a7a427567d`). Only live fallthrough edges contribute; no implicit drops or weakened loop obligations. My [first return-path contract](NANOISA_SOURCE_BORROW_FALLTHROUGH.md) preserves live-owner early-return refusal and nested shadow selection. My [paired acceptance](evidence/source-borrow-fallthrough.md) retains the first refusal and verifies the corrected fresh bootstrap, nineteen source methods and existing authority gates.
+- [x] I lower explicit resource consumption across borrowed-source paths only after source-checker and exact verifier-join acceptance (MAC `task_d74d8a4fb4a048a786666195eaa4e8d5`). Branch-local construction/movement/destructuring and terminal-path disposal remain separate from scalar fallthrough; I retain exact loop obligations and refuse implicit drops. My [bounded path contract](NANOISA_SOURCE_RESOURCE_PATHS.md) requires exact reaching-arm joins, explicit local consumption and unchanged loop ownership. My selfhost backedge guard sequences the reaching-path test before the effectful comparison; terminated paths never invoke it. My [paired acceptance](evidence/source-resource-paths.md) records the explicit sequencing correction, fresh bootstrap, twenty-one source methods and existing authority/allocation gates.
 
 - [x] I reconcile three stale scalar roadmap rows with canonical merged evidence (`task_944edde6410b459b8d195a08eb1dd072`). I verify PR560 typed F64 and PR569 VM/native implicit-return ancestry and MAC completion, preserve their bounded scope, and retain broader language and release holds.
 
@@ -9081,6 +9093,8 @@ Compiler product:
 - [ ] I preserve string-edge expression result types without guessing unknown types (`task_602f10d8e2b348eab8b7e230e12986fa`). My full product gate at 2c2f6f52 records this refusal in [current acceptance](evidence/product-acceptance-2c2f6f52.md).
 - [ ] I correct the already-built bootstrap dependency fixture for product tool prerequisites without weakening invalidation checks (`task_fedcf8e93847494ab2e0887c089b960f`); the Darwin peer owns the preserved report and repair.
 - [x] I record the VM compiler fixed point at 2c2f6f52: initial and both VM generations match 379844 raw bytes and immutable declared host closure, with verified hello. [Pinned acceptance](evidence/product-acceptance-2c2f6f52.md). Native generations and full product/release gates remain separate.
+- [x] I preserve exporter buffer allocation and formatting failures through checked sizing, retained allocation ownership and the existing NULL-result boundary (`task_e926ca38a5d64f299e9532ed984a2860`), while correcting the recorded strict GCC13 format diagnostic (`task_927d53891d204f2fb4e1974eb8c3edc2`). I use ordinary output comparisons and deterministic allocator-failure controls, without crash reproduction. Independent review also requires my quoted-string direct append to honor the checked growth result before writing.
+- [ ] I invoke my NanoCore reference evaluator through direct arguments and pipe transport, preserving literal expression bytes and compiler paths instead of constructing a shell command (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I test valid quoted strings, spaced paths and long expressions with a benign evaluator; formal correspondence remains separate.
 - [x] I propagate both conditional clause and else-arm type errors through my C frontend diagnostic counter before publication (`task_ab4437a5560f475db4fdf49931a03bf3`). My paired negative field test reports a mismatch but NanoVirt exits zero; I preserve that failure and keep the existing type comparison unchanged. [Bounded acceptance](evidence/conditional-field-types.md).
 - [x] I retain the exact common type of conditional expression arms and their single-expression blocks during self-hosted NanoISA lowering (`task_e0a68123b4aa467fa8ed6b24161ced69`). My full product gate at e563d0e3 stops on record field `underscore_name` in retained transpiler shadows. I require equal known arm types and keep mismatched/unknown branches refused; I test both arms, nesting, records and declared-field rejection before resuming the full gate. [Bounded acceptance](evidence/conditional-field-types.md).
 - [ ] I route my default native product and `--target c` through verified NanoISA and `nvm2c`, preserving shadow selection, staging, previous output on failure, and declared artifact linkage (`task_d76ae44a12fd4d27a2b4aa84c30d7bc6`).
@@ -9119,18 +9133,23 @@ Compiler product:
       failed execution and incompatible CLI modes before canonical publication
       can depend on this host prerequisite
       (`task_457e55fa59e146878cee92cabc201b6f`).
+- [x] I require my native array artifact ABI marker, producer and cleanup companion to resolve to the same loaded image before calling them (`task_467623d2fa464e058166ad83a457f336`). This closes an inherited static provenance gap in the walk adapter while preserving exact signatures and version checks; I validate ordinary corrected-source artifact paths.
+- [x] I lower the eight declared `modules/filesystem` externs through their owning module artifact with exact string parameters and declared int/string/array<string> results (`task_2e5ed27f56c44ca7b2f16385a6a15747`). I retain ABI markers and existing foreign-result ownership conversion; I test sorted/filtered directory results, empty results, scalar calls, selected shadows, VM/native execution and wrong-signature refusal before publication. This does not admit arbitrary foreign signatures. My first corrected-source gate passes VM filesystem execution but native translation still refuses its absent typed adapter; I add exact one/two-string adapters, snapshot borrowed scalar strings, and require the owning filesystem release helper for copied array results before native admission.
+- [ ] I complete canonical string builtin lowering, including `str_trim` reached by both audio default-argument examples after filesystem extern admission (`task_602f10d8e2b348eab8b7e230e12986fa`). I preserve those full-product failures until the shared string-expression/builtin gate passes.
 - [x] I initialize every generated list parameter annotation before compiled
       metadata extraction. PR487 exposed unset signature pointers in the three
       list parameter allocations; I retain a poisoned-allocation regression
       and pass a fresh three-stage native bootstrap, 24 metadata C methods,
       three import methods and the foreign compiler-path regression
       (`task_402e6b8289fc4f58b79ef5559a68dce3`).
-- [ ] I investigate GCC 13’s strict `-O1` sanitizer-build diagnostic for
-      `nanocore_export.c` `sbuf_appendf`: inlined `vsnprintf` reports a null
-      format string. My normal strict build passes; this is a configuration
-      diagnostic, not a demonstrated runtime failure. I retain the log and
-      use unsuppressed `-O0` sanitizer checks for the independent metadata task.
-      MAC `task_927d53891d204f2fb4e1974eb8c3edc2`.
+- [x] I resolve GCC 13's strict `-O1` sanitizer-build diagnostic for
+      `nanocore_export.c` `sbuf_appendf` with an explicit nonnull format guard.
+      I retain the original compiler diagnostic and pass the corrected strict
+      compilation without warning suppression, GCC and Clang sanitizer buffer
+      controls, and my NanoCore suite. This was a configuration diagnostic,
+      not a demonstrated runtime failure. MAC
+      `task_927d53891d204f2fb4e1974eb8c3edc2`; evidence:
+      `docs/evidence/nanocore-export-buffer.md`.
 - [x] I preserve complete recursive function parameter/result annotations
       and nested TypeInfo edges in compiled module metadata, including shared
       graph references. My generated-C roundtrip, 24 C methods, parsed lifetime
@@ -9922,16 +9941,49 @@ Other translators:
 - [x] I retain literal strings through LLVM/Wasm module-owned byte descriptors, exact content/length/truthiness, calls/globals/reentry, and paired execution/refusal gates. I refuse computed-string operations in this bounded profile and correct stale current target scope.
       MAC `task_e63298a462a24967b57e6ecce3c9223d`; bounded evidence in
       `docs/evidence/llvm-literal-strings.md`.
-- [ ] I establish checked VM substring clipping and explicit allocation-failure
+- [x] I establish checked VM substring clipping and explicit allocation-failure
       propagation before admitting the shared managed substring path. Static
       review at `58e0353d`; no malformed crash reproduction.
-      MAC `task_ce840367841a4bdb94ab69fd2446b635`.
+      MAC `task_ce840367841a4bdb94ab69fd2446b635`; contract
+      `docs/NANOISA_SUBSTRING_CONTRACT.md` orders checked clipping, popped-operand
+      cleanup, allocation-status propagation and fresh ordinary recovery gates.
+      [Bounded evidence](evidence/vm-substring-contract.md); translator admission
+      and the managed-runtime parent remain open.
+- [x] I lower exact non-floating managed CAST_STRING with checked ownership.
+      MAC `task_074f76d564d145b88554a66b4fcfb204`; contract
+      `docs/NANOISA_MANAGED_SCALAR_FORMAT.md`; [evidence](evidence/managed-scalar-format.md).
+- [ ] I implement portable binary64 string formatting matching the closed VM
+      C-locale `%g` contract before removing the floating CAST_STRING boundary.
+      MAC `task_4fa62bcd01324cdfa0612d278d3bbaf0`; required under managed parent51da.
+- [ ] I implement portable string-to-binary64 parsing matching the closed VM
+      strtod contract before admitting string CAST_FLOAT.
+      MAC `task_4d2f69a19d754ac88876f93a0913d1fb`; required under managed parent51da.
+- [x] I match managed decimal string-to-int conversion across LLVM/Wasm.
+      MAC `task_34ce900cad86496b876bdf262b46bdaf`; contract
+      `docs/NANOISA_MANAGED_STRING_INT.md`; [evidence](evidence/managed-decimal.md).
+      Floating parsing/formatting and
+      broader managed-runtime acceptance remain required and open.
+- [x] I implement matched managed substring ownership and LLVM/Wasm lowering.
+      MAC `task_2d21632d4d5241299c5a0e9967948efd`; contract
+      `docs/NANOISA_MANAGED_SUBSTRING.md`; [evidence](evidence/managed-substring.md).
+      My broader managed parent stays open.
 - [x] I implement the non-admitting managed-string runtime core: portable
       allocation, stable handles, reference/status/disposal helpers, checked
       growth and deterministic native/Wasm reclamation/failure tests.
       MAC `task_bfe3bb8672c04bcea56dede3f531aee7`; evidence in
       `docs/evidence/managed-string-core.md`. Parent allocation/lowering
       and all existing executable profile refusals remain open.
+- [x] I make managed-module disposal terminal before first entry, preserving
+      idempotence and active-entry refusal. Parent review found the private
+      adapter could reopen after pre-entry disposal. MAC `task_c4c2b24bfcc3451d8bd7b89897f5cdab`;
+      paired native/Wasm lifecycle controls pass, including fresh-instance
+      dispose-before-entry refusal; evidence `docs/evidence/managed-string-concat.md`.
+- [x] I implement consuming concatenation and matched LLVM/Wasm frame cleanup,
+      then admit string ADD and STR_CONCAT only after packaged-runtime and
+      paired lifetime/error gates. MAC `task_b1cc086f8cdf476cb0814f5ade9a15b1`;
+      contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
+      evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
+      prerequisites remain separate; parent managed runtime remains open.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
       MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
       and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this
@@ -10661,3 +10713,11 @@ Next Review: the exact release candidate and its published artifacts.
 - [x] I lower indexed module function/struct names in my C NanoISA frontend, retaining empty-string out-of-range results, exact intrinsic signatures without foreign imports, and all eight introspection operations across VM/native products (`task_6940de98b2a9468bac246ad10e221939`). Four VM/native methods pass, including sanitizer execution, empty exports, one-time index evaluation, exact signature refusal and ordinary same-prefix functions; my NanoVirt core passes 89 checks. Canonical source-fact retention remains separate under `task_faa47ec22a2545348aa9c9d705580321`.
 
 - [x] I preserve union constructor context in direct selfhost call arguments (`task_6961296c51014326bb3a532c33fab2e0`). My uniquely declared parser normalization, exact payload/context checks and native argument type handoff pass both selfhost stages, including function-value and qualified calls. [Measured evidence](evidence/selfhost-constructor-call-context.md) preserves the original refusal and distinct C-seed signature/import limitations; this is separate from underscore payload discards.
+
+- [x] I retain no invented integer facts for absent union payload slots in native classification. I preserve exact present-field kinds and runtime checks while testing empty/data variant calls and returns in both orders against VM execution. Evidence `docs/evidence/native-union-padding.md` (2,422 native and 1,269 shape checks; GCC/Clang sanitizer pairs). Contract `docs/NATIVE_UNION_PADDING_FACTS.md`; MAC `task_a4b730306b84428da1f4e5683697353f`.
+- [x] I lower exact nongeneric scalar union constructors and exhaustive statement matches, including payload binding scope, calls/returns and all selected shadows; I validate source-order evaluation and complete unique fields, preserve nominal mismatch and resource-payload refusals, and run both core control examples through canonical stages, VM and native. Contract: `docs/NANOISA_SCALAR_UNIONS.md`; MAC `task_9a12d05fafaf4f92bea5919683f9ba32`. Generic/nested/resource payloads and broader match forms remain outside this bounded slice. Paired repaired acceptance: `docs/evidence/scalar-union-emission.md`; canonical task closure awaits merged ancestry.
+- [x] I preserve named union constructor field positions in both C-seed NanoVirt constructor spellings: I validate each declared field exactly once, evaluate source expressions once in source order, then pack declaration order. Ordinary retained evidence `/tmp/nanolang-union-field-order.log` originally printed `8` in C-seed VM versus correct `3` in the selfhost emitter. MAC `task_0cf9859eec354141815e9c84112c8b14`; this is a prerequisite for paired reordered-field acceptance in my scalar union slice. Paired repaired acceptance: `docs/evidence/scalar-union-emission.md`; canonical task closure awaits merged ancestry.
+- [x] I bound retained union match payload symbols to their own arm's lexical source range, restoring outer locals and sibling scopes without discarding emission metadata. The positive outer `result: int` fixture originally failed after `Data(result)`; I retain `/tmp/nanolang-core-union-first-tests.log`. MAC `task_c514d01489f84c17b8013458c9241758`; paired source and ordinary refusal checks accompany the scalar union slice. Paired repaired acceptance: `docs/evidence/scalar-union-emission.md`; canonical task closure awaits merged ancestry.
+  - I retain checked match binding metadata during NanoVirt arm emission too: an emitted outer local can otherwise override the retained arm symbol during numeric field rechecking. I restore only the exact checked source/nominal binding and resolve its variant field offset before legacy fallback; the positive lexical fixture and diagnostics remain acceptance evidence under `task_c514d01489f84c17b8013458c9241758`.
+  - I also map dotted union constructor field names to declared type positions in the C checker. My ordinary reordered resource/string fixture was originally rejected by positional expected-type lookup (`/tmp/nanolang-union-resource-adjacent.log`); I preserve it under `task_0cf9859eec354141815e9c84112c8b14` before repair.
+- [x] I retain exact heterogeneous scalar union field shapes when an empty variant and a data variant reach one native parameter. My ordinary `Value.Data(int,string,bool,float)`/`Value.Empty` fixture passes VM execution but native translation refuses a string/int field conflict; I preserve `/tmp/nanolang-core-union-second-tests.log` and do not weaken tag checks. MAC `task_a4b730306b84428da1f4e5683697353f`; PR645 repairs the missing facts and the combined paired source gate passes.

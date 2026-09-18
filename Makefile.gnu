@@ -584,7 +584,7 @@ sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME
 	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 
-test-nanovm: test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-nanovm: test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
 		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -601,6 +601,22 @@ test-nanovm: test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(
 		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
+
+.PHONY: test-vm-substring-contract
+test-vm-substring-contract: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG $(SUBSTRING_TEST_FLAGS) -o $(OBJ_DIR)/nanovm/test_substring_contract \
+		tests/nanovm/test_substring_contract.c src/nanovm/vm.c src/nanovm/heap_cycles.c src/nanovm/value.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/vm.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/nanovm/test_substring_contract
+
+.PHONY: test-vm-heap-allocation-sanitizers
+test-vm-heap-allocation-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -o $(OBJ_DIR)/nanovm/test_heap_allocation_sanitized \
+		tests/nanovm/test_heap_allocation_failure.c src/nanovm/vm.c src/nanovm/heap_cycles.c src/nanovm/value.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/vm.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/nanovm/test_heap_allocation_sanitized
 
 .PHONY: test-vm-callback-allocation
 test-vm-callback-allocation: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -1046,7 +1062,20 @@ test-opt-passes: stage1 test-native-tco
 	@./tests/test_opt_passes
 	@rm -f tests/test_opt_passes
 
+.PHONY: test-reference-eval-transport
+test-reference-eval-transport:
+	python3 -m unittest -v tests.test_reference_eval_transport
+
+test-nanocore: test-reference-eval-transport
+
 .PHONY: test-nanocore
+.PHONY: test-nanocore-export-buffer
+test-nanocore-export-buffer: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nanocore_export_buffer tests/test_nanocore_export_buffer.c $(filter-out $(OBJ_DIR)/nanocore_export.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_nanocore_export_buffer
+
+test-nanocore: test-nanocore-export-buffer
+
 test-nanocore: stage1
 	@echo "Running nanocore_export and emit_typed_ast unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_nanocore tests/test_nanocore.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -1107,6 +1136,21 @@ test-units: test-string-boundaries test-map-results
 .PHONY: test-map-results
 test-map-results: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_map_results.py
+
+
+.PHONY: test-map-declared-tags-sanitizers
+test-map-declared-tags-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -fno-sanitize-recover=all -o $(OBJ_DIR)/test_map_declared_tags \
+		tests/nanovm/test_map_declared_tags.c src/nanovm/vm.c src/nanovm/heap.c src/nanovm/heap_cycles.c src/nanovm/value.c \
+		$(filter-out $(OBJ_DIR)/nanovm/vm.o $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_map_declared_tags
+
+.PHONY: test-map-declared-tags
+test-map-declared-tags: nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_map_declared_tags tests.test_native_map_globals
+
+test-units: test-map-declared-tags
 
 .PHONY: test-selfhost-map-results
 test-selfhost-map-results: bootstrap3
@@ -4497,7 +4541,8 @@ test-owned-transfers: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	python3 -m unittest tests.test_owned_transfers
 
 # I translate verified modules; this is independent of the AST compiler paths.
-$(OBJ_DIR)/nanoisa/nvm2llvm.o: $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_DIR)/verifier.h
+$(OBJ_DIR)/nanoisa/nvm2llvm.o: $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_DIR)/verifier.h $(NANOISA_DIR)/nvm2llvm_managed.inc managed-runtime-package
+$(OBJ_DIR)/nanoisa/nvm2llvm.o: CFLAGS += -I$(OBJ_DIR)/nanoisa
 $(OBJ_DIR)/nanoisa/nvm2llvm_main.o: $(NANOISA_DIR)/nvm2llvm_main.c $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
@@ -4533,6 +4578,21 @@ test-llvm-literal-strings: test-llvm-scalar-globals
 	$(CC) $(CFLAGS) -o obj/literal_string_aliases tests/nanoisa/literal_string_aliases.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_llvm_literal_strings
 
+# I rebuild this non-admitting prototype package on each request, so changed
+# compiler selections/flags cannot silently reuse a prior target's IR.
+NMS_RUNTIME_CLANG ?= clang
+NMS_RUNTIME_OPT ?= opt
+.PHONY: managed-runtime-package test-managed-runtime-package
+managed-runtime-package: scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_module.c $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
+	python3 scripts/embed_managed_runtime.py --clang "$(NMS_RUNTIME_CLANG)" --opt "$(NMS_RUNTIME_OPT)" --header $(OBJ_DIR)/nanoisa/managed_runtime_ir.h --manifest $(OBJ_DIR)/nanoisa/managed_runtime_ir.json
+
+test-managed-runtime-package: managed-runtime-package
+	python3 -m unittest -v tests.test_managed_runtime_package
+
+.PHONY: test-llvm-managed-strings
+test-llvm-managed-strings: test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format
+
 .PHONY: test-managed-string-core
 test-managed-string-core:
 	python3 -m unittest -v tests.test_managed_string_core
@@ -4542,7 +4602,7 @@ nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
 	chmod +x bin/nvm2wasm
 
-test-nvm2wasm: test-managed-string-core test-llvm-enum-scalars test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
+test-nvm2wasm: test-llvm-managed-strings test-managed-string-core test-llvm-enum-scalars test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
@@ -4735,6 +4795,11 @@ test-native-string-equality-guards: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-string-equality-guards
 
+.PHONY: test-native-float-arrays
+test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_native_float_arrays
+test-units: test-native-float-arrays
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
@@ -4794,3 +4859,10 @@ test-units: test-cseed-single-letter-enums
 test-native-record-array-scalar-tags: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_record_array_scalar_tags
 test-units: test-native-record-array-scalar-tags
+
+.PHONY: test-native-union-padding
+test-native-union-padding: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_union_padding
+.PHONY: test-scalar-union-emission
+test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_scalar_union_emission

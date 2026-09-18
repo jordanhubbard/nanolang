@@ -62,8 +62,8 @@ class NativeMapGlobals(unittest.TestCase):
         for value in ('PUSH_I64 9', 'PUSH_STR text', 'PUSH_BOOL 1'):
             with self.subTest(value=value):
                 self.check(value + '\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nHM_LEN\nPOP\n', bad=True)
-        # Raw VM value-tag policy is tracked separately in task_b19f8bf0.
-        self.check('HM_NEW 5 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPOP\n', bad=True, vm_bad=False)
+        # I require exact declared value tags in both ordinary backends.
+        self.check('HM_NEW 5 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_STR key\nPUSH_STR text\nHM_SET\nPOP\n', bad=True, vm_bad=True)
         self.check('LOAD_GLOBAL 0\nHM_LEN\nPOP\n', bad=True)
 
     def test_global_local_record_and_operand_roots_survive_collection(self):

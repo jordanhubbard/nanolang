@@ -3041,12 +3041,18 @@ vm_return_values: ;
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
+                vm_release(&vm->heap, start_v);
+                vm_release(&vm->heap, len_v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_SUBSTR: not a string");
             }
             uint32_t start = (uint32_t)(start_v.tag == TAG_INT ? start_v.as.i64 : 0);
             uint32_t len = (uint32_t)(len_v.tag == TAG_INT ? len_v.as.i64 : 0);
             VmString *result = vm_string_substr(&vm->heap, s.as.string, start, len);
             vm_release(&vm->heap, s);
+            vm_release(&vm->heap, start_v);
+            vm_release(&vm->heap, len_v);
+            if (!result)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the substring.");
             stack_push(vm, val_string(result));
             VM_NEXT();
         }
@@ -3751,6 +3757,7 @@ vm_return_values: ;
             uint8_t key_type = instr.operands[0].u8;
             uint8_t val_type = instr.operands[1].u8;
             VmHashMap *m = vm_hashmap_new(&vm->heap, key_type, val_type);
+            if (!m) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate a hashmap.");
             stack_push(vm, val_hashmap(m));
             VM_NEXT();
         }
@@ -3781,7 +3788,19 @@ vm_return_values: ;
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_SET: not a hashmap");
             }
-            vm_hashmap_set(&vm->heap, map.as.hashmap, key, v);
+            if (key.tag != map.as.hashmap->key_type || v.tag != map.as.hashmap->val_type) {
+                vm_release(&vm->heap, map);
+                vm_release(&vm->heap, key);
+                vm_release(&vm->heap, v);
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "I require HM_SET key/value tags to match the map declaration.");
+            }
+            if (!vm_hashmap_set(&vm->heap, map.as.hashmap, key, v)) {
+                vm_release(&vm->heap, map);
+                vm_release(&vm->heap, key);
+                vm_release(&vm->heap, v);
+                return trap_error(vm, VM_ERR_MEMORY, "I could not grow this hashmap.");
+            }
             vm_release(&vm->heap, key);
             vm_release(&vm->heap, v);
             stack_push(vm, map);

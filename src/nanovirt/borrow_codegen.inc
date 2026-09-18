@@ -16,7 +16,7 @@ typedef struct {
     bool name_open[256];
     uint8_t tags[256], modes[256];
     uint32_t layouts[256];
-    bool live[256], mutable[256], helper_body, returned;
+    bool live[256], disposal_pending[256], mutable[256], helper_body, returned;
     uint8_t result;
     uint8_t *contracts;
     size_t contract_size, contract_capacity;
@@ -54,7 +54,7 @@ static int borrow_local(BorrowCG *b,const char *name) {
 static int borrow_slot(BorrowCG *b,const char *name,uint8_t tag,uint32_t layout,uint8_t mode,bool mutable) {
     if(b->count==256){borrow_error(b,NULL,"at most 256 local slots");return 0;}
     unsigned i=b->count++;b->projection_parent[i]=-1;b->projection_field[i]=-1;b->advisory_names[i]=NULL;b->name_open[i]=false;b->names[i]=name;b->tags[i]=tag;b->layouts[i]=layout;
-    b->modes[i]=mode;b->live[i]=true;b->mutable[i]=mutable;return (int)i;
+    b->modes[i]=mode;b->live[i]=true;b->disposal_pending[i]=false;b->mutable[i]=mutable;return (int)i;
 }
 /* I retain lexical positions, not runtime owner liveness. */
 static void borrow_name_begin(BorrowCG *b,unsigned slot,const char *name) {
@@ -131,7 +131,7 @@ static void borrow_unpack(BorrowCG *b,unsigned local) {
         b->projection_parent[slots[f]]=(int)local;b->projection_field[slots[f]]=f;
     }
     if(b->cg->had_error)return;
-    emit_op(b->cg,OP_OWN_UNPACK_LOCAL,(int)local);b->live[local]=false;
+    emit_op(b->cg,OP_OWN_UNPACK_LOCAL,(int)local);b->live[local]=false;b->disposal_pending[local]=false;
     for(int f=record->as.struct_def.field_count-1;f>=0;f--)
         emit_op(b->cg,b->tags[slots[f]]==TAG_STRUCT?OP_OWN_STORE_LOCAL:OP_STORE_LOCAL,slots[f]);
 }
@@ -142,9 +142,23 @@ static void borrow_cleanup(BorrowCG *b,unsigned first) {
             emit_op(b->cg,OP_OWN_UNPACK_LOCAL,(int)i);
             int fields=b->records[b->layouts[i]]->as.struct_def.field_count;
             for(int j=0;j<fields;j++)emit_op(b->cg,OP_POP);
-            b->live[i]=false;
+            b->live[i]=false;b->disposal_pending[i]=false;
         }
     }
+}
+static bool borrow_consumed(BorrowCG *b,unsigned first,ASTNode *at) {
+    for(unsigned i=first;i<b->count;i++)
+        if(b->live[i] && b->tags[i]==TAG_STRUCT && !b->modes[i] && !b->disposal_pending[i]) {
+            borrow_error(b,at,"explicit source owner consumption at scope exit");return false;
+        }
+    return !b->cg->had_error;
+}
+static bool borrow_same_owners(BorrowCG *b,unsigned count,const bool *live,const bool *pending,ASTNode *at) {
+    for(unsigned i=0;i<count;i++)if(b->tags[i]==TAG_STRUCT &&
+       (b->live[i]!=live[i] || b->disposal_pending[i]!=pending[i])) {
+        borrow_error(b,at,"matching ownership on every reaching edge");return false;
+    }
+    return !b->cg->had_error;
 }
 static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     CG *cg=b->cg;if(cg->had_error || !n)return TAG_VOID;
@@ -236,32 +250,47 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
     unsigned first=b->count;
     for(int i=0;i<body->as.block.count && !b->cg->had_error && !b->returned;i++) {
         ASTNode *n=body->as.block.statements[i];CG *cg=b->cg;
-        if(b->control_depth && n->type==AST_RETURN) {
-            borrow_error(b,n,"no early returns inside control flow");break;
-        }
         if(n->type==AST_IF || n->type==AST_WHILE) {
             if(b->control_depth==32){borrow_error(b,n,"at most 32 nested control-flow bodies");break;}
             uint32_t top=cg->code_size;
             ASTNode *condition=n->type==AST_IF?n->as.if_stmt.condition:n->as.while_stmt.condition;
             if(borrow_expr(b,condition)!=TAG_BOOL){borrow_error(b,n,"a Boolean control-flow condition");break;}
             uint32_t skip=emit_op(cg,OP_JMP_FALSE,(int32_t)0);
+            unsigned incoming_count=b->count;
+            bool incoming_live[256],incoming_disposal[256];
+            memcpy(incoming_live,b->live,incoming_count*sizeof(bool));
+            memcpy(incoming_disposal,b->disposal_pending,incoming_count*sizeof(bool));
             b->control_depth++;
-            borrow_body(b,n->type==AST_IF?n->as.if_stmt.then_branch:n->as.while_stmt.body,false);
+            borrow_body(b,n->type==AST_IF?n->as.if_stmt.then_branch:n->as.while_stmt.body,shadow);
             b->control_depth--;
             if(cg->had_error)break;
-            uint32_t next=emit_op(cg,OP_JMP,(int32_t)0);
+            bool then_returns=b->returned;
+            bool then_live[256],then_disposal[256];
+            memcpy(then_live,b->live,incoming_count*sizeof(bool));
+            memcpy(then_disposal,b->disposal_pending,incoming_count*sizeof(bool));
+            uint32_t next=UINT32_MAX;
+            if(!then_returns)next=emit_op(cg,OP_JMP,(int32_t)0);
             patch_jump(cg,skip+1,skip,cg->code_size);
+            memcpy(b->live,incoming_live,incoming_count*sizeof(bool));
+            memcpy(b->disposal_pending,incoming_disposal,incoming_count*sizeof(bool));b->returned=false;
             if(n->type==AST_IF) {
                 if(n->as.if_stmt.else_branch) {
-                    b->control_depth++;borrow_body(b,n->as.if_stmt.else_branch,false);b->control_depth--;
+                    b->control_depth++;borrow_body(b,n->as.if_stmt.else_branch,shadow);b->control_depth--;
                 }
-                if(!cg->had_error)patch_jump(cg,next+1,next,cg->code_size);
-            } else patch_jump(cg,next+1,next,top);
-        } else if(n->type==AST_LET) {
-            if(b->control_depth && (n->as.let.is_destructure || n->as.let.is_destructure_projection ||
-               (n->as.let.var_type!=TYPE_UNKNOWN && n->as.let.var_type!=TYPE_INT && n->as.let.var_type!=TYPE_BOOL))) {
-                borrow_error(b,n,"only lexical int/bool declarations inside control flow");break;
+                bool else_returns=b->returned;
+                if(!then_returns) {
+                    if(!else_returns)borrow_same_owners(b,incoming_count,then_live,then_disposal,n);
+                    else {
+                        memcpy(b->live,then_live,incoming_count*sizeof(bool));
+                        memcpy(b->disposal_pending,then_disposal,incoming_count*sizeof(bool));
+                    }
+                }
+                b->returned=then_returns && else_returns;
+                if(!cg->had_error && next!=UINT32_MAX)patch_jump(cg,next+1,next,cg->code_size);
+            } else if(next!=UINT32_MAX) {
+                if(borrow_same_owners(b,incoming_count,then_live,then_disposal,n))patch_jump(cg,next+1,next,top);
             }
+        } else if(n->type==AST_LET) {
             if(n->as.let.is_destructure_projection && n->as.let.value->type==AST_FIELD_ACCESS &&
                n->as.let.value->as.field_access.object->type==AST_IDENTIFIER) {
                 ASTNode *field=n->as.let.value;
@@ -311,27 +340,30 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                         if(b->tags[slots[f]]==TAG_STRUCT)b->live[slots[f]]=false;
                     }
                     emit_op(cg,OP_OWN_PACK,(uint32_t)layout);
-                } else if(n->as.let.is_destructure && value->type==AST_IDENTIFIER) {
+                } else if(value->type==AST_IDENTIFIER) {
                     int old=borrow_local(b,value->as.identifier);
                     if(old<0 || !b->live[old] || b->modes[old] || b->tags[old]!=TAG_STRUCT || b->layouts[old]!=(uint32_t)layout) {
                         borrow_error(b,n,"an unborrowed exact owner for destructuring");break;
                     }
-                    emit_op(cg,OP_OWN_MOVE_LOCAL,old);b->live[old]=false;
-                } else {borrow_error(b,n,"a resource constructor or explicit destructive pattern");break;}
+                    emit_op(cg,OP_OWN_MOVE_LOCAL,old);b->live[old]=false;b->disposal_pending[old]=false;
+                } else {borrow_error(b,n,"a resource constructor, exact owner move or explicit destructive pattern");break;}
                 int slot=borrow_slot(b,n->as.let.name,TAG_STRUCT,(uint32_t)layout,0,n->as.let.is_mut);
                 emit_op(cg,OP_OWN_STORE_LOCAL,slot);
                 if(!n->as.let.is_destructure)borrow_name_begin(b,(unsigned)slot,n->as.let.name);
-                else if(!borrow_leaf(b,(unsigned)layout)) {
+                else {
                     ASTNode *record=b->records[layout];
-                    if(n->as.let.destructure_count!=record->as.struct_def.field_count){borrow_error(b,n,"every nested pattern field once");break;}
+                    if(n->as.let.destructure_count!=record->as.struct_def.field_count){borrow_error(b,n,"every pattern field once");break;}
                     bool seen[256]={false};
                     for(int f=0;f<n->as.let.destructure_count && !cg->had_error;f++) {
                         int field=borrow_layout_field(b,(unsigned)layout,n->as.let.destructure_names[f],n);
                         if(field<0)break;
-                        if(seen[field])borrow_error(b,n,"distinct nested pattern fields");
+                        if(seen[field])borrow_error(b,n,"distinct pattern fields");
                         seen[field]=true;
                     }
-                    if(!cg->had_error)borrow_unpack(b,(unsigned)slot);
+                    if(!cg->had_error) {
+                        if(borrow_leaf(b,(unsigned)layout))b->disposal_pending[slot]=true;
+                        else borrow_unpack(b,(unsigned)slot);
+                    }
                 }
             } else {
                 uint8_t tag=borrow_expr(b,n->as.let.value),declared=borrow_tag(n->as.let.var_type);
@@ -362,6 +394,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 emit_op(cg,OP_STORE_LOCAL,local);
             }
         } else if(n->type==AST_RETURN && !shadow) {
+            if(!borrow_consumed(b,0,n))break;
             if(borrow_expr(b,n->as.return_stmt.value)!=b->result)borrow_error(b,n,"the declared scalar return type");
             borrow_cleanup(b,0);emit_op(cg,OP_RET);b->returned=true;
         } else if(n->type==AST_CALL) {
@@ -369,7 +402,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             emit_op(cg,OP_POP);
         } else {borrow_error(b,n,"straight-line let/set/assert/call/return statements");break;}
     }
-    if(shadow)borrow_cleanup(b,first);
+    if((shadow || b->control_depth) && borrow_consumed(b,first,body))borrow_cleanup(b,first);
     if(shadow || b->control_depth){borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
 }
 static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool shadows,unsigned index) {

@@ -248,7 +248,8 @@ VmClosure *vm_closure_new(VmHeap *heap, uint32_t fn_idx, uint16_t capture_count)
 /* HashMap allocation */
 VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type);
 NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key);
-void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value);
+/* I borrow inputs; false preserves prior contents and retains neither input. */
+bool vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value);
 bool vm_hashmap_has(VmHashMap *m, NanoValue key);
 void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key);
 VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m);

@@ -2125,6 +2125,67 @@ static void test_hashmap_len(void) {
     nvm_module_free(mod);
 }
 
+/* I invoke an ordinary write through borrowed API arguments and inspect the
+ * surviving owners after either success or the checked type refusal. */
+static void test_hashmap_declared_write_tags(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    for (int i = 0; i < 3; ++i) off += emit(code + off, OP_LOAD_LOCAL, i);
+    off += emit(code + off, OP_HM_SET);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 3, 3);
+    VmState vm;
+    vm_init(&vm, mod);
+    size_t baseline_objects = vm.heap.stats.num_objects;
+    VmHashMap *map = vm_hashmap_new(&vm.heap, TAG_STRING, TAG_INT);
+    VmString *key = vm_string_new(&vm.heap, "declared-key", 12);
+    VmString *wrong_text = vm_string_new(&vm.heap, "wrong-value", 11);
+    VmArray *wrong_array = vm_array_new(&vm.heap, TAG_INT, 1);
+    ASSERT(map && key && wrong_text && wrong_array, "I allocate ordinary map owners");
+    vm_hashmap_set(&vm.heap, map, val_string(key), val_int(41));
+    NanoValue wrong[] = { val_bool(true), val_u8(41), val_float(41), val_enum(41),
+                          val_void(), val_string(wrong_text), val_array(wrong_array) };
+    size_t objects = vm.heap.stats.num_objects;
+    for (size_t i = 0; i < sizeof wrong / sizeof *wrong; ++i) {
+        NanoValue args[] = { val_hashmap(map), val_string(key), wrong[i] };
+        NanoValue result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 3, &result), VM_ERR_TYPE_ERROR,
+                      "I reject a value tag distinct from the declared int");
+        ASSERT(strstr(vm.error_msg, "HM_SET key/value tags") != NULL,
+               "I report the exact declared map write guard");
+        ASSERT_EQ_INT(result.tag, TAG_VOID, "I publish no result after refused write");
+        ASSERT_EQ_INT(map->count, 1, "I retain the prior entry count");
+        ASSERT_EQ_INT(vm_hashmap_get(map, val_string(key)).as.i64, 41,
+                      "I retain the prior entry value");
+        ASSERT_EQ_INT(map->header.ref_count, 1, "I release the consumed map alias");
+        ASSERT_EQ_INT(key->header.ref_count, 2, "I retain only caller and map key owners");
+        ASSERT_EQ_INT(wrong_text->header.ref_count, 1, "I release consumed string aliases");
+        ASSERT_EQ_INT(wrong_array->header.ref_count, 1, "I release consumed array aliases");
+        ASSERT_EQ_INT(vm.heap.stats.num_objects, objects, "I retain no additional heap objects");
+    }
+    NanoValue args[] = { val_hashmap(map), val_array(wrong_array), val_int(99) };
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 3, &result), VM_ERR_TYPE_ERROR,
+                  "I reject a key tag distinct from the declaration");
+    ASSERT_EQ_INT(wrong_array->header.ref_count, 1, "I release the consumed wrong key");
+    ASSERT_EQ_INT(map->count, 1, "I do not add a wrong-key entry");
+    args[1] = val_string(key);
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 3, &result), VM_OK,
+                  "I can replace a value with matching tags after refusal");
+    ASSERT_EQ_INT(vm_hashmap_get(map, val_string(key)).as.i64, 99,
+                  "I publish a valid replacement");
+    vm_release(&vm.heap, val_hashmap(map));
+    vm_release(&vm.heap, val_string(key));
+    vm_release(&vm.heap, val_string(wrong_text));
+    vm_release(&vm.heap, val_array(wrong_array));
+    vm_gc_collect_cycles(&vm.heap);
+    ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline_objects, "I reclaim all external owners");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_hashmap_contiguous_collisions(void) {
     VmHeap heap;
     vm_heap_init(&heap);
@@ -5760,6 +5821,7 @@ int main(void) {
 
     printf("\n[Hashmaps]\n");
     RUN_TEST(test_hashmap_basic);
+    RUN_TEST(test_hashmap_declared_write_tags);
     RUN_TEST(test_hashmap_len);
     RUN_TEST(test_hashmap_contiguous_collisions);
 

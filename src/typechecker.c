@@ -3291,10 +3291,24 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                /* Type check fields */
+                /* I resolve each supplied name before selecting its declared type. */
                 for (int i = 0; i < expr->as.struct_literal.field_count; i++) {
+                    const char *field_name = expr->as.struct_literal.field_names[i];
+                    int field_index = -1;
+                    for (int j = 0; j < udef->variant_field_counts[variant_idx]; ++j)
+                        if (!strcmp(field_name, udef->variant_field_names[variant_idx][j])) field_index = j;
+                    bool duplicate = false;
+                    for (int j = 0; j < i; ++j)
+                        if (!strcmp(field_name, expr->as.struct_literal.field_names[j])) duplicate = true;
+                    if (field_index < 0 || duplicate) {
+                        emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column, 1,
+                                           "I require every declared union field exactly once.",
+                                           "Use distinct field names from this variant.");
+                        free(union_name);
+                        return TYPE_UNKNOWN;
+                    }
                     Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
-                    Type expected = udef->variant_field_types[variant_idx][i];
+                    Type expected = udef->variant_field_types[variant_idx][field_index];
                     check_union_record_array_contract(env, udef, variant_idx,
                         expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_values[i]);
 
@@ -3305,8 +3319,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (udef->generic_param_count > 0 &&
                         udef->variant_field_type_names &&
                         udef->variant_field_type_names[variant_idx] &&
-                        udef->variant_field_type_names[variant_idx][i]) {
-                        const char *expected_name = udef->variant_field_type_names[variant_idx][i];
+                        udef->variant_field_type_names[variant_idx][field_index]) {
+                        const char *expected_name = udef->variant_field_type_names[variant_idx][field_index];
                         for (int gp = 0; gp < udef->generic_param_count; gp++) {
                             if (udef->generic_params && udef->generic_params[gp] &&
                                 strcmp(expected_name, udef->generic_params[gp]) == 0) {
@@ -3843,6 +3857,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check each arm and infer return type from first arm */
             Type return_type = TYPE_UNKNOWN;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                int arm_first_symbol = env->symbol_count;
                 /* Save symbol count for scope */
                 int saved_symbol_count __attribute__((unused)) = env->symbol_count;
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
@@ -3889,11 +3904,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
-                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
-                 * later when it re-typechecks expressions for code generation. Match arm bindings need
-                 * to remain in the environment for the lifetime of the compilation unit.
-                 * This is safe because each arm's binding uses a unique name from the source code.
-                 */
+                /* I retain emission metadata within its lexical arm only. */
+                bound_scope_symbols(env, arm_first_symbol, expr->as.match_expr.arm_bodies[i]);
                 
                 /* A definite function exit contributes no match value. */
                 if (ast_always_returns(expr->as.match_expr.arm_bodies[i])) continue;
@@ -5383,6 +5395,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                int arm_first_symbol = tc->env->symbol_count;
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
@@ -5424,11 +5437,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     check_expression(arm, tc->env);
                 }
 
-                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
-                 * later when it re-typechecks expressions for code generation. Match arm bindings need
-                 * to remain in the environment for the lifetime of the compilation unit.
-                 * This is safe because each arm's binding uses a unique name from the source code.
-                 */
+                /* I retain emission metadata within its lexical arm only. */
+                bound_scope_symbols(tc->env, arm_first_symbol, arm);
             }
 
             return TYPE_VOID;

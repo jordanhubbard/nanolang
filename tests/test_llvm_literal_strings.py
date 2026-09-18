@@ -109,13 +109,12 @@ class LiteralStrings(unittest.TestCase):
                 else:
                     self.compare(body,trap=True)
 
-    def test_computed_string_and_signature_refusals_preserve_output(self):
-        cases = [self.program('PUSH_STR a\nPUSH_STR b\n'+op+'\nPOP\n') for op in ('ADD','STR_CONCAT')]
-        cases += [self.program('PUSH_STR a\n'+op+'\nPOP\n') for op in ('CAST_INT','CAST_FLOAT')]
-        # An unused string signature and numeric ADD still trip the conservative
-        # whole-module rule; string-pool names alone do not select it.
-        cases += [numeric.GenericNumeric.program(self, 'PUSH_I64 1\nPUSH_I64 2\nADD\nPOP\n',
-                  '.function unused 1 1 0 void 0\n.parameters unused string\nRET\n.end\n')]
+    def test_managed_string_operations_and_conversion_refusals(self):
+        for op in ('ADD','STR_CONCAT'):
+            self.compare('PUSH_STR a\nPUSH_STR b\n'+op+'\nSTR_LEN\nPUSH_I64 6\nEQ\nASSERT\n')
+        self.compare('PUSH_I64 1\nPUSH_I64 2\nADD\nPOP\n',
+                     '.function unused 1 1 0 void 0\n.parameters unused string\nRET\n.end\n')
+        cases = [self.program('PUSH_STR a\n'+op+'\nPOP\n') for op in ('CAST_FLOAT',)]
         for text in cases:
             module = self.assemble(text)
             self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module])

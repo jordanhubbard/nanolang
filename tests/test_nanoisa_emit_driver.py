@@ -95,7 +95,7 @@ class NanoisaEmitDriver(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="nano-driver-errors-") as tmp:
             directory = Path(tmp)
             source, output = directory / "bad.nano", directory / "prior.nvm"
-            for body in ("fn broken(", "fn main() -> array<float> { return [1.5] }\nshadow main { assert true }\n"):
+            for body in ("fn broken(", "fn main() -> array<array<float>> { return [[1.5]] }\nshadow main { assert true }\n"):
                 source.write_text(body)
                 output.write_bytes(b"previous bytes")
                 self.run_command([DRIVER, source, "--emit-nvm", "-o", output], expected=1)
@@ -123,9 +123,9 @@ class NanoisaEmitDriver(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="nano-driver-diagnostic-") as tmp:
             directory = Path(tmp)
             source, output = directory / "unsupported.nano", directory / "unsupported.nasm"
-            source.write_text('fn main() -> array<float> { return [1.5] }\n')
+            source.write_text('fn main() -> array<array<float>> { return [[1.5]] }\n')
             result = self.run_command([DRIVER, source, "-o", output], expected=1)
-            self.assertIn(b"I refused that program: unsupported result type array<float>", result.stdout)
+            self.assertIn(b"I refused that program: unsupported result type array<array<float>>", result.stdout)
             self.assertFalse(output.exists())
 
 

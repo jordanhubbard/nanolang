@@ -49,6 +49,179 @@ int nms_core_tests(void) {
     CHECK(!nms_reserved_entry("nano_entry") && !nms_reserved_entry("nano_try_entry_other"));
     return 0;
 }
+int nms_format_tests(void) {
+    const struct { uint64_t bits; uint32_t tag, length; const char *expected; } cases[] = {
+        {0,1,1,"0"}, {UINT64_MAX,1,2,"-1"},
+        {INT64_MAX,1,19,"9223372036854775807"},
+        {UINT64_C(1)<<63,1,20,"-9223372036854775808"},
+        {0,2,1,"0"}, {255,2,3,"255"}, {0,4,5,"false"}, {1,4,4,"true"},
+        {0,0,0,""}, {17,9,0,""}
+    };
+    NmsRuntime runtime;
+    nms_init(&runtime, NULL, 0);
+    for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        NmsHandle out = 123;
+        CHECK(nms_format_scalar(&runtime, cases[i].bits, cases[i].tag, &out) == NMS_OK);
+        NmsView view;
+        CHECK(nms_view(&runtime, out, &view) == NMS_OK && view.length == cases[i].length);
+        CHECK(same(view.data, (const unsigned char *)cases[i].expected, view.length));
+        CHECK(nms_release(&runtime, out) == NMS_OK && runtime.live_objects == 0);
+    }
+#ifdef NMS_TESTING
+    nms_test_fail_after(&runtime, 0);
+    NmsHandle out = 123;
+    CHECK(nms_format_scalar(&runtime, UINT64_C(1)<<63, 1, &out) == NMS_MEMORY);
+    CHECK(out == 123 && runtime.live_objects == 0);
+    nms_test_fail_after(&runtime, UINT64_MAX);
+    CHECK(nms_format_scalar(&runtime, 7, 1, &out) == NMS_OK);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+#endif
+    CHECK(nms_dispose(&runtime) == NMS_OK);
+    return 0;
+}
+int nms_decimal_tests(void) {
+    const struct { const char *text; uint32_t length; int64_t expected; } cases[] = {
+        {"",0,0}, {"+",1,0}, {"-",1,0}, {"  -42tail",9,-42},
+        {"\t\n\r\v\f +17",9,17}, {"12\0" "99",5,12}, {"0x20",4,0},
+        {"9223372036854775807",19,INT64_MAX},
+        {"9223372036854775808",19,INT64_MAX},
+        {"-9223372036854775808",20,INT64_MIN},
+        {"-9223372036854775809",20,INT64_MIN},
+        {"999999999999999999999999",24,INT64_MAX},
+        {"-999999999999999999999999",25,INT64_MIN}
+    };
+    for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        NmsView literal = {(const unsigned char *)cases[i].text, cases[i].length};
+        NmsRuntime runtime;
+        nms_init(&runtime, &literal, 1);
+        int64_t parsed = 123;
+        CHECK(nms_parse_i64(&runtime, 1, &parsed) == NMS_OK && parsed == cases[i].expected);
+        NmsHandle source;
+        CHECK(nms_create(&runtime, literal.data, literal.length, &source) == NMS_OK);
+        CHECK(nms_retain(&runtime, source) == NMS_OK);
+#ifdef NMS_TESTING
+        nms_test_fail_after(&runtime, 0);
+#endif
+        CHECK(nms_parse_i64(&runtime, source, &parsed) == NMS_OK && parsed == cases[i].expected);
+        CHECK(runtime.live_objects == 1 && runtime.live_bytes == literal.length);
+        CHECK(runtime.slots[source & ~NMS_DYNAMIC].references == 2);
+        CHECK(nms_release(&runtime, source) == NMS_OK);
+        CHECK(nms_release(&runtime, source) == NMS_OK);
+        CHECK(nms_dispose(&runtime) == NMS_OK);
+    }
+    return 0;
+}
+int nms_substr_tests(void) {
+    NmsRuntime runtime;
+    nms_init(&runtime, literals, 2);
+    NmsHandle source, out = 123;
+    NmsView view;
+    CHECK(nms_create(&runtime, bytes, 3, &source) == NMS_OK);
+    CHECK(nms_retain(&runtime, source) == NMS_OK);
+    CHECK(nms_substr_owned(&runtime, source, 1, 20, &out) == NMS_OK);
+    CHECK(nms_view(&runtime, out, &view) == NMS_OK && view.length == 2);
+    CHECK(view.data[0] == bytes[1] && view.data[1] == bytes[2]);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+    CHECK(nms_view(&runtime, source, &view) == NMS_OK && view.length == 3);
+#ifdef NMS_TESTING
+    nms_test_fail_after(&runtime, 0);
+    out = 123;
+    CHECK(nms_substr_owned(&runtime, source, 0, 1, &out) == NMS_MEMORY);
+    CHECK(out == 123 && runtime.live_objects == 0);
+    nms_test_fail_after(&runtime, UINT64_MAX);
+#else
+    CHECK(nms_release(&runtime, source) == NMS_OK);
+#endif
+    CHECK(nms_substr_owned(&runtime, 1, 3, 20, &out) == NMS_OK);
+    CHECK(nms_view(&runtime, out, &view) == NMS_OK && view.length == 0);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+    CHECK(nms_dispose(&runtime) == NMS_OK);
+#ifdef NMS_TESTING
+    nms_init(&runtime, literals, 2);
+    NmsHandle full[8];
+    for (unsigned i = 0; i < 8; i++) CHECK(nms_create(&runtime, bytes, 3, &full[i]) == NMS_OK);
+    NmsSlot *old = runtime.slots;
+    for (unsigned fail = 0; fail < 2; fail++) {
+        CHECK(nms_retain(&runtime, full[0]) == NMS_OK);
+        nms_test_fail_after(&runtime, fail);
+        out = 123;
+        CHECK(nms_substr_owned(&runtime, full[0], 0, 2, &out) == NMS_MEMORY);
+        CHECK(out == 123 && runtime.slots == old && runtime.capacity == 8);
+        CHECK(runtime.live_objects == 8 && runtime.live_bytes == 24);
+        CHECK(nms_view(&runtime, full[0], &view) == NMS_OK && view.length == 3);
+        CHECK(runtime.slots[full[0] & ~NMS_DYNAMIC].references == 1);
+    }
+    nms_test_fail_after(&runtime, UINT64_MAX);
+    CHECK(nms_retain(&runtime, full[0]) == NMS_OK);
+    CHECK(nms_substr_owned(&runtime, full[0], 0, 2, &out) == NMS_OK);
+    CHECK(runtime.capacity == 16 && runtime.live_objects == 9);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+    for (unsigned i = 0; i < 8; i++) CHECK(nms_release(&runtime, full[i]) == NMS_OK);
+    CHECK(nms_dispose(&runtime) == NMS_OK && nms_test_live_allocations() == 0);
+#endif
+    return 0;
+}
+int nms_concat_tests(void) {
+    NmsRuntime runtime;
+    nms_init(&runtime, literals, 2);
+    NmsHandle a, result;
+    NmsView view;
+    CHECK(nms_create(&runtime, bytes, 3, &a) == NMS_OK);
+    CHECK(nms_retain(&runtime, a) == NMS_OK);
+    CHECK(nms_retain(&runtime, a) == NMS_OK); /* Two inputs and an external alias. */
+    CHECK(nms_concat_owned(&runtime, a, a, &result) == NMS_OK);
+    CHECK(nms_view(&runtime, result, &view) == NMS_OK && view.length == 6);
+    CHECK(same(view.data, bytes, 3) && same(view.data + 3, bytes, 3) && !view.data[6]);
+    CHECK(nms_view(&runtime, a, &view) == NMS_OK && view.length == 3);
+    CHECK(runtime.live_objects == 2);
+    CHECK(nms_release(&runtime, a) == NMS_OK);
+    CHECK(nms_concat_owned(&runtime, result, 2, &a) == NMS_OK);
+    CHECK(runtime.live_objects == 1 && runtime.live_bytes == 6);
+    CHECK(nms_release(&runtime, a) == NMS_OK);
+    CHECK(nms_concat_owned(&runtime, 2, 2, &result) == NMS_OK);
+    CHECK(nms_view(&runtime, result, &view) == NMS_OK && !view.length && view.data);
+    CHECK(nms_release(&runtime, result) == NMS_OK);
+    NmsHandle full[8];
+    for (unsigned i = 0; i < 8; i++)
+        CHECK(nms_create(&runtime, bytes, 3, &full[i]) == NMS_OK);
+    NmsSlot *old = runtime.slots;
+    for (unsigned fail = 0; fail < 2; fail++) {
+        CHECK(nms_retain(&runtime, full[0]) == NMS_OK);
+        CHECK(nms_retain(&runtime, full[1]) == NMS_OK);
+        nms_test_fail_after(&runtime, fail);
+        result = 123;
+        CHECK(nms_concat_owned(&runtime, full[0], full[1], &result) == NMS_MEMORY);
+        CHECK(result == 123 && runtime.slots == old && runtime.capacity == 8);
+        CHECK(runtime.live_objects == 8 && runtime.live_bytes == 24);
+        for (unsigned i = 0; i < 8; i++) {
+            CHECK(nms_view(&runtime, full[i], &view) == NMS_OK && same(view.data, bytes, 3));
+            CHECK(runtime.slots[full[i] & ~NMS_DYNAMIC].references == 1);
+        }
+    }
+    nms_test_fail_after(&runtime, UINT64_MAX);
+    CHECK(nms_retain(&runtime, full[0]) == NMS_OK);
+    CHECK(nms_concat_owned(&runtime, full[0], 1, &result) == NMS_OK);
+    CHECK(runtime.capacity == 16 && runtime.live_objects == 9);
+    CHECK(nms_view(&runtime, result, &view) == NMS_OK && view.length == 6);
+    CHECK(nms_release(&runtime, result) == NMS_OK);
+    for (unsigned i = 0; i < 8; i++) CHECK(nms_release(&runtime, full[i]) == NMS_OK);
+    CHECK(nms_create(&runtime, bytes, 3, &a) == NMS_OK);
+    nms_test_fail_after(&runtime, 0);
+    result = 123;
+    CHECK(nms_concat_owned(&runtime, a, 1, &result) == NMS_MEMORY);
+    CHECK(result == 123 && !runtime.live_objects); /* Failure consumed the only owner. */
+    nms_test_fail_after(&runtime, UINT64_MAX);
+    CHECK(nms_concat_owned(&runtime, 1, 2, &a) == NMS_OK);
+    uint64_t pages = nms_test_memory_pages();
+    for (unsigned i = 0; i < 2000; i++) {
+        CHECK(nms_concat_owned(&runtime, a, 2, &a) == NMS_OK);
+        CHECK(runtime.live_objects == 1 && runtime.live_bytes == 3);
+    }
+    CHECK(nms_test_memory_pages() == pages);
+    CHECK(nms_release(&runtime, a) == NMS_OK);
+    CHECK(nms_dispose(&runtime) == NMS_OK && !nms_test_live_allocations());
+    return 0;
+}
 int nms_failure_tests(void) {
     NmsRuntime runtime;
     nms_init(&runtime, literals, 2);
@@ -155,6 +328,10 @@ int nms_pressure_tests(void) {
 #ifndef __wasm32__
 int main(void) {
     int result = nms_core_tests();
+    if (!result) result = nms_concat_tests();
+    if (!result) result = nms_substr_tests();
+    if (!result) result = nms_decimal_tests();
+    if (!result) result = nms_format_tests();
     if (!result) result = nms_failure_tests();
     if (!result) result = nms_reuse_tests();
     if (result) { fprintf(stderr,"I failed managed-string check at line %d\n",result); return 1; }
