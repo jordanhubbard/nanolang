@@ -5054,3 +5054,8 @@ test-multiple-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 # I rebuild scalar dispatch when its reviewed arithmetic policy changes.
 $(OBJ_DIR)/nanovm/vm.o: src/binary64_arithmetic.h
 $(OBJ_DIR)/nanovm/vm.o: CFLAGS += -ffp-contract=off -fno-fast-math
+
+# I retain scalar arithmetic policy dependencies in source execution/emission.
+$(OBJ_DIR)/eval.o: src/binary64_arithmetic.h
+$(OBJ_DIR)/eval.o: CFLAGS += -ffp-contract=off -fno-fast-math
+$(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h

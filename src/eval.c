@@ -2,6 +2,7 @@
 
 #include "nanolang.h"
 #include "binary64_bits.h"
+#include "binary64_arithmetic.h"
 #include "runtime/binary64_parse.h"
 #include "coroutine.h"
 #include "effects.h"
@@ -1789,10 +1790,10 @@ static double eval_pure_expr_float2(ASTNode *expr,
                 double a = eval_pure_expr_float2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
                 double b = eval_pure_expr_float2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:  return a + b;
-                    case TOKEN_MINUS: return a - b;
-                    case TOKEN_STAR:  return a * b;
-                    case TOKEN_SLASH: return a / b;
+                    case TOKEN_PLUS:  return nano_rt_f64_add(a, b);
+                    case TOKEN_MINUS: return nano_rt_f64_sub(a, b);
+                    case TOKEN_STAR:  return nano_rt_f64_mul(a, b);
+                    case TOKEN_SLASH: return nano_rt_f64_div(a, b);
                     default: return 0.0;
                 }
             }
@@ -1820,10 +1821,10 @@ static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *
                 double a = eval_pure_expr_float(expr->as.prefix_op.args[0], param_val, param_name);
                 double b = eval_pure_expr_float(expr->as.prefix_op.args[1], param_val, param_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:  return a + b;
-                    case TOKEN_MINUS: return a - b;
-                    case TOKEN_STAR:  return a * b;
-                    case TOKEN_SLASH: return a / b;
+                    case TOKEN_PLUS:  return nano_rt_f64_add(a, b);
+                    case TOKEN_MINUS: return nano_rt_f64_sub(a, b);
+                    case TOKEN_STAR:  return nano_rt_f64_mul(a, b);
+                    case TOKEN_SLASH: return nano_rt_f64_div(a, b);
                     default: return 0.0;
                 }
             }
@@ -2736,14 +2737,12 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         } else if (left.type == VAL_FLOAT && right.type == VAL_FLOAT) {
             double result;
             switch (op) {
-                case TOKEN_PLUS: result = left.as.float_val + right.as.float_val; break;
-                case TOKEN_MINUS: result = left.as.float_val - right.as.float_val; break;
-                case TOKEN_STAR: result = left.as.float_val * right.as.float_val; break;
+                case TOKEN_PLUS: result = nano_rt_f64_add(left.as.float_val, right.as.float_val); break;
+                case TOKEN_MINUS: result = nano_rt_f64_sub(left.as.float_val, right.as.float_val); break;
+                case TOKEN_STAR: result = nano_rt_f64_mul(left.as.float_val, right.as.float_val); break;
                 case TOKEN_SLASH:
                     /* Total float division = 0.0 by zero, matching the VM. */
-                    result = right.as.float_val == 0.0
-                             ? 0.0
-                             : left.as.float_val / right.as.float_val;
+                    result = nano_rt_f64_div(left.as.float_val, right.as.float_val);
                     break;
                 default: result = 0.0;
             }
