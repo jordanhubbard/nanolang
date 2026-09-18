@@ -1,0 +1,52 @@
+{
+  "source": "937bb61c95baf955b0552519e342200fe8b46772",
+  "runner_sha256": "3f78881a1ad0dbbf07af5cb7a68e88e3c11ec604538056d993c75f3e189e930a",
+  "steps": [
+    {
+      "name": "paired-source",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_source_borrow_emission"
+      ],
+      "status": 0,
+      "seconds": 523.021,
+      "sha256": "e040ab345cfca38552f282c4bb1d4171def9dcfeabe0522e22fb1f9f5b432bc4"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "make",
+        "test-owned-value-graphs",
+        "test-owned-value-results",
+        "test-consuming-calls",
+        "test-multiple-consuming-calls",
+        "test-owned-assertions"
+      ],
+      "status": 0,
+      "seconds": 45.686,
+      "sha256": "756bc3501246157bac409270e1984e1eafefc9b824007cb44128c090ffbbb4fa"
+    },
+    {
+      "name": "original-patterns",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples"
+      ],
+      "status": 1,
+      "seconds": 50.015,
+      "sha256": "31d678f7289f2c76b82447d83ed4bce5b0fb654b7d63cbcc7e6adaa7457721fb"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

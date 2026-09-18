@@ -1,0 +1,44 @@
+{
+  "source": "78f0f41f6c50fff461a6e04f9cfdbece676be7b3",
+  "steps": [
+    {
+      "name": "gcc",
+      "CC": "/bin/gcc",
+      "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_actual_refusals_preserve_output",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_actuals_preserve_order_and_roots",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_factory_failure_cleans_prepared_arguments",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owners_restore_original_pattern_sources"
+      ],
+      "status": 0,
+      "seconds": 172.289,
+      "log_sha256": "dbf6ae7879bf68bbf6c6f30ef88a6d3a125694b6042b8577d57b0649d8a6f1ca"
+    },
+    {
+      "name": "clang",
+      "CC": "/bin/clang-18",
+      "compiler_sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_actual_refusals_preserve_output",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_actuals_preserve_order_and_roots",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_factory_failure_cleans_prepared_arguments",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owners_restore_original_pattern_sources"
+      ],
+      "status": 0,
+      "seconds": 170.946,
+      "log_sha256": "0350a74da3683ee24251d5e81caa07bac26c6ba0f020d6ed1d39c51180c7335b"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

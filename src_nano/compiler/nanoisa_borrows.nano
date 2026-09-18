@@ -587,13 +587,14 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
             let layout: int = (nb_record parser parameter.var_type)
             if (>= layout 0) {
-                if (!= argument.node_type ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a named whole owner argument") }
-                let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
-                if (< local 0) { return (nb_fail "an existing owner argument") }
-                if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
-                let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
-                (array_set nb_live local false)
-                set nb_any_transfer true
+                if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                    let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
+                    if (< local 0) { return (nb_fail "an existing owner argument") }
+                    if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
+                    let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
+                    (array_set nb_live local false)
+                    set nb_any_transfer true
+                } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) }
             } else {
                 if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
             }
