@@ -41,8 +41,8 @@ shadow main{assert true}
 fn value()->Choice{return Choice.Some{number:7}}
 shadow value{assert true}
 fn main()->int{let x:Choice=(value) let empty:Choice=Choice.None{}
-match x{Some(data)=>{assert (== data.number 7)},None=>{assert false}}
-match empty{Some(data)=>{assert false},None=>{assert true}}
+match x{Some(data)=>{assert (== data.number 7)} None(_)=>{assert false}}
+match empty{Some(data)=>{assert false} None(_)=>{assert true}}
 return 0}
 shadow main{assert true}
 '''
