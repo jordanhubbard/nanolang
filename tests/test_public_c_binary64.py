@@ -98,6 +98,8 @@ shadow f64_add{assert (== (f64_add 1.0) 3.0)}
 fn main()->int{
  set sequence 0
  let nano_cb_1_l:float=1.0
+ let main:int=7
+ assert (== main 7)
  let x:float=(+ (* (operand 1 2.0) (operand 2 3.0)) (- (operand 3 8.0) (operand 4 4.0)))
  assert (== (float_to_bits x) 4621819117588971520)
  assert (== sequence 1234)
@@ -140,8 +142,8 @@ INITIALIZER_REENTRY='''let mut entered:int=0
 let trigger:int=(main)
 let late:float=(+ 1.0 2.0)
 fn main()->int{
- if (== entered 0){set entered 1 return 0}
- assert (== trigger 0)
+ if (== entered 0){set entered 1 return 1099511627776}
+ assert (== trigger 1099511627776)
  assert (== (float_to_bits late) 4613937818241073152)
  return 0
 }

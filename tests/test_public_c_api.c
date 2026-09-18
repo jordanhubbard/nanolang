@@ -11,6 +11,12 @@ static void *fixture_malloc(size_t bytes) {
 #define malloc fixture_malloc
 #include "../src/c_backend.c"
 #undef malloc
+/* I do not admit passive nodes in this isolated scalar API fixture. */
+int *passive_binding_order(const ASTNode *block) {
+    (void)block;
+    assert(!"I reached a passive path outside this fixture.");
+    return NULL;
+}
 
 static void previous(const char *path) {
     FILE *out = fopen(path, "w");

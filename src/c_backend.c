@@ -127,6 +127,13 @@ static bool ctx_has_binding(CBCtx *c, const char *name) {
     return false;
 }
 
+/* I separate the language's int64 entry from the hosted C int wrapper. */
+static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
+    if (name && strcmp(name, "main") == 0 && ctx_function(c, name) &&
+        (!lexical || !ctx_has_binding(c, name))) fprintf(c->out, "%sentry", c->prefix);
+    else if (name) fputs(name, c->out);
+}
+
 /* I retain only resolved scalar types; UNKNOWN is not an integer promise. */
 static Type infer_expr_type(CBCtx *c, ASTNode *node) {
     if (!node) return TYPE_UNKNOWN;
@@ -315,7 +322,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_IDENTIFIER:
-        fputs(node->as.identifier, c->out);
+        emit_function_name(c, node->as.identifier, true);
         return 0;
 
     case AST_PREFIX_OP: {
@@ -486,12 +493,12 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             return 0;
         }
         /* Regular function call */
-        if (name) {
-            fputs(name, c->out);
-        } else if (node->as.call.func_expr) {
+        if (node->as.call.func_expr) {
             fputc('(', c->out);
             if (emit_expr(c, node->as.call.func_expr)) return -1;
             fputc(')', c->out);
+        } else if (name) {
+            emit_function_name(c, name, true);
         } else {
             ctx_error(c, "I require a named or expression callee.");
             return -1;
@@ -1217,8 +1224,9 @@ static int emit_function(CBCtx *c, ASTNode *node) {
         ret_type_str = c_type(ret);
     }
 
-    if (strcmp(node->as.function.name, "main") == 0 && ret == TYPE_INT) ret_type_str = "int";
-    fprintf(c->out, "%s %s(", ret_type_str, node->as.function.name);
+    fprintf(c->out, "%s ", ret_type_str);
+    emit_function_name(c, node->as.function.name, false);
+    fputc('(', c->out);
     for (int i = 0; i < node->as.function.param_count; i++) {
         if (i > 0) fputs(", ", c->out);
         Parameter *p = &node->as.function.params[i];
@@ -1305,8 +1313,9 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
         } else {
             ret_str = c_type(ret);
         }
-        if (strcmp(n->as.function.name, "main") == 0 && ret == TYPE_INT) ret_str = "int";
-        fprintf(c->out, "%s %s(", ret_str, n->as.function.name);
+        fprintf(c->out, "%s ", ret_str);
+        emit_function_name(c, n->as.function.name, false);
+        fputc('(', c->out);
         for (int j = 0; j < n->as.function.param_count; j++) {
             if (j > 0) fputs(", ", c->out);
             Parameter *p = &n->as.function.params[j];
@@ -1419,6 +1428,8 @@ static int emit_program(CBCtx *c, ASTNode *root) {
                 break;
         }
     }
+    if (main_function)
+        fprintf(c->out, "int main(void) { return (int)%sentry(); }\n", c->prefix);
     return 0;
 }
 
