@@ -4076,6 +4076,9 @@ static void test_native_map_runtime(void) {
     test_emitted_map_flow();
     const char *source =
         "#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdio.h>\n#include <assert.h>\n"
+        /* The fragment requires its caller's invariant hook. The ordinary
+         * generated prelude's diagnostic text has a separate end-to-end gate. */
+        "#define NVM2C_ABORT() abort()\n"
 #include "../../src/nanoisa/nvm2c_map_runtime.inc"
         "int main(int argc, char **argv) {\n"
         "    if (argc > 1) {\n"
