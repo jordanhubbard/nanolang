@@ -10,6 +10,16 @@ static bool scalar(uint8_t tag) {
 
 static NvmV2Result check_layout_facts(const NvmV2Layouts *layouts, const uint8_t *flags,
                                      uint8_t *scalar_trees, bool *needs) {
+    bool resource_table = false;
+    for (uint32_t i = 0; i < layouts->count; i++)
+        if (flags[i] & NVM_LAYOUT_RESOURCE) resource_table = true;
+    /* I preserve the old codec precondition for every resource-bearing table,
+     * including edges in disconnected UNKNOWN declarations. */
+    if (resource_table) for (uint32_t i = 0; i < layouts->count; i++)
+        for (uint16_t j = 0; j < layouts->items[i].field_count; j++) {
+            uint32_t child = layouts->items[i].fields[j].nested_idx;
+            if (child != NVM_V2_NO_INDEX && child >= i) return NVM_V2_ERR_SECTION_TYPE;
+        }
     for (uint32_t i = 0; i < layouts->count; i++) {
         unsigned flag = flags[i];
         if (flag & ~(NVM_LAYOUT_COMPLETE | NVM_LAYOUT_RESOURCE))
@@ -25,12 +35,13 @@ static NvmV2Result check_layout_facts(const NvmV2Layouts *layouts, const uint8_t
             if (scalar(field->type_tag) || field->type_tag == TAG_STRING) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
                 if (field->type_tag == TAG_STRING) scalar_tree = false;
-            } else if (field->type_tag == TAG_STRUCT && field->nested_idx < i) {
+            } else if (field->type_tag == TAG_STRUCT && field->nested_idx < layouts->count &&
+                       (!resource_table || field->nested_idx < i)) {
                 unsigned nested = flags[field->nested_idx];
                 if (!(nested & NVM_LAYOUT_COMPLETE)) return NVM_V2_ERR_SECTION_TYPE;
                 if ((nested & NVM_LAYOUT_RESOURCE) && !(flag & NVM_LAYOUT_RESOURCE))
                     return NVM_V2_ERR_SECTION_TYPE;
-                if (!scalar_trees[field->nested_idx]) scalar_tree = false;
+                if (resource_table && !scalar_trees[field->nested_idx]) scalar_tree = false;
             } else return NVM_V2_ERR_SECTION_TYPE;
         }
         /* Ordinary strings do not relax the existing affine scalar-tree boundary. */

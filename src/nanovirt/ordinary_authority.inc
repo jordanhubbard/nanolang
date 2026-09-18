@@ -4,6 +4,29 @@
 static void ordinary_word(uint8_t *out,uint32_t value,unsigned width) {
     for(unsigned i=0;i<width;i++)out[i]=(uint8_t)(value>>(i*8));
 }
+/* I omit optional facts for cyclic declarations without rejecting source. */
+static bool ordinary_graph(const NvmV2Layouts *layouts) {
+    if (layouts->count > MAX_STRUCT_DEFS) return false;
+    uint8_t colors[MAX_STRUCT_DEFS] = {0};
+    uint32_t stack[MAX_STRUCT_DEFS], next[MAX_STRUCT_DEFS] = {0};
+    for (uint32_t root = 0; root < layouts->count; root++) {
+        if (colors[root]) continue;
+        unsigned depth = 1; stack[0] = root; colors[root] = 1;
+        while (depth) {
+            uint32_t current = stack[depth - 1];
+            const NvmV2Layout *record = &layouts->items[current];
+            if (next[current] == record->field_count) {
+                colors[current] = 2; depth--; continue;
+            }
+            uint32_t child = record->fields[next[current]++].nested_idx;
+            if (child == NVM_V2_NO_INDEX) continue;
+            if (child >= layouts->count || colors[child] == 1) return false;
+            if (colors[child] == 2) continue;
+            colors[child] = 1; stack[depth++] = child;
+        }
+    }
+    return true;
+}
 static void publish_ordinary_authority(CG *cg,ASTNode *program) {
     NvmModule *module=cg->module;
     if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||
@@ -16,6 +39,8 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program) {
         if(count>=(unsigned)cg->struct_count || node->as.struct_def.is_resource ||
            node->as.struct_def.is_extern || strchr(node->as.struct_def.name,'<') ||
            strcmp(node->as.struct_def.name,cg->structs[count].name))return;
+        for (unsigned k=0;k<count;k++)
+            if (!strcmp(node->as.struct_def.name,records[k]->as.struct_def.name)) return;
         records[count++]=node;
     }
     if(count!=(unsigned)cg->struct_count)return;
@@ -45,13 +70,14 @@ static void publish_ordinary_authority(CG *cg,ASTNode *program) {
             uint8_t tag=ordinary_slot_tag(declared);uint32_t child=NVM_V2_NO_INDEX;
             if(tag==TAG_STRUCT) {
                 const char *name=node->as.struct_def.field_type_names?node->as.struct_def.field_type_names[j]:NULL;
-                if(name)for(unsigned k=0;k<i;k++)if(!strcmp(name,records[k]->as.struct_def.name))child=k;
+                if(name)for(unsigned k=0;k<count;k++)if(!strcmp(name,records[k]->as.struct_def.name))child=k;
                 if(child==NVM_V2_NO_INDEX){supported=false;break;}
             }
             if(tag==TAG_COUNT){supported=false;break;}
             items[i].fields[j]=(NvmV2LayoutField){tag,child,NVM_V2_NO_INDEX};
         }
     }
+    if (supported && !ordinary_graph(&layouts)) supported=false;
     ordinary_word(data,1,4);ordinary_word(data+4,count,4);
     memset(data+8,NVM_LAYOUT_COMPLETE,count);
     size_t at=8+((count+3u)&~3u);ordinary_word(data+at,module->function_count,4);at+=4;

@@ -2,10 +2,10 @@
  * v2 LAYOUTS section: the on-disk referent for AGG_PACK, AGG_GET, AGG_SET and
  * AGG_TAG.
  *
- * The table is closed: every nested layout index refers to a lower-numbered
- * entry. That is enforced here at decode, which is what lets everything
- * downstream walk a layout without a visited set and without a depth limit --
- * a forward or self reference cannot exist in a table that decoded.
+ * I preserve prior-only tables and additionally decode exact all-record DAGs.
+ * A forward-containing table is validated iteratively before publication;
+ * downstream consumers may rely on acyclicity, not declaration ordering.
+ * Structural decoding does not establish ordinary or resource authority.
  *
  * Fields are copied rather than aliased, unlike CONSTANTS and SIGNATURES: a
  * field is three fixed-width values, so a caller reading one wants a struct
@@ -24,6 +24,48 @@
 
 static void free_fields(NvmV2Layout *items, uint32_t n) {
     for (uint32_t i = 0; i < n; i++) free(items[i].fields);
+}
+
+/* I qualify only exact scalar/string/record DAGs on the extended path. */
+static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count) {
+    for (uint32_t i = 0; i < count; i++) {
+        const NvmV2Layout *layout = &items[i];
+        if (layout->kind != NVM_V2_LAYOUT_STRUCT) return NVM_V2_ERR_INDEX_RANGE;
+        for (uint16_t j = 0; j < layout->field_count; j++) {
+            const NvmV2LayoutField *field = &layout->fields[j];
+            if (field->type_tag == TAG_STRUCT) {
+                if (field->nested_idx >= count) return NVM_V2_ERR_INDEX_RANGE;
+            } else if (field->type_tag == TAG_INT || field->type_tag == TAG_U8 ||
+                       field->type_tag == TAG_FLOAT || field->type_tag == TAG_BOOL ||
+                       field->type_tag == TAG_STRING) {
+                if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_INDEX_RANGE;
+            } else return NVM_V2_ERR_INDEX_RANGE;
+        }
+    }
+    typedef struct { uint32_t layout, next; } Frame;
+    uint8_t *colors = calloc(count, 1);
+    Frame *stack = calloc(count, sizeof *stack);
+    if (!colors || !stack) { free(colors); free(stack); return NVM_V2_ERR_TRUNCATED; }
+    NvmV2Result result = NVM_V2_OK;
+    for (uint32_t root = 0; root < count; root++) {
+        if (colors[root]) continue;
+        uint32_t depth = 1;
+        stack[0] = (Frame){root, 0}; colors[root] = 1;
+        while (depth) {
+            Frame *frame = &stack[depth - 1];
+            const NvmV2Layout *layout = &items[frame->layout];
+            if (frame->next == layout->field_count) {
+                colors[frame->layout] = 2; depth--; continue;
+            }
+            uint32_t child = layout->fields[frame->next++].nested_idx;
+            if (child == NVM_V2_NO_INDEX || colors[child] == 2) continue;
+            if (colors[child] == 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
+            colors[child] = 1;
+            stack[depth++] = (Frame){child, 0};
+        }
+    }
+done:
+    free(colors); free(stack); return result;
 }
 
 NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
@@ -46,6 +88,7 @@ NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
     if (!items) return NVM_V2_ERR_TRUNCATED;
 
     uint32_t built = 0;
+    bool forward = false;
     for (uint32_t i = 0; i < count; i++) {
         uint8_t kind, pad;
         uint16_t field_count;
@@ -87,13 +130,11 @@ NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
             if ((r = nvm_v2_u32(&c, &nested)) != NVM_V2_OK) goto fail;
             if ((r = nvm_v2_u32(&c, &fname))  != NVM_V2_OK) goto fail;
 
-            /* The closure property. A nested layout must already have been
-             * decoded, so it must be strictly lower-numbered than this one.
-             * `nested >= i` covers both a forward reference and a layout
-             * nesting itself. */
-            if (nested != NVM_V2_NO_INDEX && nested >= i) {
-                r = NVM_V2_ERR_INDEX_RANGE;
-                goto fail;
+            if (nested != NVM_V2_NO_INDEX) {
+                if (nested >= count || nested == i) {
+                    r = NVM_V2_ERR_INDEX_RANGE; goto fail;
+                }
+                if (nested > i) forward = true;
             }
 
             fields[f].type_tag   = tag;
@@ -101,6 +142,8 @@ NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
             fields[f].name_idx   = fname;
         }
     }
+
+    if (forward && (r = forward_record_graph(items, count)) != NVM_V2_OK) goto fail;
 
     out->items = items;
     out->count = count;
