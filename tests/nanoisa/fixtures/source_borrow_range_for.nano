@@ -33,7 +33,9 @@ shadow bump {
  assert (== total 35) assert (== index 10)
  for empty in (range -2) { assert false }
  for empty in (range 3 1) { assert false }
- for edge in (range 9223372036854775806 9223372036854775807) { assert (== edge 9223372036854775806) }
+ let mut edges: int = 0
+ for edge in (range 9223372036854775806 9223372036854775807) { assert (== edge 9223372036854775806) set edges (+ edges 1) }
+ assert (== edges 1)
  let Counter { value, active } = owner
  assert (== value 4) assert active
 }
@@ -63,7 +65,9 @@ fn main() -> int {
  assert (== total 35) assert (== index 10)
  for empty in (range -2) { assert false }
  for empty in (range 3 1) { assert false }
- for edge in (range 9223372036854775806 9223372036854775807) { assert (== edge 9223372036854775806) }
+ let mut edges: int = 0
+ for edge in (range 9223372036854775806 9223372036854775807) { assert (== edge 9223372036854775806) set edges (+ edges 1) }
+ assert (== edges 1)
  let Counter { value, active } = owner
  assert (== value 4) assert active
  for tail in (range 1) { return 0 }
