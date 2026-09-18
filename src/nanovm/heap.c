@@ -797,23 +797,29 @@ static bool hm_find_slot(VmHashMap *m, NanoValue key, uint32_t *slot, bool *foun
 static bool hm_resize(VmHashMap *m, uint32_t new_count) {
     VmHMEntry *old_entries = m->entries;
     uint32_t old_count = m->bucket_count;
+    if (!new_count || sizeof(VmHMEntry) > SIZE_MAX / (size_t)new_count) return false;
     VmHMEntry *new_entries = calloc(new_count, sizeof(VmHMEntry));
     if (!new_entries) return false;
 
-    m->entries = new_entries;
-    m->bucket_count = new_count;
-    m->count = 0;
-    m->tombstone_count = 0;
+    VmHashMap replacement = *m;
+    replacement.entries = new_entries;
+    replacement.bucket_count = new_count;
+    replacement.count = 0;
+    replacement.tombstone_count = 0;
     for (uint32_t i = 0; i < old_count; i++) {
         if (old_entries[i].state == 1) {
             uint32_t slot;
             bool found;
-            (void)hm_find_slot(m, old_entries[i].key, &slot, &found);
-            m->entries[slot] = old_entries[i];
-            m->entries[slot].state = 1;
-            m->count++;
+            if (!hm_find_slot(&replacement, old_entries[i].key, &slot, &found)) {
+                free(new_entries);
+                return false;
+            }
+            replacement.entries[slot] = old_entries[i];
+            replacement.entries[slot].state = 1;
+            replacement.count++;
         }
     }
+    *m = replacement;
     free(old_entries);
     return true;
 }
@@ -825,22 +831,24 @@ NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
     return val_void();
 }
 
-void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) {
-    if ((double)(m->count + m->tombstone_count + 1) / (double)m->bucket_count > HM_LOAD_FACTOR) {
-        if (m->bucket_count > UINT32_MAX / 2 || !hm_resize(m, m->bucket_count * 2)) return;
-    }
-
+bool vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) {
     uint32_t slot;
     bool found;
-    if (!hm_find_slot(m, key, &slot, &found)) return;
-    VmHMEntry *entry = &m->entries[slot];
+    if (!hm_find_slot(m, key, &slot, &found)) return false;
     if (found) {
+        VmHMEntry *entry = &m->entries[slot];
         NanoValue previous = entry->value;
         vm_retain(heap, value);
         entry->value = value;
         vm_release(heap, previous);
-        return;
+        return true;
     }
+    uint64_t occupied = (uint64_t)m->count + m->tombstone_count + 1;
+    if ((double)occupied / (double)m->bucket_count > HM_LOAD_FACTOR) {
+        if (m->bucket_count > UINT32_MAX / 2 || !hm_resize(m, m->bucket_count * 2)) return false;
+        if (!hm_find_slot(m, key, &slot, &found)) return false;
+    }
+    VmHMEntry *entry = &m->entries[slot];
     if (entry->state == 2) m->tombstone_count--;
     entry->state = 1;
     entry->key = key;
@@ -848,6 +856,7 @@ void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) 
     vm_retain(heap, key);
     vm_retain(heap, value);
     m->count++;
+    return true;
 }
 
 bool vm_hashmap_has(VmHashMap *m, NanoValue key) {
