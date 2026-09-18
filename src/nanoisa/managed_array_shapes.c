@@ -113,7 +113,7 @@ static int supported(uint8_t op) {
     case OP_NOP: case OP_DUP: case OP_POP: case OP_SWAP:
     case OP_LOAD_LOCAL: case OP_STORE_LOCAL: case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_CALL: case OP_RET: case OP_ASSERT:
-    case OP_ARR_NEW: case OP_ARR_PUSH: case OP_ARR_SET: case OP_ARR_GET: case OP_ARR_POP: case OP_STR_SPLIT:
+    case OP_ARR_LITERAL: case OP_ARR_SLICE: case OP_ARR_NEW: case OP_ARR_PUSH: case OP_ARR_SET: case OP_ARR_GET: case OP_ARR_POP: case OP_STR_SPLIT:
         return 1;
     default:return 0;
     }
@@ -140,6 +140,42 @@ static void write_array(Analysis *a,Value receiver,Value value) {
         }
     }
 }
+/* I keep copies distinct from sources, but weakly merge repeated copies at one site. */
+static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value *result) {
+    *result=tag(TAG_ARRAY);
+    result->unknown=receiver.unknown || ((receiver.tags&BIT(TAG_ARRAY)) && !receiver.origins);
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
+        NvmArrayOrigin source=a->report.origins[i];
+        uint32_t target=0;
+        while(target<a->report.origin_count) {
+            NvmArrayOrigin *o=&a->report.origins[target];
+            if(o->function==fi && o->pc==pc && o->declared_tag==source.declared_tag)break;
+            target++;
+        }
+        if(target==a->report.origin_count) {
+            if(target==ORIGINS)return stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my derived array origin limit.");
+            a->report.origin_count++;
+            a->report.origins[target]=(NvmArrayOrigin){fi,pc,0,source.declared_tag,source.packed};
+            a->changed=1;
+        }
+        NvmArrayOrigin *o=&a->report.origins[target];
+        uint16_t old=o->child_tags;o->child_tags|=source.child_tags;
+        a->changed|=old!=o->child_tags;
+        result->origins|=UINT64_C(1)<<target;
+    }
+    return 1;
+}
+static int check_write(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value value) {
+    a->report.checked_writes++;
+    if(value.unknown || !value.tags || (value.tags&~LEAVES))
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require proved scalar/string leaf writes.");
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
+        NvmArrayOrigin *o=&a->report.origins[i];
+        if(o->packed && (value.tags&~writes(o->declared_tag)))
+            return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I cannot prove a portable packed write for every possible tag.");
+    }
+    return 1;
+}
 static int walk(Analysis *a,uint32_t fi) {
     Function *f=&a->functions[fi];const NvmFunctionEntry *entry=&a->module->functions[fi];
     for(uint32_t i=0;i<=f->decoded.instruction_count;i++)if(f->seen[i])enqueue(f,i);
@@ -156,6 +192,7 @@ static int walk(Analysis *a,uint32_t fi) {
         VmDecodedInstruction *d=&f->decoded.instructions[index];DecodedInstruction *in=&d->instruction;
         uint8_t op=in->opcode;const InstructionInfo *info=isa_get_info(op);
         int pops=info->pop_count,pushes=info->push_count;
+        if(op==OP_ARR_LITERAL){pops=in->operands[1].u16;pushes=1;}
         if(op==OP_CALL){pops=a->module->functions[in->operands[0].u32].arity;pushes=a->module->functions[in->operands[0].u32].result_count;}
         if(op==OP_RET){if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);continue;}
         if(pops<0 || pushes<0 || depth<pops || depth-pops+pushes>f->stack)
@@ -169,8 +206,13 @@ static int walk(Analysis *a,uint32_t fi) {
         case OP_STORE_LOCAL: state[in->operands[0].u16]=stack[base];break;
         case OP_LOAD_GLOBAL: result=a->globals[in->operands[0].u32];break;
         case OP_STORE_GLOBAL: a->changed|=merge(&a->globals[in->operands[0].u32],stack[base]);break;
-        case OP_ARR_NEW: case OP_STR_SPLIT:
-            result=tag(TAG_ARRAY);result.origins=UINT64_C(1)<<f->origins[index];break;
+        case OP_ARR_NEW: case OP_STR_SPLIT: case OP_ARR_LITERAL:
+            result=tag(TAG_ARRAY);result.origins=UINT64_C(1)<<f->origins[index];
+            if(op==OP_ARR_LITERAL)for(uint32_t i=base;i<depth;i++)write_array(a,result,stack[i]);
+            break;
+        case OP_ARR_SLICE:
+            if(!slice_origins(a,fi,d->byte_offset,stack[base],&result))return 0;
+            break;
         case OP_ARR_PUSH: case OP_ARR_SET:
             write_array(a,stack[base],stack[depth-1]);result=stack[base];break;
         case OP_ARR_GET: case OP_ARR_POP: result=read_array(a,stack[base]);break;
@@ -204,7 +246,15 @@ static int final_check(Analysis *a) {
         for(uint32_t pc=0;pc<f->decoded.instruction_count;pc++) {
             if(!f->seen[pc])continue;
             VmDecodedInstruction *d=&f->decoded.instructions[pc];uint8_t op=d->instruction.opcode;
-            if(op!=OP_ARR_PUSH && op!=OP_ARR_SET && op!=OP_ARR_GET && op!=OP_ARR_POP && op!=OP_ARR_LEN)continue;
+            if(op==OP_ARR_LITERAL) {
+                uint16_t count=d->instruction.operands[1].u16;
+                Value receiver=tag(TAG_ARRAY);receiver.origins=UINT64_C(1)<<f->origins[pc];
+                Value *stack=f->states+(size_t)pc*f->stride+f->locals;
+                for(uint32_t i=f->depths[pc]-count;i<f->depths[pc];i++)
+                    if(!check_write(a,fi,d->byte_offset,receiver,stack[i]))return 0;
+                continue;
+            }
+            if(op!=OP_ARR_PUSH && op!=OP_ARR_SET && op!=OP_ARR_GET && op!=OP_ARR_POP && op!=OP_ARR_LEN && op!=OP_ARR_SLICE)continue;
             uint16_t depth=f->depths[pc];int pops=isa_get_info(op)->pop_count;
             Value *stack=f->states+(size_t)pc*f->stride+f->locals;
             Value receiver=stack[depth-pops];
@@ -217,14 +267,7 @@ static int final_check(Analysis *a) {
                 if(index.tags!=BIT(TAG_INT))a->report.runtime_tag_checks++;
             }
             if(op!=OP_ARR_PUSH && op!=OP_ARR_SET)continue;
-            Value value=stack[depth-1];a->report.checked_writes++;
-            if(value.unknown || !value.tags || (value.tags&~LEAVES))
-                return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require proved scalar/string leaf writes.");
-            for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
-                NvmArrayOrigin *o=&a->report.origins[i];
-                if(o->packed && (value.tags&~writes(o->declared_tag)))
-                    return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I cannot prove a portable packed write for every possible tag.");
-            }
+            if(!check_write(a,fi,d->byte_offset,receiver,stack[depth-1]))return 0;
         }
     }
     return 1;
@@ -283,7 +326,7 @@ NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArray
         for(uint32_t i=0;i<f->decoded.instruction_count;i++) {
             VmDecodedInstruction *d=&f->decoded.instructions[i];uint8_t op=d->instruction.opcode;
             f->origins[i]=-1;
-            if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT)continue;
+            if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL)continue;
             uint8_t declared=op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
             if(!(LEAVES&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
             if(a->report.origin_count==ORIGINS){stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my allocation-site origin limit.");goto done;}
