@@ -2,10 +2,18 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def leak_detection_for(compiler_identity, platform):
+    """I disable LSan only for the Apple sanitizer runtime that rejects it."""
+    if platform == 'darwin' and 'Apple clang version' in compiler_identity:
+        return '0'
+    return '1'
 
 
 class OwnedValueResults(unittest.TestCase):
@@ -15,7 +23,16 @@ class OwnedValueResults(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def test_leak_detection_policy_is_compiler_specific(self):
+        self.assertEqual(leak_detection_for('Apple clang version 21.0.0', 'darwin'), '0')
+        self.assertEqual(leak_detection_for('clang version 23.0.0', 'darwin'), '1')
+        self.assertEqual(leak_detection_for('Apple clang version 21.0.0', 'linux'), '1')
+
     def test_owned_value_results_and_cleanup(self):
+        compiler = os.environ.get('CC', 'cc')
+        identity = self.checked([compiler, '--version'])
+        leak_detection = leak_detection_for(identity.stdout + identity.stderr, sys.platform)
+        print(f'owned-result sanitizer compiler={compiler} detect_leaks={leak_detection}')
         with tempfile.TemporaryDirectory(prefix='nano-owned-results-') as name:
             tmp = Path(name)
             run = self.checked([os.environ.get('NANO_OWNED_VALUE_RESULT_TEST', ROOT/'obj/test_owned_value_results'), tmp])
@@ -59,10 +76,11 @@ static void release(void *p){assert(live);live--;free(p);}
 '''.replace('EXPECTED_STATUS', status)
    .replace('EXPECTED_RESULT', value if succeeds else '-91'))
                     binary = tmp/f'check{index}'
-                    self.checked([os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+                    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
                                   '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
-                    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
-                    self.checked([os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror', generated, '-o', binary])
+                    self.checked([binary], env={**os.environ,
+                                                'ASAN_OPTIONS': f'detect_leaks={leak_detection}:halt_on_error=1'})
+                    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror', generated, '-o', binary])
                     native = subprocess.run([binary], capture_output=True, timeout=30)
                     self.assertEqual(native.returncode, int(value) if succeeds else 1)
 

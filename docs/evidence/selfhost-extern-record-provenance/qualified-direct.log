@@ -1,0 +1,143 @@
+test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) ... 
+  test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) (compiler='nanoc_c') ... FAIL
+  test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) (compiler='nanoc_stage1') ... FAIL
+  test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) (compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-extern-record-provenance/tests/test_selfhost_extern_records.py", line 41, in test_fresh_three_stage_parser_and_nominal_boundaries
+    self.assertEqual(build.returncode,0,build.stdout+build.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+/tmp/nano-extern-records-9dlle3bl/main.nano: In function ‘nl_main’:
+/tmp/nano-extern-records-9dlle3bl/main.nano:3:286: error: implicit declaration of function ‘lexer__tokenize_string’ [-Werror=implicit-function-declaration]
+    3 |     let tokens: List<LexerToken> = (tokenize_string "extern /* retained */\nstruct Foreign { fd: int }\nstruct Local {}\nresource struct Owner { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
+      |                                                                                                                                                                                                                                                                                              ^                     
+/tmp/nano-extern-records-9dlle3bl/main.nano:3:31: error: initialization of ‘List_LexerToken *’ from ‘int’ makes pointer from integer without a cast [-Werror=int-conversion]
+    3 |     let tokens: List<LexerToken> = (tokenize_string "extern /* retained */\nstruct Foreign { fd: int }\nstruct Local {}\nresource struct Owner { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
+      |                               ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:4:227: error: implicit declaration of function ‘parser__parse_program’ [-Werror=implicit-function-declaration]
+    4 |     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "foreign.nano")
+      |                                                                                                                                                                                                                                   ^                    
+/tmp/nano-extern-records-9dlle3bl/main.nano:4:21: error: invalid initializer
+    4 |     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "foreign.nano")
+      |                     ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:5:54: error: implicit declaration of function ‘parser__parser_has_error’ [-Werror=implicit-function-declaration]
+    5 |     assert (not (parser_has_error parsed))
+      |                                                      ^                       
+/tmp/nano-extern-records-9dlle3bl/main.nano:6:87: error: implicit declaration of function ‘parser__parser_get_struct_def’ [-Werror=implicit-function-declaration]
+    6 |     assert (parser_get_struct_def parsed 0).is_extern
+      |                                                                                       ^                            
+/tmp/nano-extern-records-9dlle3bl/main.nano:6:154: error: request for member ‘is_extern’ in something not a structure or union
+    6 |     assert (parser_get_struct_def parsed 0).is_extern
+      |                                                                                                                                                          ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:7:156: error: request for member ‘is_extern’ in something not a structure or union
+    7 |     assert (not (parser_get_struct_def parsed 1).is_extern)
+      |                                                                                                                                                            ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:8:156: error: request for member ‘is_extern’ in something not a structure or union
+    8 |     assert (not (parser_get_struct_def parsed 2).is_extern)
+      |                                                                                                                                                            ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:9:154: error: request for member ‘is_resource’ in something not a structure or union
+    9 |     assert (parser_get_struct_def parsed 2).is_resource
+      |                                                                                                                                                          ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:10:154: error: request for member ‘line’ in something not a structure or union
+   10 |     assert (== (parser_get_struct_def parsed 0).line 2)
+      |                                                                                                                                                          ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:11:63: error: implicit declaration of function ‘module_bindings__mb_reset’ [-Werror=implicit-function-declaration]
+   11 |     (mb_reset [])
+      |                                                               ^                        
+/tmp/nano-extern-records-9dlle3bl/main.nano:14:154: error: request for member ‘is_extern’ in something not a structure or union
+   14 |     assert (parser_get_struct_def parsed 0).is_extern
+      |                                                                                                                                                          ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:15:37: error: initialization of ‘List_LexerToken *’ from ‘int’ makes pointer from integer without a cast [-Werror=int-conversion]
+   15 |     let other_tokens: List<LexerToken> = (tokenize_string "struct Foreign { fd: int }\n\n\nstruct Foreign { fd: int }" "other.nano" (list_CompilerDiagnostic_new))
+      |                                     ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:16:21: error: invalid initializer
+   16 |     let copied: Parser = (parse_program other_tokens (list_LexerToken_length other_tokens) "other.nano")
+      |                     ^
+/tmp/nano-extern-records-9dlle3bl/main.nano:17:320: error: incompatible type for argument 3 of ‘nl_list_ASTStruct_set’
+   17 |     (list_ASTStruct_set copied.structs 0 (parser_get_struct_def parsed 0))
+      |                                                                                                                                                                                                                                                                                                                                ^              
+      |                                                                                                                                                                                                                                                                                                                                |
+      |                                                                                                                                                                                                                                                                                                                                int
+In file included from /tmp/nanoc_592236_nanoc_c.c:2736:
+/home/jkh/Src/nanolang-extern-record-provenance/src/runtime/list_ASTStruct.h:37:81: note: expected ‘struct nl_ASTStruct’ but argument is of type ‘int’
+   37 | void nl_list_ASTStruct_set(List_ASTStruct *list, int index, struct nl_ASTStruct value);
+      |                                                             ~~~~~~~~~~~~~~~~~~~~^~~~~
+cc1: all warnings being treated as errors
+C compilation failed
+
+
+======================================================================
+FAIL: test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-extern-record-provenance/tests/test_selfhost_extern_records.py", line 41, in test_fresh_three_stage_parser_and_nominal_boundaries
+    self.assertEqual(build.returncode,0,build.stdout+build.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /tmp/nano-extern-records-9dlle3bl/main.nano: In function ‘nl_main’:
+/tmp/nano-extern-records-9dlle3bl/main.nano:12002:34: warning: implicit declaration of function ‘nl_tokenize_string’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12002:34: warning: initialization of ‘List_LexerToken *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12003:27: warning: implicit declaration of function ‘nl_parse_program’; did you mean ‘parse_program’? [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12003:27: error: invalid initializer
+In file included from /home/jkh/Src/nanolang-extern-record-provenance/src/nanolang.h:16,
+                 from /tmp/nano_native_1789756363_0/program.c:23:
+/tmp/nano-extern-records-9dlle3bl/main.nano:12004:14: warning: implicit declaration of function ‘nl_parser_has_error’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12005:13: warning: implicit declaration of function ‘nl_parser_get_struct_def’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12005:52: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12006:54: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12007:54: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12008:52: error: request for member ‘is_resource’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12009:53: error: request for member ‘line’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12010:5: warning: implicit declaration of function ‘nl_mb_reset’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12013:52: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12014:40: warning: initialization of ‘List_LexerToken *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12015:27: error: invalid initializer
+/tmp/nano-extern-records-9dlle3bl/main.nano:12016:51: error: incompatible type for argument 3 of ‘nl_list_ASTStruct_set’
+In file included from /tmp/nano_native_1789756363_0/program.c:65:
+/home/jkh/Src/nanolang-extern-record-provenance/src/runtime/list_ASTStruct.h:37:81: note: expected ‘struct nl_ASTStruct’ but argument is of type ‘int’
+   37 | void nl_list_ASTStruct_set(List_ASTStruct *list, int index, struct nl_ASTStruct value);
+      |                                                             ~~~~~~~~~~~~~~~~~~~~^~~~~
+I could not compile native shadows
+
+
+======================================================================
+FAIL: test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-extern-record-provenance/tests/test_selfhost_extern_records.py", line 41, in test_fresh_three_stage_parser_and_nominal_boundaries
+    self.assertEqual(build.returncode,0,build.stdout+build.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /tmp/nano-extern-records-9dlle3bl/main.nano: In function ‘nl_main’:
+/tmp/nano-extern-records-9dlle3bl/main.nano:12002:34: warning: implicit declaration of function ‘nl_tokenize_string’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12002:34: warning: initialization of ‘List_LexerToken *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12003:27: warning: implicit declaration of function ‘nl_parse_program’; did you mean ‘parse_program’? [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12003:27: error: invalid initializer
+In file included from /home/jkh/Src/nanolang-extern-record-provenance/src/nanolang.h:16,
+                 from /tmp/nano_native_1789756369_0/program.c:23:
+/tmp/nano-extern-records-9dlle3bl/main.nano:12004:14: warning: implicit declaration of function ‘nl_parser_has_error’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12005:13: warning: implicit declaration of function ‘nl_parser_get_struct_def’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12005:52: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12006:54: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12007:54: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12008:52: error: request for member ‘is_resource’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12009:53: error: request for member ‘line’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12010:5: warning: implicit declaration of function ‘nl_mb_reset’ [-Wimplicit-function-declaration]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12013:52: error: request for member ‘is_extern’ in something not a structure or union
+/tmp/nano-extern-records-9dlle3bl/main.nano:12014:40: warning: initialization of ‘List_LexerToken *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/tmp/nano-extern-records-9dlle3bl/main.nano:12015:27: error: invalid initializer
+/tmp/nano-extern-records-9dlle3bl/main.nano:12016:51: error: incompatible type for argument 3 of ‘nl_list_ASTStruct_set’
+In file included from /tmp/nano_native_1789756369_0/program.c:65:
+/home/jkh/Src/nanolang-extern-record-provenance/src/runtime/list_ASTStruct.h:37:81: note: expected ‘struct nl_ASTStruct’ but argument is of type ‘int’
+   37 | void nl_list_ASTStruct_set(List_ASTStruct *list, int index, struct nl_ASTStruct value);
+      |                                                             ~~~~~~~~~~~~~~~~~~~~^~~~~
+I could not compile native shadows
+
+
+----------------------------------------------------------------------
+Ran 1 test in 43.221s
+
+FAILED (failures=3)

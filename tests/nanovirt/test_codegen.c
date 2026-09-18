@@ -168,7 +168,7 @@ static void test_scalar_codegen_uses_typed_opcodes(void) {
     ASSERT(tr.ok, "typed scalar codegen succeeds");
     bool saw_i64 = false;
     bool saw_f64 = false;
-    bool saw_bool = false;
+    bool saw_dup = false, saw_branch = false, saw_pop = false;
     for (uint32_t i = 0; i < tr.module->code_size;) {
         DecodedInstruction instruction;
         uint32_t width = isa_decode(tr.module->code + i,
@@ -182,11 +182,15 @@ static void test_scalar_codegen_uses_typed_opcodes(void) {
                "scalar codegen emits no legacy polymorphic operations");
         if (instruction.opcode == OP_I64_ADD) saw_i64 = true;
         if (instruction.opcode == OP_F64_ADD) saw_f64 = true;
-        if (instruction.opcode == OP_BOOL_AND) saw_bool = true;
+        ASSERT(instruction.opcode != OP_BOOL_AND && instruction.opcode != OP_BOOL_OR,
+               "source logical operators retain conditional evaluation");
+        if (instruction.opcode == OP_DUP) saw_dup = true;
+        if (instruction.opcode == OP_JMP_FALSE) saw_branch = true;
+        if (instruction.opcode == OP_POP) saw_pop = true;
         i += width;
     }
-    ASSERT(saw_i64 && saw_f64 && saw_bool,
-           "typed integer, float, and boolean operations are present");
+    ASSERT(saw_i64 && saw_f64 && saw_dup && saw_branch && saw_pop,
+           "typed arithmetic and conditional boolean selection are present");
     nvm_module_free(tr.module);
 }
 

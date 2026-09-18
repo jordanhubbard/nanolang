@@ -1,0 +1,10 @@
+fn combine(left: float, right: float) -> float { return (+ left right) }
+shadow combine { assert (== (combine 1.0 2.0) 3.0) }
+fn main() -> int {
+    let input: float = (float_from_bits 9221120237041090602)
+    let result: float = (combine input 1.0)
+    if (!= (float_to_bits result) 9221120237041090560) { return 1 }
+    if (!= (float_to_bits input) 9221120237041090602) { return 2 }
+    return 0
+}
+shadow main { assert (== (main) 0) }

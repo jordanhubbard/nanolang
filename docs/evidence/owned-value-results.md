@@ -83,5 +83,62 @@ and wrapper; I retain /tmp/nanolang-owned-results-final-clang-{before,after}.sha
 and /tmp/nanolang-owned-value-results-final-clang.log. This independent success
 does not explain or relabel the historical errno13 incident.
 
-Only documentation changes follow this qualified source. Full source admission,
+My first independent Apple Clang run of the generated-native result harness at
+PR738 head eb6e6b3a passes the descriptor, lifecycle, allocation and preflight
+executables, then all ten generated-native cases abort before entry because
+Apple ASan does not support `detect_leaks=1`. I preserve
+/private/tmp/nanolang-pr738-eb6e6b3a-focused-darwin.log with SHA256
+48c7c01722073d9afb1b6480f96146189d1ce54395f636d25f8b3669ca3430eb.
+This is a harness-policy failure, not a runtime finding.
+
+At code checkpoint 497dd96d0f039c9867bcb9087c4a1b33854b99bc, I first
+selected `detect_leaks=0` from the Darwin host platform. The exact focused
+target passes 502 descriptor, 1552 lifecycle, 3485 allocation checks across
+312 budgets and 272 actual injected failures, 117 return-preflight checks and
+all ten generated-native cases in 6 seconds. I retain
+/private/tmp/nanolang-owned-result-lsan-497dd96d-darwin.log with SHA256
+64171f8c08128a39b29eef0bfebdb3bf83f9a360deb62dba50a0173b26a85987. That
+OS-wide fallback was too broad: Homebrew LLVM on Darwin supports LeakSanitizer.
+
+At source dfbea5baf77ac96c8cec9afc0ed8d9ff2586fa4c, I select leak detection
+from the compiler runtime identity instead. `/usr/bin/clang` reports Apple
+Clang 21.0.0, so I use the narrow known-unsupported fallback
+`detect_leaks=0`. The complete focused target passes in 10 seconds with the
+same 502 descriptor, 1552 lifecycle, 3485 allocation, 312 budget, 272 injected
+failure, 117 preflight and ten generated-native case counts. I retain
+/private/tmp/nanolang-owned-result-apple-dfbea5ba.log with SHA256
+b20a6571cf0db2f2004539aec8a6cc2e773474bf0b750d4eb21c47762600773c.
+
+In a separate clean tree at the same source,
+`/opt/homebrew/opt/llvm/bin/clang` reports Clang 23.1.1 and keeps
+`detect_leaks=1`. The identical complete focused target passes in 13 seconds
+with the same counts. I retain
+/private/tmp/nanolang-owned-result-llvm23-dfbea5ba.log with SHA256
+fed07eda1154c762622e1b623fed84ad0d9c248a946387320f76d952ee845d34.
+ASan/UBSan, `halt_on_error=1` and every generated `live==0` assertion remain
+enabled in both runs. I do not claim unchanged leak-sanitizer coverage: Apple
+Clang uses the explicit zero-live-allocation boundary while Homebrew LLVM 23
+also executes LeakSanitizer. The Homebrew LLVM 23 run is my required Darwin
+qualification. The Apple Clang run is optional additional ASan/UBSan evidence;
+it does not substitute for the required LeakSanitizer gate.
+
+This portability correction changes only test policy and documentation; the
+qualified owned-result production remains unchanged. Full source admission,
 string/PRINT effects and the unchanged affine example remain open.
+
+## My independent current-main LSan policy review
+
+My final compiler-specific policy at2261d027 retains required Homebrew LLVM
+leak checks and only the documented optional Apple-runtime fallback. Independent
+review verified both retained Darwin report hashes and their ten generated
+cases, explicit compiler identities and detect_leaks settings. The code at
+qualifieddfbea5ba is unchanged in2261d027; only its evidence wording changed.
+
+I integrated canonical main84bbc into a fresh Linux worktree at04df093a.
+`make -j4 CC=cc test-owned-result-descriptors test-owned-value-results` passes
+in18.751seconds with all tracked source/test hashes unchanged. The compiler
+policy test and actual generated-native gate retain detect_leaks=1 on Linux.
+I preserve the existing counts and zero-live-allocation assertions; no production
+runtime changed for this policy. My [sealed reports](owned-result-lsan-current/report-sha256.json)
+retain that integration and the hash-verified Darwin logs. This clears the
+bounded original broad-OS-policy concern, not the separate product/release hold.
