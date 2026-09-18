@@ -17,7 +17,7 @@ class ShortCircuit(unittest.TestCase):
     def test_rhs_enclosing_return_break_and_continue(self):self.run_source(EXITS)
     def test_wrong_operand_type_preserves_prior_output(self):
         work=Path(tempfile.mkdtemp(prefix='nano-source-short-circuit-refusal-'))
-        for expression in ['(and true 1)','(or 1 false)']:
+        for expression in ['(and true 1)','(and 1 false)','(or true 1)','(or 1 false)']:
             path=work/'ordinary.nano';path.write_text('fn main()->int{let value:bool='+expression+' return 0}\nshadow main{assert true}\n')
             module=work/'previous.nvm';module.write_bytes(b'previous')
             args=[ROOT/'bin/nano_virt',path,'--emit-nvm','-o',module]
