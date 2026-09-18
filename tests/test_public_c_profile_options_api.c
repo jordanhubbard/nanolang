@@ -37,8 +37,14 @@ int main(int argc,char **argv){
  main_fn.as.function.is_anonymous=true;refuse(&root,argv[1],&opts);main_fn.as.function.is_anonymous=false;
  ASTNode reference={.type=AST_IDENTIFIER};reference.as.identifier="ordinary";reference.lambda_definition=&main_fn;
  ret.as.return_stmt.value=&reference;refuse(&root,argv[1],&opts);ret.as.return_stmt.value=&number;
- opts.no_main=mode>=3;opts.static_strings=mode==2;opts.verbose=mode==1;
+ opts.no_main=mode>=3;opts.static_strings=mode==2 || mode==6;opts.verbose=mode==1;
  if(mode==4){items[0]=&probe;root.as.program.count=1;probe_ret.as.return_stmt.value=&number;}
+ if(mode==5)probe_ret.as.return_stmt.value=&number;
+ ASTNode literal={.type=AST_STRING};literal.as.string_val="stable";
+ ASTNode text_return={.type=AST_RETURN};text_return.as.return_stmt.value=&literal;
+ ASTNode *text_items[]={&text_return};ASTNode text_body={.type=AST_BLOCK};text_body.as.block.statements=text_items;text_body.as.block.count=1;
+ ASTNode text_function={.type=AST_FUNCTION};text_function.as.function.name="literal_text";text_function.as.function.return_type=TYPE_STRING;text_function.as.function.body=&text_body;
+ items[root.as.program.count++]=&text_function;
  assert(c_backend_emit(&root,argv[1],"profile.nano",mode==0?NULL:&opts)==0);
  FILE *out=tmpfile();assert(out);assert(c_backend_emit_fp(&root,out,"profile.nano",mode==0?NULL:&opts)==0);assert(ftell(out)>0);assert(!fclose(out));
  return 0;

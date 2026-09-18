@@ -13,12 +13,12 @@ class ProfileOptions(unittest.TestCase):
         self.run_cmd([os.environ.get('CC','cc'),'-std=c99','-D_POSIX_C_SOURCE=200809L',
             '-Wall','-Wextra','-Werror','-O1','-fsanitize=address,undefined','-fno-sanitize-recover=all',
             '-I',ROOT/'src',ROOT/'tests/test_public_c_profile_options_api.c','-o',api])
-        for mode in range(5):
+        for mode in range(7):
             output=self.work/f'mode{mode}.c';self.run_cmd([api,output,str(mode)])
             text=output.read_text();self.assertNotIn('({',text);self.assertNotIn('setjmp',text)
             self.assertEqual('int main(void)' in text,mode<3)
             if mode>=3:
-                with output.open('a') as f:f.write('\nint main(void){return probe()==42?0:1;}\n')
+                with output.open('a') as f:f.write('\nint main(void){return probe()==42 && strcmp(literal_text(),"stable")==0?0:1;}\n')
             for standard in ('c99','c11'):
                 for optimization in ('-O0','-O2'):
                     exe=self.work/f'mode{mode}{standard}{optimization}'
