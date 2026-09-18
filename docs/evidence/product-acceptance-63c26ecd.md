@@ -6,7 +6,7 @@ My fresh Linux bootstrap passes in189.669 seconds; tools build in25.129 seconds.
 
 Task `task_ef9261a163f64e0397a93d377d623ed7` measures exact current setup separately before a setup-only budget correction. Ordinary assertion deadlines stay unchanged. The standalone runner also omitted the existing local-binding probe prerequisite; I will build that probe before qualifying the corrected suite. These are test preparation findings, not a full product pass.
 
-Fresh isolated VM and native raw fixed-point runs are still in progress. Both first self-compilation generations pass; second generations, final raw byte comparison and closure integrity remain pending. Earlier84e fixed points do not qualify this pin.
+My fresh isolated VM fixed-point run passes at63c26ecd. Initial, first-generation and second-generation compiler modules are exactly407992bytes with SHA-256 `d4f5dfb18fc63b8f689403c16c159c9636cd0acfce1215ce743fac1375d06011`. Both generations verify and retain identical three-library closure; Stage2 compiles, verifies and executes hello. Stage1 takes884.566seconds and Stage2 takes885.655seconds under their original1200-second limits. [Manifest](product-vm-fixedpoint-63c26ecd-manifest.json) and [post-run integrity](product-vm-fixedpoint-63c26ecd-post-run-integrity.json) retain exact source, tool and library identities; tracked source is clean and unchanged. The manifest top-level1800-second field is inherited runner metadata; each VM stage records and enforces1200seconds. Native second generation is still running and remains separately pinned. Raw fixed points do not establish compiler semantic equivalence or release readiness.
 
 ## Corrected Darwin comparison at the earlier compiler source
 
