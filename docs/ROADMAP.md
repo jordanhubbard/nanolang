@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] I reconstruct typed integer bitwise operations (`task_c4188559900c4a48887c5c29f77b6ed5`, parent4bd034): exact 64-bit AND/OR/XOR/inversion with portable C and bounded Nano helpers, strict tags, endpoint/pattern/loop parity and atomic refusal. Twenty-two GCC/Clang methods pass including363 binary pairs and22 inversion checks; tool hashes remain unchanged. Full reconstruction stays open. [Contract](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md).
+
 - [x] I reconstruct typed integer shifts (`task_417225d8ac7e49278c25eee9ed1291b9`, parent4bd034): low-six-bit count normalization, portable arithmetic/logical distinction, endpoint/call/loop parity and strict-tag/output refusals. Eighteen GCC/Clang methods pass including351 shift combinations; pinned tool hashes remain unchanged. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md).
 
 - [x] I reconstruct exact typed signed division and remainder (`task_dc02359771154508bcdd9c25de7b1bbc`, parent4bd034): guarded zero/overflow results, signed truncation/remainder, exact-int refusals and same-module VM/C/pinned-stage sanitizer gates. Fifteen GCC/Clang methods pass, with 242 endpoint pairs, loop/snapshot and refusal coverage; tool hashes and incomplete invocation history are explicit. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_DIV.md).
