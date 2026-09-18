@@ -37,3 +37,20 @@ those copies. The compiler still uses three absolute imported host libraries;
 this is not hermetic relocation. I record and recheck tool/library hashes in
 `/tmp/nanolang-map-key-component-manifest.json`. Fresh module and generated C
 retention uses `--keep-c`; compile and execution results are separate gates.
+
+## My completed local gates and setup correction
+
+Three focused VM/GCC ASan/UBSan methods pass in 1.164s. Fourteen focused and
+adjacent methods pass in 16.718s: the new key and optional-array harnesses use
+Clang, while the existing map-global harness explicitly invokes GCC. Both
+include generated native ASan/UBSan and leak checks. My full native gate passes
+2,422 checks and 1,365 shape checks at unchanged production `84d924ec`.
+
+The first isolated component setup omitted `bin/nano_vm`, required to run VM
+shadows. It exited 1 before invoking the translator at 440.24s, with maximum
+RSS 2,804,684 KiB. I retain `/tmp/nanolang-map-key-component.log` and
+`/tmp/nanolang-map-key-component-time.log`. This is an explicit missing-tool
+setup failure, not evidence about the repaired translator. I copied the
+unchanged frozen VM, verified all prior hashes, and recorded the corrected
+closure in `/tmp/nanolang-map-key-component-corrected-manifest.json` before a
+corrected component gate. Its result remains required before readiness.
