@@ -44,6 +44,21 @@ class PublicCInt(unittest.TestCase):
             result=self.run_cmd([exe,mode],expected=1)
             self.assertIn(diagnostic,result.stderr)
 
+    def test_nested_length_conversion_once_and_nul_boundary(self):
+        output,_=self.emit(LENGTH)
+        for standard in ('c99','c11'):
+            for optimization in ('-O0','-O2'):
+                exe=self.work/(standard+optimization)
+                self.compile(output,exe,standard,optimization)
+                self.assertEqual(self.run_cmd([exe]).stdout,'8\n0\n1\n')
+
+    def test_length_binding_types_publication_and_recovery(self):
+        exe=self.work/'length-api'
+        self.run_cmd([os.environ.get('CC','cc'),'-std=c99','-D_POSIX_C_SOURCE=200809L',
+                      '-Wall','-Wextra','-Werror','-O1','-fsanitize=address,undefined',
+                      '-fno-sanitize-recover=all','-I',ROOT/'src',ROOT/'tests/test_public_c_length_api.c','-o',exe])
+        self.run_cmd([exe,self.work/'previous.c'])
+
     def test_binding_types_publication_and_recovery(self):
         exe=self.work/'api'
         self.run_cmd([os.environ.get('CC','cc'),'-std=c99','-D_POSIX_C_SOURCE=200809L',
@@ -95,6 +110,20 @@ fn main()->int{
  assert (== held "30") assert (== held_float "1.25")
  (println first) (println second) (println initial_float)
  (println held) (println held_float) (println alias)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+'''
+LENGTH=r'''let mut calls:int=0
+fn value()->string{set calls (+ calls 1) return "ordinary"}
+shadow value{assert (== (value) "ordinary")}
+fn main()->int{
+ let before:int=calls
+ let text:string=(int_to_string (str_length (value)))
+ assert (== calls (+ before 1))
+ (println text)
+ (println (int_to_string (str_length "")))
+ (println (int_to_string (str_length "a\0ignored")))
  return 0
 }
 shadow main{assert (== (main) 0)}
