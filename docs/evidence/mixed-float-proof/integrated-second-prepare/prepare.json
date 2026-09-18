@@ -1,0 +1,17 @@
+{
+  "name": "prepare",
+  "command": [
+    "make",
+    "-j2",
+    "nano_vm",
+    "nvm2c",
+    "nvm2wasm",
+    "nanoisa_dump"
+  ],
+  "environment": {
+    "NMS_RUNTIME_CLANG": "/tmp/nanolang-projection-clang",
+    "CC": "cc"
+  },
+  "status": 2,
+  "seconds": 0.5150974569842219
+}
