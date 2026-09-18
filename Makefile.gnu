@@ -4881,3 +4881,6 @@ test-match-expression-scope: bootstrap nano_virt nano_vm
 .PHONY: test-native-false-assert
 test-native-false-assert: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_false_assert
+.PHONY: test-scalar-match-values
+test-scalar-match-values: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_scalar_match_values
