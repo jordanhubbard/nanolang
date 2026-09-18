@@ -26,6 +26,8 @@ typedef struct {
     const char *names[256], *advisory_names[256];
     uint32_t name_begin[256], name_end[256];
     bool name_open[256];
+    NvmLocalBinding pending_names[8*256];
+    unsigned pending_name_count;
     uint8_t tags[256], modes[256];
     uint32_t layouts[256];
     bool live[256], disposal_pending[256], mutable[256], helper_body, returned, transferred, consuming;
@@ -618,10 +620,11 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
     cg->module->functions[index].code_length=cg->code_size;
     cg->module->functions[index].local_count=(uint16_t)b->count;
     for(unsigned i=0;i<b->count && !cg->had_error;i++)if(b->advisory_names[i]) {
+        if(b->pending_name_count>=8*256) {borrow_error(b,NULL,"bounded lexical-name storage");break;}
         NvmLocalBinding binding={.function=index,.slot=(uint16_t)i,
             .begin=b->name_begin[i],.end=b->name_end[i],
             .name=(const uint8_t *)b->advisory_names[i],.name_size=(uint32_t)strlen(b->advisory_names[i])};
-        if(!nvm_add_local_binding(cg->module,&binding))borrow_error(b,NULL,"available lexical-name storage");
+        b->pending_names[b->pending_name_count++]=binding;
     }
 }
 /* I inspect lexical syntax, not the lifetime of checker scope entries. */
@@ -825,6 +828,10 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);
         borrow_word(b,b->function_count,4);
         for(unsigned i=0;i<b->function_count && !cg->had_error;i++)borrow_function(b,program,i?b->functions[i]:entry,shadows && !i,i);
+        /* I intern executable literals before advisory strings in both producers. */
+        for(unsigned i=0;i<b->pending_name_count && !cg->had_error;i++)
+            if(!nvm_add_local_binding(cg->module,&b->pending_names[i]))
+                borrow_error(b,NULL,"available lexical-name storage");
         if(b->path_count && !cg->had_error) {
             b->contracts[0]=2;borrow_word(b,b->path_count,4);
             for(unsigned path=0;path<b->path_count;path++) {
