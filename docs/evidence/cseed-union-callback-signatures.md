@@ -35,6 +35,11 @@ uses fresh normal compiler inputs:
   all 31 methods pass in 97.939 seconds across C-seed, Stage1 and Stage2, with
   the NanoVirt/VM control built and executed.
 
+I restacked onto main `c1f18abcf8180819c0ba2e8d3ed08039e55595bc`,
+preserving both additive Makefile targets. My production source and test file
+are identical to the tested checkpoint above. The integrated
+`make -j4 test-cseed-union-signatures` passes all nine methods in 7.526 seconds.
+
 I retain local logs under `/tmp/nanolang-cseed-union-signature-*.log`. My first
 build command used the nonexistent `compiler` target; no compiler ran in that
 attempt. The supported `make -j4 bin/nanoc_c` build passed. I do not treat the
