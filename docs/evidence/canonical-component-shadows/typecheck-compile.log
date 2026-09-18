@@ -1,0 +1,37 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Input:  /home/jkh/Src/nanolang-canonical-component-shadows/src_nano/typecheck_driver.nano
+Output: /tmp/nanolang-canonical-component-shadows/typecheck.nvm
+
+[0/5] Resolving imports...
+  ✓ Merged source: 872081 bytes
+[1/5] Lexing...
+  ✓ Tokenized 132201 tokens
+[2/5] Parsing...
+  ✓ Parsed 526 functions
+[2.5/5] Processing imports...
+  ✓ Loaded 0 type symbols from imports
+[3/5] NSType checking...
+  ✓ NSType checking passed
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I passed my checker entry assertions.
