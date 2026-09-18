@@ -3603,6 +3603,7 @@ shadow nisa_emit_logical_binary {
     assert (not (str_contains either "BOOL_OR"))
     assert (== (nanoisa_emit_nasm "fn main() -> bool { return (and false 1) }") "")
     assert (== (nanoisa_emit_nasm "fn main() -> bool { return (or 1 true) }") "")
+    let _: int = (nisa_reset)
 }
 
 fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
