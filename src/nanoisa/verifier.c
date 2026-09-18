@@ -892,7 +892,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
 }
 
 /* I keep runtime admission closed even if affine analysis grows new operations. */
-static bool owned_runtime_opcode(uint8_t op) {
+static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     switch (op) {
     case OP_CALL: case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
@@ -900,14 +900,15 @@ static bool owned_runtime_opcode(uint8_t op) {
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL: case OP_PUSH_STR:
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
-    case OP_PRINT: case OP_PRINTLN:
         return true;
+    case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+        return value_graph;
     default: return false;
     }
 }
@@ -969,7 +970,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             const DecodedInstruction *in=&decoded.instructions[i].instruction;
             uint8_t op=in->opcode;
             if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
-            if(!owned_runtime_opcode(op)) supported=false;
+            if(!owned_runtime_opcode(op,value_graph)) supported=false;
             if(op==OP_PUSH_STR) {
                 uint32_t index=in->operands[0].u32;
                 if(index>=mod->string_count || !mod->strings || !mod->string_lengths ||

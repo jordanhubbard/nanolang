@@ -207,8 +207,10 @@ static bool vm_module_ownership_supported(const NvmModule *module, bool standalo
          (standalone && nvm_verify_owned_module(module).ok));
 }
 
+static bool vm_owned_runtime_ready(const VmState *vm);
+
 static bool vm_ownership_supported(const VmState *vm) {
-    if (!vm) return false;
+    if (!vm_owned_runtime_ready(vm)) return false;
     bool standalone=vm->linked_module_count==0 && vm->module==vm->root_module;
     if (!vm_module_ownership_supported(vm->module,standalone) ||
         !vm_module_ownership_supported(vm->root_module,standalone)) return false;

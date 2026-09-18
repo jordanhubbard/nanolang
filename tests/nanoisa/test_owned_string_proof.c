@@ -34,9 +34,31 @@ static NvmModule *proof_sequence(void) {
     CHECK(nvm_verify_owned_module(m).ok);return m;
 }
 
+static void missing_constants_block_every_positive_path(void) {
+    for(unsigned path=0;path<4;path++) {
+        NvmModule *m=string_fixture(false);consuming_verified(m);VmState vm;vm_init(&vm,m);
+        uint32_t greeting=string_index(m,"before");CHECK(greeting<vm.module_constants.count);
+        VmString *saved=vm.module_constants.strings[greeting];CHECK(saved);
+        vm.module_constants.strings[greeting]=NULL;
+        vm.opcode_trace=path==1;
+        vm.callbacks=path==2?(NanoCallbackRuntime *)(uintptr_t)1:NULL;
+        vm.references.active=path==3;
+        admissions=0;CHECK(!vm_owned_runtime_ready(&vm));
+        CHECK(!vm_ownership_supported(&vm)&&admissions==0);
+        VmOwnedInvocationProof proof={0};CHECK(!vm_ownership_admit(&vm,&proof));
+        CHECK(!proof.module&&admissions==0);
+        VmTrap trap=vm_core_execute(&vm);
+        CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_TYPE_ERROR&&admissions==0);
+        vm.module_constants.strings[greeting]=saved;
+        vm.opcode_trace=false;vm.callbacks=NULL;vm.references.active=false;
+        vm_destroy(&vm);nvm_module_free(m);
+    }
+}
+
 int main(void) {
     (void)artifacts;(void)result_fixture;(void)result_api;(void)roundtrip;
     (void)refusals;(void)missing_instantiated_literal;
+    missing_constants_block_every_positive_path();
     NvmModule *m=proof_sequence();consuming_verified(m);VmState vm;vm_init(&vm,m);
     size_t baseline=vm.heap.stats.num_objects;VmOwnedInvocationProof proof={0};
     admissions=0;CHECK(vm_ownership_admit(&vm,&proof));CHECK(admissions==1);

@@ -100,7 +100,7 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
 }
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
-static bool supported(uint8_t op) {
+static bool supported(uint8_t op,bool value_graph) {
     switch(op) {
     case OP_CALL: case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
@@ -108,7 +108,7 @@ static bool supported(uint8_t op) {
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL: case OP_PUSH_STR:
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
@@ -116,8 +116,9 @@ static bool supported(uint8_t op) {
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
-    case OP_PRINT: case OP_PRINTLN:
         return true;
+    case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+        return value_graph;
     default:return false;
     }
 }
@@ -393,9 +394,17 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     if (!count || count>NVM_AFFINE_MAX_INSTRUCTIONS) {
         nvm_affine_state_free(initial);error="I exceeded my bounded affine instruction count";goto done;
     }
-    for (uint32_t i=0;i<count;i++) if (!supported(decoded.instructions[i].instruction.opcode)) {
+    for (uint32_t i=0;i<count;i++) if (!supported(decoded.instructions[i].instruction.opcode,
+                                                  calls->value_graph)) {
         result.byte_offset=decoded.instructions[i].byte_offset;
-        nvm_affine_state_free(initial);error="I require a connected affine instruction contract";goto done;
+        uint8_t op=decoded.instructions[i].instruction.opcode;
+        nvm_affine_state_free(initial);
+        error=op==OP_PUSH_STR
+            ? "I require string literals inside an owned value-call graph"
+            : (op==OP_PRINT || op==OP_PRINTLN)
+                ? "I require string output inside an owned value-call graph"
+                : "I require a connected affine instruction contract";
+        goto done;
     }
     frames=calloc(count,sizeof(*frames));work.capacity=count;
     work.items=malloc(count*sizeof(*work.items));work.queued=calloc(count,sizeof(*work.queued));

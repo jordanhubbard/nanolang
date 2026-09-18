@@ -73,6 +73,7 @@ int main(void) {
     NvmAffineAnalysis string=nvm_affine_analyze_function(m,1);
     CHECK(!string.ok&&!strcmp(string.message,
         "I require string literals inside an owned value-call graph"));
+    CHECK(!nvm_verify_owned_module(m).ok);
     string=nvm_affine_analyze_function(m,0);
     CHECK(!string.ok&&!strcmp(string.message,
         "I require checked caller authority and a non-escaping helper"));
@@ -87,6 +88,7 @@ int main(void) {
         string=nvm_affine_analyze_function(m,1);
         CHECK(!string.ok&&!strcmp(string.message,
             "I require string output inside an owned value-call graph"));
+        CHECK(!nvm_verify_owned_module(m).ok);
         CHECK(nvm2c_emit(m,error,sizeof(error))==NULL);
         nvm_module_free(m);
     }
