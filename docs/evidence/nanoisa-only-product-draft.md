@@ -1,12 +1,24 @@
 # My NanoISA-only product draft
 
-My current integration is `a32a476f`, with main through PR606 and the final
+My current integration is `a9b27ecb`, with main through PR613 and the final
 optional-scalar storage correction from PR601. The ordinary compiler, NanoVirt,
 VM, native translator, NanoISA and reconstruction tools build successfully
-(`/tmp/nanolang-product-through606-build.log`). This is compilation evidence;
+(`/tmp/nanolang-product-through613-build.log`). This is compilation evidence;
 I have no new full product or fixed-point acceptance at this source. PR522 and
 PR601 remain draft, and the startup and export-shadow holds remain open. The
 checkpoints below retain the earlier results and their original scope.
+
+Held storage branch `1ad605a9` passes 21 optional-storage, numeric and diagnostic
+methods in 64.843 seconds after integration through PR613. It also translates
+the retained 350,016-byte compiler module successfully; I retain the generated
+C as `/tmp/nanolang-product-compiler-through613.c`. This does not execute that
+compiler or establish fresh product acceptance.
+
+Separately, canonical main `92680b8a` (through PR607) passes the complete
+`make -j8 test-quick` gate in a frozen checkout: bootstrap, installed execution,
+244 eligible VM examples and graphical Forth smoke. Its existing compiler
+route differs from this draft product. That regression evidence does not
+clear either product hold (`/tmp/nanolang-main-through607-test-quick.log`).
 
 I route explicit native and C-source products through the same verified NanoISA lowering as bytecode. My driver no longer imports `transpiler.nano`; native and bytecode products execute selected shadows through NanoVM. Source-only C emission keeps its existing no-execution behavior. I stage native products beside their destination and publish only after translation and host compilation succeed.
 
