@@ -13,3 +13,9 @@ target alongside the VM and translator. No execution test ran before setup.
 I record `task_f1726009bb784f44a532c57f3ba6a799` before production.
 
 I preserve strict Clang -Wall/-Wextra/-Werror acceptance for ordinary generated native C after shared formatting provider PR745/752. Fresh normal string-only literal tests passed GCC but Clang refused unused nano_rt_f64_format and nano_rt_f64_print before execution; retain /tmp/nanolang-native-trigraph-clang.log. I add only ordinary-main (void) references to those helpers exactly when need_print || need_cast emits the shared provider, following existing helper retention style. No fake runtime calls, warning suppression, profile widening or provider-body fork. Fresh printing-only and cast-only normal modules plus the literal byte tests qualify strict GCC/Clang O0/O2 sanitizer acceptance. No historical artifact replay. Root e92 remains open.
+
+My ordinary nvm2c_emit API always validates an INT/zero-argument entry and emits
+main (with or without argv imports); it has no admitted no-main/library mode.
+The shared references follow both main signatures under the same PRINT/PRINTLN
+or CAST_STRING predicate as provider emission. Owned emission is a separate
+implementation and does not emit this ordinary provider here.
