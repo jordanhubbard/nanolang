@@ -33,3 +33,5 @@ unexecuted route from a pass. I do not replay historical crash artifacts.
 This completes a test-portability prerequisite, not full nominal/aggregate,
 product or release acceptance. Full ordinary record authority and lowering,
 owned results/source admission and the product candidate remain separately open.
+
+My first Darwin qualification at494f passed17 tests, then exposed one additional binary64-format GNU wrapper omitted from the initial inventory. I retain that failed run and track0b732 before replacing only this final wrapper interface. All allocation budgets and expected results remain unchanged; I repeat the full71-method qualification on the corrected frozen pin.
