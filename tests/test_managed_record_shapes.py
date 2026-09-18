@@ -106,6 +106,25 @@ class RecordShapes(unittest.TestCase):
             self.assertEqual(fields, [[1 << 1, 0, 0]])
             self.assertEqual(h[6], 1)  # Old array selector still refuses nominal metadata.
 
+    def test_scalar_tags_string_fields_and_exact_float_bits(self):
+        layouts = [(0, [(3, NO), (4, NO), (5, NO), (2, NO)])]
+        body = ('PUSH_I64 -9223372036854775808\nF64_FROM_BITS\nPUSH_BOOL 1\nPUSH_STR text\nPUSH_U8 255\n'
+                'STRUCT_LITERAL 0 4\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nAGG_GET 0\nF64_TO_BITS\n'
+                'PUSH_I64 -9223372036854775808\nEQ\nASSERT\nLOAD_LOCAL 0\nAGG_GET 1\nASSERT\n'
+                'LOAD_LOCAL 0\nAGG_GET 2\nPUSH_STR text\nSTR_EQ\nASSERT\n'
+                'LOAD_LOCAL 0\nAGG_GET 3\nPUSH_U8 255\nEQ\nASSERT')
+        _, _, fields = self.analyze(program(body, layouts, [8]), vm=True, refuse=True)
+        self.assertEqual(fields, [[1 << t, 0, 0] for t in (3, 4, 5, 2)])
+
+    def test_resource_authority_preserves_normal_verifier_refusal(self):
+        source = self.work/'resource.nasm'
+        source.write_text(program('PUSH_I64 1\nSTRUCT_LITERAL 0 1\nPOP', flags=[3]))
+        module = self.work/'resource.nvm'
+        module.write_bytes(b'prior resource artifact')
+        result = self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module], success=False)
+        self.assertIn('ownership', result.stdout + result.stderr)
+        self.assertEqual(module.read_bytes(), b'prior resource artifact')
+
     def test_empty_struct_new_and_exact_count_boundary(self):
         self.analyze(program('STRUCT_NEW 0\nPOP', [(0, [])]), vm=True)
         self.analyze(program('STRUCT_NEW 0\nPOP'), status=1)
