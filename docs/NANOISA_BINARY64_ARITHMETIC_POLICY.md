@@ -225,3 +225,23 @@ nl_f64_* user symbols beside the new helper names; source integration requires
 paired ordinary named-function execution through both producer implementations.
 Foreign explicit ABI symbols remain subject to the existing runtime namespace
 boundary and must not be inferred to be ordinary prefixed source functions.
+
+## My stage-3 source initialization and evaluation boundary
+
+I begin source integration on `c8db7cc5` after merged PR731. C-seed
+is_c_constant_initializer accepts literals only; arithmetic already belongs to
+its ordered, once-only runtime initializer. I preserve that decision.
+Selfhost global_init_literal otherwise falls back to zero for arithmetic. I add
+an exact FLOAT arithmetic-root case to its existing startup list for both plain
+and guarded globals, preserving declaration order and the separate bit-intrinsic
+case. I do not use bit-intrinsic detection as permission for arbitrary global
+expressions. Paired tests cover mutable/immutable globals, references to earlier
+globals, nested arithmetic and effectful operands initialized once.
+
+I emit each scalar operand once into an ordered left/right statement-expression
+snapshot before the helper call, following existing GNU C expression machinery.
+C-seed fresh temporary names avoid environment-visible source names; selfhost
+private temporary identifiers stay outside its nl_ source-variable mapping.
+Ordinary f64_add/sub/mul/div functions remain callable alongside nano_rt_ runtime
+helpers. I generate both embedded C text and a Nano runtime-string provider from
+one canonical header; regeneration checks prevent independent helper drift.
