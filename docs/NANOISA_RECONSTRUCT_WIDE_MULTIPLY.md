@@ -75,3 +75,10 @@ daecee302b5ca48c7b1cf75f5e044d441c908e7aad82badfe9a68fbe36da842f  bin/nano_vm
 f3921dc5952b9b8d6f2b2cc4652f4154cbf9942ca35cf229c1703b8cb6e7f0c5  bin/nvm2c
 411b8b5ccdf1e34ef0187dd8f9eefc78ff39a43fce24c4ca0e4bff71579a5c76  bin/nano_aot_runtime.o
 ```
+
+I built the local downstream tools from base `6e371b1d`; generator source
+was the tested `2621d670` implementation. My additive integration of main
+`539072d4` changes managed LLVM/Wasm profiles and specialized borrow source
+paths, with no generator or wide-test delta. I preserve the original tool
+hashes and do not call those binaries rebuilt-main acceptance. The Make
+gate now names its native translator/runtime prerequisites explicitly.
