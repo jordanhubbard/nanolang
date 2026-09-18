@@ -59,3 +59,9 @@ explicit managed admission contract. I retain the log at
 `/tmp/nanolang-managed-split-full.log`, replace its refusal control with still
 unsupported ARR_NEW, and retain the original program as a positive native/Wasm
 case. I do not remove the output-preservation assertion or broaden other heaps.
+The next adjacent run reached the equivalent literal-suite CLI refusal. My
+bounded test audit found the same old control in the managed suite. I keep
+the original literal program as a positive, replace refusal cases with still
+unsupported array construction/pop, and preserve every output check. The second
+log is `/tmp/nanolang-managed-split-full-corrected.log`. These are explicit
+admission expectation updates, not removed semantic assertions.
