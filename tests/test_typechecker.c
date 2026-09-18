@@ -950,7 +950,7 @@ void test_tc_reduce_exact_identities(void) {
         ASSERT(tc_module_passes(source));
     }
     ASSERT(tc_module_passes("fn fold(a:int,b:int)->int{return (+ a b)} "
-        "fn main()->int{let xs:array<int>=[] return (reduce xs 9 fold)}"));
+        "fn main()->int{let xs:array<int> = [] return (reduce xs 9 fold)}"));
     ASSERT(tc_module_passes("fn fold(a:int,b:int)->int{return a} "
         "fn choose()->fn(int,int)->int{return fold} "
         "fn main()->int{let local:fn(int,int)->int=fold "
@@ -959,7 +959,7 @@ void test_tc_reduce_exact_identities(void) {
         "fn apply(xs:array<int>,f:fn(int,int)->int)->int{"
         "let fold:fn(int,int)->int=f return (reduce xs 0 fold)}"));
     ASSERT(tc_module_passes("fn fold(a:array<int>,b:array<int>)->array<int>{return a} "
-        "fn main()->int{let x:array<int>=(reduce [[1],[2]] [0] fold) return 0}"));
+        "fn main()->int{let x:array<int> = (reduce [[1],[2]] [0] fold) return 0}"));
 }
 
 void test_tc_reduce_exact_refusals(void) {
