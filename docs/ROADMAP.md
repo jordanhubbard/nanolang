@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I verify and execute exact single-parameter consuming resource calls (`task_4ef48e1066534e639e577c9622445697`) as a separate entry0/helper1 runtime prerequisite. My [contract](NANOISA_CONSUMING_CALL.md) requires frame preflight, unique transfer, fresh helper reference provenance and exact consumption/cleanup; source admission and mixed signatures remain separate.
+- [ ] I verify and execute exact single-parameter consuming resource calls (`task_4ef48e1066534e639e577c9622445697`) as a separate entry0/helper1 runtime prerequisite. My [contract](NANOISA_CONSUMING_CALL.md) requires frame preflight, unique transfer, fresh helper reference provenance and exact consumption/cleanup; source admission and mixed signatures remain separate. I pass 3,091 focused lifecycle/refusal checks, 104 heap-fault checks and 90 separate frame/contract preflight checks; GCC/Clang18 native sanitizers and the instrumented VM/NanoISA run pass. I retain exact gate scope in my [evidence](evidence/consuming-calls.md).
 
 - [ ] I audit documented if-expression grammar against my selfhost parser (`task_9d920944d2994a1fa88f49fd7fe6547f`): the ordinary unparenthesized conditional record expression reaches semantic owner-profile refusal in C-seed but reports `parse failed` in raw selfhost. I retain the source at `/tmp/nanolang-helper-owner-checked-if.nano`. Equivalent `cond` expressions reach the intended semantic refusal in both producers; grammar/documentation parity is separate from helper-owned source admission.
 

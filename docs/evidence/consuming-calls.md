@@ -52,11 +52,27 @@ the existing correction before final qualification.
 An optional build instrumenting every VM/NanoISA source at `-O0` exceeds the
 per-command 90-second harness limit without sanitizer diagnostics. I preserve
 `/tmp/nanolang-consuming-call-sanitizer-final.log` and measure that unchanged
-binary once with a separate 240-second bound; permanent test deadlines remain
-unchanged. My first instrumentation command mechanically mapped the facade
+binary once with a separate 240-second bound: all 3,091 checks pass in
+219.55 seconds, maximum RSS 424,908 KiB, exit 0, with no sanitizer findings.
+The instrumented binary SHA256 is
+`585fb6982d9ebbfa2c98bfad26fc209e6a7aa36ce407202cb4e5ff2b33dfbbf9`.
+Permanent test deadlines remain unchanged. My first instrumentation command mechanically mapped the facade
 object to a nonexistent same-name source; its corrected source list retains
 that unrelated object and instruments actual VM/NanoISA source files.
 
 I retain the focused, Clang18, preflight and adjacent logs under
 `/tmp/nanolang-consuming-call-*.log`. This evidence concerns corrected ordinary
 modules and defensive failure paths, not historical product incidents.
+
+## Existing authority and runtime gates
+
+I pass affine analysis 441 and allocation/visit-bound 751 checks, verifier 96,
+shape 1,365, owned assertion 959, helper-local 1,309 plus 106 allocation,
+caller-reference 1,548 plus 43/55 allocation, and multi-caller 2,004 plus 93/89
+atomic binding/owner allocation checks. The ordinary VM suite passes 274,493
+checks and existing heap/stack failure and recovery controls.
+
+I integrate canonical `66508fe4` at `525f3075`. The only conflict is the already
+completed helper-local source roadmap row; I preserve its merged evidence.
+All six consuming-call production files are byte-identical to reviewed
+`d6c8bd56`. The integrated focused and full native gates use rebuilt own tools.
