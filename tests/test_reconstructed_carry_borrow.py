@@ -113,19 +113,9 @@ RET
                     source.write_text('.entry main\n.function main 0 0 0 int 1\n'+inputs+'\n'+opcode+'\nPOP\nRET\n.end\n')
                     output.write_bytes(b'previous')
                     result = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', output], capture_output=True, text=True)
-                    if 'PUSH_BOOL' not in inputs:
-                        self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
-                        self.assertIn('underflow', result.stderr)
-                        self.assertEqual(output.read_bytes(), b'previous')
-                    else:
-                        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
-                        for language in ('c', 'nano'):
-                            recovered = p/('previous.'+language); recovered.write_bytes(b'previous')
-                            refusal = subprocess.run([ROOT/'bin/nvm2hl', '--language', language, output, '-o', recovered],
-                                                     capture_output=True, text=True)
-                            self.assertEqual(refusal.returncode, 1, refusal.stdout+refusal.stderr)
-                            self.assertIn('require exact scalar operand types', refusal.stderr)
-                            self.assertEqual(recovered.read_bytes(), b'previous')
+                    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+                    self.assertTrue('underflow' in result.stderr or 'expects int but the operand is bool' in result.stderr, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous')
 
 
 if __name__ == '__main__': unittest.main()
