@@ -540,8 +540,8 @@ static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uin
 /* Callers opt into present-scalar to optional storage widening. Ordinary
  * aggregate field merging stays exact; the graph checks optional payloads. */
 static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
-    if (*dest == NVM2C_VK_VALUE && (kind == NVM2C_VK_STR || kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL)) return 1;
-    if ((*dest == NVM2C_VK_STR || *dest == NVM2C_VK_INT || *dest == NVM2C_VK_BOOL) && kind == NVM2C_VK_VALUE) {
+    if (*dest == NVM2C_VK_VALUE && (kind == NVM2C_VK_STR || kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL || kind == NVM2C_VK_FLOAT)) return 1;
+    if ((*dest == NVM2C_VK_STR || *dest == NVM2C_VK_INT || *dest == NVM2C_VK_BOOL || *dest == NVM2C_VK_FLOAT) && kind == NVM2C_VK_VALUE) {
         *dest = NVM2C_VK_VALUE;
         facts->changed = 1;
         return 1;
@@ -677,10 +677,11 @@ static int shape_numeric_box(Nvm2cBuf *b, NvmShapeId id) {
  * Constructors and native array/map payload constraints remain exact. */
 static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     if (!b->track_shapes) return 1;
-    if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL)
+    if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT)
         return shape_kind(b, id, kind);
     NvmShapeId source = nvm_shape_new(&b->shapes, kind == NVM2C_VK_STR ? NVM_SHAPE_STRING :
-                                     kind == NVM2C_VK_BOOL ? NVM_SHAPE_BOOL : NVM_SHAPE_INT);
+                                     kind == NVM2C_VK_BOOL ? NVM_SHAPE_BOOL :
+                                     kind == NVM2C_VK_FLOAT ? NVM_SHAPE_FLOAT : NVM_SHAPE_INT);
     return source && nvm_shape_convert(&b->shapes, source, id) && shape_ok(b);
 }
 
@@ -708,7 +709,7 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
     if (b->shape_opcode == OP_AGG_GET ||
         (b->shape_opcode == OP_LOAD_LOCAL &&
-         (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL))) {
+         (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL || slot.kind == NVM2C_VK_FLOAT))) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
@@ -1243,7 +1244,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                  * the producer's exact field representation. */
                 if (!shape_type(b, destination, NVM_SHAPE_RECORD)) return 0;
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
-            } else if (v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL || v.kind == NVM2C_VK_STR) {
+            } else if (v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL || v.kind == NVM2C_VK_STR || v.kind == NVM2C_VK_FLOAT) {
                 /* Local storage can later receive an optional projection.
                  * It must not equate that projection to an earlier literal. */
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
@@ -1883,7 +1884,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
                 } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
-                            facts->parameters[at] == NVM2C_VK_BOOL) &&
+                            facts->parameters[at] == NVM2C_VK_BOOL || facts->parameters[at] == NVM2C_VK_FLOAT) &&
                            (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {
                     /* A projected scalar can resolve to tagged storage later.
                      * I convert into parameter storage without equating it to
@@ -1892,7 +1893,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
                            (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
-                            arg.kind == NVM2C_VK_BOOL || word_array_storage(arg.kind) ||
+                            arg.kind == NVM2C_VK_BOOL || arg.kind == NVM2C_VK_FLOAT || word_array_storage(arg.kind) ||
                             arg.kind == NVM2C_VK_SARR || arg.kind == NVM2C_VK_MAP || arg.kind == NVM2C_VK_UNK)) {
                     /* A projected field can resolve after flat classification.
                      * Its storage conversion must wait for those graph facts. */
