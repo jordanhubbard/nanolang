@@ -76,61 +76,67 @@ static void ctx_error(CBCtx *c, const char *message) {
     if (!c->error) c->error = message;
 }
 
-/* Retained type metadata can contain arrays below a nominal/callable shell. */
-static bool cb_type_has_array(const TypeInfo *type, unsigned depth);
-static bool cb_signature_has_array(const FunctionSignature *sig, unsigned depth) {
+/* Retained type metadata can contain unsupported values below a nominal/callable shell. */
+static bool cb_type_has_kind(const TypeInfo *type, Type kind, unsigned depth);
+static bool cb_signature_has_kind(const FunctionSignature *sig, Type kind, unsigned depth) {
     if (!sig) return false;
-    if (depth >= 64 || (sig->param_count > 0 && !sig->param_types) || sig->return_type == TYPE_ARRAY ||
-        cb_type_has_array(sig->return_type_info, depth+1) ||
-        cb_signature_has_array(sig->return_fn_sig, depth+1)) return true;
+    if (depth >= 64 || (sig->param_count > 0 && !sig->param_types) || sig->return_type == kind ||
+        cb_type_has_kind(sig->return_type_info, kind, depth+1) ||
+        cb_signature_has_kind(sig->return_fn_sig, kind, depth+1)) return true;
     for (int i=0;i<sig->param_count;i++)
-        if ((sig->param_types && sig->param_types[i]==TYPE_ARRAY) ||
-            (sig->param_type_info && cb_type_has_array(sig->param_type_info[i], depth+1))) return true;
+        if ((sig->param_types && sig->param_types[i]==kind) ||
+            (sig->param_type_info && cb_type_has_kind(sig->param_type_info[i], kind, depth+1))) return true;
     return false;
 }
-static bool cb_type_has_array(const TypeInfo *type, unsigned depth) {
+static bool cb_type_has_kind(const TypeInfo *type, Type kind, unsigned depth) {
     if (!type) return false;
-    if (depth >= 64 || type->base_type==TYPE_ARRAY ||
-        cb_type_has_array(type->element_type, depth+1) ||
-        cb_signature_has_array(type->fn_sig, depth+1)) return true;
+    if (depth >= 64 || type->base_type==kind ||
+        cb_type_has_kind(type->element_type, kind, depth+1) ||
+        cb_signature_has_kind(type->fn_sig, kind, depth+1)) return true;
     for(int i=0;i<type->type_param_count;i++)
-        if(type->type_params && cb_type_has_array(type->type_params[i], depth+1)) return true;
+        if(type->type_params && cb_type_has_kind(type->type_params[i], kind, depth+1)) return true;
     for(int i=0;i<type->tuple_element_count;i++)
-        if(type->tuple_types && type->tuple_types[i]==TYPE_ARRAY) return true;
+        if(type->tuple_types && type->tuple_types[i]==kind) return true;
     for(int i=0;i<type->row_field_count;i++)
-        if(type->row_field_types && type->row_field_types[i]==TYPE_ARRAY) return true;
+        if(type->row_field_types && type->row_field_types[i]==kind) return true;
     return false;
 }
-static bool cb_node_has_array(const ASTNode *node) {
+static bool cb_node_has_kind(const ASTNode *node, Type kind) {
     switch(node->type) {
-    case AST_ARRAY_LITERAL: return true;
+    case AST_ARRAY_LITERAL: return kind==TYPE_ARRAY;
     case AST_LET:
-        return node->as.let.var_type==TYPE_ARRAY || cb_type_has_array(node->as.let.type_info,0) ||
-               cb_signature_has_array(node->as.let.fn_sig,0);
+        return node->as.let.var_type==kind || cb_type_has_kind(node->as.let.type_info,kind,0) ||
+               cb_signature_has_kind(node->as.let.fn_sig,kind,0);
     case AST_FUNCTION:
-        if(node->as.function.return_type==TYPE_ARRAY || cb_type_has_array(node->as.function.return_type_info,0) ||
-           cb_signature_has_array(node->as.function.return_fn_sig,0)) return true;
+        if(node->as.function.return_type==kind || cb_type_has_kind(node->as.function.return_type_info,kind,0) ||
+           cb_signature_has_kind(node->as.function.return_fn_sig,kind,0)) return true;
         for(int i=0;i<node->as.function.param_count;i++) {
             const Parameter *p=&node->as.function.params[i];
-            if(p->type==TYPE_ARRAY || cb_type_has_array(p->type_info,0) || cb_signature_has_array(p->fn_sig,0)) return true;
+            if(p->type==kind || cb_type_has_kind(p->type_info,kind,0) || cb_signature_has_kind(p->fn_sig,kind,0)) return true;
         }
         return false;
     case AST_STRUCT_DEF:
         for(int i=0;i<node->as.struct_def.field_count;i++)
-            if(node->as.struct_def.field_types[i]==TYPE_ARRAY ||
-               (node->as.struct_def.field_type_info && cb_type_has_array(node->as.struct_def.field_type_info[i],0))) return true;
+            if(node->as.struct_def.field_types[i]==kind ||
+               (node->as.struct_def.field_type_info && cb_type_has_kind(node->as.struct_def.field_type_info[i],kind,0))) return true;
         return false;
     case AST_UNION_DEF:
         for(int v=0;v<node->as.union_def.variant_count;v++)
             for(int i=0;i<node->as.union_def.variant_field_counts[v];i++)
-                if(node->as.union_def.variant_field_types[v][i]==TYPE_ARRAY ||
+                if(node->as.union_def.variant_field_types[v][i]==kind ||
                    (node->as.union_def.variant_field_type_info && node->as.union_def.variant_field_type_info[v] &&
-                    cb_type_has_array(node->as.union_def.variant_field_type_info[v][i],0))) return true;
+                    cb_type_has_kind(node->as.union_def.variant_field_type_info[v][i],kind,0))) return true;
         return false;
-    case AST_FIELD_ACCESS: return cb_type_has_array(node->as.field_access.resolved_type_info,0);
-    case AST_CALL: return cb_signature_has_array(node->as.call.checked_signature,0);
+    case AST_FIELD_ACCESS: return cb_type_has_kind(node->as.field_access.resolved_type_info,kind,0);
+    case AST_CALL: return cb_signature_has_kind(node->as.call.checked_signature,kind,0);
     default: return false;
     }
+}
+static bool cb_node_has_array(const ASTNode *node) { return cb_node_has_kind(node,TYPE_ARRAY); }
+static bool cb_node_has_callable(const ASTNode *node) { return cb_node_has_kind(node,TYPE_FUNCTION); }
+static int cb_callable_refusal(CBCtx *c) {
+    ctx_error(c,"I do not provide first-class callable values or indirect calls in this C profile.");
+    return -1;
 }
 static int cb_array_refusal(CBCtx *c) {
     ctx_error(c,"I do not provide an array value or call ABI in this C profile.");
@@ -141,6 +147,7 @@ static int cb_array_refusal(CBCtx *c) {
 static int ctx_profile_node(CBCtx *c, const ASTNode *node) {
     if (!node) return 0;
     if (cb_node_has_array(node)) return cb_array_refusal(c);
+    if (cb_node_has_callable(node)) return cb_callable_refusal(c);
     if (node->lambda_definition ||
         (node->type == AST_FUNCTION && node->as.function.is_anonymous)) {
         ctx_error(c, "I do not provide anonymous or captured callable C lowering.");
@@ -581,6 +588,32 @@ static int cb_array_use(CBCtx *c, ASTNode *node) {
     return 0;
 }
 
+/* A declaration signature describes a direct call, not a function value. */
+static int cb_callable_use(CBCtx *c, ASTNode *node) {
+    if(infer_expr_type(c,node)==TYPE_FUNCTION)return cb_callable_refusal(c);
+    if(node->type==AST_IDENTIFIER && !ctx_has_binding(c,node->as.identifier) &&
+       ctx_function(c,node->as.identifier))return cb_callable_refusal(c);
+    if(node->type==AST_CALL && (node->as.call.func_expr ||
+       (node->as.call.name && ctx_has_binding(c,node->as.call.name))))return cb_callable_refusal(c);
+    if(node->type==AST_MODULE_QUALIFIED_CALL) {
+        const char *alias=node->as.module_qualified_call.module_alias;
+        const char *name=node->as.module_qualified_call.function_name;
+        char target[512];
+        int length=alias && name ? snprintf(target,sizeof target,"%s_%s",alias,name) :
+                   name ? snprintf(target,sizeof target,"%s",name) : -1;
+        if(length<0 || (size_t)length>=sizeof target) {
+            ctx_error(c,"I require a bounded exact qualified C callee name.");return -1;
+        }
+        if(ctx_has_binding(c,target))return cb_callable_refusal(c);
+        ASTNode *decl=ctx_function(c,target);
+        if(!decl) {
+            ctx_error(c,"I require the exact emitted declaration for this qualified C call.");return -1;
+        }
+        if(ctx_profile_node(c,decl))return -1;
+    }
+    return 0;
+}
+
 static ASTNode *ctx_union_value(CBCtx *c, ASTNode *value) {
     if (!value) { ctx_error(c, "I require a C union result value."); return NULL; }
     if (value->type == AST_STRUCT_LITERAL && value->as.struct_literal.struct_name && c->root) {
@@ -827,7 +860,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         ctx_error(c, "I require a supported statement insertion context for this C value.");
         return -1;
     }
-    if (ctx_profile_node(c, node) || cb_array_use(c, node)) return -1;
+    if (ctx_profile_node(c, node) || cb_callable_use(c, node) || cb_array_use(c, node)) return -1;
     switch (node->type) {
     case AST_NUMBER:
         emit_signed_bits(c, (uint64_t)node->as.number);
