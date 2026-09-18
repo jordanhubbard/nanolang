@@ -50,3 +50,10 @@ repair raw scalar division and qualify a fresh bootstrap. Actual driver flags
 and generated products remain obligations of those stages. Array task3717 and
 external math contracts retain the explicit scope in my policy document.
 I make no backend-wide, source-wide, reconstruction or release completion claim.
+
+A final static contract check tightened storage equality to explicit eight-byte
+double and uint64_t at `e0e31b9f`. With the same frozen `673392ce` harness, all
+two methods passed again on GCC in 1.158 seconds and Clang in 1.335 seconds,
+including all four optimization modes and direct/emitted forms. I retain prior
+and final source/log hashes; final logs end in `storage-gcc.log` and
+`storage-clang.log`. No live gate overlapped the correction.
