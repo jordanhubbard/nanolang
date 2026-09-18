@@ -1,4 +1,4 @@
-_Static_assert(TAG_ARRAY == 7, "I require the private managed array value-tag ABI");
+_Static_assert(TAG_ARRAY == 7 && NMS_ARRAY_TAG == TAG_ARRAY, "I require the private managed array value-tag ABI");
 /* I emit ownership helpers only for the managed closed profile. */
 static void managed_runtime(FILE *out) {
     fputs("%R = type { %V, i32 }\n"
