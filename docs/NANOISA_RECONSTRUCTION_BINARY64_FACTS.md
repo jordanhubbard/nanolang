@@ -23,9 +23,10 @@ ordering has a separate VM contract. Typed F64 division returns positive zero
 for either zero divisor. Signed-zero behavior, operation rounding, NaN result
 policy and conversions need explicit acceptance before admission.
 
-My canonical disassembler still uses `%.17g` for float operands. That text
-cannot preserve every NaN payload/signaling encoding. I track that static
-boundary under `task_50ba3bd3018f438a93113891d48e1387`; it is not repaired here.
+At the facts checkpoint, my canonical disassembler used `%.17g` for float
+operands and could not preserve every NaN payload/signaling encoding. My
+[subsequent exact-token repair](NANOISA_F64_TEXT.md) addresses that boundary
+under `task_50ba3bd3018f438a93113891d48e1387`.
 My ordinary facts tests supply valid operand bits directly and do not claim
 canonical text or executable float roundtrip.
 

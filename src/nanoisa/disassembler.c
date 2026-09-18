@@ -11,6 +11,7 @@
 #include "isa.h"
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 /* ========================================================================
  * Label Reconstruction
@@ -203,9 +204,13 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
         case OPERAND_I64:
             fprintf(out, " %lld", (long long)instr->operands[idx].i64);
             break;
-        case OPERAND_F64:
-            fprintf(out, " %.17g", instr->operands[idx].f64);
+        case OPERAND_F64: {
+            uint64_t bits;
+            _Static_assert(sizeof(bits) == sizeof(instr->operands[idx].f64), "I require binary64 operand storage.");
+            memcpy(&bits, &instr->operands[idx].f64, sizeof(bits));
+            fprintf(out, " bits:%016" PRIx64, bits);
             break;
+        }
         case OPERAND_NONE:
             break;
     }
