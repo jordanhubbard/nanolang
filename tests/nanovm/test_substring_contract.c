@@ -84,9 +84,41 @@ static void opcode_recovery(void) {
     vm_destroy(&vm);
     nvm_module_free(module);
 }
+static void trim_recovery(void) {
+    const uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_STR_TRIM, OP_RET};
+    NvmModule *module = nvm_module_new();
+    NvmFunctionEntry fn = {.arity=1, .local_count=1, .result_count=1, .result_tag=TAG_STRING};
+    fn.name_idx = nvm_add_string(module, "trim", 4);
+    fn.code_offset = nvm_append_code(module, code, sizeof code);
+    fn.code_length = sizeof code;
+    nvm_add_function(module, &fn);
+    VmState vm;
+    vm_init(&vm, module);
+    uint64_t baseline = vm.heap.stats.num_objects;
+    VmString *source = vm_string_new(&vm.heap, "  a b  ", 7);
+    assert(source);
+    NanoValue input = val_string(source), output = val_void();
+    reject_string_allocation = true;
+    assert(vm_invoke(&vm, 0, &input, 1, &output) == VM_ERR_MEMORY);
+    reject_string_allocation = false;
+    assert(output.tag == TAG_VOID && vm.stack_size == 0 && vm.frame_count == 0);
+    assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+    for (unsigned i = 0; i < 8; i++) {
+        assert(vm_invoke(&vm, 0, &input, 1, &output) == VM_OK);
+        assert(output.tag == TAG_STRING && output.as.string->length == 3);
+        assert(!memcmp(output.as.string->data, "a b", 3));
+        vm_release(&vm.heap, output);
+        assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+    }
+    vm_release(&vm.heap, input);
+    assert(vm.heap.stats.num_objects == baseline);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
 int main(void) {
     heap_slices();
     opcode_recovery();
+    trim_recovery();
     puts("I passed ordinary substring bytes, ownership, allocation status and recovery.");
     return 0;
 }

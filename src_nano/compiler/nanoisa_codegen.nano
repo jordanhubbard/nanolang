@@ -503,6 +503,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "str_trim") { return true }
     if (== name "cast_int") { return true }
     if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
@@ -519,6 +520,7 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "cast_int")
     assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "array_length")
@@ -1924,6 +1926,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         }
         if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
         if (== target_name "string_to_int") { return "int" }
+        if (and (== target_name "str_trim") (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (== (nisa_map_opcode target_name) "HM_GET") (== call.arg_count 2)) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
             return (nisa_map_value_type (nisa_expr_type parser receiver.node_id receiver.node_type))
@@ -2518,6 +2521,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line (nisa_string_binary_opcode function_name)))
     }
+    if (and (== function_name "str_trim") (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one string operand for str_trim") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+            return (nisa_fail "I require one string operand for str_trim")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "STR_TRIM"))
+    }
     if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
     if (nisa_is_set_call function_name) { return (nisa_emit_set_call parser call function_name) }
@@ -2676,6 +2687,10 @@ shadow nisa_emit_call {
     let text: string = (nisa_emit_call p call)
     assert (str_contains text "ARR_LEN")
     assert (str_contains text "LOAD_LOCAL 0")
+    let trimmed: string = (nanoisa_emit_nasm "fn main() -> string { return (+ (str_trim \" a \") (str_concat \"b\" \"c\")) }")
+    assert nisa_ok
+    assert (str_contains trimmed "STR_TRIM")
+    assert (str_contains trimmed "STR_CONCAT")
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT")
     let formatted: string = (nanoisa_emit_nasm "fn main() -> string { return (float_to_string 2.0) }")

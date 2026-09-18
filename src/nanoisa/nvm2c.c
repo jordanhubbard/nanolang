@@ -1390,6 +1390,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_STR_TRIM: {
+            Nvm2cSimSlot value;
+            if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            if (!mark_string_operand(b, local_kind, nloc, value)) return 0;
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        }
         case OP_STR_SUBSTR: {
             Nvm2cSimSlot len, start, s;
             if (!sim_pop(b, idx, stk, &sp, &len)) return 0;
@@ -3671,6 +3678,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_STR_TRIM: {
+            int value = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_TRIM");
+            if (b->failed) goto done;
+            char expr[80];
+            snprintf(expr, sizeof expr, "nstr_trim(s[%d])", value);
+            stack_push_str(b, &st, expr);
+            break;
+        }
         case OP_STR_SUBSTR: {
             int len = stack_pop_expect(b, &st, NVM2C_VK_INT, "STR_SUBSTR length");
             int start = stack_pop_expect(b, &st, NVM2C_VK_INT, "STR_SUBSTR start");
@@ -4805,6 +4820,20 @@ static void emit_nstr_concat(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_trim(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_trim(const char *s) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    size_t start = 0, end = strlen(src);\n"
+        "    while (start < end && (src[start] == ' ' || src[start] == '\\t' ||\n"
+        "           src[start] == '\\n' || src[start] == '\\r')) start++;\n"
+        "    while (end > start && (src[end-1] == ' ' || src[end-1] == '\\t' ||\n"
+        "           src[end-1] == '\\n' || src[end-1] == '\\r')) end--;\n"
+        "    char *result = nstr_allocate(end - start);\n"
+        "    memcpy(result, src + start, end - start);\n"
+        "    return result;\n}\n\n");
+}
+
 static void emit_nstr_substr(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_substr(const char *s, int64_t start, int64_t len) {\n"
@@ -5614,7 +5643,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.record_width = 1;
     b.local_width = 1;
     b.has_owned_strings = module_has_opcode(mod, OP_STR_CONCAT) ||
-        module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_CAST_STRING) ||
+        module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_STR_TRIM) || module_has_opcode(mod, OP_CAST_STRING) ||
         module_uses_host(mod, "nhost_from_char");
     /* I reserve string roots for explicit artifact cleanup companions too;
      * artifacts without a companion retain their existing borrowed contract. */
@@ -5932,8 +5961,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_starts = module_has_opcode(mod, OP_STR_STARTS_WITH);
         int need_ends = module_has_opcode(mod, OP_STR_ENDS_WITH);
         int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
+        int need_trim = module_has_opcode(mod, OP_STR_TRIM);
         int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
-        int need_string = need_concat || need_cast || need_contains || need_substr ||
+        int need_string = need_concat || need_cast || need_contains || need_substr || need_trim ||
             need_starts || need_ends ||
             need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
@@ -6141,7 +6171,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static inline void nf64_print(double value) {\n"
             "    if (value >= -1e15 && value <= 1e15 && value == (int64_t)value) printf(\"%.1f\", value);\n"
             "    else printf(\"%g\", value);\n}\n");
-        if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
+        if (need_concat || need_cast || need_substr || need_trim || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
             need_assert || need_rarr || b.has_maps || module_has_opcode(mod, OP_AGG_PACK) ||
             module_has_opcode(mod, OP_CAST_INT) || module_has_opcode(mod, OP_CAST_FLOAT)) {
@@ -6327,6 +6357,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
+        if (need_trim) emit_nstr_trim(&b);
         if (need_char_at) emit_nstr_char_at(&b);
         if (need_starts) emit_nstr_starts_with(&b);
         if (need_ends) emit_nstr_ends_with(&b);
