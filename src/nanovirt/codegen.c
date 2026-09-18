@@ -2087,6 +2087,71 @@ static ASTNode *bytecode_declaration(ASTNode *node) {
     return node && node->type == AST_ASYNC_FN ? node->as.async_fn.function : node;
 }
 
+/* I restore exactly the checked arm binding after evaluating the scrutinee.
+ * Earlier local emission may have appended a same-named outer symbol. */
+static bool restore_match_binding(CG *cg, ASTNode *match, int arm, const char *owner) {
+    const char *name = match->as.match_expr.pattern_bindings[arm];
+    const char *variant = match->as.match_expr.pattern_variants[arm];
+    if (!owner) return false;
+    size_t length = strlen(owner) + strlen(variant) + 2;
+    char *nominal = malloc(length);
+    if (!nominal) return false;
+    snprintf(nominal, length, "%s.%s", owner, variant);
+    Symbol checked;
+    bool found = false;
+    for (int i = cg->env->symbol_count - 1; i >= 0; --i) {
+        Symbol *symbol = &cg->env->symbols[i];
+        if (symbol->name && !strcmp(symbol->name, name) &&
+            symbol->struct_type_name && !strcmp(symbol->struct_type_name, nominal) &&
+            symbol->def_line == match->line && symbol->def_column == match->column &&
+            (!symbol->def_file || !cg->env->current_file || !strcmp(symbol->def_file, cg->env->current_file))) {
+            checked = *symbol; found = true; break;
+        }
+    }
+    if (!found) { free(nominal); return false; }
+    env_define_var_with_type_info(cg->env, name, checked.type, checked.element_type,
+                                 checked.type_info, checked.is_mut, create_void());
+    Symbol *binding = &cg->env->symbols[cg->env->symbol_count - 1];
+    free(binding->struct_type_name);
+    binding->struct_type_name = nominal;
+    binding->def_line = checked.def_line; binding->def_column = checked.def_column;
+    binding->def_file = checked.def_file; binding->is_resource = checked.is_resource;
+    binding->scope_end_line = match->as.match_expr.arm_bodies[arm]->scope_end_line;
+    binding->scope_end_column = match->as.match_expr.arm_bodies[arm]->scope_end_column;
+    cg->locals[cg->local_binding_count - 1].struct_type = nominal;
+    return true;
+}
+
+/* I evaluate named payloads in source order, then pack declared positions. */
+static void compile_union_fields(CG *cg, CgUnionDef *definition, int variant,
+                                 char **names, ASTNode **values, int count, int line) {
+    int expected = definition->variant_field_counts[variant];
+    if (count != expected || count < 0 || count > MAX_LOCALS) {
+        cg_error(cg, line, "I require every union field exactly once");
+        return;
+    }
+    uint16_t *slots = count ? calloc((size_t)count, sizeof(*slots)) : NULL;
+    if (count && !slots) { cg_error(cg, line, "I cannot retain union field evaluation order"); return; }
+    for (int i = 0; i < count && !cg->had_error; ++i) {
+        int field = -1;
+        for (int j = 0; j < expected; ++j)
+            if (!strcmp(names[i], definition->variant_field_names[variant][j])) field = j;
+        if (field < 0) { cg_error(cg, line, "I require a declared union field"); break; }
+        for (int j = 0; j < i; ++j)
+            if (!strcmp(names[i], names[j])) cg_error(cg, line, "I require each union field once");
+        if (cg->had_error) break;
+        compile_expr(cg, values[i]);
+        if (cg->had_error) break;
+        slots[field] = local_add(cg, "", line);
+        if (!cg->had_error) emit_op(cg, OP_STORE_LOCAL, (int)slots[field]);
+    }
+    if (!cg->had_error) {
+        for (int i = 0; i < count; ++i) emit_op(cg, OP_LOAD_LOCAL, (int)slots[i]);
+        emit_op(cg, OP_AGG_PACK, AGG_VARIANT, definition->def_idx, variant, count);
+    }
+    free(slots);
+}
+
 static void compile_expr(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
@@ -2529,12 +2594,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
                         cg_error(cg, node->line, "unknown variant '%s.%s'", uname, vname);
                         break;
                     }
-                    int fc = node->as.struct_literal.field_count;
-                    for (int i = 0; i < fc; i++) {
-                        compile_expr(cg, node->as.struct_literal.field_values[i]);
-                    }
-                    emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx,
-                            (int)vi, fc);
+                    compile_union_fields(cg, ud, vi, node->as.struct_literal.field_names,
+                                         node->as.struct_literal.field_values,
+                                         node->as.struct_literal.field_count, node->line);
                     break;
                 }
             }
@@ -2628,6 +2690,23 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 }
             }
         }
+        if (type_name) {
+            for (int ui = 0; ui < cg->union_count; ++ui) {
+                CgUnionDef *definition = &cg->unions[ui];
+                size_t owner_length = strlen(definition->name);
+                if (strncmp(type_name, definition->name, owner_length) || type_name[owner_length] != '.') continue;
+                int variant = union_variant_index(definition, type_name + owner_length + 1);
+                if (variant < 0) continue;
+                for (int fi = 0; fi < definition->variant_field_counts[variant]; ++fi) {
+                    if (!strcmp(field, definition->variant_field_names[variant][fi])) {
+                        emit_op(cg, OP_AGG_GET, fi);
+                        goto field_done;
+                    }
+                }
+                cg_error(cg, node->line, "I require a field from the checked variant");
+                goto field_done;
+            }
+        }
         /* Fallback: search all known structs for a unique field name match */
         for (int i = 0; i < cg->struct_count; i++) {
             int16_t fi = struct_field_index(&cg->structs[i], field);
@@ -2685,11 +2764,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
             cg_error(cg, node->line, "unknown variant '%s.%s'", uname, vname);
             break;
         }
-        int fc = node->as.union_construct.field_count;
-        for (int i = 0; i < fc; i++) {
-            compile_expr(cg, node->as.union_construct.field_values[i]);
-        }
-        emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx, (int)vi, fc);
+        compile_union_fields(cg, ud, vi, node->as.union_construct.field_names,
+                             node->as.union_construct.field_values,
+                             node->as.union_construct.field_count, node->line);
         break;
     }
 
@@ -2795,6 +2872,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 emit_op(cg, OP_DUP);  /* keep union on stack */
                 uint16_t bslot = local_add(cg, binding, node->line);
                 emit_op(cg, OP_STORE_LOCAL, (int)bslot);
+                if (ud && !restore_match_binding(cg, node, i, ud->name)) {
+                    cg_error(cg, node->line, "I require the checked nominal match binding");
+                    break;
+                }
             }
 
             uint32_t guard_instr = 0, guard_off = 0;

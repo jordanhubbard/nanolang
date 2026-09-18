@@ -4852,3 +4852,6 @@ test-units: test-native-record-array-scalar-tags
 .PHONY: test-native-union-padding
 test-native-union-padding: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_union_padding
+.PHONY: test-scalar-union-emission
+test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_scalar_union_emission
