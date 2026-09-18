@@ -21,7 +21,7 @@
 - [x] I admit exact helper-owned source locals (`task_c2464342430c4ed0a51401aec227da67`) after merged runtime741, preserving borrowed formal descriptors and exact nominal consumption in both producers. My [contract](NANOISA_SOURCE_HELPER_OWNERS.md) requires temporary observation descriptor `arity`, paired metadata/VM/native/shadow acceptance and unchanged authority refusals. My first full gate passes bootstrap and 27/28 methods; the new hidden-owner refusal fixture uses invalid parenthesized `if`, correctly caught by its parse-error exclusion. I retain `/tmp/nanolang-source-helper-owners-first.log`; a focused check of the documented replacement finds separate parser parity task9d92, so I stop the second preparation and use the equivalent supported `cond` expression. Both producers reach the intended semantic owner refusal; production remains unchanged. Final acceptance passes all 28 paired methods in 330.095 seconds and the existing affine/lifecycle gates; [measured evidence](evidence/source-helper-owners.md). I completed this bounded source admission in merged PR698.
 
 - [x] I preserve caller-versus-helper-local reference provenance before admitting helper-owned temporaries (`task_74170cc4b1784e68970017da2a3ec64a`). My [runtime prerequisite](NANOISA_HELPER_LOCAL_OWNERS.md) requires exact frame/generation identity, unchanged borrowed-parameter authority and exact exit consumption, with valid VM/native separation and defensive cleanup gates. Source admission remains separate. My paired lifecycle/allocation gates, 2,422 native checks, 1,365 shape checks and 96 verifier checks pass; [measured evidence](evidence/helper-local-owners.md). I completed this runtime prerequisite in merged PR696; source admission remains separate.
-- [x] I execute explicit parser, typechecker and transpiler assertions from my component driver entry points (`task_ab449a7054904fb9a531ee9c35aa78d9`). My stage3 runner currently labels empty/library-load drivers as tests; I replace those drivers with deterministic API checks and report their bounded scope. I require freshly compiled drivers and executed assertions, without claiming that all imported shadows ran. The broader component audit `task_56a065134a6e4394ae5c307c05e9597d` remains open. [Contract](COMPONENT_ENTRY_ASSERTIONS.md). My first fresh compile stops at a missing direct lexer import in the new driver, before assertions execute; I preserve that log and correct the dependency explicitly. The next compile exposes the same direct-binding requirement for parser calls in checker/transpiler drivers; I preserve it and audit all three entry dependencies. Corrected source passes fresh bootstrap prerequisites and all three executed stage3 entries; the manifest records compiler/log hashes. Canonical task reconciliation follows merge.
+- [x] I execute explicit parser, typechecker and transpiler assertions from my component driver entry points (`task_ab449a7054904fb9a531ee9c35aa78d9`). My stage3 runner currently labels empty/library-load drivers as tests; I replace those drivers with deterministic API checks and report their bounded scope. I require freshly compiled drivers and executed assertions, without claiming that all imported shadows ran. The original component execution audit `task_56a065134a6e4394ae5c307c05e9597d` is completed by the separately retained inventory and C-seed/canonical shadow reports. [Contract](COMPONENT_ENTRY_ASSERTIONS.md). My first fresh compile stops at a missing direct lexer import in the new driver, before assertions execute; I preserve that log and correct the dependency explicitly. The next compile exposes the same direct-binding requirement for parser calls in checker/transpiler drivers; I preserve it and audit all three entry dependencies. Corrected source passes fresh bootstrap prerequisites and all three executed stage3 entries; the manifest records compiler/log hashes. Canonical task reconciliation follows merge.
 
 - [x] I keep my Jackson C file-source evidence deterministic when its caller
       owns a terminal (MAC `task_560e50b04c0a7a5a33537b0bc5292ed1`,
@@ -7491,9 +7491,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] **5.0 audit defect — imported parser shadow evidence.** I run the
       parenthesized-parser assertions explicitly from a compiled test entry
       point. A successful importer build or empty driver run does not establish
-      that imported shadows ran; the C seed skips extern-dependent shadows.
+      that imported shadows ran. The historical C-seed foreign-shadow skip claim
+      does not describe my current selection policy.
       `make test-parser-parenthesized` passes and is included in `test-quick`.
-- [ ] **5.0 audit — component test execution.** I audit remaining component
+- [x] **5.0 audit — component test execution.** I audit remaining component
       shadows and bootstrap validation claims, execute meaningful assertions
       explicitly, and distinguish skipped from executed checks. MAC
       `task_56a065134a6e4394ae5c307c05e9597d`.
@@ -7504,7 +7505,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       The current compiler defaults to imported-shadow selection and no longer
       exempts explicit extern-dependent shadows; my [current inventory](COMPONENT_SHADOW_INVENTORY.md)
       records 553 component declarations without claiming 553 executions.
-      Dependency-aware per-shadow completion evidence remains open. I retain the PR's ancestry
+      My [C-seed completion report](COMPONENT_SHADOW_COMPLETION.md) and
+      [canonical completion report](CANONICAL_COMPONENT_SHADOW_COMPLETION.md)
+      retain exact-source imported selection, completed counts/ordered calls,
+      supervised exit status and source/tool identities. Independent read-only
+      review verifies their scope and artifact hashes. Counts overlap across
+      drivers and do not claim unique source provenance or statement coverage.
+      Later source changes and full release gates remain separate. I retain the PR's ancestry
       without replacing newer transpiler code. Evidence:
       `docs/evidence/pr-266-reconciliation.md`.
 - [x] **5.0 import parity — bare relative paths.** I try a bare import path
