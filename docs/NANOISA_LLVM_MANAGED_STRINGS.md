@@ -1,6 +1,6 @@
 # My managed-string LLVM/Wasm subset
 
-I extend my closed literal-string lowering with STR_CONCAT and generic ADD
+I extend my closed literal-string lowering with STR_CONCAT, checked STR_SUBSTR and generic ADD
 for two strings. I preserve generic numeric ADD, including enum coercion.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
@@ -11,9 +11,10 @@ verification and the existing closed module/signature rules before admitting
 these operations. The translator first tries its literal profile, then the
 managed profile. The original CLOSED_SCALAR and CLOSED_LITERAL_STRINGS API
 selectors retain their previous decisions. I still refuse string-bearing
-modules containing CAST_INT or CAST_FLOAT; substring, CAST_STRING, tail calls,
+modules containing CAST_INT or CAST_FLOAT; CAST_STRING, tail calls,
 other heap values, imports, nominal layouts, ownership/reference and passive
-contracts remain outside this subset. My substring prerequisite stays open.
+contracts remain outside this subset. My checked substring prerequisite is merged;
+my [substring contract](NANOISA_MANAGED_SUBSTRING.md) defines the matched extension.
 
 ## My ownership and errors
 
@@ -73,4 +74,4 @@ refusals preserve prior output.
 I test the implementation with `make test-llvm-managed-strings`. My contract
 and evidence are in [managed concat](NANOISA_MANAGED_CONCAT.md) and
 [its checkpoint evidence](evidence/managed-string-concat.md). The broader
-managed-runtime task remains open for substring and portable conversions.
+managed-runtime task remains open for portable conversions and broader applicable-language coverage.

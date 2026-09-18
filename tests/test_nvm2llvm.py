@@ -258,7 +258,7 @@ RET
         self.run_cmd(['lli', ir], success=False)
 
     def test_refused_profile_preserves_output(self):
-        module = self.module('.string outside "heap"\n.entry main\n.function main 0 0 0 int 1\nPUSH_STR outside\nPUSH_I64 0\nPUSH_I64 1\nSTR_SUBSTR\nPOP\nPUSH_I64 0\nRET\n.end\n')
+        module = self.module('.string outside "heap"\n.entry main\n.function main 0 0 0 int 1\nPUSH_STR outside\nPUSH_STR outside\nSTR_CONTAINS\nPOP\nPUSH_I64 0\nRET\n.end\n')
         output = self.work/'kept.ll'; output.write_text('prior output')
         result = self.run_cmd([LLVM, module, '-o', output], success=False)
         self.assertIn('scalar LLVM profile', result.stderr)

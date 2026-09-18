@@ -43,8 +43,8 @@ int main(int argc, char **argv) {
     }
     int same = ordinary.ok == general.ok && !strcmp(ordinary.error_msg, general.error_msg);
     int refusal_untouched = translated || length == 0;
-    printf("%d %d %d %d %d %d\n", general.ok, scalar.ok, translated,
-           same, !unknown.ok, refusal_untouched);
+    printf("%d %d %d %d %d %d %d %d\n", general.ok, scalar.ok, translated,
+           same, !unknown.ok, refusal_untouched, literal.ok, managed.ok);
     if (!scalar.ok) puts(scalar.error_msg);
     nvm_module_free(m);
     return same && !unknown.ok && refusal_untouched && managed.ok == (translated != 0) && (!literal.ok || managed.ok) ? 0 : 1;

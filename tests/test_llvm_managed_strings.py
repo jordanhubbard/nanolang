@@ -166,8 +166,43 @@ class ManagedStrings(unittest.TestCase):
         self.native_harness(ir,'if(nano_try_entry()||nms_module_live_objects())return 1;return nano_dispose();')
         self.node(wasm,"check(e.nano_try_entry()===(3n<<32n));check(e.nms_module_live_objects()===0n);let size=e.memory.buffer.byteLength;for(let i=0;i<5;i++){check(e.nano_try_entry()===(3n<<32n));check(e.nms_module_live_objects()===0n);check(e.memory.buffer.byteLength===size);}check(e.nano_dispose()===0);")
 
-    def test_substring_cast_and_reserved_entry_refusals_preserve_output(self):
-        for body in ('PUSH_STR a\nPUSH_I64 0\nPUSH_I64 1\nSTR_SUBSTR\nPOP\n',
+    def test_substring_bytes_indices_aliases_and_reentry(self):
+        body = ''
+        for start, length, expected in [(0,3,'a'),(0,0,'empty'),(3,4,'empty'),
+                                         (1,20,'tail'),(4294967296,3,'a'),(-1,3,'empty')]:
+            body += (f'PUSH_STR a\nPUSH_I64 {start}\nPUSH_I64 {length}\nSTR_SUBSTR\n'
+                     f'PUSH_STR {expected}\nSTR_EQ\nASSERT\n')
+        body += ('PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_GLOBAL 0\n'
+                 'LOAD_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_I64 3\nCALL slice\n'
+                 'PUSH_STR a\nEQ\nASSERT\n'
+                 'LOAD_GLOBAL 0\nPUSH_I64 0\nLOAD_GLOBAL 0\nCALL empty_slice\n'
+                 'DUP\nASSERT\nPUSH_STR empty\nEQ\nASSERT\n')
+        suffix = ('.function slice 3 3 0 string 1\n.parameters slice string string int\nLOAD_LOCAL 0\nLOAD_LOCAL 1\n'
+                  'LOAD_LOCAL 2\nSTR_SUBSTR\nRET\n.end\n'
+                  '.function empty_slice 3 3 0 string 1\n.parameters empty_slice string int string\n'
+                  'LOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nSTR_SUBSTR\nRET\n.end\n')
+        text = '.string tail "\\x00z"\n'+self.program(body,suffix)
+        _, ir, wasm = self.compile(text)
+        self.native_harness(ir,'for(int i=0;i<30;i++){uint64_t s=nano_try_entry();if(s||nms_module_live_objects()!=1||nms_module_live_bytes()!=3){fprintf(stderr,"round %d status %llu objects %llu bytes %llu\\n",i,(unsigned long long)s,(unsigned long long)nms_module_live_objects(),(unsigned long long)nms_module_live_bytes());return 1;}}return nano_dispose();','#include <stdio.h>')
+        self.node(wasm,'for(let i=0;i<30;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===1n);check(e.nms_module_live_bytes()===3n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
+
+    def test_substring_allocation_failure_and_type_error_cleanup(self):
+        body = ('PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\n'
+                'PUSH_I64 1\nPUSH_I64 2\nCALL slice\nPOP\n')
+        suffix = ('.function slice 3 3 0 string 1\n.parameters slice string int int\n'
+                  'LOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nSTR_SUBSTR\nRET\n.end\n')
+        _, ir, wasm = self.compile(self.program(body,suffix))
+        extra = 'static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=3)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+        self.node(wasm,'check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===1n);check(e.nano_dispose()===0);')
+        bad = ('PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_GLOBAL 0\n'
+               'PUSH_I64 7\nSTORE_GLOBAL 1\nLOAD_GLOBAL 1\nLOAD_GLOBAL 0\nLOAD_GLOBAL 0\nSTR_SUBSTR\nPOP\n')
+        _, ir, wasm = self.compile(self.program(bad),vm_ok=False)
+        self.native_harness(ir,'for(int i=0;i<10;i++)if(nano_try_entry()!=((uint64_t)1<<32)||nms_module_live_objects()!=1)return 1;return nano_dispose();')
+        self.node(wasm,'for(let i=0;i<10;i++){check(e.nano_try_entry()===(1n<<32n));check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);')
+
+    def test_unsupported_string_cast_and_reserved_entry_refusals_preserve_output(self):
+        for body in ('PUSH_STR a\nPUSH_STR a\nSTR_CONTAINS\nPOP\n',
                      'PUSH_STR a\nCAST_INT\nPOP\n','PUSH_STR a\nCAST_FLOAT\nPOP\n',
                      'PUSH_I64 1\nCAST_STRING\nPOP\n'):
             asm,mod=self.work/'refuse.nasm',self.work/'refuse.nvm'

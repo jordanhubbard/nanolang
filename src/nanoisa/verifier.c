@@ -1096,11 +1096,11 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
-            has_strings |= ins.opcode == OP_PUSH_STR || ins.opcode == OP_STR_CONCAT;
+            has_strings |= ins.opcode == OP_PUSH_STR || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR;
             needs_string_runtime |= (!managed_profile && ins.opcode == OP_ADD) || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT;
             bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
                               ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
-                              (managed_profile && ins.opcode == OP_STR_CONCAT));
+                              (managed_profile && (ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR)));
             if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }

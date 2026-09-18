@@ -218,6 +218,22 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
                      NmsHandle *out) {
     return create_parts(runtime, data, length, NULL, 0, out);
 }
+NmsStatus nms_substr_owned(NmsRuntime *runtime, NmsHandle source,
+                           uint32_t start, uint32_t length, NmsHandle *out) {
+    NmsView view;
+    NmsHandle result = 0;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status == NMS_OK) {
+        if (start >= view.length) { start = 0; length = 0; }
+        else if (length > view.length - start) length = view.length - start;
+        status = out ? nms_create(runtime, length ? view.data + start : NULL, length, &result) : NMS_STATE;
+    }
+    NmsStatus released = nms_release(runtime, source);
+    if (status != NMS_OK) return status;
+    if (released != NMS_OK) { nms_release(runtime, result); return released; }
+    *out = result;
+    return NMS_OK;
+}
 NmsStatus nms_concat_owned(NmsRuntime *runtime, NmsHandle left, NmsHandle right,
                            NmsHandle *out) {
     NmsView a, b;

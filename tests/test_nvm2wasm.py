@@ -93,7 +93,7 @@ class ScalarWasm(unittest.TestCase):
 
     def test_shared_profile_refusals_preserve_output(self):
         for extra, body in (
-            ('.string outside "outside profile"\n', 'PUSH_STR outside\nPUSH_I64 0\nPUSH_I64 1\nSTR_SUBSTR\nPOP\nPUSH_I64 0\nRET\n'),
+            ('.string outside "outside profile"\n', 'PUSH_STR outside\nPUSH_STR outside\nSTR_CONTAINS\nPOP\nPUSH_I64 0\nRET\n'),
             ('.types 1 0 0\n', 'PUSH_I64 0\nRET\n'),
             ('.import "" "get_argc" int\n', 'PUSH_I64 0\nRET\n'),
         ):
