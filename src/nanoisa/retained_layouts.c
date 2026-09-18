@@ -86,10 +86,62 @@ static NvmRecordPlanResult record_result(NvmRecordPlanStatus status,
     NvmRecordPlanResult result = {status, layout, field, message};
     return result;
 }
-static NvmRecordPlanResult record_preflight(const NvmModule *module) {
+/* I read only a previously scanned field. Widened subtraction bounds the
+ * complete 12-byte field before either multiplication or offset addition. */
+static bool record_nested_at(const NvmModule *module, size_t offset,
+                             uint32_t field, uint32_t *nested) {
+    size_t size = module->layout_size;
+    if (offset > size || size - offset < 12 ||
+        field > (size - offset - 12) / 12) return false;
+    NvmV2Cursor cursor;
+    nvm_v2_cursor_init(&cursor, module->layout_data, size);
+    cursor.pos = offset + (size_t)field * 12 + 4;
+    return nvm_v2_u32(&cursor, nested) == NVM_V2_OK;
+}
+/* I mirror the codec's exact forward family without allocating. This retains
+ * precise allocation classification when the subsequent codec owns its fields. */
+static NvmRecordPlanResult record_forward_preflight(const NvmModule *module,
+        uint32_t count, const size_t *offsets, const uint32_t *fields) {
+    uint8_t colors[NVM_RECORD_PLAN_MAX_LAYOUTS] = {0};
+    struct { uint32_t layout, next; } stack[NVM_RECORD_PLAN_MAX_LAYOUTS];
+    for (uint32_t root = 0; root < count; root++) {
+        if (colors[root]) continue;
+        uint32_t depth = 1;
+        stack[0].layout = root; stack[0].next = 0; colors[root] = 1;
+        while (depth) {
+            uint32_t layout = stack[depth - 1].layout;
+            uint32_t field = stack[depth - 1].next;
+            if (field == fields[layout]) {
+                colors[layout] = 2; depth--; continue;
+            }
+            uint32_t child;
+            if (field > fields[layout] ||
+                !record_nested_at(module, offsets[layout], field, &child))
+                return record_result(NVM_RECORD_INVALID, layout, field,
+                                     "I require a complete preflighted field.");
+            stack[depth - 1].next++;
+            if (child == NVM_V2_NO_INDEX) continue;
+            if (child >= count || colors[child] == 1)
+                return record_result(NVM_RECORD_INVALID, layout, field,
+                                     "I require an exact acyclic record graph.");
+            if (colors[child] == 2) continue;
+            if (depth >= count)
+                return record_result(NVM_RECORD_INVALID, layout, field,
+                                     "I require bounded record graph depth.");
+            colors[child] = 1;
+            stack[depth].layout = child; stack[depth].next = 0; depth++;
+        }
+    }
+    return record_result(NVM_RECORD_DESCRIBED, 0, 0,
+                         "I validated the exact forward record graph.");
+}
+static NvmRecordPlanResult record_preflight(const NvmModule *module, bool *has_forward) {
     NvmV2Cursor cursor;
     nvm_v2_cursor_init(&cursor, module->layout_data, module->layout_size);
     uint32_t count, records = 0, enums = 0, unions = 0, total_fields = 0;
+    size_t offsets[NVM_RECORD_PLAN_MAX_LAYOUTS];
+    uint32_t field_counts[NVM_RECORD_PLAN_MAX_LAYOUTS];
+    bool forward = false, forward_family = true;
     if (nvm_v2_u32(&cursor, &count) != NVM_V2_OK)
         return record_result(NVM_RECORD_INVALID, 0, 0, "I require a complete layout count.");
     if (count > NVM_RECORD_PLAN_MAX_LAYOUTS)
@@ -110,7 +162,9 @@ static NvmRecordPlanResult record_preflight(const NvmModule *module) {
         if (fields > NVM_RECORD_PLAN_MAX_FIELDS - total_fields)
             return record_result(NVM_RECORD_LIMIT, i, 0, "I reached my retained field limit.");
         total_fields += fields;
-        for (uint16_t j = 0; j < fields; j++) {
+        offsets[i] = cursor.pos; field_counts[i] = fields;
+        forward_family &= kind == NVM_V2_LAYOUT_STRUCT;
+        for (uint32_t j = 0; j < fields; j++) {
             uint8_t tag, a, b, c;
             uint32_t nested, field_name;
             if (nvm_v2_u8(&cursor, &tag) != NVM_V2_OK ||
@@ -120,13 +174,26 @@ static NvmRecordPlanResult record_preflight(const NvmModule *module) {
                 nvm_v2_u32(&cursor, &nested) != NVM_V2_OK ||
                 nvm_v2_u32(&cursor, &field_name) != NVM_V2_OK ||
                 a || b || c || tag >= TAG_COUNT ||
-                (nested != NVM_V2_NO_INDEX && nested >= i) || !name_valid(field_name, module))
+                (nested != NVM_V2_NO_INDEX && (nested >= count || nested == i)) || !name_valid(field_name, module))
                 return record_result(NVM_RECORD_INVALID, i, j, "I require canonical closed fields and names.");
+            if (nested != NVM_V2_NO_INDEX && nested > i) forward = true;
+            bool scalar = tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT ||
+                          tag == TAG_BOOL || tag == TAG_STRING;
+            forward_family &= tag == TAG_STRUCT ? nested != NVM_V2_NO_INDEX :
+                              scalar && nested == NVM_V2_NO_INDEX;
         }
     }
     if (cursor.pos != cursor.size || records != module->struct_count ||
         enums != module->enum_count || unions != module->union_count)
         return record_result(NVM_RECORD_INVALID, 0, 0, "I require exact retained bytes and per-kind counts.");
+    if (forward) {
+        if (!forward_family)
+            return record_result(NVM_RECORD_INVALID, 0, 0,
+                                 "I require exact all-record scalar/string forward layouts.");
+        NvmRecordPlanResult graph = record_forward_preflight(module, count, offsets, field_counts);
+        if (graph.status != NVM_RECORD_DESCRIBED) return graph;
+    }
+    *has_forward = forward;
     return record_result(NVM_RECORD_DESCRIBED, 0, 0, "I validated only retained byte structure.");
 }
 void nvm_record_plan_free(NvmRecordPlan *plan) {
@@ -143,7 +210,8 @@ NvmRecordPlanResult nvm_describe_managed_records(const NvmModule *module,
         return record_result(NVM_RECORD_INVALID, 0, 0, "I require a consistent module and plan output.");
     if (!module->layout_size)
         return record_result(NVM_RECORD_UNRESOLVED, 0, 0, "I require retained layout facts, not count-only placeholders.");
-    NvmRecordPlanResult result = record_preflight(module);
+    bool forward = false;
+    NvmRecordPlanResult result = record_preflight(module, &forward);
     if (result.status != NVM_RECORD_DESCRIBED) return result;
     NvmV2Layouts layouts = {0};
     NvmV2Result decoded = nvm_v2_layouts_decode(module->layout_data, module->layout_size, &layouts);
@@ -191,6 +259,11 @@ NvmRecordPlanResult nvm_describe_managed_records(const NvmModule *module,
             }
         }
         authority = NVM_RECORD_AUTHORITY_ORDINARY;
+    }
+    if (forward && authority != NVM_RECORD_AUTHORITY_ORDINARY) {
+        result = record_result(NVM_RECORD_UNRESOLVED, 0, 0,
+                               "I require explicit ordinary authority for forward records.");
+        goto fail;
     }
     NvmRecordPlan *plan = calloc(1, sizeof *plan);
     if (!plan) { result = record_result(NVM_RECORD_MEMORY, 0, 0, "I could not allocate my record plan."); goto fail; }
