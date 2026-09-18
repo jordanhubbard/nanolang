@@ -11,3 +11,12 @@ At5074dd40, Darwin passes all four methods in10.799s with unchanged before/after
 I integrated canonical main including PR749 at e240a459 and rebuilt Linux C-seed/interpreter. The final four legacy methods pass9.587s and the four public-C provider integration methods pass1.268s, with unchanged source/tool hashes. My selfhost binaries remain the actual cc6d full-bootstrap products: I do not claim a fresh bootstrap at the integrated head. The earlier fresh adjacent interpreter unit suite passes in full.
 
 I retain raw logs, tool inventories, source/tool manifests and independently checked Darwin transfer hashes in [my report directory](legacy-signed-nan-format/). `report-sha256.json` seals every retained report. The Darwin source/tool claim applies to5074; integrated Linux applies to e240. I do not infer complete release readiness, unsupported selfhost array printing, arbitrary printf semantics, or public-C Darwin qualification from these bounded checks.
+
+After PR751/753 merged, I resolved only roadmap text and integrated main at
+f586bdb0, keeping my reviewed formatting production unchanged. I rebuilt C-seed
+and interpreter. The shared-provider formatting/equality integration passed seven
+methods and retained one setup error because the separate nano_virt tool was
+absent. After explicitly building parity tools, I reran only that missing-tool
+method: public C/interpreter/verified VM/sanitized native parity passes0.502s.
+Both runs retain unchanged before/after hashes. I preserve the seven-plus-one
+accounting and do not describe the initial eight-method invocation as a pass.
