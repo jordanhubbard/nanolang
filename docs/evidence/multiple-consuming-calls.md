@@ -108,3 +108,12 @@ My native compiler comparison is
 `CC=clang-18 python3 -m unittest -v tests.test_multiple_consuming_calls`.
 I do not present the separate sanitizer result as completion of the original
 600-second run, or this runtime gate as source admission.
+
+My final shared-shape integration `d3c1ae5c` retains main `aac2b478`/PR719.
+It changes managed-array analysis outside this owned call implementation.
+After rebuilding affected tools, my two focused methods pass in 6.203 seconds
+with unchanged 4,542/210/216/65 counts; the single-owner and 96-check verifier
+gates pass. I retain `/tmp/nanolang-multiple-consuming-shape-integration.log`.
+The earlier instrumented result remains pinned before this additive shape
+integration; I do not relabel it as a new run. My consuming production remains
+the reviewed change, with only upstream PR715's separate VM slice delta.
