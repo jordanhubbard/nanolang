@@ -44,3 +44,17 @@ source or assertions (`/tmp/nanolang-native-invariant-returned-maps.log`).
 
 I retain logs under `/tmp/nanolang-native-invariant-*`. The separate product
 startup and export-shadow holds remain open. I did not replay their artifacts.
+
+## I retain the standalone harness contract
+
+A later full native run exposed four C compilation failures among 2,418
+passing checks: my standalone map unit harness included the runtime fragment
+without defining its required `NVM2C_ABORT` hook. I retain that failure in
+`/tmp/nanolang-numeric-union-native.log`.
+
+At `5971fb58`, I supply the hook in that harness alone. Production guards
+and diagnostics are unchanged. The complete `make test-nvm2c` gate passes
+2,422 native checks and 1,092 shape checks, with exit status zero, in
+`/tmp/nanolang-native-map-harness-corrected.log`. This closes
+`task_02182f5f162a4bbf9f14803f29d533f3`; it does not resolve the product
+bootstrap hold.

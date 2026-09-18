@@ -1032,6 +1032,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
 static int profile_scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
 static int profile_supported(uint8_t op) {
     switch (op) {
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
     case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
     case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
@@ -1065,11 +1066,15 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return fail("I require a zero-argument scalar entry point");
+    bool initializer_seen = false;
     for (uint32_t i = 0; i < m->function_count; ++i) {
         const NvmFunctionEntry *f = &m->functions[i];
         const char *name = nvm_get_string(m, f->name_idx);
-        if (name && !strcmp(name, "__init__"))
-            return fail("I refuse module initializers in my scalar LLVM profile");
+        if (!initializer_seen && name && !strcmp(name, "__init__")) {
+            initializer_seen = true;
+            if (f->arity)
+                return fail("I require a zero-argument scalar module initializer");
+        }
         if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
             (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT))))
             return fail("I require zero void results or one numeric/bool result and no captures in function %u", i);
