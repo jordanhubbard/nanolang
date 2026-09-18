@@ -114,7 +114,7 @@ with tempfile.TemporaryDirectory(prefix='generic-canonical-', dir=output.parent)
     commands = [[str(root/'bin'/compiler), *args, '--emit-nvm'],
                 [str(root/'bin/nano_vm'), '--verify-only', str(module)],
                 [str(root/'bin/nano_vm'), str(module)],
-                [str(root/'bin/nvm2c'), str(module), '-o', str(c_source)],
+                [os.environ.get('NVM2C', str(root/'bin/nvm2c')), str(module), '-o', str(c_source)],
                 [os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-omit-frame-pointer', str(c_source), '-lm', '-o', str(native)]]
     for command in commands:
         result = subprocess.run(command)
