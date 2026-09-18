@@ -1,0 +1,10 @@
+{
+  "pin": "ae07f575e5c3685a5d34afff45028744d01fcefd",
+  "command": [
+    "make",
+    "-j2",
+    "test-mixed-float-proof"
+  ],
+  "status": 0,
+  "seconds": 0.9160764269763604
+}

@@ -21,7 +21,7 @@ class OwnedBinary64(unittest.TestCase):
             generated = self.checked([ROOT/'obj/test_owned_binary64', tmp])
             print(generated.stdout, end='')
             cases = [line.split() for line in generated.stdout.splitlines() if line.startswith('case ')]
-            self.assertEqual(len(cases), 4)
+            self.assertEqual(len(cases), 5)
             for _, index, status in cases:
                 with self.subTest(case=index):
                     artifact, source = tmp/f'case{index}.nvm', tmp/f'case{index}.c'

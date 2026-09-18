@@ -1,0 +1,12 @@
+{
+  "observed_process_exit": 1,
+  "failed_assertion": "before == after",
+  "unchanged_original_inputs": 39,
+  "new_outputs": {
+    "/home/jkh/Src/nanolang-mixed-flat-array-provenance/obj/nanoisa/dump_main.o": "922ef663bf6aff6f752ac3095697f2c4337c41abde0ef88a2de31672f2f2984d",
+    "/home/jkh/Src/nanolang-mixed-flat-array-provenance/obj/nanoisa/nvm2c_main.o": "723c7cb281c63a325dcee7dac0e559976b2c5d5a1589d8fa908b4d470ed27d3b",
+    "/home/jkh/Src/nanolang-mixed-flat-array-provenance/obj/nanoisa/nvm2llvm.o": "5425c0c160f6740eb71e37e2781a5ca8cc3418621f701787b47050708db3ed48",
+    "/home/jkh/Src/nanolang-mixed-flat-array-provenance/obj/nanoisa/nvm2llvm_main.o": "c9ac8ae2245bbeb292c0bbd56607f058203292f497d607aaa533c0212548123d"
+  },
+  "note": "I record the observed runner terminal separately from the successful command outcomes; no old run is relabeled."
+}

@@ -943,7 +943,9 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                 if(!nvm_affine_parameter_at(state,i,&type,&mode)) valid=false;
             } else if(!nvm_affine_local_type(state,i,&type) ||
                 (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
-                 type.tag!=TAG_STRUCT && !(value_graph && type.tag==TAG_STRING &&
+                 type.tag!=TAG_STRUCT && !(i>=fn->arity && type.tag==TAG_FLOAT &&
+                                           type.layout==NVM_V2_NO_INDEX) &&
+                 !(value_graph && type.tag==TAG_STRING &&
                                            type.layout==NVM_V2_NO_INDEX))) valid=false;
         }
         nvm_affine_state_free(state);
