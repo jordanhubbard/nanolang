@@ -133,5 +133,6 @@ source bootstraps and the later final name-policy bootstrap.
 
 My completed bounded implementation and exact gate limits are recorded in
 [transport evidence](evidence/binary64-bit-transport.md). The proposal sections
-above preserve my preimplementation decision record; reconstruction is still
-not admitted.
+above preserve my preimplementation decision record. At that transport checkpoint
+reconstruction was still refused; my later [constant/transport reconstruction](NANOISA_RECONSTRUCTION_F64_TRANSPORT.md)
+adds only its separately qualified bounded subset.
