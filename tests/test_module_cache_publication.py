@@ -767,12 +767,27 @@ int64_t nano_build_answer(void) {
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)
             module, source, env = self.support.foreign_build_fixture(directory)
+            calls, wrapper = directory / "compiler-calls", directory / "cc"
+            compiler = shutil.which("cc")
+            wrapper.write_text(f'''#!{sys.executable}
+import json, os, sys
+with open({str(calls)!r}, "a") as log:
+    log.write(json.dumps(sys.argv[1:]) + "\\n")
+os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
             (module / "answer.c").write_text("#include <stdint.h>\nint64_t helper(void); int64_t private_value(void);\nint64_t nano_build_answer(void) { return helper() + private_value(); }\n")
             (module / "helper.c").write_text("#include <stdint.h>\nint64_t helper(void) { return 40; }\n")
             (module / "private.c").write_text("#include <stdint.h>\nint64_t private_value(void) { return 2; }\n")
             (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c", "helper.c"], "shared_c_sources": ["private.c"]}))
             result, output = self.support.compile(source, directory, "--run", env=env)
             self.assertEqual(result.returncode, 42, result.stderr)
+            self.assertNotIn(b"ignoring unexpected dylib", result.stderr)
+            commands = [json.loads(line) for line in calls.read_text().splitlines()]
+            relocatable = [command for command in commands if "-r" in command]
+            self.assertEqual(len(relocatable), 1, relocatable)
+            self.assertEqual("-nostdlib" in relocatable[0], sys.platform == "darwin")
             self.assertEqual(self.support.execute(output, env=env).returncode, 42)
             cache = module / ".build"
             for name in ("answer_native.o", "answer_native_0.o", "answer_native_1.o", "answer_native_0.d", "answer_native_1.d", "__shared_0.o", "__shared_0.d", "source_hashes.json"):

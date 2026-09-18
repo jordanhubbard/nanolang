@@ -1,8 +1,14 @@
 # My Roadmap
 
 - [x] I check direct selected-union constructor arguments against their declared nominal context (MAC `task_6961296c51014326bb3a532c33fab2e0`). I normalize exact already-declared union variants in brace parsing, recognize actual constructor AST nodes only, validate the selected variant and exact payload fields/types with concrete generic substitution, and preserve nominal identity across direct, computed/function-value and supported qualified calls. I retain explicit unresolved-shape refusals, existing ownership guards, native emitter context, and ordinary positive/mismatch/shadow/output-preservation tests before completion. I do not apply broad return-type coercion to calls. My integrated bootstrap, thirteen both-stage constructor methods, ten explicit shared C controls and adjacent ownership/function-value gates pass; [evidence and separate C refusals](evidence/selfhost-constructor-call-context.md) retain the exact scope.
-- [ ] I preserve nongeneric union identity in C-seed function-value signatures (`task_f00d97409c26413781ff85f06993e66d`). My ordinary fn(Choice)->int local/computed control is refused while the concrete generic callback control passes; I retain the distinct C failure rather than count it as selfhost parity.
-- [ ] I retain nongeneric union parameter identity when checking imported C-seed module functions (`task_a2f464df8ba84a4ab4fc52c509e96904`). The module-local match on Choice is currently rejected as non-union; Stage1 accepts the same source. This does not weaken the constructor-context acceptance boundary.
+- [x] I preserve nongeneric union identity in C-seed function-value signatures (`task_f00d97409c26413781ff85f06993e66d`). My earlier ordinary fn(Choice)->int local/computed control was refused while the concrete generic callback control passed; I retain that observation as resolved history. I resolve declared local union kinds consistently in retained annotation trees and callback parameter/result slots before comparison, without relaxing nominal or concrete generic equality. I test local/computed calls, returned callbacks and nominal/payload mismatches with normal shadows and previous-output preservation; imported module ownership remains task a2. My fresh bootstrap, parser/typechecker units, nine GCC/Clang methods and 31 adjacent all-stage callback/resource methods pass; [evidence](evidence/cseed-union-callback-signatures.md) retains the exact boundary.
+- [x] I retain nongeneric union parameter identity when checking imported C-seed module functions (`task_a2f464df8ba84a4ab4fc52c509e96904`). My earlier module-local match on Choice was rejected as non-union while Stage1 accepted the same source; I retain that resolved observation. This does not weaken the constructor-context acceptance boundary. I resolve each declared function parameter/result kind in the shared nominal binding pass before either registration path copies it, preserving exact names and retained annotation trees. My acceptance covers normal module-local matches, imported calls/results, mismatch and shadow refusal with previous-output preservation; ownership rules remain unchanged. My fresh bootstrap/parser/typechecker units, eight GCC/Clang controls, sixteen adjacent metadata methods and 31 C-seed callback/resource methods pass; [evidence](evidence/cseed-imported-union-identity.md) preserves the separate single-letter native naming failure.
+
+- [x] I preserve declared single-letter union names in native C emission (`task_c117b20ef5d64339b79cf22e86b42ef7`). My earlier ordinary imported union T control passed checking but native naming emitted `typedef struct void*`; the retained positive acceptance now passes in `tests/acceptance_cseed_single_letter_union.py`. Unbound function T remains generic in my C seed and passes int/bool controls. This is separate from the module declaration-kind repair. I snapshot the current emission environment's declared one-letter unions for native name selection, restoring the prior snapshot on every emitter return. Exact declared unions get ordinary nominal C names; genuinely unbound generic variables retain their existing representation. I test local/imported unions, existing single-letter records, unbound generics and nominal refusals before acceptance. My bootstrap/units, eight GCC/Clang cases, same-process context checks and six declared nominal cases through each selfhost stage pass; [evidence](evidence/cseed-single-letter-union-names.md) retains the separate unbound generic selfhost refusal.
+
+- [ ] I retain unbound generic function instantiation in selfhost checking (`task_0198b105373a4cc2b3ebbbb0e9336af8`). My ordinary `identity(value:T)->T` int/bool control passes the C seed but fresh Stage1 refuses E0010 expected T. I retain the selectable failing test in `tests/test_cseed_single_letter_nominals.py`; declared nominal precedence and repeated-formal consistency must remain exact. This is separate from callback metadata and native nominal naming.
+
+- [x] I preserve declared single-letter enum names in native C output (`task_fc3046bc294543ca837fcb4ca21298c3`). Static inspection identified enum definitions using the free-variable name fallback; I now include exact non-foreign enum declarations in the invocation snapshot. I require fresh ordinary enum acceptance and unchanged foreign/runtime/generic boundaries before completion. I extend the existing invocation snapshot only with exact non-foreign enum declarations. These names take precedence over the free-variable spelling; I preserve existing enum-as-integer checking, runtime/foreign naming and unbound generic fallback. My gates cover ordinary enum definitions/values, declared T function annotations, generic payload formals, imported definitions and context restoration without broadening type compatibility. Fresh bootstrap/units, eight focused GCC/Clang controls, twenty-five adjacent methods and seven declared-enum controls through each selfhost stage pass; [evidence](evidence/cseed-single-letter-enum-names.md) records timings and the unchanged generic-function boundary.
 
 - [x] I index native root membership and mark each owner once per collection (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`), preserving traversal order, collection points and lifetime guarantees. My [scaling and sanitizer evidence](evidence/native-root-tracking-cost.md) separates this lookup repair from full bootstrap convergence.
 - [x] I guard native loop collection with collectible-owner allocation debt (MAC `task_5928905033844a4a8fb498d63cb68c39`), preserving fresh mutable-root tracing, forced collection and bounded retention. My [measured scan and lifetime evidence](evidence/native-collection-debt.md) records 9998 scans reduced to two and the distinct record-capacity boundary below.
@@ -58,7 +64,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I emit total integer arithmetic in standalone native C (`task_9af23845cec040b6955340ab23de4c91`, parent66a6). Unsigned add/sub/mul/neg plus exact signed reconstruction avoid signed overflow; division/remainder guard zero and minimum-integer overflow. Thirty-eight typed/generic integer cases pass GCC/Clang UBSan at O0/O2, shared VM/LLVM/Wasm boundaries pass, and 2,422 native plus 1,092 shape checks pass. Generic float/tag promotion remains separate. See `docs/evidence/native-total-integer-arithmetic.md`.
 
 - [x] I execute verified owned-profile assertions before admitting mandatory source shadows (MAC `task_f259c8fa53c945e6a990f112dc9415c1`, parents ed702/718). True conditions preserve affine/reference state; false conditions unwind actual owners and clear both activation contexts, with native helper failure propagation. I pass 959 entry/helper assertion, four public VM entry APIs, resume and cleanup checks, paired supervised VM/native and instrumented lifetime gates; ordinary ASSERT semantics remain unchanged. See `docs/evidence/owned-shadow-assertions.md`.
-- [ ] I emit checked scalar-resource borrowed calls from both ordinary-source NanoISA frontends (MAC `task_5057848888b246f686fd2b8e48d2c19a`, parents ed702/718). My [bounded source contract](NANOISA_SOURCE_BORROWS.md) requires exact nominal layouts, root/parameter ownership, OWN/REF/CALL_REF, complete selected shadows and paired VM/native execution. Initial int/bool scalar-leaf roots, one borrowed helper and explicit unsupported-shadow graph refusal do not complete broader source or affine acceptance.
+- [x] I emit checked scalar-resource borrowed calls from both ordinary-source NanoISA frontends (MAC `task_5057848888b246f686fd2b8e48d2c19a`, parents ed702/718). My [bounded source contract](NANOISA_SOURCE_BORROWS.md) requires exact nominal layouts, root/parameter ownership, OWN/REF/CALL_REF, complete selected shadows and paired VM/native execution. Initial int/bool scalar-leaf roots, one borrowed helper, required actual entry ownership transfer and explicit unsupported-shadow graph refusal do not complete broader source or affine acceptance. My [paired source evidence](evidence/source-borrow-emission.md) retains exact staged contracts, supervised failures and sanitized native execution.
+- [ ] I retain optional local-name metadata for my specialized borrowed-source producers after their checked admission (MAC `task_0178be8daf554a69969144b6657e7756`, reconstruction parent `task_4bd034f6029b7458201db74e2c3aeb32`). Both producers must agree on original names and exact function/slot/lexical-PC identity for parameters, moved/destructured owners and selected shadow scopes; PR #593 covers ordinary producers, not these new paths. Optional names do not grant verifier authority or change ownership execution.
 
 - [x] I execute one borrowed-parameter caller-origin reference call (MAC `task_48dcff3ff3314e9aad325209387968d1`, parents ed702/718). I first record [the bounded call contract](NANOISA_CALLER_REFERENCE.md), then connect actual caller root/path substitution, checked reborrow permissions, two activation contexts and paired VM/native scalar execution. I pass [the bounded paired gates](evidence/nanoisa-caller-reference.md). Helper local 0 remains non-authoritative; source and broader call admission stay separate. My integrated metadata gate caught an overbroad host-entry refusal for ordinary metadata-bearing helpers; I scope that guard to actual owned/reference instructions and retain ordinary module controls.
 - [x] I verify multiple borrowed parameters using pairwise actual caller-place alias substitution (MAC `task_7a2c8017c0c04b82a48ba069561e9d36`, parents ed702/718). I first record [my bounded batch contract](NANOISA_MULTI_CALLER_REFERENCE.md): existing CALL_REF selects one through eight contiguous descriptor slots using the declared arity, with no wire-format change. I require actual caller-origin substitution, pairwise and pre-existing-hold checks, ordered preparation, exact restoration and paired two-activation execution; I pass [the bounded multi-parameter gates](evidence/nanoisa-multi-caller-reference.md); broader calls and source production remain required.
@@ -283,24 +290,21 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       Darwin generated-C regressions now pass with all 2,418 native translator
       checks and 1,092 shape checks
       (`task_6363b1e55bd145749ef892d71a552735`).
-- [ ] I select and validate one coherent Darwin SDK/libffi toolchain for release
-      qualification (`task_5bdfd4ed14eb27b98bd509243c4af9a1`). On Darwin
-      26.6.2 at `045fb5a2`, Command Line Tools select Clang 21 and
-      `/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk` version 27.0, while
-      Homebrew's `libffi.pc` comes from
-      `/opt/homebrew/Library/Homebrew/os/mac/pkgconfig/26` and injects the
-      `MacOSX26.sdk/usr/include/ffi` path. The actual default-budget
-      `make bootstrap1` emits `ld: warning: ignoring unexpected dylib` for the
-      SDK 27 `libSystem.B.tbd`, then completes Stage 1 and its hello smoke. A
-      full `make test-quick` at `765ec87b` also passes under the default shadow
-      deadline while emitting the same warning, including all 244 eligible VM
-      examples. A trivial libffi link does not emit the warning, so I do not
-      claim the mixed include path is its cause. I will isolate the
-      generated-product link closure, preserve explicit `LIBFFI_CFLAGS` and
-      `LIBFFI_LIBS` overrides, add a bounded preflight or regression, remove
-      the bootstrap warning and rerun `make test-quick` without widening the
-      shadow deadline. The fleet verifier image's missing `ffi.h` task 865
-      remains separate unless shared evidence establishes one cause.
+- [x] I select and validate one coherent Darwin SDK/libffi toolchain for release
+      qualification (`task_5bdfd4ed14eb27b98bd509243c4af9a1`). The actual
+      link closure proved that Homebrew's older-SDK `libffi.pc` path did not
+      cause the warning: Apple Clang added `-lSystem` and compiler-rt to my
+      multi-source module builder's `cc -r` command, and Darwin `ld -r` refused
+      that dylib. I now select system-libffi headers from `SDKROOT` or the SDK
+      selected by `DEVELOPER_DIR`, preserve exact `LIBFFI_CFLAGS` and
+      `LIBFFI_LIBS` overrides, and pass `-nostdlib` only for the relocatable
+      merge before the ordinary shared/product link. Three toolchain-selection
+      checks, 55 module-cache/publication methods, a fresh Stage-1 bootstrap and
+      the full default-budget `make test-quick` pass on Darwin 26.6.2 with
+      Clang 21 and SDK 27.0; all 244 eligible VM examples compile, and the
+      `unexpected dylib` warning is absent. I did not widen the shadow
+      deadline. The fleet verifier image's missing `ffi.h` task 865 remains a
+      distinct image dependency defect.
 - [x] I complete unchanged-calculator acceptance through both producers (MAC `task_668e98f3e13e4fcebb3a2f92e671c713`, checked conversion `task_b927827f37734658bce360d7ecf913aa` and builtin ownership child `task_7f2b7373646341d5a317f374d302e390`). Both retained modules print `Result: 3.14159` and pass GCC ASan/UBSan/LSan plus strict Clang after PR553; [evidence](evidence/native-host-string-ownership.md). The earlier two-byte argv-copy leak is resolved history. The later narrow native host-string inventory under parent `task_d5f899966241452a900422938fff3265` is recorded separately; this calculator result does not claim general artifact ownership.
 - [x] I emit the registered C-seed `string_to_float` helper (`task_5909147f37c2478a8c07494935d7e24a`). The real conversion fixture reached an implicit-declaration error; I retain that failure and match the existing interpreter/self-hosted `strtod` contract.
 - [x] I align legacy interpreter and C-emitter float-to-int helpers with the checked conversion policy (`task_f801bf5769f9489da5ea973574dd156c`). Static inspection found direct double-to-integer casts; NanoISA validation does not cover those paths. I use the same finite `[-2^63, 2^63)` interval and diagnostic as NanoISA before conversion. A fresh bootstrap and 64 interpreter/C-seed/Stage-1/Stage-2 cases pass; [evidence](evidence/legacy-float-conversion.md).
@@ -9775,10 +9779,13 @@ Module richness:
       MAC `task_d2326e6883ed4cbe93728cd1393024c2`. I retain the sanitizer
       failure; the unchanged 20-boundary allocation sweep now passes ASan/UBSan
       with leak checks. [Evidence](evidence/nanoisa-local-bindings.md).
-- [ ] I preserve DEBUG source maps through canonical text; real source output
-      currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
-      Local-name comparisons retain exact metadata/code and separately require
-      canonical-cycle byte stability; full original-byte transport remains open.
+- [x] I preserve accepted DEBUG source maps through canonical text, including
+      ordered records and empty section presence. MAC
+      `task_1466d452d48c4a558c3be8a51765dd8f`; contract
+      `docs/NANOISA_DEBUG_TEXT.md`. Checked append failures abort transport.
+      My source fixtures now retain exact original canonical v2 bytes, with
+      unchanged VM/native results. Unknown advisory keys survive; unknown wire
+      sections remain refused. [Evidence](evidence/nanoisa-debug-text.md).
 - [x] I retain ordered advisory v2 metadata through module conversion and
       canonical text, with exact string bytes, explicit source precedence,
       metadata-bearing v1 refusal and owned lifetime. MAC
@@ -9799,6 +9806,14 @@ Module richness:
       exhaustiveness facts as NanoISA metadata.
 - [ ] I recover structured `if`/`while`/`return` from `JMP` for
       reconstruction. Goto is a translator fallback, not the claim.
+  - [x] I recover a bounded typed scalar region tree and emit executable C and
+        NanoLang from one verified module, with exact signature/local identity,
+        structured diamonds/loops, paired execution and refusal-before-publication.
+        MAC `task_15c7bd012efc44ffab908df7cd66b71e`; contract
+        `docs/NANOISA_SCALAR_RECONSTRUCTION.md`. Arithmetic, general CFGs and
+        original shadow-test reconstruction remain outside this child.
+        I pass 8 VM/C/three-stage-NanoLang programs and 20 refusal decisions.
+        [Evidence](evidence/nanoisa-scalar-reconstruction.md).
 - [ ] I define general and restricted compute profiles with verifier-enforced
       feature sets. GPU targets use the restricted profile.
 

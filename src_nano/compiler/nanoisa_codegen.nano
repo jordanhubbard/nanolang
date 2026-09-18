@@ -1,3 +1,4 @@
+from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_has_borrows, nanoisa_borrow_emit, nanoisa_borrow_error
 from "src_nano/compiler/passive_graph.nano" import passive_order, passive_reads
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
@@ -3755,6 +3756,11 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
         return (nisa_fail "I require a valid first-shadow index")
     }
     if (parser_has_error parser) { return (nisa_fail "parse failed") }
+    if (nanoisa_has_borrows parser) {
+        let emitted: string = (nanoisa_borrow_emit parser true first_shadow)
+        if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
+        return emitted
+    }
     let initializers: string = (nisa_emit_globals parser)
     if (not nisa_ok) { return "" }
     let entry_name: string = (nisa_shadow_name parser "__nanoisa_shadow_entry")
@@ -3818,6 +3824,11 @@ shadow nanoisa_emit_shadows_nasm {
 fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
     let _: int = (nisa_reset)
     set nisa_program_mode program
+    if (nanoisa_has_borrows parser) {
+        let emitted: string = (nanoisa_borrow_emit parser false 0)
+        if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
+        return emitted
+    }
     if program {
         let entry: int = (nisa_fn_index parser "main")
         if (< entry 0) { return (nisa_fail "no main") }

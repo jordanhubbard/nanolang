@@ -1,10 +1,10 @@
 # My first source-produced reference calls
 
-I implement a first paired ordinary-source NanoISA borrow producer under task_ed70242ac4d83be7b2327da7ece387ad and task_71821d84befc46e198795122c1112a27. Retained metadata alone does not admit source borrows. Both existing rejection guards remain until complete checked lowering is installed.
+I implement a first paired ordinary-source NanoISA borrow producer under task_ed70242ac4d83be7b2327da7ece387ad and task_71821d84befc46e198795122c1112a27. Retained metadata alone does not admit source borrows. Both producers now route only my complete closed profile through checked lowering; unsupported shapes still refuse publication. My [measured acceptance](evidence/source-borrow-emission.md) keeps the broader parents open.
 
 ## My bounded source profile
 
- finite non-generic resource records whose declared fields are int or bool scalars, one zero-argument int-returning main entry and one directly called nonrecursive int/bool-result helper with one explicit &T or &mut T parameter. No globals, runtime initializers, imports, passive blocks, callbacks, deeper calls, aggregate results, escaping/stored references or heap fields. Borrow arguments initially name a local root; nested paths and multiple parameters follow separate acceptance. Ordinary scalar locals/expressions and direct borrowed field reads/exclusive writes retain existing source checks.
+I admit finite non-generic resource records whose declared fields are int or bool scalars, one zero-argument int-returning main entry and one directly called nonrecursive int/bool-result helper with one explicit &T or &mut T parameter. No globals, runtime initializers, imports, passive blocks, callbacks, deeper calls, aggregate results, escaping/stored references or heap fields. Borrow arguments initially name a local root; nested paths and multiple parameters follow separate acceptance. Ordinary scalar locals/expressions and direct borrowed field reads/exclusive writes retain existing source checks.
 
 ## My retained identity and execution
 
@@ -12,11 +12,11 @@ I derive nominal IDs from the resolved declaration identity, preserving same-sha
 
 ## My mandatory shadows
 
- every selected shadow is lowered into a synthetic entry plus the same single helper. A selected shadow graph requiring main/additional helpers is explicitly refused before publication in this bounded profile. ASSERT support in the owned verifier/runtime/native path is an immediate separate prerequisite; I do not erase assertions or reinterpret failed shadows as success. Runtime multi-parameter work task_7a2c8017c0c04b82a48ba069561e9d36 is owned by release_audit and uses unchanged CALL_REF plus contiguous descriptor slots; my initial source slice remains one parameter.
+I lower every selected shadow into a synthetic entry plus the same single helper. A selected shadow graph requiring main/additional helpers is explicitly refused before publication in this bounded profile. ASSERT support in the owned verifier/runtime/native path is an immediate separate prerequisite; I do not erase assertions or reinterpret failed shadows as success. Runtime multi-parameter work task_7a2c8017c0c04b82a48ba069561e9d36 is owned by release_audit and uses unchanged CALL_REF plus contiguous descriptor slots; my initial source slice remains one parameter.
 
 ## My acceptance
 
- C-seed and Stage1/Stage2 selfhost emitters retain matching canonical metadata/instructions; ordinary source demonstrates repeated shared reads, caller-visible exclusive mutation and post-call owner consumption; serialized modules verify and execute unchanged in VM and native. All selected passing/failing shadows execute through normal supervision and failures preserve old output. Existing source ownership/borrow refusal corpus stays unchanged. Unsupported shapes remain explicit refusal, and full affine/borrow parents remain open.
+My C-seed and Stage1/Stage2 selfhost emitters retain matching canonical metadata/instructions; ordinary source demonstrates repeated shared reads, caller-visible exclusive mutation and post-call owner consumption; serialized modules verify and execute unchanged in VM and native. All selected passing/failing shadows execute through normal supervision and failures preserve old output. Existing source ownership/borrow refusal corpus stays unchanged. Unsupported shapes remain explicit refusal, and full affine/borrow parents remain open.
 
 My source child is `task_5057848888b246f686fd2b8e48d2c19a`. My immediate assertion prerequisite is `task_f259c8fa53c945e6a990f112dc9415c1`. Scalar-only owner disposal releases the owned record shell and discards each scalar field; it does not call an invented resource destructor or extend this profile to service handles.
 
@@ -34,3 +34,18 @@ I require true and false assertions in both entry and borrowed helper, native
 allocation accounting, VM invocation and direct execution cleanup, and a true
 assertion after suspension/resumption. I add this after the active
 multi-parameter runtime slice; I do not modify its running source pin.
+
+My first producer implementation is straight-line: scalar bindings and
+expressions, assertions, resource construction, direct borrowed calls,
+field reads/exclusive writes, explicit record destructuring and returns.
+I refuse loops, branches, extra functions and imports in this profile. Scalar
+operators use the already verified exact-tag owned instruction contracts.
+Destructuring moves the original owner into its parser-retained temporary;
+scalar projections do not duplicate ownership. Scope disposal consumes any
+remaining scalar-only shell. These bounds precede producer edits.
+
+My current owned runtime requires an actual owned transfer in entry. I refuse
+an empty or scalar-only selected shadow entry before publication; I do not
+insert a dummy owner or change verifier admission. A selected nonempty suffix
+with real owner transfer retains its source order. My synthetic entry name
+stays distinct from the original user helper name.

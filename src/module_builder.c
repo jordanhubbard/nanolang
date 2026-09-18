@@ -5563,7 +5563,17 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             }
 
             char combine_cmd[8192] = {0};
+#ifdef __APPLE__
+            /* I am producing one relocatable object, not a runnable image.
+             * Apple Clang otherwise adds -lSystem and compiler-rt to `cc -r`;
+             * ld then warns that libSystem is an unexpected dylib. I retain
+             * the selected compiler driver and its target selection, but keep
+             * default libraries for the later shared/product link. */
+            command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd),
+                                               "%s -nostdlib -r", cc);
+#else
             command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd), "%s -r", cc);
+#endif
             command_ok &= module_append_path_flag(combine_cmd, sizeof(combine_cmd), "-o ", object_file);
             for (size_t i = 0; i < meta->c_sources_count; i++) {
                 command_ok &= src_objects[i] && module_append_path_flag(combine_cmd, sizeof(combine_cmd), "", src_objects[i]);

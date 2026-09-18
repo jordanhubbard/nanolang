@@ -1,100 +1,80 @@
 # NanoISA high-level reconstruction
 
-I want to know whether a `.nvm` module carries enough facts to become a
-high-level language again — structured C, NanoLang, or something else —
-without embedding `nano_vm` and a bytecode array in that language.
+I ask whether a reader of one `.nvm`, without its original source, can recover
+named functions, types, structured control and a declared host ABI. I now have
+a bounded executable C + NanoLang reconstruction spike. I do not claim general
+reconstruction or a target for almost any high-level language.
 
-This is a feasibility record. It is not a claim that I can target any
-language. Canonical disassembly (`make test-disasm-roundtrip`) is a
-different test: it asks whether bytecode text round-trips, not whether a
-reader can recover functions, types, and control flow as source.
+Canonical disassembly is a different gate: exact bytecode text transport does
+not itself recover high-level structure. A bytecode blob, opcode dispatch loop,
+embedded NanoVM or daemon client in another language also fails this contract.
 
-Last night's bootstrap idea is the product destination this document
-serves: I emit NanoISA once; C11 (and later other targets) consume `.nvm`.
-`nano_virt`'s default "native binary" still embeds the VM
-(`src/nanovirt/wrapper_gen.c`). That path is not reconstruction, and it
-is not the C11 AOT backend. A generated AOT process does not require
-`nano_vm`, `nano_cop`, or `nano_vmd` to compute.
+## Retained facts and remaining prerequisites
 
-## Reconstruction contract
+| Need | Current boundary |
+| --- | --- |
+| Function identity and signatures | Function indices, names, exact parameter/result tags are retained. My bounded spike requires known int/bool signatures. |
+| Local names | `nano.local.v1` records function/slot/PC interval and exact original bytes. Ordinary scalar producers are tested; broader producers remain separate. Names are advisory. |
+| Local types | No general per-slot typed lexical table. My spike infers exact scalar types, requires definite assignment and refuses mixed-type reuse. |
+| Structured control | My spike recovers a bounded region grammar from decoded branch targets: diamonds and pretest loops. Arbitrary reducible graphs and irreducible graphs remain outside it. |
+| Host ABI | Existing native translators have bounded direct host contracts. The reconstruction spike refuses imports and module links; it does not complete the general ABI criterion. |
+| Nominal layouts and ownership | Retained layout and ownership tables support separate verified subsets. My scalar spike refuses these contracts rather than reconstructing their semantics. |
+| Source maps | Accepted DEBUG entries and empty section presence roundtrip through canonical text. This preserves facts; it does not recover original source. |
+| Frontend facts | Bounded passive/ownership metadata exists. General purity, affine-use, generics, effects and exhaustiveness reconstruction remains open. |
+| Original mandatory tests | Production bytecode does not retain the original shadow harness. My generated-source tests supply independent validation assertions; they are not recovered original shadows. |
 
-A reconstruction succeeded when a reader of one `.nvm`, without the
-original `.nano` or `.nasm` source, can produce:
+Unknown advisory keys remain transportable. Unknown wire section types remain
+refused. Neither names nor DEBUG records establish type or ownership authority.
 
-1. Named functions (a callable per `FUNCTIONS` entry).
-2. Parameter and result types from `SIGNATURES` (or the in-memory arity
-   and result tag).
-3. Structured control flow: `if`/`while`/`return`, not a bytecode
-   interpreter loop.
-4. A declared host ABI for imports. `CALL_EXTERN` as an RPC into
-   `nano_cop` is not that ABI.
+## Executable scalar regions
 
-A reconstruction failed when the output is a virtual machine in the
-target language, a `unsigned char blob[]` plus `nano_vm_run`, or a
-daemon client (`nano_vmd`).
+`make nvm2hl` builds a separate host tool. It uses my existing loader, verifier
+and decoder to extract checked identities and boundaries, then builds one typed
+region tree consumed by both source emitters:
 
-I do not delete `src_nano/transpiler.nano` or `src/c_backend.c` because
-of this document. Those remain the NanoLang→C path until a NanoISA→C
-translator compiles the compiler.
+```sh
+bin/nvm2hl --language c program.nvm -o recovered.c
+bin/nvm2hl --language nano program.nvm -o recovered.nano
+```
 
-## Inventory (`.nvm` v2 vs reconstruction)
+The initial grammar admits explicit scalar returns, constants, local snapshots,
+int comparisons, boolean operators, direct acyclic calls, forward if/else
+regions and canonical pretest loops. It requires empty operand stacks at joins
+and loop backedges. It refuses arithmetic until exact cross-language wrapping
+behavior is implemented. Imports, globals, aggregates, ownership/effects,
+unknown signatures and unstructured jumps also remain outside this grammar.
+The precise caps and admission rules are in
+[my scalar reconstruction contract](NANOISA_SCALAR_RECONSTRUCTION.md).
 
-| Need | Where it lives | Status |
-| --- | --- | --- |
-| Function names | `FUNCTIONS.name_idx` → string/constant pool | Present |
-| Arity and results | v2 `SIGNATURES`; in-memory `arity` / `result_tag` / `result_count` | Present |
-| Local names | `local_count` and numeric slots (`LOAD_LOCAL` / `STORE_LOCAL`) | Missing. Temps (`l0`, `t3`) are reconstructable from bytecode only |
-| Local types | Bytecode is stack-typed at verification time, not stored per slot | Missing as metadata; inferable for a closed i64 subset |
-| Structured control | `JMP` / `JMP_FALSE` / `RET` in `CODE` | Reconstructable-from-bytecode-only (CFG). Not recovered as `if`/`while` yet |
-| Host ABI | `IMPORTS` | Present as names and tags. Today's runtime is FFI / co-process, not AOT C calls |
-| Type layouts | `LAYOUTS` | Present. Unused by the closed i64 subset |
-| Source maps | `DEBUG` | Optional. Line/column, not local names |
-| Constants | `CONSTANTS` / string pool | Present. `PUSH_I64` immediates also sit in `CODE` |
-| Cross-module links | `LINKS` | Present. Not in the closed subset |
-| Purity, affine-use, effects | Frontend facts | Missing as NanoISA metadata (Phase 14) |
+For a retained loop fixture, the NanoLang surface contains nested `while`
+statements, typed mutable locals and `if`/`else` state transitions. The C surface
+contains the same recovered regions and direct functions. Neither output
+contains goto, an opcode dispatch loop, bytecode arrays or NanoVM calls.
+Function/slot indices make names collision-free even when advisory spellings
+are identical. Temporaries preserve evaluation order and loaded-value snapshots.
 
-## Closed fixture (what a reader can recover)
+My test harness deletes the assembly source before reconstructing both surfaces
+from the retained module. It runs NanoVM, compiled C and reconstructed NanoLang
+compiled by C seed, Stage1 and Stage2. The harness appends meaningful fixture
+shadows for generated NanoLang functions. This validates selected behaviors;
+it does not reconstruct the source's original mandatory tests.
 
-I assemble a two-function module: `add` of two ints, and `main` that
-calls `add(40, 2)` and returns the result.
+Production `nvm2c` remains a separate, broader translator. Its typed storage,
+scalar/aggregate/host support is not limited to this spike, and some of its
+control flow still uses labels and goto. Native computation without an embedded
+VM is useful, but those jumps do not satisfy the structured-region criterion.
+I do not replace its product path or remove a compiler backend from this spike.
 
-Without the assembly source, a reader of that module can recover:
+## Finding
 
-- Function names `add` and `main`.
-- That `add` takes two integers and returns one.
-- The arithmetic `40 + 2` as C operators, not as opcode bytes.
+**Sufficient for the tested closed scalar region grammar:** one retained module
+can become two executable high-level surfaces with functions, exact scalar types
+and structured control. I retain the measured pins and cases in
+[my evidence](evidence/nanoisa-scalar-reconstruction.md).
 
-A reader cannot recover original local names, because slots are numbers.
-The C I emit uses `l0` / `a0` / `t0`.
-
-## Spike: structured C11 (`nvm2c`)
-
-`src/nanoisa/nvm2c.c` translates that closed subset to C11:
-
-- `I64_ADD` / `ADD` → `t = a + b`
-- locals → `int64_t lN`
-- `CALL` → a C function
-- `RET` / `HALT` → `return`
-- `int main(void)` wraps the entry function
-
-`make test-nvm2c` compiles that C with `cc -std=c11` and checks the
-process exits `42`. The generated source must contain ` + ` and must not
-contain `nano_vm`, a bytecode blob, or `CALL_EXTERN`. `bin/nvm2c` is the
-seed CLI. `nano_virt -o binary` still uses `wrapper_gen`.
-Imports and `PUSH_STR` are refused: they are outside the subset, and
-`CALL_EXTERN` is the VM FFI path.
-
-## Finding so far
-
-**Insufficient** for "almost any high-level language." Local names and a
-host C ABI are still missing, and control flow is still a stack of jumps
-I have not yet structured.
-
-**Sufficient** for a closed integer subset: I can lower verified NanoISA
-to native C that does not run a VM. That is the evidence the C backend
-can be indirected through NanoISA *without* the multi-process VM model,
-for programs that stay in this subset.
-
-A second high-level surface (NanoLang or another HLL) from the same
-`.nvm` is still open. If that surface is only an interpreter, the spike
-failed.
+**Insufficient for full high-level reconstruction:** arithmetic, general control
+flow, wider values and runtime contracts, imported host calls, complete frontend
+facts remain unmet obligations. Original mandatory tests are not reconstructed;
+that limitation does not invent an additional release criterion. A passing
+bounded spike does not close MAC `task_4bd034f6029b7458201db74e2c3aeb32` or the
+full v5.1 roadmap acceptance.

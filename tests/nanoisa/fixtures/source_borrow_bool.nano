@@ -1,0 +1,17 @@
+resource struct Switch { active: bool }
+fn enabled(view: &Switch) -> bool { return view.active }
+shadow enabled {
+    let owner: Switch = Switch { active: false }
+    assert (not (enabled &owner))
+    let Switch { active } = owner
+    assert (not active)
+}
+fn main() -> int {
+    let owner: Switch = Switch { active: true }
+    assert (enabled &owner)
+    assert (enabled &owner)
+    let Switch { active } = owner
+    assert active
+    return 0
+}
+shadow main { assert true }
