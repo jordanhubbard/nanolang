@@ -411,7 +411,7 @@ $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/n
 
 $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
-$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
+$(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
@@ -524,6 +524,10 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(BIN_DIR)/nanoisa_hl_facts src/nanoisa/hl_facts_main.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
 	chmod +x $(BIN_DIR)/nvm2hl
+
+.PHONY: test-binary64-arithmetic-backends
+test-binary64-arithmetic-backends: nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_binary64_arithmetic_backends
 
 .PHONY: test-binary64-arithmetic
 test-binary64-arithmetic:
@@ -5046,3 +5050,7 @@ test-multiple-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 	./obj/test_multiple_consuming_preflight
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_refusals tests/nanoisa/test_multiple_consuming_refusals.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_multiple_consuming_calls
+
+# I rebuild scalar dispatch when its reviewed arithmetic policy changes.
+$(OBJ_DIR)/nanovm/vm.o: src/binary64_arithmetic.h
+$(OBJ_DIR)/nanovm/vm.o: CFLAGS += -ffp-contract=off -fno-fast-math

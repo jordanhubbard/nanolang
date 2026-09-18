@@ -299,10 +299,10 @@ instruction_families:
   float:
     - {name: f64.from-bits, meaning: "Copy an exact i64 bit pattern to f64 without arithmetic or NaN quieting.", operands: [], pops: [i64], pushes: [f64], ownership: none, justification: representation}
     - {name: f64.to-bits, meaning: "Copy exact f64 bits to a signed i64 bit pattern without arithmetic or NaN quieting.", operands: [], pops: [f64], pushes: [i64], ownership: none, justification: representation}
-    - {name: f64.add, meaning: "Add two floats.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
-    - {name: f64.sub, meaning: "Subtract the top float from the next.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
-    - {name: f64.mul, meaning: "Multiply two floats.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
-    - {name: f64.div, meaning: "Divide two floats.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
+    - {name: f64.add, meaning: "Add two binary64 floats with separate default rounding; canonicalize a NaN result to bits 0x7ff8000000000000.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
+    - {name: f64.sub, meaning: "Subtract the top binary64 float from the next with separate default rounding; canonicalize a NaN result to bits 0x7ff8000000000000.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
+    - {name: f64.mul, meaning: "Multiply two binary64 floats with separate default rounding; canonicalize a NaN result to bits 0x7ff8000000000000.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
+    - {name: f64.div, meaning: "Divide two binary64 floats with separate default rounding; either zero divisor returns positive zero first, otherwise canonicalize a NaN result to bits 0x7ff8000000000000.", operands: [], pops: [f64, f64], pushes: [f64], ownership: none, justification: core-semantics}
   memory:
     - {name: mem.load8, meaning: "Load 8 bits from memory, zero-extended to an integer.", operands: [offset, align], pops: [i64], pushes: [i64], ownership: none, justification: representation}
     - {name: mem.load16, meaning: "Load 16 bits from memory, zero-extended to an integer.", operands: [offset, align], pops: [i64], pushes: [i64], ownership: none, justification: representation}

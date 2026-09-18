@@ -185,7 +185,7 @@ returns positive zero before arithmetic, including a NaN numerator. Inputs,
 transport, comparisons and negation retain their existing bits/behavior.
 I require separate binary64 operations under the ordinary default rounding and
 gradual-underflow environment. This is an explicit semantic change under staged
-rollout: my shared C helper stage does not establish backend/source integration.
+rollout: my shared C helper and [backend qualification](evidence/binary64-arithmetic-backends.md) do not establish source-producer integration.
 My [policy and route inventory](NANOISA_BINARY64_ARITHMETIC_POLICY.md) records
 pending VM/native/LLVM/Wasm/source qualification and separate array obligations.
 

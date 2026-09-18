@@ -1,0 +1,54 @@
+{
+  "source": "ece589b5feefc0c2fb2f54a5b97e1ef8393e3290",
+  "files": {
+    "bin/nano_vm": "f2e33f74fef18412777834c0d21ead3346847e9055b31107b4f1d149931784c6",
+    "bin/nvm2c": "2ad40830cb1a0ce40de5c5e39b4af49e310e76a7e5c0b347e48998612b818733",
+    "bin/nvm2llvm": "89660a21978c833e9858ac5c9adde4e55c5e1474e77b2bc4e92a8b540356fce7",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bin/nanoisa": "857ab8538ad1305071b9121eadd1e3ec2ffec3b11bb1f4ec5af775854593a653",
+    "tests/test_binary64_arithmetic_backends.py": "31eca2e512209598c52a5dc41a2488ceffcb95720c5d4806cefcb93b0ce842c0",
+    "src/nanovm/vm.c": "b31e4e5baac0cf199f4ef08df985388440a52a7dfb42add9a6a79d5062f8b759",
+    "src/nanoisa/nvm2c.c": "62b27fac6f4da7efe67ac3f9bfee18b2f1135883ac4cee7c5efa9c3baee8dfc5",
+    "src/nanoisa/nvm2llvm.c": "08b0f5c8f4a2bb53c5a50d57870bca4f0f29f25455c190e8228430af30610779"
+  },
+  "final_harness": "6dbe6afa",
+  "final_files": {
+    "bin/nano_vm": "f2e33f74fef18412777834c0d21ead3346847e9055b31107b4f1d149931784c6",
+    "bin/nvm2c": "2ad40830cb1a0ce40de5c5e39b4af49e310e76a7e5c0b347e48998612b818733",
+    "bin/nvm2llvm": "89660a21978c833e9858ac5c9adde4e55c5e1474e77b2bc4e92a8b540356fce7",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bin/nanoisa": "857ab8538ad1305071b9121eadd1e3ec2ffec3b11bb1f4ec5af775854593a653",
+    "tests/test_binary64_arithmetic_backends.py": "e7f8ff79cbd5eb5accbe5840881e8f8a6b8ddfe2ff38242cdae81b34e1ca3dc8",
+    "src/nanovm/vm.c": "b31e4e5baac0cf199f4ef08df985388440a52a7dfb42add9a6a79d5062f8b759",
+    "src/nanoisa/nvm2c.c": "62b27fac6f4da7efe67ac3f9bfee18b2f1135883ac4cee7c5efa9c3baee8dfc5",
+    "src/nanoisa/nvm2llvm.c": "08b0f5c8f4a2bb53c5a50d57870bca4f0f29f25455c190e8228430af30610779",
+    "src/nanoisa/generated_schema.h": "913dc4380ec7db3447bc7f5b08cd577e716238bc900d639a6f8d8710c8bee336",
+    "bin/nano_vm_switch_arithmetic": "a6daa05d03b4173e4f856bf814634336b68ae5f63df905c288edbbad36cb94ef"
+  },
+  "logs": {
+    "/tmp/nanolang-binary64-arithmetic-backends-adjacent.log": "81f8040dfca905a757b3838ec06a6b02697d1d576b8bf62f08cf882d51769140",
+    "/tmp/nanolang-binary64-arithmetic-backends-build-corrected.log": "bb2a2d3ab7798e0facce209c9f722abbbd723f4293efb80da766a510f4f3e2c5",
+    "/tmp/nanolang-binary64-arithmetic-backends-build.log": "4f918424b84e46e74b94ab6ae51938191093c4d65dd4b65826131ed5aa905c90",
+    "/tmp/nanolang-binary64-arithmetic-backends-clang.log": "6f6ebbdef19cfcb13e74c55b0ba05978046d9aa05c52eb8afea880d4383ce034",
+    "/tmp/nanolang-binary64-arithmetic-backends-gcc.log": "4b542e11cdb57a04dc445c3ec4a1db9bd4e760b8903ad5dcce56d2b023ab343e",
+    "/tmp/nanolang-binary64-arithmetic-backends-native-suite.log": "3270ab68da0e29e10c837f7e62962c831538ada48e76f258d4da689931fb9d10",
+    "/tmp/nanolang-binary64-arithmetic-backends-switch.log": "b1beae5451a0ab79308f2177f3b450c4e4481e0d02c3a92b1683631817255479",
+    "/tmp/nanolang-binary64-arithmetic-backends-tags-clang-switch.log": "a8a1ce2e33b50045274cba1f750790c4133d6ab0fa51b778a0295c87bc10f89b",
+    "/tmp/nanolang-binary64-arithmetic-backends-tags-gcc.log": "073b17f1d596bfc9ce98fd80ccacda96df74fe5a9bbb35b39d57b68163bf5181",
+    "/tmp/nanolang-binary64-arithmetic-backends-vm-suite.log": "3d718a4bf8590a540ef9a9bd9a944d5a8e332647c4e9d3dedf3748dfdde23edc",
+    "/tmp/nanolang-binary64-arithmetic-switch-build.log": "6fd4bff1219101481d373a90888fe937d043b3d3dfe41aff24f2d481f897f5e3",
+    "/tmp/nanolang-binary64-arithmetic-vm-flags-build.log": "64c0035ab7ac1e468a740d46fc3c30a8d5e7e4075714118180c9dad96333f20c"
+  },
+  "immutable_producer_pin_not_used": {
+    "producer_source": "f87267c21a356424ce101060521ce841a5eb17bb",
+    "tools": {
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_c": "8c6c78de64845b723d2edf698e5639a5f22ba08254f3870cfc0394e5e6d8cb37",
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage1": "7cb4f38745e77e9a9d84b0e58ae6df5395b91f4e5502fad48da026433b555941",
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage2": "bae22e738d1bf2fb712870555e259d0985361ee2574e5d49d213b98ced0f2cba",
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nano_virt": "e7ca539d3b741ccbb23f948e433de8d5c4145282db35aaef7c1d2f6535705d53"
+    },
+    "libraries": {
+      "/lib/ld-linux-aarch64.so.1": "49005ef8e9db9a45691ff875e6ca18dd8723c7ec5c1a863a276a1186dbf22774"
+    }
+  }
+}

@@ -69,16 +69,31 @@ static void float_runtime(FILE *out) {
         "fp:\n %x = bitcast i64 %bits to double\n ret double %x\n"
         "scalar:\n %enum = icmp eq i8 %tag, 9\n %ordinal = select i1 %enum, i64 0, i64 %bits\n"
         " %answer = sitofp i64 %ordinal to double\n ret double %answer\n}\n"
+        "define internal double @float_result(double %value) {\n"
+        " %bits = bitcast double %value to i64\n"
+        " %exp = and i64 %bits, 9218868437227405312\n"
+        " %frac = and i64 %bits, 4503599627370495\n"
+        " %all_exp = icmp eq i64 %exp, 9218868437227405312\n"
+        " %payload = icmp ne i64 %frac, 0\n %nan = and i1 %all_exp, %payload\n"
+        " %result_bits = select i1 %nan, i64 9221120237041090560, i64 %bits\n"
+        " %answer = bitcast i64 %result_bits to double\n ret double %answer\n}\n"
         "define internal double @float_divide(double %a, double %b) {\nentry:\n"
-        " %zero = fcmp oeq double %b, 0.000000e+00\n br i1 %zero, label %z, label %divide\n"
-        "z:\n ret double 0.000000e+00\ndivide:\n %answer = fdiv double %a, %b\n ret double %answer\n}\n", out);
+        " %bits = bitcast double %b to i64\n %magnitude = and i64 %bits, 9223372036854775807\n"
+        " %zero = icmp eq i64 %magnitude, 0\n br i1 %zero, label %z, label %divide\n"
+        "z:\n ret double 0.000000e+00\ndivide:\n %raw = fdiv double %a, %b\n"
+        " %answer = call double @float_result(double %raw)\n ret double %answer\n}\n", out);
+    const char *operations[] = {"add", "sub", "mul"};
+    for (unsigned i = 0; i < 3; i++)
+        fprintf(out, "define internal double @float_%s(double %%a, double %%b) {\n"
+            " %%raw = f%s double %%a, %%b\n"
+            " %%answer = call double @float_result(double %%raw)\n ret double %%answer\n}\n",
+            operations[i], operations[i]);
 }
 /* I inspect both tags before promotion; cast_floating alone also accepts
  * nonnumeric scalar tags and is therefore not an arithmetic eligibility test. */
 static void numeric_runtime(FILE *out) {
     const char *names[] = {"add", "sub", "mul", "div"};
     const char *integer_ops[] = {"add", "sub", "mul"};
-    const char *float_ops[] = {"fadd", "fsub", "fmul"};
     for (unsigned op = 0; op < 4; op++) {
         fprintf(out, "define internal %%V @numeric_%s(%%V %%original_a, %%V %%original_b) {\nentry:\n", names[op]);
         fputs(" %a = call %V @enum_integer(%V %original_a)\n"
@@ -98,7 +113,7 @@ static void numeric_runtime(FILE *out) {
               " %fx = call double @cast_floating(%V %a)\n"
               " %fy = call double @cast_floating(%V %b)\n", out);
         if (op == 3) fputs(" %fr = call double @float_divide(double %fx, double %fy)\n", out);
-        else fprintf(out, " %%fr = %s double %%fx, %%fy\n", float_ops[op]);
+        else fprintf(out, " %%fr = call double @float_%s(double %%fx, double %%fy)\n", names[op]);
         fputs(" %bits = bitcast double %fr to i64\n"
               " %fv = insertvalue %V zeroinitializer, i64 %bits, 0\n"
               " %result_float = insertvalue %V %fv, i8 3, 1\n ret %V %result_float\n}\n", out);
@@ -598,7 +613,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             if (ins.opcode != OP_F64_NEG) fprintf(out, " %%p%u_y = call double @floating(%%V %%p%u_b)\n", pc, pc);
             const char *op = NULL, *cmp = NULL;
             switch (ins.opcode) {
-            case OP_F64_ADD: op="fadd"; break; case OP_F64_SUB: op="fsub"; break; case OP_F64_MUL: op="fmul"; break;
+            case OP_F64_ADD: op="add"; break; case OP_F64_SUB: op="sub"; break; case OP_F64_MUL: op="mul"; break;
             case OP_F64_EQ: cmp="oeq"; break; case OP_F64_NE: cmp="une"; break;
             case OP_F64_LT: cmp="olt"; break; case OP_F64_LE: cmp="ole"; break;
             case OP_F64_GT: cmp="ogt"; break; case OP_F64_GE: cmp="oge"; break;
@@ -607,7 +622,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             if (cmp) {
                 fprintf(out, " %%p%u_cmp = fcmp %s double %%p%u_x, %%p%u_y\n %%p%u_result = zext i1 %%p%u_cmp to i64\n", pc, cmp, pc, pc, pc, pc);
             } else {
-                if (op) fprintf(out, " %%p%u_fp = %s double %%p%u_x, %%p%u_y\n", pc, op, pc, pc);
+                if (op) fprintf(out, " %%p%u_fp = call double @float_%s(double %%p%u_x, double %%p%u_y)\n", pc, op, pc, pc);
                 else if (ins.opcode == OP_F64_NEG) fprintf(out, " %%p%u_fp = fneg double %%p%u_x\n", pc, pc);
                 else fprintf(out, " %%p%u_fp = call double @float_divide(double %%p%u_x, double %%p%u_y)\n", pc, pc, pc);
                 fprintf(out, " %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc);
