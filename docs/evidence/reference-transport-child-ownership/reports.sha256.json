@@ -20,5 +20,18 @@
   "gcc/environment.json": "6cc96f67d3d725d0fa92dff480f9ada62ebde5fc846b9fd295f9c5a9aeab0f0b",
   "gcc/result.json": "a51698a1f5cf794964010f82a6c895072608589367eec43f3b189581d8b1a45e",
   "gcc/suite.log": "ac198b5e6c87597e46a275386b60ddf61f031eb928907ab76ca0189f74adff10",
+  "integrated/darwin/after.json": "571cd86daba3369360fc71aa3f98530fa7b2848d3d431f23b9ec337771c387b2",
+  "integrated/darwin/before.json": "571cd86daba3369360fc71aa3f98530fa7b2848d3d431f23b9ec337771c387b2",
+  "integrated/darwin/gate.log": "e5e98933f50c16c9cf950fff0c240ad7a9c5af0ae3f799c5daef95b243c5ec69",
+  "integrated/darwin/result.json": "d908b2d799727f7b274feab5835aa17133a53e3532f57e0abeb0cbbe2e3f89e8",
+  "integrated/darwin/tools-after.json": "8bc17f17938f891e72baadf2616d39c25800600f95991b5e100d01713c5f5f0a",
+  "integrated/darwin/tools.json": "1056060dcbf1b9a5addcfb51e3b649e44836f0bdece52f8f54d1d729e288df2f",
+  "integrated/linux/after.json": "571cd86daba3369360fc71aa3f98530fa7b2848d3d431f23b9ec337771c387b2",
+  "integrated/linux/before.json": "571cd86daba3369360fc71aa3f98530fa7b2848d3d431f23b9ec337771c387b2",
+  "integrated/linux/gate.log": "90a9550030e0e4a602890981b8abaf029eba12da08b251e52d8c08a5de87701e",
+  "integrated/linux/result.json": "07b9698fcb1c5a7ffae602a9d5c812dcab3b7fda04e538b72a1eebfea95cc9ad",
+  "integrated/linux/tools-after.json": "8b1749aca393af74cf607f5eb4774e13679daed90c46bbe5cf9e37865fd9eb48",
+  "integrated/linux/tools.json": "a8977a81e772cb6323b89f8dde0a66360e379831d78e9d499536dd3d7fce1aeb",
+  "integrated/runner.py": "432af54e04968e92cd88050ec776362de96187f8331511bfceed63c23ef993c0",
   "runner.py": "107a1a9ad0ee2455767c3a9c1ce69f639e447285aa40c41d6392e5cdd69b05db"
 }

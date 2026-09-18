@@ -1,0 +1,21 @@
+{
+  "head": "c0a433ce7c58e6dcee9dee93614d54fd87ace367",
+  "status": 0,
+  "seconds": 9.346718499902636,
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "command": [
+    "make",
+    "-j8",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "test-nanocore"
+  ],
+  "native_test_cc": "/opt/homebrew/opt/llvm/bin/clang",
+  "uname": [
+    "Darwin",
+    "CXWWHGGJX0",
+    "25.6.0",
+    "Darwin Kernel Version 25.6.0: Fri Jul 31 19:17:26 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6041",
+    "arm64"
+  ]
+}
