@@ -10,6 +10,7 @@
 
 #include "verifier.h"
 #include "managed_array_shapes.h"
+#include "managed_record_shapes.h"
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
@@ -1086,8 +1087,10 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
-    if (m->import_count || m->module_ref_count || m->struct_count || m->union_count ||
-        m->ownership_size || m->passive_size || m->layout_size)
+    const bool record_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS &&
+        (m->struct_count || m->layout_size || m->ownership_size);
+    if (m->import_count || m->module_ref_count || m->union_count || m->passive_size ||
+        (!record_profile && (m->struct_count || m->ownership_size || m->layout_size)))
         return fail("I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
     if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
         return fail("I require an explicit executable entry point");
@@ -1113,14 +1116,14 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         }
         if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
             (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_ENUM || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT ||
-             (literal_profile && f->result_tag == TAG_STRING) || (managed_profile && f->result_tag == TAG_ARRAY)))))
+             (literal_profile && f->result_tag == TAG_STRING) || (managed_profile && f->result_tag == TAG_ARRAY) || (record_profile && f->result_tag == TAG_STRUCT)))))
             return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
         has_strings |= f->result_count && f->result_tag == TAG_STRING;
         for (uint16_t p = 0; p < f->arity; ++p) {
             if (!m->function_param_types || !m->function_param_types[i]) continue;
             uint8_t tag = m->function_param_types[i][p];
             has_strings |= tag == TAG_STRING;
-            if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING) && !(managed_profile && tag == TAG_ARRAY))
+            if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING) && !(managed_profile && tag == TAG_ARRAY) && !(record_profile && tag == TAG_STRUCT))
                 return fail("I require admitted closed-profile parameters in function %u", i);
         }
         for (uint32_t pc = 0; pc < f->code_length;) {
@@ -1135,13 +1138,18 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                               ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
                               (managed_profile && (ins.opcode == OP_ARR_LITERAL || ins.opcode == OP_ARR_SLICE || ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH || ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP || ins.opcode == OP_STR_SPLIT || ins.opcode == OP_ARR_GET || ins.opcode == OP_ARR_LEN || ins.opcode == OP_STR_REPLACE || ins.opcode == OP_STR_FROM_INT || ins.opcode == OP_STR_FROM_FLOAT || ins.opcode == OP_STR_TO_LOWER || ins.opcode == OP_STR_TO_UPPER || ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
                                ins.opcode == OP_STR_CONTAINS || ins.opcode == OP_STR_STARTS_WITH || ins.opcode == OP_STR_ENDS_WITH)));
-            if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            bool record_op = record_profile && (ins.opcode == OP_STRUCT_NEW ||
+                ins.opcode == OP_STRUCT_LITERAL || ins.opcode == OP_STRUCT_GET ||
+                ins.opcode == OP_STRUCT_SET || ins.opcode == OP_AGG_PACK ||
+                ins.opcode == OP_AGG_GET || ins.opcode == OP_AGG_SET);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }
-    if (mutable_arrays) {
-        int graph_required = 0;
-        NvmArrayEligibilityResult arrays = nvm_select_managed_array_mode(m, &graph_required);
+    if (mutable_arrays || record_profile) {
+        NvmManagedHeapPlan *plan = NULL;
+        NvmArrayEligibilityResult arrays = nvm_select_managed_heap(m, mutable_arrays, &plan);
+        nvm_managed_heap_plan_free(plan);
         if (arrays.status != NVM_ARRAY_ELIGIBLE)
             return fail("I cannot establish mutable array eligibility (status %u) at function %u offset %u: %s",
                         (unsigned)arrays.status, arrays.function, arrays.pc, arrays.message);

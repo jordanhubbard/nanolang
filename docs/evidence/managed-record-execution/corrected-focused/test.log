@@ -1,0 +1,15 @@
+test_selector_atomicity (tests.test_llvm_managed_records.HeapSelector.test_selector_atomicity) ... ok
+test_allocation_pressure_acquired_failure_and_nested_begin (tests.test_llvm_managed_records.ManagedRecords.test_allocation_pressure_acquired_failure_and_nested_begin) ... ok
+test_committed_global_survives_allocation_failure_reentry (tests.test_llvm_managed_records.ManagedRecords.test_committed_global_survives_allocation_failure_reentry) ... ok
+test_exact_scalar_payloads_counted_constructors_and_empty_identity (tests.test_llvm_managed_records.ManagedRecords.test_exact_scalar_payloads_counted_constructors_and_empty_identity) ... ok
+test_generic_consumers_identity_casts_order_and_branches (tests.test_llvm_managed_records.ManagedRecords.test_generic_consumers_identity_casts_order_and_branches) ... ok
+test_global_identity_initializer_reentry_and_failure_cleanup (tests.test_llvm_managed_records.ManagedRecords.test_global_identity_initializer_reentry_and_failure_cleanup) ... ok
+test_nested_aliases_get_temporary_set_and_reordered_calls (tests.test_llvm_managed_records.ManagedRecords.test_nested_aliases_get_temporary_set_and_reordered_calls) ... ok
+test_receiver_error_families_and_counted_failure_inputs (tests.test_llvm_managed_records.ManagedRecords.test_receiver_error_families_and_counted_failure_inputs) ... ok
+test_unknown_wrong_nominal_and_mixed_edges_preserve_output (tests.test_llvm_managed_records.ManagedRecords.test_unknown_wrong_nominal_and_mixed_edges_preserve_output) ... ok
+test_weak_site_churn_and_independent_array_cycles (tests.test_llvm_managed_records.ManagedRecords.test_weak_site_churn_and_independent_array_cycles) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 20.120s
+
+OK

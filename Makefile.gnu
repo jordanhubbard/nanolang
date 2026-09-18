@@ -4662,6 +4662,11 @@ test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_profiles tests/nanoisa/test_verifier_profiles.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest -v tests.test_verifier_profiles
 
+.PHONY: test-llvm-managed-records
+test-llvm-managed-records: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
+
 .PHONY: test-llvm-generic-numeric
 test-llvm-generic-numeric: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/generic_numeric_bits tests/nanoisa/generic_numeric_bits.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)

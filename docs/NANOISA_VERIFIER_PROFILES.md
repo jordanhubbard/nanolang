@@ -22,7 +22,7 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   ADD/CAST_INT/CAST_FLOAT anywhere in a string-bearing module. The existing
   CLOSED_SCALAR selector continues to refuse strings. Details and lifetime are
   in `NANOISA_LLVM_LITERAL_STRINGS.md`.
-- `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains those closed module rules and
+- `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains closed import/capture restrictions and
   adds matched managed string operations/conversions and string/numeric ADD.
   My split extension admits string-child arrays through STR_SPLIT, ARR_GET/LEN
   and array signatures. My bounded mutable extension adds ARR_NEW/PUSH/SET/POP
@@ -40,7 +40,13 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   `NANOISA_MANAGED_GRAPH_ADMISSION.md` defines the matched LLVM/Wasm boundary.
   Deferred analysis transfers and unsupported packed coercions still refuse
   publication; runtime type, bounds and ownership checks remain mandatory.
-  Other heap/import exclusions remain.
+  My ordinary-record extension requires both checked ORDINARY prior-order
+  COMPLETE descriptors and the unchanged field-origin query. Only that selected
+  mode admits STRUCT signatures and matched record constructors/GET/SET, with
+  descriptor binding, counted temporaries and prepared collection. Unknown,
+  resource, forward and mixed record-array layouts remain refused. I specify
+  this conjunction in `NANOISA_MANAGED_RECORD_EXECUTION.md`; advisory metadata
+  alone grants no admission. Other heap/import exclusions remain.
   Details are in `NANOISA_MANAGED_MUTABLE_ARRAYS.md`. Ownership and
   errors follow `NANOISA_LLVM_MANAGED_STRINGS.md`.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary

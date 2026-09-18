@@ -1,0 +1,20 @@
+{
+  "head": "d3761cd6c9082a81920209d1cae69a1a09ebbfe6",
+  "tests": [
+    "tests.test_llvm_managed_strings",
+    "tests.test_llvm_managed_decimal",
+    "tests.test_llvm_managed_format",
+    "tests.test_llvm_managed_predicates",
+    "tests.test_llvm_managed_trim",
+    "tests.test_llvm_managed_character",
+    "tests.test_llvm_managed_case",
+    "tests.test_llvm_managed_primitive_format",
+    "tests.test_llvm_managed_replace",
+    "tests.test_llvm_managed_split",
+    "tests.test_llvm_managed_mutable_arrays",
+    "tests.test_llvm_managed_array_copies",
+    "tests.test_llvm_managed_graphs"
+  ],
+  "status": 0,
+  "seconds": 94.14883987099165
+}
