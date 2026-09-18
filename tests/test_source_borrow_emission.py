@@ -1574,5 +1574,74 @@ shadow main { assert (== (main) 0) }
                     self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact|earlier')
 
 
+    def nested_owner_result_source(self):
+        return '''resource struct Leaf { value: int }
+struct Inner { leaf: Leaf, yes: bool }
+struct Outer { inner: Inner, extra: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn make(flag: bool) -> Outer {
+    let leaf: Leaf = Leaf { value: (scalar 7 "A") }
+    let inner: Inner = Inner { leaf: leaf, yes: true }
+    let owner: Outer = Outer { inner: inner, extra: (scalar 9 "B") }
+    if flag { return owner } else { return owner }
+}
+shadow make { assert true }
+fn relay(owner: Outer) -> Outer { return owner }
+shadow relay { assert true }
+fn take(owner: Outer) -> int {
+    let Outer { inner, extra } = owner
+    let Inner { leaf, yes } = inner
+    let Leaf { value } = leaf
+    assert yes
+    return (+ value extra)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 2) {
+        let owner: Outer = (relay (make (== index 0)))
+        assert (== (take owner) 16)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_nested_owner_results_preserve_exact_transfer_and_order(self):
+        baseline, shadows = self.graph_positive('nested-owner-results', self.nested_owner_result_source(), b'ABAB', b'ABAB')
+        self.assertIn('.parameters 3 struct', baseline)
+        self.assertIn('struct 1', baseline)
+        self.assertGreaterEqual(shadows.count('OWN_UNPACK_LOCAL'), 3)
+
+    def test_nested_owner_result_refusals_preserve_output(self):
+        base = self.nested_owner_result_source()
+        cases = {
+            'wrong_result': base.replace('if flag { return owner } else { return owner }',
+                'if flag { return 7 } else { return owner }'),
+            'same_shape_nominal': base.replace('struct Outer',
+                'struct Other { inner: Inner, extra: int }\nstruct Outer', 1)
+                .replace('let owner: Outer = Outer', 'let owner: Other = Other', 1),
+            'unconsumed_sibling': base.replace('if flag { return owner }',
+                'let sibling: Leaf = Leaf { value: 99 }\n    if flag { return owner }', 1),
+            'use_after_transfer': base.replace('assert (== (take owner) 16)',
+                'assert (== (take owner) 16)\n        assert (== (take owner) 16)'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('nested-result-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'nested-result-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|owned|resource|nominal|field|type|expected|exact|consum|live|move')
+
+
 if __name__ == '__main__':
     unittest.main()
