@@ -10983,4 +10983,4 @@ Next Review: the exact release candidate and its published artifacts.
 - [x] I check the VM float-print range before integer conversion (`task_e48563e1f62c4bd89648596c8c55849b`), retaining integral formatting and passing nonfinite/extreme float-cast-overflow checks on Linux and Darwin ([evidence](evidence/signed-nan-format.md)).
 - [ ] I retain ownership-query allocation versus malformed-input diagnostic ambiguity as a follow-up (task_31682d93fc3d4647bb1c1523c9c68eab). The record adapter conservatively returns UNRESOLVED; this does not weaken validation or add a release gate.
 
-- [ ] I preserve generated C shadow dollar identifiers through canonical assembly (task_bda9ec8435ab48a4b3cd21002a0002cd; [contract](NANOISA_SHADOW_IDENTIFIERS.md)); exact names, calls, signatures and two-cycle transport remain unchanged.
+- [x] I preserve generated C shadow dollar identifiers through canonical assembly (task_bda9ec8435ab48a4b3cd21002a0002cd; [contract](NANOISA_SHADOW_IDENTIFIERS.md)); exact names, calls, signatures and two-cycle transport remain unchanged.
