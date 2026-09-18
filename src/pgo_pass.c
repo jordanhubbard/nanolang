@@ -248,6 +248,8 @@ static ASTNode *clone_node(ASTNode *src) {
             if (src->as.match_expr.arm_count > 0) {
                 dst->as.match_expr.arm_bodies = clone_nodes(
                     src->as.match_expr.arm_bodies, src->as.match_expr.arm_count);
+                dst->as.match_expr.guard_exprs = clone_nodes(
+                    src->as.match_expr.guard_exprs, src->as.match_expr.arm_count);
             }
             break;
         case AST_HANDLE_EXPR:
@@ -330,9 +332,13 @@ static void substitute_params(ASTNode *node, char **params, int pcount,
             break;
         case AST_MATCH:
             substitute_params(node->as.match_expr.expr, params, pcount, args);
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (node->as.match_expr.guard_exprs)
+                    substitute_params(node->as.match_expr.guard_exprs[i],
+                                      params, pcount, args);
                 substitute_params(node->as.match_expr.arm_bodies[i],
                                    params, pcount, args);
+            }
             break;
         default:
             break;
@@ -482,8 +488,11 @@ static void walk_inline(InlineCtx *ctx, ASTNode *node) {
             break;
         case AST_MATCH:
             walk_inline(ctx, node->as.match_expr.expr);
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (node->as.match_expr.guard_exprs)
+                    walk_inline(ctx, node->as.match_expr.guard_exprs[i]);
                 walk_inline(ctx, node->as.match_expr.arm_bodies[i]);
+            }
             break;
         case AST_HANDLE_EXPR:
             walk_inline(ctx, node->as.handle_expr.body);

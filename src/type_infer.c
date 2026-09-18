@@ -1292,6 +1292,13 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
             infer_expr(ctx, env, node->as.match_expr.expr);
             HMType *res = hm_tv_fresh(ctx);
             for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                ASTNode *guard = node->as.match_expr.guard_exprs
+                    ? node->as.match_expr.guard_exprs[i] : NULL;
+                if (guard) {
+                    HMType *guard_t = infer_expr(ctx, env, guard);
+                    if (guard_t) hm_unify(ctx, guard_t, hm_con_type(ctx, "bool"),
+                                          guard->line, guard->column);
+                }
                 HMType *arm_t = infer_expr(ctx, env, node->as.match_expr.arm_bodies[i]);
                 if (arm_t) hm_unify(ctx, res, arm_t,
                                      node->as.match_expr.arm_bodies[i]->line,

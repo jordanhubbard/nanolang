@@ -219,6 +219,59 @@ TEST(apply_skips_indirect_call) {
     pgo_profile_free(p);
 }
 
+TEST(apply_clones_and_substitutes_match_guards) {
+    static Parameter parameter = { "predicate", TYPE_BOOL, NULL, TYPE_BOOL, NULL, NULL };
+    ASTNode *guard = make_ident("predicate");
+    ASTNode *scrutinee = make_num(0);
+    ASTNode *arm_body = make_num(1);
+    ASTNode **guards = calloc(1, sizeof(ASTNode *));
+    ASTNode **arm_bodies = calloc(1, sizeof(ASTNode *));
+    guards[0] = guard;
+    arm_bodies[0] = arm_body;
+
+    ASTNode *match = calloc(1, sizeof(ASTNode));
+    match->type = AST_MATCH;
+    match->as.match_expr.expr = scrutinee;
+    match->as.match_expr.arm_count = 1;
+    match->as.match_expr.guard_exprs = guards;
+    match->as.match_expr.arm_bodies = arm_bodies;
+
+    ASTNode *ret = make_return(match);
+    ASTNode **fn_stmts = calloc(1, sizeof(ASTNode *));
+    fn_stmts[0] = ret;
+    ASTNode *fn = calloc(1, sizeof(ASTNode));
+    fn->type = AST_FUNCTION;
+    fn->as.function.name = "guarded";
+    fn->as.function.params = &parameter;
+    fn->as.function.param_count = 1;
+    fn->as.function.body = make_block(fn_stmts, 1);
+
+    ASTNode **args = calloc(1, sizeof(ASTNode *));
+    args[0] = make_num(1);
+    ASTNode *call = make_call("guarded", args, 1);
+    ASTNode **items = calloc(2, sizeof(ASTNode *));
+    items[0] = fn;
+    items[1] = call;
+    ASTNode *program = make_program(items, 2);
+
+    const char *prof_path = write_prof("guarded 10000\n");
+    PGOProfile *profile = pgo_load_profile_threshold(prof_path, 1);
+    ASSERT(profile);
+    ASSERT(pgo_apply(program, profile) == 1);
+    ASSERT(call->type == AST_BLOCK);
+    ASTNode *cloned_return = call->as.block.statements[0];
+    ASSERT(cloned_return && cloned_return->type == AST_RETURN);
+    ASTNode *cloned_match = cloned_return->as.return_stmt.value;
+    ASSERT(cloned_match && cloned_match->type == AST_MATCH);
+    ASSERT(cloned_match->as.match_expr.guard_exprs != guards);
+    ASSERT(cloned_match->as.match_expr.guard_exprs[0] != guard);
+    ASSERT(cloned_match->as.match_expr.guard_exprs[0]->type == AST_NUMBER);
+    ASSERT(cloned_match->as.match_expr.guard_exprs[0]->as.number == 1);
+    ASSERT(guard->type == AST_IDENTIFIER);
+    ASSERT(strcmp(guard->as.identifier, "predicate") == 0);
+    pgo_profile_free(profile);
+}
+
 TEST(load_empty_profile) {
     const char *prof_path = write_prof("");
     PGOProfile *p = pgo_load_profile(prof_path);
@@ -243,6 +296,7 @@ int main(void) {
     RUN(apply_skips_cold_call);
     RUN(apply_skips_arity_mismatch);
     RUN(apply_skips_indirect_call);
+    RUN(apply_clones_and_substitutes_match_guards);
     RUN(load_empty_profile);
     RUN(load_missing_profile);
     printf("\n");

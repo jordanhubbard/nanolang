@@ -436,6 +436,38 @@ void test_infer_for_lsp_and_free(void) {
     hm_infer_result_free(&result);
 }
 
+void test_infer_match_guard_requires_bool(void) {
+    ASTNode scrutinee;
+    ASTNode guard;
+    ASTNode body;
+    ASTNode match;
+    ASTNode *guards[1];
+    ASTNode *bodies[1];
+    memset(&scrutinee, 0, sizeof(scrutinee));
+    memset(&guard, 0, sizeof(guard));
+    memset(&body, 0, sizeof(body));
+    memset(&match, 0, sizeof(match));
+
+    scrutinee.type = AST_NUMBER;
+    guard.type = AST_NUMBER;
+    body.type = AST_NUMBER;
+    guards[0] = &guard;
+    bodies[0] = &body;
+    match.type = AST_MATCH;
+    match.as.match_expr.expr = &scrutinee;
+    match.as.match_expr.arm_count = 1;
+    match.as.match_expr.guard_exprs = guards;
+    match.as.match_expr.arm_bodies = bodies;
+
+    suppress_stderr();
+    bool ok = hm_infer_program(&match, "match-guard.nano");
+    restore_stderr();
+    ASSERT(!ok);
+
+    guard.type = AST_BOOL;
+    ASSERT(hm_infer_program(&match, "match-guard-control.nano"));
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -487,6 +519,7 @@ int main(void) {
     TEST(infer_empty_program);
     TEST(infer_with_effects);
     TEST(infer_for_lsp_and_free);
+    TEST(infer_match_guard_requires_bool);
 
     printf("\n✓ All type inference tests passed!\n");
     return 0;
