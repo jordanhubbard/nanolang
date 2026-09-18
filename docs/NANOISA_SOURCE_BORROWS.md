@@ -4,7 +4,7 @@ I implement a first paired ordinary-source NanoISA borrow producer under task_ed
 
 ## My bounded source profile
 
- finite non-generic resource records whose declared fields are int or bool scalars, one zero-argument int-returning main entry and one directly called nonrecursive int/bool-result helper with one explicit &T or &mut T parameter. No globals, runtime initializers, imports, passive blocks, callbacks, deeper calls, aggregate results, escaping/stored references or heap fields. Borrow arguments initially name a local root; nested paths and multiple parameters follow separate acceptance. Ordinary scalar locals/expressions and direct borrowed field reads/exclusive writes retain existing source checks.
+I admit finite non-generic resource records whose declared fields are int or bool scalars, one zero-argument int-returning main entry and one directly called nonrecursive int/bool-result helper with one explicit &T or &mut T parameter. No globals, runtime initializers, imports, passive blocks, callbacks, deeper calls, aggregate results, escaping/stored references or heap fields. Borrow arguments initially name a local root; nested paths and multiple parameters follow separate acceptance. Ordinary scalar locals/expressions and direct borrowed field reads/exclusive writes retain existing source checks.
 
 ## My retained identity and execution
 
@@ -12,11 +12,11 @@ I derive nominal IDs from the resolved declaration identity, preserving same-sha
 
 ## My mandatory shadows
 
- every selected shadow is lowered into a synthetic entry plus the same single helper. A selected shadow graph requiring main/additional helpers is explicitly refused before publication in this bounded profile. ASSERT support in the owned verifier/runtime/native path is an immediate separate prerequisite; I do not erase assertions or reinterpret failed shadows as success. Runtime multi-parameter work task_7a2c8017c0c04b82a48ba069561e9d36 is owned by release_audit and uses unchanged CALL_REF plus contiguous descriptor slots; my initial source slice remains one parameter.
+I lower every selected shadow is lowered into a synthetic entry plus the same single helper. A selected shadow graph requiring main/additional helpers is explicitly refused before publication in this bounded profile. ASSERT support in the owned verifier/runtime/native path is an immediate separate prerequisite; I do not erase assertions or reinterpret failed shadows as success. Runtime multi-parameter work task_7a2c8017c0c04b82a48ba069561e9d36 is owned by release_audit and uses unchanged CALL_REF plus contiguous descriptor slots; my initial source slice remains one parameter.
 
 ## My acceptance
 
- C-seed and Stage1/Stage2 selfhost emitters retain matching canonical metadata/instructions; ordinary source demonstrates repeated shared reads, caller-visible exclusive mutation and post-call owner consumption; serialized modules verify and execute unchanged in VM and native. All selected passing/failing shadows execute through normal supervision and failures preserve old output. Existing source ownership/borrow refusal corpus stays unchanged. Unsupported shapes remain explicit refusal, and full affine/borrow parents remain open.
+My C-seed and Stage1/Stage2 selfhost emitters retain matching canonical metadata/instructions; ordinary source demonstrates repeated shared reads, caller-visible exclusive mutation and post-call owner consumption; serialized modules verify and execute unchanged in VM and native. All selected passing/failing shadows execute through normal supervision and failures preserve old output. Existing source ownership/borrow refusal corpus stays unchanged. Unsupported shapes remain explicit refusal, and full affine/borrow parents remain open.
 
 My source child is `task_5057848888b246f686fd2b8e48d2c19a`. My immediate assertion prerequisite is `task_f259c8fa53c945e6a990f112dc9415c1`. Scalar-only owner disposal releases the owned record shell and discards each scalar field; it does not call an invented resource destructor or extend this profile to service handles.
 
