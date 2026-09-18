@@ -4,6 +4,15 @@
 static const unsigned char text[] = {'x',0,'y'};
 static const NmsView literals[] = {{text,3}};
 int nms_prepared_roots(void) {
+    uint64_t marks,queue,size;
+    CHECK(collection_layout(0,&marks,&queue,&size) && marks==8 && queue==12 && size==16);
+    CHECK(collection_layout(8,&marks,&queue,&size) && marks==72 && queue==84 && size==120);
+#ifdef __wasm32__
+    CHECK(!collection_layout(UINT32_MAX,&marks,&queue,&size));
+#else
+    CHECK(collection_layout(UINT32_MAX,&marks,&queue,&size));
+    CHECK(size==UINT64_C(55834574848) && !(queue&3));
+#endif
     NmsRuntime r; nms_init(&r,literals,1);
     CHECK(nms_collect_prepared(&r)==NMS_STATE);
     CHECK(nms_prepare_collection(&r)==NMS_OK);
