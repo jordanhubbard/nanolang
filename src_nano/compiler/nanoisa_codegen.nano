@@ -768,6 +768,7 @@ shadow nisa_union_arguments {
 }
 
 fn nisa_union_index(parser: Parser, name: string) -> int {
+    if (== (parser_get_union_count parser) 0) { return -1 }
     let base: string = (nisa_union_base name)
     let mut found: int = -1
     let mut i: int = 0
@@ -1021,6 +1022,20 @@ shadow nisa_emit_union_context {
     assert (str_contains (nisa_emit_union_context p 0 "Box<int>") "AGG_PACK 1 0 0 1")
     let _: int = (nisa_reset)
     assert (== (nisa_emit_union_context p 0 "Box<string>") "")
+    assert (not nisa_ok)
+    let _: int = (nisa_reset)
+    # My parser syntax continuation is separate; this valid internal AST retains
+    # explicit arguments even when an empty variant cannot expose them by value.
+    let explicit: ASTUnionConstruct = ASTUnionConstruct {
+        node_type: ParseNodeType.PNODE_UNION_CONSTRUCT, line: 1, column: 1,
+        union_name: "Box<string>", variant_name: "None", field_names: [],
+        field_value_ids: [], field_value_types: [], field_count: 0
+    }
+    let id: int = (parser_get_union_construct_count p)
+    (list_ASTUnionConstruct_push p.union_constructs explicit)
+    assert (str_contains (nisa_emit_union_context p id "Box<string>") "AGG_PACK 1 0 1 0")
+    let _: int = (nisa_reset)
+    assert (== (nisa_emit_union_context p id "Box<int>") "")
     assert (not nisa_ok)
     let _: int = (nisa_reset)
 }
