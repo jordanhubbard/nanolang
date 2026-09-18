@@ -37,6 +37,12 @@ function descriptor, ownership descriptor and actual operand agree on
 edge is checked before execution. Runtime tag checks remain defensive; a tag
 does not invent lifetime or layout authority.
 
+The existing `borrow_tag` and `nb_tag` summaries also participate in record
+field eligibility. I therefore keep string parameter acceptance separate from
+the INT and BOOL resource-leaf guards. Admitting `TAG_STRING` for a parameter
+does not make a string an eligible resource field, and the shared summaries
+must not widen that field rule as a side effect.
+
 ## My bounded admission
 
 I add these cases to the owned value-call graph and no others:
@@ -85,6 +91,12 @@ does not claim durable I/O. Rejecting embedded NUL keeps these exact native
 bytes consistent with the current VM printer rather than silently choosing a
 new language-wide string-output rule.
 
+Each host `PRINT` or `PRINTLN` trap invalidates the current invocation proof
+before execution resumes. The public execution loop may re-establish that
+proof only through the existing checked-resume path. A lower-level core caller
+still owns and must release the trapped VM value on every handled or abandoned
+trap path; invalidating the proof does not transfer or erase that obligation.
+
 At a call, the caller prepares every argument before activation. A string view
 is copied into the callee's corresponding parameter carrier and the prepared
 caller slot is cleared with the rest of the transferred arguments. On normal
@@ -109,8 +121,10 @@ artifact. Positive cases cover:
 - repeated execution through `vm_invoke`, `vm_execute`, `vm_call_function`
   and `vm_invoke_callable` with unchanged module-constant ownership; and
 - generated native execution under strict GCC and Clang with ASan and UBSan.
-  Linux keeps leak detection where supported. Darwin uses explicit live-root
-  counters with ASan/UBSan rather than requesting unsupported Apple LSan.
+  Linux keeps leak detection where supported. The required Darwin gate uses
+  available Homebrew LLVM with LeakSanitizer enabled. Apple Clang may provide
+  optional additional ASan/UBSan evidence with explicit live-root counters;
+  its unsupported LeakSanitizer runtime does not replace the required gate.
 
 I exercise allocation failure at each separately injectable VM setup or frame
 site reached by these modules. I name the observed sites; I do not call the
