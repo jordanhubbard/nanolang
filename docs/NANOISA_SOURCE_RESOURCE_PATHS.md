@@ -12,7 +12,9 @@ and implicit source drops remain refused.
 For each branch I retain the resulting liveness and pending-disposal facts of
 incoming owner slots. If both arms continue, those facts must match exactly.
 If only one arm continues, I select its facts. A returning arm contributes no
-join state. A missing else retains incoming facts. Scalar initialization still
+join state. I sequence the reaching-path test before invoking an effectful
+ownership comparison; I do not rely on Boolean short-circuit lowering.
+A missing else retains incoming facts. Scalar initialization still
 uses the existing verifier meet; I do not use it to weaken ownership.
 
 A continuing loop body must restore every incoming owner fact before its
