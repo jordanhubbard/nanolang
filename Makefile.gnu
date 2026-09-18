@@ -5071,3 +5071,9 @@ test-owned-value-graphs: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) 
 # I rebuild scalar dispatch when its reviewed arithmetic policy changes.
 $(OBJ_DIR)/nanovm/vm.o: src/binary64_arithmetic.h
 $(OBJ_DIR)/nanovm/vm.o: CFLAGS += -ffp-contract=off -fno-fast-math
+
+.PHONY: test-owned-result-descriptors
+test-units: test-owned-result-descriptors
+test-owned-result-descriptors: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_descriptors tests/nanoisa/test_owned_result_descriptors.c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	./obj/test_owned_result_descriptors
