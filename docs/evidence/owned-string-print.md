@@ -2,10 +2,12 @@
 
 I implemented `task_badd6be9c31a6e2eac810b95913b4f84` on branch
 `feat/owned-string-print-runtime`. After rebasing without conflict onto
-canonical main `dd99573e29db07190c491841ab65803d166589bd`, my production-only
-checkpoint is `ab0f0953ac235aeda198ca0a565d4621544c2830`; my tested checkpoint is
-`7a0a39fa98094daee133e297ec34e0fe162f6fe0`. Both are pushed. I leave the
-roadmap item open until the production change receives independent review.
+canonical main `44ad5f69`, my review-correction checkpoint is
+`f7a66804f718ab34983e2aa94a433a4b6c36a31f`. The earlier `ae4b064c`
+production snapshot is superseded: it retained two positional initializers
+from the two-field carrier. The corrected checkpoint has no positional
+`nown_value` initializer. I leave the roadmap item open until the production
+change receives independent review.
 
 I admit only mode-zero `TAG_STRING` parameters and their exact locals in my
 bounded owned value-call graph. My record-field guard still accepts only INT,
@@ -23,13 +25,23 @@ a stable performance count.
 My specialized native carrier now has an immutable pointer and exact length.
 It writes those bytes with `fwrite`, writes one explicit newline for
 `PRINTLN`, and never treats a string view as an owned record. Designated scalar
-initializers keep strict Clang's missing-field diagnostics enabled.
+initializers keep strict Clang's missing-field diagnostics enabled. Record
+allocation writes `.record` only into a zero-initialized scratch carrier and
+resets that carrier with `{0}` after transfer.
+
+I also keep all three string opcodes inside the owned value-call profile. A
+borrowed `CALL_REF` graph cannot gain string literals or output through the
+shared affine analyzer or the native emitter. VM admission checks instantiated
+constants before choosing either the invocation-proof path or its conservative
+fallback; the traced fallback refusal is exercised directly.
 
 ## Focused qualification
 
-At the tested checkpoint, `make -j8 CC=/opt/homebrew/opt/llvm/bin/clang
-test-owned-string-print` passes with Homebrew Clang 23.1.1. The generated
-native programs run with ASan and UBSan and explicitly select
+At the review-correction checkpoint, a clean build followed by `make -j8
+CC=/opt/homebrew/opt/llvm/bin/clang test-owned-string-print
+test-caller-reference-analysis` passes with Homebrew Clang 23.1.1. The
+generated native programs compile with `-Wall -Wextra -Werror`, run with ASan
+and UBSan, and explicitly select
 `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1`.
 
 The focused gate covers:
@@ -49,22 +61,25 @@ The focused gate covers:
 - refusal of embedded NUL, absent or out-of-range literals, wrong parameter
   tag or mode, string results and resource fields, unsupported string stack
   operations, missing or extra PRINT operands, tail calls and recursive value
-  graphs.
+  graphs;
+- direct refusal of `PUSH_STR`, `PRINT` and `PRINTLN` outside the value-call
+  profile, including a borrowed `CALL_REF` fixture; and
+- refusal before activation when a missing instantiated literal reaches the
+  traced fallback admission configuration.
 
-The final rebased log is
-`/private/tmp/nanolang-owned-string-print-llvm23-lsan-7a0a39fa.log`, SHA-256
-`fe2456393f73cd84fd52422e83c0b63c66c7a65913924acb88e90bc43f3b2568`.
+The review log is
+`/private/tmp/nanolang-owned-string-print-review-f7a66804.log`, SHA-256
+`f76b374e603f09b84064caa5acd7a57540ba37f58c5ddf3044ee7b955cd9c79f`.
 
 ## Adjacent ownership qualification
 
-The unchanged owned-value graph, owned/void result, single consuming-call and
-multiple consuming-call suites all pass under the same explicit Homebrew LLVM
-selection. This includes their graph bounds, recursion, ownership authority,
-allocation, preflight, verification-reuse and generated native sanitizer
-checks. The log is
-`/private/tmp/nanolang-owned-string-print-adjacent-llvm23-7a0a39fa.log`,
-SHA-256
-`6a8f6baf6c2d0338e06b8e71591aed624388c9355fb3f7b0eaaf1362834efd90`.
+The unchanged caller-reference, owned-value graph, owned/void result, single
+consuming-call and multiple consuming-call suites all pass under the same
+explicit Homebrew LLVM selection. This includes their graph bounds, recursion,
+ownership authority, allocation, preflight, verification-reuse and generated
+native sanitizer checks. The log is
+`/private/tmp/nanolang-owned-string-print-adjacent-f7a66804.log`, SHA-256
+`53ef47cb847f6ae7da76a6f0434291b0d2a72c3dc257f8c5eb2ff5616c68c160`.
 
 I preserve the first default-compiler adjacent run separately. Its ordinary C
 and VM fixtures pass, then its older Python harnesses request LeakSanitizer
