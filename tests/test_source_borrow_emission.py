@@ -1416,6 +1416,23 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 '''
 
+    def test_temporary_owners_restore_original_pattern_sources(self):
+        from tests.test_owned_record_patterns import OwnedRecordPatterns, PREFIX
+        cases = []
+        def capture(source, accepted, stdout=None, diagnostic=None, prefix=PREFIX):
+            self.assertTrue(accepted)
+            cases.append((prefix + source, stdout))
+        original = OwnedRecordPatterns()
+        original.check_case = capture
+        original.test_scalar_terminal_operation()
+        original.test_empty_resource_pattern()
+        original.test_initializer_evaluated_once()
+        cases.append(((ROOT / 'tests/test_resource_tracking.nano').read_text(), None))
+        for index, (text, output) in enumerate(cases):
+            with self.subTest(original_case=index):
+                self.graph_positive('original-pattern-' + str(index), text,
+                                    None if output is None else output.encode())
+
     def test_temporary_owner_actuals_preserve_order_and_roots(self):
         baseline, shadows = self.graph_positive(
             'temporary-actuals', self.temporary_owner_fixture(), b'ABCABCABC', b'ABCABCABC')
