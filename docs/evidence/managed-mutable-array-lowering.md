@@ -34,9 +34,10 @@ repeated-entry/fresh-instance behavior, and prior-output refusal for unsupported
 shapes/transfers. Existing private packed tests retain exact float payload-bit
 coverage; ordinary value equality alone is not that evidence.
 
-Every new positive runs in normal NanoVM, instrumented native LLVM, Node Wasm
-with zero imports, and Wasmtime; the paired helper also exercises nvm2wasm's
-published artifact. Error controls compare corresponding VM/managed categories,
+My value/alias matrix runs in normal NanoVM, instrumented native LLVM, Node
+Wasm with zero imports, and Wasmtime; the paired helper also exercises
+nvm2wasm's published artifact. Reentry, failure and finite-memory controls use
+the explicit native/Node harnesses described above. Error controls compare corresponding VM/managed categories,
 not numerical equality of their status enums. Native wrapped allocation failures
 cover constructor and growth/child cleanup, followed by successful reentry.
 Actual bounded Wasm memory exhaustion preserves a committed global array and
@@ -82,3 +83,17 @@ Local logs are `/tmp/nanolang-mutable-lowering-*`; fresh seed artifacts/logs are
 `NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13`.
 Darwin sanitizer7ba and historical evaluator791a remain separately open; I did
 not replay either artifact or infer a cause.
+
+## My final integration
+
+I rebased onto main94cca515 (including exact F64 canonical transport710 and
+component inventory711). On source a4e6bbeb, my reviewed lowering/verifier,
+analysis and wrapper production files are byte-identical to 421574d3. Integrated
+shape12 methods passed in 1.344 seconds, profile API checks in 0.493 seconds,
+all seven new target methods in 12.151 seconds, and the real wrapper passed.
+I rebuilt the canonical native seed with another fresh module cache, ran help,
+then emitted, verified and executed the ordinary hello with normal shadows.
+The output remains exactly `Hello from NanoLang!` plus newline. Integrated
+artifacts/logs are `/tmp/nanolang-mutable-lowering-seed-integrated/`; gate log is
+`/tmp/nanolang-mutable-lowering-integrated.log`. I did not repeat an unrelated
+full compiler fixed point or claim Darwin acceptance.
