@@ -12,13 +12,13 @@ int main(void) {
             "shadow single {assert true}\n"
             "fn pair(a:float,b:float)->float{return (%c a b)}\n"
             "shadow pair {assert true}\n"
-            "fn mapped(xs:array<float>)->int{let ys:array<float>=(map xs single) return (float_to_bits (at ys 0))}\n"
+            "fn mapped(xs:array<float>)->int{let ys:array<float> =(map xs single) return (float_to_bits (at ys 0))}\n"
             "shadow mapped {assert true}\n"
             "fn reduced(xs:array<float>)->int{return (float_to_bits (reduce xs 1.0 pair))}\n"
             "shadow reduced {assert true}\n"
             "fn zero(x:float)->float{return (/ x 0.0)}\n"
             "shadow zero {assert true}\n"
-            "fn total(xs:array<float>)->int{let ys:array<float>=(map xs zero) return (float_to_bits (at ys 0))}\n"
+            "fn total(xs:array<float>)->int{let ys:array<float> =(map xs zero) return (float_to_bits (at ys 0))}\n"
             "shadow total {assert true}\n"
             "fn main()->int{return 0}\n", operations[op], operations[op]);
         RunCtx ctx;

@@ -50,7 +50,12 @@ class ArithmeticSource(unittest.TestCase):
         source=ROOT/'tests/nanoisa/fixtures/binary64_arithmetic.nano'
         for name in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
             output=self.work/(name+'-legacy.c')
-            self.command(ROOT/'bin'/name,source,'--target','c','-o',output)
+            if name=='nanoc_c':
+                executable=self.work/'seed-native'
+                self.command(ROOT/'bin'/name,source,'--keep-c','-o',executable)
+                output=Path(str(executable)+'.c')
+            else:
+                self.command(ROOT/'bin'/name,source,'--target','c','-o',output)
             self.assertIn(header,output.read_text(),name)
     def test_exact_scalar_arithmetic(self):
         self.routes(ROOT/'tests/nanoisa/fixtures/binary64_arithmetic.nano',scalar=True)
@@ -63,9 +68,9 @@ class ArithmeticSource(unittest.TestCase):
         source.write_text(CALLBACKS)
         self.routes(source)
 GLOBALS='''let mut calls:int = 0
-fn operand(x:float)->float { set calls (+ (* calls 10) (float_to_int x)) return x }
-shadow operand { let saved:int=calls set calls 0 assert (== (operand 2.0) 2.0) assert (== calls 2) set calls saved }
-let first:float = (+ (operand 1.0) (operand 2.0))
+fn operand(id:int,x:float)->float { set calls (+ (* calls 10) id) return x }
+shadow operand { let saved:int=calls set calls 0 assert (== (operand 2 2.0) 2.0) assert (== calls 2) set calls saved }
+let first:float = (+ (operand 1 1.0) (operand 2 2.0))
 let mut second:float = (/ (+ first 1.0) 0.0)
 let third:float = (+ first second)
 let negative:float = (- third)
@@ -75,7 +80,7 @@ fn main()->int {
     assert (== negative -3.0)
     assert (== calls 12)
     set calls 0
-    assert (== (+ (operand 4.0) (operand 5.0)) 9.0)
+    assert (== (+ (operand 4 4.0) (operand 5 5.0)) 9.0)
     assert (== calls 45)
     set second (+ third 2.0)
     assert (== second 5.0)
@@ -89,8 +94,8 @@ fn combine(a:float,b:float)->float { return (+ a b) }
 shadow combine { assert (== (combine 1.0 2.0) 3.0) }
 fn main()->int {
     let nan:float=(float_from_bits -4503599627370430)
-    let values:array<float>=[nan,1.0]
-    let mapped:array<float>=(map values zero)
+    let values:array<float> =[nan,1.0]
+    let mapped:array<float> =(map values zero)
     assert (== (float_to_bits (at mapped 0)) 0)
     assert (== (float_to_bits (at mapped 1)) 0)
     assert (== (float_to_bits (reduce values 0.0 combine)) 9221120237041090560)

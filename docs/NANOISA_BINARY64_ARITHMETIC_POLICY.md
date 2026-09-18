@@ -245,3 +245,16 @@ private temporary identifiers stay outside its nl_ source-variable mapping.
 Ordinary f64_add/sub/mul/div functions remain callable alongside nano_rt_ runtime
 helpers. I generate both embedded C text and a Nano runtime-string provider from
 one canonical header; regeneration checks prevent independent helper drift.
+
+## My additional public C-source target prerequisite
+
+My stage-3 identity test exposed a missing inventory route: C-seed `--target c`
+uses `src/c_backend.c`, not the native legacy emitter. Its file-level contract
+advertises scalar numeric arithmetic and self-contained C output; current ordinary
+source output still contains raw arithmetic and unresolved bit intrinsic calls.
+I did not compile or execute that output. Task `task_070dbdb1d2e04a36b09a5eab25ddddb3`
+requires exact typing/transport and arithmetic-policy qualification for this
+public route. I retain parent500906 open until this prerequisite is resolved.
+My native legacy helper identity test instead uses C-seed `--keep-c`; selfhost
+`--target c` already selects its legacy transpiler. These route names are not
+interchangeable.
