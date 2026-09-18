@@ -214,7 +214,7 @@ static bool mf_preflight(MFAnalysis *a) {
         for(uint32_t n=fn->start;n<fn->end;n++) {
             MFInstruction *i=&a->instructions[n];uint8_t op=i->in.opcode;
             if(op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
-                int64_t target=(int64_t)i->pc+i->in.byte_length+i->in.operands[0].i32;
+                int64_t target=(int64_t)i->pc+i->in.operands[0].i32;
                 for(uint32_t j=fn->start;j<fn->end;j++)if(target==a->instructions[j].pc)i->target=j;
                 if(target==m->functions[f].code_length)return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require explicit terminal instructions, not end-of-code branches.");
                 if(i->target==UINT32_MAX)return mf_stop(a,NVM_MIXED_SHAPE_INVALID,f,i->pc,"I require an instruction-boundary branch target.");
