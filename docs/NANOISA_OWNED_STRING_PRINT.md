@@ -126,10 +126,12 @@ artifact. Positive cases cover:
   optional additional ASan/UBSan evidence with explicit live-root counters;
   its unsupported LeakSanitizer runtime does not replace the required gate.
 
-I exercise allocation failure at each separately injectable VM setup or frame
-site reached by these modules. I name the observed sites; I do not call the
-coverage exhaustive merely because a counter reached zero. Every failure must
-leave the module reusable for a later successful invocation.
+I instrument `VmHeap` allocation through `heap.c`. Setup reaches the intern
+bucket and module-string objects; invocation reaches the owned-record header and
+field storage. I report those attempt counts separately. I do not claim
+call-frame, constant-table-array or general process allocation coverage. Every
+injected invocation failure must leave the same VM reusable; every injected
+setup failure must leave the module reusable in a fresh VM.
 
 Refusal cases cover a bad string index, an absent instantiated literal,
 embedded NUL, wrong parameter tag or mode, string result, string resource

@@ -16,11 +16,13 @@ them only through `PRINT` or `PRINTLN`. I still reject string results, resource
 fields and broader string operations.
 
 My VM preflights every instantiated literal before it creates an owned
-activation. Each public PRINT trap invalidates the invocation proof, releases
-the popped trap root exactly once and resumes through checked admission. The
-proof fixture observes 16 verifier admissions across one four-print invocation;
-this is evidence that the proof was not retained across host output traps, not
-a stable performance count.
+activation. The first public PRINT trap removes the invocation proof; later
+PRINT boundaries retain that proofless state. Every boundary releases its
+popped trap root exactly once and resumes through checked fallback admission.
+The proof fixture uses a one-function four-print sequence with no helper
+activations. It checks exactly three verifier admissions on each of the four
+resumes and 13 total including initial admission; these counts describe the
+current checked path rather than a performance contract.
 
 My specialized native carrier now has an immutable pointer and exact length.
 It writes those bytes with `fwrite`, writes one explicit newline for
@@ -64,8 +66,10 @@ The focused gate covers:
   `vm_execute`, `vm_call_function` and `vm_invoke_callable`;
 - VM constant-table, stack, frame, reference and trap cleanup across repeated
   execution;
-- separately injected VM setup and owned-record allocation failures, followed
-  by successful reuse of the same module and, for frame failure, the same VM;
+- reached `heap.c` setup failures for the intern bucket and module-string
+  objects (10 allocation attempts in this fixture), followed by fresh-VM
+  recovery, and both owned-record allocation attempts during invocation,
+  followed by successful reuse of the same VM;
 - byte-identical native regeneration, generated native allocation failure and
   plain native entry execution;
 - canonical text round-trip of literals, parameter tags and ownership

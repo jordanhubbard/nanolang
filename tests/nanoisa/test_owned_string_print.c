@@ -203,15 +203,17 @@ static void missing_instantiated_literal(void) {
     NvmModule *m=string_fixture(false);consuming_verified(m);VmState vm;vm_init(&vm,m);
     uint32_t greeting=string_index(m,"before");CHECK(greeting<vm.module_constants.count);
     VmString *saved=vm.module_constants.strings[greeting];CHECK(saved);
-    for(unsigned fallback=0;fallback<2;fallback++) {
-        vm.module_constants.strings[greeting]=NULL;vm.opcode_trace=fallback!=0;
+    for(unsigned fallback=0;fallback<4;fallback++) {
+        vm.module_constants.strings[greeting]=NULL;vm.opcode_trace=fallback==1;
+        vm.callbacks=fallback==2?(NanoCallbackRuntime *)(uintptr_t)1:NULL;
+        vm.references.active=fallback==3;
         uint64_t generation=vm.reference_generation;
         FILE *output=tmpfile();CHECK(output);vm.output=output;NanoValue result=val_void();
         CHECK(vm_invoke(&vm,0,NULL,0,&result)==VM_ERR_TYPE_ERROR);
         CHECK(vm.reference_generation==generation);exact_stream(output,"");
         vm.output=NULL;CHECK(!fclose(output));vm.module_constants.strings[greeting]=saved;
+        vm.opcode_trace=false;vm.callbacks=NULL;vm.references.active=false;
     }
-    vm.opcode_trace=false;
     vm_destroy(&vm);nvm_module_free(m);
 
     /* The public core refuses before the first owned instruction mutates state. */

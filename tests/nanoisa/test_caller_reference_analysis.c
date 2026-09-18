@@ -78,6 +78,18 @@ int main(void) {
         "I require checked caller authority and a non-escaping helper"));
     char error[256];CHECK(nvm2c_emit(m,error,sizeof(error))==NULL);
     nvm_module_free(m);
+    const char *output_helpers[]={
+        "PUSH_I64 1\nPRINT\nREF_GET 0 0\nRET",
+        "PUSH_I64 1\nPRINTLN\nREF_GET 0 0\nRET"
+    };
+    for(unsigned i=0;i<2;i++) {
+        m=call_fixture("CALL_REF 1 0",output_helpers[i]);
+        string=nvm_affine_analyze_function(m,1);
+        CHECK(!string.ok&&!strcmp(string.message,
+            "I require string output inside an owned value-call graph"));
+        CHECK(nvm2c_emit(m,error,sizeof(error))==NULL);
+        nvm_module_free(m);
+    }
     printf("%u caller-origin analysis checks passed\n",checks);return 0;
 }
 
