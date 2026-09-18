@@ -67,9 +67,25 @@ class EnumScalars(unittest.TestCase):
             body+=f'PUSH_BOOL {flag}\nJMP_FALSE other{flag}\nENUM_VAL 0 2\nJMP joined{flag}\nother{flag}:\nENUM_VAL 0 3\njoined{flag}:\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nCALL identity\nDUP\nTYPE_CHECK 9\nASSERT\nCAST_INT\nPUSH_I64 {2 if flag else 3}\nEQ\nASSERT\n'
         self.paired(body,helpers)
 
+    def test_generic_enum_rounding_zero_and_nan_boundaries(self):
+        body=('PUSH_I64 9223372036854775807\nENUM_VAL 0 1\nADD\n'
+              'PUSH_I64 -9223372036854775808\nEQ\nASSERT\n'
+              'PUSH_I64 -9223372036854775808\nENUM_VAL 0 1\nSUB\n'
+              'PUSH_I64 9223372036854775807\nEQ\nASSERT\n'
+              'ENUM_VAL 0 65535\nPUSH_F64 9007199254740992\nADD\n'
+              'PUSH_F64 9007199254806528\nEQ\nASSERT\n')
+        for numerator in ('ENUM_VAL 0 65535','PUSH_I64 -7','PUSH_F64 nan','PUSH_F64 inf'):
+            tag=3 if 'F64' in numerator else 1
+            body+=numerator+f'\nENUM_VAL 0 0\nDIV\nDUP\nTYPE_CHECK {tag}\nASSERT\n'
+            body+=f'PUSH_{"F64" if tag == 3 else "I64"} 0\nEQ\nASSERT\n'
+        for op in ('ADD','SUB','MUL','DIV'):
+            body+=f'ENUM_VAL 0 7\nPUSH_F64 nan\n{op}\nDUP\nTYPE_CHECK 3\nASSERT\nDUP\nNE\nASSERT\n'
+        self.paired(body)
+
     def test_exact_refusals(self):
         bodies=['ENUM_VAL 0 2\nNEG\n','ENUM_VAL 0 2\nI64_NEG\n',
-                'ENUM_VAL 0 2\nPUSH_I64 1\nMOD\n']
+                'ENUM_VAL 0 2\nPUSH_I64 1\nMOD\n',
+                'PUSH_I64 2\nENUM_VAL 0 1\nMOD\n']
         for wrong in ('PUSH_BOOL 1','PUSH_U8 1','PUSH_F64 1','PUSH_VOID'):
             bodies.append(wrong+'\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nENUM_VAL 0 2\nI64_ADD\n')
         for body in bodies:
