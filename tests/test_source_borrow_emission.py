@@ -451,6 +451,8 @@ shadow main { assert true }
             'live_owner': text.replace('assert (== (read &mut first) 3)', 'if true { return 0 }'),
             'missing_return': text.replace(' return 1\n}', '\n}'),
             'owner_move': text.replace('let answer: int = view.value', 'let moved: Leaf = view'),
+            'incomplete_pattern': text.replace('let Leaf { value, enabled } = first', 'let Leaf { value } = first'),
+            'duplicate_pattern': text.replace('let Leaf { value, enabled } = first', 'let Leaf { value, value } = first'),
         }
         for name, content in cases.items():
             source = self.work / ('return-refusal-' + name + '.nano')

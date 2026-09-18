@@ -11,6 +11,7 @@ let mut nb_tags: array<int> = []
 let mut nb_layouts: array<int> = []
 let mut nb_modes: array<int> = []
 let mut nb_live: array<bool> = []
+let mut nb_disposal_pending: array<bool> = []
 let mut nb_mutable: array<bool> = []
 let mut nb_strings: array<string> = []
 let mut nb_helper: int = -1
@@ -103,6 +104,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     set nb_layouts (array_push nb_layouts layout)
     set nb_modes (array_push nb_modes mode)
     set nb_live (array_push nb_live true)
+    set nb_disposal_pending (array_push nb_disposal_pending false)
     set nb_mutable (array_push nb_mutable mutable)
     return index
 }
@@ -110,11 +112,11 @@ fn nb_reset_locals() -> int {
     set nb_control_depth 0
     set nb_names [] set nb_named [] set nb_tags []
     set nb_projection_parents [] set nb_projection_fields [] set nb_layouts [] set nb_modes []
-    set nb_live [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
+    set nb_live [] set nb_disposal_pending [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
     return 0
 }
-shadow nb_reset_locals { let _: int = (nb_reset_locals) assert (== (array_length nb_names) 0) assert (not nb_returned) }
-shadow nb_slot { let _: int = (nb_reset_locals) assert (== (nb_slot "answer" 1 4294967295 0 true) 0) assert (at nb_mutable 0) assert (== (at nb_tags 0) 1) let _: int = (nb_reset_locals) }
+shadow nb_reset_locals { let _: int = (nb_reset_locals) assert (== (array_length nb_names) 0) assert (== (array_length nb_disposal_pending) 0) assert (not nb_returned) }
+shadow nb_slot { let _: int = (nb_reset_locals) assert (== (nb_slot "answer" 1 4294967295 0 true) 0) assert (at nb_mutable 0) assert (not (at nb_disposal_pending 0)) assert (== (at nb_tags 0) 1) let _: int = (nb_reset_locals) }
 # I emit zero-width name markers; names remain advisory lexical facts.
 fn nb_name_begin(slot: int, name: string) -> int {
     if (and (== nb_error "") (!= name "")) {
@@ -249,7 +251,7 @@ fn nb_unpack(parser: Parser, local: int) -> int {
         set i (+ i 1)
     }
     let _: int = (nb_op1 "OWN_UNPACK_LOCAL" local)
-    (array_set nb_live local false)
+    (array_set nb_live local false) (array_set nb_disposal_pending local false)
     while (> i 0) {
         set i (- i 1)
         let slot: int = (at slots i)
@@ -305,7 +307,7 @@ fn nb_cleanup(parser: Parser, first: int) -> int {
                 let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts i))
                 let mut field: int = 0
                 while (< field record.field_count) { let _: int = (nb_emit "POP") set field (+ field 1) }
-                (array_set nb_live i false)
+                (array_set nb_live i false) (array_set nb_disposal_pending i false)
             } else { let _: int = (nb_unpack parser i) }
         }
         set i (+ i 1)
@@ -501,21 +503,20 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         let _: int = (nb_op1 "OWN_STORE_LOCAL" slot)
         if (not binding.is_destructure) { let _: int = (nb_name_begin slot binding.name) }
         else {
-            if (not (nb_leaf parser layout)) {
-                let record: ASTStruct = (parser_get_struct_def parser layout)
-                if (!= (array_length binding.destructure_names) record.field_count) { return (nb_fail "every nested pattern field once") }
-                let mut i: int = 0
-                while (< i record.field_count) {
-                    if (< (nb_layout_field parser layout (at binding.destructure_names i)) 0) { return 0 }
-                    let mut prior: int = 0
-                    while (< prior i) {
-                        if (== (at binding.destructure_names prior) (at binding.destructure_names i)) { return (nb_fail "distinct nested pattern fields") }
-                        set prior (+ prior 1)
-                    }
-                    set i (+ i 1)
+            let record: ASTStruct = (parser_get_struct_def parser layout)
+            if (!= (array_length binding.destructure_names) record.field_count) { return (nb_fail "every pattern field once") }
+            let mut i: int = 0
+            while (< i record.field_count) {
+                if (< (nb_layout_field parser layout (at binding.destructure_names i)) 0) { return 0 }
+                let mut prior: int = 0
+                while (< prior i) {
+                    if (== (at binding.destructure_names prior) (at binding.destructure_names i)) { return (nb_fail "distinct pattern fields") }
+                    set prior (+ prior 1)
                 }
-                let _: int = (nb_unpack parser slot)
+                set i (+ i 1)
             }
+            if (nb_leaf parser layout) { (array_set nb_disposal_pending slot true) }
+            else { let _: int = (nb_unpack parser slot) }
         }
         return 0
     }
@@ -553,9 +554,11 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
             let _: int = (nb_emit (+ "JMP_FALSE " skip))
             let incoming_count: int = (array_length nb_live)
             let mut incoming_live: array<bool> = []
+            let mut incoming_disposal: array<bool> = []
             let mut local: int = 0
             while (< local incoming_count) {
                 set incoming_live (array_push incoming_live (at nb_live local))
+                set incoming_disposal (array_push incoming_disposal (at nb_disposal_pending local))
                 set local (+ local 1)
             }
             set nb_control_depth (+ nb_control_depth 1)
@@ -569,7 +572,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
             }
             let _: int = (nb_emit (+ skip ":"))
             set local 0
-            while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) set local (+ local 1) }
+            while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) (array_set nb_disposal_pending local (at incoming_disposal local)) set local (+ local 1) }
             set nb_returned false
             if (== stmt.node_type ParseNodeType.PNODE_IF) {
                 if (>= else_body 0) {
@@ -579,7 +582,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                 }
                 let else_returns: bool = nb_returned
                 set local 0
-                while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) set local (+ local 1) }
+                while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) (array_set nb_disposal_pending local (at incoming_disposal local)) set local (+ local 1) }
                 set nb_returned (and then_returns else_returns)
                 let _: int = (nb_emit (+ done ":"))
             }
@@ -613,7 +616,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                         if (> nb_control_depth 0) {
                             let mut local: int = 0
                             while (< local (array_length nb_live)) {
-                                if (and (at nb_live local) (and (== (at nb_tags local) 8) (== (at nb_modes local) 0))) {
+                                if (and (at nb_live local) (and (== (at nb_tags local) 8) (and (== (at nb_modes local) 0) (not (at nb_disposal_pending local))))) {
                                     return (nb_fail "explicit owner consumption before an early return")
                                 }
                                 set local (+ local 1)
@@ -834,7 +837,20 @@ shadow nanoisa_has_borrows { assert (nanoisa_has_borrows (nb_fixture)) }
 shadow nb_field { let _: int = (nb_reset_locals) let _: int = (nb_slot "owner" 8 0 0 false) assert (== (nb_field (nb_fixture) 0 "yes") 1) let _: int = (nb_reset_locals) }
 shadow nb_cleanup { set nb_error "" let _: int = (nb_reset_locals) let _: int = (nb_slot "owner" 8 0 0 false) let _: int = (nb_cleanup (nb_fixture) 0) assert (not (at nb_live 0)) assert (== nb_code "  OWN_UNPACK_LOCAL 0\n  POP\n  POP\n") let _: int = (nb_reset_locals) }
 shadow nb_expr { let parser: Parser = (nb_fixture) set nb_error "" let _: int = (nb_reset_locals) assert (== (nb_expr parser 0 ParseNodeType.PNODE_NUMBER) 1) assert (str_contains nb_code "PUSH_I64") }
-shadow nb_binding { let parser: Parser = (nb_fixture) set nb_error "" set nb_in_helper false let _: int = (nb_reset_locals) let _: int = (nb_binding parser (parser_get_let parser 1)) assert (== nb_error "") assert (str_contains nb_code "OWN_PACK 0") }
+shadow nb_binding {
+    let parser: Parser = (nb_fixture) set nb_error "" set nb_in_helper false
+    let _: int = (nb_reset_locals)
+    let _: int = (nb_binding parser (parser_get_let parser 1))
+    let source: int = (- (array_length nb_names) 1)
+    assert (not (at nb_disposal_pending source))
+    let _: int = (nb_binding parser (parser_get_let parser 2))
+    let holder: int = (- (array_length nb_names) 1)
+    assert (== nb_error "") assert (str_contains nb_code "OWN_PACK 0")
+    assert (not (at nb_live source)) assert (at nb_disposal_pending holder)
+    let _: int = (nb_cleanup parser 0)
+    assert (not (at nb_live holder)) assert (not (at nb_disposal_pending holder))
+    let _: int = (nb_reset_locals)
+}
 shadow nb_body { let parser: Parser = (nb_fixture) let output: string = (nanoisa_borrow_emit parser true 0) assert (str_contains output "ASSERT") assert (str_contains output "CALL_REF 1 0") }
 shadow nb_function { let parser: Parser = (nb_fixture) let output: string = (nanoisa_borrow_emit parser false 0) assert (str_contains output ".function main 0") assert (str_contains output ".function read 1") }
 shadow nb_function_contract { set nb_error "" let _: int = (nb_reset_locals) set nb_result 1 assert (== (nb_function_contract false) "0000000001000000ffffffff") }
