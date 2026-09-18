@@ -113,13 +113,21 @@ int nms_array_reuse(void) {
 }
 #endif
 #ifndef __wasm32__
+int nms_leaf_tests(void);
+#ifdef NMS_TESTING
+int nms_leaf_failures(void);
+int nms_leaf_reuse(void);
+#endif
 int main(void) {
     int result = nms_array_tests();
+    if (!result) result = nms_leaf_tests();
 #ifdef NMS_TESTING
     if (!result) result = nms_array_failures();
     if (!result) result = nms_array_reuse();
     if (!result) result = nms_array_pressure();
+    if (!result) result = nms_leaf_failures();
+    if (!result) result = nms_leaf_reuse();
 #endif
-    return result;
+    return result ? 1 : 0;
 }
 #endif

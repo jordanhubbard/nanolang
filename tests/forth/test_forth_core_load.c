@@ -128,6 +128,11 @@ int main(int argc, char **argv) {
     bool imm_unused = false;
 
     setvbuf(stdout, NULL, _IOLBF, 0);
+    /* I own file-source evidence here; interactive input belongs to the REPL. */
+    if (!freopen("/dev/null", "r", stdin)) {
+        printf("FAIL I could not isolate Jackson evidence from interactive stdin\n");
+        return 1;
+    }
     if (argc > 1) {
         for (i = 1; i < argc && nfiles < 16; i++) files[nfiles++] = argv[i];
     } else {
