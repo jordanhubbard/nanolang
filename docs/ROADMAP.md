@@ -51,6 +51,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [x] I preserve optional int/bool/string results from ordinary native array reads (`task_438ff01101234d6cb3cad5dfeaa0e9f2`). I replace cancelled task ed0f and stale PR307/331/343/349/356 against current signed-64-bit index semantics: no uint32 wrap. Valid reads retain payload tags; missing indices retain void through ignored, tag-tested, local/call/join consumers; typed consumers check before unboxing. Existing record-array and ownership contracts stay separate. My corrected-source VM/native and GCC/Clang sanitizer acceptance passes, alongside 2,422 native and 1,092 shape checks. Evidence: `docs/evidence/native-optional-array-reads.md`.
+
 - [x] I emit total integer arithmetic in standalone native C (`task_9af23845cec040b6955340ab23de4c91`, parent66a6). Unsigned add/sub/mul/neg plus exact signed reconstruction avoid signed overflow; division/remainder guard zero and minimum-integer overflow. Thirty-eight typed/generic integer cases pass GCC/Clang UBSan at O0/O2, shared VM/LLVM/Wasm boundaries pass, and 2,422 native plus 1,092 shape checks pass. Generic float/tag promotion remains separate. See `docs/evidence/native-total-integer-arithmetic.md`.
 
 - [x] I execute verified owned-profile assertions before admitting mandatory source shadows (MAC `task_f259c8fa53c945e6a990f112dc9415c1`, parents ed702/718). True conditions preserve affine/reference state; false conditions unwind actual owners and clear both activation contexts, with native helper failure propagation. I pass 959 entry/helper assertion, four public VM entry APIs, resume and cleanup checks, paired supervised VM/native and instrumented lifetime gates; ordinary ASSERT semantics remain unchanged. See `docs/evidence/owned-shadow-assertions.md`.
@@ -2297,12 +2299,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
                       required before I complete globals. Normal and fresh
                       ASan/UBSan suites pass 1,294 AOT and 994 shape checks.
                       Evidence: `docs/evidence/aot-array-globals.md`.
-                    - [ ] I preserve void-valued out-of-range reads from
-                      ordinary native arrays too. Existing untagged helpers
-                      abort at lookup; NanoVM yields void and lets consumers
-                      decide. I test ignored results, tag inspection, casts,
-                      typed consumers and index narrowing. MAC
-                      `task_ed0f455484d04f13818362fd857d2889`.
+                    - [x] I preserve void-valued ordinary scalar array reads,
+                      including signed 64-bit missing indices, tag tests,
+                      local/call/branch consumers and checked typed writes.
+                      Current task `task_438ff01101234d6cb3cad5dfeaa0e9f2`
+                      replaces cancelled `task_ed0f455484d04f13818362fd857d2889`;
+                      I do not narrow indices to uint32.
+                      Evidence: `docs/evidence/native-optional-array-reads.md`.
                     - [x] I first carry tagged scalar global loads and stores
                       through initialization, cross-function mutation and
                       saved values. I check slot bounds and retain void before
