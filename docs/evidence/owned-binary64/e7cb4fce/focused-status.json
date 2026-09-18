@@ -1,0 +1,1 @@
+{"pin": "e7cb4fce02f946125063a7bd5ba8cb951d1f34be", "command": ["make", "-j4", "test-owned-binary64"], "status": 2, "seconds": 1.6176307249697857}

@@ -1,0 +1,35 @@
+[
+  {
+    "command": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/harness",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/input.sexpr",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/empty/compiler",
+      "once"
+    ],
+    "status": 3,
+    "stdout": "",
+    "stderr": "BEFORE pid=-1 errno=10\nWAIT observed=-1 errno=10 status=8 parent=65289\n"
+  },
+  {
+    "command": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/harness",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/input.sexpr",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/status/compiler",
+      "once"
+    ],
+    "status": 3,
+    "stdout": "",
+    "stderr": "BEFORE pid=-1 errno=10\nWAIT observed=-1 errno=10 status=8 parent=65358\n"
+  },
+  {
+    "command": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/harness",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-aqxtbuze/input.sexpr",
+      "-",
+      "once"
+    ],
+    "status": 3,
+    "stdout": "",
+    "stderr": "==65377==WARN: No external symbolizers found. Symbols may be missing or unreliable.\n==65377==HINT: Is PATH set? Does sandbox allow file-read of /usr/bin/atos?\nBEFORE pid=-1 errno=10\nWAIT observed=-1 errno=10 status=8 parent=65377\n"
+  }
+]

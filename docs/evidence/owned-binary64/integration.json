@@ -1,0 +1,11 @@
+{
+  "merge_pin": "c3ba0fdde65ddbeaff77c011700d9c8228268245",
+  "incoming_main": "dd0fed57",
+  "qualified_pin": "2e3b649b46afcd512cc1f1ae5c5304aa6fc1ada9",
+  "changed_qualified_inputs": [
+    "tests/test_nanocore_export_buffer.c"
+  ],
+  "production_changes": [],
+  "qualification_repeated": false,
+  "reason": "Incoming PR797 is unrelated export-buffer fixture portability plus documentation; all native production and owned-binary64 tests/build target are unchanged. Qualified source/tools preserved in original tree."
+}
