@@ -68,6 +68,16 @@ from the preserved incomplete runs. A short phase-marked check first establishes
 whether the repaired path progresses; I do not relabel the old logs or infer a
 performance result from the source change alone.
 
-This contract awaits review before production edits. The main graph PR remains
+The first reviewed production checkpoint is6456be51. A fresh60-second marker
+run completes artifact generation and reaches API0, improving progress without
+completing qualification. Further static inspection shows vm_init calls
+vm_recompute_verified, which uses nvm_verify_linked with zero linked modules.
+That entry still repeats admission. My reviewed companion lets that entry use
+its invocation's completed positive proof only when linked_count==0. Its
+linked_count>0 refusal and ordinary/advisory fallback remain unchanged. I add
+explicit zero-link positive/refusal/fallback controls before final qualification.
+I preserve the superseded partition as interrupted, with no passing claim.
+
+Both invocation-local reuse contracts are reviewed before their source edits. The main graph PR remains
 a draft until its qualification is resolved; the unchanged affine example and
 owned/void/string/source prerequisites remain open.
