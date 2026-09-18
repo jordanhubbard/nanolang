@@ -40,7 +40,7 @@ class PublicCStringEquality(unittest.TestCase):
         module=self.work/'ordinary.nvm';self.run_cmd([ROOT/'bin/nano_virt',source,'--emit-nvm','-o',module])
         self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module]);self.run_cmd([ROOT/'bin/nano_vm',module])
         generated=self.work/'native.c';self.run_cmd([ROOT/'bin/nvm2c',module,'-o',generated])
-        exe=self.work/'native';self.compile(generated,exe);self.run_cmd([exe])
+        exe=self.work/'native';self.run_cmd([os.environ.get('CC','cc'),'-std=c11','-O2','-fsanitize=address,undefined','-fno-sanitize-recover=all',generated,'-lm','-o',exe]);self.run_cmd([exe])
     def test_private_helper_pointer_and_null_boundary(self):
         _,output,code=self.emit('fn main()->int{return 0} shadow main{assert (== (main) 0)}')
         prefix=re.search(r'static int (nano_cb_\d+_)string_equal',code).group(1)
