@@ -1,5 +1,6 @@
 #include "stdlib_runtime.h"
 #include "binary64_bits.h"
+#include "binary64_arithmetic_source.h"
 #include "nanolang.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@ extern void sb_append(StringBuilder *sb, const char *str);
 /* Generate math and utility built-in functions */
 void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, NL_BINARY64_BITS_SOURCE);
+    sb_append(sb, nl_binary64_arithmetic_source);
     sb_append(sb, "/* ========== Math and Utility Built-in Functions ========== */\n\n");
 
     /* abs function - works with int and float via macro */
