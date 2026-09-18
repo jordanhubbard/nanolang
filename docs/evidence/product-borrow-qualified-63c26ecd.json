@@ -1,0 +1,36 @@
+{
+  "source": "63c26ecd2723f8c480eaba4b25ebdf797f4764bd",
+  "source_clean": true,
+  "harness": "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py",
+  "harness_sha256": "482c8a65086b80a826e2bc6927611d81e8b377c9e0c0f2873c7241c5bfcf2755",
+  "before": {
+    "bin/nanoc_c": "ef729c8d4c2d1b6fb47c090fa5e70e0e53003edd85f114b287d7ca57f377b0c0",
+    "bin/nanoc_stage1": "cb3d0117518b1beca36dc69445138da90683d9f50868dd06bce5ce7c36263986",
+    "bin/nanoc_stage2": "4743fcad623cfec07dff8079d5582c3765d66eb8496e9dd5c8e99f4d09c193a5",
+    "bin/nanoisa_emit": "418952e5ce9f6900ca2312ea5e0840a95bd5de877961cef610ebc6943418bdc4",
+    "bin/nano_virt": "8e91fc2685a7215da901bdf025eb2c6534becc0636a0fc1745a354a242ad9d5b",
+    "bin/nano_vm": "6e9ba8ddcb893adb5027367b7c06e2af5f40f7bfaa01ba14d723aa81dbf21254",
+    "bin/nvm2c": "ec59ded3e3e8745acc393f872fb85853f5dd2935089482e6bd7fe8001278fe19",
+    "obj/test_local_bindings": "e8b3edc12835607c10defb3bd0c359939f29e01530e81e56010501711047ed57",
+    "obj/borrow_shadow_names": "9ba89f79e90780f80cd1859180fbfa2e464e8c93063a4a6a8a6b258d36728a72",
+    "bin/nanoisa": "e89150d07dc11ef732e39172cf48fb1d981074ba9283afb7269de1b9baa065f7"
+  },
+  "after": {
+    "bin/nanoc_c": "ef729c8d4c2d1b6fb47c090fa5e70e0e53003edd85f114b287d7ca57f377b0c0",
+    "bin/nanoc_stage1": "cb3d0117518b1beca36dc69445138da90683d9f50868dd06bce5ce7c36263986",
+    "bin/nanoc_stage2": "4743fcad623cfec07dff8079d5582c3765d66eb8496e9dd5c8e99f4d09c193a5",
+    "bin/nanoisa_emit": "418952e5ce9f6900ca2312ea5e0840a95bd5de877961cef610ebc6943418bdc4",
+    "bin/nano_virt": "8e91fc2685a7215da901bdf025eb2c6534becc0636a0fc1745a354a242ad9d5b",
+    "bin/nano_vm": "6e9ba8ddcb893adb5027367b7c06e2af5f40f7bfaa01ba14d723aa81dbf21254",
+    "bin/nvm2c": "ec59ded3e3e8745acc393f872fb85853f5dd2935089482e6bd7fe8001278fe19",
+    "obj/test_local_bindings": "e8b3edc12835607c10defb3bd0c359939f29e01530e81e56010501711047ed57",
+    "obj/borrow_shadow_names": "9ba89f79e90780f80cd1859180fbfa2e464e8c93063a4a6a8a6b258d36728a72",
+    "bin/nanoisa": "e89150d07dc11ef732e39172cf48fb1d981074ba9283afb7269de1b9baa065f7"
+  },
+  "tools_unchanged": true,
+  "seconds": 1281.199,
+  "methods": 26,
+  "failures": 0,
+  "errors": 0,
+  "success": true
+}
