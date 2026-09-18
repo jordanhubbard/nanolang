@@ -34,10 +34,10 @@ def program(body, layouts=None, local_tags=(), helpers=(), authority=True, flags
         for tag in (result, *locals_):
             ownership += struct.pack('<BBHI', tag, 0, 0, NO)
     text = '.string text "leaf"\n.string empty ""\n.entry main\n'
-    text += '.types ' + ' '.join(str(sum(k == kind for k, _ in layouts)) for kind in (0, 1, 2)) + '\n'
-    text += f'.layouts "{encoded.hex()}"\n'
+    text += '.types ' + ' '.join(str(sum(k == kind for k, _ in layouts)) for kind in (0, 3, 2)) + '\n'
+    text += ''.join(f'.layouts "{encoded[i:i+512].hex()}"\n' for i in range(0, len(encoded), 512))
     if authority:
-        text += f'.ownership "{ownership.hex()}"\n'
+        text += ''.join(f'.ownership "{ownership[i:i+512].hex()}"\n' for i in range(0, len(ownership), 512))
     for name, code, locals_, arity, result in functions:
         text += f'.function {name} {arity} {len(locals_)} 0 {TAGS[result]} {int(result != 0)}\n{code}\n.end\n'
         if arity:
@@ -122,7 +122,7 @@ class RecordShapes(unittest.TestCase):
         self.assertEqual(fields[1], [1 << 8, 0, (1 << 0) | (1 << 2)])
 
     def test_same_shape_different_nominal_and_interleaved_layout(self):
-        layouts = [(1, []), (0, [(1, NO)]), (0, [(1, NO)]), (0, [(8, 1)])]
+        layouts = [(3, []), (0, [(1, NO)]), (0, [(1, NO)]), (0, [(8, 1)])]
         good = 'PUSH_I64 7\nSTRUCT_LITERAL 0 1\nSTRUCT_LITERAL 2 1\nAGG_GET 0\nAGG_GET 0\nPOP'
         _, origins, _ = self.analyze(program(good, layouts), vm=True)
         self.assertEqual([o[4] for o in origins], [1, 3])
@@ -193,6 +193,7 @@ class RecordShapes(unittest.TestCase):
         count = len(body.splitlines()) + 2  # final push+RET
         body += 'NOP\n' * (2298 - count)
         self.analyze(program(body, [(0, [(1, NO)] * 200)], [1] * 256), status=3)
+        self.analyze(program(body[:-12], [(0, [(1, NO)] * 200)], [1] * 256))
 
     def test_allocation_failure_output_atomicity_and_recovery(self):
         text = program('PUSH_I64 7\nSTRUCT_LITERAL 0 1\nAGG_GET 0\nPOP')
