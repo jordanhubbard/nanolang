@@ -4517,6 +4517,11 @@ test-reference-places:
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_reference_places tests/nanoisa/test_reference_places.c $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
 	./obj/test_reference_places
 
+.PHONY: test-managed-record-plan
+test-units: test-managed-record-plan
+test-managed-record-plan: nvm2wasm nanoisa_dump nano_vm
+	NRP_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_plan
+
 .PHONY: test-retained-layouts
 test-units: test-retained-layouts
 test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
