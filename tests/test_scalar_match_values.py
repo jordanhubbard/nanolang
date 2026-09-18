@@ -106,6 +106,8 @@ shadow main { assert (== (main) 0) }
     def test_value_match_refusals_preserve_output(self):
         cases = {
             'mixed_types': 'let x: int = match value { Some(p) => p.number None(p) => false }',
+            'nested_mismatch': 'let x: int = match value { Some(p) => match value { Some(q) => q.number None(e) => false } None(e) => 0 }',
+            'nested_unknown': 'let x: int = match value { Some(p) => match value { Some(q) => q.number Other(e) => 0 } None(e) => 0 }',
             'missing_arm': 'let x: int = match value { Some(p) => p.number }',
             'duplicate_arm': 'let x: int = match value { Some(p) => p.number Some(p) => 0 }',
             'unknown_arm': 'let x: int = match value { Some(p) => p.number Other(p) => 0 }',
