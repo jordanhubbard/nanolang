@@ -45,3 +45,19 @@ After integrating enum PR631 at `d9105a48`, I rerun the unchanged core plus
 packaging gate. The packaging method passes in 0.442 seconds and the three
 core methods pass in 1.298 seconds. The package manifest now also hashes its
 generator script. Log: `/tmp/nanolang-managed-concat-integrated-final.log`.
+
+## My private module ABI continuation
+
+After PR632, `managed_module.c` packages one runtime instance and its first-error
+latch. It exposes scalar ABI helpers for begin/finish/dispose, retain/release,
+consuming concat, length and byte ordering. Compile-time layout assertions
+validate the constant-view adapter. The package manifest includes both module
+and allocator sources. This code still has no public translator caller.
+
+`make test-managed-runtime-package` passes two methods with the native Clang
+runtime selection recorded above. The new native sanitizer and import-free
+Node/Wasmtime control exercises first-error preservation, rejected nested entry
+and busy disposal without erasing the caller status, a retained root across an
+error and next invocation, exact NUL-bearing concat, final release, idempotent
+disposal and refusal after disposal. These are helper ABI checks; emitted-frame
+cleanup and bytecode admission remain unfinished.

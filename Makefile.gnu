@@ -4550,7 +4550,7 @@ test-llvm-literal-strings: test-llvm-scalar-globals
 NMS_RUNTIME_CLANG ?= clang
 NMS_RUNTIME_OPT ?= opt
 .PHONY: managed-runtime-package test-managed-runtime-package
-managed-runtime-package: scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
+managed-runtime-package: scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_module.c $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
 	python3 scripts/embed_managed_runtime.py --clang "$(NMS_RUNTIME_CLANG)" --opt "$(NMS_RUNTIME_OPT)" --header $(OBJ_DIR)/nanoisa/managed_runtime_ir.h --manifest $(OBJ_DIR)/nanoisa/managed_runtime_ir.json
 
 test-managed-runtime-package: managed-runtime-package

@@ -11,7 +11,8 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = 'src/nanoisa/managed_strings.c'
+SOURCE = 'src/nanoisa/managed_module.c'
+CORE = 'src/nanoisa/managed_strings.c'
 HEADER = 'src/nanoisa/managed_strings.h'
 
 
@@ -27,7 +28,7 @@ def invoke(args, **kwargs):
 def generate(clang, opt):
     version = invoke(clang + ['--version']).splitlines()[0]
     hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
-              for name in (SOURCE, HEADER, 'scripts/embed_managed_runtime.py')}
+              for name in (SOURCE, CORE, HEADER, 'scripts/embed_managed_runtime.py')}
     variants = {}
     with tempfile.TemporaryDirectory(prefix='nano-runtime-ir-') as directory:
         for target in ('native', 'wasm32'):
