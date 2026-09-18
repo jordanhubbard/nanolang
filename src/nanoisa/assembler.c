@@ -153,7 +153,7 @@ static bool parse_identifier(const char **p, char *out, size_t out_size) {
     skip_whitespace(p);
     size_t i = 0;
     while ((**p >= 'A' && **p <= 'Z') || (**p >= 'a' && **p <= 'z') ||
-           (**p >= '0' && **p <= '9') || **p == '_') {
+           (**p >= '0' && **p <= '9') || **p == '_' || **p == '$') {
         if (i + 1 >= out_size) return false;
         out[i++] = *(*p)++;
     }
