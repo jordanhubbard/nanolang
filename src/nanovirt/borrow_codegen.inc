@@ -660,7 +660,7 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
     const char *name=n->type==AST_LET?n->as.let.type_name:
         n->type==AST_STRUCT_LITERAL?n->as.struct_literal.struct_name:NULL;
     StructDef *record=name?env_get_struct(env,name):NULL;
-    if(record && record->is_resource)return true;
+    if(record && is_resource_type(env,name))return true;
     switch(n->type) {
         case AST_PROGRAM:
             for(int i=0;i<n->as.program.count;i++)if(borrow_source_uses_owner(n->as.program.items[i],env))return true;
@@ -674,12 +674,12 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
         case AST_FUNCTION:
             if(n->as.function.return_struct_type_name) {
                 StructDef *returned=env_get_struct(env,n->as.function.return_struct_type_name);
-                if(returned && returned->is_resource)return true;
+                if(returned && is_resource_type(env,n->as.function.return_struct_type_name))return true;
             }
             for(int i=0;i<n->as.function.param_count;i++) {
                 Parameter *p=&n->as.function.params[i];
                 StructDef *parameter=p->struct_type_name?env_get_struct(env,p->struct_type_name):NULL;
-                if(p->type==TYPE_BORROW_SHARED || p->type==TYPE_BORROW_MUT || (parameter && parameter->is_resource))return true;
+                if(p->type==TYPE_BORROW_SHARED || p->type==TYPE_BORROW_MUT || (parameter && is_resource_type(env,p->struct_type_name)))return true;
             }
             return borrow_source_uses_owner(n->as.function.body,env);
         case AST_SHADOW:return borrow_source_uses_owner(n->as.shadow.body,env);
@@ -759,21 +759,26 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
     for(int i=0;i<program->as.program.count && !cg->had_error;i++) {
         ASTNode *n=program->as.program.items[i];
         if(n->type==AST_STRUCT_DEF) {
-            if(!n->as.struct_def.is_resource || n->as.struct_def.is_extern || b->record_count==MAX_STRUCT_DEFS ||
+            if(n->as.struct_def.is_extern || b->record_count==MAX_STRUCT_DEFS ||
                n->as.struct_def.field_count>256 || strchr(n->as.struct_def.name,'<') || borrow_record(b,n->as.struct_def.name)>=0) {
                 borrow_error(b,n,"distinct finite plain resource records");break;
             }
+            bool owned=n->as.struct_def.is_resource;
             for(int f=0;f<n->as.struct_def.field_count;f++) {
                 if(!borrow_tag(n->as.struct_def.field_types[f])) {
                     int child=n->as.struct_def.field_types[f]==TYPE_STRUCT
                         ?borrow_record(b,n->as.struct_def.field_type_names[f]):-1;
                     if(child<0 || b->depths[child]>=32)borrow_error(b,n,"earlier resource child declarations and depth at most 32");
-                    else if(b->depths[b->record_count]<b->depths[child]+1)b->depths[b->record_count]=b->depths[child]+1;
+                    else {
+                        owned=true;
+                        if(b->depths[b->record_count]<b->depths[child]+1)b->depths[b->record_count]=b->depths[child]+1;
+                    }
                 }
                 for(int prior=0;prior<f;prior++)
                     if(!strcmp(n->as.struct_def.field_names[prior],n->as.struct_def.field_names[f]))
                         borrow_error(b,n,"distinct field declarations");
             }
+            if(!owned){borrow_error(b,n,"explicit or transitive resource records");break;}
             b->records[b->record_count++]=n;
         } else if(n->type==AST_FUNCTION && !n->as.function.is_extern) {
             if(!strcmp(n->as.function.name,"main")){if(entry)borrow_error(b,n,"one main entry");entry=n;}
