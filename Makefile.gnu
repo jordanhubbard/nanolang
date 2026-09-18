@@ -584,7 +584,7 @@ sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME
 	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 
-test-nanovm: test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-nanovm: test-vm-substring-contract test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
 		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -601,6 +601,14 @@ test-nanovm: test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(
 		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
+
+.PHONY: test-vm-substring-contract
+test-vm-substring-contract: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG $(SUBSTRING_TEST_FLAGS) -o $(OBJ_DIR)/nanovm/test_substring_contract \
+		tests/nanovm/test_substring_contract.c src/nanovm/vm.c src/nanovm/heap_cycles.c src/nanovm/value.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/vm.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/nanovm/test_substring_contract
 
 .PHONY: test-vm-heap-allocation-sanitizers
 test-vm-heap-allocation-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

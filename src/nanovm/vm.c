@@ -3041,12 +3041,18 @@ vm_return_values: ;
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
+                vm_release(&vm->heap, start_v);
+                vm_release(&vm->heap, len_v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_SUBSTR: not a string");
             }
             uint32_t start = (uint32_t)(start_v.tag == TAG_INT ? start_v.as.i64 : 0);
             uint32_t len = (uint32_t)(len_v.tag == TAG_INT ? len_v.as.i64 : 0);
             VmString *result = vm_string_substr(&vm->heap, s.as.string, start, len);
             vm_release(&vm->heap, s);
+            vm_release(&vm->heap, start_v);
+            vm_release(&vm->heap, len_v);
+            if (!result)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the substring.");
             stack_push(vm, val_string(result));
             VM_NEXT();
         }
