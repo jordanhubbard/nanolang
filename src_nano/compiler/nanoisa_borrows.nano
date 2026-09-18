@@ -1036,18 +1036,44 @@ fn nb_string(value: string) -> int {
     set nb_strings (array_push nb_strings value) return i
 }
 shadow nb_string { set nb_strings [] assert (== (nb_string "same") 0) assert (== (nb_string "same") 0) assert (== (nb_string "other") 1) set nb_strings [] }
+# I route uncertain deep/cyclic records conservatively; admission checks prior children.
+fn nb_record_has_owner(parser: Parser, record_index: int, depth: int) -> bool {
+    if (< record_index 0) { return false }
+    let record: ASTStruct = (parser_get_struct_def parser record_index)
+    if record.is_resource { return true }
+    if (> depth 32) { return true }
+    let mut field: int = 0
+    while (< field record.field_count) {
+        let child: int = (nb_record parser (at record.field_types field))
+        if (>= child 0) { if (nb_record_has_owner parser child (+ depth 1)) { return true } }
+        set field (+ field 1)
+    }
+    return false
+}
+shadow nb_record_has_owner {
+    let source: string = "resource struct R { value: int } struct Wrap { child: R, yes: bool } struct Outer { inner: Wrap } struct Plain { value: int } struct Empty {}"
+    let tokens: List<LexerToken> = (tokenize_string source "wrapper-classification.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "wrapper-classification.nano")
+    assert (not (parser_has_error parser))
+    assert (nb_record_has_owner parser 0 0)
+    assert (nb_record_has_owner parser 1 0)
+    assert (nb_record_has_owner parser 2 0)
+    assert (not (nb_record_has_owner parser 3 0))
+    assert (not (nb_record_has_owner parser 4 0))
+    assert (not (nb_record_has_owner parser -1 0))
+}
 pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     let mut i: int = 0
     while (< i (parser_get_function_count parser)) {
         let function: ASTFunction = (parser_get_function parser i)
         let returned: int = (nb_record parser function.return_type)
-        if (>= returned 0) { if (parser_get_struct_def parser returned).is_resource { return true } }
+        if (nb_record_has_owner parser returned 0) { return true }
         let mut j: int = 0
         while (< j function.param_count) {
             let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
             if (str_starts_with spelling "&") { return true }
             let record: int = (nb_record parser spelling)
-            if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
+            if (nb_record_has_owner parser record 0) { return true }
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -1056,13 +1082,13 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     set i 0
     while (< i (array_length local_flags)) {
         let record: int = (nb_record parser (parser_get_let parser i).var_type)
-        if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
+        if (nb_record_has_owner parser record 0) { return true }
         set i (+ i 1)
     }
     set i 0
     while (< i (parser_get_struct_literal_count parser)) {
         let record: int = (nb_record parser (parser_get_struct_literal parser i).struct_name)
-        if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
+        if (nb_record_has_owner parser record 0) { return true }
         set i (+ i 1)
     }
     return false
@@ -1149,11 +1175,12 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     set i 0
     while (and (== nb_error "") (< i records)) {
         let record: ASTStruct = (parser_get_struct_def parser i)
-        if (or (not record.is_resource) (or (> record.field_count 256) (str_contains record.name "<"))) { let _: int = (nb_fail "finite plain scalar resource records") return "" }
+        if (or record.is_extern (or (> record.field_count 256) (str_contains record.name "<"))) { let _: int = (nb_fail "finite plain scalar resource records") return "" }
         if (!= (nb_record parser record.name) i) { let _: int = (nb_fail "distinct nominal declarations") return "" }
         let name_index: int = (nb_string record.name)
         set layouts (+ layouts (+ "0000" (+ (nb_hex record.field_count 2) (nb_hex name_index 4))))
         let mut depth: int = 0
+        let mut owned: bool = record.is_resource
         let mut field: int = 0
         while (< field record.field_count) {
             let mut tag: int = (nb_tag (at record.field_types field))
@@ -1165,6 +1192,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
                 if (> nested_depth 32) { let _: int = (nb_fail "resource depth at most 32") return "" }
                 if (> nested_depth depth) { set depth nested_depth }
                 set tag 8
+                set owned true
             }
             let mut prior: int = 0
             while (< prior field) { if (== (at record.field_names prior) (at record.field_names field)) { let _: int = (nb_fail "distinct field declarations") return "" } set prior (+ prior 1) }
@@ -1172,6 +1200,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             set layouts (+ layouts (+ (nb_hex tag 1) (+ "000000" (+ (nb_hex child 4) (nb_hex field_name 4)))))
             set field (+ field 1)
         }
+        if (not owned) { let _: int = (nb_fail "explicit or transitive resource records") return "" }
         set nb_depths (array_push nb_depths depth)
         set ownership (+ ownership "03") set i (+ i 1)
     }
