@@ -1,0 +1,7 @@
+# My total reconstructed integer operations
+
+I record task_1b40ff24267d45c99e0217352765e39d before implementation under reconstruction parent4bd034. I admit only typed I64_ADD, I64_SUB and I64_NEG into the existing exact int/bool structured region grammar. I preserve modulo 2^64 integer results, including signed endpoints and negation of the minimum integer. I do not reinterpret bool, enum or other tags as int.
+
+My C surface uses unsigned arithmetic and a representable signed reconstruction. My NanoLang surface uses named helpers with signed boundary branches whose arithmetic intermediates are all representable. I emit only needed helpers, preserve operand snapshots and evaluation order, and retain existing structured-loop/call and expression-size restrictions. Helper names are separate from indexed reconstructed source identities. Generated helper shadows validate my known implementation; they are not recovered original source shadows.
+
+I require the same retained module to pass VM execution, canonical disassembly/reassembly identity, reconstructed C with GCC/Clang sanitizers and reconstructed NanoLang through C seed, Stage1 and Stage2. I check endpoint crossings, cancellation, helper calls, local snapshots and loops. Exact type and remaining-opcode refusals must preserve an existing output. MUL/DIV/MOD, generic arithmetic, wider values, runtime contracts and general reconstruction remain open; I do not edit the product emitter or nvm2c in this child.
