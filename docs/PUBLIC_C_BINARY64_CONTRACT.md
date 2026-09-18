@@ -126,3 +126,11 @@ wrapper. I map declarations, direct calls and unshadowed function references
 consistently under the selected private prefix; local main bindings stay local.
 I add a fresh global-initializer/main-reentry high-bit result observer. My previous
 zero-result reentry controls do not qualify this wider result boundary.
+
+My adjacent existing C suite preserves a new 5/7 outcome after exact scalar
+inference: declared match payload fields lack owner metadata and now receive a
+checked unresolved-type refusal. I retain the original log and repair inference
+from exact scoped record/selected-variant declarations, including nested declared
+fields and checked concrete payload annotations. I do not restore unknown-as-INT
+or widen generic/heap inference. I qualify existing match controls plus ordinary
+FLOAT record/variant arithmetic and unresolved-field refusal before completion.
