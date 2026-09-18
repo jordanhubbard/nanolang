@@ -10,25 +10,6 @@ static int refuse(char *error, size_t size, const char *format, ...) {
     va_start(ap, format); vsnprintf(error, size, format, ap); va_end(ap);
     return 0;
 }
-static int scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
-static int supported(uint8_t op) {
-    switch (op) {
-    case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
-    case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
-    case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:
-    case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
-    case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
-    case OP_CAST_INT: case OP_CAST_FLOAT:
-    case OP_NOP: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
-    case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
-    case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S: case OP_I64_REM_S:
-    case OP_I64_NEG: case OP_I64_EQ: case OP_I64_NE: case OP_I64_LT_S: case OP_I64_LE_S:
-    case OP_I64_GT_S: case OP_I64_GE_S: case OP_BOOL_AND: case OP_BOOL_OR: case OP_BOOL_NOT:
-    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_CALL: case OP_RET:
-    case OP_ASSERT: case OP_TYPE_CHECK: return 1;
-    default: return 0;
-    }
-}
 static void runtime(FILE *out) {
     fputs("; I compile verified scalar NanoISA directly.\n"
         "%V = type { i64, i8 }\n"
@@ -347,37 +328,8 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
               (*p >= '0' && *p <= '9') || *p == '_'))
             return refuse(error, size, "I require an ASCII entry identifier");
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
-    NvmVerifyResult verified = nvm_verify(m);
-    if (!verified.ok) return refuse(error, size, "I refuse unverified bytecode: %s", verified.error_msg);
-    if (m->import_count || m->module_ref_count || m->struct_count || m->enum_count || m->union_count ||
-        m->ownership_size || m->passive_size || m->layout_size)
-        return refuse(error, size, "I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
-    if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
-        return refuse(error, size, "I require an explicit executable entry point");
-    if (m->functions[m->header.entry_point].result_count != 1 ||
-        (m->functions[m->header.entry_point].result_tag != TAG_INT &&
-         m->functions[m->header.entry_point].result_tag != TAG_BOOL))
-        return refuse(error, size, "I require an integer/bool executable entry result");
-    if (m->functions[m->header.entry_point].arity)
-        return refuse(error, size, "I require a zero-argument scalar entry point");
-    for (uint32_t i = 0; i < m->function_count; ++i) {
-        const NvmFunctionEntry *f = &m->functions[i];
-        const char *name = nvm_get_string(m, f->name_idx);
-        if (name && !strcmp(name, "__init__"))
-            return refuse(error, size, "I refuse module initializers in my scalar LLVM profile");
-        if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
-            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT))))
-            return refuse(error, size, "I require zero void results or one numeric/bool result and no captures in function %u", i);
-        for (uint16_t p = 0; p < f->arity; ++p)
-            if (m->function_param_types && m->function_param_types[i] && !scalar(m->function_param_types[i][p]))
-                return refuse(error, size, "I require scalar parameters in function %u", i);
-        for (uint32_t pc = 0; pc < f->code_length;) {
-            DecodedInstruction ins = {0};
-            uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
-            if (!width || !supported(ins.opcode)) return refuse(error, size, "I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
-            pc += width;
-        }
-    }
+    NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_SCALAR);
+    if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
     runtime(out);
     float_runtime(out);
     comparison_runtime(out);

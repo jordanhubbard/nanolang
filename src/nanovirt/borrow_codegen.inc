@@ -8,7 +8,9 @@ typedef struct {
     CG *cg;
     ASTNode *records[MAX_STRUCT_DEFS], *helper;
     unsigned record_count, count;
-    const char *names[256];
+    const char *names[256], *advisory_names[256];
+    uint32_t name_begin[256], name_end[256];
+    bool name_open[256];
     uint8_t tags[256], modes[256];
     uint32_t layouts[256];
     bool live[256], mutable[256], helper_body, returned;
@@ -48,8 +50,18 @@ static int borrow_local(BorrowCG *b,const char *name) {
 }
 static int borrow_slot(BorrowCG *b,const char *name,uint8_t tag,uint32_t layout,uint8_t mode,bool mutable) {
     if(b->count==256){borrow_error(b,NULL,"at most 256 local slots");return 0;}
-    unsigned i=b->count++;b->names[i]=name;b->tags[i]=tag;b->layouts[i]=layout;
+    unsigned i=b->count++;b->advisory_names[i]=NULL;b->name_open[i]=false;b->names[i]=name;b->tags[i]=tag;b->layouts[i]=layout;
     b->modes[i]=mode;b->live[i]=true;b->mutable[i]=mutable;return (int)i;
+}
+/* I retain lexical positions, not runtime owner liveness. */
+static void borrow_name_begin(BorrowCG *b,unsigned slot,const char *name) {
+    if(b->cg->had_error || !name || !*name)return;
+    b->advisory_names[slot]=name;b->name_begin[slot]=b->cg->code_size;b->name_open[slot]=true;
+}
+static void borrow_names_end(BorrowCG *b,unsigned first) {
+    for(unsigned i=first;i<b->count;i++)if(b->name_open[i]) {
+        b->name_end[i]=b->cg->code_size;b->name_open[i]=false;
+    }
 }
 static int borrow_field(BorrowCG *b,int local,const char *name,ASTNode *n) {
     if(local<0 || !b->live[local] || b->tags[local]!=TAG_STRUCT || b->layouts[local]>=b->record_count) {
@@ -88,7 +100,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(!b->modes[local]) {
             emit_op(cg,OP_REGION_BEGIN);emit_op(cg,OP_BORROW_LOCAL_SHARED,0,local);
         }
-        emit_op(cg,OP_REF_GET,0,field);
+        emit_op(cg,OP_REF_GET,b->modes[local]?local:0,field);
         if(!b->modes[local])emit_op(cg,OP_REGION_END);
         return borrow_tag(b->records[b->layouts[local]]->as.struct_def.field_types[field]);
     }
@@ -124,20 +136,29 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         borrow_error(b,n,"supported exact-tag scalar operators");return TAG_VOID;
     }
     if(n->type==AST_CALL && !b->helper_body && !n->as.call.func_expr &&
-       n->as.call.name && !strcmp(n->as.call.name,b->helper->as.function.name) && n->as.call.arg_count==1) {
-        ASTNode *arg=n->as.call.args[0];Parameter *parameter=&b->helper->as.function.params[0];
-        uint8_t mode=parameter->type==TYPE_BORROW_MUT?2:1;
-        if(arg->type!=AST_CALL || arg->as.call.borrow_mode!=mode || arg->as.call.arg_count!=1 ||
-           arg->as.call.args[0]->type!=AST_IDENTIFIER) {
-            borrow_error(b,n,"an explicit matching root-local borrowed argument");return TAG_VOID;
+       n->as.call.name && !strcmp(n->as.call.name,b->helper->as.function.name) &&
+       n->as.call.arg_count==b->helper->as.function.param_count) {
+        int locals[8];uint8_t modes[8];
+        emit_op(cg,OP_REGION_BEGIN);
+        for(int i=0;i<n->as.call.arg_count;i++) {
+            ASTNode *arg=n->as.call.args[i];Parameter *parameter=&b->helper->as.function.params[i];
+            uint8_t mode=parameter->type==TYPE_BORROW_MUT?2:1;
+            if(arg->type!=AST_CALL || arg->as.call.borrow_mode!=mode || arg->as.call.arg_count!=1 ||
+               arg->as.call.args[0]->type!=AST_IDENTIFIER) {
+                borrow_error(b,n,"an explicit matching root-local borrowed argument");return TAG_VOID;
+            }
+            int local=borrow_local(b,arg->as.call.args[0]->as.identifier);
+            int layout=borrow_record(b,parameter->struct_type_name);
+            if(local<0 || !b->live[local] || b->modes[local] || b->tags[local]!=TAG_STRUCT ||
+               layout<0 || b->layouts[local]!=(uint32_t)layout || (mode==2 && !b->mutable[local])) {
+                borrow_error(b,n,"exact live caller ownership and mutable exclusive authority");return TAG_VOID;
+            }
+            for(int j=0;j<i;j++)if(locals[j]==local && (mode==2 || modes[j]==2)) {
+                borrow_error(b,n,"disjoint roots for every exclusive argument");return TAG_VOID;
+            }
+            locals[i]=local;modes[i]=mode;
+            emit_op(cg,mode==2?OP_BORROW_LOCAL_EXCLUSIVE:OP_BORROW_LOCAL_SHARED,i,local);
         }
-        int local=borrow_local(b,arg->as.call.args[0]->as.identifier);
-        int layout=borrow_record(b,parameter->struct_type_name);
-        if(local<0 || !b->live[local] || b->modes[local] || b->tags[local]!=TAG_STRUCT ||
-           layout<0 || b->layouts[local]!=(uint32_t)layout || (mode==2 && !b->mutable[local])) {
-            borrow_error(b,n,"exact live caller ownership and mutable exclusive authority");return TAG_VOID;
-        }
-        emit_op(cg,OP_REGION_BEGIN);emit_op(cg,mode==2?OP_BORROW_LOCAL_EXCLUSIVE:OP_BORROW_LOCAL_SHARED,0,local);
         emit_op(cg,OP_CALL_REF,(uint32_t)1,0);emit_op(cg,OP_REGION_END);
         return borrow_tag(b->helper->as.function.return_type);
     }
@@ -179,6 +200,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 } else {borrow_error(b,n,"a resource constructor or explicit destructive pattern");break;}
                 int slot=borrow_slot(b,n->as.let.name,TAG_STRUCT,(uint32_t)layout,0,n->as.let.is_mut);
                 emit_op(cg,OP_OWN_STORE_LOCAL,slot);
+                if(!n->as.let.is_destructure)borrow_name_begin(b,(unsigned)slot,n->as.let.name);
             } else {
                 uint8_t tag=borrow_expr(b,n->as.let.value),declared=borrow_tag(n->as.let.var_type);
                 if((n->as.let.var_type!=TYPE_UNKNOWN && tag!=declared) || (tag!=TAG_INT && tag!=TAG_BOOL)) {
@@ -186,6 +208,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 }
                 int slot=borrow_slot(b,n->as.let.name,tag,NVM_V2_NO_INDEX,0,n->as.let.is_mut);
                 emit_op(cg,OP_STORE_LOCAL,slot);
+                borrow_name_begin(b,(unsigned)slot,n->as.let.name);
             }
         } else if(n->type==AST_ASSERT) {
             if(borrow_expr(b,n->as.assert.condition)!=TAG_BOOL)borrow_error(b,n,"a Boolean assertion");
@@ -199,7 +222,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 if(b->modes[local]!=2){borrow_error(b,n,"exclusive borrowed field mutation");break;}
                 if(borrow_expr(b,n->as.set.value)!=borrow_tag(b->records[b->layouts[local]]->as.struct_def.field_types[field]))
                     borrow_error(b,n,"an exact scalar field value");
-                emit_op(cg,OP_REF_SET,0,field);
+                emit_op(cg,OP_REF_SET,local,field);
             } else {
                 if(!b->mutable[local] || b->tags[local]==TAG_STRUCT || borrow_expr(b,n->as.set.value)!=b->tags[local]) {
                     borrow_error(b,n,"a mutable scalar assignment of the same type");break;
@@ -214,14 +237,17 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             emit_op(cg,OP_POP);
         } else {borrow_error(b,n,"straight-line let/set/assert/call/return statements");break;}
     }
-    if(shadow){borrow_cleanup(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
+    if(shadow){borrow_cleanup(b,first);borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
 }
 static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool shadows,unsigned index) {
     CG *cg=b->cg;b->count=0;b->returned=false;b->helper_body=index==1;
     b->result=index?borrow_tag(function->as.function.return_type):TAG_INT;cg->code_size=0;
     if(index) {
-        Parameter *p=&function->as.function.params[0];
-        borrow_slot(b,p->name,TAG_STRUCT,(uint32_t)borrow_record(b,p->struct_type_name),p->type==TYPE_BORROW_MUT?2:1,false);
+        for(int i=0;i<function->as.function.param_count;i++) {
+            Parameter *p=&function->as.function.params[i];
+            borrow_slot(b,p->name,TAG_STRUCT,(uint32_t)borrow_record(b,p->struct_type_name),p->type==TYPE_BORROW_MUT?2:1,false);
+            borrow_name_begin(b,(unsigned)i,p->name);
+        }
     }
     if(shadows && !index) {
         for(int i=0;i<program->as.program.count && !cg->had_error;i++) {
@@ -233,7 +259,8 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
         borrow_body(b,function->as.function.body,false);
         if(!b->returned)borrow_error(b,function,"an explicit scalar return");
     }
-    borrow_word(b,b->count,2);borrow_word(b,index?1:0,2);
+    borrow_names_end(b,0);
+    borrow_word(b,b->count,2);borrow_word(b,index?(uint32_t)function->as.function.param_count:0,2);
     borrow_descriptor(b,b->result,0,NVM_V2_NO_INDEX);
     for(unsigned i=0;i<b->count;i++)borrow_descriptor(b,b->tags[i],b->modes[i],b->layouts[i]);
     if(cg->had_error)return;
@@ -242,6 +269,12 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
     cg->module->functions[index].code_offset=offset;
     cg->module->functions[index].code_length=cg->code_size;
     cg->module->functions[index].local_count=(uint16_t)b->count;
+    for(unsigned i=0;i<b->count && !cg->had_error;i++)if(b->advisory_names[i]) {
+        NvmLocalBinding binding={.function=index,.slot=(uint16_t)i,
+            .begin=b->name_begin[i],.end=b->name_end[i],
+            .name=(const uint8_t *)b->advisory_names[i],.name_size=(uint32_t)strlen(b->advisory_names[i])};
+        if(!nvm_add_local_binding(cg->module,&binding))borrow_error(b,NULL,"available lexical-name storage");
+    }
 }
 static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules,bool shadows) {
     CodegenResult out={0};CG *cg=calloc(1,sizeof(*cg));BorrowCG *b=calloc(1,sizeof(*b));
@@ -274,9 +307,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
     if(!cg->had_error) {
         ASTNode *h=b->helper;Parameter *p=h->as.function.params;
         if(entry->as.function.param_count || entry->as.function.return_type!=TYPE_INT ||
-           h->as.function.param_count!=1 || !p || (p[0].type!=TYPE_BORROW_SHARED && p[0].type!=TYPE_BORROW_MUT) ||
-           borrow_record(b,p[0].struct_type_name)<0 || !borrow_tag(h->as.function.return_type))
-            borrow_error(b,h,"entry0 and one exact scalar-result borrowed helper");
+           h->as.function.param_count<1 || h->as.function.param_count>8 || !p || !borrow_tag(h->as.function.return_type))
+            borrow_error(b,h,"entry0 and one scalar-result helper with one through eight borrowed parameters");
+        for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
+            if((p[i].type!=TYPE_BORROW_SHARED && p[i].type!=TYPE_BORROW_MUT) || borrow_record(b,p[i].struct_type_name)<0)
+                borrow_error(b,h,"exact borrowed record parameters");
+            for(int j=0;j<i;j++)if(!strcmp(p[i].name,p[j].name))borrow_error(b,h,"distinct parameter names");
+        }
     }
     NvmV2Layouts layouts={0};
     if(!cg->had_error) {
@@ -305,11 +342,11 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         for(unsigned i=0;i<2;i++) {
             NvmFunctionEntry f={0};f.name_idx=nvm_add_string(cg->module,names[i],(uint32_t)strlen(names[i]));
             if(f.name_idx==UINT32_MAX){borrow_error(b,NULL,"available function-name storage");break;}
-            f.arity=i?1:0;f.result_count=1;f.result_tag=i?borrow_tag(b->helper->as.function.return_type):TAG_INT;
+            f.arity=i?(uint16_t)b->helper->as.function.param_count:0;f.result_count=1;f.result_tag=i?borrow_tag(b->helper->as.function.return_type):TAG_INT;
             if(nvm_add_function(cg->module,&f)!=i)borrow_error(b,NULL,"available function storage");
         }
-        uint8_t parameter=TAG_STRUCT;
-        if(!nvm_set_function_param_types(cg->module,1,&parameter,1))borrow_error(b,NULL,"exact borrowed parameter tags");
+        uint8_t parameters[8];memset(parameters,TAG_STRUCT,sizeof(parameters));
+        if(!nvm_set_function_param_types(cg->module,1,parameters,(uint16_t)b->helper->as.function.param_count))borrow_error(b,NULL,"exact borrowed parameter tags");
         borrow_word(b,1,4);borrow_word(b,b->record_count,4);
         for(unsigned i=0;i<b->record_count;i++)borrow_word(b,3,1);
         while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);

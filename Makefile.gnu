@@ -4497,6 +4497,12 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
+.PHONY: test-verifier-profiles
+test-units: test-verifier-profiles
+test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_profiles tests/nanoisa/test_verifier_profiles.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	python3 -m unittest -v tests.test_verifier_profiles
+
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
@@ -4611,7 +4617,8 @@ test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
 test-units: test-underscore-payload
 .PHONY: test-source-borrow-emission
 test-units: test-source-borrow-emission
-test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@python3 -m unittest -v tests.test_source_borrow_emission
 
 .PHONY: test-owned-assertions
@@ -4646,6 +4653,12 @@ test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic
 test-units: test-native-total-arithmetic
+
+.PHONY: test-native-generic-arithmetic
+test-native-generic-arithmetic: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_generic_arithmetic
+
+test-units: test-native-generic-arithmetic
 
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c

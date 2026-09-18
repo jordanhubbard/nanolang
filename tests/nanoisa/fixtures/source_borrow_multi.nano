@@ -1,0 +1,41 @@
+resource struct Left { value: int, active: bool }
+resource struct Right { value: int, active: bool }
+fn adjust(first: &mut Left, middle: &Right, last: &mut Left) -> int {
+ set first.value (+ first.value middle.value)
+ set last.value (- last.value middle.value)
+ assert middle.active
+ let total: int = (+ first.value last.value)
+ return total
+}
+shadow adjust {
+ let mut one: Left = Left { value: 10, active: true }
+ let middle_owner: Right = Right { value: 3, active: true }
+ let mut three: Left = Left { value: 20, active: false }
+ assert (== (adjust &mut one &middle_owner &mut three) 30)
+ assert (== one.value 13) assert (== three.value 17)
+ assert (== (adjust &mut three &middle_owner &mut one) 30)
+ assert (== one.value 10) assert (== three.value 20)
+ let Left { value, active } = one
+ assert (== value 10) assert active
+ let Left { value, active } = three
+ assert (== value 20) assert (not active)
+ let Right { value, active } = middle_owner
+ assert (== value 3) assert active
+}
+fn main() -> int {
+ let mut one: Left = Left { value: 10, active: true }
+ let middle_owner: Right = Right { value: 3, active: true }
+ let mut three: Left = Left { value: 20, active: false }
+ assert (== (adjust &mut one &middle_owner &mut three) 30)
+ assert (== one.value 13) assert (== three.value 17)
+ assert (== (adjust &mut three &middle_owner &mut one) 30)
+ assert (== one.value 10) assert (== three.value 20)
+ let Left { value, active } = one
+ assert (== value 10) assert active
+ let Left { value, active } = three
+ assert (== value 20) assert (not active)
+ let Right { value, active } = middle_owner
+ assert (== value 3) assert active
+ return 0
+}
+shadow main { assert true }
