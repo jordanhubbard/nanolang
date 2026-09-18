@@ -1030,17 +1030,6 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
 
 /* I preserve the original scalar translator eligibility as one shared policy. */
 static int profile_scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT || tag == TAG_ENUM; }
-/* I keep non-floating formatting closed until the portable binary64 formatter
- * lands. Future admitted float producers must be included in this boundary. */
-static int profile_float_instruction(uint8_t op) {
-    switch (op) {
-    case OP_PUSH_F64: case OP_CAST_FLOAT:
-    case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
-    case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
-    case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: return 1;
-    default: return 0;
-    }
-}
 static int profile_supported(uint8_t op) {
     switch (op) {
     case OP_ENUM_VAL: case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
@@ -1082,7 +1071,6 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
     const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS;
     const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS || managed_profile;
     bool has_strings = false;
-    bool has_float = false, has_string_cast = false;
     bool needs_string_runtime = false;
     bool initializer_seen = false;
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -1098,12 +1086,10 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
              (literal_profile && f->result_tag == TAG_STRING)))))
             return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
         has_strings |= f->result_count && f->result_tag == TAG_STRING;
-        has_float |= f->result_tag == TAG_FLOAT;
         for (uint16_t p = 0; p < f->arity; ++p) {
             if (!m->function_param_types || !m->function_param_types[i]) continue;
             uint8_t tag = m->function_param_types[i][p];
             has_strings |= tag == TAG_STRING;
-            has_float |= tag == TAG_FLOAT;
             if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING))
                 return fail("I require admitted closed-profile parameters in function %u", i);
         }
@@ -1111,8 +1097,6 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
             has_strings |= ins.opcode == OP_PUSH_STR || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING;
-            has_string_cast |= ins.opcode == OP_CAST_STRING;
-            has_float |= profile_float_instruction(ins.opcode);
             needs_string_runtime |= (!managed_profile && (ins.opcode == OP_ADD || ins.opcode == OP_CAST_INT)) || ins.opcode == OP_CAST_FLOAT;
             bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
                               ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
@@ -1121,8 +1105,6 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
             pc += width;
         }
     }
-    if (managed_profile && has_string_cast && has_float)
-        return fail("I refuse floating modules with CAST_STRING until portable binary64 formatting is lowered");
     if (has_strings && needs_string_runtime)
         return fail(managed_profile ?
             "I refuse CAST_FLOAT in string-bearing modules until portable float conversion is lowered" :

@@ -4591,7 +4591,7 @@ test-managed-runtime-package: managed-runtime-package
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format
 
 .PHONY: test-managed-string-core
 test-managed-string-core:
@@ -4795,6 +4795,11 @@ test-native-string-equality-guards: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-string-equality-guards
 
+.PHONY: test-native-optional-float-calls
+test-native-optional-float-calls: nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_native_optional_float_calls
+test-units: test-native-optional-float-calls
+
 .PHONY: test-native-float-arrays
 test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_native_float_arrays
@@ -4860,9 +4865,18 @@ test-native-record-array-scalar-tags: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_record_array_scalar_tags
 test-units: test-native-record-array-scalar-tags
 
+.PHONY: test-canonical-string-builtins
+test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_canonical_string_builtins
+test-units: test-canonical-string-builtins
 .PHONY: test-native-union-padding
 test-native-union-padding: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_union_padding
+
+.PHONY: test-canonical-filesystem
+test-canonical-filesystem: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_canonical_filesystem
+test-units: test-canonical-filesystem
 .PHONY: test-scalar-union-emission
 test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_scalar_union_emission

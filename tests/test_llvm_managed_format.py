@@ -1,4 +1,4 @@
-"""I preserve exact non-floating formatting and the explicit float boundary."""
+"""I preserve exact formatting and the pending string-to-float parsing boundary."""
 import unittest
 from tests import test_llvm_managed_strings as managed
 ROOT = managed.ROOT
@@ -43,7 +43,7 @@ class ManagedFormat(unittest.TestCase):
         _,ir,_=self.compile(self.program(body))
         self.native_harness(ir,'if(nano_try_entry())return 1;budget=0;for(int i=0;i<20;i++)if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
 
-    def test_float_sources_and_signatures_preserve_previous_output(self):
+    def test_float_publication_and_pending_parse_refusal(self):
         base=self.program('PUSH_I64 1\nCAST_STRING\nPOP\n')
         bodies=['PUSH_F64 1.0\nPOP\n','PUSH_I64 1\nCAST_FLOAT\nPOP\n']
         for op in ('F64_ADD','F64_SUB','F64_MUL','F64_DIV','F64_NEG',
@@ -60,8 +60,10 @@ class ManagedFormat(unittest.TestCase):
                 self.run_cmd([ROOT/'bin/nano_vm',mod])
                 for tool in ('nvm2llvm','nvm2wasm'):
                     out=self.work/'previous';out.write_bytes(b'previous')
-                    self.run_cmd([ROOT/'bin'/tool,mod,'-o',out],success=False)
-                    self.assertEqual(out.read_bytes(),b'previous')
+                    refused = 'CAST_FLOAT' in suffix
+                    self.run_cmd([ROOT/'bin'/tool,mod,'-o',out],success=not refused)
+                    if refused: self.assertEqual(out.read_bytes(),b'previous')
+                    else: self.assertNotEqual(out.read_bytes(),b'previous')
 
 
 if __name__=='__main__':

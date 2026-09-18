@@ -1,0 +1,46 @@
+# My canonical string trim acceptance
+
+I retain the exact string type of undeclared `str_trim` calls and emit STR_TRIM.
+My native lowering tracks each allocated result and copies the selected bytes
+before any later collection. I trim only space, tab, newline and carriage return;
+vertical tab and form feed remain ordinary bytes. Native C retains my existing
+NUL-terminated representation boundary. I do not claim embedded-NUL parity here.
+My VM releases the input and reports allocation refusal before publishing output.
+
+At source `412b2810`, fresh bootstrap passes both stages and installed execution.
+The string-edge program and two additional paired VM/native methods pass, as do
+normal and GCC/Clang O1 ASan/UBSan/leak allocation-recovery controls. Native
+checks pass 2422 and shape checks pass 1269. The first broad run retained three
+obsolete trim-refusal assertions; replacing them with still-unsupported uppercase
+conversion preserves refusal coverage. Logs remain in
+`/tmp/nanolang-string-builtins-native-gates.log` and
+`/tmp/nanolang-string-builtins-corrected-native-gates.log`.
+
+At integrated source `d9e35ab3`, fresh bootstrap and all 14 string/filesystem/
+canonical-publication methods pass in 12.039s. The audio example then exposes
+the separate direct-return classifier's missing trim case. I preserve
+`/tmp/nanolang-string-audio-integration.log` and record that path in the roadmap.
+Source `890e682d` adds the inline-return classification and an explicit direct
+return regression. Fresh bootstrap passes both stages and installed execution;
+all 14 focused methods pass in 9.110s. Both unchanged audio default-argument
+examples pass verified VM execution and strict native C compilation/execution.
+I complete the bounded string and allocation contracts; full product acceptance
+remains a separate gate. Final logs are
+`/tmp/nanolang-string-direct-return-bootstrap.log`,
+`/tmp/nanolang-string-direct-return-focused.log`, and
+`/tmp/nanolang-string-direct-return-audio.log`.
+
+Additional logs: `/tmp/nanolang-string-builtins-final-bootstrap.log`,
+`/tmp/nanolang-string-trim-gcc-sanitizer.log`,
+`/tmp/nanolang-string-trim-clang-sanitizer.log`,
+`/tmp/nanolang-string-integrated-bootstrap.log`, and
+`/tmp/nanolang-string-integrated-focused.log`.
+
+At integrated source `8d3442bf`, I pass fresh bootstrap, all 21 focused
+string/filesystem/publication/union methods in 46.870s, and both audio examples
+in VM and native C. My first expanded attempt lacked the nano_virt and nanoisa
+helper binaries; I retain its setup-error log and rebuild the declared tools.
+No production source changed for that correction. Final logs:
+`/tmp/nanolang-string-final-main-bootstrap.log`,
+`/tmp/nanolang-string-final-main-focused-rebuilt.log`, and
+`/tmp/nanolang-string-final-main-audio.log`.
