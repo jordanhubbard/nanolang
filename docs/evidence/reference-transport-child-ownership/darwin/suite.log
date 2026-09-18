@@ -1,0 +1,13 @@
+test_caller_child_survives_success_and_missing_program (transport.ReferenceTransport.test_caller_child_survives_success_and_missing_program) ... ok
+test_early_exit_keeps_parent_signal_policy_and_cleans_children (transport.ReferenceTransport.test_early_exit_keeps_parent_signal_policy_and_cleans_children) ... ok
+test_empty_nonzero_and_missing_program (transport.ReferenceTransport.test_empty_nonzero_and_missing_program) ... ok
+test_large_input_and_output_before_consumption (transport.ReferenceTransport.test_large_input_and_output_before_consumption) ... ok
+test_output_allocation_failure_reaps_both_owned_children (transport.ReferenceTransport.test_output_allocation_failure_reaps_both_owned_children) ... ok
+test_path_lookup_and_trim (transport.ReferenceTransport.test_path_lookup_and_trim) ... ok
+test_quoted_expression_and_adjacent_spaced_path (transport.ReferenceTransport.test_quoted_expression_and_adjacent_spaced_path) ... ok
+test_repeated_calls_and_closed_standard_descriptors (transport.ReferenceTransport.test_repeated_calls_and_closed_standard_descriptors) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 10.273s
+
+OK
