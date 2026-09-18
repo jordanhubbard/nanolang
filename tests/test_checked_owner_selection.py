@@ -1,18 +1,22 @@
 """I select checked scalar closures without discarding source obligations."""
 from pathlib import Path
+import hashlib
 import subprocess
+import sys
 import tempfile
 import unittest
-from tests.test_affine_contract_boundaries import AffineContractBoundaries, PREFIX
-from tests.test_source_borrow_emission import SourceBorrowEmission
+from tests import test_affine_contract_boundaries as boundaries
+from tests import test_source_borrow_emission as borrow_tests
+
+PREFIX = boundaries.PREFIX
 
 ROOT = Path(__file__).resolve().parents[1]
 UNUSED = PREFIX + 'fn unused(owner: FileHandle) -> FileHandle { return owner }\n'
 
 
 class CheckedOwnerSelection(unittest.TestCase):
-    command = staticmethod(SourceBorrowEmission.command)
-    execute_pair = SourceBorrowEmission.execute_pair
+    command = staticmethod(borrow_tests.SourceBorrowEmission.command)
+    execute_pair = borrow_tests.SourceBorrowEmission.execute_pair
 
     @classmethod
     def setUpClass(cls):
@@ -25,6 +29,7 @@ class CheckedOwnerSelection(unittest.TestCase):
             driver = cls.work / compiler
             cls.command(ROOT / 'bin' / compiler, source, '-o', driver, timeout=900)
             cls.drivers.append(driver)
+            print(f'DRIVER {compiler} sha256={hashlib.sha256(driver.read_bytes()).hexdigest()}', file=sys.stderr, flush=True)
 
     @classmethod
     def tearDownClass(cls):
@@ -54,7 +59,7 @@ class CheckedOwnerSelection(unittest.TestCase):
 
     def test_original_declaration_probes_keep_whole_source_checks(self):
         cases = []
-        original = AffineContractBoundaries()
+        original = boundaries.AffineContractBoundaries()
         original.check_case = lambda name, declaration, accepted: cases.append((name, declaration, accepted))
         for method in sorted(name for name in dir(original) if name.startswith('test_')):
             getattr(original, method)()
@@ -90,10 +95,10 @@ class CheckedOwnerSelection(unittest.TestCase):
             ('cycle', 'fn helper() -> int { return (main) } fn main() -> int { return (helper) }', 'classify', 0, 0),
             ('formal', 'fn helper(print: int) -> int { (print 1) return 0 } fn main() -> int { return (helper 1) }', 'classify', 0, 0),
             ('local', 'fn main() -> int { let print: int = 1 (print 1) return 0 }', 'classify', 0, 0),
-            ('shadow-owner', 'fn main() -> int { return 0 } shadow main { let owner: FileHandle = FileHandle { fd: 1 } let FileHandle { fd: value } = owner assert (== value 1) }', 'classify-shadows', 0, 2),
+            ('shadow-owner', 'fn main() -> int { return 0 } shadow main { let owner: FileHandle = FileHandle { fd: 1 } let FileHandle { fd } = owner assert (== fd 1) }', 'classify-shadows', 0, 2),
             ('shadow-extern', 'extern fn foreign_value() -> int fn main() -> int { return 0 } shadow main { unsafe { assert (== (foreign_value) 0) } }', 'classify-shadows', 0, 0),
-            ('suffix-all', 'fn main() -> int { return 0 } shadow main { let owner: FileHandle = FileHandle { fd: 1 } let FileHandle { fd: value } = owner assert (== value 1) } shadow main { assert (== (main) 0) }', 'classify-shadows', 0, 2),
-            ('suffix-selected', 'fn main() -> int { return 0 } shadow main { let owner: FileHandle = FileHandle { fd: 1 } let FileHandle { fd: value } = owner assert (== value 1) } shadow main { assert (== (main) 0) }', 'classify-shadows', 1, 1),
+            ('suffix-all', 'fn main() -> int { return 0 } shadow main { let owner: FileHandle = FileHandle { fd: 1 } let FileHandle { fd } = owner assert (== fd 1) } shadow main { assert (== (main) 0) }', 'classify-shadows', 0, 2),
+            ('suffix-selected', 'fn main() -> int { return 0 } shadow main { let owner: FileHandle = FileHandle { fd: 1 } let FileHandle { fd } = owner assert (== fd 1) } shadow main { assert (== (main) 0) }', 'classify-shadows', 1, 1),
         ]
         for name, body, mode, first, expected in cases:
             for driver in self.drivers:

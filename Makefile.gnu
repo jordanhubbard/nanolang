@@ -5165,4 +5165,4 @@ $(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h
 .PHONY: test-checked-owner-selection
 test-units: test-checked-owner-selection
 test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
-	python3 -m unittest -v tests.test_checked_owner_selection
+	python3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection
