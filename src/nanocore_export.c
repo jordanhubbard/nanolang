@@ -137,7 +137,11 @@ static void emit_string(SBuf *b, const char *s) {
             case '\\': sbuf_append(b, "\\\\"); break;
             case '\n': sbuf_append(b, "\\n"); break;
             case '\t': sbuf_append(b, "\\t"); break;
-            default:   sbuf_ensure(b, 1); b->data[b->len++] = *p; b->data[b->len] = '\0'; break;
+            default:
+                if (!sbuf_ensure(b, 1)) return;
+                b->data[b->len++] = *p;
+                b->data[b->len] = '\0';
+                break;
         }
     }
     sbuf_append(b, "\"");

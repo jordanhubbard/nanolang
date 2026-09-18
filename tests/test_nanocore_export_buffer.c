@@ -49,6 +49,18 @@ int main(void) {
     assert(!strcmp(result + strlen(result) - 3, ":42"));
     free(result);
 
+    ASTNode quoted = {0};
+    quoted.type = AST_STRING;
+    quoted.as.string_val = text;
+    result = nanocore_export_sexpr(&quoted, NULL);
+    assert(result && strlen(result) == strlen(text) + 12);
+    assert(!memcmp(result, "(EString \"", 10));
+    free(result);
+    for (int budget = 0; budget <= 1; budget++) {
+        allocation_budget = budget;
+        assert(nanocore_export_sexpr(&quoted, NULL) == NULL);
+    }
+
     allocation_budget = 0;
     SBuf initial = sbuf_new();
     sbuf_append(&initial, "ordinary");
@@ -75,6 +87,6 @@ int main(void) {
         sbuf_appendf(&format, "%d", 42);
         assert(format.failed && sbuf_finish(&format) == NULL);
     }
-    puts("I pass ordinary growth and five checked failure paths.");
+    puts("I pass ordinary growth and checked helper and quoted-export failure paths.");
     return 0;
 }

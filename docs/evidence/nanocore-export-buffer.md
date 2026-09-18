@@ -26,3 +26,14 @@ as a passing gate or a production defect.
 
 These checks complete tasks `task_e926ca38a5d64f299e9532ed984a2860` and
 `task_927d53891d204f2fb4e1974eb8c3edc2`. They do not establish full release readiness.
+
+Independent static review found the quoted-string emitter's direct write still
+ignored the new checked-growth result. I recorded that path before correcting
+it, without executing a failing historical program. The direct write now stops
+on failure. Ordinary public AST string export and deterministic initial/growth
+allocation refusals pass in my corrected full NanoCore suite and instrumented
+exporter GCC/Clang O1 ASan/UBSan/leak gates. The linked common objects retain
+their ordinary build; these focused sanitizer claims apply to the included
+exporter and test fixture. Logs: `/tmp/nanolang-exporter-reviewed-suite.log`,
+`/tmp/nanolang-exporter-reviewed-gcc.log` and
+`/tmp/nanolang-exporter-reviewed-clang.log`.
