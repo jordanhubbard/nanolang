@@ -215,3 +215,26 @@ NvmV2Result nvm_ownership_layout_authority(const NvmModule *module, uint32_t lay
     *out = authority;
     return NVM_V2_OK;
 }
+
+NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t count,
+                                            NvmLayoutAuthority *out) {
+    if (!module || (count && !out)) return NVM_V2_ERR_INDEX_RANGE;
+    bool needs;
+    NvmV2Result result = nvm_ownership_contracts_validate(module, &needs);
+    if (result != NVM_V2_OK) return result;
+    const uint8_t *flags = NULL;
+    if (module->ownership_size) {
+        NvmV2Cursor cursor;
+        uint32_t version, declared_count;
+        nvm_v2_cursor_init(&cursor, module->ownership_data, module->ownership_size);
+        if ((result = nvm_v2_u32(&cursor, &version)) != NVM_V2_OK ||
+            (result = nvm_v2_u32(&cursor, &declared_count)) != NVM_V2_OK) return result;
+        if (declared_count != count) return NVM_V2_ERR_INDEX_RANGE;
+        if ((result = nvm_v2_take(&cursor, count, &flags)) != NVM_V2_OK) return result;
+    }
+    for (uint32_t i = 0; i < count; i++)
+        out[i] = flags && (flags[i] & NVM_LAYOUT_COMPLETE) ?
+            (flags[i] & NVM_LAYOUT_RESOURCE ? NVM_LAYOUT_AUTHORITY_RESOURCE :
+             NVM_LAYOUT_AUTHORITY_ORDINARY) : NVM_LAYOUT_AUTHORITY_UNKNOWN;
+    return NVM_V2_OK;
+}

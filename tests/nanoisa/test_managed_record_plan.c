@@ -24,7 +24,7 @@ static void expect(NvmModule *m,NvmRecordPlanStatus status) {
     NvmRecordPlanResult r=nvm_describe_managed_records(m,&plan);
     CHECK(r.status==status);
     if(status==NVM_RECORD_DESCRIBED) {
-        CHECK(plan!=&sentinel && plan->authority==NVM_RECORD_AUTHORITY_UNKNOWN);
+        CHECK(plan!=&sentinel);
         nvm_record_plan_free(plan);
     } else CHECK(plan==&sentinel);
 }
@@ -50,10 +50,55 @@ static void empty_and_authority(void) {
         if(flag==2)continue;
         m->ownership_data[8]=(uint8_t)flag;
         bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK);
-        CHECK(needs==(flag==3));expect(m,NVM_RECORD_UNRESOLVED);
+        CHECK(needs==(flag==3));
+        if(flag==1) {
+            NvmRecordPlan *plan=NULL;
+            CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_DESCRIBED);
+            CHECK(plan->authority==NVM_RECORD_AUTHORITY_ORDINARY);
+            nvm_record_plan_free(plan);
+            unsigned memory=0,unresolved=0,success=0;
+            for(long n=0;n<12;n++) {
+                NvmRecordPlan sentinel={0};plan=&sentinel;budget=n;
+                NvmRecordPlanResult result=nvm_describe_managed_records(m,&plan);budget=-1;
+                if(result.status==NVM_RECORD_DESCRIBED) {
+                    CHECK(plan!=&sentinel && plan->authority==NVM_RECORD_AUTHORITY_ORDINARY);
+                    nvm_record_plan_free(plan);success++;
+                } else {
+                    CHECK(plan==&sentinel);
+                    CHECK(result.status==NVM_RECORD_MEMORY || result.status==NVM_RECORD_UNRESOLVED);
+                    if(result.status==NVM_RECORD_MEMORY)memory++;else unresolved++;
+                }
+                CHECK(m->ownership_data[8]==1 && m->ownership_size==28);
+            }
+            CHECK(memory && unresolved && success);
+        } else expect(m,NVM_RECORD_UNRESOLVED);
     }
     free(m->ownership_data);m->ownership_data=NULL;m->ownership_size=0;
     expect(m,NVM_RECORD_DESCRIBED);nvm_module_free(m);
+}
+static void mixed_authority(void) {
+    NvmModule *m=assemble(".types 1 1 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n");
+    NvmV2Layout layouts[]={{NVM_V2_LAYOUT_ENUM,0,NVM_V2_NO_INDEX,NULL},
+        {NVM_V2_LAYOUT_STRUCT,0,NVM_V2_NO_INDEX,NULL}};
+    retain(m,layouts,2);
+    m->ownership_data=calloc(28,1);CHECK(m->ownership_data);m->ownership_size=28;
+    word(m->ownership_data,1);word(m->ownership_data+4,2);
+    m->ownership_data[9]=NVM_LAYOUT_COMPLETE;word(m->ownership_data+12,1);
+    m->ownership_data[20]=TAG_INT;word(m->ownership_data+24,NVM_V2_NO_INDEX);
+    NvmRecordPlan *plan=NULL;
+    CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_DESCRIBED);
+    CHECK(plan->authority==NVM_RECORD_AUTHORITY_ORDINARY && plan->record_to_layout[0]==1);
+    CHECK(plan->layout_to_record[0]==NVM_V2_NO_INDEX);nvm_record_plan_free(plan);
+    nvm_module_free(m);
+    m=assemble(".entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n");
+    retain(m,NULL,0);
+    m->ownership_data=calloc(24,1);CHECK(m->ownership_data);m->ownership_size=24;
+    word(m->ownership_data,1);word(m->ownership_data+8,1);
+    m->ownership_data[16]=TAG_INT;word(m->ownership_data+20,NVM_V2_NO_INDEX);
+    CHECK(nvm_ownership_layout_authorities(m,0,NULL)==NVM_V2_OK);
+    CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_DESCRIBED);
+    CHECK(plan->record_count==0 && plan->authority==NVM_RECORD_AUTHORITY_ORDINARY);
+    nvm_record_plan_free(plan);nvm_module_free(m);
 }
 static void mapping_and_allocation(const char *output) {
     NvmModule *m=assemble(".types 3 1 1\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 1 0 1\nAGG_GET 0\nPUSH_I64 42\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n");
@@ -124,6 +169,6 @@ static void boundaries(void) {
     large[1].field_count=1;retain(&m,large,2);expect(&m,NVM_RECORD_DESCRIBED);free(m.layout_data);free(fields);
 }
 int main(int argc,char **argv) {
-    empty_and_authority();mapping_and_allocation(argc==2?argv[1]:NULL);boundaries();
+    empty_and_authority();mixed_authority();mapping_and_allocation(argc==2?argv[1]:NULL);boundaries();
     printf("%u record plan checks passed\n",checks);return 0;
 }
