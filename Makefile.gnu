@@ -1,6 +1,6 @@
-# =====================================================================
+# ==============================================================
 # Nanolang Makefile with TRUE 3-Stage Bootstrap Support
-# =====================================================================
+# ==============================================================
 #
 # This Makefile supports building nanolang through multiple stages:
 #
@@ -18,9 +18,9 @@
 # Sentinel files track build progress (.stage*.built) to avoid rebuilds.
 # Use "make clean" to remove all build artifacts and start fresh.
 #
-# =====================================================================
+# ==============================================================
 # IMPORTANT: This Makefile requires GNU make
-# =====================================================================
+# ==============================================================
 #
 # On Linux/macOS: 'make' is GNU make (works as-is)
 # On BSD systems (FreeBSD/OpenBSD/NetBSD): use 'gmake' instead of 'make'
@@ -37,7 +37,7 @@
 #
 # If you see syntax errors, you're using BSD make. Use 'gmake' instead.
 #
-# =====================================================================
+# ==============================================================
 
 #Human: we cannot easily detect bsd make because it doesn't understand $(shell), ifeq, etc.
 # The documentation at the top of this file is sufficient - BSD users will see
@@ -285,9 +285,9 @@ ffi-dispatch-check:
 $(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
 	@# Schema stamp ensures this file exists
 
-# =====================================================================
+# ==============================================================
 # Module Index Generation
-# =====================================================================
+# ==============================================================
 # Build C tool for generating module index
 GENERATE_MODULE_INDEX = bin/generate_module_index
 MODULE_INDEX = modules/index.json
@@ -318,9 +318,9 @@ modules: $(MODULE_INDEX)
 install-deps:
 	@./scripts/install-deps.sh
 
-# =====================================================================
+# ==============================================================
 # Package Manager
-# =====================================================================
+# ==============================================================
 
 .PHONY: pkg-install pkg-publish pkg-update pkg-init pkg-list
 
@@ -344,9 +344,9 @@ HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o 
 
 PREFIX ?= $(HOME)/.local
 
-# =====================================================================
+# ==============================================================
 # Main Targets
-# =====================================================================
+# ==============================================================
 
 .DEFAULT_GOAL := build
 
@@ -368,9 +368,9 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 	@echo ""
 	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd bin/nanoisa bin/nvm2c"
 
-# =====================================================================
+# ==============================================================
 # Test Targets (Meta-Rule Pattern for Stage-Specific Testing)
-# =====================================================================
+# ==============================================================
 # In a fully self-bootstrapping system, tests should use the most evolved
 # compiler by default. These targets allow testing at specific bootstrap stages:
 #
@@ -378,11 +378,11 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 # - test-stage1: Forces C reference compiler only
 # - test-stage2: Forces nanoc_stage1 (first self-compilation)
 # - test-bootstrap: Forces full bootstrap + nanoc_stage2
-# =====================================================================
+# ==============================================================
 
-# =====================================================================
+# ==============================================================
 # NanoISA - Virtual Machine ISA, Assembler, and Disassembler
-# =====================================================================
+# ==============================================================
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
@@ -534,9 +534,9 @@ test-nanoisa-dump: nanoisa_dump
 	@./tests/nanoisa/test_nanoisa_dump bin/nanoisa
 	@rm -f tests/nanoisa/test_nanoisa_dump
 
-# =====================================================================
+# ==============================================================
 # NanoVM - Virtual Machine Execution Engine
-# =====================================================================
+# ==============================================================
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
 NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
@@ -3086,9 +3086,9 @@ clean:
 # Rebuild: Clean and build from scratch
 rebuild: clean build
 
-# =====================================================================
+# ==============================================================
 # Stage 1: C Reference Compiler/Interpreter
-# =====================================================================
+# ==============================================================
 
 .PHONY: stage1
 
@@ -3212,9 +3212,9 @@ $(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/ru
 $(OBJ_DIR)/eval/%.o: $(SRC_DIR)/eval/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/eval
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# =====================================================================
+# ==============================================================
 # Stage 2: Self-Hosted Components (compile and test with stage1)
-# =====================================================================
+# ==============================================================
 
 .PHONY: stage2
 
@@ -3262,9 +3262,9 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	echo "✓ Stage 2: $$success/3 components built successfully"; \
 	touch $(SENTINEL_STAGE2)
 
-# =====================================================================
+# ==============================================================
 # Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
-# =====================================================================
+# ==============================================================
 
 .PHONY: stage3
 
@@ -3307,9 +3307,9 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 		exit 1; \
 	fi
 
-# =====================================================================
+# ==============================================================
 # TRUE Bootstrap (GCC-style: Stage 0 → 1 → 2 → 3)
-# =====================================================================
+# ==============================================================
 
 .PHONY: bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3
 
@@ -3538,9 +3538,9 @@ bootstrap-status:
 	fi
 	@echo ""
 
-# =====================================================================
+# ==============================================================
 # Profiled Bootstrap (Self-Analysis)
-# =====================================================================
+# ==============================================================
 # Build profiled versions of compiler components and analyze performance.
 # This creates _p suffixed binaries with profiling enabled, runs them on
 # real workloads, and outputs LLM-ready JSON for hotspot analysis.
@@ -3612,9 +3612,9 @@ bootstrap-profile-linux: bootstrap-profile
 	@echo "Running on Linux with gprofng..."
 	@echo "Platform-specific profiling complete."
 
-# =====================================================================
+# ==============================================================
 # Additional Targets
-# =====================================================================
+# ==============================================================
 
 # Show build status
 status:
@@ -4036,9 +4036,9 @@ $(BUILD_DIR):
 
 .PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump nvm2c nanoisa_emit test-nvm2c test-nanoisa-src-nano test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
 
-# =====================================================================
+# ==============================================================
 # AGENTFS PUBLISH
-# =====================================================================
+# ==============================================================
 # Compile a .nano file to WASM and publish to AgentFS for use in agentOS
 # Usage:
 #   make publish SOURCE=src/my_agent.nano
@@ -4064,9 +4064,9 @@ endif
 
 .PHONY: publish publish-dry-run
 
-# =====================================================================
+# ==============================================================
 # RELEASE AUTOMATION
-# =====================================================================
+# ==============================================================
 
 # Create a new release (default: patch version bump)
 # Usage:
@@ -4595,3 +4595,9 @@ test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(
 test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic
 test-units: test-native-total-arithmetic
+
+.PHONY: test-constructor-call-context
+test-constructor-call-context: bootstrap
+	python3 -m unittest -v tests.test_constructor_call_context
+
+test-units: test-constructor-call-context
