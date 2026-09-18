@@ -43,3 +43,9 @@ At c0735c9a my five focused Clang tests passed184.410s and all six adjacent runt
 I preserve the first failed859773 artifact archive externally and include its manifest. Its failed tools are not replayed. I also archive the current qualified bin tools before canonical integration. The full-GCC child succeeded, but its original outer inventory driver failed; its status file describes the child and is not an overall orchestration success. Generated module/cache objects changed as recorded. I make no claim that those outputs stayed immutable.
 
 This evidence is Linux scoped. Canonical integration, Darwin acceptance and full product/fixed-point/release gates remain separate.
+
+## My canonical integration qualification
+
+I qualify frozen3e889b25 on canonical4351b43f, including PR799 and PR802. The float production and fixtures are unchanged from d0ac67e6. My fresh bootstrap passed271.907s, setup26.772s, focused GCC5/5 191.566s, focused Clang5/5 184.014s and all six runtime targets49.774s. The complete outer driver exited0. Source and fixed tools remained identical before/after/current; I preserve both producer inventories and archive current bin/generated tools by content hash before further integration. The combined seal retains these reports alongside all historical failures.
+
+PR803 nested results subsequently merged independently with its own fresh scoped acceptance. PR804 remains scoped to float locals and unsafe scopes; a fresh combined inline/nested/float qualification and Darwin acceptance precede whole-product/release claims. Hosted CI is not asserted green.
