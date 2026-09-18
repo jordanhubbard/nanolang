@@ -131,7 +131,7 @@ typedef enum {
     OP_STR_SUBSTR   = 0x42,  /* pop len, pop start, pop str -> push substr */
     OP_STR_CONTAINS = 0x43,  /* pop needle, pop haystack -> push bool */
     OP_STR_EQ       = 0x44,
-    OP_STR_CHAR_AT  = 0x45,  /* pop index, pop str -> push char (as string) */
+    OP_STR_CHAR_AT  = 0x45,  /* pop index, pop str -> push unsigned byte int, or -1 */
     OP_STR_FROM_INT = 0x46,  /* pop int -> push string */
     OP_STR_FROM_FLOAT = 0x47, /* pop float -> push string */
     OP_STR_TRIM     = 0x48,  /* pop str -> push str with leading/trailing whitespace removed */

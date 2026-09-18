@@ -3092,6 +3092,7 @@ vm_return_values: ;
             NanoValue idx_v = stack_pop(vm);
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
+                vm_release(&vm->heap, idx_v);
                 vm_release(&vm->heap, s);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_CHAR_AT: not a string");
             }
@@ -3099,6 +3100,7 @@ vm_return_values: ;
             const char *str = vmstring_cstr(s.as.string);
             int64_t len = (int64_t)vmstring_len(s.as.string);
             int64_t ch = (idx >= 0 && idx < len) ? (unsigned char)str[idx] : -1;
+            vm_release(&vm->heap, idx_v);
             vm_release(&vm->heap, s);
             stack_push(vm, val_int(ch));
             VM_NEXT();

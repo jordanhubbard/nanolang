@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* I expose a non-admitting runtime core, not a public bytecode capability. */
+/* My private runtime API does not itself grant bytecode/profile admission. */
 typedef enum {
     NMS_OK = 0, NMS_TYPE = 1, NMS_ASSERT = 2, NMS_MEMORY = 3,
     NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6
@@ -31,7 +31,9 @@ typedef struct {
  * views never cross runtime instances; a view borrows its handle's lifetime. */
 void nms_init(NmsRuntime *, const NmsView *, uint32_t);
 NmsStatus nms_create(NmsRuntime *, const unsigned char *, uint64_t, NmsHandle *);
-/* I consume one source owner on every path; output changes only on success. */
+/* I consume one source owner on every path; output changes only on success.
+ * Trim also allocates a fresh result when no bytes change. */
+NmsStatus nms_trim_owned(NmsRuntime *, NmsHandle, NmsHandle *);
 NmsStatus nms_substr_owned(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandle *);
 /* I consume one owned reference per input on success or failure. Equal inputs
  * require two references. Other aliases survive; out is unchanged on failure. */
@@ -41,10 +43,13 @@ NmsStatus nms_format_scalar(NmsRuntime *, uint64_t, uint32_t, NmsHandle *);
 /* I borrow the handle, parse C-locale decimal bytes, and allocate nothing. */
 NmsStatus nms_parse_f64(const NmsRuntime *, NmsHandle, uint64_t *);
 NmsStatus nms_parse_i64(const NmsRuntime *, NmsHandle, int64_t *);
+/* I borrow both handles and allocate nothing; output changes only on success. */
+typedef enum { NMS_CONTAINS = 0, NMS_STARTS_WITH = 1, NMS_ENDS_WITH = 2 } NmsPredicate;
+NmsStatus nms_predicate(const NmsRuntime *, NmsHandle, NmsHandle, uint32_t, uint32_t *);
 NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
 NmsStatus nms_retain(NmsRuntime *, NmsHandle);
 NmsStatus nms_release(NmsRuntime *, NmsHandle);
-/* These only guard exported-entry lifecycle. Frame cleanup is not wired yet. */
+/* These guard exported entry; generated frames own their separate cleanup. */
 NmsStatus nms_begin(NmsRuntime *);
 uint64_t nms_finish(NmsRuntime *, NmsStatus, int32_t);
 NmsStatus nms_dispose(NmsRuntime *);

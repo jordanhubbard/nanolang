@@ -1,0 +1,15 @@
+{
+  "production_pin": "e46c425b6634315a76ef69d1bde45be705b8f400",
+  "compiler_sha256": "b588636721f52f5220720f25847588f0831b76b36a486fe152cfbb76c24addf1",
+  "budget_seconds": 900,
+  "argv": [
+    "/home/jkh/Src/nanolang-nanoisa-only-product/bin/nanoc_stage2",
+    "/home/jkh/Src/nanolang-nanoisa-only-product/src_nano/nanoisa_emit.nano",
+    "-o",
+    "/tmp/nanolang-source-emitter-measure-e46c425b/stage2-emit"
+  ],
+  "pid": 2899733,
+  "exit_code": 0,
+  "elapsed_seconds": 440.6391707980074,
+  "compiler_unchanged": true
+}

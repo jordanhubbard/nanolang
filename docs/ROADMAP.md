@@ -2,6 +2,12 @@
 
 - [x] I lower declared `string_to_float` calls with an exact string operand and float result (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). The product prefix-conversion fixture is initially checked-refused. My first corrected gate passes that retained fixture but exposes missing checker builtin result metadata for an inferred local; I retain the initial log and correct that same conversion boundary. I reuse portable `CAST_FLOAT`, evaluate the operand once, preserve declaration resolution and retain legacy plus canonical VM/native acceptance with wrong-type output preservation. Fresh bootstrap and seven GCC/Clang methods pass, including declared-name controls and the unchanged prefix fixture. [Contract and evidence](NANOISA_PREFIX_CONVERSION.md).
 
+- [x] I qualify the source-emitter setup deadline for canonical compilation (`task_3d46381f10bd4dfcb313c2697024191f`). At product `e46c425b`, the existing 180-second setup deadline expires; a separate bounded measurement completes the same build in 440.639 seconds with unchanged compiler hash, and the resulting emitter publishes a verified executable program. I give only this compiler-building setup a 900-second deadline, preserving every producer/shadow assertion and ordinary 180-second command deadline. All 12 affected scalar-match methods pass in 466.277 seconds on the canonical product route. [Evidence](evidence/canonical-emitter-setup.md).
+
+- [ ] I audit legacy C parentheses for nested boolean comparisons (`task_de7d1397f86940f8b759ae07eb46820f`). Pinned Cseed4a75f984 rejects valid nested sign comparison with GCC `-Werror=parentheses`; I retain `/tmp/nanolang-reconstruct-ucompare-first.log`. Current-main behavior needs separate qualification. Reconstruction uses named boolean intermediates without changing compiler policy.
+
+- [x] I reconstruct typed unsigned comparisons (`task_d4c7fd42960d4f218249555b7e268a70`, parent4bd034): exact int bit-pattern ordering with bool results, portable C/Nano helpers, calls/branches/loops and tag/output refusal. Twenty-five GCC/Clang methods pass including484 unsigned pairs; corrected tool hashes match. Initial pinned-compiler warning and negative-test expectation are retained separately. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
+
 - [x] I reconstruct typed integer bitwise operations (`task_c4188559900c4a48887c5c29f77b6ed5`, parent4bd034): exact 64-bit AND/OR/XOR/inversion with portable C and bounded Nano helpers, strict tags, endpoint/pattern/loop parity and atomic refusal. Twenty-two GCC/Clang methods pass including363 binary pairs and22 inversion checks; tool hashes remain unchanged. Full reconstruction stays open. [Contract](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md).
 
 - [x] I reconstruct typed integer shifts (`task_417225d8ac7e49278c25eee9ed1291b9`, parent4bd034): low-six-bit count normalization, portable arithmetic/logical distinction, endpoint/call/loop parity and strict-tag/output refusals. Eighteen GCC/Clang methods pass including351 shift combinations; pinned tool hashes remain unchanged. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md).
@@ -10014,11 +10020,32 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [x] I match managed STR_TRIM stored-byte whitespace, fresh-result allocation
+      and consuming-owner failure cleanup across LLVM/Wasm and the VM. MAC
+      `task_bc2bd84520124b17aa4dfad09fb663dd`; my pre-code
+      [trim contract](NANOISA_MANAGED_TRIM.md) preserves remaining operations.
+      My [paired evidence](evidence/managed-string-trim.md) covers exact bytes,
+      fresh handles, aliases, allocation failure and managed-only admission.
+- [x] I release both popped STR_CHAR_AT operands on success/type refusal before
+      managed admission, and correct its stale char-as-string comment to the
+      actual integer byte/-1 result. Static audit only; no failure replay. MAC
+      `task_62caf894db9649cd904ce6faf3c37ffb`; separate from managed trim.
+      My [corrected-source evidence](evidence/character-operand-lifetime.md)
+      records focused sanitizers and all 274493 VM checks passing; managed
+      character access remains a separate admission contract.
+- [x] I match managed byte-string CONTAINS/STARTS_WITH/ENDS_WITH across
+      VM, LLVM and import-free Wasm with exact stored lengths, no allocations,
+      aliases and existing operand/frame error cleanup. MAC
+      `task_b9a83a6b239b4c858ca6324d3066ac33`; my pre-code
+      [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) and
+      [paired evidence](evidence/managed-string-predicates.md) retain
+      all other full-coverage and platform obligations.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
-      MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
-      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this
-      contract before runtime implementation and preserve current admission
-      until matched execution and cleanup are tested.
+      MAC `task_51da49b39230468784da3481b893563b`; allocator, lifetime
+      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. Core, emitted
+      cleanup, concat, substring and portable conversions are implemented in
+      the checked children above. Darwin managed acceptance7ba and broader
+      required target coverage remain open; old design prose is historical.
 - [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
       MAC `task_488a05eb5e2a417caf83a8353363a30d`.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.

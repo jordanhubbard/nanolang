@@ -202,7 +202,7 @@ class ManagedStrings(unittest.TestCase):
         self.node(wasm,'for(let i=0;i<10;i++){check(e.nano_try_entry()===(1n<<32n));check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);')
 
     def test_unsupported_string_cast_and_reserved_entry_refusals_preserve_output(self):
-        for body in ('PUSH_STR a\nPUSH_STR a\nSTR_CONTAINS\nPOP\n',
+        for body in ('PUSH_STR a\nSTR_TO_LOWER\nPOP\n',
                      'PUSH_STR a\nSTR_TO_UPPER\nPOP\n',
                      'PUSH_STR a\nSTR_TO_LOWER\nPOP\n'):
             asm,mod=self.work/'refuse.nasm',self.work/'refuse.nvm'

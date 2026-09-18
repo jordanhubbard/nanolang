@@ -11,9 +11,9 @@ NVM2C = Path(os.environ.get('NVM2C', str(ROOT/'bin/nvm2c')))
 
 class ScalarUnionEmission(unittest.TestCase):
     @staticmethod
-    def command(*args, expected=0):
+    def command(*args, expected=0, timeout=180):
         result = subprocess.run([str(a) for a in args], cwd=ROOT, text=True,
-                                capture_output=True, timeout=180)
+                                capture_output=True, timeout=timeout)
         if result.returncode != expected:
             raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
         return result
@@ -23,7 +23,9 @@ class ScalarUnionEmission(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory(prefix='scalar-unions-')
         cls.work = Path(cls.temp.name)
         cls.raw = [ROOT/'bin/nanoisa_emit', cls.work/'stage2-emit']
-        cls.command(ROOT/'bin/nanoc_stage2', ROOT/'src_nano/nanoisa_emit.nano', '-o', cls.raw[1])
+        # I build a compiler here; canonical qualification measured 440.639s.
+        # Ordinary program checks retain their separate 180-second deadline.
+        cls.command(ROOT/'bin/nanoc_stage2', ROOT/'src_nano/nanoisa_emit.nano', '-o', cls.raw[1], timeout=900)
         shadow_source = cls.work/'shadows.nano'
         shadow_source.write_text((ROOT/'tests/nanoisa/fixtures/shadow_module_driver.nano.txt').read_text())
         cls.shadows = cls.work/'shadows'

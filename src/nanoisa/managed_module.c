@@ -50,6 +50,11 @@ uint64_t nms_module_format_scalar(uint64_t bits, uint32_t tag) {
     nms_module_fail(nms_format_scalar(&nms_module_instance, bits, tag, &result));
     return result;
 }
+uint32_t nms_module_predicate(uint64_t source, uint64_t affix, uint32_t operation) {
+    uint32_t answer = 0;
+    nms_module_fail(nms_predicate(&nms_module_instance, source, affix, operation, &answer));
+    return answer;
+}
 uint64_t nms_module_parse_f64(uint64_t source) {
     uint64_t result = 0;
     nms_module_fail(nms_parse_f64(&nms_module_instance, source, &result));
@@ -58,6 +63,11 @@ uint64_t nms_module_parse_f64(uint64_t source) {
 int64_t nms_module_parse_i64(uint64_t source) {
     int64_t result = 0;
     nms_module_fail(nms_parse_i64(&nms_module_instance, source, &result));
+    return result;
+}
+uint64_t nms_module_trim(uint64_t source) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_trim_owned(&nms_module_instance, source, &result));
     return result;
 }
 uint64_t nms_module_substr(uint64_t source, uint32_t start, uint32_t length) {

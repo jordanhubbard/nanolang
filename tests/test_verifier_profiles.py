@@ -18,10 +18,14 @@ class VerifierProfiles(unittest.TestCase):
             'advisory_does_not_select': ('.string key "profile"\n.string value "gpu"\n.metadata 0 1\n' + entry + end, True, True),
             'string_opcode': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPOP\n' + end, True, False),
             'managed_concat': ('.string text \"ordinary\"\n' + entry + 'PUSH_STR text\nDUP\nSTR_CONCAT\nPOP\n' + end, True, False),
+            'managed_trim': ('.string text \" ordinary \"\n' + entry + 'PUSH_STR text\nSTR_TRIM\nPOP\n' + end, True, False),
             'managed_substring': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPUSH_I64 1\nPUSH_I64 3\nSTR_SUBSTR\nPOP\n' + end, True, False),
             'managed_decimal': ('.string text " -42suffix"\n' + entry + 'PUSH_STR text\nCAST_INT\nPOP\n' + end, True, False),
             'managed_format': (entry + 'PUSH_I64 -17\nCAST_STRING\nPOP\n' + end, True, False),
             'managed_float_format': (entry + 'PUSH_F64 1.25\nCAST_STRING\nPOP\n' + end, True, False),
+            'managed_contains': ('.string text "x"\n' + entry + 'PUSH_STR text\nPUSH_STR text\nSTR_CONTAINS\nPOP\n' + end, True, False),
+            'managed_starts': ('.string text "x"\n' + entry + 'PUSH_STR text\nPUSH_STR text\nSTR_STARTS_WITH\nPOP\n' + end, True, False),
+            'managed_ends': ('.string text "x"\n' + entry + 'PUSH_STR text\nPUSH_STR text\nSTR_ENDS_WITH\nPOP\n' + end, True, False),
             'managed_float_parse': ('.string text "1.25"\n' + entry + 'PUSH_STR text\nCAST_FLOAT\nPOP\n' + end, True, False),
             'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, True),
             'import': ('.import "" "get_argc" int\n' + entry + end, True, False),
@@ -36,7 +40,7 @@ class VerifierProfiles(unittest.TestCase):
             for name, (assembly, general, scalar) in cases.items():
                 with self.subTest(case=name):
                     literal_only = scalar or name in ('string_opcode', 'nonscalar_parameter')
-                    literal = literal_only or name in ('managed_concat', 'managed_substring', 'managed_decimal', 'managed_format', 'managed_float_format', 'managed_float_parse')
+                    literal = literal_only or name in ('managed_trim', 'managed_concat', 'managed_substring', 'managed_decimal', 'managed_format', 'managed_float_format', 'managed_float_parse', 'managed_contains', 'managed_starts', 'managed_ends')
                     source, module = work/'input.nasm', work/'input.nvm'
                     source.write_text(assembly)
                     built = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module], capture_output=True, text=True, timeout=30)

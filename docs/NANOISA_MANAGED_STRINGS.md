@@ -1,11 +1,14 @@
-# My proposed managed-string runtime contract
+# My managed-string runtime contract
 
-I propose this contract under `task_51da49b39230468784da3481b893563b`, after
-literal-string PR #622 at main `58e0353d`. It is a design for independent review,
-not implemented runtime or release acceptance. My full applicable-language
-LLVM/Wasm obligation remains unchanged. I change no bytecode or source syntax.
+I recorded this pre-code contract under `task_51da49b39230468784da3481b893563b`,
+after literal-string PR #622 at main `58e0353d`. My core, emitted cleanup,
+concat, substring and portable conversion children are now merged through
+PR662. The sections describing the initial boundary retain their historical
+meaning; current admission is in [my implemented subset](NANOISA_LLVM_MANAGED_STRINGS.md).
+Darwin managed acceptance7ba and full applicable-language LLVM/Wasm coverage
+remain open. I change no bytecode or source syntax.
 
-## My current boundary
+## My original pre-implementation boundary
 
 My LLVM values carry `{i64 payload, i8 tag}`. Literal-string payloads are
 constant-pool index plus one; my descriptors retain target-native pointers and
