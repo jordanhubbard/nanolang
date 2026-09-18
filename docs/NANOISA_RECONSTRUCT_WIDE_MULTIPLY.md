@@ -37,3 +37,7 @@ production `ece241ba` and completed bootstrap/product acceptance in
 `docs/evidence/product-gates-ece241ba-complete.json`. I verified Cseed,
 Stage1 and Stage2 hashes against that completed evidence before testing.
 Full reconstruction, source-pair and normative equivalence remain open.
+
+My initial snapshot fixture failed assembly verification because a failure branch retained an extra low word. No module or compiler program was executed. I preserve `/tmp/nanolang-reconstruct-wide-first.log` and `/tmp/nanolang-wide-first-failure`; the corrected fixture stores both words before its assertions. This is a fixture correction, not a runtime failure attribution.
+
+My corrected fixture next reached an explicit Stage1 setup refusal because this isolated checkout lacked `bin/nano_aot_runtime.o`. I preserve `/tmp/nanolang-reconstruct-wide-corrected.log`; I built the local `nvm2c-runtime` prerequisite without modifying my frozen compiler checkout. All four ordinary methods then passed in 23.646 seconds (`/tmp/nanolang-reconstruct-wide-runtime-ready.log`). Compiler tools remain pinned to the successful product; local downstream translator/runtime tools are separately hashed.

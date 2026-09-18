@@ -84,3 +84,5 @@ frontend facts remain required parent obligations.
 I publish sufficient/insufficient findings only for the exact tested subset.
 
 I also reconstruct exact int/bool `CAST_INT`, `CAST_BOOL`, `AND`, `OR` and `NOT` under [my bounded truthiness contract](NANOISA_RECONSTRUCT_TRUTHINESS.md). Evaluated operand snapshots precede boolean combination; other tags remain refused.
+
+I reconstruct exact integer `I64_MUL_WIDE_S` and `I64_MUL_WIDE_U` with immutable low/high word snapshots under [my portable limb contract](NANOISA_RECONSTRUCT_WIDE_MULTIPLY.md). I keep the blocked carry/borrow compiler acceptance separate.
