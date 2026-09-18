@@ -59,6 +59,44 @@ static void float_runtime(FILE *out) {
         " %zero = fcmp oeq double %b, 0.000000e+00\n br i1 %zero, label %z, label %divide\n"
         "z:\n ret double 0.000000e+00\ndivide:\n %answer = fdiv double %a, %b\n ret double %answer\n}\n", out);
 }
+/* I inspect both tags before promotion; cast_floating alone also accepts
+ * nonnumeric scalar tags and is therefore not an arithmetic eligibility test. */
+static void numeric_runtime(FILE *out) {
+    const char *names[] = {"add", "sub", "mul", "div"};
+    const char *integer_ops[] = {"add", "sub", "mul"};
+    const char *float_ops[] = {"fadd", "fsub", "fmul"};
+    for (unsigned op = 0; op < 4; op++) {
+        fprintf(out, "define internal %%V @numeric_%s(%%V %%a, %%V %%b) {\nentry:\n", names[op]);
+        fputs(" %at = extractvalue %V %a, 1\n %bt = extractvalue %V %b, 1\n"
+              " %ai = icmp eq i8 %at, 1\n %bi = icmp eq i8 %bt, 1\n"
+              " %af = icmp eq i8 %at, 3\n %bf = icmp eq i8 %bt, 3\n"
+              " %an = or i1 %ai, %af\n %bn = or i1 %bi, %bf\n"
+              " %valid = and i1 %an, %bn\n call void @check(i1 %valid)\n"
+              " %integers = and i1 %ai, %bi\n"
+              " br i1 %integers, label %integer, label %floating\ninteger:\n"
+              " %ix = extractvalue %V %a, 0\n %iy = extractvalue %V %b, 0\n", out);
+        if (op == 3) fputs(" %ir = call i64 @divide(i64 %ix, i64 %iy, i1 false)\n", out);
+        else fprintf(out, " %%ir = %s i64 %%ix, %%iy\n", integer_ops[op]);
+        fputs(" %iv = insertvalue %V zeroinitializer, i64 %ir, 0\n"
+              " %result_int = insertvalue %V %iv, i8 1, 1\n ret %V %result_int\nfloating:\n"
+              " %fx = call double @cast_floating(%V %a)\n"
+              " %fy = call double @cast_floating(%V %b)\n", out);
+        if (op == 3) fputs(" %fr = call double @float_divide(double %fx, double %fy)\n", out);
+        else fprintf(out, " %%fr = %s double %%fx, %%fy\n", float_ops[op]);
+        fputs(" %bits = bitcast double %fr to i64\n"
+              " %fv = insertvalue %V zeroinitializer, i64 %bits, 0\n"
+              " %result_float = insertvalue %V %fv, i8 3, 1\n ret %V %result_float\n}\n", out);
+    }
+    fputs("define internal %V @numeric_neg(%V %a) {\nentry:\n"
+          " %tag = extractvalue %V %a, 1\n %is_int = icmp eq i8 %tag, 1\n"
+          " %is_float = icmp eq i8 %tag, 3\n %valid = or i1 %is_int, %is_float\n"
+          " call void @check(i1 %valid)\n"
+          " %bits = extractvalue %V %a, 0\n"
+          " br i1 %is_int, label %integer, label %floating\ninteger:\n"
+          " %ir = sub i64 0, %bits\n %iv = insertvalue %V %a, i64 %ir, 0\n ret %V %iv\n"
+          "floating:\n %x = bitcast i64 %bits to double\n %r = fneg double %x\n"
+          " %rb = bitcast double %r to i64\n %fv = insertvalue %V %a, i64 %rb, 0\n ret %V %fv\n}\n", out);
+}
 /* I preserve generic three-way NaN ordering independently of IEEE equality. */
 static void comparison_runtime(FILE *out) {
     fputs(
@@ -226,6 +264,26 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(out, pc, TAG_BOOL);
             break;
         }
+        case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_NEG: {
+            const char *name = ins.opcode == OP_ADD ? "add" : ins.opcode == OP_SUB ? "sub" :
+                               ins.opcode == OP_MUL ? "mul" : ins.opcode == OP_DIV ? "div" : "neg";
+            if (ins.opcode != OP_NEG) pop(out, pc, "b");
+            pop(out, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @numeric_%s(%%V %%p%u_a", pc, name, pc);
+            if (ins.opcode != OP_NEG) fprintf(out, ", %%V %%p%u_b", pc);
+            fputs(")\n", out);
+            push(out, pc, "value");
+            break;
+        }
+        case OP_MOD:
+            pop(out, pc, "b");
+            pop(out, pc, "a");
+            fprintf(out, " %%p%u_x = call i64 @integer(%%V %%p%u_a, i8 1)\n"
+                         " %%p%u_y = call i64 @integer(%%V %%p%u_b, i8 1)\n"
+                         " %%p%u_result = call i64 @divide(i64 %%p%u_x, i64 %%p%u_y, i1 true)\n",
+                    pc, pc, pc, pc, pc, pc, pc);
+            result(out, pc, TAG_INT);
+            break;
         case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT: {
             int binary = ins.opcode == OP_AND || ins.opcode == OP_OR;
             if (binary) {
@@ -332,6 +390,7 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
     if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
     runtime(out);
     float_runtime(out);
+    numeric_runtime(out);
     comparison_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;
