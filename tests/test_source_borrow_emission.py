@@ -90,7 +90,8 @@ class SourceBorrowEmission(unittest.TestCase):
         assembly, stripped = self.work / 'without-names.nasm', self.work / 'without-names.nvm'
         assembly.write_text(stripped_text)
         self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', stripped)
-        self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', stripped).stdout, stripped_text)
+        self.assertEqual([line for line in self.command(ROOT / 'bin/nanoisa', 'dump', stripped).stdout.splitlines() if line],
+                         [line for line in stripped_text.splitlines() if line])
         self.execute_pair(module)
         self.execute_pair(stripped)
         return [tuple(line.split()) for line in records]

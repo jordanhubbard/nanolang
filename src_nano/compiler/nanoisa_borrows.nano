@@ -480,6 +480,14 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     }
     while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
     set ownership (+ ownership "02000000")
+    # I intern both function names before optional per-function name records.
+    let mut entry_name: string = "main"
+    if shadows {
+        set entry_name "__nanoisa_shadow_entry"
+        if (== helper.name entry_name) { set entry_name (+ entry_name "_") }
+    }
+    let _: int = (nb_string entry_name)
+    let _: int = (nb_string helper.name)
     let first: string = (nb_function parser entry shadows first_shadow false)
     set ownership (+ ownership (nb_function_contract false))
     if (!= nb_error "") { return "" }
