@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 /* ── Symbol table for local type tracking ───────────────────────────────── */
 #define CB_MAX_SYMS   512
@@ -31,6 +32,7 @@ typedef struct {
 /* ── Emit context ────────────────────────────────────────────────────────── */
 typedef struct {
     FILE       *out;
+    ASTNode    *root;
     int         indent;
     bool        verbose;
     const char *error;
@@ -44,9 +46,15 @@ typedef struct {
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
+static void ctx_error(CBCtx *c, const char *message) {
+    if (!c->error) c->error = message;
+}
+
 static void ctx_push_scope(CBCtx *c) {
     if (c->scope_depth < CB_MAX_SCOPES)
         c->scope_marks[c->scope_depth++] = c->sym_count;
+    else
+        ctx_error(c, "I exceeded my C source lexical scope capacity.");
 }
 
 static void ctx_pop_scope(CBCtx *c) {
@@ -59,6 +67,8 @@ static void ctx_add_sym(CBCtx *c, const char *name, Type t) {
         c->syms[c->sym_count].name = name;
         c->syms[c->sym_count].type = t;
         c->sym_count++;
+    } else {
+        ctx_error(c, "I exceeded my C source binding capacity.");
     }
 }
 
@@ -89,9 +99,30 @@ static const char *c_type(Type t) {
     }
 }
 
-/* Infer expression type for format string selection */
+/* I resolve declarations before builtin spellings, never from a name fragment. */
+static ASTNode *ctx_function(CBCtx *c, const char *name) {
+    if (!c->root || !name) return NULL;
+    ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+    int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+    for (int i = 0; i < count; ++i) {
+        ASTNode *item = items[i];
+        if (item && item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
+        if (item && item->type == AST_FUNCTION &&
+            strcmp(item->as.function.name, name) == 0) return item;
+    }
+    return NULL;
+}
+
+static bool ctx_has_binding(CBCtx *c, const char *name) {
+    if (!name) return false;
+    for (int i = c->sym_count - 1; i >= 0; --i)
+        if (strcmp(c->syms[i].name, name) == 0) return true;
+    return false;
+}
+
+/* I retain only resolved scalar types; UNKNOWN is not an integer promise. */
 static Type infer_expr_type(CBCtx *c, ASTNode *node) {
-    if (!node) return TYPE_INT;
+    if (!node) return TYPE_UNKNOWN;
     switch (node->type) {
         case AST_NUMBER:     return TYPE_INT;
         case AST_FLOAT:      return TYPE_FLOAT;
@@ -99,27 +130,50 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         case AST_STRING:     return TYPE_STRING;
         case AST_IDENTIFIER: return ctx_lookup_type(c, node->as.identifier);
         case AST_LET:        return node->as.let.var_type;
-        case AST_CALL:
-            /* Heuristic: calls returning strings usually have "string" in name */
-            if (node->as.call.name) {
-                const char *n = node->as.call.name;
-                if (strstr(n, "to_string") || strstr(n, "string_of") ||
-                    strstr(n, "int_to_str") || strcmp(n, "nano_strcat") == 0)
-                    return TYPE_STRING;
-            }
-            return TYPE_INT;
+        case AST_RETURN:     return infer_expr_type(c, node->as.return_stmt.value);
+        case AST_CALL: {
+            const char *name = node->as.call.name;
+            if (node->as.call.checked_signature)
+                return node->as.call.checked_signature->return_type;
+            if (!name || ctx_has_binding(c, name)) return TYPE_UNKNOWN;
+            ASTNode *function = ctx_function(c, name);
+            if (function) return function->as.function.return_type;
+            if (strcmp(name, "float_from_bits") == 0)
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_INT ? TYPE_FLOAT : TYPE_UNKNOWN;
+            if (strcmp(name, "float_to_bits") == 0)
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_FLOAT ? TYPE_INT : TYPE_UNKNOWN;
+            if (strcmp(name, "int_to_string") == 0 || strcmp(name, "float_to_string") == 0 ||
+                strcmp(name, "bool_to_string") == 0 || strcmp(name, "nano_strcat") == 0)
+                return TYPE_STRING;
+            if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0) return TYPE_VOID;
+            return TYPE_UNKNOWN;
+        }
+        case AST_IF: {
+            Type then_type = infer_expr_type(c, node->as.if_stmt.then_branch);
+            Type else_type = infer_expr_type(c, node->as.if_stmt.else_branch);
+            return then_type == else_type ? then_type : TYPE_UNKNOWN;
+        }
         case AST_PREFIX_OP: {
             TokenType op = node->as.prefix_op.op;
             if (op == TOKEN_EQ || op == TOKEN_NE || op == TOKEN_LT ||
                 op == TOKEN_GT || op == TOKEN_LE || op == TOKEN_GE ||
                 op == TOKEN_AND || op == TOKEN_OR || op == TOKEN_NOT)
                 return TYPE_BOOL;
-            /* For arithmetic, check lhs */
-            if (node->as.prefix_op.arg_count > 0)
-                return infer_expr_type(c, node->as.prefix_op.args[0]);
-            return TYPE_INT;
+            int count = node->as.prefix_op.arg_count;
+            if (count < 1 || count > 2) return TYPE_UNKNOWN;
+            Type left = infer_expr_type(c, node->as.prefix_op.args[0]);
+            if (count == 1) return left;
+            Type right = infer_expr_type(c, node->as.prefix_op.args[1]);
+            if (left == TYPE_STRING && right == TYPE_STRING && op == TOKEN_PLUS)
+                return TYPE_STRING;
+            if ((left == TYPE_INT || left == TYPE_FLOAT) &&
+                (right == TYPE_INT || right == TYPE_FLOAT))
+                return left == TYPE_FLOAT || right == TYPE_FLOAT ? TYPE_FLOAT : TYPE_INT;
+            return TYPE_UNKNOWN;
         }
-        default: return TYPE_INT;
+        default: return TYPE_UNKNOWN;
     }
 }
 
@@ -176,7 +230,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     if (!node) {
         if (c->verbose)
             fprintf(stderr, "[c_backend] null AST node in expression\n");
-        c->error = "null AST node";
+        ctx_error(c, "I require an expression AST node.");
         return -1;
     }
 
@@ -252,7 +306,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         }
 
         if (argc != 2) {
-            c->error = "unsupported arity for prefix op";
+            ctx_error(c, "I do not support this C prefix-operation arity.");
             return -1;
         }
 
@@ -272,7 +326,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             case TOKEN_AND:     op_str = "&&"; break;
             case TOKEN_OR:      op_str = "||"; break;
             default:
-                c->error = "unsupported binary operator";
+                ctx_error(c, "I do not support this C binary operator.");
                 return -1;
         }
 
@@ -343,7 +397,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             if (emit_expr(c, node->as.call.func_expr)) return -1;
             fputc(')', c->out);
         } else {
-            c->error = "call with no name or func_expr";
+            ctx_error(c, "I require a named or expression callee.");
             return -1;
         }
         fputc('(', c->out);
@@ -523,7 +577,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         if (c->verbose)
             fprintf(stderr, "[c_backend] unsupported expr node type %d\n",
                     node->type);
-        c->error = "unsupported expression AST node";
+        ctx_error(c, "I do not support this C expression AST node.");
         return -1;
     }
 }
@@ -1167,40 +1221,77 @@ static int emit_program(CBCtx *c, ASTNode *root) {
 }
 
 /* ── Public API ──────────────────────────────────────────────────────────── */
-int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
-                      const CBOptions *opts) {
+static int render_source(ASTNode *root, FILE *out, const char *source_file,
+                         const CBOptions *opts) {
     CBCtx c;
     memset(&c, 0, sizeof(c));
-    c.out     = out;
+    c.out = out;
+    c.root = root;
     c.verbose = opts ? opts->verbose : false;
-    c.indent  = 0;
+    if (!root) ctx_error(&c, "I require a program AST.");
+    if (!c.error) {
+        emit_preamble(&c, source_file);
+        if (emit_program(&c, root) != 0 && !c.error)
+            ctx_error(&c, "I could not emit this C program.");
+    }
+    if (ferror(out)) ctx_error(&c, "I could not write staged C source.");
+    if (c.error) {
+        fprintf(stderr, "[c_backend] %s\n", c.error);
+        return 1;
+    }
+    return 0;
+}
 
-    emit_preamble(&c, source_file);
-    return emit_program(&c, root);
+int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
+                      const CBOptions *opts) {
+    if (!out) return 1;
+    FILE *staged = tmpfile();
+    if (!staged) {
+        fprintf(stderr, "[c_backend] I could not stage C source.\n");
+        return 1;
+    }
+    int rc = render_source(root, staged, source_file, opts);
+    if (!rc && (fflush(staged) != 0 || fseek(staged, 0, SEEK_SET) != 0)) rc = 1;
+    char buffer[8192];
+    while (!rc) {
+        size_t count = fread(buffer, 1, sizeof buffer, staged);
+        if (count && fwrite(buffer, 1, count, out) != count) rc = 1;
+        if (count < sizeof buffer) {
+            if (ferror(staged)) rc = 1;
+            break;
+        }
+    }
+    if (fclose(staged) != 0) rc = 1;
+    return rc;
 }
 
 int c_backend_emit(ASTNode *root, const char *output_path,
                    const char *source_file, const CBOptions *opts) {
-    FILE *fp = fopen(output_path, "w");
-    if (!fp) {
-        fprintf(stderr, "[c_backend] error: cannot open %s for writing\n",
-                output_path);
+    if (!output_path) return 1;
+    size_t length = strlen(output_path);
+    static const char suffix[] = ".tmp.XXXXXX";
+    if (length > SIZE_MAX - sizeof suffix) return 1;
+    char *temporary = malloc(length + sizeof suffix);
+    if (!temporary) return 1;
+    memcpy(temporary, output_path, length);
+    memcpy(temporary + length, suffix, sizeof suffix);
+    int descriptor = mkstemp(temporary);
+    if (descriptor < 0) {
+        fprintf(stderr, "[c_backend] I could not stage output for %s.\n", output_path);
+        free(temporary);
         return 1;
     }
-
-    CBCtx c;
-    memset(&c, 0, sizeof(c));
-    c.out     = fp;
-    c.verbose = opts ? opts->verbose : false;
-    c.indent  = 0;
-
-    emit_preamble(&c, source_file);
-    int rc = emit_program(&c, root);
-
-    fclose(fp);
-    if (rc != 0) {
-        fprintf(stderr, "[c_backend] error: %s\n",
-                c.error ? c.error : "unknown error");
+    FILE *staged = fdopen(descriptor, "w");
+    if (!staged) {
+        close(descriptor);
+        unlink(temporary);
+        free(temporary);
+        return 1;
     }
+    int rc = render_source(root, staged, source_file, opts);
+    if (fclose(staged) != 0) rc = 1;
+    if (!rc && rename(temporary, output_path) != 0) rc = 1;
+    if (rc) unlink(temporary);
+    free(temporary);
     return rc;
 }
