@@ -18,7 +18,7 @@ class PublicCGuarded(unittest.TestCase):
                 self.assertEqual(self.run_cmd([exe]).stdout,expected)
         path=self.work/'ordinary.nano'
         self.assertEqual(self.run_cmd([ROOT/'bin/nano',path]).stdout,expected)
-        module=self.work/'ordinary.nvm';self.run_cmd([ROOT/'bin/nano_virt',path,'--emit-nvm','-o',module])
+        module=self.work/'ordinary.nvm';self.run_cmd([os.environ.get('NANO_VIRT',str(ROOT/'bin/nano_virt')),path,'--emit-nvm','-o',module])
         self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module])
         self.assertEqual(self.run_cmd([ROOT/'bin/nano_vm',module]).stdout,expected)
         return code

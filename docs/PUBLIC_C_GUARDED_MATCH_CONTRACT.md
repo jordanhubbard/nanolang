@@ -18,3 +18,7 @@ I preserve statement-match values as discarded and leave expression-form matches
 I make no global semantic policy decision in this child. I document target refusal boundaries and keep their required implementations/decisions open. This slice does not turn the public target into the full language or satisfy full release acceptance.
 
 My existing payload API refusal control changes its unsupported wildcard spelling to the still-unsupported OR:Item pattern, because one final total wildcard is now admitted deliberately. Separate new controls prove final wildcard success and early/multiple refusal. My older unguarded-only completeness predicate remains unchanged; literal-true guard coverage belongs to the new reviewed profile. I record this harness change before freezing and do not count it as unchanged acceptance.
+
+## My corrected producer qualification
+
+My original frozen `66824443` GCC and Clang runs each passed three of four methods. Public C and interpreter observations passed, but the nested scope fixture's verified VM assertion failed. I preserve `/tmp/nanolang-public-c-guarded-{gcc,clang}.log` and the original freeze manifest. Required companion `task_6d9b923cd7854003a8430dddde22d4b2` repairs NanoVirt lexical binding cleanup separately. My harness now accepts the exact `NANO_VIRT` external producer path for fresh corrected-source acceptance; every source fixture and assertion remains unchanged. I record both producer trees and tool hashes, and do not describe this as an own-tool integration until canonical integration occurs.
