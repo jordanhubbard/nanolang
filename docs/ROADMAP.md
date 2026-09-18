@@ -63,6 +63,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I reconcile three stale scalar roadmap rows with canonical merged evidence (`task_944edde6410b459b8d195a08eb1dd072`). I verify PR560 typed F64 and PR569 VM/native implicit-return ancestry and MAC completion, preserve their bounded scope, and retain broader language and release holds.
+
 - [x] I restore the standalone native map unit harness after diagnostic-hook integration (`task_02182f5f162a4bbf9f14803f29d533f3`). The full native gate reports 2,418 passes and four compiler failures because its direct runtime-fragment include omits `NVM2C_ABORT`. I supply the harness hook without changing production guards and retain the failed log. The corrected complete gate passes 2,422 native checks and 1,092 shape checks at `5971fb58`.
 
 - [x] I report generated C function and line before ordinary native invariant aborts (`task_fb49a88a8ab84385a52858243214d237`). I preserve every guard and SIGABRT behavior, with exact refusal and passing GCC/Clang controls, native regression checks and integrated numeric/map checks. Separate owned emission and foreign code remain outside this diagnostic change. This foundation neither attributes nor resolves the product startup or export-shadow holds. [Evidence](evidence/native-invariant-diagnostics.md).
