@@ -1,0 +1,11 @@
+test_owned_scalar_float_matrix_and_cleanup (tests.test_owned_binary64.OwnedBinary64.test_owned_scalar_float_matrix_and_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.918s
+
+OK
+case 0 0
+case 1 0
+case 2 0
+case 3 2
+1098 owned binary64 checks passed

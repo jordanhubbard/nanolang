@@ -5193,3 +5193,9 @@ test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
 .PHONY: test-selfhost-native-array-slice
 test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
 	python3 -m unittest -v tests.test_selfhost_native_array_slice
+
+.PHONY: test-owned-binary64
+test-units: test-owned-binary64
+test-owned-binary64: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_binary64 tests/nanoisa/test_owned_binary64.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_binary64

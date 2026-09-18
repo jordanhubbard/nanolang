@@ -1,0 +1,67 @@
+{
+  "qualified_pin": "2e3b649b46afcd512cc1f1ae5c5304aa6fc1ada9",
+  "production_native": "d8212ebd",
+  "production_public_admission": "a62a6baf",
+  "statuses": {
+    "focused": {
+      "pin": "2e3b649b46afcd512cc1f1ae5c5304aa6fc1ada9",
+      "command": [
+        "make",
+        "-j4",
+        "test-owned-binary64"
+      ],
+      "status": 0,
+      "seconds": 3.9749658029759303
+    },
+    "clang": {
+      "pin": "2e3b649b46afcd512cc1f1ae5c5304aa6fc1ada9",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_owned_binary64"
+      ],
+      "status": 0,
+      "seconds": 4.975655835005455
+    },
+    "regression": {
+      "pin": "2e3b649b46afcd512cc1f1ae5c5304aa6fc1ada9",
+      "command": [
+        "make",
+        "-j2",
+        "test-verifier",
+        "test-affine-bytecode",
+        "test-caller-references",
+        "test-owned-assertions",
+        "test-owned-value-graphs",
+        "test-owned-value-results",
+        "test-owned-string-print",
+        "test-nvm2c"
+      ],
+      "status": 0,
+      "seconds": 204.32590738398721
+    }
+  },
+  "source_count": 1596,
+  "source_scope": "tracked src/, tests/, Makefile.gnu",
+  "clang_invocation_environment": {
+    "CC": "/tmp/nanolang-projection-clang"
+  },
+  "generated_native_sanitizers": [
+    "address",
+    "undefined"
+  ],
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "vm_fixture_instrumentation": "ordinary C build; generated native programs instrumented",
+  "comparison_combinations": 588,
+  "focused_C_checks": 1098,
+  "core_tool_hash_observation": "captured during regression, verified unchanged after terminal",
+  "historical_runs": [
+    "cd8c7f6c",
+    "fe190992",
+    "e7cb4fce",
+    "35f03637",
+    "29dc1d21"
+  ]
+}
