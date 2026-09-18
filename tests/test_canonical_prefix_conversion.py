@@ -15,8 +15,8 @@ class CanonicalPrefixConversion(unittest.TestCase):
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result
 
-    def exercise(self, source, work):
-        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+    def exercise(self, source, work, compilers=('nano_virt', 'nanoc_stage1', 'nanoc_stage2')):
+        for compiler in compilers:
             with self.subTest(compiler=compiler):
                 module, c_source, native = (work / name for name in ('main.nvm', 'main.c', 'native'))
                 self.command([ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module])
@@ -78,7 +78,21 @@ shadow main { assert (== (main) 0) }
             source.write_text('module "' + str(dependency) + '" as helpers\n'
                               'fn main() -> int { let value = (helpers.string_to_float "x") '
                               'assert (== value 7) return 0 }\nshadow main { assert (== (main) 0) }\n')
-            self.exercise(source, work)
+            # My C seed reserves builtin declaration names; selfhost module
+            # binding keeps the existing qualified declaration identity.
+            result = self.command([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', work/'reserved.nvm'], 1)
+            self.assertIn("already defined", result.stderr)
+            self.exercise(source, work, ('nanoc_stage1', 'nanoc_stage2'))
+
+    def test_declared_local_function_keeps_its_result_type(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            source = work/'source.nano'
+            source.write_text('fn string_to_float(value: string) -> int { return 7 }\n'
+                              'shadow string_to_float { assert true }\n'
+                              'fn main() -> int { let value = (string_to_float "x") '
+                              'assert (== value 7) return 0 }\nshadow main { assert (== (main) 0) }\n')
+            self.exercise(source, work, ('nanoc_stage1', 'nanoc_stage2'))
 
 
 if __name__ == '__main__':

@@ -4355,7 +4355,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             } else { (print "") }
         } else { (print "") }
         /* Check if it's a builtin function/operator */
-        let builtin_type: NSType = (check_builtin_function fn_name)
+        let mut builtin_type: NSType = (check_builtin_function fn_name)
+        if (and (== fn_name "string_to_float") (>= (env_lookup symbols fn_name) 0)) {
+            set builtin_type (type_unknown_named fn_name)
+        }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else {
@@ -4445,7 +4448,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         }
         let short_name: string = (module_qualified_suffix qualified_name)
         /* Allow builtin/mapped helpers for module-qualified calls (e.g., Diagnostics.*) */
-        let builtin_type: NSType = (check_builtin_function short_name)
+        let mut builtin_type: NSType = (check_builtin_function short_name)
+        if (and (== short_name "string_to_float") (>= (env_lookup symbols qualified_name) 0)) {
+            set builtin_type (type_unknown_named qualified_name)
+        }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
             return builtin_type
         } else { (print "") }
