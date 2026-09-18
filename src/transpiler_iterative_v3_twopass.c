@@ -891,6 +891,53 @@ static unsigned next_nested_array_id(Environment *env) {
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry);
 
+/* I restore a checked payload after emitted outer locals enter the environment. */
+static void restore_native_match_binding(Environment *env, ASTNode *match, int arm,
+                                         const char *owner) {
+    const char *name = match->as.match_expr.pattern_bindings[arm];
+    const char *variant = match->as.match_expr.pattern_variants[arm];
+    if (!owner || !name || !*name || !strcmp(name, "_") ||
+        !strcmp(variant, "_") || !strncmp(variant, "INT:", 4) ||
+        !strncmp(variant, "OR:", 3)) return;
+    size_t size = strlen(owner) + strlen(variant) + 2;
+    char *nominal = malloc(size);
+    if (!nominal) {
+        fprintf(stderr, "I cannot allocate match binding metadata\n");
+        exit(1);
+    }
+    snprintf(nominal, size, "%s.%s", owner, variant);
+    Symbol checked;
+    bool found = false;
+    for (int i = env->symbol_count - 1; i >= 0; --i) {
+        Symbol *symbol = &env->symbols[i];
+        if (symbol->name && !strcmp(symbol->name, name) &&
+            symbol->struct_type_name && !strcmp(symbol->struct_type_name, nominal) &&
+            symbol->def_line == match->line && symbol->def_column == match->column &&
+            (!symbol->def_file || !env->current_file ||
+             !strcmp(symbol->def_file, env->current_file))) {
+            checked = *symbol;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        free(nominal);
+        fprintf(stderr, "I require the checked nominal match binding\n");
+        exit(1);
+    }
+    env_define_var_with_type_info(env, name, checked.type, checked.element_type,
+                                 checked.type_info, checked.is_mut, create_void());
+    Symbol *binding = &env->symbols[env->symbol_count - 1];
+    free(binding->struct_type_name);
+    binding->struct_type_name = nominal;
+    binding->def_line = checked.def_line;
+    binding->def_column = checked.def_column;
+    binding->def_file = checked.def_file;
+    binding->is_resource = checked.is_resource;
+    binding->scope_end_line = match->as.match_expr.arm_bodies[arm]->scope_end_line;
+    binding->scope_end_column = match->as.match_expr.arm_bodies[arm]->scope_end_column;
+}
+
 static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *env) {
     if (!body) return;
     if (body->type != AST_BLOCK) {
@@ -3089,6 +3136,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
+                    restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
                     ASTNode *guard = expr->as.match_expr.guard_exprs ? expr->as.match_expr.guard_exprs[i] : NULL;
 
                     if (strcmp(variant_name, "_") == 0) {
@@ -3184,6 +3232,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     const char *variant_name = expr->as.match_expr.pattern_variants[i];
                     const char *binding_name = expr->as.match_expr.pattern_bindings[i];
                     ASTNode *arm_body = expr->as.match_expr.arm_bodies[i];
+                    restore_native_match_binding(env, expr, i, udef ? udef->name : NULL);
 
                     if (strcmp(variant_name, "_") == 0) {
                         /* Wildcard arm: _ => expr  emits default: */
@@ -3541,6 +3590,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
+                    restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
                     ASTNode *guard = stmt->as.match_expr.guard_exprs ? stmt->as.match_expr.guard_exprs[i] : NULL;
 
                     emit_indent_item(list, indent + 1);
@@ -3638,6 +3688,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     const char *variant_name = stmt->as.match_expr.pattern_variants[i];
                     const char *binding_name = stmt->as.match_expr.pattern_bindings[i];
                     ASTNode *arm_body = stmt->as.match_expr.arm_bodies[i];
+                    restore_native_match_binding(env, stmt, i, udef ? udef->name : NULL);
 
                     emit_indent_item(list, indent + 2);
                     if (strcmp(variant_name, "_") == 0) {

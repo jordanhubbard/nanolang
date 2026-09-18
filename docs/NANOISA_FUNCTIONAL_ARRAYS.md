@@ -1,0 +1,31 @@
+# My canonical scalar array transformations
+
+I record this contract before implementation under existing task_c83543611db54102b1f75f7a94f9e93d. My float-array prerequisite is merged PR643; parent2578 remains open until the ordinary filter acceptance passes.
+
+I lower abs with the existing C-seed NanoISA comparison/conditional-negation semantics: I evaluate its int or float operand once, compare it with same-type zero, and negate only when less than zero. Typed I64 negation retains its defined wrap behavior; typed F64 comparison preserves negative zero and unordered NaN behavior. I do not infer a new mixed numeric conversion policy from the interpreter's C arithmetic.
+
+For map, filter and reduce, I initially resolve an ordinary declared function identifier with the existing module owner and lexical shadow rules. I reject unresolved, extern and indirect/computed callback targets explicitly. I require exact int/float/bool/string array elements, exact callback arity and parameter types, a supported scalar map result, a bool filter result, and an accumulator-preserving two-argument reduce signature. I do not coerce int arrays to float arrays or admit resource/heap callback payloads under this contract.
+
+I evaluate the source array once, then the reduce initializer once, in argument order. A declared callback identifier has no runtime evaluation effects. I capture the source length before invoking callbacks, read each element immediately before its invocation, and visit ascending indices. I invoke each callback once per original element. Map and filter produce fresh arrays, including empty results with the exact declared element type; filter preserves retained source values and order. Reduce returns the initializer unchanged when the input is empty. I retain aliases and rely on the existing native root/safepoint contract.
+
+I register direct callback dependencies in the canonical closure, so selected shadows and exported entry points keep their required callees. Ordinary user declarations with builtin spellings keep their own binding identity. I validate signatures before emitting code or mutating lowering state, preserving the first diagnostic and any previous published output.
+
+I require ordinary core operator, map/reduce and filter acceptance plus focused source-order, callback-side-effect, empty-result, type-changing map, signature refusal and owner/shadow controls. I compare executable VM/native behavior and use sanitizer cleanup checks. This source lowering uses NanoISA directly; the legacy C transpiler is not my implementation or acceptance substitute. I will record any remaining callable/profile boundary rather than close a broader task from a narrower test.
+
+## My retained acceptance
+
+At source checkpoint `13c7e74b`, with the separate native float-storage companion `d75aefe6`, I tested eight focused methods through canonical whole-program and selected-shadow NanoISA, verifier, VM and native GCC O2 ASan/UBSan/LSan execution. All eight pass in 39.248 seconds. These include unchanged `nl_syntax_operators`, `nl_functions_map_reduce`, `nl_functions_filter` and `nl_functions_array_param`; int/float/bool/string reductions; source and initializer evaluation order; source mutation between callbacks; retained original filter elements; fresh empty result arrays; scalar-changing maps; module owner resolution; user declarations with builtin names; and signature/shadow refusals preserving prior output. A mutating reduce initializer also passes through the independent C-seed VM route.
+
+I retained the initial failing build and fixture logs. The first shadows exposed missing direct-return inline classification and a compact `array<float>=` fixture tokenization mistake. A refusal fixture used reserved `opaque` as a declaration name; I corrected it and now assert the refusal is not a parse failure. The unchanged filter example then exposed the separately recorded native concrete/optional float parameter dependency `task_0a49d074fc174478a57d76a698a7f3eb`; its initial module, dump and translation refusal remain in `/tmp/nanolang-functional-filter-evidence/`. I did not execute a refused native artifact.
+
+I retain indirect/computed callbacks, extern callbacks, generic or heap element signatures and unsupported nested result types as explicit refusals. Parent2578 and c835 require the merged integrated acceptance; this source checkpoint alone does not close them.
+
+The same eight methods pass Clang O2 ASan/UBSan/LSan in 29.083 seconds. My unchanged adjacent emitter gate passes 86 comparisons and 88 Python methods in 127.839 seconds. Logs are `/tmp/nanolang-functional-complete-gcc.log`, `/tmp/nanolang-functional-complete-clang.log` and `/tmp/nanolang-functional-emitter.log`. Fresh merged-source bootstrap remains the final integration gate.
+
+## My final integrated source
+
+I rebased onto main `52bfde90`, including merged PR649, at tested source `5a776e68`. Fresh `make bootstrap` passed both stages, their hello checks, recorded comparison and installed-compiler checks. I then rebuilt nanoisa_emit, nano_virt, nano_vm, nvm2c and nanoisa_dump in that checkout and reran all eight functional methods with its default local tools: all pass in 39.122 seconds. Logs are `/tmp/nanolang-functional-integrated-bootstrap.log`, `/tmp/nanolang-functional-final-tools.log` and `/tmp/nanolang-functional-final-paired.log`. The final documentation commit does not change this tested source.
+
+This satisfies the recorded scalar callback acceptance of c835 and the first_float/filter criterion of parent2578, subject to actual canonical merge. I do not infer full product or release readiness from these bounded gates.
+
+After main advanced to `496c7bff`, I resolved one additive inline-call conflict by retaining both str_trim and the functional builtin classification. Tested source `4a75f984` passes another fresh bootstrap, including both stages and installed/compiler comparison checks. Rebuilt local tools then pass all eight paired methods in 38.064 seconds. I retain the earlier pins separately; the final logs are `/tmp/nanolang-functional-restack-bootstrap.log`, `/tmp/nanolang-functional-restack-tools.log` and `/tmp/nanolang-functional-restack-paired.log`. This restack changes no functional lowering or tag policy.
