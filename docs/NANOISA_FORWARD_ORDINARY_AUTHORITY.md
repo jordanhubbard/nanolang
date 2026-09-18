@@ -24,6 +24,44 @@ validation for the entire payload. This explicit boundary prevents the ordinary
 extension from changing transitive affine eligibility, including an ordinary
 child reached by a resource parent. Broader resource graphs remain separate.
 
+## My structural transport prerequisite
+
+Independent review found that my shared LAYOUTS decoder rejects forward edges
+before authority validation. I explicitly extend that structural contract here;
+I do not assume an ownership-only change can transport the new facts.
+
+The default decoder preserves its existing path for every prior-only table.
+If a table contains any forward edge, I require every layout to be STRUCT and
+every field to be a scalar/string leaf with no nested index or an exact STRUCT
+edge to another table entry. I validate the whole graph with an iterative
+three-color walk before returning any decoded output. I reject cycles, self
+edges, out-of-range indices, non-record kinds and unsupported field shapes.
+The walk uses storage bounded by the decoded count, checks allocation failure,
+and does not recurse on the host stack. Structural decoding proves an acyclic
+record graph only: it never fabricates COMPLETE or ORDINARY authority.
+Prior-only mixed-kind tables retain their existing structural verdicts.
+
+I audit all decoder consumers before implementation. Module conversion and
+cross-section validation preserve table order and exact per-kind indices;
+their comments must state acyclicity rather than lower-number ordering.
+Retained transport validates names/counts and round-trips the same bytes.
+VM OWN_PACK and native owned emission perform indexed field reads only after
+ownership/execution validation. Affine state uses explicit bounded field paths;
+its reference-place helper retains its prior-only check unchanged. The shared
+ownership validator explicitly rejects every non-prior nested edge anywhere in
+a RESOURCE-bearing table, including UNKNOWN declarations, before the existing
+scalar-tree rules run. This restores the old structural precondition for every
+resource consumer despite the broader structural codec.
+
+The managed record descriptor preflight retains its existing prior-only
+boundary. Consequently the new field-origin API also continues to refuse
+forward records: this child does not silently widen that independently
+qualified analysis. Array/record executable selectors remain unchanged.
+My codec/header documentation names this limited all-record DAG extension;
+I qualify bare codec, retained transport and whole-module round trips, as well
+as the separate authority verdict. Existing cyclic fixtures remain invalid;
+only an acyclic exact record graph receives the new structural success.
+
 ## My paired optional producers
 
 I keep the existing closed plain local non-generic scalar/string/record subset
