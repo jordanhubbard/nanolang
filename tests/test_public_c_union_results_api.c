@@ -54,6 +54,17 @@ int main(int argc,char **argv){
  ctx_error(&ctx,"I retain my first error.");assert(ctx.error==first);
  ctx=(CBCtx){0};ctx.root=&root;call.as.call.func_expr=&zero;
  assert(!ctx_union_value(&ctx,&call));assert(ctx.error);call.as.call.func_expr=NULL;
+ ASTNode dotted={.type=AST_STRUCT_LITERAL};
+ dotted.as.struct_literal.struct_name="Choice.Item";dotted.as.struct_literal.field_count=1;
+ dotted.as.struct_literal.field_names=names;dotted.as.struct_literal.field_values=values;
+ ctx=(CBCtx){0};ctx.root=&root;
+ assert(ctx_union_value(&ctx,&dotted)==&decl);assert(dotted.type==AST_STRUCT_LITERAL);
+ dotted.as.struct_literal.struct_name="Choice.Missing";ctx.error=NULL;
+ assert(!ctx_union_value(&ctx,&dotted));assert(ctx.error);
+ dotted.as.struct_literal.struct_name="ChoiceOther.Item";ctx.error=NULL;
+ assert(!ctx_union_value(&ctx,&dotted));assert(ctx.error);
+ dotted.as.struct_literal.struct_name="Choice.Item";dotted.as.struct_literal.spread_source=&zero;ctx.error=NULL;
+ assert(!ctx_union_value(&ctx,&dotted));assert(ctx.error);
  assert(c_backend_emit(&root,argv[1],"ordinary.nano",&options)==0);
  FILE *f=fopen(argv[1],"r");assert(f);char text[32768]={0};assert(fread(text,1,sizeof text-1,f)>0);assert(fclose(f)==0);
  assert(strstr(text,"NanoUnion_Choice produce(void);"));assert(strstr(text,"NanoUnion_Choice produce(void) {"));
