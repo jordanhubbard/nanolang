@@ -69,6 +69,32 @@ static bool replace_opcode(NvmModule *m,uint32_t function,uint8_t from,uint8_t t
     vm_decoded_function_free(&decoded);return changed;
 }
 
+static NvmModule *string_resume_fixture(void) {
+    AsmResult assembled;NvmModule *m=asm_assemble_unverified(
+        ".string greeting \"before\"\n.types 3 0 0\n.entry 0\n"
+        ".function main 0 8 0 int 1\n"
+        "PUSH_I64 99\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"
+        "PUSH_STR greeting\nPRINT\n"
+        "REGION_BEGIN\nBORROW_LOCAL_SHARED 0 0\nREF_GET 0 0\n"
+        "PUSH_I64 99\nEQ\nASSERT\nREGION_END\n"
+        "OWN_UNPACK_LOCAL 0\nPOP\nPUSH_I64 42\nRET\n.end\n",
+        &assembled);
+    if(!m)fprintf(stderr,"%s\n",assembled.message);
+    CHECK(m);NvmModule *layouts=fixture();
+    m->layout_data=layouts->layout_data;layouts->layout_data=NULL;
+    m->layout_size=layouts->layout_size;nvm_module_free(layouts);
+    m->ownership_size=16+76+4;m->ownership_data=calloc(m->ownership_size,1);
+    CHECK(m->ownership_data);uint8_t *data=m->ownership_data;
+    word(data,2);word(data+4,3);data[8]=data[9]=data[10]=3;word(data+12,1);
+    data[16]=8;slot(data+20,TAG_INT,0,NVM_V2_NO_INDEX);
+    for(unsigned local=0;local<8;local++)
+        slot(data+28+8*local,local?TAG_INT:TAG_STRUCT,0,
+             local?NVM_V2_NO_INDEX:0);
+    bool needs=false;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);
+    CHECK(nvm_verify_owned_module(m).ok);return m;
+}
+
 static void exact_stream(FILE *stream,const char *expected) {
     char actual[256];CHECK(!fflush(stream));long size=ftell(stream);CHECK(size>=0);
     CHECK((size_t)size<sizeof(actual));rewind(stream);
@@ -187,6 +213,67 @@ static void missing_instantiated_literal(void) {
     }
     vm.opcode_trace=false;
     vm_destroy(&vm);nvm_module_free(m);
+
+    /* The public core refuses before the first owned instruction mutates state. */
+    m=string_resume_fixture();vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
+    greeting=string_index(m,"before");VmString *resume_saved=vm.module_constants.strings[greeting];
+    vm.module_constants.strings[greeting]=NULL;
+    vm.frame_count=1;vm.current_fn=0;vm.ip=m->functions[0].code_offset;
+    vm.frames[0]=(VmCallFrame){.fn_idx=0,.local_count=m->functions[0].local_count,.module=m};
+    vm.stack_size=m->functions[0].local_count;uint32_t entry_ip=vm.ip;
+    VmTrap trap=vm_core_execute(&vm);
+    CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_TYPE_ERROR);
+    CHECK(vm.ip==entry_ip&&vm.frame_count==1&&
+          vm.stack_size==m->functions[0].local_count&&
+          vm.heap.stats.num_objects==baseline&&!vm.references.active);
+    vm.frame_count=0;vm.stack_size=0;vm.module_constants.strings[greeting]=resume_saved;
+
+    /* A host-output boundary invalidates proof reuse. Its core resume checks again. */
+    vm.frame_count=1;vm.current_fn=0;vm.ip=m->functions[0].code_offset;
+    vm.frames[0]=(VmCallFrame){.fn_idx=0,.local_count=m->functions[0].local_count,.module=m};
+    vm.stack_size=m->functions[0].local_count;
+    trap=vm_core_execute(&vm);CHECK(trap.type==TRAP_PRINT);
+    vm_release(&vm.heap,trap.data.print.value);
+    uint32_t paused_ip=vm.ip,paused_frames=vm.frame_count,paused_stack=vm.stack_size;
+    uint64_t paused_generation=vm.reference_generation;
+    vm.module_constants.strings[greeting]=NULL;trap=vm_core_execute(&vm);
+    CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_TYPE_ERROR);
+    CHECK(vm.ip==paused_ip&&vm.frame_count==paused_frames&&vm.stack_size==paused_stack&&
+          vm.reference_generation==paused_generation&&!vm.references.active);
+    vm.module_constants.strings[greeting]=resume_saved;vm_destroy(&vm);nvm_module_free(m);
+
+    /* A fresh public-core activation retains ordinary trap/resume behavior. */
+    m=string_resume_fixture();vm_init(&vm,m);baseline=vm.heap.stats.num_objects;
+    vm.frame_count=1;vm.current_fn=0;vm.ip=m->functions[0].code_offset;
+    vm.frames[0]=(VmCallFrame){.fn_idx=0,.local_count=m->functions[0].local_count,.module=m};
+    vm.stack_size=m->functions[0].local_count;
+    do {
+        trap=vm_core_execute(&vm);
+        if(trap.type==TRAP_PRINT)vm_release(&vm.heap,trap.data.print.value);
+        else if(trap.type==TRAP_ASSERT) {
+            CHECK(val_truthy(trap.data.assert_check.condition));
+            vm_release(&vm.heap,trap.data.assert_check.condition);
+        }
+    } while(trap.type==TRAP_PRINT||trap.type==TRAP_ASSERT);
+    CHECK(trap.type==TRAP_NONE&&vm.frame_count==0&&vm.stack_size==1);
+    vm_release(&vm.heap,vm.stack[--vm.stack_size]);
+    CHECK(vm.heap.stats.num_objects==baseline&&!vm.references.active);
+    vm_destroy(&vm);nvm_module_free(m);
+
+    /* Ordinary execution keeps its existing fallback and checked opcode refusal. */
+    AsmResult assembled;NvmModule *ordinary=asm_assemble(
+        ".string value \"ordinary\"\n.entry 0\n"
+        ".function main 0 0 0 int 1\nPUSH_STR value\nPRINT\nPUSH_I64 0\nRET\n.end\n",
+        &assembled);CHECK(ordinary);
+    vm_init(&vm,ordinary);greeting=string_index(ordinary,"ordinary");
+    CHECK(greeting<vm.module_constants.count&&vm.module_constants.strings[greeting]);
+    saved=vm.module_constants.strings[greeting];vm.module_constants.strings[greeting]=NULL;
+    vm.frame_count=1;vm.current_fn=0;vm.ip=ordinary->functions[0].code_offset;
+    vm.frames[0]=(VmCallFrame){.fn_idx=0,.module=ordinary};
+    trap=vm_core_execute(&vm);
+    CHECK(trap.type==TRAP_ERROR&&trap.data.error.code==VM_ERR_DECODE);
+    vm.module_constants.strings[greeting]=saved;vm.frame_count=0;
+    vm_destroy(&vm);nvm_module_free(ordinary);
 }
 
 #ifndef OWNED_STRING_ALLOC_TEST

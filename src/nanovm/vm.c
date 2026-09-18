@@ -228,17 +228,28 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
 }
 
 static bool vm_owned_constants_ready(const VmState *vm) {
-    if (!vm || !vm->module || vm->module_constants.count!=vm->module->string_count)
+    if (!vm || !vm->module) return false;
+    const VmModuleConstants *constants = NULL;
+    if (vm->module==vm->root_module) constants=&vm->module_constants;
+    else for (uint32_t i=0;i<vm->linked_module_count;i++)
+        if (vm->linked_modules[i]==vm->module) {
+            constants=&vm->linked_module_constants[i];break;
+        }
+    if (!constants || constants->count!=vm->module->string_count)
         return false;
-    for (uint32_t i=0;i<vm->module_constants.count;i++)
-        if (!vm->module_constants.strings || !vm->module_constants.strings[i]) return false;
+    for (uint32_t i=0;i<constants->count;i++)
+        if (!constants->strings || !constants->strings[i]) return false;
     return true;
+}
+
+static bool vm_owned_runtime_ready(const VmState *vm) {
+    return vm && vm->module && (!vm->module->ownership_size ||
+        vm_owned_constants_ready(vm));
 }
 
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
     proof->module=NULL;
-    if (vm && vm->module && vm->module->ownership_size &&
-        !vm_owned_constants_ready(vm)) return false;
+    if (!vm_owned_runtime_ready(vm)) return false;
     if (vm && vm->module && vm->module==vm->root_module &&
         !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
         !vm->references.active && vm->module->ownership_size) {
@@ -1248,6 +1259,8 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
     bool admitted=vm_owned_proof_matches(vm,proof);
+    if (!vm_owned_runtime_ready(vm))
+        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (!admitted && !vm_ownership_supported(vm))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     const bool owned_execution = admitted || (vm->module->ownership_size &&
