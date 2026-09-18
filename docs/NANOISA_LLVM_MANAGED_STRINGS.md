@@ -20,8 +20,9 @@ checked nonoverlapping byte replacement and consuming three-owner cleanup.
 It uses reclaiming scratch plus a final copy. My [split-array extension](NANOISA_MANAGED_SPLIT_ARRAYS.md)
 admits STR_SPLIT and read-only ARR_GET/LEN with owned string children, retained
 array aliases and exact missing-value tags. My bounded scalar/boxed-leaf mutation
-extension follows `NANOISA_MANAGED_MUTABLE_ARRAYS.md`; nested arrays, cycles and
-unsupported element coercions remain open.
+extension follows `NANOISA_MANAGED_MUTABLE_ARRAYS.md`; qualified nested/cyclic
+arrays use `NANOISA_MANAGED_GRAPH_ADMISSION.md`. Unsupported element coercions
+remain refused.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
 operations do not complete my required full-language LLVM/Wasm scope.
@@ -31,8 +32,9 @@ verification and the existing closed module/signature rules before admitting
 these operations. The translator first tries its literal profile, then the
 managed profile. The original CLOSED_SCALAR and CLOSED_LITERAL_STRINGS API
 selectors retain their previous decisions. Tail calls,
-other heap values, imports, nominal layouts, ownership/reference and passive
-contracts remain outside this subset. My checked substring prerequisite is merged;
+imports, reference and passive contracts remain outside this subset. Checked
+ordinary records now use the separate descriptor/field-origin/lifetime conjunction
+in `NANOISA_MANAGED_RECORD_EXECUTION.md`; other nominal families remain refused. My checked substring prerequisite is merged;
 my [substring contract](NANOISA_MANAGED_SUBSTRING.md) defines the matched extension.
 My [decimal conversion contract](NANOISA_MANAGED_STRING_INT.md) adds managed
 string CAST_INT with C-locale decimal prefix parsing and signed saturation.
