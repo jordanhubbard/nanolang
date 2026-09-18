@@ -152,6 +152,7 @@ NmsStatus nms_view(const NmsRuntime *runtime, NmsHandle handle, NmsView *out) {
         uint32_t index;
         NmsStatus status = slot_for(runtime, handle, &index);
         if (status != NMS_OK) return status;
+        if (runtime->slots[index].kind != NMS_SLOT_STRING) return NMS_TYPE;
         out->data = runtime->slots[index].data;
         out->length = runtime->slots[index].length;
     } else {
@@ -161,6 +162,52 @@ NmsStatus nms_view(const NmsRuntime *runtime, NmsHandle handle, NmsView *out) {
         if (!literal->data) return NMS_STATE;
         out->data = literal->data; out->length = literal->length;
     }
+    return NMS_OK;
+}
+/* Publication borrows prepared storage until success; I never publish a
+ * partial table or consume that storage on allocation failure. */
+static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
+                              uint32_t length, uint32_t capacity, uint32_t kind,
+                              uint64_t storage_bytes, NmsHandle *out) {
+    if (storage_bytes > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
+    uint32_t new_capacity = runtime->capacity;
+    if (!runtime->free_head) {
+        if (runtime->capacity >= UINT32_MAX - 1) return NMS_MEMORY;
+        new_capacity = runtime->capacity ?
+            (runtime->capacity > (UINT32_MAX - 1) / 2 ? UINT32_MAX - 1 : runtime->capacity * 2) : 8;
+        if ((uint64_t)new_capacity + 1 > SIZE_MAX / sizeof(NmsSlot)) return NMS_MEMORY;
+    }
+    NmsSlot *slots = runtime->slots;
+    if (new_capacity != runtime->capacity) {
+        slots = allocate(runtime, ((uint64_t)new_capacity + 1) * sizeof(NmsSlot));
+        if (!slots) return NMS_MEMORY;
+        for (uint64_t i = 0; i <= new_capacity; i++) {
+            if (runtime->slots && i <= runtime->capacity) {
+                slots[i].data = runtime->slots[i].data;
+                slots[i].references = runtime->slots[i].references;
+                slots[i].length = runtime->slots[i].length;
+                slots[i].next_free = runtime->slots[i].next_free;
+                slots[i].kind = runtime->slots[i].kind;
+                slots[i].capacity = runtime->slots[i].capacity;
+            } else {
+                slots[i].data = NULL; slots[i].references = 0; slots[i].length = 0;
+                slots[i].kind = NMS_SLOT_FREE; slots[i].capacity = 0;
+                slots[i].next_free = i < new_capacity ? (uint32_t)i + 1 : 0;
+            }
+        }
+        NmsSlot *old = runtime->slots;
+        runtime->slots = slots;
+        runtime->free_head = runtime->capacity + 1;
+        runtime->capacity = new_capacity;
+        deallocate(old);
+    }
+    uint32_t index = runtime->free_head;
+    runtime->free_head = slots[index].next_free;
+    slots[index].data = bytes; slots[index].length = (uint32_t)length;
+    slots[index].kind = kind; slots[index].capacity = capacity;
+    slots[index].references = 1; slots[index].next_free = 0;
+    runtime->live_bytes += storage_bytes; runtime->live_objects++;
+    *out = NMS_DYNAMIC | index;
     return NMS_OK;
 }
 static NmsStatus create_parts(NmsRuntime *runtime,
@@ -174,46 +221,85 @@ static NmsStatus create_parts(NmsRuntime *runtime,
     uint64_t length = first_length + second_length;
     if (length > UINT32_MAX || length == SIZE_MAX ||
         length > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
-    uint32_t new_capacity = runtime->capacity;
-    if (!runtime->free_head) {
-        if (runtime->capacity >= UINT32_MAX - 1) return NMS_MEMORY;
-        new_capacity = runtime->capacity ?
-            (runtime->capacity > (UINT32_MAX - 1) / 2 ? UINT32_MAX - 1 : runtime->capacity * 2) : 8;
-        if ((uint64_t)new_capacity + 1 > SIZE_MAX / sizeof(NmsSlot)) return NMS_MEMORY;
-    }
     unsigned char *bytes = allocate(runtime, length + 1);
     if (!bytes) return NMS_MEMORY;
     copy_bytes(bytes, data, first_length);
     copy_bytes(bytes + first_length, second, second_length);
     bytes[length] = 0;
-    NmsSlot *slots = runtime->slots;
-    if (new_capacity != runtime->capacity) {
-        slots = allocate(runtime, ((uint64_t)new_capacity + 1) * sizeof(NmsSlot));
-        if (!slots) { deallocate(bytes); return NMS_MEMORY; }
-        for (uint64_t i = 0; i <= new_capacity; i++) {
-            if (runtime->slots && i <= runtime->capacity) {
-                slots[i].data = runtime->slots[i].data;
-                slots[i].references = runtime->slots[i].references;
-                slots[i].length = runtime->slots[i].length;
-                slots[i].next_free = runtime->slots[i].next_free;
-            } else {
-                slots[i].data = NULL; slots[i].references = 0; slots[i].length = 0;
-                slots[i].next_free = i < new_capacity ? (uint32_t)i + 1 : 0;
-            }
-        }
-        NmsSlot *old = runtime->slots;
-        runtime->slots = slots;
-        runtime->free_head = runtime->capacity + 1;
-        runtime->capacity = new_capacity;
-        deallocate(old);
+    NmsStatus status = publish_slot(runtime, bytes, (uint32_t)length, 0,
+                                   NMS_SLOT_STRING, length, out);
+    if (status != NMS_OK) deallocate(bytes);
+    return status;
+}
+static NmsStatus string_array_slot(const NmsRuntime *runtime, NmsHandle handle,
+                                   uint32_t *index) {
+    if (!(handle & NMS_DYNAMIC)) {
+        NmsView view;
+        NmsStatus status = nms_view(runtime, handle, &view);
+        return status == NMS_OK ? NMS_TYPE : status;
     }
-    uint32_t index = runtime->free_head;
-    runtime->free_head = slots[index].next_free;
-    slots[index].data = bytes; slots[index].length = (uint32_t)length;
-    slots[index].references = 1; slots[index].next_free = 0;
-    runtime->live_bytes += length; runtime->live_objects++;
-    *out = NMS_DYNAMIC | index;
+    NmsStatus status = slot_for(runtime, handle, index);
+    if (status != NMS_OK) return status;
+    return runtime->slots[*index].kind == NMS_SLOT_STRING_ARRAY ? NMS_OK : NMS_TYPE;
+}
+NmsStatus nms_string_array_create(NmsRuntime *runtime, NmsHandle *out) {
+    if (!runtime || !out) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    return publish_slot(runtime, NULL, 0, 0, NMS_SLOT_STRING_ARRAY, 0, out);
+}
+NmsStatus nms_string_array_append(NmsRuntime *runtime, NmsHandle array, NmsHandle child) {
+    uint32_t index;
+    NmsStatus status = string_array_slot(runtime, array, &index);
+    if (status != NMS_OK) return status;
+    NmsView view;
+    status = nms_view(runtime, child, &view);
+    if (status != NMS_OK) return status;
+    NmsSlot *slot = &runtime->slots[index];
+    if (slot->length == UINT32_MAX) return NMS_MEMORY;
+    uint32_t capacity = slot->capacity;
+    NmsHandle *buffer = (NmsHandle *)slot->data;
+    if (slot->length == capacity) {
+        capacity = capacity ? (capacity > UINT32_MAX / 2 ? UINT32_MAX : capacity * 2) : 4;
+        uint64_t bytes = (uint64_t)capacity * sizeof(NmsHandle);
+        uint64_t added = (uint64_t)(capacity - slot->capacity) * sizeof(NmsHandle);
+        if (bytes > SIZE_MAX || added > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
+        buffer = allocate(runtime, bytes);
+        if (!buffer) return NMS_MEMORY;
+        copy_bytes((unsigned char *)buffer, slot->data, (uint64_t)slot->length * sizeof(NmsHandle));
+    }
+    status = nms_retain(runtime, child);
+    if (status != NMS_OK) {
+        if ((unsigned char *)buffer != slot->data) deallocate(buffer);
+        return status;
+    }
+    if ((unsigned char *)buffer != slot->data) {
+        runtime->live_bytes += (uint64_t)(capacity - slot->capacity) * sizeof(NmsHandle);
+        deallocate(slot->data);
+        slot->data = (unsigned char *)buffer;
+        slot->capacity = capacity;
+    }
+    buffer[slot->length++] = child;
     return NMS_OK;
+}
+NmsStatus nms_string_array_get(NmsRuntime *runtime, NmsHandle array, uint64_t index,
+                              NmsHandle *out) {
+    if (!out) return NMS_STATE;
+    uint32_t slot_index;
+    NmsStatus status = string_array_slot(runtime, array, &slot_index);
+    if (status != NMS_OK) return status;
+    NmsSlot *slot = &runtime->slots[slot_index];
+    if (index >= slot->length) { *out = 0; return NMS_OK; }
+    NmsHandle child = ((NmsHandle *)slot->data)[index];
+    status = nms_retain(runtime, child);
+    if (status == NMS_OK) *out = child;
+    return status;
+}
+NmsStatus nms_string_array_length(const NmsRuntime *runtime, NmsHandle array, uint32_t *out) {
+    if (!out) return NMS_STATE;
+    uint32_t index;
+    NmsStatus status = string_array_slot(runtime, array, &index);
+    if (status == NMS_OK) *out = runtime->slots[index].length;
+    return status;
 }
 NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t length,
                      NmsHandle *out) {
@@ -438,9 +524,14 @@ NmsStatus nms_release(NmsRuntime *runtime, NmsHandle handle) {
     if (status != NMS_OK) return status;
     NmsSlot *slot = &runtime->slots[index];
     if (--slot->references) return NMS_OK;
-    runtime->live_bytes -= slot->length; runtime->live_objects--;
+    if (slot->kind == NMS_SLOT_STRING_ARRAY) {
+        NmsHandle *children = (NmsHandle *)slot->data;
+        for (uint32_t i = 0; i < slot->length; i++) nms_release(runtime, children[i]);
+        runtime->live_bytes -= (uint64_t)slot->capacity * sizeof(NmsHandle);
+    } else runtime->live_bytes -= slot->length;
+    runtime->live_objects--;
     deallocate(slot->data);
-    slot->data = NULL; slot->length = 0;
+    slot->data = NULL; slot->length = 0; slot->capacity = 0; slot->kind = NMS_SLOT_FREE;
     slot->next_free = runtime->free_head; runtime->free_head = index;
     return NMS_OK;
 }
