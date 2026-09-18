@@ -15,7 +15,9 @@ internal tool interface, not a new portable module format or trusted metadata.
 Both output surfaces consume the same checked region tree.
 
 I initially admit at most 32 functions, 128 locals per function, 4,096 decoded
-instructions per module and region nesting depth 32. Functions have no upvalues,
+instructions per module and region nesting depth 32. Expanded scalar expressions
+have at most 4,096 nodes and depth 128; shared stack operands cannot cause
+unbounded textual expansion. Functions have no upvalues,
 int/bool parameters with retained exact tags, and one explicit int/bool result.
 The entry has no parameters and returns int. Direct calls form an acyclic graph.
 I refuse unknown signatures rather than defaulting them to int.

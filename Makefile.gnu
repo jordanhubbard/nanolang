@@ -504,6 +504,16 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
+.PHONY: nvm2hl test-scalar-reconstruction
+nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(BIN_DIR)/nanoisa_hl_facts src/nanoisa/hl_facts_main.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
+	chmod +x $(BIN_DIR)/nvm2hl
+
+test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm bootstrap
+	python3 -m unittest -v tests.test_scalar_reconstruction
+test-units: test-scalar-reconstruction
+
 .PHONY: nanoisa_emit
 nanoisa_emit: $(COMPILER_C) | bin
 	$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
