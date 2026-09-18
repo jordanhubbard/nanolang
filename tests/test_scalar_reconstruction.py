@@ -194,6 +194,7 @@ shadow nlr_f1_smaller { assert (nlr_f1_smaller -2 3) assert (not (nlr_f1_smaller
             'mixed_local':DIAMOND.format(flag=0).replace('LOAD_LOCAL 2\nSTORE_LOCAL 3','PUSH_BOOL 1\nSTORE_LOCAL 3'),
             'stack_join':'.function main 0 0 0 int 1\nPUSH_BOOL 1\nJMP_FALSE other\nPUSH_I64 1\nJMP done\nother:\nPUSH_I64 2\ndone:\nRET\n.end\n.entry main\n',
             'unstructured':'.function main 0 0 0 int 1\nJMP done\nPUSH_I64 1\nRET\ndone:\nPUSH_I64 2\nRET\n.end\n.entry main\n',
+            'irreducible':'.function main 0 0 0 int 1\nPUSH_BOOL 1\nJMP_FALSE b\na:\nNOP\nJMP c\nb:\nNOP\nJMP c\nc:\nPUSH_BOOL 0\nJMP_TRUE a\nPUSH_I64 0\nRET\n.end\n.entry main\n',
             'recursive':'.function main 0 0 0 int 1\nCALL main\nRET\n.end\n.entry main\n',
             'global':'.function main 0 0 0 int 1\nPUSH_I64 1\nSTORE_GLOBAL 0\nPUSH_I64 1\nRET\n.end\n.entry main\n',
         }
