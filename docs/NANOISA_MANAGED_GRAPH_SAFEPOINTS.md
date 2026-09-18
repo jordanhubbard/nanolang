@@ -97,6 +97,9 @@ writes across errors/reentry. Failure cannot leave partially owned graph roots
 or trap before cleanup. The conservative initial schedule has no throughput or
 VM collector-timing equivalence claim.
 
+My bounded runtime child is task_c01fc72a78d74e108a5a55a417f4f9fc for
+checkpoints 1–2. Task4070 stays open for generated lifetime/admission.
+
 ## My implementation checkpoints and acceptance
 
 1. Implement transactional reusable workspace and allocation-free prepared
