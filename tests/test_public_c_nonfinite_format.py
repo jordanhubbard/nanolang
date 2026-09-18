@@ -61,8 +61,8 @@ class PublicCFormat(unittest.TestCase):
         harness.write_text(FAILURE_HARNESS.replace('GENERATED',str(output)).replace('PREFIX',prefix))
         exe=self.work/'ownership';self.compile(harness,exe)
         self.run_cmd([exe,'normal'])
-        for mode,diagnostic in [('allocation','I could not allocate my C float result.'),
-                                ('registration','I could not register my C float cleanup.')]:
+        for mode,diagnostic in [('allocation','I could not allocate my C scalar result.'),
+                                ('registration','I could not register my C scalar cleanup.')]:
             result=self.run_cmd([exe,mode],expected=1)
             self.assertIn(diagnostic,result.stderr)
     def test_scoped_builtin_resolution_and_previous_output(self):
