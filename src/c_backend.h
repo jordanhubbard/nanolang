@@ -9,11 +9,13 @@
  * ─────────────
  *   nano int    → int64_t
  *   nano float  → double
- *   nano bool   → bool
+ *   nano bool   → int (0 or 1)
  *   nano string → const char *  (literals are static; scalar conversions and
  *                               concatenation retain owned snapshots until exit)
  *   nano void   → void
- *   nano struct → C struct (typedef'd)
+ *   nano u8     → uint8_t
+ *   nano enum   → int64_t carrier (existing enumerator declarations)
+ *   local struct/union → exact declared C typedef in supported contexts
  *
  * Control flow
  * ────────────
@@ -25,8 +27,10 @@
  * Profile boundaries
  * ──────────────────
  *   I support direct declared calls. I refuse arrays, first-class callable values,
- *   expression/local-bound callees, tuple values, effects, async/await
- *   and try propagation. I require hosted library support. Exact supported
+ *   expression/local-bound callees, record spread, for loops, tuple values, effects, async/await
+ *   and try propagation. Other list/map/binary-string/opaque/row/borrow/generic
+ *   or unresolved value representations receive checked refusal. By-value record
+ *   fields require prior complete local declarations. I require hosted library support. Exact supported
  *   scalar/local-union block values use scoped statements; unsupported insertion
  *   contexts receive checked refusal before output publication.
  *

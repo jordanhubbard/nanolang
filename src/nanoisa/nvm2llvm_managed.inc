@@ -1,3 +1,4 @@
+_Static_assert(TAG_STRUCT == 8 && NMS_RECORD_TAG == TAG_STRUCT, "I require the managed record tag ABI");
 _Static_assert(TAG_ARRAY == 7 && NMS_ARRAY_TAG == TAG_ARRAY, "I require the private managed array value-tag ABI");
 /* I emit ownership helpers only for the managed closed profile. */
 static void managed_runtime(FILE *out) {
@@ -25,8 +26,10 @@ static void managed_runtime(FILE *out) {
         "scalar:\n"
         " %bits = extractvalue %V %v, 0\n"
         " %wide = zext i8 %tag to i32\n"
-        " %handle = call i64 @nms_module_format_scalar(i64 %bits, i32 %wide)\n"
-        " %array = icmp eq i8 %tag, 7\n"
+        " %format_record = icmp eq i32 %wide, 8\n"
+        " %format_tag = select i1 %format_record, i32 0, i32 %wide\n"
+        " %handle = call i64 @nms_module_format_scalar(i64 %bits, i32 %format_tag)\n"
+        " %is_array = icmp eq i8 %tag, 7\n %is_record = icmp eq i8 %tag, 8\n %array = or i1 %is_array, %is_record\n"
         " br i1 %array, label %release_array, label %formatted\n"
         "release_array:\n call void @managed_release(%V %v)\n br label %formatted\n"
         "formatted:\n"
@@ -58,7 +61,7 @@ static void managed_runtime(FILE *out) {
         " %parsed = bitcast i64 %bits to double\n"
         " ret double %parsed\n"
         "scalar:\n"
-        " %array = icmp eq i8 %tag, 7\n"
+        " %is_array = icmp eq i8 %tag, 7\n %is_record = icmp eq i8 %tag, 8\n %array = or i1 %is_array, %is_record\n"
         " %safe = select i1 %array, %V zeroinitializer, %V %v\n"
         " %converted = call double @cast_floating(%V %safe)\n"
         " ret double %converted\n"
@@ -73,7 +76,7 @@ static void managed_runtime(FILE *out) {
         " %parsed = call i64 @nms_module_parse_i64(i64 %handle)\n"
         " ret i64 %parsed\n"
         "scalar:\n"
-        " %array = icmp eq i8 %tag, 7\n"
+        " %is_array = icmp eq i8 %tag, 7\n %is_record = icmp eq i8 %tag, 8\n %array = or i1 %is_array, %is_record\n"
         " %safe = select i1 %array, %V zeroinitializer, %V %v\n"
         " %converted = call i64 @cast_integer(%V %safe)\n"
         " ret i64 %converted\n"
@@ -296,14 +299,23 @@ static void managed_literals(FILE *out, const NvmModule *m) {
         " %answer = call i64 @nms_module_order(i64 %av, i64 %bv)\n ret i64 %answer\nbad:\n ret i64 0\n}\n", out);
 }
 static void managed_entry(FILE *out, const NvmModule *m, const char *entry,
-                          uint32_t initializer, uint32_t global_count, bool graph_arrays) {
+                          uint32_t initializer, uint32_t global_count, bool graph_arrays, const NvmRecordPlan *records) {
     const char *begin = graph_arrays ? "nms_module_graph_begin" : "nms_module_begin";
     const char *finish = graph_arrays ? "nms_module_graph_finish" : "nms_module_finish";
-    fprintf(out, "define i64 @nano_try_entry() {\nentry:\n"
-        " %%begin = call i32 @%s(ptr @literal_strings, i32 %u)\n"
-        " %%started = icmp eq i32 %%begin, 0\n br i1 %%started, label %%initialize, label %%begin_failed\n"
-        "begin_failed:\n", begin, m->string_count);
-    if (graph_arrays) fputs(
+    fputs("define i64 @nano_try_entry() {\nentry:\n", out);
+    if (records) fprintf(out,
+        " %%begin_pair = call i64 @nms_module_record_begin(ptr @literal_strings, i32 %u, ptr @record_descriptors, i32 %u)\n"
+        " %%begin = trunc i64 %%begin_pair to i32\n"
+        " %%acquisition = lshr i64 %%begin_pair, 32\n"
+        " %%record_acquired = icmp ne i64 %%acquisition, 0\n", m->string_count, records->record_count);
+    else fprintf(out, " %%begin = call i32 @%s(ptr @literal_strings, i32 %u)\n", begin, m->string_count);
+    fputs(" %started = icmp eq i32 %begin, 0\n br i1 %started, label %initialize, label %begin_failed\n"
+          "begin_failed:\n", out);
+    if (records) fputs(
+        " br i1 %record_acquired, label %prepare_failed, label %refused\n"
+        "prepare_failed:\n %prepare_result = call i64 @nms_module_graph_finish(i32 0)\n"
+        " ret i64 %prepare_result\n", out);
+    else if (graph_arrays) fputs(
         " %acquired = icmp eq i32 %begin, 3\n"
         " br i1 %acquired, label %prepare_failed, label %refused\n"
         "prepare_failed:\n %prepare_result = call i64 @nms_module_graph_finish(i32 0)\n"
@@ -551,4 +563,82 @@ static void managed_mutable_runtime(FILE *out) {
         " %length = call i32 @nms_module_array_value_length(i64 %av)\n"
         " %answer = zext i32 %length to i64\n ret i64 %answer\n}\n"
         , out);
+}
+
+/* I emit descriptor identity only from a successfully selected owned plan. */
+static void managed_records(FILE *out, const NvmRecordPlan *plan) {
+    fputs("%NmsRecord = type { i32, i32 }\n", out);
+    fprintf(out,"@record_descriptors = internal constant [%u x %%NmsRecord] [",plan->record_count?plan->record_count:1);
+    for(uint32_t i=0;i<plan->record_count;i++) {
+        uint32_t layout=plan->record_to_layout[i];
+        fprintf(out,"%s%%NmsRecord { i32 %u, i32 %u }",i?", ":"",layout,plan->layouts.items[layout].field_count);
+    }
+    if(!plan->record_count)fputs("%NmsRecord zeroinitializer",out);
+    fputs("]\n",out);
+    fputs(
+        "define internal %V @managed_record_literal(ptr %stack, ptr %sp, ptr %bits, ptr %tags, i32 %kind, i32 %count) {\n"
+        "entry:\n"
+        " %depth = load i64, ptr %sp\n"
+        " %n = zext i32 %count to i64\n"
+        " %base = sub i64 %depth, %n\n"
+        " br label %copy\n"
+        "copy:\n"
+        " %i = phi i64 [ 0, %entry ], [ %next, %item ]\n"
+        " %more = icmp ult i64 %i, %n\n"
+        " br i1 %more, label %item, label %prepare\n"
+        "item:\n"
+        " %index = add i64 %base, %i\n"
+        " %slot = getelementptr %V, ptr %stack, i64 %index\n"
+        " %value = load %V, ptr %slot\n"
+        " %payload = extractvalue %V %value, 0\n"
+        " %tag = extractvalue %V %value, 1\n"
+        " %wide = zext i8 %tag to i32\n"
+        " %bp = getelementptr i64, ptr %bits, i64 %i\n"
+        " %tp = getelementptr i32, ptr %tags, i64 %i\n"
+        " store i64 %payload, ptr %bp\n"
+        " store i32 %wide, ptr %tp\n"
+        " %next = add i64 %i, 1\n"
+        " br label %copy\n"
+        "prepare:\n"
+        " %h = call i64 @nms_module_record_literal(i32 %kind, i32 %count, ptr %bits, ptr %tags)\n"
+        " %allocated = icmp ne i64 %h, 0\n"
+        " br i1 %allocated, label %consume, label %failed\n"
+        "consume:\n"
+        " %remaining = phi i64 [ %n, %prepare ], [ %left, %release ]\n"
+        " %pending = icmp ne i64 %remaining, 0\n"
+        " br i1 %pending, label %release, label %ready\n"
+        "release:\n"
+        " %owned = call %V @pop(ptr %stack, ptr %sp)\n"
+        " call void @managed_release(%V %owned)\n"
+        " %left = sub i64 %remaining, 1\n"
+        " br label %consume\n"
+        "ready:\n"
+        " %raw = insertvalue %V zeroinitializer, i64 %h, 0\n"
+        " %array = insertvalue %V %raw, i8 8, 1\n"
+        " %status = call i32 @nms_module_status()\n"
+        " %ok = icmp eq i32 %status, 0\n"
+        " br i1 %ok, label %publish, label %discard\n"
+        "publish:\n"
+        " ret %V %array\n"
+        "discard:\n"
+        " call void @managed_release(%V %array)\n"
+        " br label %failed\n"
+        "failed:\n"
+        " ret %V zeroinitializer\n"
+        "}\n"
+        , out);
+    fputs(
+        "define internal %V @managed_record_get(%V %a, i32 %field, i32 %aggregate) {\n"
+        " %bits = alloca i64\n %tag = alloca i32\n"
+        " store i64 0, ptr %bits\n store i32 0, ptr %tag\n"
+        " %h = extractvalue %V %a, 0\n %t = extractvalue %V %a, 1\n %wide = zext i8 %t to i32\n"
+        " call i32 @nms_module_record_get_value(i64 %h, i32 %wide, i32 %field, i32 %aggregate, ptr %bits, ptr %tag)\n"
+        " %b = load i64, ptr %bits\n %tw = load i32, ptr %tag\n %tn = trunc i32 %tw to i8\n"
+        " %raw = insertvalue %V zeroinitializer, i64 %b, 0\n %v = insertvalue %V %raw, i8 %tn, 1\n"
+        " ret %V %v\n}\n"
+        "define internal void @managed_record_set(%V %a, %V %b, i32 %field, i32 %aggregate) {\n"
+        " %h = extractvalue %V %a, 0\n %at = extractvalue %V %a, 1\n %aw = zext i8 %at to i32\n"
+        " %bits = extractvalue %V %b, 0\n %bt = extractvalue %V %b, 1\n %bw = zext i8 %bt to i32\n"
+        " call i32 @nms_module_record_set_value(i64 %h, i32 %aw, i32 %field, i32 %aggregate, i64 %bits, i32 %bw)\n"
+        " ret void\n}\n",out);
 }

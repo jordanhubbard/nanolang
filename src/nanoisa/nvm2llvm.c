@@ -7,6 +7,7 @@
 #include "managed_runtime_ir.h"
 #include "managed_strings.h"
 #include "managed_array_shapes.h"
+#include "managed_record_shapes.h"
 _Static_assert(NMS_MEMORY == 3, "I retain graph begin acquired-memory status ABI");
 #include "nvm2llvm_managed.inc"
 
@@ -249,7 +250,7 @@ static void comparison_runtime(FILE *out) {
         " %g = zext i1 %greater to i64\n"
         " %payload = sub i64 %g, %l\n"
         " %void = icmp eq i8 %at, 0\n"
-        " %enums = and i1 %ae, %be\n %default_order = or i1 %void, %enums\n %array = icmp eq i8 %at, 7\n %zero_order = or i1 %default_order, %array\n"
+        " %enums = and i1 %ae, %be\n %default_order = or i1 %void, %enums\n %array = icmp eq i8 %at, 7\n %record = icmp eq i8 %at, 8\n %heap = or i1 %array, %record\n %zero_order = or i1 %default_order, %heap\n"
         " %value = select i1 %zero_order, i64 0, i64 %payload\n"
         " %ati = zext i8 %at to i64\n"
         " %bti = zext i8 %bt to i64\n"
@@ -306,6 +307,7 @@ static void result(FrameOutput *frame, uint32_t pc, uint8_t tag) {
  * This list is an allocation audit, not an opcode eligibility whitelist. */
 static bool graph_allocation_instruction(uint8_t opcode) {
     switch (opcode) {
+    case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_AGG_PACK:
     case OP_ARR_NEW: case OP_ARR_PUSH: case OP_ARR_SET:
     case OP_ARR_LITERAL: case OP_ARR_SLICE: case OP_STR_SPLIT:
     case OP_STR_CONCAT: case OP_STR_SUBSTR: case OP_STR_REPLACE:
@@ -315,7 +317,7 @@ static bool graph_allocation_instruction(uint8_t opcode) {
     default: return false;
     }
 }
-static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays, bool graph_arrays) {
+static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays, bool graph_arrays, bool records) {
     FrameOutput frame = {.out = out, .managed = managed};
     const NvmFunctionEntry *f = &m->functions[index];
     fprintf(out, "define internal %s @f%u(", managed ? "%R" : f->result_count ? "%V" : "void", index);
@@ -324,7 +326,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         " store i64 0, ptr %%sp\n %%locals = alloca [%u x %%V]\n"
         " store [%u x %%V] zeroinitializer, ptr %%locals\n", depth ? depth : 1,
         f->local_count ? f->local_count : 1, f->local_count ? f->local_count : 1);
-    if (managed && mutable_arrays)
+    if (managed && (mutable_arrays || records))
         fprintf(out, " %%literal_bits = alloca [%u x i64]\n %%literal_tags = alloca [%u x i32]\n",
                 depth ? depth : 1, depth ? depth : 1);
     for (uint16_t i = 0; i < f->arity; ++i)
@@ -479,6 +481,30 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_AGG_PACK: {
+            uint32_t ordinal=ins.operands[ins.opcode==OP_AGG_PACK?1:0].u32;
+            uint32_t count=ins.opcode==OP_STRUCT_NEW?0:ins.operands[ins.opcode==OP_AGG_PACK?3:1].u16;
+            fprintf(out," %%p%u_value = call %%V @managed_record_literal(ptr %%stack, ptr %%sp, ptr %%literal_bits, ptr %%literal_tags, i32 %u, i32 %u)\n"
+                " %%p%u_record_status = call i32 @nms_module_status()\n"
+                " %%p%u_record_ok = icmp eq i32 %%p%u_record_status, 0\n"
+                " br i1 %%p%u_record_ok, label %%p%u_record_publish, label %%error_cleanup\n"
+                "p%u_record_publish:\n",pc,ordinal,count,pc,pc,pc,pc,pc,pc);
+            push(&frame,pc,"value");
+            break;
+        }
+        case OP_STRUCT_GET: case OP_AGG_GET:
+            pop(&frame,pc,"a");
+            fprintf(out," %%p%u_value = call %%V @managed_record_get(%%V %%p%u_a, i32 %u, i32 %u)\n",
+                pc,pc,ins.operands[0].u16,ins.opcode==OP_AGG_GET);
+            /* The returned owner is rooted before receiver cleanup/status checks. */
+            push(&frame,pc,"value");
+            break;
+        case OP_STRUCT_SET: case OP_AGG_SET:
+            pop(&frame,pc,"b");pop(&frame,pc,"a");
+            fprintf(out," call void @managed_record_set(%%V %%p%u_a, %%V %%p%u_b, i32 %u, i32 %u)\n",
+                pc,pc,ins.operands[0].u16,ins.opcode==OP_AGG_SET);
+            push(&frame,pc,"a");
+            break;
         case OP_ARR_LITERAL:
             /* I leave counted roots on the stack until preparation succeeds.
              * A failed preparation branches before pushing into the full stack. */
@@ -745,29 +771,33 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
             pc += width;
         }
     }
+    NvmManagedHeapPlan *heap = NULL;
     int graph_arrays = 0;
-    if (managed && mutable_arrays) {
-        NvmArrayEligibilityResult mode = nvm_select_managed_array_mode(m, &graph_arrays);
+    if (managed && (mutable_arrays || m->struct_count || m->layout_size || m->ownership_size)) {
+        NvmArrayEligibilityResult mode = nvm_select_managed_heap(m, mutable_arrays, &heap);
         if (mode.status != NVM_ARRAY_ELIGIBLE)
-            return refuse(error, size, "I cannot select managed array lifetime: %s", mode.message);
+            return refuse(error, size, "I cannot select managed heap lifetime: %s", mode.message);
+        graph_arrays = heap->mode != NVM_MANAGED_LEAF;
     }
+    const NvmRecordPlan *records = heap ? heap->records : NULL;
     if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
     runtime(out, managed);
     if (global_count)
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
     numeric_runtime(out);
-    if (managed) { managed_runtime(out); if (mutable_arrays) managed_mutable_runtime(out); managed_literals(out, m); }
+    if (managed) { managed_runtime(out); if (mutable_arrays) managed_mutable_runtime(out); managed_literals(out, m); if (records) managed_records(out, records); }
     else literal_runtime(out, m);
     comparison_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
-        if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
-        function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0);
+        if (!verified.ok) { nvm_managed_heap_plan_free(heap); return refuse(error, size, "I cannot establish scalar stack depth"); }
+        function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0, records != NULL);
     }
     if (managed) {
-        managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0);
+        managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0, records);
+        nvm_managed_heap_plan_free(heap);
         if (ferror(out)) return refuse(error, size, "I could not write managed LLVM IR");
         return 1;
     }

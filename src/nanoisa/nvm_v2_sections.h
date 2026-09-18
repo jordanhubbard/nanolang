@@ -139,10 +139,9 @@ bool nvm_v2_signature_equal(const NvmV2Signature *a, const NvmV2Signature *b);
  *       nested_idx  u32   layout index, or NVM_V2_NO_INDEX when scalar
  *       name_idx    u32   CONSTANTS index, or NVM_V2_NO_INDEX
  *
- * A layout is closed: every nested index refers to a LOWER-numbered layout.
- * That makes the table acyclic by construction, so a decoder can validate it
- * in one forward pass and nothing walking it can recurse forever. A forward or
- * self reference is rejected rather than merely unusual.
+ * I decode prior-only tables and exact all-STRUCT scalar/string/record DAGs.
+ * Forward-containing tables require an iterative acyclicity check. A decoded
+ * table has no cycles; ordinary/resource authority is validated separately.
  */
 
 #define NVM_V2_NO_INDEX 0xFFFFFFFFu
@@ -158,7 +157,7 @@ typedef enum {
 
 typedef struct {
     uint8_t  type_tag;
-    uint32_t nested_idx;  /* lower-numbered layout, or NVM_V2_NO_INDEX */
+    uint32_t nested_idx;  /* acyclic layout edge, or NVM_V2_NO_INDEX */
     uint32_t name_idx;    /* CONSTANTS index, or NVM_V2_NO_INDEX */
 } NvmV2LayoutField;
 

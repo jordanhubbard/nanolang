@@ -3,7 +3,7 @@
  *
  * Emits readable, self-contained C99 source from the nanolang AST.
  * Supports: numeric types, strings, arithmetic, comparisons, logical ops,
- * function definitions, let/set bindings, if/else, while, for, return,
+ * function definitions, let/set bindings, if/else, while, return,
  * print/println and qualified structs, enums, unions and match.
  * I refuse arrays, unimplemented effects and unsupported expression profiles.
  *
@@ -91,6 +91,7 @@ static bool cb_signature_has_kind(const FunctionSignature *sig, Type kind, unsig
 static bool cb_type_has_kind(const TypeInfo *type, Type kind, unsigned depth) {
     if (!type) return false;
     if (depth >= 64 || type->base_type==kind ||
+        (kind==TYPE_GENERIC && type->type_var_count>0) ||
         cb_type_has_kind(type->element_type, kind, depth+1) ||
         cb_signature_has_kind(type->fn_sig, kind, depth+1)) return true;
     for(int i=0;i<type->type_param_count;i++)
@@ -143,17 +144,123 @@ static int cb_array_refusal(CBCtx *c) {
     return -1;
 }
 
+/* I distinguish supported scalar carriers from context-specific nominal spelling. */
+static bool cb_scalar_storage(Type type) {
+    return type==TYPE_INT || type==TYPE_U8 || type==TYPE_FLOAT ||
+           type==TYPE_BOOL || type==TYPE_STRING || type==TYPE_ENUM;
+}
+static int cb_type_refusal(CBCtx *c) {
+    ctx_error(c,"I require a supported exact C value representation.");
+    return -1;
+}
+static ASTNode *cb_local_owner(CBCtx *c, Type type, const char *name,
+                                const ASTNode *before) {
+    if (!name || !c->root) { cb_type_refusal(c); return NULL; }
+    ASTNode **items=c->root->type==AST_PROGRAM?c->root->as.program.items:&c->root;
+    int count=c->root->type==AST_PROGRAM?c->root->as.program.count:1;
+    ASTNode *found=NULL; bool usable=false, passed=false;
+    for(int i=0;i<count;i++) {
+        ASTNode *item=items[i];
+        if(item==before) passed=true;
+        if(!item) continue;
+        const char *declared=item->type==AST_STRUCT_DEF?item->as.struct_def.name:
+            item->type==AST_UNION_DEF?item->as.union_def.name:NULL;
+        if(!declared || strcmp(name,declared)!=0) continue;
+        if(found) { cb_type_refusal(c); return NULL; }
+        found=item;
+        usable=!passed && ((type==TYPE_STRUCT && item->type==AST_STRUCT_DEF &&
+                    !item->as.struct_def.is_extern && !item->as.struct_def.is_resource) ||
+                (type==TYPE_UNION && item->type==AST_UNION_DEF &&
+                    !item->as.union_def.is_extern && !item->as.union_def.generic_param_count));
+    }
+    if(!found || !usable) {
+        ctx_error(c,"I require an exact complete local C nominal declaration before this use.");
+        return NULL;
+    }
+    return found;
+}
+static int cb_storage_type(CBCtx *c, Type type, const char *name,
+                           bool allow_void, bool allow_nominal, const ASTNode *before) {
+    if(cb_scalar_storage(type) || (allow_void && type==TYPE_VOID)) return 0;
+    if(allow_nominal && (type==TYPE_STRUCT || type==TYPE_UNION))
+        return cb_local_owner(c,type,name,before)?0:-1;
+    return cb_type_refusal(c);
+}
+static int cb_node_storage(CBCtx *c, const ASTNode *node) {
+    static const Type unsupported[]={TYPE_BSTRING,TYPE_GENERIC,TYPE_LIST_INT,TYPE_LIST_STRING,
+        TYPE_LIST_TOKEN,TYPE_LIST_GENERIC,TYPE_HASHMAP,TYPE_TUPLE,TYPE_OPAQUE,
+        TYPE_OPEN_RECORD,TYPE_UNKNOWN,TYPE_BORROW_SHARED,TYPE_BORROW_MUT};
+    for(size_t i=0;i<sizeof unsupported/sizeof unsupported[0];i++)
+        if(cb_node_has_kind(node,unsupported[i])) return cb_type_refusal(c);
+    switch(node->type) {
+    case AST_LET:
+        return cb_storage_type(c,node->as.let.var_type,node->as.let.type_name,false,true,NULL);
+    case AST_FUNCTION:
+        if(cb_storage_type(c,node->as.function.return_type,node->as.function.return_struct_type_name,true,true,NULL)) return -1;
+        for(int i=0;i<node->as.function.param_count;i++) {
+            const Parameter *param=&node->as.function.params[i];
+            if(cb_storage_type(c,param->type,param->struct_type_name,false,true,NULL)) return -1;
+        }
+        return 0;
+    case AST_STRUCT_DEF:
+        if(node->as.struct_def.is_extern || node->as.struct_def.is_resource ||
+           node->as.struct_def.field_count==0) return cb_type_refusal(c);
+        for(int i=0;i<node->as.struct_def.field_count;i++) {
+            Type type=node->as.struct_def.field_types[i];
+            const char *name=node->as.struct_def.field_type_names?node->as.struct_def.field_type_names[i]:NULL;
+            if(cb_storage_type(c,type,name,false,type==TYPE_STRUCT,node)) return -1;
+        }
+        return 0;
+    case AST_UNION_DEF:
+        if(node->as.union_def.is_extern || node->as.union_def.generic_param_count ||
+           node->as.union_def.variant_count==0) return cb_type_refusal(c);
+        for(int v=0;v<node->as.union_def.variant_count;v++)
+            for(int i=0;i<node->as.union_def.variant_field_counts[v];i++)
+                if(cb_storage_type(c,node->as.union_def.variant_field_types[v][i],NULL,false,false,NULL)) return -1;
+        return 0;
+    case AST_CALL: {
+        const FunctionSignature *sig=node->as.call.checked_signature;
+        if(sig) {
+            if(cb_storage_type(c,sig->return_type,sig->return_struct_name,true,true,NULL)) return -1;
+            for(int i=0;i<sig->param_count;i++)
+                if(cb_storage_type(c,sig->param_types[i],sig->param_struct_names?sig->param_struct_names[i]:NULL,false,true,NULL)) return -1;
+        }
+        return 0;
+    }
+    case AST_FIELD_ACCESS:
+        if(node->as.field_access.resolved_type_info && node->as.field_access.resolved_type_info->base_type==TYPE_VOID)
+            return cb_type_refusal(c);
+        return 0;
+    case AST_OPAQUE_TYPE: return cb_type_refusal(c);
+    default: return 0;
+    }
+}
+
+/* I cannot discard a record spread base while spelling explicit fields. */
+static int cb_record_spread(CBCtx *c, const ASTNode *node) {
+    if (node && node->type == AST_STRUCT_LITERAL && node->as.struct_literal.spread_source) {
+        ctx_error(c, "I do not provide record spread lowering in this C profile.");
+        return -1;
+    }
+    return 0;
+}
+
 /* I refuse unimplemented semantics before publishing staged C. */
 static int ctx_profile_node(CBCtx *c, const ASTNode *node) {
     if (!node) return 0;
+    if (cb_record_spread(c, node)) return -1;
     if (cb_node_has_array(node)) return cb_array_refusal(c);
     if (cb_node_has_callable(node)) return cb_callable_refusal(c);
+    if (cb_node_storage(c,node)) return -1;
     if (node->lambda_definition ||
         (node->type == AST_FUNCTION && node->as.function.is_anonymous)) {
         ctx_error(c, "I do not provide anonymous or captured callable C lowering.");
         return -1;
     }
     switch (node->type) {
+    case AST_FOR:
+        ctx_error(c, "I do not provide for-loop lowering in this C profile.");
+        return -1;
     case AST_TUPLE_LITERAL: case AST_TUPLE_INDEX:
     case AST_EFFECT_DECL: case AST_HANDLE_EXPR: case AST_EFFECT_HANDLER:
     case AST_EFFECT_OP: case AST_ASYNC_FN: case AST_AWAIT: case AST_TRY_OP:
@@ -220,15 +327,15 @@ static void emit_indent(CBCtx *c) {
 }
 
 /* Map nanolang Type → C type string */
-static const char *c_type(Type t) {
+static const char *c_type(CBCtx *c, Type t) {
     switch (t) {
-        case TYPE_INT:    return "int64_t";
+        case TYPE_INT: case TYPE_ENUM: return "int64_t";
         case TYPE_U8:     return "uint8_t";
         case TYPE_FLOAT:  return "double";
         case TYPE_BOOL:   return "int";
         case TYPE_STRING: return "const char*";
         case TYPE_VOID:   return "void";
-        default:          return "int64_t";
+        default: cb_type_refusal(c); return "void"; /* Private staging is discarded. */
     }
 }
 
@@ -399,7 +506,7 @@ static int emit_result_type(CBCtx *c, ASTNode *function) {
         fprintf(c->out, "NanoUnion_%s", owner->as.union_def.name);
     } else if (type == TYPE_STRUCT && function->as.function.return_struct_type_name) {
         fprintf(c->out, "NanoStruct_%s", function->as.function.return_struct_type_name);
-    } else fputs(c_type(type), c->out);
+    } else fputs(c_type(c, type), c->out);
     return 0;
 }
 
@@ -516,7 +623,8 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_STRING &&
                     infer_expr_type(c, node->as.call.args[1]) == TYPE_STRING ? TYPE_STRING : TYPE_UNKNOWN;
             if (strcmp(name, "bool_to_string") == 0)
-                return TYPE_STRING;
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_BOOL ? TYPE_STRING : TYPE_UNKNOWN;
             if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0) return TYPE_VOID;
             return TYPE_UNKNOWN;
         }
@@ -545,6 +653,21 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         }
         default: return TYPE_UNKNOWN;
     }
+}
+
+/* I reject explicit unsupported use facts without guessing unknown constructs. */
+static int cb_resolved_storage_use(CBCtx *c, ASTNode *node) {
+    Type type=infer_expr_type(c,node);
+    if(type!=TYPE_UNKNOWN && type!=TYPE_STRUCT && type!=TYPE_UNION && type!=TYPE_VOID &&
+       !cb_scalar_storage(type)) return cb_type_refusal(c);
+    if(node->type==AST_IDENTIFIER || node->type==AST_FIELD_ACCESS) {
+        if(type==TYPE_UNKNOWN || type==TYPE_VOID) return cb_type_refusal(c);
+    }
+    if(node->type==AST_CALL && node->as.call.name) {
+        ASTNode *decl=ctx_function(c,node->as.call.name);
+        if(decl && ctx_profile_node(c,decl)) return -1;
+    }
+    return 0;
 }
 
 /* I admit only value forms whose complete union identity I can establish. */
@@ -818,9 +941,9 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "}\n");
     }
 
-    /* nano_bool_to_string helper */
-    fprintf(c->out,
-        "static const char* nano_bool_to_string(int b) {\n"
+    /* I keep boolean literals stable under my collision-free private namespace. */
+    emit_private_source(c,
+        "static const char* nano_rt_bool_text(int b) {\n"
         "    return b ? \"true\" : \"false\";\n"
         "}\n\n");
 
@@ -860,7 +983,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         ctx_error(c, "I require a supported statement insertion context for this C value.");
         return -1;
     }
-    if (ctx_profile_node(c, node) || cb_callable_use(c, node) || cb_array_use(c, node)) return -1;
+    if (ctx_profile_node(c, node) || cb_callable_use(c, node) || cb_array_use(c, node) || cb_resolved_storage_use(c, node)) return -1;
     switch (node->type) {
     case AST_NUMBER:
         emit_signed_bits(c, (uint64_t)node->as.number);
@@ -1101,9 +1224,13 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputc(')', c->out);
             return 0;
         }
-        if (name && strcmp(name, "bool_to_string") == 0 &&
-            node->as.call.arg_count == 1) {
-            fputs("nano_bool_to_string(", c->out);
+        if (builtin && strcmp(name, "bool_to_string") == 0) {
+            if (node->as.call.arg_count != 1 ||
+                infer_expr_type(c, node->as.call.args[0]) != TYPE_BOOL) {
+                ctx_error(c, "I require one exact BOOL operand for C bool_to_string.");
+                return -1;
+            }
+            fprintf(c->out, "%sbool_text(", c->prefix);
             if (emit_expr(c, node->as.call.args[0])) return -1;
             fputc(')', c->out);
             return 0;
@@ -1118,6 +1245,10 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             if (emit_expr(c, node->as.call.args[0])) return -1;
             fputc(')', c->out);
             return 0;
+        }
+        /* A supported direct signature must precede unresolved external spelling. */
+        if(!direct && !node->as.call.checked_signature) {
+            ctx_error(c,"I require a retained exact declaration or signature for this C call."); return -1;
         }
         /* Regular function call */
         if (node->as.call.func_expr) {
@@ -1195,8 +1326,10 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         const char *dot = node->as.struct_literal.struct_name
             ? strchr(node->as.struct_literal.struct_name, '.') : NULL;
         if (dot) {
-            size_t union_name_len = (size_t)(dot - node->as.struct_literal.struct_name);
-            const char *variant_name = dot + 1;
+            ASTNode *owner=ctx_union_value(c,node);
+            if(!owner || cb_local_owner(c,TYPE_UNION,owner->as.union_def.name,NULL)!=owner) return -1;
+            size_t union_name_len = strlen(owner->as.union_def.name);
+            const char *variant_name = node->as.struct_literal.struct_name + union_name_len + 1;
             fprintf(c->out, "(NanoUnion_%.*s){ .tag = NanoUnion_%.*s_TAG_%s",
                     (int)union_name_len, node->as.struct_literal.struct_name,
                     (int)union_name_len, node->as.struct_literal.struct_name,
@@ -1214,6 +1347,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             return 0;
         }
 
+        if(!cb_local_owner(c,TYPE_STRUCT,node->as.struct_literal.struct_name,NULL)) return -1;
         /* Emit: (NanoStruct_Name){ .field = val, ... } */
         fprintf(c->out, "(NanoStruct_%s){", node->as.struct_literal.struct_name);
         for (int i = 0; i < node->as.struct_literal.field_count; i++) {
@@ -1232,6 +1366,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_UNION_CONSTRUCT: {
+        ASTNode *owner=ctx_union_value(c,node);
+        if(!owner || cb_local_owner(c,TYPE_UNION,owner->as.union_def.name,NULL)!=owner) return -1;
         fprintf(c->out, "(NanoUnion_%s){ .tag = NanoUnion_%s_TAG_%s",
                 node->as.union_construct.union_name,
                 node->as.union_construct.union_name,
@@ -1355,7 +1491,7 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
             fprintf(c->out, "NanoUnion_%s %s", node->as.let.type_name,
                     node->as.let.name);
         } else {
-            fprintf(c->out, "%s %s", c_type(t), node->as.let.name);
+            fprintf(c->out, "%s %s", c_type(c, t), node->as.let.name);
         }
         if (node->as.let.value) {
             fputs(" = ", c->out);
@@ -1483,37 +1619,6 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         c->indent++;
         ctx_push_scope(c);
         if (emit_block_body(c, node->as.while_stmt.body)) {
-            ctx_pop_scope(c); c->indent--;
-            return -1;
-        }
-        ctx_pop_scope(c);
-        c->indent--;
-        emit_indent(c);
-        fputs("}\n", c->out);
-        return 0;
-    }
-
-    case AST_FOR: {
-        ASTNode *range = node->as.for_stmt.range_expr;
-        const char *var = node->as.for_stmt.var_name;
-        ctx_add_sym(c, var, TYPE_INT);
-
-        if (range && range->type == AST_PREFIX_OP &&
-            range->as.prefix_op.op == TOKEN_RANGE &&
-            range->as.prefix_op.arg_count == 2) {
-            fprintf(c->out, "for (int64_t %s = ", var);
-            if (emit_expr(c, range->as.prefix_op.args[0])) return -1;
-            fprintf(c->out, "; %s < ", var);
-            if (emit_expr(c, range->as.prefix_op.args[1])) return -1;
-            fprintf(c->out, "; %s++) {\n", var);
-        } else {
-            fprintf(c->out, "for (int64_t %s = 0; %s < ", var, var);
-            if (emit_expr(c, range)) return -1;
-            fprintf(c->out, "; %s++) {\n", var);
-        }
-        c->indent++;
-        ctx_push_scope(c);
-        if (emit_block_body(c, node->as.for_stmt.body)) {
             ctx_pop_scope(c); c->indent--;
             return -1;
         }
@@ -1773,7 +1878,7 @@ static void emit_struct_def(CBCtx *c, ASTNode *node) {
             fprintf(c->out, "NanoStruct_%s %s;\n",
                     node->as.struct_def.field_type_names[i], fname);
         } else {
-            fprintf(c->out, "%s %s;\n", c_type(ft), fname);
+            fprintf(c->out, "%s %s;\n", c_type(c, ft), fname);
         }
     }
     fprintf(c->out, "} NanoStruct_%s;\n\n", node->as.struct_def.name);
@@ -1813,7 +1918,7 @@ static void emit_union_def(CBCtx *c, ASTNode *node) {
         for (int f = 0; f < fc; f++) {
             Type ft = node->as.union_def.variant_field_types[v][f];
             const char *field = node->as.union_def.variant_field_names[v][f];
-            fprintf(c->out, "  %s %s;\n", c_type(ft), field);
+            fprintf(c->out, "  %s %s;\n", c_type(c, ft), field);
         }
         fprintf(c->out, "} %spayload_%d_%d;\n\n", c->prefix, declaration_index, variant_index);
     }
@@ -1883,7 +1988,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
         } else if (p->type == TYPE_UNION && p->struct_type_name) {
             fprintf(c->out, "NanoUnion_%s %s", p->struct_type_name, p->name);
         } else {
-            fprintf(c->out, "%s %s", c_type(p->type), p->name);
+            fprintf(c->out, "%s %s", c_type(c, p->type), p->name);
         }
     }
     if (node->as.function.param_count == 0) fputs("void", c->out);
@@ -1968,7 +2073,7 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
             else if (p->type == TYPE_UNION && p->struct_type_name)
                 fprintf(c->out, "NanoUnion_%s %s", p->struct_type_name, p->name);
             else
-                fprintf(c->out, "%s %s", c_type(p->type), p->name);
+                fprintf(c->out, "%s %s", c_type(c, p->type), p->name);
         }
         if (n->as.function.param_count == 0) fputs("void", c->out);
         fputs(");\n", c->out);
@@ -2046,7 +2151,7 @@ static int emit_program(CBCtx *c, ASTNode *root) {
             ctx_error(c, "I require a supported exact scalar C global binding."); return -1;
         }
         ctx_add_sym(c, item->as.let.name, type);
-        fprintf(c->out, "static %s %s;\n", c_type(type), item->as.let.name);
+        fprintf(c->out, "static %s %s;\n", c_type(c, type), item->as.let.name);
         c->has_globals = true;
     }
     if (c->has_globals && !ctx_function(c, "main")) {

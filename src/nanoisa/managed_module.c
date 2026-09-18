@@ -6,6 +6,13 @@
 _Static_assert(offsetof(NmsView, data) == 0, "I require pointer-first string views");
 _Static_assert(offsetof(NmsView, length) == sizeof(void *), "I require the declared view ABI");
 _Static_assert(sizeof(NmsView) == 2 * sizeof(void *), "I require the declared view stride");
+_Static_assert(offsetof(NmsRecordDescriptor, global_layout_index) == 0 &&
+               offsetof(NmsRecordDescriptor, field_count) == 4 &&
+               sizeof(NmsRecordDescriptor) == 8,
+               "I require two exact u32 record descriptor fields");
+_Static_assert(NMS_RECORD_TAG == 8, "I require the record handle tag ABI");
+#define NMS_MODULE_RECORD_FIELDS 256u
+
 
 static NmsRuntime nms_module_instance;
 static NmsStatus nms_module_error;
@@ -37,6 +44,32 @@ uint32_t nms_module_graph_begin(const NmsView *literals, uint32_t count) {
     nms_module_fail(status);
     return status;
 }
+/* I return status in the low word and acquisition in the high word. This
+ * differs deliberately from the public try-entry result/status packing.
+ * Descriptor binding is inactive and once-only; preparation follows begin. */
+uint64_t nms_module_record_begin(const NmsView *literals, uint32_t literal_count,
+                                  const NmsRecordDescriptor *records, uint32_t record_count) {
+    if (!nms_module_ready) {
+        nms_init(&nms_module_instance, literals, literal_count);
+        nms_module_ready = 1;
+    }
+    if (nms_module_instance.disposed) return NMS_DISPOSED;
+    if (nms_module_instance.active) return NMS_BUSY;
+    if (nms_module_instance.literals != literals ||
+        nms_module_instance.literal_count != literal_count) return NMS_STATE;
+    NmsStatus status;
+    if (!nms_module_instance.records_bound) {
+        status = nms_bind_records(&nms_module_instance, records, record_count);
+        if (status != NMS_OK) return status;
+    } else if (nms_module_instance.record_descriptors != records ||
+               nms_module_instance.record_count != record_count) return NMS_STATE;
+    status = nms_begin(&nms_module_instance);
+    if (status != NMS_OK) return status;
+    nms_module_error = NMS_OK;
+    status = nms_prepare_collection(&nms_module_instance);
+    nms_module_fail(status);
+    return (UINT64_C(1) << 32) | (uint32_t)status;
+}
 uint32_t nms_module_graph_collect(void) {
     if (!nms_module_ready || !nms_module_instance.active) return NMS_STATE;
     nms_module_fail(nms_collect_prepared(&nms_module_instance));
@@ -60,12 +93,54 @@ uint32_t nms_module_dispose(void) {
     return nms_dispose(&nms_module_instance);
 }
 uint32_t nms_module_retain(uint64_t payload, uint32_t tag) {
-    NmsStatus status = (tag == 5 || tag == NMS_ARRAY_TAG) ? nms_retain(&nms_module_instance, payload) : NMS_OK;
+    NmsStatus status = (tag == 5 || tag == NMS_ARRAY_TAG || tag == NMS_RECORD_TAG) ? nms_retain(&nms_module_instance, payload) : NMS_OK;
     nms_module_fail(status);
     return status;
 }
 void nms_module_release(uint64_t payload, uint32_t tag) {
-    if (tag == 5 || tag == NMS_ARRAY_TAG) nms_module_fail(nms_release(&nms_module_instance, payload));
+    if (tag == 5 || tag == NMS_ARRAY_TAG || tag == NMS_RECORD_TAG) nms_module_fail(nms_release(&nms_module_instance, payload));
+}
+/* I borrow counted constructor roots. My private vector does not alias a
+ * relocating slot table and has the same explicit bound as the future emitter. */
+uint64_t nms_module_record_literal(uint32_t ordinal, uint32_t count,
+                                   const uint64_t *payloads, const uint32_t *tags) {
+    if (count > NMS_MODULE_RECORD_FIELDS) { nms_module_fail(NMS_TYPE); return 0; }
+    if (count && (!payloads || !tags)) { nms_module_fail(NMS_STATE); return 0; }
+    NmsValue values[NMS_MODULE_RECORD_FIELDS];
+    for (uint32_t i = 0; i < count; i++) values[i] = (NmsValue){payloads[i], tags[i]};
+    NmsHandle result = 0;
+    nms_module_fail(nms_record_create(&nms_module_instance, ordinal, values, count, &result));
+    return result;
+}
+/* STRUCT reports TYPE for wrong receivers; AGG reports unavailable/BOUNDS.
+ * Both accessors borrow their inputs. GET publishes one retained owner only
+ * on success; the future emitter consumes originals exactly once. */
+static NmsStatus nms_module_record_receiver(uint64_t record, uint32_t tag, uint32_t aggregate) {
+    if (aggregate > 1) return NMS_STATE;
+    if (tag != NMS_RECORD_TAG) return aggregate ? NMS_BOUNDS : NMS_TYPE;
+    uint32_t ordinal, layout;
+    NmsStatus status = nms_record_identity(&nms_module_instance, record, &ordinal, &layout);
+    return aggregate && status == NMS_TYPE ? NMS_BOUNDS : status;
+}
+uint32_t nms_module_record_get_value(uint64_t record, uint32_t receiver_tag,
+                                     uint32_t field, uint32_t aggregate,
+                                     uint64_t *bits, uint32_t *tag) {
+    NmsValue result = {0, 0};
+    NmsStatus status = bits && tag ? nms_module_record_receiver(record, receiver_tag, aggregate) : NMS_STATE;
+    if (status == NMS_OK)
+        status = nms_record_get(&nms_module_instance, record, field, &result);
+    if (status == NMS_OK) { *bits = result.payload; *tag = result.tag; }
+    nms_module_fail(status);
+    return status;
+}
+uint32_t nms_module_record_set_value(uint64_t record, uint32_t receiver_tag,
+                                     uint32_t field, uint32_t aggregate,
+                                     uint64_t bits, uint32_t tag) {
+    NmsStatus status = nms_module_record_receiver(record, receiver_tag, aggregate);
+    if (status == NMS_OK)
+        status = nms_record_set(&nms_module_instance, record, field, (NmsValue){bits, tag});
+    nms_module_fail(status);
+    return status;
 }
 uint64_t nms_module_format_scalar(uint64_t bits, uint32_t tag) {
     NmsHandle result = 0;
