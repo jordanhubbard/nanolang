@@ -193,8 +193,8 @@ static bool conflicts_with_runtime(const char *name) {
     return is_runtime_typedef(name);
 }
 
-/* I snapshot declared one-letter unions for this emission only. */
-static _Thread_local uint32_t native_union_letters;
+/* I snapshot declared one-letter unions and enums for this emission only. */
+static _Thread_local uint32_t native_declared_letters;
 
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
@@ -224,7 +224,7 @@ static const char *get_prefixed_type_name(const char *name) {
      * Emit void* so the generated C compiles; correctness is tested
      * via shadow tests (interpreter path) which handle generics natively. */
     if (name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0' &&
-        !(native_union_letters & (UINT32_C(1) << (name[0] - 'A')))) {
+        !(native_declared_letters & (UINT32_C(1) << (name[0] - 'A')))) {
         return "void*";
     }
 
@@ -4941,14 +4941,19 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
 /* I retain no borrowed declaration pointer and restore context on every exit. */
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
-    uint32_t previous = native_union_letters;
-    native_union_letters = 0;
+    uint32_t previous = native_declared_letters;
+    native_declared_letters = 0;
     for (int i = 0; env && i < env->union_count; ++i) {
         const char *name = env->unions[i].name;
         if (name && name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0')
-            native_union_letters |= UINT32_C(1) << (name[0] - 'A');
+            native_declared_letters |= UINT32_C(1) << (name[0] - 'A');
+    }
+    for (int i = 0; env && i < env->enum_count; ++i) {
+        const char *name = env->enums[i].name;
+        if (!env->enums[i].is_extern && name && name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0')
+            native_declared_letters |= UINT32_C(1) << (name[0] - 'A');
     }
     char *result = transpile_to_c_impl(program, env, input_file);
-    native_union_letters = previous;
+    native_declared_letters = previous;
     return result;
 }
