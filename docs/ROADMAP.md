@@ -9772,6 +9772,9 @@ Module richness:
       with leak checks. [Evidence](evidence/nanoisa-local-bindings.md).
 - [ ] I preserve DEBUG source maps through canonical text; real source output
       currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
+      Contract `docs/NANOISA_DEBUG_TEXT.md` orders checked append/bridge retention,
+      canonical directives, then source/assembly roundtrip and allocation gates.
+      Unknown advisory keys survive; unknown wire sections remain refused.
       Local-name comparisons retain exact metadata/code and separately require
       canonical-cycle byte stability; full original-byte transport remains open.
 - [x] I retain ordered advisory v2 metadata through module conversion and
