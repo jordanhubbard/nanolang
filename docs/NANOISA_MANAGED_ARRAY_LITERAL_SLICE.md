@@ -151,3 +151,21 @@ from exact INT tags and otherwise use zero/source length, then truncate to
 uint32. They borrow every input; emitted consuming ownership is later work.
 Existing constructors and admitted instructions retain their behavior. This
 checkpoint adds no verifier, shape-transfer or opcode admission.
+
+## My consuming lowering checkpoint
+
+I allocate separate payload/tag scratch arrays once in the emitted function
+entry, bounded by the verified stack depth and the shared analysis cap. Repeated
+literal instructions do not grow the activation stack. My helper reads the
+counted stack segment without removing owners and calls the borrowed private
+preparation. Failure leaves those roots on the original stack and branches to
+frame cleanup before pushing a result. Success pops/releases each original
+owner exactly once; a release-status failure discards the prepared result
+before returning to frame cleanup. Zero-count literals follow the same path.
+
+My slice helper consumes all three operands after borrowed preparation or type
+refusal. It returns a result owner (or VOID after failed preparation) to the
+frame before the existing instruction status check. The frame therefore owns
+any successfully prepared result during subsequent cleanup. Modules containing
+either new instruction select prepared boxed split storage and generic value
+GET/LEN, and must pass the same conservative shape analysis as mutation.

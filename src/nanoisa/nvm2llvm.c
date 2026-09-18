@@ -294,6 +294,9 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         " store i64 0, ptr %%sp\n %%locals = alloca [%u x %%V]\n"
         " store [%u x %%V] zeroinitializer, ptr %%locals\n", depth ? depth : 1,
         f->local_count ? f->local_count : 1, f->local_count ? f->local_count : 1);
+    if (managed && mutable_arrays)
+        fprintf(out, " %%literal_bits = alloca [%u x i64]\n %%literal_tags = alloca [%u x i32]\n",
+                depth ? depth : 1, depth ? depth : 1);
     for (uint16_t i = 0; i < f->arity; ++i)
         fprintf(out, " %%argp%u = getelementptr %%V, ptr %%locals, i64 %u\n store %%V %%arg%u, ptr %%argp%u\n", i, i, i, i);
     if (managed) {
@@ -441,6 +444,22 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_ARR_LITERAL:
+            /* I leave counted roots on the stack until preparation succeeds.
+             * A failed preparation branches before pushing into the full stack. */
+            fprintf(out, " %%p%u_value = call %%V @managed_array_literal(ptr %%stack, ptr %%sp, ptr %%literal_bits, ptr %%literal_tags, i32 %u, i32 %u)\n"
+                " %%p%u_literal_status = call i32 @nms_module_status()\n"
+                " %%p%u_literal_ok = icmp eq i32 %%p%u_literal_status, 0\n"
+                " br i1 %%p%u_literal_ok, label %%p%u_literal_publish, label %%error_cleanup\n"
+                "p%u_literal_publish:\n", pc, ins.operands[0].u8, ins.operands[1].u16, pc, pc, pc, pc, pc, pc);
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_SLICE:
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_array_slice(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b"); transferred(&frame, "c");
+            push(&frame, pc, "value");
+            break;
         case OP_ARR_NEW:
             fprintf(out, " %%p%u_value = call %%V @managed_array_new(i32 %u)\n", pc, ins.operands[0].u8);
             push(&frame, pc, "value");
@@ -676,7 +695,8 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
             mutable_arrays |= ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH ||
-                              ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP;
+                              ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP ||
+                              ins.opcode == OP_ARR_LITERAL || ins.opcode == OP_ARR_SLICE;
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
                 uint32_t count = ins.operands[0].u32 + 1;
                 if (count > global_count) global_count = count;

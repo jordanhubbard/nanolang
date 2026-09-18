@@ -166,16 +166,16 @@ class ArrayShapes(unittest.TestCase):
         self.analyze(self.program('ARR_NEW 5\n'+'PUSH_I64 0\nPUSH_I64 1\nARR_SLICE\n'*64+'POP'),3)
         self.analyze(self.program('PUSH_VOID\n'*257+'ARR_LITERAL 5 257\nPOP'),3)
 
-    def test_copy_analysis_allocation_failure_and_no_admission(self):
+    def test_copy_analysis_allocation_failure_and_shared_admission(self):
         text=self.program('PUSH_STR text\nARR_LITERAL 5 1\nPUSH_I64 0\nPUSH_I64 1\nARR_SLICE\nPOP')
         for budget in range(8):self.analyze(text,4,budget=budget)
         self.analyze(text,0,budget=8)
         source=self.work/'copy.nasm';source.write_text(text)
         module=self.work/'copy.nvm';self.command([ROOT/'bin/nanoisa','asm',source,'-o',module])
         for tool in ('nvm2llvm','nvm2wasm'):
-            output=self.work/(tool+'.copy.old');output.write_bytes(b'prior output')
-            p=subprocess.run([ROOT/'bin'/tool,module,'-o',output],capture_output=True,timeout=30)
-            self.assertNotEqual(p.returncode,0);self.assertEqual(output.read_bytes(),b'prior output')
+            output=self.work/(tool+'.copy')
+            self.command([ROOT/'bin'/tool,module,'-o',output])
+            self.assertGreater(output.stat().st_size,0)
 
     def test_every_private_allocation_failure_is_atomic(self):
         text=self.program('ARR_NEW 5\nPUSH_STR text\nARR_PUSH\nPOP')
