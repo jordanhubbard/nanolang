@@ -4603,7 +4603,7 @@ test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runt
 
 .PHONY: test-managed-string-array-core
 test-managed-string-array-core:
-	python3 -m unittest -v tests.test_managed_string_arrays
+	python3 -m unittest -v tests.test_managed_string_arrays tests.test_managed_packed_scalars
 
 .PHONY: test-managed-string-core
 test-managed-string-core: test-managed-string-array-core
