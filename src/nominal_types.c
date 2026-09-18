@@ -33,9 +33,23 @@ static bool nominal_scoped_slot(ASTNode *program, Environment *env, char **slot,
         if (!strcmp(*slot, formals[i])) return true;
     return nominal_slot(program, env, slot);
 }
+/* I resolve parser placeholders from declarations, without changing identity. */
+static Type nominal_union_kind(ASTNode *program, Environment *env, Type type,
+                               const char *name, char **formals, int count) {
+    if (type != TYPE_STRUCT || !name) return type;
+    for (int i = 0; i < count; ++i)
+        if (!strcmp(name, formals[i])) return type;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
+            return TYPE_UNION;
+    }
+    return env_get_union(env, name) ? TYPE_UNION : type;
+}
 static bool nominal_scoped_signature(ASTNode *, Environment *, FunctionSignature *, char **, int);
 static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *info, char **formals, int count) {
     if (!info) return true;
+    info->base_type = nominal_union_kind(program, env, info->base_type, info->generic_name, formals, count);
     if (!nominal_scoped_slot(program, env, &info->generic_name, formals, count) ||
         !nominal_scoped_info(program, env, info->element_type, formals, count) ||
         !nominal_scoped_signature(program, env, info->fn_sig, formals, count)) return false;
@@ -49,10 +63,18 @@ static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *in
 }
 static bool nominal_scoped_signature(ASTNode *program, Environment *env, FunctionSignature *signature, char **formals, int count) {
     if (!signature) return true;
-    for (int i = 0; i < signature->param_count; ++i)
+    for (int i = 0; i < signature->param_count; ++i) {
         if (signature->param_struct_names && !nominal_scoped_slot(program, env, &signature->param_struct_names[i], formals, count)) return false;
-    return nominal_scoped_slot(program, env, &signature->return_struct_name, formals, count) &&
-           nominal_scoped_signature(program, env, signature->return_fn_sig, formals, count);
+        if (signature->param_type_info && !nominal_scoped_info(program, env, signature->param_type_info[i], formals, count)) return false;
+        signature->param_types[i] = nominal_union_kind(program, env, signature->param_types[i],
+            signature->param_struct_names ? signature->param_struct_names[i] : NULL, formals, count);
+    }
+    if (!nominal_scoped_slot(program, env, &signature->return_struct_name, formals, count) ||
+        !nominal_scoped_info(program, env, signature->return_type_info, formals, count) ||
+        !nominal_scoped_signature(program, env, signature->return_fn_sig, formals, count)) return false;
+    signature->return_type = nominal_union_kind(program, env, signature->return_type,
+                                               signature->return_struct_name, formals, count);
+    return true;
 }
 static bool nominal_info(ASTNode *program, Environment *env, TypeInfo *info) {
     return nominal_scoped_info(program, env, info, NULL, 0);
