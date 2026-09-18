@@ -16,7 +16,14 @@ missing instruction rules and retains both homogeneous result tags; it does
 not turn unknown values into a static type guarantee or change execution.
 
 I inspect rule shapes directly and exercise ordinary valid integer programs
-through assembly, verification, VM and native execution. I include both
+through assembly, verification and VM execution. I include both
 result positions, composition and loops. I do not execute malformed modules,
 replay historical failures or construct crash inputs. Existing verifier and
 ordinary arithmetic suites remain adjacent acceptance.
+
+My first gate exposed a separate native coverage boundary: `nvm2c` has no
+classifier for these four opcodes. I retained the positive programs and
+recorded `task_ebf9bb417d9e4d6aa3b007c3fe868c92`; native execution is not a
+completed gate. This verifier slice requires explicit unsupported-opcode
+refusal with prior native output preserved. The separate native companion
+must later execute these same ordinary arithmetic cases.
