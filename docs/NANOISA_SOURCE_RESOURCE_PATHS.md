@@ -6,7 +6,7 @@ I retain my finite acyclic nominal layouts, exact caller paths and bounded
 entry/helper profile. I extend entry and selected-shadow if/else and while
 bodies with explicitly typed resource construction, exact whole-owner moves
 and complete destructive patterns. Borrowed helpers still have only scalar
-locals. General resource assignment, partial field moves, break/continue, deeper
+locals. General resource assignment, partial field moves, deeper
 calls and implicit source drops remain refused. My subsequent
 [consumed-local reassignment contract](NANOISA_SOURCE_OWNER_REASSIGNMENT.md)
 admits only exact identifier-owner moves into consumed mutable destinations.

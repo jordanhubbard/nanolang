@@ -15,7 +15,7 @@ owned roots and formal reference origins remain unchanged. Branches execute
 only the selected arm; loops re-evaluate conditions, including borrowed calls,
 in source order.
 
-This original slice refused any let. My [lexical scalar extension](NANOISA_SOURCE_BORROW_LEXICAL_SCALARS.md) now admits bounded int/bool declarations after the scalar initialization meet. My [resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately admits explicit construction/destructuring/whole-owner moves with exact joins. I still refuse break or continue inside control-flow bodies. My
+This original slice refused any let. My [lexical scalar extension](NANOISA_SOURCE_BORROW_LEXICAL_SCALARS.md) now admits bounded int/bool declarations after the scalar initialization meet. My [resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately admits explicit construction/destructuring/whole-owner moves with exact joins. My subsequent loop-exit extension is linked below. My
 [return-path extension](NANOISA_SOURCE_BORROW_FALLTHROUGH.md) separately admits
 scalar early returns with stable owners and explicit prior consumption. My original boundary required scalar locals before control flow; the extension
 uses explicit definite initialization rather than inserting dummy stores. Nested control bodies
