@@ -8,6 +8,9 @@ without changing match dispatch or no-success behavior.
 - I visit every present match guard during effect analysis, CPS validation and
   HM type inference. HM guards unify with `bool`.
 - I clone, substitute and recursively inspect guards during PGO inlining.
+- I keep each match payload binding in lexical scope while PGO substitutes an
+  outer formal and while HM infers the guard and body. A same-named payload is
+  not rewritten to the call argument or typed from the outer formal.
 - I resolve identifiers that occur only inside guards in my LSP hover path.
 - I reject guarded matches at my NanoCore subset and exporter boundaries. My
   trust report says `I do not model match guards in NanoCore`; I do not erase a
@@ -35,6 +38,14 @@ unknown effect, a non-BOOL HM guard refusal plus BOOL control, a guard-only
 invalid `await`, an exact NanoCore trust-report refusal plus unguarded control,
 and a guard-only LSP hover lookup. The adjacent parser and typechecker suites
 also pass.
+
+After independent review found that the first PGO/HM fixtures used only
+literal or unshadowed guards, I added paired lexical-scope controls. On Darwin,
+Apple clang 21 compiled the corrected PGO and HM paths under
+`-Wall -Wextra -Werror -std=c99`; all 10 PGO methods and the full HM unit suite
+pass at tree `8a17dee9ebe671f0973c0ffd15657ddd773c89fb`. The retained log is
+`/private/tmp/nanolang-match-policy-lexical-scope.log`, SHA-256
+`e6d30c909ecd0ae18288355a1f84dbe6a01c9e6c30339628b4c3ac5881c4bcb1`.
 
 ## Preserved failing prerequisites
 

@@ -221,6 +221,7 @@ TEST(apply_skips_indirect_call) {
 
 TEST(apply_clones_and_substitutes_match_guards) {
     static Parameter parameter = { "predicate", TYPE_BOOL, NULL, TYPE_BOOL, NULL, NULL };
+    char *bindings[1] = { "payload" };
     ASTNode *guard = make_ident("predicate");
     ASTNode *scrutinee = make_num(0);
     ASTNode *arm_body = make_num(1);
@@ -233,6 +234,7 @@ TEST(apply_clones_and_substitutes_match_guards) {
     match->type = AST_MATCH;
     match->as.match_expr.expr = scrutinee;
     match->as.match_expr.arm_count = 1;
+    match->as.match_expr.pattern_bindings = bindings;
     match->as.match_expr.guard_exprs = guards;
     match->as.match_expr.arm_bodies = arm_bodies;
 
@@ -272,6 +274,56 @@ TEST(apply_clones_and_substitutes_match_guards) {
     pgo_profile_free(profile);
 }
 
+TEST(apply_preserves_match_binding_shadow_in_guard_and_body) {
+    static Parameter parameter = { "payload", TYPE_INT, NULL, TYPE_INT, NULL, NULL };
+    char *bindings[1] = { "payload" };
+    ASTNode *guard = make_ident("payload");
+    ASTNode *arm_body = make_ident("payload");
+    ASTNode **guards = calloc(1, sizeof(ASTNode *));
+    ASTNode **arm_bodies = calloc(1, sizeof(ASTNode *));
+    guards[0] = guard;
+    arm_bodies[0] = arm_body;
+
+    ASTNode *match = calloc(1, sizeof(ASTNode));
+    match->type = AST_MATCH;
+    match->as.match_expr.expr = make_num(0);
+    match->as.match_expr.arm_count = 1;
+    match->as.match_expr.pattern_bindings = bindings;
+    match->as.match_expr.guard_exprs = guards;
+    match->as.match_expr.arm_bodies = arm_bodies;
+
+    ASTNode **fn_stmts = calloc(1, sizeof(ASTNode *));
+    fn_stmts[0] = make_return(match);
+    ASTNode *fn = calloc(1, sizeof(ASTNode));
+    fn->type = AST_FUNCTION;
+    fn->as.function.name = "shadowed";
+    fn->as.function.params = &parameter;
+    fn->as.function.param_count = 1;
+    fn->as.function.body = make_block(fn_stmts, 1);
+
+    ASTNode **args = calloc(1, sizeof(ASTNode *));
+    args[0] = make_num(7);
+    ASTNode *call = make_call("shadowed", args, 1);
+    ASTNode **items = calloc(2, sizeof(ASTNode *));
+    items[0] = fn;
+    items[1] = call;
+    ASTNode *program = make_program(items, 2);
+
+    const char *prof_path = write_prof("shadowed 10000\n");
+    PGOProfile *profile = pgo_load_profile_threshold(prof_path, 1);
+    ASSERT(profile);
+    ASSERT(pgo_apply(program, profile) == 1);
+    ASTNode *cloned_return = call->as.block.statements[0];
+    ASTNode *cloned_match = cloned_return->as.return_stmt.value;
+    ASTNode *cloned_guard = cloned_match->as.match_expr.guard_exprs[0];
+    ASTNode *cloned_body = cloned_match->as.match_expr.arm_bodies[0];
+    ASSERT(cloned_guard->type == AST_IDENTIFIER);
+    ASSERT(strcmp(cloned_guard->as.identifier, "payload") == 0);
+    ASSERT(cloned_body->type == AST_IDENTIFIER);
+    ASSERT(strcmp(cloned_body->as.identifier, "payload") == 0);
+    pgo_profile_free(profile);
+}
+
 TEST(load_empty_profile) {
     const char *prof_path = write_prof("");
     PGOProfile *p = pgo_load_profile(prof_path);
@@ -297,6 +349,7 @@ int main(void) {
     RUN(apply_skips_arity_mismatch);
     RUN(apply_skips_indirect_call);
     RUN(apply_clones_and_substitutes_match_guards);
+    RUN(apply_preserves_match_binding_shadow_in_guard_and_body);
     RUN(load_empty_profile);
     RUN(load_missing_profile);
     printf("\n");
