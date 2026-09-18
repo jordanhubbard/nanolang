@@ -716,6 +716,16 @@ fn nisa_union_supported(parser: Parser, name: string) -> bool {
     while (< i definition.variant_count) {
         if (!= (nisa_union_variant definition (at definition.variant_names i)) i) { return false }
         if (< (at definition.variant_field_counts i) 0) { return false }
+        let offset: int = (nisa_union_offset definition i)
+        let mut field: int = 0
+        while (< field (at definition.variant_field_counts i)) {
+            let mut previous: int = 0
+            while (< previous field) {
+                if (== (at definition.variant_field_names (+ offset field)) (at definition.variant_field_names (+ offset previous))) { return false }
+                set previous (+ previous 1)
+            }
+            set field (+ field 1)
+        }
         set i (+ i 1)
     }
     return true
