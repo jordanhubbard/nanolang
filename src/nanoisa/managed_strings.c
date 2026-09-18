@@ -870,6 +870,100 @@ NmsStatus nms_release(NmsRuntime *runtime, NmsHandle handle) {
     }
     return first_error;
 }
+/* I complete validation and scratch allocation before changing any owner.
+ * Trial counts identify external roots; graph edges do not become roots. */
+NmsStatus nms_collect(NmsRuntime *runtime) {
+    if (!runtime) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (!runtime->capacity)
+        return !runtime->slots && !runtime->live_objects && !runtime->live_bytes ? NMS_OK : NMS_STATE;
+    if (!runtime->slots) return NMS_STATE;
+    uint64_t count = (uint64_t)runtime->capacity + 1;
+    if (count > SIZE_MAX / sizeof(uint64_t) || count > SIZE_MAX / sizeof(uint32_t)) return NMS_MEMORY;
+    uint64_t *trial = allocate(runtime, count * sizeof(uint64_t));
+    unsigned char *marked = allocate(runtime, count);
+    uint32_t *queue = allocate(runtime, count * sizeof(uint32_t));
+    NmsStatus status = NMS_MEMORY;
+    if (!trial || !marked || !queue) goto done;
+    uint64_t bytes = 0, objects = 0;
+    status = NMS_STATE;
+    for (uint64_t i = 0; i < count; i++) {
+        const NmsSlot *slot = &runtime->slots[i];
+        trial[i] = slot->references; marked[i] = 0;
+        if (!slot->references) {
+            if (slot->kind != NMS_SLOT_FREE || slot->data || slot->length || slot->capacity) goto done;
+            continue;
+        }
+        if (!i || slot->kind < NMS_SLOT_STRING || slot->kind > NMS_SLOT_PACKED_SCALAR_ARRAY) goto done;
+        uint64_t storage;
+        if (slot->kind == NMS_SLOT_STRING) {
+            if (!slot->data) goto done;
+            storage = slot->length;
+        } else {
+            if (slot->length > slot->capacity || (slot->capacity && !slot->data)) goto done;
+            if (slot->kind == NMS_SLOT_PACKED_SCALAR_ARRAY && !packed_width(slot->element_tag)) goto done;
+            storage = array_storage_bytes(slot);
+            if (storage > SIZE_MAX) goto done;
+        }
+        if (storage > UINT64_MAX - bytes) goto done;
+        bytes += storage; objects++;
+    }
+    if (objects != runtime->live_objects || bytes != runtime->live_bytes) goto done;
+    for (uint64_t i = 1; i < count; i++) {
+        const NmsSlot *slot = &runtime->slots[i];
+        if (slot->kind != NMS_SLOT_STRING_ARRAY && slot->kind != NMS_SLOT_BOXED_ARRAY) continue;
+        for (uint32_t j = 0; j < slot->length; j++) {
+            NmsValue child = array_value(slot, j);
+            if (value_valid(runtime, child) != NMS_OK) goto done;
+            if ((child.tag == 5 || child.tag == NMS_ARRAY_TAG) && (child.payload & NMS_DYNAMIC)) {
+                uint32_t index = (uint32_t)child.payload;
+                if (!trial[index]) goto done;
+                trial[index]--;
+            }
+        }
+    }
+    uint64_t head = 0, tail = 0;
+    for (uint64_t i = 1; i < count; i++) if (trial[i]) {
+        marked[i] = 1; queue[tail++] = (uint32_t)i;
+    }
+    while (head < tail) {
+        const NmsSlot *slot = &runtime->slots[queue[head++]];
+        if (slot->kind != NMS_SLOT_STRING_ARRAY && slot->kind != NMS_SLOT_BOXED_ARRAY) continue;
+        for (uint32_t j = 0; j < slot->length; j++) {
+            NmsValue child = array_value(slot, j);
+            if ((child.tag != 5 && child.tag != NMS_ARRAY_TAG) || !(child.payload & NMS_DYNAMIC)) continue;
+            uint32_t index = (uint32_t)child.payload;
+            if (!marked[index]) { marked[index] = 1; queue[tail++] = index; }
+        }
+    }
+    /* Every marked slot is reached from an external owner. Removing only
+     * dead-to-live edges therefore cannot remove its final live owner. */
+    for (uint64_t i = 1; i < count; i++) {
+        const NmsSlot *slot = &runtime->slots[i];
+        if (marked[i] || !slot->references ||
+            (slot->kind != NMS_SLOT_STRING_ARRAY && slot->kind != NMS_SLOT_BOXED_ARRAY)) continue;
+        for (uint32_t j = 0; j < slot->length; j++) {
+            NmsValue child = array_value(slot, j);
+            if ((child.tag == 5 || child.tag == NMS_ARRAY_TAG) && (child.payload & NMS_DYNAMIC)) {
+                uint32_t index = (uint32_t)child.payload;
+                if (marked[index]) runtime->slots[index].references--;
+            }
+        }
+    }
+    for (uint64_t i = 1; i < count; i++) {
+        NmsSlot *slot = &runtime->slots[i];
+        if (marked[i] || !slot->references) continue;
+        runtime->live_bytes -= slot->kind == NMS_SLOT_STRING ? slot->length : array_storage_bytes(slot);
+        runtime->live_objects--; deallocate(slot->data);
+        slot->data = NULL; slot->references = 0; slot->length = 0; slot->capacity = 0;
+        slot->kind = NMS_SLOT_FREE; slot->element_tag = 0; slot->vm_array_policy = 0;
+        slot->next_free = runtime->free_head; runtime->free_head = (uint32_t)i;
+    }
+    status = NMS_OK;
+ done:
+    deallocate(queue); deallocate(marked); deallocate(trial);
+    return status;
+}
 NmsStatus nms_begin(NmsRuntime *runtime) {
     if (!runtime) return NMS_STATE;
     if (runtime->disposed) return NMS_DISPOSED;
