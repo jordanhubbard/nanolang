@@ -923,13 +923,15 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     for(uint32_t function=0;function<mod->function_count;function++) {
         const NvmFunctionEntry *fn=&mod->functions[function];
         const char *name=nvm_get_string(mod,fn->name_idx);
-        if ((function ? ((!value_graph && !fn->arity) || fn->arity>NVM_AFFINE_MAX_PARAMETERS) : fn->arity!=0) || fn->upvalue_count || fn->result_count!=1 ||
-            (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8) ||
+        if ((function ? ((!value_graph && !fn->arity) || fn->arity>NVM_AFFINE_MAX_PARAMETERS) : fn->arity!=0) || fn->upvalue_count ||
+            ((!function || !value_graph) && (fn->result_count!=1 ||
+             (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8))) ||
             fn->local_count>NVM_AFFINE_MAX_LOCALS || (name && !strcmp(name,"__init__")))
-            return fail("I require entry and optional bounded scalar-result helper signatures");
+            return fail("I require a scalar entry and exact bounded value-result helper signatures");
         NvmAffineState *state=nvm_affine_state_create(mod,function,fn->local_count);
         if(!state) return fail("I require complete ownership local declarations");
-        bool valid=true;
+        NvmAffineType result;uint16_t fields=0;
+        bool valid=nvm_affine_value_result(state,&result,&fields);
         for(uint16_t i=0;i<fn->local_count;i++) {
             NvmAffineType type;NvmReferenceMode mode;
             if(function && !value_graph && i<fn->arity) {

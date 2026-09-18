@@ -67,13 +67,13 @@ bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
                              uint32_t reference);
 bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
-/* I inspect zero through eight mode-zero scalar/resource parameters.
- * Executable graph and result eligibility are separate checks. */
 /* I inspect an exact mode-zero scalar, void, or scalar-leaf owned result.
  * I require matching function count/tag and leave both outputs unchanged on refusal.
  * This declaration query alone grants no executable return authority. */
 bool nvm_affine_value_result(const NvmAffineState *state,NvmAffineType *type,
                               uint16_t *field_count);
+/* I inspect zero through eight mode-zero scalar/resource parameters.
+ * Executable graph and result eligibility are separate checks. */
 bool nvm_affine_value_parameters(const NvmAffineState *state,
                                   NvmAffineType *types,uint16_t capacity,uint16_t *count);
 /* I inspect a bounded mode-zero value signature with at least one owner.
