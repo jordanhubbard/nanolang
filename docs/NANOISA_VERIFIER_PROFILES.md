@@ -22,9 +22,13 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   ADD/CAST_INT/CAST_FLOAT anywhere in a string-bearing module. The existing
   CLOSED_SCALAR selector continues to refuse strings. Details and lifetime are
   in `NANOISA_LLVM_LITERAL_STRINGS.md`.
+- `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains those closed module rules and
+  adds matched STR_CONCAT and string/numeric ADD. It retains string-bearing
+  numeric-cast refusal and all other heap/import exclusions. Ownership and
+  errors follow `NANOISA_LLVM_MANAGED_STRINGS.md`.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary
   metadata can select or bypass the consuming tool's profile.
-- LLVM selects CLOSED_LITERAL_STRINGS through this shared admission. Wasm uses the same LLVM route. My initial
+- LLVM first selects CLOSED_LITERAL_STRINGS, then tries CLOSED_MANAGED_STRINGS when the former refuses. Wasm uses the same LLVM route. My initial
   extraction changed no target eligibility; later extensions require matched
   lowering and their documented gates. I retain serialization and VM default
   admission. This scalar profile is not a GPU kernel contract.
@@ -38,7 +42,7 @@ existing integer, float, U8, truthiness and implicit-return translator gates.
 Unknown profiles refuse; ordinary verification failures remain failures.
 My complete applicable-language LLVM/Wasm coverage remains open.
 
-I admit enum-count metadata and ENUM_VAL in both closed profiles with the
+I admit enum-count metadata and ENUM_VAL in the closed profiles with the
 matched [enum scalar contract](NANOISA_LLVM_ENUM_SCALARS.md). This adds an
 ordinal tag carrier, not nominal heap layouts. Existing literal-string
 ADD/CAST_INT/CAST_FLOAT restrictions and CAST_STRING/TAIL_CALL refusals remain.

@@ -82,3 +82,36 @@ these packaging and cleanup checks pass together.
    errors, OOM rollback, live allocation counts and final disposal.
 4. I update profile documentation only after the paired gate passes. The full
    managed-string and applicable-language parents remain open.
+
+## My emitted-frame continuation after PR632
+
+PR632 supplies the non-admitting concat and package mechanisms. I keep
+`task_b1cc086f8cdf476cb0814f5ade9a15b1` and its parent open while connecting
+those mechanisms to emitted programs.
+
+My managed path uses an internal `{value,status}` function result, including
+void functions. A module-local first-error latch lets scalar helper checks
+report TYPE or ASSERT without trapping inside a live frame. The latch is
+private to this single-threaded, non-reentrant module instance. It is reset
+only when a new top-level invocation has successfully entered the runtime.
+Helpers preserve an earlier failure. I guard operations such as float-to-int
+conversion before evaluation, so recording an error does not continue into an
+undefined conversion. String descriptor failures return no dereferenceable
+view. This latch is not an exception mechanism or a host-shared error channel.
+
+Each emitted instruction releases its consumed, non-transferred operands,
+then tests status before reaching the next bytecode block. LOAD and DUP retain
+before publishing an additional owner; failure publishes no owner. STORE
+releases the old destination and moves the new owner. CALL transfers argument
+owners to callee locals; the callee always cleans them up, including on error.
+A successful return moves its result before releasing remaining roots. A
+failing return publishes no result. Branches release consumed conditions
+before selecting a successor. Implicit completion uses the same return
+validation and cleanup as explicit RET.
+
+I keep the ordinary scalar/literal emission path separate until managed-path
+parity is established. The new profile will deliberately add only concat and
+matched generic ADD; it will retain substring, string-conversion, heap,
+import, ownership/reference and unsupported metadata refusals. Existing enum
+and scalar semantics from PR631 remain required. Every public translation
+entry must finish profile/target/custom-name validation before writing output.
