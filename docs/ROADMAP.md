@@ -10022,10 +10022,13 @@ Other translators:
       [trim contract](NANOISA_MANAGED_TRIM.md) preserves remaining operations.
       My [paired evidence](evidence/managed-string-trim.md) covers exact bytes,
       fresh handles, aliases, allocation failure and managed-only admission.
-- [ ] I release both popped STR_CHAR_AT operands on success/type refusal before
+- [x] I release both popped STR_CHAR_AT operands on success/type refusal before
       managed admission, and correct its stale char-as-string comment to the
       actual integer byte/-1 result. Static audit only; no failure replay. MAC
       `task_62caf894db9649cd904ce6faf3c37ffb`; separate from managed trim.
+      My [corrected-source evidence](evidence/character-operand-lifetime.md)
+      records focused sanitizers and all 274493 VM checks passing; managed
+      character access remains a separate admission contract.
 - [x] I match managed byte-string CONTAINS/STARTS_WITH/ENDS_WITH across
       VM, LLVM and import-free Wasm with exact stored lengths, no allocations,
       aliases and existing operand/frame error cleanup. MAC
