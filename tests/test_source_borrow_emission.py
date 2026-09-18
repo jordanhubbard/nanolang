@@ -144,6 +144,88 @@ class SourceBorrowEmission(unittest.TestCase):
             self.assertLessEqual(int(owners[0][3]), int(owners[1][2]))
             self.assertFalse(any('__' in row[4] for row in records))
 
+    def test_multiple_parameters_preserve_callers_and_metadata(self):
+        for fixture, arity in (('source_borrow_multi.nano', 3), ('source_borrow_eight.nano', 8)):
+            source = FIXTURES / fixture
+            seed = self.work / 'multi-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.parameters 1' + ' struct' * arity, baseline)
+            self.assertIn('REF_GET ' + str(arity - 1), baseline)
+            names = self.names_and_strip(seed)
+            formals = [r for r in names if r[0] != 'main' and r[2] == '0']
+            self.assertEqual([int(r[1]) for r in formals], list(range(arity)))
+            for emitter in self.emitters:
+                assembly, module = self.work / 'multi-self.nasm', self.work / 'multi-self.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-multi.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly = self.work / 'multi-shadows.nasm'
+                module = self.work / 'multi-shadows.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
+    def test_multiple_parameter_refusals_preserve_publication(self):
+        multi = (FIXTURES / 'source_borrow_multi.nano').read_text()
+        eight = (FIXTURES / 'source_borrow_eight.nano').read_text()
+        shared_first = """resource struct Item { value: int, active: bool }
+fn inspect(first: &Item, second: &mut Item) -> int { return (+ first.value second.value) }
+shadow inspect { let mut owner: Item = Item { value: 1, active: true }
+ assert (== (inspect &owner &mut owner) 2)
+ let Item { value, active } = owner }
+fn main() -> int { let mut owner: Item = Item { value: 1, active: true }
+ assert (== (inspect &owner &mut owner) 2)
+ let Item { value, active } = owner return 0 }
+shadow main { assert true }
+"""
+        duplicate = shared_first.replace('first: &Item, second: &mut Item',
+                                         'first: &Item, first: &Item')
+        duplicate = duplicate.replace('second.value', 'first.value').replace('&mut owner)', '&owner)')
+        cases = {
+            'shared_then_exclusive_alias': shared_first,
+            'duplicate_formals': duplicate,
+            'arity': multi.replace('&mut one &middle_owner &mut three', '&mut one &middle_owner'),
+            'mode': multi.replace('&mut one &middle_owner &mut three', '&one &middle_owner &mut three'),
+            'nominal': multi.replace('&mut one &middle_owner &mut three', '&mut one &one &mut three'),
+            'exclusive_alias': multi.replace('&mut one &middle_owner &mut three', '&mut one &middle_owner &mut one'),
+            'mixed_alias': multi.replace('middle: &Right', 'middle: &Left').replace('&middle_owner', '&one'),
+            'value_formal': eight.replace('p7: &Counter', 'p7: int'),
+            'nine': eight.replace('p7: &Counter', 'p7: &Counter, extra: &Counter'),
+            'failed_shadow': multi.replace('shadow main { assert true }', 'shadow main { assert false }'),
+        }
+        for name, text in cases.items():
+            source = self.work / (name + '.nano')
+            source.write_text(text)
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                output = self.work / 'preserved.nvm'
+                output.write_bytes(b'accepted-output')
+                result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
+                                        cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_bytes(), b'accepted-output')
+            if name != 'failed_shadow':
+                for emitter in self.emitters:
+                    output = self.work / 'preserved.nasm'
+                    output.write_text('accepted-output')
+                    result = subprocess.run([emitter, source, '-o', output], cwd=ROOT,
+                                            capture_output=True, text=True, timeout=60)
+                    self.assertGreater(result.returncode, 0, (name, emitter, result.stderr))
+                    self.assertEqual(output.read_text(), 'accepted-output')
+
     def test_selected_shadows_execute_and_preserve_suffix_identity(self):
         source = self.work / 'selected.nano'
         source.write_text((FIXTURES / 'source_borrow_exclusive.nano').read_text())

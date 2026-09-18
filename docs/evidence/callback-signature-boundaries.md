@@ -8,7 +8,7 @@ Ten callback methods exercise 30 C-seed/Stage1/Stage2 decisions: ordinary generi
 
 I passed a fresh default-budget native bootstrap and the complete parser/typechecker suites after integration. Parser tests compare nested generic annotations, mutate parameter/result trees to require mismatches, deep-copy signatures, reconstruct signatures from declarations, and free the original AST before reading the copies. The parser suite also passes ASan/UBSan with the existing separate legacy leak boundary; I do not claim leak-free whole-checker execution. The first-class user-guide example compiles, checks its shadows and executes.
 
-This completes MAC `task_cf555f2a672e43d9921ca44b817ec631`. Parent `task_e05a42e2e09b47cc9c53fa6923eeeaef` remains open for complete indirect-call argument/result metadata, qualified-module call signature checks, serialization and conservative resource callback rejection. A qualified imported callback still reaches a separate basic argument-checking path; the module metadata work does not close that checker gap.
+This completes MAC `task_cf555f2a672e43d9921ca44b817ec631`. Parent `task_e05a42e2e09b47cc9c53fa6923eeeaef` remains open for complete indirect-call argument/result metadata, qualified-module call signature checks, serialization and conservative resource callback rejection. At this checkpoint, a qualified imported callback still reached a separate basic argument-checking path. The follow-up below repairs that gap; metadata serialization alone did not close it.
 
 Evidence is retained in `/tmp/nanolang-callback-foundation-integrated-{gates,drivers}.log`, `/tmp/nanolang-callback-signature-{parser,asan}.log` and `/tmp/nanolang-callback-firstclass.log`. Independent source review found no blocker within this bounded scope.
 

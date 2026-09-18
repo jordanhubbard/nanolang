@@ -27,9 +27,10 @@ My 1,222 shape checks pass under ASan/UBSan/leak checks, including both conversi
 orders, mismatched payload refusal, exact-destination refusal, recursive storage
 and solver stability. Independent static review found no scoped blocker.
 
-The preceding projection checkpoint passed all 2,422 native checks. I am
-requalifying the final consumer change against that full suite and the complete
-product bootstrap before closing this task. The distinct historical
+The preceding projection checkpoint passed all 2,422 native checks. At that
+checkpoint, the final consumer change still required the full suite and complete
+product bootstrap. The later results below supersede that pending suite check;
+the complete product gate remains unmet. The distinct historical
 export-shadow abort and the release publication hold remain open.
 
 My subsequent static trace located the remaining constraint at the typed write

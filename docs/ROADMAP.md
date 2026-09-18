@@ -1,5 +1,11 @@
 # My Roadmap
 
+- [x] I retain boxed numeric arithmetic tags through native locals, calls and boxed-to-boxed joins (`task_bbf36d05756945d7869a0b93e35ea42e`, parent66a6). I check int/float operands, return int only for two integer operands, preserve float promotion and integer totality, and retain exact consumer guards. MOD stays integer-only. I test ordinary VM/native GCC/Clang sanitizer parity and refusal without widening heap or enum arithmetic. Combined GCC/Clang gates, exact typed-consumer guards and 2,422 native/1,092 shape checks pass. [Evidence](evidence/native-tagged-numeric-arithmetic.md).
+- [ ] I define explicit numeric-union shape/provenance before joining boxed int|float results with concrete scalar edges (`task_87a7b44d10e240e999485d12aeecaca2`). My current OPTIONAL shape has one exact payload child; I do not erase INT/FLOAT constraints or broaden heap/optional storage merely to admit these joins. I retain refusal/output-preservation controls while this dependency is open.
+
+- [x] I reconcile stale bounded v5.1 milestones against merged evidence (`task_0f0655717d984eae8bf6c82a109b1229`): executable HLL spike/finding, ordinary qualified callback signatures and the closed scalar passive contract. I update historical C-seed ownership wording while preserving full affine, reconstruction, target and release obligations. [Evidence](evidence/v51-bounded-acceptance-reconciliation.md).
+- [x] I preserve statically known int/float generic arithmetic in native C (`task_ec1b78703b0f49cbb4e05d8e8b7779df`). I match VM promotion for ADD/SUB/MUL/DIV and NEG, retain integer-only MOD and existing wrapped/total integer rules, and test tags, calls, rounding, signed zero and invalid operands with paired GCC/Clang sanitizers. Existing tagged operands retain checked-int behavior; full dynamic promotion, enums, heap arithmetic and LLVM/Wasm remain separate obligations. Seven paired GCC/Clang sanitizer methods, strengthened guard controls, the wrapped-integer gate and 2,422 native/1,092 shape checks pass. [Evidence](evidence/native-generic-numeric-arithmetic.md).
+
 - [x] I check direct selected-union constructor arguments against their declared nominal context (MAC `task_6961296c51014326bb3a532c33fab2e0`). I normalize exact already-declared union variants in brace parsing, recognize actual constructor AST nodes only, validate the selected variant and exact payload fields/types with concrete generic substitution, and preserve nominal identity across direct, computed/function-value and supported qualified calls. I retain explicit unresolved-shape refusals, existing ownership guards, native emitter context, and ordinary positive/mismatch/shadow/output-preservation tests before completion. I do not apply broad return-type coercion to calls. My integrated bootstrap, thirteen both-stage constructor methods, ten explicit shared C controls and adjacent ownership/function-value gates pass; [evidence and separate C refusals](evidence/selfhost-constructor-call-context.md) retain the exact scope.
 - [x] I preserve nongeneric union identity in C-seed function-value signatures (`task_f00d97409c26413781ff85f06993e66d`). My earlier ordinary fn(Choice)->int local/computed control was refused while the concrete generic callback control passed; I retain that observation as resolved history. I resolve declared local union kinds consistently in retained annotation trees and callback parameter/result slots before comparison, without relaxing nominal or concrete generic equality. I test local/computed calls, returned callbacks and nominal/payload mismatches with normal shadows and previous-output preservation; imported module ownership remains task a2. My fresh bootstrap, parser/typechecker units, nine GCC/Clang methods and 31 adjacent all-stage callback/resource methods pass; [evidence](evidence/cseed-union-callback-signatures.md) retains the exact boundary.
 - [x] I retain nongeneric union parameter identity when checking imported C-seed module functions (`task_a2f464df8ba84a4ab4fc52c509e96904`). My earlier module-local match on Choice was rejected as non-union while Stage1 accepted the same source; I retain that resolved observation. This does not weaken the constructor-context acceptance boundary. I resolve each declared function parameter/result kind in the shared nominal binding pass before either registration path copies it, preserving exact names and retained annotation trees. My acceptance covers normal module-local matches, imported calls/results, mismatch and shadow refusal with previous-output preservation; ownership rules remain unchanged. My fresh bootstrap/parser/typechecker units, eight GCC/Clang controls, sixteen adjacent metadata methods and 31 C-seed callback/resource methods pass; [evidence](evidence/cseed-imported-union-identity.md) preserves the separate single-letter native naming failure.
@@ -64,12 +70,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I verify product bootstrap after PR #551 adds exact record-array global transport (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; full product acceptance remains open). At earlier product pin `599d7558`, Stage 1 and hello passed, but Stage 2 translation explicitly refused an aggregate global store. I preserve that bootstrap log and keep the product draft open until the integrated compiler passes its gates. My fresh `1fae65ef` bootstrap passes both stages, hello and installed execution without the C seed; the distinct export-shadow acceptance task dd74 still blocks the product PR.
 - [ ] I preserve optional scalar payloads in native aggregate storage (`task_497e1ba5b9544b81b3614ec37da90e98`). Fresh product bootstrap9808acf6 passes Stage1 hello but refuses optional-to-int storage during Stage2 translation (retained `/tmp/nanolang-product-through597-bootstrap.log`). I extend only conversion-inferred scalar destination storage, preserve exact constraints and checked unboxing, and require focused mixed present/optional storage plus full fresh product bootstrap. Historical export-shadow aborts remain separate. My initial shape-only correction exposed missing int/bool projection acceptance in fresh mixed-record controls (`/tmp/nanolang-optional-scalar-focused.log`); I record this before completing scalar storage seeding and projection.
 
+- [x] I report generated C function and line before ordinary native invariant aborts (`task_fb49a88a8ab84385a52858243214d237`). I preserve every guard and SIGABRT behavior, with exact refusal and passing GCC/Clang controls, native regression checks and integrated numeric/map checks. Separate owned emission and foreign code remain outside this diagnostic change. This foundation neither attributes nor resolves the product startup or export-shadow holds. [Evidence](evidence/native-invariant-diagnostics.md).
+
 - [x] I preserve optional int/bool/string results from ordinary native array reads (`task_438ff01101234d6cb3cad5dfeaa0e9f2`). I replace cancelled task ed0f and stale PR307/331/343/349/356 against current signed-64-bit index semantics: no uint32 wrap. Valid reads retain payload tags; missing indices retain void through ignored, tag-tested, local/call/join consumers; typed consumers check before unboxing. Existing record-array and ownership contracts stay separate. My corrected-source VM/native and GCC/Clang sanitizer acceptance passes, alongside 2,422 native and 1,092 shape checks. Evidence: `docs/evidence/native-optional-array-reads.md`.
 
 - [x] I emit total integer arithmetic in standalone native C (`task_9af23845cec040b6955340ab23de4c91`, parent66a6). Unsigned add/sub/mul/neg plus exact signed reconstruction avoid signed overflow; division/remainder guard zero and minimum-integer overflow. Thirty-eight typed/generic integer cases pass GCC/Clang UBSan at O0/O2, shared VM/LLVM/Wasm boundaries pass, and 2,422 native plus 1,092 shape checks pass. Generic float/tag promotion remains separate. See `docs/evidence/native-total-integer-arithmetic.md`.
 
 - [x] I execute verified owned-profile assertions before admitting mandatory source shadows (MAC `task_f259c8fa53c945e6a990f112dc9415c1`, parents ed702/718). True conditions preserve affine/reference state; false conditions unwind actual owners and clear both activation contexts, with native helper failure propagation. I pass 959 entry/helper assertion, four public VM entry APIs, resume and cleanup checks, paired supervised VM/native and instrumented lifetime gates; ordinary ASSERT semantics remain unchanged. See `docs/evidence/owned-shadow-assertions.md`.
 - [x] I emit checked scalar-resource borrowed calls from both ordinary-source NanoISA frontends (MAC `task_5057848888b246f686fd2b8e48d2c19a`, parents ed702/718). My [bounded source contract](NANOISA_SOURCE_BORROWS.md) requires exact nominal layouts, root/parameter ownership, OWN/REF/CALL_REF, complete selected shadows and paired VM/native execution. Initial int/bool scalar-leaf roots, one borrowed helper, required actual entry ownership transfer and explicit unsupported-shadow graph refusal do not complete broader source or affine acceptance. My [paired source evidence](evidence/source-borrow-emission.md) retains exact staged contracts, supervised failures and sanitized native execution.
+- [x] I extend my paired borrowed-source producers to one through eight exact borrowed formals, preserving ordered contiguous caller descriptors, per-parameter nominal/mode identity, actual helper reference indices, shared aliases and disjoint exclusive roots (MAC `task_f209d694d3be415982456b00b4df5ad9`). My [source contract](NANOISA_MULTI_SOURCE_BORROWS.md) retains all selected shadows, exact C/self metadata and advisory names, VM/sanitized native results and ordinary refusal/publication gates. Nested paths, mixed value parameters, control flow and imports remain outside this slice. Fresh bootstrap, nine source methods, 2,004 multi-caller checks, 182 runtime allocation checks and two ordinary-name methods pass; [measured evidence](evidence/multi-source-borrows.md).
 - [x] I retain optional local-name metadata for my specialized borrowed-source producers after their checked admission (MAC `task_0178be8daf554a69969144b6657e7756`, reconstruction parent `task_4bd034f6029b7458201db74e2c3aeb32`). Both producers must agree on original names and exact function/slot/lexical-PC identity for parameters, moved/destructured owners and selected shadow scopes; PR #593 covers ordinary producers, not these new paths. Optional names do not grant verifier authority or change ownership execution. I begin names after stores (parameters at zero), end them after lexical cleanup/return, omit constructor and hidden destructure temporaries, and check paired tables, stripping, canonical roundtrip and VM/native execution. I predeclare function names before entry metadata to preserve exact constant-pool order. Fresh bootstrap, seven paired methods, two ordinary-name methods and 123 codec checks pass; [measured evidence](evidence/source-borrow-local-names.md) retains the first draft comparison failures.
 
 - [x] I execute one borrowed-parameter caller-origin reference call (MAC `task_48dcff3ff3314e9aad325209387968d1`, parents ed702/718). I first record [the bounded call contract](NANOISA_CALLER_REFERENCE.md), then connect actual caller root/path substitution, checked reborrow permissions, two activation contexts and paired VM/native scalar execution. I pass [the bounded paired gates](evidence/nanoisa-caller-reference.md). Helper local 0 remains non-authoritative; source and broader call admission stay separate. My integrated metadata gate caught an overbroad host-entry refusal for ordinary metadata-bearing helpers; I scope that guard to actual owned/reference instructions and retain ordinary module controls.
@@ -9000,9 +9009,14 @@ Ownership and proposal closure:
 - [ ] I replace the C seed's identifier-state prototype with path-sensitive
       ownership analysis and a rule-by-rule conformance corpus
       (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
-      The unmerged `c53e27a7` prototype is not that result: its 256-place
-      table silently omits excess owners and its expression walker ignores
-      unhandled AST forms. I must cover those boundaries before adopting it.
+      I superseded the cancelled task above with the merged growable
+      `src/resource_flow.c` pass and its allocation/boundary corpus, rather
+      than adopting the unmerged `c53e27a7` recovery prototype. I retain the
+      historical prototype defects in the evidence. The complete normative
+      matrix remains open under `task_c60a8d2e14b7494f8875e75b16e9b087` and
+      `task_28f2fb4b1f3c8a5ce93df628bb569d76`; partial frontend coverage does
+      not close it. [Checkpoint](evidence/affine-c-seed-flow.md),
+      [subsequent paired flow](evidence/affine-selfhost-flow.md).
 - [ ] I implement the same resource syntax, analysis, and diagnostics in
       `src_nano`; the self-hosted compiler does not inherit correctness from
       the C seed (`task_20048de825616195b9f2bc492231a851`).
@@ -9019,11 +9033,16 @@ Ownership and proposal closure:
 - [ ] I gate 5.1 on one affine acceptance matrix across both frontends,
       NanoISA, NanoVM, and AOT C
       (`task_28f2fb4b1f3c8a5ce93df628bb569d76`).
-- [ ] I take the bounded One-IR slice of `PASSIVE_PARALLELISM_DESIGN.md` into
+- [x] I take the bounded One-IR slice of `PASSIVE_PARALLELISM_DESIGN.md` into
       5.1: verified purity/independence, deterministic serial semantics, and
       NanoISA eligibility metadata. Scheduler optimization, async I/O, SoA,
       and hardware speedup claims remain outside this task
-      (`task_90b123edcc301b464a031c55e4ba1a11`).
+      (`task_90b123edcc301b464a031c55e4ba1a11`). My tested closed scalar
+      par/flow profile has paired frontend decisions, checked dependency/effect
+      refusals, versioned eligibility records, exact transport and serial
+      VM/native execution. Broader captures, trusted foreign summaries and
+      full language coverage remain separate obligations.
+      [Acceptance reconciliation](evidence/v51-bounded-acceptance-reconciliation.md).
 - [x] I postponed `ROW_POLYMORPHIC_RECORDS_DESIGN.md`: the C-seed prototype is
       not a language contract without self-hosted parity, a stable ABI,
       dual-frontend conformance, `.nvm` round trips, VM/AOT equivalence, and
@@ -9090,11 +9109,13 @@ Compiler product:
         and environment lifetime. My real extraction/emission route and 100
         controlled copy/free cycles pass; legacy checker leaks remain tracked
         by `task_00c47a5d65d04c48914864ec0de553d6`.
-- [ ] I enforce the same full signature check for qualified imported calls:
-      `cb.apply` currently accepts a string[][] callback where int[][] is
-      required, while an ordinary imported `apply` rejects it. I retain this
-      distinct checker gap under `task_e05a42e2e09b47cc9c53fa6923eeeaef`;
-      metadata serialization does not claim to repair call dispatch checks.
+- [x] I enforce the same full signature check for qualified imported calls.
+      The earlier `cb.apply` mismatch acceptance is repaired in both source
+      checkers under `task_3ca0e46fbbc64aa8bc39bfdaf65b8833`. My 35 paired
+      methods include qualified execution/rejection and previous-output
+      preservation. Parent `task_e05a42e2e09b47cc9c53fa6923eeeaef` remains
+      separate from this ordinary signature check; I do not infer complete
+      callback ownership. [Evidence](evidence/callback-signature-boundaries.md).
 - [x] I lower selected shadows from the same bound Parser to a separate
       NanoISA module (`task_57fc2c62eb504a579dc2ca37ce72e2e8`), after compiled
       signature metadata lands. I preserve ordered selection, module identity,
@@ -9828,14 +9849,35 @@ Module richness:
         [Evidence](evidence/nanoisa-scalar-reconstruction.md).
 - [ ] I define general and restricted compute profiles with verifier-enforced
       feature sets. GPU targets use the restricted profile.
+  - [x] I share caller-selected general and closed-scalar profile admission,
+        preserving ordinary verification and existing LLVM/Wasm eligibility.
+        MAC `task_037b12aecc894b86ba335828fa1eb1a2`; contract
+        `docs/NANOISA_VERIFIER_PROFILES.md`. I test shared preflight decisions
+        and refusal before output publication. GPU eligibility and full
+        applicable-language coverage remain separate acceptance obligations.
+        [Evidence](evidence/nanoisa-verifier-profiles.md).
 
 Reconstruction:
-- [ ] I spike a second high-level surface from the same `.nvm` (NanoLang or
-      another HLL). If that surface is only an interpreter, the spike failed.
-- [ ] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient,
-      insufficient, or blocked on named metadata.
+- [x] I spike a second executable high-level surface from the same `.nvm`:
+      PR604 emits structured C and NanoLang from one checked scalar region
+      tree, with eight retained modules executed through VM/C and three native
+      NanoLang stages. Neither surface embeds an interpreter. General
+      reconstruction remains open under `task_4bd034f6029b7458201db74e2c3aeb32`.
+      [Evidence](evidence/nanoisa-scalar-reconstruction.md).
+- [x] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient for
+      the tested closed scalar grammar and insufficient for full high-level
+      reconstruction. I preserve its named limitations; fixture shadows are
+      supplied assertions, not recovered original tests.
 
 Other translators:
+- [x] I lower generic numeric ADD/SUB/MUL/DIV/MOD/NEG through my shared
+      closed-scalar LLVM/Wasm profile with VM-matched promotion, wrapping,
+      total division, runtime tag errors and paired execution. MAC
+      `task_fd74e0169a1c4be0ae328ead691bde23`, parent
+      `task_66a6dd8ca51d415f9efb0f2904f85b49`; contract
+      `docs/NANOISA_LLVM_GENERIC_NUMERIC.md`. Heap/enum operands and full
+      native tagged-value promotion remain separate boundaries.
+      [Evidence](evidence/llvm-generic-numeric.md).
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
