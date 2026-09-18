@@ -12,7 +12,7 @@ I derive nominal IDs from the resolved declaration identity, preserving same-sha
 
 ## My mandatory shadows
 
-I lower every selected shadow is lowered into a synthetic entry plus the same single helper. A selected shadow graph requiring main/additional helpers is explicitly refused before publication in this bounded profile. ASSERT support in the owned verifier/runtime/native path is an immediate separate prerequisite; I do not erase assertions or reinterpret failed shadows as success. Runtime multi-parameter work task_7a2c8017c0c04b82a48ba069561e9d36 is owned by release_audit and uses unchanged CALL_REF plus contiguous descriptor slots; my initial source slice remains one parameter.
+I lower every selected shadow into a synthetic entry plus the same single helper. A selected shadow graph requiring main/additional helpers is explicitly refused before publication in this bounded profile. ASSERT support in the owned verifier/runtime/native path is an immediate separate prerequisite; I do not erase assertions or reinterpret failed shadows as success. Runtime multi-parameter work task_7a2c8017c0c04b82a48ba069561e9d36 is owned by release_audit and uses unchanged CALL_REF plus contiguous descriptor slots; my initial source slice remains one parameter.
 
 ## My acceptance
 

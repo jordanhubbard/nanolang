@@ -4666,5 +4666,6 @@ test-cseed-imported-unions: $(COMPILER_C)
 test-units: test-cseed-imported-unions
 
 .PHONY: test-source-borrow-emission
+test-units: test-source-borrow-emission
 test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	@python3 -m unittest -v tests.test_source_borrow_emission
