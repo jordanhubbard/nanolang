@@ -1206,6 +1206,27 @@ void test_eval_binary64_prefix_and_strict_cast(void) {
     uint64_t nan_bits;
     memcpy(&nan_bits, &nan_result.as.float_val, sizeof nan_bits);
     ASSERT(nan_bits == UINT64_C(0x7fffffffffffffff));
+    const struct { const char *text; uint64_t bits; bool rejected; } special[] = {
+        {"nan(184467440737095516160000)", UINT64_C(0x7fffffffffffffff), false},
+        {"-nan()", UINT64_C(0xfff8000000000000), false},
+        {"nan(+1)", 0, true}, {"Infinity", UINT64_C(0x7ff0000000000000), false},
+        {"infinit", 0, true}
+    };
+    nan_call.as.call.name = "cast_float";
+    for (size_t i = 0; i < sizeof special / sizeof special[0]; i++) {
+        nan_arg.as.string_val = (char *)special[i].text;
+        FILE *saved = stderr, *messages = tmpfile();
+        ASSERT(messages != NULL);
+        stderr = messages;
+        Value result = repl_eval_node(&nan_call, env);
+        fflush(messages);
+        long count = ftell(messages);
+        stderr = saved;
+        fclose(messages);
+        ASSERT(result.type == VAL_FLOAT);
+        memcpy(&nan_bits, &result.as.float_val, sizeof nan_bits);
+        ASSERT(nan_bits == special[i].bits && ((count > 0) == special[i].rejected));
+    }
     free_environment(env);
 }
 

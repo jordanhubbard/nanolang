@@ -9967,6 +9967,12 @@ Other translators:
       bounded fresh run remained incomplete; I preserve its original evidence
       and make no cause claim from the separate passing parser-only harness.
       MAC `task_7ba59bf363f7454ba50bf3bbd965db8e`; managed parent51da stays open.
+- [ ] I resolve the retained evaluator shadow gate failure observed during
+      legacy parser integration, without attributing the unexplained SIGSEGV
+      to that conversion change. I preserve the original binary in
+      `/tmp/nanolang-legacy-test-eval-failed-791a` and its log; no core
+      was located. MAC `task_791a3d3d66b04c0caa892a3d5b99ccca`; this gate
+      remains unproved until corrected acceptance establishes its result.
 - [ ] I propagate the portable parser policy to legacy AST routes while
       preserving strict endptr diagnostics and source bootstrap behavior.
       MAC `task_9e93c1badb1a4da093a737b3a2c15ef7`; separate from canonical admission.
