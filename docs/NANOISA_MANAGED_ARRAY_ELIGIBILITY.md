@@ -48,8 +48,10 @@ that the abstract site denotes exactly one runtime object.
 
 CFG joins union tags and origins. Locals begin void. Globals begin void and
 accumulate all possible writes, including writes before a later runtime error.
-The first initializer and entry order follow the existing module contract;
-entry re-execution retains global summaries. I conservatively include both
+I seed the first initializer and entry selected by the existing module contract;
+entry re-execution retains global summaries. I union their effects and do not
+claim a must-write initialization or precise call-order proof. The later runtime
+adapter must preserve the actual initializer-before-entry order. I conservatively include both
 initial and later states rather than assuming a fresh instance on each call.
 
 Direct calls propagate actual argument facts into context-insensitive callee
@@ -97,9 +99,9 @@ failure. Diagnostics identify function/PC and the unmet origin/tag obligation.
 The caller owns a successful report; destroy handles partial construction. The
 analysis does not mutate the module or write executable output.
 
-The first implementation bounds origins at64, functions at256, each function's
-locals/stack at256, global slots at256, total decoded instructions at65536, and
-stored abstract-state cells at1048576. Checked multiplication precedes allocation.
+The first implementation bounds origins at 64, functions at 256, each function's
+locals/stack at 256, global slots at 256, total decoded instructions at 65536, and
+stored abstract-state cells at 1048576. Checked multiplication precedes allocation.
 Exceeding a cap is an explicit analysis-limit result, never eligible. These are
 private analysis limits, not a new language or VM limit. Finite monotone tag and
 origin sets bound convergence; queued flags bound the worklist. I publish no
