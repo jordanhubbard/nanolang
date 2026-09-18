@@ -35,6 +35,18 @@ shared affine analyzer or the native emitter. VM admission checks instantiated
 constants before choosing either the invocation-proof path or its conservative
 fallback; the traced fallback refusal is exercised directly.
 
+The follow-up `task_a468c371da11fb8a37a9567bb7f0af21` closes the public-core
+readiness gap at rebased checkpoint
+`1c986ec8efbeb9930e74a8cc537b0396de90d1fd`. I inspect the active module's
+actual constant table before every owned core entry, including direct public
+entry and a resume after a host-output trap invalidates the invocation proof.
+An incomplete table refuses before another instruction executes and clears the
+reference activation through the existing error path. A fresh complete-table
+activation still crosses PRINT and ASSERT traps and returns normally. An
+ordinary module with no ownership metadata still takes the checked opcode path;
+its missing literal produces the existing decode refusal rather than being
+reclassified as owned execution.
+
 ## Focused qualification
 
 At the review-correction checkpoint, a clean build followed by `make -j8
@@ -71,6 +83,12 @@ The review log is
 `/private/tmp/nanolang-owned-string-print-review-f7a66804.log`, SHA-256
 `f76b374e603f09b84064caa5acd7a57540ba37f58c5ddf3044ee7b955cd9c79f`.
 
+The readiness correction was qualified from a clean tree at `1c986ec8` with
+the same explicit Homebrew Clang 23.1.1 and LeakSanitizer selection. Its focused
+log is `/private/tmp/nanolang-owned-string-print-readiness-1c986ec8.log`,
+SHA-256
+`4d57c0346780d30ce2960a35ac35142b455ff7cb78422fe0f220c4325de8fc8c`.
+
 ## Adjacent ownership qualification
 
 The unchanged caller-reference, owned-value graph, owned/void result, single
@@ -80,6 +98,12 @@ ownership authority, allocation, preflight, verification-reuse and generated
 native sanitizer checks. The log is
 `/private/tmp/nanolang-owned-string-print-adjacent-f7a66804.log`, SHA-256
 `53ef47cb847f6ae7da76a6f0434291b0d2a72c3dc257f8c5eb2ff5616c68c160`.
+
+I reran the same adjacent ownership suites after the readiness correction.
+They pass at `1c986ec8`; the log is
+`/private/tmp/nanolang-owned-string-print-readiness-adjacent-1c986ec8.log`,
+SHA-256
+`c7ddf8539fe281e3ed55aae0f26f5fe8758c063ef90feba9f3840e504a7d3ec2`.
 
 I preserve the first default-compiler adjacent run separately. Its ordinary C
 and VM fixtures pass, then its older Python harnesses request LeakSanitizer
