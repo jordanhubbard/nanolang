@@ -34,6 +34,7 @@ def program(body, layouts=None, local_tags=(), helpers=(), authority=True, flags
         for tag in (result, *locals_):
             ownership += struct.pack('<BBHI', tag, 0, 0, NO)
     text = '.string text "leaf"\n.string empty ""\n.entry main\n'
+    text += '.types ' + ' '.join(str(sum(k == kind for k, _ in layouts)) for kind in (0, 1, 2)) + '\n'
     text += f'.layouts "{encoded.hex()}"\n'
     if authority:
         text += f'.ownership "{ownership.hex()}"\n'
