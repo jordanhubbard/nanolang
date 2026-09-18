@@ -110,3 +110,44 @@ I do not claim that the entire legacy compiler is instrumented.
 I do not claim source admission, owned/void results, string/PRINT effects or
 restoration of the example from this runtime prerequisite. I do not replay
 its frozen failure artifact. The parent release blocker remains open.
+
+### Timed diagnostic after zero-link verification reuse
+
+I retain production at 246f1464 and commit the diagnostic contract at f78705c4.
+My generated diagnostic VM copy changes only stderr markers and wrappers that
+return each verifier result unchanged. My runner timestamps captured lines with
+monotonic elapsed time. Fixtures and assertions remain unchanged. I preserve
+script `/tmp/nanolang-owned-timed-diagnostic.py`, generated source, executable,
+`timed.log`, and `status.json` under `/tmp/nanolang-owned-timed-diagnostic`.
+The executable SHA256 is
+`1b08a6ee7ab9c3e4c4545047612b6938f691220339b865fc4e166a22d316e310`;
+the generated diagnostic source SHA256 is
+`b0c470d04d7fdc2f57e52546b9d78a9661ce61e68d8d77ecb32da5fc073cce08`.
+
+My single ordinary case0 run reaches its 60-second bound in 60.030 seconds and
+is incomplete. I do not report an API completion or instrumented corpus pass.
+My observed phase intervals are:
+
+| Phase | Elapsed interval | Duration |
+|---|---|---|
+| Eight-function verification | 1.928–6.156 seconds | 4.228 seconds |
+| Artifact generation | 6.156–30.494 seconds | 24.337 seconds |
+| VM initialization linked verification | 30.496–33.268 seconds | 2.772 seconds |
+| API0/repeat0 | Begins at 33.268 seconds | Incomplete at deadline |
+
+During that API interval I observe 18 owned-admission calls begin and 17
+complete. The completed calls total 25.154 seconds, with individual durations
+1.465–1.564 seconds. My markers show three admissions on each core reentry.
+Static source inspection explains that OP_ASSERT returns TRAP_ASSERT even for
+true conditions; the ordinary outer handler then resumes core execution.
+This establishes substantial repeated verification cost in the measured API
+portion, separately from artifact generation. It does not establish a sole
+cause for earlier timeouts, a runtime nontermination defect, or permission to
+reuse proofs across mutable execution contexts. I require a separately reviewed
+contract before any additional reuse change.
+
+My final production246f existing full regression run also completes successfully:
+274541 VM checks, 2422 native checks, and 1365 shape checks. I preserve
+`/tmp/nanolang-owned-zero-link-full.log` separately from the incomplete diagnostic.
+The focused246f log retains 69 verification-reuse controls, 1847 graph checks,
+338 preflight controls, and adjacent authority gates. My PR remains a draft.
