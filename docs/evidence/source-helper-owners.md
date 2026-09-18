@@ -45,5 +45,14 @@ semantic refusals across both raw producers and canonical Stage1/Stage2. I
 retain `/tmp/nanolang-source-helper-owners-final.log` and compiler/source hashes
 in `/tmp/nanolang-source-helper-qualified-sha256.txt`.
 
+At integration `78e7d558` I include canonical main `dcd2c243` (managed packed
+scalars and scalar ROT3). Reviewed producer source and C-seed/Stage1/Stage2/raw
+emitter binary hashes remain identical. Fresh VM/native tools pass the
+helper-owner positive/refusal methods using the canonical stages, C-seed raw
+emitter and C-seed selected-shadow tool, including names/strip and native
+sanitizers. All authority checks pass again. I retain
+`/tmp/nanolang-source-helper-integrated-paired.log` and
+`/tmp/nanolang-source-helper-integrated-runtime.log`.
+
 Full normative ownership/borrow parents remain open. Runtime provenance,
 source admission and the separate grammar audit have distinct acceptance.
