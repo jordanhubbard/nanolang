@@ -243,3 +243,35 @@ record reference-count overflow now fail before a copy is published, through
 the existing status path. Shared descriptor conversion and managed selector
 refusals remain as enumerated above. I have run only a whitespace/diff check;
 no build, fixture, bootstrap or runtime acceptance is claimed at this checkpoint.
+
+## My pre-execution refusal-fixture audit
+
+I integrate canonical PR804/805 at47ad402f in a separate qualification tree;
+my original bf50 tree remains unbuilt. The merge preserves PR804's exact
+nonparameter FLOAT-local verifier guard. I correct the result API comment to
+include STRING leaves while explicitly excluding FLOAT fields.
+
+Before any runtime gate, I record these exact obsolete expectations:
+
+- `test_owned_string_print.c` changes a layout field to STRING but leaves its
+  integer construction and borrowed root unchanged. Shared descriptor authority
+  can now accept the declaration; full owned verification must still refuse
+  this mismatched/borrowed program. I migrate only its descriptor expectation,
+  retain the execution refusal, and do not execute that edited negative module.
+- The same file replaces PRINTLN with POP and expects rejection. Exact STRING
+  discard is now admitted in value graphs. I replace that obsolete verifier
+  expectation with acceptance and separately construct fresh positive modules
+  for actual discard/lifetime execution. All other bad literal index, embedded
+  NUL, wrong parameter/mode, standalone STRING result, call graph and stack
+  controls remain unchanged.
+- Its native allocation harness assumed failures happened before any output.
+  Native literal allocation can now fail after earlier prints. I check each
+  failure's captured output against the exact expected prefix, preserve the
+  result sentinel and zero-live-root assertions, and retain byte-exact full
+  output on every successful invocation. I do not classify partial output as
+  an allocation leak or suppress it from evidence.
+
+The nested-result descriptor suite's FLOAT refusal remains valid. Existing
+reference-place STRING refusal remains valid. I add fresh positive STRING
+field/local/call/result fixtures and exact borrowed-root/unsupported-result/tag
+refusals; I do not turn broad old refusal coverage into unconditional success.

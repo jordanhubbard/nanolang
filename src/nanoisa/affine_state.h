@@ -74,7 +74,7 @@ bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
 #define NVM_AFFINE_MAX_RESULT_DEPTH 32u
 #define NVM_AFFINE_MAX_RESULT_FIELDS 256u
 /* I inspect an exact mode-zero scalar, void, or owned result.
- * Nested results contain bounded complete owned trees with INT/BOOL/U8 leaves;
+ * Nested results contain bounded complete owned trees with INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
  * scalar/VOID and existing scalar-leaf queries add no allocations.
  * I require matching function count/tag and leave both outputs unchanged on refusal.
  * This declaration query alone grants no executable return authority. */
