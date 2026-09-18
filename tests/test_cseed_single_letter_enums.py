@@ -11,6 +11,9 @@ class SingleLetterEnums(unittest.TestCase):
     def test_declared_enum_function_annotation(self):
         self.check('enum T { First, Second } fn value(item: T) -> int { return item } shadow value { assert (== (value T.Second) 1) } fn main() -> int { assert (== (value T.Second) 1) return 0 }')
 
+    def test_declared_enum_is_not_implicit_function_variable(self):
+        self.check('enum T { First, Second } fn value(item: T) -> int { return item } shadow value { assert (== (value T.Second) 1) } fn main() -> int { return (value true) }', reject=True)
+
     def test_unbound_other_function_variable(self):
         self.check('enum T { First, Second } fn identity(value: U) -> U { return value } shadow identity { assert (== (identity 7) 7) } fn main() -> int { assert (== (identity 9) 9) assert (== (identity true) true) assert (== T.Second 1) return 0 }')
 
