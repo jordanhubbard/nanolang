@@ -16,3 +16,16 @@ I require small ordinary VM/native GCC/Clang sanitizer parity for distinct
 values, mixed tags, calls/locals and loops; underflow and excluded-kind
 translation controls preserve previous outputs without executing refusals.
 Full native ROT3 for other kinds and reconstruction parent4bd remain separate.
+
+My first compile caught an incorrect return of the void diagnostic helper
+(`/tmp/nanolang-native-rot3-build.log`). I separate the diagnostic call from
+`return 0`; this was a build failure before any test execution. The task and
+roadmap prerequisite were already recorded in the reconstruction branch
+before native edits; this branch carries the same task contract.
+
+My first focused invocation also discovered five imported unittest methods,
+which passed; I switched to a module import to keep the gate scoped. Two new
+positive controls passed, then the string-refusal fixture was rejected by
+assembly because PUSH_STR requires a pool reference, not inline text.
+I retain `/tmp/nanolang-native-rot3-gcc.log` and correct the fixture with
+an explicit string-pool declaration before rerunning the focused gate.
