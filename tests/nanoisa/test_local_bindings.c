@@ -35,8 +35,9 @@ static void roundtrip(NvmModule *m) {
     free(wire);free(again);free(text);nvm_module_free(b);nvm_module_free(c);
 }
 int main(int argc,char **argv) {
-    if(argc==2) {
+    if(argc==2 || argc==3) {
         NanoisaErr err;NvmModule *m=nanoisa_load_file(argv[1],&err);CHECK(m);
+        if(argc==3) CHECK(!strcmp(argv[2],"--require-debug") && m->debug_count>0);
         CHECK(nvm_local_names_validate(m)==NVM_LOCAL_NAMES_VALID);
         for(uint32_t f=0;f<m->function_count;f++)for(uint16_t s=0;s<m->functions[f].local_count;s++) {
             uint32_t last=UINT32_MAX;

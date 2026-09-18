@@ -43,7 +43,7 @@ class LocalBindingMetadata(unittest.TestCase):
                     self.run_checked([ROOT/"bin"/driver,input_file,"--emit-nvm","-o",artifact])
                     # The C probe validates every interval, exact metadata/code
                     # preservation, original wire equality and canonical-cycle stability.
-                    lines=self.run_checked([ROOT/"obj/test_local_bindings",artifact]).splitlines()
+                    lines=self.run_checked([ROOT/"obj/test_local_bindings",artifact]+(["--require-debug"] if driver=="nano_virt" else [])).splitlines()
                     bindings=[(f,int(slot),int(begin),int(end),local) for f,slot,begin,end,local in (line.split() for line in lines)]
                     inspect(bindings)
                     self.run_checked([ROOT/"bin/nano_vm",artifact],expected)
