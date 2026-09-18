@@ -20,6 +20,10 @@ bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
 bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
                                           const NvmAffineState *incoming,bool *changed);
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
+/* I keep retainable STRING operations separate from numeric scalar APIs. */
+bool nvm_affine_string_define(NvmAffineState *state, uint16_t local);
+bool nvm_affine_string_field(const NvmAffineState *state, uint16_t local,
+                              uint16_t field, uint8_t *tag);
 bool nvm_affine_move(NvmAffineState *state, uint16_t source, uint16_t destination);
 bool nvm_affine_pack(NvmAffineState *state, uint16_t destination,
                       const uint16_t *fields, uint16_t count);

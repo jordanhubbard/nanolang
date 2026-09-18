@@ -963,11 +963,12 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             /* My owned execution profile retains its prior-only graph. */
             uint32_t child=layout->fields[f].nested_idx;
             if(child!=NVM_V2_NO_INDEX && child>=i) supported=false;
-            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT) supported=false;
+            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT &&
+                !(value_graph && tag==TAG_STRING && child==NVM_V2_NO_INDEX)) supported=false;
         }
     }
     nvm_v2_layouts_free(&layouts);
-    if (!supported) return fail("I require integer, Boolean or byte owned record fields before execution");
+    if (!supported) return fail("I require exact scalar, retained STRING or owned-child record fields before execution");
     bool transfer=false;
     for(uint32_t function=0;function<mod->function_count;function++) {
         VmDecodedFunction decoded;char error[VM_DECODE_ERROR_SIZE];
@@ -985,12 +986,12 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             }
             if(op==OP_CALL_REF && (function || value_graph || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
             if(op==OP_CALL && (!value_graph || !in->operands[0].u32 || in->operands[0].u32>=mod->function_count)) supported=false;
-            if(function && (op==OP_AGG_GET || op==OP_STRUCT_GET || (!value_graph && (
+            if(function && !value_graph && (op==OP_AGG_GET || op==OP_STRUCT_GET || (
                 ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL || op==OP_OWN_MOVE_LOCAL ||
                   op==OP_OWN_STORE_LOCAL || op==OP_OWN_UNPACK_LOCAL) && in->operands[0].u16<mod->functions[function].arity) ||
                 ((op==OP_BORROW_LOCAL_SHARED || op==OP_BORROW_LOCAL_EXCLUSIVE ||
                   op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE) &&
-                 in->operands[1].u16<mod->functions[function].arity))))) supported=false;
+                 in->operands[1].u16<mod->functions[function].arity)))) supported=false;
         }
         vm_decoded_function_free(&decoded);
         if(function && !nvm_affine_analyze_function(mod,function).ok) supported=false;

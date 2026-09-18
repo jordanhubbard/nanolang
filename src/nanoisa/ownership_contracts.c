@@ -8,8 +8,8 @@ static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT || tag == TAG_BOOL;
 }
 
-static NvmV2Result check_layout_facts(const NvmV2Layouts *layouts, const uint8_t *flags,
-                                     uint8_t *scalar_trees, bool *needs) {
+static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *flags,
+                                bool *needs) {
     bool resource_table = false;
     for (uint32_t i = 0; i < layouts->count; i++)
         if (flags[i] & NVM_LAYOUT_RESOURCE) resource_table = true;
@@ -29,35 +29,23 @@ static NvmV2Result check_layout_facts(const NvmV2Layouts *layouts, const uint8_t
         if (!(flag & NVM_LAYOUT_COMPLETE)) continue;
         const NvmV2Layout *layout = &layouts->items[i];
         if (layout->kind != NVM_V2_LAYOUT_STRUCT) return NVM_V2_ERR_SECTION_TYPE;
-        bool scalar_tree = true;
         for (uint16_t j = 0; j < layout->field_count; j++) {
             const NvmV2LayoutField *field = &layout->fields[j];
             if (scalar(field->type_tag) || field->type_tag == TAG_STRING) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
-                if (field->type_tag == TAG_STRING) scalar_tree = false;
             } else if (field->type_tag == TAG_STRUCT && field->nested_idx < layouts->count &&
                        (!resource_table || field->nested_idx < i)) {
                 unsigned nested = flags[field->nested_idx];
                 if (!(nested & NVM_LAYOUT_COMPLETE)) return NVM_V2_ERR_SECTION_TYPE;
                 if ((nested & NVM_LAYOUT_RESOURCE) && !(flag & NVM_LAYOUT_RESOURCE))
                     return NVM_V2_ERR_SECTION_TYPE;
-                if (resource_table && !scalar_trees[field->nested_idx]) scalar_tree = false;
             } else return NVM_V2_ERR_SECTION_TYPE;
         }
-        /* Ordinary strings do not relax the existing affine scalar-tree boundary. */
-        if ((flag & NVM_LAYOUT_RESOURCE) && !scalar_tree) return NVM_V2_ERR_SECTION_TYPE;
-        scalar_trees[i] = scalar_tree;
+        /* STRING leaves retain value roots; executable and borrowed profiles
+         * independently constrain these complete resource declarations. */
         if (flag & NVM_LAYOUT_RESOURCE) *needs = true;
     }
     return NVM_V2_OK;
-}
-static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *flags,
-                                bool *needs) {
-    uint8_t *scalar_trees = layouts->count ? calloc(layouts->count, 1) : NULL;
-    if (layouts->count && !scalar_trees) return NVM_V2_ERR_TRUNCATED;
-    NvmV2Result result = check_layout_facts(layouts, flags, scalar_trees, needs);
-    free(scalar_trees);
-    return result;
 }
 
 static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,

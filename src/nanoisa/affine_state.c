@@ -148,7 +148,7 @@ static bool state_equal(const NvmAffineState *a, const NvmAffineState *b, bool m
         a->invocation!=b->invocation || a->origin_count!=b->origin_count) return false;
     for (uint16_t i=0;i<a->facts->count;i++) {
         Slot slot=a->facts->locals[i];
-        if (meet_scalars && !slot.mode && scalar(slot.tag)) continue;
+        if (meet_scalars && !slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING)) continue;
         if (a->live[i]!=b->live[i]) return false;
     }
     for (uint16_t i=0;i<a->origin_count;i++)
@@ -178,7 +178,7 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
     if (!state_equal(destination,incoming,true)) return false;
     for (uint16_t i=0;i<destination->facts->count;i++) {
         Slot slot=destination->facts->locals[i];
-        if (!slot.mode && scalar(slot.tag) && destination->live[i] && !incoming->live[i]) {
+        if (!slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING) && destination->live[i] && !incoming->live[i]) {
             destination->live[i]=false;*changed=true;
         }
     }
@@ -199,7 +199,7 @@ static bool resolve(const NvmAffineState *s,uint16_t local,const uint16_t *path,
         slot=(Slot){field.type_tag,0,field.nested_idx};
     }
     *out=slot; return scalar(slot.tag) ||
-        (!count && slot.tag==TAG_STRING && slot.layout==NVM_V2_NO_INDEX) ||
+        (slot.tag==TAG_STRING && slot.layout==NVM_V2_NO_INDEX) ||
         slot.layout!=NVM_V2_NO_INDEX;
 }
 bool nvm_affine_owner_access(const NvmAffineState *s,uint16_t local,
@@ -221,6 +221,11 @@ static bool destination(const NvmAffineState *s,uint16_t local) {
 bool nvm_affine_scalar_define(NvmAffineState *s,uint16_t local) {
     if (!destination(s,local) || !scalar(s->facts->locals[local].tag)) return false;
     s->live[local]=true; return true;
+}
+bool nvm_affine_string_define(NvmAffineState *s,uint16_t local) {
+    if (!destination(s,local) || s->facts->locals[local].tag!=TAG_STRING ||
+        s->facts->locals[local].layout!=NVM_V2_NO_INDEX) return false;
+    s->live[local]=true;return true;
 }
 bool nvm_affine_move(NvmAffineState *s,uint16_t from,uint16_t to) {
     if (from==to || !destination(s,to) || !nvm_affine_owner_access(s,from,NULL,0,true) ||
@@ -357,6 +362,17 @@ bool nvm_affine_scalar_field(const NvmAffineState *s,uint16_t local,
     if (!allowed) return false;
     *tag=layout->fields[field].type_tag; return true;
 }
+bool nvm_affine_string_field(const NvmAffineState *s,uint16_t local,
+                              uint16_t field,uint8_t *tag) {
+    if (!s || local>=s->facts->count || !s->live[local] || !tag) return false;
+    Slot root=s->facts->locals[local];
+    if (root.mode || root.layout==NVM_V2_NO_INDEX) return false;
+    const NvmV2Layout *layout=&s->facts->layouts.items[root.layout];
+    if (field>=layout->field_count || layout->fields[field].type_tag!=TAG_STRING ||
+        layout->fields[field].nested_idx!=NVM_V2_NO_INDEX ||
+        !nvm_affine_owner_access(s,local,&field,1,false)) return false;
+    *tag=TAG_STRING;return true;
+}
 bool nvm_affine_can_exit_scalar(const NvmAffineState *s,uint8_t tag) {
     if (!s || s->region || (tag!=TAG_VOID && !scalar(tag)) ||
         s->facts->result.tag!=tag) return false;
@@ -485,7 +501,7 @@ static bool nested_result_tree(const Facts *facts,uint32_t root) {
                 uint8_t child_depth=(uint8_t)(depth[index]+1);
                 if (depth[child]<child_depth) depth[child]=child_depth;
             } else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL &&
-                        field->type_tag!=TAG_U8) || field->nested_idx!=NVM_V2_NO_INDEX)
+                        field->type_tag!=TAG_U8 && field->type_tag!=TAG_STRING) || field->nested_idx!=NVM_V2_NO_INDEX)
                 goto refused;
         }
     }
@@ -511,7 +527,7 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
         for (uint16_t i=0;i<layout->field_count;i++) {
             const NvmV2LayoutField *field=&layout->fields[i];
             if (field->type_tag==TAG_STRUCT) nested=true;
-            else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
+            else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8 && field->type_tag!=TAG_STRING) ||
                      field->nested_idx!=NVM_V2_NO_INDEX) return false;
         }
         /* I preserve the allocation-free scalar-leaf query. */

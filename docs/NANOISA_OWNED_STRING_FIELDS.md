@@ -219,3 +219,27 @@ results for the unchanged original fixture. I distinguish source producer
 coverage from runtime API coverage, and Linux from Darwin. Bounded success
 closes only this child after merge; arrays, complete managed LLVM/Wasm owned
 transport, the full ownership parents and release acceptance remain open.
+
+## My first runtime production checkpoint
+
+I keep both source producers unchanged. My shared authority validator now
+accepts complete STRING resource leaves without the old scalar-tree rejection;
+I remove its obsolete scalar-tree scratch allocation. Reference-place validation
+instead checks the entire borrowed root, preserving an allocation-free scalar
+leaf fast path and using one bounded prior-index work table for nested roots.
+This also protects a borrowed scalar sibling below a STRING-bearing root.
+
+I add distinct STRING define/field queries rather than changing numeric scalar
+APIs. Initialization joins meet retainable STRING locals, and exact field
+observation checks liveness and owner access. Affine opcode admission permits
+only value-graph STRING copies/discards/stores/equality. The full verifier keeps
+STRING fields value-graph-only and allows already-checked field observations
+inside those helpers; borrowed helper restrictions remain unchanged. Owned
+result closure gains exact STRING leaves, not standalone STRING results.
+
+Native copies retain before publishing; literal allocation checks size before
+addition; POP/PRINT/equality release consumed values. Both string and existing
+record reference-count overflow now fail before a copy is published, through
+the existing status path. Shared descriptor conversion and managed selector
+refusals remain as enumerated above. I have run only a whitespace/diff check;
+no build, fixture, bootstrap or runtime acceptance is claimed at this checkpoint.
