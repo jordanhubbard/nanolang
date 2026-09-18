@@ -422,7 +422,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     case AST_CALL: {
         const char *name = node->as.call.name;
         if (name && (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) &&
-            !node->as.call.func_expr && !ctx_has_binding(c, name) && !ctx_function(c, name)) {
+            !node->as.call.func_expr && !node->as.call.checked_signature &&
+            !ctx_has_binding(c, name) && !ctx_function(c, name)) {
             bool from_bits = strcmp(name, "float_from_bits") == 0;
             if (node->as.call.arg_count != 1 ||
                 infer_expr_type(c, node->as.call.args[0]) != (from_bits ? TYPE_INT : TYPE_FLOAT)) {
