@@ -13,3 +13,7 @@ I update the manual ASTStruct FieldMetadata table in typecheck.nano with the sam
 My first frozen5b4085f7 build stopped before compiler execution while the managed runtime package selected default Clang23/GCC14 and treated its GCC include-directory selection warning as an error. Source hashes stayed unchanged. I retain that log and explicitly select the existing matched clang-18/opt-18 runtime IR tool pair for the corrected build; I do not disable warnings or change production source.
 
 Corrected runtime-tool build0096a692 reached bootstrap shadows and stopped at the new nb_rewrite renamed-name assertion. The fixture had disabled module binding state immediately before mb_add, so the existing API deliberately ignored the mapping; its is_extern assertion passed. I preserve the log and require an active owner in that fixture before repeating fresh bootstrap, with the same flag/name assertions.
+
+## My direct-fixture import correction
+
+My1ffa8bc8 fresh bootstrap passes both stages in233.355s. My next direct fixture fails in43.274s before publication: it calls lexer/parser/module-binding symbols through a transitive nominal-binding import. I preserve the failed log and unchanged source/tool snapshot in `/tmp/nanolang-extern-record-qualified`. I will add direct imports from their defining modules, without changing production44a00d90 or any assertion. I then qualify the corrected fixture and existing paired ordinary producers. MAC `task_abe5111511c548648b38fd336d16a357` tracks this fixture correction.
