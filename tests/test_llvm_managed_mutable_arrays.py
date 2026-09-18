@@ -80,11 +80,11 @@ class MutableArrays(unittest.TestCase):
               'LOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nDUP\nSTORE_LOCAL 0\nPUSH_I64 40\nLT\nJMP_TRUE loop\n'
               'PUSH_VOID\nSTORE_GLOBAL 0\n')
         _,ir,_=self.compile(self.program(body))
-        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
         # Every failed module entry clears its frame, retaining only committed
         # global roots; a corrected subsequent entry then releases those roots.
         for budget in (0,1,2,3,9,18,35):
-            self.native_harness(ir,f'budget={budget};if(nano_try_entry()!=((uint64_t)3<<32))return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            self.native_harness(ir,f'budget={budget};if(nano_try_entry()!=((uint64_t)3<<32))return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,allocation_control=True)
         body=('ARR_NEW 1\nSTORE_GLOBAL 0\nPUSH_I64 0\nSTORE_LOCAL 0\nloop:\n'
               'LOAD_GLOBAL 0\nLOAD_LOCAL 0\nARR_PUSH\nPOP\n'
               'LOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nDUP\nSTORE_LOCAL 0\nPUSH_I64 200000\nLT\nJMP_TRUE loop\n'
@@ -99,8 +99,8 @@ class MutableArrays(unittest.TestCase):
               'LOAD_GLOBAL 0\nPUSH_I64 0\nPUSH_STR a\nARR_SET\nPOP\n'
               'LOAD_GLOBAL 0\nPUSH_I64 0\nARR_GET\nPUSH_STR a\nEQ\nASSERT\ndone:\n')
         _,ir,wasm=self.compile(self.program(body))
-        extra='static int fail;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){return fail?0:__real_malloc(n);}'
-        self.native_harness(ir,'if(nano_try_entry())return 1;fail=1;for(int i=0;i<4;i++)if(nano_try_entry())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+        extra='static int fail;void *nano_test_malloc(size_t n){return fail?0:malloc(n);}'
+        self.native_harness(ir,'if(nano_try_entry())return 1;fail=1;for(int i=0;i<4;i++)if(nano_try_entry())return 2;return nano_dispose();',extra,allocation_control=True)
         self.node(wasm,'check(e.nano_try_entry()===0n);let pages=e.memory.buffer.byteLength;for(let i=0;i<4;i++)check(e.nano_try_entry()===0n);check(e.memory.buffer.byteLength===pages);check(e.nano_dispose()===0);')
 
     def test_unsupported_shapes_and_transfers_preserve_output(self):
