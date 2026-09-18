@@ -47,7 +47,7 @@ class ArithmeticBackends(unittest.TestCase):
                 body=''
                 for nan in NANS:
                     for a,b in ((nan,ONE),(ONE,nan),(nan,NANS[-1])):
-                        body+=operands(a,b,route=='boxed')+op+'\n'
+                        body+=operands(a,b,route=='boxed')+op+'\nDUP\nTYPE_CHECK 3\nASSERT\n'
                         if route=='boxed':body+='CAST_FLOAT\n'
                         body+=observe(Q)
                 ir=self.compare(self.program(body))
