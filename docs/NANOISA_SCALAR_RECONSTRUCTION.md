@@ -86,3 +86,7 @@ I publish sufficient/insufficient findings only for the exact tested subset.
 I also reconstruct exact int/bool `CAST_INT`, `CAST_BOOL`, `AND`, `OR` and `NOT` under [my bounded truthiness contract](NANOISA_RECONSTRUCT_TRUTHINESS.md). Evaluated operand snapshots precede boolean combination; other tags remain refused.
 
 I reconstruct exact integer `I64_MUL_WIDE_S` and `I64_MUL_WIDE_U` with immutable low/high word snapshots under [my portable limb contract](NANOISA_RECONSTRUCT_WIDE_MULTIPLY.md). I keep the blocked carry/borrow compiler acceptance separate.
+
+I also reconstruct generic ADD/SUB/MUL/DIV/MOD/NEG when every operand is statically INT, using the unchanged total helpers in [my exact-INT contract](NANOISA_RECONSTRUCT_GENERIC_INTEGER.md). This does not admit dynamic numeric promotion or other tags.
+
+I reconstruct exact INT/BOOL `ROT3` with VM order `a b c -> c a b`, preserving immutable snapshots under [my scalar rotation contract](NANOISA_RECONSTRUCT_ROT3.md).

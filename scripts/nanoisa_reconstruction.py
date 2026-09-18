@@ -17,13 +17,14 @@ COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
 UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
                     'I64_GT_U': 'gt_u', 'I64_GE_U': 'ge_u'}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
-ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
+ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 'rem', 'NEG': 'neg',
+              'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
               'I64_DIV_S': 'div', 'I64_REM_S': 'rem',
               'I64_DIV_U': 'div_u', 'I64_REM_U': 'rem_u',
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
+          'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
           'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
 
 
@@ -135,6 +136,10 @@ class Analyze:
             right, left = self.pop(stack), self.pop(stack)
             stack.extend((right, left))
             return
+        elif op == 'ROT3':
+            top, middle, bottom = self.pop(stack), self.pop(stack), self.pop(stack)
+            stack.extend((top, bottom, middle))
+            return
         elif op in ('I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'):
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             for word, helper in (('low', 'mul'), ('high', 'mul_high_s' if op.endswith('_S') else 'mul_high_u')):
@@ -148,7 +153,7 @@ class Analyze:
             return
         elif op in ARITHMETIC:
             right = self.pop(stack, INT)
-            args = (right,) if op in ('I64_NEG', 'I64_INVERT') else (self.pop(stack, INT), right)
+            args = (right,) if op in ('NEG', 'I64_NEG', 'I64_INVERT') else (self.pop(stack, INT), right)
             expr = Expr(INT, 'arithmetic', ARITHMETIC[op], args)
         elif op in UNSIGNED_COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
