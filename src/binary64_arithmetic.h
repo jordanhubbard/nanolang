@@ -14,7 +14,7 @@
 #if !defined(FLT_EVAL_METHOD) || FLT_EVAL_METHOD != 0
 #error "I require operations evaluated in their binary64 type."
 #endif
-_Static_assert(sizeof(double) == sizeof(uint64_t), "I require eight-byte binary64 storage.");
+_Static_assert(sizeof(double) == 8 && sizeof(uint64_t) == 8, "I require eight-byte binary64 storage.");
 
 /* I inspect a rounded result with integer operations, not another FP operation. */
 static inline double nano_rt_f64_arithmetic_result(double value) {

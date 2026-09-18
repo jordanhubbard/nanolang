@@ -1,4 +1,4 @@
-/* I generate this from binary64_arithmetic.h; do not edit. SHA256 abdfe5ed9d66c3a0610fe986058b4962a3fa294c33fd353c443649705688676c */
+/* I generate this from binary64_arithmetic.h; do not edit. SHA256 8d0423fb3536a8f77216bab3749341eb536b485121d41111b33cda752cf53e97 */
 #ifndef NANOLANG_BINARY64_ARITHMETIC_SOURCE_H
 #define NANOLANG_BINARY64_ARITHMETIC_SOURCE_H
 static const char nl_binary64_arithmetic_source[] =
@@ -18,7 +18,7 @@ static const char nl_binary64_arithmetic_source[] =
 "#if !defined(FLT_EVAL_METHOD) || FLT_EVAL_METHOD != 0\n"
 "#error \"I require operations evaluated in their binary64 type.\"\n"
 "#endif\n"
-"_Static_assert(sizeof(double) == sizeof(uint64_t), \"I require eight-byte binary64 storage.\");\n"
+"_Static_assert(sizeof(double) == 8 && sizeof(uint64_t) == 8, \"I require eight-byte binary64 storage.\");\n"
 "\n"
 "/* I inspect a rounded result with integer operations, not another FP operation. */\n"
 "static inline double nano_rt_f64_arithmetic_result(double value) {\n"
