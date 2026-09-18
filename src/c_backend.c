@@ -613,7 +613,8 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_STRING &&
                     infer_expr_type(c, node->as.call.args[1]) == TYPE_STRING ? TYPE_STRING : TYPE_UNKNOWN;
             if (strcmp(name, "bool_to_string") == 0)
-                return TYPE_STRING;
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_BOOL ? TYPE_STRING : TYPE_UNKNOWN;
             if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0) return TYPE_VOID;
             return TYPE_UNKNOWN;
         }
@@ -930,9 +931,9 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "}\n");
     }
 
-    /* nano_bool_to_string helper */
-    fprintf(c->out,
-        "static const char* nano_bool_to_string(int b) {\n"
+    /* I keep boolean literals stable under my collision-free private namespace. */
+    emit_private_source(c,
+        "static const char* nano_rt_bool_text(int b) {\n"
         "    return b ? \"true\" : \"false\";\n"
         "}\n\n");
 
@@ -1213,9 +1214,13 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputc(')', c->out);
             return 0;
         }
-        if (name && strcmp(name, "bool_to_string") == 0 &&
-            node->as.call.arg_count == 1) {
-            fputs("nano_bool_to_string(", c->out);
+        if (builtin && strcmp(name, "bool_to_string") == 0) {
+            if (node->as.call.arg_count != 1 ||
+                infer_expr_type(c, node->as.call.args[0]) != TYPE_BOOL) {
+                ctx_error(c, "I require one exact BOOL operand for C bool_to_string.");
+                return -1;
+            }
+            fprintf(c->out, "%sbool_text(", c->prefix);
             if (emit_expr(c, node->as.call.args[0])) return -1;
             fputc(')', c->out);
             return 0;
