@@ -35,3 +35,9 @@ signatures, preserving parameter checks. I replaced obsolete substring-refusal
 fixtures with still-unsupported STR_CONTAINS controls; conversions and reserved
 entry refusal remain tested. Historical failed artifacts remain unexecuted.
 I claim no Darwin acceptance or completion of portable string conversions.
+
+After integrating main through PR641 (`8182f95c`), my production checkpoint is
+`db2c749d`; the runtime/profile/lowering source matches pre-restack `1e9c8492`.
+I rebuilt tools and all 11 emitted managed methods passed again in 7.717 seconds
+(`/tmp/nanolang-managed-substring-restack.log`). The final documentation commit
+adds only this checkpoint.
