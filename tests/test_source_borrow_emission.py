@@ -645,7 +645,7 @@ shadow main { assert true }
     def test_control_flow_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
         cases = {
-            'branch_float': text.replace('set total (+ total 2)', 'let value: float = 2.0'),
+            'branch_mixed_float': text.replace('set total (+ total 2)', 'let value: float = (+ 2.0 1)'),
             'loop_string': text.replace('set j 0', 'let value: string = "unsupported"'),
             'branch_owner': text.replace('set total (+ total 2)', 'let moved: Pair = root'),
             'branch_destructure': text.replace('set total (+ total 2)', 'let Pair { left, right } = root'),
@@ -1491,6 +1491,12 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 """
         self.graph_positive('float-unsafe-control', text)
+
+    def test_float_local_in_borrowed_control_flow(self):
+        text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
+        text = text.replace('set total (+ total 2)',
+                            'let value: float = 2.0 assert (== value 2.0) set total (+ total 2)')
+        self.graph_positive('float-borrowed-branch', text)
 
     def test_float_local_unsafe_refusals_preserve_publication(self):
         from tests.test_owned_record_patterns import PREFIX
