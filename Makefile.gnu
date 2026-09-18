@@ -3299,7 +3299,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo "=========================================="
 	@echo "Stage 2: Building Self-Hosted Components"
 	@echo "=========================================="
-	@echo "Compiling components with stage1..."
+	@echo "Compiling components with $(COMPILER)..."
 	@echo ""
 	@# Compile each self-hosted component (STRICT: must produce an executable binary)
 	@# If compiler is ASan-instrumented, disable leak detection during compilation.
@@ -3337,7 +3337,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	touch $(SENTINEL_STAGE2)
 
 # =====================================================================
-# Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
+# Stage 3: Execute bounded component entry assertions
 # =====================================================================
 
 .PHONY: stage3
@@ -3351,7 +3351,7 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 	@echo "=========================================="
 	@echo "Validating self-hosted components..."
 	@echo ""
-	@# Run each component (they are expected to run their own shadow tests and exit 0)
+	@# Each driver executes explicit entry assertions; imported shadows are separate.
 	@success=0; fail=0; missing=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
 		bin="$(BIN_DIR)/$$comp"; \
@@ -3361,19 +3361,19 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 			missing=$$((missing + 1)); \
 			continue; \
 		fi; \
-		echo "  Testing $$comp..."; \
+		echo "  Checking $$comp entry assertions..."; \
 		if $(TIMEOUT_CMD) "$$bin" >"$$log" 2>&1; then \
-			echo "    ✓ $$comp tests passed"; \
+			echo "    ✓ $$comp entry assertions passed"; \
 			success=$$((success + 1)); \
 		else \
-			echo "    ❌ $$comp tests failed"; \
+			echo "    ❌ $$comp entry assertions failed"; \
 			tail -120 "$$log" || true; \
 			exit 1; \
 		fi; \
 	done; \
 	echo ""; \
 	if [ $$missing -eq 0 ] && [ $$success -eq 3 ]; then \
-		echo "✓ Stage 3: $$success/3 components validated"; \
+		echo "✓ Stage 3: $$success/3 component entry checks passed; imported shadows are separate"; \
 		touch $(SENTINEL_STAGE3); \
 	else \
 		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing)"; \

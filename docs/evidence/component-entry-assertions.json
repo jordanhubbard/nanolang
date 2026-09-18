@@ -1,0 +1,32 @@
+{
+  "tested_source": "2f54d746",
+  "integrated_source": "40b09fcb18bde6bea673fae818a439788cc18b36",
+  "gate": [
+    "timeout",
+    "1800",
+    "make",
+    "stage3"
+  ],
+  "exit_code": 0,
+  "binaries": {
+    "bin/nanoc_c": "b70cd2da2ff00e0e24618c8cc1c6b6a67d79a3e39d3aa7369f5808059d76ecf5",
+    "bin/nanoc_stage1": "139ecca99b5e9912cc4eb15d395fb42cefd7ef9d3db67841a3b6da26b4f1461e",
+    "bin/nanoc_stage2": "8ebb9d396e1eaf24f8e4566ef8c2402373e9eed90faf2d645b3cf17d063473ec",
+    "bin/parser": "bf502445065d4d55608b5040f1527948082d644cd9ca0db82ab4932e724e1e02",
+    "bin/typecheck": "17033483e6d3c3e85ca315160273f981563daf5a1f836bb8d5a01d1956ab08f2",
+    "bin/transpiler": "da07df1f4167c078b3f0ebf816044397f7b10d033c0eac1d61398dc6d3b713fc"
+  },
+  "logs": {
+    "/tmp/nanolang-component-entry-bootstrap.log": "9c101495fb26c254040ac1857db7988309663308cf39aa848ae044e1660e284c",
+    "/tmp/nanolang-component-entry-missing-lexer-import.log": "a8d4af2d092c0f3609286d444923e58d1e8af12eab1269e078916d2781999f63",
+    "/tmp/nanolang-component-entry-missing-parser-import.log": "36c807448e16ff435affb9e642d7608dc36b7269eff4240a5147fed39a6a7e56",
+    "/tmp/nanolang-component-entry-stage3-direct-imports.log": "7cf42e97979a199761639e09ea9e002a2e638f60d03450f0f91d94657479e00d"
+  },
+  "entry_results": {
+    "parser": "I passed my parser entry assertions.\n",
+    "typecheck": "I passed my checker entry assertions.\n",
+    "transpiler": "I passed my transpiler entry assertions.\n"
+  },
+  "all_imported_shadows_executed": false,
+  "post_merge_entries_passed": true
+}
