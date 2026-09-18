@@ -182,7 +182,22 @@ class SourceBorrowEmission(unittest.TestCase):
     def test_multiple_parameter_refusals_preserve_publication(self):
         multi = (FIXTURES / 'source_borrow_multi.nano').read_text()
         eight = (FIXTURES / 'source_borrow_eight.nano').read_text()
+        shared_first = """resource struct Item { value: int, active: bool }
+fn inspect(first: &Item, second: &mut Item) -> int { return (+ first.value second.value) }
+shadow inspect { let mut owner: Item = Item { value: 1, active: true }
+ assert (== (inspect &owner &mut owner) 2)
+ let Item { value, active } = owner }
+fn main() -> int { let mut owner: Item = Item { value: 1, active: true }
+ assert (== (inspect &owner &mut owner) 2)
+ let Item { value, active } = owner return 0 }
+shadow main { assert true }
+"""
+        duplicate = shared_first.replace('first: &Item, second: &mut Item',
+                                         'first: &Item, first: &Item')
+        duplicate = duplicate.replace('second.value', 'first.value').replace('&mut owner)', '&owner)')
         cases = {
+            'shared_then_exclusive_alias': shared_first,
+            'duplicate_formals': duplicate,
             'arity': multi.replace('&mut one &middle_owner &mut three', '&mut one &middle_owner'),
             'mode': multi.replace('&mut one &middle_owner &mut three', '&one &middle_owner &mut three'),
             'nominal': multi.replace('&mut one &middle_owner &mut three', '&mut one &one &mut three'),
