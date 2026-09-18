@@ -1694,6 +1694,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeKind payload = written_array == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
                     written_array == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
                 if (!shape_type(b, shape_child(b, arr.shape, 0), payload)) return 0;
+                /* An already tagged value retains its known payload contract. */
+                if (val.kind == NVM2C_VK_VALUE &&
+                    !shape_equal(b, shape_child(b, arr.shape, 0), shape_child(b, val.shape, 0))) return 0;
             } else if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
             if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
