@@ -16,6 +16,21 @@
  * unless the shared executable ownership verifier admits their exact subset. */
 NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
                                             bool *requires_verifier);
+typedef enum {
+    NVM_LAYOUT_AUTHORITY_UNKNOWN, NVM_LAYOUT_AUTHORITY_ORDINARY,
+    NVM_LAYOUT_AUTHORITY_RESOURCE
+} NvmLayoutAuthority;
+/* I query only after validating the complete declaration payload. With no
+ * payload I return UNKNOWN (the caller separately resolves a retained index).
+ * With a payload I also check its index. Failure leaves *out unchanged. This
+ * declaration classification supplies no instruction-flow or storage admission. */
+NvmV2Result nvm_ownership_layout_authority(const NvmModule *, uint32_t, NvmLayoutAuthority *);
+/* I validate once, then publish exactly count declaration classifications.
+ * A present payload must have that exact count; absent metadata yields UNKNOWN.
+ * The caller supplies count entries (or NULL for zero). Every failure leaves
+ * the entire output unchanged; layout resolution remains a separate duty. */
+NvmV2Result nvm_ownership_layout_authorities(const NvmModule *, uint32_t, NvmLayoutAuthority *);
+
 /* I read immutable numeric paths without allocating. Layout/authority checks
  * remain the verifier's responsibility; this reader checks transport shape.
  * I leave outputs unchanged on failure. */

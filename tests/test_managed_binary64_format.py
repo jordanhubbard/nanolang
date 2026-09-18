@@ -45,7 +45,17 @@ class Binary64Format(unittest.TestCase):
         source,exe=self.work/'reference.c',self.work/'reference'
         source.write_text(REFERENCE)
         self.run_cmd(self.clang+[source,'-lm','-o',exe])
-        return [line.split() for line in self.run_cmd([exe]).stdout.splitlines()]
+        observed = [line.split() for line in self.run_cmd([exe]).stdout.splitlines()]
+        (self.work/'host-reference.json').write_text(json.dumps(observed))
+        # Finite expectations remain independently computed by host libc. My
+        # nonfinite spelling is an explicit sign-preserving language policy.
+        values = []
+        for bits,text,literal in observed:
+            raw = int(bits,16)
+            if raw & 0x7ff0000000000000 == 0x7ff0000000000000:
+                text = ('-' if raw >> 63 else '') + ('nan' if raw & 0xfffffffffffff else 'inf')
+            values.append((bits,text,literal))
+        return values
 
     def test_portable_core_matches_2077_reference_values(self):
         values=self.reference()
@@ -87,9 +97,9 @@ int main(void){int result=run();if(result)fprintf(stderr,"reference failure %d\\
     def test_emitted_formatting_matches_vm_and_reference(self):
         values=self.reference()[:29]
         strings,body='',''
-        for i,(_,expected,literal) in enumerate(values):
+        for i,(bits,expected,literal) in enumerate(values):
             strings+=f'.string e{i} "{expected}"\n'
-            body+=f'PUSH_F64 {literal}\nCALL format\nPUSH_STR e{i}\nEQ\nASSERT\n'
+            body+=f'PUSH_F64 bits:{bits}\nCALL format\nPUSH_STR e{i}\nEQ\nASSERT\n'
         body+='PUSH_F64 123456.5\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nCAST_STRING\nSTORE_GLOBAL 1\n'
         suffix=('.function format 1 1 0 string 1\n.parameters format float\n'
                 'LOAD_LOCAL 0\nCAST_STRING\nRET\n.end\n')

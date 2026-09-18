@@ -1,0 +1,20 @@
+{
+  "source_head": "ce865addbe30ff9f316806ad9368dac5d3e1bd33",
+  "base": "460db419",
+  "reviewed_production": "b0584676",
+  "sha256": {
+    "src/nanoisa/ownership_contracts.c": "ec0de8f2a8620a59ad4e368af255b59d2c6049d3226025a8d397e5c085a1656d",
+    "src/nanoisa/ownership_contracts.h": "5d6f8e74207939dd43f607b27d855b79e7a72aae26ca920f71327feb429df481",
+    "tests/nanoisa/test_ordinary_record_authority.c": "fce70b04cee66de9470625f6fbc07ec845773635934a86847dc0c985ffd662ad",
+    "tests/test_ordinary_record_authority.py": "198dd8f10ee110f60e33a08ee23884ecff99317081132ce63d0929cfa7f50563",
+    "tests/nanoisa/test_owned_transfers.c": "6bb1a2b3a7321449d512ffdd0e9544d42ddbac5f00526d4adc28c2ecf03d31ee",
+    "bin/nano_vm": "430dcf7685607c579c55f78de13c14580d779dc9b78de488f92ade7295dc78c0",
+    "bin/nvm2c": "bd9f41bacc7cef44f63a55c199cb3cef25131558430a1134c3c30a0200825a64",
+    "bin/nvm2llvm": "dd183f40abf92fcb011e281d886837fe70921ca2f9aaaea4c2b52bf4ccf3f2d9",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "/tmp/nanolang-ordinary-authority-focused.log": "99ffe58bcc28ebc716569437160ea78f227ac881bdae48afeb09a309f7c06f60",
+    "/tmp/nanolang-ordinary-authority-ownership.log": "14cc0f19cb76bd7e1f6c564989167de1cdb7a6363dc65133cb086c85ac2c8bcf",
+    "/tmp/nanolang-ordinary-authority-ownership-corrected.log": "b0274dddb15441019d9cdfd6d307e69f551d8c42ee85a3196c6bd14bc93ad9f3",
+    "/tmp/nanolang-ordinary-authority-integrated.log": "25483011612943c76c5b34fb75d2c2816d7f126e190d455b91307dbdcef2bd39"
+  }
+}

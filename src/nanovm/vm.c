@@ -2933,6 +2933,22 @@ vm_return_values: ;
                 }
             }
             if (owned_execution) {
+                if (returning->result_tag==TAG_STRUCT) {
+                    /* I validate while the pending owner is still a stack root.
+                     * Scalar/void count and tag checks need no extra facts. */
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
+                    if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");
+                    NvmAffineType type;uint16_t fields=0;
+                    bool valid=nvm_affine_value_result(contract,&type,&fields);
+                    nvm_affine_state_free(contract);
+                    if (!valid || type.tag!=TAG_STRUCT || !results[0].as.sval ||
+                        results[0].as.sval->def_idx!=type.layout || results[0].as.sval->field_count!=fields)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared owned result");
+                }
+                /* The returned operand already fits this stack. I establish
+                 * publication capacity before removing any callee roots. */
+                VmResult reserved=stack_reserve(vm,(uint64_t)frame->stack_base+returning->result_count);
+                if (reserved!=VM_OK) return trap_error(vm,reserved,"I cannot reserve an owned return result");
                 VmReferenceActivation *finished=vm_reference_activation(vm,vm->frame_count-1);
                 memset(finished,0,sizeof(*finished));
             }

@@ -65,13 +65,14 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
     bool edges[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNED_MAX_FUNCTIONS]={{false}};
     for (uint32_t f=0;f<m->function_count;f++) {
         const NvmFunctionEntry *fn=&m->functions[f];
-        if ((!f && fn->arity) || fn->upvalue_count || fn->result_count!=1 ||
-            (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8) ||
+        if ((!f && (fn->arity || fn->result_count!=1 ||
+            (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8))) || fn->upvalue_count ||
             fn->local_count>NVM_AFFINE_MAX_LOCALS ||
             fn->code_length>NVM_AFFINE_MAX_INSTRUCTIONS*ISA_MAX_INSTRUCTION_SIZE) return false;
         NvmAffineState *state=nvm_affine_state_create(m,f,fn->local_count);
-        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
-        bool valid=nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) && count==fn->arity;
+        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS],result;uint16_t count=0,fields=0;
+        bool valid=nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) && count==fn->arity &&
+            nvm_affine_value_result(state,&result,&fields);
         nvm_affine_state_free(state);
         if (!valid) return false;
         VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];
@@ -129,8 +130,9 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (!calls->value_graph || !target || target>=module->function_count)
             return "I require a checked acyclic owned value call";
         NvmAffineState *callee=nvm_affine_state_create(module,target,module->functions[target].local_count);
-        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
-        bool valid=nvm_affine_value_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
+        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS],result;uint16_t count=0,fields=0;
+        bool valid=nvm_affine_value_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) &&
+            nvm_affine_value_result(callee,&result,&fields);
         nvm_affine_state_free(callee);
         if (!valid || count!=module->functions[target].arity || f->count<count)
             return "I require a complete consuming argument list";
@@ -144,12 +146,10 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         }
         NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
-        tag=module->functions[target].result_tag;
-        if (module->functions[target].result_count!=1 ||
-            (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8))
-            return "I require a single scalar consuming-call result";
         f->count-=count;
-        break;
+        if (result.tag==TAG_VOID) return NULL;
+        return push(f,(Value){.tag=result.tag,.owned=result.tag==TAG_STRUCT,.layout=result.layout})
+            ? NULL:"I cannot retain a checked value-call result";
     }
     case OP_CALL_REF: {
         if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1)
@@ -407,7 +407,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
                 : nvm_affine_can_exit_scalar(current->locals,tag);
             if (!exit_ok) {
-                error="I require an exact scalar result and no live owned obligations";goto done;
+                error="I require an exact declared result and no live owned obligations";goto done;
             }
         } else {
             error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
