@@ -39,3 +39,7 @@ one-return branches, nested nominal construction/patterns, whole-owner moves,
 and zero/entered loops. Refusal controls include mismatched reaching states,
 changed loop ownership, local leaks, wrong nominal moves, moved-value use,
 partial moves, assignments and helper-owned locals.
+
+My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
+admits bounded while break/continue edges with exact incoming owner state
+and explicit local consumption. It preserves the other restrictions above.

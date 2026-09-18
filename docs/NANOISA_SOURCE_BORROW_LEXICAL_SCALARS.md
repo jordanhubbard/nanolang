@@ -25,3 +25,7 @@ I test both branch outcomes, zero and multiple loop iterations, nested scopes,
 initializer access to an outer binding, restoration and out-of-scope refusal.
 I execute verified modules in the VM and sanitized native output, and strip
 advisory names without changing execution.
+
+My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
+admits bounded while break/continue edges with exact incoming owner state
+and explicit local consumption. It preserves the other restrictions above.

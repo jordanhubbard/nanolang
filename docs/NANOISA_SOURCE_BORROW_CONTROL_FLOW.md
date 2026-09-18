@@ -32,3 +32,7 @@ consumption. Refusal controls preserve existing ownership/purity/nominal
 boundaries plus unsupported local initialization and early-exit forms. VM and
 sanitized native must execute the exact same artifacts. Broader path-sensitive
 owner moves and local lifetimes remain separate required ownership-flow work.
+
+My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
+admits bounded while break/continue edges with exact incoming owner state
+and explicit local consumption. It preserves the other restrictions above.
