@@ -42,3 +42,8 @@ and copied host libraries unchanged after the gates. The exact pins,
 paths and logs are in [my manifest](evidence/reconstruction-generic-integer.json).
 I use no live product compiler binaries after making the snapshot.
 This does not establish a hermetic relocation or fresh compiler bootstrap.
+
+My additive main integration through `3e4e5a89` preserves generator and focused
+test source byte-for-byte. It changes separately admitted owned-helper and
+managed-runtime paths; reconstruction refuses retained ownership metadata.
+I preserve the stated original local tool pin and make no rebuilt-main claim.
