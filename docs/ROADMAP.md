@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I qualify explicit canonical component shadow completion (`task_14c8ecbd8aaa484ea5e73f2aa43fa48b`) at product e9a5f55f: fresh bootstrap, unchanged imported selection, captured verified shadow modules and ordinary supervised VM completion, followed by published driver entries. [Contract](CANONICAL_COMPONENT_SHADOW_COMPLETION.md).
+
 - [ ] I qualify the combined product through PR712 after merged ownership, managed-array and optional-map-key repairs (parent `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`). I retain the failed63c Linux gate and its separately passing fixed points, focused methods and fresh-tree Darwin gate. The next Linux/Darwin gates must explicitly install the canonical compiler before component compilation; prior results do not qualify this integration.
 
 - [x] I retain the completed acceptance attempt at frozen `63c26ecd`, including its source-borrow setup timeout (`task_ef9261a163f64e0397a93d377d623ed7`, product parent d76ae44). Bootstrap/tools and 65 executed methods pass; the corrected 26-method borrowed-source gate passes in 1281.199 seconds with unchanged tools. The isolated full Linux quick gate fails at the separately tracked transpiler native-publication boundary. Fresh VM and native full generations each pass raw equality and immutable closure/integrity checks. Exact-candidate Darwin quick gate passes in 950.79 seconds; Linux remains blocked. [Exact evidence](evidence/product-acceptance-63c26ecd.md).
