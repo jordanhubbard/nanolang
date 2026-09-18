@@ -1,12 +1,17 @@
 # My NanoISA-only product draft
 
-My current integration is `a9b27ecb`, with main through PR613 and the final
-optional-scalar storage correction from PR601. The ordinary compiler, NanoVirt,
-VM, native translator, NanoISA and reconstruction tools build successfully
-(`/tmp/nanolang-product-through613-build.log`). This is compilation evidence;
-I have no new full product or fixed-point acceptance at this source. PR522 and
-PR601 remain draft, and the startup and export-shadow holds remain open. The
-checkpoints below retain the earlier results and their original scope.
+My current tested integration is `b8f3b842`, with main through PR615 and
+optional-scalar storage `0cf55548` from PR601. Fresh bootstrap passes Stage1
+and hello, then builds Stage2; its ordinary hello smoke stops at a native
+invariant in `parse_function_definition`, generated C line 46847. I preserve
+the artifact, original log and SHA256 manifest in
+`/tmp/nanolang-product-startup-b8f3b842/evidence.json`. I have not replayed the
+failed artifact or attributed its cause. Static emitted-source review follows.
+PR522 and PR601 remain draft; startup, export-shadow and release holds remain.
+The checkpoints below retain earlier results and their original scope.
+
+At held storage `0cf55548`, twelve optional/numeric methods and 1,269 shape
+checks pass. These bounded checks do not establish full compiler acceptance.
 
 Held storage branch `1ad605a9` passes 21 optional-storage, numeric and diagnostic
 methods in 64.843 seconds after integration through PR613. It also translates
