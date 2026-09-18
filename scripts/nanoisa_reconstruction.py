@@ -15,7 +15,8 @@ INT, BOOL = 1, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
-ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul'}
+ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
+              'I64_DIV_S': 'div', 'I64_REM_S': 'rem'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC)
 
@@ -364,12 +365,22 @@ class Emit:
         if not needed:
             return
         if self.language == 'c':
-            self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
+            if needed & {'add', 'sub', 'mul', 'neg'}:
+                self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
     if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
     return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
 }''')
             for op in sorted(needed):
                 args = 'int64_t a' if op == 'neg' else 'int64_t a, int64_t b'
+                if op in ('div', 'rem'):
+                    symbol = '/' if op == 'div' else '%'
+                    overflow = 'INT64_MIN' if op == 'div' else 'INT64_C(0)'
+                    self.line(f'''static int64_t nlr_i64_{op}({args}) {{
+    if (b == 0) return INT64_C(0);
+    if (a == INT64_MIN && b == -1) return {overflow};
+    return a {symbol} b;
+}}''')
+                    continue
                 expression = {'add': '(uint64_t)a + (uint64_t)b',
                               'sub': '(uint64_t)a - (uint64_t)b',
                               'mul': '(uint64_t)a * (uint64_t)b',
@@ -385,6 +396,32 @@ class Emit:
 # I branch before signed arithmetic so all helper intermediates are representable.
 # These shadows test my helper implementation, not an original source harness.
 NANO_INTEGER_HELPERS = {
+    'rem': '''fn nlr_i64_rem(a: int, b: int) -> int {
+    if (== b 0) { return 0 }
+    let low: int = (- -9223372036854775807 1)
+    if (and (== a low) (== b -1)) { return 0 }
+    return (% a b)
+}
+shadow nlr_i64_rem {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_rem low -1) 0)
+    assert (== (nlr_i64_rem low 0) 0)
+    assert (== (nlr_i64_rem -7 3) -1)
+    assert (== (nlr_i64_rem 7 -3) 1)
+}''',
+    'div': '''fn nlr_i64_div(a: int, b: int) -> int {
+    if (== b 0) { return 0 }
+    let low: int = (- -9223372036854775807 1)
+    if (and (== a low) (== b -1)) { return low }
+    return (/ a b)
+}
+shadow nlr_i64_div {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_div low -1) low)
+    assert (== (nlr_i64_div low 0) 0)
+    assert (== (nlr_i64_div -7 3) -2)
+    assert (== (nlr_i64_div 7 -3) -2)
+}''',
     'mul': '''fn nlr_i64_mul(a: int, b: int) -> int {
     let mut factor: int = a
     let mut remaining: int = b
