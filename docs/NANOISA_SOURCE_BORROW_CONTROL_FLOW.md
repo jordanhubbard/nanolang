@@ -36,3 +36,7 @@ owner moves and local lifetimes remain separate required ownership-flow work.
 My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
 admits bounded while break/continue edges with exact incoming owner state
 and explicit local consumption. It preserves the other restrictions above.
+
+My [direct range extension](NANOISA_SOURCE_BORROW_RANGE_FOR.md) also admits
+bounded integer for loops with once-only endpoints and exact loop-owner
+states. General array iteration remains outside this source profile.

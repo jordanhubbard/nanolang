@@ -17,7 +17,9 @@ STR_FROM_INT/FLOAT with exact expected-tag values and numeric-zero fallback,
 using the same portable formatters and ordinary original-operand cleanup.
 My [replacement helper](NANOISA_MANAGED_REPLACE.md) admits STR_REPLACE with
 checked nonoverlapping byte replacement and consuming three-owner cleanup.
-It uses reclaiming scratch plus a final copy; STR_SPLIT still requires aggregate support.
+It uses reclaiming scratch plus a final copy. My [split-array extension](NANOISA_MANAGED_SPLIT_ARRAYS.md)
+admits STR_SPLIT and read-only ARR_GET/LEN with owned string children, retained
+array aliases and exact missing-value tags; general array mutation remains open.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
 operations do not complete my required full-language LLVM/Wasm scope.
@@ -43,7 +45,7 @@ parser while preserving the evaluator strict-cast/prefix-helper distinction.
 
 ## My ownership and errors
 
-I use module-local handles, immutable reference-counted strings and a
+I use module-local handles, immutable reference-counted strings, owned split arrays and a
 reclaiming allocator. LOAD and DUP retain; STORE transfers and releases its
 previous destination. Calls transfer arguments into callee locals, and returns
 transfer their result before cleaning remaining roots. Consumed operands are

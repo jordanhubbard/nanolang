@@ -23,7 +23,8 @@ ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': '
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
+          'DUP', 'POP', 'SWAP', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,12 @@ class Analyze:
         require(tag is None or value.tag == tag, 'require exact scalar operand types')
         return value
 
+    @staticmethod
+    def truth(value):
+        require(value.tag in (INT, BOOL), 'require exact int/bool truth operands')
+        return value if value.tag == BOOL else Expr(BOOL, 'binary', '!=',
+                                                    (value, Expr(INT, 'constant', 0)))
+
     def simple(self, index, stack, initialized, statements, pure=False):
         self.touch(index)
         ins = self.code[index]
@@ -138,6 +145,16 @@ class Analyze:
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
+        elif op in ('CAST_BOOL', 'NOT'):
+            value = self.truth(self.pop(stack))
+            expr = value if op == 'CAST_BOOL' else Expr(BOOL, 'not', None, (value,))
+        elif op == 'CAST_INT':
+            value = self.pop(stack)
+            require(value.tag in (INT, BOOL), 'require exact int/bool cast operands')
+            expr = value if value.tag == INT else Expr(INT, 'bool_int', None, (value,))
+        elif op in ('AND', 'OR'):
+            right, left = self.truth(self.pop(stack)), self.truth(self.pop(stack))
+            expr = Expr(BOOL, 'binary', 'and' if op == 'AND' else 'or', (left, right))
         elif op in ('BOOL_AND', 'BOOL_OR'):
             right, left = self.pop(stack, BOOL), self.pop(stack, BOOL)
             expr = Expr(BOOL, 'binary', 'and' if op == 'BOOL_AND' else 'or', (left, right))
@@ -293,6 +310,8 @@ class Emit:
         if expr.kind == 'call':
             name = self.name(expr.value)
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
+        if expr.kind == 'bool_int':
+            return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(nlr_bool_int ' + args[0] + ')'
         if expr.kind == 'not':
             return '(!' + args[0] + ')' if self.language == 'c' else '(not ' + args[0] + ')'
         op = expr.value
@@ -369,6 +388,8 @@ class Emit:
             if isinstance(node, Expr):
                 if node.kind in ('arithmetic', 'unsigned_compare'):
                     needed.add(node.value)
+                if node.kind == 'bool_int':
+                    needed.add('bool_int')
                 collect(node.args)
             elif isinstance(node, (tuple, list)):
                 for child in node:
@@ -376,6 +397,17 @@ class Emit:
 
         for function in self.functions:
             collect(function.body)
+        if 'bool_int' in needed:
+            needed.remove('bool_int')
+            if self.language != 'c':
+                self.line('''fn nlr_bool_int(value: bool) -> int {
+    if value { return 1 }
+    return 0
+}
+shadow nlr_bool_int {
+    assert (== (nlr_bool_int false) 0)
+    assert (== (nlr_bool_int true) 1)
+}''')
         if not needed:
             return
         if self.language == 'c':

@@ -348,6 +348,68 @@ shadow main { assert true }
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
 
+    def test_range_for_preserves_bounds_scope_and_exact_edges(self):
+        text = (FIXTURES / 'source_borrow_range_for.nano').read_text()
+        variants = {'entered_return': text, 'empty_return': text.replace('for tail in (range 0 1)', 'for tail in (range 0 0)')}
+        for fixture, content in variants.items():
+            source = self.work / ('resource-path-' + fixture + '.nano')
+            source.write_text(content)
+            seed = self.work / 'nested-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.ownership', baseline)
+            self.assertIn('JMP_FALSE', baseline)
+            self.assertIn('JMP ', baseline)
+            expected = 'BORROW_LOCAL_EXCLUSIVE'
+            self.assertIn(expected, baseline)
+            self.names_and_strip(seed)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-nested.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'nested-shadow.nasm', self.work / 'nested-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
+    def test_range_for_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_range_for.nano').read_text()
+        cases = {
+            'one_bound': text.replace('(range 0 4)', '(range 4)'),
+            'array_iterable': text.replace('(range 0 4)', '[0, 1]'),
+            'float_bound': text.replace('(range 0 4)', '(range 0 4.0)'),
+            'local_leak': text.replace('if (== index 1) { continue }', 'if (== index 1) { let leaked: Counter = Counter { value: 1, active: true } continue }'),
+            'changed_owner': text.replace('if (== index 3) { break }', 'if (== index 3) { let Counter { value, active } = owner break }'),
+            'escaped_index': text.replace('return view.value', 'return turn'),
+        }
+        for name, content in cases.items():
+            source = self.work / ('range-refusal-' + name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'range-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertNotIn('parse error', result.stderr.lower())
+                self.assertEqual(output.read_text(), 'accepted-output')
+
     def test_consumed_owner_reassignment_preserves_paths_and_names(self):
         text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
         text = text.replace('let tree: Pair =', 'let mut tree: Pair =')

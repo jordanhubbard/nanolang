@@ -114,7 +114,8 @@ class LiteralStrings(unittest.TestCase):
             self.compare('PUSH_STR a\nPUSH_STR b\n'+op+'\nSTR_LEN\nPUSH_I64 6\nEQ\nASSERT\n')
         self.compare('PUSH_I64 1\nPUSH_I64 2\nADD\nPOP\n',
                      '.function unused 1 1 0 void 0\n.parameters unused string\nRET\n.end\n')
-        cases = [self.program('PUSH_STR a\nPUSH_STR a\nSTR_SPLIT\nPOP\n')]
+        self.compare('PUSH_STR a\nPUSH_STR a\nSTR_SPLIT\nPOP\n')
+        cases = [self.program('ARR_NEW 5\nPOP\n')]
         for text in cases:
             module = self.assemble(text)
             self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module])
