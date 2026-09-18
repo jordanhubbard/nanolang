@@ -151,3 +151,47 @@ My final production246f existing full regression run also completes successfully
 `/tmp/nanolang-owned-zero-link-full.log` separately from the incomplete diagnostic.
 The focused246f log retains 69 verification-reuse controls, 1847 graph checks,
 338 preflight controls, and adjacent authority gates. My PR remains a draft.
+
+### Completed runtime-invocation qualification
+
+I qualify reviewed production071c126c at frozen source
+871b638dbef236d8d24f3be4dba9ce5bc024659b. My private proof lives only on a
+single synchronous invocation's C stack. My 529 admission-boundary checks count
+exactly one full runtime admission for each accepted or false-ASSERT invocation,
+across all four APIs and two repetitions. Later public calls establish new
+proofs. My changed-declaration control requires refusal before activation; it
+does not promise arbitrary mutable bytecode or decoded-cache replacement.
+I preserve its initial overly strict counter assertion in
+`/tmp/nanolang-owned-invocation-proof-focused.log` and track its correction as
+task_6b0e7040a5534b1cb14da14f8291623b. Declaration validation may refuse before
+full admission, so that refusal permits zero or one admission; accepted calls
+still require exactly one.
+
+My corrected ordinary gate passes 1847 graph, 338 preflight, 529 proof-boundary,
+and 69 verifier-reuse checks. GCC and pinned Clang generated-native cases pass;
+the Clang ten-case test completes in3.308 seconds. The full regression passes
+274541 VM, 2422 native, 1365 shape, 96 verifier and 28 VM-FFI checks, alongside
+all existing affine/owned/borrowed/helper/consuming authority and allocation
+gates. Logs use the `/tmp/nanolang-owned-invocation-proof-` prefix:
+`corrected.log`, `clang.log`, `regression.log`, and `public-boundaries.log`.
+
+I now complete the unchanged ten-case instrumented corpus, keeping every case's
+four APIs, two repeats and lifecycle assertions. Every linked NanoVM/NanoISA
+object and the driver is freshly built with ASan/UBSan at O2, with leak checking
+enabled; common legacy compiler/runtime objects retain their ordinary build.
+At most two cases run concurrently, each with a300-second bound. All ten exit0
+without sanitizer findings. The aggregate finishes in230.170 seconds; cases0–8
+take45.681–46.485 seconds, and case9 takes7.833 seconds. I retain the instrumented
+build and executable under `/tmp/nanolang-owned-invocation-proof-sanitizers-build`,
+with executable SHA256
+`b769c3d14ab04c11e58922a45a70e37364dbe38490cd35997c993d5545ca69fa`.
+Per-case logs/status and the complete summary remain under
+`/tmp/nanolang-owned-invocation-proof-sanitizer-parts`; build/runner scripts and
+logs share the invocation-proof prefix.
+
+This completed partition aggregate is separate from every earlier incomplete
+full run, timed diagnostic and interrupted partition. I neither relabel those
+outcomes nor claim the original600-second runs passed. The measured correction
+removes repeated admission across internal assertion resumptions; independent
+artifact generation still has measurable cost. I next integrate current main
+before declaring the PR merge-ready.
