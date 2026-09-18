@@ -32,6 +32,7 @@
     "../../src/nanoisa/assembler.c",
     "../../src/nanoisa/disassembler.c",
     "../../src/nanoisa/verifier.c",
+    "../../src/nanoisa/managed_array_shapes.c",
     "../../src/nanoisa/verifier_types.c",
     "../../src/nanovm/vm_decode.c",
     "../../src/nanovm/vm_dispatch.c",

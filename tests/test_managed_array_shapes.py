@@ -1,4 +1,4 @@
-"""I qualify private array-shape eligibility without changing executable profiles."""
+"""I qualify private array-shape eligibility with stable read-only analysis results."""
 import os
 from pathlib import Path
 import shlex
@@ -112,8 +112,8 @@ class ArrayShapes(unittest.TestCase):
         # One analysis context, six function allocations, then report publication.
         for budget in range(8):self.analyze(text,4,budget=budget)
         self.analyze(text,0,budget=8)
-    def test_existing_mutation_refusal_keeps_prior_outputs(self):
-        source=self.work/'refuse.nasm';source.write_text(self.program('ARR_NEW 1\nPUSH_I64 4\nARR_PUSH\nPOP'))
+    def test_unsupported_mutation_keeps_prior_outputs(self):
+        source=self.work/'refuse.nasm';source.write_text(self.program('ARR_NEW 1\nPUSH_STR text\nARR_PUSH\nPOP'))
         module=self.work/'refuse.nvm';self.command([ROOT/'bin/nanoisa','asm',source,'-o',module])
         for tool in ('nvm2llvm','nvm2wasm'):
             output=self.work/(tool+'.old');output.write_bytes(b'prior output')

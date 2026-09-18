@@ -25,7 +25,13 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
 - `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains those closed module rules and
   adds matched managed string operations/conversions and string/numeric ADD.
   My split extension admits string-child arrays through STR_SPLIT, ARR_GET/LEN
-  and array signatures; all mutation/other heap/import exclusions remain. Ownership and
+  and array signatures. My bounded mutable extension adds ARR_NEW/PUSH/SET/POP
+  only after conservative whole-module element-shape analysis succeeds. Mutable
+  modules use prepared boxed split storage and tagged generic GET/LEN; read-only
+  modules keep their prior path. Deferred analysis transfers and unsupported
+  packed coercions/nested children refuse publication, while runtime type, bounds
+  and ownership checks remain mandatory. Other heap/import exclusions remain.
+  Details are in `NANOISA_MANAGED_MUTABLE_ARRAYS.md`. Ownership and
   errors follow `NANOISA_LLVM_MANAGED_STRINGS.md`.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary
   metadata can select or bypass the consuming tool's profile.

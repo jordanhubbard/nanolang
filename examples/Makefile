@@ -627,7 +627,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 		../src/nanoisa/isa.c ../src/nanoisa/passive.c ../src/nanoisa/affine_bytecode.c ../src/nanoisa/affine_state.c ../src/nanoisa/ownership_contracts.c ../src/nanoisa/retained_layouts.c ../src/nanoisa/reference_places.c ../src/nanoisa/nvm_format.c \
 		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
 		../src/nanoisa/local_bindings.c ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
-		../src/nanoisa/verifier.c ../src/nanoisa/verifier_types.c ../src/nanovm/vm_decode.c \
+		../src/nanoisa/verifier.c ../src/nanoisa/managed_array_shapes.c ../src/nanoisa/verifier_types.c ../src/nanovm/vm_decode.c \
 		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c ../src/nanovm/heap_cycles.c
 	@mkdir -p ../modules/forth_see/.build
 	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared \
@@ -636,7 +636,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 	    ../src/nanoisa/isa.c ../src/nanoisa/passive.c ../src/nanoisa/affine_bytecode.c ../src/nanoisa/affine_state.c ../src/nanoisa/ownership_contracts.c ../src/nanoisa/retained_layouts.c ../src/nanoisa/reference_places.c ../src/nanoisa/nvm_format.c \
 		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
 	    ../src/nanoisa/local_bindings.c ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
-	    ../src/nanoisa/verifier.c ../src/nanoisa/verifier_types.c ../src/nanovm/vm_decode.c \
+	    ../src/nanoisa/verifier.c ../src/nanoisa/managed_array_shapes.c ../src/nanoisa/verifier_types.c ../src/nanovm/vm_decode.c \
 	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c ../src/nanovm/heap_cycles.c
 
 # Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)

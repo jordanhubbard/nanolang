@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "verifier.h"
+#include "managed_array_shapes.h"
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
@@ -1076,6 +1077,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
     const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS;
     const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS || managed_profile;
     bool has_strings = false;
+    bool mutable_arrays = false;
     bool needs_string_runtime = false;
     bool initializer_seen = false;
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -1101,15 +1103,25 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
+            mutable_arrays |= ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH ||
+                              ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP;
             has_strings |= ins.opcode == OP_PUSH_STR || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING;
             needs_string_runtime |= !managed_profile && (ins.opcode == OP_ADD || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT);
             bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
                               ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
-                              (managed_profile && (ins.opcode == OP_STR_SPLIT || ins.opcode == OP_ARR_GET || ins.opcode == OP_ARR_LEN || ins.opcode == OP_STR_REPLACE || ins.opcode == OP_STR_FROM_INT || ins.opcode == OP_STR_FROM_FLOAT || ins.opcode == OP_STR_TO_LOWER || ins.opcode == OP_STR_TO_UPPER || ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
+                              (managed_profile && (ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH || ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP || ins.opcode == OP_STR_SPLIT || ins.opcode == OP_ARR_GET || ins.opcode == OP_ARR_LEN || ins.opcode == OP_STR_REPLACE || ins.opcode == OP_STR_FROM_INT || ins.opcode == OP_STR_FROM_FLOAT || ins.opcode == OP_STR_TO_LOWER || ins.opcode == OP_STR_TO_UPPER || ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
                                ins.opcode == OP_STR_CONTAINS || ins.opcode == OP_STR_STARTS_WITH || ins.opcode == OP_STR_ENDS_WITH)));
             if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
+    }
+    if (mutable_arrays) {
+        NvmArrayEligibilityReport *report = NULL;
+        NvmArrayEligibilityResult arrays = nvm_analyze_managed_arrays(m, &report);
+        nvm_array_eligibility_free(report);
+        if (arrays.status != NVM_ARRAY_ELIGIBLE)
+            return fail("I cannot establish mutable array eligibility (status %u) at function %u offset %u: %s",
+                        (unsigned)arrays.status, arrays.function, arrays.pc, arrays.message);
     }
     if (has_strings && needs_string_runtime)
         return fail("I refuse ADD/CAST_INT/CAST_FLOAT in the literal-string profile");
