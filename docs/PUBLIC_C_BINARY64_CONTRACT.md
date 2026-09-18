@@ -140,3 +140,10 @@ not enter the new method: its Python fixture constant followed unittest.main.
 I retain both GCC/Clang logs and all 21 frozen identities, move that constant
 before the runner, and freeze the corrected harness before fresh qualification.
 No source compiler or generated program ran for the unbound fixture.
+
+The annotation-only checkpoint retains seven passing methods and one checked
+FLOAT-field refusal in both final logs; no rejected source output ran. Checker
+annotations are conditional, so I complete my recorded exact declaration fallback
+for absent annotations using scoped nominal owners and selected variants. An
+explicit UNKNOWN annotation remains UNKNOWN. I preserve exact nested field names
+and never use field spelling alone to infer a type.
