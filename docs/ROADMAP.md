@@ -47,6 +47,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I emit total integer arithmetic in standalone native C (`task_9af23845cec040b6955340ab23de4c91`, parent66a6). Static audit finds signed C add/sub/mul/neg and unguarded minimum-integer division in the ordinary emitter, unlike the VM and owned emitter. I use unsigned arithmetic with exact signed reconstruction and guard zero/minimum division and remainder, then require fresh corrected-code UBSan boundary checks for typed/generic integer families. Generic float/tag promotion remains separate.
+
 - [x] I execute verified owned-profile assertions before admitting mandatory source shadows (MAC `task_f259c8fa53c945e6a990f112dc9415c1`, parents ed702/718). True conditions preserve affine/reference state; false conditions unwind actual owners and clear both activation contexts, with native helper failure propagation. I pass 959 entry/helper assertion, four public VM entry APIs, resume and cleanup checks, paired supervised VM/native and instrumented lifetime gates; ordinary ASSERT semantics remain unchanged. See `docs/evidence/owned-shadow-assertions.md`.
 - [ ] I emit checked scalar-resource borrowed calls from both ordinary-source NanoISA frontends (MAC `task_5057848888b246f686fd2b8e48d2c19a`, parents ed702/718). My [bounded source contract](NANOISA_SOURCE_BORROWS.md) requires exact nominal layouts, root/parameter ownership, OWN/REF/CALL_REF, complete selected shadows and paired VM/native execution. Initial int/bool scalar-leaf roots, one borrowed helper and explicit unsupported-shadow graph refusal do not complete broader source or affine acceptance.
 
