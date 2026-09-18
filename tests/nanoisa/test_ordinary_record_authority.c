@@ -81,7 +81,8 @@ static void forward_authority(const char *path) {
 static void owned_order(bool forward,const char *path) {
     unsigned leaf=forward?1:0,parent=forward?0:1;char source[768];
     snprintf(source,sizeof source,".types 2 0 0\n.entry main\n.function main 0 2 0 int 1\nPUSH_I64 7\nOWN_PACK %u\nOWN_PACK %u\nOWN_STORE_LOCAL 0\nOWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n.end\n",leaf,parent);
-    AsmResult error;NvmModule *m=asm_assemble(source,&error);CHECK(m);
+    /* I attach the complete contract before invoking normal verification. */
+    AsmResult error;NvmModule *m=asm_assemble_unverified(source,&error);CHECK(m);
     NvmV2LayoutField scalar={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2LayoutField nested={TAG_STRUCT,leaf,NVM_V2_NO_INDEX};NvmV2Layout entries[2];
     entries[leaf]=(NvmV2Layout){0,1,NVM_V2_NO_INDEX,&scalar};
