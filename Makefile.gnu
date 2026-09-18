@@ -5077,3 +5077,14 @@ test-units: test-owned-result-descriptors
 test-owned-result-descriptors: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_descriptors tests/nanoisa/test_owned_result_descriptors.c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	./obj/test_owned_result_descriptors
+
+.PHONY: test-owned-value-results
+test-units: test-owned-value-results
+test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_value_results tests/nanoisa/test_owned_value_results.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_result_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_alloc tests/nanoisa/test_owned_result_alloc.c obj/test_owned_result_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_result_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_preflight tests/nanoisa/test_owned_result_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_result_preflight
+	python3 -m unittest -v tests.test_owned_value_results
