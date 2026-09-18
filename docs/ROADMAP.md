@@ -9759,6 +9759,10 @@ Compiler product:
       fixture and all 2,390 structured-C checks pass on Darwin (2026-09-17).
 
 Module richness:
+- [ ] I free the assembler module when its initial code-buffer allocation fails.
+      My local-marker allocation sweep exposed the existing missing teardown;
+      MAC `task_d2326e6883ed4cbe93728cd1393024c2`. I retain the sanitizer
+      failure and require the unchanged allocation sweep to pass with leak checks.
 - [ ] I preserve DEBUG source maps through canonical text; real source output
       currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
       Local-name comparisons retain exact metadata/code and separately require
