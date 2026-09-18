@@ -261,6 +261,53 @@ shadow main { assert true }
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
 
+    def test_return_paths_preserve_ownership_and_fallthrough(self):
+        text = (FIXTURES / 'source_borrow_returns.nano').read_text()
+        ending = 'if true { let code: int = 0 return code } else { return 1 }'
+        variants = {
+            'then': text,
+            'else': text.replace(ending, 'if false { return 1 } else { let code: int = 0 return code }'),
+            'loop': text.replace(ending, 'while true { let code: int = 0 return code } return 1'),
+            'zero': text.replace(ending, 'while false { return 1 } return 0'),
+            'single': text.replace(ending, 'if false { return 1 } return 0'),
+            'then_only': text.replace(ending, 'if true { return 0 } return 1'),
+            'bool': (FIXTURES / 'source_borrow_bool.nano').read_text().replace(
+                'return view.active', 'if view.active { return true } else { return false }'),
+        }
+        for fixture, content in variants.items():
+            source = self.work / ('returns-' + fixture + '.nano')
+            source.write_text(content)
+            seed = self.work / 'nested-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.ownership', baseline)
+            self.assertIn('JMP_FALSE', baseline)
+            expected = 'BORROW_LOCAL_SHARED' if fixture == 'bool' else 'BORROW_LOCAL_EXCLUSIVE'
+            self.assertIn(expected, baseline)
+            self.names_and_strip(seed)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-nested.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'nested-shadow.nasm', self.work / 'nested-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
     def test_lexical_scalars_restore_outer_bindings_and_names(self):
         for fixture in ('source_borrow_lexical_scalars.nano',):
             source = FIXTURES / fixture
@@ -400,6 +447,38 @@ shadow main { assert true }
                 result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
                 self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
                 self.assertEqual(output.read_text(), 'accepted-output')
+
+    def test_return_path_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_returns.nano').read_text()
+        cases = {
+            'shadow_return': text.replace('let checked: bool = true assert checked', 'return 0'),
+            'live_owner': text.replace('assert (== (read &mut first) 3)', 'if true { return 0 }'),
+            'missing_return': text.replace(' return 1\n}', '\n}'),
+            'owner_move': text.replace('let answer: int = view.value', 'let moved: Leaf = view'),
+            'incomplete_pattern': text.replace('let Leaf { value, enabled } = first', 'let Leaf { value } = first'),
+            'duplicate_pattern': text.replace('let Leaf { value, enabled } = first', 'let Leaf { value, value } = first'),
+        }
+        for name, content in cases.items():
+            source = self.work / ('return-refusal-' + name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'return-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                # Raw program emitters do not select shadows; use the shadow
+                # producer below for its independent nested-return refusal.
+                if name == 'shadow_return' and compiler in self.emitters:
+                    continue
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_text(), 'accepted-output')
+            if name == 'shadow_return':
+                for tool in self.shadow_tools:
+                    result = subprocess.run([tool, source, '0', 'raw'], cwd=ROOT,
+                                            capture_output=True, text=True, timeout=60)
+                    self.assertGreater(result.returncode, 0, (tool, result.stdout, result.stderr))
 
     def test_control_flow_depth_boundary(self):
         text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
