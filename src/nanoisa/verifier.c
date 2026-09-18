@@ -921,8 +921,9 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             return fail("I require entry and optional bounded scalar-result helper signatures");
         NvmAffineState *state=nvm_affine_state_create(mod,function,fn->local_count);
         if(!state) return fail("I require complete ownership local declarations");
-        NvmAffineType owned_parameter;
-        if(function) consuming_helper=nvm_affine_owned_parameter_type(state,&owned_parameter);
+        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+        if(function) consuming_helper=nvm_affine_consuming_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count)
+            && count==fn->arity;
         bool valid=true;
         for(uint16_t i=0;i<fn->local_count;i++) {
             NvmAffineType type;NvmReferenceMode mode;
@@ -933,7 +934,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                  type.tag!=TAG_STRUCT)) valid=false;
         }
         nvm_affine_state_free(state);
-        if(!valid) return fail("I require value entry locals and exact borrowed or single owned helper parameters");
+        if(!valid) return fail("I require value entry locals and exact borrowed or consuming value helper parameters");
     }
     NvmV2Layouts layouts = {0};
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)

@@ -2554,13 +2554,18 @@ dynamic_div:
                     return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one checked consuming helper activation");
                 NvmAffineState *contract=nvm_affine_state_create(vm->module,1,callee->local_count);
                 if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate consuming parameter facts");
-                NvmAffineType parameter={0};
-                bool valid=nvm_affine_owned_parameter_type(contract,&parameter);
+                NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+                bool valid=nvm_affine_consuming_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
                 nvm_affine_state_free(contract);
-                NanoValue argument=stack_peek(vm,0);
-                if (!valid || argument.tag!=TAG_STRUCT || !argument.as.sval ||
-                    argument.as.sval->def_idx!=parameter.layout)
-                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the exact owned parameter layout");
+                if (!valid || count!=callee->arity)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete consuming parameter contract");
+                for (uint16_t p=0;p<count;p++) {
+                    NanoValue argument=stack_peek(vm,count-1-p);
+                    if (argument.tag!=parameters[p].tag ||
+                        (argument.tag==TAG_STRUCT && (!argument.as.sval ||
+                         argument.as.sval->def_idx!=parameters[p].layout)))
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
+                }
             }
 
             /* Arguments are already on the stack, pop them into the new frame */

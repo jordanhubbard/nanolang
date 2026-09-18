@@ -67,7 +67,11 @@ bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
                              uint32_t reference);
 bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
-/* I identify the separate single consuming-parameter contract. */
+/* I inspect a bounded mode-zero value signature with at least one owner.
+ * Refusal leaves the output array/count unchanged. */
+bool nvm_affine_consuming_parameters(const NvmAffineState *state,
+                                      NvmAffineType *types,uint16_t capacity,uint16_t *count);
+/* I retain the exact single-owner query for callers needing that shape. */
 bool nvm_affine_owned_parameter_type(const NvmAffineState *state,NvmAffineType *type);
 bool nvm_affine_parameter_type(const NvmAffineState *state,NvmAffineType *type,
                                  NvmReferenceMode *mode);

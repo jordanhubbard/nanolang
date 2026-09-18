@@ -459,6 +459,28 @@ bool nvm_affine_parameter_at(const NvmAffineState *s,uint16_t parameter,
     *type=(NvmAffineType){param.tag,param.layout};*mode=(NvmReferenceMode)param.mode;
     return true;
 }
+bool nvm_affine_consuming_parameters(const NvmAffineState *s,NvmAffineType *types,
+                                      uint16_t capacity,uint16_t *count) {
+    if (!s || !types || !count || !s->facts->params ||
+        s->facts->params>NVM_AFFINE_MAX_PARAMETERS || s->facts->params>capacity ||
+        s->facts->params>s->facts->count) return false;
+    bool owned=false;
+    for (uint16_t p=0;p<s->facts->params;p++) {
+        Slot parameter=s->facts->locals[p];
+        if (parameter.mode) return false;
+        if (parameter.tag==TAG_STRUCT) {
+            if (!resource(s->facts,parameter) ||
+                !(s->facts->flags[parameter.layout]&NVM_LAYOUT_COMPLETE)) return false;
+            owned=true;
+        } else if (parameter.tag!=TAG_INT && parameter.tag!=TAG_BOOL && parameter.tag!=TAG_U8)
+            return false;
+    }
+    if (!owned) return false;
+    for (uint16_t p=0;p<s->facts->params;p++)
+        types[p]=(NvmAffineType){s->facts->locals[p].tag,s->facts->locals[p].layout};
+    *count=s->facts->params;
+    return true;
+}
 bool nvm_affine_owned_parameter_type(const NvmAffineState *s,NvmAffineType *type) {
     if (!s || !type || s->facts->params!=1 || !s->facts->count ||
         s->facts->locals[0].mode || !resource(s->facts,s->facts->locals[0]) ||
