@@ -419,7 +419,8 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         if (or (== tag 0) (not (nb_leaf parser place.layout))) { return (nb_fail "a scalar field of a leaf resource record") }
         let mut reference: int = 0
         if (== (at nb_modes place.root) 0) {
-            let _: int = (nb_emit "REGION_BEGIN") let _: int = (nb_reference parser place 0 1)
+            if nb_in_helper { set reference nb_arity }
+            let _: int = (nb_emit "REGION_BEGIN") let _: int = (nb_reference parser place reference 1)
         } else { set reference place.root }
         let _: int = (nb_op2 "REF_GET" reference index)
         if (== (at nb_modes place.root) 0) { let _: int = (nb_emit "REGION_END") }
@@ -497,7 +498,6 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
     if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
     if (>= layout 0) {
-        if nb_in_helper { return (nb_fail "only scalar helper locals") }
         if (== binding.value_type ParseNodeType.PNODE_STRUCT_LITERAL) {
             let value: ASTStructLiteral = (parser_get_struct_literal parser binding.value)
             let record: ASTStruct = (parser_get_struct_def parser layout)

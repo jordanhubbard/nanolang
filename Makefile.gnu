@@ -526,7 +526,7 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	chmod +x $(BIN_DIR)/nvm2hl
 
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -4548,6 +4548,11 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
+.PHONY: test-managed-array-eligibility
+test-units: test-managed-array-eligibility
+test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	NMA_LINK_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes
+
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
 test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
@@ -4755,6 +4760,11 @@ test-local-binding-metadata: test-local-marker-alloc
 test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_local_markers_alloc tests/nanoisa/test_local_markers_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_local_markers_alloc
+.PHONY: test-native-referenced-labels
+test-native-referenced-labels: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_referenced_labels
+test-units: test-native-referenced-labels
+
 .PHONY: test-native-scalar-rot3
 test-native-scalar-rot3: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_scalar_rot3
