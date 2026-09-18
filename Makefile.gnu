@@ -4843,3 +4843,7 @@ test-units: test-cseed-single-letter-enums
 test-native-record-array-scalar-tags: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_record_array_scalar_tags
 test-units: test-native-record-array-scalar-tags
+
+.PHONY: test-native-union-padding
+test-native-union-padding: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_union_padding
