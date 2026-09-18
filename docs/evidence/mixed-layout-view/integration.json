@@ -1,0 +1,14 @@
+{
+  "pin": "b42aac4806e3c3cb6834d5e054fc298cac7d3c06",
+  "main": "f156daba",
+  "qualified_preintegration": "1e2df4851855a5bcc50d5703f5e8b83034d986e3",
+  "changed_inputs": [
+    "src/nanovirt/borrow_codegen.inc",
+    "src/nanovirt/codegen.c",
+    "src_nano/compiler/nanoisa_borrows.nano",
+    "tests/test_reference_eval_transport.py",
+    "tests/test_source_borrow_emission.py"
+  ],
+  "descriptor_production_unchanged": true,
+  "source_bootstrap_run": false
+}

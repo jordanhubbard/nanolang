@@ -30,3 +30,19 @@ My static prereview correction is preserved in c8cbe46f/67e57e32; no pre-correct
 query or module was executed. These results do not admit mixed execution, Samples,
 managed owner fields, source syntax, or the full product. Task20d4 stays open until
 canonical merge; parent4be and full ownership acceptance remain open.
+
+## My canonical integration
+
+I merged canonical mainf156daba in a separate tree at
+`b42aac4806e3c3cb6834d5e054fc298cac7d3c06`. Only an appended roadmap conflict
+needed resolution; I retained both entries. Incoming implementation changes affect
+borrow_codegen.inc, codegen.c and nanoisa_borrows.nano; incoming test changes affect
+reference transport and source-borrow tests. My descriptor production, focused
+harness and dependencies are unchanged. The qualified first tree/tools remain intact.
+
+Fresh integrated GCC passed in4.775s and Clang ASan/UBSan/LSan in0.665s, each with
+138 checks. All four adjacent suites passed again in16.107s, including96 verifier
+tests. Another1,602 native-source/test/build before/after inventory is unchanged.
+I performed no source-compiler bootstrap for this descriptive C-only change.
+My combined manifest seals both qualification pins separately; final docs commits
+do not change the tested production. No mixed module admission is claimed.
