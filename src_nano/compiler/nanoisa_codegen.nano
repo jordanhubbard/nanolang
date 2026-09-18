@@ -121,7 +121,7 @@ fn nisa_ordinary_publication(parser: Parser) -> string {
     if (or (<= parser.token_count 0) (> (array_length nisa_import_names) 0)) { return "" }
     let mut token_index: int = 0
     while (< token_index parser.token_count) {
-        if (== (list_LexerToken_get parser.tokens token_index).token_type (token_extern)) { return "" }
+        if (== (list_LexerToken_get parser.tokens token_index).token_type LexerTokenType.TOKEN_EXTERN) { return "" }
         set token_index (+ token_index 1)
     }
     if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> parser.imports_count 0) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0)))))) { return "" }
