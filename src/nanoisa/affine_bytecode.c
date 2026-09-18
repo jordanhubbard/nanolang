@@ -100,7 +100,7 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
 }
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
-static bool supported(uint8_t op) {
+static bool supported(uint8_t op,bool value_graph) {
     switch(op) {
     case OP_CALL: case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
@@ -117,6 +117,8 @@ static bool supported(uint8_t op) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
+    case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+        return value_graph;
     default:return false;
     }
 }
@@ -168,6 +170,16 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_PUSH_BOOL:
         if (in->operands[0].u8>1) return "I require a Boolean literal";
         tag=TAG_BOOL;break;
+    case OP_PUSH_STR: {
+        if (!calls->value_graph)
+            return "I require string literals inside an owned value-call graph";
+        uint32_t index=in->operands[0].u32;
+        if (index>=module->string_count || !module->strings || !module->string_lengths ||
+            !module->strings[index] ||
+            memchr(module->strings[index],'\0',module->string_lengths[index]))
+            return "I require an instantiated string literal without embedded NUL";
+        tag=TAG_STRING;break;
+    }
     case OP_REGION_BEGIN:
         return nvm_affine_region_begin(f->locals)?NULL:"I cannot begin another reference region";
     case OP_REGION_END:
@@ -268,17 +280,28 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_DUP:
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I refuse to duplicate reference authority";
+        if (f->stack[f->count-1].tag==TAG_STRING)
+            return "I refuse unsupported string duplication";
         if (!push(f,f->stack[f->count-1])) return "I cannot extend my analysis stack";
         return NULL;
     case OP_POP:
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I require a scalar discard; an observation is not an owned consume";
+        if (f->stack[f->count-1].tag==TAG_STRING)
+            return "I require PRINT or PRINTLN to consume a string";
         f->count--;return NULL;
     case OP_SWAP:
         if (f->count<2 || (f->stack[f->count-1].observation || f->stack[f->count-1].owned) || (f->stack[f->count-2].observation || f->stack[f->count-2].owned))
             return "I require scalar stack permutation";
+        if (f->stack[f->count-1].tag==TAG_STRING || f->stack[f->count-2].tag==TAG_STRING)
+            return "I refuse unsupported string permutation";
         {Value value=f->stack[f->count-1];f->stack[f->count-1]=f->stack[f->count-2];f->stack[f->count-2]=value;}
         return NULL;
+    case OP_PRINT: case OP_PRINTLN:
+        if (!calls->value_graph)
+            return "I require string output inside an owned value-call graph";
+        return pop_scalar(f,TAG_STRING)?NULL:
+            "I require one exact immutable string print operand";
     case OP_ASSERT:
         return pop_scalar(f,TAG_BOOL)?NULL:"I require an exact Boolean assertion condition";
     case OP_JMP_TRUE: case OP_JMP_FALSE:
@@ -371,9 +394,17 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     if (!count || count>NVM_AFFINE_MAX_INSTRUCTIONS) {
         nvm_affine_state_free(initial);error="I exceeded my bounded affine instruction count";goto done;
     }
-    for (uint32_t i=0;i<count;i++) if (!supported(decoded.instructions[i].instruction.opcode)) {
+    for (uint32_t i=0;i<count;i++) if (!supported(decoded.instructions[i].instruction.opcode,
+                                                  calls->value_graph)) {
         result.byte_offset=decoded.instructions[i].byte_offset;
-        nvm_affine_state_free(initial);error="I require a connected affine instruction contract";goto done;
+        uint8_t op=decoded.instructions[i].instruction.opcode;
+        nvm_affine_state_free(initial);
+        error=op==OP_PUSH_STR
+            ? "I require string literals inside an owned value-call graph"
+            : (op==OP_PRINT || op==OP_PRINTLN)
+                ? "I require string output inside an owned value-call graph"
+                : "I require a connected affine instruction contract";
+        goto done;
     }
     frames=calloc(count,sizeof(*frames));work.capacity=count;
     work.items=malloc(count*sizeof(*work.items));work.queued=calloc(count,sizeof(*work.queued));
