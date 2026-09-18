@@ -197,3 +197,20 @@ remain required subsequent work under the existing parents. This bounded first
 record execution path neither drops those clauses nor invents new parent
 completion gates. Darwin parser/evaluator historical incidents retain their
 separate task/evidence status.
+
+## My first private adapter checkpoint
+
+`nms_module_record_begin` returns low32 status and high32 acquisition (0 or1),
+distinct from public try-entry's low32 result/high32 status. It initializes and
+binds descriptors before begin, preserves nested-call first errors, and requires
+identical immutable descriptor/literal table pointers and counts on reentry.
+Failed inactive binding can be corrected before any allocation; preparation
+failure after begin returns acquired1 for graph finish. No selector calls this
+adapter yet.
+
+`nms_module_record_literal` borrows parallel payload/tag arrays into at most256
+private `NmsValue` entries. Empty NEW uses count0. The get/set adapters borrow
+receiver and value owners; GET publishes retained scalar outputs only on success.
+The aggregate selector is exactly0 (STRUCT) or1 (AGG). Receiver validation maps
+wrong-kind TYPE to BOUNDS only for AGG; a later value-retain error is not
+misclassified as a receiver error. Module retain/release now count record tags.
