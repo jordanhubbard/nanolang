@@ -72,5 +72,5 @@ RET
                 output.write_text('previous')
                 result = subprocess.run([root/'bin/nvm2c',module,'-o',output],capture_output=True,text=True)
                 self.assertEqual(result.returncode,1,result.stdout+result.stderr)
-                self.assertIn('incompatible',result.stderr)
+                self.assertIn('I cannot convert aggregate storage float to '+('bool' if tag == 4 else 'string'),result.stderr)
                 self.assertEqual(output.read_text(),'previous')
