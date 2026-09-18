@@ -353,7 +353,8 @@ VmString *vm_string_concat(VmHeap *heap, VmString *a, VmString *b) {
 
 VmString *vm_string_substr(VmHeap *heap, VmString *s, uint32_t start, uint32_t len) {
     if (start >= s->length) return vm_string_new(heap, "", 0);
-    if (start + len > s->length) len = s->length - start;
+    uint32_t remaining = s->length - start;
+    if (len > remaining) len = remaining;
     return vm_string_new(heap, s->data + start, len);
 }
 
