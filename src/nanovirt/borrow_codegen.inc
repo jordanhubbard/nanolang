@@ -4,8 +4,16 @@
 #include "nanoisa/ownership_contracts.h"
 #include "nanoisa/verifier.h"
 
+typedef struct BorrowLoop {
+    struct BorrowLoop *parent;
+    unsigned first, break_count;
+    uint32_t top, breaks[256];
+    bool live[256], pending[256];
+} BorrowLoop;
+
 typedef struct {
     CG *cg;
+    BorrowLoop *loop;
     ASTNode *records[MAX_STRUCT_DEFS], *helper;
     unsigned record_count, count, control_depth;
     unsigned depths[MAX_STRUCT_DEFS], path_count;
@@ -16,7 +24,7 @@ typedef struct {
     bool name_open[256];
     uint8_t tags[256], modes[256];
     uint32_t layouts[256];
-    bool live[256], disposal_pending[256], mutable[256], helper_body, returned;
+    bool live[256], disposal_pending[256], mutable[256], helper_body, returned, transferred;
     uint8_t result;
     uint8_t *contracts;
     size_t contract_size, contract_capacity;
@@ -248,7 +256,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
 static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
     if(!body || body->type!=AST_BLOCK){borrow_error(b,body,"a lexical function/shadow body");return;}
     unsigned first=b->count;
-    for(int i=0;i<body->as.block.count && !b->cg->had_error && !b->returned;i++) {
+    for(int i=0;i<body->as.block.count && !b->cg->had_error && !b->returned && !b->transferred;i++) {
         ASTNode *n=body->as.block.statements[i];CG *cg=b->cg;
         if(n->type==AST_IF || n->type==AST_WHILE) {
             if(b->control_depth==32){borrow_error(b,n,"at most 32 nested control-flow bodies");break;}
@@ -260,36 +268,57 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             bool incoming_live[256],incoming_disposal[256];
             memcpy(incoming_live,b->live,incoming_count*sizeof(bool));
             memcpy(incoming_disposal,b->disposal_pending,incoming_count*sizeof(bool));
+            BorrowLoop loop={0};
+            if(n->type==AST_WHILE) {
+                loop.parent=b->loop;loop.first=incoming_count;loop.top=top;
+                memcpy(loop.live,incoming_live,incoming_count*sizeof(bool));
+                memcpy(loop.pending,incoming_disposal,incoming_count*sizeof(bool));b->loop=&loop;
+            }
             b->control_depth++;
             borrow_body(b,n->type==AST_IF?n->as.if_stmt.then_branch:n->as.while_stmt.body,shadow);
             b->control_depth--;
+            if(n->type==AST_WHILE)b->loop=loop.parent;
             if(cg->had_error)break;
-            bool then_returns=b->returned;
+            bool then_returns=b->returned,then_stops=b->returned || b->transferred;
             bool then_live[256],then_disposal[256];
             memcpy(then_live,b->live,incoming_count*sizeof(bool));
             memcpy(then_disposal,b->disposal_pending,incoming_count*sizeof(bool));
             uint32_t next=UINT32_MAX;
-            if(!then_returns)next=emit_op(cg,OP_JMP,(int32_t)0);
+            if(!then_stops)next=emit_op(cg,OP_JMP,(int32_t)0);
             patch_jump(cg,skip+1,skip,cg->code_size);
             memcpy(b->live,incoming_live,incoming_count*sizeof(bool));
-            memcpy(b->disposal_pending,incoming_disposal,incoming_count*sizeof(bool));b->returned=false;
+            memcpy(b->disposal_pending,incoming_disposal,incoming_count*sizeof(bool));b->returned=false;b->transferred=false;
             if(n->type==AST_IF) {
                 if(n->as.if_stmt.else_branch) {
                     b->control_depth++;borrow_body(b,n->as.if_stmt.else_branch,shadow);b->control_depth--;
                 }
-                bool else_returns=b->returned;
-                if(!then_returns) {
-                    if(!else_returns)borrow_same_owners(b,incoming_count,then_live,then_disposal,n);
+                bool else_returns=b->returned,else_stops=b->returned || b->transferred;
+                if(!then_stops) {
+                    if(!else_stops)borrow_same_owners(b,incoming_count,then_live,then_disposal,n);
                     else {
                         memcpy(b->live,then_live,incoming_count*sizeof(bool));
                         memcpy(b->disposal_pending,then_disposal,incoming_count*sizeof(bool));
                     }
                 }
                 b->returned=then_returns && else_returns;
+                b->transferred=then_stops && else_stops && !b->returned;
                 if(!cg->had_error && next!=UINT32_MAX)patch_jump(cg,next+1,next,cg->code_size);
-            } else if(next!=UINT32_MAX) {
-                if(borrow_same_owners(b,incoming_count,then_live,then_disposal,n))patch_jump(cg,next+1,next,top);
+            } else {
+                if(next!=UINT32_MAX && borrow_same_owners(b,incoming_count,then_live,then_disposal,n))patch_jump(cg,next+1,next,top);
+                for(unsigned j=0;j<loop.break_count;j++)patch_jump(cg,loop.breaks[j]+1,loop.breaks[j],cg->code_size);
             }
+        } else if(n->type==AST_BREAK || n->type==AST_CONTINUE) {
+            BorrowLoop *loop=b->loop;
+            if(!loop){borrow_error(b,n,"an enclosing while for loop transfer");break;}
+            if(!borrow_consumed(b,loop->first,n) ||
+               !borrow_same_owners(b,loop->first,loop->live,loop->pending,n))break;
+            borrow_cleanup(b,loop->first);
+            if(cg->had_error)break;
+            if(n->type==AST_BREAK && loop->break_count==256){borrow_error(b,n,"at most 256 break edges per loop");break;}
+            uint32_t edge=emit_op(cg,OP_JMP,(int32_t)0);
+            if(n->type==AST_CONTINUE)patch_jump(cg,edge+1,edge,loop->top);
+            else loop->breaks[loop->break_count++]=edge;
+            b->transferred=true;
         } else if(n->type==AST_LET) {
             if(n->as.let.is_destructure_projection && n->as.let.value->type==AST_FIELD_ACCESS &&
                n->as.let.value->as.field_access.object->type==AST_IDENTIFIER) {
@@ -421,7 +450,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
     if(shadow || b->control_depth){borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
 }
 static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool shadows,unsigned index) {
-    CG *cg=b->cg;b->count=0;b->control_depth=0;b->returned=false;b->helper_body=index==1;
+    CG *cg=b->cg;b->count=0;b->control_depth=0;b->returned=false;b->transferred=false;b->loop=NULL;b->helper_body=index==1;
     b->result=index?borrow_tag(function->as.function.return_type):TAG_INT;cg->code_size=0;
     if(index) {
         for(int i=0;i<function->as.function.param_count;i++) {

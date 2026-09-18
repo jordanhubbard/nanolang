@@ -14,7 +14,7 @@ rules, and I refuse publication if any selected shadow cannot be lowered.
 I retain exact owner/reference/region joins. My
 [resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately admits
 explicitly consumed resource declarations, patterns and whole-owner moves.
-I still refuse break and continue inside control flow. My
+My subsequent loop-exit extension is linked below. My
 [return-path extension](NANOISA_SOURCE_BORROW_FALLTHROUGH.md) separately admits
 bounded scalar early returns after explicit owner consumption. I do not introduce implicit resource disposal. Existing depth and local
 limits remain in force.
@@ -25,3 +25,7 @@ I test both branch outcomes, zero and multiple loop iterations, nested scopes,
 initializer access to an outer binding, restoration and out-of-scope refusal.
 I execute verified modules in the VM and sanitized native output, and strip
 advisory names without changing execution.
+
+My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
+admits bounded while break/continue edges with exact incoming owner state
+and explicit local consumption. It preserves the other restrictions above.

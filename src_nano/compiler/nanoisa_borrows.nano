@@ -22,6 +22,13 @@ let mut nb_projection_parents: array<int> = []
 let mut nb_projection_fields: array<int> = []
 let mut nb_in_helper: bool = false
 let mut nb_returned: bool = false
+let mut nb_transferred: bool = false
+let mut nb_loop_first: int = -1
+let mut nb_loop_top: string = ""
+let mut nb_loop_done: string = ""
+let mut nb_loop_live: array<bool> = []
+let mut nb_loop_pending: array<bool> = []
+let mut nb_loop_breaks: int = 0
 let mut nb_transfers_owner: bool = false
 let mut nb_control_depth: int = 0
 let mut nb_next_label: int = 0
@@ -110,6 +117,8 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
 }
 fn nb_reset_locals() -> int {
     set nb_control_depth 0
+    set nb_transferred false set nb_loop_first -1 set nb_loop_top "" set nb_loop_done ""
+    set nb_loop_live [] set nb_loop_pending [] set nb_loop_breaks 0
     set nb_names [] set nb_named [] set nb_tags []
     set nb_projection_parents [] set nb_projection_fields [] set nb_layouts [] set nb_modes []
     set nb_live [] set nb_disposal_pending [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
@@ -574,7 +583,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     if (or block.is_par block.is_flow) { return (nb_fail "an ordinary lexical body") }
     let first: int = (array_length nb_names)
     let mut i: int = 0
-    while (and (== nb_error "") (and (not nb_returned) (< i (list_ASTStmtRef_length block.statements)))) {
+    while (and (== nb_error "") (and (not (or nb_returned nb_transferred)) (< i (list_ASTStmtRef_length block.statements)))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
         if (or (== stmt.node_type ParseNodeType.PNODE_IF) (== stmt.node_type ParseNodeType.PNODE_WHILE)) {
             if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
@@ -598,21 +607,34 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
             let incoming_live: array<bool> = (nb_copy_flags nb_live incoming_count)
             let incoming_disposal: array<bool> = (nb_copy_flags nb_disposal_pending incoming_count)
             let mut local: int = 0
+            let saved_first: int = nb_loop_first
+            let saved_top: string = nb_loop_top let saved_done: string = nb_loop_done
+            let saved_live: array<bool> = nb_loop_live let saved_pending: array<bool> = nb_loop_pending
+            let saved_breaks: int = nb_loop_breaks
+            if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
+                set nb_loop_first incoming_count set nb_loop_top top set nb_loop_done skip
+                set nb_loop_live incoming_live set nb_loop_pending incoming_disposal set nb_loop_breaks 0
+            }
             set nb_control_depth (+ nb_control_depth 1)
             let _: int = (nb_body parser then_body is_shadow)
             set nb_control_depth (- nb_control_depth 1)
+            if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
+                set nb_loop_first saved_first set nb_loop_top saved_top set nb_loop_done saved_done
+                set nb_loop_live saved_live set nb_loop_pending saved_pending set nb_loop_breaks saved_breaks
+            }
             if (!= nb_error "") { return 0 }
             let then_returns: bool = nb_returned
+            let then_stops: bool = (or nb_returned nb_transferred)
             let then_live: array<bool> = (nb_copy_flags nb_live incoming_count)
             let then_disposal: array<bool> = (nb_copy_flags nb_disposal_pending incoming_count)
-            if (not then_returns) {
+            if (not then_stops) {
                 if (== stmt.node_type ParseNodeType.PNODE_IF) { let _: int = (nb_emit (+ "JMP " done)) }
                 else { let _: int = (nb_emit (+ "JMP " top)) }
             }
             let _: int = (nb_emit (+ skip ":"))
             set local 0
             while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) (array_set nb_disposal_pending local (at incoming_disposal local)) set local (+ local 1) }
-            set nb_returned false
+            set nb_returned false set nb_transferred false
             if (== stmt.node_type ParseNodeType.PNODE_IF) {
                 if (>= else_body 0) {
                     set nb_control_depth (+ nb_control_depth 1)
@@ -620,8 +642,9 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     set nb_control_depth (- nb_control_depth 1)
                 }
                 let else_returns: bool = nb_returned
-                if (not then_returns) {
-                    if (not else_returns) {
+                let else_stops: bool = (or nb_returned nb_transferred)
+                if (not then_stops) {
+                    if (not else_stops) {
                         if (not (nb_same_owners incoming_count then_live then_disposal)) { return 0 }
                     } else {
                         set local 0
@@ -629,12 +652,25 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     }
                 }
                 set nb_returned (and then_returns else_returns)
+                set nb_transferred (and (and then_stops else_stops) (not nb_returned))
                 let _: int = (nb_emit (+ done ":"))
             } else {
-                if (not then_returns) {
+                if (not then_stops) {
                     if (not (nb_same_owners incoming_count then_live then_disposal)) { return 0 }
                 }
             }
+        } else { if (or (== stmt.node_type ParseNodeType.PNODE_BREAK) (== stmt.node_type ParseNodeType.PNODE_CONTINUE)) {
+            if (< nb_loop_first 0) { return (nb_fail "an enclosing while for loop transfer") }
+            if (not (nb_consumed nb_loop_first)) { return 0 }
+            if (not (nb_same_owners nb_loop_first nb_loop_live nb_loop_pending)) { return 0 }
+            let _: int = (nb_cleanup parser nb_loop_first)
+            if (!= nb_error "") { return 0 }
+            if (== stmt.node_type ParseNodeType.PNODE_BREAK) {
+                if (== nb_loop_breaks 256) { return (nb_fail "at most 256 break edges per loop") }
+                set nb_loop_breaks (+ nb_loop_breaks 1)
+                let _: int = (nb_emit (+ "JMP " nb_loop_done))
+            } else { let _: int = (nb_emit (+ "JMP " nb_loop_top)) }
+            set nb_transferred true
         } else { if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let _: int = (nb_binding parser (parser_get_let parser stmt.node_id))
         } else {
@@ -692,6 +728,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     }
                 }
             }
+        }
         }
         }
         set i (+ i 1)
