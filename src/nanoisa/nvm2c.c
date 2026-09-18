@@ -1683,10 +1683,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             /* A scalar write checks and unboxes its source at emission.
              * I keep the array payload exact without constraining a projected
              * source which can resolve to optional storage later. */
-            if (arr.kind == NVM2C_VK_SARR || integer_array_storage(arr.kind)) {
-                NvmShapeKind payload = arr.kind == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
-                    arr.kind == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
+            uint8_t written_array = stk[sp - 1].kind;
+            if (written_array == NVM2C_VK_SARR || integer_array_storage(written_array)) {
+                uint8_t expected = written_array == NVM2C_VK_SARR ? NVM2C_VK_STR :
+                    written_array == NVM2C_VK_BARR ? NVM2C_VK_BOOL : NVM2C_VK_INT;
+                if (val.kind != NVM2C_VK_UNK && val.kind != NVM2C_VK_VALUE && val.kind != expected) {
+                    nvm2c_fail(b, "I require the matching scalar shape at this array write");
+                    return 0;
+                }
+                NvmShapeKind payload = written_array == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
+                    written_array == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
                 if (!shape_type(b, shape_child(b, arr.shape, 0), payload)) return 0;
+                /* An already tagged value retains its known payload contract. */
+                if (val.kind == NVM2C_VK_VALUE &&
+                    !shape_equal(b, shape_child(b, arr.shape, 0), shape_child(b, val.shape, 0))) return 0;
             } else if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
             if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
