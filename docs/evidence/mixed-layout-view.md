@@ -46,3 +46,19 @@ tests. Another1,602 native-source/test/build before/after inventory is unchanged
 I performed no source-compiler bootstrap for this descriptive C-only change.
 My combined manifest seals both qualification pins separately; final docs commits
 do not change the tested production. No mixed module admission is claimed.
+
+## My tool-input qualification repeat
+
+I preserve both earlier terminals and add the requested integrated repeat at
+`177809ee504565ac8be66cad3232e859230fb43e` with unchanged production.
+My resolved executable paths/hashes cover cc/GCC, Clang, GCC cc1, make, Python,
+assembler and linker, plus the selected Clang wrapper. The same inventory includes
+all linked local NanoISA objects, VM decode/dispatch and UTF-8 objects. All42 tool
+and object hashes and1,602 source/test/build hashes match before/after. This is an
+input identity claim, not archived temporary executable identity or a complete
+operating-system shared-library inventory.
+
+gcc 0.415s status0, clang 0.716s status0, adjacent 2.922s status0. Each focused run retains138 checks; the adjacent run includes96 verifier
+checks. My tool-qualified directory retains the exact runner, environment overrides,
+logs, terminal status and inventories. All earlier limitations and no-admission
+boundaries remain unchanged.

@@ -18,5 +18,14 @@
   "integration.json": "c1955b0d777d497e557f9484034dd9848ebc5fe3671bcdff7d950da47eaa01da",
   "qualification-runner.py": "267fa63c72c470baf7bfd5948541a621a581b1f6e82f0e338563416e1d33cdaf",
   "regression.json": "b0efc205d6614b655c4ffc4c8a726bc65c447e0fc900af9b402d262ab59bd720",
-  "regression.log": "a5a4b895d2442b2013b1c7376d565147075ddaf8bfcd5aebfa25bdf788f434c3"
+  "regression.log": "a5a4b895d2442b2013b1c7376d565147075ddaf8bfcd5aebfa25bdf788f434c3",
+  "tool-qualified/adjacent.log": "05dccac356a11c605ce3e5a7d5f63c95e4650a719e16e0522632e10751031bae",
+  "tool-qualified/clang.log": "b39f8b12f67309b64642c939b34d3497f96f3e5ae86d512f4356648e64aa2d1f",
+  "tool-qualified/gcc.log": "e761ce3468f7e08e62a1c899d837db22c1234e85378559f35df3213d6367380c",
+  "tool-qualified/result.json": "9154732369ff15fc8972b31453052e63403b0f24c8121cabecda3a79c4df17ab",
+  "tool-qualified/runner.py": "7bfd71961143ee8676f2035e85ebef82520af5f918dd8f205bba047abcbfb6d5",
+  "tool-qualified/sources-after.json": "f66a5cfad00abc4306237b4a31a0cef1211e7c1e3ae006c99e1c1db6d5944274",
+  "tool-qualified/sources-before.json": "f66a5cfad00abc4306237b4a31a0cef1211e7c1e3ae006c99e1c1db6d5944274",
+  "tool-qualified/tools-after.json": "131f01b53f021594c52527db10a2119aa47db03641b91f636f38d90f9df006d3",
+  "tool-qualified/tools-before.json": "131f01b53f021594c52527db10a2119aa47db03641b91f636f38d90f9df006d3"
 }
