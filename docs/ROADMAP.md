@@ -2,6 +2,25 @@
 
 - [x] I execute explicit parser, typechecker and transpiler assertions from my component driver entry points (`task_ab449a7054904fb9a531ee9c35aa78d9`). My stage3 runner currently labels empty/library-load drivers as tests; I replace those drivers with deterministic API checks and report their bounded scope. I require freshly compiled drivers and executed assertions, without claiming that all imported shadows ran. The broader component audit `task_56a065134a6e4394ae5c307c05e9597d` remains open. [Contract](COMPONENT_ENTRY_ASSERTIONS.md). My first fresh compile stops at a missing direct lexer import in the new driver, before assertions execute; I preserve that log and correct the dependency explicitly. The next compile exposes the same direct-binding requirement for parser calls in checker/transpiler drivers; I preserve it and audit all three entry dependencies. Corrected source passes fresh bootstrap prerequisites and all three executed stage3 entries; the manifest records compiler/log hashes. Canonical task reconciliation follows merge.
 
+- [x] I keep my Jackson C file-source evidence deterministic when its caller
+      owns a terminal (MAC `task_560e50b04c0a7a5a33537b0bc5292ed1`,
+      replacing stopped `task_1b914e18e8c830e9db6fcb2be90e73b1`). At
+      product `ece241ba`, `core.fr` reaches its interactive `ACCEPT`
+      case with stdin inherited from the Darwin test PTY, then blocks in
+      `getchar` until my unchanged 600-second command alarm fires. I retain
+      that log and executable without replaying them. I will isolate only the
+      test harness from interactive stdin, preserve production
+      `ACCEPT`/`KEY`, C file-source `REFILL`, all Jackson assertions and
+      the existing deadline, then require newly built PTY and non-PTY controls
+      plus my adjacent Forth gates before completion. I now give that evidence
+      harness deterministic EOF through `/dev/null`; I did not change my
+      runtime or its deadline. Corrected-source PTY Core and non-PTY Core pass
+      in 10.13 and 7.45 seconds, my session controls pass 34/34, my production
+      PTY REPL control passes 1/1, and my complete Jackson word-set aggregate
+      passes in 182.07 seconds including 280 example cases. Independent review
+      found no blocking issue and confirmed the production I/O boundary stays
+      unchanged.
+
 - [ ] I audit checked-source versus raw-lowering range arity (`task_a1c30f5fe3a740c9906e150200d05af8`): my documented source builtin takes start/end, while raw NanoISA paths implement a one-bound form. I retain the first212a gate E003 refusals in `/tmp/nanolang-borrow-range-for-gate.log`, preserve two-bound source semantics and require explicit cross-layer decisions before any language expansion.
 - [ ] I lower exact owned-source builtin range for loops (`task_212a2ec1f7374734b90a23abf00a3211`) under my [bounded range contract](NANOISA_SOURCE_BORROW_RANGE_FOR.md): once-only ordered integer bounds, exclusive upper endpoint, lexical index, exact owner edges and mandatory shadows, paired across C/selfhost and VM/native without new runtime authority. Corrected two-bound source grammar passes fresh bootstrap, all 26 paired methods and 441/751 affine plus 959 lifecycle checks; [measured evidence](evidence/source-borrow-range-for.md) retains the original E003 arity finding.
 - [x] I lower exact owned-source while break/continue edges (`task_92608ddd872940d2b72e24841b598c31`) under my [bounded loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md): innermost targets, exact incoming owner/disposal state, explicit local consumption, lexical name exits and mandatory shadows, with paired source/metadata/VM/native acceptance. I preserve existing verifier authority and keep full One-IR/release parents open. Fresh bootstrap and all 24 paired source methods pass, alongside 441/751 affine and 959 owned assertion checks; [measured evidence](evidence/source-borrow-loop-exits.md). I completed this bounded slice in PR685, canonical merge `5cc34548`.
