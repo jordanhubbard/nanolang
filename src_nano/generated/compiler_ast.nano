@@ -220,7 +220,8 @@ extern struct ASTStruct {
     field_count: int,
     field_names: array<string>,
     field_types: array<string>,
-    is_resource: bool
+    is_resource: bool,
+    is_extern: bool
 }
 
 extern struct ASTStructLiteral {

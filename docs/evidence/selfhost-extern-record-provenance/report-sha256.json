@@ -1,0 +1,20 @@
+{
+  "bootstrap-before.json": "9bb02c3a561c78edab8fef4b58c71c4eb009a368121a651bb95cf1951a3639f3",
+  "bootstrap-build.log": "b7a663246b78545ea1e12f129b3074fba9718ce8b821be955ca8a63558cc9d55",
+  "bootstrap-corrected-before.json": "9bb02c3a561c78edab8fef4b58c71c4eb009a368121a651bb95cf1951a3639f3",
+  "bootstrap-corrected-build.log": "42e48bfb89878e07b69a5f55671213f9776ea10c6804caf2bd83f09ae4c5c3e2",
+  "bootstrap-corrected-result.json": "6bc70cd285c63977d785f7e41ac803e9ae0e44d246c4e20f33cb2e401f97231c",
+  "bootstrap-final-before.json": "21306a10faa9d203aacad32f45db815f7c9cbc2bb15c77a5344e26c136fec556",
+  "bootstrap-final-build.log": "152fa4c003ff775af2bd7554454f80de2c748cba2269416b6c0172ed33699889",
+  "bootstrap-final-result.json": "a13dcd132fb4b4f767dc6ba32b8a33b0456d9c20fc6b945657a3334ffd9b5cc6",
+  "bootstrap-result.json": "7a888d1c6d50a4abfed0d3c66c49f08f81ef065d1eb90e4f2f62e53711d339f5",
+  "qualified-after.json": "622c6d4bc6ce7268edd5a5aa69dfc6c6b3ba8ce031d5ccbec9ecee202f93209d",
+  "qualified-before.json": "622c6d4bc6ce7268edd5a5aa69dfc6c6b3ba8ce031d5ccbec9ecee202f93209d",
+  "qualified-corrected-after.json": "3b29ab5e4d7d17bcd95f90a22bcc8d69f8f5b351787efe529dcd11a2b29ee87e",
+  "qualified-corrected-before.json": "3b29ab5e4d7d17bcd95f90a22bcc8d69f8f5b351787efe529dcd11a2b29ee87e",
+  "qualified-corrected-direct.log": "e6053b23d7c4761f01655bee984eec3d0ad6fe799fe7a900148a83c8249716de",
+  "qualified-corrected-ordinary.log": "bdd2fc1e8a14c155ad43de10179e9bcc2e42ad79ed215ad48ba349d6fe9eb080",
+  "qualified-corrected-result.json": "d9f4c7c1ac6286ba25bd8c4cc350101190b203c814931d32cdcd21e069862475",
+  "qualified-direct.log": "43b53b6f099b341097217200007e3d1d351130d761e015dd09a7d417ae28534b",
+  "qualified-result.json": "6f4d0e600f89bab306b3f89df71dbf1ad81b7995bdc495cfb31c1489b66ddedf"
+}
