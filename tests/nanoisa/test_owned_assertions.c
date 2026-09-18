@@ -27,13 +27,15 @@ static void run_case(const char *caller,const char *helper,bool succeeds,const c
     CHECK(verified.ok);CHECK(nvm_verify_owned_module(m).ok);
     artifacts(m,dir,index);
     VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
-    for(unsigned api=0;api<3;api++)for(unsigned repetition=0;repetition<8;repetition++) {
+    if(index==4) {vm.callbacks=nano_callback_runtime_create();CHECK(vm.callbacks);}
+    for(unsigned api=0;api<4;api++)for(unsigned repetition=0;repetition<8;repetition++) {
         NanoValue result=val_void();
         VmResult status=api==0?vm_invoke(&vm,0,NULL,0,&result):
-            api==1?vm_execute(&vm):vm_call_function(&vm,0,NULL,0);
+            api==1?vm_execute(&vm):api==2?vm_call_function(&vm,0,NULL,0):
+            vm_invoke_callable(&vm,val_function(0),NULL,0,&result);
         CHECK(status==(succeeds?VM_OK:VM_ERR_ASSERT_FAILED));
         if(succeeds) {
-            if(api) {CHECK(vm.stack_size==1);result=vm.stack[--vm.stack_size];}
+            if(api==1 || api==2) {CHECK(vm.stack_size==1);result=vm.stack[--vm.stack_size];}
             CHECK(result.tag==TAG_INT && result.as.i64==0);
             vm_release(&vm.heap,result);
         } else CHECK(strstr(vm.error_msg,"Assertion failed")!=NULL);
@@ -82,6 +84,10 @@ int main(int argc,char **argv) {
     run_case("PUSH_BOOL 0\nASSERT\nCALL_REF 1 0","REF_GET 0 0\nRET",false,argv[1],1);
     run_case("CALL_REF 1 0","PUSH_BOOL 1\nASSERT\nPUSH_I64 -32\nREF_SET 0 0\nREF_GET 0 0\nRET",true,argv[1],2);
     run_case("CALL_REF 1 0","REGION_BEGIN\nREBORROW_EXCLUSIVE 1 0\nPUSH_BOOL 0\nASSERT\nREGION_END\nREF_GET 0 0\nRET",false,argv[1],3);
+    char delayed_failure[8192];strcpy(delayed_failure,"REGION_BEGIN\nREBORROW_EXCLUSIVE 1 0\n");
+    for(unsigned i=0;i<1200;i++)strcat(delayed_failure,"NOP\n");
+    strcat(delayed_failure,"PUSH_BOOL 0\nASSERT\nREGION_END\nREF_GET 0 0\nRET");
+    run_case("CALL_REF 1 0",delayed_failure,false,argv[1],4);
     resumed_assertion();
     printf("%u owned assertion lifecycle checks passed\n",checks);return 0;
 }

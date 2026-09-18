@@ -21,7 +21,7 @@ class OwnedAssertions(unittest.TestCase):
             run = self.checked([os.environ.get('NANO_OWNED_ASSERT_TEST', ROOT/'obj/test_owned_assertions'), tmp])
             print(run.stdout, end='')
             cases = [line.split() for line in run.stdout.splitlines() if line.startswith('case ')]
-            self.assertEqual(len(cases), 4)
+            self.assertEqual(len(cases), 5)
             for _, index, succeeds in cases:
                 with self.subTest(case=index):
                     succeeds = succeeds == '1'
