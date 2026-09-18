@@ -46,6 +46,16 @@ typedef struct {
  */
 NvmVerifyResult nvm_verify(const NvmModule *mod);
 
+/* I select these policies through the consumer, never through module metadata.
+ * GENERAL preserves ordinary verification; CLOSED_SCALAR is the existing
+ * LLVM/Wasm executable subset, not a GPU kernel or full-language profile. */
+typedef enum {
+    NVM_PROFILE_GENERAL = 0,
+    NVM_PROFILE_CLOSED_SCALAR = 1
+} NvmVerifyProfile;
+NvmVerifyResult nvm_verify_profile(const NvmModule *mod, NvmVerifyProfile profile);
+
+
 /* I admit only the documented paired standalone owned-transfer subset. */
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod);
 /* I conservatively report undecodable function ranges as requiring checks. */

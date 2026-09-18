@@ -4497,6 +4497,12 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
+.PHONY: test-verifier-profiles
+test-units: test-verifier-profiles
+test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_profiles tests/nanoisa/test_verifier_profiles.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	python3 -m unittest -v tests.test_verifier_profiles
+
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
