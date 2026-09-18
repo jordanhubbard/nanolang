@@ -239,11 +239,11 @@ static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
     proof->module=NULL;
     if (vm && vm->module && vm->module==vm->root_module &&
         !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
-        vm_owned_constants_ready(vm) &&
         !vm->references.active && vm->module->ownership_size) {
         bool needs=false;
         if (nvm_ownership_contracts_validate(vm->module,&needs)!=NVM_V2_OK) return false;
         if (needs || nvm_uses_owned_transfers(vm->module)) {
+            if (!vm_owned_constants_ready(vm)) return false;
             if (!nvm_verify_owned_module(vm->module).ok) return false;
             proof->module=vm->module;
             return true;
