@@ -1,0 +1,36 @@
+I retain fresh original-pattern acceptance at /tmp/nano-original-callback-acceptance-6cxomxyz
+interpreter 0
+nanoc_c-legacy-build 0
+nanoc_c-legacy-run 0
+nanoc_stage1-legacy-build 0
+nanoc_stage1-legacy-run 0
+nanoc_stage2-legacy-build 0
+nanoc_stage2-legacy-run 0
+nano_virt-publish 0
+nano_virt-verify 0
+nano_virt-vm 0
+nano_virt-dump 0
+nano_virt-native-publish 0
+nano_virt-cc-build 0
+nano_virt-cc-run 0
+nano_virt-clang-build 0
+nano_virt-clang-run 0
+nanoc_stage1-publish 0
+nanoc_stage1-verify 0
+nanoc_stage1-vm 0
+nanoc_stage1-dump 0
+nanoc_stage1-native-publish 0
+nanoc_stage1-cc-build 0
+nanoc_stage1-cc-run 0
+nanoc_stage1-clang-build 0
+nanoc_stage1-clang-run 0
+nanoc_stage2-publish 0
+nanoc_stage2-verify 0
+nanoc_stage2-vm 0
+nanoc_stage2-dump 0
+nanoc_stage2-native-publish 0
+nanoc_stage2-cc-build 0
+nanoc_stage2-cc-run 0
+nanoc_stage2-clang-build 0
+nanoc_stage2-clang-run 0
+I pass every original-pattern producer route; result: /tmp/nano-original-callback-acceptance-6cxomxyz/result.json
