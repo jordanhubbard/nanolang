@@ -8,6 +8,10 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# I can exercise this one fixture against a held product Makefile without
+# modifying either checkout.
+MAKEFILE = Path(os.environ.get("NANOLANG_BOOTSTRAP_MAKEFILE",
+                               ROOT / "Makefile.gnu"))
 
 
 class BootstrapDependencies(unittest.TestCase):
@@ -15,7 +19,7 @@ class BootstrapDependencies(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix="nanolang-bootstrap-deps-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        shutil.copyfile(ROOT / "Makefile.gnu", self.root / "Makefile.gnu")
+        shutil.copyfile(MAKEFILE, self.root / "Makefile.gnu")
         self.sources = ["src_nano/parser.nano", "src_nano/compiler/module_loader.nano",
                         "src_nano/compiler/nested/new_import.nano"]
         self.runtime_inputs = ["modules/std/fs.c", "modules/std/fs.h", "modules/std/module.json",
@@ -31,7 +35,9 @@ class BootstrapDependencies(unittest.TestCase):
             self.file(name, 80)
         self.file("obj/build_bootstrap/schema.stamp", 90)
         os.utime(self.root / "Makefile.gnu", (100, 100))
-        for name, stamp in [("bin/nanoc_c", 110), (".bootstrap0.built", 120),
+        for name, stamp in [("bin/nanoc_c", 110), ("bin/nano_vm", 110),
+                            ("bin/nvm2c", 110), ("bin/nano_aot_runtime.o", 110),
+                            (".bootstrap0.built", 120),
                             (".bootstrap1.built", 130), ("bin/nanoc_stage1", 130),
                             (".bootstrap2.built", 140), ("bin/nanoc_stage2", 140),
                             (".bootstrap3.built", 150), (".stage1.built", 160),
@@ -49,9 +55,13 @@ class BootstrapDependencies(unittest.TestCase):
         os.utime(path, (stamp, stamp))
 
     def query(self, target, changed=None):
+        # These phony wrappers are already satisfied in this built fixture.
+        # Ignoring the wrappers keeps make -q focused on bootstrap invalidation;
+        # their concrete outputs above still make the fixture truthful.
         command = [os.environ.get("MAKE_BIN", "make"), "-f", "Makefile.gnu",
                    "--no-print-directory", "-q", "-o", "bin/nanoc_c",
                    "-o", ".bootstrap0.built", "-o", ".stage1.built",
+                   "-o", "nano_vm", "-o", "nvm2c", "-o", "nvm2c-runtime",
                    "UNAME_S=Linux", target]
         if changed:
             command += ["-W", changed]
