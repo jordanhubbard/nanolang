@@ -15,6 +15,9 @@ and do not claim matching physical handles or allocation events with VM internin
 My [primitive numeric formatting](NANOISA_MANAGED_PRIMITIVE_FORMAT.md) adds
 STR_FROM_INT/FLOAT with exact expected-tag values and numeric-zero fallback,
 using the same portable formatters and ordinary original-operand cleanup.
+My [replacement helper](NANOISA_MANAGED_REPLACE.md) admits STR_REPLACE with
+checked nonoverlapping byte replacement and consuming three-owner cleanup.
+It uses reclaiming scratch plus a final copy; STR_SPLIT still requires aggregate support.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
 operations do not complete my required full-language LLVM/Wasm scope.

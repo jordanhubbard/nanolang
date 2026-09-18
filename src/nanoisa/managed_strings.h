@@ -38,6 +38,8 @@ NmsStatus nms_case_owned(NmsRuntime *, NmsHandle, uint32_t, NmsHandle *);
  * Trim also allocates a fresh result when no bytes change. */
 NmsStatus nms_trim_owned(NmsRuntime *, NmsHandle, NmsHandle *);
 NmsStatus nms_substr_owned(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandle *);
+/* I consume three owners, including one per equal handle; failed output is unchanged. */
+NmsStatus nms_replace_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle, NmsHandle *);
 /* I consume one owned reference per input on success or failure. Equal inputs
  * require two references. Other aliases survive; out is unchanged on failure. */
 NmsStatus nms_concat_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
