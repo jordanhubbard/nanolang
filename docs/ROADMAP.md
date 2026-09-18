@@ -9918,6 +9918,10 @@ Other translators:
       MAC `task_bfe3bb8672c04bcea56dede3f531aee7`; evidence in
       `docs/evidence/managed-string-core.md`. Parent allocation/lowering
       and all existing executable profile refusals remain open.
+- [ ] I make managed-module disposal terminal before first entry, preserving
+      idempotence and active-entry refusal. Parent review found the private
+      adapter could reopen after pre-entry disposal. MAC `task_c4c2b24bfcc3451d8bd7b89897f5cdab`;
+      paired native/Wasm lifecycle controls precede emitted admission.
 - [ ] I implement consuming concatenation and matched LLVM/Wasm frame cleanup,
       then admit string ADD and STR_CONCAT only after packaged-runtime and
       paired lifetime/error gates. MAC `task_b1cc086f8cdf476cb0814f5ade9a15b1`;
