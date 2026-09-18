@@ -3974,6 +3974,10 @@ shadow check_constructor_argument {
 
 fn check_union_construct(parser: Parser, node_id: int) -> NSType {
     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+    if (> (array_length (tc_generic_arguments uc.union_name)) 0) {
+        let concrete: NSType = (type_from_string_with_parser parser uc.union_name)
+        if (== concrete.kind TypeKind.TYPE_UNION) { return concrete }
+    }
     
     /* Return union type */
     return NSType {
@@ -3984,7 +3988,13 @@ fn check_union_construct(parser: Parser, node_id: int) -> NSType {
     }
 }
 
-shadow check_union_construct { assert true }
+shadow check_union_construct {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T }, None {} } fn f() -> Box<int> { return Box<int>.None {} }")
+    let concrete: NSType = (check_union_construct parser 0)
+    assert (types_equal concrete (type_from_string_with_parser parser "Box<int>"))
+    assert (not (types_equal concrete (type_from_string_with_parser parser "Box<string>")))
+    assert (== (type_to_string concrete) "Box<int>")
+}
 
 /* Check match expression  
  * Example: match opt { Some(s) => s.value, None(n) => 0 }

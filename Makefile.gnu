@@ -4610,7 +4610,7 @@ test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format
 
 .PHONY: test-managed-string-core
 test-managed-string-core:
@@ -4928,3 +4928,8 @@ test-units: test-canonical-prefix-conversion
 test-units: test-generic-union-emission
 test-generic-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	@python3 -m unittest -v tests.test_generic_union_emission
+
+.PHONY: test-explicit-generic-constructors
+test-units: test-explicit-generic-constructors
+test-explicit-generic-constructors: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_explicit_generic_constructors
