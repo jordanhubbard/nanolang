@@ -4568,3 +4568,8 @@ test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
 test-unreachable-warning: bootstrap
 	python3 -m unittest -v tests.test_unreachable_warning
 test-units: test-unreachable-warning
+
+.PHONY: test-underscore-payload
+test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
+	python3 -m unittest -v tests.test_underscore_payload
+test-units: test-underscore-payload

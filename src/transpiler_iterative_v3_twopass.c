@@ -3694,7 +3694,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                             }
                         }
 
-                        if (variant_field_count > 0 && binding_name && strcmp(binding_name, "_") != 0) {
+                        if (variant_field_count > 0) {
                             if (binding_name && strcmp(binding_name, "_") != 0) {
                                 emit_indent_item(list, indent + 3);
                                 emit_literal(list, "nl_");

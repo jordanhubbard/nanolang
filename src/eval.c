@@ -5401,12 +5401,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         if (uval->field_count > 0) {
                             char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
                             Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
-    
+
                             for (int j = 0; j < uval->field_count; j++) {
                                 field_names_copy[j] = uval->field_names[j];
                                 field_values_copy[j] = uval->field_values[j];
                             }
-    
+
                             binding_val = create_struct(uval->union_name,
                                                        field_names_copy,
                                                        field_values_copy,
