@@ -14,12 +14,15 @@ def require(condition, message):
 INT, BOOL = 1, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
+UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
+                    'I64_GT_U': 'gt_u', 'I64_GE_U': 'ge_u'}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
 ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
               'I64_DIV_S': 'div', 'I64_REM_S': 'rem',
-              'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u'}
+              'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
+              'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC)
+          'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
 
 
 @dataclass(frozen=True)
@@ -120,8 +123,11 @@ class Analyze:
             return
         elif op in ARITHMETIC:
             right = self.pop(stack, INT)
-            args = (right,) if op == 'I64_NEG' else (self.pop(stack, INT), right)
+            args = (right,) if op in ('I64_NEG', 'I64_INVERT') else (self.pop(stack, INT), right)
             expr = Expr(INT, 'arithmetic', ARITHMETIC[op], args)
+        elif op in UNSIGNED_COMPARE:
+            right, left = self.pop(stack, INT), self.pop(stack, INT)
+            expr = Expr(BOOL, 'unsigned_compare', UNSIGNED_COMPARE[op], (left, right))
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
@@ -274,7 +280,7 @@ class Emit:
         if expr.kind == 'temporary':
             return f'nlr_t{expr.value}'
         args = [self.expression(a) for a in expr.args]
-        if expr.kind == 'arithmetic':
+        if expr.kind in ('arithmetic', 'unsigned_compare'):
             name = 'nlr_i64_' + expr.value
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
         if expr.kind == 'call':
@@ -354,7 +360,7 @@ class Emit:
 
         def collect(node):
             if isinstance(node, Expr):
-                if node.kind == 'arithmetic':
+                if node.kind in ('arithmetic', 'unsigned_compare'):
                     needed.add(node.value)
                 collect(node.args)
             elif isinstance(node, (tuple, list)):
@@ -366,13 +372,17 @@ class Emit:
         if not needed:
             return
         if self.language == 'c':
-            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u'}:
+            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert'}:
                 self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
     if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
     return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
 }''')
             for op in sorted(needed):
-                args = 'int64_t a' if op == 'neg' else 'int64_t a, int64_t b'
+                args = 'int64_t a' if op in ('neg', 'invert') else 'int64_t a, int64_t b'
+                if op in ('lt_u', 'le_u', 'gt_u', 'ge_u'):
+                    symbol = {'lt_u': '<', 'le_u': '<=', 'gt_u': '>', 'ge_u': '>='}[op]
+                    self.line(f'static bool nlr_i64_{op}({args}) {{ return (uint64_t)a {symbol} (uint64_t)b; }}')
+                    continue
                 if op in ('shl', 'shr_s', 'shr_u'):
                     operator = '<<' if op == 'shl' else '>>'
                     self.line(f'''static int64_t nlr_i64_{op}({args}) {{
@@ -394,9 +404,15 @@ class Emit:
                 expression = {'add': '(uint64_t)a + (uint64_t)b',
                               'sub': '(uint64_t)a - (uint64_t)b',
                               'mul': '(uint64_t)a * (uint64_t)b',
-                              'neg': 'UINT64_C(0) - (uint64_t)a'}[op]
+                              'neg': 'UINT64_C(0) - (uint64_t)a',
+                              'band': '(uint64_t)a & (uint64_t)b',
+                              'bor': '(uint64_t)a | (uint64_t)b',
+                              'bxor': '(uint64_t)a ^ (uint64_t)b',
+                              'invert': '~(uint64_t)a'}[op]
                 self.line(f'static int64_t nlr_i64_{op}({args}) {{ return nlr_i64_bits({expression}); }}')
             return
+        if needed & {'band', 'bor', 'bxor'}:
+            needed.update(('add', 'shr_u'))
         if 'shl' in needed:
             needed.add('add')
         if 'mul' in needed:
@@ -408,6 +424,134 @@ class Emit:
 # I branch before signed arithmetic so all helper intermediates are representable.
 # These shadows test my helper implementation, not an original source harness.
 NANO_INTEGER_HELPERS = {
+    'ge_u': '''fn nlr_i64_ge_u(a: int, b: int) -> bool {
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return a_negative }
+    return (>= a b)
+}
+shadow nlr_i64_ge_u {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_ge_u 0 -1) false)
+    assert (== (nlr_i64_ge_u low -1) false)
+    assert (== (nlr_i64_ge_u -1 low) true)
+    assert (== (nlr_i64_ge_u 7 7) true)
+}''',
+    'gt_u': '''fn nlr_i64_gt_u(a: int, b: int) -> bool {
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return a_negative }
+    return (> a b)
+}
+shadow nlr_i64_gt_u {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_gt_u 0 -1) false)
+    assert (== (nlr_i64_gt_u low -1) false)
+    assert (== (nlr_i64_gt_u -1 low) true)
+    assert (== (nlr_i64_gt_u 7 7) false)
+}''',
+    'le_u': '''fn nlr_i64_le_u(a: int, b: int) -> bool {
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return b_negative }
+    return (<= a b)
+}
+shadow nlr_i64_le_u {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_le_u 0 -1) true)
+    assert (== (nlr_i64_le_u low -1) true)
+    assert (== (nlr_i64_le_u -1 low) false)
+    assert (== (nlr_i64_le_u 7 7) true)
+}''',
+    'lt_u': '''fn nlr_i64_lt_u(a: int, b: int) -> bool {
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return b_negative }
+    return (< a b)
+}
+shadow nlr_i64_lt_u {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_lt_u 0 -1) true)
+    assert (== (nlr_i64_lt_u low -1) true)
+    assert (== (nlr_i64_lt_u -1 low) false)
+    assert (== (nlr_i64_lt_u 7 7) false)
+}''',
+    'invert': '''fn nlr_i64_invert(a: int) -> int {
+    return (- -1 a)
+}
+shadow nlr_i64_invert {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_invert low) 9223372036854775807)
+    assert (== (nlr_i64_invert 9223372036854775807) low)
+    assert (== (nlr_i64_invert 0) -1)
+    assert (== (nlr_i64_invert -1) 0)
+}''',
+    'bxor': '''fn nlr_i64_bxor(a: int, b: int) -> int {
+    let mut left: int = a
+    let mut right: int = b
+    let mut weight: int = 1
+    let mut result: int = 0
+    let mut step: int = 0
+    while (< step 64) {
+        let left_bit: bool = (!= (% left 2) 0)
+        let right_bit: bool = (!= (% right 2) 0)
+        if (!= left_bit right_bit) { set result (nlr_i64_add result weight) }
+        set left (nlr_i64_shr_u left 1)
+        set right (nlr_i64_shr_u right 1)
+        set weight (nlr_i64_add weight weight)
+        set step (+ step 1)
+    }
+    return result
+}
+shadow nlr_i64_bxor {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_bxor 6 3) 5)
+    assert (== (nlr_i64_bxor low -1) 9223372036854775807)
+}''',
+    'bor': '''fn nlr_i64_bor(a: int, b: int) -> int {
+    let mut left: int = a
+    let mut right: int = b
+    let mut weight: int = 1
+    let mut result: int = 0
+    let mut step: int = 0
+    while (< step 64) {
+        let left_bit: bool = (!= (% left 2) 0)
+        let right_bit: bool = (!= (% right 2) 0)
+        if (or left_bit right_bit) { set result (nlr_i64_add result weight) }
+        set left (nlr_i64_shr_u left 1)
+        set right (nlr_i64_shr_u right 1)
+        set weight (nlr_i64_add weight weight)
+        set step (+ step 1)
+    }
+    return result
+}
+shadow nlr_i64_bor {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_bor 6 3) 7)
+    assert (== (nlr_i64_bor low -1) -1)
+}''',
+    'band': '''fn nlr_i64_band(a: int, b: int) -> int {
+    let mut left: int = a
+    let mut right: int = b
+    let mut weight: int = 1
+    let mut result: int = 0
+    let mut step: int = 0
+    while (< step 64) {
+        let left_bit: bool = (!= (% left 2) 0)
+        let right_bit: bool = (!= (% right 2) 0)
+        if (and left_bit right_bit) { set result (nlr_i64_add result weight) }
+        set left (nlr_i64_shr_u left 1)
+        set right (nlr_i64_shr_u right 1)
+        set weight (nlr_i64_add weight weight)
+        set step (+ step 1)
+    }
+    return result
+}
+shadow nlr_i64_band {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_band 6 3) 2)
+    assert (== (nlr_i64_band low -1) low)
+}''',
     'shr_u': '''fn nlr_i64_shr_u(a: int, b: int) -> int {
     let mut count: int = (% b 64)
     if (< count 0) { set count (+ count 64) }

@@ -2,11 +2,22 @@
 
 - [ ] I integrate the qualified current defensive metadata-lowering boundary (`task_a600db3ae64f4f63b8b85d77856c593a`, historical draft PR584). Static review at `473b6767` confirmed that I allocated name-selection state after an index emission failure, and public shadow emission lacked the unused introspection declaration check used by program emission. I share metadata declaration validation before both plain and affine public lowering routes, add the failed-index guard, qualify current-source state/declaration controls and existing accepted module-facts tests, and retain historical incident artifacts without replay or causal attribution. Current production `bbf89123` passes fresh bootstrap, 13 adjacent methods and eight explicit Stage2 module-facts methods; [evidence](evidence/metadata-current-boundaries.md). Canonical integration with PR522 remains open.
 
-- [ ] I retain declared `string_to_float` behavior through canonical compilation (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). My integrated production `e46c425b` passes fresh bootstrap and the preceding 39 product methods, then the retained prefix-conversion fixture is checked-refused by Stage1/Stage2 because float result metadata is missing. I require exact string arguments, portable prefix values, unchanged-output negatives and explicit legacy plus canonical acceptance. I preserve `/tmp/nanolang-product-e46c425b-focused.log`.
-
-- [ ] I qualify source-emitter setup under my canonical product route (`task_3d46381f10bd4dfcb313c2697024191f`). At `e46c425b`, the scalar-match setup reaches its 180-second deadline compiling `src_nano/nanoisa_emit.nano`. I retain the failure, measure stage timing and owned process lifecycle with a bounded budget, and preserve real producer/shadow checks before changing setup policy. This observation alone does not establish infrastructure failure or a compiler defect.
-
 - [ ] I lower exact generic union instances for canonical affine acceptance (`task_6550ccf97eb44f4d8c08f02cd4189cd7`). My product gate at `e7bccd99` passes all 17 core examples and compiles 244 eligible VM examples, then records 18 Stage1/Stage2 checked refusals for `Box<int>`, `Box<string>`, `Box<array<int>>` and `Choice<int,string>`. I require owner-aware formal substitution and exact constructor, payload, match and transport metadata while preserving formal shadowing, move/copy policy, resource authority and negative publication controls. Existing affine module/generic identity tests remain acceptance. [Pinned evidence](evidence/product-acceptance-84e04f5d.md).
+
+
+- [x] I lower declared `string_to_float` calls with an exact string operand and float result (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). The product prefix-conversion fixture is initially checked-refused. My first corrected gate passes that retained fixture but exposes missing checker builtin result metadata for an inferred local; I retain the initial log and correct that same conversion boundary. I reuse portable `CAST_FLOAT`, evaluate the operand once, preserve declaration resolution and retain legacy plus canonical VM/native acceptance with wrong-type output preservation. Fresh bootstrap and seven GCC/Clang methods pass, including declared-name controls and the unchanged prefix fixture. [Contract and evidence](NANOISA_PREFIX_CONVERSION.md).
+
+- [x] I qualify the source-emitter setup deadline for canonical compilation (`task_3d46381f10bd4dfcb313c2697024191f`). At product `e46c425b`, the existing 180-second setup deadline expires; a separate bounded measurement completes the same build in 440.639 seconds with unchanged compiler hash, and the resulting emitter publishes a verified executable program. I give only this compiler-building setup a 900-second deadline, preserving every producer/shadow assertion and ordinary 180-second command deadline. All 12 affected scalar-match methods pass in 466.277 seconds on the canonical product route. [Evidence](evidence/canonical-emitter-setup.md).
+
+- [ ] I preserve mixed scalar/array generic union payloads in native storage (`task_7eb14a92a31d4c6982292f93165f65e5`, follow-up669799/source6550). Shared declaration IDs do not erase array element shapes or ownership. Scalar669 intentionally retains checked scalar/array merge refusal with previous output preserved; source-level mixed generic and ownership acceptance remain open.
+
+- [ ] I preserve mixed scalar variant fields in native storage (`task_6697993e325847d9a27c4af9e6507e65`, prerequisite6550). I retain exact scalar producer constraints, a distinct variant scalar-set carrier, per-variant tags, checked extraction and string roots; no struct/tuple/heap/unknown widening. I require unchanged generic fixtures, both variant orders, same-variant generic controls, padding/refusal and sanitizer ownership gates. [Contract](NATIVE_VARIANT_SCALAR_CARRIERS.md).
+
+- [ ] I audit legacy C parentheses for nested boolean comparisons (`task_de7d1397f86940f8b759ae07eb46820f`). Pinned Cseed4a75f984 rejects valid nested sign comparison with GCC `-Werror=parentheses`; I retain `/tmp/nanolang-reconstruct-ucompare-first.log`. Current-main behavior needs separate qualification. Reconstruction uses named boolean intermediates without changing compiler policy.
+
+- [x] I reconstruct typed unsigned comparisons (`task_d4c7fd42960d4f218249555b7e268a70`, parent4bd034): exact int bit-pattern ordering with bool results, portable C/Nano helpers, calls/branches/loops and tag/output refusal. Twenty-five GCC/Clang methods pass including484 unsigned pairs; corrected tool hashes match. Initial pinned-compiler warning and negative-test expectation are retained separately. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
+
+- [x] I reconstruct typed integer bitwise operations (`task_c4188559900c4a48887c5c29f77b6ed5`, parent4bd034): exact 64-bit AND/OR/XOR/inversion with portable C and bounded Nano helpers, strict tags, endpoint/pattern/loop parity and atomic refusal. Twenty-two GCC/Clang methods pass including363 binary pairs and22 inversion checks; tool hashes remain unchanged. Full reconstruction stays open. [Contract](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md).
 
 - [x] I reconstruct typed integer shifts (`task_417225d8ac7e49278c25eee9ed1291b9`, parent4bd034): low-six-bit count normalization, portable arithmetic/logical distinction, endpoint/call/loop parity and strict-tag/output refusals. Eighteen GCC/Clang methods pass including351 shift combinations; pinned tool hashes remain unchanged. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md).
 
@@ -10040,11 +10051,51 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [x] I reconcile case/trim allocation wording with VM string interning:
+      empty/unchanged VM results can reuse an existing object before allocation;
+      managed fresh-handle tests do not establish matching allocation events.
+      Discovered by a fresh ordinary case test assertion, statically confirmed
+      in vm_string_new. I preserve that evidence and correct the test contract
+      under `task_543fe0e46aa34404b5cae96935267d10` before continuing.
+- [x] I check VM ASCII case-conversion scratch size and final allocation before
+      publishing output, preserving input aliases and correcting ordinary
+      failure/recovery behavior. MAC `task_543fe0e46aa34404b5cae96935267d10`;
+      my [allocation contract](NANOISA_CASE_ALLOCATION.md) precedes managed
+      STR_TO_LOWER/UPPER admission and retains full runtime obligations.
+      My [corrected-source evidence](evidence/vm-case-allocation.md) records
+      focused sanitizer controls and all 274493 VM checks passing.
+- [x] I match managed STR_CHAR_AT byte results, signed bounds and existing
+      non-integer fallback with allocation-free borrowed views and exact
+      two-operand cleanup. MAC `task_32b265f80d604826adc9ac29716598ab`;
+      my [character contract](NANOISA_MANAGED_CHARACTER.md) depends on reviewed
+      VM operand-lifetime62caf. My [paired evidence](evidence/managed-string-character.md)
+      records exact byte/fallback/alias controls and all 31 managed methods.
+- [x] I match managed STR_TRIM stored-byte whitespace, fresh-result allocation
+      and consuming-owner failure cleanup across LLVM/Wasm and the VM. MAC
+      `task_bc2bd84520124b17aa4dfad09fb663dd`; my pre-code
+      [trim contract](NANOISA_MANAGED_TRIM.md) preserves remaining operations.
+      My [paired evidence](evidence/managed-string-trim.md) covers exact bytes,
+      fresh handles, aliases, allocation failure and managed-only admission.
+- [x] I release both popped STR_CHAR_AT operands on success/type refusal before
+      managed admission, and correct its stale char-as-string comment to the
+      actual integer byte/-1 result. Static audit only; no failure replay. MAC
+      `task_62caf894db9649cd904ce6faf3c37ffb`; separate from managed trim.
+      My [corrected-source evidence](evidence/character-operand-lifetime.md)
+      records focused sanitizers and all 274493 VM checks passing; managed
+      character access remains a separate admission contract.
+- [x] I match managed byte-string CONTAINS/STARTS_WITH/ENDS_WITH across
+      VM, LLVM and import-free Wasm with exact stored lengths, no allocations,
+      aliases and existing operand/frame error cleanup. MAC
+      `task_b9a83a6b239b4c858ca6324d3066ac33`; my pre-code
+      [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) and
+      [paired evidence](evidence/managed-string-predicates.md) retain
+      all other full-coverage and platform obligations.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
-      MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
-      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this
-      contract before runtime implementation and preserve current admission
-      until matched execution and cleanup are tested.
+      MAC `task_51da49b39230468784da3481b893563b`; allocator, lifetime
+      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. Core, emitted
+      cleanup, concat, substring and portable conversions are implemented in
+      the checked children above. Darwin managed acceptance7ba and broader
+      required target coverage remain open; old design prose is historical.
 - [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
       MAC `task_488a05eb5e2a417caf83a8353363a30d`.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.

@@ -581,6 +581,7 @@ fn nisa_is_inline_call(name: string) -> bool {
     if (== name "cast_int") { return true }
     if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
+    if (== name "string_to_float") { return true }
     if (!= (nisa_map_opcode name) "") { return true }
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
@@ -597,6 +598,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "cast_int")
     assert (nisa_is_inline_call "float_to_string")
+    assert (nisa_is_inline_call "string_to_float")
     assert (nisa_is_inline_call "array_length")
     assert (nisa_is_inline_call "not")
     assert (nisa_is_inline_call "print")
@@ -2328,6 +2330,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         }
         if (and (== target_name "cast_int") (< (nisa_call_index parser call) 0)) { return "int" }
         if (== target_name "string_to_int") { return "int" }
+        if (and (== target_name "string_to_float") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "str_trim") (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (== (nisa_map_opcode target_name) "HM_GET") (== call.arg_count 2)) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -3229,6 +3232,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
     }
+    if (and (== function_name "string_to_float") (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail "I require one string operand for string_to_float") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
+            return (nisa_fail "I require one string operand for string_to_float")
+        }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_FLOAT"))
+    }
     if (== function_name "string_to_int") {
         if (!= call.arg_count 1) { return (nisa_fail "string_to_int needs one string argument") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -3381,6 +3392,9 @@ shadow nisa_emit_call {
     assert (str_contains trimmed "STR_CONCAT")
     let joined: string = (nanoisa_emit_nasm (+ "f" "n main() -> string { return (str_concat \"a\" \"b\") }"))
     assert (str_contains joined "STR_CONCAT")
+    let parsed: string = (nanoisa_emit_nasm "fn main() -> float { return (string_to_float \"2.5tail\") }")
+    assert nisa_ok
+    assert (str_contains parsed "CAST_FLOAT")
     let formatted: string = (nanoisa_emit_nasm "fn main() -> string { return (float_to_string 2.0) }")
     assert (str_contains formatted "CAST_STRING")
     assert (str_contains formatted "STR_CONTAINS")

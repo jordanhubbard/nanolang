@@ -526,7 +526,7 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	chmod +x $(BIN_DIR)/nvm2hl
 
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -4610,7 +4610,7 @@ test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character
 
 .PHONY: test-managed-string-core
 test-managed-string-core:
@@ -4892,6 +4892,11 @@ test-units: test-native-record-array-scalar-tags
 test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_string_builtins
 test-units: test-canonical-string-builtins
+.PHONY: test-native-variant-scalar-carriers
+test-native-variant-scalar-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
+	python3 -m unittest -v tests.test_native_variant_scalar_carriers
+test-units: test-native-variant-scalar-carriers
+
 .PHONY: test-native-union-padding
 test-native-union-padding: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_union_padding
@@ -4914,3 +4919,8 @@ test-native-false-assert: nvm2c nano_vm nanoisa_dump
 .PHONY: test-scalar-match-values
 test-scalar-match-values: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_scalar_match_values
+
+.PHONY: test-canonical-prefix-conversion
+test-canonical-prefix-conversion: bootstrap nano_virt nano_vm nvm2c
+	python3 -m unittest -v tests.test_canonical_prefix_conversion
+test-units: test-canonical-prefix-conversion

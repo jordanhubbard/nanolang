@@ -115,10 +115,108 @@ static void trim_recovery(void) {
     vm_destroy(&vm);
     nvm_module_free(module);
 }
+static void character_operand_lifetime(void) {
+    const uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0, OP_STR_CHAR_AT, OP_RET};
+    NvmModule *module = nvm_module_new();
+    NvmFunctionEntry fn = {.arity=2, .local_count=2, .result_count=1, .result_tag=TAG_INT};
+    fn.name_idx = nvm_add_string(module, "byte_at", 7);
+    fn.code_offset = nvm_append_code(module, code, sizeof code);
+    fn.code_length = sizeof code;
+    nvm_add_function(module, &fn);
+    VmState vm;
+    vm_init(&vm, module);
+    uint64_t baseline = vm.heap.stats.num_objects;
+    VmString *source = vm_string_new(&vm.heap, "a\0\xff", 3);
+    assert(source);
+    const int64_t indices[] = {-1, 0, 1, 2, 3, INT64_MAX};
+    const int64_t expected[] = {-1, 97, 0, 255, -1, -1};
+    NanoValue args[] = {val_string(source), val_int(0)}, output = val_void();
+    for (unsigned i = 0; i < sizeof indices / sizeof indices[0]; i++) {
+        args[1] = val_int(indices[i]);
+        assert(vm_invoke(&vm, 0, args, 2, &output) == VM_OK);
+        assert(output.tag == TAG_INT && output.as.i64 == expected[i]);
+        assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+    }
+    /* My existing fallback uses zero for a normal owned non-integer value.
+     * Each argument borrows the caller's live object; neither consumes it. */
+    args[1] = val_string(source);
+    for (unsigned i = 0; i < 8; i++) {
+        assert(vm_invoke(&vm, 0, args, 2, &output) == VM_OK);
+        assert(output.tag == TAG_INT && output.as.i64 == 97);
+        assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+    }
+    args[0] = val_int(7);
+    output = val_void();
+    assert(vm_invoke(&vm, 0, args, 2, &output) == VM_ERR_TYPE_ERROR);
+    assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+    assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+    vm_release(&vm.heap, val_string(source));
+    assert(vm.heap.stats.num_objects == baseline);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
+static void case_conversion_recovery(void) {
+    const unsigned char pattern[] = {'A', 'z', 0, 255, ' ', 'a', 'Z'};
+    char bytes[300];
+    for (unsigned i = 0; i < sizeof bytes; i++) bytes[i] = (char)pattern[i % sizeof pattern];
+    const unsigned lengths[] = {0, 7, 255, 256, 300};
+    for (unsigned mode = 0; mode < 2; mode++) {
+        const uint8_t code[] = {OP_LOAD_LOCAL, 0, 0,
+                               mode ? OP_STR_TO_UPPER : OP_STR_TO_LOWER, OP_RET};
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.arity=1, .local_count=1, .result_count=1, .result_tag=TAG_STRING};
+        fn.name_idx = nvm_add_string(module, "case", 4);
+        fn.code_offset = nvm_append_code(module, code, sizeof code);
+        fn.code_length = sizeof code;
+        nvm_add_function(module, &fn);
+        VmState vm;
+        vm_init(&vm, module);
+        uint64_t baseline = vm.heap.stats.num_objects;
+        for (unsigned n = 0; n < sizeof lengths / sizeof lengths[0]; n++) {
+            VmString *source = vm_string_new(&vm.heap, bytes, lengths[n]);
+            assert(source);
+            NanoValue input = val_string(source), output = val_void();
+            reject_string_allocation = true;
+            VmResult attempt = vm_invoke(&vm, 0, &input, 1, &output);
+            reject_string_allocation = false;
+            if (!lengths[n]) {
+                /* Empty output already exists: interning needs no allocation. */
+                assert(attempt == VM_OK && output.tag == TAG_STRING && output.as.string == source);
+                vm_release(&vm.heap, output);
+            } else {
+                assert(attempt == VM_ERR_MEMORY && output.tag == TAG_VOID);
+                assert(strstr(vm.error_msg, "allocate the case-converted string"));
+            }
+            assert(!vm.stack_size && !vm.frame_count);
+            assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+            for (unsigned repeat = 0; repeat < 4; repeat++) {
+                assert(vm_invoke(&vm, 0, &input, 1, &output) == VM_OK);
+                assert(output.tag == TAG_STRING);
+                if (lengths[n]) assert(output.as.string != source);
+                assert(output.as.string->length == lengths[n]);
+                for (unsigned k = 0; k < lengths[n]; k++) {
+                    unsigned char byte = (unsigned char)bytes[k];
+                    unsigned char expected = mode ? (byte >= 'a' && byte <= 'z' ? byte - 32 : byte)
+                                                  : (byte >= 'A' && byte <= 'Z' ? byte + 32 : byte);
+                    assert((unsigned char)output.as.string->data[k] == expected);
+                }
+                vm_release(&vm.heap, output);
+                assert(!memcmp(source->data, bytes, lengths[n]));
+                assert(source->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+            }
+            vm_release(&vm.heap, input);
+            assert(vm.heap.stats.num_objects == baseline);
+        }
+        vm_destroy(&vm);
+        nvm_module_free(module);
+    }
+}
 int main(void) {
     heap_slices();
     opcode_recovery();
     trim_recovery();
-    puts("I passed ordinary substring bytes, ownership, allocation status and recovery.");
+    character_operand_lifetime();
+    case_conversion_recovery();
+    puts("I passed ordinary string bytes, operand ownership, allocation status and recovery.");
     return 0;
 }

@@ -331,6 +331,17 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                          " %%p%u_result = extractvalue %%S %%p%u_desc, 1\n", pc, pc, pc, pc);
             result(&frame, pc, TAG_INT);
             break;
+        case OP_STR_CHAR_AT:
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_result = call i64 @managed_char_at(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            result(&frame, pc, TAG_INT);
+            break;
+        case OP_STR_CONTAINS: case OP_STR_STARTS_WITH: case OP_STR_ENDS_WITH:
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_result = call i64 @managed_predicate(%%V %%p%u_a, %%V %%p%u_b, i32 %u)\n",
+                    pc, pc, pc, ins.opcode == OP_STR_CONTAINS ? 0u : ins.opcode == OP_STR_STARTS_WITH ? 1u : 2u);
+            result(&frame, pc, TAG_BOOL);
+            break;
         case OP_STR_EQ:
             pop(&frame, pc, "b"); pop(&frame, pc, "a");
             fprintf(out, " %%p%u_order = call i64 @string_order(%%V %%p%u_a, %%V %%p%u_b)\n"
@@ -429,6 +440,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_TRIM:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_trim(%%V %%p%u_a)\n", pc, pc);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
         case OP_STR_SUBSTR:
             pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
             fprintf(out, " %%p%u_value = call %%V @managed_substr(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);

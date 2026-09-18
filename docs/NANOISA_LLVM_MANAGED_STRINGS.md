@@ -2,6 +2,13 @@
 
 I extend my closed literal-string lowering with STR_CONCAT, checked STR_SUBSTR and generic ADD
 for two strings. I preserve generic numeric ADD, including enum coercion.
+My [byte predicates](NANOISA_MANAGED_STRING_PREDICATES.md) also admit
+STR_CONTAINS, STR_STARTS_WITH and STR_ENDS_WITH without allocation.
+My [trim helper](NANOISA_MANAGED_TRIM.md) admits STR_TRIM with exact stored-byte
+whitespace rules and a fresh owned result, including empty or unchanged text.
+My [character-byte helper](NANOISA_MANAGED_CHARACTER.md) admits STR_CHAR_AT
+with signed index bounds, unsigned byte/-1 integer results and the existing
+non-integer index fallback to zero; it borrows without allocating.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
 operations do not complete my required full-language LLVM/Wasm scope.

@@ -351,6 +351,18 @@ NmsStatus nms_parse_i64(const NmsRuntime *runtime, NmsHandle source, int64_t *ou
                     : (int64_t)value;
     return NMS_OK;
 }
+static int trim_space(unsigned char byte) {
+    return byte == ' ' || byte == '\t' || byte == '\n' || byte == '\r';
+}
+NmsStatus nms_trim_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle *out) {
+    NmsView view;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status != NMS_OK) { nms_release(runtime, source); return status; }
+    uint32_t start = 0, end = view.length;
+    while (start < end && trim_space(view.data[start])) start++;
+    while (end > start && trim_space(view.data[end - 1])) end--;
+    return nms_substr_owned(runtime, source, start, end - start, out);
+}
 NmsStatus nms_substr_owned(NmsRuntime *runtime, NmsHandle source,
                            uint32_t start, uint32_t length, NmsHandle *out) {
     NmsView view;
@@ -458,3 +470,50 @@ uint64_t nms_test_memory_pages(void) {
 #endif
 }
 #endif
+
+/* I compare complete byte views, including embedded zero bytes. */
+static int equal_bytes(const unsigned char *left, const unsigned char *right, uint32_t length) {
+    for (uint32_t i = 0; i < length; i++)
+        if (left[i] != right[i]) return 0;
+    return 1;
+}
+NmsStatus nms_char_at(const NmsRuntime *runtime, NmsHandle source,
+                      uint64_t index_bits, uint32_t is_integer, int64_t *out) {
+    if (!out || is_integer > 1) return NMS_STATE;
+    NmsView view;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status != NMS_OK) return status;
+    uint64_t index = is_integer ? index_bits : 0;
+    *out = (index & (UINT64_C(1) << 63)) || index >= view.length
+         ? -1 : (int64_t)view.data[(uint32_t)index];
+    return NMS_OK;
+}
+NmsStatus nms_predicate(const NmsRuntime *runtime, NmsHandle source, NmsHandle affix,
+                        uint32_t operation, uint32_t *out) {
+    if (!out || operation > NMS_ENDS_WITH) return NMS_STATE;
+    NmsView haystack, needle;
+    NmsStatus status = nms_view(runtime, source, &haystack);
+    if (status != NMS_OK) return status;
+    status = nms_view(runtime, affix, &needle);
+    if (status != NMS_OK) return status;
+    uint32_t answer = 0;
+    if (needle.length == 0) answer = 1;
+    else if (needle.length <= haystack.length) {
+        uint32_t last = haystack.length - needle.length;
+        if (operation == NMS_STARTS_WITH)
+            answer = equal_bytes(haystack.data, needle.data, needle.length);
+        else if (operation == NMS_ENDS_WITH)
+            answer = equal_bytes(haystack.data + last, needle.data, needle.length);
+        else {
+            /* A nonempty needle makes last < UINT32_MAX; increment cannot wrap. */
+            for (uint32_t position = 0; position <= last; position++) {
+                if (equal_bytes(haystack.data + position, needle.data, needle.length)) {
+                    answer = 1;
+                    break;
+                }
+            }
+        }
+    }
+    *out = answer;
+    return NMS_OK;
+}
