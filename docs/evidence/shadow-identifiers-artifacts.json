@@ -1,0 +1,16 @@
+{
+  "source_head": "846a79906348c4f2892eb1575f12db243e05a9a1",
+  "base": "2ed1dc57",
+  "sha256": {
+    "src/nanoisa/assembler.c": "68bf1a1207342c94ce8baee817abf193b14ca7693c3e1ad1746f835ada60712a",
+    "tests/test_shadow_identifiers.py": "cc24349627debaa8a90f2b0fd2ccccd76f1961f89b028c71f94ff668e74f1d60",
+    "tests/nanovirt/borrow_shadow_names.c": "21f89c52572857424db25edbef9fe0d0f7fb9622e77df49e3cc5e8c931470827",
+    "Makefile.gnu": "0b460e0cf66abc75e484ad0ec86b385dd1921bdee7ef5ea574ecd3a326a7fa5e",
+    "bin/nanoisa": "035d0b0d4166e4d571f56727d45d4cefc1c87fd7aea36386a3eec9863d6a00c7",
+    "bin/nano_vm": "208c087ee4cb4b7c647a57bfa92d80160cf005ec9d02edaf1c892037e09bfc1a",
+    "obj/borrow_shadow_names": "2370d35a607ef9b740539e35cac2738ded33ef218be5e84c3aea9f9e4d6d712a",
+    "/tmp/nanolang-shadow-identifiers-gates.log": "7de118f3a68f4011e9c12e673fc5b3a998d351f3732e9b362b51c4f2b18fb83e",
+    "/tmp/nanolang-shadow-identifiers-corrected.log": "129d030ef4adb6db738778d0ea1fd428df2a5e5a2cf2c3cb1b97ec05a256aab9",
+    "/tmp/nanolang-shadow-identifiers-adjacent.log": "56b8889dea6aaa237ed05feddda8b8f89900033a698c76e1721c7040e9419282"
+  }
+}

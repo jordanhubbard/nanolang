@@ -1,0 +1,37 @@
+test_c_api_failure_recovery_and_type_resolution (tests.test_public_c_binary64.PublicCBinary64.test_c_api_failure_recovery_and_type_resolution) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-2u8n50en
+ok
+test_declared_record_and_variant_float_fields (tests.test_public_c_binary64.PublicCBinary64.test_declared_record_and_variant_float_fields) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-eabb10ej
+ok
+test_exact_decimal_literal (tests.test_public_c_binary64.PublicCBinary64.test_exact_decimal_literal) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-lxob_4ik
+ok
+test_exact_transport_arithmetic_and_rounding (tests.test_public_c_binary64.PublicCBinary64.test_exact_transport_arithmetic_and_rounding) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-_95ixtms
+ok
+test_global_order_and_main_reentry (tests.test_public_c_binary64.PublicCBinary64.test_global_order_and_main_reentry) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-ixf45djt
+ok
+test_operands_loops_branches_and_namespace (tests.test_public_c_binary64.PublicCBinary64.test_operands_loops_branches_and_namespace) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-vd45rm0j
+ok
+test_shared_provider_identity (tests.test_public_c_binary64.PublicCBinary64.test_shared_provider_identity) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-nahjh_sq
+ok
+test_wrong_transport_type_preserves_previous_source (tests.test_public_c_binary64.PublicCBinary64.test_wrong_transport_type_preserves_previous_source) ... I retain public C evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-binary64-wsfrklv1
+ok
+test_aliases_globals_returns_and_loop_snapshots (tests.test_public_c_nonfinite_format.PublicCFormat.test_aliases_globals_returns_and_loop_snapshots) ... I retain public C formatting evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-format-dqqhfd1f
+ok
+test_exact_output_input_bits_and_once_evaluation (tests.test_public_c_nonfinite_format.PublicCFormat.test_exact_output_input_bits_and_once_evaluation) ... I retain public C formatting evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-format-gigqi992
+ok
+test_generated_cleanup_and_allocation_registration_refusals (tests.test_public_c_nonfinite_format.PublicCFormat.test_generated_cleanup_and_allocation_registration_refusals) ... I retain public C formatting evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-format-j9rwb5uw
+ok
+test_scoped_builtin_resolution_and_previous_output (tests.test_public_c_nonfinite_format.PublicCFormat.test_scoped_builtin_resolution_and_previous_output) ... I retain public C formatting evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-format-gnhroega
+ok
+test_distinct_allocations_fields_and_existing_source_routes (tests.test_public_c_string_equality.PublicCStringEquality.test_distinct_allocations_fields_and_existing_source_routes) ... I retain fresh equality evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-equality-hmxfp39b
+ok
+test_exact_refusal_prior_output_and_same_process_recovery (tests.test_public_c_string_equality.PublicCStringEquality.test_exact_refusal_prior_output_and_same_process_recovery) ... I retain fresh equality evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-equality-jbok8jnf
+ok
+test_order_nested_slots_scopes_globals_and_loops (tests.test_public_c_string_equality.PublicCStringEquality.test_order_nested_slots_scopes_globals_and_loops) ... I retain fresh equality evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-equality-0gljined
+ok
+test_private_helper_pointer_and_null_boundary (tests.test_public_c_string_equality.PublicCStringEquality.test_private_helper_pointer_and_null_boundary) ... I retain fresh equality evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-public-c-equality-3b05aiyh
+ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 37.889s
+
+OK

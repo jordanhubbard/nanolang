@@ -3,8 +3,8 @@
 #define NANOISA_GENERATED_SCHEMA_H
 
 #define NANOISA_SCHEMA_VERSION 2
-#define NANOISA_LEGACY_OPCODE_COUNT 180
-#define NANOISA_V2_FAMILY_COUNT 70
+#define NANOISA_LEGACY_OPCODE_COUNT 182
+#define NANOISA_V2_FAMILY_COUNT 72
 
 /* Encoding of the opcode space. The primary plane holds one-byte
  * opcode identifiers below NANOISA_PRIMARY_OPCODE_LIMIT; that limit is
@@ -146,6 +146,8 @@ static const NanoisaSchemaOpcode nanoisa_schema_opcodes[] = {
     {"CAST_BOOL", 0x8a, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
     {"CAST_STRING", 0x8b, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
     {"TYPE_CHECK", 0x8c, 1, {OPERAND_U8, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
+    {"F64_FROM_BITS", 0x8d, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
+    {"F64_TO_BITS", 0x8e, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
     {"CLOSURE_NEW", 0x90, 2, {OPERAND_U32, OPERAND_U16, OPERAND_NONE, OPERAND_NONE}, -1, -1},
     {"PRINT", 0xa0, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 0},
     {"ASSERT", 0xa1, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 0},
@@ -253,10 +255,12 @@ static const NanoisaV2Family nanoisa_v2_families[] = {
     {"i64.sub-borrow", "Subtract two integers with an incoming borrow, producing difference and borrow.", "none", "core-semantics", 0, 3, 2},
     {"i64.mul-wide-s", "Multiply two integers as signed into a 128-bit high/low pair.", "none", "core-semantics", 0, 2, 2},
     {"i64.mul-wide-u", "Multiply two integers as unsigned into a 128-bit high/low pair.", "none", "core-semantics", 0, 2, 2},
-    {"f64.add", "Add two floats.", "none", "core-semantics", 0, 2, 1},
-    {"f64.sub", "Subtract the top float from the next.", "none", "core-semantics", 0, 2, 1},
-    {"f64.mul", "Multiply two floats.", "none", "core-semantics", 0, 2, 1},
-    {"f64.div", "Divide two floats.", "none", "core-semantics", 0, 2, 1},
+    {"f64.from-bits", "Copy an exact i64 bit pattern to f64 without arithmetic or NaN quieting.", "none", "representation", 0, 1, 1},
+    {"f64.to-bits", "Copy exact f64 bits to a signed i64 bit pattern without arithmetic or NaN quieting.", "none", "representation", 0, 1, 1},
+    {"f64.add", "Add two binary64 floats with separate default rounding; canonicalize a NaN result to bits 0x7ff8000000000000.", "none", "core-semantics", 0, 2, 1},
+    {"f64.sub", "Subtract the top binary64 float from the next with separate default rounding; canonicalize a NaN result to bits 0x7ff8000000000000.", "none", "core-semantics", 0, 2, 1},
+    {"f64.mul", "Multiply two binary64 floats with separate default rounding; canonicalize a NaN result to bits 0x7ff8000000000000.", "none", "core-semantics", 0, 2, 1},
+    {"f64.div", "Divide two binary64 floats with separate default rounding; either zero divisor returns positive zero first, otherwise canonicalize a NaN result to bits 0x7ff8000000000000.", "none", "core-semantics", 0, 2, 1},
     {"mem.load8", "Load 8 bits from memory, zero-extended to an integer.", "none", "representation", 2, 1, 1},
     {"mem.load16", "Load 16 bits from memory, zero-extended to an integer.", "none", "representation", 2, 1, 1},
     {"mem.load32", "Load 32 bits from memory, zero-extended to an integer.", "none", "representation", 2, 1, 1},

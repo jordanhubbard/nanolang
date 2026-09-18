@@ -1215,6 +1215,26 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             int arg_count = expr->as.prefix_op.arg_count;
             
             if (arg_count == 2) {
+                /* I snapshot exact scalar operands in source order, once. */
+                if ((op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH) &&
+                    check_expression(expr->as.prefix_op.args[0], env) == TYPE_FLOAT &&
+                    check_expression(expr->as.prefix_op.args[1], env) == TYPE_FLOAT) {
+                    char left[80], right[80];
+                    unsigned suffix = 0;
+                    do {
+                        snprintf(left, sizeof left, "nano_rt_f64_left_%u", suffix);
+                        snprintf(right, sizeof right, "nano_rt_f64_right_%u", suffix++);
+                    } while (env_get_var(env, left) || env_get_var(env, right) ||
+                             env_get_function(env, left) || env_get_function(env, right));
+                    emit_formatted(list, "({ double %s = ", left);
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_formatted(list, "; double %s = ", right);
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_formatted(list, "; nano_rt_f64_%s(%s, %s); })",
+                                   op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" :
+                                   op == TOKEN_STAR ? "mul" : "div", left, right);
+                    break;
+                }
                 /* Binary operator */
                 if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT) {
                     Type t1 = check_expression(expr->as.prefix_op.args[0], env);
@@ -1325,7 +1345,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                                         (op == TOKEN_STAR) ? "*" :
                                                         (op == TOKEN_SLASH) ? "/" :
                                                         "%";
-                                    emit_formatted(list, "dyn_array_push_%s(_out, _x %s _y); ", push_suffix, op_str);
+                                    if (elem == TYPE_FLOAT && op != TOKEN_PERCENT) {
+                                        const char *helper = op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" : op == TOKEN_STAR ? "mul" : "div";
+                                        emit_formatted(list, "dyn_array_push_float(_out, nano_rt_f64_%s(_x, _y)); ", helper);
+                                    } else emit_formatted(list, "dyn_array_push_%s(_out, _x %s _y); ", push_suffix, op_str);
                                 }
                                 emit_literal(list, "} _out; })");
                             } else {
@@ -1354,11 +1377,17 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                                 (op == TOKEN_SLASH) ? "/" :
                                                 "%";
 
-                            emit_literal(list, "({ DynArray* _a = ");
-                            build_expr(list, arr_expr, env);
-                            emit_literal(list, "; ");
-                            emit_formatted(list, "%s _s = ", c_type);
-                            build_expr(list, scalar_expr, env);
+                            if (left_is_array) {
+                                emit_literal(list, "({ DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                                emit_formatted(list, "; %s _s = ", c_type);
+                                build_expr(list, scalar_expr, env);
+                            } else {
+                                emit_formatted(list, "({ %s _s = ", c_type);
+                                build_expr(list, scalar_expr, env);
+                                emit_literal(list, "; DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                            }
                             emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); int64_t _len = dyn_array_length(_a); ", elem_enum);
                             emit_formatted(list, "for (int64_t _i = 0; _i < _len; _i++) { %s _x = dyn_array_get_%s(_a, _i); ", c_type, get_suffix);
                             if (elem == TYPE_STRING) {
@@ -1371,6 +1400,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                 } else {
                                     emit_literal(list, "assert(false && \"string arrays only support +\"); ");
                                 }
+                            } else if (elem == TYPE_FLOAT && op != TOKEN_PERCENT) {
+                                const char *helper = op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" : op == TOKEN_STAR ? "mul" : "div";
+                                emit_formatted(list, "dyn_array_push_float(_out, nano_rt_f64_%s(%s, %s)); ",
+                                               helper, left_is_array ? "_x" : "_s", left_is_array ? "_s" : "_x");
                             } else {
                                 if (left_is_array) {
                                     emit_formatted(list, "dyn_array_push_%s(_out, _x %s _s); ", push_suffix, op_str);
@@ -1381,17 +1414,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             emit_literal(list, "} _out; })");
                         } else {
                             /* Fallback: use runtime helper (asserts element type at runtime) */
-                            emit_literal(list, "({ DynArray* _a = ");
-                            build_expr(list, arr_expr, env);
-                            emit_literal(list, "; ");
                             if (left_is_array) {
-                                emit_formatted(list, "%s(_a, ", fn_scalar ? fn_scalar : "nl_array_add_scalar_int");
+                                emit_literal(list, "({ DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                                emit_formatted(list, "; %s(_a, ", fn_scalar ? fn_scalar : "nl_array_add_scalar_int");
                                 build_expr(list, scalar_expr, env);
                                 emit_literal(list, "); })");
                             } else {
-                                emit_formatted(list, "%s(", fn_rscalar ? fn_rscalar : "nl_array_radd_scalar_int");
+                                emit_literal(list, "({ __auto_type _s = ");
                                 build_expr(list, scalar_expr, env);
-                                emit_literal(list, ", _a); })");
+                                emit_literal(list, "; DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                                emit_formatted(list, "; %s(_s, _a); })", fn_rscalar ? fn_rscalar : "nl_array_radd_scalar_int");
                             }
                         }
                         break;

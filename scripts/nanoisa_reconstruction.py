@@ -11,9 +11,11 @@ def require(condition, message):
         raise Refusal('I ' + message)
 
 
-INT, BOOL = 1, 4
+INT, FLOAT, BOOL = 1, 3, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
+FLOAT_COMPARE = {'F64_EQ': '==', 'F64_NE': '!=', 'F64_LT': '<',
+                 'F64_LE': '<=', 'F64_GT': '>', 'F64_GE': '>='}
 UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
                     'I64_GT_U': 'gt_u', 'I64_GE_U': 'ge_u'}
 GENERIC_COMPARE = {'EQ': '==', 'NE': '!=', 'LT': '<', 'LE': '<=', 'GT': '>', 'GE': '>='}
@@ -24,9 +26,9 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_DIV_U': 'div_u', 'I64_REM_U': 'rem_u',
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
-SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
+SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE)
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE)
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,9 @@ class Analyze:
     def __init__(self, module, index):
         self.module = module
         self.fn = module['functions'][index]
+        require(self.fn['result'] in (INT, BOOL, FLOAT) and
+                all(tag in (INT, BOOL, FLOAT) for tag in self.fn['params']),
+                'require exact int/bool/float function signatures')
         self.index = index
         self.code = self.fn['code']
         self.positions = {i['pc']: n for n, i in enumerate(self.code)}
@@ -104,6 +109,16 @@ class Analyze:
             return
         if op == 'PUSH_I64':
             expr = Expr(INT, 'constant', arg)
+        elif op == 'PUSH_F64':
+            bits = ins.get('f64_bits')
+            require(isinstance(bits, str) and len(bits) == 16 and
+                    all(c in '0123456789abcdefABCDEF' for c in bits),
+                    'require exactly sixteen hexadecimal binary64 operand digits')
+            expr = Expr(FLOAT, 'float_bits', int(bits, 16))
+        elif op in ('F64_FROM_BITS', 'F64_TO_BITS'):
+            from_bits = op == 'F64_FROM_BITS'
+            expr = Expr(FLOAT if from_bits else INT, 'from_bits' if from_bits else 'to_bits',
+                        None, (self.pop(stack, INT if from_bits else FLOAT),))
         elif op == 'PUSH_BOOL':
             require(arg in (0, 1), 'require canonical boolean constants')
             expr = Expr(BOOL, 'constant', bool(arg))
@@ -174,6 +189,11 @@ class Analyze:
                     left = Expr(INT, 'bool_int', None, (left,))
                     right = Expr(INT, 'bool_int', None, (right,))
                 expr = Expr(BOOL, 'binary', GENERIC_COMPARE[op], (left, right))
+        elif op == 'F64_NEG':
+            expr = Expr(FLOAT, 'float_neg', None, (self.pop(stack, FLOAT),))
+        elif op in FLOAT_COMPARE:
+            right, left = self.pop(stack, FLOAT), self.pop(stack, FLOAT)
+            expr = Expr(BOOL, 'binary', FLOAT_COMPARE[op], (left, right))
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
@@ -322,9 +342,16 @@ class Emit:
         return f'nlr_l{slot}' + ('_' + suffix if suffix else '')
 
     def type(self, tag):
-        return ('int64_t' if tag == INT else 'bool') if self.language == 'c' else ('int' if tag == INT else 'bool')
+        require(tag in (INT, BOOL, FLOAT), 'require an explicit scalar source type')
+        return ({INT: 'int64_t', BOOL: 'bool', FLOAT: 'double'} if self.language == 'c' else
+                {INT: 'int', BOOL: 'bool', FLOAT: 'float'})[tag]
 
     def expression(self, expr):
+        if expr.kind == 'float_bits':
+            if self.language == 'c':
+                return f'nlr_f64_from_bits(UINT64_C(0x{expr.value:016x}))'
+            signed = expr.value if expr.value < (1 << 63) else expr.value - (1 << 64)
+            return '(float_from_bits ' + self.expression(Expr(INT, 'constant', signed)) + ')'
         if expr.kind == 'constant':
             if expr.tag == BOOL:
                 return 'true' if expr.value else 'false'
@@ -336,6 +363,12 @@ class Emit:
         if expr.kind == 'temporary':
             return f'nlr_t{expr.value}'
         args = [self.expression(a) for a in expr.args]
+        if expr.kind == 'float_neg':
+            return '(-' + args[0] + ')' if self.language == 'c' else '(- ' + args[0] + ')'
+        if expr.kind in ('from_bits', 'to_bits'):
+            if self.language == 'c':
+                return ('nlr_f64_from_bits((uint64_t)' if expr.kind == 'from_bits' else 'nlr_f64_to_bits(') + args[0] + ')'
+            return ('(float_from_bits ' if expr.kind == 'from_bits' else '(float_to_bits ') + args[0] + ')'
         if expr.kind in ('arithmetic', 'unsigned_compare'):
             name = 'nlr_i64_' + expr.value
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
@@ -396,12 +429,15 @@ class Emit:
                 self.line(self.signature(index) + ';')
         else:
             self.line('# I reconstruct executable scalar regions; original shadows are not retained.')
+        self.float_helpers()
         self.arithmetic_helpers()
         for index, function in enumerate(self.functions):
             self.function = function
             self.line(self.signature(index) + ' {')
             for slot, tag in sorted(function.locals.items()):
-                value = f'nlr_a{slot}' if slot < len(function.params) else '0' if tag == INT else 'false'
+                value = (f'nlr_a{slot}' if slot < len(function.params) else
+                         self.expression(Expr(FLOAT, 'float_bits', 0)) if tag == FLOAT else
+                         '0' if tag == INT else 'false')
                 name = self.local(slot)
                 self.line(f'{self.type(tag)} {name} = {value};' if c else f'let mut {name}: {self.type(tag)} = {value}', 1)
                 if c:
@@ -409,9 +445,33 @@ class Emit:
             self.statements(function.body)
             self.line('}')
         self.line('int main(void) {' if c else 'fn main() -> int {')
+        if c and self.has_float:
+            self.line('(void)nlr_f64_from_bits; (void)nlr_f64_to_bits;', 1)
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
+
+    def float_helpers(self):
+        def contains(node):
+            if isinstance(node, Expr):
+                return node.tag == FLOAT or any(contains(arg) for arg in node.args)
+            return isinstance(node, (tuple, list)) and any(contains(child) for child in node)
+        self.has_float = any(function.result == FLOAT or FLOAT in function.locals.values() or
+                             contains(function.body) for function in self.functions)
+        if self.language == 'c' and self.has_float:
+            self.line('''#include <string.h>
+static double nlr_f64_from_bits(uint64_t bits) {
+    double value;
+    _Static_assert(sizeof(value) == sizeof(bits), "I require binary64 storage.");
+    memcpy(&value, &bits, sizeof(value));
+    return value;
+}
+static int64_t nlr_f64_to_bits(double value) {
+    uint64_t bits;
+    _Static_assert(sizeof(value) == sizeof(bits), "I require binary64 storage.");
+    memcpy(&bits, &value, sizeof(bits));
+    return bits <= INT64_MAX ? (int64_t)bits : -1 - (int64_t)(UINT64_MAX - bits);
+}''')
 
     def arithmetic_helpers(self):
         needed = set()

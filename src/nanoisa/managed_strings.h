@@ -11,17 +11,25 @@ typedef enum {
 typedef uint64_t NmsHandle;
 /* I share this value tag with the ISA; the emitter asserts its ABI. */
 #define NMS_ARRAY_TAG 7
+#define NMS_RECORD_TAG 8
 #define NMS_DYNAMIC (UINT64_C(1) << 63)
 typedef struct { const unsigned char *data; uint32_t length; } NmsView;
-typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_LEAF_ARRAY = 3, NMS_SLOT_PACKED_SCALAR_ARRAY = 4 } NmsSlotKind;
+typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_ARRAY = 3, NMS_SLOT_BOXED_LEAF_ARRAY = NMS_SLOT_BOXED_ARRAY, NMS_SLOT_PACKED_SCALAR_ARRAY = 4, NMS_SLOT_RECORD = 5 } NmsSlotKind;
 typedef struct {
     unsigned char *data;
     uint64_t references;
-    uint32_t length, next_free, capacity, kind, element_tag, vm_array_policy;
+    uint32_t length, next_free, capacity, kind, element_tag, vm_array_policy, record_ordinal;
 } NmsSlot;
+typedef struct { uint32_t global_layout_index, field_count; } NmsRecordDescriptor;
 typedef struct {
+    const NmsRecordDescriptor *record_descriptors; /* Immutable through disposal. */
+    uint32_t record_count;
+    unsigned records_bound;
     const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
     NmsSlot *slots;
+    void *collection_workspace;
+    uint32_t collection_capacity;
+    unsigned collection_prepared;
     uint64_t live_bytes, live_objects;
     uint32_t literal_count, capacity, free_head;
     unsigned active, disposed;
@@ -43,16 +51,32 @@ NmsStatus nms_string_array_create(NmsRuntime *, NmsHandle *);
 NmsStatus nms_string_array_append(NmsRuntime *, NmsHandle, NmsHandle);
 NmsStatus nms_string_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsHandle *);
 NmsStatus nms_string_array_length(const NmsRuntime *, NmsHandle, uint32_t *);
-/* My leaf-value API preserves scalar payload bits and owns string handles.
- * Other heap/callable tags are not admitted by this private foundation. */
+/* My boxed-value API preserves scalar bits and owns string/array/record handles.
+ * Other heap/callable tags remain outside this private graph foundation. */
 typedef struct { uint64_t payload; uint32_t tag; } NmsValue;
 NmsStatus nms_value_retain(NmsRuntime *, NmsValue);
 NmsStatus nms_value_release(NmsRuntime *, NmsValue);
+/* Private description only: binding supplies no ordinary/resource authority.
+ * I bind once before dynamic allocations. The descriptor table stays alive and
+ * immutable through disposal; construction borrows ordered values. Failure
+ * leaves output and owners unchanged. GET retains; SET borrows both inputs. */
+NmsStatus nms_bind_records(NmsRuntime *, const NmsRecordDescriptor *, uint32_t);
+NmsStatus nms_record_create(NmsRuntime *, uint32_t, const NmsValue *, uint32_t, NmsHandle *);
+NmsStatus nms_record_identity(const NmsRuntime *, NmsHandle, uint32_t *, uint32_t *);
+NmsStatus nms_record_get(NmsRuntime *, NmsHandle, uint64_t, NmsValue *);
+NmsStatus nms_record_set(NmsRuntime *, NmsHandle, uint64_t, NmsValue);
+
 /* I retain a declared int/U8/float/bool kind; this API grants no opcode admission. */
 NmsStatus nms_packed_array_create(NmsRuntime *, uint32_t, NmsHandle *);
 NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);
 /* I prepare capacity8 and VM checked-doubling semantics before publication. */
 NmsStatus nms_vm_array_create(NmsRuntime *, uint32_t, NmsHandle *);
+/* I borrow input roots and publish only a complete fresh VM-policy array.
+ * Literal count is uint16-bounded; slice endpoints are already uint32 values.
+ * Input vectors remain valid for the call (outside relocating slot storage).
+ * Failure leaves inputs and output unchanged. These APIs grant no admission. */
+NmsStatus nms_vm_array_literal(NmsRuntime *, uint32_t, const uint64_t *, const uint32_t *, uint32_t, NmsHandle *);
+NmsStatus nms_vm_array_slice(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandle *);
 /* I consume both strings and build boxed tagged children before publication. */
 NmsStatus nms_split_values_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
 NmsStatus nms_value_array_append(NmsRuntime *, NmsHandle, NmsValue);
@@ -86,6 +110,13 @@ NmsStatus nms_predicate(const NmsRuntime *, NmsHandle, NmsHandle, uint32_t, uint
 NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
 NmsStatus nms_retain(NmsRuntime *, NmsHandle);
 NmsStatus nms_release(NmsRuntime *, NmsHandle);
+/* I reclaim unreachable array graphs explicitly; failure leaves owners intact.
+ * This synchronous private operation grants no emitted collection safe point. */
+NmsStatus nms_collect(NmsRuntime *);
+/* I reserve reusable workspace transactionally; prepared collection allocates
+ * nothing. These private operations do not admit generated graph execution. */
+NmsStatus nms_prepare_collection(NmsRuntime *);
+NmsStatus nms_collect_prepared(NmsRuntime *);
 /* These guard exported entry; generated frames own their separate cleanup. */
 NmsStatus nms_begin(NmsRuntime *);
 uint64_t nms_finish(NmsRuntime *, NmsStatus, int32_t);

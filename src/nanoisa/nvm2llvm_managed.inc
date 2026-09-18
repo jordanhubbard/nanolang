@@ -296,21 +296,30 @@ static void managed_literals(FILE *out, const NvmModule *m) {
         " %answer = call i64 @nms_module_order(i64 %av, i64 %bv)\n ret i64 %answer\nbad:\n ret i64 0\n}\n", out);
 }
 static void managed_entry(FILE *out, const NvmModule *m, const char *entry,
-                          uint32_t initializer, uint32_t global_count) {
+                          uint32_t initializer, uint32_t global_count, bool graph_arrays) {
+    const char *begin = graph_arrays ? "nms_module_graph_begin" : "nms_module_begin";
+    const char *finish = graph_arrays ? "nms_module_graph_finish" : "nms_module_finish";
     fprintf(out, "define i64 @nano_try_entry() {\nentry:\n"
-        " %%begin = call i32 @nms_module_begin(ptr @literal_strings, i32 %u)\n"
-        " %%started = icmp eq i32 %%begin, 0\n br i1 %%started, label %%initialize, label %%refused\n"
-        "refused:\n %%reason = zext i32 %%begin to i64\n %%packed = shl i64 %%reason, 32\n ret i64 %%packed\ninitialize:\n", m->string_count);
+        " %%begin = call i32 @%s(ptr @literal_strings, i32 %u)\n"
+        " %%started = icmp eq i32 %%begin, 0\n br i1 %%started, label %%initialize, label %%begin_failed\n"
+        "begin_failed:\n", begin, m->string_count);
+    if (graph_arrays) fputs(
+        " %acquired = icmp eq i32 %begin, 3\n"
+        " br i1 %acquired, label %prepare_failed, label %refused\n"
+        "prepare_failed:\n %prepare_result = call i64 @nms_module_graph_finish(i32 0)\n"
+        " ret i64 %prepare_result\n", out);
+    else fputs(" br label %refused\n", out);
+    fputs("refused:\n %reason = zext i32 %begin to i64\n %packed = shl i64 %reason, 32\n ret i64 %packed\ninitialize:\n", out);
     if (initializer < m->function_count) fprintf(out,
         " %%init = call %%R @f%u()\n %%init_value = extractvalue %%R %%init, 0\n"
         " call void @managed_release(%%V %%init_value)\n", initializer);
-    fputs(" %init_status = call i32 @nms_module_status()\n %init_ok = icmp eq i32 %init_status, 0\n"
-        " br i1 %init_ok, label %execute, label %failed\nfailed:\n"
-        " %failed_result = call i64 @nms_module_finish(i32 0)\n ret i64 %failed_result\nexecute:\n", out);
+    fprintf(out, " %%init_status = call i32 @nms_module_status()\n %%init_ok = icmp eq i32 %%init_status, 0\n"
+        " br i1 %%init_ok, label %%execute, label %%failed\nfailed:\n"
+        " %%failed_result = call i64 @%s(i32 0)\n ret i64 %%failed_result\nexecute:\n", finish);
     fprintf(out, " %%r = call %%R @f%u()\n %%v = extractvalue %%R %%r, 0\n"
         " %%bits = extractvalue %%V %%v, 0\n %%integer = trunc i64 %%bits to i32\n"
-        " call void @managed_release(%%V %%v)\n %%answer = call i64 @nms_module_finish(i32 %%integer)\n ret i64 %%answer\n}\n",
-        m->header.entry_point);
+        " call void @managed_release(%%V %%v)\n %%answer = call i64 @%s(i32 %%integer)\n ret i64 %%answer\n}\n",
+        m->header.entry_point, finish);
     fputs("define i32 @nano_dispose() {\nentry:\n %active = call i32 @nms_module_active()\n"
         " %busy = icmp ne i32 %active, 0\n br i1 %busy, label %refused, label %release\n"
         "refused:\n ret i32 4\nrelease:\n", out);
@@ -326,6 +335,84 @@ static void managed_entry(FILE *out, const NvmModule *m, const char *entry,
 /* I emit these only after the shared mutable shape preflight succeeds. */
 static void managed_mutable_runtime(FILE *out) {
     fputs(
+        "define internal %V @managed_array_literal(ptr %stack, ptr %sp, ptr %bits, ptr %tags, i32 %kind, i32 %count) {\n"
+        "entry:\n"
+        " %depth = load i64, ptr %sp\n"
+        " %n = zext i32 %count to i64\n"
+        " %base = sub i64 %depth, %n\n"
+        " br label %copy\n"
+        "copy:\n"
+        " %i = phi i64 [ 0, %entry ], [ %next, %item ]\n"
+        " %more = icmp ult i64 %i, %n\n"
+        " br i1 %more, label %item, label %prepare\n"
+        "item:\n"
+        " %index = add i64 %base, %i\n"
+        " %slot = getelementptr %V, ptr %stack, i64 %index\n"
+        " %value = load %V, ptr %slot\n"
+        " %payload = extractvalue %V %value, 0\n"
+        " %tag = extractvalue %V %value, 1\n"
+        " %wide = zext i8 %tag to i32\n"
+        " %bp = getelementptr i64, ptr %bits, i64 %i\n"
+        " %tp = getelementptr i32, ptr %tags, i64 %i\n"
+        " store i64 %payload, ptr %bp\n"
+        " store i32 %wide, ptr %tp\n"
+        " %next = add i64 %i, 1\n"
+        " br label %copy\n"
+        "prepare:\n"
+        " %h = call i64 @nms_module_array_literal(i32 %kind, i32 %count, ptr %bits, ptr %tags)\n"
+        " %allocated = icmp ne i64 %h, 0\n"
+        " br i1 %allocated, label %consume, label %failed\n"
+        "consume:\n"
+        " %remaining = phi i64 [ %n, %prepare ], [ %left, %release ]\n"
+        " %pending = icmp ne i64 %remaining, 0\n"
+        " br i1 %pending, label %release, label %ready\n"
+        "release:\n"
+        " %owned = call %V @pop(ptr %stack, ptr %sp)\n"
+        " call void @managed_release(%V %owned)\n"
+        " %left = sub i64 %remaining, 1\n"
+        " br label %consume\n"
+        "ready:\n"
+        " %raw = insertvalue %V zeroinitializer, i64 %h, 0\n"
+        " %array = insertvalue %V %raw, i8 7, 1\n"
+        " %status = call i32 @nms_module_status()\n"
+        " %ok = icmp eq i32 %status, 0\n"
+        " br i1 %ok, label %publish, label %discard\n"
+        "publish:\n"
+        " ret %V %array\n"
+        "discard:\n"
+        " call void @managed_release(%V %array)\n"
+        " br label %failed\n"
+        "failed:\n"
+        " ret %V zeroinitializer\n"
+        "}\n"
+        "define internal %V @managed_array_slice(%V %a, %V %b, %V %c) {\n"
+        " %at = extractvalue %V %a, 1\n"
+        " %valid = icmp eq i8 %at, 7\n"
+        " br i1 %valid, label %copy, label %bad\n"
+        "bad:\n"
+        " call void @nms_module_fail(i32 1)\n"
+        " br label %done\n"
+        "copy:\n"
+        " %ah = extractvalue %V %a, 0\n"
+        " %bb = extractvalue %V %b, 0\n"
+        " %cb = extractvalue %V %c, 0\n"
+        " %bt = extractvalue %V %b, 1\n"
+        " %ct = extractvalue %V %c, 1\n"
+        " %bw = zext i8 %bt to i32\n"
+        " %cw = zext i8 %ct to i32\n"
+        " %h = call i64 @nms_module_array_slice(i64 %ah, i64 %bb, i32 %bw, i64 %cb, i32 %cw)\n"
+        " br label %done\n"
+        "done:\n"
+        " %handle = phi i64 [ 0, %bad ], [ %h, %copy ]\n"
+        " call void @managed_release(%V %a)\n"
+        " call void @managed_release(%V %b)\n"
+        " call void @managed_release(%V %c)\n"
+        " %exists = icmp ne i64 %handle, 0\n"
+        " %raw = insertvalue %V zeroinitializer, i64 %handle, 0\n"
+        " %array = insertvalue %V %raw, i8 7, 1\n"
+        " %result = select i1 %exists, %V %array, %V zeroinitializer\n"
+        " ret %V %result\n"
+        "}\n"
         "define internal %V @managed_array_new(i32 %tag) {\n"
         " %h = call i64 @nms_module_array_create(i32 %tag)\n"
         " %ok = icmp ne i64 %h, 0\n"

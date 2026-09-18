@@ -1,0 +1,28 @@
+{
+  "source": "5074dd40",
+  "results": [
+    {
+      "name": "interpreter-build",
+      "command": [
+        "make",
+        "-j8",
+        "bin/nano",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 0.41
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "tests/test_legacy_signed_nan_format.py",
+        "-v"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 10.799
+    }
+  ]
+}

@@ -16,10 +16,10 @@ class Binary64Facts(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout
 
-    def module(self, directory):
+    def module(self, directory, extra=''):
         source, module = directory/'input.nasm', directory/'input.nvm'
         source.write_text('.entry main\n.function main 0 0 0 int 1\n'
-                          'PUSH_F64 1.23456789\nPOP\nPUSH_BOOL 1\nPOP\nPUSH_I64 37\nRET\n.end\n')
+                          'PUSH_F64 1.23456789\n'+extra+'POP\nPUSH_BOOL 1\nPOP\nPUSH_I64 37\nRET\n.end\n')
         self.checked(ROOT/'bin/nanoisa', 'asm', source, '-o', module)
         return module
 
@@ -56,7 +56,7 @@ class Binary64Facts(unittest.TestCase):
     def test_source_refusal_preserves_previous_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
-            module = self.module(directory)
+            module = self.module(directory, 'DUP\nF64_ADD\n')
             for target in ('c', 'nano'):
                 output = directory/f'previous.{target}'
                 output.write_text('retained output\n')
@@ -64,7 +64,7 @@ class Binary64Facts(unittest.TestCase):
                                          '-o', output], cwd=ROOT, capture_output=True,
                                         text=True, timeout=30)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn('PUSH_F64', result.stderr)
+                self.assertIn('F64_ADD', result.stderr)
                 self.assertEqual(output.read_text(), 'retained output\n')
 
 if __name__ == '__main__':

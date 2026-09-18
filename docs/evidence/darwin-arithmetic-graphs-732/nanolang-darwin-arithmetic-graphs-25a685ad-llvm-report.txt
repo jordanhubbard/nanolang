@@ -1,0 +1,104 @@
+Explicit-LLVM Darwin arithmetic and array-graph qualification report
+
+Task: task_209f1e88044b4e29886228dc7357188d
+Outcome: FAILED — stopped at the first phase-3 helper failure
+Source: 25a685adfb4f9bf32c68c9e6de04eb0298673c45
+Tree: 93b51b7b9cafe70a8dc7acd936462de1744b77c9
+Checkout: /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW
+Checkout state: detached HEAD; tracked source clean before and after
+
+Preserved earlier terminal reports
+- First missing-Wasmtime inventory report:
+  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-report.txt
+  SHA256 5e09c7a76a788ac44678fc7329f5d1313b8fb0fcd15c7496667e442289c3e888
+- First corrected missing-opt report:
+  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-report.txt
+  SHA256 467992331c93ec8d66bcea7159066f61c349b0aa8dbc8163bd9bece55cec816e
+
+Explicit path used for every phase
+/opt/homebrew/opt/llvm/bin:/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin followed by the inherited PATH.
+
+Selected toolchain
+- C compiler selected by cc: Apple clang 21.0.0.
+- LLVM clang: Homebrew clang 23.1.1.
+  SHA256 570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888
+- opt: Homebrew LLVM 23.1.1.
+  SHA256 b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b
+- llvm-link: Homebrew LLVM 23.1.1.
+  SHA256 1ea6fac182854f600dbeb0c6bf914b08ea836cdb581775c43ea308574abb431e
+- Default Apple linker: ld-27037.1 with LLVM/TAPI 21.0.0.
+  SHA256 374d9f0713bce2c8a9e1e82bde51615d5433516a10d99b63107eb6ee70542e4c
+- Explicit LTO linker: Homebrew ld64.lld 23.1.1.
+  SHA256 1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e
+- Wasmtime CLI 48.0.2.
+  SHA256 130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c
+- Python 3.14.6 venv with wasmtime 48.0.0.
+- Node v26.8.2.
+- SDK: macOS 27.0 at the active Xcode SDK path.
+
+Phase 2 build
+Command: make -j8 nano_vm nvm2c nvm2wasm nanoisa_dump
+Started: 2026-09-18T13:59:19.146247+00:00
+Finished: 2026-09-18T13:59:23.151064+00:00
+Elapsed: 4.004839 seconds
+Outer bound: 900 seconds
+Result: PASS, exit 0
+
+Built artifacts
+- bin/nano_vm
+  SHA256 17a340e38a7580c05a86f451b4ac54290a0ca0a0b2c4a1cc09a66c3372ec7c62
+- bin/nvm2c
+  SHA256 3d0b0fe22c7f147873da08d3f2abf0f26d31c4d55d915f029c3ad53886abb6af
+- bin/nvm2wasm
+  SHA256 13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a
+- nanoisa_dump target output bin/nanoisa
+  SHA256 67d4b4364f27da3299a9a950eb0ceeb28cb8d662c154fea426073aa63b0dcf5e
+
+Phase 3 helper methods
+Command: python3 -m unittest -f -v tests.test_binary64_arithmetic
+Started: 2026-09-18T13:59:55.588546+00:00
+Finished: 2026-09-18T13:59:56.479523+00:00
+Elapsed: 0.891003 seconds
+Outer bound: 900 seconds
+Result: FAIL, exit 1
+Methods completed: 0/2; fail-fast stopped in the first method.
+
+First failure
+Binary64Arithmetic.test_direct_and_exact_standalone reached its unchanged
+-O2 -flto -fuse-ld=lld compile/link command. Homebrew ld64.lld 23.1.1 could
+not parse the macOS 27 SDK TAPI targets arm64e.x1-macos and
+arm64e.x1-maccatalyst in libm.tbd and libSystem.tbd. It then reported the
+expected dependent undefined symbols and clang returned link failure.
+
+Exact failing inner command
+cc -std=c11 -Wall -Wextra -Werror -ffp-contract=off -fno-fast-math -fsanitize=address,undefined -fno-sanitize-recover=all -I/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/src -O2 -flto -fuse-ld=lld /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/tests/test_binary64_arithmetic.c -lm -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-binary64-arithmetic-h2i5pyl1/run10
+
+The second helper method, backend4 and graph8 phases did not run. I did not
+remove LTO, change linker or SDK selection, alter assertions/deadlines, or
+retry after the failure.
+
+Retained evidence
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-prerequisites.log
+  SHA256 5052f03c42c61f5bfa148092854c6f70664304d6b3e81ff41c6b417fd9c27224
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-linker-identities.log
+  SHA256 be9ebc2adf786bf085809dc57bc3d2a54782847018eda4ac2e901bc100dc9d6b
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-build.log
+  SHA256 647211838b6912c49cb61934b738652da7815470c83b2388624e1da4c5cf038a
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-build-artifacts.log
+  SHA256 2be4547537624b97ffd508375befe74e96232a0ed1eadfe9496c482b9aaa5a15
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2.log
+  SHA256 a06212e6ce0d256610719d06b13425b06790af736a66a2e0a75a9de1fb22d98d
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-failure-inventory.log
+  SHA256 c24b79bc859c489bbc01bc1ef01e8b0765802b3e28243a3c4c1b6f7eadf0fed2
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs-sha256.txt
+  SHA256 a6d0a93399cf61fa0305e0dd686ce2c4fa9acae93a3009b021740fd9183a91a8
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-source-manifest-before.txt
+  SHA256 36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-source-manifest-after.txt
+  SHA256 36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5
+
+The tracked manifests are byte-identical and final git porcelain is empty.
+All prior reports and frozen e9 artifacts remain unchanged. This is not a
+product quick run, bootstrap, release candidate or release permission. PR522
+and publication remain held.

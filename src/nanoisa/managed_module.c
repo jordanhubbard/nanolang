@@ -29,6 +29,28 @@ uint32_t nms_module_begin(const NmsView *literals, uint32_t count) {
 uint64_t nms_module_finish(int32_t result) {
     return nms_finish(&nms_module_instance, nms_module_error, result);
 }
+/* Private graph adapters: I keep the ordinary leaf entry ABI unchanged. */
+uint32_t nms_module_graph_begin(const NmsView *literals, uint32_t count) {
+    NmsStatus status = (NmsStatus)nms_module_begin(literals, count);
+    if (status != NMS_OK) return status;
+    status = nms_prepare_collection(&nms_module_instance);
+    nms_module_fail(status);
+    return status;
+}
+uint32_t nms_module_graph_collect(void) {
+    if (!nms_module_ready || !nms_module_instance.active) return NMS_STATE;
+    nms_module_fail(nms_collect_prepared(&nms_module_instance));
+    return nms_module_error;
+}
+uint64_t nms_module_graph_finish(int32_t result) {
+    if (!nms_module_ready || !nms_module_instance.active) return (uint64_t)NMS_STATE << 32;
+    /* Preparation may have failed; there can be no graph allocation in that
+     * failed entry. Preserve its error while ending the active entry. */
+    if (nms_module_instance.collection_prepared)
+        nms_module_fail(nms_collect_prepared(&nms_module_instance));
+    else nms_module_fail(NMS_STATE);
+    return nms_module_finish(result);
+}
 uint32_t nms_module_active(void) { return nms_module_instance.active; }
 uint32_t nms_module_dispose(void) {
     if (!nms_module_ready) {
@@ -76,6 +98,26 @@ uint64_t nms_module_split(uint64_t source, uint64_t delimiter) {
     return result;
 }
 /* My value accessors borrow arguments; split consumes its two string owners. */
+/* I borrow scalar input arrays and source owners; emitted transfer comes later. */
+uint64_t nms_module_array_literal(uint32_t tag, uint32_t count,
+                                  const uint64_t *payloads, const uint32_t *tags) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_vm_array_literal(&nms_module_instance, tag, payloads, tags, count, &result));
+    return result;
+}
+uint64_t nms_module_array_slice(uint64_t source, uint64_t start_bits, uint32_t start_tag,
+                                uint64_t end_bits, uint32_t end_tag) {
+    uint32_t length = 0;
+    NmsStatus status = nms_value_array_length(&nms_module_instance, source, &length);
+    NmsHandle result = 0;
+    if (status == NMS_OK) {
+        uint32_t start = start_tag == 1 ? (uint32_t)start_bits : 0;
+        uint32_t end = end_tag == 1 ? (uint32_t)end_bits : length;
+        status = nms_vm_array_slice(&nms_module_instance, source, start, end, &result);
+    }
+    nms_module_fail(status);
+    return result;
+}
 uint64_t nms_module_array_create(uint32_t tag) {
     NmsHandle result = 0;
     nms_module_fail(nms_vm_array_create(&nms_module_instance, tag, &result));

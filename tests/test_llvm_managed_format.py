@@ -34,14 +34,14 @@ class ManagedFormat(unittest.TestCase):
     def test_allocation_failure_and_allocation_free_identity(self):
         # No literal strings are needed to select the managed formatting profile.
         _,ir,wasm=self.compile('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 -9223372036854775808\nCAST_STRING\nPOP\nPUSH_I64 0\nRET\n.end\n')
-        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
         for fail in (0,1):
-            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,allocation_control=True)
         self.node(wasm,'for(let i=0;i<20;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===0n);}check(e.nano_dispose()===0);')
         body=('LOAD_GLOBAL 0\nPUSH_VOID\nEQ\nJMP_FALSE ready\nPUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_GLOBAL 0\nready:\n'
               'LOAD_GLOBAL 0\nCAST_STRING\nPUSH_STR a\nEQ\nASSERT\n')
         _,ir,_=self.compile(self.program(body))
-        self.native_harness(ir,'if(nano_try_entry())return 1;budget=0;for(int i=0;i<20;i++)if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+        self.native_harness(ir,'if(nano_try_entry())return 1;budget=0;for(int i=0;i<20;i++)if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,allocation_control=True)
 
     def test_float_instruction_and_signature_publication(self):
         base=self.program('PUSH_I64 1\nCAST_STRING\nPOP\n')

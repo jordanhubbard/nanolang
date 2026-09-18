@@ -2938,6 +2938,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     if (== fn_name "string_to_int") { return true }
     if (== fn_name "string_to_float") { return true } else { (print "") }
     if (== fn_name "cast_int") { return true } else { (print "") }
+    if (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) { return true }
     if (== fn_name "cast_float") { return true } else { (print "") }
     if (== fn_name "cast_bool") { return true } else { (print "") }
     if (== fn_name "cast_string") { return true } else { (print "") }
@@ -3112,6 +3113,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "string_to_int") { return (type_int) }
     if (== fn_name "string_to_float") { return (type_float) } else { (print "") }
     if (== fn_name "cast_int") { return (type_int) } else { (print "") }
+    if (== fn_name "float_from_bits") { return (type_float) }
+    if (== fn_name "float_to_bits") { return (type_int) }
     if (== fn_name "cast_float") { return (type_float) } else { (print "") }
     if (== fn_name "cast_bool") { return (type_bool) } else { (print "") }
     if (== fn_name "cast_string") { return (type_string) } else { (print "") }
@@ -3252,6 +3255,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    assert (== (check_builtin_function "float_from_bits").kind TypeKind.TYPE_FLOAT)
+    assert (== (check_builtin_function "float_to_bits").kind TypeKind.TYPE_INT)
     assert (== (check_builtin_function "string_to_float").kind TypeKind.TYPE_FLOAT)
     let t1: NSType = (check_builtin_function "println")
     assert (== t1.kind TypeKind.TYPE_VOID)
@@ -3711,7 +3716,55 @@ shadow check_bool_literal {
 }
 
 /* Check if operator is valid for given types */
+/* I select only exact flat numeric arrays; other legacy profiles keep their checker path. */
+fn array_arithmetic_element(t: NSType) -> int {
+    if (!= t.kind TypeKind.TYPE_ARRAY) { return TypeKind.TYPE_UNKNOWN }
+    if (and (== t.element_type_kind TypeKind.TYPE_INT)
+            (or (== t.element_type_name "") (== t.element_type_name "int"))) { return TypeKind.TYPE_INT }
+    if (and (== t.element_type_kind TypeKind.TYPE_FLOAT)
+            (or (== t.element_type_name "") (== t.element_type_name "float"))) { return TypeKind.TYPE_FLOAT }
+    return TypeKind.TYPE_UNKNOWN
+}
+shadow array_arithmetic_element {
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_INT "int")) TypeKind.TYPE_INT)
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_FLOAT "")) TypeKind.TYPE_FLOAT)
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_INT "u8")) TypeKind.TYPE_UNKNOWN)
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_ARRAY "array<int>")) TypeKind.TYPE_UNKNOWN)
+}
+fn array_arithmetic_selected(op: string, left: NSType, right: NSType) -> bool {
+    let arithmetic: bool = (or (or (== op "+") (== op "-")) (or (== op "*") (== op "/")))
+    return (and arithmetic (or (!= (array_arithmetic_element left) TypeKind.TYPE_UNKNOWN)
+                               (!= (array_arithmetic_element right) TypeKind.TYPE_UNKNOWN)))
+}
+shadow array_arithmetic_selected {
+    let ints: NSType = (type_array TypeKind.TYPE_INT "int")
+    assert (array_arithmetic_selected "+" ints (type_int))
+    assert (not (array_arithmetic_selected "%" ints ints))
+    assert (not (array_arithmetic_selected "+" (type_array TypeKind.TYPE_STRING "string") (type_string)))
+}
+fn array_arithmetic_matches(t: NSType, element: int) -> bool {
+    if (== t.kind TypeKind.TYPE_ARRAY) { return (== (array_arithmetic_element t) element) }
+    let mut name: string = "int"
+    if (== element TypeKind.TYPE_FLOAT) { set name "float" }
+    return (and (== t.kind element) (or (== t.name "") (== t.name name)))
+}
+shadow array_arithmetic_matches {
+    assert (array_arithmetic_matches (type_float) TypeKind.TYPE_FLOAT)
+    assert (not (array_arithmetic_matches (type_int) TypeKind.TYPE_FLOAT))
+    assert (not (array_arithmetic_matches (type_unknown_named "") TypeKind.TYPE_INT))
+}
+
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
+    if (array_arithmetic_selected op left_type right_type) {
+        let mut array_type: NSType = left_type
+        if (!= left_type.kind TypeKind.TYPE_ARRAY) { set array_type right_type }
+        let element: int = (array_arithmetic_element array_type)
+        if (and (array_arithmetic_matches left_type element) (array_arithmetic_matches right_type element)) {
+            return array_type
+        }
+        return (type_unknown_named "incompatible numeric array arithmetic")
+    }
+
     /* Special case: + for string concatenation */
     if (== op "+") {
         if (and (== left_type.kind TypeKind.TYPE_STRING) (== right_type.kind TypeKind.TYPE_STRING)) {
@@ -3780,6 +3833,15 @@ shadow check_binary_op {
     let result1: NSType = (check_binary_op "+" int_t int_t)
     assert (== result1.kind TypeKind.TYPE_INT)
     
+    let floats: NSType = (type_array TypeKind.TYPE_FLOAT "float")
+    let broadcast: NSType = (check_binary_op "-" (type_float) floats)
+    assert (== broadcast.kind TypeKind.TYPE_ARRAY)
+    assert (== broadcast.element_type_kind TypeKind.TYPE_FLOAT)
+    let pair: NSType = (check_binary_op "/" floats floats)
+    assert (== pair.kind TypeKind.TYPE_ARRAY)
+    let mismatch: NSType = (check_binary_op "+" floats int_t)
+    assert (== mismatch.kind TypeKind.TYPE_UNKNOWN)
+
     /* Test comparison */
     let result2: NSType = (check_binary_op "==" int_t int_t)
     assert (== result2.kind TypeKind.TYPE_BOOL)
@@ -4137,6 +4199,136 @@ shadow tc_bound_name {
     (mb_reset [])
 }
 
+fn reduce_type_known(parser: Parser, value: NSType) -> bool {
+    if (or (== value.kind TypeKind.TYPE_UNKNOWN) (== value.kind TypeKind.TYPE_GENERIC)) { return false }
+    if (== value.kind TypeKind.TYPE_ARRAY) {
+        if (== value.element_type_kind TypeKind.TYPE_UNKNOWN) { return false }
+        return (reduce_type_known parser (type_from_string_with_parser parser (type_kind_to_string value.element_type_kind value.element_type_name)))
+    }
+    if (== value.kind TypeKind.TYPE_FUNCTION) {
+        if (not (tc_str_starts_with value.name "fn(")) { return false }
+        let parameters: array<NSType> = (fn_type_params_with_parser parser value.name)
+        let mut i: int = 0
+        while (< i (array_length parameters)) {
+            if (not (reduce_type_known parser (at parameters i))) { return false }
+            set i (+ i 1)
+        }
+        return (reduce_type_known parser (type_from_string_with_parser parser (type_to_string (fn_type_return_type value.name))))
+    }
+    if (== value.kind TypeKind.TYPE_TUPLE) {
+        let components: array<string> = (split_tuple_type_names value.name)
+        if (== (array_length components) 0) { return false }
+        let mut i: int = 0
+        while (< i (array_length components)) {
+            if (not (reduce_type_known parser (type_from_string_with_parser parser (at components i)))) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    if (== value.kind TypeKind.TYPE_LIST_GENERIC) {
+        return (reduce_type_known parser (type_from_string_with_parser parser value.element_type_name))
+    }
+    if (or (== value.kind TypeKind.TYPE_STRUCT) (== value.kind TypeKind.TYPE_UNION)) {
+        let spelling: string = (type_to_string value)
+        let base: string = (base_type_name spelling)
+        let arguments: array<string> = (tc_generic_arguments spelling)
+        let mut declared: bool = (tc_is_opaque_name parser base)
+        let mut i: int = 0
+        while (< i (parser_get_struct_def_count parser)) {
+            if (== (parser_get_struct_def parser i).name base) { set declared true }
+            set i (+ i 1)
+        }
+        set i 0
+        while (< i (parser_get_union_count parser)) {
+            let definition: ASTUnion = (parser_get_union parser i)
+            if (== definition.name base) { set declared (== definition.generic_param_count (array_length arguments)) }
+            set i (+ i 1)
+        }
+        if (not declared) { return false }
+        set i 0
+        while (< i (array_length arguments)) {
+            if (not (reduce_type_known parser (type_from_string_with_parser parser (at arguments i)))) { return false }
+            set i (+ i 1)
+        }
+    }
+    return true
+}
+shadow reduce_type_known {
+    let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T } }")
+    assert (reduce_type_known parser (type_from_string_with_parser parser "array<Box<int>>"))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "array<array<unknown>>")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<unknown>")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<T>")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "fn(unknown,int)->int")))
+    assert (not (reduce_type_known parser (type_from_string_with_parser parser "fn(int,int)->unknown")))
+}
+
+fn reduce_types_exact(parser: Parser, actual: NSType, expected: NSType) -> bool {
+    if (!= actual.kind expected.kind) { return false }
+    if (not (and (reduce_type_known parser actual) (reduce_type_known parser expected))) { return false }
+    return (== (strip_spaces (type_to_string actual)) (strip_spaces (type_to_string expected)))
+}
+shadow reduce_types_exact {
+    let parser: Parser = (resource_test_parser "enum Number { One } union Box<T> { Some { value: T } }")
+    assert (not (reduce_types_exact parser (type_from_string_with_parser parser "Number") (type_int)))
+    assert (not (reduce_types_exact parser (type_int) (type_from_string "unknown")))
+    assert (not (reduce_types_exact parser (type_from_string_with_parser parser "Box<int>") (type_from_string_with_parser parser "Box<string>")))
+    assert (reduce_types_exact parser (type_from_string_with_parser parser "array<Box<int>>") (type_from_string_with_parser parser "array<Box<int>>"))
+}
+
+fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
+    if (!= call.arg_count 3) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array, initializer and binary callback in reduce." location))
+        return (type_unknown_named "reduce")
+    }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+    let source_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
+    let accumulator: NSType = (check_expr_node parser initial.node_id initial.node_type symbols diags file_name)
+    let callback_type: NSType = (check_expr_node parser callback.node_id callback.node_type symbols diags file_name)
+    if (or (!= source_type.kind TypeKind.TYPE_ARRAY) (!= callback_type.kind TypeKind.TYPE_FUNCTION)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array and a function callback in reduce." location))
+        return (type_unknown_named "reduce")
+    }
+    let parameters: array<NSType> = (fn_type_params_with_parser parser callback_type.name)
+    let result: NSType = (type_from_string_with_parser parser (type_to_string (fn_type_return_type callback_type.name)))
+    if (!= (array_length parameters) 2) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a binary callback in reduce." location))
+        return (type_unknown_named "reduce")
+    }
+    let first: NSType = (at parameters 0)
+    let element: NSType = (at parameters 1)
+    let known: bool = (and (and (reduce_type_known parser accumulator) (!= accumulator.kind TypeKind.TYPE_VOID)) (and (reduce_type_known parser element) (!= element.kind TypeKind.TYPE_VOID)))
+    let mut matches: bool = (and known (and (reduce_types_exact parser accumulator first) (reduce_types_exact parser accumulator result)))
+    if (== source_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
+        let mut empty_literal: bool = false
+        if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+            set empty_literal (== (parser_get_array_literal parser source.node_id).element_count 0)
+        }
+        set matches (and matches empty_literal)
+    } else {
+        set matches (and matches (reduce_types_exact parser source_type (type_array_of element)))
+    }
+    if (not matches) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require reduce callback fn(A,E)->A to match the initializer and array elements exactly." location))
+        return (type_unknown_named "reduce")
+    }
+    return accumulator
+}
+shadow check_reduce_call {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value = (reduce [1.0] 0.0 combine) return 0 }" "reduce.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reduce.nano")
+    let symbols: array<Symbol> = [(symbol_new "combine" (type_float) false true 2 [(type_float),(type_float)] (type_float))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (== (check_reduce_call parser (parser_get_call parser 0) symbols diags "reduce.nano").kind TypeKind.TYPE_FLOAT)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    let wrong: array<Symbol> = [(symbol_new "combine" (type_int) false true 2 [(type_float),(type_float)] (type_int))]
+    assert (== (check_reduce_call parser (parser_get_call parser 0) wrong diags "reduce.nano").kind TypeKind.TYPE_UNKNOWN)
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+}
+
 fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
     if (!= call.arg_count 2) {
@@ -4212,7 +4404,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let left_t: NSType = (check_expr_node parser binop.left binop.left_type symbols diags file_name)
         let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
         let op_str: string = (op_token_to_string binop.op)
-        return (check_binary_op op_str left_t right_t)
+        let result: NSType = (check_binary_op op_str left_t right_t)
+        if (and (array_arithmetic_selected op_str left_t right_t) (== result.kind TypeKind.TYPE_UNKNOWN)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I require matching flat numeric array and scalar element types for arithmetic." (Diagnostics.diag_location file_name binop.line binop.column)))
+        }
+        return result
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call_node: ASTCall = (parser_get_call parser node_id)
@@ -4294,6 +4490,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         }
+        if (and (or (== fn_name "reduce") (== fn_name "array_fold")) (< (env_lookup symbols fn_name) 0)) {
+            return (check_reduce_call parser call_node symbols diags file_name)
+        }
         if (or (== fn_name "map") (== fn_name "array_map")) {
             return (check_map_call parser call_node symbols diags file_name)
         }
@@ -4365,8 +4564,25 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             } else { (print "") }
         } else { (print "") }
         /* Check if it's a builtin function/operator */
+        if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (>= (env_lookup symbols fn_name) 0)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I cannot use a bound value as a binary64 bit intrinsic." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            return (type_unknown_named fn_name)
+        }
+        if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (< (env_lookup symbols fn_name) 0)) {
+            let mut valid_bits: bool = (== call_node.arg_count 1)
+            if valid_bits {
+                let bits_arg: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+                let bits_type: NSType = (check_expr_node parser bits_arg.node_id bits_arg.node_type symbols diags file_name)
+                if (== fn_name "float_from_bits") { set valid_bits (== bits_type.kind TypeKind.TYPE_INT) }
+                else { set valid_bits (== bits_type.kind TypeKind.TYPE_FLOAT) }
+            }
+            if (not valid_bits) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one exactly typed operand for binary64 bit transport." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            }
+            return (check_builtin_function fn_name)
+        }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
-        if (and (== fn_name "string_to_float") (>= (env_lookup symbols fn_name) 0)) {
+        if (and (or (== fn_name "string_to_float") (or (== fn_name "float_from_bits") (== fn_name "float_to_bits"))) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -5420,6 +5636,10 @@ shadow scalar_borrow_shape {
 }
 
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+    if (or (== func.name "float_from_bits") (== func.name "float_to_bits")) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I reserve binary64 bit intrinsic names." (Diagnostics.diag_location file_name func.line func.column)))
+        return false
+    }
     let return_type: NSType = (type_from_string_with_parser parser func.return_type)
     
     /* Create a fresh symbol table for this function.

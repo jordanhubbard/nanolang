@@ -6,6 +6,8 @@
 #include <string.h>
 #include "managed_runtime_ir.h"
 #include "managed_strings.h"
+#include "managed_array_shapes.h"
+_Static_assert(NMS_MEMORY == 3, "I retain graph begin acquired-memory status ABI");
 #include "nvm2llvm_managed.inc"
 
 static int refuse(char *error, size_t size, const char *format, ...) {
@@ -69,16 +71,31 @@ static void float_runtime(FILE *out) {
         "fp:\n %x = bitcast i64 %bits to double\n ret double %x\n"
         "scalar:\n %enum = icmp eq i8 %tag, 9\n %ordinal = select i1 %enum, i64 0, i64 %bits\n"
         " %answer = sitofp i64 %ordinal to double\n ret double %answer\n}\n"
+        "define internal double @float_result(double %value) {\n"
+        " %bits = bitcast double %value to i64\n"
+        " %exp = and i64 %bits, 9218868437227405312\n"
+        " %frac = and i64 %bits, 4503599627370495\n"
+        " %all_exp = icmp eq i64 %exp, 9218868437227405312\n"
+        " %payload = icmp ne i64 %frac, 0\n %nan = and i1 %all_exp, %payload\n"
+        " %result_bits = select i1 %nan, i64 9221120237041090560, i64 %bits\n"
+        " %answer = bitcast i64 %result_bits to double\n ret double %answer\n}\n"
         "define internal double @float_divide(double %a, double %b) {\nentry:\n"
-        " %zero = fcmp oeq double %b, 0.000000e+00\n br i1 %zero, label %z, label %divide\n"
-        "z:\n ret double 0.000000e+00\ndivide:\n %answer = fdiv double %a, %b\n ret double %answer\n}\n", out);
+        " %bits = bitcast double %b to i64\n %magnitude = and i64 %bits, 9223372036854775807\n"
+        " %zero = icmp eq i64 %magnitude, 0\n br i1 %zero, label %z, label %divide\n"
+        "z:\n ret double 0.000000e+00\ndivide:\n %raw = fdiv double %a, %b\n"
+        " %answer = call double @float_result(double %raw)\n ret double %answer\n}\n", out);
+    const char *operations[] = {"add", "sub", "mul"};
+    for (unsigned i = 0; i < 3; i++)
+        fprintf(out, "define internal double @float_%s(double %%a, double %%b) {\n"
+            " %%raw = f%s double %%a, %%b\n"
+            " %%answer = call double @float_result(double %%raw)\n ret double %%answer\n}\n",
+            operations[i], operations[i]);
 }
 /* I inspect both tags before promotion; cast_floating alone also accepts
  * nonnumeric scalar tags and is therefore not an arithmetic eligibility test. */
 static void numeric_runtime(FILE *out) {
     const char *names[] = {"add", "sub", "mul", "div"};
     const char *integer_ops[] = {"add", "sub", "mul"};
-    const char *float_ops[] = {"fadd", "fsub", "fmul"};
     for (unsigned op = 0; op < 4; op++) {
         fprintf(out, "define internal %%V @numeric_%s(%%V %%original_a, %%V %%original_b) {\nentry:\n", names[op]);
         fputs(" %a = call %V @enum_integer(%V %original_a)\n"
@@ -98,7 +115,7 @@ static void numeric_runtime(FILE *out) {
               " %fx = call double @cast_floating(%V %a)\n"
               " %fy = call double @cast_floating(%V %b)\n", out);
         if (op == 3) fputs(" %fr = call double @float_divide(double %fx, double %fy)\n", out);
-        else fprintf(out, " %%fr = %s double %%fx, %%fy\n", float_ops[op]);
+        else fprintf(out, " %%fr = call double @float_%s(double %%fx, double %%fy)\n", names[op]);
         fputs(" %bits = bitcast double %fr to i64\n"
               " %fv = insertvalue %V zeroinitializer, i64 %bits, 0\n"
               " %result_float = insertvalue %V %fv, i8 3, 1\n ret %V %result_float\n}\n", out);
@@ -285,7 +302,20 @@ static void result(FrameOutput *frame, uint32_t pc, uint8_t tag) {
         " %%p%u_v = insertvalue %%V %%p%u_v0, i8 %u, 1\n", pc, pc, pc, pc, tag);
     push(frame, pc, "v");
 }
-static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays) {
+/* I collect only before operands leave their complete counted-root locations.
+ * This list is an allocation audit, not an opcode eligibility whitelist. */
+static bool graph_allocation_instruction(uint8_t opcode) {
+    switch (opcode) {
+    case OP_ARR_NEW: case OP_ARR_PUSH: case OP_ARR_SET:
+    case OP_ARR_LITERAL: case OP_ARR_SLICE: case OP_STR_SPLIT:
+    case OP_STR_CONCAT: case OP_STR_SUBSTR: case OP_STR_REPLACE:
+    case OP_STR_TRIM: case OP_STR_TO_LOWER: case OP_STR_TO_UPPER:
+    case OP_STR_FROM_INT: case OP_STR_FROM_FLOAT: case OP_CAST_STRING:
+    case OP_ADD: return true;
+    default: return false;
+    }
+}
+static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays, bool graph_arrays) {
     FrameOutput frame = {.out = out, .managed = managed};
     const NvmFunctionEntry *f = &m->functions[index];
     fprintf(out, "define internal %s @f%u(", managed ? "%R" : f->result_count ? "%V" : "void", index);
@@ -294,6 +324,9 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         " store i64 0, ptr %%sp\n %%locals = alloca [%u x %%V]\n"
         " store [%u x %%V] zeroinitializer, ptr %%locals\n", depth ? depth : 1,
         f->local_count ? f->local_count : 1, f->local_count ? f->local_count : 1);
+    if (managed && mutable_arrays)
+        fprintf(out, " %%literal_bits = alloca [%u x i64]\n %%literal_tags = alloca [%u x i32]\n",
+                depth ? depth : 1, depth ? depth : 1);
     for (uint16_t i = 0; i < f->arity; ++i)
         fprintf(out, " %%argp%u = getelementptr %%V, ptr %%locals, i64 %u\n store %%V %%arg%u, ptr %%argp%u\n", i, i, i, i);
     if (managed) {
@@ -310,6 +343,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         int terminates = 0;
         frame.count = 0;
         fprintf(out, "b%u:\n", pc);
+        if (graph_arrays && graph_allocation_instruction(ins.opcode))
+            fprintf(out, " %%p%u_gc_status = call i32 @nms_module_graph_collect()\n"
+                " %%p%u_gc_ok = icmp eq i32 %%p%u_gc_status, 0\n"
+                " br i1 %%p%u_gc_ok, label %%p%u_collected, label %%error_cleanup\n"
+                "p%u_collected:\n", pc, pc, pc, pc, pc, pc);
         switch (ins.opcode) {
         case OP_NOP: break;
         case OP_ENUM_VAL: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
@@ -441,6 +479,22 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_ARR_LITERAL:
+            /* I leave counted roots on the stack until preparation succeeds.
+             * A failed preparation branches before pushing into the full stack. */
+            fprintf(out, " %%p%u_value = call %%V @managed_array_literal(ptr %%stack, ptr %%sp, ptr %%literal_bits, ptr %%literal_tags, i32 %u, i32 %u)\n"
+                " %%p%u_literal_status = call i32 @nms_module_status()\n"
+                " %%p%u_literal_ok = icmp eq i32 %%p%u_literal_status, 0\n"
+                " br i1 %%p%u_literal_ok, label %%p%u_literal_publish, label %%error_cleanup\n"
+                "p%u_literal_publish:\n", pc, ins.operands[0].u8, ins.operands[1].u16, pc, pc, pc, pc, pc, pc);
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_SLICE:
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_array_slice(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b"); transferred(&frame, "c");
+            push(&frame, pc, "value");
+            break;
         case OP_ARR_NEW:
             fprintf(out, " %%p%u_value = call %%V @managed_array_new(i32 %u)\n", pc, ins.operands[0].u8);
             push(&frame, pc, "value");
@@ -555,6 +609,12 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             fprintf(out, " %%p%u_value = call %%V @managed_cast_string(%%V %%p%u_a)\n", pc, pc);
             transferred(&frame, "a"); push(&frame, pc, "value");
             break;
+        case OP_F64_FROM_BITS: case OP_F64_TO_BITS:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_result = call i64 @integer(%%V %%p%u_a, i8 %u)\n",
+                    pc, pc, ins.opcode == OP_F64_FROM_BITS ? TAG_INT : TAG_FLOAT);
+            result(&frame, pc, ins.opcode == OP_F64_FROM_BITS ? TAG_FLOAT : TAG_INT);
+            break;
         case OP_CAST_INT: case OP_CAST_FLOAT:
             pop(&frame, pc, "a");
             if (ins.opcode == OP_CAST_FLOAT) {
@@ -573,7 +633,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             if (ins.opcode != OP_F64_NEG) fprintf(out, " %%p%u_y = call double @floating(%%V %%p%u_b)\n", pc, pc);
             const char *op = NULL, *cmp = NULL;
             switch (ins.opcode) {
-            case OP_F64_ADD: op="fadd"; break; case OP_F64_SUB: op="fsub"; break; case OP_F64_MUL: op="fmul"; break;
+            case OP_F64_ADD: op="add"; break; case OP_F64_SUB: op="sub"; break; case OP_F64_MUL: op="mul"; break;
             case OP_F64_EQ: cmp="oeq"; break; case OP_F64_NE: cmp="une"; break;
             case OP_F64_LT: cmp="olt"; break; case OP_F64_LE: cmp="ole"; break;
             case OP_F64_GT: cmp="ogt"; break; case OP_F64_GE: cmp="oge"; break;
@@ -582,7 +642,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             if (cmp) {
                 fprintf(out, " %%p%u_cmp = fcmp %s double %%p%u_x, %%p%u_y\n %%p%u_result = zext i1 %%p%u_cmp to i64\n", pc, cmp, pc, pc, pc, pc);
             } else {
-                if (op) fprintf(out, " %%p%u_fp = %s double %%p%u_x, %%p%u_y\n", pc, op, pc, pc);
+                if (op) fprintf(out, " %%p%u_fp = call double @float_%s(double %%p%u_x, double %%p%u_y)\n", pc, op, pc, pc);
                 else if (ins.opcode == OP_F64_NEG) fprintf(out, " %%p%u_fp = fneg double %%p%u_x\n", pc, pc);
                 else fprintf(out, " %%p%u_fp = call double @float_divide(double %%p%u_x, double %%p%u_y)\n", pc, pc, pc);
                 fprintf(out, " %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc);
@@ -676,13 +736,20 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
             mutable_arrays |= ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH ||
-                              ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP;
+                              ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP ||
+                              ins.opcode == OP_ARR_LITERAL || ins.opcode == OP_ARR_SLICE;
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
                 uint32_t count = ins.operands[0].u32 + 1;
                 if (count > global_count) global_count = count;
             }
             pc += width;
         }
+    }
+    int graph_arrays = 0;
+    if (managed && mutable_arrays) {
+        NvmArrayEligibilityResult mode = nvm_select_managed_array_mode(m, &graph_arrays);
+        if (mode.status != NVM_ARRAY_ELIGIBLE)
+            return refuse(error, size, "I cannot select managed array lifetime: %s", mode.message);
     }
     if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
     runtime(out, managed);
@@ -697,10 +764,10 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
         if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
-        function(out, m, i, depth, managed, mutable_arrays);
+        function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0);
     }
     if (managed) {
-        managed_entry(out, m, entry, initializer, global_count);
+        managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0);
         if (ferror(out)) return refuse(error, size, "I could not write managed LLVM IR");
         return 1;
     }

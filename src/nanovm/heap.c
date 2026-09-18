@@ -3,6 +3,7 @@
  */
 
 #include "heap.h"
+#include "../binary64_format.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -436,7 +437,7 @@ VmString *vm_string_from_int(VmHeap *heap, int64_t v) {
 
 VmString *vm_string_from_float(VmHeap *heap, double v) {
     char buf[64];
-    int len = snprintf(buf, sizeof(buf), "%g", v);
+    int len = nano_rt_f64_format(buf, sizeof(buf), v);
     if (len < 0 || (size_t)len >= sizeof(buf)) return NULL;
     return vm_string_new(heap, buf, (uint32_t)len);
 }

@@ -1,0 +1,19 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Input:  /home/jkh/Src/nanolang-canonical-component-shadows/src_nano/parser_driver.nano
+Output: /tmp/nanolang-canonical-component-shadows/parser.nvm
+
+[0/5] Resolving imports...
+  ✓ Merged source: 477626 bytes
+[1/5] Lexing...
+  ✓ Tokenized 67316 tokens
+[2/5] Parsing...
+  ✓ Parsed 329 functions
+[2.5/5] Processing imports...
+  ✓ Loaded 0 type symbols from imports
+[3/5] NSType checking...
+  ✓ NSType checking passed
+I passed my parser entry assertions.

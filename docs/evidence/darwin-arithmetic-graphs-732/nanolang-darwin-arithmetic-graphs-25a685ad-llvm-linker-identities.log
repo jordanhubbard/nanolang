@@ -1,0 +1,16 @@
+path=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+374d9f0713bce2c8a9e1e82bde51615d5433516a10d99b63107eb6ee70542e4c  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+@(#)PROGRAM:ld PROJECT:ld-27037.1
+BUILD 21:17:51 Aug 25 2026
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em armv8m.main armv8.1m.main
+LTO support using: LLVM version 21.0.0 (static support for 30, runtime is 30)
+TAPI support using: Apple TAPI version 21.0.0 (tapi-2100.3.8.1)
+path=/opt/homebrew/bin/ld64.lld
+1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e  /opt/homebrew/bin/ld64.lld
+Homebrew LLD 23.1.1
+path=/opt/homebrew/bin/ld.lld
+1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e  /opt/homebrew/bin/ld.lld
+Homebrew LLD 23.1.1 (compatible with GNU linkers)
+path=/opt/homebrew/bin/wasm-ld
+1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e  /opt/homebrew/bin/wasm-ld
+Homebrew LLD 23.1.1

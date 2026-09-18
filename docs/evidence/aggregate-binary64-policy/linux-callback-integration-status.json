@@ -1,0 +1,37 @@
+{
+  "source": "d7e04722346b1762eb0bb315d38308754adf91b3",
+  "selfhost": {
+    "bin/nanoc_stage1": "77962fa0b8c90532253476de1bb9d8cad88231ab865b8921ff1bc7109d441476",
+    "bin/nanoc_stage2": "cff01ba30d7163ac4c8a26e7788c02c02218e3dd49087a2256964597164bee36"
+  },
+  "results": [
+    {
+      "name": "build",
+      "command": [
+        "make",
+        "-j8",
+        "bin/nanoc_c",
+        "bin/nano",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nanoisa_dump",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "exit": 0,
+      "seconds": 2.4911249310243875
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_aggregate_binary64_policy"
+      ],
+      "exit": 0,
+      "seconds": 16.927449834998697
+    }
+  ]
+}

@@ -97,7 +97,7 @@ int main(void) {
     analyze("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,tags,NULL,TAG_INT,true,false,"owned obligations");
     analyze("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,tags,NULL,TAG_INT,false,true,NULL);
     analyze("LOAD_LOCAL 0\nPUSH_I64 8\nAGG_SET 0\nRET\n",1,1,tags,exclusive,TAG_STRUCT,true,false,"instruction contract");
-    analyze("LOAD_LOCAL 0\nCALL 0\nRET\n",1,1,tags,shared,TAG_INT,true,false,"entry-to-helper consuming call");
+    analyze("LOAD_LOCAL 0\nCALL 0\nRET\n",1,1,tags,shared,TAG_INT,true,false,"checked acyclic owned value call");
     analyze("PUSH_I64 1\nRET\nLOAD_LOCAL 0\nTAIL_CALL 0\nRET\n",1,1,tags,shared,TAG_INT,true,false,"instruction contract");
     uint8_t aliases[3]={TAG_STRUCT,TAG_STRUCT,TAG_BOOL},modes[3]={1,1,0};
     analyze("LOAD_LOCAL 2\nJMP_FALSE other\nLOAD_LOCAL 0\nJMP joined\n"

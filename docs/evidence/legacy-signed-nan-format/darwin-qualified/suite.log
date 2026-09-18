@@ -1,0 +1,13 @@
+test_c_seed_array_print (__main__.LegacySignedNan.test_c_seed_array_print) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-0wq1k8pe
+ok
+test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-yovin3ae
+ok
+test_generated_provider_identity (__main__.LegacySignedNan.test_generated_provider_identity) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-s44nt8zi
+ok
+test_interpreter_array_and_generic_format (__main__.LegacySignedNan.test_interpreter_array_and_generic_format) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-ps6d6jdc
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 10.711s
+
+OK

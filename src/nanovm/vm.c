@@ -6,6 +6,8 @@
  */
 
 #include "vm.h"
+#include "../binary64_bits.h"
+#include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
@@ -135,10 +137,10 @@ static VmResult vm_array_arithmetic(VmState *vm, NanoOpcode op,
             double x = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
             double y = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
             switch (op) {
-                case OP_ADD: value = val_float(x + y); break;
-                case OP_SUB: value = val_float(x - y); break;
-                case OP_MUL: value = val_float(x * y); break;
-                default: value = val_float(y == 0.0 ? 0.0 : x / y); break;
+                case OP_ADD: value = val_float(nano_rt_f64_add(x, y)); break;
+                case OP_SUB: value = val_float(nano_rt_f64_sub(x, y)); break;
+                case OP_MUL: value = val_float(nano_rt_f64_mul(x, y)); break;
+                default: value = val_float(nano_rt_f64_div(x, y)); break;
             }
         }
         bool appended = vm_array_push(&vm->heap, result, value);
@@ -196,13 +198,23 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
  * VM falls back to the checked handlers. */
 /* Checked stack handlers do not implement declared reference semantics.
  * I refuse these contracts even when a caller bypasses the CLI verifier. */
-static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
-    if (!module) return false;
+/* I distinguish valid advisory declarations from instructions that actually
+ * require my private owned-transfer execution path. Every public entry uses
+ * this classification before it asks whether instantiated constants are ready. */
+static bool vm_module_ownership_required(const NvmModule *module, bool *required) {
+    if (required) *required=false;
+    if (!module || !required) return false;
     if (!module->ownership_data && !module->ownership_size) return true;
-    bool needs = false;
-    return nvm_ownership_contracts_validate(module, &needs) == NVM_V2_OK &&
-        ((!needs && !nvm_uses_owned_transfers(module)) ||
-         (standalone && nvm_verify_owned_module(module).ok));
+    bool needs=false;
+    if (nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK) return false;
+    *required=needs || nvm_uses_owned_transfers(module);
+    return true;
+}
+
+static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
+    bool required=false;
+    return vm_module_ownership_required(module,&required) &&
+        (!required || (standalone && nvm_verify_owned_module(module).ok));
 }
 
 static bool vm_ownership_supported(const VmState *vm) {
@@ -213,6 +225,52 @@ static bool vm_ownership_supported(const VmState *vm) {
     for (uint32_t i=0;i<vm->linked_module_count;i++)
         if (!vm_module_ownership_supported(vm->linked_modules[i],false)) return false;
     return true;
+}
+
+/* I keep this proof only on one synchronous public invocation's C stack.
+ * The admitted standalone module is immutable while that invocation executes. */
+typedef struct { const NvmModule *module; } VmOwnedInvocationProof;
+
+static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationProof *proof) {
+    return proof && proof->module && vm && vm->module==proof->module &&
+        vm->root_module==proof->module && !vm->linked_module_count &&
+        !vm->callbacks && !vm->opcode_trace;
+}
+
+static bool vm_owned_constants_ready(const VmState *vm) {
+    if (!vm || !vm->module) return false;
+    const VmModuleConstants *constants = NULL;
+    if (vm->module==vm->root_module) constants=&vm->module_constants;
+    else for (uint32_t i=0;i<vm->linked_module_count;i++)
+        if (vm->linked_modules[i]==vm->module) {
+            constants=&vm->linked_module_constants[i];break;
+        }
+    if (!constants || constants->count!=vm->module->string_count)
+        return false;
+    for (uint32_t i=0;i<constants->count;i++)
+        if (!constants->strings || !constants->strings[i]) return false;
+    return true;
+}
+
+static bool vm_owned_runtime_ready(const VmState *vm, bool *required) {
+    if (required) *required=false;
+    if (!vm || !required ||
+        !vm_module_ownership_required(vm->module,required)) return false;
+    return !*required || vm_owned_constants_ready(vm);
+}
+
+static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
+    proof->module=NULL;
+    bool required=false;
+    if (!vm_owned_runtime_ready(vm,&required)) return false;
+    if (vm && vm->module && vm->module==vm->root_module &&
+        !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
+        !vm->references.active && required) {
+        if (!nvm_verify_owned_module(vm->module).ok) return false;
+        proof->module=vm->module;
+        return true;
+    }
+    return vm_ownership_supported(vm);
 }
 
 static const char VM_OWNERSHIP_REQUIRED[] =
@@ -1138,9 +1196,19 @@ static inline VmTrap trap_halt(void) {
     return (VmTrap){ .type = TRAP_HALT };
 }
 
+static VmReferenceActivation *vm_reference_activation(VmState *vm,uint32_t frame) {
+    if (!frame) return &vm->references;
+    if (frame==1) return &vm->callee_references;
+    return frame<NVM_OWNED_MAX_FUNCTIONS?&vm->value_references[frame-2]:NULL;
+}
+static void vm_clear_reference_activations(VmState *vm) {
+    memset(&vm->references,0,sizeof(vm->references));
+    memset(&vm->callee_references,0,sizeof(vm->callee_references));
+    memset(vm->value_references,0,sizeof(vm->value_references));
+}
+
 static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...) {
-    memset(&vm->references, 0, sizeof(vm->references));
-    memset(&vm->callee_references, 0, sizeof(vm->callee_references));
+    vm_clear_reference_activations(vm);
     vm->last_error = err;
     va_list ap;
     va_start(ap, fmt);
@@ -1198,18 +1266,26 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * external operation (I/O, FFI, halt) or completes / errors.
  * ======================================================================== */
 
-VmTrap vm_core_execute(VmState *vm) {
-    if (!vm_ownership_supported(vm))
+static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
+    bool admitted=vm_owned_proof_matches(vm,proof);
+    bool required=false;
+    if (!vm_owned_runtime_ready(vm,&required))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
-    const bool owned_execution = vm->module->ownership_size &&
-        nvm_verify_owned_module(vm->module).ok;
+    if (!admitted && !vm_ownership_supported(vm))
+        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+    const bool owned_execution = admitted || required;
     if (owned_execution) {
-        if ((vm->frame_count!=1 || vm->current_fn!=0) &&
-            !(vm->frame_count==2 && vm->current_fn==1 && vm->references.active &&
-              vm->callee_references.active))
-            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one standalone reference activation");
+        if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
+            vm->frames[0].fn_idx!=0)
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a bounded standalone owned activation");
+        for (uint32_t i=0;i<vm->frame_count;i++) {
+            VmReferenceActivation *context=vm_reference_activation(vm,i);
+            if (vm->frames[i].module!=vm->module ||
+                ((i || vm->references.active) && !context->active))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require each active owned frame context");
+        }
         if (!vm->references.active) {
-            if (vm->ip!=vm->module->functions[0].code_offset)
+            if (vm->frame_count!=1 || vm->current_fn!=0 || vm->ip!=vm->module->functions[0].code_offset)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need reference activation entry before resuming");
             memset(&vm->references,0,sizeof(vm->references));
             vm->references.active=true;
@@ -1409,6 +1485,8 @@ VmTrap vm_core_execute(VmState *vm) {
         vm_labels[OP_GC_RELEASE] = &&L_OP_GC_RELEASE;
         vm_labels[OP_CAST_INT] = &&L_OP_CAST_INT;
         vm_labels[OP_CAST_FLOAT] = &&L_OP_CAST_FLOAT;
+        vm_labels[OP_F64_FROM_BITS] = &&L_OP_F64_FROM_BITS;
+        vm_labels[OP_F64_TO_BITS] = &&L_OP_F64_TO_BITS;
         vm_labels[OP_CAST_BOOL] = &&L_OP_CAST_BOOL;
         vm_labels[OP_CAST_STRING] = &&L_OP_CAST_STRING;
         vm_labels[OP_TYPE_CHECK] = &&L_OP_TYPE_CHECK;
@@ -1447,8 +1525,7 @@ vm_dispatch_top:
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
         }
-        VmReferenceActivation *reference_context=vm->frame_count==2
-            ? &vm->callee_references : &vm->references;
+        VmReferenceActivation *reference_context=vm_reference_activation(vm,vm->frame_count-1);
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
             vm, vm->module, &dispatch_valid);
@@ -1735,8 +1812,8 @@ vm_dispatch_top:
             if (!owned_execution || ref>=frame->local_count || !reference_context->slots[ref].live)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference slot");
             VmReferenceSlot slot=reference_context->slots[ref];
-            VmReferenceActivation *origin=slot.origin_frame==0?&vm->references:&vm->callee_references;
-            if (slot.origin_frame>=vm->frame_count || !origin->active ||
+            VmReferenceActivation *origin=vm_reference_activation(vm,slot.origin_frame);
+            if (slot.origin_frame>=vm->frame_count || !origin || !origin->active ||
                 origin->generation!=slot.origin_generation ||
                 slot.root>=vm->frames[slot.origin_frame].local_count)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need the live originating reference frame");
@@ -1978,11 +2055,11 @@ dynamic_add:
                 /* Compute the wrapped bits without signed C overflow. */
                 stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(a.as.f64 + b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_add(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(a.as.f64 + (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_add(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float((double)a.as.i64 + b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_add((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_STRING && b.tag == TAG_STRING) {
                 VmString *s = vm_string_concat(&vm->heap, a.as.string, b.as.string);
                 vm_release(&vm->heap, a);
@@ -2025,11 +2102,11 @@ dynamic_sub:
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
                 stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(a.as.f64 - b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_sub(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(a.as.f64 - (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_sub(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float((double)a.as.i64 - b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_sub((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
                 VmResult status = vm_array_arithmetic(vm, OP_SUB, a, b, &result);
@@ -2062,11 +2139,11 @@ dynamic_mul:
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
                 stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(a.as.f64 * b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_mul(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(a.as.f64 * (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_mul(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float((double)a.as.i64 * b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_mul((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
                 VmResult status = vm_array_arithmetic(vm, OP_MUL, a, b, &result);
@@ -2106,11 +2183,11 @@ dynamic_div:
                 else q = a.as.i64 / b.as.i64;
                 stack_push(vm, val_int(q));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_div(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(b.as.i64 == 0 ? 0.0 : a.as.f64 / (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_div(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : (double)a.as.i64 / b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_div((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
                 VmResult status = vm_array_arithmetic(vm, OP_DIV, a, b, &result);
@@ -2207,11 +2284,24 @@ dynamic_div:
                                   "%s requires two floats",
                                   isa_get_info(instr.opcode)->name);
             double result = 0.0;
-            if (instr.opcode == OP_F64_ADD) result = a.as.f64 + b.as.f64;
-            else if (instr.opcode == OP_F64_SUB) result = a.as.f64 - b.as.f64;
-            else if (instr.opcode == OP_F64_MUL) result = a.as.f64 * b.as.f64;
-            else result = b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64;
+            if (instr.opcode == OP_F64_ADD) result = nano_rt_f64_add(a.as.f64, b.as.f64);
+            else if (instr.opcode == OP_F64_SUB) result = nano_rt_f64_sub(a.as.f64, b.as.f64);
+            else if (instr.opcode == OP_F64_MUL) result = nano_rt_f64_mul(a.as.f64, b.as.f64);
+            else result = nano_rt_f64_div(a.as.f64, b.as.f64);
             stack_push(vm, val_float(result));
+            VM_NEXT();
+        }
+
+        VM_CASE(OP_F64_FROM_BITS)
+        VM_CASE(OP_F64_TO_BITS) {
+            NanoValue value = stack_pop(vm);
+            uint8_t expected = instr.opcode == OP_F64_FROM_BITS ? TAG_INT : TAG_FLOAT;
+            if (value.tag != expected) {
+                vm_release(&vm->heap, value);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I require the exact input tag for binary64 bit transport.");
+            }
+            if (expected == TAG_INT) stack_push(vm, val_float(nl_float_from_bits(value.as.i64)));
+            else stack_push(vm, val_int(nl_float_to_bits(value.as.f64)));
             VM_NEXT();
         }
 
@@ -2548,19 +2638,26 @@ dynamic_div:
                                   callee_idx, callee->arity);
             }
 
+            VmReferenceActivation *next_reference_context=NULL;
             if (owned_execution) {
-                if (vm->frame_count!=1 || vm->current_fn!=0 || callee_idx!=1 ||
-                    vm->callee_references.active || vm->reference_generation==UINT64_MAX)
-                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one checked consuming helper activation");
-                NvmAffineState *contract=nvm_affine_state_create(vm->module,1,callee->local_count);
+                next_reference_context=vm_reference_activation(vm,vm->frame_count);
+                if (!callee_idx || !next_reference_context || next_reference_context->active ||
+                    vm->reference_generation==UINT64_MAX)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked bounded owned value activation");
+                NvmAffineState *contract=nvm_affine_state_create(vm->module,callee_idx,callee->local_count);
                 if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate consuming parameter facts");
-                NvmAffineType parameter={0};
-                bool valid=nvm_affine_owned_parameter_type(contract,&parameter);
+                NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+                bool valid=nvm_affine_value_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
                 nvm_affine_state_free(contract);
-                NanoValue argument=stack_peek(vm,0);
-                if (!valid || argument.tag!=TAG_STRUCT || !argument.as.sval ||
-                    argument.as.sval->def_idx!=parameter.layout)
-                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the exact owned parameter layout");
+                if (!valid || count!=callee->arity)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete consuming parameter contract");
+                for (uint16_t p=0;p<count;p++) {
+                    NanoValue argument=stack_peek(vm,count-1-p);
+                    if (argument.tag!=parameters[p].tag ||
+                        (argument.tag==TAG_STRUCT && (!argument.as.sval ||
+                         argument.as.sval->def_idx!=parameters[p].layout)))
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
+                }
             }
 
             /* Arguments are already on the stack, pop them into the new frame */
@@ -2571,9 +2668,9 @@ dynamic_div:
 
             if (owned_execution) {
                 /* I publish the new activation only after the frame preflight. */
-                memset(&vm->callee_references,0,sizeof(vm->callee_references));
-                vm->callee_references.active=true;
-                vm->callee_references.generation=++vm->reference_generation;
+                memset(next_reference_context,0,sizeof(*next_reference_context));
+                next_reference_context->active=true;
+                next_reference_context->generation=++vm->reference_generation;
             }
 
             /* Allocate space for remaining locals */
@@ -2868,7 +2965,23 @@ vm_return_values: ;
                 }
             }
             if (owned_execution) {
-                VmReferenceActivation *finished=vm->frame_count==2?&vm->callee_references:&vm->references;
+                if (returning->result_tag==TAG_STRUCT) {
+                    /* I validate while the pending owner is still a stack root.
+                     * Scalar/void count and tag checks need no extra facts. */
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
+                    if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");
+                    NvmAffineType type;uint16_t fields=0;
+                    bool valid=nvm_affine_value_result(contract,&type,&fields);
+                    nvm_affine_state_free(contract);
+                    if (!valid || type.tag!=TAG_STRUCT || !results[0].as.sval ||
+                        results[0].as.sval->def_idx!=type.layout || results[0].as.sval->field_count!=fields)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared owned result");
+                }
+                /* The returned operand already fits this stack. I establish
+                 * publication capacity before removing any callee roots. */
+                VmResult reserved=stack_reserve(vm,(uint64_t)frame->stack_base+returning->result_count);
+                if (reserved!=VM_OK) return trap_error(vm,reserved,"I cannot reserve an owned return result");
+                VmReferenceActivation *finished=vm_reference_activation(vm,vm->frame_count-1);
                 memset(finished,0,sizeof(*finished));
             }
             vm->stack_size -= returning->result_count;
@@ -3496,12 +3609,17 @@ vm_return_values: ;
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
+                vm_release(&vm->heap, start_v);
+                vm_release(&vm->heap, end_v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_SLICE: not an array");
             }
             uint32_t start = (uint32_t)(start_v.tag == TAG_INT ? start_v.as.i64 : 0);
             uint32_t end = (uint32_t)(end_v.tag == TAG_INT ? end_v.as.i64 : arr.as.array->length);
             VmArray *result = vm_array_slice(&vm->heap, arr.as.array, start, end);
             vm_release(&vm->heap, arr);
+            vm_release(&vm->heap, start_v);
+            vm_release(&vm->heap, end_v);
+            if (!result) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array slice.");
             stack_push(vm, val_array(result));
             VM_NEXT();
         }
@@ -3543,6 +3661,7 @@ vm_return_values: ;
         VM_CASE(OP_STRUCT_NEW) {
             uint32_t def_idx = instr.operands[0].u32;
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
+            if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             stack_push(vm, val_struct(s));
             VM_NEXT();
         }
@@ -4122,8 +4241,7 @@ vm_return_values: ;
             VM_NEXT();
 
         VM_CASE(OP_HALT)
-            memset(&vm->references,0,sizeof(vm->references));
-            memset(&vm->callee_references,0,sizeof(vm->callee_references));
+            vm_clear_reference_activations(vm);
             if (vm->profile.enabled) vm->profile.traps++;
             return trap_halt();
 
@@ -4212,6 +4330,10 @@ vm_dispatch_done: ;
     if (vm->frame_count > vm->activation_floor) goto vm_return_values;
 
     return trap_none();
+}
+
+VmTrap vm_core_execute(VmState *vm) {
+    return vm_core_execute_scoped(vm,NULL);
 }
 
 /* ========================================================================
@@ -4309,7 +4431,8 @@ static bool vm_stack_address(const VmState *vm, const void *pointer) {
 }
 
 static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *args,
-                                      uint16_t arg_count, NanoValue callable) {
+                                      uint16_t arg_count, NanoValue callable,
+                                      VmOwnedInvocationProof *proof) {
     if (arg_count && vm_stack_address(vm, args))
         return vm_error(vm, VM_ERR_TYPE_ERROR,
                         "I borrow stack arguments through vm_invoke, not vm_call_function.");
@@ -4375,14 +4498,19 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         /* I do not recursively drain queued requests before a newly entered
          * callback executes its first instruction. Nested native waits pump
          * explicitly; pure execution gets its own bounded safe points. */
-        if (pump_at_boundary && vm->callbacks) vm_callback_pump(vm, false);
+        if (pump_at_boundary && vm->callbacks) {
+            proof->module=NULL;
+            vm_callback_pump(vm, false);
+        }
         pump_at_boundary = true;
         if (vm->callback_error != VM_OK)
             return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
-        VmTrap trap = vm_core_execute(vm);
+        if (!vm_owned_proof_matches(vm,proof)) proof->module=NULL;
+        VmTrap trap = vm_core_execute_scoped(vm,proof);
 
         switch (trap.type) {
         case TRAP_YIELD:
+            proof->module=NULL;
             break;
         case TRAP_NONE:
             return VM_OK;
@@ -4391,6 +4519,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             return VM_OK;
 
         case TRAP_PRINT:
+            proof->module=NULL;
             val_print(trap.data.print.value, vm_out(vm));
             if (trap.data.print.newline) fprintf(vm_out(vm), "\n");
             vm_release(&vm->heap, trap.data.print.value);
@@ -4411,6 +4540,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             break;
 
         case TRAP_EXTERN_CALL: {
+            proof->module=NULL;
             NanoValue ext_result;
             char ext_err[256];
             bool ffi_ok;
@@ -4498,10 +4628,11 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     }
 }
 
-VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue *args,
+                                         uint16_t arg_count, VmOwnedInvocationProof *proof) {
     if (nvm_uses_owned_transfers(vm->module) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse host entry into a borrowed helper");
-    if (!vm_ownership_supported(vm))
+    if (!vm_owned_proof_matches(vm,proof) && !vm_ownership_admit(vm,proof))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
@@ -4509,11 +4640,10 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     bool owned = nvm_uses_owned_transfers(vm->module);
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
-    VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
+    VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void(),proof);
     vm->activation_floor = floor;
     if (result!=VM_OK) {
-        memset(&vm->references,0,sizeof(vm->references));
-        memset(&vm->callee_references,0,sizeof(vm->callee_references));
+        vm_clear_reference_activations(vm);
         if (owned) {
             /* I unwind actual owners after an owned entry/helper failure.
              * Direct execution has no outer vm_invoke cleanup wrapper. */
@@ -4529,12 +4659,18 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     return result;
 }
 
+VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    VmOwnedInvocationProof proof={0};
+    return vm_call_function_scoped(vm,fn_idx,args,arg_count,&proof);
+}
+
 VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *args,
                             uint16_t arg_count, NanoValue *out_result) {
     const NvmModule *target;
     uint32_t function_index;
     if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
-    if (!vm_ownership_supported(vm))
+    VmOwnedInvocationProof proof={0};
+    if (!vm_ownership_admit(vm,&proof))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
@@ -4575,13 +4711,13 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         return status;
     }
     if (out_result) *out_result = val_void();
+    if (target!=proof.module) proof.module=NULL;
     vm->module = target;
     vm->activation_floor = frames;
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
-    status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable);
+    status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable,&proof);
     if (status!=VM_OK && target->ownership_size) {
-        memset(&vm->references,0,sizeof(vm->references));
-        memset(&vm->callee_references,0,sizeof(vm->callee_references));
+        vm_clear_reference_activations(vm);
     }
     if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
@@ -4616,7 +4752,8 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
     if (nvm_uses_owned_transfers(vm->module) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse invocation entry into a borrowed helper");
-    if (!vm_ownership_supported(vm))
+    VmOwnedInvocationProof proof={0};
+    if (!vm_ownership_admit(vm,&proof))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm_stack_address(vm, out_result))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
@@ -4669,7 +4806,7 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     /* vm_call_function consumes argument ownership through its frame cleanup. */
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
 
-    VmResult result = vm_call_function(vm, fn_idx, stable_args, arg_count);
+    VmResult result = vm_call_function_scoped(vm, fn_idx, stable_args, arg_count,&proof);
     if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
     if (result == VM_OK && vm->stack_size > stack_base) {

@@ -172,6 +172,23 @@ behavior from this raw missing-value operation.
 **Type Casts (0x88-0x8F):**
 `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK`
 
+I also provide `F64_FROM_BITS` (0x8d, exact int to float) and `F64_TO_BITS`
+(0x8e, exact float to int). These copy the complete binary64 representation
+without arithmetic or NaN quieting; I retain all signed-zero and NaN payload
+bits. My integer result denotes the signed two's-complement interpretation.
+These additive version-2 operations have no immediate operands; older decoders
+refuse their unknown opcode. See my [bit transport contract](BINARY64_BIT_TRANSPORT_CONTRACT.md).
+
+My selected scalar binary arithmetic policy makes NaN results of ADD/SUB/MUL/DIV
+exact positive quiet NaN `0x7ff8000000000000`. Division by either signed zero
+returns positive zero before arithmetic, including a NaN numerator. Inputs,
+transport, comparisons and negation retain their existing bits/behavior.
+I require separate binary64 operations under the ordinary default rounding and
+gradual-underflow environment. This is an explicit semantic change under staged
+rollout: my shared C helper and [backend qualification](evidence/binary64-arithmetic-backends.md) do not establish source-producer integration.
+My [policy and route inventory](NANOISA_BINARY64_ARITHMETIC_POLICY.md) records
+pending VM/native/LLVM/Wasm/source qualification and separate array obligations.
+
 I convert U8 to int or float by its unsigned numeric value, without sign
 extension; U8 truthiness is zero/nonzero. CAST_STRING produces unsigned
 decimal text with no padding or prefix, using the ordinary managed-string

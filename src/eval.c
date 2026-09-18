@@ -1,6 +1,10 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "string_literal_decode.h"
+#include "binary64_bits.h"
+#include "binary64_format.h"
+#include "binary64_arithmetic.h"
 #include "runtime/binary64_parse.h"
 #include "coroutine.h"
 #include "effects.h"
@@ -145,29 +149,7 @@ static bool shadow_write_json_file(const char *path, const ShadowFailure *fails,
 
 /* Process escape sequences in a raw lexer string into actual characters */
 char *nl_unescape_string(const char *raw) {
-    size_t len = strlen(raw);
-    char *buf = malloc(len + 1);
-    if (!buf) return NULL;
-    size_t out = 0;
-    for (size_t i = 0; i < len; i++) {
-        if (raw[i] == '\\' && i + 1 < len) {
-            i++;
-            switch (raw[i]) {
-                case 'n':  buf[out++] = '\n'; break;
-                case 't':  buf[out++] = '\t'; break;
-                case 'r':  buf[out++] = '\r'; break;
-                case '0':  buf[out++] = '\0'; break;
-                case '\\': buf[out++] = '\\'; break;
-                case '\'': buf[out++] = '\''; break;
-                case '"':  buf[out++] = '"';  break;
-                default:   buf[out++] = '\\'; buf[out++] = raw[i]; break;
-            }
-        } else {
-            buf[out++] = raw[i];
-        }
-    }
-    buf[out] = '\0';
-    return buf;
+    return nl_decode_string_literal(raw);
 }
 
 /* Forward declarations */
@@ -250,16 +232,16 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
         double *__restrict__ po = (double*)out->data;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(pa[i], pb[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(pa[i], pb[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(pa[i], pb[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(pa[i], pb[i]);
                 break;
             default: break;
         }
@@ -336,16 +318,16 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
         double s = scalar.as.float_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(pa[i], s);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(pa[i], s);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(pa[i], s);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(pa[i], s);
                 break;
             default: break;
         }
@@ -412,16 +394,16 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
         double s = scalar.as.float_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(s, pa[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(s, pa[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(s, pa[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = s / pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(s, pa[i]);
                 break;
             default: break;
         }
@@ -456,7 +438,7 @@ static void print_value(Value val) {
             printf("%lld", (long long)val.as.int_val);
             break;
         case VAL_FLOAT:
-            printf("%g", val.as.float_val);
+            nano_rt_f64_print(stdout, val.as.float_val);
             break;
         case VAL_BOOL:
             printf("%s", val.as.bool_val ? "true" : "false");
@@ -475,7 +457,7 @@ static void print_value(Value val) {
                         printf("%lld", ((long long*)arr->data)[i]);
                         break;
                     case VAL_FLOAT:
-                        printf("%g", ((double*)arr->data)[i]);
+                        nano_rt_f64_print(stdout, ((double*)arr->data)[i]);
                         break;
                     case VAL_BOOL:
                         printf("%s", ((bool*)arr->data)[i] ? "true" : "false");
@@ -503,7 +485,7 @@ static void print_value(Value val) {
                         printf("%lld", (long long)dyn_array_get_int(arr, i));
                         break;
                     case ELEM_FLOAT:
-                        printf("%g", dyn_array_get_float(arr, i));
+                        nano_rt_f64_print(stdout, dyn_array_get_float(arr, i));
                         break;
                     case ELEM_BOOL:
                         printf("%s", dyn_array_get_bool(arr, i) ? "true" : "false");
@@ -720,7 +702,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
             }
             case ELEM_FLOAT: {
                 char tmp[64];
-                snprintf(tmp, sizeof(tmp), "%g", dyn_array_get_float(arr, i));
+                nano_rt_f64_format(tmp, sizeof(tmp), dyn_array_get_float(arr, i));
                 eval_sb_append_cstr(sb, tmp);
                 break;
             }
@@ -753,7 +735,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         }
         case VAL_FLOAT: {
             char tmp[64];
-            snprintf(tmp, sizeof(tmp), "%g", val.as.float_val);
+            nano_rt_f64_format(tmp, sizeof(tmp), val.as.float_val);
             /* Ensure at least one decimal place for whole-number floats
              * so 0.0 → "0.0" rather than "0" (matches Python/JS behaviour) */
             if (strchr(tmp, '.') == NULL && strchr(tmp, 'e') == NULL
@@ -788,7 +770,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                     }
                     case VAL_FLOAT: {
                         char tmp[64];
-                        snprintf(tmp, sizeof(tmp), "%g", ((double*)arr->data)[i]);
+                        nano_rt_f64_format(tmp, sizeof(tmp), ((double*)arr->data)[i]);
                         eval_sb_append_cstr(sb, tmp);
                         break;
                     }
@@ -1788,10 +1770,10 @@ static double eval_pure_expr_float2(ASTNode *expr,
                 double a = eval_pure_expr_float2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
                 double b = eval_pure_expr_float2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:  return a + b;
-                    case TOKEN_MINUS: return a - b;
-                    case TOKEN_STAR:  return a * b;
-                    case TOKEN_SLASH: return a / b;
+                    case TOKEN_PLUS:  return nano_rt_f64_add(a, b);
+                    case TOKEN_MINUS: return nano_rt_f64_sub(a, b);
+                    case TOKEN_STAR:  return nano_rt_f64_mul(a, b);
+                    case TOKEN_SLASH: return nano_rt_f64_div(a, b);
                     default: return 0.0;
                 }
             }
@@ -1819,10 +1801,10 @@ static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *
                 double a = eval_pure_expr_float(expr->as.prefix_op.args[0], param_val, param_name);
                 double b = eval_pure_expr_float(expr->as.prefix_op.args[1], param_val, param_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:  return a + b;
-                    case TOKEN_MINUS: return a - b;
-                    case TOKEN_STAR:  return a * b;
-                    case TOKEN_SLASH: return a / b;
+                    case TOKEN_PLUS:  return nano_rt_f64_add(a, b);
+                    case TOKEN_MINUS: return nano_rt_f64_sub(a, b);
+                    case TOKEN_STAR:  return nano_rt_f64_mul(a, b);
+                    case TOKEN_SLASH: return nano_rt_f64_div(a, b);
                     default: return 0.0;
                 }
             }
@@ -2546,10 +2528,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                             double y = ((double*)b->data)[i];
                             double r = 0.0;
                             switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
+                                case TOKEN_PLUS: r = nano_rt_f64_add(x, y); break;
+                                case TOKEN_MINUS: r = nano_rt_f64_sub(x, y); break;
+                                case TOKEN_STAR: r = nano_rt_f64_mul(x, y); break;
+                                case TOKEN_SLASH: r = nano_rt_f64_div(x, y); break;
                                 default: break;
                             }
                             ((double*)out.as.array_val->data)[i] = r;
@@ -2610,10 +2592,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         double s = right.as.float_val;
                         double r = 0.0;
                         switch (op) {
-                            case TOKEN_PLUS: r = x + s; break;
-                            case TOKEN_MINUS: r = x - s; break;
-                            case TOKEN_STAR: r = x * s; break;
-                            case TOKEN_SLASH: r = x / s; break;
+                            case TOKEN_PLUS: r = nano_rt_f64_add(x, s); break;
+                            case TOKEN_MINUS: r = nano_rt_f64_sub(x, s); break;
+                            case TOKEN_STAR: r = nano_rt_f64_mul(x, s); break;
+                            case TOKEN_SLASH: r = nano_rt_f64_div(x, s); break;
                             default: break;
                         }
                         ((double*)out.as.array_val->data)[i] = r;
@@ -2673,10 +2655,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         double y = ((double*)a->data)[i];
                         double r = 0.0;
                         switch (op) {
-                            case TOKEN_PLUS: r = s + y; break;
-                            case TOKEN_MINUS: r = s - y; break;
-                            case TOKEN_STAR: r = s * y; break;
-                            case TOKEN_SLASH: r = s / y; break;
+                            case TOKEN_PLUS: r = nano_rt_f64_add(s, y); break;
+                            case TOKEN_MINUS: r = nano_rt_f64_sub(s, y); break;
+                            case TOKEN_STAR: r = nano_rt_f64_mul(s, y); break;
+                            case TOKEN_SLASH: r = nano_rt_f64_div(s, y); break;
                             default: break;
                         }
                         ((double*)out.as.array_val->data)[i] = r;
@@ -2735,14 +2717,12 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         } else if (left.type == VAL_FLOAT && right.type == VAL_FLOAT) {
             double result;
             switch (op) {
-                case TOKEN_PLUS: result = left.as.float_val + right.as.float_val; break;
-                case TOKEN_MINUS: result = left.as.float_val - right.as.float_val; break;
-                case TOKEN_STAR: result = left.as.float_val * right.as.float_val; break;
+                case TOKEN_PLUS: result = nano_rt_f64_add(left.as.float_val, right.as.float_val); break;
+                case TOKEN_MINUS: result = nano_rt_f64_sub(left.as.float_val, right.as.float_val); break;
+                case TOKEN_STAR: result = nano_rt_f64_mul(left.as.float_val, right.as.float_val); break;
                 case TOKEN_SLASH:
                     /* Total float division = 0.0 by zero, matching the VM. */
-                    result = right.as.float_val == 0.0
-                             ? 0.0
-                             : left.as.float_val / right.as.float_val;
+                    result = nano_rt_f64_div(left.as.float_val, right.as.float_val);
                     break;
                 default: result = 0.0;
             }
@@ -3247,6 +3227,15 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Type casting functions */
     if (strcmp(name, "cast_int") == 0) return builtin_cast_int(args);
     if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
+    if (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) {
+        bool from = strcmp(name, "float_from_bits") == 0;
+        if (args[0].type != (from ? VAL_INT : VAL_FLOAT)) {
+            fputs("I require the exact input type for binary64 bit transport.\n", stderr);
+            exit(EXIT_FAILURE);
+        }
+        return from ? create_float(nl_float_from_bits(args[0].as.int_val))
+                    : create_int(nl_float_to_bits(args[0].as.float_val));
+    }
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
     if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
     if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
@@ -3259,7 +3248,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         double v = args[0].type == VAL_FLOAT ? args[0].as.float_val : (double)args[0].as.int_val;
         char buffer[64];
-        snprintf(buffer, sizeof(buffer), "%g", v);
+        nano_rt_f64_format(buffer, sizeof(buffer), v);
         if (strchr(buffer, '.') == NULL && strchr(buffer, 'e') == NULL
                 && strchr(buffer, 'n') == NULL && strchr(buffer, 'i') == NULL) {
             size_t len = strlen(buffer);
@@ -3401,7 +3390,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                     snprintf(tmp, sizeof(tmp), "%lld", (long long)args[arg_idx].as.int_val);
                     s = tmp;
                 } else if (args[arg_idx].type == VAL_FLOAT) {
-                    snprintf(tmp, sizeof(tmp), "%g", args[arg_idx].as.float_val);
+                    nano_rt_f64_format(tmp, sizeof(tmp), args[arg_idx].as.float_val);
                     s = tmp;
                 } else if (args[arg_idx].type == VAL_BOOL) {
                     s = args[arg_idx].as.bool_val ? "true" : "false";

@@ -1,0 +1,18 @@
+{
+  "source_head": "24459f661a99e002b0156e7591f0854a215bd3d0",
+  "frozen_full_gate": "17d2f700",
+  "platform": "Linux aarch64",
+  "sha256": {
+    "src/nanoisa/managed_strings.c": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+    "src/nanoisa/managed_strings.h": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "tests/nanoisa/test_managed_records.c": "141902cd705fa05c1bc355154de2a748f1b0663fef86a4e9a9c2a108ef9eb16b",
+    "tests/test_managed_records.py": "ebf1b9bc6e557d8e6afb71d25083c19d74ad6c402ecae21bb607588aa4b46af0",
+    "obj/nanoisa/managed_runtime_ir.h": "3ea961597b41d9712a11d0617642f05425426afcaef7abe2ac520a8eac82f050",
+    "obj/nanoisa/managed_runtime_ir.json": "588b94bdaa7f776189363fb3f747de476f53a323fdcdc10ec785bec70945ead9",
+    "bin/nvm2llvm": "8123d5a084182999a23735be4004f064e8632b973429c9a0c888df5d5c2720f0",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "/tmp/nanolang-managed-record-storage-focused.log": "7f354e634738f17f32c9b4a292bfe28e3fc976507e8e25dc0e5556fb0ad54694",
+    "/tmp/nanolang-managed-record-storage-adjacent.log": "ef71516648e9ad32d6e33664ad590963c1a65126e49bda8defc561a07b8ad70e",
+    "/tmp/nanolang-managed-record-storage-integrated.log": "a81eb9cebbae1d609938abf8a8ad0104017a0882b838112faf8bf842d7109f44"
+  }
+}

@@ -1,0 +1,88 @@
+test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-62t5ncjt
+
+  test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nano_virt') ... ERROR
+  test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage1') ... ERROR
+  test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage2') ... ERROR
+
+======================================================================
+ERROR: test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 44, in routes
+    self.command(ROOT/'bin/nvm2wasm',module,'-o',wasm)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 14, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2wasm'
+
+======================================================================
+ERROR: test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 44, in routes
+    self.command(ROOT/'bin/nvm2wasm',module,'-o',wasm)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 14, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2wasm'
+
+======================================================================
+ERROR: test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 44, in routes
+    self.command(ROOT/'bin/nvm2wasm',module,'-o',wasm)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 14, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2wasm'
+
+----------------------------------------------------------------------
+Ran 1 test in 9.009s
+
+FAILED (errors=3)

@@ -1,0 +1,9 @@
+{
+  "arguments": [
+    "--check-shadows",
+    "/tmp/nano_bytecode_shadows_WseSaP/shadows.nvm"
+  ],
+  "module_sha256": "8c75419d272d4e814eb8425ff7969e7a7b2e482a28003cb187c296b9da9959d1",
+  "vm_status": 0,
+  "seconds": 0.225
+}

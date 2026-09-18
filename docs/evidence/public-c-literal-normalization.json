@@ -1,0 +1,96 @@
+{
+  "head": "63eb6069e97520bd7814e26c46b3ec5fd873c378",
+  "sha256": {
+    "src/c_backend.c": "9031e0ea290f18e705bc4f65d9685999ecf82dc83f02e4f25fa3e9487d0fa73e",
+    "src/eval.c": "e84e8178475f2e69c2c922203d636d61d32dd7516f0b49d059392f09b2011656",
+    "src/string_literal_decode.h": "82a0b629d83f92c7805bf6d2ad37f2b6cd6ed6ccaba54baf8213df67aeda6e14",
+    "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+    "Makefile.gnu": "6c1d456fdfc866293267fe39f1ea1ba379c8c826be18be60a8afc556080ca6be",
+    "tests/test_public_c_literal_normalization.py": "91a068b28891bffbe97a619cf1718e2a168d36b7bb8e63e9f09feb293b80a981",
+    "tests/test_public_c_literal_api.c": "63d6518714872f5deaff767b3d45f119175794680b29f28dd78e15696d89212d",
+    "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+    "tests/test_public_c_string_api.c": "5771a9785de0ed90aeee40323e35f40fd52a7002a1e991fdecf098e2efe7d0fd",
+    "tests/test_public_c_nonfinite_format.py": "e3282858fe9dcf0f970a739a9bc7341580fe5588aab711d3df3561256cc21690",
+    "tests/test_public_c_format_api.c": "8dbaffccdc8d9fd58e3d3fd207ef51965ed17d3a94a42d1b4e3e6b3e8c125a32",
+    "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+    "tests/test_public_c_api.c": "bf2e247bc88df06623a6abd28bb3752ddcf01514ba139117d4de6ba97b563222",
+    "bin/nanoc_c": "260e834813bfa2b5bb1910b9b361b6232ab523f4f0434e4c208ae913cf465fec",
+    "bin/nano": "b1a1bef565a3194554fcb4427325cf8b77ccd353f48f2bc6ecec8ce6208c758c",
+    "bin/nano_virt": "6b979ff1f771296fcee634571e86fa1cb79a0bea964e42f5bf7d5bb81906ae2b",
+    "bin/nano_vm": "d6dd9ad30f5b59b02249e06a7315feb04fb62ac8eb0f22ec856224e6606defc5",
+    "bin/nvm2c": "9ad3a75384e5c0f6e93da5f5b2f2ccfac6421fbf85e8eb4f4ed67094f882ef1f",
+    "src/nanoisa/nvm2c.c": "245eaeb14ee84a1787bb2d5cfe9339faf63ff070e250d6817174562b928daa2b"
+  },
+  "initial_freeze": {
+    "head": "28c3f0d900fd38f7fcff9d67dd33a61f3163b556",
+    "sha256": {
+      "src/c_backend.c": "9031e0ea290f18e705bc4f65d9685999ecf82dc83f02e4f25fa3e9487d0fa73e",
+      "src/eval.c": "535201943cc6ca42f88ad6b21555e6ea8e55722e3590545898d3e1e5854a2095",
+      "src/string_literal_decode.h": "82a0b629d83f92c7805bf6d2ad37f2b6cd6ed6ccaba54baf8213df67aeda6e14",
+      "src/binary64_format.h": "597e34b1768b922c23427c1f64232c6fa95b59f2ad972000038afb1ddc0f6703",
+      "Makefile.gnu": "427644ebe6e55ca23a8a5a11ca3e3918574ca385631c8b42891ff7b890cfa24c",
+      "tests/test_public_c_literal_normalization.py": "91a068b28891bffbe97a619cf1718e2a168d36b7bb8e63e9f09feb293b80a981",
+      "tests/test_public_c_literal_api.c": "63d6518714872f5deaff767b3d45f119175794680b29f28dd78e15696d89212d",
+      "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+      "tests/test_public_c_string_api.c": "5771a9785de0ed90aeee40323e35f40fd52a7002a1e991fdecf098e2efe7d0fd",
+      "tests/test_public_c_nonfinite_format.py": "e3282858fe9dcf0f970a739a9bc7341580fe5588aab711d3df3561256cc21690",
+      "tests/test_public_c_format_api.c": "8dbaffccdc8d9fd58e3d3fd207ef51965ed17d3a94a42d1b4e3e6b3e8c125a32",
+      "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+      "tests/test_public_c_api.c": "bf2e247bc88df06623a6abd28bb3752ddcf01514ba139117d4de6ba97b563222",
+      "bin/nanoc_c": "50972814d144bb86069fd0bf82398870b0c33744cb021183a324f585d1ea4528",
+      "bin/nano": "1c8408f2319b1cb8851df8536da8eef34f47994b038e8b350e681642ef358542",
+      "bin/nano_virt": "1b08743ae7f36e41fc25c345bb22507e1e65ae6e0351b2bf6d97f99f55bd86bb",
+      "bin/nano_vm": "a6ce3bb8c95978caa83ccd3a37474999d42f2cbf9f6bc910e1a0e760d24298ef",
+      "bin/nvm2c": "ad259e88f42f600089dfdc43edc90465ee1e6d5da2b1ac5e75c5a060c2d2fcd6"
+    }
+  },
+  "logs": {
+    "/tmp/nanolang-public-c-literal-build.log": {
+      "sha256": "e74968a9abfa98c5080122f7a55fd78f5586d36fcb47d06db6433bf9bab1fd2c",
+      "bytes": 33686
+    },
+    "/tmp/nanolang-public-c-literal-final-build.log": {
+      "sha256": "936a1dd81847ab9104a1fe5cd10d11850b31aa4e1c3555b46bdcc8911f458013",
+      "bytes": 8407
+    },
+    "/tmp/nanolang-public-c-literal-gcc.log": {
+      "sha256": "2f8a3e197c7402eafc57b6baa89efed10921ce718113874046fc295f2e6d801f",
+      "bytes": 1602
+    },
+    "/tmp/nanolang-public-c-literal-clang.log": {
+      "sha256": "cc4d94ef637401e1dafc406019b06150a5726fcb7df625bcd69cbbc43dd2913f",
+      "bytes": 1602
+    },
+    "/tmp/nanolang-public-c-literal-integrated-build.log": {
+      "sha256": "a4c8e6d376422c59028c718be82b6608f4fe2cca69e2c982071a52febf801bb7",
+      "bytes": 11716
+    },
+    "/tmp/nanolang-public-c-literal-integrated-gcc.log": {
+      "sha256": "5c81c0f5f6e684c89d3e04d1a50221623fc152ce0f34517131cb663859a55d01",
+      "bytes": 508
+    },
+    "/tmp/nanolang-public-c-literal-integrated-clang.log": {
+      "sha256": "d5f2ce5e690d6170c5b6dfc1e4196a20aeb48df065a2a3082b041ffcb8b2655e",
+      "bytes": 508
+    },
+    "/tmp/nanolang-public-c-literal-integrated-adjacent-gcc.log": {
+      "sha256": "34f512d124acf1c7e9f4cab1de53b5b0ff0e45e309968bec552a13223b40f78a",
+      "bytes": 3665
+    },
+    "/tmp/nanolang-public-c-literal-integrated-adjacent-clang.log": {
+      "sha256": "5bbb4538e80d517744e8b10003ae3637116e611fafd9d47e92f4a8bf6bb98e4c",
+      "bytes": 3665
+    },
+    "/tmp/nanolang-public-c-literal-integrated-backend.log": {
+      "sha256": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933",
+      "bytes": 737
+    }
+  },
+  "results": {
+    "literal_gcc": "2 PASS 1.080s",
+    "literal_clang": "2 PASS 1.399s",
+    "adjacent_gcc": "16 PASS 6.498s",
+    "adjacent_clang": "16 PASS 8.268s",
+    "backend": "7 PASS no skips"
+  }
+}

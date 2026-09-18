@@ -1,0 +1,74 @@
+{
+  "schema": "nanolang.bounded-evidence.v1",
+  "tested_head": "e9f6b6b891b7df81bb7d9afca0774512f4093b29",
+  "production_checkpoint": "b7fe9981",
+  "frozen": {
+    "head": "e9f6b6b891b7df81bb7d9afca0774512f4093b29",
+    "files": {
+      "src/c_backend.c": "05e607ca93eee7d39f40419b8b914d143d136ad415d3ea103dc70f9f64338af2",
+      "src/c_backend.h": "55f6887497ac0207d75de6342b05d13ce7e1b00d24af1ee863d831c68f37c1f0",
+      "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+      "src/binary64_arithmetic.h": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+      "src/binary64_bits.h": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+      "src/string_literal_decode.h": "82a0b629d83f92c7805bf6d2ad37f2b6cd6ed6ccaba54baf8213df67aeda6e14",
+      "tests/test_public_c_concat.py": "ad6a6505f5ed67e3a05274392451b68c5c3139df34a1caf85e3081af87aad728",
+      "tests/test_public_c_concat_api.c": "f7ecabfb908c9807faea0869a738e250230fa881607178fa2fe8a71259cd8e8f",
+      "tests/test_public_c_int_conversion.py": "08bacc41dae71968f7428b0335f7afe126e2d27ce280925035f85020c2ba315e",
+      "tests/test_public_c_int_api.c": "78623adeb70275d10bb7ba68fc53879ac069f85bb14e6707e634292219eba732",
+      "tests/test_public_c_length_api.c": "04ff1199eacf1587f6af806ed26f355c680ed133a13e554ccf7cfd28379a4589",
+      "tests/test_public_c_nonfinite_format.py": "b90f22ac440cd80ed289762642e7d61838e04ae9bc173e0e47d961aa1fec0942",
+      "tests/test_public_c_format_api.c": "8dbaffccdc8d9fd58e3d3fd207ef51965ed17d3a94a42d1b4e3e6b3e8c125a32",
+      "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+      "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+      "tests/test_public_c_literal_normalization.py": "91a068b28891bffbe97a619cf1718e2a168d36b7bb8e63e9f09feb293b80a981",
+      "bin/nanoc_c": "a2119f196d81569597cbb31eb19e2faf9f76c063311e349b6571fe7ca92f882e",
+      "bin/nano": "35d2209654f35131cc4770405186a817f6acdcce8bb48d91313a8b6806de1d92",
+      "bin/nano_virt": "8a0175aa864899bc1b86af09eda63799034d7d67f1fa73bf3211f5a05ce5d5ec",
+      "bin/nano_vm": "a38fe273ba710e1cb10717ee6f6672aa23f53a24c487d51d45c7bfbbba5d42a4",
+      "bin/nvm2c": "fafddb9dc1f03e60983891ab0651c819300a21ddf0f00d9cf41b7f809e0524ec"
+    },
+    "compilers": {
+      "/usr/bin/cc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+      "/tmp/nanolang-truthiness-clang-bin/cc": "0434facefba56a23f73b2a7ce18f968fe23b9e8aa9e48ac25d5998a2aeca6235"
+    }
+  },
+  "logs": {
+    "/tmp/nanolang-public-c-concat-adjacent-clang.log": "dbc936d5c4e42238fd46fbe2a2ce9617489ab5784de9a2ed4e4c4c9ca64aa8c2",
+    "/tmp/nanolang-public-c-concat-adjacent-gcc.log": "ca13c76498c67afe01d68422139e24eebe52c7468622c98389dcec43f84b298c",
+    "/tmp/nanolang-public-c-concat-backend.log": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933",
+    "/tmp/nanolang-public-c-concat-build.log": "e74968a9abfa98c5080122f7a55fd78f5586d36fcb47d06db6433bf9bab1fd2c",
+    "/tmp/nanolang-public-c-concat-clang.log": "ed0a7c537ad90f1eb487d62bd1b1623b64d16eddadf26fea1d539b88aae00ec3",
+    "/tmp/nanolang-public-c-concat-gcc.log": "b654bb0cda9af73be30265ba64ddc0727f25912ad4a894213c77cf3325de264e"
+  },
+  "results": {
+    "concat_gcc": {
+      "methods": 4,
+      "seconds": 1.746,
+      "status": "pass"
+    },
+    "concat_clang": {
+      "methods": 4,
+      "seconds": 2.531,
+      "status": "pass"
+    },
+    "adjacent_gcc": {
+      "methods": 24,
+      "seconds": 10.759,
+      "status": "pass"
+    },
+    "adjacent_clang": {
+      "methods": 24,
+      "seconds": 13.749,
+      "status": "pass"
+    },
+    "unchanged_backend": {
+      "programs": 7,
+      "status": "pass"
+    }
+  },
+  "limits": [
+    "Process-lifetime snapshot retention, not early collection or bounded memory.",
+    "Visible NUL-terminated strings, not arbitrary VM byte strings.",
+    "No bootstrap or Darwin qualification; public6ade remains open."
+  ]
+}
