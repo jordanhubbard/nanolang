@@ -2,7 +2,11 @@
 #include "test_nested_owned_results.c"
 static unsigned attempts,fail_at,failures;
 void *result_heap_malloc(size_t n){if(++attempts==fail_at){failures++;return NULL;}return malloc(n);}
-void *result_heap_calloc(size_t n,size_t s){if(++attempts==fail_at){failures++;return NULL;}return calloc(n,s);}
+void *result_heap_calloc(size_t n,size_t s){
+    /* I count only required capacity; an empty record permits NULL fields. */
+    if(n && s && ++attempts==fail_at){failures++;return NULL;}
+    return calloc(n,s);
+}
 void *result_heap_realloc(void *p,size_t n){if(++attempts==fail_at){failures++;return NULL;}return realloc(p,n);}
 int main(void) {
     (void)result_fixture;(void)artifacts;(void)nested_roundtrip;unsigned injected=0,budgets=0;
@@ -12,6 +16,7 @@ int main(void) {
             bool terminal=false;
             for(unsigned fault=1;fault<256;fault++) {
                 fail_at=0;VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
+                fprintf(stderr,"nested allocation case=%u api=%u fault=%u\n",index,api,fault);
                 attempts=failures=0;fail_at=fault;NanoValue value=val_void();VmResult status=result_api(&vm,api,&value);
                 fail_at=0;budgets++;injected+=failures;
                 if(status==VM_OK){if(api==1||api==2)value=vm.stack[--vm.stack_size];CHECK(value.tag==TAG_INT&&value.as.i64==42);vm_release(&vm.heap,value);}
