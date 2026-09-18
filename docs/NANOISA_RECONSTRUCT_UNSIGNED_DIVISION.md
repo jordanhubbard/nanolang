@@ -27,3 +27,5 @@ Reconstructed C uses strict O1 GCC/Clang with ASan/UBSan. Reconstructed NanoLang
 | Stage2 | `b276026caf525bde10c063b2f7654f192b81ace73587e5af5bebda4986581a40` |
 
 My bounded helpers take at most 64 division steps; I make no native multiplication/division performance claim. Full reconstruction remains open.
+
+I restack onto canonical main `9f5260d9` after PR666. The sole conflict is duplicate task669 roadmap wording; I preserve the newer completed row and integrated sixteen-method evidence alongside my new contract. Generator and all reconstruction tests compare byte-identical with reviewed `a50966b9`; both existing tool manifests still verify. I retain the preceding qualification without claiming rebuilt compiler tools or an additional full gate.
