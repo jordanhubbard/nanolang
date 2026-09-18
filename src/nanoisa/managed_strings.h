@@ -11,10 +11,11 @@ typedef enum {
 typedef uint64_t NmsHandle;
 #define NMS_DYNAMIC (UINT64_C(1) << 63)
 typedef struct { const unsigned char *data; uint32_t length; } NmsView;
+typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2 } NmsSlotKind;
 typedef struct {
     unsigned char *data;
     uint64_t references;
-    uint32_t length, next_free;
+    uint32_t length, next_free, capacity, kind;
 } NmsSlot;
 typedef struct {
     const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
@@ -31,6 +32,13 @@ typedef struct {
  * views never cross runtime instances; a view borrows its handle's lifetime. */
 void nms_init(NmsRuntime *, const NmsView *, uint32_t);
 NmsStatus nms_create(NmsRuntime *, const unsigned char *, uint64_t, NmsHandle *);
+/* My arrays own string children only. Append borrows both arguments and
+ * retains one child on success; get returns an owner, or zero for a missing
+ * unsigned index. Outputs and array contents change only on success. */
+NmsStatus nms_string_array_create(NmsRuntime *, NmsHandle *);
+NmsStatus nms_string_array_append(NmsRuntime *, NmsHandle, NmsHandle);
+NmsStatus nms_string_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsHandle *);
+NmsStatus nms_string_array_length(const NmsRuntime *, NmsHandle, uint32_t *);
 /* I consume one owner and publish a fresh ASCII-mapped result; upper is 0/1.
  * Output changes only on success. */
 NmsStatus nms_case_owned(NmsRuntime *, NmsHandle, uint32_t, NmsHandle *);

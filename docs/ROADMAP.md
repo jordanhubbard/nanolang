@@ -10114,6 +10114,12 @@ Other translators:
       cleanup, concat, substring and portable conversions are implemented in
       the checked children above. Darwin managed acceptance7ba and broader
       required target coverage remain open; old design prose is historical.
+- [ ] I establish explicit managed slot kinds and shared-table string-array
+      ownership: transactional create/append, retained get/length, alias mutation,
+      string-only acyclic children and complete teardown. MAC `task_83a671a98d724de2b219e75dcad39c8b`; I qualify the standalone core with native LLVM sanitizers and import-free Wasm; opcode/frame admission remains open ([evidence](evidence/managed-string-array-core.md)).
+- [ ] **VM array creation allocation guard** (`task_aeff9da2749041fea3aa15033f56fc80`): I statically found unchecked OP_ARR_NEW allocation publication at25ca7ed8. I require a checked failure boundary and fresh ordinary lifecycle acceptance before managed ARR_NEW parity; I do not replay failed artifacts.
+      my [core contract](NANOISA_MANAGED_STRING_ARRAY_CORE.md) requires nativeLLVM/
+      Wasm/package/allocator evidence without opcode or FrameOutput admission.
 - [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
       MAC `task_488a05eb5e2a417caf83a8353363a30d`.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
