@@ -125,3 +125,20 @@ it does not substitute for the required LeakSanitizer gate.
 This portability correction changes only test policy and documentation; the
 qualified owned-result production remains unchanged. Full source admission,
 string/PRINT effects and the unchanged affine example remain open.
+
+## My independent current-main LSan policy review
+
+My final compiler-specific policy at2261d027 retains required Homebrew LLVM
+leak checks and only the documented optional Apple-runtime fallback. Independent
+review verified both retained Darwin report hashes and their ten generated
+cases, explicit compiler identities and detect_leaks settings. The code at
+qualifieddfbea5ba is unchanged in2261d027; only its evidence wording changed.
+
+I integrated canonical main84bbc into a fresh Linux worktree at04df093a.
+`make -j4 CC=cc test-owned-result-descriptors test-owned-value-results` passes
+in18.751seconds with all tracked source/test hashes unchanged. The compiler
+policy test and actual generated-native gate retain detect_leaks=1 on Linux.
+I preserve the existing counts and zero-live-allocation assertions; no production
+runtime changed for this policy. My [sealed reports](owned-result-lsan-current/report-sha256.json)
+retain that integration and the hash-verified Darwin logs. This clears the
+bounded original broad-OS-policy concern, not the separate product/release hold.
