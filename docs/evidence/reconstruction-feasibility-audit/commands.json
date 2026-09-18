@@ -1,0 +1,137 @@
+[
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nano_virt",
+      "/tmp/nano-feasibility-current-ho3ajwip/original.nano",
+      "--emit-nvm",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/module.nvm"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nano_vm",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/module.nvm"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nvm2hl",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/module.nvm",
+      "--language",
+      "c",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.c"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nvm2hl",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/module.nvm",
+      "--language",
+      "nano",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.nano"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.c",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovered-c"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/tmp/nano-feasibility-current-ho3ajwip/recovered-c"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nanoisa_hl_facts",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/module.nvm"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nanoisa",
+      "dump",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/module.nvm"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nanoc_c",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.nano",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/nanoc_c"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/tmp/nano-feasibility-current-ho3ajwip/nanoc_c"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nanoc_stage1",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.nano",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/nanoc_stage1"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/tmp/nano-feasibility-current-ho3ajwip/nanoc_stage1"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/bin/nanoc_stage2",
+      "/tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.nano",
+      "-o",
+      "/tmp/nano-feasibility-current-ho3ajwip/nanoc_stage2"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "argv": [
+      "/tmp/nano-feasibility-current-ho3ajwip/nanoc_stage2"
+    ],
+    "exit": 0,
+    "expected": 0
+  }
+]

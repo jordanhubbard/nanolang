@@ -6,6 +6,9 @@ I do not replace them with all-opcode or arbitrary-language acceptance. My
 broader Phase20 product targets and structured-control/frontend metadata rows
 retain their own requirements.
 
+My completed procedure and original-scope acceptance matrix are recorded in
+[my evidence](evidence/reconstruction-feasibility-audit.md).
+
 ## My remaining evidence procedure, recorded before execution
 
 I will pin one new small Nano source fixture with named exact FLOAT parameters,
