@@ -14,6 +14,7 @@ static void *authority_calloc(size_t count,size_t size) {
 #include "assembler.h"
 #include "disassembler.h"
 #include "verifier.h"
+#include "managed_record_plan.h"
 static unsigned checks;
 #define CHECK(x) do { checks++; assert(x); } while(0)
 static void word(uint8_t *p,uint32_t n) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)(n>>(8*i));}
@@ -25,6 +26,9 @@ static void invalid(NvmModule *m) {
     bool needs=true;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK && !needs);
     NvmLayoutAuthority found=NVM_LAYOUT_AUTHORITY_RESOURCE;
     CHECK(nvm_ownership_layout_authority(m,0,&found)!=NVM_V2_OK && found==NVM_LAYOUT_AUTHORITY_RESOURCE);
+    NvmLayoutAuthority batch[4]={3,3,3,3};
+    CHECK(nvm_ownership_layout_authorities(m,4,batch)!=NVM_V2_OK);
+    for(unsigned i=0;i<4;i++)CHECK(batch[i]==3);
 }
 int main(int argc,char **argv) {
     AsmResult error;
@@ -38,6 +42,12 @@ int main(int argc,char **argv) {
         {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&leaf}};
     NvmV2Layouts layouts={entries,4};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
     check_authority(m,0,NVM_LAYOUT_AUTHORITY_UNKNOWN);
+    NvmLayoutAuthority batch[4]={3,3,3,3};
+    CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_OK);
+    for(unsigned i=0;i<4;i++)CHECK(batch[i]==NVM_LAYOUT_AUTHORITY_UNKNOWN);
+    CHECK(nvm_ownership_layout_authorities(m,0,NULL)==NVM_V2_OK);
+    CHECK(nvm_ownership_layout_authorities(NULL,0,NULL)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(nvm_ownership_layout_authorities(m,4,NULL)==NVM_V2_ERR_INDEX_RANGE);
     m->ownership_size=28;m->ownership_data=calloc(28,1);CHECK(m->ownership_data);
     uint8_t *data=m->ownership_data;word(data,1);word(data+4,4);
     for(unsigned i=0;i<4;i++)data[8+i]=NVM_LAYOUT_COMPLETE;
@@ -45,6 +55,21 @@ int main(int argc,char **argv) {
     bool needs=true;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && !needs);
     CHECK(nvm_verify(m).ok);
     for(unsigned i=0;i<4;i++)check_authority(m,i,NVM_LAYOUT_AUTHORITY_ORDINARY);
+    CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_OK);
+    for(unsigned i=0;i<4;i++)CHECK(batch[i]==NVM_LAYOUT_AUTHORITY_ORDINARY);
+    NvmRecordPlan *plan=NULL;
+    CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_DESCRIBED);
+    CHECK(plan->authority==NVM_RECORD_AUTHORITY_ORDINARY && plan->record_count==4);
+    CHECK(plan->record_to_layout[0]==0 && plan->record_to_layout[3]==3);
+    CHECK(plan->layouts.items[1].fields[0].nested_idx==0);
+    nvm_record_plan_free(plan);
+    CHECK(nvm_ownership_layout_authorities(m,3,batch)==NVM_V2_ERR_INDEX_RANGE);
+    for(unsigned i=0;i<4;i++)CHECK(batch[i]==NVM_LAYOUT_AUTHORITY_ORDINARY);
+    budget=0;CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_ERR_TRUNCATED);budget=-1;
+    for(unsigned i=0;i<4;i++)CHECK(batch[i]==NVM_LAYOUT_AUTHORITY_ORDINARY);
+    NvmRecordPlan sentinel={0};plan=&sentinel;
+    budget=0;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED);budget=-1;
+    CHECK(plan==&sentinel);
     char *before=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(before);
     NvmModule *copy=asm_assemble(before,&error);CHECK(copy);
     CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));
@@ -62,10 +87,15 @@ int main(int argc,char **argv) {
     data[8]=3;invalid(m);data[8]=1; /* Direct resource string stays unsupported. */
     data[9]=3;invalid(m);data[9]=1; /* So does a transitive string child. */
     data[8]=0;invalid(m);data[8]=1; /* Unknown child cannot certify its parent. */
-    data[11]=0;check_authority(m,3,NVM_LAYOUT_AUTHORITY_UNKNOWN);data[11]=1;
+    data[11]=0;check_authority(m,3,NVM_LAYOUT_AUTHORITY_UNKNOWN);
+    plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
+    data[11]=1;
     leaf.type_tag=TAG_INT;CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
     data[9]=3;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
     check_authority(m,0,NVM_LAYOUT_AUTHORITY_ORDINARY);check_authority(m,1,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_OK);
+    CHECK(batch[0]==NVM_LAYOUT_AUTHORITY_ORDINARY && batch[1]==NVM_LAYOUT_AUTHORITY_RESOURCE);
+    plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
     data[8]=3;data[9]=1;invalid(m);data[9]=3;
     CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
     data[8]=data[9]=1;
