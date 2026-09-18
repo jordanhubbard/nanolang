@@ -1052,7 +1052,8 @@ static int profile_supported(uint8_t op) {
 }
 NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile) {
     if (profile != NVM_PROFILE_GENERAL && profile != NVM_PROFILE_CLOSED_SCALAR &&
-        profile != NVM_PROFILE_CLOSED_LITERAL_STRINGS)
+        profile != NVM_PROFILE_CLOSED_LITERAL_STRINGS &&
+        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
@@ -1067,7 +1068,8 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return fail("I require a zero-argument scalar entry point");
-    const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS;
+    const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS;
+    const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS || managed_profile;
     bool has_strings = false;
     bool needs_string_runtime = false;
     bool initializer_seen = false;
@@ -1094,15 +1096,18 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
-            has_strings |= ins.opcode == OP_PUSH_STR;
-            needs_string_runtime |= ins.opcode == OP_ADD || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT;
+            has_strings |= ins.opcode == OP_PUSH_STR || ins.opcode == OP_STR_CONCAT;
+            needs_string_runtime |= (!managed_profile && ins.opcode == OP_ADD) || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT;
             bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
-                              ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ);
+                              ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
+                              (managed_profile && ins.opcode == OP_STR_CONCAT));
             if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }
     if (has_strings && needs_string_runtime)
-        return fail("I refuse ADD/CAST_INT/CAST_FLOAT in literal-string modules until managed string operations are lowered");
+        return fail(managed_profile ?
+            "I refuse CAST_INT/CAST_FLOAT in string-bearing modules until portable conversions are lowered" :
+            "I refuse ADD/CAST_INT/CAST_FLOAT in the literal-string profile");
     return ok_result();
 }

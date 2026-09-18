@@ -17,6 +17,7 @@ class VerifierProfiles(unittest.TestCase):
             'implicit': (entry + 'PUSH_I64 0\n.end\n', True, True),
             'advisory_does_not_select': ('.string key "profile"\n.string value "gpu"\n.metadata 0 1\n' + entry + end, True, True),
             'string_opcode': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPOP\n' + end, True, False),
+            'managed_concat': ('.string text \"ordinary\"\n' + entry + 'PUSH_STR text\nDUP\nSTR_CONCAT\nPOP\n' + end, True, False),
             'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, True),
             'import': ('.import "" "get_argc" int\n' + entry + end, True, False),
             'nominal_table': ('.types 1 0 0\n' + entry + end, True, False),
@@ -29,7 +30,7 @@ class VerifierProfiles(unittest.TestCase):
             work = Path(tmp)
             for name, (assembly, general, scalar) in cases.items():
                 with self.subTest(case=name):
-                    literal = scalar or name in ('string_opcode', 'nonscalar_parameter')
+                    literal = scalar or name in ('string_opcode', 'nonscalar_parameter', 'managed_concat')
                     source, module = work/'input.nasm', work/'input.nvm'
                     source.write_text(assembly)
                     built = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module], capture_output=True, text=True, timeout=30)

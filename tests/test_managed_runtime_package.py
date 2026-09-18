@@ -25,12 +25,15 @@ class ManagedRuntimePackage(unittest.TestCase):
                  '-fsanitize=address,undefined','-fno-sanitize-recover=all',
                  source,'-o',work/'native'])
             self.run_cmd([work/'native'])
+            self.run_cmd([work/'native', 'dispose-first'])
             wasm = work/'module.wasm'
             self.run_cmd(clang+['--target=wasm32-unknown-unknown','-O2',
                 '-ffreestanding','-fno-builtin','-nostdlib',source,
-                '-Wl,--no-entry','-Wl,--export=nms_module_tests','-o',wasm])
+                '-Wl,--no-entry','-Wl,--export=nms_module_tests',
+                '-Wl,--export=nms_module_dispose_first','-o',wasm])
             self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nms_module_tests',wasm]),'0\n')
-            script = "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');for(let i=0;i<2;i++){const e=new WebAssembly.Instance(m).exports;if(e.nms_module_tests())throw Error('module ABI');}"
+            self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nms_module_dispose_first',wasm]),'0\n')
+            script = "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');for(let i=0;i<2;i++){const e=new WebAssembly.Instance(m).exports;if(e.nms_module_tests())throw Error('module ABI');const d=new WebAssembly.Instance(m).exports;if(d.nms_module_dispose_first())throw Error('terminal disposal');}"
             self.run_cmd(['node','-e',script,wasm])
 
     def test_reproducible_target_packages_and_real_links(self):

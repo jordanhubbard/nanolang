@@ -29,8 +29,12 @@ uint32_t nms_module_begin(const NmsView *literals, uint32_t count) {
 uint64_t nms_module_finish(int32_t result) {
     return nms_finish(&nms_module_instance, nms_module_error, result);
 }
+uint32_t nms_module_active(void) { return nms_module_instance.active; }
 uint32_t nms_module_dispose(void) {
-    if (!nms_module_ready) return NMS_OK;
+    if (!nms_module_ready) {
+        nms_init(&nms_module_instance, NULL, 0);
+        nms_module_ready = 1;
+    }
     return nms_dispose(&nms_module_instance);
 }
 uint32_t nms_module_retain(uint64_t payload, uint32_t tag) {
@@ -63,3 +67,7 @@ int64_t nms_module_order(uint64_t left, uint64_t right) {
         if (a.data[i] != b.data[i]) return (int64_t)a.data[i] - b.data[i];
     return (int64_t)a.length - b.length;
 }
+/* I expose read-only accounting to runtime conformance harnesses. Normal Wasm
+ * publication exports only entry/status/disposal, not these helper symbols. */
+uint64_t nms_module_live_objects(void) { return nms_module_instance.live_objects; }
+uint64_t nms_module_live_bytes(void) { return nms_module_instance.live_bytes; }

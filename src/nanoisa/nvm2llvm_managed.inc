@@ -1,0 +1,107 @@
+/* I emit ownership helpers only for the managed closed profile. */
+static void managed_runtime(FILE *out) {
+    fputs("%R = type { %V, i32 }\n"
+        "define internal void @managed_release(%V %v) {\n"
+        " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
+        " %wide = zext i8 %tag to i32\n call void @nms_module_release(i64 %bits, i32 %wide)\n ret void\n}\n"
+        "define internal %V @managed_retain(%V %v) {\n"
+        " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
+        " %wide = zext i8 %tag to i32\n %status = call i32 @nms_module_retain(i64 %bits, i32 %wide)\n"
+        " %ok = icmp eq i32 %status, 0\n %answer = select i1 %ok, %V %v, %V zeroinitializer\n ret %V %answer\n}\n"
+        "define internal void @managed_roots(ptr %roots, i64 %count) {\nentry:\n br label %loop\n"
+        "loop:\n %i = phi i64 [0, %entry], [%next, %release]\n"
+        " %done = icmp eq i64 %i, %count\n br i1 %done, label %exit, label %release\n"
+        "release:\n %p = getelementptr %V, ptr %roots, i64 %i\n %v = load %V, ptr %p\n"
+        " store %V zeroinitializer, ptr %p\n call void @managed_release(%V %v)\n"
+        " %next = add i64 %i, 1\n br label %loop\nexit:\n ret void\n}\n"
+        "define internal %V @managed_concat(%V %a, %V %b) {\nentry:\n"
+        " %at = extractvalue %V %a, 1\n %bt = extractvalue %V %b, 1\n"
+        " %as = icmp eq i8 %at, 5\n %bs = icmp eq i8 %bt, 5\n %valid = and i1 %as, %bs\n"
+        " br i1 %valid, label %strings, label %bad\nbad:\n"
+        " call void @nms_module_fail(i32 1)\n call void @managed_release(%V %a)\n"
+        " call void @managed_release(%V %b)\n ret %V zeroinitializer\nstrings:\n"
+        " %av = extractvalue %V %a, 0\n %bv = extractvalue %V %b, 0\n"
+        " %handle = call i64 @nms_module_concat(i64 %av, i64 %bv)\n"
+        " %exists = icmp ne i64 %handle, 0\n %raw = insertvalue %V zeroinitializer, i64 %handle, 0\n"
+        " %tagged = insertvalue %V %raw, i8 5, 1\n"
+        " %answer = select i1 %exists, %V %tagged, %V zeroinitializer\n ret %V %answer\n}\n"
+        "define internal %V @managed_add(%V %a, %V %b) {\nentry:\n"
+        " %at = extractvalue %V %a, 1\n %bt = extractvalue %V %b, 1\n"
+        " %as = icmp eq i8 %at, 5\n %bs = icmp eq i8 %bt, 5\n %strings = and i1 %as, %bs\n"
+        " br i1 %strings, label %concat, label %numeric\nconcat:\n"
+        " %s = call %V @managed_concat(%V %a, %V %b)\n ret %V %s\nnumeric:\n"
+        " %n = call %V @numeric_add(%V %a, %V %b)\n"
+        " call void @managed_release(%V %a)\n call void @managed_release(%V %b)\n ret %V %n\n}\n", out);
+}
+static void managed_return(FILE *out, const NvmFunctionEntry *f) {
+    fprintf(out, "b%u:\n br label %%return_result\nreturn_result:\n"
+        " %%result_count = load i64, ptr %%sp\n %%result_shape = icmp eq i64 %%result_count, %u\n"
+        " call void @check(i1 %%result_shape)\n"
+        " br i1 %%result_shape, label %%return_value, label %%error_cleanup\nreturn_value:\n",
+        f->code_length, f->result_count);
+    if (f->result_count) fprintf(out,
+        " %%returned = call %%V @pop(ptr %%stack, ptr %%sp)\n"
+        " call i64 @integer(%%V %%returned, i8 %u)\n", f->result_tag);
+    else fputs(" %returned = select i1 true, %V zeroinitializer, %V zeroinitializer\n", out);
+    fprintf(out, " call void @managed_roots(ptr %%locals, i64 %u)\n"
+        " %%return_status = call i32 @nms_module_status()\n"
+        " %%return_ok = icmp eq i32 %%return_status, 0\n"
+        " br i1 %%return_ok, label %%return_good, label %%return_bad\nreturn_good:\n"
+        " %%result_good = insertvalue %%R zeroinitializer, %%V %%returned, 0\n"
+        " ret %%R %%result_good\nreturn_bad:\n call void @managed_release(%%V %%returned)\n"
+        " %%result_bad = insertvalue %%R zeroinitializer, i32 %%return_status, 1\n ret %%R %%result_bad\n"
+        "error_cleanup:\n %%error_count = load i64, ptr %%sp\n"
+        " call void @managed_roots(ptr %%stack, i64 %%error_count)\n"
+        " call void @managed_roots(ptr %%locals, i64 %u)\n"
+        " %%error_status = call i32 @nms_module_status()\n"
+        " %%error_result = insertvalue %%R zeroinitializer, i32 %%error_status, 1\n"
+        " ret %%R %%error_result\n}\n", f->local_count, f->local_count);
+}
+static void managed_literals(FILE *out, const NvmModule *m) {
+    /* C's compile-time assertions validate this explicit adapter's layout. */
+    fputs("%NmsLiteral = type { ptr, i32 }\n", out);
+    for (uint32_t i = 0; i < m->string_count; ++i) {
+        uint32_t length = nvm_get_string_len(m, i);
+        const unsigned char *bytes = (const unsigned char *)nvm_get_string(m, i);
+        fprintf(out, "@literal_%u = private constant [%u x i8] c\"", i, length);
+        for (uint32_t j = 0; j < length; ++j) fprintf(out, "\\%02X", bytes[j]);
+        fputs("\"\n", out);
+    }
+    fprintf(out, "@literal_strings = private constant [%u x %%NmsLiteral] [", m->string_count ? m->string_count : 1);
+    for (uint32_t i = 0; i < m->string_count; ++i)
+        fprintf(out, "%s%%NmsLiteral { ptr @literal_%u, i32 %u }", i ? ", " : "", i, nvm_get_string_len(m, i));
+    if (!m->string_count) fputs("%NmsLiteral zeroinitializer", out);
+    fputs("]\n"
+        "define internal i64 @string_order(%V %a, %V %b) {\n"
+        " %av = call i64 @integer(%V %a, i8 5)\n %bv = call i64 @integer(%V %b, i8 5)\n"
+        " %status = call i32 @nms_module_status()\n %ok = icmp eq i32 %status, 0\n"
+        " br i1 %ok, label %strings, label %bad\nstrings:\n"
+        " %answer = call i64 @nms_module_order(i64 %av, i64 %bv)\n ret i64 %answer\nbad:\n ret i64 0\n}\n", out);
+}
+static void managed_entry(FILE *out, const NvmModule *m, const char *entry,
+                          uint32_t initializer, uint32_t global_count) {
+    fprintf(out, "define i64 @nano_try_entry() {\nentry:\n"
+        " %%begin = call i32 @nms_module_begin(ptr @literal_strings, i32 %u)\n"
+        " %%started = icmp eq i32 %%begin, 0\n br i1 %%started, label %%initialize, label %%refused\n"
+        "refused:\n %%reason = zext i32 %%begin to i64\n %%packed = shl i64 %%reason, 32\n ret i64 %%packed\ninitialize:\n", m->string_count);
+    if (initializer < m->function_count) fprintf(out,
+        " %%init = call %%R @f%u()\n %%init_value = extractvalue %%R %%init, 0\n"
+        " call void @managed_release(%%V %%init_value)\n", initializer);
+    fputs(" %init_status = call i32 @nms_module_status()\n %init_ok = icmp eq i32 %init_status, 0\n"
+        " br i1 %init_ok, label %execute, label %failed\nfailed:\n"
+        " %failed_result = call i64 @nms_module_finish(i32 0)\n ret i64 %failed_result\nexecute:\n", out);
+    fprintf(out, " %%r = call %%R @f%u()\n %%v = extractvalue %%R %%r, 0\n"
+        " %%bits = extractvalue %%V %%v, 0\n %%integer = trunc i64 %%bits to i32\n"
+        " call void @managed_release(%%V %%v)\n %%answer = call i64 @nms_module_finish(i32 %%integer)\n ret i64 %%answer\n}\n",
+        m->header.entry_point);
+    fputs("define i32 @nano_dispose() {\nentry:\n %active = call i32 @nms_module_active()\n"
+        " %busy = icmp ne i32 %active, 0\n br i1 %busy, label %refused, label %release\n"
+        "refused:\n ret i32 4\nrelease:\n", out);
+    if (global_count) fprintf(out, " call void @managed_roots(ptr @globals, i64 %u)\n", global_count);
+    fputs(" %status = call i32 @nms_module_dispose()\n ret i32 %status\n}\n", out);
+    fprintf(out, "define i32 @%s() {\nentry:\n %%packed = call i64 @nano_try_entry()\n", entry);
+    if (!strcmp(entry, "main")) fputs(" call i32 @nano_dispose()\n", out);
+    fputs(" %status = lshr i64 %packed, 32\n %ok = icmp eq i64 %status, 0\n"
+        " br i1 %ok, label %success, label %failed\nfailed:\n call void @llvm.trap()\n unreachable\n"
+        "success:\n %result = trunc i64 %packed to i32\n ret i32 %result\n}\n", out);
+}

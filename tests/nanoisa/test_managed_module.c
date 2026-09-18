@@ -31,6 +31,15 @@ int nms_module_tests(void) {
     CHECK(nms_module_begin(literals, 2) == NMS_DISPOSED);
     return 0;
 }
+int nms_module_dispose_first(void) {
+    CHECK(nms_module_dispose() == NMS_OK);
+    CHECK(nms_module_dispose() == NMS_OK);
+    CHECK(nms_module_begin(NULL, 0) == NMS_DISPOSED);
+    return 0;
+}
 #ifndef __wasm32__
-int main(void) { return nms_module_tests(); }
+int main(int argc, char **argv) {
+    (void)argv;
+    return argc > 1 ? nms_module_dispose_first() : nms_module_tests();
+}
 #endif

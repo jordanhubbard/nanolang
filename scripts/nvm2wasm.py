@@ -28,10 +28,11 @@ def main():
                                          dir=output.parent if output else None) as tmp:
             work = Path(tmp)
             ir, obj, module = (work / name for name in ('input.ll', 'input.o', 'output.wasm'))
-            commands = ([translator, str(source), '--entry-name', 'nano_entry', '-o', str(ir)],
+            commands = ([translator, str(source), '--entry-name', 'nano_entry', '--runtime-target', 'wasm32', '-o', str(ir)],
                         [llc, '-mtriple=wasm32-unknown-unknown', '-filetype=obj',
                          str(ir), '-o', str(obj)],
-                        [linker, '--no-entry', '--export=nano_entry', '--fatal-warnings',
+                        [linker, '--no-entry', '--export=nano_entry', '--export-if-defined=nano_try_entry',
+                         '--export-if-defined=nano_dispose', '--fatal-warnings',
                          str(obj), '-o', str(module)])
             for command in commands:
                 result = subprocess.run(command, capture_output=True)

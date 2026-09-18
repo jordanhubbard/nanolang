@@ -4509,7 +4509,8 @@ test-owned-transfers: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 	python3 -m unittest tests.test_owned_transfers
 
 # I translate verified modules; this is independent of the AST compiler paths.
-$(OBJ_DIR)/nanoisa/nvm2llvm.o: $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_DIR)/verifier.h
+$(OBJ_DIR)/nanoisa/nvm2llvm.o: $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_DIR)/verifier.h $(NANOISA_DIR)/nvm2llvm_managed.inc managed-runtime-package
+$(OBJ_DIR)/nanoisa/nvm2llvm.o: CFLAGS += -I$(OBJ_DIR)/nanoisa
 $(OBJ_DIR)/nanoisa/nvm2llvm_main.o: $(NANOISA_DIR)/nvm2llvm_main.c $(NANOISA_DIR)/nvm2llvm.h $(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
@@ -4556,6 +4557,10 @@ managed-runtime-package: scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed
 test-managed-runtime-package: managed-runtime-package
 	python3 -m unittest -v tests.test_managed_runtime_package
 
+.PHONY: test-llvm-managed-strings
+test-llvm-managed-strings: test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_llvm_managed_strings
+
 .PHONY: test-managed-string-core
 test-managed-string-core:
 	python3 -m unittest -v tests.test_managed_string_core
@@ -4565,7 +4570,7 @@ nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
 	chmod +x bin/nvm2wasm
 
-test-nvm2wasm: test-managed-string-core test-llvm-enum-scalars test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
+test-nvm2wasm: test-llvm-managed-strings test-managed-string-core test-llvm-enum-scalars test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
