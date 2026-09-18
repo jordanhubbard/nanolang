@@ -1099,14 +1099,14 @@ shadow main { assert true }
             'moved': base.replace('return 0', 'assert (== (take item) 7) return 0'),
             'nominal': base.replace('let item: Leaf = Leaf {', 'let item: Other = Other {'),
             'unconsumed': base.replace('let Leaf { value, active } = owner return value', 'return owner.value'),
-            'constructed': base.replace('let item: Leaf = Leaf { value: 7, active: true } assert (== (take item) 7)',
-                                       'assert (== (take Leaf { value: 7, active: true }) 7)'),
             'mixed': base.replace('take(owner: Leaf)', 'take(owner: Leaf, view: &Leaf)')
                 .replace('assert (== (take item) 7)', 'let view: Leaf = Leaf { value: 1, active: true } assert (== (take item &view) 7) let Leaf { value, active } = view'),
             'projected': base.replace('fn take', 'resource struct Pair { left: Leaf, right: Leaf }\nfn take', 1)
                 .replace('assert (== (take item) 7)', 'let second: Leaf = Leaf { value: 1, active: true } let pair: Pair = Pair { left: item, right: second } assert (== (take pair.left) 7)'),
         }
         positives = {
+            'constructed': base.replace('let item: Leaf = Leaf { value: 7, active: true } assert (== (take item) 7)',
+                                       'assert (== (take Leaf { value: 7, active: true }) 7)'),
             'deeper': base.replace('let Leaf { value, active } = owner return value', 'return (other owner)')
                 + 'fn other(owner: Leaf) -> int { let Leaf { value, active } = owner return value } shadow other { assert true }\n',
             'two_owned': base.replace('take(owner: Leaf)', 'take(owner: Leaf, second: Leaf)')
@@ -1389,6 +1389,75 @@ shadow main { assert (== (main) 0) }
             self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
             self.execute_pair(module, expected=1,
                               expected_output=b'A\tB\rC\n"\'\\0\\q caf\xc3\xa9\n')
+
+
+    def temporary_owner_fixture(self):
+        return r'''resource struct Leaf { value: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn make(value: int, text: string) -> Leaf { (print text) return Leaf { value: value } }
+shadow make { assert true }
+fn forward(owner: Leaf) -> Leaf { return owner }
+shadow forward { assert true }
+fn take(first: Leaf, second: Leaf, last: int) -> int {
+    let Leaf { value } = first
+    let left: int = value
+    let Leaf { value } = second
+    assert (== last 3)
+    return (+ left value)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 3) {
+        assert (== (take Leaf { value: (scalar 1 "A") } (forward (make 2 "B")) (scalar 3 "C")) 3)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_temporary_owner_actuals_preserve_order_and_roots(self):
+        baseline, shadows = self.graph_positive(
+            'temporary-actuals', self.temporary_owner_fixture(), b'ABCABCABC', b'ABCABCABC')
+        self.assertIn('OWN_PACK', baseline)
+        self.assertIn('.function forward', shadows)
+
+    def test_temporary_owner_factory_failure_cleans_prepared_arguments(self):
+        text = self.temporary_owner_fixture().replace(
+            '(print text) return Leaf', '(print text) assert false return Leaf')
+        source = self.work / 'temporary-factory-failure.nano'
+        source.write_text(text)
+        for emitter in self.emitters:
+            assembly, module = self.work / 'temporary-failure.nasm', self.work / 'temporary-failure.nvm'
+            self.command(emitter, source, '-o', assembly)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.execute_pair(module, expected=1, expected_output=b'AB')
+
+    def test_temporary_owner_actual_refusals_preserve_output(self):
+        base = self.temporary_owner_fixture()
+        cases = {
+            'constructor_nominal': base.replace('fn scalar', 'resource struct Other { value: int }\nfn scalar', 1)
+                .replace('take Leaf { value:', 'take Other { value:'),
+            'factory_nominal': base.replace('fn scalar', 'resource struct Other { value: int }\nfn scalar', 1)
+                .replace('-> Leaf { (print text) return Leaf', '-> Other { (print text) return Other'),
+            'missing_field': base.replace('Leaf { value: (scalar 1 "A") }', 'Leaf {}'),
+            'duplicate_field': base.replace('Leaf { value: (scalar 1 "A") }', 'Leaf { value: 1, value: 2 }'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('temporary-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'temporary-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate')
 
 
 if __name__ == '__main__':
