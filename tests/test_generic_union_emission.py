@@ -19,6 +19,10 @@ fn integer(value: Box<int>) -> int { match value { Some(v) => { return v.value }
 shadow integer { assert (== (integer Box.Some { value: 7 }) 7) }
 fn text(value: Box<string>) -> string { match value { Some(v) => { return v.value } None(n) => { return "" } } }
 shadow text { assert (== (text Box.Some { value: "kept" }) "kept") }
+fn flag(value: Box<bool>) -> bool { match value { Some(v) => { return v.value } None(n) => { return false } } }
+shadow flag { assert (flag Box.Some { value: true }) }
+fn real(value: Box<float>) -> float { match value { Some(v) => { return v.value } None(n) => { return 0.0 } } }
+shadow real { assert (== (real Box.Some { value: 1.5 }) 1.5) }
 fn second(value: Choice<int,string>) -> string { match value { Left(v) => { return (int_to_string v.value) } Right(v) => { return v.value } } }
 shadow second { assert (== (second Choice.Right { value: "kept" }) "kept") }
 fn main() -> int {
@@ -27,6 +31,8 @@ fn main() -> int {
  let copy: Box<int> = left
  assert (== (integer copy) 7) assert (== (integer left) 7)
  assert (== (text right) "kept") assert (== (text Box.None {}) "")
+ assert (flag Box.Some { value: true }) assert (not (flag Box.None {}))
+ assert (== (real Box.Some { value: 1.5 }) 1.5)
  assert (== (second Choice.Left { value: 7 }) "7")
  assert (== (second Choice.Right { value: "kept" }) "kept")
  return 0
