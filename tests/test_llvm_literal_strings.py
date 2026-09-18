@@ -96,7 +96,18 @@ class LiteralStrings(unittest.TestCase):
                          ('I64_ADD','PUSH_I64 1'),('I64_EQ','PUSH_I64 1'),
                          ('F64_ADD','PUSH_F64 1'),('BOOL_NOT','')]:
             with self.subTest(op=op):
-                self.compare('PUSH_STR a\n'+(right+'\n' if right else '')+op+'\nPOP\n',trap=True)
+                body = 'PUSH_STR a\n'+(right+'\n' if right else '')+op+'\nPOP\n'
+                if op in ('I64_ADD','I64_EQ','F64_ADD','BOOL_NOT'):
+                    # Ordinary typed verification rejects known string operands
+                    # before either translator can publish an executable.
+                    source, module = self.work/'bad.nasm', self.work/'prior.nvm'
+                    source.write_text(self.program(body))
+                    module.write_bytes(b'previous')
+                    result = self.run_cmd([ROOT/'bin/nanoisa','asm',source,'-o',module],success=False)
+                    self.assertIn('operand is string', result.stderr)
+                    self.assertEqual(module.read_bytes(), b'previous')
+                else:
+                    self.compare(body,trap=True)
 
     def test_computed_string_and_signature_refusals_preserve_output(self):
         cases = [self.program('PUSH_STR a\nPUSH_STR b\n'+op+'\nPOP\n') for op in ('ADD','STR_CONCAT')]
