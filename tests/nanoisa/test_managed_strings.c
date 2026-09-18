@@ -107,8 +107,8 @@ int nms_reuse_tests(void) {
     CHECK(nms_create(&runtime, large_bytes + 123, 40000, &d) == NMS_OK);
     CHECK(nms_view(&runtime, d, &allocation) == NMS_OK && same(allocation.data,large_bytes+123,40000));
 #ifdef __wasm32__
-    /* First-fit can reuse this address for 40KiB only if the two adjacent
-     * freed 24KiB blocks coalesced; unused tail storage cannot fake this. */
+    /* First-fit can reuse this address for 40,000 bytes only if the two adjacent
+     * freed 24,000-byte blocks coalesced; unused tail storage cannot fake this. */
     CHECK((uintptr_t)allocation.data == first_address);
 #endif
     CHECK(nms_view(&runtime, c, &allocation) == NMS_OK && same(allocation.data,large_bytes,24000));

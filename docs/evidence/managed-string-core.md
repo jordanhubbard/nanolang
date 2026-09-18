@@ -21,10 +21,10 @@ My tests distinguish the implementation from a bump-only arena:
   include embedded NUL; an empty allocation has valid nonnull storage.
 - Deterministic byte-allocation and later table-growth failures preserve old
   descriptors, aliases, counts and the caller's unpublished output handle.
-- Two adjacent freed 24KiB byte blocks provide a 40KiB first-fit allocation at
+- Two adjacent freed 24,000-byte blocks provide a 40,000-byte first-fit allocation at
   the first block's address, while a neighboring live string retains its bytes.
   A spare tail block cannot satisfy that address assertion accidentally.
-- Two thousand allocate/release cycles of 60KiB strings leave no live objects
+- Two thousand allocate/release cycles of 60,000-byte strings leave no live objects
   and do not increase the established Wasm page count. Terminal disposal frees
   the descriptor allocation too. Separate contexts retain their own aliases.
 - A real one-megabyte Wasm maximum forces memory.grow failure. Existing strings
