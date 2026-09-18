@@ -78,3 +78,18 @@ refusal and previous-output control until its own reviewed implementation; d099
 cannot close as an all-route callback task while that boundary remains. I record
 any narrower completed source child separately if needed. Public C-target070db,
 full scalar-policy5009, arrays3717 and full reconstruction/release remain open.
+
+## My output refusal prerequisite
+
+Static implementation audit finds no structured error state in the legacy
+expression emitter: existing unsupported cases can embed C #error text, and the
+driver publishes --target c output directly. For this child I add a narrow
+first-error emission string, reset for each public transpilation, set only by
+checked reduce failures. The emitter returns no source on failure and exposes
+the diagnostic; the driver checks both ordinary and shadow emission before
+publication or native compilation. I preserve the first diagnostic and do not
+change unrelated emitters to use this state. This is necessary for the approved
+unsupported-signature/output-preservation contract, not a general error overhaul.
+
+Source child `task_8618bac3cb6a42448c0066867deaed69` can close after its bounded source gates and canonical
+merge; d099 retains the separate canonical native FUNCREF obligation.
