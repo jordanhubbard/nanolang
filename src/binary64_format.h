@@ -20,6 +20,10 @@ static inline const char *nano_rt_f64_nonfinite(double value) { \
 static inline int nano_rt_f64_format(char *out, size_t size, double value) { \
     const char *special = nano_rt_f64_nonfinite(value); \
     return special ? snprintf(out, size, "%s", special) : snprintf(out, size, "%g", value); \
+} \
+static inline int nano_rt_f64_print(FILE *out, double value) { \
+    const char *special = nano_rt_f64_nonfinite(value); \
+    return special ? fprintf(out, "%s", special) : fprintf(out, "%g", value); \
 }
 NL_BINARY64_FORMAT_HELPERS
 #define NL_FORMAT_STRINGIFY_INNER(...) #__VA_ARGS__

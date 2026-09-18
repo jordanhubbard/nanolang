@@ -2,6 +2,7 @@
 
 #include "nanolang.h"
 #include "binary64_bits.h"
+#include "binary64_format.h"
 #include "binary64_arithmetic.h"
 #include "runtime/binary64_parse.h"
 #include "coroutine.h"
@@ -458,7 +459,7 @@ static void print_value(Value val) {
             printf("%lld", (long long)val.as.int_val);
             break;
         case VAL_FLOAT:
-            printf("%g", val.as.float_val);
+            nano_rt_f64_print(stdout, val.as.float_val);
             break;
         case VAL_BOOL:
             printf("%s", val.as.bool_val ? "true" : "false");
@@ -477,7 +478,7 @@ static void print_value(Value val) {
                         printf("%lld", ((long long*)arr->data)[i]);
                         break;
                     case VAL_FLOAT:
-                        printf("%g", ((double*)arr->data)[i]);
+                        nano_rt_f64_print(stdout, ((double*)arr->data)[i]);
                         break;
                     case VAL_BOOL:
                         printf("%s", ((bool*)arr->data)[i] ? "true" : "false");
@@ -505,7 +506,7 @@ static void print_value(Value val) {
                         printf("%lld", (long long)dyn_array_get_int(arr, i));
                         break;
                     case ELEM_FLOAT:
-                        printf("%g", dyn_array_get_float(arr, i));
+                        nano_rt_f64_print(stdout, dyn_array_get_float(arr, i));
                         break;
                     case ELEM_BOOL:
                         printf("%s", dyn_array_get_bool(arr, i) ? "true" : "false");
@@ -722,7 +723,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
             }
             case ELEM_FLOAT: {
                 char tmp[64];
-                snprintf(tmp, sizeof(tmp), "%g", dyn_array_get_float(arr, i));
+                nano_rt_f64_format(tmp, sizeof(tmp), dyn_array_get_float(arr, i));
                 eval_sb_append_cstr(sb, tmp);
                 break;
             }
@@ -755,7 +756,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         }
         case VAL_FLOAT: {
             char tmp[64];
-            snprintf(tmp, sizeof(tmp), "%g", val.as.float_val);
+            nano_rt_f64_format(tmp, sizeof(tmp), val.as.float_val);
             /* Ensure at least one decimal place for whole-number floats
              * so 0.0 → "0.0" rather than "0" (matches Python/JS behaviour) */
             if (strchr(tmp, '.') == NULL && strchr(tmp, 'e') == NULL
@@ -790,7 +791,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                     }
                     case VAL_FLOAT: {
                         char tmp[64];
-                        snprintf(tmp, sizeof(tmp), "%g", ((double*)arr->data)[i]);
+                        nano_rt_f64_format(tmp, sizeof(tmp), ((double*)arr->data)[i]);
                         eval_sb_append_cstr(sb, tmp);
                         break;
                     }
@@ -3268,7 +3269,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         double v = args[0].type == VAL_FLOAT ? args[0].as.float_val : (double)args[0].as.int_val;
         char buffer[64];
-        snprintf(buffer, sizeof(buffer), "%g", v);
+        nano_rt_f64_format(buffer, sizeof(buffer), v);
         if (strchr(buffer, '.') == NULL && strchr(buffer, 'e') == NULL
                 && strchr(buffer, 'n') == NULL && strchr(buffer, 'i') == NULL) {
             size_t len = strlen(buffer);
@@ -3410,7 +3411,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                     snprintf(tmp, sizeof(tmp), "%lld", (long long)args[arg_idx].as.int_val);
                     s = tmp;
                 } else if (args[arg_idx].type == VAL_FLOAT) {
-                    snprintf(tmp, sizeof(tmp), "%g", args[arg_idx].as.float_val);
+                    nano_rt_f64_format(tmp, sizeof(tmp), args[arg_idx].as.float_val);
                     s = tmp;
                 } else if (args[arg_idx].type == VAL_BOOL) {
                     s = args[arg_idx].as.bool_val ? "true" : "false";
