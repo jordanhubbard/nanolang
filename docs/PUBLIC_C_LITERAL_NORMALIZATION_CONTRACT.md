@@ -40,3 +40,11 @@ scalar and backend gates remain acceptance. No historical failed artifact runs.
 
 I preserve full C portability6ade, concat ownership and remaining GNU conversions;
 this source normalization does not close those required scopes or full release.
+
+My first frozen gate passed decoder allocation/recovery, all public C dialect/
+optimization checks, interpreter and verified VM byte observations; the complete
+source-route method failed at native output because ordinary C trigraph processing
+changed question-mark text. I retain both terminal logs and all eighteen verified
+identities. Separate native children35aad/f172 and PR755 repair literal escaping
+and strict shared-provider references; I require their canonical merge before a
+fresh complete public literal gate. I do not claim that partial method passed.
