@@ -22,7 +22,7 @@ def main():
             ''.join(json.dumps(line) + '\n' for line in source.decode().splitlines(keepends=True)) +
             ';\n#endif\n')
     nano = ('# I generate this exact runtime source from src/binary64_arithmetic.h.\n'
-            'fn gen_binary64_arithmetic_runtime() -> string {\n    return ' +
+            'pub fn gen_binary64_arithmetic_runtime() -> string {\n    return ' +
             json.dumps(source.decode()) + '\n}\n'
             'shadow gen_binary64_arithmetic_runtime {\n'
             '    assert (str_contains (gen_binary64_arithmetic_runtime) "nano_rt_f64_div")\n'
