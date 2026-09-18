@@ -1,4 +1,4 @@
-"""I preserve exact non-floating formatting and the explicit float boundary."""
+"""I preserve exact formatting and the pending string-to-float parsing boundary."""
 import unittest
 from tests import test_llvm_managed_strings as managed
 ROOT = managed.ROOT

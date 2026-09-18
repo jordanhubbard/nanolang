@@ -42,3 +42,9 @@ receives explicit ASan instrumentation, while the core is compiled with
 ASan/UBSan and leak checking. Wasm tests enforce zero imports. I do not mutate
 locale/rounding or execute historical failed artifacts, and I claim no Darwin,
 nondefault-rounding or full managed-parent/release acceptance.
+
+After integrating main through PR649 (`52bfde90`), production checkpoint
+`8c296396` retains identical formatter/profile/reference source to `6d2b8507`.
+I rebuilt tools and all three binary64 reference/emission methods passed again
+in 3.139 seconds (`/tmp/nanolang-managed-binary64-restack.log`). The final
+checkpoint adds only this evidence and a corrected test module description.
