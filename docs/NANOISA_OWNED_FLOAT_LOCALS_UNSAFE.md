@@ -25,3 +25,7 @@ I retain every first terminal, source/tool inventories and prior output on refus
 ## My pre-execution fixture review
 
 My frozen ae70868b bootstrap passed in264.018s with unchanged source inputs. Static test review then caught an unsupported exponent spelling in the new NaN control before any focused fixture execution. I replace it with the supported decimal10000000000.0 and five repeated squarings to produce infinity. This changes only the fixture, not my production or bootstrap source. The uninitialized-local refusal specifically declares its unread slot as FLOAT; the positive runtime also stores/loads FLOAT in a nonparameter helper local.
+
+## My first focused terminal
+
+At859773, setup passed25.505s; focused GCC stopped178.916s with two successes and two failures. The unchanged original default-driver test passed C-seed, Stage1, Stage2 and NanoVirt. False-shadow, mixed-tag and escaped-name controls preserved prior output. In the stronger exact paired module test, NanoVirt succeeded but Stage1 refused selected-shadow verification for both original and control sources: consuming-helper owner resolution at entry offsets36 and58. I record task_63e449507018434597a6cb06aa72b4d8 before correction and preserve all logs, source/tool maps, binaries, module cache and generated producer/fixture artifacts. Clang and runtime phases did not run. I have not attributed the inner verifier refusal yet.
