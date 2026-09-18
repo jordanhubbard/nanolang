@@ -121,3 +121,16 @@ I leave full normative ownership, mixed reference graphs, owner entry results,
 new nested returned layouts and the full c435 blocker open until their exact
 acceptance is measured. This document records a proposal, not implementation
 or admission evidence.
+
+## My specialized admission correction
+
+I record `task_9c2b62a5450c4fedace6b068c7f190d5` before correcting the static review boundary.
+Generic nvm_verify permits advisory ownership metadata to fall back to ordinary
+verification; this is insufficient for specialized owned source publication.
+I require positive owned verification after full generic verification and
+preserve its failure. Shadow-only owner locals qualify in the selected-shadow
+module; a production module without actual OWN transfers still refuses and
+preserves previous output. I replace checker-symbol lifetime dependence with
+lexical AST inspection for local/global/shadow resource uses. The current C
+local-only control already retains OWN metadata; no erased-symbol failure is
+claimed. I retain the existing runtime transfer requirement and add no fallback.
