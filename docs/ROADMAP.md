@@ -8721,6 +8721,9 @@ Tests, examples, and SDL IDE:
       `make test-forth-jackson`.
       MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
 
+- [x] I preserve exact binary64 operand facts (`task_18f9dbfe2abf41fb9159ba9f8c84584d`) before admitting reconstructed float source. My additive `f64_bits` field is exactly 16 lowercase hexadecimal digits copied without numeric conversion; existing `arg`, signatures and executable admission remain unchanged. I check signed zeros, finite boundaries, infinities and NaN payload/signaling bits plus unchanged int/bool facts and output-preserving source refusal. My GCC/Clang strict sanitized facts-executable checks pass; [contract and evidence](NANOISA_RECONSTRUCTION_BINARY64_FACTS.md) retain the instrumentation boundary and initial fixture checksum refusal.
+- [ ] I preserve all nonfinite binary64 encodings through canonical assembly text (`task_50ba3bd3018f438a93113891d48e1387`). My static audit finds `disassembler.c` formats F64 operands with `%.17g`, which cannot retain every NaN payload/signaling representation. This residual follows historical broad task `task_3e08256b86b2803753eb52ea46f8a0eb`; I have not executed a failing artifact or established full text roundtrip. Exact source constants, typed arithmetic and comparison semantics need separate contracts before float reconstruction admission.
+
 ### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.1)
 
 Goal: 4.0 records that NanoISA is the common IR and that a closed integer
