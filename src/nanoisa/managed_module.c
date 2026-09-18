@@ -76,6 +76,26 @@ uint64_t nms_module_split(uint64_t source, uint64_t delimiter) {
     return result;
 }
 /* My value accessors borrow arguments; split consumes its two string owners. */
+/* I borrow scalar input arrays and source owners; emitted transfer comes later. */
+uint64_t nms_module_array_literal(uint32_t tag, uint32_t count,
+                                  const uint64_t *payloads, const uint32_t *tags) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_vm_array_literal(&nms_module_instance, tag, payloads, tags, count, &result));
+    return result;
+}
+uint64_t nms_module_array_slice(uint64_t source, uint64_t start_bits, uint32_t start_tag,
+                                uint64_t end_bits, uint32_t end_tag) {
+    uint32_t length = 0;
+    NmsStatus status = nms_value_array_length(&nms_module_instance, source, &length);
+    NmsHandle result = 0;
+    if (status == NMS_OK) {
+        uint32_t start = start_tag == 1 ? (uint32_t)start_bits : 0;
+        uint32_t end = end_tag == 1 ? (uint32_t)end_bits : length;
+        status = nms_vm_array_slice(&nms_module_instance, source, start, end, &result);
+    }
+    nms_module_fail(status);
+    return result;
+}
 uint64_t nms_module_array_create(uint32_t tag) {
     NmsHandle result = 0;
     nms_module_fail(nms_vm_array_create(&nms_module_instance, tag, &result));
