@@ -1284,9 +1284,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, rhs.origin, NVM2C_VK_BOOL);
                 mark_origin(local_kind, nloc, lhs.origin, NVM2C_VK_BOOL);
             }
-            (void)rhs;
-            (void)lhs;
-            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            uint8_t result = NVM2C_VK_INT;
+            if ((ins.opcode == OP_ADD || ins.opcode == OP_SUB ||
+                 ins.opcode == OP_MUL || ins.opcode == OP_DIV) &&
+                (rhs.kind == NVM2C_VK_FLOAT || lhs.kind == NVM2C_VK_FLOAT))
+                result = NVM2C_VK_FLOAT;
+            if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
             break;
         }
         case OP_NEG:
@@ -1299,8 +1302,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else if (ins.opcode == OP_BOOL_NOT) {
                 mark_origin(local_kind, nloc, x.origin, NVM2C_VK_BOOL);
             }
-            (void)x;
-            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            uint8_t result = ins.opcode == OP_NEG && x.kind == NVM2C_VK_FLOAT ?
+                NVM2C_VK_FLOAT : NVM2C_VK_INT;
+            if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
             break;
         }
         case OP_STR_LEN: {
@@ -3277,20 +3281,46 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             else stack_push_float(b, &st, expression);
             break;
         }
-        case OP_ADD:
+        case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: {
+            if (st.sp >= 2 && (st.kinds[st.sp - 1] == NVM2C_VK_FLOAT ||
+                              st.kinds[st.sp - 2] == NVM2C_VK_FLOAT)) {
+                uint8_t rk, lk;
+                int rhs = stack_pop_kind(b, &st, &rk);
+                int lhs = stack_pop_kind(b, &st, &lk);
+                if ((lk != NVM2C_VK_INT && lk != NVM2C_VK_FLOAT) ||
+                    (rk != NVM2C_VK_INT && rk != NVM2C_VK_FLOAT)) {
+                    nvm2c_fail(b, "I require known int or float operands for generic numeric promotion");
+                    goto done;
+                }
+                char left[48], right[48], expression[192];
+                snprintf(left, sizeof left, lk == NVM2C_VK_FLOAT ? "f[%d]" : "(double)t[%d]", lhs);
+                snprintf(right, sizeof right, rk == NVM2C_VK_FLOAT ? "f[%d]" : "(double)t[%d]", rhs);
+                if (ins.opcode == OP_DIV)
+                    snprintf(expression, sizeof expression, "(%s == 0.0 ? 0.0 : %s / %s)", right, left, right);
+                else
+                    snprintf(expression, sizeof expression, "%s %s %s", left,
+                        ins.opcode == OP_ADD ? "+" : ins.opcode == OP_SUB ? "-" : "*", right);
+                stack_push_float(b, &st, expression);
+                break;
+            }
+            /* I retain the existing checked-int route for tagged operands. */
+            if (ins.opcode == OP_ADD) emit_binop(b, &st, "+");
+            else if (ins.opcode == OP_SUB) emit_binop(b, &st, "-");
+            else if (ins.opcode == OP_MUL) emit_binop(b, &st, "*");
+            else goto emit_integer_division;
+            break;
+        }
         case OP_I64_ADD:
             emit_binop(b, &st, "+");
             break;
-        case OP_SUB:
         case OP_I64_SUB:
             emit_binop(b, &st, "-");
             break;
-        case OP_MUL:
         case OP_I64_MUL:
             emit_binop(b, &st, "*");
             break;
-        case OP_DIV:
-        case OP_I64_DIV_S: {
+        case OP_I64_DIV_S:
+        emit_integer_division: {
             int rhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "div rhs");
             int lhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "div lhs");
             if (b->failed) goto done;
@@ -3312,6 +3342,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_NEG:
+            if (st.sp > 0 && st.kinds[st.sp - 1] == NVM2C_VK_FLOAT) {
+                int value = stack_pop_expect(b, &st, NVM2C_VK_FLOAT, "generic NEG");
+                char expression[48];
+                snprintf(expression, sizeof expression, "-f[%d]", value);
+                stack_push_float(b, &st, expression);
+                break;
+            }
+            emit_unop(b, &st, "-");
+            break;
         case OP_I64_NEG:
             emit_unop(b, &st, "-");
             break;

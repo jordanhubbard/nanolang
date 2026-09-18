@@ -4702,3 +4702,9 @@ test-cseed-single-letter-enums: $(COMPILER_C) test-native-nominal-context
 	@python3 -m unittest -v tests.test_cseed_single_letter_enums
 
 test-units: test-cseed-single-letter-enums
+
+.PHONY: test-native-generic-arithmetic
+test-native-generic-arithmetic: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_generic_arithmetic
+
+test-units: test-native-generic-arithmetic
