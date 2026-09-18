@@ -60,6 +60,15 @@ int main(int argc, char **argv) {
     FunctionSignature signature = {0}; signature.return_type = TYPE_FLOAT;
     call.as.call.checked_signature = &signature;
     assert(infer_expr_type(&context, &call) == TYPE_FLOAT);
+    ASTNode field = {.type = AST_FIELD_ACCESS};
+    assert(infer_expr_type(&context, &field) == TYPE_UNKNOWN);
+    TypeInfo field_type = {.base_type = TYPE_FLOAT};
+    field.as.field_access.resolved_type_info = &field_type;
+    assert(infer_expr_type(&context, &field) == TYPE_FLOAT);
+    field_type.base_type = TYPE_INT;
+    assert(infer_expr_type(&context, &field) == TYPE_INT);
+    field_type.base_type = TYPE_UNKNOWN;
+    assert(infer_expr_type(&context, &field) == TYPE_UNKNOWN);
     ctx_error(&context, "first"); ctx_error(&context, "second");
     assert(strcmp(context.error, "first") == 0);
 

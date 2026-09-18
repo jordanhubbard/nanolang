@@ -45,6 +45,8 @@ class PublicCBinary64(unittest.TestCase):
     def test_global_order_and_main_reentry(self):
         self.portable(GLOBALS)
         self.portable(INITIALIZER_REENTRY)
+    def test_declared_record_and_variant_float_fields(self):
+        self.portable(FIELDS)
     def test_exact_decimal_literal(self):
         self.portable('fn main()->int{assert (== (float_to_bits 1.0000000000000002) 4607182418800017409) return 0} shadow main{assert (== (main) 0)}')
     def test_wrong_transport_type_preserves_previous_source(self):
@@ -150,3 +152,22 @@ fn main()->int{
 shadow main{assert true}
 '''
 if __name__=='__main__':unittest.main()
+
+FIELDS="""struct Measure { value: float }
+union Sample { Reading { value: float } }
+fn scale(m:Measure)->float{return (* m.value 2.0)}
+shadow scale{assert (== (scale Measure {value:1.0}) 2.0)}
+fn read(s:Sample)->float{
+ match s { Reading(r) => { return (+ r.value 1.0) } }
+ return 0.0
+}
+shadow read{assert (== (read Sample.Reading {value:2.0}) 3.0)}
+fn main()->int{
+ let m:Measure=Measure {value:2.0}
+ let s:Sample=Sample.Reading {value:3.0}
+ assert (== (float_to_bits (scale m)) 4616189618054758400)
+ assert (== (float_to_bits (read s)) 4616189618054758400)
+ return 0
+}
+shadow main{assert (== (main) 0)}
+"""

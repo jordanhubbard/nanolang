@@ -143,6 +143,10 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         case AST_BOOL:       return TYPE_BOOL;
         case AST_STRING:     return TYPE_STRING;
         case AST_IDENTIFIER: return ctx_lookup_type(c, node->as.identifier);
+        case AST_FIELD_ACCESS:
+            /* I consume the checker's concrete field identity, never a name guess. */
+            return node->as.field_access.resolved_type_info
+                ? node->as.field_access.resolved_type_info->base_type : TYPE_UNKNOWN;
         case AST_LET:        return node->as.let.var_type;
         case AST_RETURN:     return infer_expr_type(c, node->as.return_stmt.value);
         case AST_CALL: {
