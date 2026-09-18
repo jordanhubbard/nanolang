@@ -4877,3 +4877,7 @@ test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoi
 .PHONY: test-match-expression-scope
 test-match-expression-scope: bootstrap nano_virt nano_vm
 	python3 -m unittest -v tests.test_match_expression_scope
+
+.PHONY: test-native-false-assert
+test-native-false-assert: nvm2c nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_native_false_assert

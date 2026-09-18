@@ -1042,6 +1042,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     int sp = 0;
     size_t pc = 0;
     int terminated = 0;
+    int previous_false_push = 0;
 
     while (pc < remaining) {
         size_t start = pc;
@@ -1052,8 +1053,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             return 0;
         }
         pc += n;
-        if (terminated && !joins[start].set) continue;
+        if (terminated && !joins[start].set) {
+            previous_false_push = 0;
+            continue;
+        }
         if (targets[start]) {
+            previous_false_push = 0;
             if (!terminated && !sim_join(b, idx, start, &joins[start], stk, sp, facts)) return 0;
             sp = joins[start].sp;
             if (sp) memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
@@ -1108,6 +1113,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot dumped;
             if (!sim_pop(b, idx, stk, &sp, &dumped)) return 0;
             (void)dumped;
+            if (previous_false_push) terminated = 1;
             break;
         }
         case OP_SWAP: {
@@ -2094,6 +2100,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         }
         if (ins.opcode == OP_JMP || ins.opcode == OP_RET ||
             ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) terminated = 1;
+        previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
         if (b->failed) return 0;
     }
 
@@ -3067,6 +3074,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 
     size_t pc = 0;
     int terminated = 0;
+    int previous_false_push = 0;
     /* A decoded self-tail instruction may be unreachable. Keep its label
      * syntactically referenced without executing an extra jump. */
     nvm2c_puts(b, "    if (0) goto L_return;\n");
@@ -3085,10 +3093,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
         if (terminated && !join_set[start]) {
+            previous_false_push = 0;
             pc += n;
             continue;
         }
         if (is_target[start]) {
+            previous_false_push = 0;
             if (terminated) {
                 if (!join_set[start]) {
                     nvm2c_fail(b, "function %u: label at %zu has no incoming stack",
@@ -3269,6 +3279,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int cond = stack_pop_condition(b, &st, "ASSERT");
             if (b->failed) goto done;
             nvm2c_printf(b, "    if (!t[%d]) NVM2C_ABORT();\n", cond);
+            if (previous_false_push) terminated = 1;
             break;
         }
         case OP_SWAP: {
@@ -4561,6 +4572,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         if (b->failed) goto done;
         if (boolean_result(ins.opcode) && st.sp > 0) st.kinds[st.sp - 1] = NVM2C_VK_BOOL;
+        previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
     }
 
     if (is_target[remaining] && join_set[remaining]) {
