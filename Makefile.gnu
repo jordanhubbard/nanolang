@@ -4729,6 +4729,12 @@ test-constructor-call-context: bootstrap
 
 test-units: test-constructor-call-context
 
+.PHONY: test-conditional-field-types
+test-conditional-field-types: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_conditional_field_types
+
+test-units: test-conditional-field-types
+
 .PHONY: test-debug-text
 test-units: test-debug-text
 test-debug-text: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
