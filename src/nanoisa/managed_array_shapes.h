@@ -3,7 +3,7 @@
 #include "nvm_format.h"
 #include <stdint.h>
 
-/* Private analysis only: no verifier profile or executable admission is changed. */
+/* Shape evidence only: callers must also enforce their execution profile and runtime checks. */
 typedef enum {
     NVM_ARRAY_ELIGIBLE, NVM_ARRAY_UNRESOLVED, NVM_ARRAY_INVALID,
     NVM_ARRAY_LIMIT, NVM_ARRAY_MEMORY
