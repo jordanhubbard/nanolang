@@ -66,16 +66,19 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm2c_puts(&b,helper);free(helper);
     }
     nvm2c_puts(&b,function?
-        "static int nown_helper(nown_value *origin,nown_reference borrowed,int64_t *result) {\n":
+        "static int nown_helper(nown_value *origin,const nown_reference *borrowed,int64_t *result) {\n":
         "int nvm_owned_entry(int64_t *result) {\n");
     nvm2c_puts(&b,
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0};\n"
         " nown_reference refs[256]={{0}}; unsigned region=0;\n"
         " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region; (void)nown_referent;\n");
     if(function) {
-        NvmAffineType param;NvmReferenceMode mode;
-        if(!nvm_affine_parameter_type(state,&param,&mode)) goto fail;
-        nvm2c_printf(&b," (void)origin; refs[0]=borrowed; refs[0].region=0; refs[0].parent=UINT16_MAX; refs[0].exclusive=%u;\n",mode==NVM_REFERENCE_EXCLUSIVE);
+        nvm2c_puts(&b," (void)origin;\n");
+        for(uint16_t p=0;p<fn->arity;p++) {
+            NvmAffineType param;NvmReferenceMode mode;
+            if(!nvm_affine_parameter_at(state,p,&param,&mode)) goto fail;
+            nvm2c_printf(&b," refs[%u]=borrowed[%u]; refs[%u].region=0; refs[%u].parent=UINT16_MAX; refs[%u].exclusive=%u;\n",p,p,p,p,p,mode==NVM_REFERENCE_EXCLUSIVE);
+        }
     }
     nvm2c_puts(&b," goto L0;\n");
     for (uint32_t i=0;i<code.instruction_count;i++) {
@@ -86,7 +89,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
         case OP_CALL_REF:
-            nvm2c_printf(&b," if(nown_helper(l,refs[%u],&t[%d].scalar)){status=1;goto cleanup;}\n",in->operands[1].u16,n);break;
+            nvm2c_printf(&b," if(nown_helper(l,&refs[%u],&t[%d].scalar)){status=1;goto cleanup;}\n",in->operands[1].u16,n);break;
         case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;
         case OP_REGION_END:
             nvm2c_puts(&b," for(unsigned r=0;r<256;r++) if(refs[r].region==region) refs[r].region=0;\n --region;\n");break;
