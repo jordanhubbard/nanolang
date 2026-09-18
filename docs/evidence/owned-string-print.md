@@ -9,6 +9,13 @@ from the two-field carrier. The corrected checkpoint has no positional
 `nown_value` initializer. I leave the roadmap item open until the production
 change receives independent review.
 
+After rebasing onto canonical main `96cdb7c5`, my admission-boundary
+checkpoint is `8a87f9225e022a8953dc08bbf8a2125013484ae8`. It retains the runtime
+corrections above and makes the review claims independently observable: each
+output resume has exact admission accounting, incomplete constants are tested
+through fast, trace, callback, reference and direct-core paths, and borrowed
+`PRINT`/`PRINTLN` refusals do not depend on an earlier `PUSH_STR` refusal.
+
 I admit only mode-zero `TAG_STRING` parameters and their exact locals in my
 bounded owned value-call graph. My record-field guard still accepts only INT,
 BOOL, U8 and STRUCT. I accept validated, NUL-free module literals and consume
@@ -58,7 +65,7 @@ generated native programs compile with `-Wall -Wextra -Werror`, run with ASan
 and UBSan, and explicitly select
 `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1`.
 
-The focused gate covers:
+The focused gate at `8a87f922` covers:
 
 - nonempty, empty, repeated and sibling literal output through three helper
   frames, with exact captured bytes and newline placement;
@@ -80,8 +87,10 @@ The focused gate covers:
   graphs;
 - direct refusal of `PUSH_STR`, `PRINT` and `PRINTLN` outside the value-call
   profile, including a borrowed `CALL_REF` fixture; and
-- refusal before activation when a missing instantiated literal reaches the
-  traced fallback admission configuration.
+- refusal before activation when a missing instantiated literal reaches fast,
+  traced, callback, reference or direct public-core admission; and
+- exact proof invalidation and three fallback verifier admissions at each of
+  four output boundaries in a helper-free sequence, with 13 admissions total.
 
 The review log is
 `/private/tmp/nanolang-owned-string-print-review-f7a66804.log`, SHA-256
@@ -92,6 +101,13 @@ the same explicit Homebrew Clang 23.1.1 and LeakSanitizer selection. Its focused
 log is `/private/tmp/nanolang-owned-string-print-readiness-1c986ec8.log`,
 SHA-256
 `4d57c0346780d30ce2960a35ac35142b455ff7cb78422fe0f220c4325de8fc8c`.
+
+The final boundary qualification was clean at `8a87f922` with Homebrew Clang
+23.1.1 and `detect_leaks=1`. It passes 114 caller-origin analysis checks, 600
+allocation checks with 10 setup and 2 invocation attempts, 62 proof checks
+with 13 admissions, and the VM/native output and cleanup method. Its log is
+`/private/tmp/nanolang-owned-string-print-boundaries-8a87f922.log`, SHA-256
+`0e33652e2e4891dc0ee792f326c4dabc4fe2daad29a459cd786c33aa268ad99a`.
 
 ## Adjacent ownership qualification
 
@@ -108,6 +124,11 @@ They pass at `1c986ec8`; the log is
 `/private/tmp/nanolang-owned-string-print-readiness-adjacent-1c986ec8.log`,
 SHA-256
 `c7ddf8539fe281e3ed55aae0f26f5fe8758c063ef90feba9f3840e504a7d3ec2`.
+
+I reran those suites after the exact boundary corrections at `8a87f922`.
+They pass with the same Homebrew Clang 23.1.1 selection. The log is
+`/private/tmp/nanolang-owned-string-print-adjacent-8a87f922.log`, SHA-256
+`b9c19568ed68ac4bc6d680df2936b91047741ef3fd8b62049bca5da2c54a3abe`.
 
 I preserve the first default-compiler adjacent run separately. Its ordinary C
 and VM fixtures pass, then its older Python harnesses request LeakSanitizer
