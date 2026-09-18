@@ -13,6 +13,7 @@
 #include "nanovirt/codegen.h"
 #include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
+#include "resource_tracking.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
 #include "nanovm/vm.h"
@@ -4144,14 +4145,14 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         Function *function = &env->functions[i];
         StructDef *returned = function->return_type == TYPE_STRUCT && function->return_struct_type_name
             ? env_get_struct(env, function->return_struct_type_name) : NULL;
-        if(returned && returned->is_resource)return codegen_borrow_compile(program,modules,shadows);
+        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,modules,shadows);
         for (int p = 0; p < function->param_count; ++p) {
             if (!function->params) continue;
             Parameter *parameter = &function->params[p];
             StructDef *record = parameter->type == TYPE_STRUCT && parameter->struct_type_name
                 ? env_get_struct(env, parameter->struct_type_name) : NULL;
             if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
-                (record && record->is_resource)) {
+                (record && is_resource_type(env,parameter->struct_type_name))) {
                 return codegen_borrow_compile(program, modules, shadows);
             }
         }
