@@ -63,3 +63,27 @@ C line 46847. I retain the exact artifact, log and SHA256 manifest in
 `/tmp/nanolang-product-startup-b8f3b842/evidence.json`. I do not replay that
 artifact or attribute its cause. The diagnostic enables static source review;
 it does not satisfy the full product gate. PR601 remains draft.
+
+## I pass the corrected storage bootstrap gate
+
+Source-only emission at `b8f3b842` located the named guard: an exact string
+projection required plain storage even though inferred storage can carry a
+boxed present string. This identifies a static representation gap, not the
+runtime contents of the preserved failed process. At `c7b95857`, I accept
+plain int/bool/string storage or a boxed value with the exact expected payload
+tag. I retain absent/wrong-tag refusal and check a string pointer before use.
+Independent static review confirmed that record construction stores those
+payloads in the same slots.
+
+At `d8362cc4` (test-only addition after `c7b95857`), all 2,422 native checks
+and 1,269 shape checks pass. Six focused methods, including nested records,
+pass GCC in 4.519 seconds and Clang in 6.398 seconds with generated-code
+ASan/UBSan/leak checks. Logs are `/tmp/nanolang-typed-projection-*`.
+
+Fresh integrated product `85d2e294` passes both bootstrap stages, hello and
+installed execution without the C seed. The ordinary product suite passes
+27 of 28 methods in 11.665 seconds. Export-shadow compilation still aborts,
+now with a diagnostic in `parser_set_let_var_type`; I retain that separate
+artifact and log in `/tmp/nanolang-product-exports-85d2e294/evidence.json`.
+This completes the storage task's fresh bootstrap requirement. It does not
+complete export-shadow task dd74, product PR522 or release acceptance.
