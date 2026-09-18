@@ -27,7 +27,7 @@
  * Profile boundaries
  * ──────────────────
  *   I support direct declared calls. I refuse arrays, first-class callable values,
- *   expression/local-bound callees, tuple values, effects, async/await
+ *   expression/local-bound callees, for loops, tuple values, effects, async/await
  *   and try propagation. Other list/map/binary-string/opaque/row/borrow/generic
  *   or unresolved value representations receive checked refusal. By-value record
  *   fields require prior complete local declarations. I require hosted library support. Exact supported

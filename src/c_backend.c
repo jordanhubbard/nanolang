@@ -3,7 +3,7 @@
  *
  * Emits readable, self-contained C99 source from the nanolang AST.
  * Supports: numeric types, strings, arithmetic, comparisons, logical ops,
- * function definitions, let/set bindings, if/else, while, for, return,
+ * function definitions, let/set bindings, if/else, while, return,
  * print/println and qualified structs, enums, unions and match.
  * I refuse arrays, unimplemented effects and unsupported expression profiles.
  *
@@ -248,6 +248,9 @@ static int ctx_profile_node(CBCtx *c, const ASTNode *node) {
         return -1;
     }
     switch (node->type) {
+    case AST_FOR:
+        ctx_error(c, "I do not provide for-loop lowering in this C profile.");
+        return -1;
     case AST_TUPLE_LITERAL: case AST_TUPLE_INDEX:
     case AST_EFFECT_DECL: case AST_HANDLE_EXPR: case AST_EFFECT_HANDLER:
     case AST_EFFECT_OP: case AST_ASYNC_FN: case AST_AWAIT: case AST_TRY_OP:
@@ -1601,37 +1604,6 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         c->indent++;
         ctx_push_scope(c);
         if (emit_block_body(c, node->as.while_stmt.body)) {
-            ctx_pop_scope(c); c->indent--;
-            return -1;
-        }
-        ctx_pop_scope(c);
-        c->indent--;
-        emit_indent(c);
-        fputs("}\n", c->out);
-        return 0;
-    }
-
-    case AST_FOR: {
-        ASTNode *range = node->as.for_stmt.range_expr;
-        const char *var = node->as.for_stmt.var_name;
-        ctx_add_sym(c, var, TYPE_INT);
-
-        if (range && range->type == AST_PREFIX_OP &&
-            range->as.prefix_op.op == TOKEN_RANGE &&
-            range->as.prefix_op.arg_count == 2) {
-            fprintf(c->out, "for (int64_t %s = ", var);
-            if (emit_expr(c, range->as.prefix_op.args[0])) return -1;
-            fprintf(c->out, "; %s < ", var);
-            if (emit_expr(c, range->as.prefix_op.args[1])) return -1;
-            fprintf(c->out, "; %s++) {\n", var);
-        } else {
-            fprintf(c->out, "for (int64_t %s = 0; %s < ", var, var);
-            if (emit_expr(c, range)) return -1;
-            fprintf(c->out, "; %s++) {\n", var);
-        }
-        c->indent++;
-        ctx_push_scope(c);
-        if (emit_block_body(c, node->as.for_stmt.body)) {
             ctx_pop_scope(c); c->indent--;
             return -1;
         }
