@@ -101,7 +101,7 @@ RET
         self.paired(text,0,'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
 
     def test_remaining_arithmetic_and_type_refusals_preserve_output(self):
-        cases = ('PUSH_I64 1\nPUSH_I64 2\nI64_DIV_U',
+        cases = ('PUSH_I64 1\nCAST_FLOAT',
                  'PUSH_I64 1\nPUSH_I64 2\nADD',
                  'PUSH_BOOL 1\nI64_NEG',
                  'PUSH_BOOL 1\nPUSH_I64 2\nI64_ADD')

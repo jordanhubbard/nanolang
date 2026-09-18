@@ -19,6 +19,7 @@ UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
 ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
               'I64_DIV_S': 'div', 'I64_REM_S': 'rem',
+              'I64_DIV_U': 'div_u', 'I64_REM_U': 'rem_u',
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
@@ -372,7 +373,7 @@ class Emit:
         if not needed:
             return
         if self.language == 'c':
-            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert'}:
+            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u'}:
                 self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
     if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
     return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
@@ -391,6 +392,13 @@ class Emit:
                     if op == 'shr_s':
                         self.line('    if (a < 0 && count != 0) bits |= UINT64_MAX << (64U - count);')
                     self.line('    return nlr_i64_bits(bits);\n}')
+                    continue
+                if op in ('div_u', 'rem_u'):
+                    symbol = '/' if op == 'div_u' else '%'
+                    self.line(f'''static int64_t nlr_i64_{op}({args}) {{
+    if (b == 0) return INT64_C(0);
+    return nlr_i64_bits((uint64_t)a {symbol} (uint64_t)b);
+}}''')
                     continue
                 if op in ('div', 'rem'):
                     symbol = '/' if op == 'div' else '%'
@@ -411,6 +419,8 @@ class Emit:
                               'invert': '~(uint64_t)a'}[op]
                 self.line(f'static int64_t nlr_i64_{op}({args}) {{ return nlr_i64_bits({expression}); }}')
             return
+        if needed & {'div_u', 'rem_u'}:
+            needed.update(('add', 'sub', 'ge_u'))
         if needed & {'band', 'bor', 'bxor'}:
             needed.update(('add', 'shr_u'))
         if 'shl' in needed:
@@ -712,3 +722,36 @@ shadow nlr_i64_neg {
     assert (== (nlr_i64_neg 0) 0)
 }''',
 }
+
+
+# I consume the dividend from its high bit. A saved remainder carry keeps
+# unsigned subtraction correct even when doubled remainder wraps its carrier.
+for _operation, _result in (('div_u', 'quotient'), ('rem_u', 'remainder')):
+    _quotient_init = '    let mut quotient: int = 0\n' if _result == 'quotient' else ''
+    _quotient_shift = '        set quotient (nlr_i64_add quotient quotient)\n' if _result == 'quotient' else ''
+    _quotient_bit = '            set quotient (nlr_i64_add quotient 1)\n' if _result == 'quotient' else ''
+    NANO_INTEGER_HELPERS[_operation] = f'''fn nlr_i64_{_operation}(a: int, b: int) -> int {{
+    if (== b 0) {{ return 0 }}
+    let mut dividend: int = a
+    let mut remainder: int = 0
+{_quotient_init}    let mut step: int = 0
+    while (< step 64) {{
+        let carry: bool = (< remainder 0)
+        set remainder (nlr_i64_add remainder remainder)
+        if (< dividend 0) {{ set remainder (nlr_i64_add remainder 1) }}
+        set dividend (nlr_i64_add dividend dividend)
+{_quotient_shift}        let at_least: bool = (nlr_i64_ge_u remainder b)
+        if (or carry at_least) {{
+            set remainder (nlr_i64_sub remainder b)
+{_quotient_bit}        }}
+        set step (+ step 1)
+    }}
+    return {_result}
+}}
+shadow nlr_i64_{_operation} {{
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_{_operation} -1 low) {1 if _result == 'quotient' else 9223372036854775807})
+    assert (== (nlr_i64_{_operation} low 0) 0)
+    assert (== (nlr_i64_{_operation} -1 1) {-1 if _result == 'quotient' else 0})
+    assert (== (nlr_i64_{_operation} 7 3) {2 if _result == 'quotient' else 1})
+}}'''
