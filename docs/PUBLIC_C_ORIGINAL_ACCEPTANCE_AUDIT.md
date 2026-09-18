@@ -1,6 +1,6 @@
 # I audit my original public C requirement
 
-I audit task_6ade6d62ef644390bb9645b15077c8df against c4c039a4 (PR791, canonical merge pending at this report's first publication). The original task asks me to inventory supported options and expression contexts, replace GNU block-expression dependence with portable lowering **or checked refusals**, and run ordinary generated C99/C11 controls. It does not ask me to invent arbitrary missing source ABIs. This is a finite acceptance audit, not a whole-language conformance or release claim.
+I audit task_6ade6d62ef644390bb9645b15077c8df against canonical df51f4cfe4ecdfc9ac94881ba8d2939ab61852e3 (merged PR791; its frozen qualification remains pinned to9cc7b06c). The original task asks me to inventory supported options and expression contexts, replace GNU block-expression dependence with portable lowering **or checked refusals**, and run ordinary generated C99/C11 controls. It does not ask me to invent arbitrary missing source ABIs. This is a finite acceptance audit, not a whole-language conformance or release claim.
 
 ## I map the original clauses to evidence
 
@@ -41,7 +41,7 @@ I inventory the 47 ASTNodeType entries in src/nanolang.h. “Admit” below alwa
 | UNION_DEF, UNION_CONSTRUCT | Admit exact local nongeneric scalar/empty variants, named payload types and exact checked construction; invalid owner/payload facts refuse. PR760,769,782. |
 | MATCH | Admit exact covered supported union cases, scoped guards and supported typed value lifting. Early/multiple wildcard and incomplete coverage profiles refuse. PR766,775. |
 | IMPORT, MODULE_DECL | Frontend-resolved declaration metadata; no emitted runtime statement. Qualified calls still need exact retained emitted declaration identity. PR780. |
-| OPAQUE_TYPE | Refuse the unsupported type profile. PR782. |
+| OPAQUE_TYPE | The statement switch retains a declaration-metadata no-op case, but the earlier ctx_profile_node → cb_node_storage guard refuses reached opaque declarations through both public entrypoints. Opaque value/storage facts also refuse. PR782 and static guard-order inspection; I do not infer declaration admission from the unreachable case. |
 | TUPLE_LITERAL, TUPLE_INDEX | Refuse, including tuple-valued storage facts. PR777,782. |
 | QUALIFIED_NAME | No generic expression lowering; default expression refusal. Qualified direct calls use the separately checked MODULE_QUALIFIED_CALL path. Static dispatch audit; no new ABI. |
 | UNSAFE_BLOCK | Existing real scoped statement block; contained calls/types still undergo profile checks. This is not an FFI ABI expansion or safety proof. Static dispatch audit and existing ordinary statement paths. |
@@ -69,4 +69,4 @@ The CLI initializes defaults and exposes --target c, output selection and existi
 
 Task_d0c6c784248b4716a1e3c215d5568793 describes broader repeated lifted loop-header/global admission. Existing checked refusal satisfies this original portable-or-refusal requirement; it does not complete that independent admission task. Tasks477bdd/70c5 and parent7a99 retain shared wildcard/no-success policy obligations. They are not silently implemented by the public C common-profile restriction. Full scalar-policy, platform and release gates retain their own acceptance. I do not replay historical compiler failures or infer a fresh bootstrap from these C-target checks.
 
-PR791 canonical merge and independent acceptance review remain prerequisites to completing original6ade. I propose closure only of the original bounded inventory/portable-or-refusal task once those prerequisites are established, not whole-target or whole-language conformance.
+PR791 is canonically merged at df51f4cf and task9eb325 is reconciled. Independent acceptance review and canonical integration of this report precede original6ade task completion. I propose closure only of the original bounded inventory/portable-or-refusal requirement, not whole-target or whole-language conformance.
