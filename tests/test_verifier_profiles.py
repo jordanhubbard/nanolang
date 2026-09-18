@@ -19,6 +19,7 @@ class VerifierProfiles(unittest.TestCase):
             'string_opcode': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPOP\n' + end, True, False),
             'managed_concat': ('.string text \"ordinary\"\n' + entry + 'PUSH_STR text\nDUP\nSTR_CONCAT\nPOP\n' + end, True, False),
             'managed_substring': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPUSH_I64 1\nPUSH_I64 3\nSTR_SUBSTR\nPOP\n' + end, True, False),
+            'managed_decimal': ('.string text " -42suffix"\n' + entry + 'PUSH_STR text\nCAST_INT\nPOP\n' + end, True, False),
             'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, True),
             'import': ('.import "" "get_argc" int\n' + entry + end, True, False),
             'nominal_table': ('.types 1 0 0\n' + entry + end, True, False),
@@ -32,7 +33,7 @@ class VerifierProfiles(unittest.TestCase):
             for name, (assembly, general, scalar) in cases.items():
                 with self.subTest(case=name):
                     literal_only = scalar or name in ('string_opcode', 'nonscalar_parameter')
-                    literal = literal_only or name in ('managed_concat', 'managed_substring')
+                    literal = literal_only or name in ('managed_concat', 'managed_substring', 'managed_decimal')
                     source, module = work/'input.nasm', work/'input.nvm'
                     source.write_text(assembly)
                     built = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module], capture_output=True, text=True, timeout=30)

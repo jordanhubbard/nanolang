@@ -49,6 +49,38 @@ int nms_core_tests(void) {
     CHECK(!nms_reserved_entry("nano_entry") && !nms_reserved_entry("nano_try_entry_other"));
     return 0;
 }
+int nms_decimal_tests(void) {
+    const struct { const char *text; uint32_t length; int64_t expected; } cases[] = {
+        {"",0,0}, {"+",1,0}, {"-",1,0}, {"  -42tail",9,-42},
+        {"\t\n\r\v\f +17",9,17}, {"12\0" "99",5,12}, {"0x20",4,0},
+        {"9223372036854775807",19,INT64_MAX},
+        {"9223372036854775808",19,INT64_MAX},
+        {"-9223372036854775808",20,INT64_MIN},
+        {"-9223372036854775809",20,INT64_MIN},
+        {"999999999999999999999999",24,INT64_MAX},
+        {"-999999999999999999999999",25,INT64_MIN}
+    };
+    for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        NmsView literal = {(const unsigned char *)cases[i].text, cases[i].length};
+        NmsRuntime runtime;
+        nms_init(&runtime, &literal, 1);
+        int64_t parsed = 123;
+        CHECK(nms_parse_i64(&runtime, 1, &parsed) == NMS_OK && parsed == cases[i].expected);
+        NmsHandle source;
+        CHECK(nms_create(&runtime, literal.data, literal.length, &source) == NMS_OK);
+        CHECK(nms_retain(&runtime, source) == NMS_OK);
+#ifdef NMS_TESTING
+        nms_test_fail_after(&runtime, 0);
+#endif
+        CHECK(nms_parse_i64(&runtime, source, &parsed) == NMS_OK && parsed == cases[i].expected);
+        CHECK(runtime.live_objects == 1 && runtime.live_bytes == literal.length);
+        CHECK(runtime.slots[source & ~NMS_DYNAMIC].references == 2);
+        CHECK(nms_release(&runtime, source) == NMS_OK);
+        CHECK(nms_release(&runtime, source) == NMS_OK);
+        CHECK(nms_dispose(&runtime) == NMS_OK);
+    }
+    return 0;
+}
 int nms_substr_tests(void) {
     NmsRuntime runtime;
     nms_init(&runtime, literals, 2);
@@ -268,6 +300,7 @@ int main(void) {
     int result = nms_core_tests();
     if (!result) result = nms_concat_tests();
     if (!result) result = nms_substr_tests();
+    if (!result) result = nms_decimal_tests();
     if (!result) result = nms_failure_tests();
     if (!result) result = nms_reuse_tests();
     if (result) { fprintf(stderr,"I failed managed-string check at line %d\n",result); return 1; }
