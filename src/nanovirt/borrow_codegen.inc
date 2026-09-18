@@ -210,6 +210,9 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     if(n->type==AST_PREFIX_OP) {
         int count=n->as.prefix_op.arg_count;TokenType op=n->as.prefix_op.op;
         if(count<1 || count>2){borrow_error(b,n,"one unary or two binary scalar operands");return TAG_VOID;}
+        if(op==TOKEN_NOT && (borrow_local(b,"not")>=0 || borrow_function_index(b,"not")>=0)) {
+            borrow_error(b,n,"an unshadowed Boolean not builtin");return TAG_VOID;
+        }
         uint8_t left=borrow_expr(b,n->as.prefix_op.args[0]);
         if(count==1) {
             if(op==TOKEN_NOT && left==TAG_BOOL){emit_op(cg,OP_NOT);return TAG_BOOL;}
@@ -589,6 +592,46 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
         if(!nvm_add_local_binding(cg->module,&binding))borrow_error(b,NULL,"available lexical-name storage");
     }
 }
+/* I inspect lexical syntax, not the lifetime of checker scope entries. */
+static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
+    if(!n)return false;
+    const char *name=n->type==AST_LET?n->as.let.type_name:
+        n->type==AST_STRUCT_LITERAL?n->as.struct_literal.struct_name:NULL;
+    StructDef *record=name?env_get_struct(env,name):NULL;
+    if(record && record->is_resource)return true;
+    switch(n->type) {
+        case AST_PROGRAM:
+            for(int i=0;i<n->as.program.count;i++)if(borrow_source_uses_owner(n->as.program.items[i],env))return true;
+            break;
+        case AST_BLOCK:
+            for(int i=0;i<n->as.block.count;i++)if(borrow_source_uses_owner(n->as.block.statements[i],env))return true;
+            break;
+        case AST_UNSAFE_BLOCK:
+            for(int i=0;i<n->as.unsafe_block.count;i++)if(borrow_source_uses_owner(n->as.unsafe_block.statements[i],env))return true;
+            break;
+        case AST_FUNCTION:return borrow_source_uses_owner(n->as.function.body,env);
+        case AST_SHADOW:return borrow_source_uses_owner(n->as.shadow.body,env);
+        case AST_LET:return borrow_source_uses_owner(n->as.let.value,env);
+        case AST_RETURN:return borrow_source_uses_owner(n->as.return_stmt.value,env);
+        case AST_IF:return borrow_source_uses_owner(n->as.if_stmt.condition,env) ||
+            borrow_source_uses_owner(n->as.if_stmt.then_branch,env) || borrow_source_uses_owner(n->as.if_stmt.else_branch,env);
+        case AST_WHILE:return borrow_source_uses_owner(n->as.while_stmt.condition,env) || borrow_source_uses_owner(n->as.while_stmt.body,env);
+        case AST_FOR:return borrow_source_uses_owner(n->as.for_stmt.range_expr,env) || borrow_source_uses_owner(n->as.for_stmt.body,env);
+        case AST_MATCH:
+            if(borrow_source_uses_owner(n->as.match_expr.expr,env))return true;
+            for(int i=0;i<n->as.match_expr.arm_count;i++)if(borrow_source_uses_owner(n->as.match_expr.arm_bodies[i],env))return true;
+            break;
+        case AST_CALL:
+            if(borrow_source_uses_owner(n->as.call.func_expr,env))return true;
+            for(int i=0;i<n->as.call.arg_count;i++)if(borrow_source_uses_owner(n->as.call.args[i],env))return true;
+            break;
+        case AST_PREFIX_OP:
+            for(int i=0;i<n->as.prefix_op.arg_count;i++)if(borrow_source_uses_owner(n->as.prefix_op.args[i],env))return true;
+            break;
+        default:break;
+    }
+    return false;
+}
 static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules,bool shadows) {
     CodegenResult out={0};CG *cg=calloc(1,sizeof(*cg));BorrowCG *b=calloc(1,sizeof(*b));
     if(!cg || !b){free(cg);free(b);snprintf(out.error_msg,sizeof(out.error_msg),"I cannot allocate my source borrow compiler");return out;}
@@ -704,7 +747,11 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         }
         cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
         cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
-        if(!cg->had_error){NvmVerifyResult verified=nvm_verify(cg->module);if(!verified.ok)borrow_error(b,NULL,verified.error_msg);}
+        if(!cg->had_error) {
+            NvmVerifyResult verified=nvm_verify(cg->module);
+            if(verified.ok)verified=nvm_verify_owned_module(cg->module);
+            if(!verified.ok)borrow_error(b,NULL,verified.error_msg);
+        }
     }
     out.ok=!cg->had_error;out.error_line=cg->error_line;snprintf(out.error_msg,sizeof(out.error_msg),"%s",cg->error_msg);
     if(out.ok)out.module=cg->module;else if(cg->module)nvm_module_free(cg->module);

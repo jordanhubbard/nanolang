@@ -1206,3 +1206,28 @@ shadow nanoisa_borrow_emit {
     assert (== (nanoisa_borrow_emit parser true -1) "")
     assert (!= (nanoisa_borrow_emit parser false 0) "")
 }
+
+shadow nb_function_index {
+    let parser: Parser = (nb_fixture)
+    set nb_functions [] set nb_functions (array_push nb_functions 1) set nb_functions (array_push nb_functions 0)
+    assert (== (nb_function_index parser "main") 0)
+    assert (== (nb_function_index parser "read") 1)
+    assert (== (nb_function_index parser "absent") -1)
+    set nb_functions []
+}
+shadow nb_result_tag {
+    let parser: Parser = (nb_fixture)
+    assert (== (nb_result_tag parser "R") 8)
+    assert (== (nb_result_tag parser "int") 1)
+    assert (== (nb_result_tag parser "bool") 4)
+    assert (== (nb_result_tag parser "void") 0)
+}
+shadow nb_owner {
+    let parser: Parser = (nb_fixture)
+    set nb_error "" let _: int = (nb_reset_locals)
+    let binding: ASTLet = (parser_get_let parser 1)
+    let _: int = (nb_owner parser binding.value binding.value_type 0)
+    assert (== nb_error "") assert (str_contains nb_code "OWN_PACK 0")
+    assert nb_any_transfer
+    let _: int = (nb_reset_locals)
+}

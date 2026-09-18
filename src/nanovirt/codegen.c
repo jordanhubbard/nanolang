@@ -4031,11 +4031,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
     }
 
-    for(int i=0;i<env->symbol_count;i++) {
-        Symbol *symbol=&env->symbols[i];
-        StructDef *record=symbol->type==TYPE_STRUCT && symbol->struct_type_name?env_get_struct(env,symbol->struct_type_name):NULL;
-        if(record && record->is_resource)return codegen_borrow_compile(program,modules,shadows);
-    }
+    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,modules,shadows);
 
     CgLocalName *local_names=NULL;
     CG cg = {0};
