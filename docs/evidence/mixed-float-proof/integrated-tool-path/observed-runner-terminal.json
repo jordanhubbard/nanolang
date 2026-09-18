@@ -1,0 +1,7 @@
+{
+  "observed_exit": 1,
+  "exception": "FileNotFoundError",
+  "missing": "bin/nanoisa_dump",
+  "actual_recipe_output": "bin/nanoisa",
+  "queries_started": false
+}
