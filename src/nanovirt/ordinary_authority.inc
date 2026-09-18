@@ -6,7 +6,7 @@ static void ordinary_word(uint8_t *out,uint32_t value,unsigned width) {
 }
 static void publish_ordinary_authority(CG *cg,ASTNode *program) {
     NvmModule *module=cg->module;
-    if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count ||
+    if(!cg->struct_count || cg->enum_count || cg->union_count || cg->extern_count || cg->passive ||
        module->layout_size || module->ownership_size)return;
     ASTNode *records[MAX_STRUCT_DEFS]={0};unsigned count=0;
     for(int i=0;i<program->as.program.count;i++) {

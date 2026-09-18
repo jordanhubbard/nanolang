@@ -110,4 +110,7 @@ fn main() -> int { let value: Data = Data { values: [1, 2] } assert (== (array_l
 shadow main { assert true }
 '''
         for module in self.modules(source):self.qualify(module,False)
+    def test_extern_record_provenance_stays_unknown(self):
+        source='extern struct Foreign { value: int } struct Local { value: int } fn main() -> int { return 0 } shadow main { assert true }'
+        for module in self.modules(source):self.qualify(module,False)
 if __name__=='__main__':unittest.main()

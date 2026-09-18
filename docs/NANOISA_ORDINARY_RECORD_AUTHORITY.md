@@ -163,3 +163,11 @@ without emitting instructions. Function and initializer boundaries reset the
 array. I test nested lexical shadowing against these exact emitted slot tags;
 a later slot-reuse optimization must preserve this authority invariant or omit
 publication. My C collector allocates slot facts only when records exist.
+
+My selfhost AST currently discards the `extern` qualifier on record declarations
+(task_f366494d5921451eaf57128629eb9e4c). Before that representation is repaired,
+I require a retained source token stream and conservatively omit authority when
+it contains any extern token. Foreign import tables and passive parallel/flow
+functions also remain outside this first producer checkpoint. This lexical
+exclusion supplies no positive authority; checked record fields still determine
+every emitted complete declaration.
