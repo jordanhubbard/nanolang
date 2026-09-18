@@ -73,26 +73,39 @@ static void ordinary_chain(void) {
     CHECK(result.tag==TAG_INT&&result.as.i64==42);vm_destroy(&vm);nvm_module_free(m);
 }
 #ifndef OWNED_GRAPH_ALLOC_TEST
+static void graph_phase(const char *phase,unsigned index,unsigned api,unsigned repeat) {
+    if(getenv("NANO_GRAPH_TRACE_PHASES"))
+        fprintf(stderr,"graph phase=%s case=%u api=%u repeat=%u\n",phase,index,api,repeat);
+}
 int main(int argc,char **argv) {
-    CHECK(argc==2||argc==3);ordinary_chain();graph_refusals();
+    CHECK(argc==2||argc==3);
+    graph_phase("ordinary-start",0,0,0);ordinary_chain();graph_phase("ordinary-done",0,0,0);
+    graph_phase("refusals-start",0,0,0);graph_refusals();graph_phase("refusals-done",0,0,0);
     unsigned begin=0,end=10;
     if(argc==3) {
         char *text_end=NULL;unsigned long selected=strtoul(argv[2],&text_end,10);
         CHECK(argv[2][0]&&!*text_end&&selected<10);begin=(unsigned)selected;end=begin+1;
     }
+    graph_phase("four-start",0,0,0);
     NvmModule *four=graph_fixture(0,4);consuming_verified(four);nvm_module_free(four);
+    graph_phase("four-done",0,0,0);
     for(unsigned index=begin;index<end;index++) {
         bool fails=index>0&&index<9;
-        NvmModule *m=graph_fixture(fails?index:0,index==9?4:8);consuming_verified(m);artifacts(m,argv[1],index);
+        graph_phase("fixture-start",index,0,0);
+        NvmModule *m=graph_fixture(fails?index:0,index==9?4:8);
+        graph_phase("verify-start",index,0,0);consuming_verified(m);
+        graph_phase("artifacts-start",index,0,0);artifacts(m,argv[1],index);
+        graph_phase("artifacts-done",index,0,0);
         VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
         for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<2;repeat++) {
+            graph_phase("api-start",index,api,repeat);
             NanoValue result=val_void();uint64_t generation=vm.reference_generation;
             VmResult status=api==0?vm_invoke(&vm,0,NULL,0,&result):api==1?vm_execute(&vm):api==2?vm_call_function(&vm,0,NULL,0):vm_invoke_callable(&vm,val_function(0),NULL,0,&result);
             CHECK(status==(fails?VM_ERR_ASSERT_FAILED:VM_OK));CHECK(vm.reference_generation>generation);
             if(!fails) {if(api==1||api==2){CHECK(vm.stack_size==1);result=vm.stack[--vm.stack_size];}CHECK(result.tag==TAG_INT&&result.as.i64==42);vm_release(&vm.heap,result);}
             CHECK(!vm.stack_size&&!vm.frame_count);CHECK(!vm.references.active&&!vm.callee_references.active);
             for(unsigned frame=0;frame<NVM_OWNED_MAX_FUNCTIONS-2;frame++)CHECK(!vm.value_references[frame].active);
-            CHECK(vm.heap.stats.num_objects==baseline);
+            CHECK(vm.heap.stats.num_objects==baseline);graph_phase("api-done",index,api,repeat);
         }
         vm_destroy(&vm);nvm_module_free(m);printf("case %u %u 42\n",index,fails?2:0);
     }
