@@ -45,6 +45,7 @@ typedef struct {
     size_t      string_slots;
     size_t      match_labels;
     Type        return_type;
+    ASTNode    *return_union;
     bool        has_globals;
     int         indent;
     bool        verbose;
@@ -247,6 +248,53 @@ static bool ctx_has_binding(CBCtx *c, const char *name) {
     return false;
 }
 
+/* I preserve declaration identity rather than guessing an aggregate ABI. */
+static ASTNode *ctx_result_union(CBCtx *c, const char *name) {
+    ASTNode *owner = NULL;
+    if (c->root && name) {
+        ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+        int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *item = items[i];
+            if (!item || item->type != AST_UNION_DEF || !item->as.union_def.name ||
+                strcmp(item->as.union_def.name, name) != 0) continue;
+            if (owner) { ctx_error(c, "I require one exact C union result declaration."); return NULL; }
+            owner = item;
+        }
+    }
+    if (!owner || owner->as.union_def.is_extern || owner->as.union_def.generic_param_count ||
+        owner->as.union_def.variant_count <= 0) {
+        ctx_error(c, "I require an exact local nongeneric C union result."); return NULL;
+    }
+    for (int v = 0; v < owner->as.union_def.variant_count; ++v)
+        for (int f = 0; f < owner->as.union_def.variant_field_counts[v]; ++f) {
+            Type type = owner->as.union_def.variant_field_types[v][f];
+            if (type != TYPE_INT && type != TYPE_BOOL && type != TYPE_FLOAT && type != TYPE_STRING) {
+                ctx_error(c, "I require scalar C union result payloads."); return NULL;
+            }
+        }
+    return owner;
+}
+
+static ASTNode *ctx_function_union(CBCtx *c, ASTNode *function) {
+    if (!function || function->as.function.return_type != TYPE_UNION || function->as.function.is_extern) {
+        ctx_error(c, "I require a local declared C union-result function."); return NULL;
+    }
+    return ctx_result_union(c, function->as.function.return_struct_type_name);
+}
+
+static int emit_result_type(CBCtx *c, ASTNode *function) {
+    Type type = function->as.function.return_type;
+    if (type == TYPE_UNION) {
+        ASTNode *owner = ctx_function_union(c, function);
+        if (!owner) return -1;
+        fprintf(c->out, "NanoUnion_%s", owner->as.union_def.name);
+    } else if (type == TYPE_STRUCT && function->as.function.return_struct_type_name) {
+        fprintf(c->out, "NanoStruct_%s", function->as.function.return_struct_type_name);
+    } else fputs(c_type(type), c->out);
+    return 0;
+}
+
 /* I separate the language's int64 entry from the hosted C int wrapper. */
 static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
     if (name && strcmp(name, "main") == 0 && ctx_function(c, name) &&
@@ -389,6 +437,80 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         }
         default: return TYPE_UNKNOWN;
     }
+}
+
+/* I admit only value forms whose complete union identity I can establish. */
+static ASTNode *ctx_union_value(CBCtx *c, ASTNode *value) {
+    if (!value) { ctx_error(c, "I require a C union result value."); return NULL; }
+    if (value->type == AST_STRUCT_LITERAL && value->as.struct_literal.struct_name && c->root) {
+        const char *name = value->as.struct_literal.struct_name;
+        ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+        int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *item = items[i];
+            if (!item || item->type != AST_UNION_DEF || !item->as.union_def.name) continue;
+            size_t length = strlen(item->as.union_def.name);
+            if (strncmp(name, item->as.union_def.name, length) != 0 || name[length] != '.') continue;
+            ASTNode view = { .type = AST_UNION_CONSTRUCT };
+            view.as.union_construct.union_name = item->as.union_def.name;
+            view.as.union_construct.variant_name = (char *)name + length + 1;
+            view.as.union_construct.field_count = value->as.struct_literal.field_count;
+            view.as.union_construct.field_names = value->as.struct_literal.field_names;
+            view.as.union_construct.field_values = value->as.struct_literal.field_values;
+            if (value->as.struct_literal.spread_source) {
+                ctx_error(c, "I require explicit C union result fields without spread."); return NULL;
+            }
+            return ctx_union_value(c, &view);
+        }
+    }
+    if (value->type == AST_IDENTIFIER) {
+        for (int i = c->sym_count - 1; i >= 0; --i)
+            if (strcmp(c->syms[i].name, value->as.identifier) == 0) {
+                if (c->syms[i].type == TYPE_UNION)
+                    return ctx_result_union(c, c->syms[i].nominal);
+                break;
+            }
+    } else if (value->type == AST_CALL) {
+        if (value->as.call.name && !value->as.call.func_expr &&
+            !ctx_has_binding(c, value->as.call.name))
+            return ctx_function_union(c, ctx_function(c, value->as.call.name));
+    } else if (value->type == AST_UNION_CONSTRUCT) {
+        ASTNode *owner = ctx_result_union(c, value->as.union_construct.union_name);
+        if (!owner) return NULL;
+        int declaration, variant;
+        if (ctx_union_variant(c, owner->as.union_def.name, value->as.union_construct.variant_name,
+                              &declaration, &variant) != owner ||
+            value->as.union_construct.field_count != owner->as.union_def.variant_field_counts[variant]) {
+            ctx_error(c, "I require the exact declared C union result variant and fields."); return NULL;
+        }
+        for (int f = 0; f < value->as.union_construct.field_count; ++f) {
+            const char *name = value->as.union_construct.field_names[f];
+            int field = -1;
+            for (int j = 0; j < f; ++j)
+                if (name && strcmp(name, value->as.union_construct.field_names[j]) == 0) {
+                    ctx_error(c, "I require distinct C union result fields."); return NULL;
+                }
+            for (int j = 0; j < owner->as.union_def.variant_field_counts[variant]; ++j)
+                if (name && strcmp(name, owner->as.union_def.variant_field_names[variant][j]) == 0) field = j;
+            if (field < 0) { ctx_error(c, "I require a declared C union result field."); return NULL; }
+            Type expected = owner->as.union_def.variant_field_types[variant][field];
+            Type actual = infer_expr_type(c, value->as.union_construct.field_values[f]);
+            if (actual != expected && !(expected == TYPE_FLOAT && actual == TYPE_INT)) {
+                ctx_error(c, "I require a compatible scalar C union result field."); return NULL;
+            }
+        }
+        return owner;
+    }
+    ctx_error(c, "I require an exact resolved C union value without a bound callable.");
+    return NULL;
+}
+
+static bool ctx_require_union_value(CBCtx *c, ASTNode *value, ASTNode *expected) {
+    if (!expected) return false;
+    ASTNode *actual = ctx_union_value(c, value);
+    if (!actual) return false;
+    if (actual != expected) { ctx_error(c, "I require the same declared C union result identity."); return false; }
+    return true;
 }
 
 /* Return printf format specifier for a type */
@@ -726,6 +848,11 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
 
     case AST_CALL: {
         const char *name = node->as.call.name;
+        ASTNode *direct = name && !node->as.call.func_expr && !ctx_has_binding(c, name)
+            ? ctx_function(c, name) : NULL;
+        if (((node->as.call.checked_signature && node->as.call.checked_signature->return_type == TYPE_UNION) ||
+             (direct && direct->as.function.return_type == TYPE_UNION)) && !ctx_union_value(c, node))
+            return -1;
         bool builtin = name && !node->as.call.func_expr && !node->as.call.checked_signature &&
                        !ctx_has_binding(c, name) && !ctx_function(c, name);
         if (name && (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) &&
@@ -1083,6 +1210,9 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
                 return -1;
             }
         }
+        if (t == TYPE_UNION &&
+            !ctx_require_union_value(c, node->as.let.value, ctx_result_union(c, node->as.let.type_name)))
+            return -1;
         ctx_add_nominal(c, node->as.let.name, t, node->as.let.type_name, NULL);
 
         if (t == TYPE_STRUCT && node->as.let.type_name) {
@@ -1120,6 +1250,8 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
     }
 
     case AST_RETURN:
+        if (c->return_type == TYPE_UNION &&
+            !ctx_require_union_value(c, node->as.return_stmt.value, c->return_union)) return -1;
         if (c->return_type == TYPE_FLOAT) {
             Type actual = infer_expr_type(c, node->as.return_stmt.value);
             if (actual != TYPE_FLOAT && actual != TYPE_INT) {
@@ -1622,17 +1754,9 @@ static int emit_function(CBCtx *c, ASTNode *node) {
 
     Type ret = node->as.function.return_type;
     c->return_type = ret;
-    const char *ret_type_str;
-    static char struct_ret[128];
-    if (ret == TYPE_STRUCT && node->as.function.return_struct_type_name) {
-        snprintf(struct_ret, sizeof(struct_ret), "NanoStruct_%s",
-                 node->as.function.return_struct_type_name);
-        ret_type_str = struct_ret;
-    } else {
-        ret_type_str = c_type(ret);
-    }
-
-    fprintf(c->out, "%s ", ret_type_str);
+    c->return_union = ret == TYPE_UNION ? ctx_function_union(c, node) : NULL;
+    if (emit_result_type(c, node)) return -1;
+    fputc(' ', c->out);
     emit_function_name(c, node->as.function.name, false);
     fputc('(', c->out);
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -1713,17 +1837,8 @@ static void emit_forward_decls(CBCtx *c, ASTNode *root) {
          * file_copy, dir_copy) have no C prototype visible to the compiler,
          * causing -Wimplicit-function-declaration and the cascading
          * -Wint-conversion errors that follow from the defaulted int return. */
-        Type ret = n->as.function.return_type;
-        const char *ret_str;
-        static char sbuf[128];
-        if (ret == TYPE_STRUCT && n->as.function.return_struct_type_name) {
-            snprintf(sbuf, sizeof(sbuf), "NanoStruct_%s",
-                     n->as.function.return_struct_type_name);
-            ret_str = sbuf;
-        } else {
-            ret_str = c_type(ret);
-        }
-        fprintf(c->out, "%s ", ret_str);
+        if (emit_result_type(c, n)) return;
+        fputc(' ', c->out);
         emit_function_name(c, n->as.function.name, false);
         fputc('(', c->out);
         for (int j = 0; j < n->as.function.param_count; j++) {
@@ -1751,6 +1866,7 @@ static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
     c->string_slots = 0;
     c->match_labels = 0;
     c->return_type = TYPE_VOID;
+    c->return_union = NULL;
     fprintf(c->out, "  static int %sinitialized;\n  if (%sinitialized) return;\n  %sinitialized = 1;\n",
             c->prefix, c->prefix, c->prefix);
     for (int i = 0; i < count; ++i) {
@@ -1902,6 +2018,8 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.operand_slots = 0;
     c.string_slots = 0;
     c.match_labels = 0;
+    c.return_type = TYPE_VOID;
+    c.return_union = NULL;
     if (!c.error) {
         emit_preamble(&c, source_file);
         if (emit_program(&c, root) != 0 && !c.error)

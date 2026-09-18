@@ -535,6 +535,10 @@ test-binary64-arithmetic-backends: nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
 test-binary64-arithmetic:
 	python3 -m unittest -v tests.test_binary64_arithmetic
 
+.PHONY: test-reconstruction-f64-arithmetic
+test-reconstruction-f64-arithmetic: nvm2hl nanoisa_dump nano_vm nvm2c bootstrap
+	NANO_HL_COMPILER_DIR=$(CURDIR)/bin python3 -m unittest -v tests.test_reconstruction_f64_arithmetic
+
 .PHONY: test-reconstruction-f64-negation
 test-reconstruction-f64-negation: nvm2hl nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_reconstruction_f64_negation

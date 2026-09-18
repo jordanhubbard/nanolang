@@ -1,0 +1,1 @@
+cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all /tmp/nano-feasibility-current-ho3ajwip/recovery/recovered.c -o /tmp/nano-feasibility-current-ho3ajwip/recovered-c
