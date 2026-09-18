@@ -203,7 +203,7 @@ class ManagedStrings(unittest.TestCase):
 
     def test_unsupported_string_cast_and_reserved_entry_refusals_preserve_output(self):
         for body in ('PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPOP\n',
-                     'PUSH_I64 0\nARR_NEW 1\nPOP\n'):
+                     'ARR_NEW 1\nPOP\n'):
             asm,mod=self.work/'refuse.nasm',self.work/'refuse.nvm'
             asm.write_text(self.program(body))
             self.run_cmd([ROOT/'bin/nanoisa','asm',asm,'-o',mod])
