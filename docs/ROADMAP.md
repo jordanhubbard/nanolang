@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I reconstruct total typed I64 addition, subtraction and negation (`task_1b40ff24267d45c99e0217352765e39d`, parent `task_4bd034f6029b7458201db74e2c3aeb32`). I require exact signed-endpoint behavior without C or NanoLang intermediate overflow, one typed region tree, VM/C/three-stage-NanoLang equivalence and unchanged-output refusal; remaining arithmetic and full reconstruction stay open. [Contract](NANOISA_RECONSTRUCT_INTEGER_ADD.md).
+- [x] I reconstruct total typed I64 addition, subtraction and negation (`task_1b40ff24267d45c99e0217352765e39d`, parent `task_4bd034f6029b7458201db74e2c3aeb32`). I retain exact signed-endpoint behavior without intermediate overflow, one typed region tree and unchanged-output refusal. Nine combined GCC/Clang methods pass VM/C/three-stage-NanoLang equivalence, including 106 endpoint/snapshot checks and canonical byte roundtrip; remaining arithmetic and full reconstruction stay open. [Contract](NANOISA_RECONSTRUCT_INTEGER_ADD.md).
 
 - [x] I preserve exact float payloads across concrete and optional native call storage (`task_0a49d074fc174478a57d76a698a7f3eb`). I retain directed FLOAT injection and exact payload/absence checks. My 2,422 native checks, 1,269 shape checks and 13 GCC/Clang sanitizer methods pass; eight integrated functional methods include unchanged filter acceptance. The integrated c835 source acceptance is recorded below; canonical task completion still follows actual merge. [Contract](NATIVE_OPTIONAL_FLOAT_CALLS.md).
 
