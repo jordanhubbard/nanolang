@@ -51,3 +51,15 @@ two managed package methods, three runtime-core methods, 22 canonical managed
 methods and shared profile decisions. I retain the complete log in
 `/tmp/nanolang-legacy-parser-integrated.log`. This result does not alter the
 separate unresolved full evaluator failure recorded above.
+
+I restacked cleanly onto main `4ad97303` (through PR659, including PR653's
+compiler changes). Restacked production is `2535cb70`. A fresh complete
+bootstrap, focused evaluator driver and both paired legacy methods pass on
+that integrated source; the two methods finish in 8.397 seconds. The log is
+`/tmp/nanolang-legacy-parser-final-integration.log`.
+
+Seven fresh pure-parser endpoint controls also pass on puck/Darwin, including
+`nan(+1)`, saturated NaN payload, signed zero with exponent, full infinity,
+incomplete hexadecimal exponent and no conversion. The log is
+`/tmp/nanolang-legacy-parser-darwin-endpoints.log`. This is endpoint acceptance,
+not a managed allocator/sanitizer result, and does not close task7ba.
