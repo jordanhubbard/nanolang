@@ -141,8 +141,52 @@ void nvm_module_free(NvmModule *mod) {
     free(mod->passive_data);
     free(mod->layout_data);
     free(mod->ownership_data);
+    free(mod->metadata);
     free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
+}
+
+bool nvm_metadata_source_key(const NvmModule *mod, uint32_t key) {
+    static const char name[] = "nano.source_file";
+    return mod && key < mod->string_count && mod->strings &&
+        mod->string_lengths && mod->strings[key] &&
+        mod->string_lengths[key] == sizeof name - 1 &&
+        memcmp(mod->strings[key], name, sizeof name - 1) == 0;
+}
+
+bool nvm_metadata_valid(const NvmModule *mod) {
+    if (!mod || (mod->metadata_count && !mod->metadata)) return false;
+    uint32_t source = mod->source_file_idx;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *e = &mod->metadata[i];
+        if (e->key_idx >= mod->string_count || e->value_idx >= mod->string_count ||
+            !mod->strings || !mod->string_lengths || !mod->strings[e->key_idx] ||
+            !mod->strings[e->value_idx]) return false;
+        if (nvm_metadata_source_key(mod, e->key_idx)) source = e->value_idx;
+    }
+    return source == mod->source_file_idx;
+}
+
+bool nvm_add_metadata(NvmModule *mod, uint32_t key, uint32_t value) {
+    if (!nvm_metadata_valid(mod) || mod->metadata_count > mod->metadata_capacity ||
+        key >= mod->string_count || value >= mod->string_count)
+        return false;
+    if (mod->metadata_count == mod->metadata_capacity) {
+        if (mod->metadata_capacity > UINT32_MAX / 2) return false;
+        uint32_t capacity = mod->metadata_capacity ? mod->metadata_capacity * 2 : 8;
+        size_t bytes = (size_t)capacity * sizeof(NvmMetadataEntry);
+        if (bytes / sizeof(NvmMetadataEntry) != capacity) return false;
+        NvmMetadataEntry *entries = malloc(bytes);
+        if (!entries) return false;
+        if (mod->metadata_count)
+            memcpy(entries, mod->metadata, (size_t)mod->metadata_count * sizeof *entries);
+        free(mod->metadata);
+        mod->metadata = entries;
+        mod->metadata_capacity = capacity;
+    }
+    mod->metadata[mod->metadata_count++] = (NvmMetadataEntry){key, value};
+    if (nvm_metadata_source_key(mod, key)) mod->source_file_idx = value;
+    return true;
 }
 
 void nvm_call_descriptors_reset(NvmModule *mod) {
@@ -401,6 +445,11 @@ void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
 
 void nvm_strip_debug_info(NvmModule *mod) {
     if (!mod) return;
+    uint32_t kept = 0;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i)
+        if (!nvm_metadata_source_key(mod, mod->metadata[i].key_idx))
+            mod->metadata[kept++] = mod->metadata[i];
+    mod->metadata_count = kept;
     mod->debug_count = 0;
     mod->source_file_idx = 0;
     mod->header.flags &= ~NVM_FLAG_DEBUG_INFO;
@@ -583,7 +632,7 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
-    if (mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
+    if (mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
         if (out_size) *out_size = 0;
         return NULL;
     }

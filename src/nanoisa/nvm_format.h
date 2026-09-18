@@ -208,6 +208,9 @@ typedef struct {
  * Used as the intermediate representation for building and loading.
  * ======================================================================== */
 
+/* I preserve duplicate advisory keys in their declared order. */
+typedef struct { uint32_t key_idx, value_idx; } NvmMetadataEntry;
+
 #define NVM_MAX_SECTIONS   16
 #define NVM_MAX_STRINGS   4096
 #define NVM_MAX_FUNCTIONS  512
@@ -245,6 +248,10 @@ typedef struct {
     /* Owned canonical passive-eligibility payload; absent means no claim. */
     uint8_t *passive_data;
     uint32_t passive_size;
+
+    NvmMetadataEntry *metadata; /* Owned entries, indices borrow my string pool. */
+    uint32_t metadata_count;
+    uint32_t metadata_capacity;
 
     /* Debug info */
     NvmDebugEntry *debug_entries;
@@ -290,6 +297,11 @@ void nvm_module_free(NvmModule *mod);
 /* I return a deduplicated string index, or UINT32_MAX on allocation/input
  * failure. Existing entries remain usable after failed growth. */
 uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length);
+
+/* I append advisory entries atomically; the last source key updates my view. */
+bool nvm_add_metadata(NvmModule *mod, uint32_t key, uint32_t value);
+bool nvm_metadata_valid(const NvmModule *mod);
+bool nvm_metadata_source_key(const NvmModule *mod, uint32_t key);
 
 /* Add a function entry. Returns the function index. */
 /* I return UINT32_MAX on failure; entry may borrow an existing table entry. */
