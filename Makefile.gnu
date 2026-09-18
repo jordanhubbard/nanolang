@@ -4513,12 +4513,17 @@ test-llvm-scalar-globals: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/scalar_global_lifetime tests/nanoisa/scalar_global_lifetime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_llvm_scalar_globals
 
+.PHONY: test-llvm-literal-strings
+test-llvm-literal-strings: test-llvm-scalar-globals
+	$(CC) $(CFLAGS) -o obj/literal_string_aliases tests/nanoisa/literal_string_aliases.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_llvm_literal_strings
+
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
 	chmod +x bin/nvm2wasm
 
-test-nvm2wasm: test-llvm-scalar-globals test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
+test-nvm2wasm: test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime

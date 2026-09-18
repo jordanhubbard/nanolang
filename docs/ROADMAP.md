@@ -9884,6 +9884,15 @@ Other translators:
       `docs/NANOISA_LLVM_SCALAR_GLOBALS.md`. I test paired execution and
       preserve refusal for heap/import/nominal/ownership expansion.
       [Evidence](evidence/llvm-scalar-globals.md).
+- [x] I retain literal strings through LLVM/Wasm module-owned byte descriptors, exact content/length/truthiness, calls/globals/reentry, and paired execution/refusal gates. I refuse computed-string operations in this bounded profile and correct stale current target scope.
+      MAC `task_e63298a462a24967b57e6ecce3c9223d`; bounded evidence in
+      `docs/evidence/llvm-literal-strings.md`.
+- [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
+      MAC `task_51da49b39230468784da3481b893563b`.
+- [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
+      MAC `task_488a05eb5e2a417caf83a8353363a30d`.
+- [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
+      MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full

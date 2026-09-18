@@ -61,7 +61,7 @@ class LLVMImplicitReturns(unittest.TestCase):
             '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
             '.function unused 0 0 0 int 2\nPUSH_I64 1\nPUSH_I64 2\n.end\n',
             '.string text "text"\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
-            '.function unused 0 0 0 string 1\nPUSH_STR text\n.end\n',
+            '.function unused 0 0 0 array 1\nARR_NEW 1\n.end\n',
         ]
         for text in texts:
             with self.subTest(text=text):
