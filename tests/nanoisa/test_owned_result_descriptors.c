@@ -71,7 +71,7 @@ int main(void) {
         uint32_t layout=i<4?NVM_V2_NO_INDEX:i-4;NvmModule *m=fixture(tags[i],layout,version);
         query(m,tags[i],layout,true);roundtrip(m,tags[i],layout);nvm_module_free(m);
     }
-    NvmModule *m=fixture(TAG_STRUCT,2,2);query(m,TAG_STRUCT,2,false);nvm_module_free(m);
+    NvmModule *m=fixture(TAG_STRUCT,2,2);query(m,TAG_STRUCT,2,true);roundtrip(m,TAG_STRUCT,2);nvm_module_free(m);
     m=fixture(TAG_FLOAT,NVM_V2_NO_INDEX,2);query(m,TAG_FLOAT,NVM_V2_NO_INDEX,false);nvm_module_free(m);
     m=fixture(TAG_STRUCT,0,2);m->ownership_data[8]=NVM_LAYOUT_COMPLETE;
     query(m,TAG_STRUCT,0,false);nvm_module_free(m);
