@@ -29,7 +29,7 @@ class Binary64Arithmetic(unittest.TestCase):
         fixture=(ROOT/'tests/test_binary64_arithmetic.c').read_text()
         standalone.write_text(header+'\n'+fixture.replace('#include "binary64_arithmetic.h"',''))
         for source in (ROOT/'tests/test_binary64_arithmetic.c',standalone):
-            modes=[['-O0'],['-O2'],['-O2','-flto']]
+            modes=[['-O0'],['-O2'],['-O3','-ffp-contract=fast'],['-O2','-flto']]
             if 'clang' in self.run_command(self.cc+['--version']).stdout.lower():
                 modes[-1].append('-fuse-ld=lld')
             for mode in modes:
