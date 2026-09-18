@@ -11,8 +11,10 @@ on paths which skipped the declaration. A loop iteration executes its stores
 again. Compiler temporaries remain unnamed. Selected shadows use these same
 rules, and I refuse publication if any selected shadow cannot be lowered.
 
-I retain exact owner/reference/region joins. I refuse resource declarations,
-destructive patterns, moves, break and continue inside control flow. My
+I retain exact owner/reference/region joins. My
+[resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately admits
+explicitly consumed resource declarations, patterns and whole-owner moves.
+I still refuse break and continue inside control flow. My
 [return-path extension](NANOISA_SOURCE_BORROW_FALLTHROUGH.md) separately admits
 bounded scalar early returns after explicit owner consumption. I do not introduce implicit resource disposal. Existing depth and local
 limits remain in force.
