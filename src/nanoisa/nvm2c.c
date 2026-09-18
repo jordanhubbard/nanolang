@@ -1371,6 +1371,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                           boolean_result(ins.opcode) ? NVM2C_VK_BOOL : NVM2C_VK_FLOAT, -1)) return 0;
             break;
         }
+        case OP_I64_ADD_CARRY: case OP_I64_SUB_BORROW:
+        case OP_I64_MUL_WIDE_S: case OP_I64_MUL_WIDE_U: {
+            unsigned count = ins.opcode == OP_I64_ADD_CARRY || ins.opcode == OP_I64_SUB_BORROW ? 3 : 2;
+            for (unsigned i = 0; i < count; ++i) {
+                Nvm2cSimSlot value;
+                if (!sim_pop(b, idx, stk, &sp, &value) ||
+                    !require_typed_integer_operand(b, local_kind, nloc, value)) return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1) ||
+                !sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
         case OP_ADD:
         case OP_I64_ADD:
         case OP_SUB:
@@ -3567,6 +3579,26 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             else if (ins.opcode == OP_SUB) emit_binop(b, &st, "-");
             else if (ins.opcode == OP_MUL) emit_binop(b, &st, "*");
             else goto emit_integer_division;
+            break;
+        }
+        case OP_I64_ADD_CARRY: case OP_I64_SUB_BORROW:
+        case OP_I64_MUL_WIDE_S: case OP_I64_MUL_WIDE_U: {
+            int carry = -1;
+            if (ins.opcode == OP_I64_ADD_CARRY || ins.opcode == OP_I64_SUB_BORROW)
+                carry = stack_pop_expect(b, &st, NVM2C_VK_INT, "integer pair carry");
+            int rhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "integer pair rhs");
+            int lhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "integer pair lhs");
+            if (b->failed) goto done;
+            unsigned operation = ins.opcode == OP_I64_ADD_CARRY ? 0 :
+                ins.opcode == OP_I64_SUB_BORROW ? 1 : ins.opcode == OP_I64_MUL_WIDE_S ? 2 : 3;
+            char carry_value[48];
+            if (carry >= 0) snprintf(carry_value, sizeof carry_value, "t[%d]", carry);
+            else snprintf(carry_value, sizeof carry_value, "INT64_C(0)");
+            nvm2c_printf(b, "    { ni64_pair pair = ni64_pair_compute(t[%d], t[%d], %s, %u);\n",
+                         lhs, rhs, carry_value, operation);
+            stack_push_temp(b, &st, "pair.low");
+            stack_push_temp(b, &st, "pair.high");
+            nvm2c_puts(b, "    }\n");
             break;
         }
         case OP_I64_ADD:
@@ -6138,6 +6170,28 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "/* I reconstruct wrapped bits without an out-of-range signed cast. */\n"
             "static inline int64_t ni64_from_bits(uint64_t bits) {\n"
             "    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);\n}\n");
+        if (module_has_opcode(mod, OP_I64_ADD_CARRY) || module_has_opcode(mod, OP_I64_SUB_BORROW) ||
+            module_has_opcode(mod, OP_I64_MUL_WIDE_S) || module_has_opcode(mod, OP_I64_MUL_WIDE_U))
+            nvm2c_puts(&b,
+                "typedef struct { int64_t low, high; } ni64_pair;\n"
+                "static inline ni64_pair ni64_pair_compute(int64_t a, int64_t b, int64_t carry, unsigned op) {\n"
+                "    uint64_t ua = (uint64_t)a, ub = (uint64_t)b, uc = (uint64_t)carry & UINT64_C(1);\n"
+                "    uint64_t low, high;\n"
+                "    if (op == 0) {\n"
+                "        uint64_t partial = ua + ub; low = partial + uc;\n"
+                "        high = (partial < ua) | (low < partial);\n"
+                "    } else if (op == 1) {\n"
+                "        uint64_t partial = ua - ub; low = partial - uc;\n"
+                "        high = (ua < ub) | (partial < uc);\n"
+                "    } else {\n"
+                "        uint64_t mask = UINT64_C(0xffffffff);\n"
+                "        uint64_t a0 = ua & mask, a1 = ua >> 32, b0 = ub & mask, b1 = ub >> 32;\n"
+                "        uint64_t middle1 = a1 * b0 + ((a0 * b0) >> 32);\n"
+                "        uint64_t middle2 = a0 * b1 + (middle1 & mask);\n"
+                "        low = ua * ub; high = a1 * b1 + (middle1 >> 32) + (middle2 >> 32);\n"
+                "        if (op == 2) { if (a < 0) high -= ub; if (b < 0) high -= ua; }\n"
+                "    }\n"
+                "    return (ni64_pair){ni64_from_bits(low), ni64_from_bits(high)};\n}\n");
         if (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_AGG_GET))
             nvm2c_puts(&b, "#include <string.h>\n");
         if (module_has_opcode(mod, OP_AGG_GET)) nvm2c_puts(&b,
@@ -6527,6 +6581,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_has_opcode(mod, OP_I64_ADD_CARRY) || module_has_opcode(mod, OP_I64_SUB_BORROW) ||
+            module_has_opcode(mod, OP_I64_MUL_WIDE_S) || module_has_opcode(mod, OP_I64_MUL_WIDE_U))
+            nvm2c_puts(&b, "    (void)ni64_pair_compute;\n");
         if (module_has_opcode(mod, OP_AGG_GET))
             nvm2c_puts(&b, "    (void)nrec_f64;\n");
         /* Standard C references keep strict unused-function warnings clean. */
