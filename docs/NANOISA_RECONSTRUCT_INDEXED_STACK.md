@@ -25,3 +25,5 @@ b276026caf525bde10c063b2f7654f192b81ace73587e5af5bebda4986581a40  /home/jkh/Src/
 ```
 
 I retain full reconstruction and the independent pinned-compiler failure as open obligations. The small indexed cases establish their own tested scope.
+
+I restack onto main `ef430dc7`, including verifier681. Only additive roadmap entries conflict; generator and all indexed/reporting tests compare byte-identical to the full-gate checkpoint. Rebuilt assembler/VM integration passes the four fresh methods again in 17.160s (`/tmp/nanolang-reconstruct-indexed-integrated.log`); I retain the full GCC/Clang evidence at its earlier exact pin. No carry failure fixture is replayed.
