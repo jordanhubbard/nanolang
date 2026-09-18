@@ -1673,7 +1673,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push(b, idx, stk, &sp, kind, -1)) return 0;
             }
             /* A tagged scalar is checked and unboxed at the typed write.
-             * Its present payload, not its optional wrapper, is a string. */
+             * I constrain its present payload, not its optional wrapper. */
             NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE &&
                 (arr.kind == NVM2C_VK_SARR || integer_array_storage(arr.kind))
                 ? shape_child(b, val.shape, 0) : val.shape;

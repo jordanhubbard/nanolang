@@ -4595,3 +4595,7 @@ test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(
 test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic
 test-units: test-native-total-arithmetic
+
+.PHONY: test-native-optional-array-reads
+test-native-optional-array-reads: nanoisa nano_vm nvm2c
+	python3 -m unittest tests.test_native_optional_array_reads -v
