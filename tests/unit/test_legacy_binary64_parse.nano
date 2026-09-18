@@ -1,0 +1,20 @@
+fn parse(value: string) -> float { return (string_to_float value) }
+shadow parse {
+    assert (== (parse "  -1.25tail") -1.25)
+    assert (== (parse "0x1.8p+1suffix") 3.0)
+    assert (== (parse "1e+") 1.0)
+    assert (== (parse "0x1p-") 1.0)
+    assert (== (parse "  +") 0.0)
+    assert (== (parse "0e+99") 0.0)
+    assert (== (parse "0x0p-99") 0.0)
+    let nan: float = (parse "nan(184467440737095516160000)")
+    assert (!= nan nan)
+}
+fn main() -> int {
+    assert (== (parse "2.5suffix") 2.5)
+    assert (== (parse "0x1p+4") 16.0)
+    assert (== (parse "1.00000000000000011102230246251565404236316680908203125") 1.0)
+    assert (== (parse "0.0000000000000000000000000000000000000000") 0.0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -962,7 +962,8 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    return strtoll(s, NULL, 10);\n");
     sb_append(sb, "}\n\n");
     
-    sb_append(sb, "static double string_to_float(const char* s) { return strtod(s, NULL); }\n\n");
+    sb_append(sb, "#include \"runtime/binary64_parse.h\"\n");
+    sb_append(sb, "static double string_to_float(const char* s) { return nl_binary64_prefix(s); }\n\n");
 
     sb_append(sb, "static int64_t digit_value(int64_t c) {\n");
     sb_append(sb, "    if (c >= '0' && c <= '9') {\n");

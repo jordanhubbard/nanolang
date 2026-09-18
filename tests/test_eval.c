@@ -1167,6 +1167,48 @@ void test_eval_math_functions(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_binary64_prefix_and_strict_cast(void) {
+    Environment *env = create_environment();
+    const struct { const char *text; double prefix; double strict; bool rejected; } cases[] = {
+        {"  -1.25", -1.25, -1.25, false}, {"0x1.8p+1", 3.0, 3.0, false},
+        {"1.25tail", 1.25, 0.0, true}, {"1.25 ", 1.25, 0.0, true},
+        {"1e+", 1.0, 0.0, true}, {"0x1p-", 1.0, 0.0, true},
+        {"", 0.0, 0.0, true}, {"  +", 0.0, 0.0, true},
+        {"0e+9", 0.0, 0.0, false}, {"-0x0p-9", -0.0, -0.0, false},
+        {"4.5\0tail", 4.5, 4.5, false}
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+        ASTNode literal = {.type = AST_STRING, .as.string_val = (char *)cases[i].text};
+        ASTNode *arguments[] = {&literal};
+        ASTNode call = {.type = AST_CALL, .as.call = { .name = "string_to_float", .args = arguments, .arg_count = 1 }};
+        Value prefix = repl_eval_node(&call, env);
+        ASSERT(prefix.type == VAL_FLOAT && prefix.as.float_val == cases[i].prefix);
+        FILE *saved = stderr, *messages = tmpfile();
+        ASSERT(messages != NULL);
+        stderr = messages;
+        call.as.call.name = "cast_float";
+        Value strict = repl_eval_node(&call, env);
+        fflush(messages);
+        long count = ftell(messages);
+        stderr = saved;
+        fclose(messages);
+        ASSERT(strict.type == VAL_FLOAT && strict.as.float_val == cases[i].strict);
+        ASSERT((count > 0) == cases[i].rejected);
+        uint64_t actual, expected;
+        memcpy(&actual, &strict.as.float_val, sizeof actual);
+        memcpy(&expected, &cases[i].strict, sizeof expected);
+        ASSERT(actual == expected);
+    }
+    ASTNode nan_arg = {.type = AST_STRING, .as.string_val = "nan(184467440737095516160000)"};
+    ASTNode *nan_args[] = {&nan_arg};
+    ASTNode nan_call = {.type = AST_CALL, .as.call = { .name = "string_to_float", .args = nan_args, .arg_count = 1 }};
+    Value nan_result = repl_eval_node(&nan_call, env);
+    uint64_t nan_bits;
+    memcpy(&nan_bits, &nan_result.as.float_val, sizeof nan_bits);
+    ASSERT(nan_bits == UINT64_C(0x7fffffffffffffff));
+    free_environment(env);
+}
+
 void test_eval_string_conversion(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2814,6 +2856,7 @@ int main(void) {
     TEST(eval_array_get_alias);
     TEST(eval_math_functions);
     TEST(eval_string_conversion);
+    TEST(eval_binary64_prefix_and_strict_cast);
     TEST(eval_enum_access);
     TEST(eval_string_to_int_back);
     TEST(eval_shadowed_functions_reuse);
