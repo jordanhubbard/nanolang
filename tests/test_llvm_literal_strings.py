@@ -54,6 +54,10 @@ class LiteralStrings(unittest.TestCase):
                      'LOAD_GLOBAL 1\nTYPE_CHECK 5\nASSERT\n',
                      '.function identity 1 1 0 string 1\n.parameters identity string\nLOAD_LOCAL 0\nRET\n.end\n')
 
+    def test_implicit_string_return(self):
+        self.compare('CALL text\nPUSH_STR b\nEQ\nASSERT\n',
+                     '.function text 0 0 0 string 1\nPUSH_STR a\n.end\n')
+
     def test_instance_lifetime_and_initializer_result(self):
         text = ('.string first "a\\x00b"\n.string next ""\n.entry main\n'
                 '.function main 0 0 0 int 1\nLOAD_GLOBAL 0\nTYPE_CHECK 0\nJMP_FALSE existing\n'
