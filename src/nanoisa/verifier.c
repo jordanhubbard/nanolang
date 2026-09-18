@@ -365,7 +365,10 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
  * Structural validation
  * ======================================================================== */
 
-static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only) {
+static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted) {
+    if (owned_admitted) *owned_admitted=false;
+    bool admitted=false;
     if (!mod) return fail("module is NULL");
     if (!mod->code && mod->code_size > 0)
         return fail("code pointer is NULL but code_size=%u", mod->code_size);
@@ -432,6 +435,7 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only) 
         }
         NvmVerifyResult admission = nvm_verify_owned_module(mod);
         if (!admission.ok) return admission;
+        admitted=true;
     }
 
     if (!nvm_retained_layouts_valid(mod))
@@ -480,6 +484,7 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only) 
         }
     }
 
+    if (owned_admitted) *owned_admitted=admitted;
     return ok_result();
 }
 
@@ -491,12 +496,13 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
                                            uint16_t *out_max_stack) {
-    NvmVerifyResult structure = verify_structure(mod, false);
+    bool owned_admitted=false;
+    NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
     if (!structure.ok) return structure;
     if (fn_idx >= mod->function_count)
         return fail("function index %u >= function_count %u",
                     fn_idx, mod->function_count);
-    if (mod->ownership_size && nvm_verify_owned_module(mod).ok) {
+    if (mod->ownership_size && (owned_admitted || nvm_verify_owned_module(mod).ok)) {
         if (linked_count) return fail("I refuse linked ownership execution contracts");
         if (out_max_stack) *out_max_stack = NVM_AFFINE_MAX_STACK;
         return ok_result();
@@ -856,7 +862,7 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 }
 
 NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
-    NvmVerifyResult structure=verify_structure(mod,true);
+    NvmVerifyResult structure=verify_structure(mod,true,NULL);
     if (!structure.ok) return structure;
     NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,fn_idx);
     if (!analysis.ok) return fail("I refuse reference lifetime and ownership instruction dataflow at %u: %s",
@@ -906,7 +912,7 @@ static bool owned_runtime_opcode(uint8_t op) {
 }
 
 NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
-    NvmVerifyResult structure = verify_structure(mod, true);
+    NvmVerifyResult structure = verify_structure(mod, true,NULL);
     if (!structure.ok) return structure;
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
@@ -991,9 +997,10 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * ======================================================================== */
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
-    /* Phase 1: structural validation */
-    NvmVerifyResult r = verify_structure(mod, false);
-    if (!r.ok) return r;
+    /* I reuse only this invocation's completed full owned-module proof. */
+    bool owned_admitted=false;
+    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    if (!r.ok || owned_admitted) return r;
 
     /* Phase 2: per-function bytecode validation */
     for (uint32_t i = 0; i < mod->function_count; i++) {
@@ -1021,7 +1028,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
         }
     }
     /* Phase 1: structural validation */
-    NvmVerifyResult r = verify_structure(mod, false);
+    NvmVerifyResult r = verify_structure(mod, false, NULL);
     if (!r.ok) return r;
 
     /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
