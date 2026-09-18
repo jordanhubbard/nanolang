@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I guard native tagged string equality before optimized strcmp (`task_39453e3f2c76454dab9afd3e346c2483`). The enum same-module gate retains a strict GCC O2 nonnull warning. I preserve numeric/heap branches and add VM-matched string pointer/null checks with optimized/sanitized ordinary controls. [Contract](NATIVE_STRING_EQUALITY_GUARDS.md).
+- [x] I guard native tagged string equality before optimized strcmp (`task_39453e3f2c76454dab9afd3e346c2483`). The enum same-module gate retains a strict GCC O2 nonnull warning. I preserve numeric/heap branches and add VM-matched string pointer/null checks. Three GCC O2 and 23 Clang methods pass with sanitizers, including 36 direct comparisons against the VM value helper. [Contract](NATIVE_STRING_EQUALITY_GUARDS.md).
 
 - [x] I preserve U8 results across non-self native tail calls (`task_9eb8a1d54fc441f582b180b398ac0a08`). I add the existing boxed U8 carrier to the result-assignment whitelist while retaining exact return checks and cleanup. All 256 values pass two tail relays in both declaration orders, with self-tail and wrong-tag controls; three GCC and 24 Clang sanitizer methods pass. [Contract and evidence](NATIVE_U8_TAIL_RESULTS.md).
 

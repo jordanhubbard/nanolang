@@ -15,3 +15,12 @@ I require ordinary enum/numeric mixed comparison modules at strict GCC/Clang
 O2, VM parity, and generated native ASan/UBSan/LSan. An isolated repaired-helper
 control checks null/null, null/text, shared pointers and distinct same-content
 strings against the VM value helper. No retained failing product is executed.
+
+On main `5193858f`, production `3e7763ef` passes three strict GCC O2 methods
+in 1.340 seconds with ASan/UBSan/LSan. Twenty-three Clang methods pass in
+16.699 seconds: three new equality methods plus ordinary enum, typed-enum and
+tagged arithmetic controls. The isolated generated-helper harness compares
+36 pairs against the actual VM val_equal implementation, including null/null,
+null/text, identical pointers, distinct equal text, unequal text and empty text.
+I retain `/tmp/nanolang-string-equality-{build,gcc,clang}.log`. This repairs the
+observed compile prerequisite; full LLVM/Wasm enum acceptance remains separate.
