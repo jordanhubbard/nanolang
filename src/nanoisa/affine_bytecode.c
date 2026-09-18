@@ -10,6 +10,7 @@ typedef struct {
     NvmAffineState *locals;
     Value *stack;
     uint16_t count;
+    bool visited;
 } Frame;
 static void frame_free(Frame *frame) {
     if (!frame) return;
@@ -28,8 +29,8 @@ static Frame *frame_clone(const Frame *from) {
     }
     return out;
 }
-static bool frame_equal(const Frame *a,const Frame *b) {
-    if (a->count!=b->count || !nvm_affine_state_equal(a->locals,b->locals)) return false;
+static bool stack_equal(const Frame *a,const Frame *b) {
+    if (a->count!=b->count) return false;
     for (uint16_t i=0;i<a->count;i++) {
         Value x=a->stack[i],y=b->stack[i];
         if (x.tag!=y.tag || x.observation!=y.observation || x.owned!=y.owned ||
@@ -237,24 +238,43 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     }
     return push(f,(Value){tag,false,0,false,NVM_V2_NO_INDEX})?NULL:"I cannot extend my analysis stack";
 }
-static bool propagate(Frame **frames,uint32_t target,const Frame *state,uint32_t *work,
-                       uint32_t *tail,const char **error) {
+typedef struct {
+    uint32_t *items;
+    bool *queued;
+    uint32_t capacity,head,tail,pending;
+} Worklist;
+static bool enqueue(Worklist *work,uint32_t index) {
+    if (work->queued[index]) return true;
+    if (work->pending==work->capacity) return false;
+    work->items[work->tail]=index;
+    work->tail=(work->tail+1)%work->capacity;work->pending++;
+    work->queued[index]=true;return true;
+}
+static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist *work,
+                       const char **error) {
+    bool changed=true;
     if (frames[target]) {
-        if (!frame_equal(frames[target],state)) {
+        if (!stack_equal(frames[target],state) ||
+            !nvm_affine_state_meet_initialization(frames[target]->locals,state->locals,&changed)) {
             *error="I require exact ownership and stack provenance at every join";return false;
         }
     } else {
         frames[target]=frame_clone(state);
         if (!frames[target]) {*error="I cannot allocate an analysis branch";return false;}
-        work[(*tail)++]=target;
+    }
+    if (changed && !enqueue(work,target)) {
+        *error="I exceeded my bounded affine worklist";return false;
     }
     return true;
 }
+#ifdef NVM_AFFINE_TEST_VISIT_LIMIT
+extern uint32_t NVM_AFFINE_TEST_VISIT_LIMIT(uint32_t limit);
+#endif
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference) {
     NvmAffineAnalysis result={0};
     const char *error="I require checked ownership declarations";
-    VmDecodedFunction decoded={0};Frame **frames=NULL;uint32_t *work=NULL;
+    VmDecodedFunction decoded={0};Frame **frames=NULL;Worklist work={0};
     Frame *current=NULL;
     if (!m || !m->functions || function>=m->function_count) goto done;
     const NvmFunctionEntry *entry=&m->functions[function];
@@ -279,16 +299,27 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         result.byte_offset=decoded.instructions[i].byte_offset;
         nvm_affine_state_free(initial);error="I require a connected affine instruction contract";goto done;
     }
-    frames=calloc(count,sizeof(*frames));work=malloc(count*sizeof(*work));
-    if (!frames || !work) {nvm_affine_state_free(initial);error="I cannot allocate analysis state";goto done;}
+    frames=calloc(count,sizeof(*frames));work.capacity=count;
+    work.items=malloc(count*sizeof(*work.items));work.queued=calloc(count,sizeof(*work.queued));
+    if (!frames || !work.items || !work.queued) {nvm_affine_state_free(initial);error="I cannot allocate analysis state";goto done;}
     frames[0]=calloc(1,sizeof(*frames[0]));
     if (!frames[0]) {nvm_affine_state_free(initial);error="I cannot allocate entry state";goto done;}
     frames[0]->locals=initial;
-    uint32_t head=0,tail=1;work[0]=0;
-    while (head<tail) {
-        uint32_t index=work[head++];
+    /* Each instruction is first visited once, then only after one or more
+     * of its at most local_count initialized scalar bits decrease. */
+    uint32_t visit_limit=count*((uint32_t)entry->local_count+1u);
+#ifdef NVM_AFFINE_TEST_VISIT_LIMIT
+    visit_limit=NVM_AFFINE_TEST_VISIT_LIMIT(visit_limit);
+#endif
+    if (!enqueue(&work,0)) {error="I cannot queue my entry state";goto done;}
+    while (work.pending) {
+        if (result.visits>=visit_limit) {error="I exceeded my bounded affine visit count";goto done;}
+        result.visits++;
+        uint32_t index=work.items[work.head];
+        work.head=(work.head+1)%work.capacity;work.pending--;work.queued[index]=false;
         const VmDecodedInstruction *instruction=&decoded.instructions[index];
-        result.byte_offset=instruction->byte_offset;result.reachable++;
+        result.byte_offset=instruction->byte_offset;
+        if (!frames[index]->visited) {frames[index]->visited=true;result.reachable++;}
         current=frame_clone(frames[index]);
         if (!current) {error="I cannot allocate an instruction state";goto done;}
         uint8_t op=instruction->instruction.opcode;
@@ -309,11 +340,11 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
                 const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
                 if (!target) {error="I require an instruction at my branch target";goto done;}
-                if (!propagate(frames,(uint32_t)(target-decoded.instructions),current,work,&tail,&error)) goto done;
+                if (!propagate(frames,(uint32_t)(target-decoded.instructions),current,&work,&error)) goto done;
             }
             if (op!=OP_JMP) {
                 if (index+1==count) {error="I require an explicit return rather than fallthrough";goto done;}
-                if (!propagate(frames,index+1,current,work,&tail,&error)) goto done;
+                if (!propagate(frames,index+1,current,&work,&error)) goto done;
             }
         }
         frame_free(current);current=NULL;
@@ -322,7 +353,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
 done:
     frame_free(current);
     if (frames) for (uint32_t i=0;i<decoded.instruction_count;i++) frame_free(frames[i]);
-    free(frames);free(work);vm_decoded_function_free(&decoded);
+    free(frames);free(work.items);free(work.queued);vm_decoded_function_free(&decoded);
     if (error) snprintf(result.message,sizeof(result.message),"%s",error);
     return result;
 }
