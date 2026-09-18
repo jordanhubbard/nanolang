@@ -26,3 +26,13 @@ executes the growth case successfully, but its test-only length assertion
 expected more than 16,000 bytes while the output is 10,370. I retain
 `/tmp/nanolang-native-label-gcc.log`; I correct the assertion to the actual
 8,192-byte growth boundary without changing production or fixture operations.
+
+My first complete native run reports 2,421 passes and one failure in the
+old unsupported-classifier list, which still requires ROT3 to be unsupported
+after merged PR699 admitted exact INT/BOOL rotation. I retain
+`/tmp/nanolang-native-label-full.log` and record test-maintenance child
+`task_71ebb5716eb747daa10d66d0467bd612` before the correction. I replace only
+that list member with still-unsupported ROLL, keeping the same instruction-local
+refusal assertion and check count. ROT3's separate positive/other-tag/underflow
+checks remain. The label production is unchanged; I require a new full result
+rather than claiming the first run passed.
