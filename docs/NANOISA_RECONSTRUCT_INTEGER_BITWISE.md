@@ -1,0 +1,7 @@
+# My integer bitwise reconstruction contract
+
+I record task_c4188559900c4a48887c5c29f77b6ed5 before code, following PR661 under parent4bd034. I admit I64_AND, I64_OR, I64_XOR and I64_INVERT for exact int operands/results. My VM applies the operations to unsigned64 bit patterns and returns an integer carrying those bits. I retain this behavior with portable unsigned C operations followed by my representable signed conversion.
+
+My NanoLang binary helpers inspect64 successive low bits, combine boolean selections, and accumulate powers of two through my existing total-add helper. I advance operands with my tested logical-right-shift helper using count1. Inversion uses -1-a, whose result is representable for every signed64 input. I emit only needed helpers and their dependencies, each with meaningful generated shadows. The binary helpers take64 steps (each right shift takes one step); this is not machine-bitwise performance parity or reconstructed original source tests.
+
+I preserve exact tags, operand snapshots, structured-region limits and atomic refusal. I require endpoint and alternating-pattern pairs, calls, a loop/snapshot case, wrong-tag output preservation, canonical byte roundtrip and same-module VM/C/pinned C-seed/Stage1/Stage2 execution. Generated C enables ASan/UBSan; C-seed Nano-C enables UBSan. Tool hashes must remain unchanged. Pinned compiler compatibility does not establish current-source bootstrap. Unsigned arithmetic/comparisons, other values and full reconstruction remain separate.
