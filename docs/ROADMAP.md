@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I repair standard-library documentation drift exposed by the first installed-product cd72 gate (`task_dc5edb6c84ec4a809f9b98900c2e4a81`): `float_to_bits` is undocumented and the conversion section count is stale. I preserve the checker/registry and [terminal evidence](evidence/product-acceptance-cd72dab3.md); full parentd76 remains open after all244 eligible VM examples pass.
+- [x] I repair standard-library documentation drift exposed by the first installed-product cd72 gate (`task_dc5edb6c84ec4a809f9b98900c2e4a81`): `float_to_bits` shares an unrecognized combined heading and the conversion section count is stale. PR771 separates both exact-signature headings and corrects the count; unchanged `make check-stdlib-docs` passes 158/158 entries and all section counts. I preserve the checker/registry and [terminal evidence](evidence/product-acceptance-cd72dab3.md); full parentd76 remains open after all244 eligible VM examples pass.
 
 - [x] I retain the first fresh cd72 installed-product outcome: bootstrap/tools, all3 component entries,17 core and244 eligibleVM compilations pass, restoring the unchanged c435 example to full-gate coverage. The next documentation gate fails; later phases are unexecuted. My [sealed evidence](evidence/product-acceptance-cd72dab3.md) records1674 unchanged source hashes and intentional Stage1 rebuild separately.
 
