@@ -648,18 +648,20 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
     return child;
 }
 
-/* A flat string fact can omit a nested caller's optional representation.
- * I seed inferred string storage with a directed flow, not an exact type.
+/* A flat scalar fact can omit a nested caller's optional representation.
+ * I seed inferred scalar storage with a directed flow, not an exact type.
  * Constructors and native array/map payload constraints remain exact. */
 static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     if (!b->track_shapes) return 1;
-    if (kind != NVM2C_VK_STR) return shape_kind(b, id, kind);
-    NvmShapeId source = nvm_shape_new(&b->shapes, NVM_SHAPE_STRING);
+    if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL)
+        return shape_kind(b, id, kind);
+    NvmShapeId source = nvm_shape_new(&b->shapes, kind == NVM2C_VK_STR ? NVM_SHAPE_STRING :
+                                     kind == NVM2C_VK_BOOL ? NVM_SHAPE_BOOL : NVM_SHAPE_INT);
     return source && nvm_shape_convert(&b->shapes, source, id) && shape_ok(b);
 }
 
-/* Returning a present string into optional record storage is a conversion,
- * not equality between the source string and an optional shape. */
+/* Returning a present scalar into optional record storage is a conversion,
+ * not equality between the source scalar and an optional shape. */
 static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result,
                                const uint8_t *source_fields, const uint8_t *result_fields) {
     if (!b->track_shapes) return 1;
@@ -4031,8 +4033,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
             if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
-                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u) abort();\n",
-                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u) abort();\n",
+                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR,
+                             rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL);
             else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) abort();\n", rec, (unsigned)fi,
                               (unsigned)st.rec_k[rec][fi]);
             {
@@ -4045,9 +4048,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     stack_push_float(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_VALUE) {
                     snprintf(expr, sizeof expr,
-                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
-                             rec, (unsigned)fi, NVM2C_VK_STR, rec, (unsigned)fi,
-                             rec, (unsigned)fi, rec, (unsigned)fi);
+                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].k[%u] == %u ? 1 : r[%d].k[%u] == %u ? 4 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
+                             rec, (unsigned)fi, NVM2C_VK_STR,
+                             rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL,
+                             rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
                     stack_push_value(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_MAP) {
                     snprintf(expr, sizeof expr, "r[%d].m[%u]", rec, (unsigned)fi);
