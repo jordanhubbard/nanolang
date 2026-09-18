@@ -3105,6 +3105,18 @@ static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
     return 1;
 }
 
+typedef struct {
+    size_t offset;
+    size_t length;
+} Nvm2cLabelSpan;
+
+static void emit_pc_label(Nvm2cBuf *b, size_t pc, Nvm2cLabelSpan *labels) {
+    labels[pc].offset = b->len;
+    nvm2c_printf(b, "L_%zu:", pc);
+    labels[pc].length = b->len - labels[pc].offset;
+    nvm2c_puts(b, " ;\n");
+}
+
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                const uint8_t *kinds, const uint8_t *rec_fields,
                                const uint8_t *result_fields) {
@@ -3176,6 +3188,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     size_t remaining = fn->code_length;
     if (remaining >= INT_MAX || remaining > SIZE_MAX / sizeof(Nvm2cStack) - 1 ||
         remaining > SIZE_MAX / sizeof(int) - 1 ||
+        remaining > SIZE_MAX / sizeof(Nvm2cLabelSpan) - 1 ||
         remaining > SIZE_MAX / b->record_width - 1) {
         nvm2c_fail(b, "I cannot represent this function's emitter stack");
         return;
@@ -3191,9 +3204,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     uint8_t *aggregate_kinds = malloc(b->record_width);
     uint8_t *is_start = calloc(remaining + 1, 1);
     uint8_t *is_target = calloc(remaining + 1, 1);
+    uint8_t *referenced = calloc(remaining + 1, 1);
+    Nvm2cLabelSpan *labels = calloc(remaining + 1, sizeof *labels);
     Nvm2cStack *joins = NULL;
     uint8_t *join_set = NULL;
-    if (!st.slots || !st.kinds || !st.rec_k || !st.rarr_k || !literal_elems || !aggregate_kinds || !is_start || !is_target) {
+    if (!st.slots || !st.kinds || !st.rec_k || !st.rarr_k || !literal_elems || !aggregate_kinds || !is_start || !is_target || !referenced || !labels) {
         nvm2c_fail(b, "out of memory");
         goto done;
     }
@@ -3273,11 +3288,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 }
                 stack_restore_join(b, &st, &joins[start]);
                 terminated = 0;
-                nvm2c_printf(b, "L_%zu: ;\n", start);
+                emit_pc_label(b, start, labels);
             } else {
                 if (!record_join(b, idx, joins, join_set, start, &st)) goto done;
                 stack_restore_join(b, &st, &joins[start]);
-                nvm2c_printf(b, "L_%zu: ;\n", start);
+                emit_pc_label(b, start, labels);
             }
         }
         pc += n;
@@ -4654,6 +4669,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
+            referenced[tgt] = 1;
             nvm2c_printf(b, "    goto L_%zu;\n", tgt);
             terminated = 1;
             break;
@@ -4672,6 +4688,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             }
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
+            referenced[tgt] = 1;
             nvm2c_printf(b, "    goto L_%zu;\n    }\n", tgt);
             break;
         }
@@ -4798,7 +4815,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (!terminated && !record_join(b, idx, joins, join_set, remaining, &st)) goto done;
         stack_restore_join(b, &st, &joins[remaining]);
         terminated = 0;
-        nvm2c_printf(b, "L_%zu: ;\n", remaining);
+        emit_pc_label(b, remaining, labels);
     }
     if (!terminated) {
         if (!scalar_return_profile(fn)) {
@@ -4812,6 +4829,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     nvm2c_puts(b, "    free(r);\n");
     if (record_locals) nvm2c_puts(b, "    free(rl);\n");
     nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
+
+    if (b->failed) goto done;
+    /* Prescan targets also include skipped jumps. Keep every join decision,
+     * but retain only labels referenced by actual emitted gotos. Stored byte
+     * offsets survive buffer growth; patch before declaration insertion. */
+    for (size_t off = 0; off <= remaining; ++off) {
+        if (!referenced[off] && labels[off].length)
+            memset(b->data + labels[off].offset, ' ', labels[off].length);
+    }
 
     /* I emit the body once, then insert declarations using its actual
      * high-water counts. Record storage belongs to this invocation and is
@@ -4877,6 +4903,8 @@ done:
     free(aggregate_kinds);
     free(is_start);
     free(is_target);
+    free(referenced);
+    free(labels);
     free(joins);
     free(join_set);
 }

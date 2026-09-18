@@ -20,3 +20,9 @@ rules. Every allocation is checked and released on success/refusal. I require
 ordinary zero-trip/range, live backward/conditional joins, skipped terminal
 following JMP controls, strict GCC/Clang execution and adjacent native/shape
 checks. Historical compiler crashes and their artifacts remain excluded.
+
+The first focused run passes forward/backward and end-of-body controls and
+executes the growth case successfully, but its test-only length assertion
+expected more than 16,000 bytes while the output is 10,370. I retain
+`/tmp/nanolang-native-label-gcc.log`; I correct the assertion to the actual
+8,192-byte growth boundary without changing production or fixture operations.
