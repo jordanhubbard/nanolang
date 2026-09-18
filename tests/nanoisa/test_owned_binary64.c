@@ -45,7 +45,8 @@ static NvmModule *fixture(unsigned index) {
     }
     append(source,sizeof(source),"OWN_UNPACK_LOCAL 0\nPUSH_I64 42\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n.function helper 0 1 0 bool 1\nPUSH_F64 nan\nPUSH_F64 1.0\nLE\nRET\n.end\n");
     AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
-    if(!m)fprintf(stderr,"%s\n",assembled.message);CHECK(m);
+    if(!m)fprintf(stderr,"%s\n",assembled.message);
+    CHECK(m);
     NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2Layout row={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};NvmV2Layouts layouts={&row,1};
     CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
