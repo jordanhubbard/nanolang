@@ -271,9 +271,14 @@ shadow main { assert true }
         exclusive_first = exclusive_first.replace('&root.branch.left &root.branch.left',
                                                    '&mut root.branch.left &root.branch.left')
         pair = 'resource struct Pair { left: Leaf, right: Leaf }\n'
+        disposal_start = text.index(' let Tree { count, other, branch } = root')
+        disposal = text[disposal_start:text.index('\n}', disposal_start)]
         cases = {
             'child_nominal': text.replace('right: right, left: left', 'right: right, left: amount'),
             'child_twice': text.replace('right: right, left: left', 'right: left, left: left'),
+            'moved_parent': text.replace('assert (== (change', 'assert (== pair.left.value 10) assert (== (change'),
+            'moved_destructured_parent': text.replace('assert (== count 7)', 'assert (== root.branch.left.value 10) assert (== count 7)'),
+            'live_tree_exit': text.replace(disposal, ''),
             'moved_child': text.replace('let mut root: Tree', 'assert (== left.value 10) let mut root: Tree'),
             'argument_nominal': text.replace('&mut root.branch.left &mut root.branch.right', '&mut root.other &mut root.branch.right'),
             'equal_exclusive': text.replace('&mut root.branch.left &mut root.branch.right', '&mut root.branch.left &mut root.branch.left'),
@@ -297,7 +302,9 @@ shadow main { assert true }
                                         cwd=ROOT, capture_output=True, text=True, timeout=60)
                 self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
                 self.assertEqual(output.read_bytes(), b'accepted-output')
-            if name != 'failed_shadow':
+            # Raw lowering does not execute shadows or perform the source
+            # ownership check that forbids implicit disposal of live trees.
+            if name not in ('failed_shadow', 'live_tree_exit'):
                 for emitter in self.emitters:
                     output = self.work / 'nested-preserved.nasm'
                     output.write_text('accepted-output')

@@ -1,11 +1,53 @@
 # My bounded nested source-borrow contract
 
-MAC `task_91cb8c2db94941bc950d9e9fa597d77a`.
+I track this slice as MAC `task_91cb8c2db94941bc950d9e9fa597d77a`, after my
+[multiple-formal source producer](NANOISA_MULTI_SOURCE_BORROWS.md). My affine
+and borrow parents remain open. I consume my existing checked nested-path and
+multi-caller runtime contracts; I add no runtime authority or wire format.
 
-I extend completed multi-source child task_f209d694d3be415982456b00b4df5ad9 under affine parent task_ed70242ac4d83be7b2327da7ece387ad and borrow parent task_71821d84befc46e198795122c1112a27. I consume existing runtime tasks556nested and7a2multi-caller with no authority/schema/runtime change.
+I admit finite plain resource-record trees in declaration dependency order:
+each child record must precede its parent. This excludes cycles and forward
+layout dependencies. My leaves contain only `int` and `bool` fields. A path
+crosses at most 32 nested record fields; a scalar-leaf record has depth zero.
+I retain the existing bounds of 256 local slots, 256 record fields and 256
+numeric path records.
 
-Contract: finite acyclic plain resource-record trees in declaration dependency order (each child layout precedes parent), int/bool scalar leaves, root-to-leaf record depth≤32, existing≤256 local slots and record field bounds. Nested constructor fields move an existing exact declared child owner once in source order, through unnamed owned temps before declaration-order OWN_PACK; inline nested literals remain outside this slice. Explicit nested record destructuring unpacks into exact typed unnamed field slots once, then transfers named child owners or copies scalar projections. All fields in a nested pattern are named exactly once. Disposal consumes complete remaining trees through existing OWN_UNPACK_LOCAL/OWN_STORE_LOCAL; no invented destructor or record copying.
+A nested constructor moves an existing, exactly declared child owner once.
+I evaluate fields in source order into unnamed typed temporaries, then pack
+in declaration order. I do not yet admit inline nested literals. A nested
+record pattern names every field exactly once, in any source order. I unpack
+its parent shell once into unnamed field slots, then transfer named child
+owners or copy scalar projections. Moves retain exact nominal identity.
 
-Borrow helper remains1..8 leaf-record formals, scalar locals/result, exactlyentry0+helper1. Root-local field chains resolve numeric field vectors from exact declared layouts, with existing format2 ownership paths≤256 and pathdepth≤32. Root-only modules retain format1. Caller argument prep remainsleft-to-right inone region; static overlap compares actual root and numeric prefix/equality, allowing shared aliases/disjoint siblings, rejecting any overlappingexclusive authority. Existing verifier performs final checked caller-origin substitution. Scalar direct reads require leaf-record referents; mixed-container scalar fields can be destructured but direct nonleaf borrow projection remains refused. Helper fieldwrite remainsleaf-only; no stored/escaping source references. Advisoryname/temp rules remain unchanged.
+My source checker still requires every named resource to be consumed. I do
+not introduce implicit source drops or explicit discard syntax. My lowering
+cleanup can drain a remaining complete tree using `OWN_UNPACK_LOCAL` and
+`OWN_STORE_LOCAL`; this is defensive machinery, not admission of a checked
+program that leaves a live named tree at scope exit. Accepted nested source
+uses complete construction and destructuring. I invent neither destructors
+nor record copies.
 
-Paired C/self exact layouts/ownership/paths/code/names and canonical text; positive depth2, siblingexclusive/sharedaliases,distinctnominals,repeatedcalls/regionlifetime, observablemutations,nested construction/destruction/sourceorder. Ordinary negative controls for cycle/forwardlayout,wrongnominal,movedchild,duplicateconstructorconsumption,overlapbothorders,wrongfield,nonleafhelper,path/slotbounds where practical; no diagnostic crash replay/minimization. All selected shadows lower or fullpublicationrefuses; preserve old output. Run source and existing nested/multicaller runtime gates plus VM/sanitizednative. Controlflow/imports/recursivecallgraphs/inlineaggregateconstruction/fullownership remain separate.
+My program still has entry zero and helper one. The helper accepts one through
+eight borrowed scalar-leaf record formals, with scalar remaining locals and
+result. I resolve a root-local field chain to declaration-index numeric paths.
+Modules with paths use ownership format two; root-only modules retain format
+one. Argument preparation remains left to right in one region, retaining
+earlier holds until the call completes. I compare actual roots and path
+prefixes: shared aliases and disjoint siblings are allowed; any overlapping
+pair containing exclusive authority is refused. My verifier checks actual
+caller-origin substitution before execution.
+
+Direct scalar reads require a leaf-record referent. A mixed container's scalar
+fields can be destructured, but direct nonleaf borrowing remains outside this
+slice. Helper mutation remains leaf-only. I do not store or return references.
+Advisory local names retain their existing lexical intervals; compiler-created
+constructor and unpack slots remain unnamed.
+
+I require exact paired C/selfhost layouts, ownership paths, code, names and
+canonical text. Every selected shadow must lower, or I refuse publication
+without overwriting an accepted output. Positive VM and sanitized native
+checks cover reordered construction and patterns, repeated calls, distinct
+nominal records, shared aliases, disjoint exclusive siblings and observable
+mutation. Ordinary refusal checks retain nominal, move, overlap, path and
+source-lifetime boundaries. Control flow, imports, deeper call graphs, inline
+aggregate construction and the broader ownership roadmap remain separate.
