@@ -73,7 +73,7 @@ class CheckedOwnerSelection(unittest.TestCase):
                             self.assertEqual(emitted, canonical)
                         self.assertNotIn('consume_handle', emitted)
                         module = self.work / 'probe.nvm'
-                        self.command(ROOT / 'bin/nano_asm', assembly, '-o', module)
+                        self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                         self.execute_pair(module)
             if accepted:
                 for compiler in ('nanoc_stage1', 'nanoc_stage2'):
@@ -105,7 +105,7 @@ class CheckedOwnerSelection(unittest.TestCase):
                     if expected == 1:
                         assembly = self.invoke(driver, UNUSED + body, 'shadows' if mode.endswith('shadows') else 'program', first)
                         module = self.work / 'control.nvm'
-                        self.command(ROOT / 'bin/nano_asm', assembly, '-o', module)
+                        self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
                         self.execute_pair(module)
 
     def test_full_source_invalid_unused_and_raw_full_module_refusal(self):
