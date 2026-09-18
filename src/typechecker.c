@@ -3846,7 +3846,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
                 /* Wildcard arm: _ => { body }  — no binding to add; also skip or-patterns */
-                if (strcmp(variant_name_i, "_") != 0 &&
+                if (strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                    strcmp(variant_name_i, "_") != 0 &&
                     strncmp(variant_name_i, "INT:", 4) != 0 &&
                     strncmp(variant_name_i, "OR:", 3) != 0) {
                     /* Add pattern binding to environment - bind as STRUCT type with "UnionName.VariantName"
@@ -5383,7 +5384,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
-                if (strcmp(variant_name_s, "_") != 0 &&
+                if (strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                    strcmp(variant_name_s, "_") != 0 &&
                     strncmp(variant_name_s, "INT:", 4) != 0 &&
                     strncmp(variant_name_s, "OR:", 3) != 0) {
                     Value binding_val = create_void();
