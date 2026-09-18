@@ -384,7 +384,7 @@ shadow main { assert true }
             'join_then': text.replace('set owner moved', 'if true { set owner moved }'),
             'join_else': text.replace('set owner moved', 'if true { assert true } else { set owner moved }'),
             'loop_changed': text.replace('set owner moved', 'while false { set owner moved }'),
-            'borrowed_destination': text.replace('return view.value', 'let owner: Counter = Counter { value: 1, active: true } set view owner return 0'),
+            'borrowed_destination': text.replace('return view.value', 'set view view return view.value'),
             'live_overwrite': text.replace('set owner moved', 'set owner moved set owner owner'),
             'wrong_nominal': text.replace('let moved: Counter = owner', 'let Counter { value, active } = owner let moved: Other = Other { value: 2, active: false }'),
             'constructor': text.replace('set owner moved', 'set owner Counter { value: 2, active: false }'),
@@ -401,8 +401,9 @@ shadow main { assert true }
                 result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
                 self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
                 self.assertEqual(output.read_text(), 'accepted-output')
-                self.assertNotIn('Parse error', result.stdout + result.stderr)
-                self.assertRegex(result.stdout + result.stderr, r'(?i)(mutab|moved|owner|resource|assignment)')
+                self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse error')
+                self.assertRegex(result.stdout + result.stderr,
+                                 r'(?i)(immutable|mutable|moved|live resource|borrowed|consumed|exact.*owner|ownership|resource.*(?:branch|loop)|(?:branch|loop).*resource|type mismatch|expected.*Counter|cannot assign)')
 
     def test_return_paths_preserve_ownership_and_fallthrough(self):
         text = (FIXTURES / 'source_borrow_returns.nano').read_text()
