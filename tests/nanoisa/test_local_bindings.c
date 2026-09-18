@@ -16,6 +16,7 @@ static void roundtrip(NvmModule *m) {
     char *text=disasm_module_styled(b,DISASM_STYLE_CANONICAL);CHECK(text);
     AsmResult ar;NvmModule *c=asm_assemble(text,&ar);CHECK(c);
     uint32_t k;uint8_t *again=nanoisa_save_bytes(c,&k,&err);CHECK(again);
+    CHECK(n==k && !memcmp(wire,again,n));
     CHECK(m->code_size==c->code_size && !memcmp(m->code,c->code,m->code_size));
     CHECK(b->metadata_count==c->metadata_count);
     for(uint32_t i=0;i<b->metadata_count;i++) {

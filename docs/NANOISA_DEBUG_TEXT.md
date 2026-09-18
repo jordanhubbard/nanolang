@@ -15,7 +15,8 @@ still removes the section and source-file advisory entries.
 I emit one directive per record. Reassembly must either retain every record or
 report an allocation error, never silently publish a truncated debug table.
 Existing source producers may ignore the checked append result as before; this
-transport slice checks failure in assembly and v2 conversion. Changing general
+transport slice checks failure in assembly and v2 conversion. The v2 bridge
+uses its existing INDEX_RANGE allocation-error convention; I add no new error code. Changing general
 source-producer allocation policy is outside this contract.
 
 I retain unknown advisory metadata keys byte-for-byte through the existing

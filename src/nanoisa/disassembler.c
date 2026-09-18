@@ -415,6 +415,15 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         }
     }
 
+    if (style == DISASM_STYLE_CANONICAL) {
+        for (uint32_t i = 0; i < mod->debug_count; ++i) {
+            const NvmDebugEntry *d = &mod->debug_entries[i];
+            fprintf(out, ".debug %u %u %u\n", d->bytecode_offset,
+                    d->source_line, d->source_col);
+        }
+        if (mod->debug_count) fprintf(out, "\n");
+    }
+
     if (style == DISASM_STYLE_CANONICAL && mod->passive_size) {
         /* I preserve absolute ranges and graph claims exactly, in bounded lines. */
         for (uint32_t i = 0; i < mod->passive_size; ++i) {

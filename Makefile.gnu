@@ -4623,3 +4623,11 @@ test-constructor-call-context: bootstrap
 	python3 -m unittest -v tests.test_constructor_call_context
 
 test-units: test-constructor-call-context
+
+.PHONY: test-debug-text
+test-units: test-debug-text
+test-debug-text: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_text tests/nanoisa/test_debug_text.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_debug_text
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_alloc tests/nanoisa/test_debug_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_debug_alloc
