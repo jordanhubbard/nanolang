@@ -32,7 +32,7 @@ I64_DIV_S and I64_REM_S use [guarded signed division and remainder](NANOISA_RECO
 I64_SHL, I64_SHR_S and I64_SHR_U use [masked-count portable helpers](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md), keeping arithmetic and logical right shift distinct.
 I64_AND/OR/XOR/INVERT preserve [exact64-bit patterns](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md) through unsigned C and bounded NanoLang helpers.
 I64_LT_U/LE_U/GT_U/GE_U retain [unsigned bit-pattern ordering and boolean results](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
-Other arithmetic, generic tagged comparisons, implicit returns, multiple returns,
+Other arithmetic, wider generic tagged comparisons, implicit returns, multiple returns,
 tail calls and all other operations remain outside this slice.
 
 I infer exact scalar local types from declared parameters and stores, reject

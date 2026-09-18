@@ -35,3 +35,21 @@ are BOOL. Equality of canonical 0/1 values is exactly Boolean equality.
 The immutable snapshot and pure-loop restrictions remain; the fixture and
 typed comparator rules stay unchanged. This separates nested comparisons
 through existing helper calls without changing their evaluated semantics.
+
+## My measured acceptance
+
+At corrected production `d77fad48`, all four unchanged focused methods pass
+GCC in 24.693 seconds. Those four plus three adjacent eager-call/local,
+truthiness-loop and unsigned-comparison-loop methods pass Clang in 29.538
+seconds. I check 72 value-pair/operator combinations, one-call-each generated
+source assignments even when mixed equality is constant, a loaded-local
+snapshot, and pure loop comparisons. Eighteen excluded-tag combinations
+preserve both prior outputs without execution.
+
+Positive modules run through VM/native and reconstructed sanitized C/Nano
+with Cseed/Stage1/Stage2 copied producers; the Cseed Nano-C path also enables
+UBSan. Corrected generator, local tools, copied compilers and original/copied
+host libraries remain hash-identical after the gates. I retain the exact
+[pins and logs](evidence/reconstruction-scalar-comparisons.json). The existing
+C-seed warning task stays open; I changed reconstruction representation only.
+No current-product bootstrap or full reconstruction result is claimed.
