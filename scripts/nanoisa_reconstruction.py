@@ -23,7 +23,7 @@ ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': '
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
+          'DUP', 'POP', 'SWAP', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
 
 
 @dataclass(frozen=True)
@@ -117,6 +117,12 @@ class Analyze:
             return
         elif op == 'POP':
             self.pop(stack)
+            return
+        elif op in ('PICK', 'ROLL'):
+            require(0 <= arg < len(stack), 'require an indexed operand within the current scalar stack')
+            index = len(stack) - 1 - arg
+            value = stack[index] if op == 'PICK' else stack.pop(index)
+            stack.append(value)
             return
         elif op == 'SWAP':
             right, left = self.pop(stack), self.pop(stack)
