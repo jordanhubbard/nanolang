@@ -961,9 +961,11 @@ shadow main { assert true }
                                     cwd=ROOT, capture_output=True, text=True, timeout=30)
             self.assertNotEqual(failed.returncode, 0)
             self.execute_pair(module, expected=1)
-            # My owned profile requires an actual transfer in entry.
-            refused = self.command(tool, source, 2, 'raw', expected=1)
-            self.assertIn('owned transfer', refused.stdout)
+            # My empty selected suffix has a proved owner-free scalar entry.
+            assembly.write_text(self.command(tool, source, 2, 'raw').stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.command(ROOT / 'bin/nano_vm', '--check-shadows', module)
+            self.execute_pair(module)
 
     def test_false_borrowed_helper_cleans_actual_caller_owners(self):
         source = self.work / 'helper-assertion.nano'
@@ -1027,6 +1029,11 @@ shadow main { assert true }
                     output.write_bytes(b'previous verified publication')
                     result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    if label == 'scalar-only selected shadows' and compiler != 'nano_virt':
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertNotEqual(output.read_bytes(), b'previous verified publication')
+                        self.execute_pair(output)
+                        continue
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertGreater(result.returncode, 0, 'I require an ordinary reported refusal')
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
