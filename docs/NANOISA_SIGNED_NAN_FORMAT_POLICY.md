@@ -3,7 +3,7 @@
 I track task_e92a45b66a104e9ba3854cd5f994df8b after the exact f736 Darwin
 managed gate failed its nineteenth method at negative quiet NaN index28.
 My retained reports live on PR739, commitdd76142a. A fresh six-value native
-probe proves Linux libc retains negative NaN signs and Darwin libc omits them
+probe observes that Linux libc retains negative NaN signs and Darwin libc omits them
 for both quiet and signaling payloads. Both spell signed infinities identically.
 This is a formatting-policy difference; I do not relabel the failed gate a pass.
 

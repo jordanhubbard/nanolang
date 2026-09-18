@@ -5110,3 +5110,5 @@ test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 $(OBJ_DIR)/eval.o: src/binary64_arithmetic.h
 $(OBJ_DIR)/eval.o: CFLAGS += -ffp-contract=off -fno-fast-math
 $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
+
+$(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
