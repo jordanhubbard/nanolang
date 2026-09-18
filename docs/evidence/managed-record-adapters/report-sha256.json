@@ -1,0 +1,14 @@
+{
+  "build.status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "compiler-tools.json": "7003397490b2bf9dcbe18dab071db7a915d97609068ff57df59af4c94a9241d5",
+  "corrected-focused.log": "832296279f90318694a4e2bb3994ca66e20e376cfcfd44bad65630f6b473c273",
+  "corrected-focused.status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "focused.log": "3014f5b3e40cdc1b92344f80209d8b5a5c43d995b230c4a10f98df6aa90db886",
+  "focused.status": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+  "generated-adjacent.log": "7ca0f0b100e534283d6ece54902e8e3abd78136dd9c265248184136870ca20b7",
+  "generated-adjacent.status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "private-adjacent.log": "a29e89740c9848ddb3b13dac090b2688fd8457126c82b69193de444f81b97194",
+  "private-adjacent.status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "qualification.json": "38db828f381a53ebf9619a9d670e0027262b607cd829c79a64e768c28a559344",
+  "runtime-package.json": "3ce954dd94fb777b510daa1b8bf92003277db673d3f8ff14ac3f7ff38d8714a6"
+}

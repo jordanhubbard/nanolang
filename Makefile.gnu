@@ -4689,6 +4689,10 @@ NMS_RUNTIME_OPT ?= opt
 managed-runtime-package: $(NANOISA_DIR)/binary64_parse.h scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_module.c $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
 	python3 scripts/embed_managed_runtime.py --clang "$(NMS_RUNTIME_CLANG)" --opt "$(NMS_RUNTIME_OPT)" --header $(OBJ_DIR)/nanoisa/managed_runtime_ir.h --manifest $(OBJ_DIR)/nanoisa/managed_runtime_ir.json
 
+.PHONY: test-managed-record-adapters
+test-managed-record-adapters:
+	python3 -m unittest -v tests.test_managed_record_adapters
+
 test-managed-runtime-package: check-binary64-parser managed-runtime-package
 	python3 -m unittest -v tests.test_managed_runtime_package
 

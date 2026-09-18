@@ -1,0 +1,27 @@
+test_packaged_production_scalar_abi (tests.test_managed_record_adapters.RecordAdapters.test_packaged_production_scalar_abi) ... ok
+test_private_adapters_native_and_wasm (tests.test_managed_record_adapters.RecordAdapters.test_private_adapters_native_and_wasm) ... FAIL
+
+======================================================================
+FAIL: test_private_adapters_native_and_wasm (tests.test_managed_record_adapters.RecordAdapters.test_private_adapters_native_and_wasm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-managed-record-execution/tests/test_managed_record_adapters.py", line 35, in test_private_adapters_native_and_wasm
+    self.command([*clang,'--target=wasm32-unknown-unknown','-O2','-ffreestanding','-fno-builtin','-nostdlib',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *flags,FIXTURE,'-Wl,--no-entry','-Wl,--max-memory=4194304',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *['-Wl,--export='+n for n in names],'-o',wasm])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-managed-record-execution/tests/test_managed_record_adapters.py", line 14, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['clang-18', '--target=wasm32-unknown-unknown', '-O2', '-ffreestanding', '-fno-builtin', '-nostdlib', PosixPath('/home/jkh/Src/nanolang-managed-record-execution/tests/nanoisa/test_managed_record_adapters.c'), '-Wl,--no-entry', '-Wl,--max-memory=4194304', '-Wl,--export=record_adapter_values', '-Wl,--export=record_adapter_lifecycle', '-o', PosixPath('/tmp/nano-record-adapters-9f1ovpvv/adapters.wasm')]
+wasm-ld-18: error: /tmp/test_managed_record_adapters-c190e0.o: undefined symbol: memset
+wasm-ld-18: error: /tmp/test_managed_record_adapters-c190e0.o: undefined symbol: memset
+clang-18: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.330s
+
+FAILED (failures=1)
