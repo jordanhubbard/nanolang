@@ -100,3 +100,12 @@ rename only the three existing static reduce helpers into the established
 nano_rt_ runtime namespace, preserving their signatures/bodies and all callers.
 This is necessary to test the approved user-binding distinction without silently
 reserving an ordinary source name. I do not rename unrelated map/filter helpers.
+
+Independent review of checkpoint780622 finds global types_equal intentionally
+accepts UNKNOWN and enum/int compatibility. I do not reuse that relation for
+reduce. Before executing these new controls, I add a scoped recursive known-type
+predicate and exact kind plus full normalized identity comparison. Unknown
+callback parameters/results and nested unknown components fail; nominal generic
+arguments, tuple/function components and array element identity remain exact.
+I leave global compatibility unchanged. I qualify these boundaries directly in
+checker shadows, including enum/int and distinct generic argument controls.
