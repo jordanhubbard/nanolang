@@ -36,3 +36,21 @@ that list member with still-unsupported ROLL, keeping the same instruction-local
 refusal assertion and check count. ROT3's separate positive/other-tag/underflow
 checks remain. The label production is unchanged; I require a new full result
 rather than claiming the first run passed.
+
+## My measured acceptance
+
+Production `b9827aa7` passes four focused GCC methods in 0.815 seconds
+with O0/O2 ASan/UBSan execution, and eight focused/adjacent Clang methods
+in 1.830 seconds. The unchanged range fixture and invalid-operand method
+pass GCC in 1.997 seconds and Clang in 1.713 seconds. I use stable range
+source `37888716` (production `553a57bb`) and redirect only its native
+translator command to this corrected source; the adapter edits no source.
+Producer/translator before-after hashes, both modules and generated C are
+retained in [my manifest](evidence/native-referenced-labels.json).
+
+After the separately recorded stale-control correction `248fd407`, my full
+native gate passes 2,422 checks and the shape gate passes 1,365 checks.
+I preserve the first 2,421/1 outcome, do not reinterpret it as a pass, and
+verify label production plus range-tool hashes unchanged afterward.
+This is not a new compiler bootstrap or completion of the root-owned range
+source contract. That lane will integrate my canonical translator separately.
