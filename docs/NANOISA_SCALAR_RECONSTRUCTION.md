@@ -31,6 +31,7 @@ I64_MUL now uses the same typed tree with [bounded total multiplication](NANOISA
 I64_DIV_S and I64_REM_S use [guarded signed division and remainder](NANOISA_RECONSTRUCT_INTEGER_DIV.md), including defined zero/overflow results.
 I64_SHL, I64_SHR_S and I64_SHR_U use [masked-count portable helpers](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md), keeping arithmetic and logical right shift distinct.
 I64_AND/OR/XOR/INVERT preserve [exact64-bit patterns](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md) through unsigned C and bounded NanoLang helpers.
+I64_LT_U/LE_U/GT_U/GE_U retain [unsigned bit-pattern ordering and boolean results](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
 Other arithmetic, generic tagged comparisons, implicit returns, multiple returns,
 tail calls and all other operations remain outside this slice.
 

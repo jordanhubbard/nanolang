@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] I audit legacy C parentheses for nested boolean comparisons (`task_de7d1397f86940f8b759ae07eb46820f`). Pinned Cseed4a75f984 rejects valid nested sign comparison with GCC `-Werror=parentheses`; I retain `/tmp/nanolang-reconstruct-ucompare-first.log`. Current-main behavior needs separate qualification. Reconstruction uses named boolean intermediates without changing compiler policy.
+
+- [x] I reconstruct typed unsigned comparisons (`task_d4c7fd42960d4f218249555b7e268a70`, parent4bd034): exact int bit-pattern ordering with bool results, portable C/Nano helpers, calls/branches/loops and tag/output refusal. Twenty-five GCC/Clang methods pass including484 unsigned pairs; corrected tool hashes match. Initial pinned-compiler warning and negative-test expectation are retained separately. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
+
 - [x] I reconstruct typed integer bitwise operations (`task_c4188559900c4a48887c5c29f77b6ed5`, parent4bd034): exact 64-bit AND/OR/XOR/inversion with portable C and bounded Nano helpers, strict tags, endpoint/pattern/loop parity and atomic refusal. Twenty-two GCC/Clang methods pass including363 binary pairs and22 inversion checks; tool hashes remain unchanged. Full reconstruction stays open. [Contract](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md).
 
 - [x] I reconstruct typed integer shifts (`task_417225d8ac7e49278c25eee9ed1291b9`, parent4bd034): low-six-bit count normalization, portable arithmetic/logical distinction, endpoint/call/loop parity and strict-tag/output refusals. Eighteen GCC/Clang methods pass including351 shift combinations; pinned tool hashes remain unchanged. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md).
