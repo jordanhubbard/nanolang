@@ -1199,6 +1199,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                  * the producer's exact field representation. */
                 if (!shape_type(b, destination, NVM_SHAPE_RECORD)) return 0;
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
+            } else if (v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL || v.kind == NVM2C_VK_STR) {
+                /* Local storage can later receive an optional projection.
+                 * It must not equate that projection to an earlier literal. */
+                if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
             } else if (!shape_equal(b, v.shape, destination)) return 0;
             if (v.kind == NVM2C_VK_BOOL) {
                 local_kind[slot] = NVM2C_VK_BOOL;
