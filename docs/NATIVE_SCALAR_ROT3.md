@@ -29,3 +29,25 @@ positive controls passed, then the string-refusal fixture was rejected by
 assembly because PUSH_STR requires a pool reference, not inline text.
 I retain `/tmp/nanolang-native-rot3-gcc.log` and correct the fixture with
 an explicit string-pool declaration before rerunning the focused gate.
+
+## My bounded acceptance
+
+At production `e8e34083`, four focused GCC methods pass in 0.168 seconds.
+The same four plus the existing total-arithmetic method pass Clang in
+1.192 seconds. Positive cases execute the same verified module through VM
+and standalone generated C with ASan/UBSan; total arithmetic retains its
+O0/O2 UBSan checks. Four excluded kinds and three underflow counts preserve
+previous output without executing rejected operations. I do not claim a new
+full native suite, heap rotation coverage or compiler bootstrap from these
+focused gates. Reconstruction qualification consumes this exact translator
+separately.
+
+I retain `/tmp/nanolang-native-rot3-corrected-gcc.log` and
+`/tmp/nanolang-native-rot3-clang.log`. My measured source/tool hashes are:
+
+```text
+3dedd55a768a3b2e23d9924940ff2138690aab657444f03a48c36b1616999f02  src/nanoisa/nvm2c.c
+72ea51c2896da10f92cec08cbb14c0a074944999a60adc9397e4f215203f75de  bin/nvm2c
+bc03e4085b16ce563cb2e4e0607152652b66a4ecd8b254e266eca001cae7d035  bin/nanoisa
+3af7fc1f1c42ebcdbbbe3408f6c7a8da5c3d8338502d80105b1ea66bd143b1d4  bin/nano_vm
+```
