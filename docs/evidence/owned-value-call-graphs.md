@@ -87,7 +87,23 @@ optional case selector to the harness. The default full gate still passes
 each of the ten identical cases with all four APIs, two repeats and every
 assertion, at most two processes at once and 300 seconds per case. Per-case logs
 and statuses are in `/tmp/nanolang-owned-value-graph-sanitizer-parts`; their
-aggregate remains pending. I do not relabel either full-run timeout as a pass. Both builds instrument the test driver and every linked NanoVM and
+aggregate is incomplete: cases0/1 each reach300.066 seconds; cases2/3
+were automatically launched before the stop instruction and are interrupted;
+cases4..9 are not launched. A current ordinary-case stack attach is denied
+under ptrace restrictions, so I obtain no stack evidence. Each selected-case
+invocation still executes the unchanged ordinary-chain, graph-refusal and
+four-function verification preambles, so these timeouts do not localize work
+to the selected cases. I track investigation
+`task_5b3e7272ec3f4ae9ad8eb8ffb15a3565` before any repair.
+
+My static runner audit finds the expected ASan8/UBSan1 ELF dependencies and
+recompilation of all linked NanoVM/NanoISA source objects. Ordinary compiler
+support objects remain normally built, as already disclosed. I have not
+established a tool or runtime defect. My next bounded diagnostic keeps all
+fixtures/assertions and emits optional phase markers before/after each common
+preamble and fixture/verification/artifact/API phase. One corrected ordinary
+case may then localize progress under an explicit bound; I do not schedule
+another whole corpus or reduce coverage to obtain a pass. I do not relabel either full-run timeout as a pass. Both builds instrument the test driver and every linked NanoVM and
 NanoISA object, with ordinary compiler/runtime support objects linked normally.
 I do not claim that the entire legacy compiler is instrumented.
 
