@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] I reconcile stale bounded v5.1 milestones against merged evidence (`task_0f0655717d984eae8bf6c82a109b1229`): executable HLL spike/finding, ordinary qualified callback signatures and the closed scalar passive contract. I update historical C-seed ownership wording while preserving full affine, reconstruction, target and release obligations. [Evidence](evidence/v51-bounded-acceptance-reconciliation.md).
+
 - [x] I check direct selected-union constructor arguments against their declared nominal context (MAC `task_6961296c51014326bb3a532c33fab2e0`). I normalize exact already-declared union variants in brace parsing, recognize actual constructor AST nodes only, validate the selected variant and exact payload fields/types with concrete generic substitution, and preserve nominal identity across direct, computed/function-value and supported qualified calls. I retain explicit unresolved-shape refusals, existing ownership guards, native emitter context, and ordinary positive/mismatch/shadow/output-preservation tests before completion. I do not apply broad return-type coercion to calls. My integrated bootstrap, thirteen both-stage constructor methods, ten explicit shared C controls and adjacent ownership/function-value gates pass; [evidence and separate C refusals](evidence/selfhost-constructor-call-context.md) retain the exact scope.
 - [x] I preserve nongeneric union identity in C-seed function-value signatures (`task_f00d97409c26413781ff85f06993e66d`). My earlier ordinary fn(Choice)->int local/computed control was refused while the concrete generic callback control passed; I retain that observation as resolved history. I resolve declared local union kinds consistently in retained annotation trees and callback parameter/result slots before comparison, without relaxing nominal or concrete generic equality. I test local/computed calls, returned callbacks and nominal/payload mismatches with normal shadows and previous-output preservation; imported module ownership remains task a2. My fresh bootstrap, parser/typechecker units, nine GCC/Clang methods and 31 adjacent all-stage callback/resource methods pass; [evidence](evidence/cseed-union-callback-signatures.md) retains the exact boundary.
 - [x] I retain nongeneric union parameter identity when checking imported C-seed module functions (`task_a2f464df8ba84a4ab4fc52c509e96904`). My earlier module-local match on Choice was rejected as non-union while Stage1 accepted the same source; I retain that resolved observation. This does not weaken the constructor-context acceptance boundary. I resolve each declared function parameter/result kind in the shared nominal binding pass before either registration path copies it, preserving exact names and retained annotation trees. My acceptance covers normal module-local matches, imported calls/results, mismatch and shadow refusal with previous-output preservation; ownership rules remain unchanged. My fresh bootstrap/parser/typechecker units, eight GCC/Clang controls, sixteen adjacent metadata methods and 31 C-seed callback/resource methods pass; [evidence](evidence/cseed-imported-union-identity.md) preserves the separate single-letter native naming failure.
@@ -8992,9 +8994,14 @@ Ownership and proposal closure:
 - [ ] I replace the C seed's identifier-state prototype with path-sensitive
       ownership analysis and a rule-by-rule conformance corpus
       (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
-      The unmerged `c53e27a7` prototype is not that result: its 256-place
-      table silently omits excess owners and its expression walker ignores
-      unhandled AST forms. I must cover those boundaries before adopting it.
+      I superseded the cancelled task above with the merged growable
+      `src/resource_flow.c` pass and its allocation/boundary corpus, rather
+      than adopting the unmerged `c53e27a7` recovery prototype. I retain the
+      historical prototype defects in the evidence. The complete normative
+      matrix remains open under `task_c60a8d2e14b7494f8875e75b16e9b087` and
+      `task_28f2fb4b1f3c8a5ce93df628bb569d76`; partial frontend coverage does
+      not close it. [Checkpoint](evidence/affine-c-seed-flow.md),
+      [subsequent paired flow](evidence/affine-selfhost-flow.md).
 - [ ] I implement the same resource syntax, analysis, and diagnostics in
       `src_nano`; the self-hosted compiler does not inherit correctness from
       the C seed (`task_20048de825616195b9f2bc492231a851`).
@@ -9011,11 +9018,16 @@ Ownership and proposal closure:
 - [ ] I gate 5.1 on one affine acceptance matrix across both frontends,
       NanoISA, NanoVM, and AOT C
       (`task_28f2fb4b1f3c8a5ce93df628bb569d76`).
-- [ ] I take the bounded One-IR slice of `PASSIVE_PARALLELISM_DESIGN.md` into
+- [x] I take the bounded One-IR slice of `PASSIVE_PARALLELISM_DESIGN.md` into
       5.1: verified purity/independence, deterministic serial semantics, and
       NanoISA eligibility metadata. Scheduler optimization, async I/O, SoA,
       and hardware speedup claims remain outside this task
-      (`task_90b123edcc301b464a031c55e4ba1a11`).
+      (`task_90b123edcc301b464a031c55e4ba1a11`). My tested closed scalar
+      par/flow profile has paired frontend decisions, checked dependency/effect
+      refusals, versioned eligibility records, exact transport and serial
+      VM/native execution. Broader captures, trusted foreign summaries and
+      full language coverage remain separate obligations.
+      [Acceptance reconciliation](evidence/v51-bounded-acceptance-reconciliation.md).
 - [x] I postponed `ROW_POLYMORPHIC_RECORDS_DESIGN.md`: the C-seed prototype is
       not a language contract without self-hosted parity, a stable ABI,
       dual-frontend conformance, `.nvm` round trips, VM/AOT equivalence, and
@@ -9076,11 +9088,13 @@ Compiler product:
         and environment lifetime. My real extraction/emission route and 100
         controlled copy/free cycles pass; legacy checker leaks remain tracked
         by `task_00c47a5d65d04c48914864ec0de553d6`.
-- [ ] I enforce the same full signature check for qualified imported calls:
-      `cb.apply` currently accepts a string[][] callback where int[][] is
-      required, while an ordinary imported `apply` rejects it. I retain this
-      distinct checker gap under `task_e05a42e2e09b47cc9c53fa6923eeeaef`;
-      metadata serialization does not claim to repair call dispatch checks.
+- [x] I enforce the same full signature check for qualified imported calls.
+      The earlier `cb.apply` mismatch acceptance is repaired in both source
+      checkers under `task_3ca0e46fbbc64aa8bc39bfdaf65b8833`. My 35 paired
+      methods include qualified execution/rejection and previous-output
+      preservation. Parent `task_e05a42e2e09b47cc9c53fa6923eeeaef` remains
+      separate from this ordinary signature check; I do not infer complete
+      callback ownership. [Evidence](evidence/callback-signature-boundaries.md).
 - [x] I lower selected shadows from the same bound Parser to a separate
       NanoISA module (`task_57fc2c62eb504a579dc2ca37ce72e2e8`), after compiled
       signature metadata lands. I preserve ordered selection, module identity,
@@ -9816,10 +9830,16 @@ Module richness:
       feature sets. GPU targets use the restricted profile.
 
 Reconstruction:
-- [ ] I spike a second high-level surface from the same `.nvm` (NanoLang or
-      another HLL). If that surface is only an interpreter, the spike failed.
-- [ ] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient,
-      insufficient, or blocked on named metadata.
+- [x] I spike a second executable high-level surface from the same `.nvm`:
+      PR604 emits structured C and NanoLang from one checked scalar region
+      tree, with eight retained modules executed through VM/C and three native
+      NanoLang stages. Neither surface embeds an interpreter. General
+      reconstruction remains open under `task_4bd034f6029b7458201db74e2c3aeb32`.
+      [Evidence](evidence/nanoisa-scalar-reconstruction.md).
+- [x] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient for
+      the tested closed scalar grammar and insufficient for full high-level
+      reconstruction. I preserve its named limitations; fixture shadows are
+      supplied assertions, not recovered original tests.
 
 Other translators:
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
