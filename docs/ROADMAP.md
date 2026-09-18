@@ -10029,8 +10029,8 @@ Other translators:
       distinction. MAC `task_31acd26441144d52a82a533929669763`;
       my [case contract](NANOISA_MANAGED_CASE.md) requires paired target,
       allocator-growth, alias and failure acceptance after prerequisite543.
-      My [paired evidence](evidence/managed-ascii-case.md) records all256-byte
-      mapping and full34-method managed plus integrated5-method acceptance.
+      My [paired evidence](evidence/managed-ascii-case.md) records all 256 byte
+      mapping and full 34-method managed plus integrated 5-method acceptance.
 - [x] I reconcile case/trim allocation wording with VM string interning:
       empty/unchanged VM results can reuse an existing object before allocation;
       managed fresh-handle tests do not establish matching allocation events.
