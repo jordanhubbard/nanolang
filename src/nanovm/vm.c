@@ -3367,6 +3367,7 @@ vm_return_values: ;
         VM_CASE(OP_ARR_NEW) {
             uint8_t elem_type = instr.operands[0].u8;
             VmArray *a = vm_array_new(&vm->heap, elem_type, 8);
+            if (!a) return trap_error(vm, VM_ERR_MEMORY, "I could not create the array.");
             stack_push(vm, val_array(a));
             VM_NEXT();
         }

@@ -5,9 +5,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 static bool reject_string_allocation;
+static uint64_t array_allocation_budget = UINT64_MAX;
+static bool array_allocation_allowed(void) {
+    if (array_allocation_budget == UINT64_MAX) return true;
+    if (!array_allocation_budget) return false;
+    array_allocation_budget--;
+    return true;
+}
+static void *array_calloc(size_t count, size_t size) {
+    return array_allocation_allowed() ? calloc(count, size) : NULL;
+}
 static void *substring_malloc(size_t size) {
-    return reject_string_allocation ? NULL : malloc(size);
+    return reject_string_allocation || !array_allocation_allowed() ? NULL : malloc(size);
 }
 static unsigned format_status_override;
 static int format_snprintf(char *buffer, size_t capacity, const char *format, ...) {
@@ -21,8 +32,10 @@ static int format_snprintf(char *buffer, size_t capacity, const char *format, ..
 }
 #define snprintf format_snprintf
 #define malloc substring_malloc
+#define calloc array_calloc
 #include "../../src/nanovm/heap.c"
 #undef malloc
+#undef calloc
 #undef snprintf
 #include "nanovm/vm.h"
 int g_argc;
@@ -356,7 +369,42 @@ static void replacement_bounds_and_recovery(void) {
         nvm_module_free(module);
     }
 }
+static void array_creation_recovery(void) {
+    const uint8_t tags[] = {TAG_INT, TAG_STRING};
+    for (unsigned t = 0; t < sizeof tags; t++) {
+        uint8_t code[] = {OP_ARR_NEW, tags[t], OP_RET};
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.result_count=1, .result_tag=TAG_ARRAY};
+        fn.name_idx = nvm_add_string(module, "array", 5);
+        fn.code_offset = nvm_append_code(module, code, sizeof code);
+        fn.code_length = sizeof code;
+        nvm_add_function(module, &fn);
+        VmState vm; vm_init(&vm, module);
+        uint64_t objects = vm.heap.stats.num_objects;
+        uint64_t live_bytes = vm.heap.stats.allocated - vm.heap.stats.freed;
+        for (unsigned budget = 0; budget < 2; budget++) {
+            NanoValue output = val_void();
+            uint64_t allocated = vm.heap.stats.allocated, freed = vm.heap.stats.freed;
+            array_allocation_budget = budget;
+            assert(vm_invoke(&vm, 0, NULL, 0, &output) == VM_ERR_MEMORY);
+            array_allocation_budget = UINT64_MAX;
+            assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+            assert(strstr(vm.error_msg, "create the array"));
+            assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated && vm.heap.stats.freed == freed);
+            for (unsigned repeat = 0; repeat < 4; repeat++) {
+                assert(vm_invoke(&vm, 0, NULL, 0, &output) == VM_OK);
+                assert(output.tag == TAG_ARRAY && output.as.array);
+                assert(output.as.array->elem_type == tags[t] && !output.as.array->length);
+                assert(output.as.array->capacity == 8 && output.as.array->header.ref_count == 1);
+                vm_release(&vm.heap, output);
+                assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated - vm.heap.stats.freed == live_bytes);
+            }
+        }
+        vm_destroy(&vm); nvm_module_free(module);
+    }
+}
 int main(void) {
+    array_creation_recovery();
     heap_slices();
     opcode_recovery();
     trim_recovery();
