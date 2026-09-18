@@ -10031,6 +10031,7 @@ Module richness:
         [Evidence](evidence/nanoisa-verifier-profiles.md).
 
 Reconstruction:
+- [ ] I reconcile the original five-deliverable feasibility report (`task_4bd034f6029b7458201db74e2c3aeb32`) against its actual scope. My [preexecution audit](NANOISA_RECONSTRUCTION_FEASIBILITY_AUDIT.md) pins a fresh compiler-emitted scalar fixture and source-free two-surface recovery, refreshes stale inventory wording and distinguishes this sufficient/insufficient finding from broader required product targets. I do not add all-opcode completion or original-shadow recovery as new conditions.
 - [x] I spike a second executable high-level surface from the same `.nvm`:
       PR604 emits structured C and NanoLang from one checked scalar region
       tree, with eight retained modules executed through VM/C and three native
