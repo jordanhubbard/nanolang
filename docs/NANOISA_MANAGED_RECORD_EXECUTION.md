@@ -235,3 +235,11 @@ before any fixture execution. The corrected tools/package build passes. This
 is a production review checkpoint, not executable acceptance: actual generated
 native/Wasm tests and the preserved old-profile/refusal gates follow independent
 review. The qualified private-adapter tree and tools remain unchanged.
+
+## My subsequent forward declaration extension
+
+The original contract above qualified prior-order declarations through789. My
+separate [forward ordinary DAG contract](NANOISA_MANAGED_FORWARD_RECORDS.md) now
+qualifies exact all-record acyclic forward tables using the same indexed field
+origins and counted runtime. I keep absent/UNKNOWN forward authority, resources,
+owned/reference execution and mixed record-array shapes outside that extension.
