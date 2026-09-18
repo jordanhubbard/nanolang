@@ -1,6 +1,6 @@
 # My NanoISA-only product draft
 
-My newer checkpoint is [2c2f6f52](product-acceptance-2c2f6f52.md): bootstrap, 34 focused methods and both full VM and native fixed points pass; the complete core gate and Darwin dependency fixture remain blocked. The earlier checkpoints below retain their own scope.
+My newer checkpoint is [84e04f5d](product-acceptance-84e04f5d.md): fresh bootstrap, 39 focused methods, all 17 core examples and the full VM fixed point pass. After the introspection fixture correction, 244 eligible VM examples compile; generic-union affine acceptance still blocks the full product gate. Native and Darwin qualification remain separate. The earlier checkpoints below retain their own scope.
 
 My current tested integration is `aab9d30d`, with main through PR624 and the
 record-array field representation repair subsequently merged as PR625. Fresh
