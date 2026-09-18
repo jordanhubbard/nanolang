@@ -230,7 +230,7 @@ I return the floating-point remainder of x divided by y.
 
 ---
 
-## Type Casting and Conversion (11)
+## Type Casting and Conversion (13)
 
 ### `cast_int(value: any) -> int`
 I cast any value to an integer. I truncate floats and parse strings.
@@ -250,7 +250,14 @@ I cast any value to a float. I parse strings and convert integers.
 (cast_float false)   # Returns 0.0
 ```
 
-### `float_from_bits(bits: int) -> float` and `float_to_bits(value: float) -> int`
+### `float_from_bits(bits: int) -> float`
+
+I copy the 64 bits of my signed integer operand into a binary64 value.
+
+### `float_to_bits(value: float) -> int`
+
+I copy the 64 bits of my binary64 operand into a signed integer.
+The following representation and name-resolution rules apply to both operations.
 
 I copy an exact binary64 representation. My signed integer carries the same
 64 bits in two's-complement form; I do not perform a numeric cast. I preserve
