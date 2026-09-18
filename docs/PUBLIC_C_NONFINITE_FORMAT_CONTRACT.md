@@ -10,3 +10,9 @@ My first frozen controls passed both generated cleanup/failure and scoped API
 methods, but the two source fixtures used an invalid equals sign after set. Both
 GCC/Clang logs retain those parser refusals; no rejected source output ran. I
 correct fixture syntax, preserve all 11 verified identities and freeze again.
+
+The corrected source gate retains two assertion failures caused by existing raw C
+pointer equality for STRING EQ. I inspect generated source only and file a distinct
+ordered string comparison prerequisite; I do not replay those binaries. My scoped
+formatting gate observes exact stdout externally and checks owned aliases with
+independent C strcmp. It does not claim language string equality repaired.

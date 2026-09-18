@@ -40,7 +40,7 @@ class PublicCFormat(unittest.TestCase):
                       '-Werror=unused-local-typedefs',optimization,'-fsanitize=address,undefined',
                       '-fno-sanitize-recover=all',source,'-lm','-o',exe])
     def test_exact_output_input_bits_and_once_evaluation(self):
-        calls='\n'.join(f'assert (== (show {signed(bits)} {json.dumps(text)}) 0)' for bits,text in CASES)
+        calls='\n'.join(f'assert (== (show {signed(bits)}) 0)' for bits,text in CASES)
         output,code=self.emit(SOURCE.replace('CASE_CALLS',calls))
         expected=''.join(text+'\n'+text+'|'+text+'\n' for _,text in CASES)
         self.assertNotIn('nano_cb_0_float_text_new(double',code)
@@ -53,7 +53,7 @@ class PublicCFormat(unittest.TestCase):
         output,_=self.emit(ALIASES)
         for standard in ('c99','c11'):
             exe=self.work/standard;self.compile(output,exe,standard)
-            self.run_cmd([exe])
+            self.assertEqual(self.run_cmd([exe]).stdout,'1\n2\n'+'3\n'*300+'-nan\n-nan\n1\n')
     def test_generated_cleanup_and_allocation_registration_refusals(self):
         output,code=self.emit('fn main()->int{return 0} shadow main{assert (== (main) 0)}')
         prefix=re.search(r'static const char \*(nano_cb_\d+_)float_text_new',code).group(1)
@@ -77,12 +77,11 @@ fn operand(bits:int)->float{set count (+ count 1) return (float_from_bits bits)}
 shadow operand{assert (== (float_to_bits (operand 0)) 0)}
 fn nano_cb_0_float_text_new(x:int)->int{return x}
 shadow nano_cb_0_float_text_new{assert (== (nano_cb_0_float_text_new 1) 1)}
-fn show(bits:int,expected:string)->int{
+fn show(bits:int)->int{
  let value:float=(float_from_bits bits)
  let before:int=count
  let text:string=(float_to_string (operand bits))
  assert (== count (+ before 1))
- assert (== text expected)
  (println text)
  (print (operand bits))
  (print "|")
@@ -91,7 +90,7 @@ fn show(bits:int,expected:string)->int{
  assert (== (float_to_bits value) bits)
  return 0
 }
-shadow show{assert (== (show 0 "0") 0)}
+shadow show{assert (== (show 0) 0)}
 fn main()->int{CASE_CALLS return 0}
 shadow main{assert (== (main) 0)}
 '''
@@ -100,12 +99,12 @@ shadow text{assert (== (text 1.0) "1")}
 let first:string=(text 1.0)
 let second:string=(text 2.0)
 fn main()->int{
- assert (== first "1") assert (== second "2")
+ (println first) (println second)
  let negative:string=(text (float_from_bits -2251799813685247))
  let alias:string=negative
  let mut i:int=0
- while (< i 300){let temporary:string=(text 3.0) assert (== temporary "3") set i (+ i 1)}
- assert (== negative "-nan") assert (== alias "-nan") assert (== first "1")
+ while (< i 300){let temporary:string=(text 3.0) (println temporary) set i (+ i 1)}
+ (println negative) (println alias) (println first)
  return 0
 }
 shadow main{assert (== (main) 0)}
