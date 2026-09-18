@@ -44,3 +44,30 @@ the same signed nonfinite policy before that parent closes. The public C-target
 agent owns its emitter; I coordinate its provider integration. I do not change
 source-literal metadata, tracing/debugger diagnostics or arbitrary user printf
 formats as an accidental part of this scalar conversion checkpoint.
+
+## My legacy scalar checkpoint
+
+I track local child_df2b1ff3d75d4b43b2471696ee0b613e after merged PR745.
+I extend the shared formatting header with a stream helper that selects signed
+nonfinite text from integer bits and otherwise retains `%g`. My interpreter
+uses it for scalar and array printing and uses the existing bounded buffer
+helper for casts, generic value-to-string, float-to-string and the existing
+`%g` format substitution path. I preserve each route's existing finite `.0`
+suffix rule, buffer bounds, allocation and string ownership. Arbitrary user
+format specifications, source literals and debugger/tracing output remain
+outside this conversion slice.
+
+My C-seed legacy runtime embeds the same shared helper source. My selfhost legacy
+runtime receives an exact generated provider from the same header, with mandatory
+shadow checks and regeneration identity verification. Both existing print and
+float-to-string helpers consume the common policy. I do not fork its logic into
+the emitted runtime strings or replace any user expression with multiple reads.
+
+Before closure I require a fresh bootstrap, exact-bit interpreter/C-seed legacy/
+Stage1/Stage2 conversion and captured print controls, qNaN/sNaN signs, infinities,
+zero signs and finite boundaries, scalar/array/format routes where each emitter
+supports them, unchanged input bits, and adjacent conversion/bit-transport gates.
+I retain and separately report unsupported source routes rather than treating
+them as a pass. Public C-target work remains with its assigned agent and must
+consume this provider in a separately reviewed change. Parent e92 stays open
+until all required paths and both host qualifications are complete.
