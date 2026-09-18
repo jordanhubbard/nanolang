@@ -1,0 +1,44 @@
+{
+  "source": "828edaac297089d667c124e8405f22b0cb090e34",
+  "steps": [
+    {
+      "name": "rebuild",
+      "command": [
+        "make",
+        "-j2",
+        "bin/nanoc_c",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 1.377,
+      "log_sha256": "f623e651e6a158fd6619e387222488dd013f9b068d224d19820c7b93d4222702"
+    },
+    {
+      "name": "smoke",
+      "command": [
+        "python3",
+        "-c",
+        "from pathlib import Path\nfrom tests.test_source_borrow_emission import SourceBorrowEmission, ROOT\ncase=SourceBorrowEmission()\ncase.work=Path('/tmp/nanolang-temporary-owner-828edaac/smoke-artifacts')\ncase.work.mkdir()\nsource=case.work/'ordered.nano'\nsource.write_text(case.temporary_owner_fixture())\nbaseline=None\nfor compiler in ('nano_virt','nanoc_stage1','nanoc_stage2'):\n module=case.work/(compiler+'.nvm')\n case.command(ROOT/'bin'/compiler,source,'--emit-nvm','-o',module)\n actual=case.command(ROOT/'bin/nanoisa','dump',module).stdout\n if baseline is None: baseline=actual\n case.assertEqual(actual,baseline)\n case.execute_pair(module,expected_output=b'ABCABCABC')\n print(compiler, 'exact canonical module, mandatory shadows and VM/native order PASS',flush=True)\n"
+      ],
+      "status": 0,
+      "seconds": 0.583,
+      "log_sha256": "7e6f308ca98afd6a2283fbc1a46a7a167e6633a43ec26761e1ae99abf14c7e01"
+    },
+    {
+      "name": "graph",
+      "command": [
+        "make",
+        "test-owned-value-graphs"
+      ],
+      "status": 0,
+      "seconds": 17.375,
+      "log_sha256": "a34816609a8b95c7fe1dc3fd650a0ed7d2642bfd1ca42fa55a9a2d2f89031702"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}
