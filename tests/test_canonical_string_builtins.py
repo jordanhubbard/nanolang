@@ -36,7 +36,9 @@ class CanonicalStringBuiltins(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='canonical-string-results-') as tmp:
             directory = Path(tmp)
             source = directory / 'main.nano'
-            source.write_text('''fn starts(value: string) -> bool { return (str_starts_with value "a") }
+            source.write_text('''fn trim(value: string) -> string { return (str_trim value) }
+shadow trim { assert (== (trim " a ") "a") }
+fn starts(value: string) -> bool { return (str_starts_with value "a") }
 shadow starts { assert (starts "abc") }
 fn ends(value: string) -> bool { return (str_ends_with value "c") }
 shadow ends { assert (ends "abc") }
@@ -45,6 +47,7 @@ shadow join { assert (== (join " a ") "abc") }
 fn main() -> int {
  let value: string = (str_trim (str_concat " a" "bc "))
  assert (== value "abc")
+ assert (== (trim " a ") "a")
  assert (starts (join " a "))
  assert (ends value)
  assert (== (str_trim "\\v") "\\v")

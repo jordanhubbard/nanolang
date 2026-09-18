@@ -503,6 +503,7 @@ shadow nisa_string_binary_opcode {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
+    if (== name "str_trim") { return true }
     if (== name "cast_int") { return true }
     if (== name "float_to_string") { return true }
     if (== name "string_to_int") { return true }
@@ -519,6 +520,7 @@ fn nisa_is_inline_call(name: string) -> bool {
 }
 
 shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "cast_int")
     assert (nisa_is_inline_call "float_to_string")
     assert (nisa_is_inline_call "array_length")
