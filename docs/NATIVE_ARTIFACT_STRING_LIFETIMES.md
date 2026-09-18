@@ -77,7 +77,11 @@ cleanup identities. The native programs run with ASan/UBSan/LSan.
 
 Callback, co-process and interpreter artifact consumers are not enrolled by
 this change. Legacy C callers retain the original interface and can explicitly
-call the companion after copying escaping text. Other filesystem helpers still
-need their own audited provider contracts; this does not free their results.
+call the companion after copying escaping text. My six path providers (`path_normalize`, `path_canonical`, `path_join`,
+`path_basename`, `path_dirname`, `path_relpath`) also export this companion.
+Their results are provider-owned allocations or NULL, so their companions
+release with the provider allocator and accept NULL. Their existing path
+semantics and result-validation policy are unchanged. Other provider APIs
+still require an explicit ownership audit before enrollment.
 
 Exact measured checks are recorded in my [implementation evidence](evidence/artifact-string-cleanup.md).

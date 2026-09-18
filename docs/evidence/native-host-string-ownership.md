@@ -1,6 +1,6 @@
 # My builtin host-string ownership boundary
 
-My bounded child `task_7f2b7373646341d5a317f374d302e390` adopts known builtin allocations and facade snapshot copies. Parent `task_d5f899966241452a900422938fff3265` remains open for generic artifact ownership.
+My bounded child `task_7f2b7373646341d5a317f374d302e390` adopts known builtin allocations and facade snapshot copies. At this child checkpoint, parent `task_d5f899966241452a900422938fff3265` remained open for artifact ownership. My later [complete native inventory](native-host-result-inventory.md) records the merged provider contracts and narrow parent acceptance.
 
 | Adapter | Incoming ownership | My returned storage |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ My bounded child `task_7f2b7373646341d5a317f374d302e390` adopts known builtin al
 
 I enable the existing string/root runtime when retained imports allocate these strings, even with no map or allocating string opcodes. I preserve complete tracing and all existing published-root safe points. Neither allocation, transfer from a builtin temporary, nor return handoff collects. The pool is defined before host adapters, so exact helpers can allocate directly or copy and consume only their known malloc-owned temporary. Checked size/debt accounting and final cleanup remain the existing pool mechanism.
 
-Pool byte bounds cover retained pooled storage, not transient overlap while copying a file/capture buffer or filesystem resource cleanup. Generic artifact functions may validly return literals: the existing identity fixture does this for path_basename. Actual filesystem file_read additionally returns owned text (including empty success) or a borrowed empty literal on allocation failure. I preserve both contracts until task `task_bdc323f270d44f02b38ba728f1f93184` establishes explicit owned-or-NULL results and coordinated callers/adapters. I do not free pointers based on contents, symbol spelling or library filenames.
+Pool byte bounds cover retained pooled storage, not transient overlap while copying a file/capture buffer or filesystem resource cleanup. Generic artifact functions may validly return literals: the existing identity fixture does this for path_basename. Actual filesystem file_read additionally returns owned text (including empty success) or a borrowed empty literal on allocation failure. The later task `task_bdc323f270d44f02b38ba728f1f93184` preserves both contracts through a same-image cleanup companion whose provider recognizes its private sentinel; it does not change file_read to owned-or-NULL. I do not free pointers based on contents, symbol spelling or library filenames.
 
 ## My bounded checks
 

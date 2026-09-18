@@ -356,6 +356,10 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
      * order the assembler builds them, so indices are preserved -- the
      * operands that reference them are positional. */
     if (style == DISASM_STYLE_CANONICAL) {
+        for (uint32_t i = 0; i < mod->metadata_count; ++i)
+            fprintf(out, ".metadata %u %u\n", mod->metadata[i].key_idx,
+                    mod->metadata[i].value_idx);
+        if (mod->metadata_count) fprintf(out, "\n");
         if (mod->struct_count || mod->enum_count || mod->union_count) {
             fprintf(out, ".types %u %u %u\n\n",
                     mod->struct_count, mod->enum_count, mod->union_count);

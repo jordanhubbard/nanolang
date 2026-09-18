@@ -69,7 +69,7 @@ static bool supported(uint8_t op) {
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
-    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET:
+    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     default:return false;
     }
@@ -207,6 +207,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require scalar stack permutation";
         {Value value=f->stack[f->count-1];f->stack[f->count-1]=f->stack[f->count-2];f->stack[f->count-2]=value;}
         return NULL;
+    case OP_ASSERT:
+        return pop_scalar(f,TAG_BOOL)?NULL:"I require an exact Boolean assertion condition";
     case OP_JMP_TRUE: case OP_JMP_FALSE:
         return pop_scalar(f,TAG_BOOL)?NULL:"I require an exact Boolean branch condition";
     case OP_NOT: case OP_AND: case OP_OR:

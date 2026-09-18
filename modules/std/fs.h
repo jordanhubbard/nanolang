@@ -52,6 +52,16 @@ const char* path_dirname(const char* path);
  * Legacy null pointer input returns ".". */
 const char* path_relpath(const char* target, const char* base);
 
+/* I consume one original path result after its escaping text is copied.
+ * Every path helper above returns owned storage or NULL; NULL cleanup is safe.
+ * Legacy callers may continue using the unchanged result interface. */
+void path_normalize__nano_string_release_v1(const char* result);
+void path_canonical__nano_string_release_v1(const char* result);
+void path_join__nano_string_release_v1(const char* result);
+void path_basename__nano_string_release_v1(const char* result);
+void path_dirname__nano_string_release_v1(const char* result);
+void path_relpath__nano_string_release_v1(const char* result);
+
 /* Read file content as string */
 const char* file_read(const char* path);
 /* I consume one original file_read result after its escaping text is copied.
