@@ -68,6 +68,18 @@ shadow main { assert (== (main) 0) }
                         self.assertEqual(output.read_bytes(), b'prior')
                         self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse error')
 
+    def test_qualified_declaration_keeps_its_result_type(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            dependency = work/'helpers.nano'
+            dependency.write_text('module helpers\npub fn string_to_float(value: string) -> int { return 7 }\n'
+                                  'shadow string_to_float { assert (== (string_to_float "x") 7) }\n')
+            source = work/'source.nano'
+            source.write_text('module "' + str(dependency) + '" as helpers\n'
+                              'fn main() -> int { let value = (helpers.string_to_float "x") '
+                              'assert (== value 7) return 0 }\nshadow main { assert (== (main) 0) }\n')
+            self.exercise(source, work)
+
 
 if __name__ == '__main__':
     unittest.main()
