@@ -4784,6 +4784,11 @@ test-native-string-equality-guards: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-string-equality-guards
 
+.PHONY: test-native-float-arrays
+test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_native_float_arrays
+test-units: test-native-float-arrays
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
