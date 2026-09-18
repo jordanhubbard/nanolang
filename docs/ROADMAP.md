@@ -4,7 +4,7 @@
 
 - [x] I refresh the exact candidate proof gate on an execution-capable host (`task_414caa6f28504b3ba47fdf7891d329f3`). At frozen product `ece241ba`, I preserve the Linux ARM64 image-execution failure. My Darwin peer completes the same pinned gate in 224.41 seconds: fresh Rocq 9.0.1 compilation, 43 closed-assumption reports, assumption audit and independent checker pass. [Evidence](evidence/product-formal-ece241ba.md). This validates my model, not production correspondence.
 
-- [ ] I keep my Jackson C file-source evidence deterministic when its caller
+- [x] I keep my Jackson C file-source evidence deterministic when its caller
       owns a terminal (MAC `task_560e50b04c0a7a5a33537b0bc5292ed1`,
       replacing stopped `task_1b914e18e8c830e9db6fcb2be90e73b1`). At
       product `ece241ba`, `core.fr` reaches its interactive `ACCEPT`
@@ -14,7 +14,14 @@
       test harness from interactive stdin, preserve production
       `ACCEPT`/`KEY`, C file-source `REFILL`, all Jackson assertions and
       the existing deadline, then require newly built PTY and non-PTY controls
-      plus my adjacent Forth gates before completion.
+      plus my adjacent Forth gates before completion. I now give that evidence
+      harness deterministic EOF through `/dev/null`; I did not change my
+      runtime or its deadline. Corrected-source PTY Core and non-PTY Core pass
+      in 10.13 and 7.45 seconds, my session controls pass 34/34, my production
+      PTY REPL control passes 1/1, and my complete Jackson word-set aggregate
+      passes in 182.07 seconds including 280 example cases. Independent review
+      found no blocking issue and confirmed the production I/O boundary stays
+      unchanged.
 
 - [ ] I audit checked-source versus raw-lowering range arity (`task_a1c30f5fe3a740c9906e150200d05af8`): my documented source builtin takes start/end, while raw NanoISA paths implement a one-bound form. I retain the first212a gate E003 refusals in `/tmp/nanolang-borrow-range-for-gate.log`, preserve two-bound source semantics and require explicit cross-layer decisions before any language expansion.
 - [ ] I lower exact owned-source builtin range for loops (`task_212a2ec1f7374734b90a23abf00a3211`) under my [bounded range contract](NANOISA_SOURCE_BORROW_RANGE_FOR.md): once-only ordered integer bounds, exclusive upper endpoint, lexical index, exact owner edges and mandatory shadows, paired across C/selfhost and VM/native without new runtime authority. Corrected two-bound source grammar passes fresh bootstrap, all 26 paired methods and 441/751 affine plus 959 lifecycle checks; [measured evidence](evidence/source-borrow-range-for.md) retains the original E003 arity finding.
