@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_arithmetic.h"
 #include "runtime/binary64_parse.h"
@@ -147,29 +148,7 @@ static bool shadow_write_json_file(const char *path, const ShadowFailure *fails,
 
 /* Process escape sequences in a raw lexer string into actual characters */
 char *nl_unescape_string(const char *raw) {
-    size_t len = strlen(raw);
-    char *buf = malloc(len + 1);
-    if (!buf) return NULL;
-    size_t out = 0;
-    for (size_t i = 0; i < len; i++) {
-        if (raw[i] == '\\' && i + 1 < len) {
-            i++;
-            switch (raw[i]) {
-                case 'n':  buf[out++] = '\n'; break;
-                case 't':  buf[out++] = '\t'; break;
-                case 'r':  buf[out++] = '\r'; break;
-                case '0':  buf[out++] = '\0'; break;
-                case '\\': buf[out++] = '\\'; break;
-                case '\'': buf[out++] = '\''; break;
-                case '"':  buf[out++] = '"';  break;
-                default:   buf[out++] = '\\'; buf[out++] = raw[i]; break;
-            }
-        } else {
-            buf[out++] = raw[i];
-        }
-    }
-    buf[out] = '\0';
-    return buf;
+    return nl_decode_string_literal(raw);
 }
 
 /* Forward declarations */

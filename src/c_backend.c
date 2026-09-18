@@ -17,6 +17,7 @@
 #include "binary64_arithmetic_source.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
+#include "string_literal_decode.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -428,20 +429,26 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         return 0;
 
     case AST_STRING: {
-        /* Emit as a C string literal with escaping */
+        /* I match canonical source decoding and its existing strlen boundary. */
+        char *decoded = nl_decode_string_literal(node->as.string_val ? node->as.string_val : "");
+        if (!decoded) {
+            ctx_error(c, "I could not decode my C string literal.");
+            return -1;
+        }
         fputc('"', c->out);
-        const char *s = node->as.string_val;
-        for (; s && *s; s++) {
+        for (const unsigned char *s = (const unsigned char *)decoded; *s; ++s) {
             switch (*s) {
                 case '"':  fputs("\\\"", c->out); break;
                 case '\\': fputs("\\\\", c->out); break;
-                case '\n': fputs("\\n",  c->out); break;
-                case '\r': fputs("\\r",  c->out); break;
-                case '\t': fputs("\\t",  c->out); break;
-                default:   fputc(*s, c->out);     break;
+                case '?':  fputs("\\?", c->out); break;
+                default:
+                    if (*s < 32 || *s >= 127) fprintf(c->out, "\\%03o", (unsigned int)*s);
+                    else fputc(*s, c->out);
+                    break;
             }
         }
         fputc('"', c->out);
+        free(decoded);
         return 0;
     }
 
