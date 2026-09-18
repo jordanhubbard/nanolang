@@ -4503,12 +4503,17 @@ test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_profiles tests/nanoisa/test_verifier_profiles.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest -v tests.test_verifier_profiles
 
+.PHONY: test-llvm-generic-numeric
+test-llvm-generic-numeric: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/generic_numeric_bits tests/nanoisa/generic_numeric_bits.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_llvm_generic_numeric
+
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
 	chmod +x bin/nvm2wasm
 
-test-nvm2wasm: nvm2wasm nanoisa_dump nano_vm nvm2c
+test-nvm2wasm: test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
@@ -4659,6 +4664,17 @@ test-native-generic-arithmetic: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_generic_arithmetic
 
 test-units: test-native-generic-arithmetic
+
+.PHONY: test-native-invariant-diagnostics
+test-native-invariant-diagnostics: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_invariant_diagnostics
+test-units: test-native-invariant-diagnostics
+
+.PHONY: test-native-tagged-arithmetic
+test-native-tagged-arithmetic: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_tagged_arithmetic
+
+test-units: test-native-tagged-arithmetic
 
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
