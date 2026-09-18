@@ -71,7 +71,8 @@ signatures, mixed local types, unsupported arithmetic and graph forms.
 
 The test harness supplies independently specified shadow assertions for generated
 NanoLang functions. Those assertions are validation-only: I do not reconstruct
-original mandatory tests that the input module never retained. Their retention,
-full high-level roundtrip, other producer families, general graph recovery,
-arithmetic, host imports and frontend facts remain required parent obligations.
+original mandatory tests that the input module never retained. I state that
+limitation without adding a new release requirement. Full high-level roundtrip,
+other producer families, general graph recovery, arithmetic, host imports and
+frontend facts remain required parent obligations.
 I publish sufficient/insufficient findings only for the exact tested subset.
