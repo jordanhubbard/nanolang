@@ -410,6 +410,8 @@ $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/n
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
 $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
+$(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
+$(OBJ_DIR)/c_backend.o: src/binary64_format.h
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
 
@@ -5122,6 +5124,17 @@ test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_preflight tests/nanoisa/test_owned_result_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_owned_result_preflight
 	python3 -m unittest -v tests.test_owned_value_results
+
+.PHONY: test-owned-string-print
+test-units: test-owned-string-print
+test-owned-string-print: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_print tests/nanoisa/test_owned_string_print.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_string_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_alloc tests/nanoisa/test_owned_string_alloc.c obj/test_owned_string_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_proof tests/nanoisa/test_owned_string_proof.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_proof
+	python3 -m unittest -v tests.test_owned_string_print
 
 # I retain scalar arithmetic policy dependencies in source execution/emission.
 $(OBJ_DIR)/eval.o: src/binary64_arithmetic.h

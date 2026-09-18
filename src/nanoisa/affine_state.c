@@ -39,6 +39,7 @@ static bool resource(const Facts *f, Slot slot) {
 }
 static bool supported(Slot slot) {
     return scalar(slot.tag) ||
+           (slot.tag == TAG_STRING && slot.layout == NVM_V2_NO_INDEX) ||
            (slot.tag == TAG_STRUCT && slot.layout != NVM_V2_NO_INDEX);
 }
 static bool same(Slot a, Slot b) {
@@ -197,7 +198,9 @@ static bool resolve(const NvmAffineState *s,uint16_t local,const uint16_t *path,
         NvmV2LayoutField field=layout->fields[path[i]];
         slot=(Slot){field.type_tag,0,field.nested_idx};
     }
-    *out=slot; return scalar(slot.tag) || slot.layout!=NVM_V2_NO_INDEX;
+    *out=slot; return scalar(slot.tag) ||
+        (!count && slot.tag==TAG_STRING && slot.layout==NVM_V2_NO_INDEX) ||
+        slot.layout!=NVM_V2_NO_INDEX;
 }
 bool nvm_affine_owner_access(const NvmAffineState *s,uint16_t local,
                               const uint16_t *path,uint16_t count,bool write) {
@@ -496,6 +499,8 @@ bool nvm_affine_value_parameters(const NvmAffineState *s,NvmAffineType *types,
         if (parameter.tag==TAG_STRUCT) {
             if (!resource(s->facts,parameter) ||
                 !(s->facts->flags[parameter.layout]&NVM_LAYOUT_COMPLETE)) return false;
+        } else if (parameter.tag==TAG_STRING) {
+            if (parameter.layout!=NVM_V2_NO_INDEX) return false;
         } else if (parameter.tag!=TAG_INT && parameter.tag!=TAG_BOOL && parameter.tag!=TAG_U8)
             return false;
     }
