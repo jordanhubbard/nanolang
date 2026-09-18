@@ -442,6 +442,27 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
 /* I admit only value forms whose complete union identity I can establish. */
 static ASTNode *ctx_union_value(CBCtx *c, ASTNode *value) {
     if (!value) { ctx_error(c, "I require a C union result value."); return NULL; }
+    if (value->type == AST_STRUCT_LITERAL && value->as.struct_literal.struct_name && c->root) {
+        const char *name = value->as.struct_literal.struct_name;
+        ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+        int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *item = items[i];
+            if (!item || item->type != AST_UNION_DEF || !item->as.union_def.name) continue;
+            size_t length = strlen(item->as.union_def.name);
+            if (strncmp(name, item->as.union_def.name, length) != 0 || name[length] != '.') continue;
+            ASTNode view = { .type = AST_UNION_CONSTRUCT };
+            view.as.union_construct.union_name = item->as.union_def.name;
+            view.as.union_construct.variant_name = (char *)name + length + 1;
+            view.as.union_construct.field_count = value->as.struct_literal.field_count;
+            view.as.union_construct.field_names = value->as.struct_literal.field_names;
+            view.as.union_construct.field_values = value->as.struct_literal.field_values;
+            if (value->as.struct_literal.spread_source) {
+                ctx_error(c, "I require explicit C union result fields without spread."); return NULL;
+            }
+            return ctx_union_value(c, &view);
+        }
+    }
     if (value->type == AST_IDENTIFIER) {
         for (int i = c->sym_count - 1; i >= 0; --i)
             if (strcmp(c->syms[i].name, value->as.identifier) == 0) {
