@@ -31,3 +31,25 @@ The preceding projection checkpoint passed all 2,422 native checks. I am
 requalifying the final consumer change against that full suite and the complete
 product bootstrap before closing this task. The distinct historical
 export-shadow abort and the release publication hold remain open.
+
+My subsequent static trace located the remaining constraint at the typed write
+of `ASTLet.name` in `par_closed_function`. I retain its fresh compiler module and
+trace under `/tmp/nanolang-product-current-compiler-storage.nvm` and
+`/tmp/nanolang-optional-scalar-trace.log`. Scalar array writes now keep exact array
+payloads separate from late-resolving projected sources. Already tagged values
+retain their known payload constraints. First-write empty-array inference uses
+the resulting array kind. I retained the intermediate 11-failure and 2-failure
+native logs; I corrected the code without weakening those assertions.
+
+Final production `727db160` passes all 2,422 native and 1,222 shape checks, and
+five focused methods (21 VM/native artifacts) pass GCC in 3.633 seconds and
+Clang in 4.702 seconds with generated-code sanitizers. The strengthened consumer
+case includes typed array push/set after a projected scalar local overwrite.
+The complete retained 350,016-byte compiler module translates successfully.
+
+Full native compiler acceptance remains unmet: product `9d49de10`, which carried
+an earlier write-separation checkpoint, built Stage2 but its ordinary hello
+smoke aborted without a compiler diagnostic. I preserve the binary/log/hashes
+in `/tmp/nanolang-product-startup-9d49de10/evidence.json`; I have not replayed it
+or attributed its cause. PR601 stays draft and this task remains open. Later
+focused and native gate success does not establish a repaired compiler startup.
