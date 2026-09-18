@@ -44,6 +44,9 @@ class ConstructorCallContext(unittest.TestCase):
     def test_direct_and_empty(self):
         self.check('fn main() -> int { assert (== (read_choice (Choice.Some { n: 7 })) 7) assert (== (read_choice (Choice.Empty {})) 0) return 0 }')
 
+    def test_parenthesized_let_and_return(self):
+        self.check('fn make_choice() -> Choice { return (Choice.Some { n: 7 }) } shadow make_choice { assert (== (read_choice (make_choice)) 7) } fn main() -> int { let value: Choice = (Choice.Some { n: 8 }) assert (== (read_choice value) 8) assert (== (read_choice (make_choice)) 7) return 0 }')
+
     def test_function_variable_and_computed(self):
         self.check('fn main() -> int { let f: fn(Choice) -> int = read_choice assert (== (f (Choice.Some { n: 8 })) 8) assert (== ((choose_reader) (Choice.Some { n: 9 })) 9) return 0 }')
 
