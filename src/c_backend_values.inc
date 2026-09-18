@@ -188,7 +188,7 @@ static CBLiftTemp *cb_new_temp(CBCtx *c, CBValueInfo info) {
     t->next=c->lift_temps;c->lift_temps=t;
     emit_indent(c);
     if(t->owner)fprintf(c->out,"NanoUnion_%s",t->owner->as.union_def.name);
-    else fputs(c_type(t->type),c->out);
+    else fputs(c_type(c, t->type),c->out);
     fprintf(c->out," %s;\n",t->name);return t;
 }
 static int cb_value(CBCtx *c, ASTNode *n, CBLiftTemp *destination, bool *continues);
