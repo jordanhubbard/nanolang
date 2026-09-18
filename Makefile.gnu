@@ -4664,6 +4664,7 @@ test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
 
 .PHONY: test-llvm-managed-records
 test-llvm-managed-records: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
 
 .PHONY: test-llvm-generic-numeric

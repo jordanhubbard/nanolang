@@ -113,6 +113,14 @@ class ManagedRecords(unittest.TestCase):
             self.native_harness(ir,f'for(int i=0;i<3;i++)if(nano_try_entry()!=((uint64_t){status}<<32)||nms_module_live_objects()!=2)return 1;if(nano_dispose())return 2;return nms_module_live_objects()!=0;')
             self.node(wasm,f'for(let i=0;i<3;i++){{check(e.nano_try_entry()===({status}n<<32n));check(e.nms_module_live_objects()===2n);}}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
 
+    def test_same_instance_vm_and_targets_then_fresh_instance(self):
+        body=('LOAD_GLOBAL 0\nTYPE_CHECK 0\nJMP_FALSE existing\nPUSH_I64 0\nSTRUCT_LITERAL 0 1\nSTORE_GLOBAL 0\n'
+              'existing:\nLOAD_GLOBAL 0\nDUP\nAGG_GET 0\nPUSH_I64 1\nI64_ADD\nSTRUCT_SET 0\nAGG_GET 0\nRET\n')
+        module,ir,wasm=self.compile(program(body),vm_ok=False)
+        self.run_cmd([ROOT/'obj/managed_record_reentry',module])
+        self.native_harness(ir,'for(int i=1;i<4;i++)if(nano_try_entry()!=(uint64_t)i||nms_module_live_objects()!=1)return 1;return nano_dispose();')
+        self.node(wasm,'for(let j=0;j<2;j++){e=new WebAssembly.Instance(m).exports;for(let i=1;i<4;i++)check(e.nano_try_entry()===BigInt(i));check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);}')
+
     def test_committed_global_survives_allocation_failure_reentry(self):
         body=('LOAD_GLOBAL 0\nTYPE_CHECK 0\nJMP_FALSE existing\nPUSH_I64 42\nSTRUCT_LITERAL 0 1\nSTORE_GLOBAL 0\n'
               'existing:\nLOAD_GLOBAL 0\nAGG_GET 0\nPUSH_I64 42\nEQ\nASSERT\n'
