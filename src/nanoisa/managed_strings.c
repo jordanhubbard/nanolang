@@ -218,6 +218,20 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
                      NmsHandle *out) {
     return create_parts(runtime, data, length, NULL, 0, out);
 }
+NmsStatus nms_format_scalar(NmsRuntime *runtime, uint64_t bits, uint32_t tag, NmsHandle *out) {
+    if (tag == 0 || tag == 9) return nms_create(runtime, NULL, 0, out);
+    if (tag == 4) return nms_create(runtime,
+        (const unsigned char *)(bits ? "true" : "false"), bits ? 4 : 5, out);
+    if (tag != 1 && tag != 2) return NMS_TYPE;
+    int negative = tag == 1 && (bits >> 63);
+    uint64_t magnitude = tag == 2 ? bits & 255 : negative ? UINT64_C(0) - bits : bits;
+    unsigned char digits[20];
+    unsigned position = sizeof digits;
+    do { digits[--position] = (unsigned char)('0' + magnitude % 10); magnitude /= 10; }
+    while (magnitude);
+    if (negative) digits[--position] = '-';
+    return nms_create(runtime, digits + position, sizeof digits - position, out);
+}
 NmsStatus nms_parse_i64(const NmsRuntime *runtime, NmsHandle source, int64_t *out) {
     NmsView view;
     NmsStatus status = nms_view(runtime, source, &view);
