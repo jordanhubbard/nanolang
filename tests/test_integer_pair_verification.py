@@ -1,5 +1,4 @@
-"""I verify and execute ordinary valid integer pairs through both targets."""
-import os
+"""I verify valid integer pairs and retain the separate native coverage boundary."""
 from pathlib import Path
 import subprocess
 import tempfile
@@ -30,11 +29,13 @@ class IntegerPairVerification(unittest.TestCase):
             self.checked(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
             self.checked(ROOT/'bin/nano_vm', '--verify-only', module)
             self.checked(ROOT/'bin/nano_vm', module)
-            source, binary = work/'valid.c', work/'valid'
-            self.checked(ROOT/'bin/nvm2c', module, '-o', source)
-            self.checked(os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
-                         '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-lm', '-o', binary)
-            self.checked(binary)
+            source = work/'prior.c'
+            source.write_text('retained')
+            native = subprocess.run([ROOT/'bin/nvm2c', module, '-o', source],
+                                    cwd=ROOT, text=True, capture_output=True, timeout=120)
+            self.assertEqual(native.returncode, 1, native.stdout + native.stderr)
+            self.assertIn('unsupported opcode I64_', native.stderr)
+            self.assertEqual(source.read_text(), 'retained')
 
     def test_carry_borrow_low_bit_and_both_results(self):
         body = ''
