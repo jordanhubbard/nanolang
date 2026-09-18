@@ -10,6 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 CORE = ROOT / 'src/nanoisa/managed_strings.c'
 FIXTURE = ROOT / 'tests/nanoisa/test_managed_string_arrays.c'
+LEAVES = ROOT / 'tests/nanoisa/test_managed_boxed_leaves.c'
 
 class StringArrayCore(unittest.TestCase):
     def run_command(self, args):
@@ -30,7 +31,7 @@ class StringArrayCore(unittest.TestCase):
                 self.run_command(['opt', '-passes=verify', '-disable-output', ir])
                 exe = path / 'test'
                 self.run_command(['clang', *flags, '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                                  *options, ir, FIXTURE, '-o', exe])
+                                  *options, ir, FIXTURE, LEAVES, '-o', exe])
                 self.run_command([exe])
 
     def test_wasm_real_targets_reuse_and_instances(self):
@@ -38,13 +39,13 @@ class StringArrayCore(unittest.TestCase):
             path = Path(temp)
             for testing in (False, True):
                 options = ['-DNMS_TESTING'] if testing else []
-                names = ['nms_array_tests'] + (['nms_array_failures', 'nms_array_reuse', 'nms_array_pressure'] if testing else [])
+                names = ['nms_array_tests', 'nms_leaf_tests'] + (['nms_array_failures', 'nms_array_reuse', 'nms_array_pressure', 'nms_leaf_failures', 'nms_leaf_reuse'] if testing else [])
                 ir = path / 'core.ll'
                 flags = ['--target=wasm32-unknown-unknown', '-std=c11', '-O2', '-ffreestanding', '-fno-builtin', *options]
                 self.run_command(['clang', *flags, '-S', '-emit-llvm', CORE, '-o', ir])
                 self.run_command(['opt', '-passes=verify', '-disable-output', ir])
                 wasm = path / 'core.wasm'
-                self.run_command(['clang', *flags, '-nostdlib', ir, FIXTURE, '-Wl,--no-entry',
+                self.run_command(['clang', *flags, '-nostdlib', ir, FIXTURE, LEAVES, '-Wl,--no-entry',
                                   '-Wl,--max-memory=1048576', *['-Wl,--export=' + n for n in names], '-o', wasm])
                 script = '''const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));
 if(WebAssembly.Module.imports(m).length) throw Error('unexpected import');
