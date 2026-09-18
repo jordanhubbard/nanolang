@@ -9927,6 +9927,10 @@ Other translators:
       cleanup, allocation-status propagation and fresh ordinary recovery gates.
       [Bounded evidence](evidence/vm-substring-contract.md); translator admission
       and the managed-runtime parent remain open.
+- [ ] I match managed decimal string-to-int conversion across LLVM/Wasm.
+      MAC `task_34ce900cad86496b876bdf262b46bdaf`; contract
+      `docs/NANOISA_MANAGED_STRING_INT.md`. Floating parsing/formatting and
+      broader managed-runtime acceptance remain required and open.
 - [x] I implement matched managed substring ownership and LLVM/Wasm lowering.
       MAC `task_2d21632d4d5241299c5a0e9967948efd`; contract
       `docs/NANOISA_MANAGED_SUBSTRING.md`; [evidence](evidence/managed-substring.md).
