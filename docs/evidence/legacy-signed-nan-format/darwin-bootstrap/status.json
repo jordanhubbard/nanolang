@@ -1,0 +1,28 @@
+{
+  "source": "737b3bdbc75472b8cf561aba92113eb2e14ef27a",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 305.41
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "tests/test_legacy_signed_nan_format.py",
+        "-v"
+      ],
+      "status": 1,
+      "timed_out": false,
+      "seconds": 0.198
+    }
+  ]
+}

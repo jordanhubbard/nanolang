@@ -1,0 +1,34 @@
+test_exact_bits_and_captured_scalar_output (tests.test_legacy_signed_nan_format.LegacySignedNan.test_exact_bits_and_captured_scalar_output) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-otiffksy
+
+  test_exact_bits_and_captured_scalar_output (tests.test_legacy_signed_nan_format.LegacySignedNan.test_exact_bits_and_captured_scalar_output) (compiler='nanoc_stage1') ... ERROR
+
+======================================================================
+ERROR: test_exact_bits_and_captured_scalar_output (tests.test_legacy_signed_nan_format.LegacySignedNan.test_exact_bits_and_captured_scalar_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_legacy_signed_nan_format.py", line 55, in test_exact_bits_and_captured_scalar_output
+    self.command(ROOT/'bin'/compiler,path,'-o',executable)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_legacy_signed_nan_format.py", line 44, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-legacy-format-qualified/bin/nanoc_stage1'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.426s
+
+FAILED (errors=1)
