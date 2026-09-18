@@ -5063,6 +5063,24 @@ shadow operator_to_string {
 }
 
 /* Helper to build array binary operation expressions using StringBuilder */
+/* I apply my scalar policy only to an already resolved floating element. */
+fn legacy_array_element_operation(left: string, right: string, c_elem: string, op: string) -> string {
+    if (== c_elem "double") {
+        let mut helper: string = ""
+        if (== op "+") { set helper "nano_rt_f64_add" }
+        if (== op "-") { set helper "nano_rt_f64_sub" }
+        if (== op "*") { set helper "nano_rt_f64_mul" }
+        if (== op "/") { set helper "nano_rt_f64_div" }
+        if (!= helper "") { return (+ helper (+ "(" (+ left (+ ", " (+ right ")"))))) }
+    }
+    return (+ "(" (+ left (+ " " (+ op (+ " " (+ right ")"))))))
+}
+shadow legacy_array_element_operation {
+    assert (== (legacy_array_element_operation "x" "y" "double" "/") "nano_rt_f64_div(x, y)")
+    assert (== (legacy_array_element_operation "x" "y" "int64_t" "+") "(x + y)")
+    assert (== (legacy_array_element_operation "s" "x" "double" "-") "nano_rt_f64_sub(s, x)")
+}
+
 fn build_array_binop_expr(left_code: string, right_code: string, elem_enum: string, get_fn: string, push_fn: string, c_elem: string, op_str2: string, left_is_arr: bool, right_is_arr: bool, is_plus: bool, is_string: bool) -> string {
     let mut sb: array<string> = []
     
@@ -5092,9 +5110,7 @@ fn build_array_binop_expr(left_code: string, right_code: string, elem_enum: stri
                 set sb (cg_append sb "0")
             }
         } else {
-            set sb (cg_append sb "(_x ")
-            set sb (cg_append sb op_str2)
-            set sb (cg_append sb " _y)")
+            set sb (cg_append sb (legacy_array_element_operation "_x" "_y" c_elem op_str2))
         }
         
         set sb (cg_append sb "); } _out; })")
@@ -5123,20 +5139,18 @@ fn build_array_binop_expr(left_code: string, right_code: string, elem_enum: stri
                     set sb (cg_append sb "0")
                 }
             } else {
-                set sb (cg_append sb "(_x ")
-                set sb (cg_append sb op_str2)
-                set sb (cg_append sb " _s)")
+                set sb (cg_append sb (legacy_array_element_operation "_x" "_s" c_elem op_str2))
             }
             set sb (cg_append sb "); } _out; })")
             return (cg_build sb)
         } else {
             if (and (not left_is_arr) right_is_arr) {
-                set sb (cg_append sb "({ DynArray* _a = ")
-                set sb (cg_append sb right_code)
-                set sb (cg_append sb "; ")
+                set sb (cg_append sb "({ ")
                 set sb (cg_append sb c_elem)
                 set sb (cg_append sb " _s = ")
                 set sb (cg_append sb left_code)
+                set sb (cg_append sb "; DynArray* _a = ")
+                set sb (cg_append sb right_code)
                 set sb (cg_append sb "; DynArray* _out = dyn_array_new(")
                 set sb (cg_append sb elem_enum)
                 set sb (cg_append sb "); int64_t _len = dyn_array_length(_a); for (int64_t _i = 0; _i < _len; _i++) { ")
@@ -5153,9 +5167,7 @@ fn build_array_binop_expr(left_code: string, right_code: string, elem_enum: stri
                         set sb (cg_append sb "0")
                     }
                 } else {
-                    set sb (cg_append sb "(_s ")
-                    set sb (cg_append sb op_str2)
-                    set sb (cg_append sb " _x)")
+                    set sb (cg_append sb (legacy_array_element_operation "_s" "_x" c_elem op_str2))
                 }
                 set sb (cg_append sb "); } _out; })")
                 return (cg_build sb)

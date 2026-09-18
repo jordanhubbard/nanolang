@@ -253,16 +253,16 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
         double *__restrict__ po = (double*)out->data;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(pa[i], pb[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(pa[i], pb[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(pa[i], pb[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(pa[i], pb[i]);
                 break;
             default: break;
         }
@@ -339,16 +339,16 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
         double s = scalar.as.float_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(pa[i], s);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(pa[i], s);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(pa[i], s);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(pa[i], s);
                 break;
             default: break;
         }
@@ -415,16 +415,16 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
         double s = scalar.as.float_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(s, pa[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(s, pa[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(s, pa[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = s / pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(s, pa[i]);
                 break;
             default: break;
         }
@@ -2549,10 +2549,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                             double y = ((double*)b->data)[i];
                             double r = 0.0;
                             switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
+                                case TOKEN_PLUS: r = nano_rt_f64_add(x, y); break;
+                                case TOKEN_MINUS: r = nano_rt_f64_sub(x, y); break;
+                                case TOKEN_STAR: r = nano_rt_f64_mul(x, y); break;
+                                case TOKEN_SLASH: r = nano_rt_f64_div(x, y); break;
                                 default: break;
                             }
                             ((double*)out.as.array_val->data)[i] = r;
@@ -2613,10 +2613,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         double s = right.as.float_val;
                         double r = 0.0;
                         switch (op) {
-                            case TOKEN_PLUS: r = x + s; break;
-                            case TOKEN_MINUS: r = x - s; break;
-                            case TOKEN_STAR: r = x * s; break;
-                            case TOKEN_SLASH: r = x / s; break;
+                            case TOKEN_PLUS: r = nano_rt_f64_add(x, s); break;
+                            case TOKEN_MINUS: r = nano_rt_f64_sub(x, s); break;
+                            case TOKEN_STAR: r = nano_rt_f64_mul(x, s); break;
+                            case TOKEN_SLASH: r = nano_rt_f64_div(x, s); break;
                             default: break;
                         }
                         ((double*)out.as.array_val->data)[i] = r;
@@ -2676,10 +2676,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         double y = ((double*)a->data)[i];
                         double r = 0.0;
                         switch (op) {
-                            case TOKEN_PLUS: r = s + y; break;
-                            case TOKEN_MINUS: r = s - y; break;
-                            case TOKEN_STAR: r = s * y; break;
-                            case TOKEN_SLASH: r = s / y; break;
+                            case TOKEN_PLUS: r = nano_rt_f64_add(s, y); break;
+                            case TOKEN_MINUS: r = nano_rt_f64_sub(s, y); break;
+                            case TOKEN_STAR: r = nano_rt_f64_mul(s, y); break;
+                            case TOKEN_SLASH: r = nano_rt_f64_div(s, y); break;
                             default: break;
                         }
                         ((double*)out.as.array_val->data)[i] = r;

@@ -137,10 +137,10 @@ static VmResult vm_array_arithmetic(VmState *vm, NanoOpcode op,
             double x = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
             double y = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
             switch (op) {
-                case OP_ADD: value = val_float(x + y); break;
-                case OP_SUB: value = val_float(x - y); break;
-                case OP_MUL: value = val_float(x * y); break;
-                default: value = val_float(y == 0.0 ? 0.0 : x / y); break;
+                case OP_ADD: value = val_float(nano_rt_f64_add(x, y)); break;
+                case OP_SUB: value = val_float(nano_rt_f64_sub(x, y)); break;
+                case OP_MUL: value = val_float(nano_rt_f64_mul(x, y)); break;
+                default: value = val_float(nano_rt_f64_div(x, y)); break;
             }
         }
         bool appended = vm_array_push(&vm->heap, result, value);
