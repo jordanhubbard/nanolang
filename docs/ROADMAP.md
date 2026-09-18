@@ -4,6 +4,7 @@
 
 - [ ] I repeat full canonical product acceptance after generic integration (parent `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`). My earlier gate at `e7bccd99` passed 17 core examples and 244 eligible VM examples, then recorded 18 checked generic-instance refusals. The scoped repair `task_6550ccf97eb44f4d8c08f02cd4189cd7` is now merged through PR666 with fresh bootstrap and all 16 paired methods, including unchanged affine decisions. I still require the integrated product and platform gates; [historical pin](evidence/product-acceptance-84e04f5d.md).
 
+- [x] I reconstruct typed unsigned division and remainder (`task_d0b4b473329745cd848694ec835965ad`, parent4bd034): exact unsigned bit-pattern operands/results, zero divisor results, portable C and bounded Nano long division with explicit carry, pinned-tool parity and output-preservation refusal. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_DIVISION.md).
 
 - [x] I lower declared `string_to_float` calls with an exact string operand and float result (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). The product prefix-conversion fixture is initially checked-refused. My first corrected gate passes that retained fixture but exposes missing checker builtin result metadata for an inferred local; I retain the initial log and correct that same conversion boundary. I reuse portable `CAST_FLOAT`, evaluate the operand once, preserve declaration resolution and retain legacy plus canonical VM/native acceptance with wrong-type output preservation. Fresh bootstrap and seven GCC/Clang methods pass, including declared-name controls and the unchanged prefix fixture. [Contract and evidence](NANOISA_PREFIX_CONVERSION.md).
 
@@ -10053,6 +10054,12 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [x] I check VM STR_FROM_INT/FLOAT formatter status/capacity, popped operand
+      release and final allocation before publication. MAC `task_4ba402d50b864467bda1e8acf7dd601d`;
+      my [format lifetime contract](NANOISA_PRIMITIVE_FORMAT_LIFETIME.md)
+      requires corrected ordinary lifecycle and VM gates before managed admission.
+      My [lifetime evidence](evidence/primitive-format-lifetime.md) records
+      focused sanitizers and all 274493 VM checks passing.
 - [x] I match managed STR_TO_LOWER/UPPER ASCII stored-byte conversion with
       consuming owner cleanup, fresh private results and explicit VM interning
       distinction. MAC `task_31acd26441144d52a82a533929669763`;

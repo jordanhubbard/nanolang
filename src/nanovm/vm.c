@@ -3109,6 +3109,9 @@ vm_return_values: ;
         VM_CASE(OP_STR_FROM_INT) {
             NanoValue v = stack_pop(vm);
             VmString *s = vm_string_from_int(&vm->heap, v.tag == TAG_INT ? v.as.i64 : 0);
+            vm_release(&vm->heap, v);
+            if (!s)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not format the primitive numeric string.");
             stack_push(vm, val_string(s));
             VM_NEXT();
         }
@@ -3116,6 +3119,9 @@ vm_return_values: ;
         VM_CASE(OP_STR_FROM_FLOAT) {
             NanoValue v = stack_pop(vm);
             VmString *s = vm_string_from_float(&vm->heap, v.tag == TAG_FLOAT ? v.as.f64 : 0.0);
+            vm_release(&vm->heap, v);
+            if (!s)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not format the primitive numeric string.");
             stack_push(vm, val_string(s));
             VM_NEXT();
         }

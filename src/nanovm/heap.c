@@ -413,12 +413,14 @@ VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index) {
 VmString *vm_string_from_int(VmHeap *heap, int64_t v) {
     char buf[32];
     int len = snprintf(buf, sizeof(buf), "%lld", (long long)v);
+    if (len < 0 || (size_t)len >= sizeof(buf)) return NULL;
     return vm_string_new(heap, buf, (uint32_t)len);
 }
 
 VmString *vm_string_from_float(VmHeap *heap, double v) {
     char buf[64];
     int len = snprintf(buf, sizeof(buf), "%g", v);
+    if (len < 0 || (size_t)len >= sizeof(buf)) return NULL;
     return vm_string_new(heap, buf, (uint32_t)len);
 }
 
