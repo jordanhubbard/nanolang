@@ -269,6 +269,10 @@ shadow main { assert true }
             'else': text.replace(ending, 'if false { return 1 } else { let code: int = 0 return code }'),
             'loop': text.replace(ending, 'while true { let code: int = 0 return code } return 1'),
             'zero': text.replace(ending, 'while false { return 1 } return 0'),
+            'single': text.replace(ending, 'if false { return 1 } return 0'),
+            'then_only': text.replace(ending, 'if true { return 0 } return 1'),
+            'bool': (FIXTURES / 'source_borrow_bool.nano').read_text().replace(
+                'return view.active', 'if view.active { return true } else { return false }'),
         }
         for fixture, content in variants.items():
             source = self.work / ('returns-' + fixture + '.nano')
@@ -278,7 +282,7 @@ shadow main { assert true }
             baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
             self.assertIn('.ownership', baseline)
             self.assertIn('JMP_FALSE', baseline)
-            expected = 'BORROW_LOCAL_EXCLUSIVE'
+            expected = 'BORROW_LOCAL_SHARED' if fixture == 'bool' else 'BORROW_LOCAL_EXCLUSIVE'
             self.assertIn(expected, baseline)
             self.names_and_strip(seed)
             for emitter in self.emitters:
