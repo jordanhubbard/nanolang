@@ -37,4 +37,6 @@ silently repaired by this child. LLVM/Wasm enum task3762 remains dependent;
 its existing profile refusal remains in place. Full66a6 and release scope stay
 open. I do not execute retained compiler startup artifacts.
 
-My full native gate is pending; I keep this change draft until it completes.
+My full native gate passes 2,422 checks with zero failures and 1,139 shape
+checks on unchanged production46f56279. I retain its complete log at
+`/tmp/nanolang-native-enum-full.log`.
