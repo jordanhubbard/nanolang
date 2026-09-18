@@ -84,6 +84,17 @@ RET
 '''
         self.paired(text, 0, 'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
 
+    def test_missing_operand_refusal_preserves_previous_output(self):
+        for opcode in ('I64_DIV_U', 'I64_REM_U'):
+            with self.subTest(opcode=opcode), tempfile.TemporaryDirectory(prefix='nano-hl-udiv-arity-') as tmp:
+                directory = Path(tmp); source = directory/'input.nasm'; output = directory/'previous.nvm'
+                source.write_text('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 7\n'+opcode+'\nRET\n.end\n')
+                output.write_bytes(b'previous')
+                result = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', output], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+                self.assertIn('underflow', result.stderr)
+                self.assertEqual(output.read_bytes(), b'previous')
+
     def test_wrong_tag_refusal_preserves_previous_output(self):
         for opcode in ('I64_DIV_U', 'I64_REM_U'):
             with self.subTest(opcode=opcode), tempfile.TemporaryDirectory(prefix='nano-hl-div-refusal-') as tmp:
