@@ -236,27 +236,32 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
     unsigned first=b->count;
     for(int i=0;i<body->as.block.count && !b->cg->had_error && !b->returned;i++) {
         ASTNode *n=body->as.block.statements[i];CG *cg=b->cg;
-        if(b->control_depth && n->type==AST_RETURN) {
-            borrow_error(b,n,"no early returns inside control flow");break;
-        }
         if(n->type==AST_IF || n->type==AST_WHILE) {
             if(b->control_depth==32){borrow_error(b,n,"at most 32 nested control-flow bodies");break;}
             uint32_t top=cg->code_size;
             ASTNode *condition=n->type==AST_IF?n->as.if_stmt.condition:n->as.while_stmt.condition;
             if(borrow_expr(b,condition)!=TAG_BOOL){borrow_error(b,n,"a Boolean control-flow condition");break;}
             uint32_t skip=emit_op(cg,OP_JMP_FALSE,(int32_t)0);
+            unsigned incoming_count=b->count;
+            bool incoming_live[256];memcpy(incoming_live,b->live,incoming_count*sizeof(bool));
             b->control_depth++;
-            borrow_body(b,n->type==AST_IF?n->as.if_stmt.then_branch:n->as.while_stmt.body,false);
+            borrow_body(b,n->type==AST_IF?n->as.if_stmt.then_branch:n->as.while_stmt.body,shadow);
             b->control_depth--;
             if(cg->had_error)break;
-            uint32_t next=emit_op(cg,OP_JMP,(int32_t)0);
+            bool then_returns=b->returned;
+            uint32_t next=UINT32_MAX;
+            if(!then_returns)next=emit_op(cg,OP_JMP,(int32_t)0);
             patch_jump(cg,skip+1,skip,cg->code_size);
+            memcpy(b->live,incoming_live,incoming_count*sizeof(bool));b->returned=false;
             if(n->type==AST_IF) {
                 if(n->as.if_stmt.else_branch) {
-                    b->control_depth++;borrow_body(b,n->as.if_stmt.else_branch,false);b->control_depth--;
+                    b->control_depth++;borrow_body(b,n->as.if_stmt.else_branch,shadow);b->control_depth--;
                 }
-                if(!cg->had_error)patch_jump(cg,next+1,next,cg->code_size);
-            } else patch_jump(cg,next+1,next,top);
+                bool else_returns=b->returned;
+                memcpy(b->live,incoming_live,incoming_count*sizeof(bool));
+                b->returned=then_returns && else_returns;
+                if(!cg->had_error && next!=UINT32_MAX)patch_jump(cg,next+1,next,cg->code_size);
+            } else if(next!=UINT32_MAX)patch_jump(cg,next+1,next,top);
         } else if(n->type==AST_LET) {
             if(b->control_depth && (n->as.let.is_destructure || n->as.let.is_destructure_projection ||
                (n->as.let.var_type!=TYPE_UNKNOWN && n->as.let.var_type!=TYPE_INT && n->as.let.var_type!=TYPE_BOOL))) {
@@ -362,6 +367,12 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 emit_op(cg,OP_STORE_LOCAL,local);
             }
         } else if(n->type==AST_RETURN && !shadow) {
+            if(b->control_depth) {
+                for(unsigned local=0;local<b->count;local++)
+                    if(b->live[local] && b->tags[local]==TAG_STRUCT && !b->modes[local])
+                        borrow_error(b,n,"explicit owner consumption before an early return");
+                if(cg->had_error)break;
+            }
             if(borrow_expr(b,n->as.return_stmt.value)!=b->result)borrow_error(b,n,"the declared scalar return type");
             borrow_cleanup(b,0);emit_op(cg,OP_RET);b->returned=true;
         } else if(n->type==AST_CALL) {

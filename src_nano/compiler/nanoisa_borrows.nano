@@ -533,9 +533,6 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     let mut i: int = 0
     while (and (== nb_error "") (and (not nb_returned) (< i (list_ASTStmtRef_length block.statements)))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
-        if (and (> nb_control_depth 0) (== stmt.node_type ParseNodeType.PNODE_RETURN)) {
-            return (nb_fail "no early returns inside control flow")
-        }
         if (or (== stmt.node_type ParseNodeType.PNODE_IF) (== stmt.node_type ParseNodeType.PNODE_WHILE)) {
             if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
             let top: string = (nb_label)
@@ -554,22 +551,37 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
             let _: int = (nb_emit (+ top ":"))
             if (!= (nb_expr parser condition condition_type) 4) { return (nb_fail "a Boolean control-flow condition") }
             let _: int = (nb_emit (+ "JMP_FALSE " skip))
+            let incoming_count: int = (array_length nb_live)
+            let mut incoming_live: array<bool> = []
+            let mut local: int = 0
+            while (< local incoming_count) {
+                set incoming_live (array_push incoming_live (at nb_live local))
+                set local (+ local 1)
+            }
             set nb_control_depth (+ nb_control_depth 1)
-            let _: int = (nb_body parser then_body false)
+            let _: int = (nb_body parser then_body is_shadow)
             set nb_control_depth (- nb_control_depth 1)
             if (!= nb_error "") { return 0 }
+            let then_returns: bool = nb_returned
+            if (not then_returns) {
+                if (== stmt.node_type ParseNodeType.PNODE_IF) { let _: int = (nb_emit (+ "JMP " done)) }
+                else { let _: int = (nb_emit (+ "JMP " top)) }
+            }
+            let _: int = (nb_emit (+ skip ":"))
+            set local 0
+            while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) set local (+ local 1) }
+            set nb_returned false
             if (== stmt.node_type ParseNodeType.PNODE_IF) {
-                let _: int = (nb_emit (+ "JMP " done))
-                let _: int = (nb_emit (+ skip ":"))
                 if (>= else_body 0) {
                     set nb_control_depth (+ nb_control_depth 1)
-                    let _: int = (nb_body parser else_body false)
+                    let _: int = (nb_body parser else_body is_shadow)
                     set nb_control_depth (- nb_control_depth 1)
                 }
+                let else_returns: bool = nb_returned
+                set local 0
+                while (< local incoming_count) { (array_set nb_live local (at incoming_live local)) set local (+ local 1) }
+                set nb_returned (and then_returns else_returns)
                 let _: int = (nb_emit (+ done ":"))
-            } else {
-                let _: int = (nb_emit (+ "JMP " top))
-                let _: int = (nb_emit (+ skip ":"))
             }
         } else { if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let _: int = (nb_binding parser (parser_get_let parser stmt.node_id))
@@ -598,6 +610,15 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     }
                 } else {
                     if (and (== stmt.node_type ParseNodeType.PNODE_RETURN) (not is_shadow)) {
+                        if (> nb_control_depth 0) {
+                            let mut local: int = 0
+                            while (< local (array_length nb_live)) {
+                                if (and (at nb_live local) (and (== (at nb_tags local) 8) (== (at nb_modes local) 0))) {
+                                    return (nb_fail "explicit owner consumption before an early return")
+                                }
+                                set local (+ local 1)
+                            }
+                        }
                         let result: ASTReturn = (parser_get_return parser stmt.node_id)
                         if (!= (nb_expr parser result.value result.value_type) nb_result) { return (nb_fail "the declared scalar result") }
                         let _: int = (nb_cleanup parser 0)
