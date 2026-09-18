@@ -1292,19 +1292,55 @@ static bool check_match_guard(ASTNode *guard, Environment *env) {
     return false;
 }
 
-/* I reject mixed or unknown pattern domains before reasoning about coverage. */
-static bool check_match_scrutinee_domain(ASTNode *matched, Type match_type,
-                                         bool has_int_patterns) {
+typedef enum {
+    MATCH_DOMAIN_INVALID = 0,
+    MATCH_DOMAIN_INT,
+    MATCH_DOMAIN_UNION
+} MatchDomain;
+
+/* Wildcards inherit the checked scrutinee domain; other arms declare a family. */
+static void match_arm_families(ASTNode *matched, bool *has_int_patterns,
+                               bool *has_variant_patterns) {
+    *has_int_patterns = false;
+    *has_variant_patterns = false;
+    for (int arm = 0; arm < matched->as.match_expr.arm_count; ++arm) {
+        const char *pattern = matched->as.match_expr.pattern_variants[arm];
+        if (!pattern || strcmp(pattern, "_") == 0) continue;
+        if (strncmp(pattern, "INT:", 4) == 0)
+            *has_int_patterns = true;
+        else
+            *has_variant_patterns = true;
+    }
+}
+
+/* I reject mixed, wrong or unresolved domains before reasoning about coverage. */
+static MatchDomain check_match_domain(ASTNode *matched, Environment *env,
+                                      Type match_type, bool has_int_patterns,
+                                      bool has_variant_patterns,
+                                      const char *union_base_name) {
     const char *message = NULL;
     const char *hint = NULL;
-    if (has_int_patterns && match_type != TYPE_INT) {
+
+    if (has_int_patterns && has_variant_patterns) {
+        message = "I do not mix integer and union-variant patterns in one match.";
+        hint = "Use only integer patterns for an int, or only named/or-pattern arms for a union.";
+    } else if (match_type == TYPE_INT && has_variant_patterns) {
+        message = "I require named and or-pattern match arms to inspect a known union.";
+        hint = "Use integer patterns for this int scrutinee.";
+    } else if (match_type == TYPE_UNION && has_int_patterns) {
         message = "I require integer match patterns to inspect an int.";
-        hint = "Use an int scrutinee, or use patterns from the scrutinee's declared union.";
-    } else if (!has_int_patterns && match_type != TYPE_UNION) {
-        message = "I require a match expression to inspect a union value.";
-        hint = "Use a declared union value, or use integer patterns with an int scrutinee.";
+        hint = "Use named or or-pattern arms from this union.";
+    } else if (match_type == TYPE_INT) {
+        return MATCH_DOMAIN_INT;
+    } else if (match_type == TYPE_UNION) {
+        if (union_base_name && env_get_union(env, union_base_name))
+            return MATCH_DOMAIN_UNION;
+        message = "I require an exact known union identity before I check match coverage.";
+        hint = "Give the scrutinee a declared union type that I can resolve here.";
+    } else {
+        message = "I require a match to inspect an int or a known union.";
+        hint = "Give the scrutinee an exact supported type before matching it.";
     }
-    if (!message) return true;
 
     emit_context_error(
         "E001 TYPE MISMATCH",
@@ -1315,7 +1351,7 @@ static bool check_match_scrutinee_domain(ASTNode *matched, Type match_type,
         hint
     );
     if (active_statement_checker) active_statement_checker->has_error = true;
-    return false;
+    return MATCH_DOMAIN_INVALID;
 }
 
 static bool match_guard_is_unconditional(const ASTNode *guard) {
@@ -1345,7 +1381,7 @@ static bool match_pattern_names_variant(const char *pattern, const char *variant
  */
 static void check_match_totality(ASTNode *matched, Environment *env,
                                  const char *union_base_name,
-                                 bool has_int_patterns) {
+                                 MatchDomain domain) {
     bool has_unconditional_wildcard = false;
     for (int i = 0; i < matched->as.match_expr.arm_count; ++i) {
         ASTNode *guard = matched->as.match_expr.guard_exprs
@@ -1357,7 +1393,7 @@ static void check_match_totality(ASTNode *matched, Environment *env,
         }
     }
 
-    if (has_int_patterns) {
+    if (domain == MATCH_DOMAIN_INT) {
         if (!has_unconditional_wildcard) {
             emit_context_error(
                 "E035 NON-EXHAUSTIVE MATCH",
@@ -4187,18 +4223,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return expr->as.match_expr.result_type;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
-            /* Allow int-pattern match: any arm variant starts with "INT:" */
-            int has_int_patterns_expr = 0;
-            for (int _pi = 0; _pi < expr->as.match_expr.arm_count; _pi++) {
-                if (expr->as.match_expr.pattern_variants[_pi] &&
-                    strncmp(expr->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
-                    has_int_patterns_expr = 1;
-                    break;
-                }
-            }
-            if (!check_match_scrutinee_domain(expr, match_type, has_int_patterns_expr)) {
-                return TYPE_UNKNOWN;
-            }
+            bool has_int_patterns_expr;
+            bool has_variant_patterns_expr;
+            match_arm_families(expr, &has_int_patterns_expr, &has_variant_patterns_expr);
             
             /* Infer and store union type name for transpiler */
             const char *union_type_name = NULL;      /* base name for variant-field lookup: Result */
@@ -4259,6 +4286,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (union_type_info && union_type_info->generic_name && union_type_info->type_param_count > 0) {
                 union_base_name = union_type_info->generic_name;
                 union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
+            }
+
+            MatchDomain match_domain = check_match_domain(
+                expr, env, match_type, has_int_patterns_expr,
+                has_variant_patterns_expr, union_base_name);
+            if (match_domain == MATCH_DOMAIN_INVALID) {
+                free(union_concrete_name);
+                return TYPE_UNKNOWN;
             }
             
             if (expr->as.match_expr.union_type_name) {
@@ -4329,7 +4364,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
-            check_match_totality(expr, env, union_base_name, has_int_patterns_expr);
+            check_match_totality(expr, env, union_base_name, match_domain);
 
             expr->as.match_expr.result_type = return_type;
             expr->as.match_expr.result_type_checked = true;
@@ -5626,20 +5661,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
              * inside match arms are checked against the current function's return type.
              * (The expression-mode match checker uses a temporary TypeChecker without
              * current_function_return_type initialized, which can produce spurious errors.)
-             */
+            */
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
-            /* Allow int-pattern match: any arm variant starts with "INT:" */
-            int has_int_patterns_stmt = 0;
-            for (int _pi = 0; _pi < stmt->as.match_expr.arm_count; _pi++) {
-                if (stmt->as.match_expr.pattern_variants[_pi] &&
-                    strncmp(stmt->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
-                    has_int_patterns_stmt = 1;
-                    break;
-                }
-            }
-            if (!check_match_scrutinee_domain(stmt, match_type, has_int_patterns_stmt)) {
-                return TYPE_VOID;
-            }
+            bool has_int_patterns_stmt;
+            bool has_variant_patterns_stmt;
+            match_arm_families(stmt, &has_int_patterns_stmt, &has_variant_patterns_stmt);
 
             /* Infer and store union type name for transpiler + variant binding metadata */
             const char *union_type_name = NULL;      /* base name for variant-field lookup */
@@ -5699,6 +5725,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 union_concrete_name = typeinfo_to_monomorphized_generic_name(union_type_info);
             }
 
+            MatchDomain match_domain = check_match_domain(
+                stmt, tc->env, match_type, has_int_patterns_stmt,
+                has_variant_patterns_stmt, union_base_name);
+            if (match_domain == MATCH_DOMAIN_INVALID) {
+                free(union_concrete_name);
+                return TYPE_VOID;
+            }
+
             if (stmt->as.match_expr.union_type_name) {
                 free(stmt->as.match_expr.union_type_name);
                 stmt->as.match_expr.union_type_name = NULL;
@@ -5750,7 +5784,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 bound_scope_symbols(tc->env, arm_first_symbol, arm);
             }
 
-            check_match_totality(stmt, tc->env, union_base_name, has_int_patterns_stmt);
+            check_match_totality(stmt, tc->env, union_base_name, match_domain);
 
             return TYPE_VOID;
         }
