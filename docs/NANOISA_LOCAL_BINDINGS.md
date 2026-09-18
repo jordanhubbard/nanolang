@@ -65,7 +65,10 @@ from both ordinary source frontends against actual instruction boundaries. I
 include an explicit assembly reused-slot control, since a producer may allocate
 fresh slots rather than reuse them. I check exact lookup boundaries and lexical
 separation, missing names, unknown versions, malformed advisory tables without
-execution changes, canonical roundtrip, and unchanged VM/native results.
+execution changes, exact name/interval and executable-code preservation through
+canonical text, and unchanged VM/native results. I require byte stability on the
+second canonical cycle. Existing DEBUG omission remains a separate transport
+obligation; I do not claim original source artifacts roundtrip every byte.
 I test allocation cleanup, normal v1 modules, metadata-bearing v1 refusal,
 existing ownership/passive metadata, mandatory source shadows and the genuine
 canonical compiler host build. I close only this bounded child from merged proof;

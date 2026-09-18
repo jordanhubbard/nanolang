@@ -9759,6 +9759,10 @@ Compiler product:
       fixture and all 2,390 structured-C checks pass on Darwin (2026-09-17).
 
 Module richness:
+- [ ] I preserve DEBUG source maps through canonical text; real source output
+      currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
+      Local-name comparisons retain exact metadata/code and separately require
+      canonical-cycle byte stability; full original-byte transport remains open.
 - [x] I retain ordered advisory v2 metadata through module conversion and
       canonical text, with exact string bytes, explicit source precedence,
       metadata-bearing v1 refusal and owned lifetime. MAC
