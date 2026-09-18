@@ -1,5 +1,6 @@
 /* Private descriptive reader. I reuse only retained byte preflight, not authority. */
 #include "mixed_layout_view.h"
+#include "reference_places.h"
 #include <string.h>
 
 static bool mixed_ownership_read(const NvmModule *m, uint32_t layout_count,
@@ -41,8 +42,15 @@ static bool mixed_ownership_read(const NvmModule *m, uint32_t layout_count,
             if (layout != NVM_V2_NO_INDEX &&
                 (layout >= layout_count || tag != TAG_STRUCT || !(flags[layout] & NVM_LAYOUT_COMPLETE) ||
                  (layouts && layouts->items[layout].kind != NVM_V2_LAYOUT_STRUCT))) return false;
-            if (mode && (layout == NVM_V2_NO_INDEX || !(flags[layout] & NVM_LAYOUT_RESOURCE)))
-                return false;
+            if (mode) {
+                if (layout == NVM_V2_NO_INDEX || !(flags[layout] & NVM_LAYOUT_RESOURCE))
+                    return false;
+                if (layouts) {
+                    NvmReferencePlace place = {1, 0, layout, NULL, 0, layout,
+                                               (NvmReferenceMode)mode};
+                    if (!nvm_reference_place_valid(layouts, layout, &place)) return false;
+                }
+            }
         }
     }
     if (version == NVM_OWNERSHIP_PATH_VERSION) {
@@ -85,7 +93,13 @@ static bool mixed_classify(NvmMixedLayoutView *v, uint32_t i, const uint8_t *fla
         const NvmV2LayoutField *f = &l->fields[j];
         uint32_t child = f->nested_idx;
         if (f->type_tag == TAG_STRUCT) {
-            if (child == NVM_V2_NO_INDEX || v->layouts.items[child].kind != NVM_V2_LAYOUT_STRUCT ||
+            if (child == NVM_V2_NO_INDEX) {
+                if (complete) return false;
+                unknown = true;
+                scalar_tree = false;
+                continue;
+            }
+            if (v->layouts.items[child].kind != NVM_V2_LAYOUT_STRUCT ||
                 !mixed_classify(v, child, flags, colors, scalar_trees)) return false;
             if (complete && (flags[child] & NVM_LAYOUT_RESOURCE) && !resource) return false;
             unknown |= v->classes[child] == NVM_MIXED_UNKNOWN;
