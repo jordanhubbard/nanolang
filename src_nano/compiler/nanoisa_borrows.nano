@@ -661,6 +661,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     return (nb_fail "straight-line scalar expressions and one borrowed helper")
 }
 fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
+    if (!= nb_error "") { return 0 }
     if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
         let value: ASTStructLiteral = (parser_get_struct_literal parser id)
         let record: ASTStruct = (parser_get_struct_def parser layout)
@@ -679,22 +680,23 @@ fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
             let mut tag: int = 8
             let mut field_layout: int = 4294967295
             if (>= child 0) {
-                if (!= (at value.field_value_types i) ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a named exact child owner") }
-                let source: int = (nb_local (parser_get_identifier parser (at value.field_value_ids i)).name)
-                if (< source 0) { return (nb_fail "an existing child owner") }
-                if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (at nb_disposal_pending source) (or (!= (at nb_tags source) 8) (!= (at nb_layouts source) child))))) { return (nb_fail "an exact live child owner") }
-                let _: int = (nb_op1 "OWN_MOVE_LOCAL" source)
-                (array_set nb_live source false) set field_layout child
+                if (>= child layout) { return (nb_fail "a strictly earlier exact child layout") }
+                let _: int = (nb_owner parser (at value.field_value_ids i) (at value.field_value_types i) child)
+                if (!= nb_error "") { return 0 }
+                set field_layout child
             } else {
                 set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i))
                 if (!= tag (nb_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
             }
+            if (!= nb_error "") { return 0 }
             let slot: int = (nb_slot "" tag field_layout 0 false)
+            if (!= nb_error "") { return 0 }
             (array_set slots index slot)
             if (== tag 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
             else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
             set i (+ i 1)
         }
+        if (!= nb_error "") { return 0 }
         set i 0
         while (< i record.field_count) {
             let slot: int = (at slots i)
@@ -707,7 +709,7 @@ fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
         if (== kind ParseNodeType.PNODE_IDENTIFIER) {
             let old: int = (nb_local (parser_get_identifier parser id).name)
             if (< old 0) { return (nb_fail "an existing destructured owner") }
-            if (or (not (at nb_live old)) (or (!= (at nb_modes old) 0) (or (at nb_disposal_pending old) (!= (at nb_layouts old) layout)))) { return (nb_fail "an unborrowed exact destructured owner") }
+            if (or (not (at nb_live old)) (or (!= (at nb_modes old) 0) (or (at nb_disposal_pending old) (or (!= (at nb_tags old) 8) (!= (at nb_layouts old) layout))))) { return (nb_fail "an unborrowed exact destructured owner") }
             let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
             (array_set nb_live old false) (array_set nb_disposal_pending old false)
         } else {
@@ -1495,5 +1497,22 @@ shadow nb_owner {
     let _: int = (nb_owner parser binding.value binding.value_type 0)
     assert (== nb_error "") assert (str_contains nb_code "OWN_PACK 0")
     assert nb_any_transfer
+    let _: int = (nb_reset_locals)
+    let tokens: List<LexerToken> = (tokenize_string "resource struct Leaf { value: int } struct Box { child: Leaf } fn main() -> int { let box: Box = Box { child: Leaf { value: 7 } } return 0 }" "inline-owner.nano" (list_CompilerDiagnostic_new))
+    let nested: Parser = (parse_program tokens (list_LexerToken_length tokens) "inline-owner.nano")
+    let outer: ASTLet = (parser_get_let nested 0)
+    let _: int = (nb_owner nested outer.value outer.value_type 1)
+    assert (== nb_error "")
+    assert (str_contains nb_code "OWN_PACK 0")
+    assert (str_contains nb_code "OWN_STORE_LOCAL 1")
+    assert (str_contains nb_code "OWN_PACK 1")
+    let _: int = (nb_reset_locals)
+    let mut index: int = 0
+    while (< index 256) { let _: int = (nb_slot "" 1 4294967295 0 false) set index (+ index 1) }
+    let _: int = (nb_owner nested outer.value outer.value_type 1)
+    assert (!= nb_error "")
+    assert (== (array_length nb_names) 256)
+    assert (not (str_contains nb_code "OWN_PACK"))
+    set nb_error ""
     let _: int = (nb_reset_locals)
 }
