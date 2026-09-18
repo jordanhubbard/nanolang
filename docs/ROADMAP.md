@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] I preserve exact float-array source/native transport (`task_ef670a36b03a4df388594c8f1500bd85`, prerequisite of `task_2578ab8cd0e2406786ba38bde307f4a4`). I keep float element identity distinct from integer/bool arrays through constructors, reads/writes, locals, calls, returns and roots. I retain double payloads, aliases, checked bounds and cleanup; My native/shape gates pass 2,422/1,269 checks; emitter comparison passes 86 checks and 88 methods; rebuilt focused GCC/Clang sanitizer and sole-record-root controls pass. Functional filter/map/reduce lowering remains under `task_c83543611db54102b1f75f7a94f9e93d`; parent2578 stays open until its core filter criterion passes. [Contract](NATIVE_FLOAT_ARRAYS.md).
+
 - [x] I invoke my NanoCore reference evaluator through direct argv and pipes (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I preserve literal expression bytes, adjacent/PATH lookup, newline trimming and explicit failure results; I drain output concurrently with input and reap owned children. Seven ordinary quoted/spaced/large-input, benign-stub lifecycle and output-allocation-refusal methods pass GCC/Clang O2 sanitizers. This tests transport, not formal evaluator semantics. [Contract and evidence](NANOCORE_REFERENCE_TRANSPORT.md).
 
 - [x] I handle hashmap allocation failures explicitly (`task_bc7264a337074246953284ef892785d2`). I check constructor failure before publication, return a checked heap-set status, preserve contents and borrowed input ownership on failed insertion, and propagate VM_ERR_MEMORY after releasing consumed arguments. Existing-key replacement is allocation-free. The VM gate passes 274,493 checks, deterministic heap allocation/recovery tests pass GCC/Clang ASan/UBSan/LSan, and seven paired source/native methods pass both compilers. [Contract and evidence](NANOISA_MAP_ALLOCATION.md).
@@ -9115,6 +9117,9 @@ Compiler product:
       failed execution and incompatible CLI modes before canonical publication
       can depend on this host prerequisite
       (`task_457e55fa59e146878cee92cabc201b6f`).
+- [x] I require my native array artifact ABI marker, producer and cleanup companion to resolve to the same loaded image before calling them (`task_467623d2fa464e058166ad83a457f336`). This closes an inherited static provenance gap in the walk adapter while preserving exact signatures and version checks; I validate ordinary corrected-source artifact paths.
+- [x] I lower the eight declared `modules/filesystem` externs through their owning module artifact with exact string parameters and declared int/string/array<string> results (`task_2e5ed27f56c44ca7b2f16385a6a15747`). I retain ABI markers and existing foreign-result ownership conversion; I test sorted/filtered directory results, empty results, scalar calls, selected shadows, VM/native execution and wrong-signature refusal before publication. This does not admit arbitrary foreign signatures. My first corrected-source gate passes VM filesystem execution but native translation still refuses its absent typed adapter; I add exact one/two-string adapters, snapshot borrowed scalar strings, and require the owning filesystem release helper for copied array results before native admission.
+- [ ] I complete canonical string builtin lowering, including `str_trim` reached by both audio default-argument examples after filesystem extern admission (`task_602f10d8e2b348eab8b7e230e12986fa`). I preserve those full-product failures until the shared string-expression/builtin gate passes.
 - [x] I initialize every generated list parameter annotation before compiled
       metadata extraction. PR487 exposed unset signature pointers in the three
       list parameter allocations; I retain a poisoned-allocation regression
@@ -9928,6 +9933,15 @@ Other translators:
       cleanup, allocation-status propagation and fresh ordinary recovery gates.
       [Bounded evidence](evidence/vm-substring-contract.md); translator admission
       and the managed-runtime parent remain open.
+- [x] I match managed decimal string-to-int conversion across LLVM/Wasm.
+      MAC `task_34ce900cad86496b876bdf262b46bdaf`; contract
+      `docs/NANOISA_MANAGED_STRING_INT.md`; [evidence](evidence/managed-decimal.md).
+      Floating parsing/formatting and
+      broader managed-runtime acceptance remain required and open.
+- [x] I implement matched managed substring ownership and LLVM/Wasm lowering.
+      MAC `task_2d21632d4d5241299c5a0e9967948efd`; contract
+      `docs/NANOISA_MANAGED_SUBSTRING.md`; [evidence](evidence/managed-substring.md).
+      My broader managed parent stays open.
 - [x] I implement the non-admitting managed-string runtime core: portable
       allocation, stable handles, reference/status/disposal helpers, checked
       growth and deterministic native/Wasm reclamation/failure tests.
@@ -10670,3 +10684,5 @@ Next Review: the exact release candidate and its published artifacts.
 - [x] I lower indexed module function/struct names in my C NanoISA frontend, retaining empty-string out-of-range results, exact intrinsic signatures without foreign imports, and all eight introspection operations across VM/native products (`task_6940de98b2a9468bac246ad10e221939`). Four VM/native methods pass, including sanitizer execution, empty exports, one-time index evaluation, exact signature refusal and ordinary same-prefix functions; my NanoVirt core passes 89 checks. Canonical source-fact retention remains separate under `task_faa47ec22a2545348aa9c9d705580321`.
 
 - [x] I preserve union constructor context in direct selfhost call arguments (`task_6961296c51014326bb3a532c33fab2e0`). My uniquely declared parser normalization, exact payload/context checks and native argument type handoff pass both selfhost stages, including function-value and qualified calls. [Measured evidence](evidence/selfhost-constructor-call-context.md) preserves the original refusal and distinct C-seed signature/import limitations; this is separate from underscore payload discards.
+
+- [x] I retain no invented integer facts for absent union payload slots in native classification. I preserve exact present-field kinds and runtime checks while testing empty/data variant calls and returns in both orders against VM execution. Evidence `docs/evidence/native-union-padding.md` (2,422 native and 1,269 shape checks; GCC/Clang sanitizer pairs). Contract `docs/NATIVE_UNION_PADDING_FACTS.md`; MAC `task_a4b730306b84428da1f4e5683697353f`.

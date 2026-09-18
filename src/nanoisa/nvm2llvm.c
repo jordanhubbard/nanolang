@@ -245,8 +245,8 @@ typedef struct {
     FILE *out;
     bool managed;
     unsigned count;
-    const char *names[2];
-    bool active[2];
+    const char *names[3];
+    bool active[3];
 } FrameOutput;
 static void consumed(FrameOutput *frame, uint32_t pc) {
     if (!frame->managed) return;
@@ -429,6 +429,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_SUBSTR:
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_substr(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
         case OP_STR_CONCAT:
             pop(&frame, pc, "b"); pop(&frame, pc, "a");
             fprintf(out, " %%p%u_value = call %%V @managed_concat(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
@@ -479,7 +484,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             if (ins.opcode == OP_CAST_FLOAT) {
                 fprintf(out, " %%p%u_fp = call double @cast_floating(%%V %%p%u_a)\n %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc, pc, pc);
             } else {
-                fprintf(out, " %%p%u_result = call i64 @cast_integer(%%V %%p%u_a)\n", pc, pc);
+                fprintf(out, " %%p%u_result = call i64 @%scast_integer(%%V %%p%u_a)\n", pc, managed ? "managed_" : "", pc);
             }
             result(&frame, pc, ins.opcode == OP_CAST_FLOAT ? TAG_FLOAT : TAG_INT);
             break;

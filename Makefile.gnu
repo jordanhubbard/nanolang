@@ -4580,7 +4580,7 @@ test-managed-runtime-package: managed-runtime-package
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal
 
 .PHONY: test-managed-string-core
 test-managed-string-core:
@@ -4784,6 +4784,11 @@ test-native-string-equality-guards: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-string-equality-guards
 
+.PHONY: test-native-float-arrays
+test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_native_float_arrays
+test-units: test-native-float-arrays
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
@@ -4848,3 +4853,11 @@ test-units: test-native-record-array-scalar-tags
 test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_string_builtins
 test-units: test-canonical-string-builtins
+.PHONY: test-native-union-padding
+test-native-union-padding: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_union_padding
+
+.PHONY: test-canonical-filesystem
+test-canonical-filesystem: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_canonical_filesystem
+test-units: test-canonical-filesystem

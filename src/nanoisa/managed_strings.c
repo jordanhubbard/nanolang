@@ -218,6 +218,52 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
                      NmsHandle *out) {
     return create_parts(runtime, data, length, NULL, 0, out);
 }
+NmsStatus nms_parse_i64(const NmsRuntime *runtime, NmsHandle source, int64_t *out) {
+    NmsView view;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status != NMS_OK) return status;
+    if (!out) return NMS_STATE;
+    uint32_t i = 0;
+    while (i < view.length) {
+        unsigned char c = view.data[i];
+        if (c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != '\v' && c != '\f') break;
+        i++;
+    }
+    int negative = 0;
+    if (i < view.length && (view.data[i] == '-' || view.data[i] == '+')) {
+        negative = view.data[i] == '-';
+        i++;
+    }
+    uint64_t limit = negative ? (UINT64_C(1) << 63) : INT64_MAX;
+    uint64_t value = 0;
+    while (i < view.length) {
+        unsigned char c = view.data[i++];
+        if (c < '0' || c > '9') break;
+        uint64_t digit = c - '0';
+        if (value > (limit - digit) / 10) { value = limit; break; }
+        value = value * 10 + digit;
+    }
+    /* I never cast 2^63 to signed or negate INT64_MIN. */
+    *out = negative ? (value == (UINT64_C(1) << 63) ? INT64_MIN : -(int64_t)value)
+                    : (int64_t)value;
+    return NMS_OK;
+}
+NmsStatus nms_substr_owned(NmsRuntime *runtime, NmsHandle source,
+                           uint32_t start, uint32_t length, NmsHandle *out) {
+    NmsView view;
+    NmsHandle result = 0;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status == NMS_OK) {
+        if (start >= view.length) { start = 0; length = 0; }
+        else if (length > view.length - start) length = view.length - start;
+        status = out ? nms_create(runtime, length ? view.data + start : NULL, length, &result) : NMS_STATE;
+    }
+    NmsStatus released = nms_release(runtime, source);
+    if (status != NMS_OK) return status;
+    if (released != NMS_OK) { nms_release(runtime, result); return released; }
+    *out = result;
+    return NMS_OK;
+}
 NmsStatus nms_concat_owned(NmsRuntime *runtime, NmsHandle left, NmsHandle right,
                            NmsHandle *out) {
     NmsView a, b;

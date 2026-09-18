@@ -38,7 +38,7 @@ class FlatRecordEmitter(unittest.TestCase):
         cases = {
             'empty array': 'let value = []',
             'empty map': 'let value = (map_new)',
-            'unsupported array': 'let value = [1.5]',
+            'unsupported array': 'let value = [[1.5]]',
             'unknown initializer': 'let value = missing',
             'explicit mismatch': 'let value: int = 1.5',
         }
@@ -213,7 +213,7 @@ class FlatRecordEmitter(unittest.TestCase):
             refused = [
                 'let count: int = 1 fn main() -> int { set count 2 return count }',
                 'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
-                'let values: array<float> = [1.5] fn main() -> int { return 0 }',
+                'let values: array<array<float>> = [[1.5]] fn main() -> int { return 0 }',
                 'extern fn unavailable_array_host(path: string) -> array<string> '
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
                 'fn target() -> int { return 1 } let stored: fn() -> int = target '
@@ -464,7 +464,7 @@ class FlatRecordEmitter(unittest.TestCase):
             'struct Box { words: array<string> } fn main() -> Box { return Box { words: [1] } }',
             'struct Box { words: array<string> } fn main() -> Box { let xs: array<int> = [1] return Box { words: xs } }',
             'struct Box { value: int } fn main() -> Box { return Box { value: [1] } }',
-            'struct Box { flags: array<float> } fn main() -> Box { return Box { flags: [1.5] } }',
+            'struct Box { flags: array<array<float>> } fn main() -> Box { return Box { flags: [[1.5]] } }',
             'struct Box { nested: array<array<int>> } fn main() -> Box { return Box { nested: [[1]] } }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-array-record-refusal-") as tmp:
@@ -496,7 +496,7 @@ class FlatRecordEmitter(unittest.TestCase):
                 self.run_checked(ROOT / "bin/nvm2c", module, "-o", source)
                 self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary)
                 self.run_checked(binary)
-            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[1.5]'):
+            for expression in ('[(int_to_string 7), 8]', '[8, (int_to_string 7)]', '[[1]]', '[1, 1.5]'):
                 with self.subTest(expression=expression):
                     invalid = work / "invalid.nano"
                     output = work / "invalid.nasm"
@@ -614,7 +614,7 @@ class FlatRecordEmitter(unittest.TestCase):
             'fn main() -> int { (array_new 2 1 3) return 0 }',
             'fn main() -> int { (array_new "two" 1) return 0 }',
             'fn main() -> int { (array_new true 1) return 0 }',
-            'fn main() -> int { (array_new 2 1.5) return 0 }',
+            'fn main() -> int { (array_new 2 [1.5]) return 0 }',
             'fn main() -> int { (array_new 2 [1]) return 0 }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-filled-refusal-") as tmp:
@@ -1047,7 +1047,7 @@ class FlatRecordEmitter(unittest.TestCase):
 
     def test_unsupported_array_results_and_elements_are_refused(self):
         programs = [
-            'fn bad() -> array<float> { return [1.5] }',
+            'fn bad() -> array<array<float>> { return [[1.5]] }',
             'fn bad() -> array<array<int>> { return [[1]] }',
             'fn bad() -> array<string> { return [1] }',
             'fn bad() -> array<int> { return ["wrong"] }',

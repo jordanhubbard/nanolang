@@ -80,7 +80,7 @@ class GenericScalarComparisons(unittest.TestCase):
         self.compare(self.program('PUSH_BOOL 0\nCALL right\nEQ\nPOP\n',suffix),trap=True)
 
     def test_heap_refusal_preserves_output(self):
-        for prefix,body in [('.string text "text"\n','PUSH_STR text\nPUSH_I64 0\nPUSH_I64 1\nSTR_SUBSTR\nPOP\n')]:
+        for prefix,body in [('.string text "text"\n','PUSH_STR text\nPUSH_STR text\nSTR_CONTAINS\nPOP\n')]:
             module = self.module(prefix+self.program(body))
             self.run_cmd([llvm.VM,module])
             for translator in (llvm.LLVM,wasm.WASM):
