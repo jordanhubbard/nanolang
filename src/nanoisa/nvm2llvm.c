@@ -285,7 +285,7 @@ static void result(FrameOutput *frame, uint32_t pc, uint8_t tag) {
         " %%p%u_v = insertvalue %%V %%p%u_v0, i8 %u, 1\n", pc, pc, pc, pc, tag);
     push(frame, pc, "v");
 }
-static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed) {
+static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays) {
     FrameOutput frame = {.out = out, .managed = managed};
     const NvmFunctionEntry *f = &m->functions[index];
     fprintf(out, "define internal %s @f%u(", managed ? "%R" : f->result_count ? "%V" : "void", index);
@@ -441,20 +441,41 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_ARR_NEW:
+            fprintf(out, " %%p%u_value = call %%V @managed_array_new(i32 %u)\n", pc, ins.operands[0].u8);
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_PUSH:
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_array_push(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b");
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_SET:
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_array_set(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b"); transferred(&frame, "c");
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_POP:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_value_array_pop(%%V %%p%u_a)\n", pc, pc);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
         case OP_STR_SPLIT:
             pop(&frame, pc, "b"); pop(&frame, pc, "a");
-            fprintf(out, " %%p%u_value = call %%V @managed_split(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            fprintf(out, " %%p%u_value = call %%V @%s(%%V %%p%u_a, %%V %%p%u_b)\n", pc, mutable_arrays ? "managed_split_values" : "managed_split", pc, pc);
             transferred(&frame, "a"); transferred(&frame, "b");
             push(&frame, pc, "value");
             break;
         case OP_ARR_GET:
             pop(&frame, pc, "b"); pop(&frame, pc, "a");
-            fprintf(out, " %%p%u_value = call %%V @managed_array_get(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            fprintf(out, " %%p%u_value = call %%V @%s(%%V %%p%u_a, %%V %%p%u_b)\n", pc, mutable_arrays ? "managed_value_array_get" : "managed_array_get", pc, pc);
             push(&frame, pc, "value");
             break;
         case OP_ARR_LEN:
             pop(&frame, pc, "a");
-            fprintf(out, " %%p%u_result = call i64 @managed_array_length(%%V %%p%u_a)\n", pc, pc);
+            fprintf(out, " %%p%u_result = call i64 @%s(%%V %%p%u_a)\n", pc, mutable_arrays ? "managed_value_array_length" : "managed_array_length", pc);
             result(&frame, pc, TAG_INT);
             break;
         case OP_STR_REPLACE:
@@ -643,6 +664,7 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
     /* I size storage from every verified literal global operand, matching
      * VM module allocation. Verification bounds index+1 by NVM_MAX_GLOBALS. */
+    bool mutable_arrays = false;
     uint32_t global_count = 0;
     uint32_t initializer = m->function_count;
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -653,6 +675,8 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
+            mutable_arrays |= ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_PUSH ||
+                              ins.opcode == OP_ARR_SET || ins.opcode == OP_ARR_POP;
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
                 uint32_t count = ins.operands[0].u32 + 1;
                 if (count > global_count) global_count = count;
@@ -666,14 +690,14 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
     numeric_runtime(out);
-    if (managed) { managed_runtime(out); managed_literals(out, m); }
+    if (managed) { managed_runtime(out); if (mutable_arrays) managed_mutable_runtime(out); managed_literals(out, m); }
     else literal_runtime(out, m);
     comparison_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
         if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
-        function(out, m, i, depth, managed);
+        function(out, m, i, depth, managed, mutable_arrays);
     }
     if (managed) {
         managed_entry(out, m, entry, initializer, global_count);

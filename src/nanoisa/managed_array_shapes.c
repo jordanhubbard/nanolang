@@ -51,7 +51,7 @@ static int merge(Value *to, Value from) {
 }
 static int stop(Analysis *a, NvmArrayEligibilityStatus status, uint32_t f, uint32_t pc, const char *message) {
     a->result.status = status; a->result.function = f; a->result.pc = pc;
-    snprintf(a->result.message, sizeof a->result.message, "%s", message);
+    snprintf(a->result.message, sizeof a->result.message, "%.*s", (int)sizeof a->result.message - 1, message);
     return 0;
 }
 static int verified(Analysis *a, NvmVerifyResult result) {

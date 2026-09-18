@@ -22,6 +22,9 @@ int main(int argc,char **argv) {
     if(result.status!=NVM_ARRAY_ELIGIBLE && report!=&sentinel)return 3;
     if(result.status==NVM_ARRAY_ELIGIBLE && report==&sentinel)return 4;
     char *after=nanoisa_print(module);if(!after || strcmp(before,after))return 5;
+#ifdef NMA_TESTING
+    nvm_array_analysis_fail_after(UINT64_MAX);
+#endif
     NvmVerifyResult current=nvm_verify_profile(module,NVM_PROFILE_CLOSED_MANAGED_STRINGS);
     if(current.ok!=prior.ok || strcmp(current.error_msg,prior.error_msg))return 6;
     printf("%d %u %u %u %u %u\n",result.status,result.function,result.pc,
