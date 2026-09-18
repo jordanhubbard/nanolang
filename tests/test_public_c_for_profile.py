@@ -34,12 +34,12 @@ let value:string="outer"
 let mut count:int=0
 while (< count 4){set count (+ count 1) let value:int=count
 if (== value 2){continue}
-{let value:string="inner" (println value)}
+if true {let value:string="inner" (println value)}
 if (== value 3){break}}
 (println value)
 (println (int_to_string count))
 let number:int=7
-{let number:int=9 (println (int_to_string number))}
+if true {let number:int=9 (println (int_to_string number))}
 (println (int_to_string number))
 return 0}
 shadow main{assert true}
