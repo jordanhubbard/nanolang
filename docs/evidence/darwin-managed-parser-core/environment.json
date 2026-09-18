@@ -1,0 +1,7 @@
+{
+  "hostname": "CXWWHGGJX0",
+  "uname": "Darwin CXWWHGGJX0 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:17:26 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6041 arm64",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83",
+  "core_case_count": 1131,
+  "scope": "fresh exact managed core method; original timeout45 and LSan1/ASan/UBSan unchanged; wrapper retains artifacts/logs only"
+}
