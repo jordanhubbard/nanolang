@@ -1,0 +1,46 @@
+{
+  "pin": "177809ee504565ac8be66cad3232e859230fb43e",
+  "results": [
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "test-mixed-layout-view"
+      ],
+      "environment": {},
+      "status": 0,
+      "seconds": 0.4154508479987271
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-mixed-layout-view"
+      ],
+      "environment": {
+        "CC": "/tmp/nanolang-projection-clang",
+        "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 0.7157073200214654
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j2",
+        "test-retained-layouts",
+        "test-ownership-contracts",
+        "test-verifier",
+        "test-managed-record-plan"
+      ],
+      "environment": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 2.9216354189557023
+    }
+  ]
+}
