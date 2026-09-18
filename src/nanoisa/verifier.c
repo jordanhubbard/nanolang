@@ -1051,7 +1051,8 @@ static int profile_supported(uint8_t op) {
     }
 }
 NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile) {
-    if (profile != NVM_PROFILE_GENERAL && profile != NVM_PROFILE_CLOSED_SCALAR)
+    if (profile != NVM_PROFILE_GENERAL && profile != NVM_PROFILE_CLOSED_SCALAR &&
+        profile != NVM_PROFILE_CLOSED_LITERAL_STRINGS)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
@@ -1066,6 +1067,9 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return fail("I require a zero-argument scalar entry point");
+    const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS;
+    bool has_strings = false;
+    bool needs_string_runtime = false;
     bool initializer_seen = false;
     for (uint32_t i = 0; i < m->function_count; ++i) {
         const NvmFunctionEntry *f = &m->functions[i];
@@ -1076,17 +1080,29 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 return fail("I require a zero-argument scalar module initializer");
         }
         if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
-            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT))))
-            return fail("I require zero void results or one numeric/bool result and no captures in function %u", i);
-        for (uint16_t p = 0; p < f->arity; ++p)
-            if (m->function_param_types && m->function_param_types[i] && !profile_scalar(m->function_param_types[i][p]))
-                return fail("I require scalar parameters in function %u", i);
+            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT ||
+             (literal_profile && f->result_tag == TAG_STRING)))))
+            return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
+        has_strings |= f->result_count && f->result_tag == TAG_STRING;
+        for (uint16_t p = 0; p < f->arity; ++p) {
+            if (!m->function_param_types || !m->function_param_types[i]) continue;
+            uint8_t tag = m->function_param_types[i][p];
+            has_strings |= tag == TAG_STRING;
+            if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING))
+                return fail("I require admitted closed-profile parameters in function %u", i);
+        }
         for (uint32_t pc = 0; pc < f->code_length;) {
             DecodedInstruction ins = {0};
             uint32_t width = isa_decode(m->code + f->code_offset + pc, f->code_length - pc, &ins);
-            if (!width || !profile_supported(ins.opcode)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            has_strings |= ins.opcode == OP_PUSH_STR;
+            needs_string_runtime |= ins.opcode == OP_ADD || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT;
+            bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
+                              ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }
+    if (has_strings && needs_string_runtime)
+        return fail("I refuse ADD/CAST_INT/CAST_FLOAT in literal-string modules until managed string operations are lowered");
     return ok_result();
 }

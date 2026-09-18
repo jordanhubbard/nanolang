@@ -35,7 +35,14 @@ static void decision(const char *body,bool parameter,bool record_result,bool exp
     if(reason)CHECK(strstr(result.error_msg,reason));
     NvmVerifyResult admission=nvm_verify(m);
     CHECK(admission.ok==(expected && !parameter && !record_result));
-    if (!admission.ok) CHECK(strstr(admission.error_msg,expected?"execution semantics":"ownership instruction dataflow"));
+    if (!admission.ok) {
+        /* Failed affine analysis precedes runtime signature admission. */
+        const char *guard=expected
+            ? "entry and optional bounded borrowed-parameter scalar-result helper signatures"
+            : "ownership instruction dataflow";
+        if (!strstr(admission.error_msg,guard)) fprintf(stderr,"Admission reason: %s; expected: %s\n%s",admission.error_msg,guard,body);
+        CHECK(strstr(admission.error_msg,guard));
+    }
     nvm_module_free(m);
 }
 static void roundtrip(const char *body,const char *path) {

@@ -4477,7 +4477,7 @@ test-units: test-affine-bytecode
 test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode_alloc
 
@@ -4524,12 +4524,17 @@ test-llvm-scalar-globals: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/scalar_global_lifetime tests/nanoisa/scalar_global_lifetime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_llvm_scalar_globals
 
+.PHONY: test-llvm-literal-strings
+test-llvm-literal-strings: test-llvm-scalar-globals
+	$(CC) $(CFLAGS) -o obj/literal_string_aliases tests/nanoisa/literal_string_aliases.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_llvm_literal_strings
+
 .PHONY: nvm2wasm test-nvm2wasm
 nvm2wasm: nvm2llvm | bin
 	cp scripts/nvm2wasm.py bin/nvm2wasm
 	chmod +x bin/nvm2wasm
 
-test-nvm2wasm: test-llvm-scalar-globals test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
+test-nvm2wasm: test-llvm-literal-strings test-llvm-generic-numeric nvm2wasm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2wasm tests.test_scalar_truthiness tests.test_llvm_implicit_returns tests.test_scalar_u8 tests.test_u8_string_conversion tests.test_generic_scalar_comparisons
 .PHONY: test-owned-runtime
 test-units: test-owned-runtime
@@ -4698,6 +4703,24 @@ test-native-numeric-union: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
 
 test-units: test-native-numeric-union
 
+.PHONY: test-native-enum-scalars
+test-native-enum-scalars: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_enum_scalars
+
+test-units: test-native-enum-scalars
+
+.PHONY: test-native-u8-tail-results
+test-native-u8-tail-results: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_u8_tail_results
+
+test-units: test-native-u8-tail-results
+
+.PHONY: test-native-typed-enum
+test-native-typed-enum: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_typed_enum
+
+test-units: test-native-typed-enum
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
@@ -4746,3 +4769,8 @@ test-cseed-single-letter-enums: $(COMPILER_C) test-native-nominal-context
 	@python3 -m unittest -v tests.test_cseed_single_letter_enums
 
 test-units: test-cseed-single-letter-enums
+
+.PHONY: test-native-record-array-scalar-tags
+test-native-record-array-scalar-tags: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_record_array_scalar_tags
+test-units: test-native-record-array-scalar-tags

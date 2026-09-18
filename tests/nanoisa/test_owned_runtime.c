@@ -75,6 +75,27 @@ int main(int argc,char **argv) {
     execute("PUSH_BOOL 1\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nOWN_UNPACK_LOCAL 0\nRET\n",1,argv[1],5,TAG_BOOL);
     execute("PUSH_U8 255\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nOWN_UNPACK_LOCAL 0\nRET\n",255,argv[1],6,TAG_U8);
     execute("PUSH_I64 -9223372036854775808\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nOWN_UNPACK_LOCAL 0\nPUSH_I64 -1\nDIV\nRET\n",INT64_MIN,argv[1],7,TAG_INT);
+    /* A scalar local may exist on only one branch, provided no later read
+     * relies on it. Both runtime paths preserve and consume the same owner. */
+    for(unsigned branch=0;branch<2;branch++) {
+        char body[512];snprintf(body,sizeof(body),
+            "PUSH_I64 42\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nPUSH_BOOL %u\nJMP_FALSE joined\n"
+            "PUSH_BOOL 1\nSTORE_LOCAL 4\nLOAD_LOCAL 4\nASSERT\njoined:\nOWN_UNPACK_LOCAL 0\nRET\n",branch);
+        NvmModule *m=fixture(body,false,false);m->ownership_data[60]=TAG_BOOL;
+        execute_module(m,42,argv[1],8+branch,TAG_INT);
+    }
+    for(unsigned iterations=0;iterations<4;iterations+=3) {
+        char body[768];snprintf(body,sizeof(body),
+            "PUSH_I64 42\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nPUSH_I64 0\nSTORE_LOCAL 4\n"
+            "loop:\nLOAD_LOCAL 4\nPUSH_I64 %u\nLT\nJMP_FALSE done\n"
+            "LOAD_LOCAL 4\nSTORE_LOCAL 5\nLOAD_LOCAL 5\nPUSH_I64 1\nADD\nSTORE_LOCAL 4\nJMP loop\n"
+            "done:\nOWN_UNPACK_LOCAL 0\nLOAD_LOCAL 4\nADD\nRET\n",iterations);
+        NvmModule *m=fixture(body,false,false);
+        uint8_t *next=realloc(m->ownership_data,76);CHECK(next);m->ownership_data=next;
+        memset(next+68,0,8);slot(next+68,TAG_INT,NVM_V2_NO_INDEX);
+        m->ownership_size=76;next[16]=6;m->functions[0].local_count=6;
+        execute_module(m,42+iterations,argv[1],10+iterations/3,TAG_INT);
+    }
     refused(fixture("OWN_UNPACK_LOCAL 0\nRET\n",true,false),argv[1],0);
     refused(fixture("PUSH_I64 1\nOWN_PACK 0\nRET\n",false,true),argv[1],1);
     refused(fixture("CALL 0\nRET\n",false,false),argv[1],2);

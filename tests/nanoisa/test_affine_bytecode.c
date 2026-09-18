@@ -12,6 +12,10 @@ static unsigned checks;
 #define CHECK(c) do {checks++;assert(c);} while(0)
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
 static unsigned allocation_attempts, fail_at;
+static uint32_t forced_visit_limit;
+uint32_t affine_bytecode_test_visit_limit(uint32_t limit) {
+    return forced_visit_limit && forced_visit_limit<limit?forced_visit_limit:limit;
+}
 void *affine_bytecode_test_malloc(size_t size) {
     if (++allocation_attempts==fail_at) return NULL;
     return malloc(size);
@@ -69,6 +73,8 @@ static void analyze(const char *body,uint16_t params,uint16_t locals,const uint8
     NvmAffineAnalysis got=nvm_affine_analyze_function(m,0);
     if(got.ok!=accepted)fprintf(stderr,"Unexpected analysis: %s at%u\n%s",got.message,got.byte_offset,body);
     CHECK(got.ok==accepted);
+    CHECK(got.visits<=NVM_AFFINE_MAX_INSTRUCTIONS*((uint32_t)locals+1u));
+    CHECK(got.reachable<=NVM_AFFINE_MAX_INSTRUCTIONS);
     if(reason)CHECK(strstr(got.message,reason));
     CHECK(!memcmp(before,m->ownership_data,m->ownership_size));
     if(resource)CHECK(!nvm_verify(m).ok); /* Analysis never admits runtime. */
@@ -100,13 +106,57 @@ int main(void) {
     analyze("PUSH_I64 0\nSTORE_LOCAL 1\nloop:\nLOAD_LOCAL 1\nPUSH_I64 4\nLT\n"
             "JMP_FALSE done\nLOAD_LOCAL 1\nPUSH_I64 1\nADD\nSTORE_LOCAL 1\nJMP loop\n"
             "done:\nLOAD_LOCAL 1\nRET\n",0,2,scalar_tags,NULL,TAG_INT,false,true,NULL);
-    analyze("loop:\nPUSH_I64 1\nSTORE_LOCAL 1\nJMP loop\n",0,2,scalar_tags,NULL,TAG_VOID,false,false,"every join");
+    analyze("loop:\nPUSH_I64 1\nSTORE_LOCAL 1\nJMP loop\n",0,2,scalar_tags,NULL,TAG_VOID,false,true,NULL);
     analyze("LOAD_LOCAL 0\nRET\n",0,1,scalar_tags,NULL,TAG_INT,false,false,"live checked local");
     analyze("PUSH_BOOL 1\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nRET\n",0,1,scalar_tags,NULL,TAG_INT,false,false,"exact scalar local");
     analyze("PUSH_BOOL 1\nJMP_FALSE other\nPUSH_I64 1\nJMP joined\n"
             "other:\nPUSH_BOOL 1\njoined:\nPOP\nPUSH_I64 0\nRET\n",0,0,NULL,NULL,TAG_INT,false,false,"every join");
     analyze("PUSH_BOOL 1\nJMP_FALSE other\nPUSH_I64 1\nSTORE_LOCAL 0\nJMP joined\n"
-            "other:\nNOP\njoined:\nPUSH_I64 0\nRET\n",0,1,scalar_tags,NULL,TAG_INT,false,false,"every join");
+            "other:\nNOP\njoined:\nPUSH_I64 0\nRET\n",0,1,scalar_tags,NULL,TAG_INT,false,true,NULL);
+    /* I retain unused branch-local initialization and require every incoming
+     * path for any later load, independently of predecessor visitation order. */
+    analyze("PUSH_BOOL 1\nJMP_FALSE other\nNOP\nJMP joined\n"
+            "other:\nPUSH_I64 1\nSTORE_LOCAL 0\njoined:\nPUSH_I64 0\nRET\n",
+            0,1,scalar_tags,NULL,TAG_INT,false,true,NULL);
+    analyze("PUSH_BOOL 1\nJMP_FALSE other\nPUSH_I64 1\nSTORE_LOCAL 0\nJMP joined\n"
+            "other:\nPUSH_I64 2\nSTORE_LOCAL 0\njoined:\nLOAD_LOCAL 0\nRET\n",
+            0,1,scalar_tags,NULL,TAG_INT,false,true,NULL);
+    analyze("loop:\nPUSH_BOOL 0\nJMP_FALSE done\nPUSH_I64 3\nSTORE_LOCAL 0\nJMP loop\n"
+            "done:\nPUSH_I64 0\nRET\n",0,1,scalar_tags,NULL,TAG_INT,false,true,NULL);
+    analyze("loop:\nPUSH_BOOL 0\nJMP_FALSE done\nPUSH_I64 3\nSTORE_LOCAL 0\nJMP loop\n"
+            "done:\nLOAD_LOCAL 0\nRET\n",0,1,scalar_tags,NULL,TAG_INT,false,false,"live checked local");
+    for (unsigned initialized_target=0;initialized_target<2;initialized_target++) {
+        char body[2048];
+        const char *initialized="PUSH_I64 1\nSTORE_LOCAL 0\n";
+        const char *delayed="NOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\n";
+        snprintf(body,sizeof(body),"PUSH_BOOL 1\nJMP_FALSE other\n%sJMP joined\nother:\n%s"
+            "joined:\nNOP\nNOP\nLOAD_LOCAL 0\nRET\n",
+            initialized_target?delayed:initialized,initialized_target?initialized:delayed);
+        analyze(body,0,1,scalar_tags,NULL,TAG_INT,false,false,"live checked local");
+        /* The same normal diamond without a read converges by revisiting its
+         * already processed descendants after the delayed predecessor. */
+        char *load=strstr(body,"LOAD_LOCAL 0");CHECK(load);strcpy(load,"PUSH_I64 0\nRET\n");
+        NvmModule *m=fixture(body,0,1,scalar_tags,NULL,TAG_INT,false);
+        NvmAffineAnalysis got=nvm_affine_analyze_function(m,0);
+        CHECK(got.ok);CHECK(got.visits>got.reachable);
+        CHECK(got.visits<=got.reachable*2u);
+#ifdef AFFINE_BYTECODE_ALLOCATION_TEST
+        forced_visit_limit=got.visits-1;
+        NvmAffineAnalysis limited=nvm_affine_analyze_function(m,0);
+        CHECK(!limited.ok && strstr(limited.message,"visit count"));
+        CHECK(limited.visits==forced_visit_limit);forced_visit_limit=0;
+        CHECK(nvm_affine_analyze_function(m,0).ok);
+        if (!initialized_target) for (unsigned failure=1;;failure++) {
+            allocation_attempts=0;fail_at=failure;
+            NvmAffineAnalysis trial=nvm_affine_analyze_function(m,0);
+            fail_at=0;
+            if (trial.ok) {CHECK(allocation_attempts<failure);break;}
+            CHECK(failure<1000);CHECK(trial.message[0]);
+            CHECK(nvm_affine_analyze_function(m,0).ok);
+        }
+#endif
+        nvm_module_free(m);
+    }
     analyze("PUSH_I64 1\nPUSH_I64 2\nRET\n",0,0,NULL,NULL,TAG_INT,false,false,"extra return");
     analyze("PUSH_I64 1\nNOP\n",0,0,NULL,NULL,TAG_INT,false,false,"fallthrough");
     analyze("PUSH_I64 1\nJMP_TRUE end\nend:\nRET\n",0,0,NULL,NULL,TAG_INT,false,false,"Boolean branch");

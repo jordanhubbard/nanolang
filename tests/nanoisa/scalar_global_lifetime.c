@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     NanoisaErr error;
     NvmModule *m = nanoisa_load_file(argv[1], &error);
     if (!m) return 2;
-    if (!nvm_verify_profile(m, NVM_PROFILE_CLOSED_SCALAR).ok) {
+    if (!nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS).ok) {
         nvm_module_free(m); return 2;
     }
     if (argc == 3) {
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
             nvm_module_free(m); return 2;
         }
         m->functions[2].name_idx = m->functions[1].name_idx;
-        int ok = nvm_verify_profile(m, NVM_PROFILE_CLOSED_SCALAR).ok &&
+        int ok = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS).ok &&
                  nanoisa_save_file(m, argv[2], &error) == NANOISA_OK;
         nvm_module_free(m);
         return ok ? 0 : 1;

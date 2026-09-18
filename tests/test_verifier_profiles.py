@@ -29,24 +29,25 @@ class VerifierProfiles(unittest.TestCase):
             work = Path(tmp)
             for name, (assembly, general, scalar) in cases.items():
                 with self.subTest(case=name):
+                    literal = scalar or name in ('string_opcode', 'nonscalar_parameter')
                     source, module = work/'input.nasm', work/'input.nvm'
                     source.write_text(assembly)
                     built = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module], capture_output=True, text=True, timeout=30)
                     self.assertEqual(built.returncode, 0, built.stderr)
                     probe = subprocess.run([ROOT/'obj/test_verifier_profiles', module], capture_output=True, text=True, timeout=30)
                     self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
-                    self.assertEqual(probe.stdout.splitlines()[0], f'{int(general)} {int(scalar)} {int(scalar)} 1 1 1')
+                    self.assertEqual(probe.stdout.splitlines()[0], f'{int(general)} {int(scalar)} {int(literal)} 1 1 1')
                     # Successful Wasm execution belongs to test-nvm2wasm.
                     # Refused inputs must stop before requiring external LLVM tools.
                     tools = [('nvm2llvm', 'll')]
-                    if not scalar:
+                    if not literal:
                         tools.append(('nvm2wasm', 'wasm'))
                     for tool, suffix in tools:
                         output = work/f'previous.{suffix}'
                         output.write_bytes(b'previous artifact')
                         result = subprocess.run([ROOT/'bin'/tool, module, '-o', output], capture_output=True, timeout=30)
-                        self.assertEqual(result.returncode == 0, scalar, result.stderr)
-                        if scalar:
+                        self.assertEqual(result.returncode == 0, literal, result.stderr)
+                        if literal:
                             self.assertNotEqual(output.read_bytes(), b'previous artifact')
                         else:
                             self.assertEqual(output.read_bytes(), b'previous artifact')
