@@ -9172,7 +9172,7 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 
 Ownership and proposal closure:
 
-- [ ] I reconcile original frontend/borrow/private-record/AOT acceptance clauses against merged evidence without closing broader ownership or release parents (`task_9e43514b701c4869bf67c3d8d803662a`).
+- [x] I reconcile original frontend/borrow/private-record/AOT acceptance clauses against merged evidence without closing broader ownership or release parents (`task_9e43514b701c4869bf67c3d8d803662a`; [clause-to-evidence audit](ORIGINAL_ACCEPTANCE_RECONCILIATION.md)).
 
 - [x] I freeze one affine ownership contract before extending either compiler
       (`task_4ac22044ffda9f93b336a85573293bc2`). It resolves the current
@@ -9185,18 +9185,27 @@ Ownership and proposal closure:
       I superseded the cancelled task above with the merged growable
       `src/resource_flow.c` pass and its allocation/boundary corpus, rather
       than adopting the unmerged `c53e27a7` recovery prototype. I retain the
-      historical prototype defects in the evidence. The complete normative
-      matrix remains open under `task_c60a8d2e14b7494f8875e75b16e9b087` and
+      historical prototype defects in the evidence. The recovery ledger
+      `task_c60a8d2e14b7494f8875e75b16e9b087` is completed, but its broad
+      emitted-facts and full-matrix clauses remain under ownership ed702 and
       `task_28f2fb4b1f3c8a5ce93df628bb569d76`; partial frontend coverage does
-      not close it. [Checkpoint](evidence/affine-c-seed-flow.md),
+      not close that conjunction. [Checkpoint](evidence/affine-c-seed-flow.md),
       [subsequent paired flow](evidence/affine-selfhost-flow.md).
-- [ ] I implement the same resource syntax, analysis, and diagnostics in
-      `src_nano`; the self-hosted compiler does not inherit correctness from
-      the C seed (`task_20048de825616195b9f2bc492231a851`).
-      I first pin declaration, move, consuming-call, use-after-move, and
-      unresolved-scope decisions across the C seed and bootstrap stages in
-      `make test-affine-selfhost`; path-sensitive control flow follows the C
-      seed conformance corpus above rather than inventing a second contract.
+- [x] I qualify the original pinned resource syntax/analysis/diagnostic corpus
+      across the C seed and self-hosted bootstrap stages
+      (`task_20048de825616195b9f2bc492231a851`). The subsequent paired flow
+      checkpoint covers branches, loops, early returns and recursive nominal
+      classification; the [original-clause audit](ORIGINAL_ACCEPTANCE_RECONCILIATION.md)
+      preserves its supported-form and static-versus-runtime boundaries.
+      Full normative ownership acceptance remains under28/ed702 above.
+- [x] I qualify original call-scoped shared/exclusive nominal resource borrows
+      with actual caller identity, paired execution and the stated rejection
+      matrix (`task_71821d84befc46e198795122c1112a27`; [clause audit](ORIGINAL_ACCEPTANCE_RECONCILIATION.md#my-call-scoped-borrow-task718)).
+      Later IR/translator and full affine acceptance remain separate.
+- [x] I qualify the original native compiler AOT runtime milestone
+      (`task_707933e34e27f3bcd890a7664e21cf3e`) through the later complete
+      native self-generation [evidence](evidence/native-full-fixedpoint-host-owned.md).
+      Its old pinned fixed point does not close the current PR522 product gates.
 - [ ] I encode and verify ownership facts in `.nvm` v2, preserving them through
       serialization, linking, reconstruction, `nvm2c`, and every shipped
       translator (`task_ed70242ac4d83be7b2327da7ece387ad`).
@@ -10239,8 +10248,8 @@ Other translators:
   - [x] I connect shared leaf/graph eligibility, counted-owner pre-allocation safe points and acquired-entry preparation-failure cleanup under `docs/NANOISA_MANAGED_GRAPH_ADMISSION.md`, then qualify ordinary generated VM/native/Wasm cycles and pressure before closing task4070. I retain actual target artifacts and first failure logs.
   - [x] I prepare allocation-free collector workspace and qualify private graph lifecycle adapters before generated admission (task_c01fc72a78d74e108a5a55a417f4f9fc; checkpoints 1–2 of my graph-safe-point contract; reviewed production d05d4113, actual native/Wasm roots/rollback/pressure plus 61 managed and 27 shape methods pass; `docs/evidence/managed-graph-safepoints.md`).
 - [x] I guard ordinary VM STRUCT_NEW allocation before publication, using static repair followed by fresh ordinary lifecycle/fault acceptance (task_66983a5c5f9a4c869fc726824cf6a773). STRUCT_LITERAL/AGG_PACK already check allocation; I do not replay a failed artifact ([contract](NANOISA_STRUCT_NEW_ALLOCATION.md), [qualified evidence](evidence/vm-struct-new-allocation.md)).
-- [ ] I qualify authoritative ordinary-record descriptor mapping and private stable-handle fixed-field storage with exact child ownership and mixed record-array collection before opcode admission (task_2dcceeb7ef38459093baaf52cf642239; [contract](NANOISA_MANAGED_RECORD_CORE.md)). Global retained-layout indices and per-kind record ordinals remain distinct; source field provenance and matched lowering remain separate required steps under aggregate488.
-  - [x] I qualify the descriptive-only retained record plan, distinct global/per-kind identities, owned allocation rollback and canonical byte roundtrip; UNKNOWN authority and existing LLVM/Wasm refusals remain unchanged ([evidence](evidence/managed-record-plan.md)). Private storage/traversal remains open.
+- [x] I qualify authoritative ordinary-record descriptor mapping and private stable-handle fixed-field storage with exact child ownership and mixed record-array collection before opcode admission (task_2dcceeb7ef38459093baaf52cf642239; [contract](NANOISA_MANAGED_RECORD_CORE.md)). Global retained-layout indices and per-kind record ordinals remain distinct; source field provenance and matched lowering remain separate required steps under aggregate488.
+  - [x] I qualify the descriptive-only retained record plan, distinct global/per-kind identities, owned allocation rollback and canonical byte roundtrip; UNKNOWN authority and existing LLVM/Wasm refusals remain unchanged ([evidence](evidence/managed-record-plan.md)). The next completed checkpoint supplies private storage/traversal; nominal admission remains separate.
   - [x] I qualify the separate private record slot/descriptor binding, fixed-field ownership and mixed record-array traversal checkpoint before target admission; descriptor UNKNOWN authority remains unchanged ([checkpoint contract](NANOISA_MANAGED_RECORD_CORE.md#my-private-storage-api-checkpoint), [native/Wasm evidence](evidence/managed-record-storage.md)).
   - [ ] I establish explicit ordinary heap-bearing record authority before shared nominal admission; retained shape and absent ownership remain UNKNOWN, and existing affine/resource contracts are not weakened (task_15f955fae5cf402d92bf88794122e9a2; [staged contract](NANOISA_ORDINARY_RECORD_AUTHORITY.md)).
     - [x] I validate/query explicit ordinary scalar/string/prior-record declarations without relaxing transitive resource eligibility ([transport evidence](evidence/ordinary-record-authority.md)); no descriptor adapter or execution admission is implied.
