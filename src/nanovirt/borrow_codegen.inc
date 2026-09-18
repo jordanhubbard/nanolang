@@ -146,6 +146,20 @@ static void borrow_cleanup(BorrowCG *b,unsigned first) {
         }
     }
 }
+static bool borrow_consumed(BorrowCG *b,unsigned first,ASTNode *at) {
+    for(unsigned i=first;i<b->count;i++)
+        if(b->live[i] && b->tags[i]==TAG_STRUCT && !b->modes[i] && !b->disposal_pending[i]) {
+            borrow_error(b,at,"explicit source owner consumption at scope exit");return false;
+        }
+    return !b->cg->had_error;
+}
+static bool borrow_same_owners(BorrowCG *b,unsigned count,const bool *live,const bool *pending,ASTNode *at) {
+    for(unsigned i=0;i<count;i++)if(b->tags[i]==TAG_STRUCT &&
+       (b->live[i]!=live[i] || b->disposal_pending[i]!=pending[i])) {
+        borrow_error(b,at,"matching ownership on every reaching edge");return false;
+    }
+    return !b->cg->had_error;
+}
 static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     CG *cg=b->cg;if(cg->had_error || !n)return TAG_VOID;
     if(n->type==AST_NUMBER){emit_op(cg,OP_PUSH_I64,(int64_t)n->as.number);return TAG_INT;}
@@ -251,6 +265,9 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             b->control_depth--;
             if(cg->had_error)break;
             bool then_returns=b->returned;
+            bool then_live[256],then_disposal[256];
+            memcpy(then_live,b->live,incoming_count*sizeof(bool));
+            memcpy(then_disposal,b->disposal_pending,incoming_count*sizeof(bool));
             uint32_t next=UINT32_MAX;
             if(!then_returns)next=emit_op(cg,OP_JMP,(int32_t)0);
             patch_jump(cg,skip+1,skip,cg->code_size);
@@ -261,16 +278,19 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                     b->control_depth++;borrow_body(b,n->as.if_stmt.else_branch,shadow);b->control_depth--;
                 }
                 bool else_returns=b->returned;
-                memcpy(b->live,incoming_live,incoming_count*sizeof(bool));
-                memcpy(b->disposal_pending,incoming_disposal,incoming_count*sizeof(bool));
+                if(!then_returns) {
+                    if(!else_returns)borrow_same_owners(b,incoming_count,then_live,then_disposal,n);
+                    else {
+                        memcpy(b->live,then_live,incoming_count*sizeof(bool));
+                        memcpy(b->disposal_pending,then_disposal,incoming_count*sizeof(bool));
+                    }
+                }
                 b->returned=then_returns && else_returns;
                 if(!cg->had_error && next!=UINT32_MAX)patch_jump(cg,next+1,next,cg->code_size);
-            } else if(next!=UINT32_MAX)patch_jump(cg,next+1,next,top);
-        } else if(n->type==AST_LET) {
-            if(b->control_depth && (n->as.let.is_destructure || n->as.let.is_destructure_projection ||
-               (n->as.let.var_type!=TYPE_UNKNOWN && n->as.let.var_type!=TYPE_INT && n->as.let.var_type!=TYPE_BOOL))) {
-                borrow_error(b,n,"only lexical int/bool declarations inside control flow");break;
+            } else if(next!=UINT32_MAX) {
+                if(borrow_same_owners(b,incoming_count,then_live,then_disposal,n))patch_jump(cg,next+1,next,top);
             }
+        } else if(n->type==AST_LET) {
             if(n->as.let.is_destructure_projection && n->as.let.value->type==AST_FIELD_ACCESS &&
                n->as.let.value->as.field_access.object->type==AST_IDENTIFIER) {
                 ASTNode *field=n->as.let.value;
@@ -320,13 +340,13 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                         if(b->tags[slots[f]]==TAG_STRUCT)b->live[slots[f]]=false;
                     }
                     emit_op(cg,OP_OWN_PACK,(uint32_t)layout);
-                } else if(n->as.let.is_destructure && value->type==AST_IDENTIFIER) {
+                } else if(value->type==AST_IDENTIFIER) {
                     int old=borrow_local(b,value->as.identifier);
                     if(old<0 || !b->live[old] || b->modes[old] || b->tags[old]!=TAG_STRUCT || b->layouts[old]!=(uint32_t)layout) {
                         borrow_error(b,n,"an unborrowed exact owner for destructuring");break;
                     }
-                    emit_op(cg,OP_OWN_MOVE_LOCAL,old);b->live[old]=false;
-                } else {borrow_error(b,n,"a resource constructor or explicit destructive pattern");break;}
+                    emit_op(cg,OP_OWN_MOVE_LOCAL,old);b->live[old]=false;b->disposal_pending[old]=false;
+                } else {borrow_error(b,n,"a resource constructor, exact owner move or explicit destructive pattern");break;}
                 int slot=borrow_slot(b,n->as.let.name,TAG_STRUCT,(uint32_t)layout,0,n->as.let.is_mut);
                 emit_op(cg,OP_OWN_STORE_LOCAL,slot);
                 if(!n->as.let.is_destructure)borrow_name_begin(b,(unsigned)slot,n->as.let.name);
@@ -374,12 +394,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 emit_op(cg,OP_STORE_LOCAL,local);
             }
         } else if(n->type==AST_RETURN && !shadow) {
-            if(b->control_depth) {
-                for(unsigned local=0;local<b->count;local++)
-                    if(b->live[local] && b->tags[local]==TAG_STRUCT && !b->modes[local] && !b->disposal_pending[local])
-                        borrow_error(b,n,"explicit owner consumption before an early return");
-                if(cg->had_error)break;
-            }
+            if(!borrow_consumed(b,0,n))break;
             if(borrow_expr(b,n->as.return_stmt.value)!=b->result)borrow_error(b,n,"the declared scalar return type");
             borrow_cleanup(b,0);emit_op(cg,OP_RET);b->returned=true;
         } else if(n->type==AST_CALL) {
@@ -387,7 +402,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             emit_op(cg,OP_POP);
         } else {borrow_error(b,n,"straight-line let/set/assert/call/return statements");break;}
     }
-    if(shadow)borrow_cleanup(b,first);
+    if((shadow || b->control_depth) && borrow_consumed(b,first,body))borrow_cleanup(b,first);
     if(shadow || b->control_depth){borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
 }
 static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool shadows,unsigned index) {

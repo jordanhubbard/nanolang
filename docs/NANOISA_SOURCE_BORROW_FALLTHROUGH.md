@@ -11,8 +11,8 @@ constant condition.
 My first slice admits scalar early returns from borrowed helpers, whose caller
 retains ownership, and from entry paths after explicit top-level consumption
 of every owned local. I refuse an early return with a live owned local rather
-than introduce an implicit drop. Branch-local resource declarations, moves and
-destructuring remain refused. I snapshot and restore incoming local liveness
+than introduce an implicit drop. My [resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately
+admits explicitly consumed branch/loop resources and exact reaching joins. I snapshot and restore incoming local liveness
 between paths; the unchanged verifier checks exact ownership/reference/region
 facts and definite scalar initialization. Existing expression lowering closes
 borrow regions before returning its result.
@@ -30,6 +30,6 @@ entry returns after explicit disposal in VM and sanitized native output.
 Ordinary refusal controls retain live-owner, shadow-return, resource-move and
 missing-return boundaries without changing verifier authority.
 
-My explicit resource-path continuation is MAC `task_d74d8a4fb4a048a786666195eaa4e8d5`; it remains unimplemented here.
+My explicit resource-path extension is MAC `task_d74d8a4fb4a048a786666195eaa4e8d5`; its separate contract preserves the remaining assignment and partial-move refusals.
 
 My disposal-provenance prerequisite is MAC `task_6a55c8c1e40a4923804e20b450d32cdf`. Complete explicit leaf patterns may retain compiler holders until terminal cleanup; I distinguish these holders from unconsumed source owners with explicit slot metadata, never names.
