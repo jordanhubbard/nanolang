@@ -1,0 +1,7 @@
+# My emitted array helper qualification
+
+I complete the direct C runtime-helper evidence under task_3717eda847a74122916571444478ee0f through task_2e5b259d7c6144ed86493d3f24164ef2, following merged PR762. Typed source loops do not establish execution of my separate emitted helper functions.
+
+I compile the actual `generate_string_operations` provider with a test-only output sink, retain its unmodified generated text and execute the four array-pair and eight float broadcast entry points. My existing 68 fixed bit-pattern cases cover NaN operands, signed zero divisors, infinities, rounding and subnormals. I reuse their constant oracle, not host arithmetic, and observe inputs before and after. Existing recursive pair branches receive the same leaf controls; this does not admit new source shapes. Empty inputs, pair minimum lengths and ordinary integer/string neighbors retain their existing semantics.
+
+I release test-owned leaf arrays and containers separately under the existing non-owning nested-array convention. GCC and Clang strict C11 O0/O2 plus ASan/UBSan with leak checks qualify fresh generated artifacts. I retain unused emitted helpers through nonexecuting address references instead of disabling warnings. Source and compiler hashes stay frozen during checks. I preserve any failure before changing tests or production. No old failed artifact is replayed, no allocation-failure completeness or new native/LLVM/Wasm admission is claimed, and full release/reconstruction remains open.
