@@ -5034,3 +5034,11 @@ test-multiple-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 	./obj/test_multiple_consuming_preflight
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_refusals tests/nanoisa/test_multiple_consuming_refusals.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_multiple_consuming_calls
+
+.PHONY: test-owned-value-graphs
+test-units: test-owned-value-graphs
+test-owned-value-graphs: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_value_graphs tests/nanoisa/test_owned_value_graphs.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_value_graph_preflight tests/nanoisa/test_owned_value_graph_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_value_graph_preflight
+	python3 -m unittest -v tests.test_owned_value_graphs
