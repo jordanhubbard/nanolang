@@ -2960,20 +2960,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         infrastructure failures with injected regressions. MAC
         `task_4f84d7b8485a467da3909f79e2417233`. Evidence:
         `docs/evidence/selfhost-semantic-rejections.md`.
-        - [x] I preserve rejected artifacts at the shell caller boundary under
-          the same task. The first PR806 review found that the negative loop
-          deletes its fixed output before invoking the checked helper, so a
-          later suite run can erase the prior unexpected artifact and bypass
-          the helper's pre-existing-output refusal. I use fresh per-run
-          negative output and log paths, remove no prior negative output, and
-          require a caller-level regression that retains both the old fixed
-          artifact and a newly published rejected artifact. This harness-only
-          correction does not relabel the original qualification or require a
-          compiler bootstrap. My new caller regression first observed the old
-          fixed artifact missing after the shell suite, then passed with both
-          prior and newly rejected artifacts intact. Shell/Python checks and
-          all nine focused methods pass at production checkpoint `72f7268a`;
-          the original PR806 evidence remains pinned separately.
+      - [ ] I preserve prior failed artifacts at the shell caller boundary
+        (`task_ac3fa27024ac41d186bb1536133875ed`). Static review of PR806
+        found that its unconditional removal of the fixed negative output path
+        bypasses the new helper's pre-existing-artifact check. I retain prior
+        output/logs using fresh per-run paths or explicit refusal, and require
+        a caller-level regression before clearing the scoped review hold.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
