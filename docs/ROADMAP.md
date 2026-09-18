@@ -10028,6 +10028,11 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [ ] I match managed STR_FROM_INT/FLOAT exact-tag formatting and zero
+      fallback with existing portable formatters and original-operand cleanup.
+      MAC `task_b029d365b4334e7d9399e7230e37eeac`; my
+      [primitive format contract](NANOISA_MANAGED_PRIMITIVE_FORMAT.md) requires
+      paired targets and retains C-locale/default-rounding and interning limits.
 - [x] I check VM STR_FROM_INT/FLOAT formatter status/capacity, popped operand
       release and final allocation before publication. MAC `task_4ba402d50b864467bda1e8acf7dd601d`;
       my [format lifetime contract](NANOISA_PRIMITIVE_FORMAT_LIFETIME.md)
