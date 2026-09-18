@@ -1767,7 +1767,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             packed.origin = -1;
             packed.shape = shape_variable(b, b->shape_current);
             if (!shape_type(b, packed.shape, NVM_SHAPE_RECORD)) return 0;
-            packed.rec_k = sim_fields(b, NULL, NVM2C_VK_INT);
+            /* I have no value or scalar-kind evidence beyond this variant's
+             * declared payload width. Padding must not constrain its callers. */
+            packed.rec_k = sim_fields(b, NULL, ins.operands[0].u8 == AGG_VARIANT
+                                     ? NVM2C_VK_UNK : NVM2C_VK_INT);
             if (!packed.rec_k) return 0;
             if (count > b->record_width) {
                 nvm2c_fail(b, "function %u: AGG_PACK has too many fields", idx);
