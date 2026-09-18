@@ -1,0 +1,16 @@
+In file included from tests/test_emitted_array_binary64.c:2:
+/tmp/nanolang-emitted-array-clang-first/emitted_runtime.h:636:5: error: call to undeclared library function 'va_start' with type 'void (__builtin_va_list &, ...)'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  636 |     va_start(ap, n_args);
+      |     ^
+/tmp/nanolang-emitted-array-clang-first/emitted_runtime.h:636:5: note: include the header <stdarg.h> or explicitly provide a declaration for 'va_start'
+/tmp/nanolang-emitted-array-clang-first/emitted_runtime.h:642:31: error: call to undeclared function 'va_arg'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  642 |             const char *arg = va_arg(ap, const char *);
+      |                               ^
+/tmp/nanolang-emitted-array-clang-first/emitted_runtime.h:642:42: error: expected expression
+  642 |             const char *arg = va_arg(ap, const char *);
+      |                                          ^
+/tmp/nanolang-emitted-array-clang-first/emitted_runtime.h:650:5: error: call to undeclared library function 'va_end' with type 'void (__builtin_va_list &)'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  650 |     va_end(ap);
+      |     ^
+/tmp/nanolang-emitted-array-clang-first/emitted_runtime.h:650:5: note: include the header <stdarg.h> or explicitly provide a declaration for 'va_end'
+4 errors generated.
