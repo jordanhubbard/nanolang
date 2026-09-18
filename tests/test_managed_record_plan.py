@@ -15,9 +15,13 @@ class RecordPlan(unittest.TestCase):
             work=Path(temp)
             for compiler,flags in [('cc',[]),('clang',shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS',''))+['-fsanitize=address,undefined','-fno-sanitize-recover=all'])]:
                 executable=work/compiler;module=work/(compiler+'.nvm')
-                self.run_command([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-Isrc/nanoisa',
-                    'tests/nanoisa/test_managed_record_plan.c','src/nanoisa/retained_layouts.c','src/nanoisa/nvm_v2_layouts.c','src/nanoisa/nvm_v2_cursor.c',
-                    *shlex.split(os.environ['NRP_LINK_OBJECTS']),'-Wl,--wrap=calloc','-lm','-lcrypto','-o',executable])
+                common=[compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-Isrc/nanoisa']
+                objects=[]
+                for name in ('retained_layouts','nvm_v2_layouts','nvm_v2_cursor'):
+                    obj=work/(compiler+'-'+name+'.o');objects.append(obj)
+                    self.run_command([*common,'-Dcalloc=nrp_test_calloc','-c','src/nanoisa/'+name+'.c','-o',obj])
+                self.run_command([*common,'tests/nanoisa/test_managed_record_plan.c',*objects,
+                    *shlex.split(os.environ['NRP_LINK_OBJECTS']),'-lm','-lcrypto','-o',executable])
                 result=self.run_command([executable,module]);self.assertIn('record plan checks passed',result.stdout)
                 self.run_command([ROOT/'bin/nano_vm',module])
                 for tool in ('nvm2llvm','nvm2wasm'):

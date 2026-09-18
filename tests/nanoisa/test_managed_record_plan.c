@@ -13,11 +13,10 @@
 static unsigned checks;
 #define CHECK(x) do { checks++; assert(x); } while(0)
 static long budget=-1;
-extern void *__real_calloc(size_t,size_t);
-void *__wrap_calloc(size_t count,size_t size) {
+void *nrp_test_calloc(size_t count,size_t size) {
     if(budget==0)return NULL;
     if(budget>0)budget--;
-    return __real_calloc(count,size);
+    return calloc(count,size);
 }
 static void word(uint8_t *p,uint32_t x) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)(x>>(8*i));}
 static void expect(NvmModule *m,NvmRecordPlanStatus status) {
