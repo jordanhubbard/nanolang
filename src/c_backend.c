@@ -1308,8 +1308,10 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         const char *dot = node->as.struct_literal.struct_name
             ? strchr(node->as.struct_literal.struct_name, '.') : NULL;
         if (dot) {
-            size_t union_name_len = (size_t)(dot - node->as.struct_literal.struct_name);
-            const char *variant_name = dot + 1;
+            ASTNode *owner=ctx_union_value(c,node);
+            if(!owner || cb_local_owner(c,TYPE_UNION,owner->as.union_def.name,NULL)!=owner) return -1;
+            size_t union_name_len = strlen(owner->as.union_def.name);
+            const char *variant_name = node->as.struct_literal.struct_name + union_name_len + 1;
             fprintf(c->out, "(NanoUnion_%.*s){ .tag = NanoUnion_%.*s_TAG_%s",
                     (int)union_name_len, node->as.struct_literal.struct_name,
                     (int)union_name_len, node->as.struct_literal.struct_name,
@@ -1346,6 +1348,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 
     case AST_UNION_CONSTRUCT: {
+        ASTNode *owner=ctx_union_value(c,node);
+        if(!owner || cb_local_owner(c,TYPE_UNION,owner->as.union_def.name,NULL)!=owner) return -1;
         fprintf(c->out, "(NanoUnion_%s){ .tag = NanoUnion_%s_TAG_%s",
                 node->as.union_construct.union_name,
                 node->as.union_construct.union_name,
