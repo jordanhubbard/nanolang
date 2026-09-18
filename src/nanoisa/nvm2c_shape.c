@@ -221,7 +221,10 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
             if (!g->nodes[target - 1].conversion_kind) {
-                fail(g, "I cannot widen an exactly constrained scalar destination"); break;
+                snprintf(g->error_detail, sizeof g->error_detail,
+                         "I cannot widen an exactly constrained %s destination at nodes %u/%u (conversion %u/%u)",
+                         kind_name(to), source, target, conversion.source, conversion.target);
+                fail(g, g->error_detail); break;
             }
             /* I widen only inferred destination storage. Its old scalar kind
              * belongs to a fresh payload, never to the wrapper itself. */
