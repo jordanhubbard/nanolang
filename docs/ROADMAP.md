@@ -9951,6 +9951,14 @@ Other translators:
 - [ ] I implement portable string-to-binary64 parsing matching the closed VM
       strtod contract before admitting string CAST_FLOAT.
       MAC `task_4d2f69a19d754ac88876f93a0913d1fb`; required under managed parent51da.
+      Contract `docs/NANOISA_MANAGED_BINARY64_PARSE.md` pins syntax, exact
+      rounding, checked fixed-capacity arithmetic and all canonical target paths.
+- [ ] I normalize cross-host NaN numeric payloads to unsigned64 saturation
+      before portable parser admission, retaining the original Linux/Darwin logs.
+      MAC `task_89fd02e9aa4d4a4faca33ba5fbc2b703`; explicit Darwin behavior change.
+- [ ] I propagate the portable parser policy to legacy AST routes while
+      preserving strict endptr diagnostics and source bootstrap behavior.
+      MAC `task_9e93c1badb1a4da093a737b3a2c15ef7`; separate from canonical admission.
 - [x] I match managed decimal string-to-int conversion across LLVM/Wasm.
       MAC `task_34ce900cad86496b876bdf262b46bdaf`; contract
       `docs/NANOISA_MANAGED_STRING_INT.md`; [evidence](evidence/managed-decimal.md).
