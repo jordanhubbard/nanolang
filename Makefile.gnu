@@ -4649,6 +4649,13 @@ test-units: test-managed-array-eligibility
 test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes tests.test_managed_graph_origins
 
+.PHONY: test-managed-record-eligibility
+test-units: test-managed-record-eligibility
+test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
+
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
+
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
 test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump

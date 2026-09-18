@@ -143,3 +143,12 @@ New allocations made by this analysis report MEMORY precisely.
    literal roots, retained GET/shared SET, actual adapters, collection safe
    points and native/Wasm execution. Mixed record-array fields/contents and
    broader15f authority remain explicit later requirements, not closed here.
+
+## My pre-execution review correction
+
+Independent review of2a05f62c found that the implementation counted decoded
+state cells separately from record field cells despite the combined cap above.
+I correct this in88d873fd before any fixture execution: widened totals are
+checked before function-state allocation and before each record site is added.
+My boundary control keeps decoded states below the cap while their field
+summaries would exceed it. No failed artifact was produced or replayed.
