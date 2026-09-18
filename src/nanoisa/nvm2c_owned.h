@@ -10,8 +10,10 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&layouts)!=NVM_V2_OK ||
         !(state=nvm_affine_state_create(mod,function,fn->local_count))) goto fail;
     NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t parameter_count=0;
-    bool consuming=function && nvm_affine_consuming_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&parameter_count);
-    if (consuming && parameter_count!=fn->arity) goto fail;
+    bool value_graph=nvm_affine_value_call_graph(mod);
+    bool consuming=function && value_graph;
+    if (consuming && (!nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&parameter_count) ||
+                      parameter_count!=fn->arity)) goto fail;
     depth=malloc(code.instruction_count*sizeof(*depth));
     queue=malloc(code.instruction_count*sizeof(*queue));
     if (!depth || !queue) goto fail;
@@ -28,7 +30,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
             if (!nvm_affine_local_type(state,in->operands[0].u16,&type)) goto fail;
             pop=0;push=layouts.items[type.layout].field_count;
         }
-        if (op==OP_CALL) {pop=mod->functions[1].arity;push=1;}
+        if (op==OP_CALL) {pop=mod->functions[in->operands[0].u32].arity;push=1;}
         if (op==OP_RET) continue;
         if (pop<0 || push<0 || depth[i]<pop || depth[i]-pop+push>(int)NVM_AFFINE_MAX_STACK) goto fail;
         uint32_t targets[2],count=0;
@@ -65,21 +67,28 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         "  NOWN_FREE(v.record);\n }\n}\n"
         "static void nown_retain(nown_value v) { if(v.record) ++v.record->refs; }\n"
         "/* I return status separately so allocation failure still cleans every root. */\n");
-    if (!function && mod->function_count==2) {
-        char *helper=emit_owned_function(mod,1,err,err_len);
-        if(!helper) goto fail;
-        nvm2c_puts(&b,helper);free(helper);
+    if (!function) {
+        if (value_graph) for (uint32_t f=1;f<mod->function_count;f++)
+            nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,int64_t *result);\n",f);
+        for (uint32_t f=1;f<mod->function_count;f++) {
+            char *helper=emit_owned_function(mod,f,err,err_len);
+            if(!helper) goto fail;
+            nvm2c_puts(&b,helper);free(helper);
+        }
     }
-    nvm2c_puts(&b,function?(consuming?
-        "static int nown_helper(nown_value *origin,nown_value *argument,uint64_t caller_generation,uint64_t generation,int64_t *result) {\n":
-        "static int nown_helper(nown_value *origin,const nown_reference *borrowed,uint64_t caller_generation,uint64_t generation,int64_t *result) {\n"):
+    if (consuming)
+        nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,int64_t *result) {\n",function);
+    else nvm2c_puts(&b,function?
+        "static int nown_helper(nown_value *origin,const nown_reference *borrowed,uint64_t caller_generation,uint64_t generation,int64_t *result) {\n":
         "int nvm_owned_entry(int64_t *result) {\n");
     nvm2c_puts(&b,
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0};\n"
         " nown_reference refs[256]={{0}}; unsigned region=0;\n"
         " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region; (void)nown_referent;\n");
     if(function) {
-        nvm2c_puts(&b," nown_value *origins[2]={origin,l}; uint64_t generations[2]={caller_generation,generation};\n");
+        nvm2c_puts(&b,consuming?
+            " nown_value *origins[2]={NULL,l}; uint64_t generations[2]={0,generation}; (void)argument; (void)next_generation;\n":
+            " nown_value *origins[2]={origin,l}; uint64_t generations[2]={caller_generation,generation};\n");
         if(consuming) for(uint16_t p=0;p<parameter_count;p++)
             nvm2c_printf(&b," l[%u]=argument[%u]; argument[%u]=(nown_value){0};\n",p,p,p);
         for(uint16_t p=0;!consuming && p<fn->arity;p++) {
@@ -88,6 +97,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
             nvm2c_printf(&b," refs[%u]=borrowed[%u]; refs[%u].region=0; refs[%u].parent=UINT16_MAX; refs[%u].exclusive=%u;\n",p,p,p,p,p,mode==NVM_REFERENCE_EXCLUSIVE);
         }
     } else nvm2c_puts(&b," nown_value *origins[2]={l,NULL}; uint64_t generations[2]={1,0},next_generation=1; (void)next_generation;\n");
+    if (!function && value_graph) for (uint32_t f=1;f<mod->function_count;f++)
+        nvm2c_printf(&b," (void)nown_function_%u;\n",f);
     nvm2c_puts(&b," (void)origins; (void)generations; goto L0;\n");
     for (uint32_t i=0;i<code.instruction_count;i++) {
         if (depth[i]<0) continue;
@@ -96,8 +107,14 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         unsigned local=in->operands[0].u16;
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
-        case OP_CALL:
-            nvm2c_printf(&b," if(next_generation==UINT64_MAX){status=3;goto cleanup;}\n status=nown_helper(l,&t[%d],generations[0],++next_generation,&t[%d].scalar); if(status)goto cleanup;\n",n-mod->functions[1].arity,n-mod->functions[1].arity);break;
+        case OP_CALL: {
+            uint32_t target=in->operands[0].u32;
+            int first=n-mod->functions[target].arity;
+            const char *sequence=function?"*next_generation":"next_generation";
+            nvm2c_printf(&b," if(%s==UINT64_MAX){status=3;goto cleanup;}\n status=nown_function_%u(&t[%d],%s,++%s,&t[%d].scalar); if(status)goto cleanup;\n",
+                sequence,target,first,function?"next_generation":"&next_generation",sequence,first);
+            break;
+        }
         case OP_CALL_REF:
             nvm2c_printf(&b," if(next_generation==UINT64_MAX){status=3;goto cleanup;}\n status=nown_helper(l,&refs[%u],generations[0],++next_generation,&t[%d].scalar); if(status)goto cleanup;\n",in->operands[1].u16,n);break;
         case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;
@@ -111,7 +128,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
                 nvm_ownership_path(mod,in->operands[2].u32,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK) goto fail;
             nvm2c_printf(&b," refs[%u]=(nown_reference){.root=%u,.region=region,.exclusive=%u,.parent=65535,.depth=%u};\n",
                 local,in->operands[1].u16,exclusive,count);
-            nvm2c_printf(&b," refs[%u].origin=%u; refs[%u].generation=generations[%u];\n",local,function,local,function);
+            nvm2c_printf(&b," refs[%u].origin=%u; refs[%u].generation=generations[%u];\n",local,function?1u:0u,local,function?1u:0u);
             for (uint16_t j=0;j<count;j++) nvm2c_printf(&b," refs[%u].fields[%u]=%u;\n",local,j,fields[j]);
             break;
         }

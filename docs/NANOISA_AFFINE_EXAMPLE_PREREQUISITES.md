@@ -60,8 +60,8 @@ tracked and paused; they do not resolve this call topology.
 
 ## My first runtime prerequisite
 
-I propose at most eight functions and eight active frames in an otherwise
-standalone value-only owned module. Entry0 has no arguments. Other functions
+I admit at most eight functions and eight active frames in an otherwise
+standalone value-only owned module. Entry0 has no arguments and is never a call target. Other functions
 have 0..8 mode-zero parameters, each INT/BOOL/U8 or an exact complete resource
 STRUCT. Every function still returns exactly one INT/BOOL/U8. The module must
 retain complete ownership/layout metadata and an actual explicit owner
@@ -76,7 +76,9 @@ and reaching-edge facts remain exact except the already qualified scalar
 initialization meet. Every normal exit still explicitly consumes local owners.
 
 At a call I inspect the whole ordered argument list and reserve all required
-frame/context storage before activation or transfer. Prepared owners remain
+frame/context storage before activation or transfer. My bounded reference
+contexts are embedded in the VM state; no context allocation occurs after
+transfer. Prepared owners remain
 caller cleanup roots until activation. Each frame gets a fresh reference
 generation; equal local/ref slot numbers in callers, children and siblings do
 not identify the same owner. A caller's local-only hold may remain live while
@@ -102,4 +104,5 @@ all VM APIs and sanitized native execution of valid modules. I check graph,
 authority and signature refusals without executing rejected modules; I qualify
 preflight and terminal cleanup with corrected ordinary fixtures. Existing
 single/multiple consuming and borrowed call gates remain required. The
-proposal awaits review before production edits.
+first production checkpoint follows the reviewed contract; its new acceptance
+gates remain pending.

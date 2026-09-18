@@ -1139,9 +1139,19 @@ static inline VmTrap trap_halt(void) {
     return (VmTrap){ .type = TRAP_HALT };
 }
 
+static VmReferenceActivation *vm_reference_activation(VmState *vm,uint32_t frame) {
+    if (!frame) return &vm->references;
+    if (frame==1) return &vm->callee_references;
+    return frame<NVM_OWNED_MAX_FUNCTIONS?&vm->value_references[frame-2]:NULL;
+}
+static void vm_clear_reference_activations(VmState *vm) {
+    memset(&vm->references,0,sizeof(vm->references));
+    memset(&vm->callee_references,0,sizeof(vm->callee_references));
+    memset(vm->value_references,0,sizeof(vm->value_references));
+}
+
 static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...) {
-    memset(&vm->references, 0, sizeof(vm->references));
-    memset(&vm->callee_references, 0, sizeof(vm->callee_references));
+    vm_clear_reference_activations(vm);
     vm->last_error = err;
     va_list ap;
     va_start(ap, fmt);
@@ -1205,12 +1215,17 @@ VmTrap vm_core_execute(VmState *vm) {
     const bool owned_execution = vm->module->ownership_size &&
         nvm_verify_owned_module(vm->module).ok;
     if (owned_execution) {
-        if ((vm->frame_count!=1 || vm->current_fn!=0) &&
-            !(vm->frame_count==2 && vm->current_fn==1 && vm->references.active &&
-              vm->callee_references.active))
-            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one standalone reference activation");
+        if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
+            vm->frames[0].fn_idx!=0)
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a bounded standalone owned activation");
+        for (uint32_t i=0;i<vm->frame_count;i++) {
+            VmReferenceActivation *context=vm_reference_activation(vm,i);
+            if (vm->frames[i].module!=vm->module ||
+                ((i || vm->references.active) && !context->active))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require each active owned frame context");
+        }
         if (!vm->references.active) {
-            if (vm->ip!=vm->module->functions[0].code_offset)
+            if (vm->frame_count!=1 || vm->current_fn!=0 || vm->ip!=vm->module->functions[0].code_offset)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need reference activation entry before resuming");
             memset(&vm->references,0,sizeof(vm->references));
             vm->references.active=true;
@@ -1450,8 +1465,7 @@ vm_dispatch_top:
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
         }
-        VmReferenceActivation *reference_context=vm->frame_count==2
-            ? &vm->callee_references : &vm->references;
+        VmReferenceActivation *reference_context=vm_reference_activation(vm,vm->frame_count-1);
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
             vm, vm->module, &dispatch_valid);
@@ -1738,8 +1752,8 @@ vm_dispatch_top:
             if (!owned_execution || ref>=frame->local_count || !reference_context->slots[ref].live)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need a live reference slot");
             VmReferenceSlot slot=reference_context->slots[ref];
-            VmReferenceActivation *origin=slot.origin_frame==0?&vm->references:&vm->callee_references;
-            if (slot.origin_frame>=vm->frame_count || !origin->active ||
+            VmReferenceActivation *origin=vm_reference_activation(vm,slot.origin_frame);
+            if (slot.origin_frame>=vm->frame_count || !origin || !origin->active ||
                 origin->generation!=slot.origin_generation ||
                 slot.root>=vm->frames[slot.origin_frame].local_count)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I need the live originating reference frame");
@@ -2564,14 +2578,16 @@ dynamic_div:
                                   callee_idx, callee->arity);
             }
 
+            VmReferenceActivation *next_reference_context=NULL;
             if (owned_execution) {
-                if (vm->frame_count!=1 || vm->current_fn!=0 || callee_idx!=1 ||
-                    vm->callee_references.active || vm->reference_generation==UINT64_MAX)
-                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one checked consuming helper activation");
-                NvmAffineState *contract=nvm_affine_state_create(vm->module,1,callee->local_count);
+                next_reference_context=vm_reference_activation(vm,vm->frame_count);
+                if (!callee_idx || !next_reference_context || next_reference_context->active ||
+                    vm->reference_generation==UINT64_MAX)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked bounded owned value activation");
+                NvmAffineState *contract=nvm_affine_state_create(vm->module,callee_idx,callee->local_count);
                 if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate consuming parameter facts");
                 NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
-                bool valid=nvm_affine_consuming_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
+                bool valid=nvm_affine_value_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
                 nvm_affine_state_free(contract);
                 if (!valid || count!=callee->arity)
                     return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete consuming parameter contract");
@@ -2592,9 +2608,9 @@ dynamic_div:
 
             if (owned_execution) {
                 /* I publish the new activation only after the frame preflight. */
-                memset(&vm->callee_references,0,sizeof(vm->callee_references));
-                vm->callee_references.active=true;
-                vm->callee_references.generation=++vm->reference_generation;
+                memset(next_reference_context,0,sizeof(*next_reference_context));
+                next_reference_context->active=true;
+                next_reference_context->generation=++vm->reference_generation;
             }
 
             /* Allocate space for remaining locals */
@@ -2889,7 +2905,7 @@ vm_return_values: ;
                 }
             }
             if (owned_execution) {
-                VmReferenceActivation *finished=vm->frame_count==2?&vm->callee_references:&vm->references;
+                VmReferenceActivation *finished=vm_reference_activation(vm,vm->frame_count-1);
                 memset(finished,0,sizeof(*finished));
             }
             vm->stack_size -= returning->result_count;
@@ -4148,8 +4164,7 @@ vm_return_values: ;
             VM_NEXT();
 
         VM_CASE(OP_HALT)
-            memset(&vm->references,0,sizeof(vm->references));
-            memset(&vm->callee_references,0,sizeof(vm->callee_references));
+            vm_clear_reference_activations(vm);
             if (vm->profile.enabled) vm->profile.traps++;
             return trap_halt();
 
@@ -4538,8 +4553,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
     vm->activation_floor = floor;
     if (result!=VM_OK) {
-        memset(&vm->references,0,sizeof(vm->references));
-        memset(&vm->callee_references,0,sizeof(vm->callee_references));
+        vm_clear_reference_activations(vm);
         if (owned) {
             /* I unwind actual owners after an owned entry/helper failure.
              * Direct execution has no outer vm_invoke cleanup wrapper. */
@@ -4606,8 +4620,7 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
     status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable);
     if (status!=VM_OK && target->ownership_size) {
-        memset(&vm->references,0,sizeof(vm->references));
-        memset(&vm->callee_references,0,sizeof(vm->callee_references));
+        vm_clear_reference_activations(vm);
     }
     if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
