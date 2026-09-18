@@ -122,9 +122,9 @@ int main(void){return run();}
         self.node(wasm, 'for(let instance=0;instance<2;instance++){e=new WebAssembly.Instance(m).exports;check(e.nms_module_live_objects()===0n);for(let i=0;i<3;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===3n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);}')
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',wasm]).stdout, '0\n')
 
-    def test_mutation_refusals_preserve_output(self):
-        for op in ('ARR_NEW 5\nPOP\n', 'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_STR a\nARR_PUSH\nPOP\n',
-                   'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_I64 0\nPUSH_STR a\nARR_SET\nPOP\n'):
+    def test_unsupported_mutation_refusals_preserve_output(self):
+        for op in ('ARR_NEW 7\nPOP\n', 'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_NEW 1\nARR_PUSH\nPOP\n',
+                   'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_I64 0\nARR_NEW 1\nARR_SET\nPOP\n'):
             asm, mod, output = self.work/'refuse.nasm', self.work/'refuse.nvm', self.work/'old.ll'
             asm.write_text(self.program(op)); self.run_cmd([ROOT/'bin/nanoisa','asm',asm,'-o',mod])
             output.write_text('previous output')

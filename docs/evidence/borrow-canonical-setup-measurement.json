@@ -1,0 +1,71 @@
+{
+  "source": "63c26ecd2723f8c480eaba4b25ebdf797f4764bd",
+  "compiler_sha256": "4743fcad623cfec07dff8079d5582c3765d66eb8496e9dd5c8e99f4d09c193a5",
+  "input_sha256": "b895ab0c65f914d916ea9252207e1e3582008e836f723f430ecc4cbe1c2bc42d",
+  "steps": [
+    {
+      "name": "compile",
+      "command": [
+        "/home/jkh/Src/nanolang-nanoisa-only-product/bin/nanoc_stage2",
+        "/home/jkh/Src/nanolang-nanoisa-only-product/src_nano/nanoisa_emit.nano",
+        "-o",
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/emitter"
+      ],
+      "limit": 900,
+      "status": 0,
+      "seconds": 459.369,
+      "log_sha256": "7141f0eb9781c3f72a5db43b1eccfc301b5c99afde17108ae08e9b073978399f"
+    },
+    {
+      "name": "emit",
+      "command": [
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/emitter",
+        "/home/jkh/Src/nanolang-nanoisa-only-product/tests/nanoisa/fixtures/source_borrow_shared.nano",
+        "-o",
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/control.nasm"
+      ],
+      "limit": 180,
+      "status": 0,
+      "seconds": 0.032,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "assemble",
+      "command": [
+        "/home/jkh/Src/nanolang-nanoisa-only-product/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/control.nasm",
+        "-o",
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/control.nvm"
+      ],
+      "limit": 180,
+      "status": 0,
+      "seconds": 0.004,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "verify",
+      "command": [
+        "/home/jkh/Src/nanolang-nanoisa-only-product/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/control.nvm"
+      ],
+      "limit": 180,
+      "status": 0,
+      "seconds": 0.005,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "execute",
+      "command": [
+        "/home/jkh/Src/nanolang-nanoisa-only-product/bin/nano_vm",
+        "/tmp/nanolang-borrow-setup-measure-63c26ecd/control.nvm"
+      ],
+      "limit": 180,
+      "status": 0,
+      "seconds": 0.004,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "compiler_unchanged": true
+}

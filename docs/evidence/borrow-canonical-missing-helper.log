@@ -1,0 +1,301 @@
+test_borrowed_names_and_stripped_execution (qualified_source_borrow_emission.SourceBorrowEmission.test_borrowed_names_and_stripped_execution) ... ok
+test_both_producers_and_native_stages_preserve_exact_contracts (qualified_source_borrow_emission.SourceBorrowEmission.test_both_producers_and_native_stages_preserve_exact_contracts) ... ok
+test_consumed_owner_reassignment_preserves_paths_and_names (qualified_source_borrow_emission.SourceBorrowEmission.test_consumed_owner_reassignment_preserves_paths_and_names) ... ERROR
+test_control_flow_depth_boundary (qualified_source_borrow_emission.SourceBorrowEmission.test_control_flow_depth_boundary) ... ok
+test_control_flow_preserves_exact_joins_and_effects (qualified_source_borrow_emission.SourceBorrowEmission.test_control_flow_preserves_exact_joins_and_effects) ... ERROR
+test_control_flow_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_control_flow_refusals_preserve_publication) ... ok
+test_explicit_resource_paths_preserve_exact_joins (qualified_source_borrow_emission.SourceBorrowEmission.test_explicit_resource_paths_preserve_exact_joins) ... ERROR
+test_false_borrowed_helper_cleans_actual_caller_owners (qualified_source_borrow_emission.SourceBorrowEmission.test_false_borrowed_helper_cleans_actual_caller_owners) ... ok
+test_false_shadow_and_unsupported_graph_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_false_shadow_and_unsupported_graph_preserve_publication) ... ok
+test_lexical_scalar_visibility_refusals (qualified_source_borrow_emission.SourceBorrowEmission.test_lexical_scalar_visibility_refusals) ... ok
+test_lexical_scalars_restore_outer_bindings_and_names (qualified_source_borrow_emission.SourceBorrowEmission.test_lexical_scalars_restore_outer_bindings_and_names) ... ERROR
+test_loop_exits_preserve_exact_owners_and_innermost_targets (qualified_source_borrow_emission.SourceBorrowEmission.test_loop_exits_preserve_exact_owners_and_innermost_targets) ... ERROR
+test_multiple_parameter_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_multiple_parameter_refusals_preserve_publication) ... ok
+test_multiple_parameters_preserve_callers_and_metadata (qualified_source_borrow_emission.SourceBorrowEmission.test_multiple_parameters_preserve_callers_and_metadata) ... ERROR
+test_nested_depth_boundary (qualified_source_borrow_emission.SourceBorrowEmission.test_nested_depth_boundary) ... ok
+test_nested_paths_preserve_trees_and_callers (qualified_source_borrow_emission.SourceBorrowEmission.test_nested_paths_preserve_trees_and_callers) ... ERROR
+test_nested_source_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_nested_source_refusals_preserve_publication) ... ok
+test_owned_suffix_and_synthetic_name_collision (qualified_source_borrow_emission.SourceBorrowEmission.test_owned_suffix_and_synthetic_name_collision) ... ok
+test_owner_reassignment_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_owner_reassignment_refusals_preserve_publication) ... ok
+test_range_for_preserves_bounds_scope_and_exact_edges (qualified_source_borrow_emission.SourceBorrowEmission.test_range_for_preserves_bounds_scope_and_exact_edges) ... ERROR
+test_range_for_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_range_for_refusals_preserve_publication) ... ok
+test_resource_path_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_resource_path_refusals_preserve_publication) ... ok
+test_return_path_refusals_preserve_publication (qualified_source_borrow_emission.SourceBorrowEmission.test_return_path_refusals_preserve_publication) ... ok
+test_return_paths_preserve_ownership_and_fallthrough (qualified_source_borrow_emission.SourceBorrowEmission.test_return_paths_preserve_ownership_and_fallthrough) ... ERROR
+test_selected_shadows_execute_and_preserve_suffix_identity (qualified_source_borrow_emission.SourceBorrowEmission.test_selected_shadows_execute_and_preserve_suffix_identity) ... ok
+test_shadow_names_close_before_next_selected_scope (qualified_source_borrow_emission.SourceBorrowEmission.test_shadow_names_close_before_next_selected_scope) ... ERROR
+
+======================================================================
+ERROR: test_consumed_owner_reassignment_preserves_paths_and_names (qualified_source_borrow_emission.SourceBorrowEmission.test_consumed_owner_reassignment_preserves_paths_and_names)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 461, in test_consumed_owner_reassignment_preserves_paths_and_names
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_control_flow_preserves_exact_joins_and_effects (qualified_source_borrow_emission.SourceBorrowEmission.test_control_flow_preserves_exact_joins_and_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 256, in test_control_flow_preserves_exact_joins_and_effects
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_explicit_resource_paths_preserve_exact_joins (qualified_source_borrow_emission.SourceBorrowEmission.test_explicit_resource_paths_preserve_exact_joins)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 305, in test_explicit_resource_paths_preserve_exact_joins
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_lexical_scalars_restore_outer_bindings_and_names (qualified_source_borrow_emission.SourceBorrowEmission.test_lexical_scalars_restore_outer_bindings_and_names)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 598, in test_lexical_scalars_restore_outer_bindings_and_names
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_loop_exits_preserve_exact_owners_and_innermost_targets (qualified_source_borrow_emission.SourceBorrowEmission.test_loop_exits_preserve_exact_owners_and_innermost_targets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 343, in test_loop_exits_preserve_exact_owners_and_innermost_targets
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_multiple_parameters_preserve_callers_and_metadata (qualified_source_borrow_emission.SourceBorrowEmission.test_multiple_parameters_preserve_callers_and_metadata)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 174, in test_multiple_parameters_preserve_callers_and_metadata
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_nested_paths_preserve_trees_and_callers (qualified_source_borrow_emission.SourceBorrowEmission.test_nested_paths_preserve_trees_and_callers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 632, in test_nested_paths_preserve_trees_and_callers
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_range_for_preserves_bounds_scope_and_exact_edges (qualified_source_borrow_emission.SourceBorrowEmission.test_range_for_preserves_bounds_scope_and_exact_edges)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 381, in test_range_for_preserves_bounds_scope_and_exact_edges
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_return_paths_preserve_ownership_and_fallthrough (qualified_source_borrow_emission.SourceBorrowEmission.test_return_paths_preserve_ownership_and_fallthrough)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 547, in test_return_paths_preserve_ownership_and_fallthrough
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+======================================================================
+ERROR: test_shadow_names_close_before_next_selected_scope (qualified_source_borrow_emission.SourceBorrowEmission.test_shadow_names_close_before_next_selected_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 135, in test_shadow_names_close_before_next_selected_scope
+    assembly.write_text(self.command(tool, *args).stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-borrow-canonical-setup/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=timeout)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-nanoisa-only-product/obj/borrow_shadow_names'
+
+----------------------------------------------------------------------
+Ran 26 tests in 1144.402s
+
+FAILED (errors=10)

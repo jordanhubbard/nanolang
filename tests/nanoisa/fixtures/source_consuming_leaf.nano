@@ -1,0 +1,39 @@
+resource struct Leaf { value: int, active: bool }
+fn take(owner: Leaf) -> int {
+ let observed: int = owner.value
+ let extra: Leaf = Leaf { value: 2, active: true }
+ assert (== extra.value 2)
+ let Leaf { active, value } = extra
+ assert active assert (== value 2)
+ let Leaf { value, active } = owner
+ assert (== observed value)
+ if active { return value } else { return (- 0 value) }
+}
+shadow take {
+ let owner: Leaf = Leaf { active: true, value: 42 }
+ assert (== (take owner) 42)
+ let owner: Leaf = Leaf { value: 3, active: false }
+ assert (== (take owner) -3)
+}
+fn main() -> int {
+ let mut total: int = 0
+ let mut index: int = 0
+ while (< index 3) {
+  let owner: Leaf = Leaf { value: index, active: true }
+  set total (+ total (take owner))
+  set index (+ index 1)
+ }
+ assert (== total 3)
+ let first: Leaf = Leaf { value: 7, active: true }
+ if true { assert (== (take first) 7) } else { assert (== (take first) 7) }
+ let next: Leaf = Leaf { active: false, value: 8 }
+ assert (== (take next) -8)
+ let mut empty: int = 0
+ while (< empty 0) {
+  let local: Leaf = Leaf { value: 1, active: true }
+  assert (== (take local) 1)
+  set empty (+ empty 1)
+ }
+ return 0
+}
+shadow main { assert true }
