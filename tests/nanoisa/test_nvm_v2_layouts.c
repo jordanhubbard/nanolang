@@ -2,9 +2,8 @@
  * Unit tests for the v2 LAYOUTS section.
  *
  * The property this section exists to guarantee is that the table is acyclic:
- * every nested layout index points at a lower-numbered entry. Anything walking
- * the table trusts that, so a forward or self reference has to be rejected at
- * decode rather than discovered by recursing forever.
+ * prior-only tables retain their old path; forward all-record tables require
+ * an exact DAG. Structural success does not establish execution authority.
  */
 
 #include <stdio.h>
@@ -12,6 +11,25 @@
 #include <stdlib.h>
 #include "nvm_v2_sections.h"
 #include "isa.h"
+
+/* I fault only this private copy of the actual codec, not unrelated helpers. */
+static long layout_budget=-1;
+static void *layout_calloc(size_t n,size_t width) {
+    if(layout_budget==0)return NULL;
+    if(layout_budget>0)layout_budget--;
+    return calloc(n,width);
+}
+#define calloc layout_calloc
+#define nvm_v2_layouts_decode fault_layout_decode
+#define nvm_v2_layouts_free fault_layout_free
+#define nvm_v2_layouts_encode fault_layout_encode
+#define nvm_v2_layouts_encoded_size fault_layout_size
+#include "../../src/nanoisa/nvm_v2_layouts.c"
+#undef calloc
+#undef nvm_v2_layouts_decode
+#undef nvm_v2_layouts_free
+#undef nvm_v2_layouts_encode
+#undef nvm_v2_layouts_encoded_size
 
 static int g_pass = 0, g_fail = 0;
 
@@ -188,8 +206,53 @@ static void test_encode_into_a_short_buffer_is_rejected(void) {
                  "encoding into too small a buffer is rejected");
 }
 
+static void test_forward_dag_and_allocation_boundary(void) {
+    NvmV2LayoutField root[2]={{TAG_STRUCT,1,10},{TAG_STRUCT,2,11}};
+    NvmV2LayoutField left={TAG_STRUCT,3,12},right={TAG_STRUCT,3,13};
+    NvmV2LayoutField leaf={TAG_STRING,NVM_V2_NO_INDEX,14};
+    NvmV2Layout entries[5]={{0,2,1,root},{0,1,2,&left},{0,1,3,&right},
+                           {0,1,4,&leaf},{0,0,5,NULL}};
+    NvmV2Layouts source={entries,5},got={0};uint8_t bytes[256],again[256];
+    size_t length=nvm_v2_layouts_encoded_size(&source);
+    CHECK_RESULT(nvm_v2_layouts_encode(&source,bytes,sizeof bytes),NVM_V2_OK,"forward diamond encodes");
+    CHECK_RESULT(nvm_v2_layouts_decode(bytes,length,&got),NVM_V2_OK,"exact forward diamond decodes");
+    CHECK(got.count==5 && got.items[0].fields[0].nested_idx==1 &&
+          got.items[0].fields[1].nested_idx==2 && got.items[2].fields[0].nested_idx==3,
+          "same-shaped intermediate records retain distinct indices");
+    CHECK_RESULT(nvm_v2_layouts_encode(&got,again,sizeof again),NVM_V2_OK,"DAG reencodes");
+    CHECK(!memcmp(bytes,again,length),"exact DAG bytes roundtrip");nvm_v2_layouts_free(&got);
+    /* One table, four field arrays, then colors and stack: fail each allocation. */
+    for(long limit=0;limit<7;limit++) {
+        layout_budget=limit;
+        CHECK_RESULT(fault_layout_decode(bytes,length,&got),NVM_V2_ERR_TRUNCATED,"DAG allocation failure refuses");
+        CHECK(!got.items && !got.count,"DAG failure publishes no table");
+    }
+    layout_budget=7;CHECK_RESULT(fault_layout_decode(bytes,length,&got),NVM_V2_OK,"DAG complete allocation budget");
+    fault_layout_free(&got);layout_budget=-1;
+    right.nested_idx=0;
+    nvm_v2_layouts_encode(&source,bytes,sizeof bytes);
+    CHECK_RESULT(nvm_v2_layouts_decode(bytes,length,&got),NVM_V2_ERR_INDEX_RANGE,"cycle refuses");
+    right.nested_idx=3;entries[4].kind=NVM_V2_LAYOUT_ENUM;
+    nvm_v2_layouts_encode(&source,bytes,sizeof bytes);
+    CHECK_RESULT(nvm_v2_layouts_decode(bytes,length,&got),NVM_V2_ERR_INDEX_RANGE,"forward mixed-kind table refuses");
+    entries[4].kind=NVM_V2_LAYOUT_STRUCT;leaf.type_tag=TAG_ARRAY;
+    nvm_v2_layouts_encode(&source,bytes,sizeof bytes);
+    CHECK_RESULT(nvm_v2_layouts_decode(bytes,length,&got),NVM_V2_ERR_INDEX_RANGE,"forward unsupported leaf refuses");
+    leaf.type_tag=TAG_STRING;left.nested_idx=NVM_V2_NO_INDEX;
+    nvm_v2_layouts_encode(&source,bytes,sizeof bytes);
+    CHECK_RESULT(nvm_v2_layouts_decode(bytes,length,&got),NVM_V2_ERR_INDEX_RANGE,"record edge needs exact child");
+    /* Existing prior-only mixed-kind table still needs only its original allocations. */
+    NvmV2LayoutField prior={TAG_STRUCT,0,NVM_V2_NO_INDEX};
+    NvmV2Layout mixed[2]={{NVM_V2_LAYOUT_ENUM,0,0,NULL},{NVM_V2_LAYOUT_TUPLE,1,1,&prior}};
+    source=(NvmV2Layouts){mixed,2};length=nvm_v2_layouts_encoded_size(&source);
+    nvm_v2_layouts_encode(&source,bytes,sizeof bytes);layout_budget=2;
+    CHECK_RESULT(fault_layout_decode(bytes,length,&got),NVM_V2_OK,"prior-only mixed table allocation budget unchanged");
+    CHECK(layout_budget==0,"prior-only path performs no DFS allocations");fault_layout_free(&got);layout_budget=-1;
+}
+
 int main(void) {
     printf("\n[nvm_v2_layouts] LAYOUTS section tests...\n\n");
+    test_forward_dag_and_allocation_boundary();
     test_round_trips_a_nested_layout();
     test_forward_nested_reference_is_rejected();
     test_self_nested_reference_is_rejected();
