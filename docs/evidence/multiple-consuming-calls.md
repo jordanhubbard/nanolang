@@ -81,4 +81,30 @@ had prepared cases0 through4; I retain
 classify that timeout as a compiler correctness failure or a passing gate.
 I retain the ordinary 16-repeat default. A separate instrumented qualification
 uses `MULTIPLE_CONSUMING_REPEATS=2`, preserving all eight cases, all four APIs,
-reentry and every lifecycle assertion; its result remains pending.
+reentry and every lifecycle assertion. That separate run passes all eight
+cases and 1,462 checks in 147.650 seconds with ASan, UBSan and leak detection.
+I compile all NanoVM/NanoISA translation units and the test driver at `-O0`
+with `-fsanitize=address,undefined -fno-omit-frame-pointer`; compiler/common
+support objects retain their ordinary build. I retain
+`/tmp/nanolang-multiple-consuming-sanitizers-two-repeats.log` and the exact
+build procedure `/tmp/nanolang-multiple-consuming-sanitizers.py`.
+
+My final integration `8a95a8f6` retains main `43ef9d3d` (PR716 component
+completion and PR718 separate managed-array runtime work). Only the roadmap
+needed manual additive resolution; I retain both component and consuming
+entries and keep merged source task c520 checked. The consuming production
+remains unchanged. At `aac0ae10`, refreshed ordinary GCC qualification passes
+two methods in 6.344 seconds, including 4,542 lifecycle checks, 210 heap-fault
+checks, 216 preflight checks and 65 publication refusal checks. Clang18 passes
+the same two methods in 5.403 seconds. My single-owner and verifier gates also
+pass after integration. Logs:
+`/tmp/nanolang-multiple-consuming-final-integrated.log` and
+`/tmp/nanolang-multiple-consuming-integrated-clang.log`.
+
+My ordinary command is `make -j4 test-multiple-consuming-calls`; its default
+remains 16 repetitions for each API. The separate sanitizer build defines
+`MULTIPLE_CONSUMING_REPEATS=2`, which still requires repeated invocations.
+My native compiler comparison is
+`CC=clang-18 python3 -m unittest -v tests.test_multiple_consuming_calls`.
+I do not present the separate sanitizer result as completion of the original
+600-second run, or this runtime gate as source admission.
