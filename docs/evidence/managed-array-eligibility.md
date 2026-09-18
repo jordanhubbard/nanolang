@@ -69,3 +69,11 @@ with `make test-managed-array-eligibility test-verifier-profiles test-llvm-manag
 The analysis/probe are instrumented in the Clang run; linked existing NanoISA
 objects keep their normal build flags. This does not claim a sanitizer rebuild
 of every existing parser/verifier dependency.
+
+I restacked onto main `9f272756` and tested integrated head `e7fb4c3a`.
+Analysis/header/tests remain byte-identical to frozen `24b9d134`; upstream
+changes add independent source-helper ownership and scalar reconstruction.
+The integrated private analysis passed all 12 methods in 1.311 seconds and
+profiles passed in 0.387 seconds (`/tmp/nanolang-array-eligibility-integrated.log`).
+Independent source review found no scoped blocker. This remains a shape-only
+report; every later adapter must preserve runtime tag/error/ownership semantics.
