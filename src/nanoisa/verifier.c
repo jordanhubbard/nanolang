@@ -1029,10 +1029,10 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
 }
 
 /* I preserve the original scalar translator eligibility as one shared policy. */
-static int profile_scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
+static int profile_scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT || tag == TAG_ENUM; }
 static int profile_supported(uint8_t op) {
     switch (op) {
-    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
+    case OP_ENUM_VAL: case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
     case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
     case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
@@ -1056,7 +1056,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
-    if (m->import_count || m->module_ref_count || m->struct_count || m->enum_count || m->union_count ||
+    if (m->import_count || m->module_ref_count || m->struct_count || m->union_count ||
         m->ownership_size || m->passive_size || m->layout_size)
         return fail("I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
     if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
@@ -1080,7 +1080,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 return fail("I require a zero-argument scalar module initializer");
         }
         if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
-            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT ||
+            (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_ENUM || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT ||
              (literal_profile && f->result_tag == TAG_STRING)))))
             return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
         has_strings |= f->result_count && f->result_tag == TAG_STRING;

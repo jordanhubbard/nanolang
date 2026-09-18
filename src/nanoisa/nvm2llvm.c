@@ -18,6 +18,13 @@ static void runtime(FILE *out) {
         "define internal i64 @integer(%V %v, i8 %expected) {\n"
         " %tag = extractvalue %V %v, 1\n %ok = icmp eq i8 %tag, %expected\n"
         " call void @check(i1 %ok)\n %x = extractvalue %V %v, 0\n ret i64 %x\n}\n"
+        "define internal %V @enum_integer(%V %v) {\n"
+        " %tag = extractvalue %V %v, 1\n %enum = icmp eq i8 %tag, 9\n"
+        " %integer_tag = select i1 %enum, i8 1, i8 %tag\n"
+        " %answer = insertvalue %V %v, i8 %integer_tag, 1\n ret %V %answer\n}\n"
+        "define internal i64 @binary_integer(%V %v) {\n"
+        " %normalized = call %V @enum_integer(%V %v)\n"
+        " %answer = call i64 @integer(%V %normalized, i8 1)\n ret i64 %answer\n}\n"
         "define internal %V @pop(ptr %stack, ptr %sp) {\n"
         " %old = load i64, ptr %sp\n %n = sub i64 %old, 1\n store i64 %n, ptr %sp\n"
         " %p = getelementptr %V, ptr %stack, i64 %n\n %v = load %V, ptr %p\n ret %V %v\n}\n"
@@ -54,7 +61,8 @@ static void float_runtime(FILE *out) {
         " %bits = extractvalue %V %v, 0\n %tag = extractvalue %V %v, 1\n"
         " %float = icmp eq i8 %tag, 3\n br i1 %float, label %fp, label %scalar\n"
         "fp:\n %x = bitcast i64 %bits to double\n ret double %x\n"
-        "scalar:\n %answer = sitofp i64 %bits to double\n ret double %answer\n}\n"
+        "scalar:\n %enum = icmp eq i8 %tag, 9\n %ordinal = select i1 %enum, i64 0, i64 %bits\n"
+        " %answer = sitofp i64 %ordinal to double\n ret double %answer\n}\n"
         "define internal double @float_divide(double %a, double %b) {\nentry:\n"
         " %zero = fcmp oeq double %b, 0.000000e+00\n br i1 %zero, label %z, label %divide\n"
         "z:\n ret double 0.000000e+00\ndivide:\n %answer = fdiv double %a, %b\n ret double %answer\n}\n", out);
@@ -66,8 +74,10 @@ static void numeric_runtime(FILE *out) {
     const char *integer_ops[] = {"add", "sub", "mul"};
     const char *float_ops[] = {"fadd", "fsub", "fmul"};
     for (unsigned op = 0; op < 4; op++) {
-        fprintf(out, "define internal %%V @numeric_%s(%%V %%a, %%V %%b) {\nentry:\n", names[op]);
-        fputs(" %at = extractvalue %V %a, 1\n %bt = extractvalue %V %b, 1\n"
+        fprintf(out, "define internal %%V @numeric_%s(%%V %%original_a, %%V %%original_b) {\nentry:\n", names[op]);
+        fputs(" %a = call %V @enum_integer(%V %original_a)\n"
+              " %b = call %V @enum_integer(%V %original_b)\n"
+              " %at = extractvalue %V %a, 1\n %bt = extractvalue %V %b, 1\n"
               " %ai = icmp eq i8 %at, 1\n %bi = icmp eq i8 %bt, 1\n"
               " %af = icmp eq i8 %at, 3\n %bf = icmp eq i8 %bt, 3\n"
               " %an = or i1 %ai, %af\n %bn = or i1 %bi, %bf\n"
@@ -167,6 +177,10 @@ static void comparison_runtime(FILE *out) {
         " %at = extractvalue %V %a, 1\n"
         " %bt = extractvalue %V %b, 1\n"
         " %same = icmp eq i8 %at, %bt\n"
+        " %ae = icmp eq i8 %at, 9\n %be = icmp eq i8 %bt, 9\n"
+        " %ai = icmp eq i8 %at, 1\n %bi = icmp eq i8 %bt, 1\n"
+        " %ei = and i1 %ae, %bi\n %ie = and i1 %ai, %be\n"
+        " %enum_int = or i1 %ei, %ie\n %compatible = or i1 %same, %enum_int\n"
         " %as = icmp eq i8 %at, 5\n %strings = and i1 %same, %as\n"
         " br i1 %strings, label %string_pair, label %scalars\nstring_pair:\n"
         " %string_result = call i64 @string_order(%V %a, %V %b)\n"
@@ -176,7 +190,7 @@ static void comparison_runtime(FILE *out) {
         " %payload = icmp eq i64 %av, %bv\n"
         " %void = icmp eq i8 %at, 0\n"
         " %value = or i1 %void, %payload\n"
-        " %answer = and i1 %same, %value\n"
+        " %answer = and i1 %compatible, %value\n"
         " ret i1 %answer\n"
         "}\n"
         "define internal i64 @scalar_order(%V %a, %V %b) {\n"
@@ -196,6 +210,10 @@ static void comparison_runtime(FILE *out) {
         " %at = extractvalue %V %a, 1\n"
         " %bt = extractvalue %V %b, 1\n"
         " %same = icmp eq i8 %at, %bt\n"
+        " %ae = icmp eq i8 %at, 9\n %be = icmp eq i8 %bt, 9\n"
+        " %ai = icmp eq i8 %at, 1\n %bi = icmp eq i8 %bt, 1\n"
+        " %ei = and i1 %ae, %bi\n %ie = and i1 %ai, %be\n"
+        " %enum_int = or i1 %ei, %ie\n %compatible = or i1 %same, %enum_int\n"
         " %as = icmp eq i8 %at, 5\n %strings = and i1 %same, %as\n"
         " br i1 %strings, label %string_pair, label %scalars\nstring_pair:\n"
         " %string_result = call i64 @string_order(%V %a, %V %b)\n"
@@ -208,11 +226,12 @@ static void comparison_runtime(FILE *out) {
         " %g = zext i1 %greater to i64\n"
         " %payload = sub i64 %g, %l\n"
         " %void = icmp eq i8 %at, 0\n"
-        " %value = select i1 %void, i64 0, i64 %payload\n"
+        " %enums = and i1 %ae, %be\n %zero_order = or i1 %void, %enums\n"
+        " %value = select i1 %zero_order, i64 0, i64 %payload\n"
         " %ati = zext i8 %at to i64\n"
         " %bti = zext i8 %bt to i64\n"
         " %tags = sub i64 %ati, %bti\n"
-        " %answer = select i1 %same, i64 %value, i64 %tags\n"
+        " %answer = select i1 %compatible, i64 %value, i64 %tags\n"
         " ret i64 %answer\n"
         "}\n"
         , out);
@@ -247,12 +266,12 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         fprintf(out, "b%u:\n", pc);
         switch (ins.opcode) {
         case OP_NOP: break;
-        case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
+        case OP_ENUM_VAL: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
             int64_t float_bits = 0;
             if (ins.opcode == OP_PUSH_F64) memcpy(&float_bits, &ins.operands[0].f64, sizeof float_bits);
             fprintf(out, " call void @push(ptr %%stack, ptr %%sp, %%V { i64 %" PRId64 ", i8 %u })\n",
-                ins.opcode == OP_PUSH_U8 ? (int64_t)ins.operands[0].u8 : ins.opcode == OP_PUSH_F64 ? float_bits : ins.opcode == OP_PUSH_I64 ? ins.operands[0].i64 : ins.opcode == OP_PUSH_BOOL ? (int64_t)(ins.operands[0].u8 != 0) : 0,
-                ins.opcode == OP_PUSH_U8 ? TAG_U8 : ins.opcode == OP_PUSH_F64 ? TAG_FLOAT : ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
+                ins.opcode == OP_ENUM_VAL ? (int64_t)ins.operands[1].u16 : ins.opcode == OP_PUSH_U8 ? (int64_t)ins.operands[0].u8 : ins.opcode == OP_PUSH_F64 ? float_bits : ins.opcode == OP_PUSH_I64 ? ins.operands[0].i64 : ins.opcode == OP_PUSH_BOOL ? (int64_t)(ins.operands[0].u8 != 0) : 0,
+                ins.opcode == OP_ENUM_VAL ? TAG_ENUM : ins.opcode == OP_PUSH_U8 ? TAG_U8 : ins.opcode == OP_PUSH_F64 ? TAG_FLOAT : ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
             break;
         }
         case OP_PUSH_STR:
@@ -423,8 +442,13 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             int boolean = ins.opcode == OP_BOOL_NOT || ins.opcode == OP_BOOL_AND || ins.opcode == OP_BOOL_OR;
             if (!unary) pop(out, pc, "b");
             pop(out, pc, "a");
-            fprintf(out, " %%p%u_x = call i64 @integer(%%V %%p%u_a, i8 %u)\n", pc, pc, boolean ? TAG_BOOL : TAG_INT);
-            if (!unary) fprintf(out, " %%p%u_y = call i64 @integer(%%V %%p%u_b, i8 %u)\n", pc, pc, boolean ? TAG_BOOL : TAG_INT);
+            if (!unary && !boolean) {
+                fprintf(out, " %%p%u_x = call i64 @binary_integer(%%V %%p%u_a)\n"
+                             " %%p%u_y = call i64 @binary_integer(%%V %%p%u_b)\n", pc, pc, pc, pc);
+            } else {
+                fprintf(out, " %%p%u_x = call i64 @integer(%%V %%p%u_a, i8 %u)\n", pc, pc, boolean ? TAG_BOOL : TAG_INT);
+                if (!unary) fprintf(out, " %%p%u_y = call i64 @integer(%%V %%p%u_b, i8 %u)\n", pc, pc, boolean ? TAG_BOOL : TAG_INT);
+            }
             const char *op = NULL, *comparison = NULL;
             switch (ins.opcode) {
             case OP_I64_ADD: op="add"; break; case OP_I64_SUB: op="sub"; break; case OP_I64_MUL: op="mul"; break;
