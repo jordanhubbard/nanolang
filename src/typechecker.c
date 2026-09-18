@@ -4221,6 +4221,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Code generation may ask again without a function-checking context. */
             if (!active_statement_checker && expr->as.match_expr.result_type_checked)
                 return expr->as.match_expr.result_type;
+            expr->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
+            expr->as.match_expr.scrutinee_type_checked = false;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
             bool has_int_patterns_expr;
@@ -4295,6 +4297,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 free(union_concrete_name);
                 return TYPE_UNKNOWN;
             }
+            expr->as.match_expr.checked_scrutinee_type = match_type;
+            expr->as.match_expr.scrutinee_type_checked = true;
             
             if (expr->as.match_expr.union_type_name) {
                 free(expr->as.match_expr.union_type_name);
@@ -5662,6 +5666,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
              * (The expression-mode match checker uses a temporary TypeChecker without
              * current_function_return_type initialized, which can produce spurious errors.)
             */
+            stmt->as.match_expr.checked_scrutinee_type = TYPE_UNKNOWN;
+            stmt->as.match_expr.scrutinee_type_checked = false;
             Type match_type = check_expression(stmt->as.match_expr.expr, tc->env);
             bool has_int_patterns_stmt;
             bool has_variant_patterns_stmt;
@@ -5732,6 +5738,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 free(union_concrete_name);
                 return TYPE_VOID;
             }
+            stmt->as.match_expr.checked_scrutinee_type = match_type;
+            stmt->as.match_expr.scrutinee_type_checked = true;
 
             if (stmt->as.match_expr.union_type_name) {
                 free(stmt->as.match_expr.union_type_name);
