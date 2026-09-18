@@ -53,3 +53,26 @@ retains its exact pin when only the C checker changes.
 
 I close only this prerequisite after reviewed canonical merge. The broader
 collection callback, function-value, scalar policy and release work stays open.
+
+## My retained global-signature prerequisite
+
+I record task_cc6eebea1f7c4d2880c8517ffff501a3 before repair. My frozen
+6a9265f9 checker/bootstrap and NanoVirt controls pass, but the exact callback
+suite refuses its explicitly annotated mutable global function value. Both
+top-level passes publish as.let.type_info while function syntax retains the
+signature separately in as.let.fn_sig. My local statement checker already
+creates an AST-owned TYPE_FUNCTION wrapper for that signature.
+
+I factor that existing wrapper into a checked helper and call it from local
+and both top-level declaration paths. I allocate only for an explicit function
+annotation lacking a wrapper, preserve the direct signature alias, and leave
+all ownership with the AST as before. Allocation failure marks the checker
+failed before symbol publication. I do not fall back to a same-named function
+or alter assignment/signature compatibility. I test main/module global
+bindings and the original ordinary post-initializer mutation control; the
+indirect native boundary remains unchanged. Global signature compatibility
+beyond this retention repair remains within my open callable requirements.
+
+I retain the original GCC19 and Clang8 logs. The three adjacent arithmetic
+subtest setup errors identify a missing nvm2llvm binary; I build it explicitly
+before repeating that method. They do not establish a compiler defect.
