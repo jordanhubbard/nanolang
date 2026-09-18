@@ -55,3 +55,7 @@ build test test-docs test-doc-md examples clean help install uninstall coverage 
 		printf '\nERROR: GNU make is required but "gmake" was not found.\n\n'; \
 		exit 1; \
 	fi
+
+.PHONY: test-checked-owner-selection
+test-checked-owner-selection: bootstrap bin/nano_asm bin/nano_vm bin/nvm2c
+	python3 -m unittest -v tests.test_checked_owner_selection
