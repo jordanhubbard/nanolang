@@ -49,9 +49,10 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         "typedef struct nown_record nown_record;\n"
         "typedef struct { int64_t scalar; nown_record *record; } nown_value;\n"
         "struct nown_record { size_t refs, count; nown_value fields[]; };\n"
-        "typedef struct { unsigned root,region,exclusive,parent,depth; uint16_t fields[32]; } nown_reference;\n"
-        "static nown_record *nown_referent(nown_value *locals,const nown_reference *ref) {\n"
-        " nown_record *record=locals[ref->root].record;\n"
+        "typedef struct { unsigned root,region,exclusive,parent,depth,origin; uint64_t generation; uint16_t fields[32]; } nown_reference;\n"
+        "static nown_record *nown_referent(nown_value *const origins[2],const uint64_t generations[2],const nown_reference *ref) {\n"
+        " if(ref->origin>1 || !origins[ref->origin] || ref->generation!=generations[ref->origin])return NULL;\n"
+        " nown_record *record=origins[ref->origin][ref->root].record;\n"
         " for(unsigned i=0;i<ref->depth;i++) record=record->fields[ref->fields[i]].record;\n"
         " return record;\n}\n"
         "static void nown_release(nown_value v) {\n"
@@ -66,21 +67,21 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm2c_puts(&b,helper);free(helper);
     }
     nvm2c_puts(&b,function?
-        "static int nown_helper(nown_value *origin,const nown_reference *borrowed,int64_t *result) {\n":
+        "static int nown_helper(nown_value *origin,const nown_reference *borrowed,uint64_t caller_generation,uint64_t generation,int64_t *result) {\n":
         "int nvm_owned_entry(int64_t *result) {\n");
     nvm2c_puts(&b,
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0};\n"
         " nown_reference refs[256]={{0}}; unsigned region=0;\n"
         " int status=0; (void)a; (void)c; (void)nown_retain; (void)refs; (void)region; (void)nown_referent;\n");
     if(function) {
-        nvm2c_puts(&b," (void)origin;\n");
+        nvm2c_puts(&b," nown_value *origins[2]={origin,l}; uint64_t generations[2]={caller_generation,generation};\n");
         for(uint16_t p=0;p<fn->arity;p++) {
             NvmAffineType param;NvmReferenceMode mode;
             if(!nvm_affine_parameter_at(state,p,&param,&mode)) goto fail;
             nvm2c_printf(&b," refs[%u]=borrowed[%u]; refs[%u].region=0; refs[%u].parent=UINT16_MAX; refs[%u].exclusive=%u;\n",p,p,p,p,p,mode==NVM_REFERENCE_EXCLUSIVE);
         }
-    }
-    nvm2c_puts(&b," goto L0;\n");
+    } else nvm2c_puts(&b," nown_value *origins[2]={l,NULL}; uint64_t generations[2]={1,0},next_generation=1; (void)next_generation;\n");
+    nvm2c_puts(&b," (void)origins; (void)generations; goto L0;\n");
     for (uint32_t i=0;i<code.instruction_count;i++) {
         if (depth[i]<0) continue;
         const VmDecodedInstruction *d=&code.instructions[i];
@@ -89,7 +90,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
         case OP_CALL_REF:
-            nvm2c_printf(&b," status=nown_helper(l,&refs[%u],&t[%d].scalar); if(status)goto cleanup;\n",in->operands[1].u16,n);break;
+            nvm2c_printf(&b," if(next_generation==UINT64_MAX){status=3;goto cleanup;}\n status=nown_helper(l,&refs[%u],generations[0],++next_generation,&t[%d].scalar); if(status)goto cleanup;\n",in->operands[1].u16,n);break;
         case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;
         case OP_REGION_END:
             nvm2c_puts(&b," for(unsigned r=0;r<256;r++) if(refs[r].region==region) refs[r].region=0;\n --region;\n");break;
@@ -101,6 +102,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
                 nvm_ownership_path(mod,in->operands[2].u32,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK) goto fail;
             nvm2c_printf(&b," refs[%u]=(nown_reference){.root=%u,.region=region,.exclusive=%u,.parent=65535,.depth=%u};\n",
                 local,in->operands[1].u16,exclusive,count);
+            nvm2c_printf(&b," refs[%u].origin=%u; refs[%u].generation=generations[%u];\n",local,function,local,function);
             for (uint16_t j=0;j<count;j++) nvm2c_printf(&b," refs[%u].fields[%u]=%u;\n",local,j,fields[j]);
             break;
         }
@@ -108,9 +110,9 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
             nvm2c_printf(&b," refs[%u]=refs[%u]; refs[%u].region=region; refs[%u].exclusive=%u; refs[%u].parent=%u;\n",
                 local,in->operands[1].u16,local,local,op==OP_REBORROW_EXCLUSIVE,local,in->operands[1].u16);break;
         case OP_REF_GET:
-            nvm2c_printf(&b," t[%d]=nown_referent(%s,&refs[%u])->fields[%u];\n",n,function?"origin":"l",local,in->operands[1].u16);break;
+            nvm2c_printf(&b," { nown_record *record=nown_referent(origins,generations,&refs[%u]); if(!record){status=3;goto cleanup;} t[%d]=record->fields[%u]; }\n",local,n,in->operands[1].u16);break;
         case OP_REF_SET:
-            nvm2c_printf(&b," nown_referent(%s,&refs[%u])->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",function?"origin":"l",local,in->operands[1].u16,n-1,n-1);break;
+            nvm2c_printf(&b," { nown_record *record=nown_referent(origins,generations,&refs[%u]); if(!record){status=3;goto cleanup;} record->fields[%u]=t[%d]; t[%d]=(nown_value){0}; }\n",local,in->operands[1].u16,n-1,n-1);break;
         case OP_NOP: break;
         case OP_PUSH_I64:
             nvm2c_printf(&b," t[%d]=(nown_value){(int64_t)UINT64_C(%llu),NULL};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64);break;
