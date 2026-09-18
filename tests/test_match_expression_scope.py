@@ -30,6 +30,9 @@ shadow main { assert (== (main) 0) }
                     result = subprocess.run(args, cwd=ROOT, text=True, capture_output=True, timeout=180)
                     if not accepted:
                         self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                        diagnostics = result.stdout + result.stderr
+                        self.assertRegex(diagnostics, r"(?i)(variable named `payload`|current scope: payload)")
+                        self.assertNotRegex(diagnostics, r"(?i)(parse error|parsing failed|unexpected token)")
                         self.assertEqual(output.read_bytes(), b'prior output')
                         continue
                     self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
@@ -63,6 +66,17 @@ shadow check { assert (== (check Choice.None {}) 3) }
   None(empty) => 0
  }
  return (+ number payload)
+}
+shadow check { assert (== (check Choice.Some { number: 7 }) 10) }
+''')
+
+    def test_generic_payload_keeps_checked_nominal_key(self):
+        self.check('''union Box<T> { Some { value: T }, None {} }
+fn check(value: Choice) -> int {
+ let boxed: Box<int> = Box.Some { value: 7 }
+ let payload: int = 3
+ let number: int = match boxed { Some(payload) => (+ payload.value 0) None(empty) => 0 }
+ match value { Some(chosen) => { return (+ number payload) } None(empty) => { return payload } }
 }
 shadow check { assert (== (check Choice.Some { number: 7 }) 10) }
 ''')
