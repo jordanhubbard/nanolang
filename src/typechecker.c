@@ -871,6 +871,20 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         count = value->as.struct_literal.field_count;
     } else if (value->type == AST_UNION_CONSTRUCT) {
         if (env_get_union(env, value->as.union_construct.union_name) != def) return;
+        /* I keep explicit arguments before applying an inferred context. */
+        const TypeInfo *actual = value->as.union_construct.type_info;
+        if (actual && actual->type_param_count > 0) {
+            bool exact = actual->type_param_count == expected->type_param_count;
+            for (int i = 0; exact && i < actual->type_param_count; ++i)
+                exact = actual->type_params && expected->type_params &&
+                    type_infos_equal(actual->type_params[i], expected->type_params[i]);
+            if (!exact) {
+                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                    "I require the constructor's explicit generic arguments to match the declared union context.",
+                    "Preserve the concrete type arguments, including variants without payloads.");
+                return;
+            }
+        }
         variant = value->as.union_construct.variant_name;
         names = value->as.union_construct.field_names;
         values = value->as.union_construct.field_values;
