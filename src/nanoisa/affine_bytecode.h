@@ -14,6 +14,10 @@ typedef struct {
     char message[192];
 } NvmAffineAnalysis;
 
+/* I check every function's bounded value signature and all direct-call edges,
+ * including unreachable code. This graph check alone grants no execution. */
+bool nvm_affine_value_call_graph(const NvmModule *module);
+
 /* I analyze the documented scalar/record-observation/owned-transfer subset without changing
  * the module. Success is NOT executable verification. Caller alias binding,
  * reference opcodes and standalone runtime eligibility remain separate. */

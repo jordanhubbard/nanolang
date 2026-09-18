@@ -1,0 +1,43 @@
+# I observe scalar arithmetic through integer bit identities.
+fn f64_add(a:float,b:float)->float { return (+ a b) }
+shadow f64_add { assert (== (f64_add 1.0 2.0) 3.0) }
+fn f64_sub(a:float,b:float)->float { return (- a b) }
+shadow f64_sub { assert (== (f64_sub 3.0 2.0) 1.0) }
+fn f64_mul(a:float,b:float)->float { return (* a b) }
+shadow f64_mul { assert (== (f64_mul 3.0 2.0) 6.0) }
+fn f64_div(a:float,b:float)->float { return (/ a b) }
+shadow f64_div { assert (== (float_to_bits (f64_div 1.0 0.0)) 0) }
+fn main()->int {
+    let signaling:float = (float_from_bits -4503599627370430)
+    let quiet:float = (float_from_bits 9221120237041090626)
+    let inf:float = (float_from_bits 9218868437227405312)
+    let negative_zero:float = (float_from_bits (- -9223372036854775807 1))
+    assert (== (float_to_bits (f64_add signaling 1.0)) 9221120237041090560)
+    assert (== (float_to_bits (f64_add 1.0 signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_add quiet signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_sub signaling 1.0)) 9221120237041090560)
+    assert (== (float_to_bits (f64_sub 1.0 signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_sub quiet signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_mul signaling 1.0)) 9221120237041090560)
+    assert (== (float_to_bits (f64_mul 1.0 signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_mul quiet signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_div signaling 1.0)) 9221120237041090560)
+    assert (== (float_to_bits (f64_div 1.0 signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_div quiet signaling)) 9221120237041090560)
+    assert (== (float_to_bits (f64_div signaling negative_zero)) 0)
+    assert (== (float_to_bits (f64_div inf 0.0)) 0)
+    assert (== (float_to_bits (f64_sub inf inf)) 9221120237041090560)
+    assert (== (float_to_bits (f64_mul inf 0.0)) 9221120237041090560)
+    assert (== (float_to_bits signaling) -4503599627370430)
+    assert (== (float_to_bits (- signaling)) 9218868437227405378)
+    assert (== (float_to_bits (f64_add 1.0 (float_from_bits 4368491638549381120))) 4607182418800017408)
+    assert (== (float_to_bits (f64_mul (float_from_bits 1) 0.5)) 0)
+    let a:float = (float_from_bits 4607182418800017409)
+    let b:float = (float_from_bits 4607182418800017406)
+    assert (== (float_to_bits (- (* a b) 1.0)) 0)
+    let nano_rt_f64_left_0:float = 3.0
+    let nano_rt_f64_right_0:float = 4.0
+    assert (== (+ nano_rt_f64_left_0 nano_rt_f64_right_0) 7.0)
+    return 0
+}
+shadow main { assert (== (main) 0) }

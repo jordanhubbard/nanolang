@@ -12,19 +12,19 @@ static NvmAffineState *consuming_contract(const NvmModule *m,uint32_t function,u
     return nvm_affine_state_create(m,function,references);
 }
 static bool consuming_parameters(const NvmAffineState *state,NvmAffineType *types,uint16_t capacity,uint16_t *count) {
-    bool valid=nvm_affine_consuming_parameters(state,types,capacity,count);
+    bool valid=nvm_affine_value_parameters(state,types,capacity,count);
     /* I inject a late preflight mismatch into a valid contract result only.
      * My fixture remains verified; no mismatched helper executes. */
     if(valid && fail_last_parameter) types[*count-1].layout=0;
     if(valid && fail_last_tag) types[*count-1]=(NvmAffineType){TAG_INT,NVM_V2_NO_INDEX};
     return valid;
 }
-#define nvm_affine_consuming_parameters consuming_parameters
+#define nvm_affine_value_parameters consuming_parameters
 #define realloc consuming_realloc
 #define nvm_affine_state_create consuming_contract
 #include "../../src/nanovm/vm.c"
 #undef nvm_affine_state_create
-#undef nvm_affine_consuming_parameters
+#undef nvm_affine_value_parameters
 #undef realloc
 int main(void) {
     (void)artifacts;(void)multiple_refusals;

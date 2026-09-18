@@ -1215,6 +1215,26 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             int arg_count = expr->as.prefix_op.arg_count;
             
             if (arg_count == 2) {
+                /* I snapshot exact scalar operands in source order, once. */
+                if ((op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH) &&
+                    check_expression(expr->as.prefix_op.args[0], env) == TYPE_FLOAT &&
+                    check_expression(expr->as.prefix_op.args[1], env) == TYPE_FLOAT) {
+                    char left[80], right[80];
+                    unsigned suffix = 0;
+                    do {
+                        snprintf(left, sizeof left, "nano_rt_f64_left_%u", suffix);
+                        snprintf(right, sizeof right, "nano_rt_f64_right_%u", suffix++);
+                    } while (env_get_var(env, left) || env_get_var(env, right) ||
+                             env_get_function(env, left) || env_get_function(env, right));
+                    emit_formatted(list, "({ double %s = ", left);
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_formatted(list, "; double %s = ", right);
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_formatted(list, "; nano_rt_f64_%s(%s, %s); })",
+                                   op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" :
+                                   op == TOKEN_STAR ? "mul" : "div", left, right);
+                    break;
+                }
                 /* Binary operator */
                 if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT) {
                     Type t1 = check_expression(expr->as.prefix_op.args[0], env);
