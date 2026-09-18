@@ -51,3 +51,9 @@ No retained failed artifact was replayed. This is Linux acceptance for the
 bounded provenance repair; I make no Darwin or full product release claim.
 MAC parent `task_f366494d5921451eaf57128629eb9e4c` and fixture child
 `task_abe5111511c548648b38fd336d16a357` await review and canonical integration.
+
+I integrated canonical main1e9d9519 at decd62b3 after qualification. No active
+Nano source, schema/generated AST or these producer test files changed in that
+integration. I preserve both roadmap histories. This integration includes
+separately qualified public-C/reconstruction/docs work; I do not relabel my
+sealed bootstrap or tool hashes as a fresh current-main build.
