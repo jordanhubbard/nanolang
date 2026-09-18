@@ -4524,6 +4524,12 @@ test-reference-places:
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_reference_places tests/nanoisa/test_reference_places.c $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
 	./obj/test_reference_places
 
+.PHONY: test-shadow-identifiers
+test-units: test-shadow-identifiers
+test-shadow-identifiers: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_shadow_identifiers
+
 .PHONY: test-managed-record-plan
 test-units: test-managed-record-plan
 test-managed-record-plan: nvm2wasm nanoisa_dump nano_vm

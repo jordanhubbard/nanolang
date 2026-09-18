@@ -109,9 +109,9 @@ int main(void){int result=run();if(result)fprintf(stderr,"reference failure %d\\
 
     def test_float_format_allocation_failure_recovers(self):
         _,ir,wasm=self.compile(self.program('PUSH_F64 0x1.fffffffffffffp+1023\nCAST_STRING\nPOP\n'))
-        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
         for fail in (0,1):
-            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,allocation_control=True)
         self.node(wasm,'check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===0n);check(e.nano_dispose()===0);')
 
 
