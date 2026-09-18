@@ -32,6 +32,11 @@ class OwnedBinary64(unittest.TestCase):
                     self.checked([ROOT/'bin/nvm2c', artifact, '-o', rebuilt])
                     self.assertEqual(source.read_bytes(), rebuilt.read_bytes())
                     harness = tmp/f'harness{index}.c'
+                    policy = "" if int(index) < 2 else """
+ double nan=nown_float_bits(UINT64_C(0x7ff8000000000042));
+ double special[]={nano_rt_f64_add(nan,1.0),nano_rt_f64_sub(nan,1.0),nano_rt_f64_mul(nan,1.0),nano_rt_f64_div(nan,1.0),nano_rt_f64_div(nan,-0.0)};
+ for(size_t i=0;i<5;i++){uint64_t observed;memcpy(&observed,&special[i],8);assert(observed==(i==4?0:UINT64_C(0x7ff8000000000000)));}
+"""
                     harness.write_text('''#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -42,13 +47,14 @@ static void release(void *p){assert(live);live--;free(p);}
 #define NOWN_FREE release
 #define NVM2C_NO_MAIN
 ''' + f'#include "{source.name}"\n' + '''int main(void){
+POLICY
  const uint64_t bits[]={0,UINT64_C(0x8000000000000000),1,UINT64_C(0x0010000000000000),UINT64_C(0x7fefffffffffffff),UINT64_C(0x7ff0000000000000),UINT64_C(0xfff0000000000000),UINT64_C(0x7ff8000000000042),UINT64_C(0xfff80000000000ff)};
  for(size_t i=0;i<sizeof(bits)/sizeof(bits[0]);i++){double value=nown_float_bits(bits[i]);uint64_t observed;memcpy(&observed,&value,8);assert(observed==bits[i]);}
  for(unsigned i=0;i<8;i++){int64_t result=-91;int status=nvm_owned_entry(&result);assert(status==EXPECTED_STATUS);assert(result==EXPECTED_RESULT);assert(live==0);}
  for(fail_at=1;fail_at<16;fail_at++){attempts=0;int64_t result=-91;int status=nvm_owned_entry(&result);assert(live==0);if(status!=1){assert(status==EXPECTED_STATUS);break;}assert(result==-91);}
  assert(fail_at<16);return 0;
 }
-'''.replace('EXPECTED_STATUS', status).replace('EXPECTED_RESULT', '-91' if status == '2' else '0'))
+'''.replace('POLICY', policy).replace('EXPECTED_STATUS', status).replace('EXPECTED_RESULT', '-91' if status == '2' else '0'))
                     binary = tmp/f'native{index}'
                     self.checked([cc, '-std=c11', '-Wall', '-Wextra', '-Werror',
                                   '-fsanitize=address,undefined', '-fno-omit-frame-pointer',

@@ -41,6 +41,7 @@ static NvmModule *fixture(unsigned index) {
             double expected=i==0?nano_rt_f64_add(1.5,2.5):i==1?nano_rt_f64_sub(1.5,2.5):i==2?nano_rt_f64_mul(1.5,2.5):nano_rt_f64_div(1.5,2.5);
             append(source,sizeof(source),"PUSH_F64 1.5\nPUSH_F64 2.5\n%s\nPUSH_F64 %.17g\nF64_EQ\nASSERT\n",op[i],expected);
         }
+        append(source,sizeof(source),"PUSH_F64 nan\nPUSH_F64 1.0\nF64_ADD\nDUP\nF64_NE\nASSERT\nPUSH_F64 inf\nPUSH_F64 -inf\nF64_ADD\nDUP\nF64_NE\nASSERT\nPUSH_F64 nan\nPUSH_F64 -0.0\nF64_DIV\nPUSH_F64 0.0\nF64_EQ\nASSERT\n");
         append(source,sizeof(source),"PUSH_F64 -2.5\nF64_NEG\nDUP\nPUSH_F64 2.5\nSWAP\nF64_EQ\nASSERT\nPUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 3\nLT\nJMP_FALSE done\nPUSH_F64 1.0\nF64_ADD\nLOAD_LOCAL 2\nPUSH_I64 1\nADD\nSTORE_LOCAL 2\nJMP loop\ndone:\nPUSH_F64 5.5\nEQ\nASSERT\n");
         if(index==7)append(source,sizeof(source),"PUSH_F64 0.0\n");
         append(source,sizeof(source),"CALL 1\n%s\n",index==6?"POP":"ASSERT");
