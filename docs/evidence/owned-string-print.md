@@ -18,11 +18,21 @@ through fast, trace, callback, reference and direct-core paths, and borrowed
 
 The independent hold identified that those checks were still caller-side and
 late. At production checkpoint
-`d2aade9b57116be2f4344ca24cf21776be5eb309`,
-`vm_ownership_supported` itself requires constant readiness before returning
-true. The shared affine and runtime-verifier opcode allowlists now require the
-value-graph classification for `PUSH_STR`, `PRINT` and `PRINTLN`; their later
-analysis and native-emitter refusals remain in place.
+`d2aade9b57116be2f4344ca24cf21776be5eb309`, I moved readiness into
+`vm_ownership_supported` and made both shared opcode allowlists require the
+value-graph classification. The opcode correction is retained. A second
+independent review found that the readiness placement changed advisory and
+non-standalone fallback because it used raw metadata size rather than a
+validated execution requirement.
+
+At production checkpoint
+`78bffdb2f92be7c4d8d6e0e3db018398e8a4a410`, every public entry shares one
+validated required/owned-transfer classification. Fast, trace, callback,
+reference and direct-core paths require active constants only when that
+classification is positive. The module-support predicate remains structural;
+a valid advisory declaration with no transfer stays on the ordinary checked
+path, including with a linked advisory module. The borrowed fixture now frees
+the complete string pool it replaces before taking the assembled pool.
 
 I admit only mode-zero `TAG_STRING` parameters and their exact locals in my
 bounded owned value-call graph. My record-field guard still accepts only INT,
@@ -60,9 +70,10 @@ entry and a resume after a host-output trap invalidates the invocation proof.
 An incomplete table refuses before another instruction executes and clears the
 reference activation through the existing error path. A fresh complete-table
 activation still crosses PRINT and ASSERT traps and returns normally. An
-ordinary module with no ownership metadata still takes the checked opcode path;
-its missing literal produces the existing decode refusal rather than being
-reclassified as owned execution.
+ordinary module with no ownership metadata still takes the checked opcode path.
+A module with valid advisory ownership metadata and no owned transfers does the
+same even when another advisory module is linked: its missing literal produces
+the existing decode refusal rather than being reclassified as owned execution.
 
 ## Focused qualification
 
@@ -80,7 +91,8 @@ The focused gate at `8a87f922` covers:
 - output followed by success or assertion failure through `vm_invoke`,
   `vm_execute`, `vm_call_function` and `vm_invoke_callable`;
 - VM constant-table, stack, frame, reference and trap cleanup across repeated
-  execution;
+  ordinary and assertion execution; this is not injected stack/frame allocation
+  failure evidence;
 - reached `heap.c` setup failures for the intern bucket and module-string
   objects (10 allocation attempts in this fixture), followed by fresh-VM
   recovery, and both owned-record allocation attempts during invocation,
@@ -129,6 +141,23 @@ the exact four-output sequence still records 13 admissions. The log is
 `/private/tmp/nanolang-owned-string-positive-paths-d2aade9b.log`, SHA-256
 `36dbad741e4bbb202c254960f4b54292bf2c5cccaebec58762e2c881a81420bd`.
 
+The final entry-path qualification was clean at `78bffdb2` with Homebrew Clang
+23.1.1 and `detect_leaks=1`. It passes 117 caller-origin checks, 600 reached
+`heap.c` allocation checks and 150 proof/readiness checks. Missing constants
+refuse required owned execution with zero verifier admissions through fast,
+trace, callback, active-reference and direct-core paths. The linked advisory
+control reaches the ordinary checked decode refusal. The helper-free output
+sequence records exact cumulative verifier admissions `3`, `5`, `7`, `9`
+after its four resumes and nine total. The log is
+`/private/tmp/nanolang-owned-string-entrypaths-78bffdb2.log`, SHA-256
+`f64f933f5225b32781de509f6cf4e2a4a35242bcfcb8e97aceff63c3d17d7b3b`.
+
+I also compiled the caller-origin fixture and all linked NanoISA objects with
+Homebrew Clang 23.1.1 ASan/UBSan and ran it with LeakSanitizer
+`detect_leaks=1`. Its 117 checks pass without a leak report. The log is
+`/private/tmp/nanolang-owned-string-fixture-lsan-78bffdb2.log`, SHA-256
+`8143ea5a3efd2e057b42df32ba11a17ca50e0fda8a2d31a8ab34240ab2e36a72`.
+
 ## Adjacent ownership qualification
 
 The unchanged caller-reference, owned-value graph, owned/void result, single
@@ -155,6 +184,15 @@ I reran them after the positive predicates and shared allowlists were closed at
 `/private/tmp/nanolang-owned-string-positive-paths-adjacent-d2aade9b.log`,
 SHA-256
 `b22b605b749419e91039f4cd685683dc3b863f07f178e71d621255265731f2d2`.
+
+I reran the adjacent suites plus ordinary-authority and advisory-metadata gates
+at `78bffdb2` with explicit Homebrew LLVM and OpenSSL paths. They pass. The log
+is `/private/tmp/nanolang-owned-string-entrypaths-adjacent-corrected-78bffdb2.log`,
+SHA-256
+`7b94bc747f025a831cb52cd551f8e36cdaf61948893595e88e70451b8aebe4a2`.
+The preceding run omitted the nested harness's Homebrew OpenSSL library path;
+it stopped there after the ownership suites passed. I retain that incomplete
+log separately and do not count it as qualification.
 
 I preserve the first default-compiler adjacent run separately. Its ordinary C
 and VM fixtures pass, then its older Python harnesses request LeakSanitizer

@@ -104,11 +104,14 @@ proof only through the existing checked-resume path. A lower-level core caller
 still owns and must release the trapped VM value on every handled or abandoned
 trap path; invalidating the proof does not transfer or erase that obligation.
 
-Every predicate that can positively admit owned execution first requires the
-active instantiated constant table. This includes the conservative
-`vm_ownership_supported` predicate used by trace, callback and reference
-fallbacks, not only the fast invocation-proof path. Public core entry and
-proof-invalidated resume retain their explicit readiness checks as well.
+Every public entry first derives one validated classification from the active
+module: ownership metadata or actual owned-transfer instructions either
+require my private owned execution path or they do not. A positive
+classification requires the active instantiated constant table before fast,
+trace, callback, reference, direct-core or proof-invalidated execution. A
+valid advisory declaration with no owned transfer stays on my ordinary checked
+path, including in a linked program. My module-support predicate remains about
+module contracts; it does not turn advisory metadata into runtime ownership.
 
 At a call, the caller prepares every argument before activation. A string view
 is copied into the callee's corresponding parameter carrier and the prepared
@@ -141,10 +144,12 @@ artifact. Positive cases cover:
 
 I instrument `VmHeap` allocation through `heap.c`. Setup reaches the intern
 bucket and module-string objects; invocation reaches the owned-record header and
-field storage. I report those attempt counts separately. I do not claim
-call-frame, constant-table-array or general process allocation coverage. Every
-injected invocation failure must leave the same VM reusable; every injected
-setup failure must leave the module reusable in a fresh VM.
+field storage. I report those attempt counts separately. Stack and frame roots
+are checked for ordinary and assertion cleanup, not injected allocation
+failure. I do not claim call-frame, constant-table-array or general process
+allocation coverage. Every injected invocation failure must leave the same VM
+reusable; every injected setup failure must leave the module reusable in a
+fresh VM.
 
 Refusal cases cover a bad string index, an absent instantiated literal,
 embedded NUL, wrong parameter tag or mode, string result, string resource
