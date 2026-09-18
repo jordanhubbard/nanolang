@@ -53,4 +53,11 @@ class OptionalArrayReads(unittest.TestCase):
                     body+='LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nJMP joined\nmissing:\nLOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\njoined:\n'
                     body+=f'STORE_LOCAL 1\nLOAD_LOCAL 1\nTYPE_CHECK {tag if present else 0}\nASSERT\n'
                     self.paired('.string text "kept"\n.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    def test_mixed_record_argument_storage(self):
+        for tag,value in [(1,'PUSH_I64 73'),(4,'PUSH_BOOL 1'),(5,'PUSH_STR text')]:
+            for missing in (0,1):
+                with self.subTest(tag=tag,missing=missing):
+                    body=f'{value}\nAGG_PACK 0 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK {tag}\nASSERT\n'
+                    body+=f'{value}\nARR_LITERAL {tag} 1\nPUSH_I64 {missing}\nARR_GET\nAGG_PACK 0 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK {0 if missing else tag}\nASSERT\n'
+                    self.paired('.types 1 0 0\n.string text "kept"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n.function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n')
 if __name__=='__main__': unittest.main()
