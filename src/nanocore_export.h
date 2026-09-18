@@ -3,9 +3,9 @@
 
 #include "nanolang.h"
 
-/* Export a NanoLang AST node to NanoCore S-expression format.
- * Returns a heap-allocated string, or NULL if the node is outside the NanoCore subset.
- * The caller must free the returned string. */
+/* I export an AST node as a heap-allocated NanoCore S-expression.
+ * I return NULL for unsupported nodes or allocation/formatting failure.
+ * My caller owns and frees a successful result. */
 char *nanocore_export_sexpr(ASTNode *node, Environment *env);
 
 /* Run the Coq-extracted reference interpreter on an S-expression.
