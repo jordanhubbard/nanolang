@@ -44,6 +44,14 @@ class ArithmeticSource(unittest.TestCase):
                     self.command(ROOT/'bin/nvm2wasm',module,'-o',wasm)
                     self.assertEqual(self.command('wasmtime','run','--invoke','nano_entry',wasm).stdout,'0\n')
                     self.command('node','-e','const fs=require("fs");const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)process.exit(2);if(new WebAssembly.Instance(m).exports.nano_entry()!==0)process.exit(3);',wasm)
+    def test_generated_runtime_provider_identity(self):
+        self.command('python3',ROOT/'scripts/embed_binary64_arithmetic.py','--check')
+        header=(ROOT/'src/binary64_arithmetic.h').read_text()
+        source=ROOT/'tests/nanoisa/fixtures/binary64_arithmetic.nano'
+        for name in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+            output=self.work/(name+'-legacy.c')
+            self.command(ROOT/'bin'/name,source,'--target','c','-o',output)
+            self.assertIn(header,output.read_text(),name)
     def test_exact_scalar_arithmetic(self):
         self.routes(ROOT/'tests/nanoisa/fixtures/binary64_arithmetic.nano',scalar=True)
     def test_ordered_global_and_operand_evaluation(self):
