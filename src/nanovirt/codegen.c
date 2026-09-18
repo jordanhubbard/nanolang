@@ -4011,8 +4011,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     for (int i = 0; i < env->function_count; ++i) {
         Function *function = &env->functions[i];
         for (int p = 0; p < function->param_count; ++p) {
-            if (function->params && (function->params[p].type == TYPE_BORROW_SHARED ||
-                                     function->params[p].type == TYPE_BORROW_MUT)) {
+            if (!function->params) continue;
+            Parameter *parameter = &function->params[p];
+            StructDef *record = parameter->type == TYPE_STRUCT && parameter->struct_type_name
+                ? env_get_struct(env, parameter->struct_type_name) : NULL;
+            if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
+                (record && record->is_resource)) {
                 return codegen_borrow_compile(program, modules, shadows);
             }
         }

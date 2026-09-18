@@ -1,0 +1,18 @@
+resource struct Leaf { value: int, active: bool }
+fn take(owner: Leaf) -> bool {
+ let Leaf { value, active } = owner
+ assert (>= value 0)
+ return active
+}
+shadow take {
+ let owner: Leaf = Leaf { value: 42, active: true }
+ assert (take owner)
+}
+fn main() -> int {
+ let owner: Leaf = Leaf { value: 3, active: false }
+ assert (not (take owner))
+ let owner: Leaf = Leaf { value: 4, active: true }
+ assert (take owner)
+ return 0
+}
+shadow main { assert true }
