@@ -58,7 +58,7 @@ class ScalarTruthiness(unittest.TestCase):
             with self.subTest(op=op):
                 self.compare(self.program(f'PUSH_BOOL {left}\nCALL checked_right\n{op}\nPOP\n',suffix),trap=True)
 
-    def test_heap_stays_outside_new_profile(self):
+    def test_literal_truthiness_admission_preserves_native_boundary(self):
         for prefix, value in [('.string text "text"\n','PUSH_STR text')]:
             for op in ('CAST_BOOL','NOT','AND','OR'):
                 with self.subTest(value=value,op=op):
@@ -69,8 +69,11 @@ class ScalarTruthiness(unittest.TestCase):
                     for translator in (llvm.C,llvm.LLVM,wasm.WASM):
                         target=self.work/'retained-output'
                         target.write_bytes(b'previous')
-                        self.run_cmd([translator,module,'-o',target],success=False)
-                        self.assertEqual(target.read_bytes(),b'previous')
+                        self.run_cmd([translator,module,'-o',target],success=translator != llvm.C)
+                        if translator == llvm.C:
+                            self.assertEqual(target.read_bytes(),b'previous')
+                        else:
+                            self.assertNotEqual(target.read_bytes(),b'previous')
 
 
 if __name__ == '__main__':

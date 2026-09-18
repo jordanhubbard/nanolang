@@ -48,10 +48,13 @@ NvmVerifyResult nvm_verify(const NvmModule *mod);
 
 /* I select these policies through the consumer, never through module metadata.
  * GENERAL preserves ordinary verification; CLOSED_SCALAR is the existing
- * LLVM/Wasm executable subset, not a GPU kernel or full-language profile. */
+ * numeric LLVM/Wasm subset. CLOSED_LITERAL_STRINGS extends it with static
+ * literal transport and conservative string-operation exclusions. Neither
+ * profile is a GPU kernel or full-language contract. */
 typedef enum {
     NVM_PROFILE_GENERAL = 0,
-    NVM_PROFILE_CLOSED_SCALAR = 1
+    NVM_PROFILE_CLOSED_SCALAR = 1,
+    NVM_PROFILE_CLOSED_LITERAL_STRINGS = 2
 } NvmVerifyProfile;
 NvmVerifyResult nvm_verify_profile(const NvmModule *mod, NvmVerifyProfile profile);
 
