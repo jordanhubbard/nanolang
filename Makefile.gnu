@@ -4885,6 +4885,15 @@ test-units: test-native-record-array-scalar-tags
 test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_string_builtins
 test-units: test-canonical-string-builtins
+# I qualify finite variant payloads separately from compiler bootstrap.
+.PHONY: test-native-variant-array-carriers
+test-native-variant-array-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
+	python3 -m unittest tests.test_native_variant_array_carriers tests.test_native_variant_scalar_carriers
+
+.PHONY: test-native-generic-scalar-array
+test-native-generic-scalar-array: nvm2c nano_vm
+	python3 -m unittest tests.test_native_generic_scalar_array
+
 .PHONY: test-native-variant-scalar-carriers
 test-native-variant-scalar-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
 	python3 -m unittest -v tests.test_native_variant_scalar_carriers

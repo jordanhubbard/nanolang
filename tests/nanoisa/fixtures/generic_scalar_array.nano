@@ -1,0 +1,26 @@
+union Box<T> { Some { value: T }, None {} }
+fn integer(boxed: Box<int>) -> int {
+    match boxed { Some(v) => { return v.value } None(n) => { return 0 } }
+}
+shadow integer { assert (== (integer Box.Some { value: 7 }) 7) }
+fn array_value(boxed: Box<array<int>>) -> array<int> {
+    match boxed { Some(v) => { return v.value } None(n) => { return [0] } }
+}
+shadow array_value {
+    let boxed: Box<array<int>> = Box.Some { value: [7,8] }
+    let values: array<int> = (array_value boxed)
+    assert (== (at values 1) 8)
+}
+fn main() -> int {
+    let scalar: Box<int> = Box.Some { value: 7 }
+    let boxed: Box<array<int>> = Box.Some { value: [7,8] }
+    let copy: Box<array<int>> = boxed
+    let first: array<int> = (array_value copy)
+    let second: array<int> = (array_value boxed)
+    assert (== (integer scalar) 7)
+    assert (== (+ (at first 0) (at second 1)) 15)
+    assert (== (integer Box.Some { value: 9 }) 9)
+    assert (== (integer Box.None {}) 0)
+    return 0
+}
+shadow main { assert (== (main) 0) }
