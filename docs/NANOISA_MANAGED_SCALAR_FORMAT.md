@@ -38,3 +38,7 @@ allocation-disabled identity transfer. I test float exclusion through literals,
 casts, typed operations and signatures, including unreachable code, with prior
 output preservation and existing non-formatting float controls. Historical
 failed artifacts remain unexecuted. My evidence names actual tested targets.
+
+My later [binary64 formatting contract](NANOISA_MANAGED_BINARY64_FORMAT.md)
+supersedes the temporary floating exclusion described in this original slice.
+Its implementation/evidence is separate; the string-to-float parser remains open.

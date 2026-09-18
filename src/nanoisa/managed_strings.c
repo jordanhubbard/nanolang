@@ -218,7 +218,89 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
                      NmsHandle *out) {
     return create_parts(runtime, data, length, NULL, 0, out);
 }
+/* I format the exact binary64 rational with decimal integer arithmetic. The
+ * largest coefficient needs fewer than 800 digits; 1100 is an explicit cap. */
+static NmsStatus nms_format_binary64(NmsRuntime *runtime, uint64_t bits, NmsHandle *out) {
+    unsigned char output[32];
+    unsigned used = 0;
+    int negative = (int)(bits >> 63);
+    if (negative) output[used++] = '-';
+    uint32_t exponent_bits = (uint32_t)((bits >> 52) & 2047);
+    uint64_t significand = bits & ((UINT64_C(1) << 52) - 1);
+    if (exponent_bits == 2047) {
+        const char *word = significand ? "nan" : "inf";
+        for (unsigned i = 0; i < 3; i++) output[used++] = (unsigned char)word[i];
+        return nms_create(runtime, output, used, out);
+    }
+    if (!exponent_bits && !significand) {
+        output[used++] = '0';
+        return nms_create(runtime, output, used, out);
+    }
+    int binary_exponent = exponent_bits ? (int)exponent_bits - 1023 - 52 : -1074;
+    if (exponent_bits) significand |= UINT64_C(1) << 52;
+    unsigned char digits[1100]; /* Little endian, one decimal digit per byte. */
+    unsigned count = 0;
+    do { digits[count++] = (unsigned char)(significand % 10); significand /= 10; }
+    while (significand);
+    unsigned steps = (unsigned)(binary_exponent < 0 ? -binary_exponent : binary_exponent);
+    unsigned multiplier = binary_exponent < 0 ? 5 : 2;
+    for (unsigned step = 0; step < steps; step++) {
+        unsigned carry = 0;
+        for (unsigned i = 0; i < count; i++) {
+            unsigned value = digits[i] * multiplier + carry;
+            digits[i] = (unsigned char)(value % 10);
+            carry = value / 10;
+        }
+        if (carry) {
+            if (count == sizeof digits) return NMS_STATE;
+            digits[count++] = (unsigned char)carry;
+        }
+    }
+    int exponent = (int)count - 1 + (binary_exponent < 0 ? binary_exponent : 0);
+    uint32_t rounded = 0;
+    for (unsigned i = 0; i < 6; i++)
+        rounded = rounded * 10 + (i < count ? digits[count - 1 - i] : 0);
+    if (count > 6) {
+        unsigned next = digits[count - 7];
+        int lower_nonzero = 0;
+        for (unsigned i = 0; i + 7 < count; i++) lower_nonzero |= digits[i] != 0;
+        if (next > 5 || (next == 5 && (lower_nonzero || (rounded & 1)))) rounded++;
+        if (rounded == 1000000) { rounded = 100000; exponent++; }
+    }
+    unsigned char leading[6];
+    for (unsigned i = 6; i > 0; i--) { leading[i-1] = (unsigned char)('0' + rounded % 10); rounded /= 10; }
+    unsigned length = 6;
+    while (length > 1 && leading[length - 1] == '0') length--;
+    /* At most 14 bytes: sign + six digits + point + e + sign + three exponent
+     * digits. Fixed notation is smaller because its exponent lies in [-4,5]. */
+    if (exponent < -4 || exponent >= 6) {
+        output[used++] = leading[0];
+        if (length > 1) {
+            output[used++] = '.';
+            for (unsigned i = 1; i < length; i++) output[used++] = leading[i];
+        }
+        output[used++] = 'e';
+        output[used++] = exponent < 0 ? '-' : '+';
+        unsigned magnitude = (unsigned)(exponent < 0 ? -exponent : exponent);
+        if (magnitude >= 100) output[used++] = (unsigned char)('0' + magnitude / 100);
+        output[used++] = (unsigned char)('0' + (magnitude / 10) % 10);
+        output[used++] = (unsigned char)('0' + magnitude % 10);
+    } else if (exponent < 0) {
+        output[used++] = '0'; output[used++] = '.';
+        for (int i = -1; i > exponent; i--) output[used++] = '0';
+        for (unsigned i = 0; i < length; i++) output[used++] = leading[i];
+    } else {
+        unsigned integer_length = (unsigned)exponent + 1;
+        for (unsigned i = 0; i < integer_length; i++) output[used++] = leading[i];
+        if (length > integer_length) {
+            output[used++] = '.';
+            for (unsigned i = integer_length; i < length; i++) output[used++] = leading[i];
+        }
+    }
+    return nms_create(runtime, output, used, out);
+}
 NmsStatus nms_format_scalar(NmsRuntime *runtime, uint64_t bits, uint32_t tag, NmsHandle *out) {
+    if (tag == 3) return nms_format_binary64(runtime, bits, out);
     if (tag == 0 || tag == 9) return nms_create(runtime, NULL, 0, out);
     if (tag == 4) return nms_create(runtime,
         (const unsigned char *)(bits ? "true" : "false"), bits ? 4 : 5, out);
