@@ -1,0 +1,92 @@
+{
+  "head": "d315d6f2cfcfa16edca6d9f92ad38bb879931990",
+  "sha256": {
+    "src/c_backend.c": "fcc8779fa6f66cfe024d861287d2c9655587d9cb1303e08fc15a6fd677599320",
+    "src/binary64_arithmetic.h": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+    "src/binary64_bits.h": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+    "src/binary64_arithmetic_source.h": "a10c6f741cdd4806ca57bf4a2abc676bc1d3869e4ec894c642cdb7768e95ba4c",
+    "src_nano/compiler/binary64_arithmetic_runtime.nano": "e69fa68e0dad46363655a7eeb7f0f343b4b27207cd9cfbe33a3831937d1cc5de",
+    "tests/test_public_c_api.c": "b8069662d47baca0f655b9c4bbb44b8a296c9afd7c0ab9994f9b2dd8ae44e3a9",
+    "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+    "bin/nanoc_c": "1c980ee205963efe1e2aa74ade7b95b187b6e1d0393a41d8ab6de041bc83a4b1",
+    "bin/nanoc_stage1": "8cd799f47cf72e2758768a406c150d8fc691cdc04c1b228ae78b27ce09f7de53",
+    "bin/nanoc_stage2": "93840b549cf034560734a5b12c5144b572a78ca45deb1c37fb3947529b6270e6",
+    "bin/nano": "14d6933c0f814cc83e9036b9bb393b8e602401ec342c124f8588bc81e15d6829",
+    "bin/nano_virt": "faa971b77fc4dbd540bac700d4d1b7625c4613a66c691aeb3131d25478c18cce",
+    "bin/nano_vm": "1653fa37a866ec94d4b3ab70a7037a0bd26b0b834c41d26abde738f1236d0358",
+    "bin/nvm2c": "32eadc12b81d0ed3392df449bcbe5d827a9cb99c9d053739c82db25798f9ac12",
+    "obj/module_cache/v2-a4babd4037d94f8e86d42d9e09d56095f536cf1b86896bbb9d1c0dcf4ff2aea6/.nano-gen-wvoq4p/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "obj/module_cache/v2-a4babd4037d94f8e86d42d9e09d56095f536cf1b86896bbb9d1c0dcf4ff2aea6/.nano-gen-wvoq4p/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+    "obj/module_cache/v2-eb725de73958728389093ff0a04a7249087b0876278ef727eb91907416e2000e/.nano-gen-WIEyfW/libnanoisa.so": "7e55b4bcc1a6afbbcc4d0d6cb889073202d3b9b74e83e8c55317d2adb830eb85",
+    "obj/module_cache/v2-eb725de73958728389093ff0a04a7249087b0876278ef727eb91907416e2000e/.nano-gen-WIEyfW/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "obj/module_cache/v2-1efc9b8f34aa0a636193532778c48fafdc8883e87e6a020cf5b0ecb14c350445/.nano-gen-XkyiWf/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "obj/module_cache/v2-1efc9b8f34aa0a636193532778c48fafdc8883e87e6a020cf5b0ecb14c350445/.nano-gen-XkyiWf/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "tests/test_binary64_arithmetic.py": "f9fcb64aeaf3e31ed48df1ca5f3ad67a81d6bb90f74304ff4655417126632afa"
+  },
+  "logs": {
+    "/tmp/nanolang-public-c-bootstrap.log": {
+      "sha256": "0c97a4776b4388bb271d457936b4c1e065b7ca36a91e72febcb44ff591ea021b",
+      "bytes": 58218
+    },
+    "/tmp/nanolang-public-c-entry-gcc.log": {
+      "sha256": "cde2a14354c2b43d964a0d786ab473dc91e1710642b6e09226b1c8e2ff2bfb64",
+      "bytes": 1365
+    },
+    "/tmp/nanolang-public-c-entry-clang.log": {
+      "sha256": "cf1a53cf932f4255fbff16786c3a60278ff7ff01a63046ab8a22e94cf2d6e05f",
+      "bytes": 1365
+    },
+    "/tmp/nanolang-public-c-adjacent-backend.log": {
+      "sha256": "aaca8eba22e8d7dc826797fb21b979606e9ea00e1905e0de1096f9fb4e1f0b2b",
+      "bytes": 901
+    },
+    "/tmp/nanolang-public-c-field-gcc.log": {
+      "sha256": "fdbef8ff3103a68994d0843ecd0c84ff1e2f993b2a7cf544a03316adac501d06",
+      "bytes": 2117
+    },
+    "/tmp/nanolang-public-c-field-clang.log": {
+      "sha256": "ca468e4fd3f78ccfa2b8713ac638a93de51f693eb6c7040d9723b41fde30a8ad",
+      "bytes": 2117
+    },
+    "/tmp/nanolang-public-c-final-gcc.log": {
+      "sha256": "0a08e8fa84c5972691ed0eec9c7e32d660dc01d08e96882eab705726fac714e4",
+      "bytes": 2953
+    },
+    "/tmp/nanolang-public-c-final-clang.log": {
+      "sha256": "6747ae3ea75ce829f64eff1971e20d6509d8671d4f4cf2c46415b0bf84da1233",
+      "bytes": 2953
+    },
+    "/tmp/nanolang-public-c-declared-gcc.log": {
+      "sha256": "67098d098d306e0baadc8218ec5c3f6e754ba3fb40dfcb6f5c32c01fbfbf74cb",
+      "bytes": 1558
+    },
+    "/tmp/nanolang-public-c-declared-clang.log": {
+      "sha256": "aa0686140b2549288e0212f844cb97111a2bc5edb30c9b727126e9920f2cc39e",
+      "bytes": 1558
+    },
+    "/tmp/nanolang-public-c-declared-adjacent.log": {
+      "sha256": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933",
+      "bytes": 737
+    },
+    "/tmp/nanolang-public-c-declared-helper-gcc.log": {
+      "sha256": "beea65bb32c5fe3a55f70642fa858f53dedffd41f84d4c8ea8c8cc8295f32e80",
+      "bytes": 302
+    },
+    "/tmp/nanolang-public-c-declared-helper-clang.log": {
+      "sha256": "59087d2ba8c0bed6dd3e42a8c2b6ada1b697bbc8ae320051db17e84f1d3ae46f",
+      "bytes": 302
+    }
+  },
+  "qualification": {
+    "gcc": "8 methods PASS 4.003s",
+    "clang": "8 methods PASS 4.659s",
+    "adjacent": "7 programs PASS",
+    "helper_gcc": "2 methods PASS 1.179s",
+    "helper_clang": "2 methods PASS 1.437s",
+    "bootstrap": "PASS at1245ca51; C backend-only corrections subsequently rebuilt Cseed/nano/nano_virt; no claim of final-head bootstrap"
+  },
+  "compiler_versions": {
+    "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "/tmp/nanolang-truthiness-clang-bin/cc": "clang version 23.0.0git (https://github.com/llvm/llvm-project.git 11af80c3ec82dc1800c9fa80190c75cd3d69249f)"
+  }
+}
