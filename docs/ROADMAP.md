@@ -10123,6 +10123,7 @@ Other translators:
       Wasm/package/allocator evidence without opcode or FrameOutput admission.
 - [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
 - [x] **VM array creation allocation guard** (`task_aeff9da2749041fea3aa15033f56fc80`): I check allocation before OP_ARR_NEW publication and qualify descriptor/buffer failure cleanup with fresh ordinary arrays ([contract](NANOISA_VM_ARRAY_CREATION.md)); managed opcode admission remains separate. I preserved the first fixture failure and corrected its cumulative allocated/freed accounting interpretation before rerunning fresh tests. I passed focused ASan/UBSan and integrated full VM274493 ([evidence](evidence/vm-array-creation-allocation.md)).
+- [ ] **Managed split-result array ownership** (`task_27e59763910f4950b65dddbc66d4a82e`): I preserve byte splitting and string-child ownership through calls/globals, and admit only SPLIT/GET/LEN with paired VM/nativeLLVM/Wasm acceptance ([contract](NANOISA_MANAGED_SPLIT_ARRAYS.md)); general array mutation and parent488 remain open.
       MAC `task_488a05eb5e2a417caf83a8353363a30d`.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
       MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
