@@ -12,25 +12,25 @@ aggregate parent488 and managed parent51da.
 I audited `src/nanovm/heap.c` and the ARR_NEW/PUSH/SET/POP/GET/LEN and STR_SPLIT
 handlers in `src/nanovm/vm.c` on main `c9e2a16f`.
 
-ARR_NEW and STR_SPLIT create capacity8 arrays. Int/float use packed width8,
-bool/U8 width1; other declared kinds use boxed NanoValue width16. Creation fixes
+ARR_NEW and STR_SPLIT create capacity 8 arrays. Int/float use packed width 8,
+bool/U8 width 1; other declared kinds use boxed NanoValue width 16. Creation fixes
 that representation. Growth doubles capacity and refuses wrap or a new capacity
 above `UINT32_MAX / element_width`. It does not saturate to UINT32_MAX. I keep
 that logical capacity/growth policy distinct from the allocator's actual
 metadata, native malloc calls and Wasm free-list overhead; their allocation
 counts and failure thresholds are not promised identical across targets.
 
-My private core constructors currently start without a buffer and grow from4.
+My private core constructors currently start without a buffer and grow from 4.
 I will add an explicit VM-array storage policy on private descriptors, copied
 on table relocation and cleared on teardown. Adapter constructors prepare
-capacity8 and preserve the declared kind before publication. Their growth uses
+capacity 8 and preserve the declared kind before publication. Their growth uses
 the VM limit and allocate-copy-commit rollback. Existing private zero-capacity
 factories retain their documented behavior; private core tests do not silently
 become public instruction acceptance.
 
 Boxed VM arrays can hold different leaf tags regardless of their declared kind.
 Packed writes retain their declaration and use only the already reviewed exact
-matrix: matching canonical tags, U8-to-int, int-to-U8 modulo256, int-to-float
+matrix: matching canonical tags, U8-to-int, int-to-U8 modulo 256, int-to-float
 under default nearest-even rounding. Matching float payload bits remain exact.
 Unsupported raw union-member fallback paths do not become runtime acceptance.
 
@@ -48,8 +48,8 @@ Unsupported raw union-member fallback paths do not become runtime acceptance.
 PUSH/SET helpers consume all operands on both success and failure. Generated
 FrameOutput marks those operands transferred once and tracks the result owner.
 POP consumes its receiver and transfers its result. GET/LEN keep their existing
-non-consuming helper/frame-consumption division. A string inserted into itself
-as an existing child is retained before the old edge is released. Packed values
+non-consuming helper/frame-consumption division. Replacing an element with the same
+string retains the incoming owner before the old edge is released. Packed values
 have no child references. Failure cannot publish a partially constructed array
 or an unowned child result.
 
@@ -57,7 +57,7 @@ The existing private generic set is borrowed-input and returns STATE for a
 missing index. That is not the VM opcode contract. The adapter first checks an
 exact array receiver and exact integer index, then rejects a negative or
 out-of-range full-width index without narrowing. I add `NMS_BOUNDS = 7` after
-existing status values0..6, preserving their numbers. TYPE remains1 and MEMORY3.
+existing status values 0..6, preserving their numbers. TYPE remains 1 and MEMORY 3.
 Both status clamps (`nms_module_fail`, `nms_finish`) retain the new bounds value.
 The numeric public status is my managed ABI, not a claim that the VM enum uses
 the same number; tests compare the corresponding type/bounds/memory categories.
@@ -131,7 +131,7 @@ stable identity and no allocating SET. Native sanitizers and deterministic
 failure controls cover initial descriptor/buffer, append growth, split children,
 callee error cleanup and preserved prior global/alias writes. Wasm exercises
 actual finite-memory exhaustion, reuse and terminal disposal with zero imports.
-I check capacity transitions8/16/32 and reject overflow using checked helper
+I check capacity transitions 8/16/32 and reject overflow using checked helper
 boundaries, without attempting enormous allocations or replaying old failures.
 
 Existing string/split/boxed/packed/core/package/profile gates remain required.
