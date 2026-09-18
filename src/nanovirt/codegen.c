@@ -134,6 +134,7 @@ struct CG {
     /* Module being built */
     NvmModule *module;
     Environment *env;
+    ASTNode *root_program; /* Borrowed original top-level declarations. */
     CgPassive *passive;
     CgLocalName **local_names;
     CgAuthoritySlot **authority_slots;
@@ -823,6 +824,79 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
+/* I probe bindings without creating captures. Even an immutable callable alias
+ * remains a value, not permission to select a same-spelled declaration. */
+static bool callback_value_binding(CG *cg, const char *name) {
+    if (global_find(cg, name) >= 0) return true;
+    for (CG *scope = cg; scope; scope = scope->parent)
+        if (local_find(scope, name) >= 0 || upvalue_find(scope, name) >= 0)
+            return true;
+    return false;
+}
+
+static bool callback_scalar(Type type) {
+    return type == TYPE_INT || type == TYPE_FLOAT || type == TYPE_BOOL;
+}
+
+/* Unknown expression shapes retain the existing indirect path. I do not use
+ * a callback parameter as a substitute for the source's checked element kind. */
+static Type callback_array_element(CG *cg, ASTNode *source) {
+    if (check_expression(source, cg->env) != TYPE_ARRAY) return TYPE_UNKNOWN;
+    if (source->type == AST_ARRAY_LITERAL)
+        return source->as.array_literal.element_type;
+    if (source->type == AST_IDENTIFIER) {
+        Symbol *symbol = env_get_var_visible_at(cg->env, source->as.identifier,
+                                               source->line, source->column);
+        return symbol && symbol->type == TYPE_ARRAY ? symbol->element_type : TYPE_UNKNOWN;
+    }
+    if (source->type == AST_CALL && !source->as.call.func_expr &&
+        source->as.call.name && !callback_value_binding(cg, source->as.call.name)) {
+        Function *function = env_get_function(cg->env, source->as.call.name);
+        if (function && function->return_type == TYPE_ARRAY)
+            return function->return_element_type;
+    }
+    return TYPE_UNKNOWN;
+}
+
+static int32_t named_scalar_callback(CG *cg, ASTNode *call, bool reduce) {
+    ASTNode *callback = call->as.call.args[reduce ? 2 : 1];
+    if (!callback || callback->type != AST_IDENTIFIER || callback->lambda_definition ||
+        !callback->as.identifier || callback_value_binding(cg, callback->as.identifier))
+        return -1;
+    /* Source-position lookup also excludes a checked value binding that is not
+     * currently represented by a local slot. Initializer mutation cannot make
+     * any such alias eligible for identifier elision. */
+    if (env_get_var_visible_at(cg->env, callback->as.identifier,
+                               callback->line, callback->column)) return -1;
+    Function *function = env_get_function(cg->env, callback->as.identifier);
+    if (!function || !function->body || function->is_extern || function->is_async ||
+        function->module_name || function->alias_of || cg->env->current_module ||
+        function->param_count != (reduce ? 2 : 1) || !function->params ||
+        !callback_scalar(function->return_type)) return -1;
+    /* Only my original root's actual top-level body can establish a target.
+     * Imported, lifted and nested declarations cannot enter by a name match. */
+    ASTNode *declaration = NULL;
+    for (int i = 0; i < cg->root_program->as.program.count; ++i) {
+        ASTNode *item = cg->root_program->as.program.items[i];
+        if (item && item->type == AST_FUNCTION && !item->as.function.is_anonymous &&
+            !item->as.function.is_extern && item->as.function.body == function->body &&
+            !strcmp(item->as.function.name, callback->as.identifier)) {
+            declaration = item;
+            break;
+        }
+    }
+    if (!declaration || declaration->as.function.param_count != function->param_count ||
+        declaration->as.function.return_type != function->return_type) return -1;
+    for (int i = 0; i < function->param_count; ++i)
+        if (!callback_scalar(function->params[i].type) ||
+            declaration->as.function.params[i].type != function->params[i].type) return -1;
+    if (callback_array_element(cg, call->as.call.args[0]) !=
+        function->params[reduce ? 1 : 0].type) return -1;
+    if (reduce && (function->params[0].type != function->return_type ||
+        check_expression(call->as.call.args[1], cg->env) != function->return_type)) return -1;
+    return fn_find_body(cg, function->body);
+}
+
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
     const char *name = node->as.call.name;
@@ -1408,9 +1482,13 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         uint16_t src_slot = local_add(cg, "__map_src__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)src_slot);
 
-        compile_expr(cg, args[1]);  /* transform function */
-        uint16_t fn_slot = local_add(cg, "__map_fn__", 0);
-        emit_op(cg, OP_STORE_LOCAL, (int)fn_slot);
+        int32_t direct_callback = named_scalar_callback(cg, node, false);
+        uint16_t fn_slot = 0;
+        if (direct_callback < 0) {
+            compile_expr(cg, args[1]);  /* transform function */
+            fn_slot = local_add(cg, "__map_fn__", 0);
+            emit_op(cg, OP_STORE_LOCAL, (int)fn_slot);
+        }
 
         emit_op(cg, OP_LOAD_LOCAL, (int)src_slot);
         emit_op(cg, OP_ARR_LEN);
@@ -1437,8 +1515,11 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_LOAD_LOCAL, (int)src_slot);
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_ARR_GET);
-        emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
-        emit_op(cg, OP_CALL_INDIRECT, 1, 1);   /* fn(elem) -> value */
+        if (direct_callback >= 0) emit_op(cg, OP_CALL, (uint32_t)direct_callback);
+        else {
+            emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
+            emit_op(cg, OP_CALL_INDIRECT, 1, 1);   /* fn(elem) -> value */
+        }
 
         /* Push result to output array */
         emit_op(cg, OP_LOAD_LOCAL, (int)res_slot);
@@ -1470,9 +1551,13 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         uint16_t acc_slot = local_add(cg, "__reduce_acc__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)acc_slot);
 
-        compile_expr(cg, args[2]);  /* reducer function */
-        uint16_t fn_slot = local_add(cg, "__reduce_fn__", 0);
-        emit_op(cg, OP_STORE_LOCAL, (int)fn_slot);
+        int32_t direct_callback = named_scalar_callback(cg, node, true);
+        uint16_t fn_slot = 0;
+        if (direct_callback < 0) {
+            compile_expr(cg, args[2]);  /* reducer function */
+            fn_slot = local_add(cg, "__reduce_fn__", 0);
+            emit_op(cg, OP_STORE_LOCAL, (int)fn_slot);
+        }
 
         emit_op(cg, OP_LOAD_LOCAL, (int)src_slot);
         emit_op(cg, OP_ARR_LEN);
@@ -1495,8 +1580,11 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_LOAD_LOCAL, (int)src_slot);
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_ARR_GET);
-        emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
-        emit_op(cg, OP_CALL_INDIRECT, 2, 1);   /* fn(acc, elem) -> acc */
+        if (direct_callback >= 0) emit_op(cg, OP_CALL, (uint32_t)direct_callback);
+        else {
+            emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
+            emit_op(cg, OP_CALL_INDIRECT, 2, 1);   /* fn(acc, elem) -> acc */
+        }
         emit_op(cg, OP_STORE_LOCAL, (int)acc_slot);
 
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
@@ -4063,6 +4151,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     cg.authority_slots=&authority_slots;
     cg.module = nvm_module_new();
     cg.env = env;
+    cg.root_program = program;
     cg.code = malloc(CODE_INITIAL);
     cg.code_cap = CODE_INITIAL;
 

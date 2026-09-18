@@ -1,0 +1,37 @@
+I retain named callback artifacts at /tmp/nano-named-callbacks-jwr8ouqn
+test_exact_binary64_results_and_unchanged_inputs (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_exact_binary64_results_and_unchanged_inputs) ... ok
+test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect) ... FAIL
+test_int_bool_results_and_typed_empty (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_int_bool_results_and_typed_empty) ... ok
+test_local_and_computed_callbacks_keep_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_local_and_computed_callbacks_keep_indirect_boundary) ... ok
+test_source_initializer_order_and_alias_length (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_source_initializer_order_and_alias_length) ... ok
+test_u8_keeps_existing_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_u8_keeps_existing_indirect_boundary) ... ok
+test_user_builtin_names_keep_route_specific_binding (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_user_builtin_names_keep_route_specific_binding) ... ok
+test_wrong_signatures_preserve_previous_output (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_wrong_signatures_preserve_previous_output) ... ok
+
+======================================================================
+FAIL: test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 119, in test_global_alias_after_initializer_mutation_stays_indirect
+    self.execute(self.seed(self.source(GLOBAL_ALIAS)), direct=False)
+                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 36, in seed
+    self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 16, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt'), PosixPath('/tmp/nano-named-callbacks-jwr8ouqn/test_global_alias_after_initializer_mutation_stays_indirect.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-named-callbacks-jwr8ouqn/test_global_alias_after_initializer_mutation_stays_indirect.nvm')): 1
+
+-- E001 TYPE MISMATCH --- /tmp/nano-named-callbacks-jwr8ouqn/test_global_alias_after_initializer_mutation_stays_indirect.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+14|  assert (== (reduce [3.0] (initial) selected) 7.0)
+                ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 108.658s
+
+FAILED (failures=1)

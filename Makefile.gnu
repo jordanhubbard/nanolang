@@ -4553,6 +4553,11 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_calculator_host_abi
 test-units: test-calculator-host-abi
+.PHONY: test-named-scalar-callbacks
+test-units: test-named-scalar-callbacks
+test-named-scalar-callbacks: bootstrap $(INTERPRETER) nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_named_scalar_callbacks
+
 .PHONY: test-ordinary-record-producers
 test-units: test-ordinary-record-producers
 test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm

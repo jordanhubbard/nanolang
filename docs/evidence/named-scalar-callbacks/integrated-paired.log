@@ -1,0 +1,36 @@
+I retain named callback artifacts at /tmp/nano-named-callbacks-7__zvrjb
+test_exact_binary64_results_and_unchanged_inputs (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_exact_binary64_results_and_unchanged_inputs) ... ok
+test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect) ... ok
+test_int_bool_results_and_typed_empty (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_int_bool_results_and_typed_empty) ... ok
+test_local_and_computed_callbacks_keep_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_local_and_computed_callbacks_keep_indirect_boundary) ... ok
+test_source_initializer_order_and_alias_length (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_source_initializer_order_and_alias_length) ... ok
+test_u8_keeps_existing_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_u8_keeps_existing_indirect_boundary) ... ok
+test_user_builtin_names_keep_route_specific_binding (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_user_builtin_names_keep_route_specific_binding) ... ok
+test_wrong_signatures_preserve_previous_output (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_wrong_signatures_preserve_previous_output) ... ok
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /tmp/nano-reduce-source-hk5ma0mb
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /tmp/nano-reduce-source-w57w184l
+ok
+test_float_contexts_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_float_contexts_and_empty) ... I retain reduce source evidence at /tmp/nano-reduce-source-3gvoicdl
+ok
+test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) ... I retain reduce source evidence at /tmp/nano-reduce-source-dkadis9_
+ok
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /tmp/nano-reduce-source-wr50lvd3
+ok
+test_supported_checker_unsupported_legacy_abi (tests.test_scalar_reduce_source.ScalarReduce.test_supported_checker_unsupported_legacy_abi) ... I retain reduce source evidence at /tmp/nano-reduce-source-n26tn2xq
+ok
+test_direct_reduce_observer_exact_result (tests.test_binary64_arithmetic_source.ArithmeticSource.test_direct_reduce_observer_exact_result) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-fuw7jl1q
+ok
+test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-in8ws_2q
+ok
+test_generated_runtime_provider_identity (tests.test_binary64_arithmetic_source.ArithmeticSource.test_generated_runtime_provider_identity) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-q09wp0gj
+ok
+test_map_reduce_supported_routes (tests.test_binary64_arithmetic_source.ArithmeticSource.test_map_reduce_supported_routes) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-yri7ldw6
+ok
+test_ordered_global_and_operand_evaluation (tests.test_binary64_arithmetic_source.ArithmeticSource.test_ordered_global_and_operand_evaluation) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-lwx_c0p0
+ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 167.274s
+
+OK

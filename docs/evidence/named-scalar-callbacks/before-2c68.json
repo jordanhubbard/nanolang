@@ -1,0 +1,22 @@
+{
+  "head": "2c68c01c43528c1fd1c1d81e23a5694909448c80",
+  "sha256": {
+    "Makefile.gnu": "72c5b2b9da00488899baffb7485b914debe58bc964ee5dfbdc4a9d1e425ba7c3",
+    "src/nanovirt/codegen.c": "3a943e3296deb4f1dae9d3c508022bb02965e4284da3c18a0272f5855644b5fe",
+    "src/typechecker.c": "2a203fab1485dbb46f7c0a567c959dfd8657834b0868a1aedc9f8edf48d88cc2",
+    "tests/test_binary64_arithmetic_source.py": "7d8300657bdf32376afc1cc1238710919fd89e5f39b13e48f396b776f21d0a8e",
+    "tests/test_named_scalar_callbacks.py": "813c31c2ac55586a3eaaf708f4e002371aef1a89449db610c30868f72a4786d4",
+    "tests/test_scalar_reduce_source.py": "cf4ffd7b990c8bb66326ced2720743c5a7f5b57235c2971e184ee8422ddd9cf1",
+    "tests/test_typechecker.c": "8aae26c182ba63018265703464fa96e2a2be4efb843dab7f845db18f6b6f9674",
+    "bin/nanoc_c": "2c4cc54fe22d3c52060cfbe00bffe663f2e760222c2f0896fde5ff83ad4db248",
+    "bin/nanoc_stage1": "dedc60bc3338d18f318e05d2a372ae119030c1c05885d88fcf1343b20f063e7d",
+    "bin/nanoc_stage2": "c83ab1204a026fa9df4e34c883ec44efea278a5264c69e7c869b0bf25fe43513",
+    "bin/nano": "69e8b228c37d0533ce46c285ad47c80d4eed7e7c95528b224f6a215126292c60",
+    "bin/nano_virt": "3b54c88d178337341bdee5091f6223561c98235b3a881b533d5122551ed0cbd0",
+    "bin/nano_vm": "5625590f40627b124d9a4b27d20a018efda15678ada2227ebf0e2443d9ead616",
+    "bin/nanoisa": "a92dfd86c5f2a3ecea7a69984048e572ec5e7d502bfabe6b34103bd310fa9831",
+    "bin/nvm2c": "5030d9befa07fffc2fc961689cfe7e26d8f484777763c69d7f0bc2fddae16149",
+    "bin/nvm2llvm": "d9636637e7d86c24ab36774e57f00401eff645f467d1ed0dd9e83ab5be585b7b",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a"
+  }
+}

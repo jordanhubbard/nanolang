@@ -1,0 +1,140 @@
+I retain named callback artifacts at /tmp/nano-named-callbacks-p5mezc9c
+test_exact_binary64_results_and_unchanged_inputs (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_exact_binary64_results_and_unchanged_inputs) ... ok
+test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect) ... FAIL
+test_int_bool_results_and_typed_empty (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_int_bool_results_and_typed_empty) ... ok
+test_local_and_computed_callbacks_keep_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_local_and_computed_callbacks_keep_indirect_boundary) ... ok
+test_source_initializer_order_and_alias_length (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_source_initializer_order_and_alias_length) ... ok
+test_u8_keeps_existing_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_u8_keeps_existing_indirect_boundary) ... ok
+test_user_builtin_names_keep_route_specific_binding (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_user_builtin_names_keep_route_specific_binding) ... ok
+test_wrong_signatures_preserve_previous_output (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_wrong_signatures_preserve_previous_output) ... ok
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /tmp/nano-reduce-source-iwp8fs9m
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /tmp/nano-reduce-source-wg2zql5z
+ok
+test_float_contexts_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_float_contexts_and_empty) ... I retain reduce source evidence at /tmp/nano-reduce-source-uafsaixa
+ok
+test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) ... I retain reduce source evidence at /tmp/nano-reduce-source-wsprqxus
+ok
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /tmp/nano-reduce-source-opjx2fv5
+ok
+test_supported_checker_unsupported_legacy_abi (tests.test_scalar_reduce_source.ScalarReduce.test_supported_checker_unsupported_legacy_abi) ... I retain reduce source evidence at /tmp/nano-reduce-source-kbkg294g
+ok
+test_direct_reduce_observer_exact_result (tests.test_binary64_arithmetic_source.ArithmeticSource.test_direct_reduce_observer_exact_result) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-nls4mj5c
+ok
+test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-lna2yed_
+
+  test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nano_virt') ... ERROR
+  test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage1') ... ERROR
+  test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage2') ... ERROR
+test_generated_runtime_provider_identity (tests.test_binary64_arithmetic_source.ArithmeticSource.test_generated_runtime_provider_identity) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-shaiqsea
+ok
+test_map_reduce_supported_routes (tests.test_binary64_arithmetic_source.ArithmeticSource.test_map_reduce_supported_routes) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-kq0k8zl3
+ok
+test_ordered_global_and_operand_evaluation (tests.test_binary64_arithmetic_source.ArithmeticSource.test_ordered_global_and_operand_evaluation) ... I retain source arithmetic artifacts at /tmp/nano-arithmetic-source-yrbek5dm
+ok
+
+======================================================================
+ERROR: test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 39, in routes
+    self.command(ROOT/'bin/nvm2llvm',module,'-o',ir)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 14, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2llvm'
+
+======================================================================
+ERROR: test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 39, in routes
+    self.command(ROOT/'bin/nvm2llvm',module,'-o',ir)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 14, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2llvm'
+
+======================================================================
+ERROR: test_exact_scalar_arithmetic (tests.test_binary64_arithmetic_source.ArithmeticSource.test_exact_scalar_arithmetic) (canonical='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 39, in routes
+    self.command(ROOT/'bin/nvm2llvm',module,'-o',ir)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_binary64_arithmetic_source.py", line 14, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2llvm'
+
+======================================================================
+FAIL: test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 119, in test_global_alias_after_initializer_mutation_stays_indirect
+    self.execute(self.seed(self.source(GLOBAL_ALIAS)), direct=False)
+                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 36, in seed
+    self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 16, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt'), PosixPath('/tmp/nano-named-callbacks-p5mezc9c/test_global_alias_after_initializer_mutation_stays_indirect.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-named-callbacks-p5mezc9c/test_global_alias_after_initializer_mutation_stays_indirect.nvm')): 1
+
+-- E001 TYPE MISMATCH --- /tmp/nano-named-callbacks-p5mezc9c/test_global_alias_after_initializer_mutation_stays_indirect.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+14|  assert (== (reduce [3.0] (initial) selected) 7.0)
+                ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 19 tests in 167.297s
+
+FAILED (failures=1, errors=3)

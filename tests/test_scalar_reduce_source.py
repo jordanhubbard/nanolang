@@ -1,4 +1,4 @@
-"""I qualify exact reduce source signatures separately from native FUNCREF."""
+"""I qualify exact reduce source signatures and named canonical native calls."""
 import os
 from pathlib import Path
 import subprocess
@@ -39,12 +39,6 @@ class ScalarReduce(unittest.TestCase):
                 self.command(ROOT/'bin/nano_vm', '--verify-only', module)
                 self.command(ROOT/'bin/nano_vm', module)
                 output = self.work / (name + '.c')
-                if name == 'nano_virt':
-                    output.write_text('previous output')
-                    refused = self.command(ROOT/'bin/nvm2c', module, '-o', output, success=False)
-                    self.assertIn('unsupported opcode FUNCREF', refused.stderr)
-                    self.assertEqual(output.read_text(), 'previous output')
-                    continue
                 self.command(ROOT/'bin/nvm2c', module, '-o', output)
                 executable = self.work / (name + '-native')
                 self.command(os.environ.get('CC', 'cc'), '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', output, '-lm', '-o', executable)
