@@ -10984,3 +10984,5 @@ Next Review: the exact release candidate and its published artifacts.
 - [ ] I retain ownership-query allocation versus malformed-input diagnostic ambiguity as a follow-up (task_31682d93fc3d4647bb1c1523c9c68eab). The record adapter conservatively returns UNRESOLVED; this does not weaken validation or add a release gate.
 
 - [ ] I apply signed nonfinite text to my interpreter and paired legacy runtime helpers (`task_df2b1ff3d75d4b43b2471696ee0b613e`, parent e92), preserving finite formatting, once-only argument evaluation and ownership. My [contract](NANOISA_SIGNED_NAN_FORMAT_POLICY.md) requires fresh bootstrap and exact-bit captured output across supported routes; public C-target policy remains separately coordinated.
+
+- [ ] I publish my shared formatter before generated module string helpers (`task_abd14a6133da495a9dc49a6bfc88c10f`). The first f7cc bootstrap stops at a static-after-implicit declaration in compiler_schema module C. I preserve that log, emit the same guarded provider before either runtime section, and qualify a fresh corrected bootstrap.
