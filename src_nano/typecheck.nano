@@ -3888,6 +3888,72 @@ shadow ensure_known_expr_node {
  * Example: Option.Some { value: 42 }
  * Returns: The union type (TYPE_UNION with union name)
  */
+# I validate actual constructor nodes without coercing selected payload variables.
+fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (or (!= expected.kind TypeKind.TYPE_UNION) (!= node_type ParseNodeType.PNODE_UNION_CONSTRUCT)) { return actual }
+    let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+    let concrete: string = (type_to_string expected)
+    let identity: string = (resource_type_identity parser concrete literal.line)
+    let actual_identity: string = (resource_type_identity parser literal.union_name literal.line)
+    if (!= (base_type_name identity) (base_type_name actual_identity)) { return actual }
+    let index: int = (resource_union_index parser identity)
+    if (< index 0) { return actual }
+    let definition: ASTUnion = (parser_get_union parser index)
+    let arguments: array<string> = (tc_generic_arguments concrete)
+    let mut valid: bool = (== definition.generic_param_count (array_length arguments))
+    let mut selected: int = -1
+    let mut offset: int = 0
+    let mut vi: int = 0
+    while (< vi definition.variant_count) {
+        if (== literal.variant_name (at definition.variant_names vi)) { set selected vi }
+        if (< selected 0) { set offset (+ offset (at definition.variant_field_counts vi)) }
+        set vi (+ vi 1)
+    }
+    if (< selected 0) { set valid false } else {
+        let count: int = (at definition.variant_field_counts selected)
+        if (!= literal.field_count count) { set valid false }
+        let mut field: int = 0
+        while (< field literal.field_count) {
+            let name: string = (at literal.field_names field)
+            let mut slot: int = -1
+            let mut j: int = 0
+            while (< j count) {
+                if (== name (at definition.variant_field_names (+ offset j))) { set slot j }
+                set j (+ j 1)
+            }
+            set j 0
+            while (< j field) {
+                if (== name (at literal.field_names j)) { set valid false }
+                set j (+ j 1)
+            }
+            if (< slot 0) { set valid false } else {
+                let field_spelling: string = (tc_substitute_generic (at definition.variant_field_types (+ offset slot)) definition.generic_params arguments)
+                let field_expected: NSType = (type_from_string_with_parser parser field_spelling)
+                let value_id: int = (at literal.field_value_ids field)
+                let value_kind: int = (at literal.field_value_types field)
+                let raw: NSType = (check_expr_node parser value_id value_kind symbols diags file_name)
+                let checked: NSType = (check_constructor_argument parser value_id value_kind raw field_expected symbols diags file_name)
+                if (or (== checked.kind TypeKind.TYPE_UNKNOWN) (not (types_equal checked field_expected))) { set valid false }
+            }
+            set field (+ field 1)
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a declared union variant with each payload field exactly once and matching concrete types." (Diagnostics.diag_location file_name literal.line literal.column)))
+        return actual
+    }
+    return expected
+}
+shadow check_constructor_argument {
+    let parser: Parser = (resource_test_parser "union Choice { Some { n: int } } fn f() -> void { (consume (Choice.Some { n: 1 })) }")
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let expected: NSType = (type_from_string_with_parser parser "Choice")
+    let actual: NSType = (check_union_construct parser 0)
+    let checked: NSType = (check_constructor_argument parser 0 ParseNodeType.PNODE_UNION_CONSTRUCT actual expected [] diags "constructor.nano")
+    assert (types_equal checked expected)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+}
+
 fn check_union_construct(parser: Parser, node_id: int) -> NSType {
     let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
     
@@ -4161,9 +4227,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             let mut j: int = 0
             while (< j call_node.arg_count) {
                 let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start j))
-                let arg_type: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
+                let arg_raw: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
                 if (< j param_count) {
                     let param_type: NSType = (at param_types j)
+                    let arg_type: NSType = (check_constructor_argument parser arg_ref.node_id arg_ref.node_type arg_raw param_type symbols diags file_name)
                     if (not (types_equal arg_type param_type)) {
                         let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " to the function expression: expected " (+ (type_to_string param_type) (+ ", got " (type_to_string arg_type))))))
                         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
@@ -4297,8 +4364,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     while (< j call_node.arg_count) {
                         if (< j sym.param_count) {
                             let arg_ref2: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start j))
-                            let arg_t2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
+                            let arg_raw2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
                             let param_t: NSType = (at sym.param_types j)
+                            let arg_t2: NSType = (check_constructor_argument parser arg_ref2.node_id arg_ref2.node_type arg_raw2 param_t symbols diags file_name)
                             let opaque_param: bool = (tc_is_opaque_name parser param_t.name)
                             let mut opaque_null: bool = false
                             if (and opaque_param (== arg_ref2.node_type ParseNodeType.PNODE_NUMBER)) {
@@ -4327,8 +4395,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         while (< argument_index call_node.arg_count) {
                             if (< argument_index (array_length params)) {
                                 let argument: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start argument_index))
-                                let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                                let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
                                 let expected: NSType = (at params argument_index)
+                                let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
                                 if (not (types_equal actual expected)) {
                                     let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
                                     (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name call_node.line call_node.column)))
@@ -4372,11 +4441,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 while (< j mqc_node.arg_count) {
                     if (< j (array_length sym.param_types)) {
                         let expected: NSType = (at sym.param_types j)
-                        if (== expected.kind TypeKind.TYPE_FUNCTION) {
+                        if (or (== expected.kind TypeKind.TYPE_FUNCTION) (== expected.kind TypeKind.TYPE_UNION)) {
                             let argument: ASTStmtRef = (parser_get_call_arg parser (+ mqc_node.arg_start j))
-                            let actual: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                            let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
                             if (not (types_equal actual expected)) {
-                                let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
+                                let message: string = (+ "I require the declared qualified argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
                                 (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name mqc_node.line mqc_node.column)))
                             }
                         }
