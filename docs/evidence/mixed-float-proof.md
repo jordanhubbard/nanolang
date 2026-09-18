@@ -56,3 +56,19 @@ separate evidence. Only the last runner has complete integrated identity success
 No pending module executed. This PR completes a private shape-proof child after
 canonical merge; it does not complete mixed affine/scalar/runtime admission or
 unchanged Samples/PREFIX source execution.
+
+I integrate canonical PR803 d6cacdb in a fresh tree at ffa8d812, preserving the
+qualified adf3613a tree and tools. I resolve the roadmap conflict by retaining both
+entries; Makefile additions merge without conflict. My proof and both query fixture
+files remain byte-for-byte unchanged. Incoming nested-result validation changes
+affine_state and its result contract; it does not expand this private proof's
+scalar-leaf owner signatures. Incoming source-producer changes retain their own
+qualification; I claim no new bootstrap or source-producer qualification here.
+
+My fresh tools build passes17.912s. GCC and Clang sanitizer query gates each pass339
+checks (0.565s/1.266s); the six adjacent targets pass3.726s, including the added
+owned-result descriptor check,138 descriptive checks and96 verifier tests. The
+post803 reports retain exact commands and flags. All49 tool/object/binary inputs
+and1,611 native-source/test/build identities match before, after and sealing; no
+additional objects appear. The expanded manifest seals64 reports. These checks
+remain query-only for pending modules and grant no executable mixed admission.
