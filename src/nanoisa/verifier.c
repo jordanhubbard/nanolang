@@ -1027,9 +1027,10 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
                 return fail("I refuse linked ownership execution contracts");
         }
     }
-    /* Phase 1: structural validation */
-    NvmVerifyResult r = verify_structure(mod, false, NULL);
-    if (!r.ok) return r;
+    /* Zero linked modules retain the same invocation-local owned proof. */
+    bool owned_admitted=false;
+    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    if (!r.ok || (!linked_count && owned_admitted)) return r;
 
     /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
      * supplied linked-module table so cross-module call operands are bounded. */

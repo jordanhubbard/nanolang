@@ -15,6 +15,7 @@ static NvmModule *advisory_fixture(bool wrong) {
 int main(void) {
     (void)ordinary_chain;(void)graph_refusals;(void)artifacts;
     NvmModule *m=graph_fixture(0,4);consuming_verified(m);
+    CHECK(nvm_verify_linked(m,NULL,0).ok);
     uint16_t depth=7;CHECK(nvm_verify_function(m,2).ok);
     CHECK(nvm_verify_function_max_stack(m,2,&depth).ok&&depth==NVM_AFFINE_MAX_STACK);
     depth=7;CHECK(!nvm_verify_function_max_stack(m,4,&depth).ok&&depth==7);
@@ -22,11 +23,12 @@ int main(void) {
     CHECK(nvm_verify_affine_function(m,2).ok);
     /* A subsequent public call must inspect changed nominal metadata again. */
     slot(m->ownership_data+16+3*140+12,TAG_STRUCT,0,2);
-    CHECK(!nvm_verify(m).ok);CHECK(!nvm_verify_function(m,0).ok);
+    CHECK(!nvm_verify(m).ok);CHECK(!nvm_verify_function(m,0).ok);CHECK(!nvm_verify_linked(m,NULL,0).ok);
     slot(m->ownership_data+16+3*140+12,TAG_STRUCT,0,0);CHECK(nvm_verify(m).ok);nvm_module_free(m);
     for(unsigned wrong=0;wrong<2;wrong++) {
         m=advisory_fixture(wrong);CHECK(!nvm_verify_owned_module(m).ok);
         CHECK(nvm_verify(m).ok==!wrong);CHECK(nvm_verify_function(m,0).ok==!wrong);
+        CHECK(nvm_verify_linked(m,NULL,0).ok==!wrong);
         depth=0;CHECK(nvm_verify_function_max_stack(m,0,&depth).ok==!wrong);
         if(!wrong)CHECK(depth==1);
         nvm_module_free(m);
