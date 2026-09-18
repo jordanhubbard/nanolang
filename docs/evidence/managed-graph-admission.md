@@ -46,7 +46,7 @@ I set `NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/1
   objects. A separate live packed child reaches real Wasm allocation pressure,
   returns MEMORY while keeping exactly two global-reachable objects, and clears
   both at disposal. Fresh instances repeat the same observed behavior.
-- Fresh native executions independently fail allocation budgets0,1,2,3,4,6,10,
+- Fresh native executions independently exercise allocation budgets0,1,2,3,4,6,10,
   15,25,45,80 across preparation and object/table/workspace/literal/slice growth;
   every acquired failure clears active frames and later corrected entry succeeds.
   Nested begin retains the active caller's original ASSERT error; terminal
