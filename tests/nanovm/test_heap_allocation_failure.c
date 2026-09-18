@@ -35,9 +35,53 @@ static void *heap_test_realloc(void *pointer, size_t size) {
 #undef realloc
 #undef malloc
 #include "nanovm/vm.h"
+#include "nanoisa/verifier.h"
 
 int g_argc;
 char **g_argv;
+
+static void test_empty_record_allocation_status(void) {
+    uint8_t code[] = {OP_STRUCT_NEW,1,0,0,0,OP_RET};
+    NvmModule *module = nvm_module_new();
+    assert(module);
+    module->struct_count = 2;
+    NvmFunctionEntry fn = {.result_count = 1, .result_tag = TAG_STRUCT};
+    fn.name_idx = nvm_add_string(module, "empty", 5);
+    fn.code_offset = nvm_append_code(module, code, sizeof(code));
+    fn.code_length = sizeof(code);
+    nvm_add_function(module, &fn);
+    assert(nvm_verify(module).ok);
+    VmState vm;
+    vm_init(&vm, module);
+    uint64_t objects = vm.heap.stats.num_objects, allocated = vm.heap.stats.allocated;
+    uint64_t allocations = vm.heap.stats.allocation_calls;
+    malloc_calls = 0;
+    fail_malloc_at = 1;
+    NanoValue result = val_void();
+    assert(vm_invoke(&vm, 0, NULL, 0, &result) == VM_ERR_MEMORY);
+    fail_malloc_at = 0;
+    assert(result.tag == TAG_VOID && vm.stack_size == 0 && vm.frame_count == 0);
+    assert(strstr(vm.error_msg, "allocate the struct"));
+    assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
+    assert(vm.heap.stats.allocation_calls == allocations);
+    /* A zero-field allocation may legally return NULL storage. */
+    reject_calloc = true;
+    assert(vm_invoke(&vm, 0, NULL, 0, &result) == VM_OK);
+    reject_calloc = false;
+    assert(result.tag == TAG_STRUCT && result.as.sval);
+    assert(result.as.sval->def_idx == 1 && result.as.sval->field_count == 0);
+    vm_release(&vm.heap, result);
+    vm_collect_cycles(&vm.heap);
+    assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
+    result = val_void();
+    assert(vm_invoke(&vm, 0, NULL, 0, &result) == VM_OK);
+    assert(result.tag == TAG_STRUCT && result.as.sval->def_idx == 1);
+    vm_release(&vm.heap, result);
+    vm_collect_cycles(&vm.heap);
+    assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
 
 static void test_map_constructor_allocation_status(void) {
     uint8_t code[] = {OP_HM_NEW, TAG_STRING, TAG_INT, OP_RET};
@@ -384,6 +428,7 @@ int main(void) {
     vm_release(&heap, val_struct(record));
     vm_release(&heap, val_union(variant));
     vm_heap_destroy(&heap);
+    test_empty_record_allocation_status();
     test_map_constructor_allocation_status();
     test_map_growth_allocation_status();
     test_constructor_traps();
