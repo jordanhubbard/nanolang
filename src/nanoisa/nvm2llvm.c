@@ -7,6 +7,7 @@
 #include "managed_runtime_ir.h"
 #include "managed_strings.h"
 #include "managed_array_shapes.h"
+_Static_assert(NMS_MEMORY == 3, "I retain graph begin acquired-memory status ABI");
 #include "nvm2llvm_managed.inc"
 
 static int refuse(char *error, size_t size, const char *format, ...) {

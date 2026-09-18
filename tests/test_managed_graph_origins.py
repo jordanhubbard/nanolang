@@ -29,7 +29,7 @@ class GraphOrigins(unittest.TestCase):
             outputs.append([list(map(int,line.split())) for line in lines])
         self.assertEqual(outputs[0],outputs[1]);fields,*origins=outputs[0]
         self.assertEqual(fields[0],status,fields);self.assertEqual(fields[1],leaf,fields)
-        if leaf==1:self.assertEqual(fields[2],0,fields)
+        if leaf==1 and status in (0,1):self.assertEqual(fields[2],int(status==0),fields)
         if vm:
             module=self.work/'input.nvm';self.command([ROOT/'bin/nanoisa','asm',source,'-o',module]);self.command([ROOT/'bin/nano_vm',module])
         return fields,origins
@@ -93,7 +93,7 @@ class GraphOrigins(unittest.TestCase):
         for budget in range(8):self.analyze(text,status=4,budget=budget)
         self.analyze(text,budget=8)
         self.analyze(self.program('ARR_NEW 7\nPOP\n'*65),status=3)
-        source=self.work/'refuse.nasm';source.write_text(text);module=self.work/'refuse.nvm'
+        source=self.work/'refuse.nasm';source.write_text(self.program('ARR_NEW 1\nARR_NEW 7\nARR_PUSH\nPOP'));module=self.work/'refuse.nvm'
         self.command([ROOT/'bin/nanoisa','asm',source,'-o',module])
         for tool in ('nvm2llvm','nvm2wasm'):
             output=self.work/(tool+'.old');output.write_bytes(b'prior output')

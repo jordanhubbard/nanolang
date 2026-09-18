@@ -29,6 +29,17 @@ int main(int argc,char **argv) {
     if(prior.status!=after.status || strcmp(prior.message,after.message) ||
        profile_before.ok!=profile_after.ok || strcmp(profile_before.error_msg,profile_after.error_msg))return 7;
     if(leaf_before && (!leaf_after || memcmp(leaf_before,leaf_after,sizeof *leaf_before)))return 8;
+    int selected=99;
+#ifdef NMA_TESTING
+    nvm_array_analysis_fail_after(0);
+    if(nvm_select_managed_array_mode(module,&selected).status!=NVM_ARRAY_MEMORY || selected!=99)return 11;
+    nvm_array_analysis_fail_after(UINT64_MAX);
+#endif
+    NvmArrayEligibilityResult selection=nvm_select_managed_array_mode(module,&selected);
+    if(profile_before.ok) {
+        if(selection.status!=NVM_ARRAY_ELIGIBLE || selected!=(prior.status!=NVM_ARRAY_ELIGIBLE))return 12;
+    } else if(selection.status==NVM_ARRAY_ELIGIBLE || selected!=99)return 13;
+    if(nvm_select_managed_array_mode(module,NULL).status!=NVM_ARRAY_INVALID)return 14;
     char *printed=nanoisa_print(module);
     if(!before || !printed || strcmp(before,printed))return 9;
     printf("%d %d %d %u %u\n",result.status,prior.status,profile_before.ok,
