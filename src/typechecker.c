@@ -1274,6 +1274,149 @@ Type check_expression(ASTNode *expr, Environment *env) {
     return result;
 }
 
+/* I use one guard rule in both expression and statement matches. */
+static bool check_match_guard(ASTNode *guard, Environment *env) {
+    if (!guard) return true;
+    Type guard_type = check_expression(guard, env);
+    if (guard_type == TYPE_BOOL) return true;
+
+    emit_context_error(
+        "E001 TYPE MISMATCH",
+        guard->line,
+        guard->column,
+        1,
+        "I require a match guard to have type bool.",
+        "Give this guard an exact bool type before I select an arm."
+    );
+    if (active_statement_checker) active_statement_checker->has_error = true;
+    return false;
+}
+
+static bool match_guard_is_unconditional(const ASTNode *guard) {
+    return !guard || (guard->type == AST_BOOL && guard->as.bool_val);
+}
+
+static bool match_pattern_names_variant(const char *pattern, const char *variant) {
+    if (!pattern || !variant) return false;
+    if (strncmp(pattern, "OR:", 3) != 0) return strcmp(pattern, variant) == 0;
+
+    const char *part = pattern + 3;
+    size_t variant_len = strlen(variant);
+    while (*part) {
+        const char *end = strchr(part, ':');
+        size_t part_len = end ? (size_t)(end - part) : strlen(part);
+        if (part_len == variant_len && strncmp(part, variant, part_len) == 0)
+            return true;
+        if (!end) break;
+        part = end + 1;
+    }
+    return false;
+}
+
+/*
+ * I reject a source match when I cannot prove that one arm must succeed.
+ * Runtime terminal backstops remain a separate obligation under task70c5.
+ */
+static void check_match_totality(ASTNode *matched, Environment *env,
+                                 const char *union_base_name,
+                                 bool has_int_patterns) {
+    bool has_unconditional_wildcard = false;
+    for (int i = 0; i < matched->as.match_expr.arm_count; ++i) {
+        ASTNode *guard = matched->as.match_expr.guard_exprs
+            ? matched->as.match_expr.guard_exprs[i] : NULL;
+        if (strcmp(matched->as.match_expr.pattern_variants[i], "_") == 0 &&
+            match_guard_is_unconditional(guard)) {
+            has_unconditional_wildcard = true;
+            break;
+        }
+    }
+
+    if (has_int_patterns) {
+        if (!has_unconditional_wildcard) {
+            emit_context_error(
+                "E035 NON-EXHAUSTIVE MATCH",
+                matched->line,
+                matched->column,
+                5,
+                "I require an unconditional wildcard in an integer match.",
+                "Add `_ => ...` after the integer cases so every integer is covered."
+            );
+            if (active_statement_checker) active_statement_checker->has_error = true;
+        }
+        return;
+    }
+
+    if (has_unconditional_wildcard) return;
+
+    UnionDef *union_def = union_base_name ? env_get_union(env, union_base_name) : NULL;
+    if (!union_def) {
+        emit_context_error(
+            "E035 NON-EXHAUSTIVE MATCH",
+            matched->line,
+            matched->column,
+            5,
+            "I cannot establish that this match covers every value.",
+            "Use a union with known variants or add an unconditional wildcard."
+        );
+        if (active_statement_checker) active_statement_checker->has_error = true;
+        return;
+    }
+
+    bool *covered = calloc((size_t)union_def->variant_count, sizeof(bool));
+    if (!covered) {
+        emit_context_error(
+            "E035 NON-EXHAUSTIVE MATCH",
+            matched->line,
+            matched->column,
+            5,
+            "I could not allocate match coverage state.",
+            "Retry after making memory available."
+        );
+        if (active_statement_checker) active_statement_checker->has_error = true;
+        return;
+    }
+
+    for (int arm = 0; arm < matched->as.match_expr.arm_count; ++arm) {
+        ASTNode *guard = matched->as.match_expr.guard_exprs
+            ? matched->as.match_expr.guard_exprs[arm] : NULL;
+        if (!match_guard_is_unconditional(guard)) continue;
+        const char *pattern = matched->as.match_expr.pattern_variants[arm];
+        for (int variant = 0; variant < union_def->variant_count; ++variant) {
+            if (match_pattern_names_variant(pattern, union_def->variant_names[variant]))
+                covered[variant] = true;
+        }
+    }
+
+    char missing[512] = "I require this match to cover every variant; I am missing:";
+    size_t used = strlen(missing);
+    int missing_count = 0;
+    for (int variant = 0; variant < union_def->variant_count; ++variant) {
+        if (covered[variant]) continue;
+        missing_count++;
+        if (used < sizeof(missing)) {
+            int written = snprintf(missing + used, sizeof(missing) - used,
+                                   " %s", union_def->variant_names[variant]);
+            if (written > 0) {
+                size_t available = sizeof(missing) - used;
+                used += (size_t)written < available ? (size_t)written : available - 1;
+            }
+        }
+    }
+    free(covered);
+
+    if (missing_count > 0) {
+        emit_context_error(
+            "E035 NON-EXHAUSTIVE MATCH",
+            matched->line,
+            matched->column,
+            5,
+            missing,
+            "Add unconditional arms for the missing variants or one unconditional wildcard."
+        );
+        if (active_statement_checker) active_statement_checker->has_error = true;
+    }
+}
+
 /* I borrow declared signatures; the parser/environment owns their storage. */
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env) {
     if (!call || call->type != AST_CALL) return NULL;
@@ -4141,15 +4284,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
 
-                /* Type check guard expression if present — must be boolean */
-                if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
-                    Type guard_type = check_expression(expr->as.match_expr.guard_exprs[i], env);
-                    if (guard_type != TYPE_BOOL && guard_type != TYPE_UNKNOWN) {
-                        fprintf(stderr, "Error at line %d, column %d: Match guard expression must be boolean\n",
-                                expr->as.match_expr.guard_exprs[i]->line,
-                                expr->as.match_expr.guard_exprs[i]->column);
-                    }
-                }
+                /* Unknown is not permission to emit a guard. */
+                if (expr->as.match_expr.guard_exprs)
+                    check_match_guard(expr->as.match_expr.guard_exprs[i], env);
 
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
@@ -4168,86 +4305,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
-            /* Exhaustiveness check: warn if any variants are not covered.
-             * Skip entirely if a wildcard _ arm is present (it covers all remaining).
-             * Guarded arms do NOT count as full coverage (guards may all be false). */
-            int has_wildcard = 0;
-            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                if (strcmp(expr->as.match_expr.pattern_variants[i], "_") == 0 &&
-                    !(expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i])) {
-                    has_wildcard = 1;
-                    break;
-                }
-            }
-            if (union_base_name && !has_wildcard) {
-                UnionDef *union_def = env_get_union(env, union_base_name);
-                if (union_def) {
-                    /* Build set of covered variants — only unguarded arms count */
-                    bool *covered = calloc(union_def->variant_count, sizeof(bool));
-
-                    for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                        const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
-                        /* Skip guarded arms — they might not match */
-                        if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
-                            continue;
-                        }
-
-                        if (strncmp(pattern_variant, "OR:", 3) == 0) {
-                            /* Or-pattern: OR:A:B covers variants A and B */
-                            char or_copy[512];
-                            strncpy(or_copy, pattern_variant + 3, sizeof(or_copy) - 1);
-                            or_copy[sizeof(or_copy) - 1] = '\0';
-                            char *tok_or = strtok(or_copy, ":");
-                            while (tok_or) {
-                                for (int j = 0; j < union_def->variant_count; j++) {
-                                    if (strcmp(union_def->variant_names[j], tok_or) == 0) {
-                                        covered[j] = true; break;
-                                    }
-                                }
-                                tok_or = strtok(NULL, ":");
-                            }
-                        } else {
-                            /* Find which variant this pattern covers */
-                            for (int j = 0; j < union_def->variant_count; j++) {
-                                if (strcmp(union_def->variant_names[j], pattern_variant) == 0) {
-                                    covered[j] = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    /* Check for uncovered variants */
-                    int uncovered_count = 0;
-                    for (int i = 0; i < union_def->variant_count; i++) {
-                        if (!covered[i]) {
-                            uncovered_count++;
-                        }
-                    }
-
-                    if (uncovered_count > 0) {
-                        /* Emit warning with list of uncovered variants */
-                        fprintf(stderr, "%sWarning at line %d, column %d:%s Non-exhaustive match - missing pattern",
-                                CSTART_WARNING, expr->line, expr->column, CEND);
-                        if (uncovered_count == 1) {
-                            fprintf(stderr, " for variant:");
-                        } else {
-                            fprintf(stderr, "s for variants:");
-                        }
-
-                        for (int i = 0; i < union_def->variant_count; i++) {
-                            if (!covered[i]) {
-                                fprintf(stderr, " %s", union_def->variant_names[i]);
-                            }
-                        }
-                        fprintf(stderr, "\n");
-                        fprintf(stderr, "%sHint:%s Add missing pattern(s) or use a catch-all pattern\n",
-                                CSTART_HINT, CEND);
-                    }
-
-                    free(covered);
-                }
-            }
+            check_match_totality(expr, env, union_base_name, has_int_patterns_expr);
 
             expr->as.match_expr.result_type = return_type;
             expr->as.match_expr.result_type_checked = true;
@@ -5662,15 +5720,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     }
                 }
 
-                /* Type check guard expression if present — must be boolean */
-                if (stmt->as.match_expr.guard_exprs && stmt->as.match_expr.guard_exprs[i]) {
-                    Type guard_type = check_expression(stmt->as.match_expr.guard_exprs[i], tc->env);
-                    if (guard_type != TYPE_BOOL && guard_type != TYPE_UNKNOWN) {
-                        fprintf(stderr, "Error at line %d, column %d: Match guard expression must be boolean\n",
-                                stmt->as.match_expr.guard_exprs[i]->line,
-                                stmt->as.match_expr.guard_exprs[i]->column);
-                    }
-                }
+                /* Unknown is not permission to emit a guard. */
+                if (stmt->as.match_expr.guard_exprs)
+                    check_match_guard(stmt->as.match_expr.guard_exprs[i], tc->env);
 
                 ASTNode *arm = stmt->as.match_expr.arm_bodies[i];
                 if (arm && arm->type == AST_BLOCK) {
@@ -5682,6 +5734,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 /* I retain emission metadata within its lexical arm only. */
                 bound_scope_symbols(tc->env, arm_first_symbol, arm);
             }
+
+            check_match_totality(stmt, tc->env, union_base_name, has_int_patterns_stmt);
 
             return TYPE_VOID;
         }
