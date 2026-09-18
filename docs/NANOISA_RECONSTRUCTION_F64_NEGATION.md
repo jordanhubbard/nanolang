@@ -5,6 +5,8 @@ full reconstruction parent `task_4bd034f6029b7458201db74e2c3aeb32`.
 My starting main is `a0a8fbcf`, containing PR726 typed comparisons and the
 previous exact binary64 facts, text and transport prerequisites.
 
+My bounded implementation is qualified in [my evidence](evidence/reconstruction-f64-negation.md).
+
 ## My operation and source boundary
 
 I propose only F64_NEG: one exact FLOAT operand and one FLOAT result. I retain
