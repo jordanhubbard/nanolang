@@ -25,3 +25,20 @@ hermetic relocation. Local downstream translator/runtime tools are built
 and hashed separately; process system libraries remain host dependencies.
 
 My initial new fixture used unsupported `.param` syntax and was refused by the assembler before any module/compiler execution. I preserve `/tmp/nanolang-generic-reconstruction-first.log`; A first spelling correction to `.params` was also refused (`/tmp/nanolang-generic-reconstruction-corrected.log`). I inspected the existing paired fixture and used its `.parameters identity int` directive; neither setup attempt executed a module.
+
+## My measured acceptance
+
+At production `3c699f84`, three focused methods pass GCC in 14.320 seconds.
+Those three plus the adjacent typed multiplication-loop and mocked compiler
+diagnostic methods pass Clang in 15.351 seconds. The focused cases include
+12 ordinary total-arithmetic cases in four small modules, call/local/loop
+snapshots, and 18 other-tag inputs refused before either output is published.
+I execute only correctly typed modules. Positive modules compare VM, native
+C, reconstructed sanitized C and NanoLang compiled by all three copied
+producers; Cseed Nano-C also has UBSan enabled.
+
+I verified generator/local-tool/copied-compiler hashes and both original
+and copied host libraries unchanged after the gates. The exact pins,
+paths and logs are in [my manifest](evidence/reconstruction-generic-integer.json).
+I use no live product compiler binaries after making the snapshot.
+This does not establish a hermetic relocation or fresh compiler bootstrap.
