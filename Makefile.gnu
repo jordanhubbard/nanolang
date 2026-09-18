@@ -525,8 +525,8 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
 	chmod +x $(BIN_DIR)/nvm2hl
 
-test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division
+test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime bootstrap
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -3299,7 +3299,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo "=========================================="
 	@echo "Stage 2: Building Self-Hosted Components"
 	@echo "=========================================="
-	@echo "Compiling components with stage1..."
+	@echo "Compiling components with $(COMPILER)..."
 	@echo ""
 	@# Compile each self-hosted component (STRICT: must produce an executable binary)
 	@# If compiler is ASan-instrumented, disable leak detection during compilation.
@@ -3337,7 +3337,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	touch $(SENTINEL_STAGE2)
 
 # =====================================================================
-# Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
+# Stage 3: Execute bounded component entry assertions
 # =====================================================================
 
 .PHONY: stage3
@@ -3351,7 +3351,7 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 	@echo "=========================================="
 	@echo "Validating self-hosted components..."
 	@echo ""
-	@# Run each component (they are expected to run their own shadow tests and exit 0)
+	@# Each driver executes explicit entry assertions; imported shadows are separate.
 	@success=0; fail=0; missing=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
 		bin="$(BIN_DIR)/$$comp"; \
@@ -3361,19 +3361,19 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 			missing=$$((missing + 1)); \
 			continue; \
 		fi; \
-		echo "  Testing $$comp..."; \
+		echo "  Checking $$comp entry assertions..."; \
 		if $(TIMEOUT_CMD) "$$bin" >"$$log" 2>&1; then \
-			echo "    ✓ $$comp tests passed"; \
+			echo "    ✓ $$comp entry assertions passed"; \
 			success=$$((success + 1)); \
 		else \
-			echo "    ❌ $$comp tests failed"; \
+			echo "    ❌ $$comp entry assertions failed"; \
 			tail -120 "$$log" || true; \
 			exit 1; \
 		fi; \
 	done; \
 	echo ""; \
 	if [ $$missing -eq 0 ] && [ $$success -eq 3 ]; then \
-		echo "✓ Stage 3: $$success/3 components validated"; \
+		echo "✓ Stage 3: $$success/3 component entry checks passed; imported shadows are separate"; \
 		touch $(SENTINEL_STAGE3); \
 	else \
 		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing)"; \
@@ -4610,10 +4610,14 @@ test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format tests.test_llvm_managed_replace tests.test_llvm_managed_split
+
+.PHONY: test-managed-string-array-core
+test-managed-string-array-core:
+	python3 -m unittest -v tests.test_managed_string_arrays
 
 .PHONY: test-managed-string-core
-test-managed-string-core:
+test-managed-string-core: test-managed-string-array-core
 	python3 -m unittest -v tests.test_managed_string_core
 
 .PHONY: nvm2wasm test-nvm2wasm
@@ -4892,6 +4896,15 @@ test-units: test-native-record-array-scalar-tags
 test-canonical-string-builtins: bootstrap nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_canonical_string_builtins
 test-units: test-canonical-string-builtins
+# I qualify finite variant payloads separately from compiler bootstrap.
+.PHONY: test-native-variant-array-carriers
+test-native-variant-array-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
+	python3 -m unittest tests.test_native_variant_array_carriers tests.test_native_variant_scalar_carriers
+
+.PHONY: test-native-generic-scalar-array
+test-native-generic-scalar-array: nvm2c nano_vm
+	python3 -m unittest tests.test_native_generic_scalar_array
+
 .PHONY: test-native-variant-scalar-carriers
 test-native-variant-scalar-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
 	python3 -m unittest -v tests.test_native_variant_scalar_carriers
@@ -4933,3 +4946,10 @@ test-generic-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nano
 test-units: test-explicit-generic-constructors
 test-explicit-generic-constructors: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_explicit_generic_constructors
+
+.PHONY: test-integer-pair-verification
+test-units: test-integer-pair-verification
+test-integer-pair-verification: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nanoisa_dump nano_vm nvm2c
+	$(CC) $(CFLAGS) -o obj/test_integer_pair_type_rules tests/nanoisa/test_integer_pair_type_rules.c $(filter-out $(OBJ_DIR)/nanoisa/verifier_types.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_integer_pair_type_rules
+	python3 -m unittest -v tests.test_integer_pair_verification

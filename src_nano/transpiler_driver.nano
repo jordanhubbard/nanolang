@@ -1,12 +1,23 @@
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/transpiler.nano"
 
 fn main() -> int {
-    (println "=== nanolang Transpiler (Library Mode) ===")
-    (println "")
-    (println "This is a library module.")
-    (println "Use transpile_parser() function to generate C code.")
-    (println "")
-    (println "✓ Transpiler module loaded successfully")
+    let source: string = "fn main() -> int { return 7 } shadow main { assert (== (main) 7) }"
+    let tokens: List<LexerToken> = (tokenize_string source "component-transpiler.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "component-transpiler.nano")
+    assert (not (parser_has_error parsed))
+    assert (== (parser_get_function_count parsed) 1)
+    assert (== parsed.shadows_count 1)
+    let ordinary: string = (transpile_parser parsed)
+    assert (str_contains ordinary "int main(")
+    assert (str_contains ordinary "return 7;")
+    assert (not (str_contains ordinary "__nano_shadow_0();"))
+    let selected: string = (transpile_parser_shadows parsed 0)
+    assert (str_contains selected "__nano_shadow_0();")
+    assert (== (transpile_parser_shadows parsed -1) "")
+    assert (== (transpile_parser_shadows parsed 2) "")
+    (println "I passed my transpiler entry assertions.")
     return 0
 }
 

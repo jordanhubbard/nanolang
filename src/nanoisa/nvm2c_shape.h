@@ -12,12 +12,13 @@
  * NUMERIC is an explicit INT|FLOAT leaf, not an inferred exact-kind conflict.
  * VARIANT_SCALAR is an explicit int/bool/float/string constructor payload set;
  * I never infer it by unifying unrelated exact kinds or arbitrary VALUE.
+ * VARIANT_INT_ARRAY adds only exact ARRAY<INT> to that finite payload set.
  * Missing edges mean unconstrained, not absent fields or a proved width. */
 typedef uint32_t NvmShapeId;
 typedef enum {
     NVM_SHAPE_UNKNOWN, NVM_SHAPE_INT, NVM_SHAPE_STRING,
     NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_OPTIONAL,
-    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR
+    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; } NvmShapeConversion;

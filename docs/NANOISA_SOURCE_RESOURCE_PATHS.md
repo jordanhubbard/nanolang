@@ -6,7 +6,7 @@ I retain my finite acyclic nominal layouts, exact caller paths and bounded
 entry/helper profile. I extend entry and selected-shadow if/else and while
 bodies with explicitly typed resource construction, exact whole-owner moves
 and complete destructive patterns. Borrowed helpers still have only scalar
-locals. General resource assignment, partial field moves, break/continue, deeper
+locals. General resource assignment, partial field moves, deeper
 calls and implicit source drops remain refused. My subsequent
 [consumed-local reassignment contract](NANOISA_SOURCE_OWNER_REASSIGNMENT.md)
 admits only exact identifier-owner moves into consumed mutable destinations.
@@ -39,3 +39,7 @@ one-return branches, nested nominal construction/patterns, whole-owner moves,
 and zero/entered loops. Refusal controls include mismatched reaching states,
 changed loop ownership, local leaks, wrong nominal moves, moved-value use,
 partial moves, assignments and helper-owned locals.
+
+My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
+admits bounded while break/continue edges with exact incoming owner state
+and explicit local consumption. It preserves the other restrictions above.

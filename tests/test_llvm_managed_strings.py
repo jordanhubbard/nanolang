@@ -202,8 +202,8 @@ class ManagedStrings(unittest.TestCase):
         self.node(wasm,'for(let i=0;i<10;i++){check(e.nano_try_entry()===(1n<<32n));check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);')
 
     def test_unsupported_string_cast_and_reserved_entry_refusals_preserve_output(self):
-        for body in ('PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPOP\n',
-                     'PUSH_STR a\nPUSH_STR a\nPUSH_STR empty\nSTR_REPLACE\nPOP\n'):
+        for body in ('PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_POP\nPOP\n',
+                     'ARR_NEW 1\nPOP\n'):
             asm,mod=self.work/'refuse.nasm',self.work/'refuse.nvm'
             asm.write_text(self.program(body))
             self.run_cmd([ROOT/'bin/nanoisa','asm',asm,'-o',mod])

@@ -15,7 +15,7 @@ owned roots and formal reference origins remain unchanged. Branches execute
 only the selected arm; loops re-evaluate conditions, including borrowed calls,
 in source order.
 
-This original slice refused any let. My [lexical scalar extension](NANOISA_SOURCE_BORROW_LEXICAL_SCALARS.md) now admits bounded int/bool declarations after the scalar initialization meet. My [resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately admits explicit construction/destructuring/whole-owner moves with exact joins. I still refuse break or continue inside control-flow bodies. My
+This original slice refused any let. My [lexical scalar extension](NANOISA_SOURCE_BORROW_LEXICAL_SCALARS.md) now admits bounded int/bool declarations after the scalar initialization meet. My [resource-path extension](NANOISA_SOURCE_RESOURCE_PATHS.md) separately admits explicit construction/destructuring/whole-owner moves with exact joins. My subsequent loop-exit extension is linked below. My
 [return-path extension](NANOISA_SOURCE_BORROW_FALLTHROUGH.md) separately admits
 scalar early returns with stable owners and explicit prior consumption. My original boundary required scalar locals before control flow; the extension
 uses explicit definite initialization rather than inserting dummy stores. Nested control bodies
@@ -32,3 +32,11 @@ consumption. Refusal controls preserve existing ownership/purity/nominal
 boundaries plus unsupported local initialization and early-exit forms. VM and
 sanitized native must execute the exact same artifacts. Broader path-sensitive
 owner moves and local lifetimes remain separate required ownership-flow work.
+
+My subsequent [loop-exit contract](NANOISA_SOURCE_BORROW_LOOP_EXITS.md)
+admits bounded while break/continue edges with exact incoming owner state
+and explicit local consumption. It preserves the other restrictions above.
+
+My [direct range extension](NANOISA_SOURCE_BORROW_RANGE_FOR.md) also admits
+bounded integer for loops with once-only endpoints and exact loop-owner
+states. General array iteration remains outside this source profile.

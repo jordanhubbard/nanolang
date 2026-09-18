@@ -136,7 +136,7 @@ RET
         self.paired(text)
 
     def test_struct_tuple_and_heap_conflicts_preserve_output(self):
-        for kind, second in ((0, 'PUSH_STR kept'), (2, 'PUSH_STR kept'), (1, 'ARR_NEW 1'), (1, 'PUSH_U8 1')):
+        for kind, second in ((0, 'PUSH_STR kept'), (2, 'PUSH_STR kept'), (1, 'ARR_NEW 4'), (1, 'PUSH_U8 1')):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix='variant-refusal-') as tmp:
                 p=Path(tmp); assembly=p/'input.nasm'; module=p/'input.nvm'; output=p/'output.c'
                 result_tag = 'union' if kind == 1 else 'struct' if kind == 0 else 'tuple'

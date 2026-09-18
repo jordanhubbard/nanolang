@@ -23,7 +23,8 @@ ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': '
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
-          'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
+          'DUP', 'POP', 'SWAP', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE)
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,12 @@ class Analyze:
         require(tag is None or value.tag == tag, 'require exact scalar operand types')
         return value
 
+    @staticmethod
+    def truth(value):
+        require(value.tag in (INT, BOOL), 'require exact int/bool truth operands')
+        return value if value.tag == BOOL else Expr(BOOL, 'binary', '!=',
+                                                    (value, Expr(INT, 'constant', 0)))
+
     def simple(self, index, stack, initialized, statements, pure=False):
         self.touch(index)
         ins = self.code[index]
@@ -118,9 +125,26 @@ class Analyze:
         elif op == 'POP':
             self.pop(stack)
             return
+        elif op in ('PICK', 'ROLL'):
+            require(0 <= arg < len(stack), 'require an indexed operand within the current scalar stack')
+            index = len(stack) - 1 - arg
+            value = stack[index] if op == 'PICK' else stack.pop(index)
+            stack.append(value)
+            return
         elif op == 'SWAP':
             right, left = self.pop(stack), self.pop(stack)
             stack.extend((right, left))
+            return
+        elif op in ('I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'):
+            right, left = self.pop(stack, INT), self.pop(stack, INT)
+            for word, helper in (('low', 'mul'), ('high', 'mul_high_s' if op.endswith('_S') else 'mul_high_u')):
+                result = Expr(INT, 'arithmetic', helper, (left, right))
+                if pure:
+                    stack.append(result)
+                else:
+                    temporary = Expr(INT, 'temporary', f'{ins["pc"]}_{word}')
+                    statements.append(('let', temporary, result))
+                    stack.append(temporary)
             return
         elif op in ARITHMETIC:
             right = self.pop(stack, INT)
@@ -132,6 +156,16 @@ class Analyze:
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
+        elif op in ('CAST_BOOL', 'NOT'):
+            value = self.truth(self.pop(stack))
+            expr = value if op == 'CAST_BOOL' else Expr(BOOL, 'not', None, (value,))
+        elif op == 'CAST_INT':
+            value = self.pop(stack)
+            require(value.tag in (INT, BOOL), 'require exact int/bool cast operands')
+            expr = value if value.tag == INT else Expr(INT, 'bool_int', None, (value,))
+        elif op in ('AND', 'OR'):
+            right, left = self.truth(self.pop(stack)), self.truth(self.pop(stack))
+            expr = Expr(BOOL, 'binary', 'and' if op == 'AND' else 'or', (left, right))
         elif op in ('BOOL_AND', 'BOOL_OR'):
             right, left = self.pop(stack, BOOL), self.pop(stack, BOOL)
             expr = Expr(BOOL, 'binary', 'and' if op == 'BOOL_AND' else 'or', (left, right))
@@ -287,6 +321,8 @@ class Emit:
         if expr.kind == 'call':
             name = self.name(expr.value)
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
+        if expr.kind == 'bool_int':
+            return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(nlr_bool_int ' + args[0] + ')'
         if expr.kind == 'not':
             return '(!' + args[0] + ')' if self.language == 'c' else '(not ' + args[0] + ')'
         op = expr.value
@@ -363,6 +399,8 @@ class Emit:
             if isinstance(node, Expr):
                 if node.kind in ('arithmetic', 'unsigned_compare'):
                     needed.add(node.value)
+                if node.kind == 'bool_int':
+                    needed.add('bool_int')
                 collect(node.args)
             elif isinstance(node, (tuple, list)):
                 for child in node:
@@ -370,16 +408,50 @@ class Emit:
 
         for function in self.functions:
             collect(function.body)
+        if 'bool_int' in needed:
+            needed.remove('bool_int')
+            if self.language != 'c':
+                self.line('''fn nlr_bool_int(value: bool) -> int {
+    if value { return 1 }
+    return 0
+}
+shadow nlr_bool_int {
+    assert (== (nlr_bool_int false) 0)
+    assert (== (nlr_bool_int true) 1)
+}''')
         if not needed:
             return
+        if 'mul_high_s' in needed:
+            needed.add('mul_high_u')
         if self.language == 'c':
-            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u'}:
+            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u', 'mul_high_s', 'mul_high_u'}:
                 self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
     if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
     return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
 }''')
-            for op in sorted(needed):
+            for op in sorted(needed, key=lambda op: (op == 'mul_high_s', op)):
                 args = 'int64_t a' if op in ('neg', 'invert') else 'int64_t a, int64_t b'
+                if op == 'mul_high_u':
+                    self.line('static int64_t nlr_i64_mul_high_u(int64_t a, int64_t b) {')
+                    for operand in ('a', 'b'):
+                        for limb in range(4):
+                            self.line(f'    uint64_t {operand}{limb} = ((uint64_t){operand} >> {16 * limb}) & UINT64_C(65535);')
+                    for digit in range(7):
+                        terms = [f'a{i} * b{digit-i}' for i in range(4) if 0 <= digit-i < 4]
+                        if digit:
+                            terms.insert(0, f'(c{digit-1} >> 16)')
+                        self.line(f'    uint64_t c{digit} = ' + ' + '.join(terms) + ';')
+                    self.line('    uint64_t high = (c4 & UINT64_C(65535)) | ((c5 & UINT64_C(65535)) << 16) | ((c6 & UINT64_C(65535)) << 32) | ((c6 >> 16) << 48);')
+                    self.line('    return nlr_i64_bits(high);\n}')
+                    continue
+                if op == 'mul_high_s':
+                    self.line('''static int64_t nlr_i64_mul_high_s(int64_t a, int64_t b) {
+    uint64_t high = (uint64_t)nlr_i64_mul_high_u(a, b);
+    if (a < 0) high -= (uint64_t)b;
+    if (b < 0) high -= (uint64_t)a;
+    return nlr_i64_bits(high);
+}''')
+                    continue
                 if op in ('lt_u', 'le_u', 'gt_u', 'ge_u'):
                     symbol = {'lt_u': '<', 'le_u': '<=', 'gt_u': '>', 'ge_u': '>='}[op]
                     self.line(f'static bool nlr_i64_{op}({args}) {{ return (uint64_t)a {symbol} (uint64_t)b; }}')
@@ -423,11 +495,15 @@ class Emit:
             needed.update(('add', 'sub', 'ge_u'))
         if needed & {'band', 'bor', 'bxor'}:
             needed.update(('add', 'shr_u'))
+        if 'mul_high_u' in needed:
+            needed.update(('add', 'shl', 'shr_u'))
+        if 'mul_high_s' in needed:
+            needed.add('sub')
         if 'shl' in needed:
             needed.add('add')
         if 'mul' in needed:
             needed.update(('add', 'sub'))
-        for op in sorted(needed):
+        for op in sorted(needed, key=lambda op: (op == 'mul_high_s', op)):
             self.line(NANO_INTEGER_HELPERS[op])
 
 
@@ -755,3 +831,46 @@ shadow nlr_i64_{_operation} {{
     assert (== (nlr_i64_{_operation} -1 1) {-1 if _result == 'quotient' else 0})
     assert (== (nlr_i64_{_operation} 7 3) {2 if _result == 'quotient' else 1})
 }}'''
+
+
+# I use base-65536 convolution: products <2^32, coefficient+carry <2^34.
+# Normalizing a signed remainder yields the low unsigned limb because 2^64
+# is divisible by 65536. Higher limbs come from total logical shifts.
+_wide_unsigned = ['fn nlr_i64_mul_high_u(a: int, b: int) -> int {']
+for _operand in ('a', 'b'):
+    _wide_unsigned.append(f'    let mut {_operand}0: int = (% {_operand} 65536)')
+    _wide_unsigned.append(f'    if (< {_operand}0 0) {{ set {_operand}0 (+ {_operand}0 65536) }}')
+    for _limb in range(1, 4):
+        _wide_unsigned.append(f'    let {_operand}{_limb}: int = (% (nlr_i64_shr_u {_operand} {16 * _limb}) 65536)')
+for _digit in range(7):
+    _terms = [f'(* a{i} b{_digit-i})' for i in range(4) if 0 <= _digit-i < 4]
+    if _digit:
+        _terms.insert(0, f'(/ c{_digit-1} 65536)')
+    _sum = _terms[0]
+    for _term in _terms[1:]:
+        _sum = f'(+ {_sum} {_term})'
+    _wide_unsigned.append(f'    let c{_digit}: int = {_sum}')
+_wide_unsigned.extend([
+    '    let low: int = (nlr_i64_add (% c4 65536) (nlr_i64_shl (% c5 65536) 16))',
+    '    let high: int = (nlr_i64_add (nlr_i64_shl (% c6 65536) 32) (nlr_i64_shl (/ c6 65536) 48))',
+    '    return (nlr_i64_add low high)',
+    '}',
+    'shadow nlr_i64_mul_high_u {',
+    '    assert (== (nlr_i64_mul_high_u -1 -1) -2)',
+    '    assert (== (nlr_i64_mul_high_u 4294967296 4294967296) 1)',
+    '    assert (== (nlr_i64_mul_high_u 0 -1) 0)',
+    '}',
+])
+NANO_INTEGER_HELPERS['mul_high_u'] = '\n'.join(_wide_unsigned)
+NANO_INTEGER_HELPERS['mul_high_s'] = '''fn nlr_i64_mul_high_s(a: int, b: int) -> int {
+    let mut high: int = (nlr_i64_mul_high_u a b)
+    if (< a 0) { set high (nlr_i64_sub high b) }
+    if (< b 0) { set high (nlr_i64_sub high a) }
+    return high
+}
+shadow nlr_i64_mul_high_s {
+    let minimum: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_mul_high_s -1 -1) 0)
+    assert (== (nlr_i64_mul_high_s minimum 2) -1)
+    assert (== (nlr_i64_mul_high_s 4294967296 4294967296) 1)
+}'''

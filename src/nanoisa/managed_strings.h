@@ -9,12 +9,15 @@ typedef enum {
     NMS_BUSY = 4, NMS_DISPOSED = 5, NMS_STATE = 6
 } NmsStatus;
 typedef uint64_t NmsHandle;
+/* I share this value tag with the ISA; the emitter asserts its ABI. */
+#define NMS_ARRAY_TAG 7
 #define NMS_DYNAMIC (UINT64_C(1) << 63)
 typedef struct { const unsigned char *data; uint32_t length; } NmsView;
+typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_LEAF_ARRAY = 3 } NmsSlotKind;
 typedef struct {
     unsigned char *data;
     uint64_t references;
-    uint32_t length, next_free;
+    uint32_t length, next_free, capacity, kind;
 } NmsSlot;
 typedef struct {
     const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
@@ -31,6 +34,26 @@ typedef struct {
  * views never cross runtime instances; a view borrows its handle's lifetime. */
 void nms_init(NmsRuntime *, const NmsView *, uint32_t);
 NmsStatus nms_create(NmsRuntime *, const unsigned char *, uint64_t, NmsHandle *);
+/* My arrays own string children only. Append borrows both arguments and
+ * retains one child on success; get returns an owner, or zero for a missing
+ * unsigned index. Outputs and array contents change only on success. */
+/* I consume both string owners and publish a complete split array only on success. */
+NmsStatus nms_split_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
+NmsStatus nms_string_array_create(NmsRuntime *, NmsHandle *);
+NmsStatus nms_string_array_append(NmsRuntime *, NmsHandle, NmsHandle);
+NmsStatus nms_string_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsHandle *);
+NmsStatus nms_string_array_length(const NmsRuntime *, NmsHandle, uint32_t *);
+/* My leaf-value API preserves scalar payload bits and owns string handles.
+ * Other heap/callable tags are not admitted by this private foundation. */
+typedef struct { uint64_t payload; uint32_t tag; } NmsValue;
+NmsStatus nms_value_retain(NmsRuntime *, NmsValue);
+NmsStatus nms_value_release(NmsRuntime *, NmsValue);
+NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);
+NmsStatus nms_value_array_append(NmsRuntime *, NmsHandle, NmsValue);
+NmsStatus nms_value_array_set(NmsRuntime *, NmsHandle, uint64_t, NmsValue);
+NmsStatus nms_value_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsValue *);
+NmsStatus nms_value_array_pop(NmsRuntime *, NmsHandle, NmsValue *);
+NmsStatus nms_value_array_length(const NmsRuntime *, NmsHandle, uint32_t *);
 /* I consume one owner and publish a fresh ASCII-mapped result; upper is 0/1.
  * Output changes only on success. */
 NmsStatus nms_case_owned(NmsRuntime *, NmsHandle, uint32_t, NmsHandle *);
@@ -38,6 +61,8 @@ NmsStatus nms_case_owned(NmsRuntime *, NmsHandle, uint32_t, NmsHandle *);
  * Trim also allocates a fresh result when no bytes change. */
 NmsStatus nms_trim_owned(NmsRuntime *, NmsHandle, NmsHandle *);
 NmsStatus nms_substr_owned(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandle *);
+/* I consume three owners, including one per equal handle; failed output is unchanged. */
+NmsStatus nms_replace_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle, NmsHandle *);
 /* I consume one owned reference per input on success or failure. Equal inputs
  * require two references. Other aliases survive; out is unchanged on failure. */
 NmsStatus nms_concat_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
