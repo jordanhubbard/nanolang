@@ -4758,3 +4758,8 @@ test-cseed-single-letter-enums: $(COMPILER_C) test-native-nominal-context
 	@python3 -m unittest -v tests.test_cseed_single_letter_enums
 
 test-units: test-cseed-single-letter-enums
+
+.PHONY: test-native-record-array-scalar-tags
+test-native-record-array-scalar-tags: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_record_array_scalar_tags
+test-units: test-native-record-array-scalar-tags
