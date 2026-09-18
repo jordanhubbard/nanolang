@@ -538,6 +538,45 @@ void test_effect_check_program_with_call(void) {
     free_ast(prog);
 }
 
+void test_effect_check_program_visits_match_guards(void) {
+    ASTNode guard;
+    ASTNode body;
+    ASTNode scrutinee;
+    ASTNode match;
+    ASTNode program;
+    ASTNode *guards[1];
+    ASTNode *bodies[1];
+    ASTNode *items[1];
+    memset(&guard, 0, sizeof(guard));
+    memset(&body, 0, sizeof(body));
+    memset(&scrutinee, 0, sizeof(scrutinee));
+    memset(&match, 0, sizeof(match));
+    memset(&program, 0, sizeof(program));
+
+    guard.type = AST_EFFECT_OP;
+    guard.as.effect_op.effect_name = "Missing";
+    guard.as.effect_op.op_name = "probe";
+    body.type = AST_NUMBER;
+    scrutinee.type = AST_NUMBER;
+    guards[0] = &guard;
+    bodies[0] = &body;
+    match.type = AST_MATCH;
+    match.as.match_expr.expr = &scrutinee;
+    match.as.match_expr.arm_count = 1;
+    match.as.match_expr.guard_exprs = guards;
+    match.as.match_expr.arm_bodies = bodies;
+    items[0] = &match;
+    program.type = AST_PROGRAM;
+    program.as.program.items = items;
+    program.as.program.count = 1;
+
+    EffectRegistry *reg = effect_registry_new();
+    Environment *env = create_environment();
+    ASSERT(!effect_check_program(&program, reg, env));
+    free_environment(env);
+    effect_registry_free(reg);
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -579,6 +618,7 @@ int main(void) {
     TEST(effect_check_program_with_while);
     TEST(effect_check_program_with_let_and_return);
     TEST(effect_check_program_with_call);
+    TEST(effect_check_program_visits_match_guards);
 
     printf("\n✓ All effects tests passed!\n");
     return 0;

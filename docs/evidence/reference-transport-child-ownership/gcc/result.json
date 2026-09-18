@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "tests": 8,
+  "seconds": 1.3289717979496345,
+  "sources_unchanged": true,
+  "compiler_unchanged": true,
+  "compiler_after_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+}

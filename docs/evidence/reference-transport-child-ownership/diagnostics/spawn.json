@@ -1,0 +1,35 @@
+[
+  {
+    "command": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/harness",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/input.sexpr",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/empty/compiler",
+      "once"
+    ],
+    "status": 3,
+    "stdout": "",
+    "stderr": "WAIT observed=-1 errno=10 status=1799778848 parent=76316\nSPAWN result=0 pid=76351\n"
+  },
+  {
+    "command": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/harness",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/input.sexpr",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/status/compiler",
+      "once"
+    ],
+    "status": 3,
+    "stdout": "",
+    "stderr": "WAIT observed=-1 errno=10 status=1827697184 parent=76368\nSPAWN result=0 pid=76369\n"
+  },
+  {
+    "command": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/harness",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reference-transport-lagdc351/input.sexpr",
+      "-",
+      "once"
+    ],
+    "status": 3,
+    "stdout": "",
+    "stderr": "==76402==WARN: No external symbolizers found. Symbols may be missing or unreliable.\n==76402==HINT: Is PATH set? Does sandbox allow file-read of /usr/bin/atos?\nWAIT observed=-1 errno=10 status=1872425536 parent=76402\nSPAWN result=2 pid=-1\n"
+  }
+]

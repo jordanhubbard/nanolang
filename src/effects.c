@@ -517,8 +517,11 @@ static void walk_node(EffectCtx *ctx, ASTNode *node, Environment *env) {
             return;
         case AST_MATCH:
             walk_node(ctx, node->as.match_expr.expr, env);
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (node->as.match_expr.guard_exprs)
+                    walk_node(ctx, node->as.match_expr.guard_exprs[i], env);
                 walk_node(ctx, node->as.match_expr.arm_bodies[i], env);
+            }
             return;
         default:
             return;

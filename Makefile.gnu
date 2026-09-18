@@ -1143,7 +1143,7 @@ test-reference-eval-transport:
 
 test-nanocore: test-reference-eval-transport
 
-.PHONY: test-nanocore
+.PHONY: test-nanocore test-nanocore-unit
 .PHONY: test-nanocore-export-buffer
 test-nanocore-export-buffer: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nanocore_export_buffer tests/test_nanocore_export_buffer.c $(filter-out $(OBJ_DIR)/nanocore_export.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -1151,7 +1151,9 @@ test-nanocore-export-buffer: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-nanocore: test-nanocore-export-buffer
 
-test-nanocore: stage1
+test-nanocore: test-nanocore-unit
+
+test-nanocore-unit: stage1
 	@echo "Running nanocore_export and emit_typed_ast unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_nanocore tests/test_nanocore.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_nanocore
@@ -2700,6 +2702,10 @@ test-doc-md: build
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(USERGUIDE_CHECK_TOOL)
 
+.PHONY: test-shared-match-policy-docs
+test-shared-match-policy-docs:
+	python3 -m unittest -v tests.test_shared_match_policy_docs
+
 .PHONY: test-performance-monitoring-docs
 test-performance-monitoring-docs:
 	@chmod +x tests/test_performance_monitoring_docs.sh
@@ -3313,6 +3319,10 @@ $(LSP_SERVER): $(LSP_OBJECTS) | $(BIN_DIR)
 
 .PHONY: lsp
 lsp: $(LSP_SERVER)
+
+.PHONY: test-lsp-match-guard
+test-lsp-match-guard: $(LSP_SERVER)
+	@./tests/test_lsp_match_guard.sh $(LSP_SERVER)
 
 # DAP server binary: bin/nanolang-dap speaks Debug Adapter Protocol over stdio
 DAP_SERVER = $(BIN_DIR)/nanolang-dap
@@ -5183,3 +5193,9 @@ test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
 .PHONY: test-selfhost-native-array-slice
 test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
 	python3 -m unittest -v tests.test_selfhost_native_array_slice
+
+.PHONY: test-owned-binary64
+test-units: test-owned-binary64
+test-owned-binary64: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_binary64 tests/nanoisa/test_owned_binary64.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_binary64
