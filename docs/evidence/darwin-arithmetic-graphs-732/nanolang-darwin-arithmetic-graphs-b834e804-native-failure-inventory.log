@@ -1,0 +1,13 @@
+captured_utc=2026-09-18T14:06:53Z
+failure_work=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-6b1rag62
+failure_artifacts:
+artifact_listing:
+total 0
+drwxr-xr-x     2 jordanh  wheel      64 Sep 18 07:06 .
+drwxrwxrwt  4101 root     wheel  131232 Sep 18 07:06 ..
+requested_binary_hashes_after_failure:
+63bbf8f737aa61e300e0fe51dd3462a05f2e8681d8bde573ee11639dc6ebfc1b  /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/bin/nano_vm
+992fd13c797e0488f74f419e1d8784b75ffc721bfda8486b9d7c286952a75f0e  /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/bin/nvm2c
+13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a  /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/bin/nvm2wasm
+b32b78da0f19151765010dff902b650534529f0e75f70cd24609dbc6cfe979f9  /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/bin/nanoisa
+tracked_status_after_failure:

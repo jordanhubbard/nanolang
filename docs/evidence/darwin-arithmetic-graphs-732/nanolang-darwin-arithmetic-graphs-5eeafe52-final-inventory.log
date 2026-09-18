@@ -1,0 +1,18 @@
+captured_utc=2026-09-18T14:16:03Z
+source=5eeafe52ab60adca711bb17978eda4dfe36919b9
+tree=0c51c7c8d05f52e4cb3e3fc7af6a4970fb03395b
+requested_binary_hashes_after_all_phases:
+5be0115af10f3836ce73ebc9a1cf4c819b55550161d5b4c8049fe2376667d8dc  /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52.DQ4IdQ/bin/nano_vm
+0d77fd275c58f8ea9043c9c69230f8c23972e76dbab909ae920c8ccfc4d3bf04  /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52.DQ4IdQ/bin/nvm2c
+13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a  /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52.DQ4IdQ/bin/nvm2wasm
+b7160222c8ec08b5169abf95fb5f3f1e6935dc811b9026e681dd82312e2a5833  /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52.DQ4IdQ/bin/nanoisa
+selected_tool_hashes_after_all_phases:
+b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9  /usr/bin/clang
+570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888  /opt/homebrew/opt/llvm/bin/clang
+b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b  /opt/homebrew/opt/llvm/bin/opt
+1ea6fac182854f600dbeb0c6bf914b08ea836cdb581775c43ea308574abb431e  /opt/homebrew/opt/llvm/bin/llvm-link
+374d9f0713bce2c8a9e1e82bde51615d5433516a10d99b63107eb6ee70542e4c  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c  /opt/homebrew/bin/wasmtime
+skip_or_failure_markers:
+production_diff_stat:
+tracked_status_after_all_phases:

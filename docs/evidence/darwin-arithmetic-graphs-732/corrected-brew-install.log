@@ -1,0 +1,78 @@
+started_utc=2026-09-18T13:45:11Z
+command=/opt/homebrew/bin/brew install wasmtime
+==> Auto-updating Homebrew...
+Adjust how often this is run with `$HOMEBREW_AUTO_UPDATE_SECS` or disable with
+`$HOMEBREW_NO_AUTO_UPDATE=1`. Hide these hints with `$HOMEBREW_NO_ENV_HINTS=1` (see `man brew`).
+==> Downloading https://ghcr.io/v2/homebrew/core/portable-ruby/blobs/sha256:e0088dff5614b39387300136ec7a5f95bf1e07589547245c919524fc9e8b4197
+#=#=#                                                                          ##O#-#                                                                         ##O=#  #                                                                       #=#=-#  #                                                                      -#O#- #   #                                                                    -=#=#   #   #                                                                  -=O#-#   #   #                                                                                                                                            0.0%                                                                           0.4%                                                                           1.0%#                                                                          2.6%####                                                                       5.8%########                                                                  12.3%###############                                                           21.5%#########################                                                 35.2%#################################                                         46.7%####################################################                      73.5%############################################################              84.5%######################################################################## 100.0%
+==> Pouring portable-ruby-4.0.7.arm64_big_sur.bottle.tar.gz
+==> Auto-updated Homebrew!
+==> Updated Homebrew from 7.0.1 (66413cbc74) to 7.0.4 (8636847fb4).
+Updated 3 taps (ai-cli/ai-pim-utils, docker/tap and homebrew/core).
+==> New Formulae
+bashka: Static verification of installation bash scripts
+fastplong: Ultra-fast preprocessing and quality control for long-read sequencing data
+workmux: Git worktrees + tmux windows for zero-friction parallel dev
+==> New Casks
+sbx@0.43.0
+Warning: Calling `postflight` is deprecated! Use `postflight_steps` instead.
+Please report this issue to the hagmonk/homebrew-tap tap (not Homebrew/* repositories), or even better, submit a PR to fix it:
+  /opt/homebrew/Library/Taps/hagmonk/homebrew-tap/Casks/ql-step.rb:15
+
+
+You have 38 outdated formulae and 4 outdated casks installed.
+Warning: Calling `postflight` is deprecated! Use `postflight_steps` instead.
+Please report this issue to the hagmonk/homebrew-tap tap (not Homebrew/* repositories), or even better, submit a PR to fix it:
+  /opt/homebrew/Library/Taps/hagmonk/homebrew-tap/Casks/ql-step.rb:15
+
+Warning: Calling `postflight` is deprecated! Use `postflight_steps` instead.
+Please report this issue to the hagmonk/homebrew-tap tap (not Homebrew/* repositories), or even better, submit a PR to fix it:
+  /opt/homebrew/Library/Taps/hagmonk/homebrew-tap/Casks/ql-step.rb:15
+
+Warning: Calling `postflight` is deprecated! Use `postflight_steps` instead.
+Please report this issue to the hagmonk/homebrew-tap tap (not Homebrew/* repositories), or even better, submit a PR to fix it:
+  /opt/homebrew/Library/Taps/hagmonk/homebrew-tap/Casks/ql-step.rb:15
+
+
+
+The 7.0.4 changelog can be found at:
+  https://github.com/Homebrew/brew/releases/tag/7.0.4
+Warning: Calling `postflight` is deprecated! Use `postflight_steps` instead.
+Please report this issue to the hagmonk/homebrew-tap tap (not Homebrew/* repositories), or even better, submit a PR to fix it:
+  /opt/homebrew/Library/Taps/hagmonk/homebrew-tap/Casks/ql-step.rb:15
+
+Warning: The following taps are not trusted:
+  docker/tap
+  gastownhall/beads
+  slp/krunkit
+
+Homebrew is currently ignoring formulae, casks and commands
+from these taps because tap trust is required.
+Prefer trusting only the specific formulae, casks or commands you need.
+Trust installed formulae from these taps with:
+  brew trust --formula slp/krunkit/krunkit slp/krunkit/libkrun-efi slp/krunkit/virglrenderer
+Trust installed casks from these taps with:
+  brew trust --cask docker/tap/sbx
+Trust other specific commands with:
+  brew trust --command <user>/<tap>/<command>
+Whole-tap trust is broader and includes all current and future formulae,
+casks and commands from the listed taps. Trust whole taps with:
+  brew trust docker/tap gastownhall/beads slp/krunkit
+Untap them with:
+  brew untap docker/tap gastownhall/beads slp/krunkit
+For more information, see:
+  https://docs.brew.sh/Tap-Trust
+==> Downloading bottle manifests
+✔︎ Bottle Manifest wasmtime (48.0.2)
+==> Would install 1 formula:
+wasmtime 48.0.2
+==> Fetching downloads for: wasmtime
+✔︎ Bottle wasmtime (48.0.2)
+==> Pouring wasmtime--48.0.2.arm64_tahoe.bottle.tar.gz
+🍺  /opt/homebrew/Cellar/wasmtime/48.0.2: 125 files, 105.0MB
+==> Caveats
+Bash completion has been installed to:
+  /opt/homebrew/etc/bash_completion.d
+brew_install_command_exit=0
+finished_utc=2026-09-18T13:45:54Z
+elapsed_seconds=42.997234

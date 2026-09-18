@@ -126,6 +126,8 @@ static void deallocate(void *memory) {
     backend_free(memory);
 }
 void nms_init(NmsRuntime *runtime, const NmsView *literals, uint32_t count) {
+    runtime->record_descriptors = NULL;
+    runtime->record_count = runtime->records_bound = 0;
     runtime->literals = literals;
     runtime->literal_count = count;
     runtime->slots = NULL;
@@ -224,11 +226,12 @@ static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
                 slots[i].next_free = runtime->slots[i].next_free;
                 slots[i].element_tag = runtime->slots[i].element_tag;
                 slots[i].vm_array_policy = runtime->slots[i].vm_array_policy;
+                slots[i].record_ordinal = runtime->slots[i].record_ordinal;
                 slots[i].kind = runtime->slots[i].kind;
                 slots[i].capacity = runtime->slots[i].capacity;
             } else {
                 slots[i].data = NULL; slots[i].references = 0; slots[i].length = 0;
-                slots[i].kind = NMS_SLOT_FREE; slots[i].capacity = 0; slots[i].element_tag = 0; slots[i].vm_array_policy = 0;
+                slots[i].kind = NMS_SLOT_FREE; slots[i].capacity = 0; slots[i].element_tag = 0; slots[i].vm_array_policy = 0; slots[i].record_ordinal = 0;
                 slots[i].next_free = i < new_capacity ? (uint32_t)i + 1 : 0;
             }
         }
@@ -247,7 +250,7 @@ static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
     uint32_t index = runtime->free_head;
     runtime->free_head = slots[index].next_free;
     slots[index].data = bytes; slots[index].length = (uint32_t)length;
-    slots[index].element_tag = 0; slots[index].vm_array_policy = 0;
+    slots[index].element_tag = 0; slots[index].vm_array_policy = 0; slots[index].record_ordinal = 0;
     slots[index].kind = kind; slots[index].capacity = capacity;
     slots[index].references = 1; slots[index].next_free = 0;
     runtime->live_bytes += storage_bytes; runtime->live_objects++;
@@ -352,6 +355,25 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
 _Static_assert(offsetof(NmsValue, payload) == 0 && offsetof(NmsValue, tag) == 8 &&
                sizeof(NmsValue) == 16, "I require the private boxed leaf-value ABI");
 static NmsStatus value_array_slot(const NmsRuntime *, NmsHandle, uint32_t *);
+static NmsStatus record_slot(const NmsRuntime *runtime, NmsHandle handle, uint32_t *index) {
+    NmsStatus status = slot_for(runtime, handle, index);
+    if (status != NMS_OK) return status;
+    const NmsSlot *slot = &runtime->slots[*index];
+    if (slot->kind != NMS_SLOT_RECORD) return NMS_TYPE;
+    if (!runtime->records_bound || !runtime->record_descriptors ||
+        slot->record_ordinal >= runtime->record_count) return NMS_STATE;
+    uint32_t fields = runtime->record_descriptors[slot->record_ordinal].field_count;
+    return slot->length == fields && slot->capacity == fields &&
+        (!fields || slot->data) ? NMS_OK : NMS_STATE;
+}
+static int value_is_reference(NmsValue value) {
+    return value.tag == 5 || value.tag == NMS_ARRAY_TAG || value.tag == NMS_RECORD_TAG;
+}
+static int slot_has_children(const NmsSlot *slot) {
+    return slot->kind == NMS_SLOT_STRING_ARRAY || slot->kind == NMS_SLOT_BOXED_ARRAY ||
+        slot->kind == NMS_SLOT_RECORD;
+}
+
 static NmsStatus value_valid(const NmsRuntime *runtime, NmsValue value) {
     if (!runtime) return NMS_STATE;
     if (runtime->disposed) return NMS_DISPOSED;
@@ -363,17 +385,21 @@ static NmsStatus value_valid(const NmsRuntime *runtime, NmsValue value) {
         uint32_t index;
         return value_array_slot(runtime, value.payload, &index);
     }
+    if (value.tag == NMS_RECORD_TAG) {
+        uint32_t index;
+        return record_slot(runtime, value.payload, &index);
+    }
     return value.tag < 5 || value.tag == 9 ? NMS_OK : NMS_TYPE;
 }
 NmsStatus nms_value_retain(NmsRuntime *runtime, NmsValue value) {
     NmsStatus status = value_valid(runtime, value);
     if (status != NMS_OK) return status;
-    return value.tag == 5 || value.tag == NMS_ARRAY_TAG ? nms_retain(runtime, value.payload) : NMS_OK;
+    return value_is_reference(value) ? nms_retain(runtime, value.payload) : NMS_OK;
 }
 NmsStatus nms_value_release(NmsRuntime *runtime, NmsValue value) {
     NmsStatus status = value_valid(runtime, value);
     if (status != NMS_OK) return status;
-    return value.tag == 5 || value.tag == NMS_ARRAY_TAG ? nms_release(runtime, value.payload) : NMS_OK;
+    return value_is_reference(value) ? nms_release(runtime, value.payload) : NMS_OK;
 }
 static NmsStatus value_array_slot(const NmsRuntime *runtime, NmsHandle array,
                                   uint32_t *index) {
@@ -492,7 +518,7 @@ static NmsStatus packed_write(NmsRuntime *runtime, NmsSlot *slot, uint64_t index
     if (append) slot->length++;
     return NMS_OK;
 }
-static NmsValue array_value(const NmsSlot *slot, uint32_t index) {
+static NmsValue slot_value(const NmsSlot *slot, uint32_t index) {
     if (slot->kind == NMS_SLOT_PACKED_SCALAR_ARRAY) return packed_value(slot, index);
     if (slot->kind == NMS_SLOT_STRING_ARRAY) {
         NmsValue value = {((const NmsHandle *)slot->data)[index], 5};
@@ -500,10 +526,102 @@ static NmsValue array_value(const NmsSlot *slot, uint32_t index) {
     }
     return ((const NmsValue *)slot->data)[index];
 }
-static uint64_t array_storage_bytes(const NmsSlot *slot) {
+static uint64_t slot_storage_bytes(const NmsSlot *slot) {
     return (uint64_t)slot->capacity *
         (slot->kind == NMS_SLOT_STRING_ARRAY ? sizeof(NmsHandle) :
          slot->kind == NMS_SLOT_PACKED_SCALAR_ARRAY ? packed_width(slot->element_tag) : sizeof(NmsValue));
+}
+NmsStatus nms_bind_records(NmsRuntime *runtime, const NmsRecordDescriptor *descriptors,
+                            uint32_t count) {
+    if (!runtime) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (runtime->active) return NMS_BUSY;
+    if (runtime->records_bound || runtime->capacity || runtime->live_objects ||
+        runtime->live_bytes || (count && !descriptors)) return NMS_STATE;
+    if (count > 256) return NMS_TYPE;
+    uint32_t total = 0;
+    for (uint32_t i = 0; i < count; i++) {
+        if (descriptors[i].global_layout_index >= 256 ||
+            (i && descriptors[i].global_layout_index <= descriptors[i-1].global_layout_index) ||
+            descriptors[i].field_count > UINT16_MAX ||
+            descriptors[i].field_count > 65536u - total) return NMS_TYPE;
+        total += descriptors[i].field_count;
+    }
+    runtime->record_descriptors = descriptors;
+    runtime->record_count = count;
+    runtime->records_bound = 1;
+    return NMS_OK;
+}
+NmsStatus nms_record_create(NmsRuntime *runtime, uint32_t ordinal, const NmsValue *values,
+                             uint32_t count, NmsHandle *out) {
+    if (!runtime || !out) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (!runtime->records_bound || !runtime->record_descriptors ||
+        ordinal >= runtime->record_count) return NMS_TYPE;
+    if (count != runtime->record_descriptors[ordinal].field_count) return NMS_TYPE;
+    if (count && !values) return NMS_STATE;
+    uint64_t bytes = (uint64_t)count * sizeof(NmsValue);
+    if (bytes > SIZE_MAX || bytes > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
+    for (uint32_t i = 0; i < count; i++) {
+        NmsStatus status = value_valid(runtime, values[i]);
+        if (status != NMS_OK) return status;
+    }
+    NmsValue *fields = bytes ? allocate(runtime, bytes) : NULL;
+    if (bytes && !fields) return NMS_MEMORY;
+    uint32_t retained = 0;
+    NmsStatus status = NMS_OK;
+    for (; retained < count; retained++) {
+        fields[retained] = values[retained];
+        status = nms_value_retain(runtime, fields[retained]);
+        if (status != NMS_OK) break;
+    }
+    NmsHandle result;
+    if (status == NMS_OK)
+        status = publish_slot(runtime, (unsigned char *)fields, count, count,
+                              NMS_SLOT_RECORD, bytes, &result);
+    if (status != NMS_OK) {
+        while (retained) nms_value_release(runtime, fields[--retained]);
+        deallocate(fields);
+        return status;
+    }
+    runtime->slots[(uint32_t)result].record_ordinal = ordinal;
+    *out = result;
+    return NMS_OK;
+}
+NmsStatus nms_record_identity(const NmsRuntime *runtime, NmsHandle record,
+                               uint32_t *ordinal, uint32_t *global_layout) {
+    if (!ordinal || !global_layout) return NMS_STATE;
+    uint32_t index;
+    NmsStatus status = record_slot(runtime, record, &index);
+    if (status != NMS_OK) return status;
+    uint32_t definition = runtime->slots[index].record_ordinal;
+    *ordinal = definition;
+    *global_layout = runtime->record_descriptors[definition].global_layout_index;
+    return NMS_OK;
+}
+NmsStatus nms_record_get(NmsRuntime *runtime, NmsHandle record, uint64_t field, NmsValue *out) {
+    if (!out) return NMS_STATE;
+    uint32_t index;
+    NmsStatus status = record_slot(runtime, record, &index);
+    if (status != NMS_OK) return status;
+    if (field >= runtime->slots[index].length) return NMS_BOUNDS;
+    NmsValue value = slot_value(&runtime->slots[index], (uint32_t)field);
+    status = nms_value_retain(runtime, value);
+    if (status == NMS_OK) *out = value;
+    return status;
+}
+NmsStatus nms_record_set(NmsRuntime *runtime, NmsHandle record, uint64_t field, NmsValue value) {
+    uint32_t index;
+    NmsStatus status = record_slot(runtime, record, &index);
+    if (status != NMS_OK) return status;
+    NmsSlot *slot = &runtime->slots[index];
+    if (field >= slot->length) return NMS_BOUNDS;
+    status = nms_value_retain(runtime, value);
+    if (status != NMS_OK) return status;
+    NmsValue *fields = (NmsValue *)slot->data;
+    NmsValue previous = fields[field];
+    fields[field] = value;
+    return nms_value_release(runtime, previous);
 }
 NmsStatus nms_value_array_create(NmsRuntime *runtime, NmsHandle *out) {
     if (!runtime || !out) return NMS_STATE;
@@ -529,7 +647,7 @@ static NmsStatus value_array_write(NmsRuntime *runtime, NmsHandle array,
         if (status != NMS_OK) return status;
     }
     uint64_t bytes = (uint64_t)capacity * sizeof(NmsValue);
-    uint64_t old_bytes = array_storage_bytes(slot);
+    uint64_t old_bytes = slot_storage_bytes(slot);
     if (bytes > SIZE_MAX || bytes - old_bytes > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
     NmsValue *buffer = (NmsValue *)slot->data;
     int replacement = slot->kind == NMS_SLOT_STRING_ARRAY || capacity != slot->capacity;
@@ -537,7 +655,7 @@ static NmsStatus value_array_write(NmsRuntime *runtime, NmsHandle array,
         buffer = allocate(runtime, bytes);
         if (!buffer) return NMS_MEMORY;
         /* I move existing edge ownership without changing reference counts. */
-        for (uint32_t i = 0; i < slot->length; i++) buffer[i] = array_value(slot, i);
+        for (uint32_t i = 0; i < slot->length; i++) buffer[i] = slot_value(slot, i);
     }
     status = nms_value_retain(runtime, value);
     if (status != NMS_OK) {
@@ -545,7 +663,7 @@ static NmsStatus value_array_write(NmsRuntime *runtime, NmsHandle array,
         return status;
     }
     NmsValue previous = {0, 0};
-    if (!append) previous = array_value(slot, target);
+    if (!append) previous = slot_value(slot, target);
     if (replacement) {
         unsigned char *old = slot->data;
         slot->data = (unsigned char *)buffer;
@@ -572,7 +690,7 @@ NmsStatus nms_value_array_get(NmsRuntime *runtime, NmsHandle array, uint64_t ind
     if (status != NMS_OK) return status;
     NmsSlot *slot = &runtime->slots[slot_index];
     if (index >= slot->length) { *out = (NmsValue){0, 0}; return NMS_OK; }
-    NmsValue value = array_value(slot, (uint32_t)index);
+    NmsValue value = slot_value(slot, (uint32_t)index);
     status = nms_value_retain(runtime, value);
     if (status == NMS_OK) *out = value;
     return status;
@@ -584,7 +702,7 @@ NmsStatus nms_value_array_pop(NmsRuntime *runtime, NmsHandle array, NmsValue *ou
     if (status != NMS_OK) return status;
     NmsSlot *slot = &runtime->slots[index];
     if (!slot->length) { *out = (NmsValue){0, 0}; return NMS_OK; }
-    NmsValue value = array_value(slot, slot->length - 1);
+    NmsValue value = slot_value(slot, slot->length - 1);
     slot->length--;
     if (slot->kind == NMS_SLOT_PACKED_SCALAR_ARRAY) packed_publish(slot, slot->length, 0);
     else if (slot->kind == NMS_SLOT_STRING_ARRAY) ((NmsHandle *)slot->data)[slot->length] = 0;
@@ -648,7 +766,7 @@ NmsStatus nms_vm_array_slice(NmsRuntime *runtime, NmsHandle source,
         output->length = count;
     } else {
         for (uint32_t i = 0; i < count; i++) {
-            NmsValue value = array_value(input, start + i);
+            NmsValue value = slot_value(input, start + i);
             status = nms_value_array_append(runtime, result, value);
             if (status != NMS_OK) { nms_release(runtime, result); return status; }
         }
@@ -885,10 +1003,10 @@ NmsStatus nms_release(NmsRuntime *runtime, NmsHandle handle) {
         index = pending;
         NmsSlot *slot = &runtime->slots[index];
         pending = slot->next_free;
-        if (slot->kind == NMS_SLOT_STRING_ARRAY || slot->kind == NMS_SLOT_BOXED_ARRAY) {
+        if (slot_has_children(slot)) {
             for (uint32_t i = 0; i < slot->length; i++) {
-                NmsValue child = array_value(slot, i);
-                if ((child.tag != 5 && child.tag != NMS_ARRAY_TAG) || !(child.payload & NMS_DYNAMIC)) continue;
+                NmsValue child = slot_value(slot, i);
+                if (!value_is_reference(child) || !(child.payload & NMS_DYNAMIC)) continue;
                 uint32_t child_index;
                 NmsStatus child_status = slot_for(runtime, child.payload, &child_index);
                 if (child_status != NMS_OK) {
@@ -902,11 +1020,11 @@ NmsStatus nms_release(NmsRuntime *runtime, NmsHandle handle) {
                 }
             }
         }
-        runtime->live_bytes -= slot->kind == NMS_SLOT_STRING ? slot->length : array_storage_bytes(slot);
+        runtime->live_bytes -= slot->kind == NMS_SLOT_STRING ? slot->length : slot_storage_bytes(slot);
         runtime->live_objects--;
         deallocate(slot->data);
         slot->data = NULL; slot->length = 0; slot->capacity = 0;
-        slot->kind = NMS_SLOT_FREE; slot->element_tag = 0; slot->vm_array_policy = 0;
+        slot->kind = NMS_SLOT_FREE; slot->element_tag = 0; slot->vm_array_policy = 0; slot->record_ordinal = 0;
         slot->next_free = runtime->free_head; runtime->free_head = index;
     }
     return first_error;
@@ -925,7 +1043,7 @@ static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
             if (slot->kind != NMS_SLOT_FREE || slot->data || slot->length || slot->capacity) goto done;
             continue;
         }
-        if (!i || slot->kind < NMS_SLOT_STRING || slot->kind > NMS_SLOT_PACKED_SCALAR_ARRAY) goto done;
+        if (!i || slot->kind < NMS_SLOT_STRING || slot->kind > NMS_SLOT_RECORD) goto done;
         uint64_t storage;
         if (slot->kind == NMS_SLOT_STRING) {
             if (!slot->data) goto done;
@@ -933,7 +1051,11 @@ static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
         } else {
             if (slot->length > slot->capacity || (slot->capacity && !slot->data)) goto done;
             if (slot->kind == NMS_SLOT_PACKED_SCALAR_ARRAY && !packed_width(slot->element_tag)) goto done;
-            storage = array_storage_bytes(slot);
+            if (slot->kind == NMS_SLOT_RECORD) {
+                uint32_t index;
+                if (record_slot(runtime, NMS_DYNAMIC | i, &index) != NMS_OK) goto done;
+            }
+            storage = slot_storage_bytes(slot);
             if (storage > SIZE_MAX) goto done;
         }
         if (storage > UINT64_MAX - bytes) goto done;
@@ -942,11 +1064,11 @@ static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
     if (objects != runtime->live_objects || bytes != runtime->live_bytes) goto done;
     for (uint64_t i = 1; i < count; i++) {
         const NmsSlot *slot = &runtime->slots[i];
-        if (slot->kind != NMS_SLOT_STRING_ARRAY && slot->kind != NMS_SLOT_BOXED_ARRAY) continue;
+        if (!slot_has_children(slot)) continue;
         for (uint32_t j = 0; j < slot->length; j++) {
-            NmsValue child = array_value(slot, j);
+            NmsValue child = slot_value(slot, j);
             if (value_valid(runtime, child) != NMS_OK) goto done;
-            if ((child.tag == 5 || child.tag == NMS_ARRAY_TAG) && (child.payload & NMS_DYNAMIC)) {
+            if (value_is_reference(child) && (child.payload & NMS_DYNAMIC)) {
                 uint32_t index = (uint32_t)child.payload;
                 if (!trial[index]) goto done;
                 trial[index]--;
@@ -959,10 +1081,10 @@ static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
     }
     while (head < tail) {
         const NmsSlot *slot = &runtime->slots[queue[head++]];
-        if (slot->kind != NMS_SLOT_STRING_ARRAY && slot->kind != NMS_SLOT_BOXED_ARRAY) continue;
+        if (!slot_has_children(slot)) continue;
         for (uint32_t j = 0; j < slot->length; j++) {
-            NmsValue child = array_value(slot, j);
-            if ((child.tag != 5 && child.tag != NMS_ARRAY_TAG) || !(child.payload & NMS_DYNAMIC)) continue;
+            NmsValue child = slot_value(slot, j);
+            if (!value_is_reference(child) || !(child.payload & NMS_DYNAMIC)) continue;
             uint32_t index = (uint32_t)child.payload;
             if (!marked[index]) { marked[index] = 1; queue[tail++] = index; }
         }
@@ -972,10 +1094,10 @@ static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
     for (uint64_t i = 1; i < count; i++) {
         const NmsSlot *slot = &runtime->slots[i];
         if (marked[i] || !slot->references ||
-            (slot->kind != NMS_SLOT_STRING_ARRAY && slot->kind != NMS_SLOT_BOXED_ARRAY)) continue;
+            !slot_has_children(slot)) continue;
         for (uint32_t j = 0; j < slot->length; j++) {
-            NmsValue child = array_value(slot, j);
-            if ((child.tag == 5 || child.tag == NMS_ARRAY_TAG) && (child.payload & NMS_DYNAMIC)) {
+            NmsValue child = slot_value(slot, j);
+            if (value_is_reference(child) && (child.payload & NMS_DYNAMIC)) {
                 uint32_t index = (uint32_t)child.payload;
                 if (marked[index]) runtime->slots[index].references--;
             }
@@ -984,10 +1106,10 @@ static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
     for (uint64_t i = 1; i < count; i++) {
         NmsSlot *slot = &runtime->slots[i];
         if (marked[i] || !slot->references) continue;
-        runtime->live_bytes -= slot->kind == NMS_SLOT_STRING ? slot->length : array_storage_bytes(slot);
+        runtime->live_bytes -= slot->kind == NMS_SLOT_STRING ? slot->length : slot_storage_bytes(slot);
         runtime->live_objects--; deallocate(slot->data);
         slot->data = NULL; slot->references = 0; slot->length = 0; slot->capacity = 0;
-        slot->kind = NMS_SLOT_FREE; slot->element_tag = 0; slot->vm_array_policy = 0;
+        slot->kind = NMS_SLOT_FREE; slot->element_tag = 0; slot->vm_array_policy = 0; slot->record_ordinal = 0;
         slot->next_free = runtime->free_head; runtime->free_head = (uint32_t)i;
     }
     status = NMS_OK;
@@ -1052,6 +1174,8 @@ NmsStatus nms_dispose(NmsRuntime *runtime) {
     runtime->collection_capacity = runtime->collection_prepared = 0;
     runtime->slots = NULL; runtime->capacity = runtime->free_head = 0;
     runtime->live_bytes = runtime->live_objects = 0;
+    runtime->record_descriptors = NULL;
+    runtime->record_count = runtime->records_bound = 0;
     runtime->disposed = 1;
     return NMS_OK;
 }
