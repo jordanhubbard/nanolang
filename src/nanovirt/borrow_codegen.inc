@@ -287,11 +287,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         ASTNode *n=b->records[i];NvmV2Layout *layout=&layouts.items[i];
         layout->kind=NVM_V2_LAYOUT_STRUCT;layout->field_count=(uint16_t)n->as.struct_def.field_count;
         layout->name_idx=nvm_add_string(cg->module,n->as.struct_def.name,(uint32_t)strlen(n->as.struct_def.name));
+        if(layout->name_idx==UINT32_MAX){borrow_error(b,n,"available record-name storage");break;}
         layout->fields=calloc(layout->field_count?layout->field_count:1,sizeof(*layout->fields));
         if(!layout->fields){borrow_error(b,n,"available field storage");break;}
-        for(unsigned f=0;f<layout->field_count;f++) {
+        for(unsigned f=0;f<layout->field_count && !cg->had_error;f++) {
             const char *name=n->as.struct_def.field_names[f];layout->fields[f].type_tag=borrow_tag(n->as.struct_def.field_types[f]);
             layout->fields[f].nested_idx=NVM_V2_NO_INDEX;layout->fields[f].name_idx=nvm_add_string(cg->module,name,(uint32_t)strlen(name));
+            if(layout->fields[f].name_idx==UINT32_MAX)borrow_error(b,n,"available field-name storage");
         }
     }
     if(!cg->had_error) {
@@ -302,6 +304,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         const char *names[2]={shadows?shadow_name:"main",b->helper->as.function.name};
         for(unsigned i=0;i<2;i++) {
             NvmFunctionEntry f={0};f.name_idx=nvm_add_string(cg->module,names[i],(uint32_t)strlen(names[i]));
+            if(f.name_idx==UINT32_MAX){borrow_error(b,NULL,"available function-name storage");break;}
             f.arity=i?1:0;f.result_count=1;f.result_tag=i?borrow_tag(b->helper->as.function.return_type):TAG_INT;
             if(nvm_add_function(cg->module,&f)!=i)borrow_error(b,NULL,"available function storage");
         }
