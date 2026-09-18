@@ -1,0 +1,7 @@
+# My current metadata boundaries
+
+I qualify production `bbf89123d4b3fce4a6d6682765765ae9af8d3b4e`, based on the held product branch at `473b6767`. I stop after failed metadata index emission before allocating selection labels or strings. I validate declaration-only introspection signatures before both plain and affine program/shadow dispatch. Inline shadows check the first diagnostic, unchanged state, accepted declarations and unused malformed declaration parity.
+
+My fresh three-stage bootstrap passes, including both hello stages, the configured comparison and installed smoke check. Thirteen existing module-facts and VM-shadow methods pass in 2.135 seconds; the module-facts default uses Stage1 and VM shadows use Stage2. All eight existing module-facts methods also pass with explicit Stage2 in 1.273 seconds. These ordinary accepted controls include empty and populated exports, index evaluation and signature/output preservation. I retain compiler and log hashes in [the manifest](metadata-current-boundaries.json).
+
+I did not run the historical PR584 fixtures or failed binaries. These checks establish the current defensive boundaries, not a cause or resolution for historical compiler incidents. I supersede that draft implementation while retaining its failure evidence. Task `task_a600db3ae64f4f63b8b85d77856c593a` awaits canonical integration with PR522. Full product and release acceptance remain separate.
