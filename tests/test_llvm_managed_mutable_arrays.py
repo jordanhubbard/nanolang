@@ -58,7 +58,10 @@ class MutableArrays(unittest.TestCase):
                            ('LOAD_GLOBAL 1\nPUSH_STR a\nARR_PUSH\nPOP\n',1),
                            ('LOAD_GLOBAL 1\nARR_POP\nPOP\n',1)]:
             with self.subTest(bad=bad):
-                body='ARR_NEW 5\nPUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nARR_PUSH\nDUP\nSTORE_GLOBAL 0\nPUSH_BOOL 1\nSTORE_GLOBAL 1\nCALL fail\nPOP\n'
+                body=('LOAD_GLOBAL 0\nTYPE_CHECK 0\nJMP_TRUE fresh\n'
+                      'LOAD_GLOBAL 0\nARR_LEN\nPUSH_I64 1\nEQ\nASSERT\n'
+                      'LOAD_GLOBAL 0\nPUSH_I64 0\nARR_GET\nPUSH_STR a\nEQ\nASSERT\nfresh:\n'
+                      'ARR_NEW 5\nPUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nARR_PUSH\nDUP\nSTORE_GLOBAL 0\nPUSH_BOOL 1\nSTORE_GLOBAL 1\nCALL fail\nPOP\n')
                 suffix='.function fail 1 1 0 array 1\n.parameters fail array\n'+bad+'LOAD_LOCAL 0\nRET\n.end\n'
                 _,ir,wasm=self.compile(self.program(body,suffix),vm_ok=False)
                 self.native_harness(ir,f'for(int i=0;i<3;i++)if(nano_try_entry()!=((uint64_t){status}<<32)||nms_module_live_objects()!=2)return 1;return nano_dispose();')
@@ -89,6 +92,16 @@ class MutableArrays(unittest.TestCase):
         _,ir,wasm=self.compile(self.program(body))
         self.native_harness(ir,'if(nano_try_entry()||nms_module_live_objects())return 1;return nano_dispose();')
         self.node(wasm,'for(let i=0;i<3;i++){check(e.nano_try_entry()===(3n<<32n));check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
+
+    def test_prepared_split_set_requires_no_allocation(self):
+        body=('LOAD_GLOBAL 0\nTYPE_CHECK 0\nJMP_FALSE mutate\n'
+              'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nSTORE_GLOBAL 0\nJMP done\nmutate:\n'
+              'LOAD_GLOBAL 0\nPUSH_I64 0\nPUSH_STR a\nARR_SET\nPOP\n'
+              'LOAD_GLOBAL 0\nPUSH_I64 0\nARR_GET\nPUSH_STR a\nEQ\nASSERT\ndone:\n')
+        _,ir,wasm=self.compile(self.program(body))
+        extra='static int fail;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){return fail?0:__real_malloc(n);}'
+        self.native_harness(ir,'if(nano_try_entry())return 1;fail=1;for(int i=0;i<4;i++)if(nano_try_entry())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+        self.node(wasm,'check(e.nano_try_entry()===0n);let pages=e.memory.buffer.byteLength;for(let i=0;i<4;i++)check(e.nano_try_entry()===0n);check(e.memory.buffer.byteLength===pages);check(e.nano_dispose()===0);')
 
     def test_unsupported_shapes_and_transfers_preserve_output(self):
         for body in ['ARR_NEW 5\nARR_NEW 1\nARR_PUSH\nPOP\n',
