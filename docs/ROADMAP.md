@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I lower declared `string_to_float` calls with an exact string operand and float result (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). The product prefix-conversion fixture is currently checked-refused. I reuse portable `CAST_FLOAT`, evaluate the operand once, preserve declaration resolution and retain legacy plus canonical VM/native acceptance with wrong-type output preservation.
+
 - [x] I reconstruct typed integer bitwise operations (`task_c4188559900c4a48887c5c29f77b6ed5`, parent4bd034): exact 64-bit AND/OR/XOR/inversion with portable C and bounded Nano helpers, strict tags, endpoint/pattern/loop parity and atomic refusal. Twenty-two GCC/Clang methods pass including363 binary pairs and22 inversion checks; tool hashes remain unchanged. Full reconstruction stays open. [Contract](NANOISA_RECONSTRUCT_INTEGER_BITWISE.md).
 
 - [x] I reconstruct typed integer shifts (`task_417225d8ac7e49278c25eee9ed1291b9`, parent4bd034): low-six-bit count normalization, portable arithmetic/logical distinction, endpoint/call/loop parity and strict-tag/output refusals. Eighteen GCC/Clang methods pass including351 shift combinations; pinned tool hashes remain unchanged. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md).
