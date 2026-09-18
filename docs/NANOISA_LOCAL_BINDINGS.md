@@ -68,8 +68,9 @@ fresh slots rather than reuse them. I check exact lookup boundaries and lexical
 separation, missing names, unknown versions, malformed advisory tables without
 execution changes, exact name/interval and executable-code preservation through
 canonical text, and unchanged VM/native results. I require byte stability on the
-second canonical cycle. Existing DEBUG omission remains a separate transport
-obligation; I do not claim original source artifacts roundtrip every byte.
+second canonical cycle. My subsequent DEBUG transport gate also checks exact original canonical v2
+bytes for the source fixtures, as recorded in `evidence/nanoisa-debug-text.md`.
+This does not establish byte equality for every possible module family.
 I test allocation cleanup, normal v1 modules, metadata-bearing v1 refusal,
 existing ownership/passive metadata, mandatory source shadows and the genuine
 canonical compiler host build. I close only this bounded child from merged proof;

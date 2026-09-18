@@ -318,8 +318,9 @@ bool nvm_callback_contracts_valid(const NvmModule *mod);
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);
 
 /* Add a debug entry (bytecode offset -> source line + column).
- * source_col is 1-based; pass 0 if unknown. */
-void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
+ * source_col is 1-based; pass 0 if unknown. I return false without appending
+ * if allocation or representable capacity is exhausted. */
+bool nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
                          uint32_t source_line, uint32_t source_col);
 
 /* Remove all debug info from a module for production builds.

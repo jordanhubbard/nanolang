@@ -427,12 +427,16 @@ uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size) {
  * Debug Info
  * ======================================================================== */
 
-void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
+bool nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
                          uint32_t source_line, uint32_t source_col) {
+    if (!mod || mod->debug_count == UINT32_MAX) return false;
     if (mod->debug_count >= mod->debug_capacity) {
-        uint32_t new_cap = mod->debug_capacity * 2;
+        uint32_t new_cap = mod->debug_capacity ? mod->debug_capacity : 16;
+        if (new_cap > UINT32_MAX / 2) return false;
+        new_cap *= 2;
+        if ((uint64_t)new_cap * sizeof(NvmDebugEntry) > SIZE_MAX) return false;
         NvmDebugEntry *new_entries = realloc(mod->debug_entries, new_cap * sizeof(NvmDebugEntry));
-        if (!new_entries) return;
+        if (!new_entries) return false;
         mod->debug_entries = new_entries;
         mod->debug_capacity = new_cap;
     }
@@ -441,6 +445,7 @@ void nvm_add_debug_entry(NvmModule *mod, uint32_t bytecode_offset,
     mod->debug_entries[mod->debug_count].source_line = source_line;
     mod->debug_entries[mod->debug_count].source_col  = source_col;
     mod->debug_count++;
+    return true;
 }
 
 void nvm_strip_debug_info(NvmModule *mod) {
@@ -988,7 +993,10 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     uint32_t bc_off = le_read_u32(sec_data + pos); pos += 4;
                     uint32_t line   = le_read_u32(sec_data + pos); pos += 4;
                     uint32_t col    = le_read_u32(sec_data + pos); pos += 4;
-                    nvm_add_debug_entry(mod, bc_off, line, col);
+                    if (!nvm_add_debug_entry(mod, bc_off, line, col)) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                 }
                 break;
             }

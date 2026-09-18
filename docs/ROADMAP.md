@@ -9773,10 +9773,13 @@ Module richness:
       MAC `task_d2326e6883ed4cbe93728cd1393024c2`. I retain the sanitizer
       failure; the unchanged 20-boundary allocation sweep now passes ASan/UBSan
       with leak checks. [Evidence](evidence/nanoisa-local-bindings.md).
-- [ ] I preserve DEBUG source maps through canonical text; real source output
-      currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
-      Local-name comparisons retain exact metadata/code and separately require
-      canonical-cycle byte stability; full original-byte transport remains open.
+- [x] I preserve accepted DEBUG source maps through canonical text, including
+      ordered records and empty section presence. MAC
+      `task_1466d452d48c4a558c3be8a51765dd8f`; contract
+      `docs/NANOISA_DEBUG_TEXT.md`. Checked append failures abort transport.
+      My source fixtures now retain exact original canonical v2 bytes, with
+      unchanged VM/native results. Unknown advisory keys survive; unknown wire
+      sections remain refused. [Evidence](evidence/nanoisa-debug-text.md).
 - [x] I retain ordered advisory v2 metadata through module conversion and
       canonical text, with exact string bytes, explicit source precedence,
       metadata-bearing v1 refusal and owned lifetime. MAC
