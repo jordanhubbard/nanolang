@@ -617,10 +617,10 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                 if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return (nb_fail "a direct builtin range") }
                 if (!= (parser_get_identifier parser call.function).name "range") { return (nb_fail "a direct builtin range") }
                 if (or (>= (nb_local "range") 0) (== (parser_get_function parser nb_helper).name "range")) { return (nb_fail "an unshadowed builtin range") }
-                if (and (!= call.arg_count 1) (!= call.arg_count 2)) { return (nb_fail "one or two integer range bounds") }
-                if (== call.arg_count 1) { let _: int = (nb_op1 "PUSH_I64" 0) }
-                else { let first_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start) if (!= (nb_expr parser first_arg.node_id first_arg.node_type) 1) { return (nb_fail "integer range bounds") } }
-                let last: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- call.arg_count 1)))
+                if (!= call.arg_count 2) { return (nb_fail "two integer range bounds") }
+                let first_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                if (!= (nb_expr parser first_arg.node_id first_arg.node_type) 1) { return (nb_fail "integer range bounds") }
+                let last: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
                 if (!= (nb_expr parser last.node_id last.node_type) 1) { return (nb_fail "integer range bounds") }
                 set range_end (nb_slot "" 1 4294967295 0 false) let _: int = (nb_op1 "STORE_LOCAL" range_end)
                 set range_index (nb_slot loop.var_name 1 4294967295 0 false) let _: int = (nb_op1 "STORE_LOCAL" range_index)

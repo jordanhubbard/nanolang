@@ -350,7 +350,7 @@ shadow main { assert true }
 
     def test_range_for_preserves_bounds_scope_and_exact_edges(self):
         text = (FIXTURES / 'source_borrow_range_for.nano').read_text()
-        variants = {'entered_return': text, 'empty_return': text.replace('for tail in (range 1)', 'for tail in (range 0)')}
+        variants = {'entered_return': text, 'empty_return': text.replace('for tail in (range 0 1)', 'for tail in (range 0 0)')}
         for fixture, content in variants.items():
             source = self.work / ('resource-path-' + fixture + '.nano')
             source.write_text(content)
@@ -389,6 +389,7 @@ shadow main { assert true }
     def test_range_for_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_range_for.nano').read_text()
         cases = {
+            'one_bound': text.replace('(range 0 4)', '(range 4)'),
             'array_iterable': text.replace('(range 0 4)', '[0, 1]'),
             'float_bound': text.replace('(range 0 4)', '(range 0 4.0)'),
             'local_leak': text.replace('if (== index 1) { continue }', 'if (== index 1) { let leaked: Counter = Counter { value: 1, active: true } continue }'),

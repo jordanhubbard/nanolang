@@ -272,12 +272,11 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 if(range->type!=AST_CALL || range->as.call.func_expr || range->as.call.borrow_mode || !range->as.call.name ||
                    strcmp(range->as.call.name,"range") || borrow_local(b,"range")>=0 ||
                    !strcmp(b->helper->as.function.name,"range") ||
-                   (range->as.call.arg_count!=1 && range->as.call.arg_count!=2)) {
-                    borrow_error(b,n,"a direct builtin range with one or two integer bounds");break;
+                   range->as.call.arg_count!=2) {
+                    borrow_error(b,n,"a direct builtin range with two integer bounds");break;
                 }
-                if(range->as.call.arg_count==1)emit_op(cg,OP_PUSH_I64,(int64_t)0);
-                else if(borrow_expr(b,range->as.call.args[0])!=TAG_INT){borrow_error(b,n,"integer range bounds");break;}
-                if(borrow_expr(b,range->as.call.args[range->as.call.arg_count-1])!=TAG_INT){borrow_error(b,n,"integer range bounds");break;}
+                if(borrow_expr(b,range->as.call.args[0])!=TAG_INT){borrow_error(b,n,"integer range bounds");break;}
+                if(borrow_expr(b,range->as.call.args[1])!=TAG_INT){borrow_error(b,n,"integer range bounds");break;}
                 end=borrow_slot(b,NULL,TAG_INT,NVM_V2_NO_INDEX,0,false);emit_op(cg,OP_STORE_LOCAL,end);
                 index=borrow_slot(b,n->as.for_stmt.var_name,TAG_INT,NVM_V2_NO_INDEX,0,false);emit_op(cg,OP_STORE_LOCAL,index);
                 borrow_name_begin(b,(unsigned)index,n->as.for_stmt.var_name);
