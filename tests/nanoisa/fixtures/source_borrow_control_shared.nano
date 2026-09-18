@@ -1,0 +1,55 @@
+resource struct Leaf { value: int, enabled: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+fn read(view: &Leaf) -> int {
+ let mut result: int = 0
+ if view.enabled { set result view.value } else { set result 1 }
+ return result
+}
+shadow read {
+ let left: Leaf = Leaf { value: 2, enabled: true }
+ let right: Leaf = Leaf { value: 4, enabled: false }
+ let root: Pair = Pair { left: left, right: right }
+ let mut index: int = 0
+ let mut result: int = 0
+ let mut keep: bool = true
+ while keep { set keep false assert (not keep) }
+ while (< index 3) {
+  if (< (read &root.left) 3) { set result (+ result (read &root.left)) }
+  else { assert false }
+  if (> (read &root.right) 1) { assert false }
+  else { set result (+ result (read &root.right)) }
+  set index (+ index 1)
+ }
+ assert (== result 9)
+ while false { assert false }
+ let Pair { left, right } = root
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 4) assert (not enabled)
+}
+fn main() -> int {
+ let left: Leaf = Leaf { value: 2, enabled: true }
+ let right: Leaf = Leaf { value: 4, enabled: false }
+ let root: Pair = Pair { left: left, right: right }
+ let mut index: int = 0
+ let mut result: int = 0
+ let mut keep: bool = true
+ while keep { set keep false assert (not keep) }
+ while (< index 3) {
+  if (< (read &root.left) 3) { set result (+ result (read &root.left)) }
+  else { assert false }
+  if (> (read &root.right) 1) { assert false }
+  else { set result (+ result (read &root.right)) }
+  set index (+ index 1)
+ }
+ assert (== result 9)
+ while false { assert false }
+ let Pair { left, right } = root
+ let Leaf { value, enabled } = left
+ assert (== value 2) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 4) assert (not enabled)
+ return 0
+}
+shadow main { while false { assert false } assert true }

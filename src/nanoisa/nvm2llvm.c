@@ -97,6 +97,46 @@ static void numeric_runtime(FILE *out) {
           "floating:\n %x = bitcast i64 %bits to double\n %r = fneg double %x\n"
           " %rb = bitcast double %r to i64\n %fv = insertvalue %V %a, i64 %rb, 0\n ret %V %fv\n}\n", out);
 }
+/* Literal handles are module-local indices, never integer-encoded pointers.
+ * The descriptor and bytes have module lifetime on native and Wasm targets. */
+static void literal_runtime(FILE *out, const NvmModule *m) {
+    fputs("%S = type { ptr, i64 }\n", out);
+    for (uint32_t i = 0; i < m->string_count; ++i) {
+        uint32_t length = nvm_get_string_len(m, i);
+        const unsigned char *bytes = (const unsigned char *)nvm_get_string(m, i);
+        fprintf(out, "@literal_%u = private constant [%u x i8] c\"", i, length);
+        for (uint32_t j = 0; j < length; ++j) fprintf(out, "\\%02X", bytes[j]);
+        fputs("\"\n", out);
+    }
+    uint32_t count = m->string_count ? m->string_count : 1;
+    fprintf(out, "@literal_strings = private constant [%u x %%S] [", count);
+    for (uint32_t i = 0; i < m->string_count; ++i)
+        fprintf(out, "%s%%S { ptr @literal_%u, i64 %u }", i ? ", " : "", i, nvm_get_string_len(m, i));
+    if (!m->string_count) fputs("%S zeroinitializer", out);
+    fputs("]\n", out);
+    fprintf(out,
+        "define internal %%S @string_descriptor(%%V %%value) {\n"
+        " %%handle = call i64 @integer(%%V %%value, i8 %u)\n"
+        " %%index = sub i64 %%handle, 1\n %%valid = icmp ult i64 %%index, %u\n"
+        " call void @check(i1 %%valid)\n"
+        " %%p = getelementptr %%S, ptr @literal_strings, i64 %%index\n"
+        " %%descriptor = load %%S, ptr %%p\n ret %%S %%descriptor\n}\n", TAG_STRING, m->string_count);
+    fputs(
+        "define internal i64 @string_order(%V %a, %V %b) {\nentry:\n"
+        " %ad = call %S @string_descriptor(%V %a)\n %bd = call %S @string_descriptor(%V %b)\n"
+        " %ap = extractvalue %S %ad, 0\n %bp = extractvalue %S %bd, 0\n"
+        " %al = extractvalue %S %ad, 1\n %bl = extractvalue %S %bd, 1\n"
+        " %shorter = icmp ult i64 %al, %bl\n %limit = select i1 %shorter, i64 %al, i64 %bl\n"
+        " br label %loop\nloop:\n %i = phi i64 [0, %entry], [%next, %equal]\n"
+        " %done = icmp eq i64 %i, %limit\n br i1 %done, label %lengths, label %bytes\n"
+        "bytes:\n %ax = getelementptr i8, ptr %ap, i64 %i\n %bx = getelementptr i8, ptr %bp, i64 %i\n"
+        " %ac = load i8, ptr %ax\n %bc = load i8, ptr %bx\n %same = icmp eq i8 %ac, %bc\n"
+        " br i1 %same, label %equal, label %different\nequal:\n"
+        " %next = add i64 %i, 1\n br label %loop\ndifferent:\n"
+        " %ai = zext i8 %ac to i64\n %bi = zext i8 %bc to i64\n"
+        " %order = sub i64 %ai, %bi\n ret i64 %order\nlengths:\n"
+        " %length_order = sub i64 %al, %bl\n ret i64 %length_order\n}\n", out);
+}
 /* I preserve generic three-way NaN ordering independently of IEEE equality. */
 static void comparison_runtime(FILE *out) {
     fputs(
@@ -127,6 +167,10 @@ static void comparison_runtime(FILE *out) {
         " %at = extractvalue %V %a, 1\n"
         " %bt = extractvalue %V %b, 1\n"
         " %same = icmp eq i8 %at, %bt\n"
+        " %as = icmp eq i8 %at, 5\n %strings = and i1 %same, %as\n"
+        " br i1 %strings, label %string_pair, label %scalars\nstring_pair:\n"
+        " %string_result = call i64 @string_order(%V %a, %V %b)\n"
+        " %string_equal = icmp eq i64 %string_result, 0\n ret i1 %string_equal\nscalars:\n"
         " %av = extractvalue %V %a, 0\n"
         " %bv = extractvalue %V %b, 0\n"
         " %payload = icmp eq i64 %av, %bv\n"
@@ -152,6 +196,10 @@ static void comparison_runtime(FILE *out) {
         " %at = extractvalue %V %a, 1\n"
         " %bt = extractvalue %V %b, 1\n"
         " %same = icmp eq i8 %at, %bt\n"
+        " %as = icmp eq i8 %at, 5\n %strings = and i1 %same, %as\n"
+        " br i1 %strings, label %string_pair, label %scalars\nstring_pair:\n"
+        " %string_result = call i64 @string_order(%V %a, %V %b)\n"
+        " ret i64 %string_result\nscalars:\n"
         " %av = extractvalue %V %a, 0\n"
         " %bv = extractvalue %V %b, 0\n"
         " %less = icmp slt i64 %av, %bv\n"
@@ -207,6 +255,23 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
                 ins.opcode == OP_PUSH_U8 ? TAG_U8 : ins.opcode == OP_PUSH_F64 ? TAG_FLOAT : ins.opcode == OP_PUSH_I64 ? TAG_INT : ins.opcode == OP_PUSH_BOOL ? TAG_BOOL : TAG_VOID);
             break;
         }
+        case OP_PUSH_STR:
+            fprintf(out, " call void @push(ptr %%stack, ptr %%sp, %%V { i64 %" PRIu64 ", i8 %u })\n",
+                    (uint64_t)ins.operands[0].u32 + 1, TAG_STRING);
+            break;
+        case OP_STR_LEN:
+            pop(out, pc, "a");
+            fprintf(out, " %%p%u_desc = call %%S @string_descriptor(%%V %%p%u_a)\n"
+                         " %%p%u_result = extractvalue %%S %%p%u_desc, 1\n", pc, pc, pc, pc);
+            result(out, pc, TAG_INT);
+            break;
+        case OP_STR_EQ:
+            pop(out, pc, "b"); pop(out, pc, "a");
+            fprintf(out, " %%p%u_order = call i64 @string_order(%%V %%p%u_a, %%V %%p%u_b)\n"
+                         " %%p%u_equal = icmp eq i64 %%p%u_order, 0\n"
+                         " %%p%u_result = zext i1 %%p%u_equal to i64\n", pc, pc, pc, pc, pc, pc, pc);
+            result(out, pc, TAG_BOOL);
+            break;
         case OP_POP: pop(out, pc, "a"); break;
         case OP_DUP: pop(out, pc, "a"); push(out, pc, "a"); push(out, pc, "a"); break;
         case OP_SWAP: pop(out, pc, "b"); pop(out, pc, "a"); push(out, pc, "b"); push(out, pc, "a"); break;
@@ -397,7 +462,7 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
               (*p >= '0' && *p <= '9') || *p == '_'))
             return refuse(error, size, "I require an ASCII entry identifier");
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
-    NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_SCALAR);
+    NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS);
     if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
     /* I size storage from every verified literal global operand, matching
      * VM module allocation. Verification bounds index+1 by NVM_MAX_GLOBALS. */
@@ -423,6 +488,7 @@ int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size,
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
     numeric_runtime(out);
+    literal_runtime(out, m);
     comparison_runtime(out);
     for (uint32_t i = 0; i < m->function_count; ++i) {
         uint16_t depth = 0;

@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
     NvmVerifyResult ordinary = nvm_verify(m);
     NvmVerifyResult general = nvm_verify_profile(m, NVM_PROFILE_GENERAL);
     NvmVerifyResult scalar = nvm_verify_profile(m, NVM_PROFILE_CLOSED_SCALAR);
+    NvmVerifyResult literal = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS);
     NvmVerifyResult unknown = nvm_verify_profile(m, (NvmVerifyProfile)99);
     FILE *out = tmpfile();
     if (!out) { nvm_module_free(m); return 2; }
@@ -33,5 +34,5 @@ int main(int argc, char **argv) {
            same, !unknown.ok, refusal_untouched);
     if (!scalar.ok) puts(scalar.error_msg);
     nvm_module_free(m);
-    return same && !unknown.ok && refusal_untouched && scalar.ok == (translated != 0) ? 0 : 1;
+    return same && !unknown.ok && refusal_untouched && literal.ok == (translated != 0) ? 0 : 1;
 }

@@ -17,9 +17,14 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   contracts and captures. My scalar global/initializer extension follows
   `NANOISA_LLVM_SCALAR_GLOBALS.md`. I retain existing numeric,
   bool and void signatures and the explicit existing instruction whitelist.
+- `NVM_PROFILE_CLOSED_LITERAL_STRINGS` retains the scalar module rules and adds
+  literal byte transport and string signatures, STR_LEN and STR_EQ. It refuses
+  ADD/CAST_INT/CAST_FLOAT anywhere in a string-bearing module. The existing
+  CLOSED_SCALAR selector continues to refuse strings. Details and lifetime are
+  in `NANOISA_LLVM_LITERAL_STRINGS.md`.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary
   metadata can select or bypass the consuming tool's profile.
-- LLVM uses this shared admission. Wasm uses the same LLVM route. My initial
+- LLVM selects CLOSED_LITERAL_STRINGS through this shared admission. Wasm uses the same LLVM route. My initial
   extraction changed no target eligibility; later extensions require matched
   lowering and their documented gates. I retain serialization and VM default
   admission. This scalar profile is not a GPU kernel contract.

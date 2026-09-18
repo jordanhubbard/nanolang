@@ -22,6 +22,8 @@ let mut nb_projection_fields: array<int> = []
 let mut nb_in_helper: bool = false
 let mut nb_returned: bool = false
 let mut nb_transfers_owner: bool = false
+let mut nb_control_depth: int = 0
+let mut nb_next_label: int = 0
 let mut nb_result: int = 1
 
 pub fn nanoisa_borrow_error() -> string { return nb_error }
@@ -65,6 +67,17 @@ fn nb_op1(op: string, a: int) -> int { return (nb_emit (+ op (+ " " (int_to_stri
 shadow nb_op1 { set nb_code "" set nb_error "" let _: int = (nb_op1 "LOAD_LOCAL" 2) assert (== nb_code "  LOAD_LOCAL 2\n") }
 fn nb_op2(op: string, a: int, b: int) -> int { return (nb_emit (+ op (+ " " (+ (int_to_string a) (+ " " (int_to_string b)))))) }
 shadow nb_op2 { set nb_code "" set nb_error "" let _: int = (nb_op2 "REF_GET" 0 1) assert (== nb_code "  REF_GET 0 1\n") }
+fn nb_label() -> string {
+    let name: string = (+ "nb_control_" (int_to_string nb_next_label))
+    set nb_next_label (+ nb_next_label 1)
+    return name
+}
+shadow nb_label {
+    set nb_next_label 0
+    assert (== (nb_label) "nb_control_0")
+    assert (== (nb_label) "nb_control_1")
+    set nb_next_label 0
+}
 fn nb_record(parser: Parser, name: string) -> int {
     let mut i: int = 0
     while (< i (parser_get_struct_def_count parser)) {
@@ -94,6 +107,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     return index
 }
 fn nb_reset_locals() -> int {
+    set nb_control_depth 0
     set nb_names [] set nb_named [] set nb_tags []
     set nb_projection_parents [] set nb_projection_fields [] set nb_layouts [] set nb_modes []
     set nb_live [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
@@ -516,7 +530,45 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     let mut i: int = 0
     while (and (== nb_error "") (and (not nb_returned) (< i (list_ASTStmtRef_length block.statements)))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
-        if (== stmt.node_type ParseNodeType.PNODE_LET) {
+        if (and (> nb_control_depth 0) (or (== stmt.node_type ParseNodeType.PNODE_LET) (== stmt.node_type ParseNodeType.PNODE_RETURN))) {
+            return (nb_fail "preinitialized locals and no ownership moves or early returns inside control flow")
+        }
+        if (or (== stmt.node_type ParseNodeType.PNODE_IF) (== stmt.node_type ParseNodeType.PNODE_WHILE)) {
+            if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
+            let top: string = (nb_label)
+            let skip: string = (nb_label)
+            let done: string = (nb_label)
+            let mut condition: int = 0 let mut condition_type: int = 0
+            let mut then_body: int = 0 let mut else_body: int = -1
+            if (== stmt.node_type ParseNodeType.PNODE_IF) {
+                let branch: ASTIf = (parser_get_if parser stmt.node_id)
+                set condition branch.condition set condition_type branch.condition_type
+                set then_body branch.then_body set else_body branch.else_body
+            } else {
+                let loop: ASTWhile = (parser_get_while parser stmt.node_id)
+                set condition loop.condition set condition_type loop.condition_type set then_body loop.body
+            }
+            let _: int = (nb_emit (+ top ":"))
+            if (!= (nb_expr parser condition condition_type) 4) { return (nb_fail "a Boolean control-flow condition") }
+            let _: int = (nb_emit (+ "JMP_FALSE " skip))
+            set nb_control_depth (+ nb_control_depth 1)
+            let _: int = (nb_body parser then_body false)
+            set nb_control_depth (- nb_control_depth 1)
+            if (!= nb_error "") { return 0 }
+            if (== stmt.node_type ParseNodeType.PNODE_IF) {
+                let _: int = (nb_emit (+ "JMP " done))
+                let _: int = (nb_emit (+ skip ":"))
+                if (>= else_body 0) {
+                    set nb_control_depth (+ nb_control_depth 1)
+                    let _: int = (nb_body parser else_body false)
+                    set nb_control_depth (- nb_control_depth 1)
+                }
+                let _: int = (nb_emit (+ done ":"))
+            } else {
+                let _: int = (nb_emit (+ "JMP " top))
+                let _: int = (nb_emit (+ skip ":"))
+            }
+        } else { if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let _: int = (nb_binding parser (parser_get_let parser stmt.node_id))
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
@@ -556,6 +608,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     }
                 }
             }
+        }
         }
         set i (+ i 1)
     }
@@ -638,7 +691,7 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
-    set nb_error "" set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_paths [] set nb_depths []
+    set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_paths [] set nb_depths []
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
     if (or (!= (parser_get_function_count parser) 2) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (or (> parser.unions_count 0) (> parser.opaque_types_count 0)))))) { let _: int = (nb_fail "only resource records, main, one helper and selected shadows") return "" }
