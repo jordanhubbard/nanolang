@@ -78,7 +78,8 @@ shadow main { assert (== (main) 0) }
 ''')
         for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
             module = self.work/f'{compiler}.nvm'
-            self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
+            result = self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', module)
+            self.assertNotIn('E001 TYPE MISMATCH', result.stderr)
             self.execute(module)
         for emitter in self.raw:
             assembly, module = self.work/'raw.nasm', self.work/'raw.nvm'
@@ -109,6 +110,13 @@ shadow main { assert (== (main) 0) }
                     output.write_text('retained')
                     result = subprocess.run([emitter, source, '-o', output], cwd=ROOT,
                                             text=True, capture_output=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                    self.assertEqual(output.read_text(), 'retained')
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                with self.subTest(case=name, compiler=compiler):
+                    output.write_text('retained')
+                    result = subprocess.run([ROOT/'bin'/compiler, source, '--emit-nvm', '-o', output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
                     self.assertEqual(output.read_text(), 'retained')
 
