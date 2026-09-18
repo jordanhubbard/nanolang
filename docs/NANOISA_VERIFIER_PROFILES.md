@@ -26,7 +26,10 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   adds matched managed string operations/conversions and string/numeric ADD.
   My split extension admits string-child arrays through STR_SPLIT, ARR_GET/LEN
   and array signatures. My bounded mutable extension adds ARR_NEW/PUSH/SET/POP
-  only after conservative whole-module element-shape analysis succeeds. Mutable
+  only after conservative whole-module element-shape analysis succeeds. My leaf
+  literal/slice extension applies that same analysis to ARR_LITERAL/SLICE, with
+  counted input ownership and fresh copy origins as specified in
+  `NANOISA_MANAGED_ARRAY_LITERAL_SLICE.md`. Mutable
   modules use prepared boxed split storage and tagged generic GET/LEN; read-only
   modules keep their prior path. Deferred analysis transfers and unsupported
   packed coercions/nested children refuse publication, while runtime type, bounds
