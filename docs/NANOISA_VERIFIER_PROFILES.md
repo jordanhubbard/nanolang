@@ -19,9 +19,10 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   bool and void signatures and the explicit existing instruction whitelist.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary
   metadata can select or bypass the consuming tool's profile.
-- LLVM uses this shared admission. Wasm uses the same LLVM route. I change no
-  serialization, VM default admission, runtime semantics or target eligibility.
-  This scalar profile is not a GPU kernel contract.
+- LLVM uses this shared admission. Wasm uses the same LLVM route. My initial
+  extraction changed no target eligibility; later extensions require matched
+  lowering and their documented gates. I retain serialization and VM default
+  admission. This scalar profile is not a GPU kernel contract.
 
 ## My acceptance
 
