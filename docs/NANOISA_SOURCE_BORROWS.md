@@ -43,3 +43,9 @@ operators use the already verified exact-tag owned instruction contracts.
 Destructuring moves the original owner into its parser-retained temporary;
 scalar projections do not duplicate ownership. Scope disposal consumes any
 remaining scalar-only shell. These bounds precede producer edits.
+
+My current owned runtime requires an actual owned transfer in entry. I refuse
+an empty or scalar-only selected shadow entry before publication; I do not
+insert a dummy owner or change verifier admission. A selected nonempty suffix
+with real owner transfer retains its source order. My synthetic entry name
+stays distinct from the original user helper name.
