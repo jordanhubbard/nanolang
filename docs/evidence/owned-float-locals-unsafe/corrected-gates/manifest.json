@@ -1,0 +1,40 @@
+{
+  "source": "50cf2df4ae0c464fb1c64b171003c7e00e18905a",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "-f",
+        "/tmp/nanolang-owned-float-locals-setup.mk",
+        "transitive-wrapper-setup"
+      ],
+      "status": 0,
+      "seconds": 25.608,
+      "log_sha256": "17656df25cb0ad29f60749d3f1fd3566039d97000cc6461ca14a987856660627",
+      "tools_unchanged": false
+    },
+    {
+      "name": "full-gcc",
+      "command": [
+        "python3",
+        "/tmp/nanolang-float-corrected-unittest.py",
+        "/tmp/nanolang-owned-float-locals-corrected-gates/full-gcc-producers.json",
+        "tests.test_source_borrow_emission",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow"
+      ],
+      "status": 0,
+      "seconds": 421.011,
+      "log_sha256": "aac9985926fe8cc882412c858908f0f4d6c4720d87749f6e7392d30712fe2b82",
+      "tools_unchanged": false,
+      "CC": "/usr/bin/gcc",
+      "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

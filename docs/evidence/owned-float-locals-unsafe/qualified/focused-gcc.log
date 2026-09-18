@@ -1,0 +1,44 @@
+test_float_local_unsafe_original_pattern (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_original_pattern) ... FAIL
+test_float_local_unsafe_control_flow (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_control_flow) ... FAIL
+test_float_local_unsafe_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_refusals_preserve_publication) ... ok
+I retain fresh source-wrapper fixtures at /tmp/nano-source-borrows-nw9hil3_
+test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) ... ok
+
+======================================================================
+FAIL: test_float_local_unsafe_original_pattern (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_original_pattern)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-owned-float-locals-unsafe/tests/test_source_borrow_emission.py", line 1450, in test_float_local_unsafe_original_pattern
+    self.graph_positive('float-unsafe-original', cases[0])
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-owned-float-locals-unsafe/tests/test_source_borrow_emission.py", line 1148, in graph_positive
+    self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-owned-float-locals-unsafe/tests/test_source_borrow_emission.py", line 39, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-owned-float-locals-unsafe/bin/nanoc_stage1'), PosixPath('/tmp/nano-source-borrows-nw9hil3_/graph-float-unsafe-original.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-source-borrows-nw9hil3_/nanoc_stage1-graph.nvm')): 1
+I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 36: I require complete consuming-helper owner resolution
+
+
+
+======================================================================
+FAIL: test_float_local_unsafe_control_flow (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_control_flow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-owned-float-locals-unsafe/tests/test_source_borrow_emission.py", line 1493, in test_float_local_unsafe_control_flow
+    self.graph_positive('float-unsafe-control', text)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-owned-float-locals-unsafe/tests/test_source_borrow_emission.py", line 1148, in graph_positive
+    self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-owned-float-locals-unsafe/tests/test_source_borrow_emission.py", line 39, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-owned-float-locals-unsafe/bin/nanoc_stage1'), PosixPath('/tmp/nano-source-borrows-nw9hil3_/graph-float-unsafe-control.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-source-borrows-nw9hil3_/nanoc_stage1-graph.nvm')): 1
+I could not verify the shadow module: Assembled module failed verification: I refuse reference lifetime and ownership instruction dataflow in function[0] at 58: I require complete consuming-helper owner resolution
+
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 178.783s
+
+FAILED (failures=2)
