@@ -160,3 +160,23 @@ My first reader bounds its owned transport copy to 16 MiB before materialization
 Exceeding that private budget returns LIMIT; it changes no shared wire-format
 acceptance. I reuse the existing allocation-free retained preflight unchanged,
 including its exact forward-layout family, and leave nonrecord rows UNKNOWN.
+
+## My prereview descriptor correction
+
+My first unexecuted reader omitted the existing borrowed-formal root-place check.
+I require the materialized second pass to call nvm_reference_place_valid with the
+same zero-depth place as the shared ownership descriptor validator. A complete
+resource tree may contain nested resources, but a borrowed referent must have
+only scalar fields with NO_INDEX. Both shared and exclusive modes retain that
+restriction. I add query-only rejection controls for nested resource referents,
+alongside accepted leaf modes and accepted unborrowed nested resource declarations.
+
+The prior-only layout codec permits TAG_STRUCT with NO_INDEX. I distinguish that
+structural encoding from declaration claims: an incomplete row with that missing
+edge remains UNKNOWN; a COMPLETE row claiming it is an invalid declaration.
+A present edge must address a STRUCT row. An ordinary parent's correctly indexed
+but incomplete child propagates UNKNOWN, including through an otherwise pending
+array parent. This is deliberately descriptive uncertainty, not successful shared
+ownership validation. RESOURCE still requires a complete scalar tree and rejects
+that incomplete child. I retain the codec's stricter existing forward-family
+rules and do not change any shared validator to accommodate these descriptions.
