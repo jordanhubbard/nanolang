@@ -462,6 +462,37 @@ bool nvm_affine_parameter_at(const NvmAffineState *s,uint16_t parameter,
     *type=(NvmAffineType){param.tag,param.layout};*mode=(NvmReferenceMode)param.mode;
     return true;
 }
+/* I expand each reachable prior-index layout once. A larger parent index
+ * propagates its maximum depth before I visit the child, including shared DAGs. */
+static bool nested_result_tree(const Facts *facts,uint32_t root) {
+    uint8_t *depth=calloc((size_t)root+1,sizeof(*depth));
+    if (!depth) return false;
+    depth[root]=1;
+    for (uint32_t next=root+1;next>0;) {
+        uint32_t index=--next;
+        if (!depth[index]) continue;
+        const NvmV2Layout *layout=&facts->layouts.items[index];
+        if ((facts->flags[index]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
+                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE) ||
+            layout->kind!=NVM_V2_LAYOUT_STRUCT ||
+            layout->field_count>NVM_AFFINE_MAX_RESULT_FIELDS) goto refused;
+        for (uint16_t f=0;f<layout->field_count;f++) {
+            const NvmV2LayoutField *field=&layout->fields[f];
+            if (field->type_tag==TAG_STRUCT) {
+                uint32_t child=field->nested_idx;
+                if (child>=index || depth[index]>=NVM_AFFINE_MAX_RESULT_DEPTH)
+                    goto refused;
+                uint8_t child_depth=(uint8_t)(depth[index]+1);
+                if (depth[child]<child_depth) depth[child]=child_depth;
+            } else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL &&
+                        field->type_tag!=TAG_U8) || field->nested_idx!=NVM_V2_NO_INDEX)
+                goto refused;
+        }
+    }
+    free(depth);return true;
+refused:
+    free(depth);return false;
+}
 bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
                               uint16_t *field_count) {
     if (!s || !type || !field_count) return false;
@@ -476,11 +507,15 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
                 (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) return false;
         const NvmV2Layout *layout=&s->facts->layouts.items[result.layout];
         if (layout->kind!=NVM_V2_LAYOUT_STRUCT) return false;
+        bool nested=false;
         for (uint16_t i=0;i<layout->field_count;i++) {
             const NvmV2LayoutField *field=&layout->fields[i];
-            if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
-                field->nested_idx!=NVM_V2_NO_INDEX) return false;
+            if (field->type_tag==TAG_STRUCT) nested=true;
+            else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
+                     field->nested_idx!=NVM_V2_NO_INDEX) return false;
         }
+        /* I preserve the allocation-free scalar-leaf query. */
+        if (nested && !nested_result_tree(s->facts,result.layout)) return false;
         fields=layout->field_count;
     } else if ((result.tag!=TAG_VOID && result.tag!=TAG_INT &&
                 result.tag!=TAG_BOOL && result.tag!=TAG_U8) ||
