@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class OwnedRuntime(unittest.TestCase):
     executable = "test_owned_runtime"
-    case_count = 8
+    case_count = 12
     max_live_records = 3
     case_live_records = {}
     refusal_count = 7

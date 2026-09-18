@@ -60,6 +60,39 @@ static void consume_pair(NvmAffineState *s) {
     CHECK(nvm_affine_unpack(s,2,&fd,1));CHECK(nvm_affine_unpack(s,3,&fd,1));
     CHECK(nvm_affine_can_exit(s,UINT16_MAX));
 }
+static void scalar_initialization_meets(void) {
+    const uint8_t scalars[]={TAG_INT,TAG_BOOL,TAG_U8,TAG_FLOAT};
+    for (unsigned i=0;i<sizeof(scalars);i++) {
+        NvmModule *m=fixture();slot(m->ownership_data+28,scalars[i],0,NVM_V2_NO_INDEX);
+        NvmAffineState *empty=nvm_affine_state_create(m,0,8);CHECK(empty);
+        NvmAffineState *defined=nvm_affine_state_clone(empty);CHECK(defined);
+        CHECK(nvm_affine_scalar_define(defined,0));CHECK(!nvm_affine_state_equal(empty,defined));
+        bool changed=true;uint8_t tag,mode;
+        CHECK(nvm_affine_state_meet_initialization(empty,defined,&changed) && !changed);
+        CHECK(!nvm_affine_local_info(empty,0,&tag,&mode));
+        CHECK(nvm_affine_state_meet_initialization(defined,empty,&changed) && changed);
+        CHECK(nvm_affine_state_equal(empty,defined));
+        CHECK(nvm_affine_scalar_define(empty,0));CHECK(nvm_affine_scalar_define(defined,0));
+        CHECK(nvm_affine_state_meet_initialization(defined,empty,&changed) && !changed);
+        CHECK(nvm_affine_local_info(defined,0,&tag,&mode) && tag==scalars[i] && !mode);
+        nvm_affine_state_free(empty);nvm_affine_state_free(defined);nvm_module_free(m);
+    }
+    NvmModule *m=fixture();NvmAffineState *a=nvm_affine_state_create(m,0,8);CHECK(a);make_pair(a);
+    NvmAffineState *b=nvm_affine_state_clone(a);CHECK(b);CHECK(nvm_affine_scalar_define(a,1));
+    bool changed=true;
+    CHECK(nvm_affine_region_begin(b));
+    NO_CHANGE(a,nvm_affine_state_meet_initialization(a,b,&changed));CHECK(!changed);
+    CHECK(nvm_affine_region_end(b));
+    NvmAffineType moved;CHECK(nvm_affine_take_local(b,5,&moved));
+    NO_CHANGE(a,nvm_affine_state_meet_initialization(a,b,&changed));CHECK(!changed);
+    CHECK(nvm_affine_put_local(b,5,moved));
+    CHECK(nvm_affine_region_begin(a));CHECK(nvm_affine_region_begin(b));
+    uint16_t left=0,right=1;
+    CHECK(nvm_affine_borrow(a,0,5,&left,1,NVM_REFERENCE_SHARED));
+    CHECK(nvm_affine_borrow(b,0,5,&right,1,NVM_REFERENCE_SHARED));
+    NO_CHANGE(a,nvm_affine_state_meet_initialization(a,b,&changed));CHECK(!changed);
+    nvm_affine_state_free(a);nvm_affine_state_free(b);nvm_module_free(m);
+}
 static void caller_binding_checks(void) {
     NvmModule *m=fixture();
     NvmAffineState *caller=nvm_affine_state_create(m,0,8);CHECK(caller);
@@ -123,6 +156,7 @@ static void caller_binding_checks(void) {
     nvm_affine_state_free(before);nvm_affine_state_free(caller);nvm_module_free(m);
 }
 int main(void) {
+    scalar_initialization_meets();
     caller_binding_checks();
     NvmModule *m=fixture();NvmAffineState *s=nvm_affine_state_create(m,0,8);CHECK(s);
     CHECK(nvm_affine_can_exit(s,UINT16_MAX));

@@ -2557,6 +2557,32 @@ static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
     }
 }
 
+/* I coerce enum ordinals only at the VM's typed binary integer boundary.
+ * Producer slots and exact integer consumers retain their original tags. */
+static int prepare_typed_integer_pair(Nvm2cBuf *b, Nvm2cStack *st, uint8_t opcode) {
+    switch (opcode) {
+    case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL:
+    case OP_I64_DIV_S: case OP_I64_REM_S:
+    case OP_I64_EQ: case OP_I64_NE: case OP_I64_LT_S:
+    case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
+        break;
+    default: return 1;
+    }
+    if (st->sp < 2) { nvm2c_fail(b, "typed integer operand stack underflow"); return 0; }
+    for (int at = st->sp - 2; at < st->sp; ++at) {
+        if (st->kinds[at] != NVM2C_VK_VALUE) continue;
+        if ((size_t)st->next_temp >= st->capacity) {
+            nvm2c_fail(b, "too many typed integer temporaries"); return 0;
+        }
+        int value = st->slots[at], temp = st->next_temp++;
+        nvm2c_printf(b, "    if (v[%d].kind != 1 && v[%d].kind != 9) NVM2C_ABORT();\n"
+                         "    t[%d] = v[%d].integer;\n", value, value, temp, value);
+        st->slots[at] = temp;
+        st->kinds[at] = NVM2C_VK_INT;
+    }
+    return !b->failed;
+}
+
 static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
     uint8_t input_kind = strcmp(op, "&&") == 0 || strcmp(op, "||") == 0 ? NVM2C_VK_BOOL : NVM2C_VK_INT;
     int rhs = stack_pop_expect(b, st, input_kind, "binary op rhs");
@@ -3055,6 +3081,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         pc += n;
 
+        if (!prepare_typed_integer_pair(b, &st, ins.opcode)) goto done;
         switch (ins.opcode) {
         case OP_NOP:
             break;

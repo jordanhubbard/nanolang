@@ -15,6 +15,10 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *module,
 NvmAffineState *nvm_affine_state_clone(const NvmAffineState *state);
 void nvm_affine_state_free(NvmAffineState *state);
 bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
+/* I intersect initialized facts only for declared mode-zero scalar slots.
+ * All other facts remain exact; refusal leaves destination unchanged. */
+bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
+                                          const NvmAffineState *incoming,bool *changed);
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
 bool nvm_affine_move(NvmAffineState *state, uint16_t source, uint16_t destination);
 bool nvm_affine_pack(NvmAffineState *state, uint16_t destination,
