@@ -546,7 +546,9 @@ static bool cb_array_builtin(const char *name) {
     static const char *const names[]={"str_split","array_length","array_new","array_set","at",
         "array_get","array_push","array_pop","array_remove_at","array_slice","array_concat",
         "array_map","array_filter","array_fold","array_sort","array_reverse","array_contains",
-        "array_index_of","filter","map","reduce"};
+        "array_index_of","filter","map","reduce","str_join","hashmap_keys","hashmap_values",
+        "map_keys","map_values","file_read_bytes","dir_list","fs_walkdir","process_run",
+        "bytes_from_string","string_from_bytes"};
     if(!name)return false;
     for(size_t i=0;i<sizeof names/sizeof names[0];i++)if(!strcmp(name,names[i]))return true;
     return false;
