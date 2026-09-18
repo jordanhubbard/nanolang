@@ -1050,9 +1050,9 @@ fn nb_route_parts(spelling: string) -> array<string> {
     let mut start: int = (+ opening 1)
     set i start
     while (< i length) {
-        let byte: int = (char_at spelling i)
-        if (== byte 60) { set depth (+ depth 1) }
-        if (== byte 62) {
+        let octet: int = (char_at spelling i)
+        if (== octet 60) { set depth (+ depth 1) }
+        if (== octet 62) {
             if (== depth 0) {
                 if (!= i (- length 1)) { return [] }
                 let argument: string = (str_trim (str_substring spelling start (- i start)))
@@ -1061,7 +1061,7 @@ fn nb_route_parts(spelling: string) -> array<string> {
             }
             set depth (- depth 1)
         }
-        if (and (== byte 44) (== depth 0)) {
+        if (and (== octet 44) (== depth 0)) {
             let argument: string = (str_trim (str_substring spelling start (- i start)))
             if (== argument "") { return [] }
             set parts (array_push parts argument)
