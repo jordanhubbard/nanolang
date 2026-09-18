@@ -9898,8 +9898,21 @@ Other translators:
 - [x] I retain literal strings through LLVM/Wasm module-owned byte descriptors, exact content/length/truthiness, calls/globals/reentry, and paired execution/refusal gates. I refuse computed-string operations in this bounded profile and correct stale current target scope.
       MAC `task_e63298a462a24967b57e6ecce3c9223d`; bounded evidence in
       `docs/evidence/llvm-literal-strings.md`.
+- [ ] I establish checked VM substring clipping and explicit allocation-failure
+      propagation before admitting the shared managed substring path. Static
+      review at `58e0353d`; no malformed crash reproduction.
+      MAC `task_ce840367841a4bdb94ab69fd2446b635`.
+- [x] I implement the non-admitting managed-string runtime core: portable
+      allocation, stable handles, reference/status/disposal helpers, checked
+      growth and deterministic native/Wasm reclamation/failure tests.
+      MAC `task_bfe3bb8672c04bcea56dede3f531aee7`; evidence in
+      `docs/evidence/managed-string-core.md`. Parent allocation/lowering
+      and all existing executable profile refusals remain open.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
-      MAC `task_51da49b39230468784da3481b893563b`.
+      MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
+      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this
+      contract before runtime implementation and preserve current admission
+      until matched execution and cleanup are tested.
 - [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
       MAC `task_488a05eb5e2a417caf83a8353363a30d`.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
