@@ -9761,10 +9761,11 @@ Compiler product:
       fixture and all 2,390 structured-C checks pass on Darwin (2026-09-17).
 
 Module richness:
-- [ ] I free the assembler module when its initial code-buffer allocation fails.
+- [x] I free the assembler module when its initial code-buffer allocation fails.
       My local-marker allocation sweep exposed the existing missing teardown;
       MAC `task_d2326e6883ed4cbe93728cd1393024c2`. I retain the sanitizer
-      failure and require the unchanged allocation sweep to pass with leak checks.
+      failure; the unchanged 20-boundary allocation sweep now passes ASan/UBSan
+      with leak checks. [Evidence](evidence/nanoisa-local-bindings.md).
 - [ ] I preserve DEBUG source maps through canonical text; real source output
       currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
       Local-name comparisons retain exact metadata/code and separately require
@@ -9779,11 +9780,12 @@ Module richness:
       sanitizer checks and the genuine canonical compiler host build.
       [Evidence](evidence/nanoisa-advisory-metadata.md).
 - [ ] I store local names, not only slot numbers.
-  - [ ] I retain optional function/slot/PC-interval local names through a
+  - [x] I retain optional function/slot/PC-interval local names through a
         versioned advisory convention, assembler markers and paired ordinary
         parameter/scalar-let producers, with lexical shadow/reused-slot tests.
         MAC `task_d62e26f741bf47b9810a7cfa43fca44a`; contract
         `docs/NANOISA_LOCAL_BINDINGS.md`. Other producer families remain open.
+        [Evidence](evidence/nanoisa-local-bindings.md).
 - [ ] I preserve frontend purity, affine-use, generic, effect, and
       exhaustiveness facts as NanoISA metadata.
 - [ ] I recover structured `if`/`while`/`return` from `JMP` for

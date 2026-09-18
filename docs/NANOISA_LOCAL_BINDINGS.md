@@ -2,11 +2,12 @@
 
 I retain original local names as advisory reconstruction/debugging facts. A
 name does not grant access to a slot or establish its type, lifetime, ownership
-or purity. With no usable name I generate a collision-free temporary name.
+or purity. A future reconstruction consumer must generate a collision-free temporary name
+when no usable original name exists.
 This bounded work implements MAC `task_d62e26f741bf47b9810a7cfa43fca44a` after
 my advisory transport prerequisite; it does not complete reconstruction.
 
-## Proposed convention
+## Convention
 
 I repeat the METADATA key `nano.local.v1`. Each value is an existing string-pool
 byte string containing this little-endian record, followed by a nonempty name:
