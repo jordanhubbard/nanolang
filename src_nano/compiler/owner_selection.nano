@@ -1,0 +1,271 @@
+# I prove only a bounded scalar closure; unknown facts retain owned routing.
+import "src_nano/parser.nano"
+from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
+
+let mut nos_names: array<string> = []
+let mut nos_name_count: int = 0
+let mut nos_queued: array<bool> = []
+let mut nos_edges: array<bool> = []
+let mut nos_current: int = -1
+let mut nos_budget: int = 0
+let mut nos_owner: bool = false
+
+fn nos_reset() -> int {
+    set nos_names [] set nos_name_count 0 set nos_queued [] set nos_edges []
+    set nos_current -1 set nos_budget 8192 set nos_owner false
+    return 0
+}
+shadow nos_reset { set nos_owner true let _: int = (nos_reset) assert (not nos_owner) assert (== nos_budget 8192) }
+
+fn nos_scalar(parser: Parser, spelling: string) -> bool {
+    if (or (== spelling "int") (or (== spelling "bool") (or (== spelling "u8") (or (== spelling "float") (or (== spelling "string") (== spelling "void")))))) { return true }
+    if (str_starts_with spelling "&") { set nos_owner true }
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        let record: ASTStruct = (parser_get_struct_def parser i)
+        if (and (== record.name spelling) record.is_resource) { set nos_owner true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow nos_scalar {
+    let tokens: List<LexerToken> = (tokenize_string "resource struct R { value: int }" "selection.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "selection.nano")
+    let _: int = (nos_reset)
+    assert (nos_scalar parser "int") assert (not (nos_scalar parser "array<int>")) assert (not nos_owner)
+    assert (not (nos_scalar parser "R")) assert nos_owner
+}
+
+fn nos_function(parser: Parser, name: string) -> int {
+    let mut found: int = -1 let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        if (== (parser_get_function parser i).name name) {
+            if (>= found 0) { return -2 }
+            set found i
+        }
+        set i (+ i 1)
+    }
+    return found
+}
+shadow nos_function {
+    let tokens: List<LexerToken> = (tokenize_string "fn helper() -> int { return 1 } fn main() -> int { return 0 }" "selection.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "selection.nano")
+    assert (== (nos_function parser "helper") 0) assert (== (nos_function parser "absent") -1)
+}
+
+fn nos_bound(name: string) -> bool {
+    let mut i: int = nos_name_count
+    while (> i 0) { set i (- i 1) if (== (at nos_names i) name) { return true } }
+    return false
+}
+shadow nos_bound {
+    let _: int = (nos_reset) set nos_names ["outer", "hidden"] set nos_name_count 1
+    assert (nos_bound "outer") assert (not (nos_bound "hidden"))
+}
+fn nos_bind(name: string) -> bool {
+    if (or (== name "") (>= nos_name_count 256)) { return false }
+    if (< nos_name_count (array_length nos_names)) { (array_set nos_names nos_name_count name) }
+    else { set nos_names (array_push nos_names name) }
+    set nos_name_count (+ nos_name_count 1) return true
+}
+shadow nos_bind {
+    let _: int = (nos_reset) assert (nos_bind "value") assert (nos_bound "value")
+    set nos_name_count 0 assert (nos_bind "replacement") assert (not (nos_bound "value"))
+}
+
+fn nos_scan(parser: Parser, id: int, kind: int, depth: int) -> bool {
+    if (or (< id 0) (or (> depth 64) (<= nos_budget 0))) { return false }
+    set nos_budget (- nos_budget 1)
+    if (or (== kind ParseNodeType.PNODE_NUMBER) (or (== kind ParseNodeType.PNODE_FLOAT) (or (== kind ParseNodeType.PNODE_BOOL) (== kind ParseNodeType.PNODE_STRING)))) { return true }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (nos_bound (parser_get_identifier parser id).name) }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let value: ASTBinaryOp = (parser_get_binary_op parser id)
+        if (not (nos_scan parser value.left value.left_type (+ depth 1))) { return false }
+        return (nos_scan parser value.right value.right_type (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_CALL) {
+        let call: ASTCall = (parser_get_call parser id)
+        if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return false }
+        let name: string = (parser_get_identifier parser call.function).name
+        if (nos_bound name) { return false }
+        let target: int = (nos_function parser name)
+        if (== target -2) { return false }
+        if (>= target 0) {
+            let function: ASTFunction = (parser_get_function parser target)
+            if (or (< function.body 0) (!= function.param_count call.arg_count)) { return false }
+            (array_set nos_queued target true)
+            if (>= nos_current 0) { (array_set nos_edges (+ (* nos_current 8) target) true) }
+        } else {
+            if (not (or (== name "not") (or (== name "print") (== name "println")))) { return false }
+            if (!= call.arg_count 1) { return false }
+        }
+        let mut i: int = 0
+        while (< i call.arg_count) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (not (nos_scan parser argument.node_id argument.node_type (+ depth 1))) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    if (== kind ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser id)
+        if (or block.is_par block.is_flow) { return false }
+        let saved: int = nos_name_count let mut ok: bool = true let mut i: int = 0
+        while (and ok (< i (list_ASTStmtRef_length block.statements))) {
+            let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            set ok (nos_scan parser statement.node_id statement.node_type (+ depth 1))
+            set i (+ i 1)
+        }
+        set nos_name_count saved return ok
+    }
+    if (== kind ParseNodeType.PNODE_LET) {
+        let binding: ASTLet = (parser_get_let parser id)
+        if (!= binding.var_type "") { if (not (nos_scalar parser binding.var_type)) { return false } }
+        if (not (nos_scan parser binding.value binding.value_type (+ depth 1))) { return false }
+        return (nos_bind binding.name)
+    }
+    if (== kind ParseNodeType.PNODE_SET) {
+        let value: ASTSet = (parser_get_set parser id)
+        if (or (!= value.field_name "") (not (nos_bound value.target))) { return false }
+        return (nos_scan parser value.value value.value_type (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_RETURN) {
+        let value: ASTReturn = (parser_get_return parser id)
+        if (< value.value 0) { return true }
+        return (nos_scan parser value.value value.value_type (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_ASSERT) {
+        let value: ASTAssert = (parser_get_assert parser id)
+        return (nos_scan parser value.condition value.condition_type (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_PRINT) {
+        let value: ASTPrint = (parser_get_print parser id)
+        return (nos_scan parser value.value value.value_type (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_IF) {
+        let value: ASTIf = (parser_get_if parser id)
+        if (not (nos_scan parser value.condition value.condition_type (+ depth 1))) { return false }
+        if (not (nos_scan parser value.then_body ParseNodeType.PNODE_BLOCK (+ depth 1))) { return false }
+        if (>= value.else_body 0) { return (nos_scan parser value.else_body ParseNodeType.PNODE_BLOCK (+ depth 1)) }
+        return true
+    }
+    if (== kind ParseNodeType.PNODE_WHILE) {
+        let value: ASTWhile = (parser_get_while parser id)
+        if (not (nos_scan parser value.condition value.condition_type (+ depth 1))) { return false }
+        return (nos_scan parser value.body ParseNodeType.PNODE_BLOCK (+ depth 1))
+    }
+    if (== kind ParseNodeType.PNODE_FOR) {
+        let value: ASTFor = (parser_get_for parser id)
+        if (!= value.iterable_type ParseNodeType.PNODE_CALL) { return false }
+        let call: ASTCall = (parser_get_call parser value.iterable)
+        if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (or (!= call.borrow_mode 0) (!= call.arg_count 2))) { return false }
+        if (!= (parser_get_identifier parser call.function).name "range") { return false }
+        if (or (nos_bound "range") (!= (nos_function parser "range") -1)) { return false }
+        let mut i: int = 0
+        while (< i 2) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            if (not (nos_scan parser argument.node_id argument.node_type (+ depth 1))) { return false }
+            set i (+ i 1)
+        }
+        let saved: int = nos_name_count
+        if (not (nos_bind value.var_name)) { return false }
+        let ok: bool = (nos_scan parser value.body ParseNodeType.PNODE_BLOCK (+ depth 1))
+        set nos_name_count saved return ok
+    }
+    if (or (== kind ParseNodeType.PNODE_BREAK) (== kind ParseNodeType.PNODE_CONTINUE)) { return true }
+    if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let ignored: bool = (nos_scalar parser (parser_get_struct_literal parser id).struct_name)
+    }
+    return false
+}
+shadow nos_scan {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value: int = 2 if true { let value: int = 3 } return value }" "selection.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "selection.nano")
+    let _: int = (nos_reset)
+    assert (nos_scan parser (parser_get_function parser 0).body ParseNodeType.PNODE_BLOCK 0)
+    assert (== nos_name_count 0)
+    assert (not (nos_scan parser (parser_get_function parser 0).body ParseNodeType.PNODE_BLOCK 65))
+}
+
+# 1 is a positive scalar proof; 2 retains known ownership; 0 is unknown.
+pub fn nanoisa_selected_ownership(parser: Parser, shadows: bool, first_shadow: int) -> int {
+    let _: int = (nos_reset)
+    let count: int = (parser_get_function_count parser)
+    if (or (parser_has_error parser) (or (<= count 0) (or (> count 8) (or (> parser.imports_count 0) (or (< first_shadow 0) (> first_shadow parser.shadows_count)))))) { return 0 }
+    let globals: array<bool> = (declaration_local_lets parser)
+    let mut i: int = 0
+    while (< i (array_length globals)) { if (not (at globals i)) { return 0 } set i (+ i 1) }
+    set i 0
+    while (< i count) {
+        if (!= (nos_function parser (parser_get_function parser i).name) i) { return 0 }
+        set nos_queued (array_push nos_queued false) set i (+ i 1)
+    }
+    set i 0 while (< i 64) { set nos_edges (array_push nos_edges false) set i (+ i 1) }
+    let mut ok: bool = true
+    if shadows {
+        set i first_shadow
+        while (and ok (< i parser.shadows_count)) {
+            let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
+            set ok (nos_scan parser selected.body ParseNodeType.PNODE_BLOCK 0)
+            set i (+ i 1)
+        }
+    } else {
+        let entry: int = (nos_function parser "main")
+        if (< entry 0) { return 0 }
+        let function: ASTFunction = (parser_get_function parser entry)
+        if (or (!= function.param_count 0) (!= function.return_type "int")) { return 0 }
+        (array_set nos_queued entry true)
+    }
+    let mut visited: array<bool> = []
+    set i 0 while (< i count) { set visited (array_push visited false) set i (+ i 1) }
+    let mut remaining: bool = true let mut passes: int = 0
+    while (and ok (and remaining (< passes count))) {
+        set remaining false set i 0
+        while (and ok (< i count)) {
+            if (and (at nos_queued i) (not (at visited i))) {
+                (array_set visited i true) set remaining true set nos_current i set nos_name_count 0
+                let function: ASTFunction = (parser_get_function parser i)
+                if (< function.body 0) { set ok false }
+                if (not (nos_scalar parser function.return_type)) { set ok false }
+                let mut p: int = 0
+                while (and ok (< p function.param_count)) {
+                    let formal: ASTLet = (parser_get_let parser (+ function.param_start p))
+                    if (or (== formal.var_type "void") (not (nos_scalar parser formal.var_type))) { set ok false }
+                    if ok { set ok (nos_bind formal.name) }
+                    set p (+ p 1)
+                }
+                if ok { set ok (nos_scan parser function.body ParseNodeType.PNODE_BLOCK 0) }
+            }
+            set i (+ i 1)
+        }
+        set passes (+ passes 1)
+    }
+    if (not ok) { if nos_owner { return 2 } return 0 }
+    # I close the bounded direct graph before accepting; recursion stays unknown.
+    let mut k: int = 0
+    while (< k count) {
+        set i 0 while (< i count) {
+            let mut j: int = 0 while (< j count) {
+                if (and (at nos_edges (+ (* i 8) k)) (at nos_edges (+ (* k 8) j))) { (array_set nos_edges (+ (* i 8) j) true) }
+                set j (+ j 1)
+            }
+            set i (+ i 1)
+        }
+        set k (+ k 1)
+    }
+    set i 0 while (< i count) {
+        if (and (at nos_queued i) (not (at visited i))) { return 0 }
+        if (at nos_edges (+ (* i 8) i)) { return 0 }
+        set i (+ i 1)
+    }
+    return 1
+}
+shadow nanoisa_selected_ownership {
+    let tokens: List<LexerToken> = (tokenize_string "resource struct R { value: int } extern fn consume(r: R) -> void fn probe(r: R) -> R { return r } fn main() -> int { return 0 } shadow main { assert (== (main) 0) }" "selection.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "selection.nano")
+    assert (== (nanoisa_selected_ownership parser false 0) 1)
+    assert (== (nanoisa_selected_ownership parser true 0) 1)
+    let recursive_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return (main) }" "selection.nano" (diag_list_new))
+    let recursive: Parser = (parse_program recursive_tokens (list_LexerToken_length recursive_tokens) "selection.nano")
+    assert (== (nanoisa_selected_ownership recursive false 0) 0)
+}
