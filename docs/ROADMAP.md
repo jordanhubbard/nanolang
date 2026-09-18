@@ -11089,6 +11089,7 @@ I qualify both legacy formatting children with fresh Linux/Darwin bootstrap and 
 
   - [ ] I preserve match guards through every accepting analysis and clone path before changing dispatch. I include effect and CPS walks, type inference, PGO cloning and source lookup, with guard-only effects/references and clone-integrity regressions. I do not let a correct emitter hide a guard erased earlier in the pipeline.
   - [ ] I keep guarded matches out of NanoCore until its syntax and semantics represent guards, ordering and terminal no-success behavior. The subset checker must issue an exact refusal before export; dropping a guard is not a formal abstraction.
+  - [ ] I keep the LSP match-guard lookup gate buildable under my strict warning policy. Its document singleton must zero-initialize newly added analysis state without positional initializer drift.
 
 - [ ] I align no-success match semantics (`task_70c5a56802e44142af0f19da2469f654`, required7a99/shared-source prerequisite). Interpreter error-plus-VOID, NanoVirt ASSERT/HALT and public partial-chain fallthrough differ. My [shared preimplementation policy](SHARED_MATCH_POLICY_CONTRACT.md) requires statically total statement and value matches, exact BOOL guards and a terminal runtime backstop that never fabricates VOID/a zero value or falls through. Reviewed checker/runtime implementation and ordinary all-route qualification remain required; the common total profile does not close this release obligation.
 
