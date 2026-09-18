@@ -61,10 +61,17 @@ class CheckedOwnerSelection(unittest.TestCase):
         self.assertEqual(sum(accepted for _, _, accepted in cases), 14)
         for name, declaration, accepted in cases:
             text = PREFIX + declaration + '\nfn main() -> int { return 0 }\n'
+            canonical = None
             for driver in self.drivers:
                 with self.subTest(case=name, producer=driver.name):
                     assembly = self.invoke(driver, text, accepted=accepted, phase=None if accepted else 'TYPECHECK')
                     if accepted:
+                        emitted = assembly.read_text()
+                        if canonical is None:
+                            canonical = emitted
+                        else:
+                            self.assertEqual(emitted, canonical)
+                        self.assertNotIn('consume_handle', emitted)
                         module = self.work / 'probe.nvm'
                         self.command(ROOT / 'bin/nano_asm', assembly, '-o', module)
                         self.execute_pair(module)
@@ -93,6 +100,8 @@ class CheckedOwnerSelection(unittest.TestCase):
                 with self.subTest(case=name, producer=driver.name):
                     result = self.command(driver, self.source(UNUSED + body), mode, first, self.work / 'unused')
                     self.assertEqual(result.stdout.strip(), str(expected))
+                    if name in ('shadow-owner', 'shadow-extern', 'suffix-all'):
+                        self.invoke(driver, UNUSED + body, 'shadows', first, accepted=False, phase='LOWERING')
                     if expected == 1:
                         assembly = self.invoke(driver, UNUSED + body, 'shadows' if mode.endswith('shadows') else 'program', first)
                         module = self.work / 'control.nvm'
