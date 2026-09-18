@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I record explicit C-seed component shadow completion (`task_93122c78788b4f44b12737eb760444a2`) with imported selection, retained reports/logs, exact source/tool identity and actual driver execution. This follows the static553 inventory; selfhost-stage coverage remains separate. [Contract](COMPONENT_SHADOW_COMPLETION.md).
+
 - [x] I qualify the borrowed-source harness setup deadline (`task_ef9261a163f64e0397a93d377d623ed7`). Frozen product63c26ecd records a setUpClass error while compiling its large tools under the ordinary180-second limit. I preserve the exact traceback, measure that setup separately with source/tool hashes, and adjust only setup if justified. Ordinary assertion budgets remain unchanged. The measured setup-only correction passes all 26 methods in 1281.199 seconds with unchanged tools after both standalone-runner prerequisite omissions are corrected and preserved. [Contract](BORROW_CANONICAL_SETUP.md).
 
 - [x] I inventory current component shadows and their execution routes (`task_3b21e8577b1f42f7a7654add7c2f6b6b`) after the explicit PR691 driver assertions. I separate declarations from observed execution, correct obsolete skip claims, and identify remaining evidence under broader task56a. [Contract](COMPONENT_SHADOW_INVENTORY.md).

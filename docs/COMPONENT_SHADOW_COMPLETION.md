@@ -1,0 +1,5 @@
+# My explicit C-seed component shadow completion
+
+I qualify task `task_93122c78788b4f44b12737eb760444a2` against canonical production `fdec4ffd812b696debe90e37bf6d55cacb4e019e`, following my static component inventory. I build the current C seed in this isolated checkout and compile unchanged parser, checker and transpiler drivers with `--test-imports --verbose --llm-shadow-json`. I retain complete logs, reported counts/completion state and exact source/tool hashes, then execute each successfully published driver.
+
+I bound build preparation at 900 seconds, each ordinary component compilation at 600 seconds and each driver at 60 seconds. I do not override the compiler's own shadow deadline. The runner stops at the first failure and preserves its report. A reported count is evidence for that selected compiler invocation, not a proof or an inferred count from source declarations. If the selected callback path omits counts, I report that limitation rather than substitute 553. Self-hosted-stage completion and broader task56a remain separate.
