@@ -82,6 +82,21 @@ class EnumScalars(unittest.TestCase):
             body+=f'ENUM_VAL 0 7\nPUSH_F64 nan\n{op}\nDUP\nTYPE_CHECK 3\nASSERT\nDUP\nNE\nASSERT\n'
         self.paired(body)
 
+    def test_distinct_declarations_preserve_vm_ordinal_contract(self):
+        helpers=('.function identity 1 1 0 enum 1\n.parameters identity enum\n'
+                 'LOAD_LOCAL 0\nRET\n.end\n')
+        body=('ENUM_VAL 0 17\nSTORE_LOCAL 0\nENUM_VAL 1 17\nCALL identity\n'
+              'DUP\nTYPE_CHECK 9\nASSERT\nLOAD_LOCAL 0\nEQ\nASSERT\n'
+              'ENUM_VAL 1 65535\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nCALL identity\n'
+              'DUP\nTYPE_CHECK 9\nASSERT\nCAST_INT\nPUSH_I64 65535\nEQ\nASSERT\n'
+              'ENUM_VAL 0 2\nENUM_VAL 1 3\nNE\nASSERT\n'
+              'ENUM_VAL 0 2\nENUM_VAL 1 3\nLE\nASSERT\n'
+              'ENUM_VAL 1 3\nENUM_VAL 0 2\nLE\nASSERT\n'
+              'ENUM_VAL 0 2\nENUM_VAL 1 3\nI64_LT_S\nASSERT\n'
+              'ENUM_VAL 0 2\nENUM_VAL 1 3\nADD\nDUP\nTYPE_CHECK 1\nASSERT\n'
+              'PUSH_I64 5\nEQ\nASSERT\n')
+        self.compare(self.program(body,helpers).replace('.types 0 1 0', '.types 0 2 0'))
+
     def test_exact_refusals(self):
         bodies=['ENUM_VAL 0 2\nNEG\n','ENUM_VAL 0 2\nI64_NEG\n',
                 'ENUM_VAL 0 2\nPUSH_I64 1\nMOD\n',
