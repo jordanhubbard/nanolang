@@ -1,0 +1,442 @@
+[
+  {
+    "test": "test_branch_join (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_branch_join) (case='both_arms', compiler='nanoc_stage1')",
+    "method": "test_branch_join",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_branch_join (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_branch_join) (case='both_arms', compiler='nanoc_stage2')",
+    "method": "test_branch_join",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_early_return (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_early_return) (case='resolved_return', compiler='nanoc_stage1')",
+    "method": "test_early_return",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_early_return (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_early_return) (case='resolved_return', compiler='nanoc_stage2')",
+    "method": "test_early_return",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_indirect_resource_result (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_indirect_resource_result) (case='indirect_result_owner', compiler='nanoc_stage1')",
+    "method": "test_indirect_resource_result",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_indirect_resource_result (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_indirect_resource_result) (case='indirect_result_owner', compiler='nanoc_stage2')",
+    "method": "test_indirect_resource_result",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_loop_local_exits (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_loop_local_exits) (case='loop_break_True', compiler='nanoc_stage1')",
+    "method": "test_loop_local_exits",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_loop_local_exits (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_loop_local_exits) (case='loop_break_True', compiler='nanoc_stage2')",
+    "method": "test_loop_local_exits",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_loop_local_exits (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_loop_local_exits) (case='loop_continue_True', compiler='nanoc_stage1')",
+    "method": "test_loop_local_exits",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_loop_local_exits (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_loop_local_exits) (case='loop_continue_True', compiler='nanoc_stage2')",
+    "method": "test_loop_local_exits",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_loop_local_exits (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_loop_local_exits) (case='loop__True', compiler='nanoc_stage1')",
+    "method": "test_loop_local_exits",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_loop_local_exits (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_loop_local_exits) (case='loop__True', compiler='nanoc_stage2')",
+    "method": "test_loop_local_exits",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_move_then_consume (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_move_then_consume) (case='move_consume', compiler='nanoc_stage1')",
+    "method": "test_move_then_consume",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_move_then_consume (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_move_then_consume) (case='move_consume', compiler='nanoc_stage2')",
+    "method": "test_move_then_consume",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_nested_record_parameter_obligations (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_nested_record_parameter_obligations) (case='nested_return', compiler='nanoc_stage1')",
+    "method": "test_nested_record_parameter_obligations",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_nested_record_parameter_obligations (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_nested_record_parameter_obligations) (case='nested_return', compiler='nanoc_stage2')",
+    "method": "test_nested_record_parameter_obligations",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_observe_then_return_owner (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_observe_then_return_owner) (case='observe_return', compiler='nanoc_stage1')",
+    "method": "test_observe_then_return_owner",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_observe_then_return_owner (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_observe_then_return_owner) (case='observe_return', compiler='nanoc_stage2')",
+    "method": "test_observe_then_return_owner",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_resource_assignment (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_resource_assignment) (case='overwrite_True', compiler='nanoc_stage1')",
+    "method": "test_resource_assignment",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_resource_assignment (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_resource_assignment) (case='overwrite_True', compiler='nanoc_stage2')",
+    "method": "test_resource_assignment",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_return_owned_parameter (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_return_owned_parameter) (case='return_parameter', compiler='nanoc_stage1')",
+    "method": "test_return_owned_parameter",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_return_owned_parameter (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_return_owned_parameter) (case='return_parameter', compiler='nanoc_stage2')",
+    "method": "test_return_owned_parameter",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_shadowed_ordinary_binding (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_shadowed_ordinary_binding) (case='ordinary_shadow', compiler='nanoc_stage1')",
+    "method": "test_shadowed_ordinary_binding",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_shadowed_ordinary_binding (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_shadowed_ordinary_binding) (case='ordinary_shadow', compiler='nanoc_stage2')",
+    "method": "test_shadowed_ordinary_binding",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_short_circuit_consumption (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_short_circuit_consumption) (case='unconditional_left_move', compiler='nanoc_stage1')",
+    "method": "test_short_circuit_consumption",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_short_circuit_consumption (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_short_circuit_consumption) (case='unconditional_left_move', compiler='nanoc_stage2')",
+    "method": "test_short_circuit_consumption",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require defined source functions in my source borrow profile"
+  },
+  {
+    "test": "test_union_payload_parameter_obligations (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_union_payload_parameter_obligations) (case='union_return', compiler='nanoc_stage1')",
+    "method": "test_union_payload_parameter_obligations",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require only resource records, main, one helper and selected shadows in my source borrow profile"
+  },
+  {
+    "test": "test_union_payload_parameter_obligations (tests.test_affine_contract_boundaries.AffineContractBoundaries.test_union_payload_parameter_obligations) (case='union_return', compiler='nanoc_stage2')",
+    "method": "test_union_payload_parameter_obligations",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "declaration/typecheck C-output acceptance",
+    "first_refusal": "I cannot lower this checked program: I require only resource records, main, one helper and selected shadows in my source borrow profile"
+  },
+  {
+    "test": "test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_stage1')",
+    "method": "test_empty_resource_pattern",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nanoc_stage2')",
+    "method": "test_empty_resource_pattern",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) (compiler='nano_virt')",
+    "method": "test_empty_resource_pattern",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 3: I require a named live exact whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='tests/test_resource_tracking.nano')",
+    "method": "test_existing_resource_examples",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='tests/test_resource_tracking.nano')",
+    "method": "test_existing_resource_examples",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_resource_tracking.nano')",
+    "method": "test_existing_resource_examples",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 19: I require a named live exact whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage1', filename='tests/test_affine_integration.nano')",
+    "method": "test_existing_resource_examples",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nanoc_stage2', filename='tests/test_affine_integration.nano')",
+    "method": "test_existing_resource_examples",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_affine_integration.nano')",
+    "method": "test_existing_resource_examples",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 39: I require distinct finite plain resource records in my source borrow profile"
+  },
+  {
+    "test": "test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_stage1')",
+    "method": "test_initializer_evaluated_once",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nanoc_stage2')",
+    "method": "test_initializer_evaluated_once",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) (compiler='nano_virt')",
+    "method": "test_initializer_evaluated_once",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 3: I require a named live exact whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_stage1')",
+    "method": "test_nested_transfer_and_unsafe_scope",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nanoc_stage2')",
+    "method": "test_nested_transfer_and_unsafe_scope",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) (compiler='nano_virt')",
+    "method": "test_nested_transfer_and_unsafe_scope",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 4: I require distinct finite plain resource records in my source borrow profile"
+  },
+  {
+    "test": "test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_stage1')",
+    "method": "test_ordinary_array_field_keeps_element_type",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nanoc_stage2')",
+    "method": "test_ordinary_array_field_keeps_element_type",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) (compiler='nano_virt')",
+    "method": "test_ordinary_array_field_keeps_element_type",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 4: I require distinct finite plain resource records in my source borrow profile"
+  },
+  {
+    "test": "test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_stage1')",
+    "method": "test_ordinary_inferred_field_and_alias",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nanoc_stage2')",
+    "method": "test_ordinary_inferred_field_and_alias",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require finite plain scalar resource records in my source borrow profile"
+  },
+  {
+    "test": "test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) (compiler='nano_virt')",
+    "method": "test_ordinary_inferred_field_and_alias",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 4: I require distinct finite plain resource records in my source borrow profile"
+  },
+  {
+    "test": "test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_stage1')",
+    "method": "test_scalar_terminal_operation",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nanoc_stage2')",
+    "method": "test_scalar_terminal_operation",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower the selected shadows: I require a named whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) (compiler='nano_virt')",
+    "method": "test_scalar_terminal_operation",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 3: I require a named live exact whole owner argument in my source borrow profile"
+  },
+  {
+    "test": "test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_stage1')",
+    "method": "test_unsafe_pattern_keeps_outer_shadow",
+    "producer": "nanoc_stage1",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile"
+  },
+  {
+    "test": "test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nanoc_stage2')",
+    "method": "test_unsafe_pattern_keeps_outer_shadow",
+    "producer": "nanoc_stage2",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I cannot lower this checked program: I require straight-line scalar expressions and one borrowed helper in my source borrow profile"
+  },
+  {
+    "test": "test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) (compiler='nano_virt')",
+    "method": "test_unsafe_pattern_keeps_outer_shadow",
+    "producer": "nano_virt",
+    "expected": "accepted (returncode 0)",
+    "expectation_scope": "executable source + mandatory shadows",
+    "first_refusal": "I could not compile shadows at line 3: I require a named live exact whole owner argument in my source borrow profile"
+  }
+]

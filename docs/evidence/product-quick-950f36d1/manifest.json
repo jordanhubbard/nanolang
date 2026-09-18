@@ -1,0 +1,116 @@
+{
+  "source": "950f36d1e0fed5c7f626b4893566040c45167572",
+  "runner_sha256": "c27f0a6a4f25b9c0c5a44a215d270047ef449d926afb4a9743b571ff39a749b0",
+  "environment": {
+    "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-product-docs-integration/obj/module_cache",
+    "NANO_VM": "/home/jkh/Src/nanolang-product-docs-integration/bin/nano_vm",
+    "NANO_NVM2C": "/home/jkh/Src/nanolang-product-docs-integration/bin/nvm2c",
+    "NANO_AOT_RUNTIME": "/home/jkh/Src/nanolang-product-docs-integration/bin/nano_aot_runtime.o",
+    "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-product-docs-integration/modules"
+  },
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 216.202,
+      "sha256": "4abb02746701d6f12fd585e96acf0a40e8270898f041b405b1084bfb0f5958f8"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "nanoisa_emit",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2c-runtime",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 24.445,
+      "sha256": "56f762528b09581fe0911e2ca9aad24fe0ff0d48ff57fe40c191f4bb8037542b"
+    },
+    {
+      "name": "test-quick",
+      "command": [
+        "make",
+        "test-quick"
+      ],
+      "status": 2,
+      "seconds": 1734.273,
+      "sha256": "c10b9b86ee2759c3d38050b0a77098c96eb28967ca1c49491c5a659d92dd0082"
+    }
+  ],
+  "selection": {
+    "bootstrap": {},
+    "tools": {
+      "bin/nanoc": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage2",
+        "sha256": "f3f363b2a4fce4d3d05c70d1f1175923d6fdec5fb2056f62d50a4173a5e8313e"
+      },
+      "bin/nanoc_stage1": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage1",
+        "sha256": "d3f3a04cde105951163454aef549b5bff131a11ce07b033b4eea538c3f466909"
+      },
+      "bin/nanoc_stage2": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage2",
+        "sha256": "f3f363b2a4fce4d3d05c70d1f1175923d6fdec5fb2056f62d50a4173a5e8313e"
+      },
+      "bin/nanoc_c": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_c",
+        "sha256": "6b73da176c8c24c0569b9973a043aec72c9271164fcee53bf9ce5d99c0af87fb"
+      }
+    },
+    "test-quick": {
+      "bin/nanoc": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage2",
+        "sha256": "f3f363b2a4fce4d3d05c70d1f1175923d6fdec5fb2056f62d50a4173a5e8313e"
+      },
+      "bin/nanoc_stage1": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage1",
+        "sha256": "d3f3a04cde105951163454aef549b5bff131a11ce07b033b4eea538c3f466909"
+      },
+      "bin/nanoc_stage2": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage2",
+        "sha256": "f3f363b2a4fce4d3d05c70d1f1175923d6fdec5fb2056f62d50a4173a5e8313e"
+      },
+      "bin/nanoc_c": {
+        "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_c",
+        "sha256": "6b73da176c8c24c0569b9973a043aec72c9271164fcee53bf9ce5d99c0af87fb"
+      }
+    }
+  },
+  "initial_bin_absent": true,
+  "initial_obj_absent": true,
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true,
+  "final_selection": {
+    "bin/nanoc-ffi": {
+      "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc-ffi",
+      "sha256": "d9fec007d05371273353684c31b0c5c1511c3d317ea67154ec5b36c41b645306"
+    },
+    "bin/nanoc": {
+      "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage2",
+      "sha256": "f3f363b2a4fce4d3d05c70d1f1175923d6fdec5fb2056f62d50a4173a5e8313e"
+    },
+    "bin/nanoc_stage1": {
+      "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage1",
+      "sha256": "6c7760a5f943d93d6858c75f2ef74e2144faf90be5d1ad45bdffe30d4b8cdcb6"
+    },
+    "bin/nanoc_stage2": {
+      "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_stage2",
+      "sha256": "f3f363b2a4fce4d3d05c70d1f1175923d6fdec5fb2056f62d50a4173a5e8313e"
+    },
+    "bin/nanoc_c": {
+      "resolved": "/home/jkh/Src/nanolang-product-docs-integration/bin/nanoc_c",
+      "sha256": "6b73da176c8c24c0569b9973a043aec72c9271164fcee53bf9ce5d99c0af87fb"
+    }
+  }
+}
