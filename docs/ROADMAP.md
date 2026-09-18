@@ -10032,11 +10032,14 @@ Module richness:
         [Evidence](evidence/nanoisa-verifier-profiles.md).
 
 Reconstruction:
+- [x] I reconcile the original five-deliverable feasibility report (`task_4bd034f6029b7458201db74e2c3aeb32`) against its actual scope. My [preexecution audit](NANOISA_RECONSTRUCTION_FEASIBILITY_AUDIT.md) pins a fresh compiler-emitted scalar fixture and source-free two-surface recovery, refreshes stale inventory wording and distinguishes this sufficient/insufficient finding from broader required product targets. I do not add all-opcode completion or original-shadow recovery as new conditions. My [original-scope matrix and fresh fixture evidence](evidence/reconstruction-feasibility-audit.md) map all five deliverables and record14 successful commands with unchanged qualified tools; MAC report closure follows independent review and canonical merge.
 - [x] I spike a second executable high-level surface from the same `.nvm`:
       PR604 emits structured C and NanoLang from one checked scalar region
       tree, with eight retained modules executed through VM/C and three native
       NanoLang stages. Neither surface embeds an interpreter. General
-      reconstruction remains open under `task_4bd034f6029b7458201db74e2c3aeb32`.
+      reconstruction remains outside this spike; original report task
+      `task_4bd034f6029b7458201db74e2c3aeb32` has a separate five-deliverable
+      [acceptance matrix](evidence/reconstruction-feasibility-audit.md).
       [Evidence](evidence/nanoisa-scalar-reconstruction.md).
 - [x] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient for
       the tested closed scalar grammar and insufficient for full high-level

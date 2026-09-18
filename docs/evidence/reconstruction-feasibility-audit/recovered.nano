@@ -1,0 +1,45 @@
+# I reconstruct executable scalar regions; original shadows are not retained.
+fn nlr_f0_combine(nlr_a0: float, nlr_a1: float) -> float {
+    let mut nlr_l0_left: float = nlr_a0
+    let mut nlr_l1_right: float = nlr_a1
+    let nlr_t0: float = nlr_l0_left
+    let nlr_t3: float = nlr_l1_right
+    let nlr_t6: float = (+ nlr_t0 nlr_t3)
+    return nlr_t6
+}
+fn nlr_f1_main() -> int {
+    let mut nlr_l0_input: float = (float_from_bits 0)
+    let mut nlr_l1_result: float = (float_from_bits 0)
+    let nlr_t0: int = 9221120237041090602
+    let nlr_t9: float = (float_from_bits nlr_t0)
+    set nlr_l0_input nlr_t9
+    let nlr_t13: float = nlr_l0_input
+    let nlr_t16: float = (float_from_bits 4607182418800017408)
+    let nlr_t25: float = (nlr_f0_combine nlr_t13 nlr_t16)
+    set nlr_l1_result nlr_t25
+    let nlr_t33: float = nlr_l1_result
+    let nlr_t36: int = (float_to_bits nlr_t33)
+    let nlr_t37: int = 9221120237041090560
+    let nlr_t46: bool = (!= nlr_t36 nlr_t37)
+    if nlr_t46 {
+        let nlr_t52: int = 1
+        return nlr_t52
+    }
+    let nlr_t62: float = nlr_l0_input
+    let nlr_t65: int = (float_to_bits nlr_t62)
+    let nlr_t66: int = 9221120237041090602
+    let nlr_t75: bool = (!= nlr_t65 nlr_t66)
+    if nlr_t75 {
+        let nlr_t81: int = 2
+        return nlr_t81
+    }
+    let nlr_t91: int = 0
+    return nlr_t91
+}
+fn main() -> int {
+    return (nlr_f1_main)
+}
+
+shadow nlr_f0_combine { assert (== (nlr_f0_combine 1.0 2.0) 3.0) }
+shadow nlr_f1_main { assert (== (nlr_f1_main) 0) }
+shadow main { assert (== (main) 0) }

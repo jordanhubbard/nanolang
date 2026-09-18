@@ -13,12 +13,13 @@ embedded NanoVM or daemon client in another language also fails this contract.
 
 | Need | Current boundary |
 | --- | --- |
-| Function identity and signatures | Function indices, names, exact parameter/result tags are retained. My bounded spike requires known int/bool signatures. |
+| Function identity and signatures | Function indices, names, exact parameter/result tags are retained. My bounded spike requires known int/bool/float signatures. |
 | Local names | `nano.local.v1` records function/slot/PC interval and exact original bytes. Ordinary scalar producers are tested; broader producers remain separate. Names are advisory. |
 | Local types | No general per-slot typed lexical table. My spike infers exact scalar types, requires definite assignment and refuses mixed-type reuse. |
 | Structured control | My spike recovers a bounded region grammar from decoded branch targets: diamonds and pretest loops. Arbitrary reducible graphs and irreducible graphs remain outside it. |
 | Host ABI | Existing native translators have bounded direct host contracts. The reconstruction spike refuses imports and module links; it does not complete the general ABI criterion. |
 | Nominal layouts and ownership | Retained layout and ownership tables support separate verified subsets. My scalar spike refuses these contracts rather than reconstructing their semantics. |
+| Constants and module links | CONSTANTS retain exact literal/name bytes; LINKS identify module dependencies. My closed reconstruction refuses linked modules. |
 | Source maps | Accepted DEBUG entries and empty section presence roundtrip through canonical text. This preserves facts; it does not recover original source. |
 | Frontend facts | Bounded passive/ownership metadata exists. General purity, affine-use, generics, effects and exhaustiveness reconstruction remains open. |
 | Original mandatory tests | Production bytecode does not retain the original shadow harness. My generated-source tests supply independent validation assertions; they are not recovered original shadows. |
@@ -41,8 +42,11 @@ The initial grammar admits explicit scalar returns, constants, local snapshots,
 signed and unsigned int comparisons, exact wrapping I64 addition/subtraction/negation/multiplication, guarded signed and unsigned division/remainder, masked integer shifts, integer bitwise operations, boolean operators,
 checked indexed scalar `PICK`/`ROLL` snapshots, direct acyclic calls, forward if/else
 regions and canonical pretest loops. It requires empty operand stacks at joins
-and loop backedges. I use checked helper implementations for these fifteen integer operations and
-refuse remaining arithmetic until its exact cross-language behavior is implemented. Imports, globals, aggregates, ownership/effects,
+and loop backedges. I use checked helpers for admitted integer operations.
+My later scalar extensions retain exact binary64 bits, typed comparisons and
+negation, and typed F64_ADD/SUB/MUL/DIV under the shared arithmetic policy;
+[their evidence](evidence/reconstruction-f64-arithmetic.md) pins actual producers.
+Remaining arithmetic stays refused until its exact behavior is implemented. Imports, globals, aggregates, ownership/effects,
 unknown signatures and unstructured jumps also remain outside this grammar.
 The precise caps and admission rules are in
 [my scalar reconstruction contract](NANOISA_SCALAR_RECONSTRUCTION.md).
@@ -77,5 +81,10 @@ and structured control. I retain the measured pins and cases in
 flow, wider values and runtime contracts, imported host calls, complete frontend
 facts remain unmet obligations. Original mandatory tests are not reconstructed;
 that limitation does not invent an additional release criterion. A passing
-bounded spike does not close MAC `task_4bd034f6029b7458201db74e2c3aeb32` or the
-full v5.1 roadmap acceptance.
+bounded spike does not close full v5.1 roadmap acceptance. The original MAC
+`task_4bd034f6029b7458201db74e2c3aeb32` asks for five feasibility-report
+deliverables, not general reconstruction completion. My
+[original-scope acceptance matrix](evidence/reconstruction-feasibility-audit.md)
+maps all five, including a newly pinned compiler-emitted module recovered
+without its original source. Its report closure is separate from the broader
+product targets and does not claim an arbitrary high-level language.

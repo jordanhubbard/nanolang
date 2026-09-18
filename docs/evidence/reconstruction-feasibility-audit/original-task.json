@@ -1,0 +1,171 @@
+{
+  "evidence": [],
+  "flow": {
+    "completions": [],
+    "schema": "mac.task_flow_detail.v1",
+    "spans": [
+      {
+        "attempt": 1,
+        "created_at": "2026-09-05T07:30:43.392026+00:00",
+        "duration_seconds": null,
+        "ended_at": null,
+        "id": "flow_be853ae83281430e8049b18823e5a6da",
+        "metadata": {
+          "source_event": "task.created"
+        },
+        "outcome": "pending",
+        "project": "nanolang",
+        "stage": "ready_queue",
+        "started_at": "2026-09-05T07:30:43.392026+00:00",
+        "task_id": "task_4bd034f6029b7458201db74e2c3aeb32",
+        "updated_at": "2026-09-05T07:30:43.392026+00:00"
+      }
+    ]
+  },
+  "history": [
+    {
+      "actor": "human",
+      "created_at": "2026-09-05T07:30:43.392026+00:00",
+      "detail": {
+        "dependencies": [],
+        "execution_contract_type": "operator_directive",
+        "required_capabilities": [],
+        "title": "NanoISA high-level round-trip feasibility (side quest)"
+      },
+      "event_type": "task.created",
+      "from_state": null,
+      "id": "hist_1cd412ddf8274ee098402f1734fff3c5",
+      "task_id": "task_4bd034f6029b7458201db74e2c3aeb32",
+      "to_state": "open"
+    }
+  ],
+  "llm_usage": {
+    "cached_input_tokens": 0,
+    "input_tokens": 0,
+    "model_latency_ms": 0,
+    "observed_route_count": 0,
+    "output_tokens": 0,
+    "providers": [],
+    "requested_models": [],
+    "resolved_models": [],
+    "response_models": [],
+    "routes": [],
+    "schema": "mac.task_llm_usage.v1",
+    "total_tokens": 0,
+    "truncated": false,
+    "upstream_attempt_count": 0
+  },
+  "profile": {
+    "commands": {
+      "duration_ms": 0,
+      "failure_count": 0,
+      "output_bytes": 0,
+      "terminal_count": 0,
+      "truncated": false
+    },
+    "kpis": {
+      "accepted_success": 0.0,
+      "cached_input_tokens": 0,
+      "cost_known": false,
+      "cost_usd": 0.0,
+      "cycles_to_accept": 0.0,
+      "delayed_quality_success": 0.0,
+      "escaped_defect_severity": 0,
+      "executor_attempts": 0.0,
+      "input_tokens": 0,
+      "lead_time_ms": 0.0,
+      "model_latency_ms": 0,
+      "observed_at": "2026-09-18T18:27:00.198720+00:00",
+      "output_tokens": 0,
+      "priced_routes": 0,
+      "project": "nanolang",
+      "publication_count": 0,
+      "quality_source": "pending",
+      "quality_validated": false,
+      "rejected_reviews": 0.0,
+      "review_attempts": 0.0,
+      "route_count": 0,
+      "schema": "mac.task_kpis.v1",
+      "state": "open",
+      "task_id": "task_4bd034f6029b7458201db74e2c3aeb32",
+      "terminal": false,
+      "total_tokens": 0
+    },
+    "progress": {
+      "evidence_count": 0,
+      "publication_count": 0,
+      "review_count": 0
+    },
+    "provider_attempt_count": 0,
+    "schema": "mac.task_execution_profile.v1",
+    "signals": [],
+    "state_dwell_ms": {
+      "open": 1162576848.928
+    },
+    "task_id": "task_4bd034f6029b7458201db74e2c3aeb32"
+  },
+  "publications": [],
+  "reviews": [],
+  "task": {
+    "attempt_count": 0,
+    "completed_at": null,
+    "created_at": "2026-09-05T07:30:43.350042+00:00",
+    "created_by_human": null,
+    "dependencies": [],
+    "description": "Side quest parallel to 4.1 (does not wait on Forth 2012 Core).\n\nQuestion: can NanoISA become rich enough in syntax/metadata to be turned back\ninto almost any high-level language \u2014 not \"can I dump bytecode into a C\ninterpreter.\"\n\nRoadmap items (docs/ROADMAP.md):\n1. Write docs/NANOISA_HL_ROUNDTRIP.md with the reconstruction contract.\n2. Inventory .nvm v2 sections vs reconstruction needs (local names are slots).\n3. Pin a small --emit-nvm fixture and record recoverability without source.\n4. Spike two HLL surfaces from the same .nvm (structured C + NanoLang or other).\n   Fail if either is only a VM embedded in that language. No product nvm2c.\n5. Publish sufficient / insufficient / blocked-on-named-metadata. Do not delete\n   transpiler.nano. Do not claim Core. Do not claim any target language.\n\nCanonical disassembly round-trip is a different test (bytecode, not HLL).\n",
+    "id": "task_4bd034f6029b7458201db74e2c3aeb32",
+    "last_updated_at": "2026-09-05T07:30:43.350042+00:00",
+    "lease_id": null,
+    "leased_until": null,
+    "max_attempts": 3,
+    "metadata": {
+      "acc_metadata": {
+        "repository_contract_project": "nanolang",
+        "repository_contract_schema": "mac.repository_contract.v1",
+        "workflow_role": "work"
+      },
+      "deliverable": "report",
+      "execution_contract": {
+        "evidence_type": "operator_result",
+        "quality": "weak",
+        "reason": "report_deliverable_no_repository_mutation",
+        "repository_context": {
+          "repository_contract_project": "nanolang",
+          "repository_contract_schema": "mac.repository_contract.v1",
+          "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+          "repository_name": "nanolang",
+          "repository_path": "/Users/jkh/.mac/src/nanolang",
+          "workflow_role": "work"
+        },
+        "repository_required": false,
+        "required_capabilities": [],
+        "schema": "mac.task_execution_contract.v1",
+        "source": "task_crud",
+        "type": "operator_directive"
+      },
+      "no_decompose": true,
+      "no_dispatch": true,
+      "origin": {
+        "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+        "repository_name": "nanolang",
+        "repository_path": "/Users/jkh/.mac/src/nanolang",
+        "source": "repo-nanolang",
+        "type": "direct_task"
+      },
+      "scientific_policy": {
+        "name": "baseline",
+        "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+        "schema": "mac.scientific_policy.v1",
+        "version": 1
+      }
+    },
+    "owner_agent_id": null,
+    "priority": 3,
+    "project": "nanolang",
+    "required_capabilities": [],
+    "started_at": null,
+    "state": "open",
+    "title": "NanoISA high-level round-trip feasibility (side quest)",
+    "updated_at": "2026-09-05T07:30:43.350042+00:00"
+  }
+}
