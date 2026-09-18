@@ -181,6 +181,7 @@ typedef struct {
     size_t sim_stack_capacity;
     size_t record_width;
     int has_maps;
+    int has_float_arithmetic;
     int has_string_arrays;
     int has_integer_arrays;
     int has_record_array_allocations;
@@ -6514,12 +6515,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.has_maps = 1;
             emit_nagg_accounting(&b);
         }
-        int need_float_arithmetic = b.has_maps ||
+        b.has_float_arithmetic = b.has_maps ||
             module_has_opcode(mod, OP_F64_ADD) || module_has_opcode(mod, OP_F64_SUB) ||
             module_has_opcode(mod, OP_F64_MUL) || module_has_opcode(mod, OP_F64_DIV) ||
             module_has_opcode(mod, OP_ADD) || module_has_opcode(mod, OP_SUB) ||
             module_has_opcode(mod, OP_MUL) || module_has_opcode(mod, OP_DIV);
-        if (need_float_arithmetic) nvm2c_puts(&b, nl_binary64_arithmetic_source);
+        if (b.has_float_arithmetic) nvm2c_puts(&b, nl_binary64_arithmetic_source);
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT)) {
             nvm2c_puts(&b, nbp_parser_source);
             nvm2c_puts(&b,
@@ -6751,7 +6752,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
-        if (need_float_arithmetic) nvm2c_puts(&b,
+        if (b.has_float_arithmetic) nvm2c_puts(&b,
             "    (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;\n");
         if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
             nvm2c_puts(&b, "    (void)nl_float_from_bits; (void)nl_float_to_bits;\n");
