@@ -8,7 +8,7 @@ I use isolated detached Linux worktrees for the full quick gate, VM fixed point 
 
 The fixed-point generations retain their prior per-stage bounds: VM1200 seconds and native1800 seconds, 48 GiB owned RSS and 32 GiB minimum host-available memory. Each route has independent embedded library paths; no cross-run byte-equality claim is implied. Both complete generation routes now pass independently, as recorded below.
 
-Local manifests/logs are under `/tmp/nanolang-product-quick-e9a5f55f`, `/tmp/nanolang-product-vm-fixedpoint-e9a5f55f`, and `/tmp/nanolang-product-native-fixedpoint-e9a5f55f`. I will seal terminal results without modifying active checkouts. Broader ownership, reconstruction, managed runtime, formal correspondence, component-shadow, clean full tests and documentation gates remain open.
+Local manifests/logs are under `/tmp/nanolang-product-quick-e9a5f55f`, `/tmp/nanolang-product-vm-fixedpoint-e9a5f55f`, and `/tmp/nanolang-product-native-fixedpoint-e9a5f55f`. I seal terminal results without changing the tested checkouts. Broader ownership, reconstruction, managed runtime, formal correspondence, clean full tests and documentation gates remain open. Subsequent source integrations need fresh combined acceptance.
 
 My separate canonical component-shadow report (`task_14c8ecbd8aaa484ea5e73f2aa43fa48b`) has a pushed pre-execution contract at `4cbffa9e`. Its own fresh tools complete all three supervised shadow modules and driver entries. Parser315, checker513 and transpiler505 ordered calls pass with unchanged recorded tools and source. PR722 retains the report; this separate run does not modify these acceptance trees.
 
