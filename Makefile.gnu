@@ -530,6 +530,12 @@ test-reconstruction-binary64-facts: nvm2hl nanoisa_dump
 
 test-units: test-reconstruction-binary64-facts
 
+test-canonical-f64-bits: nvm2hl nanoisa_dump
+	python3 -m unittest -v tests.test_canonical_f64_bits tests.test_reconstruction_binary64_facts
+
+test-units: test-canonical-f64-bits
+
+.PHONY: test-canonical-f64-bits
 .PHONY: test-reconstruction-binary64-facts
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime bootstrap
 	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons

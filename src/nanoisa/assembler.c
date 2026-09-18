@@ -215,6 +215,24 @@ static bool parse_result_tag(const char **p, uint8_t *tag) {
 
 static bool parse_double(const char **p, double *val) {
     skip_whitespace(p);
+    if (strncmp(*p, "bits:", 5) == 0) {
+        const char *digits = *p + 5;
+        uint64_t bits = 0;
+        for (unsigned i = 0; i < 16; i++) {
+            unsigned char c = (unsigned char)digits[i];
+            unsigned digit;
+            if (c >= '0' && c <= '9') digit = c - '0';
+            else if (c >= 'a' && c <= 'f') digit = c - 'a' + 10;
+            else if (c >= 'A' && c <= 'F') digit = c - 'A' + 10;
+            else return false;
+            bits = (bits << 4) | digit;
+        }
+        if (digits[16] && !isspace((unsigned char)digits[16])) return false;
+        _Static_assert(sizeof(bits) == sizeof(*val), "I require binary64 operand storage.");
+        memcpy(val, &bits, sizeof(bits));
+        *p = digits + 16;
+        return true;
+    }
     char *end;
     errno = 0;
     double v = strtod(*p, &end);
