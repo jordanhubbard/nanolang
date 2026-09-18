@@ -1120,6 +1120,8 @@ shadow c_name_for_qualified_function {
 
 /* Map builtin function names to their C implementation names */
 fn map_builtin_func_name(func_name: string) -> string {
+    if (== func_name "float_from_bits") { return "nl_float_from_bits" }
+    if (== func_name "float_to_bits") { return "nl_float_to_bits" }
     /* Math builtins that need nl_ prefix */
     if (== func_name "abs") { return "nl_abs" } else { (print "") }
     if (== func_name "min") { return "nl_min" } else { (print "") }
@@ -1236,6 +1238,8 @@ fn map_builtin_func_name(func_name: string) -> string {
 }
 
 shadow map_builtin_func_name {
+    assert (== (map_builtin_func_name "float_from_bits") "nl_float_from_bits")
+    assert (== (map_builtin_func_name "float_to_bits") "nl_float_to_bits")
     assert (== (map_builtin_func_name "abs") "nl_abs")
     assert (== (map_builtin_func_name "sqrt") "nl_sqrt")
     assert (== (map_builtin_func_name "str_length") "strlen")
@@ -1325,6 +1329,7 @@ shadow type_is_float {
 }
 
 fn func_returns_float(name: string) -> bool {
+    if (== name "float_from_bits") { return true }
     if (== name "sqrt") { return true } else { (print "") }
     if (== name "pow") { return true } else { (print "") }
     if (== name "floor") { return true } else { (print "") }
@@ -1465,6 +1470,8 @@ shadow func_returns_string {
 }
 
 shadow func_returns_float {
+    assert (func_returns_float "float_from_bits")
+    assert (not (func_returns_float "float_to_bits"))
     assert (func_returns_float "sqrt")
     assert (func_returns_float "sin")
     assert (not (func_returns_float "print"))
@@ -3749,6 +3756,8 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return nl_binary64_prefix(s);\n")
     set sb (cg_append sb "}\n\n")
 
+    set sb (cg_append sb "double nl_float_from_bits(int64_t value) { uint64_t bits = (uint64_t)value; double result; _Static_assert(sizeof(result) == sizeof(bits), \"I require binary64 storage.\"); memcpy(&result, &bits, sizeof(result)); return result; }\n")
+    set sb (cg_append sb "int64_t nl_float_to_bits(double value) { uint64_t bits; _Static_assert(sizeof(value) == sizeof(bits), \"I require binary64 storage.\"); memcpy(&bits, &value, sizeof(bits)); return bits <= INT64_MAX ? (int64_t)bits : -1 - (int64_t)(UINT64_MAX - bits); }\n")
     set sb (cg_append sb "double nl_cast_float(int64_t x) { return (double)x; }\n")
     set sb (cg_append sb "double nl_cast_float_from_float(double x) { return x; }\n")
     set sb (cg_append sb "int64_t nl_cast_int(double x) { if (!(x >= -0x1p63 && x < 0x1p63)) { fputs(\"I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\\n\", stderr); exit(EXIT_FAILURE); } return (int64_t)x; }\n")
@@ -8128,6 +8137,21 @@ shadow global_init_literal {
     assert (== (global_init_literal p (parser_get_let p 0)) "\"a\\nb\"")
 }
 
+# I admit only the exact bit intrinsics to this additional startup path.
+fn global_bit_initializer(parser: Parser, item: ASTLet) -> bool {
+    if (!= item.value_type ParseNodeType.PNODE_CALL) { return false }
+    let call: ASTCall = (parser_get_call parser item.value)
+    if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.arg_count 1)) { return false }
+    let name: string = (parser_get_identifier parser call.function).name
+    return (or (and (== name "float_from_bits") (== item.var_type "float")) (and (== name "float_to_bits") (== item.var_type "int")))
+}
+shadow global_bit_initializer {
+    let tokens: List<LexerToken> = (tokenize_string "let bits: float = (float_from_bits 1) let plain: int = 1" "t.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "t.nano")
+    assert (global_bit_initializer parser (parser_get_let parser 0))
+    assert (not (global_bit_initializer parser (parser_get_let parser 1)))
+}
+
 /* Generate global constant declarations for top-level let statements.
  * Immutable globals and complex mutable globals: plain C declarations.
  * Mutable primitive globals (int/float/bool/string): NlGuarded_* with constructor. */
@@ -8160,6 +8184,7 @@ fn generate_global_constants(parser: Parser) -> string {
             } else {
                 set global_env (genenv_put global_env let_node.name let_node.var_type let_node.is_mut)
             }
+            let bit_global: bool = (global_bit_initializer parser let_node)
             let mut union_global: bool = false
             let mut ui: int = 0
             while (< ui (parser_get_union_count parser)) {
@@ -8177,7 +8202,9 @@ fn generate_global_constants(parser: Parser) -> string {
                 set sb (cg_append sb " nl_")
                 set sb (cg_append sb (mangle_name let_node.name))
                 set sb (cg_append sb ";\n")
-                let init: string = (+ (+ (+ (+ (+ "    NL_GUARDED_INIT(nl_" (mangle_name let_node.name)) ", \"nano.") let_node.name) "\", ") (global_init_literal parser let_node))
+                let mut initial_value: string = (global_init_literal parser let_node)
+                if bit_global { set initial_value (generate_expression parser let_node.value let_node.value_type global_env let_node.var_type) }
+                let init: string = (+ (+ (+ (+ (+ "    NL_GUARDED_INIT(nl_" (mangle_name let_node.name)) ", \"nano.") let_node.name) "\", ") initial_value)
                 set startup (array_push startup (+ init ");\n"))
             } else {
                 /* Plain declaration: immutable global or mutable complex type */
@@ -8189,7 +8216,7 @@ fn generate_global_constants(parser: Parser) -> string {
                 set sb (cg_append sb c_type)
                 set sb (cg_append sb " nl_")
                 set sb (cg_append sb (mangle_name let_node.name))
-                if union_global {
+                if (or union_global bit_global) {
                     set sb (cg_append sb ";\n")
                     let initial: string = (generate_expression parser let_node.value let_node.value_type global_env let_node.var_type)
                     set startup (array_push startup (+ (+ (+ (+ "    nl_" (mangle_name let_node.name)) " = ") initial) ";\n"))

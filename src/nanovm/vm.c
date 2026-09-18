@@ -6,6 +6,7 @@
  */
 
 #include "vm.h"
+#include "../binary64_bits.h"
 #include "vm_ffi.h"
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
@@ -1409,6 +1410,8 @@ VmTrap vm_core_execute(VmState *vm) {
         vm_labels[OP_GC_RELEASE] = &&L_OP_GC_RELEASE;
         vm_labels[OP_CAST_INT] = &&L_OP_CAST_INT;
         vm_labels[OP_CAST_FLOAT] = &&L_OP_CAST_FLOAT;
+        vm_labels[OP_F64_FROM_BITS] = &&L_OP_F64_FROM_BITS;
+        vm_labels[OP_F64_TO_BITS] = &&L_OP_F64_TO_BITS;
         vm_labels[OP_CAST_BOOL] = &&L_OP_CAST_BOOL;
         vm_labels[OP_CAST_STRING] = &&L_OP_CAST_STRING;
         vm_labels[OP_TYPE_CHECK] = &&L_OP_TYPE_CHECK;
@@ -2212,6 +2215,19 @@ dynamic_div:
             else if (instr.opcode == OP_F64_MUL) result = a.as.f64 * b.as.f64;
             else result = b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64;
             stack_push(vm, val_float(result));
+            VM_NEXT();
+        }
+
+        VM_CASE(OP_F64_FROM_BITS)
+        VM_CASE(OP_F64_TO_BITS) {
+            NanoValue value = stack_pop(vm);
+            uint8_t expected = instr.opcode == OP_F64_FROM_BITS ? TAG_INT : TAG_FLOAT;
+            if (value.tag != expected) {
+                vm_release(&vm->heap, value);
+                return trap_error(vm, VM_ERR_TYPE_ERROR, "I require the exact input tag for binary64 bit transport.");
+            }
+            if (expected == TAG_INT) stack_push(vm, val_float(nl_float_from_bits(value.as.i64)));
+            else stack_push(vm, val_int(nl_float_to_bits(value.as.f64)));
             VM_NEXT();
         }
 

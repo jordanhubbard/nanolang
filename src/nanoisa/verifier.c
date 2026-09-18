@@ -1046,6 +1046,7 @@ static int profile_supported(uint8_t op) {
     case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:
     case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
+    case OP_F64_FROM_BITS: case OP_F64_TO_BITS:
     case OP_CAST_INT: case OP_CAST_FLOAT:
     case OP_NOP: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:

@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "binary64_bits.h"
 #include "runtime/binary64_parse.h"
 #include "coroutine.h"
 #include "effects.h"
@@ -3247,6 +3248,15 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Type casting functions */
     if (strcmp(name, "cast_int") == 0) return builtin_cast_int(args);
     if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
+    if (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) {
+        bool from = strcmp(name, "float_from_bits") == 0;
+        if (args[0].type != (from ? VAL_INT : VAL_FLOAT)) {
+            fputs("I require the exact input type for binary64 bit transport.\n", stderr);
+            exit(EXIT_FAILURE);
+        }
+        return from ? create_float(nl_float_from_bits(args[0].as.int_val))
+                    : create_int(nl_float_to_bits(args[0].as.float_val));
+    }
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
     if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
     if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);

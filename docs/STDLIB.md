@@ -250,6 +250,22 @@ I cast any value to a float. I parse strings and convert integers.
 (cast_float false)   # Returns 0.0
 ```
 
+### `float_from_bits(bits: int) -> float` and `float_to_bits(value: float) -> int`
+
+I copy an exact binary64 representation. My signed integer carries the same
+64 bits in two's-complement form; I do not perform a numeric cast. I preserve
+both zeros and every quiet/signaling NaN payload and sign, and evaluate my
+operand once. I require the exact declared input type.
+
+```nano
+assert (== (float_to_bits (float_from_bits 1)) 1)
+```
+
+I reserve these names against ordinary function redeclarations. My current
+source profile refuses calls through same-named local/global bindings instead
+of substituting intrinsic semantics. See my [transport contract](BINARY64_BIT_TRANSPORT_CONTRACT.md)
+for backend and reconstruction boundaries.
+
 ### `cast_bool(value: any) -> bool`
 I cast any value to a boolean. I treat 0, empty string, and null as false; everything else becomes true.
 
