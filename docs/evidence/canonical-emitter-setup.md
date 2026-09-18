@@ -6,4 +6,4 @@ A separate qualification of that same command at compiler production `e46c425b66
 
 I set only this compiler-building setup command to 900 seconds. The shared command helper still defaults to 180 seconds, and existing explicitly shorter controls remain unchanged. I preserve all raw-producer, selected-shadow, VM, native and output-preservation assertions. This is a setup deadline correction, not a performance improvement or an infrastructure attribution.
 
-My complete affected scalar-match suite is currently running against the canonical product route with the corrected setup policy. I keep task `task_3d46381f10bd4dfcb313c2697024191f` open until that acceptance and canonical integration complete.
+My complete affected scalar-match suite passes all 12 methods in 466.277 seconds against the canonical product route with the corrected setup policy. I retain `/tmp/nanolang-product-emitter-budget-scalar-gate.log`. Production remains `e46c425b`; only the setup test and documentation changed in that product checkout. Task `task_3d46381f10bd4dfcb313c2697024191f` awaits canonical integration.
