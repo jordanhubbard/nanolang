@@ -530,6 +530,12 @@ test-reconstruction-binary64-facts: nvm2hl nanoisa_dump
 
 test-units: test-reconstruction-binary64-facts
 
+test-native-map-key-storage: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_map_key_storage
+
+test-units: test-native-map-key-storage
+.PHONY: test-native-map-key-storage
+
 test-canonical-f64-bits: nvm2hl nanoisa_dump
 	python3 -m unittest -v tests.test_canonical_f64_bits tests.test_reconstruction_binary64_facts
 

@@ -1,0 +1,65 @@
+{
+  "source": "63c26ecd2723f8c480eaba4b25ebdf797f4764bd",
+  "translator_source": "84d924ec",
+  "files": [
+    {
+      "path": "/home/jkh/Src/nanolang-map-key-component-63c26ecd/bin/nano_aot_runtime.o",
+      "sha256": "59449b04b10c7ef1f97bffacf7062e76134e6b4f95d67efe8e180f7e3fa88f59"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-map-key-component-63c26ecd/bin/nano_as_capture.so",
+      "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-map-key-component-63c26ecd/bin/nanoc_stage2",
+      "sha256": "1709ebb179750575c4638737ef54af573600790a417f018d42f17d6847521341"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-native-map-key-storage/bin/nvm2c",
+      "sha256": "28ad57c63c7dcb3f210508f2517eedb1e90290644c02837cb99ba7a8e8a27431"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-product-quick-63c26ecd/obj/module_cache/v2-0f64f88e100dbeaf95b2211994eb58253c98d924ee3da875e88cfe565c95fbd8/.nano-gen-DXaNgB/libstd.so",
+      "sha256": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-product-quick-63c26ecd/obj/module_cache/v2-930a9b9f9862e1c760635c07fa946385d7603c978035fee5df0ed23fa7734360/.nano-gen-ZbW9VV/libnanoisa.so",
+      "sha256": "43a9b28ae7abac95cb200e1828f00b2765ad5919c45b94963895d9fa2a766082"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-product-quick-63c26ecd/obj/module_cache/v2-e58f11b3fc9e65820953222ffc3ee78d1f16902740b0e98d2474b1d0772e2941/.nano-gen-VGqx8E/libcompiler_support.so",
+      "sha256": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5"
+    },
+    {
+      "path": "/home/jkh/Src/nanolang-map-key-component-63c26ecd/bin/nano_vm",
+      "sha256": "e4ede5af4cee939cb86399ac00acb2e8c234a5614d495f972530f247cf3b175c"
+    }
+  ],
+  "setup_correction": "I add missing frozen nano_vm required for VM shadows; first exit1 retained.",
+  "artifacts": [
+    {
+      "path": "/tmp/.nano-product.jRcNTY/program.c",
+      "bytes": 12352595,
+      "sha256": "3396ec2b9387a61c69773200f4d9d62b09ef0dc5f9f9aafca887f04293e9f3f4"
+    },
+    {
+      "path": "/tmp/nanolang-map-key-transpiler-component",
+      "bytes": 17734904,
+      "sha256": "0a3d166773558748b1d90c569e7a7eac56ad350c94252a1bb2aaebe62f1033c8"
+    }
+  ],
+  "result": {
+    "compile_exit": 0,
+    "compile_seconds": 443.64,
+    "peak_rss_kib": 2804900,
+    "component_entry_exit": 0,
+    "tool_and_import_hashes_unchanged": true,
+    "original_failure_log_unchanged": true,
+    "module_retained": false,
+    "retention_limit": "Driver --keep-c preserves generated C but cleans program.nvm; no module hash claim."
+  },
+  "retained_qualified_translator": {
+    "path": "/tmp/nanolang-map-key-qualified-nvm2c",
+    "sha256": "28ad57c63c7dcb3f210508f2517eedb1e90290644c02837cb99ba7a8e8a27431"
+  }
+}

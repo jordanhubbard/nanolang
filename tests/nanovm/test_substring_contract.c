@@ -403,7 +403,100 @@ static void array_creation_recovery(void) {
         vm_destroy(&vm); nvm_module_free(module);
     }
 }
+static void array_slice_lifetime_and_recovery(void) {
+    const uint8_t tags[] = {TAG_INT, TAG_FLOAT, TAG_STRING};
+    const uint8_t code[] = {OP_LOAD_LOCAL,0,0, OP_LOAD_LOCAL,1,0,
+                           OP_LOAD_LOCAL,2,0, OP_ARR_SLICE, OP_RET};
+    for (unsigned t = 0; t < sizeof tags; t++) {
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.arity=3, .local_count=3, .result_count=1, .result_tag=TAG_ARRAY};
+        fn.name_idx = nvm_add_string(module, "slice", 5);
+        fn.code_offset = nvm_append_code(module, code, sizeof code);
+        fn.code_length = sizeof code;
+        nvm_add_function(module, &fn);
+        VmState vm; vm_init(&vm, module);
+        uint64_t baseline = vm.heap.stats.num_objects;
+        VmArray *source = vm_array_new(&vm.heap, tags[t], 8);
+        VmString *child = vm_string_new(&vm.heap, "a\0z", 3);
+        VmString *bound = vm_string_new(&vm.heap, "fallback", 8);
+        assert(source && child && bound);
+        uint64_t floating_bits = UINT64_C(0x8000000000000000);
+        double floating;
+        memcpy(&floating, &floating_bits, sizeof floating);
+        NanoValue leaf = tags[t] == TAG_STRING ? val_string(child) :
+                         tags[t] == TAG_FLOAT ? val_float(floating) : val_int(42);
+        for (unsigned i = 0; i < 10; i++) assert(vm_array_push(&vm.heap, source, leaf));
+        uint64_t populated = vm.heap.stats.num_objects;
+        uint64_t child_owners = child->header.ref_count;
+        const struct { int64_t start, end; uint32_t expected; } cases[] = {
+            {0,10,10}, {2,5,3}, {7,3,0}, {-1,10,0}, {0,-1,10},
+            {INT64_C(4294967296),INT64_C(4294967299),3}, {20,30,0}
+        };
+        for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++) {
+            NanoValue args[] = {val_array(source), val_int(cases[i].start), val_int(cases[i].end)};
+            NanoValue output = val_void();
+            assert(vm_invoke(&vm, 0, args, 3, &output) == VM_OK);
+            assert(output.tag == TAG_ARRAY && output.as.array != source);
+            assert(output.as.array->length == cases[i].expected);
+            assert(output.as.array->capacity == (cases[i].expected < 8 ? 8 : cases[i].expected));
+            assert(output.as.array->elem_type == tags[t] && output.as.array->unboxed == source->unboxed);
+            for (uint32_t j = 0; j < output.as.array->length; j++) {
+                NanoValue actual = vm_array_get(output.as.array, j);
+                assert(actual.tag == tags[t]);
+                if (tags[t] == TAG_FLOAT) {
+                    uint64_t bits; memcpy(&bits, &actual.as.f64, sizeof bits);
+                    assert(bits == floating_bits);
+                } else if (tags[t] == TAG_STRING) {
+                    assert(actual.as.string == child && !memcmp(child->data, "a\0z", 3));
+                } else assert(actual.as.i64 == 42);
+            }
+            vm_release(&vm.heap, output);
+            assert(source->header.ref_count == 1 && child->header.ref_count == child_owners);
+            assert(vm.heap.stats.num_objects == populated && !vm.stack_size && !vm.frame_count);
+        }
+        /* Heap-bearing non-integer endpoints select the ordinary fallback.
+         * I inject allocation failure only into the corrected handler. */
+        NanoValue args[] = {val_array(source), val_string(bound), val_string(bound)};
+        for (unsigned budget = 0; budget < 2; budget++) {
+            uint64_t allocated = vm.heap.stats.allocated, freed = vm.heap.stats.freed;
+            NanoValue output = val_void();
+            array_allocation_budget = budget;
+            assert(vm_invoke(&vm, 0, args, 3, &output) == VM_ERR_MEMORY);
+            array_allocation_budget = UINT64_MAX;
+            assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+            assert(strstr(vm.error_msg, "allocate the array slice"));
+            assert(source->header.ref_count == 1 && bound->header.ref_count == 1);
+            assert(child->header.ref_count == child_owners && vm.heap.stats.num_objects == populated);
+            assert(vm.heap.stats.allocated == allocated && vm.heap.stats.freed == freed);
+            assert(vm_invoke(&vm, 0, args, 3, &output) == VM_OK);
+            assert(output.tag == TAG_ARRAY && output.as.array->length == 10);
+            vm_release(&vm.heap, output);
+            assert(source->header.ref_count == 1 && bound->header.ref_count == 1);
+            assert(child->header.ref_count == child_owners && vm.heap.stats.num_objects == populated);
+        }
+        args[0] = val_string(bound);
+        NanoValue output = val_void();
+        assert(vm_invoke(&vm, 0, args, 3, &output) == VM_ERR_TYPE_ERROR);
+        assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+        assert(bound->header.ref_count == 1 && vm.heap.stats.num_objects == populated);
+        args[0] = val_array(source);
+        assert(vm_invoke(&vm, 0, args, 3, &output) == VM_OK);
+        vm_release(&vm.heap, val_array(source));
+        vm_gc_collect_cycles(&vm.heap);
+        assert(output.as.array->length == 10 && vm_array_get(output.as.array, 0).tag == tags[t]);
+        if (tags[t] == TAG_STRING) assert(child->header.ref_count == 11);
+        vm_release(&vm.heap, output);
+        assert(child->header.ref_count == 1 && bound->header.ref_count == 1);
+        vm_release(&vm.heap, val_string(child));
+        vm_release(&vm.heap, val_string(bound));
+        vm_gc_collect_cycles(&vm.heap);
+        assert(vm.heap.stats.num_objects == baseline);
+        vm_destroy(&vm); nvm_module_free(module);
+    }
+}
+
 int main(void) {
+    array_slice_lifetime_and_recovery();
     array_creation_recovery();
     heap_slices();
     opcode_recovery();

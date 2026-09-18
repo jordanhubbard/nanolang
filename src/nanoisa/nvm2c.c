@@ -1653,12 +1653,23 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else mark_origin(local_kind, nloc, map.origin, NVM2C_VK_MAP);
             if (!shape_type(b, map.shape, NVM_SHAPE_MAP)) return 0;
             if (ins.opcode != OP_HM_LEN) {
-                if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK) {
+                if (key.kind != NVM2C_VK_STR && key.kind != NVM2C_VK_UNK && key.kind != NVM2C_VK_VALUE) {
                     nvm2c_fail(b, "I require a string hashmap key"); return 0;
                 }
                 if (!mark_string_operand(b, local_kind, nloc, key)) return 0;
-                if (!shape_type(b, key.shape, NVM_SHAPE_STRING) ||
-                    !shape_equal(b, shape_child(b, map.shape, 0), key.shape)) return 0;
+                NvmShapeId key_shape = key.shape;
+                if (key.kind == NVM2C_VK_VALUE) {
+                    /* Checked extraction constrains this use, not the optional
+                     * producer. Emission retains nvalue_require_string. */
+                    NvmShapeId checked = 0;
+                    key_shape = shape_variable(b, &checked);
+                    if (!shape_type(b, key_shape, NVM_SHAPE_STRING)) return 0;
+                    if (b->track_shapes &&
+                        (!nvm_shape_convert(&b->shapes, shape_child(b, key.shape, 0), key_shape) ||
+                         !shape_ok(b))) return 0;
+                }
+                if (!shape_type(b, key_shape, NVM_SHAPE_STRING) ||
+                    !shape_equal(b, shape_child(b, map.shape, 0), key_shape)) return 0;
             }
             if (ins.opcode == OP_HM_SET) {
                 if (value.kind != NVM2C_VK_INT && value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_UNK) {
