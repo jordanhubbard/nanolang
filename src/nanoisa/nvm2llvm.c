@@ -500,6 +500,12 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_FROM_INT: case OP_STR_FROM_FLOAT:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_primitive_format(%%V %%p%u_a, i8 %u)\n",
+                    pc, pc, ins.opcode == OP_STR_FROM_INT ? TAG_INT : TAG_FLOAT);
+            push(&frame, pc, "value");
+            break;
         case OP_CAST_STRING:
             pop(&frame, pc, "a");
             fprintf(out, " %%p%u_value = call %%V @managed_cast_string(%%V %%p%u_a)\n", pc, pc);
