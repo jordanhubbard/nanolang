@@ -45,3 +45,12 @@ field-access branch inside a newly added helper instead of the intended
 expression function, deleting intervening helper declarations. I corrected
 the patch anchor before the successful fresh bootstrap. This was a compiler
 build failure, not a measured runtime defect.
+
+I rebased cleanly onto main `c9cabb70` at checkpoint `3541928d`. Neither source
+producer changed during that rebase. I rebuilt the changed verifier/native
+backend and reran all twelve paired source methods, including the expanded
+seventeen-case refusal matrix: all passed in 159.233 seconds, with the same
+123/5/20 local-name codec/allocation checks. Log:
+`/tmp/nanolang-nested-source-integrated.log`. The completed three-stage compiler
+bootstrap remained valid for the unchanged compiler sources; I did not rebuild
+it merely for documentation and unrelated backend integration.
