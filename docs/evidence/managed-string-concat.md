@@ -40,3 +40,8 @@ or flag changes cannot silently reuse its output. I have not added a runtime
 package dependency or profile change to the public translator yet. My first
 Wasm packaging fixture used `main`, which Clang treats as an ABI-special entry;
 I changed the fixture to the intended freestanding `nano_package` export.
+
+After integrating enum PR631 at `d9105a48`, I rerun the unchanged core plus
+packaging gate. The packaging method passes in 0.442 seconds and the three
+core methods pass in 1.298 seconds. The package manifest now also hashes its
+generator script. Log: `/tmp/nanolang-managed-concat-integrated-final.log`.
