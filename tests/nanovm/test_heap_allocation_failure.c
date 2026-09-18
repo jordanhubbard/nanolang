@@ -39,6 +39,99 @@ static void *heap_test_realloc(void *pointer, size_t size) {
 int g_argc;
 char **g_argv;
 
+static void test_map_constructor_allocation_status(void) {
+    uint8_t code[] = {OP_HM_NEW, TAG_STRING, TAG_INT, OP_RET};
+    NvmModule *module = nvm_module_new();
+    NvmFunctionEntry fn = {.result_count = 1, .result_tag = TAG_HASHMAP};
+    fn.name_idx = nvm_add_string(module, "map", 3);
+    fn.code_offset = nvm_append_code(module, code, sizeof(code));
+    fn.code_length = sizeof(code);
+    nvm_add_function(module, &fn);
+    VmState vm;
+    vm_init(&vm, module);
+    uint64_t objects = vm.heap.stats.num_objects, allocated = vm.heap.stats.allocated;
+    uint64_t allocations = vm.heap.stats.allocation_calls;
+    for (int buckets = 0; buckets < 2; ++buckets) {
+        unsigned before = frees;
+        malloc_calls = 0;
+        fail_malloc_at = buckets ? 0 : 1;
+        reject_calloc = buckets;
+        NanoValue result = val_void();
+        assert(vm_invoke(&vm, 0, NULL, 0, &result) == VM_ERR_MEMORY);
+        fail_malloc_at = 0;
+        reject_calloc = false;
+        assert(result.tag == TAG_VOID && vm.stack_size == 0 && vm.frame_count == 0);
+        assert(strstr(vm.error_msg, "allocate a hashmap"));
+        assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
+        assert(vm.heap.stats.allocation_calls == allocations);
+        assert(frees == before + (buckets ? 1 : 0));
+    }
+    NanoValue result = val_void();
+    assert(vm_invoke(&vm, 0, NULL, 0, &result) == VM_OK);
+    assert(result.tag == TAG_HASHMAP && result.as.hashmap->count == 0);
+    vm_release(&vm.heap, result);
+    assert(vm.heap.stats.num_objects == objects);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
+
+static void test_map_growth_allocation_status(void) {
+    uint8_t code[] = {OP_LOAD_LOCAL,0,0,OP_LOAD_LOCAL,1,0,OP_LOAD_LOCAL,2,0,
+                      OP_HM_SET,OP_POP,OP_RET};
+    NvmModule *module = nvm_module_new();
+    NvmFunctionEntry fn = {.arity = 3, .local_count = 3, .result_count = 0, .result_tag = TAG_VOID};
+    fn.name_idx = nvm_add_string(module, "write", 5);
+    fn.code_offset = nvm_append_code(module, code, sizeof(code));
+    fn.code_length = sizeof(code);
+    nvm_add_function(module, &fn);
+    VmState vm;
+    vm_init(&vm, module);
+    uint64_t baseline = vm.heap.stats.num_objects;
+    VmHashMap *map = vm_hashmap_new(&vm.heap, TAG_INT, TAG_STRING);
+    VmString *original = vm_string_new(&vm.heap, "original", 8);
+    VmString *replacement = vm_string_new(&vm.heap, "replacement", 11);
+    VmString *added = vm_string_new(&vm.heap, "added", 5);
+    assert(map && original && replacement && added);
+    for (int i = 0; i < 12; ++i)
+        assert(vm_hashmap_set(&vm.heap, map, val_int(i), val_string(original)));
+    assert(map->bucket_count == 16 && map->count == 12);
+    VmHMEntry *entries = map->entries;
+    NanoValue args[] = {val_hashmap(map), val_int(0), val_string(replacement)};
+    NanoValue result = val_void();
+    reject_calloc = true;
+    assert(vm_invoke(&vm, 0, args, 3, &result) == VM_OK);
+    assert(map->entries == entries && map->count == 12);
+    assert(vm_hashmap_get(map, val_int(0)).as.string == replacement);
+    assert(original->header.ref_count == 12 && replacement->header.ref_count == 2);
+    args[1] = val_int(99);
+    args[2] = val_string(added);
+    uint64_t objects = vm.heap.stats.num_objects;
+    assert(!vm_hashmap_set(&vm.heap, map, args[1], args[2]));
+    assert(vm_invoke(&vm, 0, args, 3, &result) == VM_ERR_MEMORY);
+    reject_calloc = false;
+    assert(strstr(vm.error_msg, "grow this hashmap"));
+    assert(result.tag == TAG_VOID && vm.stack_size == 0 && vm.frame_count == 0);
+    assert(map->entries == entries && map->bucket_count == 16 && map->count == 12);
+    assert(map->tombstone_count == 0 && !vm_hashmap_has(map, val_int(99)));
+    assert(map->header.ref_count == 1 && added->header.ref_count == 1);
+    assert(original->header.ref_count == 12 && replacement->header.ref_count == 2);
+    assert(vm.heap.stats.num_objects == objects);
+    for (int i = 0; i < 12; ++i)
+        assert(vm_hashmap_get(map, val_int(i)).as.string == (i ? original : replacement));
+    assert(vm_invoke(&vm, 0, args, 3, &result) == VM_OK);
+    assert(map->bucket_count == 32 && map->count == 13);
+    assert(vm_hashmap_get(map, val_int(99)).as.string == added);
+    assert(added->header.ref_count == 2);
+    vm_release(&vm.heap, val_hashmap(map));
+    vm_release(&vm.heap, val_string(original));
+    vm_release(&vm.heap, val_string(replacement));
+    vm_release(&vm.heap, val_string(added));
+    vm_gc_collect_cycles(&vm.heap);
+    assert(vm.heap.stats.num_objects == baseline);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
+
 static void test_string_allocation_boundaries(void) {
     VmHeap heap;
     reject_calloc = true;
@@ -291,11 +384,13 @@ int main(void) {
     vm_release(&heap, val_struct(record));
     vm_release(&heap, val_union(variant));
     vm_heap_destroy(&heap);
+    test_map_constructor_allocation_status();
+    test_map_growth_allocation_status();
     test_constructor_traps();
     test_append_failure();
     test_arithmetic_allocation_failure();
     test_string_allocation_boundaries();
     test_string_instruction_allocation_failure();
-    puts("I passed struct/union field-allocation failure and recovery checks.");
+    puts("I passed checked heap allocation failure and recovery checks.");
     return 0;
 }
