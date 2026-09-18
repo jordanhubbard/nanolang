@@ -477,6 +477,17 @@ static int equal_bytes(const unsigned char *left, const unsigned char *right, ui
         if (left[i] != right[i]) return 0;
     return 1;
 }
+NmsStatus nms_char_at(const NmsRuntime *runtime, NmsHandle source,
+                      uint64_t index_bits, uint32_t is_integer, int64_t *out) {
+    if (!out || is_integer > 1) return NMS_STATE;
+    NmsView view;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status != NMS_OK) return status;
+    uint64_t index = is_integer ? index_bits : 0;
+    *out = (index & (UINT64_C(1) << 63)) || index >= view.length
+         ? -1 : (int64_t)view.data[(uint32_t)index];
+    return NMS_OK;
+}
 NmsStatus nms_predicate(const NmsRuntime *runtime, NmsHandle source, NmsHandle affix,
                         uint32_t operation, uint32_t *out) {
     if (!out || operation > NMS_ENDS_WITH) return NMS_STATE;
