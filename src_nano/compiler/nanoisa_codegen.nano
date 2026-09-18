@@ -130,7 +130,7 @@ fn nisa_ordinary_publication(parser: Parser) -> string {
     let mut i: int = 0
     while (< i count) {
         let record: ASTStruct = (parser_get_struct_def parser i)
-        if (or record.is_resource (or (str_contains record.name "<") (> record.field_count 65535))) { return "" }
+        if (or record.is_extern (or record.is_resource (or (str_contains record.name "<") (> record.field_count 65535)))) { return "" }
         set layouts (+ layouts (+ "0000" (+ (nisa_ordinary_hex record.field_count 2) "ffffffff")))
         let mut field: int = 0
         while (< field record.field_count) {
@@ -161,6 +161,14 @@ fn nisa_ordinary_publication(parser: Parser) -> string {
 shadow nisa_ordinary_publication {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     assert (== (nisa_ordinary_publication p) "")
+    let tokens: List<LexerToken> = (tokenize_string "struct Plain { fd: int }" "ordinary.nano" (diag_list_new))
+    let plain: Parser = (parse_program tokens (list_LexerToken_length tokens) "ordinary.nano")
+    let _: int = (nisa_reset)
+    assert (!= (nisa_ordinary_publication plain) "")
+    let record: ASTStruct = (parser_get_struct_def plain 0)
+    (list_ASTStruct_set plain.structs 0 (ASTStruct { node_type: record.node_type, line: record.line, column: record.column, name: record.name, field_start: record.field_start, field_count: record.field_count, field_names: record.field_names, field_types: record.field_types, is_resource: record.is_resource, is_extern: true }))
+    assert (== (nisa_ordinary_publication plain) "")
+    let _: int = (nisa_reset)
 }
 
 fn nisa_reset() -> int {
