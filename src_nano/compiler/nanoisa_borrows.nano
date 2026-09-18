@@ -15,6 +15,7 @@ let mut nb_strings: array<string> = []
 let mut nb_helper: int = -1
 let mut nb_in_helper: bool = false
 let mut nb_returned: bool = false
+let mut nb_transfers_owner: bool = false
 let mut nb_result: int = 1
 
 pub fn nanoisa_borrow_error() -> string { return nb_error }
@@ -85,7 +86,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
 }
 fn nb_reset_locals() -> int {
     set nb_names [] set nb_tags [] set nb_layouts [] set nb_modes []
-    set nb_live [] set nb_mutable [] set nb_code "" set nb_returned false
+    set nb_live [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
     return 0
 }
 shadow nb_reset_locals { let _: int = (nb_reset_locals) assert (== (array_length nb_names) 0) assert (not nb_returned) }
@@ -258,6 +259,7 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         }
         if (!= nb_error "") { return 0 }
         let slot: int = (nb_slot binding.name 8 layout 0 binding.is_mut)
+        set nb_transfers_owner true
         return (nb_op1 "OWN_STORE_LOCAL" slot)
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
@@ -340,6 +342,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
     }
     if (and shadows (not helper)) {
         set name "__nanoisa_shadow_entry"
+        if (== (parser_get_function parser nb_helper).name name) { set name (+ name "_") }
         let mut i: int = first_shadow
         while (and (== nb_error "") (< i parser.shadows_count)) {
             let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
@@ -351,6 +354,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         let _: int = (nb_body parser function.body false)
         if (not nb_returned) { let _: int = (nb_fail "an explicit scalar return") }
     }
+    if (and (not helper) (not nb_transfers_owner)) { let _: int = (nb_fail "an actual owned transfer in entry") }
     let mut tag_name: string = "int"
     if (== nb_result 4) { set tag_name "bool" }
     return (+ ".function " (+ name (+ " " (+ (int_to_string arity) (+ " " (+ (int_to_string (array_length nb_names)) (+ " 0 " (+ tag_name (+ " 1\n" (+ nb_code ".end\n"))))))))))

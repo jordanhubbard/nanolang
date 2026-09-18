@@ -101,14 +101,56 @@ class SourceBorrowEmission(unittest.TestCase):
             failed = subprocess.run([ROOT / 'bin/nano_vm', '--check-shadows', module],
                                     cwd=ROOT, capture_output=True, text=True, timeout=30)
             self.assertNotEqual(failed.returncode, 0)
-            # The explicitly empty suffix executes neither selected shadow.
-            assembly.write_text(self.command(tool, source, 2, 'raw').stdout)
+            self.execute_pair(module, expected=1)
+            # My owned profile requires an actual transfer in entry.
+            refused = self.command(tool, source, 2, 'raw', expected=1)
+            self.assertIn('owned transfer', refused.stdout)
+
+    def test_false_borrowed_helper_cleans_actual_caller_owners(self):
+        source = self.work / 'helper-assertion.nano'
+        text = (FIXTURES / 'source_borrow_exclusive.nano').read_text()
+        source.write_text(text.replace('return view.value', 'assert false return view.value'))
+        for tool in self.shadow_tools:
+            assembly, module = self.work / 'failed-helper.nasm', self.work / 'failed-helper.nvm'
+            assembly.write_text(self.command(tool, source, 0, 'raw').stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.execute_pair(module, expected=1)
+
+    def test_owned_suffix_and_synthetic_name_collision(self):
+        text = (FIXTURES / 'source_borrow_shared.nano').read_text()
+        text = text.replace('read', '__nanoisa_shadow_entry')
+        # The first shadow fails; the selected second shadow still owns a record.
+        start = text.index('shadow __nanoisa_shadow_entry {')
+        end = text.index('fn main()')
+        shadow = text[start:end]
+        text = text[:start] + shadow.replace('assert active', 'assert false') + shadow + text[end:]
+        source = self.work / 'collision.nano'
+        source.write_text(text)
+        baseline = None
+        for tool in self.shadow_tools:
+            emitted = self.command(tool, source, 1, 'raw').stdout
+            self.assertIn('.function __nanoisa_shadow_entry_ 0', emitted)
+            self.assertIn('.function __nanoisa_shadow_entry 1', emitted)
+            if baseline is None:
+                baseline = emitted
+            self.assertEqual(emitted, baseline)
+            assembly, module = self.work / 'suffix.nasm', self.work / 'suffix.nvm'
+            assembly.write_text(emitted)
             self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
             self.command(ROOT / 'bin/nano_vm', '--check-shadows', module)
+            self.execute_pair(module)
+        # C-seed and canonical publication retain the same helper spelling too.
+        source.write_text(text.replace('assert false', 'assert active'))
+        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+            module = self.work / (compiler + '-collision.nvm')
+            self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+            self.execute_pair(module)
 
     def test_false_shadow_and_unsupported_graph_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_shared.nano').read_text()
         cases = {
+            'false helper': text.replace('return view.value', 'assert false return view.value'),
+            'scalar-only selected shadows': text[:text.index('shadow read {')] + '\n' + text[text.index('fn main()'):],
             'false shadow': text.replace('shadow main { assert true }', 'shadow main { assert false }'),
             'shadow calls main': text.replace('shadow main { assert true }', 'shadow main { assert (== (main) 0) }'),
             'extra function': text + '\nfn extra() -> int { return 1 } shadow extra { assert true }\n',
@@ -129,7 +171,7 @@ class SourceBorrowEmission(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertGreater(result.returncode, 0, 'I require an ordinary reported refusal')
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
-                    if label == 'false shadow':
+                    if label in ('false shadow', 'false helper'):
                         self.assertIn('shadow', (result.stdout + result.stderr).lower())
 
 

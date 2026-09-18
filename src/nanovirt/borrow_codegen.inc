@@ -297,7 +297,9 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
     if(!cg->had_error) {
         cg->module->struct_count=b->record_count;
         if(nvm_retain_layouts(cg->module,&layouts)!=NVM_V2_OK)borrow_error(b,NULL,"complete retained layouts");
-        const char *names[2]={shadows?"__nanoisa_shadow_entry":"main",b->helper->as.function.name};
+        const char *shadow_name = !strcmp(b->helper->as.function.name,"__nanoisa_shadow_entry")
+            ? "__nanoisa_shadow_entry_" : "__nanoisa_shadow_entry";
+        const char *names[2]={shadows?shadow_name:"main",b->helper->as.function.name};
         for(unsigned i=0;i<2;i++) {
             NvmFunctionEntry f={0};f.name_idx=nvm_add_string(cg->module,names[i],(uint32_t)strlen(names[i]));
             f.arity=i?1:0;f.result_count=1;f.result_tag=i?borrow_tag(b->helper->as.function.return_type):TAG_INT;
