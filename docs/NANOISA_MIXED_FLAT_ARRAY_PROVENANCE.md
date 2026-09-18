@@ -182,3 +182,44 @@ proof. Later verifier/runtime/native integration must separately qualify roots,
 reference survival, failures and all four APIs before paired source admission of
 the complete unchanged Samples/PREFIX graph. I retain historical950f evidence and
 leave mixed parent4be, ownership28f2 and managed51da/488 open.
+
+## My first production opcode inventory
+
+My separate `mixed_float_proof.c` query admits only the following transfers for
+shape analysis. This list grants no executable profile admission:
+
+| Family | Concrete opcodes |
+| --- | --- |
+| Literals | PUSH_I64, PUSH_F64, PUSH_U8, PUSH_BOOL, PUSH_VOID |
+| Stack/local | NOP, DUP, POP, SWAP, ROT3, LOAD_LOCAL, STORE_LOCAL |
+| Scalar arithmetic | I64_ADD, I64_SUB, I64_MUL, I64_DIV_S, I64_REM_S, I64_NEG; F64_ADD, F64_SUB, F64_MUL, F64_DIV, F64_NEG |
+| Scalar predicates | I64_EQ, I64_NE, I64_LT_S, I64_LE_S, I64_GT_S, I64_GE_S; F64_EQ, F64_NE, F64_LT, F64_LE, F64_GT, F64_GE; BOOL_AND, BOOL_OR, BOOL_NOT; EQ, NE, LT, LE, GT, GE |
+| Flow | JMP, JMP_TRUE, JMP_FALSE, CALL, RET, ASSERT |
+| Opaque owners | OWN_MOVE_LOCAL, OWN_STORE_LOCAL, OWN_PACK, OWN_UNPACK_LOCAL; LOAD_LOCAL/AGG_GET observation path |
+| Ordinary managed values | AGG_PACK (STRUCT kind only), AGG_GET; ARR_NEW/ARR_LITERAL (FLOAT only), ARR_PUSH, ARR_SET, ARR_GET, ARR_LEN |
+
+I refuse all other opcodes, even in syntactically unreachable code. This first
+checkpoint additionally requires checked state for every instruction; unreachable
+instructions conservatively produce UNRESOLVED. I require explicit RET/JMP
+termination and refuse branches to implicit end-of-code, overlapping function
+ranges and named initializers. Every declared function is seeded independently
+from its concrete scalar/owned signature; ordinary managed signatures remain
+refused, so no ordinary origin crosses a call boundary. Callee bodies still all
+undergo analysis and exact return checking. I do not claim caller-sensitive
+scalar summaries.
+
+My owner effects currently require scalar-leaf resource layouts, including unpack
+and owner results. Larger resource trees remain unresolved in this proof even
+though independently qualified runtime subsets support them. Owner observations
+cannot be duplicated, stored or consumed as ordinary fields; moving/unpacking an
+observed local refuses. Remaining affine exit/lifetime obligations are explicit
+in every successful report rather than silently considered proved.
+
+My query first computes monotone field/state facts, then checks every reached
+instruction against the completed facts. Typed scalar instructions record actual
+input tag alternatives versus their required tag; their output tag describes
+successful continuation only. In particular, a FLOAT|VOID read remains in its
+ARR_GET obligation, and feeding it to F64 records an unsatisfied exact-FLOAT input
+obligation. Generic comparisons retain actual scalar alternatives for later
+runtime checking. Report fields never establish scalar-check discharge. I perform
+no runtime checks or execution in this phase.
