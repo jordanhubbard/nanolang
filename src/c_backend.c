@@ -1997,6 +1997,8 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.operand_slots = 0;
     c.string_slots = 0;
     c.match_labels = 0;
+    c.return_type = TYPE_VOID;
+    c.return_union = NULL;
     if (!c.error) {
         emit_preamble(&c, source_file);
         if (emit_program(&c, root) != 0 && !c.error)
