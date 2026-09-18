@@ -16,6 +16,7 @@
 #include "c_backend.h"
 #include "binary64_arithmetic_source.h"
 #include "binary64_bits.h"
+#include "binary64_format.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -231,7 +232,7 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
             const char *name = node->as.call.name;
             if (node->as.call.checked_signature)
                 return node->as.call.checked_signature->return_type;
-            if (!name || ctx_has_binding(c, name)) return TYPE_UNKNOWN;
+            if (!name || node->as.call.func_expr || ctx_has_binding(c, name)) return TYPE_UNKNOWN;
             ASTNode *function = ctx_function(c, name);
             if (function) return function->as.function.return_type;
             if (strcmp(name, "float_from_bits") == 0)
@@ -240,7 +241,10 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
             if (strcmp(name, "float_to_bits") == 0)
                 return node->as.call.arg_count == 1 &&
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_FLOAT ? TYPE_INT : TYPE_UNKNOWN;
-            if (strcmp(name, "int_to_string") == 0 || strcmp(name, "float_to_string") == 0 ||
+            if (strcmp(name, "float_to_string") == 0)
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_FLOAT ? TYPE_STRING : TYPE_UNKNOWN;
+            if (strcmp(name, "int_to_string") == 0 ||
                 strcmp(name, "bool_to_string") == 0 || strcmp(name, "nano_strcat") == 0)
                 return TYPE_STRING;
             if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0) return TYPE_VOID;
@@ -331,6 +335,39 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
     if (!c->planning) {
         emit_private_source(c, nl_binary64_arithmetic_source);
         emit_private_source(c, NL_BINARY64_BITS_SOURCE);
+        emit_private_source(c, NL_BINARY64_FORMAT_SOURCE);
+        emit_private_source(c,
+            "typedef struct nano_rt_float_text { struct nano_rt_float_text *next; char text[64]; } nano_rt_float_text;\n"
+            "static nano_rt_float_text *nano_rt_float_text_head;\n"
+            "static int nano_rt_float_text_registered;\n"
+            "static void nano_rt_float_text_cleanup(void) {\n"
+            "  while (nano_rt_float_text_head) {\n"
+            "    nano_rt_float_text *node = nano_rt_float_text_head;\n"
+            "    nano_rt_float_text_head = node->next; free(node);\n"
+            "  }\n"
+            "}\n"
+            "static const char *nano_rt_float_text_new(double value) {\n"
+            "  char text[64]; int length = nano_rt_f64_format(text, sizeof text, value);\n"
+            "  if (length < 0 || (size_t)length >= sizeof text) {\n"
+            "    fputs(\"I could not format my C float result.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  nano_rt_float_text *node = (nano_rt_float_text *)malloc(sizeof *node);\n"
+            "  if (!node) { fputs(\"I could not allocate my C float result.\\n\", stderr); exit(EXIT_FAILURE); }\n"
+            "  if (!nano_rt_float_text_registered) {\n"
+            "    if (atexit(nano_rt_float_text_cleanup) != 0) {\n"
+            "      free(node); fputs(\"I could not register my C float cleanup.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "    }\n"
+            "    nano_rt_float_text_registered = 1;\n"
+            "  }\n"
+            "  memcpy(node->text, text, (size_t)length + 1);\n"
+            "  node->next = nano_rt_float_text_head; nano_rt_float_text_head = node;\n"
+            "  return node->text;\n"
+            "}\n"
+            "static int nano_rt_public_float_print(double value, int newline) {\n"
+            "  const char *special = nano_rt_f64_nonfinite(value);\n"
+            "  return special ? printf(newline ? \"%s\\n\" : \"%s\", special)\n"
+            "                 : printf(newline ? \"%g\\n\" : \"%g\", value);\n"
+            "}\n");
     }
 
     /* nano_strcat helper */
@@ -510,6 +547,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
 
     case AST_CALL: {
         const char *name = node->as.call.name;
+        bool builtin = name && !node->as.call.func_expr && !node->as.call.checked_signature &&
+                       !ctx_has_binding(c, name) && !ctx_function(c, name);
         if (name && (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) &&
             !node->as.call.func_expr && !node->as.call.checked_signature &&
             !ctx_has_binding(c, name) && !ctx_function(c, name)) {
@@ -526,10 +565,16 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             return 0;
         }
         /* Handle built-in print/println */
-        if (name && (strcmp(name, "println") == 0 || strcmp(name, "print") == 0) &&
+        if (builtin && (strcmp(name, "println") == 0 || strcmp(name, "print") == 0) &&
             node->as.call.arg_count == 1) {
             bool is_println = (strcmp(name, "println") == 0);
             Type t = infer_expr_type(c, node->as.call.args[0]);
+            if (t == TYPE_FLOAT) {
+                fprintf(c->out, "%spublic_float_print(", c->prefix);
+                if (emit_expr(c, node->as.call.args[0])) return -1;
+                fprintf(c->out, ", %d)", is_println ? 1 : 0);
+                return 0;
+            }
             if (t == TYPE_STRING) {
                 fprintf(c->out, "printf(\"%%s%s\", ", is_println ? "\\n" : "");
             } else if (t == TYPE_FLOAT) {
@@ -553,11 +598,15 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputs(")); _ibuf; })", c->out);
             return 0;
         }
-        if (name && strcmp(name, "float_to_string") == 0 &&
-            node->as.call.arg_count == 1) {
-            fputs("({ static char _fbuf[64]; snprintf(_fbuf,sizeof(_fbuf),\"%g\",(double)(", c->out);
+        if (builtin && strcmp(name, "float_to_string") == 0) {
+            if (node->as.call.arg_count != 1 ||
+                infer_expr_type(c, node->as.call.args[0]) != TYPE_FLOAT) {
+                ctx_error(c, "I require one exact FLOAT operand for C float_to_string.");
+                return -1;
+            }
+            fprintf(c->out, "%sfloat_text_new(", c->prefix);
             if (emit_expr(c, node->as.call.args[0])) return -1;
-            fputs(")); _fbuf; })", c->out);
+            fputc(')', c->out);
             return 0;
         }
         if (name && strcmp(name, "bool_to_string") == 0 &&
@@ -842,6 +891,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
 
     case AST_PRINT: {
         Type t = infer_expr_type(c, node->as.print.expr);
+        if (t == TYPE_FLOAT) {
+            fprintf(c->out, "%spublic_float_print(", c->prefix);
+            if (emit_expr(c, node->as.print.expr)) return -1;
+            fprintf(c->out, ", %d);\n", node->as.print.is_println ? 1 : 0);
+            return 0;
+        }
         const char *fmt = fmt_for_type(t);
         (void)fmt;
         if (node->as.print.is_println) {
