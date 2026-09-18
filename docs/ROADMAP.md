@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] I inventory current component shadows and their execution routes (`task_3b21e8577b1f42f7a7654add7c2f6b6b`) after the explicit PR691 driver assertions. I separate declarations from observed execution, correct obsolete skip claims, and identify remaining evidence under broader task56a. [Contract](COMPONENT_SHADOW_INVENTORY.md).
+
 - [ ] I verify and execute exact single-parameter consuming resource calls (`task_4ef48e1066534e639e577c9622445697`) as a separate entry0/helper1 runtime prerequisite. My [contract](NANOISA_CONSUMING_CALL.md) requires frame preflight, unique transfer, fresh helper reference provenance and exact consumption/cleanup; source admission and mixed signatures remain separate. I pass 3,091 focused lifecycle/refusal checks, 104 heap-fault checks and 90 separate frame/contract preflight checks; GCC/Clang18 native sanitizers and the instrumented VM/NanoISA run pass. I retain exact gate scope in my [evidence](evidence/consuming-calls.md).
 
 - [ ] I audit documented if-expression grammar against my selfhost parser (`task_9d920944d2994a1fa88f49fd7fe6547f`): the ordinary unparenthesized conditional record expression reaches semantic owner-profile refusal in C-seed but reports `parse failed` in raw selfhost. I retain the source at `/tmp/nanolang-helper-owner-checked-if.nano`. Equivalent `cond` expressions reach the intended semantic refusal in both producers; grammar/documentation parity is separate from helper-owned source admission.
@@ -7486,8 +7488,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I reviewed PR #266's complete change: 39 lexer-call signature repairs,
       already present in my integration tree with source, filename and
       diagnostics. That repair does not execute component assertions. My
-      stage-three drivers still print library-load messages; the broader
-      component-execution audit remains open. I retain the PR's ancestry
+      stage-three drivers now execute the explicit PR691 entry assertions.
+      The current compiler defaults to imported-shadow selection and no longer
+      exempts explicit extern-dependent shadows; my [current inventory](COMPONENT_SHADOW_INVENTORY.md)
+      records 553 component declarations without claiming 553 executions.
+      Dependency-aware per-shadow completion evidence remains open. I retain the PR's ancestry
       without replacing newer transpiler code. Evidence:
       `docs/evidence/pr-266-reconciliation.md`.
 - [x] **5.0 import parity — bare relative paths.** I try a bare import path
