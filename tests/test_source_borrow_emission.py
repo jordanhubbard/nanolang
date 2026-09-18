@@ -1469,7 +1469,12 @@ shadow main { assert (== (main) 0) }
     unsafe {
         let value: float = (- 2.5)
         assert (< value 0.0)
-        let inf: float = (* 1e308 1e308)
+        let mut inf: float = 10000000000.0
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
         let nan: float = (- inf inf)
         assert (!= nan nan)
         assert (not (<= nan 1.0))

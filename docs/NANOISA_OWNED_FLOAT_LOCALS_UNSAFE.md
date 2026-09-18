@@ -21,3 +21,7 @@ I first review the complete production delta statically. Then I use a fresh boot
 Runtime controls establish initialized float local copies, overwrites and joins while owners remain live, all four public VM APIs, repeated success/assertion-failure cleanup and strict native sanitizer/owner-allocation checks. FLOAT parameters/results/resource fields remain checked refusals. I explicitly migrate only PR798's obsolete FLOAT-local refusal control to positive qualification, retaining the original refused result at its old pin and the other three declaration refusals. Tests for uninitialized or inconsistent locals retain admission assertions without executing refused modules.
 
 I retain every first terminal, source/tool inventories and prior output on refusal. This does not admit float owner fields, float call signatures, mixed managed values, callbacks, imports or foreign operations. Full product/fixed-point/platform/release gates remain separate.
+
+## My pre-execution fixture review
+
+My frozen ae70868b bootstrap passed in264.018s with unchanged source inputs. Static test review then caught an unsupported exponent spelling in the new NaN control before any focused fixture execution. I replace it with the supported decimal10000000000.0 and five repeated squarings to produce infinity. This changes only the fixture, not my production or bootstrap source. The uninitialized-local refusal specifically declares its unread slot as FLOAT; the positive runtime also stores/loads FLOAT in a nonparameter helper local.
