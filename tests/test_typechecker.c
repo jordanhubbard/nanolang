@@ -965,6 +965,21 @@ void test_tc_reduce_exact_identities(void) {
         "fn main()->int{let x:array<int> = (reduce [[1],[2]] [0] fold) return 0}"));
 }
 
+void test_tc_reduce_global_callback_identity(void) {
+    const char *source = "fn selected(a:float,b:float)->float{return (+ a b)} "
+        "fn difference(a:float,b:float)->float{return (- a b)} "
+        "let mut selected:fn(float,float)->float=difference "
+        "fn initial()->float{set selected difference return 10.0} "
+        "fn apply()->float{return (reduce [3.0] (initial) selected)} "
+        "fn main()->int{let result:float=(apply) return 0}";
+    ASSERT(tc_passes(source));
+    ASSERT(tc_module_passes(source));
+    ASSERT(!tc_module_passes("fn selected(a:int,b:int)->int{return a} "
+        "fn floating(a:float,b:float)->float{return a} "
+        "let selected:fn(float,float)->float=floating "
+        "fn apply()->int{return (reduce [1] 0 selected)}"));
+}
+
 void test_tc_reduce_exact_refusals(void) {
     const char *cases[] = {
         "fn main()->int{return (reduce [1] 0)}",
@@ -1073,6 +1088,7 @@ int main(void) {
     TEST(tc_map_result_signature);
     TEST(tc_reduce_exact_identities);
     TEST(tc_reduce_exact_refusals);
+    TEST(tc_reduce_global_callback_identity);
     TEST(tc_err_returned_function_argument_type);
     TEST(tc_err_returned_function_arity);
 

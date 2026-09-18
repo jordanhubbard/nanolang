@@ -1290,6 +1290,21 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
     return sig ? sig->return_fn_sig : NULL;
 }
 
+/* I retain explicit callable annotations with the AST in every let scope. */
+static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type declared) {
+    if (statement->as.let.type_info || declared != TYPE_FUNCTION ||
+        !statement->as.let.fn_sig) return true;
+    TypeInfo *info = calloc(1, sizeof *info);
+    if (!info) {
+        tc->has_error = true;
+        return false;
+    }
+    info->base_type = TYPE_FUNCTION;
+    info->fn_sig = statement->as.let.fn_sig;
+    statement->as.let.type_info = info;
+    return true;
+}
+
 /* I compare complete reduce identities without the general compatibility rules.
  * These views borrow annotations; none escape this check. */
 static TypeInfo reduce_type_view(Type type, const char *name, const TypeInfo *info) {
@@ -5005,16 +5020,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Create TypeInfo for tuples or use existing from parser for generic types */
+            if (!retain_let_function_type(tc, stmt, declared_type)) return TYPE_UNKNOWN;
             TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
-            if (!type_info && declared_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
-                /* The AST owns this metadata; symbols borrow it. I keep the
-                 * direct signature alias for existing lowering consumers. */
-                type_info = calloc(1, sizeof(TypeInfo));
-                if (!type_info) { tc->has_error = true; return TYPE_UNKNOWN; }
-                type_info->base_type = TYPE_FUNCTION;
-                type_info->fn_sig = stmt->as.let.fn_sig;
-                stmt->as.let.type_info = type_info;
-            }
             if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
@@ -7730,6 +7737,8 @@ register_function_pass1:;
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
 
+            /* I preserve explicit function signatures just as in local bindings. */
+            if (!retain_let_function_type(&tc, item, item->as.let.var_type)) continue;
             /* Preserve element type / generic type info for arrays and other complex types */
             env_define_var_with_type_info(env,
                                          item->as.let.name,
@@ -8479,6 +8488,8 @@ register_function_pass2:;
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
 
+            /* I preserve explicit function signatures just as in local bindings. */
+            if (!retain_let_function_type(&tc, item, item->as.let.var_type)) continue;
             /* Preserve element type / generic type info for arrays and other complex types */
             env_define_var_with_type_info(env,
                                          item->as.let.name,
