@@ -1,6 +1,7 @@
 """I preserve scalar ROT3 order without repeating evaluated operands."""
 from pathlib import Path
 import re
+import os
 import subprocess
 import tempfile
 import unittest
@@ -14,7 +15,14 @@ class ScalarRot3(unittest.TestCase):
     check_once=False
     inspect_call=False
     paired=addition.IntegerReconstruction.paired
-    assemble=wide.WideMultiply.assemble
+    def assemble(self,directory,text):
+        module=addition.IntegerReconstruction.assemble(self,directory,text)
+        source,binary=directory/'native.c',directory/'native'
+        self.checked([os.environ.get('NVM2C',str(ROOT/'bin/nvm2c')),module,'-o',source])
+        self.checked([os.environ.get('CC','cc'),'-std=c11','-O1','-Wall','-Wextra','-Werror',
+                      '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
+        self.checked([binary])
+        return module
 
     def checked(self,args,expected=0):
         result=wide.WideMultiply.checked(self,args,expected)
