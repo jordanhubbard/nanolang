@@ -24,9 +24,12 @@ static NvmModule *call_fixture_profile(const char *call,const char *helper,bool 
     free(m->code);m->code=code->code;code->code=NULL;m->code_size=code->code_size;
     memcpy(m->functions,code->functions,2*sizeof(*m->functions));
     if(strings) {
+        for(uint32_t i=0;i<m->string_count;i++)free(m->strings[i]);
+        free(m->strings);free(m->string_lengths);
         m->strings=code->strings;code->strings=NULL;
         m->string_lengths=code->string_lengths;code->string_lengths=NULL;
         m->string_count=code->string_count;code->string_count=0;
+        m->string_capacity=code->string_capacity;code->string_capacity=0;
     }
     nvm_module_free(code);
     slot(m->ownership_data+20,TAG_INT,0,NVM_V2_NO_INDEX);
