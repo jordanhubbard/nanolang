@@ -27,8 +27,21 @@ prints the expected line. Declared host-library hashes match across generations
 and remain unchanged, as do source, assembler helper and translator. The
 [manifest and final integrity record](product-vm-fixedpoint-2c2f6f52.json) retain
 commands, times, resource limits and hashes. I compare raw bytes without
-normalization. Native self-compilation is running separately and is not claimed
-by this VM result.
+normalization.
+
+My separate native self-compilation gate also passes. I translate the initial
+compiler through nvm2c, compile its generated C with strict warnings, execute
+that native compiler to produce stage1, translate/build stage1, and execute it
+to produce stage2. The initial, stage1 and stage2 modules are identical:
+379868 bytes, SHA-256
+`506778d744e81ef72892d2e12a467a77d6746b58c5ba643df0d37666922dc23f`.
+The two native generations take 852.259 and 799.204 seconds. Both modules
+verify, and the native compiler emits verified hello with expected output.
+Host closure, source and tool integrity agree; I retain the
+[native manifest and integrity record](product-native-fixedpoint-2c2f6f52.json).
+These are two independent raw fixed points in separate checkout paths; embedded
+artifact paths differ, so I do not claim raw equality between the two runs.
+Neither fixed point establishes full example coverage or later-source acceptance.
 
 I preserve `/tmp/nanolang-product-conditional-bootstrap.log`,
 `/tmp/nanolang-product-conditional-acceptance.log`,

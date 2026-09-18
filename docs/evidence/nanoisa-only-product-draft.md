@@ -1,6 +1,6 @@
 # My NanoISA-only product draft
 
-My newer checkpoint is [2c2f6f52](product-acceptance-2c2f6f52.md): bootstrap, 34 focused methods and the full VM fixed point pass; the complete core gate and Darwin dependency fixture remain blocked. The earlier checkpoints below retain their own scope.
+My newer checkpoint is [2c2f6f52](product-acceptance-2c2f6f52.md): bootstrap, 34 focused methods and both full VM and native fixed points pass; the complete core gate and Darwin dependency fixture remain blocked. The earlier checkpoints below retain their own scope.
 
 My current tested integration is `aab9d30d`, with main through PR624 and the
 record-array field representation repair subsequently merged as PR625. Fresh
