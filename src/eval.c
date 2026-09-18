@@ -5395,24 +5395,27 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* Bind the pattern variable to a struct value representing the variant's fields
                      * This allows field access like binding.field_name in the match arm body
                      */
-                    Value binding_val;
-                    if (uval->field_count > 0) {
-                        char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
-                        Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
-
-                        for (int j = 0; j < uval->field_count; j++) {
-                            field_names_copy[j] = uval->field_names[j];
-                            field_values_copy[j] = uval->field_values[j];
+                    /* I discard underscore payloads without hiding an outer name. */
+                    if (binding && strcmp(binding, "_") != 0) {
+                        Value binding_val;
+                        if (uval->field_count > 0) {
+                            char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
+                            Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
+    
+                            for (int j = 0; j < uval->field_count; j++) {
+                                field_names_copy[j] = uval->field_names[j];
+                                field_values_copy[j] = uval->field_values[j];
+                            }
+    
+                            binding_val = create_struct(uval->union_name,
+                                                       field_names_copy,
+                                                       field_values_copy,
+                                                       uval->field_count);
+                        } else {
+                            binding_val = create_void();
                         }
-
-                        binding_val = create_struct(uval->union_name,
-                                                   field_names_copy,
-                                                   field_values_copy,
-                                                   uval->field_count);
-                    } else {
-                        binding_val = create_void();
+                        env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
                     }
-                    env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
 
                     /* Check guard expression if present */
                     if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
