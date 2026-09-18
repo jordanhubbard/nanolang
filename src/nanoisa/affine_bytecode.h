@@ -9,7 +9,8 @@
 typedef struct {
     bool ok;
     uint32_t byte_offset; /* Function-relative refusal position. */
-    uint32_t reachable;
+    uint32_t reachable; /* Distinct processed instructions. */
+    uint32_t visits; /* Includes rechecks after scalar initialization decreases. */
     char message[192];
 } NvmAffineAnalysis;
 

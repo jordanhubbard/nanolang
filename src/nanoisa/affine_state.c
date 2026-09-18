@@ -141,10 +141,15 @@ NvmAffineState *nvm_affine_state_clone(const NvmAffineState *s) {
 fail:
     nvm_affine_state_free(out); return NULL;
 }
-bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b) {
+static bool state_equal(const NvmAffineState *a, const NvmAffineState *b, bool meet_scalars) {
     if (!a || !b || a->facts!=b->facts || a->region!=b->region ||
         a->ref_count!=b->ref_count || a->caller_bound!=b->caller_bound ||
-        a->invocation!=b->invocation || a->origin_count!=b->origin_count || memcmp(a->live,b->live,a->facts->count*sizeof(*a->live))) return false;
+        a->invocation!=b->invocation || a->origin_count!=b->origin_count) return false;
+    for (uint16_t i=0;i<a->facts->count;i++) {
+        Slot slot=a->facts->locals[i];
+        if (meet_scalars && !slot.mode && scalar(slot.tag)) continue;
+        if (a->live[i]!=b->live[i]) return false;
+    }
     for (uint16_t i=0;i<a->origin_count;i++)
         if(a->origins[i].invocation!=b->origins[i].invocation ||
            a->origins[i].local!=b->origins[i].local ||
@@ -158,6 +163,23 @@ bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b) {
             p->local!=q->local || p->root_layout!=q->root_layout || p->field_count!=q->field_count ||
             p->referent_layout!=q->referent_layout || p->mode!=q->mode ||
             (p->field_count && memcmp(p->fields,q->fields,p->field_count*sizeof(*p->fields)))) return false;
+    }
+    return true;
+}
+bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b) {
+    return state_equal(a,b,false);
+}
+bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
+                                          const NvmAffineState *incoming,bool *changed) {
+    if (!changed) return false;
+    *changed=false;
+    /* I validate every authoritative fact before changing any scalar proof. */
+    if (!state_equal(destination,incoming,true)) return false;
+    for (uint16_t i=0;i<destination->facts->count;i++) {
+        Slot slot=destination->facts->locals[i];
+        if (!slot.mode && scalar(slot.tag) && destination->live[i] && !incoming->live[i]) {
+            destination->live[i]=false;*changed=true;
+        }
     }
     return true;
 }
