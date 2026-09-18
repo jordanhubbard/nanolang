@@ -69,6 +69,33 @@ int main(int argc, char **argv) {
     assert(infer_expr_type(&context, &field) == TYPE_INT);
     field_type.base_type = TYPE_UNKNOWN;
     assert(infer_expr_type(&context, &field) == TYPE_UNKNOWN);
+    /* I keep absent annotations tied to their exact declaration and scope. */
+    ASTNode declaration = {.type = AST_STRUCT_DEF};
+    char *field_names[] = {"value"}; Type field_types[] = {TYPE_FLOAT};
+    declaration.as.struct_def.name = "Measure";
+    declaration.as.struct_def.field_count = 1;
+    declaration.as.struct_def.field_names = field_names;
+    declaration.as.struct_def.field_types = field_types;
+    ASTNode *declarations[] = {&declaration};
+    ASTNode field_root = {.type = AST_PROGRAM};
+    field_root.as.program.items = declarations; field_root.as.program.count = 1;
+    CBCtx fields = {0}; fields.root = &field_root;
+    ctx_add_nominal(&fields, "m", TYPE_STRUCT, "Measure", NULL);
+    ASTNode object = {.type = AST_IDENTIFIER}; object.as.identifier = "m";
+    field.as.field_access.object = &object;
+    field.as.field_access.field_name = "value";
+    field.as.field_access.resolved_type_info = NULL;
+    assert(infer_expr_type(&fields, &field) == TYPE_FLOAT);
+    ctx_push_scope(&fields);
+    ctx_add_nominal(&fields, "m", TYPE_STRUCT, "Unrelated", NULL);
+    assert(infer_expr_type(&fields, &field) == TYPE_UNKNOWN);
+    ctx_pop_scope(&fields);
+    assert(infer_expr_type(&fields, &field) == TYPE_FLOAT);
+    field.as.field_access.field_name = "absent";
+    assert(infer_expr_type(&fields, &field) == TYPE_UNKNOWN);
+    field.as.field_access.field_name = "value";
+    field.as.field_access.resolved_type_info = &field_type;
+    assert(infer_expr_type(&fields, &field) == TYPE_UNKNOWN);
     ctx_error(&context, "first"); ctx_error(&context, "second");
     assert(strcmp(context.error, "first") == 0);
 
