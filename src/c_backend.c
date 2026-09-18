@@ -1430,10 +1430,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         ctx_push_scope(c);
         for (int i = 0; i < node->as.block.count; i++) {
             emit_indent(c);
+            bool exits = cb_statement_exits(c, node->as.block.statements[i]);
             if (emit_stmt(c, node->as.block.statements[i])) {
                 ctx_pop_scope(c); c->indent--;
                 return -1;
             }
+            if (exits) break;
         }
         ctx_pop_scope(c);
         c->indent--;
@@ -1595,10 +1597,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         ctx_push_scope(c);
         for (int i = 0; i < node->as.unsafe_block.count; i++) {
             emit_indent(c);
+            bool exits = cb_statement_exits(c, node->as.unsafe_block.statements[i]);
             if (emit_stmt(c, node->as.unsafe_block.statements[i])) {
                 ctx_pop_scope(c); c->indent--;
                 return -1;
             }
+            if (exits) break;
         }
         ctx_pop_scope(c);
         c->indent--;
@@ -1662,7 +1666,9 @@ static int emit_block_body(CBCtx *c, ASTNode *node) {
     if (node->type == AST_BLOCK) {
         for (int i = 0; i < node->as.block.count; i++) {
             emit_indent(c);
+            bool exits = cb_statement_exits(c, node->as.block.statements[i]);
             if (emit_stmt(c, node->as.block.statements[i])) return -1;
+            if (exits) break;
         }
         return 0;
     }
@@ -1824,11 +1830,13 @@ static int emit_function(CBCtx *c, ASTNode *node) {
         if (node->as.function.body->type == AST_BLOCK) {
             for (int i = 0; i < node->as.function.body->as.block.count; i++) {
                 emit_indent(c);
+                bool exits = cb_statement_exits(c, node->as.function.body->as.block.statements[i]);
                 if (emit_stmt(c, node->as.function.body->as.block.statements[i])) {
                     ctx_pop_scope(c);
                     fclose(body); c->out = destination;
                     return -1;
                 }
+                if (exits) break;
             }
         } else {
             emit_indent(c);

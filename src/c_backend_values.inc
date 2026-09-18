@@ -33,15 +33,31 @@ static bool cb_scalar(Type t) {
     return t==TYPE_INT || t==TYPE_BOOL || t==TYPE_FLOAT || t==TYPE_STRING;
 }
 static CBValueInfo cb_info(CBCtx *c, ASTNode *n);
-static bool cb_statement_exits(ASTNode *n) {
+static bool cb_statement_exits(CBCtx *c, ASTNode *n) {
     if (!n) return false;
     if (n->type==AST_RETURN || n->type==AST_BREAK || n->type==AST_CONTINUE) return true;
     if (n->type==AST_BLOCK) {
-        for(int i=0;i<n->as.block.count;i++)
-            if(cb_statement_exits(n->as.block.statements[i])) return true;
+        bool exits=false;ctx_push_scope(c);
+        for(int i=0;i<n->as.block.count;i++) {
+            ASTNode *s=n->as.block.statements[i];
+            if(cb_statement_exits(c,s)){exits=true;break;}
+            if(s && s->type==AST_LET)ctx_add_nominal(c,s->as.let.name,s->as.let.var_type,s->as.let.type_name,NULL);
+        }
+        ctx_pop_scope(c);return exits;
     }
-    if(n->type==AST_IF) return n->as.if_stmt.else_branch &&
-        cb_statement_exits(n->as.if_stmt.then_branch) && cb_statement_exits(n->as.if_stmt.else_branch);
+    ASTNode *value=NULL;
+    switch(n->type) {
+    case AST_LET:value=n->as.let.value;break;
+    case AST_SET:value=n->as.set.value;break;
+    case AST_ASSERT:value=n->as.assert.condition;break;
+    case AST_PRINT:value=n->as.print.expr;break;
+    case AST_IF:value=n->as.if_stmt.condition;break;
+    case AST_CALL:case AST_PREFIX_OP:case AST_COND:value=n;break;
+    default:break;
+    }
+    if(cb_needs_lift(value) && !cb_info(c,value).continues)return true;
+    if(n->type==AST_IF)return n->as.if_stmt.else_branch &&
+        cb_statement_exits(c,n->as.if_stmt.then_branch) && cb_statement_exits(c,n->as.if_stmt.else_branch);
     return false;
 }
 static CBValueInfo cb_join(CBCtx *c, CBValueInfo a, CBValueInfo b) {
@@ -72,13 +88,14 @@ static CBValueInfo cb_info(CBCtx *c, ASTNode *n) {
         for(int i=0;i<n->as.block.count;i++) {
             ASTNode *s=n->as.block.statements[i];
             if(i==n->as.block.count-1) {result=cb_info(c,s);break;}
-            if(cb_statement_exits(s)) {result=no;break;}
+            if(cb_statement_exits(c,s)) {result=no;break;}
             if(s && s->type==AST_LET)
                 ctx_add_nominal(c,s->as.let.name,s->as.let.var_type,s->as.let.type_name,NULL);
         }
         ctx_pop_scope(c);return result;
     }
     if(n->type==AST_MATCH) {
+        if(!cb_info(c,n->as.match_expr.expr).continues)return no;
         int declaration;ASTNode *owner=ctx_guarded_union_profile(c,n,&declaration);
         if(!owner)return bad;
         CBValueInfo result=no;
@@ -89,12 +106,17 @@ static CBValueInfo cb_info(CBCtx *c, ASTNode *n) {
         }
         return result;
     }
-    if(n->type==AST_IF)
+    if(n->type==AST_IF) {
+        if(!cb_info(c,n->as.if_stmt.condition).continues)return no;
         return cb_join(c,cb_info(c,n->as.if_stmt.then_branch),cb_info(c,n->as.if_stmt.else_branch));
+    }
     if(n->type==AST_COND) {
-        CBValueInfo result=cb_info(c,n->as.cond_expr.else_value);
-        for(int i=0;i<n->as.cond_expr.clause_count;i++)result=cb_join(c,result,cb_info(c,n->as.cond_expr.values[i]));
-        return result;
+        CBValueInfo result=no;
+        for(int i=0;i<n->as.cond_expr.clause_count;i++) {
+            if(!cb_info(c,n->as.cond_expr.conditions[i]).continues)return result;
+            result=cb_join(c,result,cb_info(c,n->as.cond_expr.values[i]));
+        }
+        return cb_join(c,result,cb_info(c,n->as.cond_expr.else_value));
     }
     if(n->type==AST_PREFIX_OP && cb_needs_lift(n)) {
         int count=n->as.prefix_op.arg_count;
@@ -115,6 +137,13 @@ static CBValueInfo cb_info(CBCtx *c, ASTNode *n) {
         if((a.type==TYPE_INT || a.type==TYPE_FLOAT) && (b.type==TYPE_INT || b.type==TYPE_FLOAT))
             return (CBValueInfo){a.type==TYPE_FLOAT || b.type==TYPE_FLOAT?TYPE_FLOAT:TYPE_INT,NULL,true};
         ctx_error(c,"I require resolved scalar lifted operator results.");return bad;
+    }
+    if(n->type==AST_CALL || n->type==AST_UNION_CONSTRUCT || n->type==AST_STRUCT_LITERAL) {
+        ASTNode **values=NULL;int count=0;
+        if(n->type==AST_CALL){values=n->as.call.args;count=n->as.call.arg_count;}
+        else if(n->type==AST_UNION_CONSTRUCT){values=n->as.union_construct.field_values;count=n->as.union_construct.field_count;}
+        else {values=n->as.struct_literal.field_values;count=n->as.struct_literal.field_count;}
+        for(int i=0;i<count;i++)if(cb_needs_lift(values[i]) && !cb_info(c,values[i]).continues)return no;
     }
     if(n->type==AST_UNION_CONSTRUCT)
         return (CBValueInfo){TYPE_UNION,ctx_result_union(c,n->as.union_construct.union_name),true};
@@ -195,8 +224,9 @@ static int cb_value(CBCtx *c, ASTNode *n, CBLiftTemp *destination, bool *continu
         for(int i=0;!rc && i<n->as.block.count;i++) {
             ASTNode *s=n->as.block.statements[i];
             if(i==n->as.block.count-1){rc=cb_value(c,s,destination,continues);break;}
+            bool exits=cb_statement_exits(c,s);
             emit_indent(c);rc=emit_stmt(c,s);
-            if(cb_statement_exits(s)){*continues=false;break;}
+            if(exits){*continues=false;break;}
         }
         ctx_pop_scope(c);c->indent--;emit_indent(c);fputs("}\n",c->out);return rc;
     }
