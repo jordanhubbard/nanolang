@@ -81,6 +81,20 @@ b0dd404c1091d89bb5135c8250bfbb03f996498d66a7c16e6d335647f9943cc9  inventory-afte
 The retained `SHA256SUMS` manifest has SHA-256
 `9e3e2c00065131a502e9e0fd64f5041155f28f49f6145ff98a59138d5bb33306`.
 
+The original inventories identify `/usr/bin/cc`, `/usr/bin/make` and
+`/usr/bin/git` with the same SHA-256 because these are Apple tool dispatchers.
+That hash is not the selected Clang executable's hash. At supplement time,
+`xcrun --find clang` selects
+`/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang`,
+a native arm64 executable with SHA-256
+`1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`
+and version `Apple clang 21.0.0 (clang-2100.3.34.2)`. That version matches the
+original `/usr/bin/cc --version` output. I did not record the `xcrun` path or
+selected binary hash before the gate, so the original inventory does not prove
+that exact compiler-binary identity at gate time. I retain this limitation and
+the current lookup in `compiler-identity-supplement.log`, SHA-256
+`a5869ae2701758620315e7151966f84cfbb950300de3c477e3b59792d3bba1f5`.
+
 This is deliberately narrower than exact guarded payload typing. Exact variant
 field facts remain a prerequisite before HM can admit payload-derived guards.
 
