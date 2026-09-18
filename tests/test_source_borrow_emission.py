@@ -1235,7 +1235,7 @@ shadow main { assert true }
                     self.assertGreater(result.returncode, 0, result.stderr)
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
-                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|consum|nominal|result|return|live|type|expected|named|function|graph|shadow|call')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|consum|nominal|result|return|live|type|expected|named|function|graph|shadow|call|exact constructor')
 
     def test_owned_local_routing_and_shadow_only_admission(self):
         local = 'resource struct Leaf { value: int }\nfn main() -> int { let owner: Leaf = Leaf { value: 3 } let Leaf { value } = owner assert (== value 3) return 0 }\nshadow main { let owner: Leaf = Leaf { value: 7 } let Leaf { value } = owner assert (== value 7) }\n'
@@ -1274,7 +1274,7 @@ shadow main { assert true }
 
     def test_inline_owner_wrappers_refuse_without_ordinary_fallback(self):
         cases = {
-            'tuple': 'let wrapped: (Leaf, int) = (Leaf { value: 1 }, 2)',
+            'tuple': 'let wrapped: (int, Leaf) = (2, Leaf { value: 1 })',
             'array': 'let wrapped: array<Leaf> = [Leaf { value: 1 }]',
             'field': 'let wrapped: int = Leaf { value: 1 }.value',
             'call': 'let wrapped: int = (unknown Leaf { value: 1 })',
@@ -1297,6 +1297,11 @@ shadow main { assert true }
                     self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|scalar|exact|call|type|borrow|live|field')
                     if compiler in self.emitters:
                         self.assertIn('source borrow profile', result.stdout + result.stderr)
+
+    def test_owned_value_graph_multiple_nested_owners(self):
+        baseline, _ = self.graph_positive('nested-values', (FIXTURES / 'source_owned_value_nested.nano').read_text())
+        self.assertIn('.parameters 1 struct struct int', baseline)
+        self.assertGreaterEqual(baseline.count('OWN_UNPACK_LOCAL'), 3)
 
 
 if __name__ == '__main__':

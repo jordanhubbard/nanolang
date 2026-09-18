@@ -1,0 +1,21 @@
+resource struct Leaf { value: int }
+resource struct Pair { left: Leaf, right: Leaf }
+fn consume(pair: Pair, tail: Leaf, expected: int) -> void {
+    let Pair { right, left } = pair
+    let Leaf { value } = left
+    assert (== value 1)
+    let Leaf { value } = right
+    assert (== value 2)
+    let Leaf { value } = tail
+    assert (== value expected)
+}
+shadow consume { assert true }
+fn main() -> int {
+    let left: Leaf = Leaf { value: 1 }
+    let right: Leaf = Leaf { value: 2 }
+    let tail: Leaf = Leaf { value: 3 }
+    let pair: Pair = Pair { right: right, left: left }
+    (consume pair tail 3)
+    return 0
+}
+shadow main { assert (== (main) 0) }
