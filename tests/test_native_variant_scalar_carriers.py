@@ -39,9 +39,34 @@ class VariantScalarCarriers(unittest.TestCase):
         read += 'PUSH_STR kept\nRET\n.end\n'
         self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+read)
 
+    def test_projected_and_concrete_scalar_expression_joins(self):
+        cases = ((1, 'int', 'PUSH_I64 7'), (4, 'bool', 'PUSH_BOOL 1'),
+                 (3, 'float', 'PUSH_F64 1.5'), (5, 'string', 'PUSH_STR kept'))
+        for tag, name, value in cases:
+            for reverse in (False, True):
+                for selected in (0, 1):
+                    with self.subTest(tag=tag, reverse=reverse, selected=selected):
+                        projected = 'LOAD_LOCAL 0\nAGG_GET 0\n'
+                        left, right = (value+'\n', projected) if reverse else (projected, value+'\n')
+                        text = HEADER+'.function main 0 0 0 int 1\n'+value+'\nAGG_PACK 1 0 0 1\nCALL read\n'
+                        text += f'DUP\nTYPE_CHECK {tag}\nASSERT\n'+value+'\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                        text += f'.function read 1 2 0 {name} 1\nPUSH_BOOL {selected}\nJMP_FALSE other\n'+left
+                        text += 'JMP joined\nother:\n'+right+'joined:\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nCALL identity\nRET\n.end\n'
+                        text += f'.function identity 1 1 0 {name} 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                        self.paired(text)
+
+    def test_mixed_variant_record_branch_join(self):
+        for selected in (0, 1):
+            with self.subTest(selected=selected):
+                expected = 'seven' if selected else 'kept'
+                self.paired(HEADER+f'.function main 0 0 0 int 1\nPUSH_BOOL {selected}\nJMP_FALSE other\n'
+                    'PUSH_I64 7\nAGG_PACK 1 0 0 1\nJMP joined\nother:\nPUSH_STR kept\nAGG_PACK 1 0 1 1\n'
+                    'joined:\nCALL display\nPUSH_STR '+expected+'\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                    '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+
     def test_owned_string_alias_and_plain_string_cast(self):
-        text = HEADER+'''.string suffix "tail"
-.function main 0 2 0 int 1
+        text = HEADER+'.string garbage "'+('x'*512)+'"\n'+'''.string suffix "tail"
+.function main 0 3 0 int 1
 PUSH_STR kept
 PUSH_STR suffix
 STR_CONCAT
@@ -56,6 +81,21 @@ PUSH_I64 7
 AGG_PACK 1 0 0 1
 CALL relay
 POP
+PUSH_I64 0
+STORE_LOCAL 2
+churn:
+LOAD_LOCAL 2
+PUSH_I64 512
+I64_LT_S
+JMP_FALSE done
+CALL temporary
+POP
+LOAD_LOCAL 2
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 2
+JMP churn
+done:
 LOAD_LOCAL 1
 PUSH_STR kept
 PUSH_STR suffix
@@ -74,11 +114,17 @@ RET
 LOAD_LOCAL 0
 RET
 .end
+.function temporary 0 0 0 string 1
+PUSH_STR garbage
+PUSH_STR suffix
+STR_CONCAT
+RET
+.end
 '''
         self.paired(text)
 
     def test_struct_tuple_and_heap_conflicts_preserve_output(self):
-        for kind, second in ((0, 'PUSH_STR kept'), (2, 'PUSH_STR kept'), (1, 'ARR_NEW 1')):
+        for kind, second in ((0, 'PUSH_STR kept'), (2, 'PUSH_STR kept'), (1, 'ARR_NEW 1'), (1, 'PUSH_U8 1')):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix='variant-refusal-') as tmp:
                 p=Path(tmp); assembly=p/'input.nasm'; module=p/'input.nvm'; output=p/'output.c'
                 result_tag = 'union' if kind == 1 else 'struct' if kind == 0 else 'tuple'
@@ -90,7 +136,7 @@ RET
                 output.write_text('previous')
                 result=subprocess.run([ROOT/'bin/nvm2c',module,'-o',output],capture_output=True,text=True)
                 self.assertEqual(result.returncode,1,result.stdout+result.stderr)
-                self.assertTrue('conflicting' in result.stderr or 'cannot convert aggregate storage' in result.stderr,result.stderr)
+                self.assertTrue('conflicting' in result.stderr or 'cannot convert aggregate storage' in result.stderr or 'require proved scalar producers' in result.stderr,result.stderr)
                 self.assertEqual(output.read_text(),'previous')
 
 

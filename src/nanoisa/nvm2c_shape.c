@@ -197,7 +197,7 @@ static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int
     return 1;
 }
 
-static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *changed) {
+static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *changed, int final) {
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
@@ -213,7 +213,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                 nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
-        if (from == NVM_SHAPE_UNKNOWN) continue;
+        if (from == NVM_SHAPE_UNKNOWN) {
+            if (final && to == NVM_SHAPE_VARIANT_SCALAR) {
+                fail(g, "I require proved scalar producers for variant scalar storage"); break;
+            }
+            continue;
+        }
         if (to == NVM_SHAPE_UNKNOWN) {
             if (!flow_kind(g, target, from, changed)) break;
             to = from;
@@ -297,7 +302,12 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     do {
         changed = 0;
         for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
-            if (!flow_one(g, g->conversions[i], &changed)) return 0;
+            if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
     } while (changed && !g->error);
+    /* Unknown sources may resolve on a later conversion pass. Only after
+     * convergence do I require evidence for explicit scalar-set injection.
+     * Missing record edges never enter this worklist and remain unconstrained. */
+    for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
+        if (!flow_one(g, g->conversions[i], &changed, 1)) return 0;
     return !g->error;
 }

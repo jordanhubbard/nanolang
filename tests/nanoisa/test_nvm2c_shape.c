@@ -290,7 +290,19 @@ static void test_explicit_variant_scalar_storage(void) {
         CHECK(!nvm_shape_unify(&g, source, payload));
         nvm_shape_destroy(&g);
     }
-    const NvmShapeKind excluded[] = {NVM_SHAPE_ARRAY, NVM_SHAPE_MAP, NVM_SHAPE_RECORD, NVM_SHAPE_NUMERIC};
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId late = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId exact = nvm_shape_new(&g, NVM_SHAPE_STRING);
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR);
+        CHECK(nvm_shape_convert(&g, late, target));
+        CHECK(nvm_shape_convert(&g, exact, late));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, late) == NVM_SHAPE_STRING);
+        CHECK(nvm_shape_kind(&g, target) == NVM_SHAPE_VARIANT_SCALAR);
+        nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind excluded[] = {NVM_SHAPE_ARRAY, NVM_SHAPE_MAP, NVM_SHAPE_RECORD, NVM_SHAPE_NUMERIC, NVM_SHAPE_UNKNOWN};
     for (size_t i = 0; i < sizeof excluded / sizeof excluded[0]; ++i) {
         NvmShapeGraph g = {0};
         NvmShapeId source = nvm_shape_new(&g, excluded[i]);
