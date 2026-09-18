@@ -5165,3 +5165,7 @@ $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
 $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
 
 $(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h
+
+.PHONY: test-selfhost-native-array-slice
+test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_selfhost_native_array_slice
