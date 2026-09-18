@@ -105,3 +105,26 @@ At corrected harness b834e804, my unchanged Linux helper methods both pass
 with GCC in 1.120 seconds and Clang in 1.313 seconds. Each run retains direct
 and exact embedded-source O0/O2/O3-contraction/LTO sanitizer checks and target
 refusals. These host results do not establish Darwin acceptance.
+
+## My generated allocation-control portability correction
+
+The native-linker correction passes helper2 and backend4. Graph8 stops after
+five passing methods when Apple ld rejects GNU `--wrap=malloc` in the allocation
+control method. I preserve that terminal report under
+task_f0a43b04e0c3444fb922e95084664bbb before changing the test harness.
+
+For this method only, I copy its freshly emitted native LLVM module and rename
+the exact malloc symbol to a test-private wrapper, including its declaration
+and calls, before the existing ASan pass. I require at least one declaration
+and call substitution and retain the untouched production IR. The wrapper
+uses ordinary libc malloc in the separate C harness. Neither sanitizer/runtime
+allocations nor harness allocations consume the generated module budget.
+This supplies the same module-local allocation boundary on Linux and Darwin
+without a GNU linker option. No production translator/runtime code changes.
+
+I keep all eleven budgets, the mandatory zero-budget MEMORY result, every
+zero-live-object and successful-later-entry assertion, and the unchanged
+nested-entry/first-error/disposed and Wasm controls. I retain sanitizer passes,
+inner/outer bounds and complete graph method counts. Any budget that succeeds
+must still satisfy its original successful cleanup assertions. I qualify the
+corrected full graph gate on both hosts, preserving earlier outcomes.
