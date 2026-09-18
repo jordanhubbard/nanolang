@@ -18,21 +18,22 @@ class CarryBorrow(unittest.TestCase):
         values = (LOW, LOW+1, -1, 0, 1, HIGH-1, HIGH)
         carries = (LOW, -3, -2, -1, 0, 1, 2, 3, HIGH)
         for opcode in ('I64_ADD_CARRY', 'I64_SUB_BORROW'):
-            with self.subTest(opcode=opcode):
-                body = 'PUSH_BOOL 1\nSTORE_LOCAL 0\n'
-                for a in values:
-                    for b in values:
-                        for carry in carries:
-                            ua, ub, bit = a % (1 << 64), b % (1 << 64), carry & 1
-                            exact = ua+ub+bit if opcode == 'I64_ADD_CARRY' else ua-ub-bit
-                            low = addition.wrapped(exact)
-                            high = int(exact >= 1 << 64 if opcode == 'I64_ADD_CARRY' else exact < 0)
-                            body += (f'PUSH_I64 {a}\nPUSH_I64 {b}\nPUSH_I64 {carry}\n{opcode}\nSTORE_LOCAL 1\n'
-                                     f'PUSH_I64 {low}\nI64_EQ\nLOAD_LOCAL 0\nBOOL_AND\nSTORE_LOCAL 0\n'
-                                     f'LOAD_LOCAL 1\nPUSH_I64 {high}\nI64_EQ\nLOAD_LOCAL 0\nBOOL_AND\nSTORE_LOCAL 0\n')
-                body += 'LOAD_LOCAL 0\nJMP_FALSE bad\nPUSH_I64 0\nRET\nbad:\nPUSH_I64 1\nRET\n'
-                self.paired('.entry main\n.function main 0 2 0 int 1\n'+body+'.end\n', 0,
-                            'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
+            for group in (carries[:3], carries[3:6], carries[6:]):
+                with self.subTest(opcode=opcode, carries=group):
+                    body = 'PUSH_BOOL 1\nSTORE_LOCAL 0\n'
+                    for a in values:
+                        for b in values:
+                            for carry in group:
+                                ua, ub, bit = a % (1 << 64), b % (1 << 64), carry & 1
+                                exact = ua+ub+bit if opcode == 'I64_ADD_CARRY' else ua-ub-bit
+                                low = addition.wrapped(exact)
+                                high = int(exact >= 1 << 64 if opcode == 'I64_ADD_CARRY' else exact < 0)
+                                body += (f'PUSH_I64 {a}\nPUSH_I64 {b}\nPUSH_I64 {carry}\n{opcode}\nSTORE_LOCAL 1\n'
+                                         f'PUSH_I64 {low}\nI64_EQ\nLOAD_LOCAL 0\nBOOL_AND\nSTORE_LOCAL 0\n'
+                                         f'LOAD_LOCAL 1\nPUSH_I64 {high}\nI64_EQ\nLOAD_LOCAL 0\nBOOL_AND\nSTORE_LOCAL 0\n')
+                    body += 'LOAD_LOCAL 0\nJMP_FALSE bad\nPUSH_I64 0\nRET\nbad:\nPUSH_I64 1\nRET\n'
+                    self.paired('.entry main\n.function main 0 2 0 int 1\n'+body+'.end\n', 0,
+                                'shadow nlr_f0_main { assert (== (nlr_f0_main) 0) }')
 
     def test_loop_high_result_and_call_snapshot(self):
         text = '''.entry main
@@ -112,9 +113,19 @@ RET
                     source.write_text('.entry main\n.function main 0 0 0 int 1\n'+inputs+'\n'+opcode+'\nPOP\nRET\n.end\n')
                     output.write_bytes(b'previous')
                     result = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', output], capture_output=True, text=True)
-                    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
-                    self.assertTrue('underflow' in result.stderr or 'expects int but the operand is bool' in result.stderr, result.stderr)
-                    self.assertEqual(output.read_bytes(), b'previous')
+                    if 'PUSH_BOOL' not in inputs:
+                        self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+                        self.assertIn('underflow', result.stderr)
+                        self.assertEqual(output.read_bytes(), b'previous')
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                        for language in ('c', 'nano'):
+                            recovered = p/('previous.'+language); recovered.write_bytes(b'previous')
+                            refusal = subprocess.run([ROOT/'bin/nvm2hl', '--language', language, output, '-o', recovered],
+                                                     capture_output=True, text=True)
+                            self.assertEqual(refusal.returncode, 1, refusal.stdout+refusal.stderr)
+                            self.assertIn('require exact scalar operand types', refusal.stderr)
+                            self.assertEqual(recovered.read_bytes(), b'previous')
 
 
 if __name__ == '__main__': unittest.main()

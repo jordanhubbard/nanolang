@@ -5,6 +5,9 @@
 
 - [ ] I reconstruct indexed scalar stack operations (`task_70b0aa8374904271b66caa86bdf77d7f`, parent4bd034): checked PICK/ROLL depth, exact int/bool snapshots and order, fresh small VM/C/pinned-stage parity and output-preservation refusal. This is independent of blocked carry679. [Contract](NANOISA_RECONSTRUCT_INDEXED_STACK.md).
 
+- [ ] I qualify the pinned selfhost tools on large generated scalar functions (`task_1009525724234d9ca7df3f8284e75943`). Carry/borrow endpoint fixtures reach a non-Cseed compiler exit -11 after VM/reconstructed-C/Cseed progress; exact selfhost stage and cause are unestablished. I retain logs/hashes and static fixture text, prohibit replay/minimization, and keep carry acceptance open. This is observed on reused tools, not a current-main claim.
+
+
 - [ ] I reconstruct typed carry/borrow result pairs (`task_cbdce24cc6b747f6b39ceb4c87f20676`, parent4bd034): exact three-int input and low/high integer stack results, normalized input bit, portable total helpers, snapshot/loop/tag/arity acceptance and pinned-tool parity. [Contract](NANOISA_RECONSTRUCT_CARRY_BORROW.md).
 
 - [x] I reconstruct typed unsigned division and remainder (`task_d0b4b473329745cd848694ec835965ad`, parent4bd034): exact unsigned bit-pattern operands/results, zero divisor results, portable C and bounded Nano long division with explicit carry, pinned-tool parity and output-preservation refusal. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_DIVISION.md).
