@@ -1,0 +1,156 @@
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+python3 scripts/embed_managed_runtime.py --clang "clang-18" --opt "opt-18" --header obj/nanoisa/managed_runtime_ir.h --manifest obj/nanoisa/managed_runtime_ir.json
+python3 -m unittest -v tests.test_managed_mutable_runtime
+python3 -m unittest -v tests.test_managed_array_copy_runtime
+python3 -m unittest -v tests.test_managed_records
+test_core_policy_ownership_and_failure_targets (tests.test_managed_mutable_runtime.MutableRuntime.test_core_policy_ownership_and_failure_targets) ... cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/main.c -o obj/main.o
+mkdir -p obj/nanovirt
+cc -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -ldl
+test_private_records_native_and_wasm (tests.test_managed_records.ManagedRecords.test_private_records_native_and_wasm) ... test_core_policy_ownership_and_failure_targets (tests.test_managed_array_copy_runtime.ArrayCopyRuntime.test_core_policy_ownership_and_failure_targets) ... cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o obj/binary64_parser_vm tests/nanoisa/binary64_parser_vm.c obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+	obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+	obj/nanovm/main.o -lm -lcrypto -lffi  -rdynamic -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+python3 -m unittest -v tests.test_managed_runtime_package
+test_private_module_scalar_abi_lifecycle (tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle) ... cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Iobj/nanoisa -Isrc/nanoisa -c src/nanoisa/nvm2llvm.c -o obj/nanoisa/nvm2llvm.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nvm2llvm obj/nanoisa/nvm2llvm.o obj/nanoisa/nvm2llvm_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cp scripts/nvm2wasm.py bin/nvm2wasm
+chmod +x bin/nvm2wasm
+python3 -m unittest -v tests.test_managed_array_graphs tests.test_managed_graph_safepoints
+test_graph_edges_and_iterative_release_targets (tests.test_managed_array_graphs.ArrayGraphs.test_graph_edges_and_iterative_release_targets) ... ok
+test_reproducible_target_packages_and_real_links (tests.test_managed_runtime_package.ManagedRuntimePackage.test_reproducible_target_packages_and_real_links) ... ok
+test_separate_target_ir_linkage (tests.test_managed_records.ManagedRecords.test_separate_target_ir_linkage) ... ok
+test_packaged_scalar_output_abi (tests.test_managed_mutable_runtime.MutableRuntime.test_packaged_scalar_output_abi) ... Stage 1: Building C reference compiler...
+ok
+test_packaged_scalar_output_abi (tests.test_managed_array_copy_runtime.ArrayCopyRuntime.test_packaged_scalar_output_abi) ... ✓ C Compiler: bin/nanoc_c
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.312s
+
+OK
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.452s
+
+OK
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.041s
+
+OK
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.828s
+
+OK
+ok
+test_vm_nested_identity_and_managed_translation (tests.test_managed_array_graphs.ArrayGraphs.test_vm_nested_identity_and_managed_translation) ... ok
+test_prepared_collection_targets (tests.test_managed_graph_safepoints.GraphSafepoints.test_prepared_collection_targets) ... ok
+test_separate_production_target_ir_linkage (tests.test_managed_graph_safepoints.GraphSafepoints.test_separate_production_target_ir_linkage) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 6.961s
+
+OK
+python3 -m unittest -v tests.test_managed_string_arrays tests.test_managed_packed_scalars
+test_native_verified_ir_and_sanitizers (tests.test_managed_string_arrays.StringArrayCore.test_native_verified_ir_and_sanitizers) ... ok
+test_wasm_real_targets_reuse_and_instances (tests.test_managed_string_arrays.StringArrayCore.test_wasm_real_targets_reuse_and_instances) ... ok
+test_vm_native_llvm_and_wasm_core (tests.test_managed_packed_scalars.PackedScalars.test_vm_native_llvm_and_wasm_core) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.561s
+
+OK
+python3 -m unittest -v tests.test_managed_string_core
+test_native_core_sanitizers_and_production_mode (tests.test_managed_string_core.ManagedCore.test_native_core_sanitizers_and_production_mode) ... ok
+test_production_wasm_and_verified_runtime_ir_have_no_test_hooks (tests.test_managed_string_core.ManagedCore.test_production_wasm_and_verified_runtime_ir_have_no_test_hooks) ... ok
+test_wasm_import_free_reuse_pressure_and_fresh_instances (tests.test_managed_string_core.ManagedCore.test_wasm_import_free_reuse_pressure_and_fresh_instances) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.444s
+
+OK
+python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format tests.test_llvm_managed_replace tests.test_llvm_managed_split tests.test_llvm_managed_mutable_arrays tests.test_llvm_managed_array_copies tests.test_llvm_managed_graphs
+test_allocation_failure_unwinds_callee_and_preserves_global_owner (tests.test_llvm_managed_strings.ManagedStrings.test_allocation_failure_unwinds_callee_and_preserves_global_owner) ... ok
+test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes (tests.test_llvm_managed_strings.ManagedStrings.test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes) ... ok
+test_content_aliases_branches_loop_and_nested_calls (tests.test_llvm_managed_strings.ManagedStrings.test_content_aliases_branches_loop_and_nested_calls) ... ok
+test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames (tests.test_llvm_managed_strings.ManagedStrings.test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames) ... ok
+test_global_ownership_reentry_initializer_and_terminal_disposal (tests.test_llvm_managed_strings.ManagedStrings.test_global_ownership_reentry_initializer_and_terminal_disposal) ... ok
+test_managed_profile_preserves_numeric_tags_and_total_boundaries (tests.test_llvm_managed_strings.ManagedStrings.test_managed_profile_preserves_numeric_tags_and_total_boundaries) ... ok
+test_native_byte_and_descriptor_allocation_failure_are_recoverable (tests.test_llvm_managed_strings.ManagedStrings.test_native_byte_and_descriptor_allocation_failure_are_recoverable) ... ok
+test_substring_allocation_failure_and_type_error_cleanup (tests.test_llvm_managed_strings.ManagedStrings.test_substring_allocation_failure_and_type_error_cleanup) ... ok
+test_substring_bytes_indices_aliases_and_reentry (tests.test_llvm_managed_strings.ManagedStrings.test_substring_bytes_indices_aliases_and_reentry) ... ok
+test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output (tests.test_llvm_managed_strings.ManagedStrings.test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output) ... ok
+test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage (tests.test_llvm_managed_strings.ManagedStrings.test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage) ... ok
+test_decimal_bytes_limits_and_dynamic_aliases (tests.test_llvm_managed_decimal.ManagedDecimal.test_decimal_bytes_limits_and_dynamic_aliases) ... ok
+test_globals_nonstrings_and_error_cleanup (tests.test_llvm_managed_decimal.ManagedDecimal.test_globals_nonstrings_and_error_cleanup) ... ok
+test_allocation_failure_and_allocation_free_identity (tests.test_llvm_managed_format.ManagedFormat.test_allocation_failure_and_allocation_free_identity) ... ok
+test_exact_scalar_bytes_and_string_owner_transfer (tests.test_llvm_managed_format.ManagedFormat.test_exact_scalar_bytes_and_string_owner_transfer) ... ok
+test_float_instruction_and_signature_publication (tests.test_llvm_managed_format.ManagedFormat.test_float_instruction_and_signature_publication) ... ok
+test_emitted_formatting_matches_vm_and_reference (tests.test_managed_binary64_format.Binary64Format.test_emitted_formatting_matches_vm_and_reference) ... ok
+test_float_format_allocation_failure_recovers (tests.test_managed_binary64_format.Binary64Format.test_float_format_allocation_failure_recovers) ... ok
+test_portable_core_matches_2077_reference_values (tests.test_managed_binary64_format.Binary64Format.test_portable_core_matches_2077_reference_values) ... ok
+test_core_bits_and_ownership_match_reference_on_native_and_wasm (tests.test_managed_binary64_parse.Binary64Parse.test_core_bits_and_ownership_match_reference_on_native_and_wasm) ... ok
+test_emitted_float_parsing_aliases_and_cleanup (tests.test_managed_binary64_parse.Binary64Parse.test_emitted_float_parsing_aliases_and_cleanup) ... ok
+test_vm_bits_and_both_generated_c_conversion_paths (tests.test_managed_binary64_parse.Binary64Parse.test_vm_bits_and_both_generated_c_conversion_paths) ... ok
+test_actual_byte_predicates_calls_globals_and_aliases (tests.test_llvm_managed_predicates.ManagedPredicates.test_actual_byte_predicates_calls_globals_and_aliases) ... ok
+test_borrowed_runtime_predicates_allocate_nothing (tests.test_llvm_managed_predicates.ManagedPredicates.test_borrowed_runtime_predicates_allocate_nothing) ... ok
+test_dynamic_wrong_tags_clean_operands_and_keep_globals (tests.test_llvm_managed_predicates.ManagedPredicates.test_dynamic_wrong_tags_clean_operands_and_keep_globals) ... ok
+test_emitted_allocation_failure_recovery_and_wrong_tag (tests.test_llvm_managed_trim.ManagedTrim.test_emitted_allocation_failure_recovery_and_wrong_tag) ... ok
+test_exact_bytes_literals_dynamic_calls_globals_reentry (tests.test_llvm_managed_trim.ManagedTrim.test_exact_bytes_literals_dynamic_calls_globals_reentry) ... ok
+test_fresh_core_results_aliases_and_failure (tests.test_llvm_managed_trim.ManagedTrim.test_fresh_core_results_aliases_and_failure) ... ok
+test_borrowed_core_bytes_no_allocation_and_reference_stability (tests.test_llvm_managed_character.ManagedCharacter.test_borrowed_core_bytes_no_allocation_and_reference_stability) ... ok
+test_exact_bytes_indices_calls_globals_and_nonnumeric_fallback (tests.test_llvm_managed_character.ManagedCharacter.test_exact_bytes_indices_calls_globals_and_nonnumeric_fallback) ... ok
+test_wrong_source_releases_string_index_and_preserves_globals (tests.test_llvm_managed_character.ManagedCharacter.test_wrong_source_releases_string_index_and_preserves_globals) ... ok
+test_all_bytes_literals_dynamic_calls_globals_and_reentry (tests.test_llvm_managed_case.ManagedCase.test_all_bytes_literals_dynamic_calls_globals_and_reentry) ... ok
+test_core_fresh_aliases_failures_and_descriptor_growth (tests.test_llvm_managed_case.ManagedCase.test_core_fresh_aliases_failures_and_descriptor_growth) ... ok
+test_emitted_allocation_failure_recovery_and_wrong_tag (tests.test_llvm_managed_case.ManagedCase.test_emitted_allocation_failure_recovery_and_wrong_tag) ... ok
+test_fallback_allocation_failure_releases_input_and_recovers (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_fallback_allocation_failure_releases_input_and_recovers) ... ok
+test_numeric_boundaries_reference_bytes_and_exact_tag_fallback (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_numeric_boundaries_reference_bytes_and_exact_tag_fallback) ... ok
+test_bytes_aliases_calls_globals_and_reentry (tests.test_llvm_managed_replace.ManagedReplace.test_bytes_aliases_calls_globals_and_reentry) ... ok
+test_core_allocation_stages_growth_and_equal_handle_owners (tests.test_llvm_managed_replace.ManagedReplace.test_core_allocation_stages_growth_and_equal_handle_owners) ... ok
+test_emitted_failure_recovery_and_all_wrong_tag_positions (tests.test_llvm_managed_replace.ManagedReplace.test_emitted_failure_recovery_and_all_wrong_tag_positions) ... ok
+test_bytes_aliases_calls_globals_missing_and_scalar_interactions (tests.test_llvm_managed_split.ManagedSplit.test_bytes_aliases_calls_globals_missing_and_scalar_interactions) ... ok
+test_partial_allocation_core_and_emitted_failure_recovery (tests.test_llvm_managed_split.ManagedSplit.test_partial_allocation_core_and_emitted_failure_recovery) ... ok
+test_persistent_global_child_and_error_cleanup (tests.test_llvm_managed_split.ManagedSplit.test_persistent_global_child_and_error_cleanup) ... ok
+test_prior_split_global_and_array_initializer_result (tests.test_llvm_managed_split.ManagedSplit.test_prior_split_global_and_array_initializer_result) ... ok
+test_unsupported_mutation_refusals_preserve_output (tests.test_llvm_managed_split.ManagedSplit.test_unsupported_mutation_refusals_preserve_output) ... ok
+test_wasm_memory_limit_cleans_partial_array_and_preserves_global (tests.test_llvm_managed_split.ManagedSplit.test_wasm_memory_limit_cleans_partial_array_and_preserves_global) ... ok
+test_allocation_failures_cleanup_and_reuse (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_allocation_failures_cleanup_and_reuse) ... ok
+test_boxed_leaf_aliases_calls_and_split_mutation (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_boxed_leaf_aliases_calls_and_split_mutation) ... ok
+test_checked_errors_release_frames_and_preserve_alias_writes (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_checked_errors_release_frames_and_preserve_alias_writes) ... ok
+test_packed_matrix_optional_results_and_growth (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_packed_matrix_optional_results_and_growth) ... ok
+test_prepared_split_set_requires_no_allocation (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_prepared_split_set_requires_no_allocation) ... ok
+test_reentry_global_and_initializer_order (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_reentry_global_and_initializer_order) ... ok
+test_unsupported_shapes_and_transfers_preserve_output (tests.test_llvm_managed_mutable_arrays.MutableArrays.test_unsupported_shapes_and_transfers_preserve_output) ... ok
+test_boxed_leaf_order_duplicates_and_copy_independence (tests.test_llvm_managed_array_copies.ArrayCopies.test_boxed_leaf_order_duplicates_and_copy_independence) ... ok
+test_copy_globals_reentry_and_initializer (tests.test_llvm_managed_array_copies.ArrayCopies.test_copy_globals_reentry_and_initializer) ... ok
+test_counted_owner_allocation_failure_and_recovery (tests.test_llvm_managed_array_copies.ArrayCopies.test_counted_owner_allocation_failure_and_recovery) ... ok
+test_literal_matrix_counts_and_slice_order (tests.test_llvm_managed_array_copies.ArrayCopies.test_literal_matrix_counts_and_slice_order) ... ok
+test_prepared_split_copy_and_mixed_origin_join (tests.test_llvm_managed_array_copies.ArrayCopies.test_prepared_split_copy_and_mixed_origin_join) ... ok
+test_refusal_preserves_outputs (tests.test_llvm_managed_array_copies.ArrayCopies.test_refusal_preserves_outputs) ... ok
+test_slice_endpoint_fallback_wrap_and_calls (tests.test_llvm_managed_array_copies.ArrayCopies.test_slice_endpoint_fallback_wrap_and_calls) ... ok
+test_slice_type_failure_cleans_heap_bounds_and_keeps_global (tests.test_llvm_managed_array_copies.ArrayCopies.test_slice_type_failure_cleans_heap_bounds_and_keeps_global) ... ok
+test_wasm_copy_exhaustion_cleans_frame_and_preserves_roots (tests.test_llvm_managed_array_copies.ArrayCopies.test_wasm_copy_exhaustion_cleans_frame_and_preserves_roots) ... ok
+test_generated_pressure_preserves_live_graph_and_disposal (tests.test_llvm_managed_graphs.ManagedGraphs.test_generated_pressure_preserves_live_graph_and_disposal) ... ok
+test_global_cycles_reentry_initializer_and_first_error (tests.test_llvm_managed_graphs.ManagedGraphs.test_global_cycles_reentry_initializer_and_first_error) ... ok
+test_initializer_and_helper_failures_collect_only_dead_roots (tests.test_llvm_managed_graphs.ManagedGraphs.test_initializer_and_helper_failures_collect_only_dead_roots) ... ok
+test_leaf_mode_stays_unprepared (tests.test_llvm_managed_graphs.ManagedGraphs.test_leaf_mode_stays_unprepared) ... ok
+test_nested_literal_slice_get_pop_and_calls (tests.test_llvm_managed_graphs.ManagedGraphs.test_nested_literal_slice_get_pop_and_calls) ... ok
+test_preparation_growth_failures_and_nested_entry (tests.test_llvm_managed_graphs.ManagedGraphs.test_preparation_growth_failures_and_nested_entry) ... ok
+test_prepared_split_nested_append_and_set (tests.test_llvm_managed_graphs.ManagedGraphs.test_prepared_split_nested_append_and_set) ... ok
+test_self_mutual_cycles_and_bounded_live_loop (tests.test_llvm_managed_graphs.ManagedGraphs.test_self_mutual_cycles_and_bounded_live_loop) ... ok
+
+----------------------------------------------------------------------
+Ran 69 tests in 100.587s
+
+OK
