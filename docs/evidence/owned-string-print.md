@@ -16,6 +16,14 @@ output resume has exact admission accounting, incomplete constants are tested
 through fast, trace, callback, reference and direct-core paths, and borrowed
 `PRINT`/`PRINTLN` refusals do not depend on an earlier `PUSH_STR` refusal.
 
+The independent hold identified that those checks were still caller-side and
+late. At production checkpoint
+`d2aade9b57116be2f4344ca24cf21776be5eb309`,
+`vm_ownership_supported` itself requires constant readiness before returning
+true. The shared affine and runtime-verifier opcode allowlists now require the
+value-graph classification for `PUSH_STR`, `PRINT` and `PRINTLN`; their later
+analysis and native-emitter refusals remain in place.
+
 I admit only mode-zero `TAG_STRING` parameters and their exact locals in my
 bounded owned value-call graph. My record-field guard still accepts only INT,
 BOOL, U8 and STRUCT. I accept validated, NUL-free module literals and consume
@@ -109,6 +117,18 @@ with 13 admissions, and the VM/native output and cleanup method. Its log is
 `/private/tmp/nanolang-owned-string-print-boundaries-8a87f922.log`, SHA-256
 `0e33652e2e4891dc0ee792f326c4dabc4fe2daad29a459cd786c33aa268ad99a`.
 
+The positive-predicate qualification was clean at `d2aade9b` with Homebrew
+Clang 23.1.1 and `detect_leaks=1`. It directly checks that missing constants
+make runtime readiness, `vm_ownership_supported`, fast/fallback admission and
+public core all refuse without invoking the owned verifier in each of the
+fast, trace, callback and active-reference configurations. The borrowed
+profile separately refuses `PUSH_STR`, `PRINT` and `PRINTLN` in affine
+analysis, the runtime verifier and native emission. The gate passes 117
+caller-origin checks, 600 allocation checks and 130 proof/readiness checks;
+the exact four-output sequence still records 13 admissions. The log is
+`/private/tmp/nanolang-owned-string-positive-paths-d2aade9b.log`, SHA-256
+`36dbad741e4bbb202c254960f4b54292bf2c5cccaebec58762e2c881a81420bd`.
+
 ## Adjacent ownership qualification
 
 The unchanged caller-reference, owned-value graph, owned/void result, single
@@ -129,6 +149,12 @@ I reran those suites after the exact boundary corrections at `8a87f922`.
 They pass with the same Homebrew Clang 23.1.1 selection. The log is
 `/private/tmp/nanolang-owned-string-print-adjacent-8a87f922.log`, SHA-256
 `b9c19568ed68ac4bc6d680df2936b91047741ef3fd8b62049bca5da2c54a3abe`.
+
+I reran them after the positive predicates and shared allowlists were closed at
+`d2aade9b`; they pass unchanged. The log is
+`/private/tmp/nanolang-owned-string-positive-paths-adjacent-d2aade9b.log`,
+SHA-256
+`b22b605b749419e91039f4cd685683dc3b863f07f178e71d621255265731f2d2`.
 
 I preserve the first default-compiler adjacent run separately. Its ordinary C
 and VM fixtures pass, then its older Python harnesses request LeakSanitizer

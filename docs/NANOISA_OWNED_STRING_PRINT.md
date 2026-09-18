@@ -57,6 +57,13 @@ I add these cases to the owned value-call graph and no others:
 4. `CALL` may transport these immutable string parameters through the existing
    bounded acyclic graph. Its arity, parameter order and tags remain exact.
 
+My shared affine and runtime-verifier opcode allowlists take the value-graph
+classification explicitly. They refuse `PUSH_STR`, `PRINT` and `PRINTLN` when
+that classification is false, before instruction-state analysis. The later
+affine step and native emitter checks remain as defense in depth. A borrowed
+`CALL_REF` helper therefore cannot inherit string output merely because it
+uses the same affine machinery.
+
 I retain the existing INT, BOOL, U8 and resource cases. This string slice does
 not make a string an owned resource, scalar integer or layout-bearing record.
 It does not admit string `RET`, string fields in `OWN_PACK`, concatenation,
@@ -96,6 +103,12 @@ before execution resumes. The public execution loop may re-establish that
 proof only through the existing checked-resume path. A lower-level core caller
 still owns and must release the trapped VM value on every handled or abandoned
 trap path; invalidating the proof does not transfer or erase that obligation.
+
+Every predicate that can positively admit owned execution first requires the
+active instantiated constant table. This includes the conservative
+`vm_ownership_supported` predicate used by trace, callback and reference
+fallbacks, not only the fast invocation-proof path. Public core entry and
+proof-invalidated resume retain their explicit readiness checks as well.
 
 At a call, the caller prepares every argument before activation. A string view
 is copied into the callee's corresponding parameter carrier and the prepared
