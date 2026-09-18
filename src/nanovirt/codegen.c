@@ -2087,6 +2087,36 @@ static ASTNode *bytecode_declaration(ASTNode *node) {
     return node && node->type == AST_ASYNC_FN ? node->as.async_fn.function : node;
 }
 
+/* I evaluate named payloads in source order, then pack declared positions. */
+static void compile_union_fields(CG *cg, CgUnionDef *definition, int variant,
+                                 char **names, ASTNode **values, int count, int line) {
+    int expected = definition->variant_field_counts[variant];
+    if (count != expected || count < 0 || count > MAX_LOCALS) {
+        cg_error(cg, line, "I require every union field exactly once");
+        return;
+    }
+    uint16_t *slots = count ? calloc((size_t)count, sizeof(*slots)) : NULL;
+    if (count && !slots) { cg_error(cg, line, "I cannot retain union field evaluation order"); return; }
+    for (int i = 0; i < count && !cg->had_error; ++i) {
+        int field = -1;
+        for (int j = 0; j < expected; ++j)
+            if (!strcmp(names[i], definition->variant_field_names[variant][j])) field = j;
+        if (field < 0) { cg_error(cg, line, "I require a declared union field"); break; }
+        for (int j = 0; j < i; ++j)
+            if (!strcmp(names[i], names[j])) cg_error(cg, line, "I require each union field once");
+        if (cg->had_error) break;
+        compile_expr(cg, values[i]);
+        if (cg->had_error) break;
+        slots[field] = local_add(cg, "", line);
+        if (!cg->had_error) emit_op(cg, OP_STORE_LOCAL, (int)slots[field]);
+    }
+    if (!cg->had_error) {
+        for (int i = 0; i < count; ++i) emit_op(cg, OP_LOAD_LOCAL, (int)slots[i]);
+        emit_op(cg, OP_AGG_PACK, AGG_VARIANT, definition->def_idx, variant, count);
+    }
+    free(slots);
+}
+
 static void compile_expr(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
@@ -2529,12 +2559,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
                         cg_error(cg, node->line, "unknown variant '%s.%s'", uname, vname);
                         break;
                     }
-                    int fc = node->as.struct_literal.field_count;
-                    for (int i = 0; i < fc; i++) {
-                        compile_expr(cg, node->as.struct_literal.field_values[i]);
-                    }
-                    emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx,
-                            (int)vi, fc);
+                    compile_union_fields(cg, ud, vi, node->as.struct_literal.field_names,
+                                         node->as.struct_literal.field_values,
+                                         node->as.struct_literal.field_count, node->line);
                     break;
                 }
             }
@@ -2685,11 +2712,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
             cg_error(cg, node->line, "unknown variant '%s.%s'", uname, vname);
             break;
         }
-        int fc = node->as.union_construct.field_count;
-        for (int i = 0; i < fc; i++) {
-            compile_expr(cg, node->as.union_construct.field_values[i]);
-        }
-        emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx, (int)vi, fc);
+        compile_union_fields(cg, ud, vi, node->as.union_construct.field_names,
+                             node->as.union_construct.field_values,
+                             node->as.union_construct.field_count, node->line);
         break;
     }
 

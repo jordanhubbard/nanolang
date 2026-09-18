@@ -3843,6 +3843,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Check each arm and infer return type from first arm */
             Type return_type = TYPE_UNKNOWN;
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                int arm_first_symbol = env->symbol_count;
                 /* Save symbol count for scope */
                 int saved_symbol_count __attribute__((unused)) = env->symbol_count;
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
@@ -3889,11 +3890,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Type check arm body (which is now an expression) */
                 Type arm_type = check_expression(expr->as.match_expr.arm_bodies[i], env);
                 
-                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
-                 * later when it re-typechecks expressions for code generation. Match arm bindings need
-                 * to remain in the environment for the lifetime of the compilation unit.
-                 * This is safe because each arm's binding uses a unique name from the source code.
-                 */
+                /* I retain emission metadata within its lexical arm only. */
+                bound_scope_symbols(env, arm_first_symbol, expr->as.match_expr.arm_bodies[i]);
                 
                 /* A definite function exit contributes no match value. */
                 if (ast_always_returns(expr->as.match_expr.arm_bodies[i])) continue;
@@ -5383,6 +5381,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
 
             for (int i = 0; i < stmt->as.match_expr.arm_count; i++) {
+                int arm_first_symbol = tc->env->symbol_count;
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
@@ -5424,11 +5423,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     check_expression(arm, tc->env);
                 }
 
-                /* NOTE: We do NOT restore symbol_count here because the transpiler needs these bindings
-                 * later when it re-typechecks expressions for code generation. Match arm bindings need
-                 * to remain in the environment for the lifetime of the compilation unit.
-                 * This is safe because each arm's binding uses a unique name from the source code.
-                 */
+                /* I retain emission metadata within its lexical arm only. */
+                bound_scope_symbols(tc->env, arm_first_symbol, arm);
             }
 
             return TYPE_VOID;
