@@ -235,6 +235,7 @@ shadow nb_rewrite {
     (mb_reset [])
     let foreign_tokens: List<LexerToken> = (tokenize_string "extern struct Foreign { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
     let foreign: Parser = (parse_program foreign_tokens (list_LexerToken_length foreign_tokens) "foreign.nano")
+    (mb_reset [1])
     (mb_add 0 (nb_key "Foreign") "retained_Foreign")
     (nb_rewrite foreign)
     assert (parser_get_struct_def foreign 0).is_extern
