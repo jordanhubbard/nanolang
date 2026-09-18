@@ -9864,6 +9864,12 @@ Other translators:
       `docs/NANOISA_LLVM_GENERIC_NUMERIC.md`. Heap/enum operands and full
       native tagged-value promotion remain separate boundaries.
       [Evidence](evidence/llvm-generic-numeric.md).
+- [ ] I transport scalar globals and ordered module initialization through
+      LLVM/Wasm, retaining exact tags, initial void, bounded slots, shared
+      function state and repeated-entry lifetime. MAC
+      `task_2baf4ba2b74b4d5aa94fb31cc9e81356`; contract
+      `docs/NANOISA_LLVM_SCALAR_GLOBALS.md`. I test paired execution and
+      preserve refusal for heap/import/nominal/ownership expansion.
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
