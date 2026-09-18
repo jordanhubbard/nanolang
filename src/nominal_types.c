@@ -86,6 +86,8 @@ static bool nominal_parameter(ASTNode *program, Environment *env, Parameter *par
     if (!nominal_slot(program, env, &parameter->struct_type_name) ||
         !nominal_signature(program, env, parameter->fn_sig) ||
         !nominal_info(program, env, parameter->type_info)) return false;
+    parameter->type = nominal_union_kind(program, env, parameter->type,
+                                         parameter->struct_type_name, NULL, 0);
     if (parameter->type != TYPE_BORROW_SHARED && parameter->type != TYPE_BORROW_MUT) return true;
     TypeInfo *inner = parameter->type_info ? parameter->type_info->element_type : NULL;
     if (inner && inner->base_type == TYPE_STRUCT && !inner->type_param_count && inner->generic_name) {
@@ -120,6 +122,8 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
             for (int i = 0; i < node->as.function.param_count; ++i)
                 if (!nominal_parameter(program, env, &node->as.function.params[i])) return false;
             SLOT(node->as.function.return_struct_type_name);
+            node->as.function.return_type = nominal_union_kind(program, env,
+                node->as.function.return_type, node->as.function.return_struct_type_name, NULL, 0);
             if (!nominal_signature(program, env, node->as.function.return_fn_sig) ||
                 !nominal_info(program, env, node->as.function.return_type_info)) return false;
             CHILD(node->as.function.body); break;
