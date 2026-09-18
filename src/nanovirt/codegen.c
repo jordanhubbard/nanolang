@@ -4016,6 +4016,9 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     /* I do not substitute by-value aggregates for an unimplemented borrow ABI. */
     for (int i = 0; i < env->function_count; ++i) {
         Function *function = &env->functions[i];
+        StructDef *returned = function->return_type == TYPE_STRUCT && function->return_struct_type_name
+            ? env_get_struct(env, function->return_struct_type_name) : NULL;
+        if(returned && returned->is_resource)return codegen_borrow_compile(program,modules,shadows);
         for (int p = 0; p < function->param_count; ++p) {
             if (!function->params) continue;
             Parameter *parameter = &function->params[p];
@@ -4026,6 +4029,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 return codegen_borrow_compile(program, modules, shadows);
             }
         }
+    }
+
+    for(int i=0;i<env->symbol_count;i++) {
+        Symbol *symbol=&env->symbols[i];
+        StructDef *record=symbol->type==TYPE_STRUCT && symbol->struct_type_name?env_get_struct(env,symbol->struct_type_name):NULL;
+        if(record && record->is_resource)return codegen_borrow_compile(program,modules,shadows);
     }
 
     CgLocalName *local_names=NULL;
