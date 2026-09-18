@@ -53,13 +53,13 @@ class Binary64BitTransport(unittest.TestCase):
         self.compare(text)
         self.compare(text.replace("PUSH_BOOL 0", "PUSH_BOOL 1"))
 
-    def test_reconstruction_remains_refused(self):
-        module=self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nF64_FROM_BITS\nF64_TO_BITS\nRET\n.end\n')
+    def test_float_arithmetic_reconstruction_remains_refused(self):
+        module=self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 1\nF64_FROM_BITS\nF64_NEG\nF64_TO_BITS\nRET\n.end\n')
         for target in ('c','nano'):
             output=self.work/('previous.'+target);output.write_text('retained')
             p=subprocess.run([wasm.ROOT/'bin/nvm2hl',module,'--language',target,'-o',output],capture_output=True,text=True,timeout=30)
             self.assertGreater(p.returncode,0)
-            self.assertIn('F64_FROM_BITS',p.stderr)
+            self.assertIn('F64_NEG',p.stderr)
             self.assertEqual(output.read_text(),'retained')
 
     def test_wrong_exact_tags_are_verified_refusals(self):

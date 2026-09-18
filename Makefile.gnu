@@ -525,6 +525,10 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
 	chmod +x $(BIN_DIR)/nvm2hl
 
+.PHONY: test-reconstruction-f64-transport
+test-reconstruction-f64-transport: nvm2hl nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_reconstruction_f64_transport
+
 test-reconstruction-binary64-facts: nvm2hl nanoisa_dump
 	python3 -m unittest -v tests.test_reconstruction_binary64_facts
 
