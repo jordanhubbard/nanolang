@@ -31,6 +31,9 @@ typedef struct {
  * views never cross runtime instances; a view borrows its handle's lifetime. */
 void nms_init(NmsRuntime *, const NmsView *, uint32_t);
 NmsStatus nms_create(NmsRuntime *, const unsigned char *, uint64_t, NmsHandle *);
+/* I consume one owned reference per input on success or failure. Equal inputs
+ * require two references. Other aliases survive; out is unchanged on failure. */
+NmsStatus nms_concat_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
 NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
 NmsStatus nms_retain(NmsRuntime *, NmsHandle);
 NmsStatus nms_release(NmsRuntime *, NmsHandle);

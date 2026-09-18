@@ -162,10 +162,15 @@ NmsStatus nms_view(const NmsRuntime *runtime, NmsHandle handle, NmsView *out) {
     }
     return NMS_OK;
 }
-NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t length,
-                     NmsHandle *out) {
-    if (!runtime || !out || (!data && length)) return NMS_STATE;
+static NmsStatus create_parts(NmsRuntime *runtime,
+                              const unsigned char *data, uint64_t first_length,
+                              const unsigned char *second, uint64_t second_length,
+                              NmsHandle *out) {
+    if (!runtime || !out || (!data && first_length) || (!second && second_length))
+        return NMS_STATE;
     if (runtime->disposed) return NMS_DISPOSED;
+    if (first_length > UINT32_MAX || second_length > UINT32_MAX) return NMS_MEMORY;
+    uint64_t length = first_length + second_length;
     if (length > UINT32_MAX || length == SIZE_MAX ||
         length > UINT64_MAX - runtime->live_bytes) return NMS_MEMORY;
     uint32_t new_capacity = runtime->capacity;
@@ -177,7 +182,8 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
     }
     unsigned char *bytes = allocate(runtime, length + 1);
     if (!bytes) return NMS_MEMORY;
-    copy_bytes(bytes, data, length);
+    copy_bytes(bytes, data, first_length);
+    copy_bytes(bytes + first_length, second, second_length);
     bytes[length] = 0;
     NmsSlot *slots = runtime->slots;
     if (new_capacity != runtime->capacity) {
@@ -206,6 +212,31 @@ NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t le
     slots[index].references = 1; slots[index].next_free = 0;
     runtime->live_bytes += length; runtime->live_objects++;
     *out = NMS_DYNAMIC | index;
+    return NMS_OK;
+}
+NmsStatus nms_create(NmsRuntime *runtime, const unsigned char *data, uint64_t length,
+                     NmsHandle *out) {
+    return create_parts(runtime, data, length, NULL, 0, out);
+}
+NmsStatus nms_concat_owned(NmsRuntime *runtime, NmsHandle left, NmsHandle right,
+                           NmsHandle *out) {
+    NmsView a, b;
+    NmsHandle result = 0;
+    NmsStatus status = nms_view(runtime, left, &a);
+    if (status == NMS_OK) status = nms_view(runtime, right, &b);
+    if (status == NMS_OK)
+        status = out ? create_parts(runtime, a.data, a.length, b.data, b.length, &result) : NMS_STATE;
+    /* Each input represents a transferred owner, including equal handles.
+     * Copying finishes before release or descriptor-table replacement. */
+    NmsStatus left_status = nms_release(runtime, left);
+    NmsStatus right_status = nms_release(runtime, right);
+    if (status != NMS_OK) return status;
+    /* Ownership-correct callers cannot fail these releases. */
+    if (left_status != NMS_OK || right_status != NMS_OK) {
+        nms_release(runtime, result);
+        return left_status != NMS_OK ? left_status : right_status;
+    }
+    *out = result;
     return NMS_OK;
 }
 NmsStatus nms_retain(NmsRuntime *runtime, NmsHandle handle) {
