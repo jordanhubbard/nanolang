@@ -1,0 +1,32 @@
+{
+  "tested_head": "5eeafe52ab60adca711bb17978eda4dfe36919b9",
+  "production_base": "25a685adfb4f9bf32c68c9e6de04eb0298673c45",
+  "darwin_methods": 14,
+  "linux_graph_methods": 8,
+  "sha256": {
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-report.txt": "f607da2c0e9c190bf766fe1fd50fce73a5445efd6e44b3fdf78570c1d3b829de",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-prerequisites.log": "4269c6d4f4acc93bc898f4370415a648e97fafdfd69151a64ce1923ce9b95712",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-build.log": "85f7e8d63a35fc511744507bef7c5c9f5f619ac0a93cb170acc187707ff093c3",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-build-artifacts.log": "eb82002855990ad77ac03edf28ee5c6cac7f5fc331b83908ffbc68dcb71fd74d",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-helper2.log": "e771fa2b52bbf36ee1cbe84ee21fb2a464ccd2b2a35f9bbf97c854c5d6e94f32",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-backend4.log": "10bbd999698bd433db44232a0f08cd9f5c606872e8208cd3fc03f78cecf0b4cd",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-graph8.log": "b81f603a2124b7b2731afde4e3eccda1d2070c4688304a11c51d6925bb1cdb89",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-final-inventory.log": "7739ca2d2bd93df3681ac98cd308920758c57d0b5ae67f2d40cdc41e0be45b11",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-source-manifest-before.txt": "2f71045fdfeacd3011e8862ddbcfd9c44b4a978d749646ed59823040d98e5384",
+    "nanolang-darwin-arithmetic-graphs-5eeafe52-source-manifest-after.txt": "2f71045fdfeacd3011e8862ddbcfd9c44b4a978d749646ed59823040d98e5384",
+    "nanolang-darwin-arithmetic-graphs-25a685ad-llvm-report.txt": "d3ecae65a096925c6585c602332d5e4197da2d6bb0b127477cfc291e23c98923",
+    "nanolang-darwin-arithmetic-graphs-b834e804-native-report.txt": "673e251581bbf1b149be626b00cc9356ce601fda68c6f2c848a3218f6669887d",
+    "nanolang-portable-graph-controls-linux.log": "cace93ab37313893d76ad3478d927721841113f69feb2305d189883673cd9b7f",
+    "nanolang-darwin-harness-linux-build.log": "6fec956aafe3172299d16b7285de5f9d844ab0c0096f44b29338342b6d7ecf3e",
+    "nanolang-darwin-harness-linux-build-pinned-clang.log": "2cb1562ab4b187430857ea05778a135dc9e8874bd8432cc39f09ccd7b577efa3",
+    "nanolang-darwin-harness-linux-build-clang18.log": "697eff7b6663d44d4a2abda01f82030b4baac01656ace7001235f9fa7ef7fdb7",
+    "nanolang-portable-harness-integrated-build.log": "0f22ad51828c80b75fd4cbccc553a05af3f721aaf8d0fa618ef02903e78f8096",
+    "nanolang-portable-harness-integrated-gates.log": "9d35fb0bf92a6fa8cd28184fd36d314ec3ab3f5c95196c9552869255b6908087"
+  },
+  "linux_integration": {
+    "source": "6db4d3d323758f7793bf085e65c03c3540ee29a1",
+    "main": "d3f2085c04aed44b92a7a17b0b755d28794df56c",
+    "methods": 14,
+    "seconds": 24.974
+  }
+}

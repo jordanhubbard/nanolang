@@ -1,0 +1,18 @@
+{
+  "source": "25a685adfb4f9bf32c68c9e6de04eb0298673c45",
+  "outcome": "incomplete; no test methods executed",
+  "sha256": {
+    "report.txt": "5e09c7a76a788ac44678fc7329f5d1313b8fb0fcd15c7496667e442289c3e888",
+    "prerequisites.log": "372d75f24699306fd4723e5486afb9156f69d6b7720976080420763307d12df6",
+    "missing-dependency.log": "7391e0ac3a549639785b583ad16e7cfe1f6b9d5d7cec4b2c90cb94428ba31dd0",
+    "corrected-report.txt": "467992331c93ec8d66bcea7159066f61c349b0aa8dbc8163bd9bece55cec816e",
+    "corrected-build.log": "e9360ce00b9ad37681555c86798138c17a80c2133b73ef444888d2d765119340",
+    "corrected-build-failure-inventory.log": "6d4179efc7eef2c2c42e7d995ff9870d0ee83a33773fe4745883a736059ffb58",
+    "corrected-brew-install.log": "426cbc6ca0d6d64a38f75f6bc8d2124d1f532dc70f69cc679a0972eed2f86408",
+    "corrected-venv-install.log": "be37e2d5e2562392e46005f2d7d2d5054a9c3b0b14ec26ce9036cec60472cc60",
+    "corrected-brew-formula-inspection.log": "e11d87232236fca993a3a559f3d2ae55de494b8378e7f29b5128b3d331b3d6ee",
+    "corrected-prerequisites-verified.log": "7882f787a94844ac09b4637858354272c4077c2de2b7434c533005fc886868d8",
+    "corrected-source-manifest-before.txt": "36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5",
+    "corrected-source-manifest-after.txt": "36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5"
+  }
+}
