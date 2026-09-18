@@ -1032,6 +1032,12 @@ test-binary64-bit-transport: nvm2hl nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
 test-binary64-source-transport: bootstrap nano_virt
 	python3 -m unittest -v tests.test_binary64_source_transport
 
+.PHONY: test-aggregate-binary64-eval
+test-aggregate-binary64-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o tests/test_aggregate_binary64_eval tests/test_aggregate_binary64_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_aggregate_binary64_eval
+	@rm -f tests/test_aggregate_binary64_eval
+
 # I exercise actual dynamic-array optimized scalar callbacks.
 .PHONY: test-binary64-arithmetic-eval
 test-binary64-arithmetic-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
@@ -4547,6 +4553,11 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_calculator_host_abi
 test-units: test-calculator-host-abi
+.PHONY: test-named-scalar-callbacks
+test-units: test-named-scalar-callbacks
+test-named-scalar-callbacks: bootstrap $(INTERPRETER) nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_named_scalar_callbacks
+
 .PHONY: test-ordinary-record-producers
 test-units: test-ordinary-record-producers
 test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm

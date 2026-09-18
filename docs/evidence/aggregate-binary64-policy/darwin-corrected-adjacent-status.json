@@ -1,0 +1,12 @@
+{
+  "source": "826c1b956ae70249d5f62d165071beec9bc4e8f7",
+  "command": [
+    "make",
+    "-j8",
+    "CC=/usr/bin/clang",
+    "test-nanovm"
+  ],
+  "exit": 0,
+  "seconds": 6.718120667035691,
+  "unchanged": true
+}

@@ -1,0 +1,15 @@
+{
+  "source-before.json": "1984b30717eec17324aa127e8a6505b1e71a119ee62816c206994ea7841f8ca6",
+  "inventory.log": "c3d8165fd18efa7a74613dcf25791d489219c22a26d082e1177498d6b3307eb6",
+  "bootstrap.log": "84d339d374b2aa90f0edaef706d3b2ff731c755f48b9b6dece17a108cbc42ea2",
+  "suite.log": "b842f56702ead9b42b6268aeb4c31e2b6fc8e8e6d32fd6309a12d96ce98c9b2f",
+  "adjacent.log": "f684e28d1bc1541f0253e971b48c4ddb5e047ccb9bfe2556012442818ffbfc78",
+  "status.json": "4997348b87b436bc1f27943719ef969de9382e34d1dcd0a64b80d61f25a90b83",
+  "before.json": "e6a4bf04f1c51a48471e22b5cc8204380354d8429132286821bc6fc015a16ade",
+  "after.json": "e6a4bf04f1c51a48471e22b5cc8204380354d8429132286821bc6fc015a16ade",
+  "git-status.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "corrected-adjacent/before.json": "3b2753d97e9255be10b8ee081f5fca97cc7b0007a8101f55e8d6a021c9dc1767",
+  "corrected-adjacent/after.json": "3b2753d97e9255be10b8ee081f5fca97cc7b0007a8101f55e8d6a021c9dc1767",
+  "corrected-adjacent/status.json": "7425af1c18a515b26c3949d6105a7c3d90f8958d2983099d5f364e4daf7243f3",
+  "corrected-adjacent/suite.log": "0bb87475e03b0d608553659a29e2874a1cefa4a449f00c2a917ac7bee5021c96"
+}

@@ -137,6 +137,47 @@ static ASTNode *ctx_function(CBCtx *c, const char *name) {
     return NULL;
 }
 
+/* I name payload types by exact declaration and variant indexes. */
+static ASTNode *ctx_union_variant(CBCtx *c, const char *name, const char *variant,
+                                  int *declaration_index, int *variant_index) {
+    if (!c->root || !name || !variant) return NULL;
+    ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+    int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+    for (int i = 0; i < count; ++i) {
+        ASTNode *item = items[i];
+        if (!item || item->type != AST_UNION_DEF || item->as.union_def.is_extern ||
+            strcmp(item->as.union_def.name, name) != 0) continue;
+        for (int v = 0; v < item->as.union_def.variant_count; ++v) {
+            if (strcmp(item->as.union_def.variant_names[v], variant) == 0) {
+                *declaration_index = i; *variant_index = v;
+                return item;
+            }
+        }
+        return NULL;
+    }
+    return NULL;
+}
+
+/* Only unique, unguarded coverage of one exact declaration is exhaustive here. */
+static bool ctx_union_match_complete(CBCtx *c, ASTNode *node) {
+    if (!node->as.match_expr.union_type_name || node->as.match_expr.arm_count <= 0)
+        return false;
+    ASTNode *owner = NULL;
+    for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+        if (node->as.match_expr.guard_exprs && node->as.match_expr.guard_exprs[i]) return false;
+        int declaration_index, variant_index;
+        const char *variant = node->as.match_expr.pattern_variants[i];
+        ASTNode *declaration = ctx_union_variant(c, node->as.match_expr.union_type_name,
+                                                variant, &declaration_index, &variant_index);
+        if (!declaration || (owner && owner != declaration)) return false;
+        owner = declaration;
+        if (owner->as.union_def.variant_count != node->as.match_expr.arm_count) return false;
+        for (int j = 0; j < i; ++j)
+            if (strcmp(node->as.match_expr.pattern_variants[j], variant) == 0) return false;
+    }
+    return true;
+}
+
 static bool ctx_has_binding(CBCtx *c, const char *name) {
     if (!name) return false;
     for (int i = c->sym_count - 1; i >= 0; --i)
@@ -252,7 +293,11 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
             if (strcmp(name, "int_to_string") == 0)
                 return node->as.call.arg_count == 1 &&
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_INT ? TYPE_STRING : TYPE_UNKNOWN;
-            if (strcmp(name, "bool_to_string") == 0 || strcmp(name, "nano_strcat") == 0)
+            if (strcmp(name, "str_concat") == 0)
+                return node->as.call.arg_count == 2 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_STRING &&
+                    infer_expr_type(c, node->as.call.args[1]) == TYPE_STRING ? TYPE_STRING : TYPE_UNKNOWN;
+            if (strcmp(name, "bool_to_string") == 0)
                 return TYPE_STRING;
             if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0) return TYPE_VOID;
             return TYPE_UNKNOWN;
@@ -348,7 +393,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "  return left == right || (left && right && strcmp(left, right) == 0);\n"
             "}\n");
         emit_private_source(c,
-            "typedef struct nano_rt_float_text { struct nano_rt_float_text *next; char text[64]; } nano_rt_float_text;\n"
+            "typedef struct nano_rt_float_text { struct nano_rt_float_text *next; char text[]; } nano_rt_float_text;\n"
             "static nano_rt_float_text *nano_rt_float_text_head;\n"
             "static int nano_rt_float_text_registered;\n"
             "static void nano_rt_float_text_cleanup(void) {\n"
@@ -357,8 +402,11 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "    nano_rt_float_text_head = node->next; free(node);\n"
             "  }\n"
             "}\n"
-            "static const char *nano_rt_scalar_text_copy(const char *text, size_t length) {\n"
-            "  nano_rt_float_text *node = (nano_rt_float_text *)malloc(sizeof *node);\n"
+            "static char *nano_rt_text_allocate(size_t length) {\n"
+            "  if (length > SIZE_MAX - sizeof(nano_rt_float_text) - 1) {\n"
+            "    fputs(\"I exceeded my C string allocation size.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  nano_rt_float_text *node = (nano_rt_float_text *)malloc(sizeof *node + length + 1);\n"
             "  if (!node) { fputs(\"I could not allocate my C scalar result.\\n\", stderr); exit(EXIT_FAILURE); }\n"
             "  if (!nano_rt_float_text_registered) {\n"
             "    if (atexit(nano_rt_float_text_cleanup) != 0) {\n"
@@ -366,9 +414,27 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "    }\n"
             "    nano_rt_float_text_registered = 1;\n"
             "  }\n"
-            "  memcpy(node->text, text, (size_t)length + 1);\n"
+            "  node->text[length] = 0;\n"
             "  node->next = nano_rt_float_text_head; nano_rt_float_text_head = node;\n"
             "  return node->text;\n"
+            "}\n"
+            "static const char *nano_rt_scalar_text_copy(const char *text, size_t length) {\n"
+            "  char *result = nano_rt_text_allocate(length);\n"
+            "  memcpy(result, text, length); return result;\n"
+            "}\n"
+            "static size_t nano_rt_string_length_sum(size_t left, size_t right) {\n"
+            "  if (right > SIZE_MAX - left) {\n"
+            "    fputs(\"I exceeded my C concatenation length.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  return left + right;\n"
+            "}\n"
+            "static const char *nano_rt_string_concat(const char *left, const char *right) {\n"
+            "  if (!left || !right) {\n"
+            "    fputs(\"I require nonnull C concatenation operands.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  size_t a = strlen(left), b = strlen(right);\n"
+            "  char *result = nano_rt_text_allocate(nano_rt_string_length_sum(a, b));\n"
+            "  memcpy(result, left, a); memcpy(result + a, right, b); return result;\n"
             "}\n"
             "static const char *nano_rt_float_text_new(double value) {\n"
             "  char text[64]; int length = nano_rt_f64_format(text, sizeof text, value);\n"
@@ -391,15 +457,6 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "}\n");
     }
 
-    /* nano_strcat helper */
-    fprintf(c->out,
-        "static const char* nano_strcat(const char* a, const char* b) {\n"
-        "    size_t la = strlen(a), lb = strlen(b);\n"
-        "    char* r = (char*)malloc(la + lb + 1);\n"
-        "    memcpy(r, a, la); memcpy(r+la, b, lb); r[la+lb] = 0;\n"
-        "    return (const char*)r;\n"
-        "}\n\n");
-
     /* nano_bool_to_string helper */
     fprintf(c->out,
         "static const char* nano_bool_to_string(int b) {\n"
@@ -411,6 +468,26 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
         "/* Effect handler stubs */\n"
         "static jmp_buf _nano_effect_jmp;\n"
         "static int64_t _nano_effect_val;\n\n");
+}
+
+/* I reserve an outer slot before nested operands and sequence both evaluations. */
+static int emit_string_concat(CBCtx *c, ASTNode *left, ASTNode *right) {
+    if (infer_expr_type(c, left) != TYPE_STRING || infer_expr_type(c, right) != TYPE_STRING) {
+        ctx_error(c, "I require two exact STRING operands for C concatenation.");
+        return -1;
+    }
+    if (c->string_slots == SIZE_MAX) {
+        ctx_error(c, "I exceeded my string concatenation operand slot capacity.");
+        return -1;
+    }
+    size_t slot = c->string_slots++;
+    fprintf(c->out, "(%ssl[%zu] = (", c->prefix, slot);
+    if (emit_expr(c, left)) return -1;
+    fprintf(c->out, "), %ssr[%zu] = (", c->prefix, slot);
+    if (emit_expr(c, right)) return -1;
+    fprintf(c->out, "), %sstring_concat(%ssl[%zu], %ssr[%zu]))",
+            c->prefix, c->prefix, slot, c->prefix, slot);
+    return 0;
 }
 
 /* ── Expression emitter ───────────────────────────────────────────────────── */
@@ -497,14 +574,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         if (argc == 2 && op == TOKEN_PLUS) {
             Type lt = infer_expr_type(c, node->as.prefix_op.args[0]);
             Type rt = infer_expr_type(c, node->as.prefix_op.args[1]);
-            if (lt == TYPE_STRING || rt == TYPE_STRING) {
-                fputs("nano_strcat(", c->out);
-                if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
-                fputs(", ", c->out);
-                if (emit_expr(c, node->as.prefix_op.args[1])) return -1;
-                fputc(')', c->out);
-                return 0;
-            }
+            if (lt == TYPE_STRING || rt == TYPE_STRING)
+                return emit_string_concat(c, node->as.prefix_op.args[0], node->as.prefix_op.args[1]);
         }
 
         if (argc != 2) {
@@ -633,6 +704,13 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
                 fputc(')', c->out);
             fputc(')', c->out);
             return 0;
+        }
+        if (builtin && strcmp(name, "str_concat") == 0) {
+            if (node->as.call.arg_count != 2) {
+                ctx_error(c, "I require two exact STRING operands for C concatenation.");
+                return -1;
+            }
+            return emit_string_concat(c, node->as.call.args[0], node->as.call.args[1]);
         }
         if (builtin && strcmp(name, "int_to_string") == 0) {
             if (node->as.call.arg_count != 1 ||
@@ -1085,21 +1163,31 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         emit_indent(c);
         const char *utype = node->as.match_expr.union_type_name;
         if (utype) {
-            fprintf(c->out, "NanoUnion_%s _match_val = ", utype);
+            fprintf(c->out, "NanoUnion_%s %smatch_value = ", utype, c->prefix);
         } else {
-            fputs("int64_t _match_val = ", c->out);
+            fprintf(c->out, "int64_t %smatch_value = ", c->prefix);
         }
         if (emit_expr(c, expr)) { c->indent--; return -1; }
         fputs(";\n", c->out);
 
         for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+            int declaration_index = 0, variant_index = 0;
+            ASTNode *declaration = NULL;
+            if (utype) {
+                declaration = ctx_union_variant(c, utype, node->as.match_expr.pattern_variants[i],
+                                                &declaration_index, &variant_index);
+                if (!declaration) {
+                    ctx_error(c, "I require an exact declared C union variant for match.");
+                    c->indent--; return -1;
+                }
+            }
             emit_indent(c);
             if (i == 0) fputs("if (", c->out);
             else        fputs("} else if (", c->out);
 
             if (utype) {
-                fprintf(c->out, "_match_val.tag == NanoUnion_%s_TAG_%s",
-                        utype, node->as.match_expr.pattern_variants[i]);
+                fprintf(c->out, "%smatch_value.tag == NanoUnion_%s_TAG_%s",
+                        c->prefix, utype, node->as.match_expr.pattern_variants[i]);
             } else {
                 fprintf(c->out, "1 /* %s */",
                         node->as.match_expr.pattern_variants[i]);
@@ -1117,36 +1205,14 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
             c->indent++;
             ctx_push_scope(c);
 
-            if (node->as.match_expr.pattern_bindings &&
+            if (declaration && node->as.match_expr.pattern_bindings &&
                 node->as.match_expr.pattern_bindings[i] &&
-                utype) {
-                /* Bind the pattern variable to a copy of the variant's
-                 * payload struct (which lives inside the union's anonymous
-                 * `union { struct { ... } Circle; struct { ... } Square; }`).
-                 *
-                 * __typeof__ is required because the inner variant struct
-                 * is emitted as an anonymous struct member inside the
-                 * union (see emit_union_def) — it has no nameable C type
-                 * to reference directly. This makes the emitted C
-                 * GCC/Clang only; MSVC has __typeof__ as a non-standard
-                 * extension behind /experimental:c11.
-                 *
-                 * Language convention: the binding refers to the variant
-                 * struct, so the user writes `Circle(c) => c.radius`,
-                 * not `Circle(c) => c`. ctx_add_sym registers TYPE_STRUCT
-                 * accordingly — that affects only format-string selection
-                 * in downstream codegen (infer_expr_type → ctx_lookup_type),
-                 * which never sees a bare variant binding in well-formed
-                 * programs because users always access fields.
-                 *
-                 * Originally `int64_t name = _match_val.as.X.value` (which
-                 * assumed every variant had a single `.value` int field —
-                 * wrong for multi-field variants). Fixed in edf4ceb.
-                 * Documentation/tightening: see bead nl-8k8. */
+                strcmp(node->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                declaration->as.union_def.variant_field_counts[variant_index] > 0) {
                 emit_indent(c);
-                fprintf(c->out, "__typeof__(_match_val.as.%s) %s = _match_val.as.%s;\n",
-                        node->as.match_expr.pattern_variants[i],
-                        node->as.match_expr.pattern_bindings[i],
+                fprintf(c->out, "%spayload_%d_%d %s = %smatch_value.as.%s;\n",
+                        c->prefix, declaration_index, variant_index,
+                        node->as.match_expr.pattern_bindings[i], c->prefix,
                         node->as.match_expr.pattern_variants[i]);
                 ctx_add_nominal(c, node->as.match_expr.pattern_bindings[i], TYPE_STRUCT,
                                 utype, node->as.match_expr.pattern_variants[i]);
@@ -1162,6 +1228,14 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         }
         if (node->as.match_expr.arm_count > 0) {
             emit_indent(c);
+            if (ctx_union_match_complete(c, node)) {
+                fputs("} else {\n", c->out);
+                c->indent++;
+                emit_indent(c);
+                fputs("fputs(\"I require a declared C union tag for match.\\n\", stderr); exit(EXIT_FAILURE);\n", c->out);
+                c->indent--;
+                emit_indent(c);
+            }
             fputs("}\n", c->out);
         }
         c->indent--;
@@ -1347,7 +1421,24 @@ static void emit_enum_def(CBCtx *c, ASTNode *node) {
 static void emit_union_def(CBCtx *c, ASTNode *node) {
     if (node->as.union_def.is_extern) return;
     const char *uname = node->as.union_def.name;
-    /* Tag enum */
+    bool has_payload = false;
+    for (int v = 0; v < node->as.union_def.variant_count; v++) {
+        int fc = node->as.union_def.variant_field_counts[v];
+        if (fc == 0) continue;
+        int declaration_index, variant_index;
+        if (ctx_union_variant(c, uname, node->as.union_def.variant_names[v],
+                              &declaration_index, &variant_index) != node) {
+            ctx_error(c, "I require an exact declared C union payload type."); return;
+        }
+        has_payload = true;
+        fprintf(c->out, "typedef struct {\n");
+        for (int f = 0; f < fc; f++) {
+            Type ft = node->as.union_def.variant_field_types[v][f];
+            const char *field = node->as.union_def.variant_field_names[v][f];
+            fprintf(c->out, "  %s %s;\n", c_type(ft), field);
+        }
+        fprintf(c->out, "} %spayload_%d_%d;\n\n", c->prefix, declaration_index, variant_index);
+    }
     fprintf(c->out, "typedef enum {\n");
     for (int i = 0; i < node->as.union_def.variant_count; i++) {
         fprintf(c->out, "  NanoUnion_%s_TAG_%s%s\n",
@@ -1360,16 +1451,16 @@ static void emit_union_def(CBCtx *c, ASTNode *node) {
     fprintf(c->out, "  NanoUnion_%s_Tag tag;\n", uname);
     fprintf(c->out, "  union {\n");
     for (int v = 0; v < node->as.union_def.variant_count; v++) {
-        int fc = node->as.union_def.variant_field_counts[v];
-        if (fc == 0) continue;
-        fprintf(c->out, "    struct {\n");
-        for (int f = 0; f < fc; f++) {
-            Type ft = node->as.union_def.variant_field_types[v][f];
-            const char *fn = node->as.union_def.variant_field_names[v][f];
-            fprintf(c->out, "      %s %s;\n", c_type(ft), fn);
+        if (node->as.union_def.variant_field_counts[v] == 0) continue;
+        int declaration_index, variant_index;
+        if (ctx_union_variant(c, uname, node->as.union_def.variant_names[v],
+                              &declaration_index, &variant_index) != node) {
+            ctx_error(c, "I require an exact declared C union payload type."); return;
         }
-        fprintf(c->out, "    } %s;\n", node->as.union_def.variant_names[v]);
+        fprintf(c->out, "    %spayload_%d_%d %s;\n", c->prefix,
+                declaration_index, variant_index, node->as.union_def.variant_names[v]);
     }
+    if (!has_payload) fprintf(c->out, "    unsigned char %sempty;\n", c->prefix);
     fprintf(c->out, "  } as;\n");
     fprintf(c->out, "} NanoUnion_%s;\n\n", uname);
 }

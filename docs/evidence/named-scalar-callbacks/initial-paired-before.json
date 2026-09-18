@@ -1,0 +1,17 @@
+{
+  "head": "23224572a09785419407b06172c916e21bd995ed",
+  "sha256": {
+    "src/nanovirt/codegen.c": "3a943e3296deb4f1dae9d3c508022bb02965e4284da3c18a0272f5855644b5fe",
+    "tests/test_named_scalar_callbacks.py": "b4410f713333533230d13bbb86874d715eb9139c9e465b67a5f3e2d450c9b83a",
+    "tests/test_scalar_reduce_source.py": "cf4ffd7b990c8bb66326ced2720743c5a7f5b57235c2971e184ee8422ddd9cf1",
+    "tests/test_binary64_arithmetic_source.py": "7d8300657bdf32376afc1cc1238710919fd89e5f39b13e48f396b776f21d0a8e",
+    "bin/nanoc_c": "113a0e2a0b66a088be6edd9e3773336873c0cff065a2af3796e01a1f9857c0bd",
+    "bin/nanoc_stage1": "48146970d7025892a15fb2011552c0b4a13c6470d66b6c712622c378c2b9b3bb",
+    "bin/nanoc_stage2": "c83ab1204a026fa9df4e34c883ec44efea278a5264c69e7c869b0bf25fe43513",
+    "bin/nano": "7422736d41a8a5a02e53d7d00c341aeb10b0b2cf5eaf042b9496b16032e34ba9",
+    "bin/nano_virt": "57bb75b7966f02ddf7f1fd363c76aaaf2f69d1ff2cab6b8930cec247c303305b",
+    "bin/nano_vm": "5625590f40627b124d9a4b27d20a018efda15678ada2227ebf0e2443d9ead616",
+    "bin/nanoisa": "a92dfd86c5f2a3ecea7a69984048e572ec5e7d502bfabe6b34103bd310fa9831",
+    "bin/nvm2c": "5030d9befa07fffc2fc961689cfe7e26d8f484777763c69d7f0bc2fddae16149"
+  }
+}
