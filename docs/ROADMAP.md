@@ -9172,6 +9172,8 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 
 Ownership and proposal closure:
 
+- [ ] I reconcile original frontend/borrow/private-record/AOT acceptance clauses against merged evidence without closing broader ownership or release parents (`task_9e43514b701c4869bf67c3d8d803662a`).
+
 - [x] I freeze one affine ownership contract before extending either compiler
       (`task_4ac22044ffda9f93b336a85573293bc2`). It resolves the current
       contradictions around at-most-once use versus mandatory cleanup,
