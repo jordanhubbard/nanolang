@@ -647,6 +647,21 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     let assignment: ASTSet = (parser_get_set parser stmt.node_id)
                     let local: int = (nb_local assignment.target)
                     if (< local 0) { return (nb_fail "an existing mutable target") }
+                    if (and (== assignment.field_name "") (== (at nb_tags local) 8)) {
+                        let mut source: int = -1
+                        if (== assignment.value_type ParseNodeType.PNODE_IDENTIFIER) {
+                            set source (nb_local (parser_get_identifier parser assignment.value).name)
+                        }
+                        if (or (not (at nb_mutable local)) (or (at nb_live local) (!= (at nb_modes local) 0))) { return (nb_fail "a consumed mutable owner destination") }
+                        if (< source 0) { return (nb_fail "an exact live owner assignment source") }
+                        if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (!= (at nb_tags source) 8) (!= (at nb_layouts source) (at nb_layouts local))))) { return (nb_fail "an exact live owner assignment source") }
+                        let _: int = (nb_op1 "OWN_MOVE_LOCAL" source)
+                        (array_set nb_live source false) (array_set nb_disposal_pending source false)
+                        let _: int = (nb_op1 "OWN_STORE_LOCAL" local)
+                        (array_set nb_live local true) (array_set nb_disposal_pending local false)
+                        set i (+ i 1)
+                        continue
+                    }
                     if (not (at nb_live local)) { return (nb_fail "a live mutable target") }
                     if (!= assignment.field_name "") {
                         let field: int = (nb_field parser local assignment.field_name)

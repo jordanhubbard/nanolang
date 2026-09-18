@@ -379,7 +379,22 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             emit_op(cg,OP_ASSERT);
         } else if(n->type==AST_SET) {
             int local=borrow_local(b,n->as.set.name);
-            if(local<0 || !b->live[local]){borrow_error(b,n,"an existing live mutable target");break;}
+            if(local<0){borrow_error(b,n,"an existing mutable target");break;}
+            if(!n->as.set.field_name && b->tags[local]==TAG_STRUCT) {
+                ASTNode *value=n->as.set.value;
+                int source=value->type==AST_IDENTIFIER?borrow_local(b,value->as.identifier):-1;
+                if(!b->mutable[local] || b->live[local] || b->modes[local] ||
+                   source<0 || !b->live[source] || b->modes[source] ||
+                   b->tags[source]!=TAG_STRUCT || b->layouts[source]!=b->layouts[local]) {
+                    borrow_error(b,n,"an exact live owner assigned to a consumed mutable owner");break;
+                }
+                emit_op(cg,OP_OWN_MOVE_LOCAL,source);
+                b->live[source]=false;b->disposal_pending[source]=false;
+                emit_op(cg,OP_OWN_STORE_LOCAL,local);
+                b->live[local]=true;b->disposal_pending[local]=false;
+                continue;
+            }
+            if(!b->live[local]){borrow_error(b,n,"a live mutable target");break;}
             if(n->as.set.field_name) {
                 if(b->tags[local]!=TAG_STRUCT || b->modes[local]!=2){borrow_error(b,n,"exclusive borrowed field mutation");break;}
                 int field=borrow_layout_field(b,b->layouts[local],n->as.set.field_name,n);

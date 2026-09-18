@@ -310,6 +310,92 @@ shadow main { assert true }
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
 
+    def test_consumed_owner_reassignment_preserves_paths_and_names(self):
+        text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
+        text = text.replace('let tree: Pair =', 'let mut tree: Pair =')
+        text = text.replace('let mut moved: Pair = tree',
+                            'let mut moved: Pair = tree set tree moved set moved tree')
+        text = text.replace('let leaf: Leaf =', 'let mut leaf: Leaf =')
+        text = text.replace('let mut moved: Leaf = leaf',
+                            'let mut moved: Leaf = leaf set leaf moved set moved leaf')
+        # I restore an incoming owner on each backedge; zero iterations retain it.
+        carry = """let mut owner: Leaf = Leaf { value: 8, active: true }
+ let mut turns: int = 0
+ while (< turns LIMIT) {
+  let carried: Leaf = owner
+  set owner carried
+  assert (== (bump &mut owner) (+ 9 turns))
+  set turns (+ turns 1)
+ }
+ let Leaf { value, active } = owner
+ assert (== value (+ 8 LIMIT)) assert active
+"""
+        for choice, limit in (('true', '0'), ('false', '2')):
+            source = self.work / ('owner-reassignment-' + choice + '.nano')
+            source.write_text(text.replace('if true {', 'if ' + choice + ' {')
+                              .replace('# RETURN_POINT', carry.replace('LIMIT', limit)))
+            seed = self.work / 'reassignment-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            records = self.names_and_strip(seed)
+            self.assertEqual(len([row for row in records if row[0] == 'main' and row[4] == 'owner']), 1)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'owner.nasm', self.work / 'owner.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-owner.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'owner-shadow.nasm', self.work / 'owner-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
+    def test_owner_reassignment_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_shared.nano').read_text()
+        start = text.index('fn main()')
+        text = text[:start] + """fn main() -> int {
+ let mut owner: Counter = Counter { value: 1, active: true }
+ let moved: Counter = owner
+ set owner moved
+ let Counter { value, active } = owner
+ assert active return 0
+}
+shadow main { assert true }
+"""
+        cases = {
+            'immutable': text.replace('let mut owner:', 'let owner:'),
+            'moved_source': text.replace('set owner moved', 'set owner owner'),
+            'live_overwrite': text.replace('set owner moved', 'set owner moved set owner owner'),
+            'wrong_nominal': text.replace('let moved: Counter = owner', 'let Counter { value, active } = owner let moved: Other = Other { value: 2, active: false }'),
+            'constructor': text.replace('set owner moved', 'set owner Counter { value: 2, active: false }'),
+        }
+        for name, content in cases.items():
+            source = self.work / ('owner-refusal-' + name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / item for item in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'owner-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_text(), 'accepted-output')
+                self.assertNotIn('Parse error', result.stdout + result.stderr)
+                self.assertRegex(result.stdout + result.stderr, r'(?i)(mutab|moved|owner|resource|assignment)')
+
     def test_return_paths_preserve_ownership_and_fallthrough(self):
         text = (FIXTURES / 'source_borrow_returns.nano').read_text()
         ending = 'if true { let code: int = 0 return code } else { return 1 }'
