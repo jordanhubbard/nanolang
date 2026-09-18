@@ -61,7 +61,7 @@ collections, cycles, callbacks, imports, or full LLVM/Wasm support.
 ## My dependency order
 
 1. I first complete direct native lowering for the binary64 scalar operations
-   already admitted by the owned verifier. I preserve bits in a distinct scalar
+   supported by inner affine analysis; public opcode admission is a separate prerequisite. I preserve bits in a distinct scalar
    carrier and select generic comparison semantics from exact proven operand
    tags, never by reading float bits as integers. I reuse the existing shared
    scalar arithmetic policy. I retain current parameter/result/resource-field
@@ -168,3 +168,8 @@ exact float element shape. Existing analysis excludes ARRAY record fields and
 owned contracts, so that combined proof is itself a prerequisite. I settle this
 choice before managed admission; I do not make a new schema a prerequisite merely
 because the current descriptor lacks an element annotation.
+
+I retract the initial claim of public binary64 admission: the outer owned runtime
+opcode whitelist excludes every F64 instruction and FLOAT local/field declarations.
+Task77952 records a separately reviewed operand-stack-only opcode companion; inner
+affine analysis support alone is not public execution authority.
