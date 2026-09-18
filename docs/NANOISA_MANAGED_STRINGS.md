@@ -213,3 +213,10 @@ its free pool, while descriptor handles remain context-local. Independent Wasm
 instances own independent memory and free pools. Successful temporary page
 reservation before a later failure may raise memory high-water, but no failed
 operation publishes a live handle or changes a pre-existing descriptor.
+
+The runtime-core checkpoint is tested in `docs/evidence/managed-string-core.md`.
+Its C layouts are private target-specific implementation types: I must not cast
+my existing LLVM `%S` descriptor directly to `NmsView`, whose length field is
+uint32. Later integration must use generated target types or explicit field
+adapters, and must wire the reserved-entry predicate before introducing those
+runtime symbols to application output. Current translators are unchanged.
