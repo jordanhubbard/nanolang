@@ -938,11 +938,11 @@ void test_tc_handler_parameter_metadata(void) {
 
 /* I check identities without executing callbacks outside their runtime profile. */
 void test_tc_reduce_exact_identities(void) {
-    const char *kinds[] = {"int", "float", "bool", "string", "array<int>", "Point", "Box<int>"};
+    const char *kinds[] = {"int", "float", "bool", "string", "array<int>", "Point", "Box<int>", "Choice"};
     for (size_t i = 0; i < sizeof kinds / sizeof kinds[0]; ++i) {
         char source[2048];
         snprintf(source, sizeof source,
-            "struct Point { value:int } union Box<T> { Value { value:T } } "
+            "struct Point { value:int } union Box<T> { Value { value:T } } enum Choice { One, Two } "
             "fn fold(a:%s,b:%s)->%s{return a} "
             "fn apply(xs:array<%s>,initial:%s)->%s{return (reduce xs initial fold)}",
             kinds[i], kinds[i], kinds[i], kinds[i], kinds[i], kinds[i]);
@@ -968,6 +968,7 @@ void test_tc_reduce_exact_refusals(void) {
         "fn fold(a:int,b:int)->int{return a} fn main()->int{return (reduce [1] 0 fold 4)}",
         "fn fold(a:int,b:int)->int{return a} fn main()->int{return (reduce 1 0 fold)}",
         "fn main()->int{return (reduce [1] 0 2)}",
+        "fn fold(a:int,b:int)->int{return a} fn main()->int{let x=(reduce [1] [] fold) return 0}",
         "fn fold(a:int)->int{return a} fn main()->int{return (reduce [1] 0 fold)}",
         "fn fold(a:int,b:float)->int{return a} fn main()->int{let x=(reduce [1.0] 0.0 fold) return 0}",
         "fn fold(a:float,b:float)->int{return 0} fn main()->int{let x=(reduce [1.0] 0.0 fold) return 0}",
