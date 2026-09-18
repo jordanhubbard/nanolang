@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] I preserve U8 results across non-self native tail calls (`task_9eb8a1d54fc441f582b180b398ac0a08`). My result-assignment whitelist omits the existing boxed U8 carrier and discards the returned value; I need an ordinary tag/value regression and scoped transport correction. This static finding is separate from new enum support.
+
+- [ ] I match operation-specific enum coercion in typed integer instructions (`task_a77ca354773245f9a8b5f490fe336c06`). My VM coerces enums in typed binary arithmetic/comparisons while native exact integer extraction currently rejects them. I preserve typed unary and generic MOD/NEG distinctions; I do not weaken every integer consumer to admit enums.
+
 - [ ] I preserve native enum scalar tags and existing arithmetic coercions (`task_29fc04d3d16e4caca9938ac2da4ebe0b`, parent66a6). I add ENUM_VAL transport through locals/calls and coerce enum operands only for ADD/SUB/MUL/DIV; MOD/NEG retain refusal. I audit casts/comparisons/truthiness and test ordinary VM/GCC/Clang parity without heap admission. [Contract](NATIVE_ENUM_SCALARS.md).
 - [ ] After my native enum contract, I implement the matching LLVM/Wasm carrier and operations (`task_3762bd4020e94e98be89b83d152f71d8`, dependent on29fc). My existing primitive profile refuses ENUM_VAL; I retain that refusal until shared lowering and parity tests exist.
 

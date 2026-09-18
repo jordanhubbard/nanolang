@@ -4687,6 +4687,12 @@ test-native-numeric-union: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
 
 test-units: test-native-numeric-union
 
+.PHONY: test-native-enum-scalars
+test-native-enum-scalars: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_enum_scalars
+
+test-units: test-native-enum-scalars
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v

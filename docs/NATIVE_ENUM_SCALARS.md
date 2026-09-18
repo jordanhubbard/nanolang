@@ -21,3 +21,9 @@ actual tags, transport, both arithmetic operand orders and exact MOD/NEG
 refusal. Invalid publication must preserve previous output. I retain existing
 integer/numeric and native solver gates. I do not widen nominal heap layouts.
 LLVM/Wasm task3762 is dependent and remains separate until its owner is free.
+
+I keep typed integer enum coercion separate as taska77ca. My VM coerces
+enums in selected typed binary instructions; native exact integer extraction
+still rejects them. This child changes only generic arithmetic and preserves
+that explicit native refusal. CAST_STRING keeps the existing empty fallback;
+PRINT/PRINTLN use `enum(ordinal)` as my VM does.
