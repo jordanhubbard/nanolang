@@ -6,6 +6,7 @@ from "src_nano/compiler/lexer.nano" import tokenize_string
 let mut nb_error: string = ""
 let mut nb_code: string = ""
 let mut nb_names: array<string> = []
+let mut nb_named: array<bool> = []
 let mut nb_tags: array<int> = []
 let mut nb_layouts: array<int> = []
 let mut nb_modes: array<int> = []
@@ -77,6 +78,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     let index: int = (array_length nb_names)
     if (>= index 256) { return (nb_fail "at most 256 local slots") }
     set nb_names (array_push nb_names name)
+    set nb_named (array_push nb_named false)
     set nb_tags (array_push nb_tags tag)
     set nb_layouts (array_push nb_layouts layout)
     set nb_modes (array_push nb_modes mode)
@@ -85,12 +87,46 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     return index
 }
 fn nb_reset_locals() -> int {
-    set nb_names [] set nb_tags [] set nb_layouts [] set nb_modes []
+    set nb_names [] set nb_named [] set nb_tags [] set nb_layouts [] set nb_modes []
     set nb_live [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
     return 0
 }
 shadow nb_reset_locals { let _: int = (nb_reset_locals) assert (== (array_length nb_names) 0) assert (not nb_returned) }
 shadow nb_slot { let _: int = (nb_reset_locals) assert (== (nb_slot "answer" 1 4294967295 0 true) 0) assert (at nb_mutable 0) assert (== (at nb_tags 0) 1) let _: int = (nb_reset_locals) }
+# I emit zero-width name markers; names remain advisory lexical facts.
+fn nb_name_begin(slot: int, name: string) -> int {
+    if (and (== nb_error "") (!= name "")) {
+        let _: int = (nb_emit (+ ".local_begin " (+ (int_to_string slot) (+ " \"" (+ name "\"")))))
+        (array_set nb_named slot true)
+    }
+    return 0
+}
+shadow nb_name_begin {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let slot: int = (nb_slot "answer" 1 4294967295 0 false)
+    let _: int = (nb_name_begin slot "answer")
+    assert (== nb_code "  .local_begin 0 \"answer\"\n")
+    let _: int = (nb_reset_locals)
+}
+fn nb_names_end(first: int) -> int {
+    let mut i: int = first
+    while (< i (array_length nb_named)) {
+        if (at nb_named i) {
+            let _: int = (nb_op1 ".local_end" i)
+            (array_set nb_named i false)
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow nb_names_end {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let slot: int = (nb_slot "answer" 1 4294967295 0 false)
+    let _: int = (nb_name_begin slot "answer")
+    let _: int = (nb_names_end 0)
+    assert (not (at nb_named 0)) assert (str_contains nb_code ".local_end 0")
+    let _: int = (nb_reset_locals)
+}
 fn nb_field(parser: Parser, local: int, name: string) -> int {
     if (< local 0) { let _: int = (nb_fail "a live exact resource place") return -1 }
     if (or (not (at nb_live local)) (!= (at nb_tags local) 8)) { let _: int = (nb_fail "a live exact resource place") return -1 }
@@ -260,13 +296,16 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         if (!= nb_error "") { return 0 }
         let slot: int = (nb_slot binding.name 8 layout 0 binding.is_mut)
         set nb_transfers_owner true
-        return (nb_op1 "OWN_STORE_LOCAL" slot)
+        let _: int = (nb_op1 "OWN_STORE_LOCAL" slot)
+        if (not binding.is_destructure) { let _: int = (nb_name_begin slot binding.name) }
+        return 0
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
     if (or (and (!= binding.var_type "") (!= (nb_tag binding.var_type) tag)) (and (!= tag 1) (!= tag 4))) { return (nb_fail "int/bool scalar local types") }
     if (!= nb_error "") { return 0 }
     let slot: int = (nb_slot binding.name tag 4294967295 0 binding.is_mut)
-    return (nb_op1 "STORE_LOCAL" slot)
+    let _: int = (nb_op1 "STORE_LOCAL" slot)
+    return (nb_name_begin slot binding.name)
 }
 fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     let block: ASTBlock = (parser_get_block parser body)
@@ -320,6 +359,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     }
     if is_shadow {
         let _: int = (nb_cleanup parser first)
+        let _: int = (nb_names_end first)
         set i first
         while (< i (array_length nb_names)) { (array_set nb_names i "") set i (+ i 1) }
     }
@@ -339,6 +379,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         let mut nominal: string = (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1))
         if (str_starts_with parameter.var_type "&mut ") { set mode 2 set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
         let _: int = (nb_slot parameter.name 8 (nb_record parser nominal) mode false)
+        let _: int = (nb_name_begin 0 parameter.name)
     }
     if (and shadows (not helper)) {
         set name "__nanoisa_shadow_entry"
@@ -355,6 +396,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         if (not nb_returned) { let _: int = (nb_fail "an explicit scalar return") }
     }
     if (and (not helper) (not nb_transfers_owner)) { let _: int = (nb_fail "an actual owned transfer in entry") }
+    let _: int = (nb_names_end 0)
     let mut tag_name: string = "int"
     if (== nb_result 4) { set tag_name "bool" }
     return (+ ".function " (+ name (+ " " (+ (int_to_string arity) (+ " " (+ (int_to_string (array_length nb_names)) (+ " 0 " (+ tag_name (+ " 1\n" (+ nb_code ".end\n"))))))))))
