@@ -227,10 +227,19 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
         !vm->callbacks && !vm->opcode_trace;
 }
 
+static bool vm_owned_constants_ready(const VmState *vm) {
+    if (!vm || !vm->module || vm->module_constants.count!=vm->module->string_count)
+        return false;
+    for (uint32_t i=0;i<vm->module_constants.count;i++)
+        if (!vm->module_constants.strings || !vm->module_constants.strings[i]) return false;
+    return true;
+}
+
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
     proof->module=NULL;
     if (vm && vm->module && vm->module==vm->root_module &&
         !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
+        vm_owned_constants_ready(vm) &&
         !vm->references.active && vm->module->ownership_size) {
         bool needs=false;
         if (nvm_ownership_contracts_validate(vm->module,&needs)!=NVM_V2_OK) return false;

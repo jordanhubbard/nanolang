@@ -900,12 +900,13 @@ static bool owned_runtime_opcode(uint8_t op) {
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL:
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL: case OP_PUSH_STR:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
+    case OP_PRINT: case OP_PRINTLN:
         return true;
     default: return false;
     }
@@ -938,7 +939,8 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                 if(!nvm_affine_parameter_at(state,i,&type,&mode)) valid=false;
             } else if(!nvm_affine_local_type(state,i,&type) ||
                 (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
-                 type.tag!=TAG_STRUCT)) valid=false;
+                 type.tag!=TAG_STRUCT && !(value_graph && type.tag==TAG_STRING &&
+                                           type.layout==NVM_V2_NO_INDEX))) valid=false;
         }
         nvm_affine_state_free(state);
         if(!valid) return fail("I require value entry locals and exact borrowed or consuming value helper parameters");
@@ -968,6 +970,12 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             uint8_t op=in->opcode;
             if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
             if(!owned_runtime_opcode(op)) supported=false;
+            if(op==OP_PUSH_STR) {
+                uint32_t index=in->operands[0].u32;
+                if(index>=mod->string_count || !mod->strings || !mod->string_lengths ||
+                   !mod->strings[index] ||
+                   memchr(mod->strings[index],'\0',mod->string_lengths[index])) supported=false;
+            }
             if(op==OP_CALL_REF && (function || value_graph || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
             if(op==OP_CALL && (!value_graph || !in->operands[0].u32 || in->operands[0].u32>=mod->function_count)) supported=false;
             if(function && (op==OP_AGG_GET || op==OP_STRUCT_GET || (!value_graph && (

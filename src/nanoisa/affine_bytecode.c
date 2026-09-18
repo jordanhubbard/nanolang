@@ -108,7 +108,7 @@ static bool supported(uint8_t op) {
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
+    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL: case OP_PUSH_STR:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
@@ -116,6 +116,7 @@ static bool supported(uint8_t op) {
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
+    case OP_PRINT: case OP_PRINTLN:
         return true;
     default:return false;
     }
@@ -168,6 +169,14 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_PUSH_BOOL:
         if (in->operands[0].u8>1) return "I require a Boolean literal";
         tag=TAG_BOOL;break;
+    case OP_PUSH_STR: {
+        uint32_t index=in->operands[0].u32;
+        if (index>=module->string_count || !module->strings || !module->string_lengths ||
+            !module->strings[index] ||
+            memchr(module->strings[index],'\0',module->string_lengths[index]))
+            return "I require an instantiated string literal without embedded NUL";
+        tag=TAG_STRING;break;
+    }
     case OP_REGION_BEGIN:
         return nvm_affine_region_begin(f->locals)?NULL:"I cannot begin another reference region";
     case OP_REGION_END:
@@ -268,17 +277,26 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_DUP:
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I refuse to duplicate reference authority";
+        if (f->stack[f->count-1].tag==TAG_STRING)
+            return "I refuse unsupported string duplication";
         if (!push(f,f->stack[f->count-1])) return "I cannot extend my analysis stack";
         return NULL;
     case OP_POP:
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I require a scalar discard; an observation is not an owned consume";
+        if (f->stack[f->count-1].tag==TAG_STRING)
+            return "I require PRINT or PRINTLN to consume a string";
         f->count--;return NULL;
     case OP_SWAP:
         if (f->count<2 || (f->stack[f->count-1].observation || f->stack[f->count-1].owned) || (f->stack[f->count-2].observation || f->stack[f->count-2].owned))
             return "I require scalar stack permutation";
+        if (f->stack[f->count-1].tag==TAG_STRING || f->stack[f->count-2].tag==TAG_STRING)
+            return "I refuse unsupported string permutation";
         {Value value=f->stack[f->count-1];f->stack[f->count-1]=f->stack[f->count-2];f->stack[f->count-2]=value;}
         return NULL;
+    case OP_PRINT: case OP_PRINTLN:
+        return pop_scalar(f,TAG_STRING)?NULL:
+            "I require one exact immutable string print operand";
     case OP_ASSERT:
         return pop_scalar(f,TAG_BOOL)?NULL:"I require an exact Boolean assertion condition";
     case OP_JMP_TRUE: case OP_JMP_FALSE:
