@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I retain the non-immutable owned-result Clang qualification incident (`task_26c8ef718fbf4cb7834412950f4a510d`): case9 receives errno13 before starting nano_vm while another gate relinks that tool. I preserve the log without an exact cause claim, then qualify fresh source sequentially with unchanged before/after tool hashes. Later acceptance does not relabel this historical incident. [Evidence](evidence/owned-value-results.md).
+
 - [ ] I preserve existing scalar/CALL_REF return allocation behavior (`task_af6dac9228e54700b98a72d852db8969`) while adding owned helper results. The initial extension allocates return facts on unchanged scalar paths and reaches two existing allocation-test ceilings. I retain the failure log, restrict the new exact-layout query to STRUCT returns, and preserve scalar/VOID count/tag checks, capacity preflight and reference cleanup without raising ceilings.
 
 - [ ] I verify and execute exact owned/void helper results (`task_a2797653878d4acba42423a689909ebf`) after bounded call graphs qualify. My [contract](NANOISA_OWNED_VALUE_RESULTS.md) preserves entry scalar results, exact existing result descriptors and wire versions, complete ownership transfer/consumption, per-frame generations and failure cleanup before caller publication. I require binary/text roundtrips and paired VM/native lifecycle/allocation/authority gates; returned nested fields, source admission, strings/PRINT, mixed reference calls and full c435 example acceptance stay separate.
