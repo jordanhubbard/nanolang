@@ -54,7 +54,7 @@ positive suffix with actual owner transfer.
 
 ## My integrated checks
 
-I restacked through main `1686172a` (PRs #593, #595, #597, #598, #596 and
+I restacked through main `1686172a` (PRs #593, #595, #597, #598, #600, #596 and
 #602), preserving their optional metadata, native and compiler changes.
 My specialized producer sources are unchanged across the final restack.
 The integrated three-stage bootstrap passed before the final C-only name
