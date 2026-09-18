@@ -1,0 +1,36 @@
+{
+  "source": "bcbe5ed047bdc9436ec59274fc6e56015744053f",
+  "results": [
+    {
+      "name": "build",
+      "command": [
+        "make",
+        "-j8",
+        "nano_vm",
+        "nvm2c",
+        "nvm2wasm",
+        "nanoisa_dump",
+        "obj/binary64_parser_vm"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 4.24
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_signed_nan_format",
+        "tests.test_managed_binary64_format.Binary64Format.test_emitted_formatting_matches_vm_and_reference",
+        "tests.test_managed_binary64_format.Binary64Format.test_portable_core_matches_2077_reference_values"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 12.959
+    }
+  ]
+}

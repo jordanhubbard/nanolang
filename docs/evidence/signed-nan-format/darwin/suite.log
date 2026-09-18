@@ -1,0 +1,10 @@
+test_direct_vm_display_and_shared_helper (tests.test_signed_nan_format.SignedNanFormat.test_direct_vm_display_and_shared_helper) ... ok
+test_exact_bit_vm_native_and_managed_conversion (tests.test_signed_nan_format.SignedNanFormat.test_exact_bit_vm_native_and_managed_conversion) ... ok
+test_vm_and_generated_print (tests.test_signed_nan_format.SignedNanFormat.test_vm_and_generated_print) ... ok
+test_emitted_formatting_matches_vm_and_reference (tests.test_managed_binary64_format.Binary64Format.test_emitted_formatting_matches_vm_and_reference) ... ok
+test_portable_core_matches_2077_reference_values (tests.test_managed_binary64_format.Binary64Format.test_portable_core_matches_2077_reference_values) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 12.875s
+
+OK
