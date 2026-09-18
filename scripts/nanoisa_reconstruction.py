@@ -458,6 +458,9 @@ class Emit:
         self.line('int main(void) {' if c else 'fn main() -> int {')
         if c and self.has_float:
             self.line('(void)nlr_f64_from_bits; (void)nlr_f64_to_bits;', 1)
+        if c and self.has_float_arithmetic:
+            self.line('(void)nano_rt_f64_add; (void)nano_rt_f64_sub; '
+                      '(void)nano_rt_f64_mul; (void)nano_rt_f64_div;', 1)
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
@@ -468,7 +471,8 @@ class Emit:
                 return node.kind == 'float_arithmetic' or uses_arithmetic(node.args)
             return isinstance(node, (tuple, list)) and any(uses_arithmetic(child) for child in node)
 
-        if self.language == 'c' and any(uses_arithmetic(function.body) for function in self.functions):
+        self.has_float_arithmetic = any(uses_arithmetic(function.body) for function in self.functions)
+        if self.language == 'c' and self.has_float_arithmetic:
             # I embed the authoritative guarded policy, retaining standalone output.
             self.line((Path(__file__).resolve().parents[1] / 'src' /
                        'binary64_arithmetic.h').read_text(encoding='utf-8'))
