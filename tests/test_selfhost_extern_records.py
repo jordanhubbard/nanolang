@@ -6,6 +6,9 @@ import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=r'''import "src_nano/compiler/nominal_bindings.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+from "src_nano/compiler/module_bindings.nano" import mb_reset
 fn main() -> int {
     let tokens: List<LexerToken> = (tokenize_string "extern /* retained */\nstruct Foreign { fd: int }\nstruct Local {}\nresource struct Owner { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "foreign.nano")
