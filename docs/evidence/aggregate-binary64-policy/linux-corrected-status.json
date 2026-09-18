@@ -1,0 +1,14 @@
+{
+  "source": "985321f7111a5c173b9b73f8f4916b4bae2fb966",
+  "exit": 1,
+  "seconds": 13.672427524987143,
+  "hashes_unchanged": true,
+  "hash_count": 2032,
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_aggregate_binary64_policy"
+  ]
+}

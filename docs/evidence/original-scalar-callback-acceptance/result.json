@@ -1,0 +1,405 @@
+{
+  "source": "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+  "source_sha256": "d328ac9cfdfad19acd818fc35b26eb77bb7f25e9abea64bf369bc12d7223a4d4",
+  "tool_hashes": {
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano": "994e2b0765bc8391c555f19820ad116f930a05a683c387bf449ccad5d9be361f",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_c": "bcb1a44092d8fdf2e2b4eb1bc386b6f3fa21d89a902d13f4c7f4e47afb0e82e6",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_stage1": "dedc60bc3338d18f318e05d2a372ae119030c1c05885d88fcf1343b20f063e7d",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_stage2": "c83ab1204a026fa9df4e34c883ec44efea278a5264c69e7c869b0bf25fe43513",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt": "51beac7dee9db491a7235c0b8929868cd0df9f0cee8b10f7ff32d3cb75366ba2",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm": "4fe118a20254e6ac9d2b61492ea3b00e66a0f757aba3692aadc4ba649e002295",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoisa": "f67d89a983ea580659cab088ed8b3edc862c2b648dfb8ed4279c07521fc94c0c",
+    "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2c": "aba298b2f7c5a5b8492b38573a5b25682de01cfa0e39b5ad0ab7399750006c79"
+  },
+  "unchanged": true,
+  "records": [
+    {
+      "label": "interpreter",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nanoc_c-legacy-build",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_c",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_c-legacy"
+      ],
+      "status": 0,
+      "seconds": 1.418
+    },
+    {
+      "label": "nanoc_c-legacy-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_c-legacy"
+      ],
+      "status": 0,
+      "seconds": 0.005
+    },
+    {
+      "label": "nanoc_stage1-legacy-build",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_stage1",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1-legacy"
+      ],
+      "status": 0,
+      "seconds": 3.048
+    },
+    {
+      "label": "nanoc_stage1-legacy-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1-legacy"
+      ],
+      "status": 0,
+      "seconds": 0.005
+    },
+    {
+      "label": "nanoc_stage2-legacy-build",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_stage2",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2-legacy"
+      ],
+      "status": 0,
+      "seconds": 3.298
+    },
+    {
+      "label": "nanoc_stage2-legacy-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2-legacy"
+      ],
+      "status": 0,
+      "seconds": 0.005
+    },
+    {
+      "label": "nano_virt-publish",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.013
+    },
+    {
+      "label": "nano_virt-verify",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.001
+    },
+    {
+      "label": "nano_virt-vm",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.003
+    },
+    {
+      "label": "nano_virt-dump",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoisa",
+        "dump",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nano_virt-native-publish",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2c",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.nvm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.c"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nano_virt-cc-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.c",
+        "-lm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt-cc"
+      ],
+      "status": 0,
+      "seconds": 0.442
+    },
+    {
+      "label": "nano_virt-cc-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt-cc"
+      ],
+      "status": 0,
+      "seconds": 0.007
+    },
+    {
+      "label": "nano_virt-clang-build",
+      "command": [
+        "clang",
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.c",
+        "-lm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt-clang"
+      ],
+      "status": 0,
+      "seconds": 0.34
+    },
+    {
+      "label": "nano_virt-clang-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt-clang"
+      ],
+      "status": 0,
+      "seconds": 0.008
+    },
+    {
+      "label": "nanoc_stage1-publish",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_stage1",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.042
+    },
+    {
+      "label": "nanoc_stage1-verify",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nanoc_stage1-vm",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nanoc_stage1-dump",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoisa",
+        "dump",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.001
+    },
+    {
+      "label": "nanoc_stage1-native-publish",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2c",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.nvm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.c"
+      ],
+      "status": 0,
+      "seconds": 0.001
+    },
+    {
+      "label": "nanoc_stage1-cc-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.c",
+        "-lm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1-cc"
+      ],
+      "status": 0,
+      "seconds": 0.457
+    },
+    {
+      "label": "nanoc_stage1-cc-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1-cc"
+      ],
+      "status": 0,
+      "seconds": 0.006
+    },
+    {
+      "label": "nanoc_stage1-clang-build",
+      "command": [
+        "clang",
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.c",
+        "-lm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1-clang"
+      ],
+      "status": 0,
+      "seconds": 0.338
+    },
+    {
+      "label": "nanoc_stage1-clang-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1-clang"
+      ],
+      "status": 0,
+      "seconds": 0.007
+    },
+    {
+      "label": "nanoc_stage2-publish",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoc_stage2",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/fresh_named_float_callbacks.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.04
+    },
+    {
+      "label": "nanoc_stage2-verify",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nanoc_stage2-vm",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_vm",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.002
+    },
+    {
+      "label": "nanoc_stage2-dump",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoisa",
+        "dump",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.nvm"
+      ],
+      "status": 0,
+      "seconds": 0.001
+    },
+    {
+      "label": "nanoc_stage2-native-publish",
+      "command": [
+        "/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2c",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.nvm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.c"
+      ],
+      "status": 0,
+      "seconds": 0.001
+    },
+    {
+      "label": "nanoc_stage2-cc-build",
+      "command": [
+        "cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.c",
+        "-lm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2-cc"
+      ],
+      "status": 0,
+      "seconds": 0.446
+    },
+    {
+      "label": "nanoc_stage2-cc-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2-cc"
+      ],
+      "status": 0,
+      "seconds": 0.008
+    },
+    {
+      "label": "nanoc_stage2-clang-build",
+      "command": [
+        "clang",
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2.c",
+        "-lm",
+        "-o",
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2-clang"
+      ],
+      "status": 0,
+      "seconds": 0.349
+    },
+    {
+      "label": "nanoc_stage2-clang-run",
+      "command": [
+        "/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage2-clang"
+      ],
+      "status": 0,
+      "seconds": 0.008
+    }
+  ],
+  "scope": "I qualify the original named scalar callback pattern on fresh ordinary source; I do not replay the failed worker artifact or infer general callable support."
+}

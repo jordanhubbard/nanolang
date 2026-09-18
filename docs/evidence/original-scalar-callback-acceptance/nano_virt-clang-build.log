@@ -1,0 +1,1 @@
+['clang', '--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt.c', '-lm', '-o', '/tmp/nano-original-callback-acceptance-6cxomxyz/nano_virt-clang']

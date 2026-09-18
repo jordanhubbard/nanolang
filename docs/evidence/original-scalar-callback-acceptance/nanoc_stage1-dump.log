@@ -1,0 +1,177 @@
+['/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nanoisa', 'dump', '/tmp/nano-original-callback-acceptance-6cxomxyz/nanoc_stage1.nvm']
+.string "main"
+.string "nano.local.v1"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00\xc7\x01\x00\x00payload"
+.string "\x00\x00\x00\x00\x12\x00\x00\x00\x82\x01\x00\x00\xc7\x01\x00\x00reduced"
+.string "quotient"
+.string "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0e\x00\x00\x00value"
+.string "accumulate"
+.string "\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00total"
+.string "\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00value"
+
+.metadata 1 2
+.metadata 1 3
+.metadata 1 5
+.metadata 1 7
+.metadata 1 8
+
+.entry 0
+
+.function main 0 19 0 int 1
+  PUSH_I64 9221120237041090602
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  F64_FROM_BITS
+  PUSH_F64 bits:4000000000000000
+  ARR_LITERAL 3 2
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  ARR_LEN
+  STORE_LOCAL 3
+  ARR_NEW 3
+  STORE_LOCAL 4
+  PUSH_I64 0
+  STORE_LOCAL 5
+L1:
+  LOAD_LOCAL 5
+  LOAD_LOCAL 3
+  I64_LT_S
+  JMP_FALSE L0
+  LOAD_LOCAL 2
+  LOAD_LOCAL 5
+  ARR_GET
+  STORE_LOCAL 6
+  LOAD_LOCAL 6
+  CALL 1
+  LOAD_LOCAL 4
+  SWAP
+  ARR_PUSH
+  STORE_LOCAL 4
+  LOAD_LOCAL 5
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 5
+  JMP L1
+L0:
+  LOAD_LOCAL 4
+  STORE_LOCAL 7
+  LOAD_LOCAL 7
+  PUSH_I64 0
+  ARR_GET
+  F64_TO_BITS
+  PUSH_I64 0
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 7
+  PUSH_I64 1
+  ARR_GET
+  F64_TO_BITS
+  PUSH_I64 0
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  STORE_LOCAL 8
+  PUSH_F64 bits:0000000000000000
+  STORE_LOCAL 9
+  LOAD_LOCAL 8
+  ARR_LEN
+  STORE_LOCAL 10
+  PUSH_I64 0
+  STORE_LOCAL 11
+L3:
+  LOAD_LOCAL 11
+  LOAD_LOCAL 10
+  I64_LT_S
+  JMP_FALSE L2
+  LOAD_LOCAL 8
+  LOAD_LOCAL 11
+  ARR_GET
+  STORE_LOCAL 12
+  LOAD_LOCAL 9
+  LOAD_LOCAL 12
+  CALL 2
+  STORE_LOCAL 9
+  LOAD_LOCAL 11
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 11
+  JMP L3
+L2:
+  LOAD_LOCAL 9
+  F64_TO_BITS
+  PUSH_I64 9221120237041090560
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  STORE_LOCAL 13
+  PUSH_F64 bits:0000000000000000
+  STORE_LOCAL 14
+  LOAD_LOCAL 13
+  ARR_LEN
+  STORE_LOCAL 15
+  PUSH_I64 0
+  STORE_LOCAL 16
+L5:
+  LOAD_LOCAL 16
+  LOAD_LOCAL 15
+  I64_LT_S
+  JMP_FALSE L4
+  LOAD_LOCAL 13
+  LOAD_LOCAL 16
+  ARR_GET
+  STORE_LOCAL 17
+  LOAD_LOCAL 14
+  LOAD_LOCAL 17
+  CALL 2
+  STORE_LOCAL 14
+  LOAD_LOCAL 16
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 16
+  JMP L5
+L4:
+  LOAD_LOCAL 14
+  STORE_LOCAL 18
+  LOAD_LOCAL 18
+  F64_TO_BITS
+  PUSH_I64 9221120237041090560
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  PUSH_I64 0
+  ARR_GET
+  F64_TO_BITS
+  LOAD_LOCAL 0
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 1
+  PUSH_I64 1
+  ARR_GET
+  F64_TO_BITS
+  PUSH_I64 4611686018427387904
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+.function quotient 1 1 0 float 1
+  LOAD_LOCAL 0
+  PUSH_F64 bits:0000000000000000
+  F64_DIV
+  RET
+.end
+
+.parameters 1 void
+
+.function accumulate 2 2 0 float 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  F64_ADD
+  RET
+.end
+
+.parameters 2 void void
+

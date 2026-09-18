@@ -1,0 +1,7 @@
+# I restore lexical match binding scope
+
+I qualify production `e1b644c0` with frozen harness `83268f8b` on Linux. My [contract](../NANOVIRT_MATCH_BINDING_SCOPE_CONTRACT.md) preserves allocated runtime slots, opcode control flow and ownership while restoring lexical binding count at each arm boundary. My [manifest](nanovirt-match-binding-scope.json) retains six source/tool identities and seven logs; all frozen identities were unchanged after qualification.
+
+I passed three fresh ordinary interpreter/verified-VM scope methods in 0.058s and all 90 existing NanoVirt codegen checks. My public C sibling at `6b88ff94` passed four GCC methods in 1.920s and four Clang methods in 2.934s with this corrected external NanoVirt producer. Those methods execute generated C99/C11 at O0/O2 with ASan/UBSan, interpreter and verified VM observations. The sibling harness changed only producer selection; source fixtures and assertions remained unchanged. I distinguish that external-producer evidence from future own-tool canonical integration.
+
+I retain the original sibling `66824443` GCC/Clang failures: each passed three of four methods, with the nested outer-payload assertion failing in VM after public C/interpreter success. I neither replayed those artifacts nor erased their logs. This bounded repair does not close guarded public C acceptance, expression lifting, shared wildcard/no-success semantics or the full release.

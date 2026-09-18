@@ -39,18 +39,23 @@ class SourceBorrowEmission(unittest.TestCase):
             raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
         return result
 
-    def execute_pair(self, module, expected=0):
+    def execute_pair(self, module, expected=0, expected_output=None):
         self.command(ROOT / 'bin/nano_vm', '--verify-only', module)
-        vm = self.command(ROOT / 'bin/nano_vm', module, expected=expected)
+        vm = subprocess.run([ROOT / 'bin/nano_vm', module], cwd=ROOT, capture_output=True, timeout=180)
+        self.assertEqual(vm.returncode, expected, vm.stdout + vm.stderr)
+        if expected_output is not None:
+            self.assertEqual(vm.stdout, expected_output)
         source, native = self.work / 'native.c', self.work / 'native'
         self.command(ROOT / 'bin/nvm2c', module, '-o', source)
         self.command(os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-o', native)
-        result = subprocess.run([native], cwd=ROOT, capture_output=True, text=True, timeout=30,
+        result = subprocess.run([native], cwd=ROOT, capture_output=True, timeout=30,
                                 env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
         # My standalone wrapper maps internal assertion status 2 to exit status 1.
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
-        self.assertNotIn('Sanitizer', result.stderr)
+        self.assertNotIn(b'Sanitizer', result.stderr)
+        if expected_output is not None:
+            self.assertEqual(result.stdout, expected_output)
         if expected == 0:
             self.assertEqual(vm.stdout, result.stdout)
 
@@ -79,7 +84,7 @@ class SourceBorrowEmission(unittest.TestCase):
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
                 self.execute_pair(module)
 
-    def names_and_strip(self, module):
+    def names_and_strip(self, module, expected_output=None):
         # My existing codec probe checks every PC boundary, metadata and exact
         # wire preservation through two canonical text cycles.
         records = self.command(ROOT / 'obj/test_local_bindings', module).stdout.splitlines()
@@ -92,8 +97,8 @@ class SourceBorrowEmission(unittest.TestCase):
         self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', stripped)
         self.assertEqual([line for line in self.command(ROOT / 'bin/nanoisa', 'dump', stripped).stdout.splitlines() if line],
                          [line for line in stripped_text.splitlines() if line])
-        self.execute_pair(module)
-        self.execute_pair(stripped)
+        self.execute_pair(module, expected_output=expected_output)
+        self.execute_pair(stripped, expected_output=expected_output)
         return [tuple(line.split()) for line in records]
 
     def test_borrowed_names_and_stripped_execution(self):
@@ -1127,7 +1132,7 @@ shadow main { assert true }
                     self.assertRegex(result.stdout + result.stderr,
                                      r'(?i)owner|resource|consum|nominal|borrow|helper|parameter|live|type mismatch|expected|named')
 
-    def graph_positive(self, name, text):
+    def graph_positive(self, name, text, expected_output=None, expected_shadow_output=None):
         source = self.work / ('graph-' + name + '.nano')
         source.write_text(text)
         baseline = None
@@ -1138,13 +1143,13 @@ shadow main { assert true }
             if baseline is None:
                 baseline = actual
             self.assertEqual(actual, baseline)
-            self.names_and_strip(module)
+            self.names_and_strip(module, expected_output=expected_output)
         for emitter in self.emitters:
             assembly, module = self.work / 'graph.nasm', self.work / 'graph.nvm'
             self.command(emitter, source, '-o', assembly)
             self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
             self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
-            self.execute_pair(module)
+            self.execute_pair(module, expected_output=expected_output)
         shadow_dump = None
         for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
             args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
@@ -1155,7 +1160,7 @@ shadow main { assert true }
             if shadow_dump is None:
                 shadow_dump = actual
             self.assertEqual(actual, shadow_dump)
-            self.execute_pair(module)
+            self.execute_pair(module, expected_output=expected_shadow_output)
         return baseline, shadow_dump
 
     def test_owned_value_graph_results_and_shadow_main(self):
@@ -1302,6 +1307,88 @@ shadow main { assert true }
         baseline, _ = self.graph_positive('nested-values', (FIXTURES / 'source_owned_value_nested.nano').read_text())
         self.assertIn('.parameters 1 struct struct int', baseline)
         self.assertGreaterEqual(baseline.count('OWN_UNPACK_LOCAL'), 3)
+
+
+    def test_owned_string_unchanged_affine_example(self):
+        text = (ROOT / 'examples/language/nl_affine_resource_demo.nano').read_text()
+        baseline, shadows = self.graph_positive(
+            'affine-demo-unchanged', text,
+            b'audit.log\nresource closed\n',
+            b'audit.log\nresource closed\nresource closed\naudit.log\nresource closed\n')
+        self.assertIn('string', baseline)
+        self.assertIn('PRINTLN', shadows)
+
+    def owned_string_fixture(self):
+        return r'''resource struct Leaf { value: int }
+fn write(text: string, owner: Leaf, tail: string, number: int, yes: bool) -> void {
+    (print text)
+    (println tail)
+    let Leaf { value } = owner
+    assert (== value number)
+    assert yes
+}
+shadow write { assert true }
+fn forward(text: string, owner: Leaf) -> void {
+    (write text owner "" 7 true)
+}
+shadow forward { assert true }
+fn main() -> int {
+    let owner: Leaf = Leaf { value: 7 }
+    (forward "A\tB\rC\n\"\'\\0\q café" owner)
+    (print "")
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_owned_string_exact_bytes_and_forwarding(self):
+        text = self.owned_string_fixture().replace(' café', ' \x01\x7f café')
+        expected = b'A\tB\rC\n"\'\\0\\q \x01\x7f caf\xc3\xa9\n'
+        # My raw source contains an escaped backslash before zero; it never
+        # is a decoded NUL. Unknown escapes retain their backslash.
+        self.graph_positive('string-bytes', text, expected, expected)
+
+    def test_owned_string_refusals_preserve_publication(self):
+        base = self.owned_string_fixture()
+        cases = {
+            'nul': base.replace('A\\tB', 'A\\0B'),
+            'field': base.replace('value: int', 'value: string').replace('value: 7', 'value: "seven"'),
+            'local': base.replace('(print "")', 'let extra: string = "extra" (print extra)'),
+            'operation': base.replace('(print text)', '(print (str_concat text "!"))'),
+            'argument': base.replace('owner "" 7 true', 'owner 1 7 true'),
+            'result': base.replace('-> void {\n    (print text)', '-> string {\n    (print text)').replace('assert yes\n}', 'assert yes return text\n}'),
+            'print_binding': base.replace('(print "")', 'let print: int = 2 (print "")'),
+            'false_shadow': base.replace('shadow write { assert true }', 'shadow write { assert false }'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('string-refused-' + name + '.nano')
+            source.write_text(text)
+            compilers = [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')]
+            if name != 'false_shadow':
+                compilers += self.emitters
+            for compiler in compilers:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'string-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)string|scalar|field|type|argument|shadow|assert|source borrow|call|builtin')
+
+    def test_owned_string_output_precedes_assertion_cleanup(self):
+        text = self.owned_string_fixture().replace('assert yes', 'assert false')
+        source = self.work / 'string-assert.nano'
+        source.write_text(text)
+        for emitter in self.emitters:
+            assembly, module = self.work / 'string-assert.nasm', self.work / 'string-assert.nvm'
+            self.command(emitter, source, '-o', assembly)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.execute_pair(module, expected=1,
+                              expected_output=b'A\tB\rC\n"\'\\0\\q caf\xc3\xa9\n')
 
 
 if __name__ == '__main__':
