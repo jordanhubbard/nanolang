@@ -95,3 +95,19 @@ nested and modulo expressions; I do not claim new support for them. Canonical
 emission independently refuses arithmetic arrays outside the exact numeric
 profile before choosing any scalar opcode. This keeps the new paired profile
 from silently rewriting unrelated legacy checker behavior.
+
+## My legacy direct-call result prerequisite
+
+I record task_6ed0cd1295af4a42b04133ddc6d39d98 before repair. Corrected985321f7
+passes exact arithmetic across all producers and canonical ordered broadcasts,
+but both legacy selfhost stages reject generated C for the unchanged ordered
+fixture. Legacy array selection consults identifiers alone and drops the known
+array<float> return type of source(values). I preserve the refused C and logs.
+
+I extend that selection only for direct unbound declared calls with exact
+array<int>/array<float> results. Existing identifier handling stays intact.
+Lexical bindings take precedence; I do not treat a same-named declaration as
+proof for a bound callable or guess UNKNOWN. I reuse existing resolution and
+array helpers, including their reviewed operand snapshots. Other expression
+shapes and callback admission remain unchanged. Mandatory helper shadows and
+the unchanged source-order fixture precede closure after a fresh bootstrap.
