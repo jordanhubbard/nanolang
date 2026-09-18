@@ -631,7 +631,9 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                 set nb_returned (and then_returns else_returns)
                 let _: int = (nb_emit (+ done ":"))
             } else {
-                if (and (not then_returns) (not (nb_same_owners incoming_count then_live then_disposal))) { return 0 }
+                if (not then_returns) {
+                    if (not (nb_same_owners incoming_count then_live then_disposal)) { return 0 }
+                }
             }
         } else { if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let _: int = (nb_binding parser (parser_get_let parser stmt.node_id))
