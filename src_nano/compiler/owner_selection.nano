@@ -1,5 +1,7 @@
 # I prove only a bounded scalar closure; unknown facts retain owned routing.
 import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 
 let mut nos_names: array<string> = []
@@ -137,10 +139,6 @@ fn nos_scan(parser: Parser, id: int, kind: int, depth: int) -> bool {
     if (== kind ParseNodeType.PNODE_ASSERT) {
         let value: ASTAssert = (parser_get_assert parser id)
         return (nos_scan parser value.condition value.condition_type (+ depth 1))
-    }
-    if (== kind ParseNodeType.PNODE_PRINT) {
-        let value: ASTPrint = (parser_get_print parser id)
-        return (nos_scan parser value.value value.value_type (+ depth 1))
     }
     if (== kind ParseNodeType.PNODE_IF) {
         let value: ASTIf = (parser_get_if parser id)
