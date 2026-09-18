@@ -65,6 +65,6 @@ class OptionalArrayReads(unittest.TestCase):
             with self.subTest(tag=tag):
                 body=f'{value}\nAGG_PACK 0 0 0 1\nCALL unwrap\n{value}\nEQ\nASSERT\n'
                 body+=f'{value}\nARR_LITERAL {tag} 1\nPUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nCALL unwrap\n{value}\nEQ\nASSERT\n'
-                helpers=f'.function unwrap 1 2 0 {name} 1\n{value}\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nCALL identity\nRET\n.end\n.function identity 1 1 0 {name} 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                helpers=f'.function unwrap 1 3 0 {name} 1\n{value}\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nARR_NEW {tag}\nSTORE_LOCAL 2\nLOAD_LOCAL 2\nLOAD_LOCAL 1\nARR_PUSH\nPOP\nLOAD_LOCAL 2\nPUSH_I64 0\nLOAD_LOCAL 1\nARR_SET\nPOP\nLOAD_LOCAL 2\nPUSH_I64 0\nARR_GET\nCALL identity\nRET\n.end\n.function identity 1 1 0 {name} 1\nLOAD_LOCAL 0\nRET\n.end\n'
                 self.paired('.types 1 0 0\n.string text "kept"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+helpers)
 if __name__=='__main__': unittest.main()
