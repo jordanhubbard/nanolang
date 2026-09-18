@@ -1328,9 +1328,12 @@ static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
             if (!a->generic_name || !b->generic_name) return false;
             bool same = false;
             if (at == TYPE_STRUCT) {
+                /* My record declarations have no generic parameter list. */
+                if (a->type_param_count || b->type_param_count) return false;
                 StructDef *left = env_get_struct(env, a->generic_name);
                 same = left && left == env_get_struct(env, b->generic_name);
             } else if (at == TYPE_ENUM) {
+                if (a->type_param_count || b->type_param_count) return false;
                 EnumDef *left = env_get_enum(env, a->generic_name);
                 same = left && left == env_get_enum(env, b->generic_name);
             } else {
@@ -1411,8 +1414,11 @@ static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expec
                     expected->element_type, env, depth + 1)) return false;
         return true;
     }
-    TypeInfo view = reduce_type_view(actual, get_struct_type_name(expression, env),
-                                     try_get_expr_type_info(expression, env));
+    const char *name = get_struct_type_name(expression, env);
+    if (actual == TYPE_ENUM && expression->type == AST_FIELD_ACCESS &&
+        expression->as.field_access.object->type == AST_IDENTIFIER)
+        name = expression->as.field_access.object->as.identifier;
+    TypeInfo view = reduce_type_view(actual, name, try_get_expr_type_info(expression, env));
     return reduce_types_exact(&view, expected, env, depth + 1);
 }
 
@@ -1470,7 +1476,11 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
     if (valid && array->type == AST_ARRAY_LITERAL) {
         Type element = infer_array_element_type(array, env);
         Type wanted = reduce_identity_kind(&parameters[1], env);
-        valid = element == wanted; /* An unchecked empty literal is not evidence. */
+        /* I check nonempty leaves by identity: the container kind can still
+         * be the parser's unresolved nominal kind. Empty literals need facts. */
+        TypeInfo empty_element = {.base_type = element};
+        valid = array->as.array_literal.element_count > 0 ||
+            (element == wanted && reduce_types_exact(&empty_element, &parameters[1], env, 0));
         for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
             valid = reduce_expression_matches(array->as.array_literal.elements[i],
                                                &parameters[1], env, 0);

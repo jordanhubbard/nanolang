@@ -17,6 +17,9 @@ I compare exact known kinds before identity; permissive types_match/types_equal
 cannot justify int/float, enum/int or UNKNOWN compatibility. Primitive kinds
 need no artificial heap annotation. Nominal/array/tuple/function types require
 their retained complete annotation or an exact resolved declaration identity.
+My record and enum declarations have no generic parameter list; their exact
+identities require zero type arguments. Generic union definitions provide the
+authoritative argument count.
 I preserve recursive generic arguments and reject missing required components;
 a source name alone cannot erase generic arguments. I use bounded recursion and
 borrow existing metadata without publishing partially allocated state.

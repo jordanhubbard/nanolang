@@ -949,6 +949,9 @@ void test_tc_reduce_exact_identities(void) {
         printf(" [%s]", kinds[i]); fflush(stdout);
         ASSERT(tc_module_passes(source));
     }
+    ASSERT(tc_module_passes("enum Choice { One, Two } "
+        "fn fold(a:Choice,b:Choice)->Choice{return a} "
+        "fn apply(initial:Choice)->Choice{return (reduce [Choice.One,Choice.Two] initial fold)}"));
     ASSERT(tc_module_passes("fn fold(a:int,b:int)->int{return (+ a b)} "
         "fn main()->int{let xs:array<int> = [] return (reduce xs 9 fold)}"));
     ASSERT(tc_module_passes("fn fold(a:int,b:int)->int{return a} "
