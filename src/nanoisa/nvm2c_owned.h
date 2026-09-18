@@ -150,6 +150,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         case OP_PUSH_U8: case OP_PUSH_BOOL:
             nvm2c_printf(&b," t[%d]=(nown_value){.scalar=%u};\n",n,in->operands[0].u8);break;
         case OP_PUSH_STR: {
+            if(!value_graph) goto fail;
             uint32_t index=in->operands[0].u32;
             if(index>=mod->string_count || !mod->strings || !mod->string_lengths ||
                !mod->strings[index] ||
@@ -201,6 +202,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         case OP_ASSERT:
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(!a.scalar){status=2;goto cleanup;} a=(nown_value){0};\n",n-1,n-1);break;
         case OP_PRINT: case OP_PRINTLN:
+            if(!value_graph) goto fail;
             nvm2c_printf(&b," (void)fwrite(t[%d].string,1,t[%d].length,stdout);",n-1,n-1);
             if(op==OP_PRINTLN) nvm2c_puts(&b," (void)fputc('\\n',stdout);");
             nvm2c_printf(&b," t[%d]=(nown_value){0};\n",n-1);break;

@@ -146,6 +146,16 @@ static void refusals(void) {
     m=string_fixture(false);CHECK(replace_opcode(m,0,OP_PRINT,OP_NOP,false));
     CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
 
+    /* PRINT and PRINTLN stay inside the value-call profile even with a string local. */
+    for(unsigned newline=0;newline<2;newline++) {
+        m=string_fixture(false);m->header.entry_point=1;
+        if(!newline)CHECK(replace_opcode(m,3,OP_PRINTLN,OP_PRINT,false));
+        NvmAffineAnalysis output=nvm_affine_analyze_function(m,3);
+        CHECK(!output.ok&&!strcmp(output.message,
+            "I require string output inside an owned value-call graph"));
+        nvm_module_free(m);
+    }
+
     /* A string edge does not widen the retained direct acyclic call graph. */
     m=string_fixture(false);CHECK(replace_opcode(m,1,OP_CALL,OP_TAIL_CALL,false));
     CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
@@ -167,11 +177,15 @@ static void missing_instantiated_literal(void) {
     NvmModule *m=string_fixture(false);consuming_verified(m);VmState vm;vm_init(&vm,m);
     uint32_t greeting=string_index(m,"before");CHECK(greeting<vm.module_constants.count);
     VmString *saved=vm.module_constants.strings[greeting];CHECK(saved);
-    vm.module_constants.strings[greeting]=NULL;uint64_t generation=vm.reference_generation;
-    FILE *output=tmpfile();CHECK(output);vm.output=output;NanoValue result=val_void();
-    CHECK(vm_invoke(&vm,0,NULL,0,&result)==VM_ERR_TYPE_ERROR);
-    CHECK(vm.reference_generation==generation);exact_stream(output,"");
-    vm.output=NULL;CHECK(!fclose(output));vm.module_constants.strings[greeting]=saved;
+    for(unsigned fallback=0;fallback<2;fallback++) {
+        vm.module_constants.strings[greeting]=NULL;vm.opcode_trace=fallback!=0;
+        uint64_t generation=vm.reference_generation;
+        FILE *output=tmpfile();CHECK(output);vm.output=output;NanoValue result=val_void();
+        CHECK(vm_invoke(&vm,0,NULL,0,&result)==VM_ERR_TYPE_ERROR);
+        CHECK(vm.reference_generation==generation);exact_stream(output,"");
+        vm.output=NULL;CHECK(!fclose(output));vm.module_constants.strings[greeting]=saved;
+    }
+    vm.opcode_trace=false;
     vm_destroy(&vm);nvm_module_free(m);
 }
 

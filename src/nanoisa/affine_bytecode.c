@@ -170,6 +170,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (in->operands[0].u8>1) return "I require a Boolean literal";
         tag=TAG_BOOL;break;
     case OP_PUSH_STR: {
+        if (!calls->value_graph)
+            return "I require string literals inside an owned value-call graph";
         uint32_t index=in->operands[0].u32;
         if (index>=module->string_count || !module->strings || !module->string_lengths ||
             !module->strings[index] ||
@@ -295,6 +297,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         {Value value=f->stack[f->count-1];f->stack[f->count-1]=f->stack[f->count-2];f->stack[f->count-2]=value;}
         return NULL;
     case OP_PRINT: case OP_PRINTLN:
+        if (!calls->value_graph)
+            return "I require string output inside an owned value-call graph";
         return pop_scalar(f,TAG_STRING)?NULL:
             "I require one exact immutable string print operand";
     case OP_ASSERT:
