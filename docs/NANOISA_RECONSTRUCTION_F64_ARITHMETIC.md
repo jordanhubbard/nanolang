@@ -6,6 +6,9 @@ I start from main `90bd4787`, after PR763's original scalar/callback acceptance
 matrix. I implement locally without dispatch and request independent contract
 review before production edits.
 
+My bounded implementation and actual producer pins are recorded in
+[my evidence](evidence/reconstruction-f64-arithmetic.md).
+
 ## My exact operation boundary
 
 I add only F64_ADD, F64_SUB, F64_MUL and F64_DIV to my existing scalar region
