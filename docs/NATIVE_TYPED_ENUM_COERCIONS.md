@@ -39,3 +39,12 @@ checks on unchanged production8fe01034. I retain
 This is the native part of a77ca. Its original cross-backend obligation remains
 open until the dependent LLVM/Wasm enum lane supplies its own implementation
 and acceptance. Parent66a6 remains open as well.
+
+I restack as `80bd85cd` onto merged PR601 at main `26f2f70a`. My typed-enum
+production delta stays unchanged; the new base supplies optional scalar storage.
+I rebuild the tools and pass 1,269 shape checks. Thirteen GCC typed-enum/numeric
+methods pass in 23.392 seconds; six GCC optional-array/record methods pass in
+4.557 seconds; twelve Clang typed-enum/optional-storage methods pass in 11.344
+seconds. These combined checks are distinct from the earlier full native gate.
+I retain `/tmp/nanolang-typed-enum-restack-{build,gcc}.log` and
+`/tmp/nanolang-typed-enum-601-{gcc,clang}.log`.
