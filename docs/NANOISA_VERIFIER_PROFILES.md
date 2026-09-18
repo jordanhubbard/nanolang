@@ -14,7 +14,8 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   `NANOISA_LLVM_GENERIC_NUMERIC.md`.
   I require an explicit zero-argument integer/bool entry. I refuse imports,
   module references, nominal declarations, retained layouts, ownership/passive
-  contracts, captures and initializer functions. I retain existing numeric,
+  contracts and captures. My scalar global/initializer extension follows
+  `NANOISA_LLVM_SCALAR_GLOBALS.md`. I retain existing numeric,
   bool and void signatures and the explicit existing instruction whitelist.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary
   metadata can select or bypass the consuming tool's profile.
