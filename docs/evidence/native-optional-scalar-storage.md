@@ -54,3 +54,12 @@ smoke aborted without a compiler diagnostic. I preserve the binary/log/hashes
 in `/tmp/nanolang-product-startup-9d49de10/evidence.json`; I have not replayed it
 or attributed its cause. PR601 stays draft and this task remains open. Later
 focused and native gate success does not establish a repaired compiler startup.
+
+At integration `0cf55548` through main PR615, I pass 1,269 shape checks
+and twelve optional/numeric methods (3.892 and 0.885 seconds). Fresh product
+`b8f3b842` passes Stage1 and hello, then builds Stage2; its ordinary hello
+smoke stops at a native invariant in `parse_function_definition` at generated
+C line 46847. I retain the exact artifact, log and SHA256 manifest in
+`/tmp/nanolang-product-startup-b8f3b842/evidence.json`. I do not replay that
+artifact or attribute its cause. The diagnostic enables static source review;
+it does not satisfy the full product gate. PR601 remains draft.
