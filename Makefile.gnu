@@ -4628,3 +4628,8 @@ test-constructor-call-context: bootstrap
 test-units: test-constructor-call-context
 
 test-units: test-native-optional-array-reads
+.PHONY: test-cseed-union-signatures
+test-cseed-union-signatures: $(COMPILER_C)
+	@python3 -m unittest -v tests.test_cseed_union_signatures
+
+test-units: test-cseed-union-signatures
