@@ -4788,6 +4788,10 @@ test-units: test-native-string-equality-guards
 test-native-optional-float-calls: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_native_optional_float_calls
 test-units: test-native-optional-float-calls
+.PHONY: test-nanoisa-functional-arrays
+test-nanoisa-functional-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_nanoisa_functional_arrays
+test-units: test-nanoisa-functional-arrays
 
 .PHONY: test-native-float-arrays
 test-native-float-arrays: nanoisa_emit nano_virt nanoisa_dump nano_vm nvm2c
