@@ -1646,27 +1646,35 @@ vm_dispatch_top:
             uint32_t target=instr.operands[0].u32;
             uint16_t reference=instr.operands[1].u16;
             if (!owned_execution || vm->frame_count!=1 || vm->current_fn!=0 || target!=1 ||
-                vm->module->function_count!=2 || reference>=frame->local_count ||
-                !reference_context->slots[reference].live || vm->callee_references.active ||
+                vm->module->function_count!=2 || vm->callee_references.active ||
                 vm->reference_generation==UINT64_MAX)
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked entry-to-helper reference call");
             const NvmFunctionEntry *callee=&vm->module->functions[1];
+            if(!callee->arity || callee->arity>NVM_AFFINE_MAX_PARAMETERS ||
+               reference>frame->local_count || callee->arity>frame->local_count-reference)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete bounded reference argument range");
             NvmAffineState *contract=nvm_affine_state_create(vm->module,1,callee->local_count);
             if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate the borrowed parameter facts");
-            NvmAffineType type;NvmReferenceMode mode;
-            bool valid=nvm_affine_parameter_type(contract,&type,&mode);
+            VmReferenceSlot arguments[NVM_AFFINE_MAX_PARAMETERS];
+            bool valid=true;
+            for(uint16_t p=0;p<callee->arity;p++) {
+                NvmAffineType type;NvmReferenceMode mode;
+                if(!nvm_affine_parameter_at(contract,p,&type,&mode) ||
+                   !reference_context->slots[(uint32_t)reference+p].live) {valid=false;break;}
+                arguments[p]=reference_context->slots[(uint32_t)reference+p];
+                if(mode==NVM_REFERENCE_EXCLUSIVE && !arguments[p].exclusive) {valid=false;break;}
+                arguments[p].region=0;arguments[p].parent=UINT16_MAX;
+                arguments[p].exclusive=mode==NVM_REFERENCE_EXCLUSIVE;
+            }
             nvm_affine_state_free(contract);
-            if (!valid) return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the checked borrowed parameter contract");
+            if(!valid) return trap_error(vm,VM_ERR_TYPE_ERROR,"I require checked borrowed parameter contracts");
             uint32_t base=vm->stack_size;
             VmResult reserved=stack_reserve_frame(vm,base,callee);
             if (reserved!=VM_OK) return trap_error(vm,reserved,"I could not reserve the borrowed helper frame");
-            VmReferenceSlot argument=reference_context->slots[reference];
             memset(&vm->callee_references,0,sizeof(vm->callee_references));
             vm->callee_references.active=true;
             vm->callee_references.generation=++vm->reference_generation;
-            argument.region=0;argument.parent=UINT16_MAX;
-            argument.exclusive=mode==NVM_REFERENCE_EXCLUSIVE;
-            vm->callee_references.slots[0]=argument;
+            for(uint16_t p=0;p<callee->arity;p++) vm->callee_references.slots[p]=arguments[p];
             for(uint16_t i=0;i<callee->local_count;i++) stack_push(vm,val_void());
             VmCallFrame *next=&vm->frames[vm->frame_count++];
             memset(next,0,sizeof(*next));next->fn_idx=1;next->return_ip=vm->ip;
@@ -4422,6 +4430,8 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
+    uint32_t base = vm->stack_size, frames = vm->frame_count;
+    bool owned = nvm_uses_owned_transfers(vm->module);
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
@@ -4429,6 +4439,17 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     if (result!=VM_OK) {
         memset(&vm->references,0,sizeof(vm->references));
         memset(&vm->callee_references,0,sizeof(vm->callee_references));
+        if (owned) {
+            /* I unwind actual owners after an owned entry/helper failure.
+             * Direct execution has no outer vm_invoke cleanup wrapper. */
+            while (vm->stack_size > base) vm_release(&vm->heap,stack_pop(vm));
+            for (uint32_t i = frames; i < vm->frame_count; ++i) {
+                vm_release(&vm->heap,vm->frames[i].owned_callable);
+                vm->frames[i].owned_callable = val_void();
+            }
+            vm->frame_count = frames;
+            effect_prune(vm,frames);
+        }
     }
     return result;
 }

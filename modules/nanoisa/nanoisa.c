@@ -274,6 +274,11 @@ uint8_t *nanoisa_save_bytes_v1(const NvmModule *mod, uint32_t *out_size,
         return NULL;
     }
     *out_size = 0;
+    if (mod->metadata_count) {
+        set_error(err, NANOISA_ERR_FORMAT, 0,
+                  "I require v2 output to preserve advisory metadata");
+        return NULL;
+    }
     uint8_t *data = nvm_serialize(mod, out_size);
     if (!data) {
         set_error(err, NANOISA_ERR_MEMORY, 0,

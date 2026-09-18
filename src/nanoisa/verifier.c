@@ -898,7 +898,7 @@ static bool owned_runtime_opcode(uint8_t op) {
     case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
-    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET:
+    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     default: return false;
     }
@@ -913,23 +913,23 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     for(uint32_t function=0;function<mod->function_count;function++) {
         const NvmFunctionEntry *fn=&mod->functions[function];
         const char *name=nvm_get_string(mod,fn->name_idx);
-        if (fn->arity!=(function?1:0) || fn->upvalue_count || fn->result_count!=1 ||
+        if ((function ? (!fn->arity || fn->arity>NVM_AFFINE_MAX_PARAMETERS) : fn->arity!=0) || fn->upvalue_count || fn->result_count!=1 ||
             (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8) ||
             fn->local_count>NVM_AFFINE_MAX_LOCALS || (name && !strcmp(name,"__init__")))
-            return fail("I require entry and optional one-parameter scalar-result helper signatures");
+            return fail("I require entry and optional bounded borrowed-parameter scalar-result helper signatures");
         NvmAffineState *state=nvm_affine_state_create(mod,function,fn->local_count);
         if(!state) return fail("I require complete ownership local declarations");
         bool valid=true;
         for(uint16_t i=0;i<fn->local_count;i++) {
             NvmAffineType type;NvmReferenceMode mode;
-            if(function && !i) {
-                if(!nvm_affine_parameter_type(state,&type,&mode)) valid=false;
+            if(function && i<fn->arity) {
+                if(!nvm_affine_parameter_at(state,i,&type,&mode)) valid=false;
             } else if(!nvm_affine_local_type(state,i,&type) ||
                 (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
                  (function || type.tag!=TAG_STRUCT))) valid=false;
         }
         nvm_affine_state_free(state);
-        if(!valid) return fail("I require value entry locals and one borrowed helper parameter with scalar locals");
+        if(!valid) return fail("I require value entry locals and bounded borrowed helper parameters with scalar locals");
     }
     NvmV2Layouts layouts = {0};
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
@@ -961,7 +961,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                 op==OP_BORROW_LOCAL_SHARED || op==OP_BORROW_LOCAL_EXCLUSIVE ||
                 op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE ||
                 op==OP_AGG_GET || op==OP_STRUCT_GET ||
-                ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL) && !in->operands[0].u16))) supported=false;
+                ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL) && in->operands[0].u16<mod->functions[function].arity))) supported=false;
         }
         vm_decoded_function_free(&decoded);
         if(function && !nvm_affine_analyze_function(mod,function).ok) supported=false;

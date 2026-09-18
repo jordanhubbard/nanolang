@@ -4555,6 +4555,17 @@ test-native-scalar-joins: nvm2c nano_vm nanoisa_dump
 
 test-units: test-native-scalar-joins
 
+.PHONY: test-multi-caller-references
+test-units: test-multi-caller-references
+test-multi-caller-references: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_references tests/nanoisa/test_multi_caller_references.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=multi_state_malloc -Dcalloc=multi_state_calloc -c src/nanoisa/affine_state.c -o obj/test_multi_caller_state_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_state_alloc tests/nanoisa/test_multi_caller_state_alloc.c $(NANOVM_OBJECTS) obj/test_multi_caller_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multi_caller_state_alloc
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_multi_caller_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multi_caller_heap_alloc tests/nanoisa/test_multi_caller_heap_alloc.c obj/test_multi_caller_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multi_caller_heap_alloc
+	python3 -m unittest tests.test_multi_caller_references
 .PHONY: test-artifact-string-release
 test-units: test-artifact-string-release
 test-artifact-string-release: nanoisa_dump nano_vm nvm2c
@@ -4563,3 +4574,30 @@ test-artifact-string-release: nanoisa_dump nano_vm nvm2c
 test-units: test-native-underscore-bindings
 test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
 	python3 -m unittest -v tests.test_native_underscore_bindings
+
+.PHONY: test-advisory-metadata
+test-units: test-advisory-metadata
+test-advisory-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_advisory_metadata tests/nanoisa/test_advisory_metadata.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_advisory_metadata
+	@python3 -m unittest tests.test_advisory_metadata
+
+test-advisory-metadata: test-advisory-metadata-alloc
+.PHONY: test-advisory-metadata-alloc
+test-advisory-metadata-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_advisory_metadata_alloc tests/nanoisa/test_advisory_metadata_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_advisory_metadata_alloc
+.PHONY: test-unreachable-warning
+test-unreachable-warning: bootstrap
+	python3 -m unittest -v tests.test_unreachable_warning
+test-units: test-unreachable-warning
+
+.PHONY: test-underscore-payload
+test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
+	python3 -m unittest -v tests.test_underscore_payload
+test-units: test-underscore-payload
+.PHONY: test-owned-assertions
+test-units: test-owned-assertions
+test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_assertions tests/nanoisa/test_owned_assertions.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_assertions
