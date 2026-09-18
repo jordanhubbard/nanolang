@@ -67,4 +67,12 @@ class OptionalArrayReads(unittest.TestCase):
                 body+=f'{value}\nARR_LITERAL {tag} 1\nPUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nCALL unwrap\n{value}\nEQ\nASSERT\n'
                 helpers=f'.function unwrap 1 3 0 {name} 1\n{value}\nSTORE_LOCAL 1\nLOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nARR_NEW {tag}\nSTORE_LOCAL 2\nLOAD_LOCAL 2\nLOAD_LOCAL 1\nARR_PUSH\nPOP\nLOAD_LOCAL 2\nPUSH_I64 0\nLOAD_LOCAL 1\nARR_SET\nPOP\nLOAD_LOCAL 2\nPUSH_I64 0\nARR_GET\nCALL identity\nRET\n.end\n.function identity 1 1 0 {name} 1\nLOAD_LOCAL 0\nRET\n.end\n'
                 self.paired('.types 1 0 0\n.string text "kept"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+helpers)
+    def test_nested_record_present_scalar_projection(self):
+        for tag,name,value in [(1,'int','PUSH_I64 73'),(4,'bool','PUSH_BOOL 1'),(5,'string','PUSH_STR text')]:
+            with self.subTest(tag=tag):
+                body=f'{value}\nARR_LITERAL {tag} 1\nPUSH_I64 0\nARR_GET\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1\nCALL relay_nested\nCALL project_nested\n{value}\nEQ\nASSERT\n'
+                body+=f'{value}\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1\nCALL relay_nested\nCALL project_nested\n{value}\nEQ\nASSERT\n'
+                helpers='.function relay_nested 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                helpers+=f'.function project_nested 1 1 0 {name} 1\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\nRET\n.end\n'
+                self.paired('.types 2 0 0\n.string text "kept"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+helpers)
 if __name__=='__main__': unittest.main()

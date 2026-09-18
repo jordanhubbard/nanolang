@@ -4185,8 +4185,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u) NVM2C_ABORT();\n",
                              rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR,
                              rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL);
-            else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) NVM2C_ABORT();\n", rec, (unsigned)fi,
-                              (unsigned)st.rec_k[rec][fi]);
+            else if (st.rec_k[rec][fi] == NVM2C_VK_STR ||
+                     st.rec_k[rec][fi] == NVM2C_VK_INT ||
+                     st.rec_k[rec][fi] == NVM2C_VK_BOOL) {
+                /* Inferred storage can retain a boxed present scalar even
+                 * when this projection has an exact scalar consumer. I check
+                 * its payload tag before reading the same record slot. */
+                unsigned tag = st.rec_k[rec][fi] == NVM2C_VK_STR ? TAG_STRING :
+                               st.rec_k[rec][fi] == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT;
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && !(r[%d].k[%u] == %u && r[%d].vk[%u] == %u)) NVM2C_ABORT();\n",
+                             rec, (unsigned)fi, (unsigned)st.rec_k[rec][fi],
+                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, tag);
+                if (st.rec_k[rec][fi] == NVM2C_VK_STR)
+                    nvm2c_printf(b, "    if (!r[%d].s[%u]) NVM2C_ABORT();\n", rec, (unsigned)fi);
+            } else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) NVM2C_ABORT();\n", rec, (unsigned)fi,
+                               (unsigned)st.rec_k[rec][fi]);
             {
                 char expr[256];
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
