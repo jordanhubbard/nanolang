@@ -70,6 +70,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I preserve equivalent present scalar field storage when replacing a native record-array element (`task_a94dd8267d374549b2d578f191b5049f`, parent export-shadow dd74). I retain width and record-kind checks, bridge only plain/boxed int/bool/string with matching actual tags, and preserve heap/absent mismatch refusal and static shape constraints. Paired replacement controls and existing native gates precede fresh corrected-source product acceptance.
+
 - [x] I preserve optional scalar payloads in native aggregate storage (`task_497e1ba5b9544b81b3614ec37da90e98`). Inferred storage retains exact present int/bool/string tags through projections, calls, returns and typed writes; exact constraints and wrong-tag checks remain enforced. My final typed projection checks boxed payload tags before reading scalar slots. At `d8362cc4`, 2,422 native and 1,269 shape checks pass; six focused methods pass GCC and Clang sanitizers. Fresh integrated product `85d2e294` passes both bootstrap stages, hello and installed execution without the C seed. Its ordinary product suite passes 27 of 28 methods; distinct export-shadow task dd74 still blocks PR522 and release. I retain intermediate failures and exact source checkpoints in [storage evidence](evidence/native-optional-scalar-storage.md).
 - [x] I reconcile three stale scalar roadmap rows with canonical merged evidence (`task_944edde6410b459b8d195a08eb1dd072`). I verify PR560 typed F64 and PR569 VM/native implicit-return ancestry and MAC completion, preserve their bounded scope, and retain broader language and release holds.
 
