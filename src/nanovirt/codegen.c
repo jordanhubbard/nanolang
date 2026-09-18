@@ -2461,6 +2461,22 @@ static void compile_expr(CG *cg, ASTNode *node) {
             /* Binary operators */
             Type left = check_expression(args[0], cg->env);
             Type right = check_expression(args[1], cg->env);
+            if (op == TOKEN_AND || op == TOKEN_OR) {
+                if (left != TYPE_BOOL || right != TYPE_BOOL) {
+                    cg_error(cg, node->line, "I require exact bool operands for source and/or");
+                    break;
+                }
+                /* The jump consumes the duplicate; I retain the selected left
+                 * result or replace it with the once-evaluated right result. */
+                compile_expr(cg, args[0]);
+                emit_op(cg, OP_DUP);
+                uint32_t branch = cg->code_size;
+                uint32_t offset = emit_op(cg, op == TOKEN_AND ? OP_JMP_FALSE : OP_JMP_TRUE, (int32_t)0);
+                emit_op(cg, OP_POP);
+                compile_expr(cg, args[1]);
+                patch_jump(cg, offset + 1, branch, cg->code_size);
+                break;
+            }
             bool array_op = left == TYPE_ARRAY || right == TYPE_ARRAY;
             bool float_op = left == TYPE_FLOAT || right == TYPE_FLOAT;
             bool string_concat = op == TOKEN_PLUS
