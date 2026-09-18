@@ -4623,6 +4623,12 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
             arm_bodies[count] = parse_block(p);
         } else {
             arm_bodies[count] = parse_expression(p);
+            /* I keep retained payload bindings inside this complete expression. */
+            Token *arm_end = current_token(p);
+            if (arm_bodies[count] && arm_end) {
+                arm_bodies[count]->scope_end_line = arm_end->line;
+                arm_bodies[count]->scope_end_column = arm_end->column;
+            }
         }
         
         if (!arm_bodies[count]) {

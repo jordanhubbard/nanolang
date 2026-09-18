@@ -4869,3 +4869,7 @@ test-units: test-canonical-filesystem
 .PHONY: test-scalar-union-emission
 test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_scalar_union_emission
+
+.PHONY: test-match-expression-scope
+test-match-expression-scope: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_match_expression_scope
