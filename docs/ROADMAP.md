@@ -60,6 +60,8 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
+- [ ] I report generated C function and line before native invariant aborts (`task_fb49a88a8ab84385a52858243214d237`). I preserve every guard and SIGABRT behavior, check normal assertion refusal and passing GCC/Clang controls, and run native regressions. This diagnostic foundation neither attributes nor resolves the product startup or export-shadow holds.
+
 - [x] I preserve optional int/bool/string results from ordinary native array reads (`task_438ff01101234d6cb3cad5dfeaa0e9f2`). I replace cancelled task ed0f and stale PR307/331/343/349/356 against current signed-64-bit index semantics: no uint32 wrap. Valid reads retain payload tags; missing indices retain void through ignored, tag-tested, local/call/join consumers; typed consumers check before unboxing. Existing record-array and ownership contracts stay separate. My corrected-source VM/native and GCC/Clang sanitizer acceptance passes, alongside 2,422 native and 1,092 shape checks. Evidence: `docs/evidence/native-optional-array-reads.md`.
 
 - [x] I emit total integer arithmetic in standalone native C (`task_9af23845cec040b6955340ab23de4c91`, parent66a6). Unsigned add/sub/mul/neg plus exact signed reconstruction avoid signed overflow; division/remainder guard zero and minimum-integer overflow. Thirty-eight typed/generic integer cases pass GCC/Clang UBSan at O0/O2, shared VM/LLVM/Wasm boundaries pass, and 2,422 native plus 1,092 shape checks pass. Generic float/tag promotion remains separate. See `docs/evidence/native-total-integer-arithmetic.md`.
