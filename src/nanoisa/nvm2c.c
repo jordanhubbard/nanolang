@@ -1223,6 +1223,22 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push_slot(b, idx, stk, &sp, y)) return 0;
             break;
         }
+        case OP_ROT3: {
+            Nvm2cSimSlot top, middle, bottom;
+            if (!sim_pop(b, idx, stk, &sp, &top) ||
+                !sim_pop(b, idx, stk, &sp, &middle) ||
+                !sim_pop(b, idx, stk, &sp, &bottom)) return 0;
+            if ((top.kind != NVM2C_VK_INT && top.kind != NVM2C_VK_BOOL) ||
+                (middle.kind != NVM2C_VK_INT && middle.kind != NVM2C_VK_BOOL) ||
+                (bottom.kind != NVM2C_VK_INT && bottom.kind != NVM2C_VK_BOOL)) {
+                nvm2c_fail(b, "I require exact int/bool operands for native ROT3");
+                return 0;
+            }
+            if (!sim_push_slot(b, idx, stk, &sp, top) ||
+                !sim_push_slot(b, idx, stk, &sp, bottom) ||
+                !sim_push_slot(b, idx, stk, &sp, middle)) return 0;
+            break;
+        }
         case OP_LOAD_GLOBAL: {
             uint32_t slot = ins.operands[0].u32;
             if (facts->global_kinds[slot] == NVM2C_VK_RARR) {
@@ -3443,6 +3459,23 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             st.slots[st.sp] = y;
             st.kinds[st.sp] = ky;
             st.sp++;
+            break;
+        }
+        case OP_ROT3: {
+            uint8_t kt = 0, km = 0, kb = 0;
+            int top = stack_pop_kind(b, &st, &kt);
+            int middle = stack_pop_kind(b, &st, &km);
+            int bottom = stack_pop_kind(b, &st, &kb);
+            if (b->failed) goto done;
+            if ((kt != NVM2C_VK_INT && kt != NVM2C_VK_BOOL) ||
+                (km != NVM2C_VK_INT && km != NVM2C_VK_BOOL) ||
+                (kb != NVM2C_VK_INT && kb != NVM2C_VK_BOOL)) {
+                nvm2c_fail(b, "I require exact int/bool operands for native ROT3");
+                goto done;
+            }
+            st.slots[st.sp] = top; st.kinds[st.sp++] = kt;
+            st.slots[st.sp] = bottom; st.kinds[st.sp++] = kb;
+            st.slots[st.sp] = middle; st.kinds[st.sp++] = km;
             break;
         }
         case OP_LOAD_GLOBAL: {
