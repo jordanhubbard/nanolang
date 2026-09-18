@@ -380,22 +380,24 @@ static void array_creation_recovery(void) {
         fn.code_length = sizeof code;
         nvm_add_function(module, &fn);
         VmState vm; vm_init(&vm, module);
-        uint64_t objects = vm.heap.stats.num_objects, allocated = vm.heap.stats.allocated;
+        uint64_t objects = vm.heap.stats.num_objects;
+        uint64_t live_bytes = vm.heap.stats.allocated - vm.heap.stats.freed;
         for (unsigned budget = 0; budget < 2; budget++) {
             NanoValue output = val_void();
+            uint64_t allocated = vm.heap.stats.allocated, freed = vm.heap.stats.freed;
             array_allocation_budget = budget;
             assert(vm_invoke(&vm, 0, NULL, 0, &output) == VM_ERR_MEMORY);
             array_allocation_budget = UINT64_MAX;
             assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
             assert(strstr(vm.error_msg, "create the array"));
-            assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
+            assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated && vm.heap.stats.freed == freed);
             for (unsigned repeat = 0; repeat < 4; repeat++) {
                 assert(vm_invoke(&vm, 0, NULL, 0, &output) == VM_OK);
                 assert(output.tag == TAG_ARRAY && output.as.array);
                 assert(output.as.array->elem_type == tags[t] && !output.as.array->length);
                 assert(output.as.array->capacity == 8 && output.as.array->header.ref_count == 1);
                 vm_release(&vm.heap, output);
-                assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
+                assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated - vm.heap.stats.freed == live_bytes);
             }
         }
         vm_destroy(&vm); nvm_module_free(module);
