@@ -90,6 +90,8 @@ RET
         for i in range(200):
             body += f'LOAD_LOCAL 0\nPUSH_F64 {i}.5\nARR_PUSH\nPOP\n'
             body += 'CALL garbage\nPOP\n'
+        # I replace the direct local so only the record retains the grown array.
+        body += 'ARR_NEW 3\nSTORE_LOCAL 0\n' + 'CALL garbage\nPOP\n' * 100
         body += 'LOAD_LOCAL 1\nAGG_GET 0\nPUSH_I64 199\nARR_GET\nPUSH_F64 199.5\nF64_EQ\nASSERT\n'
         self.paired('.types 1 0 0\n.entry main\n.function main 0 2 0 int 1\n'+body+
                     'PUSH_I64 0\nRET\n.end\n.function garbage 0 0 0 int 1\n'+
