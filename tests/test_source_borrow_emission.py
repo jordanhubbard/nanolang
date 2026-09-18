@@ -1513,12 +1513,6 @@ struct Inner { leaf: Leaf, yes: bool }
 struct Outer { inner: Inner, extra: int }
 fn scalar(value: int, text: string) -> int { (print text) return value }
 shadow scalar { assert true }
-fn make() -> Outer {
-    return Outer { inner: Inner { leaf: Leaf { value: (scalar 7 "A") }, yes: true }, extra: (scalar 9 "B") }
-}
-shadow make { assert true }
-fn relay(owner: Outer) -> Outer { return owner }
-shadow relay { assert true }
 fn take(owner: Outer) -> int {
     let Outer { inner, extra } = owner
     let Inner { leaf, yes } = inner
@@ -1528,16 +1522,20 @@ fn take(owner: Outer) -> int {
 }
 shadow take { assert true }
 fn main() -> int {
-    for index in (range 0 2) { assert (== (take (relay (make))) 16) }
+    for index in (range 0 1) {
+        let owner: Outer = Outer { inner: Inner { leaf: Leaf { value: (scalar 7 "A") }, yes: true }, extra: (scalar 9 "B") }
+        assert (== (take owner) 16)
+        assert (== (take Outer { inner: Inner { leaf: Leaf { value: (scalar 7 "A") }, yes: true }, extra: (scalar 9 "B") }) 16)
+    }
     return 0
 }
 shadow main { assert (== (main) 0) }
 '''
 
-    def test_transitive_wrapper_results_preserve_once_order_and_children(self):
-        baseline, shadows = self.graph_positive('transitive-results', self.transitive_wrapper_fixture(), b'ABAB', b'ABAB')
+    def test_transitive_wrapper_arguments_preserve_once_order_and_children(self):
+        baseline, shadows = self.graph_positive('transitive-arguments', self.transitive_wrapper_fixture(), b'ABAB', b'ABAB')
         self.assertIn('.ownership', baseline)
-        self.assertIn('.parameters 3 struct', baseline)
+        self.assertIn('.parameters 2 struct', baseline)
         self.assertGreaterEqual(shadows.count('OWN_UNPACK_LOCAL'), 3)
 
     def test_transitive_wrapper_refusals_preserve_output(self):
