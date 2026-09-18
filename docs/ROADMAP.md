@@ -4,6 +4,8 @@
 
 - [x] I verify and execute exact single-parameter consuming resource calls (`task_4ef48e1066534e639e577c9622445697`) as a separate entry0/helper1 runtime prerequisite. My [contract](NANOISA_CONSUMING_CALL.md) requires frame preflight, unique transfer, fresh helper reference provenance and exact consumption/cleanup; source admission and mixed signatures remain separate. I pass 3,091 focused lifecycle/refusal checks, 104 heap-fault checks and 90 separate frame/contract preflight checks; GCC/Clang18 native sanitizers and the instrumented VM/NanoISA run pass. I retain exact gate scope in my [evidence](evidence/consuming-calls.md).
 
+- [x] I inventory current component shadows and their execution routes (`task_3b21e8577b1f42f7a7654add7c2f6b6b`) after the explicit PR691 driver assertions. I separate declarations from observed execution, correct obsolete skip claims, and identify remaining evidence under broader task56a. [Contract](COMPONENT_SHADOW_INVENTORY.md).
+
 - [ ] I audit documented if-expression grammar against my selfhost parser (`task_9d920944d2994a1fa88f49fd7fe6547f`): the ordinary unparenthesized conditional record expression reaches semantic owner-profile refusal in C-seed but reports `parse failed` in raw selfhost. I retain the source at `/tmp/nanolang-helper-owner-checked-if.nano`. Equivalent `cond` expressions reach the intended semantic refusal in both producers; grammar/documentation parity is separate from helper-owned source admission.
 
 - [x] I admit exact helper-owned source locals (`task_c2464342430c4ed0a51401aec227da67`) after merged runtime741, preserving borrowed formal descriptors and exact nominal consumption in both producers. My [contract](NANOISA_SOURCE_HELPER_OWNERS.md) requires temporary observation descriptor `arity`, paired metadata/VM/native/shadow acceptance and unchanged authority refusals. My first full gate passes bootstrap and 27/28 methods; the new hidden-owner refusal fixture uses invalid parenthesized `if`, correctly caught by its parse-error exclusion. I retain `/tmp/nanolang-source-helper-owners-first.log`; a focused check of the documented replacement finds separate parser parity task9d92, so I stop the second preparation and use the equivalent supported `cond` expression. Both producers reach the intended semantic owner refusal; production remains unchanged. Final acceptance passes all 28 paired methods in 330.095 seconds and the existing affine/lifecycle gates; [measured evidence](evidence/source-helper-owners.md). I completed this bounded source admission in merged PR698.
@@ -7488,8 +7490,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       I reviewed PR #266's complete change: 39 lexer-call signature repairs,
       already present in my integration tree with source, filename and
       diagnostics. That repair does not execute component assertions. My
-      stage-three drivers still print library-load messages; the broader
-      component-execution audit remains open. I retain the PR's ancestry
+      stage-three drivers now execute the explicit PR691 entry assertions.
+      The current compiler defaults to imported-shadow selection and no longer
+      exempts explicit extern-dependent shadows; my [current inventory](COMPONENT_SHADOW_INVENTORY.md)
+      records 553 component declarations without claiming 553 executions.
+      Dependency-aware per-shadow completion evidence remains open. I retain the PR's ancestry
       without replacing newer transpiler code. Evidence:
       `docs/evidence/pr-266-reconciliation.md`.
 - [x] **5.0 import parity — bare relative paths.** I try a bare import path
@@ -8726,7 +8731,7 @@ Tests, examples, and SDL IDE:
       MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
 
 - [x] I preserve exact binary64 operand facts (`task_18f9dbfe2abf41fb9159ba9f8c84584d`) before admitting reconstructed float source. My additive `f64_bits` field is exactly 16 lowercase hexadecimal digits copied without numeric conversion; existing `arg`, signatures and executable admission remain unchanged. I check signed zeros, finite boundaries, infinities and NaN payload/signaling bits plus unchanged int/bool facts and output-preserving source refusal. My GCC/Clang strict sanitized facts-executable checks pass; [contract and evidence](NANOISA_RECONSTRUCTION_BINARY64_FACTS.md) retain the instrumentation boundary and initial fixture checksum refusal.
-- [ ] I preserve all nonfinite binary64 encodings through canonical assembly text (`task_50ba3bd3018f438a93113891d48e1387`). My static audit finds `disassembler.c` formats F64 operands with `%.17g`, which cannot retain every NaN payload/signaling representation. This residual follows historical broad task `task_3e08256b86b2803753eb52ea46f8a0eb`; I have not executed a failing artifact or established full text roundtrip. Exact source constants, typed arithmetic and comparison semantics need separate contracts before float reconstruction admission.
+- [x] I preserve all nonfinite binary64 encodings through canonical assembly text (`task_50ba3bd3018f438a93113891d48e1387`). My implementation contract accepts `bits:` followed by exactly 16 ASCII hexadecimal digits (either case), copies the accumulated uint64 bits into binary64 storage, and emits every canonical F64 operand as lowercase `bits:` text. Legacy decimal input remains accepted. I check exact valid-bit roundtrip, old text consumers, normal parser refusal and previous-output retention; source float reconstruction stays refused. My initial static audit found `disassembler.c` formatted F64 operands with `%.17g`, which could not retain every NaN payload/signaling representation. My [exact-token contract and measured checks](NANOISA_F64_TEXT.md) cover 17 valid bit patterns, legacy inputs and retained parser refusals. This residual follows historical broad task `task_3e08256b86b2803753eb52ea46f8a0eb`; I did not execute a failing artifact; this acceptance covers F64 operands and existing canonical consumer gates, not every module feature. Exact source constants, typed arithmetic and comparison semantics need separate contracts before float reconstruction admission.
 
 ### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.1)
 
