@@ -27,7 +27,7 @@ static bool boundary(const NvmModule *m,uint32_t fn,uint32_t pc) {
     return at==pc;
 }
 static bool valid(const NvmModule *m,const NvmLocalBinding *b) {
-    return b->name && b->name_size && b->name_size<=UINT32_MAX-16 &&
+    return m && (!m->function_count || m->functions) && b->name && b->name_size && b->name_size<=UINT32_MAX-16 &&
         b->function<m->function_count && b->slot<m->functions[b->function].local_count &&
         b->begin<=b->end && boundary(m,b->function,b->begin) && boundary(m,b->function,b->end);
 }
@@ -44,7 +44,7 @@ static bool overlap(const NvmLocalBinding *a,const NvmLocalBinding *b) {
         a->begin<b->end && b->begin<a->end;
 }
 NvmLocalNamesStatus nvm_local_names_validate(const NvmModule *m) {
-    if(!nvm_metadata_valid(m))return NVM_LOCAL_NAMES_INVALID;
+    if(!m || (m->function_count && !m->functions) || !nvm_metadata_valid(m))return NVM_LOCAL_NAMES_INVALID;
     bool found=false;
     for(uint32_t i=0;i<m->metadata_count;i++) {
         if(!named(m,&m->metadata[i]))continue;

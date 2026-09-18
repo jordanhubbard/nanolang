@@ -2127,7 +2127,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             int argc = node->as.handle_expr.handler_param_counts[i];
             for (int j = 0; j < argc; j++) local_add(cg, "", node->line);
             local_names_end(cg, outer_bindings);
-        cg->local_binding_count = outer_bindings;
+            cg->local_binding_count = outer_bindings;
             patches[i] = emit_op(cg, OP_HANDLER_PUSH,
                 effect_operation(cg, node->as.handle_expr.effect_name, node->as.handle_expr.handler_op_names[i]),
                 (int32_t)0, (int)starts[i], argc);
@@ -2165,7 +2165,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             emit_op(cg, OP_EFFECT_RESUME);
             cg->env->symbol_count = symbol_start;
             local_names_end(cg, outer_bindings);
-        cg->local_binding_count = outer_bindings;
+            cg->local_binding_count = outer_bindings;
         }
         cg->effect_depth--;
         if (!cg->had_error) patch_jump(cg, skip + 1, skip, cg->code_size);
@@ -3548,7 +3548,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             cg_error(cg, node->line, "I require checked loop binding metadata");
             cg->loop_depth--;
             local_names_end(cg, saved_binding_count);
-        cg->local_binding_count = saved_binding_count;
+            cg->local_binding_count = saved_binding_count;
             break;
         }
         /* Compile body */

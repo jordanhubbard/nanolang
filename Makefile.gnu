@@ -4603,3 +4603,9 @@ test-local-binding-metadata: test-local-binding-alloc
 test-local-binding-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_local_bindings_alloc tests/nanoisa/test_local_bindings_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/local_bindings.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_local_bindings_alloc
+
+test-local-binding-metadata: test-local-marker-alloc
+.PHONY: test-local-marker-alloc
+test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_local_markers_alloc tests/nanoisa/test_local_markers_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_local_markers_alloc

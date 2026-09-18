@@ -49,6 +49,8 @@ int main(int argc,char **argv) {
         }
         roundtrip(m);nvm_module_free(m);return 0;
     }
+    NvmModule incomplete={.function_count=1};
+    CHECK(nvm_local_names_validate(&incomplete)==NVM_LOCAL_NAMES_INVALID);
     const char *source=".function main 0 1 0 int 1\n"
         "PUSH_I64 40\nSTORE_LOCAL 0\n.local_begin 0 \"first\"\n"
         "LOAD_LOCAL 0\nPOP\n.local_end 0\nPUSH_I64 2\nSTORE_LOCAL 0\n"
