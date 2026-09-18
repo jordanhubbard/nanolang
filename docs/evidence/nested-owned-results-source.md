@@ -1,6 +1,6 @@
 # I qualify exact nested results through both source producers
 
-I freeze source/harness d190b367, including reviewed source guard changed1a1e428 and runtime query78d86331. My [source identity report](nested-owned-results-source.json) seals28 reports, ten current bin tools,16 generated producer paths and1,719 unchanged source/test/build inputs. I archive all ten qualified tool identities at `/tmp/nanolang-nested-source-qualified-tools` and the source at detached `/home/jkh/Src/nanolang-nested-owned-results-source-qualified` before any integration rebuild.
+I freeze source/harness d190b367, including reviewed source guard d1a1e428 and runtime query78d86331. My [source identity report](nested-owned-results-source.json) seals28 reports, ten current bin tools,16 generated producer paths and1,719 unchanged source/test/build inputs. I archive all ten qualified tool identities at `/tmp/nanolang-nested-source-qualified-tools` and the source at detached `/home/jkh/Src/nanolang-nested-owned-results-source-qualified` before any integration rebuild.
 
 | Gate | Observed result |
 | --- | --- |
