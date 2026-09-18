@@ -56,7 +56,7 @@ class ScalarUnionEmission(unittest.TestCase):
             assembly, module = self.work/'shadows.nasm', self.work/'shadows.nvm'
             assembly.write_text(self.command(self.shadows, fixture, '0', 'raw').stdout)
             self.command(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
-            self.execute(module, '' if name == 'nl_control_flow' else expected)
+            self.execute(module, expected)
 
     def test_scalar_payloads_calls_returns_and_lexical_scope(self):
         source = self.work/'values.nano'
