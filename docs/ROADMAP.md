@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I invoke my NanoCore reference evaluator through direct argv and pipes (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I preserve literal expression bytes, adjacent/PATH lookup, newline trimming and explicit failure results; I drain output concurrently with input and reap owned children. Ordinary quoted/spaced/large-input and benign-stub lifecycle tests precede acceptance. [Contract](NANOCORE_REFERENCE_TRANSPORT.md).
+- [x] I invoke my NanoCore reference evaluator through direct argv and pipes (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I preserve literal expression bytes, adjacent/PATH lookup, newline trimming and explicit failure results; I drain output concurrently with input and reap owned children. Seven ordinary quoted/spaced/large-input, benign-stub lifecycle and output-allocation-refusal methods pass GCC/Clang O2 sanitizers. This tests transport, not formal evaluator semantics. [Contract and evidence](NANOCORE_REFERENCE_TRANSPORT.md).
 
 - [x] I handle hashmap allocation failures explicitly (`task_bc7264a337074246953284ef892785d2`). I check constructor failure before publication, return a checked heap-set status, preserve contents and borrowed input ownership on failed insertion, and propagate VM_ERR_MEMORY after releasing consumed arguments. Existing-key replacement is allocation-free. The VM gate passes 274,493 checks, deterministic heap allocation/recovery tests pass GCC/Clang ASan/UBSan/LSan, and seven paired source/native methods pass both compilers. [Contract and evidence](NANOISA_MAP_ALLOCATION.md).
 

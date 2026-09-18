@@ -21,3 +21,26 @@ corrected source and invoke a benign evaluator stub with ordinary quoted text,
 spaced paths, large input/output, early exits and repeated calls. I check error
 results, descriptor and child cleanup. These tests establish process transport,
 not formal semantic correspondence or the reference evaluator's completeness.
+
+## My measured acceptance
+
+At source `3237b994` on main `38f29203`, seven methods pass with strict O2
+GCC ASan/UBSan/LSan (1.156 seconds) and Clang ASan/UBSan/LSan (1.076 seconds).
+I retain `/tmp/nanolang-reference-transport-gcc-final.log` and
+`/tmp/nanolang-reference-transport-clang.log`; the initial six-method GCC gate
+also passed before I added the allocation-refusal control.
+
+My benign stub receives ordinary quoted text literally from an adjacent path
+containing spaces; a separate spaced PATH entry exercises fallback lookup.
+I transfer an expression exceeding 600,000 bytes while the child first emits
+262,144 bytes, checking complete output beyond pipe and old fixed-buffer
+sizes. I check CR/LF trimming, empty output, nonzero exit, missing program,
+early input closure with default and ignored SIGPIPE, thirty repeated calls,
+and initially closed standard descriptors. A test-compiled realloc shim
+refuses output growth after child startup; the API returns NULL and reaps both
+children without descriptor or parent allocation leaks.
+
+The test harness checks that no owned child remains waitable after every call
+and compares its ordinary descriptor count before and after. No shell payload,
+known-aborting compiler, or malformed bytecode artifact was executed. The
+reference evaluator itself and Darwin execution were not requalified here.
