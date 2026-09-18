@@ -470,50 +470,144 @@ char *nanocore_export_sexpr(ASTNode *node, Environment *env) {
     return sbuf_finish(&b);
 }
 
+/* I keep process transport separate from the expression buffer above. */
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <spawn.h>
+#include <stdint.h>
+#include <sys/wait.h>
+
+static bool reference_pipe(int descriptors[2]) {
+    if (pipe(descriptors) != 0) return false;
+    for (int i = 0; i < 2; ++i) {
+        if (descriptors[i] <= STDERR_FILENO) {
+            int moved = fcntl(descriptors[i], F_DUPFD, STDERR_FILENO + 1);
+            if (moved < 0) goto fail;
+            close(descriptors[i]);
+            descriptors[i] = moved;
+        }
+        if (fcntl(descriptors[i], F_SETFD, FD_CLOEXEC) < 0) goto fail;
+    }
+    return true;
+fail:
+    close(descriptors[0]);
+    close(descriptors[1]);
+    descriptors[0] = descriptors[1] = -1;
+    return false;
+}
+
+static bool reference_wait(pid_t *child) {
+    int status = 0;
+    pid_t result;
+    do { result = waitpid(*child, &status, 0); } while (result < 0 && errno == EINTR);
+    *child = -1;
+    return result > 0 && WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
+
 char *nanocore_reference_eval(const char *sexpr, const char *compiler_path) {
     if (!sexpr) return NULL;
+    extern char **environ;
+    char *adjacent = NULL, *result = NULL, *answer = NULL;
+    const char *program = "nanocore-ref";
+    int input[2] = {-1, -1}, output[2] = {-1, -1};
+    pid_t child = -1, writer = -1;
+    posix_spawn_file_actions_t actions;
+    bool have_actions = false, ok = false;
+    size_t length = 0, capacity = 256, input_length = strlen(sexpr);
 
-    /* Find nanocore-ref binary: try same directory as compiler, then PATH */
-    char ref_path[1024];
-    bool found = false;
+    const char *slash = compiler_path ? strrchr(compiler_path, '/') : NULL;
+    if (slash) {
+        size_t directory = (size_t)(slash - compiler_path);
+        const char suffix[] = "/nanocore-ref";
+        if (directory > SIZE_MAX - sizeof suffix) goto cleanup;
+        adjacent = malloc(directory + sizeof suffix);
+        if (!adjacent) goto cleanup;
+        memcpy(adjacent, compiler_path, directory);
+        memcpy(adjacent + directory, suffix, sizeof suffix);
+        if (access(adjacent, X_OK) == 0) program = adjacent;
+    }
+    result = malloc(capacity);
+    if (!result || !reference_pipe(input) || !reference_pipe(output)) goto cleanup;
+    if (posix_spawn_file_actions_init(&actions) != 0) goto cleanup;
+    have_actions = true;
+    if (posix_spawn_file_actions_adddup2(&actions, input[0], STDIN_FILENO) != 0 ||
+        posix_spawn_file_actions_adddup2(&actions, output[1], STDOUT_FILENO) != 0 ||
+        posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0) != 0 ||
+        posix_spawn_file_actions_addclose(&actions, input[0]) != 0 ||
+        posix_spawn_file_actions_addclose(&actions, input[1]) != 0 ||
+        posix_spawn_file_actions_addclose(&actions, output[0]) != 0 ||
+        posix_spawn_file_actions_addclose(&actions, output[1]) != 0) goto cleanup;
+    char *const args[] = {(char *)program, NULL};
+    pid_t spawned;
+    if (posix_spawnp(&spawned, program, &actions, NULL, args, environ) != 0) goto cleanup;
+    child = spawned;
+    posix_spawn_file_actions_destroy(&actions);
+    have_actions = false;
+    close(input[0]); input[0] = -1;
+    close(output[1]); output[1] = -1;
 
-    if (compiler_path) {
-        /* Try directory containing the compiler */
-        const char *last_slash = strrchr(compiler_path, '/');
-        if (last_slash) {
-            int dir_len = (int)(last_slash - compiler_path);
-            snprintf(ref_path, sizeof(ref_path), "%.*s/nanocore-ref", dir_len, compiler_path);
-            if (access(ref_path, X_OK) == 0) {
-                found = true;
+    writer = fork();
+    if (writer < 0) goto cleanup;
+    if (writer == 0) {
+        /* I use only async-signal-safe operations after fork. A closed input
+         * produces SIGPIPE or a checked write error in this writer alone. */
+        close(output[0]);
+        for (int part = 0; part < 2; ++part) {
+            const char *text = part ? "\n" : sexpr;
+            size_t remaining = part ? 1 : input_length;
+            while (remaining) {
+                ssize_t written = write(input[1], text, remaining);
+                if (written < 0 && errno == EINTR) continue;
+                if (written <= 0) { close(input[1]); _exit(1); }
+                text += written;
+                remaining -= (size_t)written;
             }
         }
+        close(input[1]);
+        _exit(0);
     }
-
-    if (!found) {
-        /* Try PATH */
-        snprintf(ref_path, sizeof(ref_path), "nanocore-ref");
+    close(input[1]); input[1] = -1;
+    for (;;) {
+        char buffer[4096];
+        ssize_t count = read(output[0], buffer, sizeof buffer);
+        if (count < 0 && errno == EINTR) continue;
+        if (count < 0) goto cleanup;
+        if (!count) break;
+        if ((size_t)count > SIZE_MAX - length - 1) goto cleanup;
+        size_t needed = length + (size_t)count + 1;
+        if (needed > capacity) {
+            size_t grown = capacity;
+            while (grown < needed) {
+                if (grown > SIZE_MAX / 2) { grown = needed; break; }
+                grown *= 2;
+            }
+            char *resized = realloc(result, grown);
+            if (!resized) goto cleanup;
+            result = resized;
+            capacity = grown;
+        }
+        memcpy(result + length, buffer, (size_t)count);
+        length += (size_t)count;
     }
+    close(output[0]); output[0] = -1;
+    if (!reference_wait(&writer) || !reference_wait(&child)) goto cleanup;
+    ok = true;
 
-    /* Create a pipe to the reference interpreter */
-    char cmd[2048];
-    snprintf(cmd, sizeof(cmd), "echo '%s' | %s 2>/dev/null", sexpr, ref_path);
-
-    FILE *fp = popen(cmd, "r");
-    if (!fp) return NULL;
-
-    char result[4096];
-    size_t total = 0;
-    size_t n;
-    while ((n = fread(result + total, 1, sizeof(result) - total - 1, fp)) > 0) {
-        total += n;
+cleanup:
+    if (have_actions) posix_spawn_file_actions_destroy(&actions);
+    for (int i = 0; i < 2; ++i) {
+        if (input[i] >= 0) close(input[i]);
+        if (output[i] >= 0) close(output[i]);
     }
-    result[total] = '\0';
-    pclose(fp);
-
-    /* Trim trailing newline */
-    while (total > 0 && (result[total - 1] == '\n' || result[total - 1] == '\r')) {
-        result[--total] = '\0';
+    if (writer > 0) { kill(writer, SIGKILL); (void)reference_wait(&writer); }
+    if (child > 0) { kill(child, SIGKILL); (void)reference_wait(&child); }
+    if (ok) {
+        while (length && (result[length - 1] == '\n' || result[length - 1] == '\r')) --length;
+        result[length] = '\0';
+        if (length) { answer = result; result = NULL; }
     }
-
-    return total > 0 ? strdup(result) : NULL;
+    free(result);
+    free(adjacent);
+    return answer;
 }

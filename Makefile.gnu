@@ -1054,6 +1054,12 @@ test-opt-passes: stage1 test-native-tco
 	@./tests/test_opt_passes
 	@rm -f tests/test_opt_passes
 
+.PHONY: test-reference-eval-transport
+test-reference-eval-transport:
+	python3 -m unittest -v tests.test_reference_eval_transport
+
+test-nanocore: test-reference-eval-transport
+
 .PHONY: test-nanocore
 test-nanocore: stage1
 	@echo "Running nanocore_export and emit_typed_ast unit tests..."
