@@ -1,0 +1,465 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/main.c -o obj/nanovm/main.o
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o
+✓ Bootstrap Stage 0: C reference compiler ready
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/home/jkh/Src/nanolang-source-owned-string-print/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o \
+	obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi  -rdynamic
+Warning at line 1893, column 9: Unused variable 'rejected'
+Warning at line 2014, column 9: Unused variable 'rejected'
+Warning at line 2021, column 13: Unused variable 'rejected'
+Warning at line 2059, column 9: Unused variable 'rejected'
+Warning at line 2063, column 9: Unused variable 'rejected'
+Warning at line 2070, column 13: Unused variable 'rejected'
+Warning at line 5043, column 17: Unused variable 'imported'
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+	obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+	obj/nanovm/main.o -lm -lcrypto -lffi  -rdynamic -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanoisa -o obj/test_local_bindings_alloc tests/nanoisa/test_local_bindings_alloc.c obj/nanoisa/managed_array_shapes.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+I passed 5 local-name allocation boundaries.
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanoisa -o obj/test_local_markers_alloc tests/nanoisa/test_local_markers_alloc.c obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+I passed 20 local-marker allocation boundaries.
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 1893, column 9: Unused variable 'rejected'
+Warning at line 2014, column 9: Unused variable 'rejected'
+Warning at line 2021, column 13: Unused variable 'rejected'
+Warning at line 2059, column 9: Unused variable 'rejected'
+Warning at line 2063, column 9: Unused variable 'rejected'
+Warning at line 2070, column 13: Unused variable 'rejected'
+Warning at line 5043, column 17: Unused variable 'imported'
+Warning at line 1893, column 9: Unused variable 'rejected'
+Warning at line 2014, column 9: Unused variable 'rejected'
+Warning at line 2021, column 13: Unused variable 'rejected'
+Warning at line 2059, column 9: Unused variable 'rejected'
+Warning at line 2063, column 9: Unused variable 'rejected'
+Warning at line 2070, column 13: Unused variable 'rejected'
+Warning at line 5043, column 17: Unused variable 'imported'
+Warning at line 1893, column 9: Unused variable 'rejected'
+Warning at line 2014, column 9: Unused variable 'rejected'
+Warning at line 2021, column 13: Unused variable 'rejected'
+Warning at line 2059, column 9: Unused variable 'rejected'
+Warning at line 2063, column 9: Unused variable 'rejected'
+Warning at line 2070, column 13: Unused variable 'rejected'
+Warning at line 5043, column 17: Unused variable 'imported'
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanoisa -o obj/test_local_bindings tests/nanoisa/test_local_bindings.c obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+I passed 123 lexical local-name checks.
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+In file included from /tmp/nano_native_1789752600_0/program.c:135:
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___16_check_function’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18599:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18600:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___20_reduce_emission_fail’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21794:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___21_nb_body’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29125:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29125:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29132:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29132:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_fail’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29863:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_globals’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:31326:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_while’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33485:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33486:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33504:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33505:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33506:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_for’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33553:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33554:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33555:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33575:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33576:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33577:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘__nano_shadow_590’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21805:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘__nano_shadow_591’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21813:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-source-owned-string-print/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+=== Code Generation ===
+Generating C code for 2 functions
+=== Code Generation ===
+Generating C code for 1 functions
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /tmp/nano_source_guard_1789752608_0/source.nano
+I will not overwrite a source file: /tmp/nano_source_guard_1789752608_0/source.nano
+I cannot check source/output file identity: /tmp/nano_source_guard_1789752608_0/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Output executable (default: a.out)
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (source output, no native compilation)
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → Transpile → Compile
+
+In file included from /tmp/nano_native_1789752600_0/program.c:133:
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___16_check_function’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18599:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18600:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___20_reduce_emission_fail’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21794:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___21_nb_body’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29125:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29125:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29132:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29132:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_fail’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29863:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_globals’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:31326:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_while’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33485:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33486:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33504:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33505:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33506:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_for’:
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33553:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33554:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33555:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33575:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33576:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33577:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-string-print/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-source-owned-string-print/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxr-xr-x 1 jkh jkh 16M Sep 18 10:27 bin/nanoc_stage1
+-rwxr-xr-x 1 jkh jkh 11M Sep 18 10:30 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 16577736
+Stage 2 size: 10942200
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+make[1]: Entering directory '/home/jkh/Src/nanolang-source-owned-string-print'
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+make[1]: Leaving directory '/home/jkh/Src/nanolang-source-owned-string-print'
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi  -rdynamic
+test_borrowed_names_and_stripped_execution (tests.test_source_borrow_emission.SourceBorrowEmission.test_borrowed_names_and_stripped_execution) ... ok
+test_both_producers_and_native_stages_preserve_exact_contracts (tests.test_source_borrow_emission.SourceBorrowEmission.test_both_producers_and_native_stages_preserve_exact_contracts) ... ok
+test_consumed_owner_reassignment_preserves_paths_and_names (tests.test_source_borrow_emission.SourceBorrowEmission.test_consumed_owner_reassignment_preserves_paths_and_names) ... ok
+test_consuming_selected_shadows_and_terminal_cleanup (tests.test_source_borrow_emission.SourceBorrowEmission.test_consuming_selected_shadows_and_terminal_cleanup) ... ok
+test_consuming_source_calls_and_exact_metadata (tests.test_source_borrow_emission.SourceBorrowEmission.test_consuming_source_calls_and_exact_metadata) ... ok
+test_consuming_source_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_consuming_source_refusals_preserve_publication) ... ok
+test_control_flow_depth_boundary (tests.test_source_borrow_emission.SourceBorrowEmission.test_control_flow_depth_boundary) ... ok
+test_control_flow_preserves_exact_joins_and_effects (tests.test_source_borrow_emission.SourceBorrowEmission.test_control_flow_preserves_exact_joins_and_effects) ... ok
+test_control_flow_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_control_flow_refusals_preserve_publication) ... ok
+test_explicit_resource_paths_preserve_exact_joins (tests.test_source_borrow_emission.SourceBorrowEmission.test_explicit_resource_paths_preserve_exact_joins) ... ok
+test_false_borrowed_helper_cleans_actual_caller_owners (tests.test_source_borrow_emission.SourceBorrowEmission.test_false_borrowed_helper_cleans_actual_caller_owners) ... ok
+test_false_shadow_and_unsupported_graph_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_false_shadow_and_unsupported_graph_preserve_publication) ... ok
+test_helper_owned_locals_preserve_formals_and_shadows (tests.test_source_borrow_emission.SourceBorrowEmission.test_helper_owned_locals_preserve_formals_and_shadows) ... ok
+test_helper_owner_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_helper_owner_refusals_preserve_publication) ... ok
+test_inline_owner_wrappers_refuse_without_ordinary_fallback (tests.test_source_borrow_emission.SourceBorrowEmission.test_inline_owner_wrappers_refuse_without_ordinary_fallback) ... ok
+test_lexical_scalar_visibility_refusals (tests.test_source_borrow_emission.SourceBorrowEmission.test_lexical_scalar_visibility_refusals) ... ok
+test_lexical_scalars_restore_outer_bindings_and_names (tests.test_source_borrow_emission.SourceBorrowEmission.test_lexical_scalars_restore_outer_bindings_and_names) ... ok
+test_loop_exits_preserve_exact_owners_and_innermost_targets (tests.test_source_borrow_emission.SourceBorrowEmission.test_loop_exits_preserve_exact_owners_and_innermost_targets) ... ok
+test_multiple_parameter_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_multiple_parameter_refusals_preserve_publication) ... ok
+test_multiple_parameters_preserve_callers_and_metadata (tests.test_source_borrow_emission.SourceBorrowEmission.test_multiple_parameters_preserve_callers_and_metadata) ... ok
+test_nested_depth_boundary (tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_depth_boundary) ... ok
+test_nested_paths_preserve_trees_and_callers (tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_paths_preserve_trees_and_callers) ... ok
+test_nested_source_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_source_refusals_preserve_publication) ... ok
+test_owned_local_routing_and_shadow_only_admission (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_local_routing_and_shadow_only_admission) ... ok
+test_owned_string_exact_bytes_and_forwarding (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_string_exact_bytes_and_forwarding) ... FAIL
+test_owned_string_output_precedes_assertion_cleanup (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_string_output_precedes_assertion_cleanup) ... ok
+test_owned_string_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_string_refusals_preserve_publication) ... ok
+test_owned_string_unchanged_affine_example (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_string_unchanged_affine_example) ... FAIL
+test_owned_suffix_and_synthetic_name_collision (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_suffix_and_synthetic_name_collision) ... ok
+test_owned_value_graph_eight_frames (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_value_graph_eight_frames) ... ok
+test_owned_value_graph_eight_positional_arguments (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_value_graph_eight_positional_arguments) ... ok
+test_owned_value_graph_multiple_nested_owners (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_value_graph_multiple_nested_owners) ... ok
+test_owned_value_graph_refusals_preserve_output (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_value_graph_refusals_preserve_output) ... ok
+test_owned_value_graph_results_and_shadow_main (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_value_graph_results_and_shadow_main) ... ok
+test_owner_reassignment_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_owner_reassignment_refusals_preserve_publication) ... ok
+test_range_for_preserves_bounds_scope_and_exact_edges (tests.test_source_borrow_emission.SourceBorrowEmission.test_range_for_preserves_bounds_scope_and_exact_edges) ... ok
+test_range_for_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_range_for_refusals_preserve_publication) ... ok
+test_resource_path_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_resource_path_refusals_preserve_publication) ... ok
+test_return_path_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_return_path_refusals_preserve_publication) ... ok
+test_return_paths_preserve_ownership_and_fallthrough (tests.test_source_borrow_emission.SourceBorrowEmission.test_return_paths_preserve_ownership_and_fallthrough) ... ok
+test_selected_shadows_execute_and_preserve_suffix_identity (tests.test_source_borrow_emission.SourceBorrowEmission.test_selected_shadows_execute_and_preserve_suffix_identity) ... ok
+test_shadow_names_close_before_next_selected_scope (tests.test_source_borrow_emission.SourceBorrowEmission.test_shadow_names_close_before_next_selected_scope) ... ok
+
+======================================================================
+FAIL: test_owned_string_exact_bytes_and_forwarding (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_string_exact_bytes_and_forwarding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-source-owned-string-print/tests/test_source_borrow_emission.py", line 1349, in test_owned_string_exact_bytes_and_forwarding
+    self.graph_positive('string-bytes', text, expected, expected)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-source-owned-string-print/tests/test_source_borrow_emission.py", line 1162, in graph_positive
+    self.assertEqual(actual, shadow_dump)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '.str[119 chars]ing ""\n.string "A\\tB\\rC\\n\\"\'\\\\0\\\\q \[2422 chars]\n\n' != '.str[119 chars]ing "nano.local.v1"\n.string "\\x01\\x00\\x00\[2423 chars]\n\n'
+Diff is 2972 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_owned_string_unchanged_affine_example (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_string_unchanged_affine_example)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-source-owned-string-print/tests/test_source_borrow_emission.py", line 1314, in test_owned_string_unchanged_affine_example
+    baseline, shadows = self.graph_positive(
+                        ~~~~~~~~~~~~~~~~~~~^
+        'affine-demo-unchanged', text,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        b'audit.log\nresource closed\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        b'audit.log\nresource closed\nresource closed\naudit.log\nresource closed\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-source-owned-string-print/tests/test_source_borrow_emission.py", line 1145, in graph_positive
+    self.assertEqual(actual, baseline)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: '.str[116 chars]ing "resource closed"\n.string "nano.local.v1"[1384 chars]\n\n' != '.str[116 chars]ing "nano.local.v1"\n.string "\\x00\\x00\\x00\[1384 chars]\n\n'
+Diff is 1823 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 42 tests in 357.378s
+
+FAILED (failures=2)
+make: *** [Makefile.gnu:4831: test-source-borrow-emission] Error 1
