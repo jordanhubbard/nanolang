@@ -72,3 +72,15 @@ post803 reports retain exact commands and flags. All49 tool/object/binary inputs
 and1,611 native-source/test/build identities match before, after and sealing; no
 additional objects appear. The expanded manifest seals64 reports. These checks
 remain query-only for pending modules and grant no executable mixed admission.
+
+I integrate PR804 main3ec6d7ab at1ec38d2c in another fresh tree, retaining both
+roadmap entries and both earlier qualified trees. The only incoming NanoISA
+verifier change admits exact nonparameter FLOAT locals with NO_INDEX; my private
+proof and fixtures remain unchanged and mixed descriptor admission stays refused.
+I build only required library objects, with no bootstrap or native package rebuild.
+GCC/Clang339 checks each and verifier/descriptor controls pass. An initial passing
+run inventoried38 inputs; I retain it separately because vm_decode/vm_dispatch
+objects were omitted from that inventory. A fresh focused repeat inventories all40
+inputs: GCC0.565s, Clang sanitizer1.217s, adjacent1.367s, with40 tool/object and1,611
+source hashes unchanged before/after/sealing. My manifest now seals96 reports.
+No pending module executes and no mixed admission or source qualification is claimed.
