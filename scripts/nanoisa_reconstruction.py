@@ -425,7 +425,9 @@ class Emit:
 # These shadows test my helper implementation, not an original source harness.
 NANO_INTEGER_HELPERS = {
     'ge_u': '''fn nlr_i64_ge_u(a: int, b: int) -> bool {
-    if (!= (< a 0) (< b 0)) { return (< a 0) }
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return a_negative }
     return (>= a b)
 }
 shadow nlr_i64_ge_u {
@@ -436,7 +438,9 @@ shadow nlr_i64_ge_u {
     assert (== (nlr_i64_ge_u 7 7) true)
 }''',
     'gt_u': '''fn nlr_i64_gt_u(a: int, b: int) -> bool {
-    if (!= (< a 0) (< b 0)) { return (< a 0) }
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return a_negative }
     return (> a b)
 }
 shadow nlr_i64_gt_u {
@@ -447,7 +451,9 @@ shadow nlr_i64_gt_u {
     assert (== (nlr_i64_gt_u 7 7) false)
 }''',
     'le_u': '''fn nlr_i64_le_u(a: int, b: int) -> bool {
-    if (!= (< a 0) (< b 0)) { return (< b 0) }
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return b_negative }
     return (<= a b)
 }
 shadow nlr_i64_le_u {
@@ -458,7 +464,9 @@ shadow nlr_i64_le_u {
     assert (== (nlr_i64_le_u 7 7) true)
 }''',
     'lt_u': '''fn nlr_i64_lt_u(a: int, b: int) -> bool {
-    if (!= (< a 0) (< b 0)) { return (< b 0) }
+    let a_negative: bool = (< a 0)
+    let b_negative: bool = (< b 0)
+    if (!= a_negative b_negative) { return b_negative }
     return (< a b)
 }
 shadow nlr_i64_lt_u {
