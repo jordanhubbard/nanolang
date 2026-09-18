@@ -98,3 +98,16 @@ Existing supported prior-order and foreign UNKNOWN cases remain controls.
 LLVM/Wasm record output stays refused and preserves prior files; success here
 is declaration authority only. I record exact source/tool pins, preserve first
 failures and integrate through review before closing this child, not parent15f.
+
+## My first implementation correction
+
+My frozen31c85f10 bootstrap exits2 after237.345s: Stage1 and hello pass, but
+Stage2 native shadow linking reports undefined `nl_array_slice` from my new
+iterative graph walk. I retain that tree and its source/tool/log identities.
+Before correction I record d0dad78c and separate native-slice follow-upc9927df8.
+I keep graph semantics unchanged and use fixed-count indexed stack storage plus
+an explicit depth for DFS push/pop. This uses already established array_set/
+array_push construction, requires no slice helper and stays bounded by128
+records. Existing graph/publication shadows and every transport/producer gate
+remain unchanged. A fresh worktree must pass actual bootstrap before execution;
+I do not replay the failed artifact or claim general array_slice recovery.
