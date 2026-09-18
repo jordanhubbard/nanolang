@@ -1292,6 +1292,32 @@ static bool check_match_guard(ASTNode *guard, Environment *env) {
     return false;
 }
 
+/* I reject mixed or unknown pattern domains before reasoning about coverage. */
+static bool check_match_scrutinee_domain(ASTNode *matched, Type match_type,
+                                         bool has_int_patterns) {
+    const char *message = NULL;
+    const char *hint = NULL;
+    if (has_int_patterns && match_type != TYPE_INT) {
+        message = "I require integer match patterns to inspect an int.";
+        hint = "Use an int scrutinee, or use patterns from the scrutinee's declared union.";
+    } else if (!has_int_patterns && match_type != TYPE_UNION) {
+        message = "I require a match expression to inspect a union value.";
+        hint = "Use a declared union value, or use integer patterns with an int scrutinee.";
+    }
+    if (!message) return true;
+
+    emit_context_error(
+        "E001 TYPE MISMATCH",
+        matched->line,
+        matched->column,
+        5,
+        message,
+        hint
+    );
+    if (active_statement_checker) active_statement_checker->has_error = true;
+    return false;
+}
+
 static bool match_guard_is_unconditional(const ASTNode *guard) {
     return !guard || (guard->type == AST_BOOL && guard->as.bool_val);
 }
@@ -4170,9 +4196,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     break;
                 }
             }
-            if (match_type != TYPE_UNION && !has_int_patterns_expr) {
-                fprintf(stderr, "Error at line %d, column %d: Match expression must be a union type\n",
-                        expr->line, expr->column);
+            if (!check_match_scrutinee_domain(expr, match_type, has_int_patterns_expr)) {
                 return TYPE_UNKNOWN;
             }
             
@@ -5613,16 +5637,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     break;
                 }
             }
-            if (match_type != TYPE_UNION && !has_int_patterns_stmt) {
-                emit_context_error(
-                    "E001 TYPE MISMATCH",
-                    stmt->line,
-                    stmt->column,
-                    1,
-                    "Match expression must be a union type.",
-                    "Ensure the scrutinee is a union value."
-                );
-                tc->has_error = true;
+            if (!check_match_scrutinee_domain(stmt, match_type, has_int_patterns_stmt)) {
                 return TYPE_VOID;
             }
 
