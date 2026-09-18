@@ -15,7 +15,7 @@ INT, BOOL = 1, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
-ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg'}
+ARITHMETIC = {'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL'} | set(COMPARE) | set(ARITHMETIC)
 
@@ -372,9 +372,12 @@ class Emit:
                 args = 'int64_t a' if op == 'neg' else 'int64_t a, int64_t b'
                 expression = {'add': '(uint64_t)a + (uint64_t)b',
                               'sub': '(uint64_t)a - (uint64_t)b',
+                              'mul': '(uint64_t)a * (uint64_t)b',
                               'neg': 'UINT64_C(0) - (uint64_t)a'}[op]
                 self.line(f'static int64_t nlr_i64_{op}({args}) {{ return nlr_i64_bits({expression}); }}')
             return
+        if 'mul' in needed:
+            needed.update(('add', 'sub'))
         for op in sorted(needed):
             self.line(NANO_INTEGER_HELPERS[op])
 
@@ -382,6 +385,28 @@ class Emit:
 # I branch before signed arithmetic so all helper intermediates are representable.
 # These shadows test my helper implementation, not an original source harness.
 NANO_INTEGER_HELPERS = {
+    'mul': '''fn nlr_i64_mul(a: int, b: int) -> int {
+    let mut factor: int = a
+    let mut remaining: int = b
+    let mut result: int = 0
+    while (!= remaining 0) {
+        let digit: int = (% remaining 2)
+        if (> digit 0) { set result (nlr_i64_add result factor) }
+        if (< digit 0) { set result (nlr_i64_sub result factor) }
+        set remaining (/ remaining 2)
+        set factor (nlr_i64_add factor factor)
+    }
+    return result
+}
+shadow nlr_i64_mul {
+    let low: int = (- -9223372036854775807 1)
+    assert (== (nlr_i64_mul low -1) low)
+    assert (== (nlr_i64_mul low 2) 0)
+    assert (== (nlr_i64_mul 9223372036854775807 9223372036854775807) 1)
+    assert (== (nlr_i64_mul -3 -7) 21)
+    assert (== (nlr_i64_mul -3 7) -21)
+    assert (== (nlr_i64_mul 4294967296 4294967296) 0)
+}''',
     'add': '''fn nlr_i64_add(a: int, b: int) -> int {
     let low: int = (- -9223372036854775807 1)
     let high: int = 9223372036854775807

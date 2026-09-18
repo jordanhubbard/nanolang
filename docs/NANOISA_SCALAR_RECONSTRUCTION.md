@@ -27,6 +27,7 @@ My opcode whitelist is NOP, PUSH_I64, PUSH_BOOL, LOAD_LOCAL, STORE_LOCAL, DUP,
 POP, SWAP, signed I64 comparisons, BOOL_AND/OR/NOT, CALL, JMP, JMP_FALSE,
 JMP_TRUE and RET. The exact integer child now also admits I64_ADD, I64_SUB and
 I64_NEG through total cross-language helpers; see [the arithmetic contract](NANOISA_RECONSTRUCT_INTEGER_ADD.md).
+I64_MUL now uses the same typed tree with [bounded total multiplication](NANOISA_RECONSTRUCT_INTEGER_MUL.md).
 Other arithmetic, generic tagged comparisons, implicit returns, multiple returns,
 tail calls and all other operations remain outside this slice.
 
