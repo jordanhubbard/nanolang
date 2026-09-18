@@ -47,3 +47,7 @@ and `/tmp/nanolang-array-copy-expanded.log` (expanded2 methods3.069 seconds).
 I used `NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13`.
 No source-bootstrap, Darwin sanitizer or full release claim follows from this
 runtime-only checkpoint.
+
+My final restack includes main48d0c821 (documentation-only PR716). The three
+production files and both new test files are byte-identical to efbd6ea4; no
+additional runtime rerun is warranted by that documentation-only integration.
