@@ -1523,9 +1523,13 @@ fn take(owner: Outer) -> int {
 shadow take { assert true }
 fn main() -> int {
     for index in (range 0 1) {
-        let owner: Outer = Outer { inner: Inner { leaf: Leaf { value: (scalar 7 "A") }, yes: true }, extra: (scalar 9 "B") }
+        let leaf: Leaf = Leaf { value: (scalar 7 "A") }
+        let inner: Inner = Inner { leaf: leaf, yes: true }
+        let owner: Outer = Outer { inner: inner, extra: (scalar 9 "B") }
         assert (== (take owner) 16)
-        assert (== (take Outer { inner: Inner { leaf: Leaf { value: (scalar 7 "A") }, yes: true }, extra: (scalar 9 "B") }) 16)
+        let second_leaf: Leaf = Leaf { value: (scalar 7 "A") }
+        let second_inner: Inner = Inner { leaf: second_leaf, yes: true }
+        assert (== (take Outer { inner: second_inner, extra: (scalar 9 "B") }) 16)
     }
     return 0
 }
@@ -1542,7 +1546,8 @@ shadow main { assert (== (main) 0) }
         base = self.transitive_wrapper_fixture()
         cases = {
             'wrong_nominal': base.replace('struct Outer', 'struct Other { leaf: Leaf, yes: bool }\nstruct Outer', 1)
-                .replace('inner: Inner { leaf:', 'inner: Other { leaf:'),
+                .replace('let inner: Inner = Inner', 'let inner: Other = Other'),
+            'inline_child': base.replace('leaf: leaf, yes:', 'leaf: Leaf { value: 7 }, yes:', 1),
             'missing_field': base.replace(', extra: (scalar 9 "B")', ''),
             'duplicate_field': base.replace('yes: true', 'yes: true, yes: false'),
             'managed_string': base.replace('extra: int', 'extra: string').replace('extra: (scalar 9 "B")', 'extra: "B"')
