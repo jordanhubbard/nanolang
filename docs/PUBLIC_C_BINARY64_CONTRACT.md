@@ -134,3 +134,9 @@ from exact scoped record/selected-variant declarations, including nested declare
 fields and checked concrete payload annotations. I do not restore unknown-as-INT
 or widen generic/heap inference. I qualify existing match controls plus ordinary
 FLOAT record/variant arithmetic and unresolved-field refusal before completion.
+
+My first field-annotation gate ran seven existing methods successfully but could
+not enter the new method: its Python fixture constant followed unittest.main.
+I retain both GCC/Clang logs and all 21 frozen identities, move that constant
+before the runner, and freeze the corrected harness before fresh qualification.
+No source compiler or generated program ran for the unbound fixture.

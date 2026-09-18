@@ -151,7 +151,6 @@ fn main()->int{
 }
 shadow main{assert true}
 '''
-if __name__=='__main__':unittest.main()
 
 FIELDS="""struct Measure { value: float }
 union Sample { Reading { value: float } }
@@ -171,3 +170,5 @@ fn main()->int{
 }
 shadow main{assert (== (main) 0)}
 """
+
+if __name__=='__main__':unittest.main()
