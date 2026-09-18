@@ -15,7 +15,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array"};
     return names[kind];
 }
 
@@ -58,7 +58,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT_SCALAR)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT_INT_ARRAY)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -214,7 +214,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
-            if (final && to == NVM_SHAPE_VARIANT_SCALAR) {
+            if (final && (to == NVM_SHAPE_VARIANT_SCALAR || to == NVM_SHAPE_VARIANT_INT_ARRAY)) {
                 fail(g, "I require proved scalar producers for variant scalar storage"); break;
             }
             continue;
@@ -256,6 +256,20 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (to == NVM_SHAPE_VARIANT_SCALAR &&
             (from == NVM_SHAPE_INT || from == NVM_SHAPE_BOOL ||
              from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING)) continue;
+        /* I admit only a proved integer-array member, not any heap handle.
+         * I wait for late element resolution without binding the producer. */
+        if (to == NVM_SHAPE_VARIANT_INT_ARRAY) {
+            if (from == NVM_SHAPE_INT || from == NVM_SHAPE_BOOL ||
+                from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING ||
+                from == NVM_SHAPE_VARIANT_SCALAR) continue;
+            if (from == NVM_SHAPE_ARRAY) {
+                NvmShapeId element = nvm_shape_lookup(g, source, 0);
+                NvmShapeKind member = element ? nvm_shape_kind(g, element) : NVM_SHAPE_UNKNOWN;
+                if (member == NVM_SHAPE_INT) continue;
+                if (member == NVM_SHAPE_UNKNOWN && !final) continue;
+                fail(g, "I require an exact integer element for variant array storage"); break;
+            }
+        }
         if (from != to) {
             snprintf(g->error_detail, sizeof g->error_detail,
                      "I cannot convert aggregate storage %s to %s at nodes %u/%u",

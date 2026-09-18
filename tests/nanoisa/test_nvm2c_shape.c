@@ -314,7 +314,50 @@ static void test_explicit_variant_scalar_storage(void) {
     }
 }
 
+static void test_finite_variant_integer_array(void) {
+    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT,
+        NVM_SHAPE_STRING, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY};
+    for (size_t i = 0; i < sizeof members / sizeof members[0]; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, members[i]);
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_VARIANT_INT_ARRAY);
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, source) == members[i]);
+        nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind elements[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT,
+        NVM_SHAPE_STRING, NVM_SHAPE_RECORD, NVM_SHAPE_ARRAY, NVM_SHAPE_UNKNOWN};
+    for (size_t i = 0; i < sizeof elements / sizeof elements[0]; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId element = nvm_shape_child(&g, source, 0);
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_VARIANT_INT_ARRAY);
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(nvm_shape_unify(&g, element, nvm_shape_new(&g, elements[i])));
+        CHECK(nvm_shape_solve_conversions(&g) == (elements[i] == NVM_SHAPE_INT));
+        if (!g.error) {
+            CHECK(nvm_shape_kind(&g, source) == NVM_SHAPE_ARRAY);
+            CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_INT);
+        }
+        nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind excluded[] = {NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_UNKNOWN};
+    for (size_t i = 0; i < sizeof excluded / sizeof excluded[0]; ++i) {
+        NvmShapeGraph g = {0};
+        CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, excluded[i]),
+            nvm_shape_new(&g, NVM_SHAPE_VARIANT_INT_ARRAY)));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        nvm_shape_destroy(&g);
+    }
+    NvmShapeGraph g = {0};
+    CHECK(!nvm_shape_unify(&g, nvm_shape_new(&g, NVM_SHAPE_ARRAY),
+        nvm_shape_new(&g, NVM_SHAPE_VARIANT_INT_ARRAY)));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
+    test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
     test_numeric_union_payload();
     {
