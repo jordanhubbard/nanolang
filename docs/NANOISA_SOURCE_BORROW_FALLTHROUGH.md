@@ -31,3 +31,5 @@ Ordinary refusal controls retain live-owner, shadow-return, resource-move and
 missing-return boundaries without changing verifier authority.
 
 My explicit resource-path continuation is MAC `task_d74d8a4fb4a048a786666195eaa4e8d5`; it remains unimplemented here.
+
+My disposal-provenance prerequisite is MAC `task_6a55c8c1e40a4923804e20b450d32cdf`. Complete explicit leaf patterns may retain compiler holders until terminal cleanup; I distinguish these holders from unconsumed source owners with explicit slot metadata, never names.
