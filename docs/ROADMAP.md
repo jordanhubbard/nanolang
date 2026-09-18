@@ -9073,7 +9073,7 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
-- [ ] I preserve exporter buffer allocation and formatting failures through checked sizing, retained allocation ownership and the existing NULL-result boundary (`task_e926ca38a5d64f299e9532ed984a2860`), while correcting the recorded strict GCC13 format diagnostic (`task_927d53891d204f2fb4e1974eb8c3edc2`). I use ordinary output comparisons and deterministic allocator-failure controls, without crash reproduction.
+- [x] I preserve exporter buffer allocation and formatting failures through checked sizing, retained allocation ownership and the existing NULL-result boundary (`task_e926ca38a5d64f299e9532ed984a2860`), while correcting the recorded strict GCC13 format diagnostic (`task_927d53891d204f2fb4e1974eb8c3edc2`). I use ordinary output comparisons and deterministic allocator-failure controls, without crash reproduction.
 - [ ] I invoke my NanoCore reference evaluator through direct arguments and pipe transport, preserving literal expression bytes and compiler paths instead of constructing a shell command (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I test valid quoted strings, spaced paths and long expressions with a benign evaluator; formal correspondence remains separate.
 - [x] I propagate both conditional clause and else-arm type errors through my C frontend diagnostic counter before publication (`task_ab4437a5560f475db4fdf49931a03bf3`). My paired negative field test reports a mismatch but NanoVirt exits zero; I preserve that failure and keep the existing type comparison unchanged. [Bounded acceptance](evidence/conditional-field-types.md).
 - [x] I retain the exact common type of conditional expression arms and their single-expression blocks during self-hosted NanoISA lowering (`task_e0a68123b4aa467fa8ed6b24161ced69`). My full product gate at e563d0e3 stops on record field `underscore_name` in retained transpiler shadows. I require equal known arm types and keep mismatched/unknown branches refused; I test both arms, nesting, records and declared-field rejection before resuming the full gate. [Bounded acceptance](evidence/conditional-field-types.md).
@@ -9113,12 +9113,14 @@ Compiler product:
       and pass a fresh three-stage native bootstrap, 24 metadata C methods,
       three import methods and the foreign compiler-path regression
       (`task_402e6b8289fc4f58b79ef5559a68dce3`).
-- [ ] I investigate GCC 13’s strict `-O1` sanitizer-build diagnostic for
-      `nanocore_export.c` `sbuf_appendf`: inlined `vsnprintf` reports a null
-      format string. My normal strict build passes; this is a configuration
-      diagnostic, not a demonstrated runtime failure. I retain the log and
-      use unsuppressed `-O0` sanitizer checks for the independent metadata task.
-      MAC `task_927d53891d204f2fb4e1974eb8c3edc2`.
+- [x] I resolve GCC 13's strict `-O1` sanitizer-build diagnostic for
+      `nanocore_export.c` `sbuf_appendf` with an explicit nonnull format guard.
+      I retain the original compiler diagnostic and pass the corrected strict
+      compilation without warning suppression, GCC and Clang sanitizer buffer
+      controls, and my NanoCore suite. This was a configuration diagnostic,
+      not a demonstrated runtime failure. MAC
+      `task_927d53891d204f2fb4e1974eb8c3edc2`; evidence:
+      `docs/evidence/nanocore-export-buffer.md`.
 - [x] I preserve complete recursive function parameter/result annotations
       and nested TypeInfo edges in compiled module metadata, including shared
       graph references. My generated-C roundtrip, 24 C methods, parsed lifetime
