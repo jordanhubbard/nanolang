@@ -2536,6 +2536,29 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
 
+        # I reserve uppercase Type<args>.Variant for explicit union construction.
+        # Lowercase identifiers keep their ordinary infix comparison grammar.
+        if (== tok.token_type (token_identifier)) {
+            let first: int = (char_at tok.value 0)
+            if (and (>= first 65) (<= first 90)) {
+                let after_name: Parser = (parser_advance p)
+                if (not (parser_is_at_end after_name)) {
+                    if (== (parser_current after_name).token_type (token_lt)) {
+                        let concrete: TypeParseResult = (parse_type_string p)
+                        if (not concrete.ok) { return (parser_with_error concrete.p true) }
+                        let after_dot: Parser = (parser_expect concrete.p (token_dot))
+                        if (parser_has_error after_dot) { return after_dot }
+                        if (parser_is_at_end after_dot) { return (parser_with_error after_dot true) }
+                        let variant: LexerToken = (parser_current after_dot)
+                        if (!= variant.token_type (token_identifier)) { return (parser_with_error after_dot true) }
+                        let fields: Parser = (parser_expect (parser_advance after_dot) (token_lbrace))
+                        if (parser_has_error fields) { return fields }
+                        return (parse_union_construct fields concrete.type_name variant.value tok.line tok.column)
+                    }
+                }
+            }
+        }
+
         if (== tok.token_type LexerTokenType.TOKEN_AMPERSAND) {
             let mut cur: Parser = (parser_advance p)
             let mut mode: int = 1
@@ -3089,8 +3112,31 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
-    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)"]
-    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL]
+    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }"]
+    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>"]
+    let mut explicit_index: int = 0
+    while (< explicit_index (array_length explicit_sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at explicit_sources explicit_index) "parser-test.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "parser-test.nano"))
+        assert (not (parser_has_error parsed))
+        assert (== parsed.last_expr_node_type ParseNodeType.PNODE_UNION_CONSTRUCT)
+        assert (parser_is_at_end parsed)
+        let constructed: ASTUnionConstruct = (list_ASTUnionConstruct_get parsed.union_constructs parsed.last_expr_node_id)
+        assert (== constructed.union_name (at explicit_names explicit_index))
+        assert (== constructed.line 1)
+        assert (== constructed.column 1)
+        set explicit_index (+ explicit_index 1)
+    }
+    let incomplete: array<string> = ["Box<>.None {}", "Box<int>.None", "Box<int>", "Box<int>. {}", "Box<int,None {}"]
+    let mut incomplete_index: int = 0
+    while (< incomplete_index (array_length incomplete)) {
+        let tokens: List<LexerToken> = (tokenize_string (at incomplete incomplete_index) "parser-test.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "parser-test.nano"))
+        assert (parser_has_error parsed)
+        set incomplete_index (+ incomplete_index 1)
+    }
+    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)", "(left < right)", "(< left right)"]
+    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP]
     let mut i: int = 0
     while (< i (array_length sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
