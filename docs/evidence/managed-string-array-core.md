@@ -53,3 +53,10 @@ During static next-step inspection I recorded taskaeff9 for OP_ARR_NEW's
 unchecked allocation publication. I did not execute a failing input or alter
 the VM in this foundation. That defensive prerequisite precedes array opcode
 parity work.
+
+I restacked onto main `5cc34548` after PR685. The prior published head
+`ba104b35` and integrated implementation `2a736e40` have identical managed
+core/header, array fixtures/harness and Makefile bytes. The inherited delta is
+PR685's source-borrow loop-exit work and its documentation; it does not change
+this runtime or its generated package inputs. My completed frozen gates remain
+applicable; `git diff --check` passes without an additional runtime rebuild.
