@@ -5202,7 +5202,11 @@ fn legacy_array_operand_type(parser: Parser, node_id: int, node_type: int, env: 
     let call: ASTCall = (parser_get_call parser node_id)
     if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
     let callee: ASTIdentifier = (parser_get_identifier parser call.function)
-    if (!= (genenv_get env callee.name) "") { return "" }
+    let mut i: int = 0
+    while (< i (array_length env.names)) {
+        if (== (at env.names i) callee.name) { return "" }
+        set i (+ i 1)
+    }
     let result: string = (lookup_func_return_type_in_parser parser (mb_resolve callee.name callee.line env.names))
     if (or (== result "array<int>") (== result "array<float>")) { return result }
     return ""
@@ -5215,6 +5219,8 @@ shadow legacy_array_operand_type {
     assert (== (legacy_array_operand_type parser ret.value ret.value_type env) "array<float>")
     let bound: GenEnv = (genenv_put env "source" "fn()->float" false)
     assert (== (legacy_array_operand_type parser ret.value ret.value_type bound) "")
+    let unknown: GenEnv = (genenv_put env "source" "" false)
+    assert (== (legacy_array_operand_type parser ret.value ret.value_type unknown) "")
 }
 
 fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv, expected_type: string) -> string {
