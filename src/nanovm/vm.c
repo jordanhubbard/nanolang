@@ -3160,6 +3160,10 @@ vm_return_values: ;
             int64_t len = (int64_t)vmstring_len(s.as.string);
             /* Strings are interned/immutable, so transform into a scratch
              * buffer and only then construct the result string. */
+            if ((uint64_t)len >= SIZE_MAX) {
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_MEMORY, "I cannot represent the case-conversion scratch size.");
+            }
             char stackbuf[256];
             char *buf = (len < (int64_t)sizeof(stackbuf)) ? stackbuf
                                                           : malloc((size_t)len + 1);
@@ -3179,6 +3183,8 @@ vm_return_values: ;
             VmString *out = vm_string_new(&vm->heap, buf, (uint32_t)len);
             if (buf != stackbuf) free(buf);
             vm_release(&vm->heap, s);
+            if (!out)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the case-converted string.");
             stack_push(vm, val_string(out));
             VM_NEXT();
         }

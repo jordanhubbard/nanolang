@@ -7,8 +7,9 @@ in the managed profile; scalar/literal-only decisions remain unchanged.
 I match the current VM handler: remove only leading/trailing ASCII space, tab,
 newline and carriage return from the complete stored byte view. Vertical tab,
 form feed, NUL, non-ASCII and interior whitespace remain ordinary retained
-bytes. Empty, all-whitespace and already-trimmed inputs still allocate a fresh
-result, as the VM does. I do not silently turn unchanged output into an alias.
+bytes. My managed empty, all-whitespace and already-trimmed inputs allocate a fresh
+result. The VM may intern equal results before allocation; I match its bytes
+and ownership, not its allocation events or physical handle identity.
 
 My runtime helper consumes one input owner on every path. I validate its view,
 scan indices within the stored length, and delegate the checked offset/length
