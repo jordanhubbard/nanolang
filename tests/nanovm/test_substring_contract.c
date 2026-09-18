@@ -276,6 +276,86 @@ static void primitive_format_lifetime(void) {
         nvm_module_free(module);
     }
 }
+static void replacement_bounds_and_recovery(void) {
+    uint32_t length = 99;
+    assert(vm_string_replacement_length(10, 2, 0, 5, &length) && length == 0);
+    assert(vm_string_replacement_length(10, 2, 3, 5, &length) && length == 15);
+    assert(vm_string_replacement_length(UINT32_MAX, 1, 1, UINT32_MAX, &length) && length == UINT32_MAX);
+    length = 99;
+    assert(!vm_string_replacement_length(UINT32_MAX, 1, 2, UINT32_MAX, &length) && length == 99);
+    assert(!vm_string_replacement_length(10, 2, 1, 6, &length) && length == 99);
+    assert(!vm_string_replacement_length(10, 2, 1, UINT64_MAX, &length) && length == 99);
+    assert(!vm_string_replacement_length(10, 0, 1, 1, &length) && length == 99);
+    assert(!vm_string_replacement_length(10, 1, 1, 1, NULL));
+    assert(vm_string_replacement_length(10, 0, 1, 0, &length) && length == 10);
+    char large[600], grown[1200];
+    memset(large, 'a', sizeof large);
+    for (unsigned i = 0; i < sizeof grown; i++) grown[i] = i % 2 ? 'C' : 'B';
+    const struct {const char *s, *needle, *replacement, *expected;uint32_t sl, nl, rl, el;} cases[] = {
+        {"abcabc", "bc", "", "aa", 6, 2, 0, 2},
+        {"abab", "ab", "XYZ", "XYZXYZ", 4, 2, 3, 6},
+        {"a\0ba\0b", "\0b", "Z\0", "aZ\0aZ\0", 6, 2, 2, 6},
+        {"aaaaa", "aa", "b", "bba", 5, 2, 1, 3},
+        {"abc", "x", "y", "abc", 3, 1, 1, 3},
+        {"abc", "", "XYZ", "abc", 3, 0, 3, 3},
+        {"", "a", "b", "", 0, 1, 1, 0},
+        {"aaa", "a", "", "", 3, 1, 0, 0},
+        {large, "a", "BC", grown, sizeof large, 1, 2, sizeof grown}
+    };
+    for (unsigned c = 0; c < sizeof cases / sizeof cases[0]; c++) {
+        const uint8_t code[] = {OP_LOAD_LOCAL,0,0, OP_LOAD_LOCAL,1,0,
+                               OP_LOAD_LOCAL,2,0, OP_STR_REPLACE, OP_RET};
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.arity=3, .local_count=3, .result_count=1, .result_tag=TAG_STRING};
+        fn.name_idx = nvm_add_string(module, "replace", 7);
+        fn.code_offset = nvm_append_code(module, code, sizeof code);
+        fn.code_length = sizeof code;
+        nvm_add_function(module, &fn);
+        VmState vm;
+        vm_init(&vm, module);
+        uint64_t baseline = vm.heap.stats.num_objects;
+        VmString *inputs[] = {vm_string_new(&vm.heap, cases[c].s, cases[c].sl),
+                              vm_string_new(&vm.heap, cases[c].needle, cases[c].nl),
+                              vm_string_new(&vm.heap, cases[c].replacement, cases[c].rl)};
+        unsigned owners[3] = {0};
+        bool interned = false;
+        for (unsigned j = 0; j < 3; j++) {
+            assert(inputs[j]);
+            for (unsigned k = 0; k < 3; k++) owners[j] += inputs[j] == inputs[k];
+            if (inputs[j]->length == cases[c].el && !memcmp(inputs[j]->data, cases[c].expected, cases[c].el)) interned = true;
+        }
+        uint64_t populated = vm.heap.stats.num_objects;
+        NanoValue args[] = {val_string(inputs[0]), val_string(inputs[1]), val_string(inputs[2])};
+        NanoValue output = val_void();
+        reject_string_allocation = true;
+        VmResult attempted = vm_invoke(&vm, 0, args, 3, &output);
+        reject_string_allocation = false;
+        if (interned) {
+            assert(attempted == VM_OK && output.tag == TAG_STRING);
+            vm_release(&vm.heap, output);
+        } else {
+            assert(attempted == VM_ERR_MEMORY && output.tag == TAG_VOID);
+        }
+        assert(!vm.stack_size && !vm.frame_count && vm.heap.stats.num_objects == populated);
+        for (unsigned repeat = 0; repeat < 3; repeat++) {
+            assert(vm_invoke(&vm, 0, args, 3, &output) == VM_OK);
+            assert(output.tag == TAG_STRING && output.as.string->length == cases[c].el);
+            assert(!memcmp(output.as.string->data, cases[c].expected, cases[c].el));
+            vm_release(&vm.heap, output);
+            for (unsigned j = 0; j < 3; j++) assert(inputs[j]->header.ref_count == owners[j]);
+            assert(vm.heap.stats.num_objects == populated);
+        }
+        args[0] = val_int(7);
+        output = val_void();
+        assert(vm_invoke(&vm, 0, args, 3, &output) == VM_ERR_TYPE_ERROR);
+        assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+        for (unsigned j = 0; j < 3; j++) assert(inputs[j]->header.ref_count == owners[j]);
+        for (unsigned j = 0; j < 3; j++) vm_release(&vm.heap, val_string(inputs[j]));
+        assert(vm.heap.stats.num_objects == baseline);
+        vm_destroy(&vm);
+        nvm_module_free(module);
+    }
+}
 int main(void) {
     heap_slices();
     opcode_recovery();
@@ -283,6 +363,7 @@ int main(void) {
     character_operand_lifetime();
     case_conversion_recovery();
     primitive_format_lifetime();
+    replacement_bounds_and_recovery();
     puts("I passed ordinary string bytes, operand ownership, allocation status and recovery.");
     return 0;
 }

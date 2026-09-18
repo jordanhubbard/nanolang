@@ -410,6 +410,23 @@ VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index) {
     return vm_string_new(heap, &s->data[index], 1);
 }
 
+bool vm_string_replacement_length(uint32_t source_length, uint32_t needle_length,
+                                  uint32_t replacement_length, uint64_t count,
+                                  uint32_t *out) {
+    if (!out) return false;
+    if (!needle_length) {
+        if (count) return false;
+        *out = source_length;
+        return true;
+    }
+    if (count > source_length / needle_length) return false;
+    uint32_t remaining = source_length - (uint32_t)count * needle_length;
+    if (replacement_length && count > (UINT32_MAX - remaining) / replacement_length)
+        return false;
+    *out = remaining + (uint32_t)count * replacement_length;
+    return true;
+}
+
 VmString *vm_string_from_int(VmHeap *heap, int64_t v) {
     char buf[32];
     int len = snprintf(buf, sizeof(buf), "%lld", (long long)v);
