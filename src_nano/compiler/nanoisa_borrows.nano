@@ -1277,7 +1277,6 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         if nb_value_graph {
             if (and (== (nb_tag function.return_type) 0) (!= function.return_type "void")) {
                 if (< result_layout 0) { let _: int = (nb_fail "an exact declared result") return "" }
-                if (not (nb_leaf parser result_layout)) { let _: int = (nb_fail "a scalar-leaf owned result") return "" }
             }
         } else {
             if (or (< function.param_count 1) (== (nb_tag function.return_type) 0)) { let _: int = (nb_fail "a scalar-result borrowed helper") return "" }
