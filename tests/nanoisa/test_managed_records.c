@@ -4,6 +4,8 @@
 #else
 #include "../../src/nanoisa/managed_strings.c"
 #endif
+#include "../../src/nanoisa/isa.h"
+_Static_assert(NMS_RECORD_TAG == TAG_STRUCT && NMS_ARRAY_TAG == TAG_ARRAY, "I preserve ISA tags");
 #define CHECK(x) do { if (!(x)) return __LINE__; } while (0)
 static const unsigned char bytes[] = {'a',0,'b'};
 static const NmsView literals[] = {{bytes,3}};
