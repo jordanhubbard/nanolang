@@ -12,7 +12,7 @@ consuming the last owner, and 2,000 repeated empty concatenations with one live
 result and unchanged Wasm page count.
 
 My frozen helper source passes `make test-managed-string-core` with GCC
-(three methods, 1.257 seconds) and Clang 18 with the installed GCC 13 runtime
+(three methods, 1.257 seconds) and Clang 23 development build with the installed GCC 13 runtime
 path (three methods, 1.333 seconds). Both native runs use ASan/UBSan and leak
 checks. Node runs five runtime groups across two fresh instances and three
 rounds per instance; Wasmtime runs each group. Production native/Wasm smoke
@@ -61,3 +61,56 @@ and busy disposal without erasing the caller status, a retained root across an
 error and next invocation, exact NUL-bearing concat, final release, idempotent
 disposal and refusal after disposal. These are helper ABI checks; emitted-frame
 cleanup and bytecode admission remain unfinished.
+
+## My emitted ownership and instruction gate
+
+Source/test checkpoint `cc1f2ec9` connects the target runtime to LLVM/Wasm.
+I preserve the original scalar and literal profile selectors and add the
+managed selector for STR_CONCAT and string/numeric ADD. Target, profile and
+reserved-name checks precede output. Substring and conversions remain refused.
+
+My seven emitted-program methods pass in 5.058 seconds. They compare ordinary
+VM execution, native LLVM and import-free Wasm, including NUL/empty content,
+DUP/SWAP aliases, branch joins, 2,000 loop iterations, ten recursive calls,
+explicit/implicit helper returns, numeric/enum boundaries, initializer results,
+last-write globals, repeated/fresh instances and terminal disposal. Six callee
+assertion/type failures unwind frames while preserving earlier global writes.
+Deterministic native byte/table allocation failure returns MEMORY and permits
+a later successful entry. A real one-megabyte Wasm maximum rejects growth;
+five subsequent attempts reuse storage with no live frame strings or page
+increase. These allocator-limit errors are recoverable statuses, not traps.
+
+I mark the emitted LLVM functions for ASan, run LLVM's ASan instrumentation
+pass, verify instrumentation is present, emit an object, and link it with an
+ASan/UBSan harness and leak interception. Merely passing sanitizer flags while
+linking existing IR would not establish that its loads/stores were instrumented.
+My standalone C core retains its separate native ASan/UBSan gate.
+
+The reviewed conditional-branch path checks status after releasing its
+condition before dispatching an edge. Only the exported legacy entry calls
+llvm.trap; managed frames report and clean errors first. The dispose-before-
+first-entry defect from review is fixed and tested in private native/Wasm
+helpers and the public Wasm export. It remains tracked as
+`task_c4c2b24bfcc3451d8bd7b89897f5cdab` until this change merges.
+
+Final scoped commands use the explicit native Clang support-file selection
+shown above:
+
+- `make test-llvm-managed-strings test-verifier-profiles`: seven emitted methods,
+  two package/module methods, three core methods and thirteen shared-profile
+  decisions pass. Logs: `/tmp/nanolang-managed-reviewed-final.log`.
+- `make test-verifier`: all 96 ordinary verifier tests pass, including cleanup;
+  log `/tmp/nanolang-managed-final-focused.log`.
+- Adjacent LLVM/float (16 methods), scalar globals (11), literal strings (9),
+  and generic numeric/enum (12) groups pass. The 39-method Wasm/scalar batch
+  had one obsolete concat-refusal expectation; its other 38 methods passed.
+  I retained refusal coverage using unsupported substring and reran all seven
+  generic-comparison methods successfully in 7.095 seconds. Logs:
+  `/tmp/nanolang-managed-adjacent-gates.log` and
+  `/tmp/nanolang-managed-comparisons-final.log`.
+
+The numeric managed-profile fixture initially declared a union count instead
+of an enum count; its legitimate profile refusal was a fixture error. The
+corrected fixture passes numeric/enum VM/native/Wasm checks. No eligibility
+rule was relaxed to accommodate that error. This is Linux ARM64 and Wasm
+execution evidence; I do not claim Darwin execution or full release acceptance.
