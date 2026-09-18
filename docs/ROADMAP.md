@@ -9107,6 +9107,7 @@ Compiler product:
       failed execution and incompatible CLI modes before canonical publication
       can depend on this host prerequisite
       (`task_457e55fa59e146878cee92cabc201b6f`).
+- [ ] I lower the eight declared `modules/filesystem` externs through their owning module artifact with exact string parameters and declared int/string/array<string> results (`task_2e5ed27f56c44ca7b2f16385a6a15747`). I retain ABI markers and existing foreign-result ownership conversion; I test sorted/filtered directory results, empty results, scalar calls, selected shadows, VM/native execution and wrong-signature refusal before publication. This does not admit arbitrary foreign signatures.
 - [x] I initialize every generated list parameter annotation before compiled
       metadata extraction. PR487 exposed unset signature pointers in the three
       list parameter allocations; I retain a poisoned-allocation regression
