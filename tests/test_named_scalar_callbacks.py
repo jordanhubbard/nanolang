@@ -85,14 +85,23 @@ class NamedScalarCallbacks(unittest.TestCase):
     def test_source_initializer_order_and_alias_length(self):
         self.paired(ORDER)
 
-    def test_user_builtin_names_keep_direct_function_binding(self):
-        self.paired('''fn map(x:int)->int{return (+ x 2)}
+    def test_user_builtin_names_keep_route_specific_binding(self):
+        source = self.source('''fn map(x:int)->int{return (+ x 2)}
 shadow map{assert (== (map 3) 5)}
 fn reduce(x:int)->int{return (+ x 4)}
 shadow reduce{assert (== (reduce 3) 7)}
 fn main()->int{assert (== (map 1) 3) assert (== (reduce 1) 5) return 0}
 shadow main{assert (== (main) 0)}
 ''')
+        prior = self.work/'reserved-name.nvm'; prior.write_bytes(b'previous')
+        refused = self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', prior, ok=False)
+        self.assertIn('Cannot redefine built-in function', refused.stderr)
+        self.assertEqual(prior.read_bytes(), b'previous')
+        for i, emitter in enumerate(self.emitters):
+            assembly = self.work/f'reserved-{i}.nasm'; module = assembly.with_suffix('.nvm')
+            self.command(emitter, source, '-o', assembly)
+            self.command(ROOT/'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.execute(module)
 
     def test_local_and_computed_callbacks_keep_indirect_boundary(self):
         for expression, binding in [('fold', 'let fold:fn(float,float)->float=difference'),
@@ -111,7 +120,7 @@ shadow main{{assert (== (main) 0)}}
 
     def test_u8_keeps_existing_indirect_boundary(self):
         self.execute(self.seed(self.source('''fn byte_identity(x:u8)->u8{return x}
-shadow byte_identity{let value:u8=2 assert (== (byte_identity value) 2)}
+shadow byte_identity{let mut input:array<u8> = [] set input (array_push input 2) let result:u8=(byte_identity (array_get input 0)) let mut output:array<u8> = [] set output (array_push output result) assert (== (array_get output 0) (array_get input 0))}
 fn main()->int{let input:array<u8> = [] let result:array<u8> = (map input byte_identity) assert (== (array_length result) 0) return 0}
 shadow main{assert (== (main) 0)}
 ''')), direct=False)
