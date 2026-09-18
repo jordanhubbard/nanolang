@@ -437,6 +437,9 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     return (nb_fail "straight-line scalar expressions and one borrowed helper")
 }
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
+    if (and (> nb_control_depth 0) (or binding.is_destructure (or binding.is_destructure_projection (and (!= binding.var_type "") (and (!= binding.var_type "int") (!= binding.var_type "bool")))))) {
+        return (nb_fail "only lexical int/bool declarations inside control flow")
+    }
     if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
     if (>= layout 0) {
@@ -530,8 +533,8 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     let mut i: int = 0
     while (and (== nb_error "") (and (not nb_returned) (< i (list_ASTStmtRef_length block.statements)))) {
         let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
-        if (and (> nb_control_depth 0) (or (== stmt.node_type ParseNodeType.PNODE_LET) (== stmt.node_type ParseNodeType.PNODE_RETURN))) {
-            return (nb_fail "preinitialized locals and no ownership moves or early returns inside control flow")
+        if (and (> nb_control_depth 0) (== stmt.node_type ParseNodeType.PNODE_RETURN)) {
+            return (nb_fail "no early returns inside control flow")
         }
         if (or (== stmt.node_type ParseNodeType.PNODE_IF) (== stmt.node_type ParseNodeType.PNODE_WHILE)) {
             if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
@@ -612,8 +615,8 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
         }
         set i (+ i 1)
     }
-    if is_shadow {
-        let _: int = (nb_cleanup parser first)
+    if is_shadow { let _: int = (nb_cleanup parser first) }
+    if (or is_shadow (> nb_control_depth 0)) {
         let _: int = (nb_names_end first)
         set i first
         while (< i (array_length nb_names)) { (array_set nb_names i "") set i (+ i 1) }

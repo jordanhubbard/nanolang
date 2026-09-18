@@ -15,11 +15,9 @@ owned roots and formal reference origins remain unchanged. Branches execute
 only the selected arm; loops re-evaluate conditions, including borrowed calls,
 in source order.
 
-This first slice refuses any let, resource construction/destructuring/move,
-return, break or continue inside control-flow bodies. Scalar locals are
-declared before control flow: branch-local stores would otherwise change the
-existing verifier's exact initialized-local join, and I do not hide that
-boundary with zero initialization or relaxed analysis. Nested control bodies
+This original slice refused any let. My [lexical scalar extension](NANOISA_SOURCE_BORROW_LEXICAL_SCALARS.md) now admits bounded int/bool declarations after the scalar initialization meet. I still refuse resource construction/destructuring/move,
+return, break or continue inside control-flow bodies. My original boundary required scalar locals before control flow; the extension
+uses explicit definite initialization rather than inserting dummy stores. Nested control bodies
 have a bounded depth of 32. Existing top-level owner construction, moves and
 complete disposal remain unchanged. No implicit drops.
 

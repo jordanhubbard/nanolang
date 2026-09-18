@@ -261,6 +261,57 @@ shadow main { assert true }
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
 
+    def test_lexical_scalars_restore_outer_bindings_and_names(self):
+        for fixture in ('source_borrow_lexical_scalars.nano',):
+            source = FIXTURES / fixture
+            seed = self.work / 'nested-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.ownership', baseline)
+            self.assertIn('JMP_FALSE', baseline)
+            self.assertIn('JMP ', baseline)
+            expected = 'BORROW_LOCAL_SHARED'
+            self.assertIn(expected, baseline)
+            records = self.names_and_strip(seed)
+            values = [row for row in records if row[0] == 'read' and row[4] == 'value']
+            self.assertEqual(len(values), 3)
+            outer, first, second = values
+            self.assertEqual(len({row[1] for row in values}), 3)
+            self.assertLess(int(outer[2]), int(first[2]))
+            self.assertLessEqual(int(first[3]), int(second[2]))
+            self.assertLess(int(second[3]), int(outer[3]))
+            unused = [row for row in records if row[0] == 'main' and row[4] == 'unused']
+            self.assertEqual(len(unused), 1)
+            self.assertLess(int(unused[0][2]), int(unused[0][3]))
+            indexes = [row for row in records if row[0] == 'main' and row[4] == 'index']
+            self.assertEqual(len(indexes), 2)
+            self.assertNotEqual(indexes[0][1], indexes[1][1])
+            self.assertLess(int(indexes[0][2]), int(indexes[1][2]))
+            self.assertLess(int(indexes[1][3]), int(indexes[0][3]))
+            self.assertFalse(any('__' in row[4] for row in records))
+            for emitter in self.emitters:
+                assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-nested.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'nested-shadow.nasm', self.work / 'nested-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
     def test_nested_paths_preserve_trees_and_callers(self):
         for fixture in ('source_borrow_nested.nano', 'source_borrow_nested_shared.nano'):
             source = FIXTURES / fixture
@@ -298,8 +349,8 @@ shadow main { assert true }
     def test_control_flow_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
         cases = {
-            'branch_local': text.replace('set total (+ total 2)', 'let value: int = 2 set total (+ total value)'),
-            'loop_local': text.replace('set j 0', 'let value: int = 0 set j value'),
+            'branch_float': text.replace('set total (+ total 2)', 'let value: float = 2.0'),
+            'loop_string': text.replace('set j 0', 'let value: string = "unsupported"'),
             'branch_owner': text.replace('set total (+ total 2)', 'let moved: Pair = root'),
             'branch_destructure': text.replace('set total (+ total 2)', 'let Pair { left, right } = root'),
             'loop_destructure': text.replace('set j 0', 'let Pair { left, right } = root'),
@@ -329,6 +380,26 @@ shadow main { assert true }
                                             capture_output=True, text=True, timeout=60)
                     self.assertGreater(result.returncode, 0, (name, emitter, result.stderr))
                     self.assertEqual(output.read_text(), 'accepted-output')
+
+    def test_lexical_scalar_visibility_refusals(self):
+        text = (FIXTURES / 'source_borrow_lexical_scalars.nano').read_text()
+        cases = {
+            'branch_escape': text.replace('let Leaf { value, enabled } = left', 'assert sibling let Leaf { value, enabled } = left'),
+            'loop_escape': text.replace('assert (== index 2)', 'assert (== delta 14) assert (== index 2)'),
+            'initializer_self': text.replace('let increment: int = 1', 'let increment: int = increment'),
+        }
+        for name, content in cases.items():
+            source = self.work / (name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'visibility-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_text(), 'accepted-output')
 
     def test_control_flow_depth_boundary(self):
         text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
@@ -520,7 +591,7 @@ shadow main { assert true }
             'false shadow': text.replace('shadow main { assert true }', 'shadow main { assert false }'),
             'shadow calls main': text.replace('shadow main { assert true }', 'shadow main { assert (== (main) 0) }'),
             'extra function': text + '\nfn extra() -> int { return 1 } shadow extra { assert true }\n',
-            'loop local initialization': text.replace('return 0', 'while false { let extra: int = 1 assert (== extra 1) } return 0'),
+            'loop resource declaration': text.replace('return 0', 'while false { let extra: Counter = Counter { value: 1, active: true } } return 0'),
             'heap field': text.replace('resource struct Other { value: int, active: bool }',
                                        'resource struct Other { label: string }'),
             'wrong nominal': text.replace('let owner: Counter = Counter { value: 12, active: false }',
