@@ -1,0 +1,8 @@
+{
+  "head": "adfcc9650612dd0f3ee5a1e2613e3a28c7f2777d",
+  "tests": [
+    "tests.test_llvm_managed_records"
+  ],
+  "status": 1,
+  "seconds": 14.764705498993862
+}

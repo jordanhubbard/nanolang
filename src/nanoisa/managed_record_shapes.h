@@ -1,6 +1,7 @@
 #ifndef NANOISA_MANAGED_RECORD_SHAPES_H
 #define NANOISA_MANAGED_RECORD_SHAPES_H
 #include "managed_array_shapes.h"
+#include "managed_record_plan.h"
 
 /* A separate non-admitting query: existing array reports/selectors are unchanged. */
 typedef struct {
@@ -28,4 +29,15 @@ typedef struct {
 NvmArrayEligibilityResult nvm_analyze_managed_records(
     const NvmModule *module, NvmRecordEligibilityReport **out);
 void nvm_record_eligibility_free(NvmRecordEligibilityReport *report);
+/* Shared checked selection. I publish a complete owned plan only on success.
+ * The caller still checks supported instructions/signatures and runtime lowering. */
+typedef enum { NVM_MANAGED_LEAF, NVM_MANAGED_ARRAY_GRAPH, NVM_MANAGED_RECORD } NvmManagedHeapMode;
+typedef struct {
+    NvmManagedHeapMode mode;
+    NvmRecordPlan *records;
+    NvmRecordEligibilityReport *fields;
+} NvmManagedHeapPlan;
+NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *, int mutable_arrays,
+                                                 NvmManagedHeapPlan **out);
+void nvm_managed_heap_plan_free(NvmManagedHeapPlan *);
 #endif
