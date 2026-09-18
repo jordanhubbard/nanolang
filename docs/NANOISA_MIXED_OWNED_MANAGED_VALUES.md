@@ -140,3 +140,31 @@ Canonical metadata equality includes names, intervals and full shadow closure.
 I retain the earlier 950f product failure unchanged. Passing a new prerequisite
 is not passing Samples, the mixed Bundle cases, the original full test suite, or
 release acceptance. I run no historical failing compiler artifact for this audit.
+
+## My independent runtime review
+
+The release-audit lane independently confirmed these boundaries without execution.
+My existing `managed_array_shapes` record preflight rejects ownership requiring
+its verifier, and its current descriptor publication requires every struct to be
+ordinary. I cannot reuse that selector/binder unchanged for Handle plus Samples.
+I need a checked ordinary-only descriptor view or an explicitly mixed binder plan,
+with separate original global layout index, source per-kind struct ordinal and
+compact managed record ordinal. I must not classify Handle as ordinary or reuse
+a compact record-count bound as an original layout-index check.
+
+I prefer to extend the owned native carrier with explicit category discrimination
+and reuse the qualified NmsRuntime flat-array/ordinary-record storage. I retain
+separate affine owner records and reference provenance. One invocation context
+would be shared across helper frames, with all frame roots released before its
+disposal. This is a proposed implementation direction, not existing admission.
+My present native POP only clears a slot because managed discard is refused;
+managed POP will need a release. Transient a/c carriers, partial constructors and
+prepared transfers require explicit cleanup accounting in addition to the existing
+stack/local/pending-root sweep.
+
+No new wire format is inherently necessary for the first Samples path. An ARRAY
+field tag plus a complete closed allocation-site/field-origin proof may derive
+exact float element shape. Existing analysis excludes ARRAY record fields and
+owned contracts, so that combined proof is itself a prerequisite. I settle this
+choice before managed admission; I do not make a new schema a prerequisite merely
+because the current descriptor lacks an element annotation.
