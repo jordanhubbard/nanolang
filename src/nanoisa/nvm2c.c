@@ -683,7 +683,8 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     }
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
     if (b->shape_opcode == OP_AGG_GET ||
-        (b->shape_opcode == OP_LOAD_LOCAL && slot.kind == NVM2C_VK_STR)) {
+        (b->shape_opcode == OP_LOAD_LOCAL &&
+         (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL))) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
@@ -804,7 +805,8 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 }
                 if (!b->track_shapes) continue;
                 uint8_t kind = join->slots[i].kind;
-                if (kind != NVM2C_VK_STR && kind != NVM2C_VK_VALUE) continue;
+                if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT &&
+                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE) continue;
                 /* Destination storage never rewrites the exact producer. */
                 NvmShapeId storage = 0;
                 storage = shape_variable(b, &storage);
@@ -1779,12 +1781,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
-                } else if (facts->parameters[at] == NVM2C_VK_STR &&
-                           (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_UNK)) {
-                    /* A projected string can resolve to tagged storage later.
+                } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
+                            facts->parameters[at] == NVM2C_VK_BOOL) &&
+                           (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {
+                    /* A projected scalar can resolve to tagged storage later.
                      * I convert into parameter storage without equating it to
                      * a producer's exact constructor or array element shape. */
-                    if (!shape_field_kind(b, parameter, NVM2C_VK_STR)) return 0;
+                    if (!shape_field_kind(b, parameter, facts->parameters[at])) return 0;
                     if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
                            (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
@@ -1940,11 +1943,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
                     fn->result_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
                     (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
-                /* RET consumes a tagged scalar or map with a runtime tag check. It
-                 * does not change the representation of the source value. */
-                if (v.kind == NVM2C_VK_VALUE &&
-                    (declared == NVM_SHAPE_INT || declared == NVM_SHAPE_BOOL || declared == NVM_SHAPE_FLOAT ||
-                     declared == NVM_SHAPE_STRING || declared == NVM_SHAPE_MAP)) {
+                /* RET checks and unboxes a scalar or tagged map at emission.
+                 * An inferred scalar projection may become optional later;
+                 * its declared result never rewrites source storage. */
+                if (((v.kind == NVM2C_VK_VALUE || v.kind == NVM2C_VK_UNK ||
+                      v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL ||
+                      v.kind == NVM2C_VK_FLOAT || v.kind == NVM2C_VK_STR) &&
+                     (declared == NVM_SHAPE_INT || declared == NVM_SHAPE_BOOL ||
+                      declared == NVM_SHAPE_FLOAT || declared == NVM_SHAPE_STRING)) ||
+                    (v.kind == NVM2C_VK_VALUE && declared == NVM_SHAPE_MAP)) {
                     if (!shape_type(b, shape_variable(b, &b->shape_results[idx]), declared)) return 0;
                     break;
                 }
