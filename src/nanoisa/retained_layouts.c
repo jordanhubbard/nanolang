@@ -289,3 +289,6 @@ fail:
     nvm_v2_layouts_free(&layouts);
     return result;
 }
+
+/* I keep this descriptive reader separate from existing admission contracts. */
+#include "mixed_layout_view.inc"
