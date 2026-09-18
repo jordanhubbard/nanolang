@@ -11,11 +11,14 @@ substitution helper; I do not replace substrings or introduce unknown-type
 wildcards. Arity, duplicate formals, unknown arguments and unresolved payload
 spelling fail closed.
 
-Each concrete instance has its own nominal identity. My executable union IDs
-and `.types` bounds retain those distinctions; I do not merge differently
-instantiated declarations because their current payload shapes happen to
-match. Selected constructor context supplies missing arguments only when its
-bound declaration agrees exactly. Explicit arguments must match that context.
+Each concrete instance retains its exact source identity. Existing wire union
+IDs identify bound declarations; they do not encode concrete arguments. I keep
+that format and the existing verifier boundary, with argument equality and
+payload transport checked before emission. I do not claim that the wire ID
+alone distinguishes `Box<int>` from `Box<string>`. The ordinary C-seed baseline
+emits both under declaration0 and native translation succeeds. Selected
+constructor context supplies missing arguments only when its bound declaration
+agrees exactly. Explicit arguments must match that context.
 Named fields remain complete and unique, evaluated in source order and packed
 in declaration order. Match payload bindings retain the instantiated identity
 and their original lexical endpoints.
@@ -29,8 +32,8 @@ owned runtime profile or generic resource disposal rules.
 I require the unchanged `tests.test_affine_module_identity` and
 `tests.test_affine_generic_identity` decisions, canonical Stage1/Stage2
 NanoISA publication, mandatory selected shadows, VM/native values and preserved
-negative outputs. Focused raw-producer checks retain instantiated nominal
+negative outputs. Focused raw-producer checks retain instantiated source identity and declaration-level wire
 metadata, same-declaration multiple instances, exact constructor context,
-formal shadowing and wrong-instance refusals. I inspect C-seed instance
-allocation before claiming exact paired IDs. Full frozen product acceptance
+formal shadowing and wrong-instance refusals. My C-seed baseline retains the shared declaration ID; paired checks compare
+that same contract. Full frozen product acceptance
 and release remain separate gates.
