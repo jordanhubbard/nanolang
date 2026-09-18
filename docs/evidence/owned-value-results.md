@@ -83,5 +83,23 @@ and wrapper; I retain /tmp/nanolang-owned-results-final-clang-{before,after}.sha
 and /tmp/nanolang-owned-value-results-final-clang.log. This independent success
 does not explain or relabel the historical errno13 incident.
 
-Only documentation changes follow this qualified source. Full source admission,
+My first independent Apple Clang run of the generated-native result harness at
+PR738 head eb6e6b3a passes the descriptor, lifecycle, allocation and preflight
+executables, then all ten generated-native cases abort before entry because
+Apple ASan does not support `detect_leaks=1`. I preserve
+/private/tmp/nanolang-pr738-eb6e6b3a-focused-darwin.log with SHA256
+48c7c01722073d9afb1b6480f96146189d1ce54395f636d25f8b3669ca3430eb.
+This is a harness-policy failure, not a runtime finding.
+
+At code checkpoint 497dd96d0f039c9867bcb9087c4a1b33854b99bc, Darwin
+selects `detect_leaks=0`; every other platform retains `detect_leaks=1`.
+ASan/UBSan, `halt_on_error=1` and every generated `live==0` assertion remain.
+The exact Darwin focused target passes 502 descriptor, 1552 lifecycle, 3485
+allocation checks across 312 budgets and 272 actual injected failures, 117
+return-preflight checks and all ten generated-native cases in 6 seconds. I
+retain /private/tmp/nanolang-owned-result-lsan-497dd96d-darwin.log with SHA256
+64171f8c08128a39b29eef0bfebdb3bf83f9a360deb62dba50a0173b26a85987.
+
+This portability correction changes only test policy and documentation; the
+qualified owned-result production remains unchanged. Full source admission,
 string/PRINT effects and the unchanged affine example remain open.
