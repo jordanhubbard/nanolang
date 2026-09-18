@@ -1279,6 +1279,20 @@ shadow main { assert true }
                     if compiler not in self.emitters:
                         args.append('--emit-nvm')
                     result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    if label == 'no-transfer' and compiler.name in ('nanoc_stage1', 'nanoc_stage2'):
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertNotEqual(output.read_bytes(), b'previous verified publication')
+                        self.execute_pair(output)
+                        failed_source = self.work / 'failed-owned-shadow.nano'
+                        self.assertIn('assert (== value 7)', text)
+                        failed_source.write_text(text.replace('assert (== value 7)', 'assert false'))
+                        output.write_bytes(b'previous verified publication')
+                        failed = subprocess.run([compiler, failed_source, '--emit-nvm', '-o', output],
+                                                cwd=ROOT, capture_output=True, text=True, timeout=180)
+                        self.assertGreater(failed.returncode, 0, failed.stdout + failed.stderr)
+                        self.assertIn('shadow', (failed.stdout + failed.stderr).lower())
+                        self.assertEqual(output.read_bytes(), b'previous verified publication')
+                        continue
                     self.assertGreater(result.returncode, 0, result.stderr)
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
