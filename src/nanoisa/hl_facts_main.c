@@ -12,7 +12,7 @@ static void name(const uint8_t *s,uint32_t n) {
     }
     putchar('"');
 }
-static bool scalar(uint8_t tag){return tag==TAG_INT || tag==TAG_BOOL;}
+static bool scalar(uint8_t tag){return tag==TAG_INT || tag==TAG_BOOL || tag==TAG_FLOAT;}
 int main(int argc,char **argv) {
     if(argc!=2){fputs("I require one NanoISA module.\n",stderr);return 2;}
     NanoisaErr error;NvmModule *m=nanoisa_load_file(argv[1],&error);
@@ -81,6 +81,6 @@ int main(int argc,char **argv) {
     }
     puts("]}");vm_decoded_module_free(&decoded);nvm_module_free(m);return ferror(stdout)?1:0;
 refused:
-    fputs("I require bounded explicit int/bool function signatures and no initializer.\n",stderr);
+    fputs("I require bounded explicit int/bool/float function signatures and no initializer.\n",stderr);
     vm_decoded_module_free(&decoded);nvm_module_free(m);return 1;
 }
