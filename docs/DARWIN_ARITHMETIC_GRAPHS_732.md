@@ -153,3 +153,13 @@ LLD/SDK failure and GNU-wrap failure remain separate terminal outcomes. This
 qualification completes only209f and the two portable-harness repairs after
 canonical merge. All product, ownership, source-wide arithmetic, aggregate and
 release obligations remain open; e9 and PR522 remain held.
+
+## My later Linux integration
+
+I integrate canonical main d3f2085c at6db4d3d3 without changing either reviewed
+harness correction. I rebuild the affected VM/native/LLVM tools and runtime
+package with explicit clang18/opt18, then pass all fourteen helper/backend/graph
+methods in24.974s on Linux. The integrated build and gate logs have independent
+hashes in the qualified manifest. This Linux integration does not reassign the
+Darwin evidence to a newer production source. Full managed Darwin coverage
+remains open, including statically identified GNU-wrap tests under task_a29232f397fd44c688734e090bead9f9.
