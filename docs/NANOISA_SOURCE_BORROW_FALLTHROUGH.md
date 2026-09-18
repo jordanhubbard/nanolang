@@ -29,3 +29,5 @@ branches, helper mutation before return, zero and entered loop paths, and
 entry returns after explicit disposal in VM and sanitized native output.
 Ordinary refusal controls retain live-owner, shadow-return, resource-move and
 missing-return boundaries without changing verifier authority.
+
+My explicit resource-path continuation is MAC `task_d74d8a4fb4a048a786666195eaa4e8d5`; it remains unimplemented here.
