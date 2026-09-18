@@ -733,7 +733,7 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
 }
 
 /* I give proved numeric or constructor-derived finite storage its own payload set. */
-static int shape_scalar_union_box(Nvm2cBuf *b, NvmShapeId id, uint16_t tags) {
+static int shape_carrier_box(Nvm2cBuf *b, NvmShapeId id, uint16_t tags) {
     if (!b->track_shapes) return 1;
     return shape_type(b, id, NVM_SHAPE_OPTIONAL) &&
            shape_type(b, shape_child(b, id, 0), variant_payload_tags(tags) ?
@@ -786,7 +786,7 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
     if (slot.kind == NVM2C_VK_VALUE && boxed_carrier_tags(slot.scalar_tags) &&
-        !shape_scalar_union_box(b, slot.shape, slot.scalar_tags)) return 0;
+        !shape_carrier_box(b, slot.shape, slot.scalar_tags)) return 0;
     stk[*sp] = slot;
     if (!stk[*sp].rec_k) stk[*sp].rec_k = b->default_fields;
     (*sp)++;
@@ -898,7 +898,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
                     if (!optional_scalar_tags(tags) && !boxed_carrier_tags(tags)) {
-                        nvm2c_fail(b, "I require proved scalar provenance at a boxed join");
+                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join");
                         return 0;
                     }
                     join->slots[i].kind = NVM2C_VK_VALUE;
@@ -906,6 +906,15 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 }
                 if (!b->track_shapes) continue;
                 uint8_t kind = join->slots[i].kind;
+                if (kind == NVM2C_VK_REC) {
+                    /* A join owns destination storage. Later finite variant
+                     * members must not unify their exact producer payloads. */
+                    NvmShapeId storage = nvm_shape_new(&b->shapes, NVM_SHAPE_RECORD);
+                    if (!storage || !nvm_shape_convert(&b->shapes, stack[i].shape, storage) ||
+                        !shape_ok(b)) return 0;
+                    join->slots[i].shape = storage;
+                    continue;
+                }
                 if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT &&
                     kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE) continue;
                 /* Destination storage never rewrites the exact producer. */
@@ -913,7 +922,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 storage = shape_variable(b, &storage);
                 if (!shape_field_kind(b, storage, kind) ||
                     (kind == NVM2C_VK_VALUE && boxed_carrier_tags(join->slots[i].scalar_tags) &&
-                     !shape_scalar_union_box(b, storage, join->slots[i].scalar_tags)) ||
+                     !shape_carrier_box(b, storage, join->slots[i].scalar_tags)) ||
                     !nvm_shape_convert(&b->shapes, stack[i].shape, storage) || !shape_ok(b)) return 0;
                 join->slots[i].shape = storage;
             }
@@ -930,12 +939,12 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         uint16_t tags = join->slots[i].scalar_tags | stack[i].scalar_tags;
         if ((boxed_carrier_tags(join->slots[i].scalar_tags) || boxed_carrier_tags(stack[i].scalar_tags)) &&
             !boxed_carrier_tags(tags)) {
-            nvm2c_fail(b, "I cannot join proved numeric storage with unproved scalar or heap provenance");
+            nvm2c_fail(b, "I cannot join proved finite storage with unproved payload provenance");
             return 0;
         }
         int scalar_join = optional_scalar_tags(tags) || boxed_carrier_tags(tags);
         if (plan && plan->tags[i] && !scalar_join) {
-            nvm2c_fail(b, "I require proved scalar provenance at a boxed join");
+            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join");
             return 0;
         }
         if (scalar_join) {
@@ -967,7 +976,24 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             join->slots[i].kind = NVM2C_VK_VALUE;
             b->has_maps = 1;
         }
-        if (b->track_shapes && !((string_join || scalar_join)
+        int record_join = join->slots[i].kind == NVM2C_VK_REC && stack[i].kind == NVM2C_VK_REC;
+        if (record_join) {
+            uint8_t *fields = sim_fields(b, join->slots[i].rec_k, 0);
+            if (!fields) return 0;
+            for (size_t f = 0; f < b->record_width; ++f) {
+                uint8_t incoming = stack[i].rec_k[f];
+                if (fields[f] == NVM2C_VK_UNK) fields[f] = incoming;
+                else if (variant_field(fields[f]) && variant_field(incoming)) fields[f] |= incoming;
+                else if (incoming != NVM2C_VK_UNK && incoming != fields[f]) {
+                    nvm2c_fail(b, "I found incompatible aggregate fields at a join in function %u", idx);
+                    return 0;
+                }
+            }
+            if (!shape_record_return(b, stack[i].shape, join->slots[i].shape,
+                                     stack[i].rec_k, fields)) return 0;
+            join->slots[i].rec_k = fields;
+        }
+        if (b->track_shapes && !record_join && !((string_join || scalar_join)
                 ? nvm_shape_convert(&b->shapes, stack[i].shape, join->slots[i].shape)
                 : nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape))) {
             nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
@@ -1313,7 +1339,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             NvmShapeId destination = shape_variable(b, &b->shape_locals[local_at]);
             if (b->tagged_locals[(size_t)idx * b->local_width + slot]) {
                 if (!shape_type(b, destination, NVM_SHAPE_OPTIONAL)) return 0;
-                if (boxed_carrier_tags(tags) && !shape_scalar_union_box(b, destination, tags)) return 0;
+                if (boxed_carrier_tags(tags) && !shape_carrier_box(b, destination, tags)) return 0;
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
                 local_kind[slot] = NVM2C_VK_VALUE;
                 break;
@@ -1440,7 +1466,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
             if (result == NVM2C_VK_VALUE) {
                 stk[sp - 1].scalar_tags = (1u << TAG_INT) | (1u << TAG_FLOAT);
-                if (!shape_scalar_union_box(b, stk[sp - 1].shape, stk[sp - 1].scalar_tags)) return 0;
+                if (!shape_carrier_box(b, stk[sp - 1].shape, stk[sp - 1].scalar_tags)) return 0;
             }
             break;
         }
@@ -1461,7 +1487,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
             if (result == NVM2C_VK_VALUE) {
                 stk[sp - 1].scalar_tags = (1u << TAG_INT) | (1u << TAG_FLOAT);
-                if (!shape_scalar_union_box(b, stk[sp - 1].shape, stk[sp - 1].scalar_tags)) return 0;
+                if (!shape_carrier_box(b, stk[sp - 1].shape, stk[sp - 1].scalar_tags)) return 0;
             }
             break;
         }
@@ -1977,7 +2003,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (arg.kind != NVM2C_VK_UNK &&
                     (boxed_carrier_tags(b->local_scalar_tags[at]) || boxed_carrier_tags(arg.scalar_tags)) &&
                     !boxed_carrier_tags(tags)) {
-                    nvm2c_fail(b, "I cannot mix numeric parameter storage with unproved scalar or heap provenance");
+                    nvm2c_fail(b, "I cannot mix finite parameter storage with unproved payload provenance");
                     return 0;
                 }
                 if (tags != b->local_scalar_tags[at]) {
@@ -1991,7 +2017,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 } else if (!merge_call_parameter(b, facts, &facts->parameters[at], arg.kind)) return 0;
                 NvmShapeId parameter = shape_variable(b, &b->shape_locals[at]);
                 if (boxed_carrier_tags(tags)) {
-                    if (!shape_scalar_union_box(b, parameter, tags)) return 0;
+                    if (!shape_carrier_box(b, parameter, tags)) return 0;
                     if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
                 } else if (arg.kind == NVM2C_VK_REC) {
                     uint8_t *fields = facts->fields + at * b->record_width;
