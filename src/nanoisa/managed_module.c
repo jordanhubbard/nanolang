@@ -70,6 +70,11 @@ int64_t nms_module_parse_i64(uint64_t source) {
     nms_module_fail(nms_parse_i64(&nms_module_instance, source, &result));
     return result;
 }
+uint64_t nms_module_case(uint64_t source, uint32_t upper) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_case_owned(&nms_module_instance, source, upper, &result));
+    return result;
+}
 uint64_t nms_module_trim(uint64_t source) {
     NmsHandle result = 0;
     nms_module_fail(nms_trim_owned(&nms_module_instance, source, &result));

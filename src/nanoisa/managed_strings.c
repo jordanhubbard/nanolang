@@ -351,6 +351,28 @@ NmsStatus nms_parse_i64(const NmsRuntime *runtime, NmsHandle source, int64_t *ou
                     : (int64_t)value;
     return NMS_OK;
 }
+NmsStatus nms_case_owned(NmsRuntime *runtime, NmsHandle source, uint32_t upper,
+                         NmsHandle *out) {
+    NmsView view;
+    NmsHandle result = 0;
+    NmsStatus status = (!out || upper > 1) ? NMS_STATE : nms_view(runtime, source, &view);
+    if (status == NMS_OK) status = nms_create(runtime, view.data, view.length, &result);
+    if (status == NMS_OK) {
+        /* Creation can move the descriptor table. This new owner is private;
+         * I reacquire its slot after allocation and transform before publish. */
+        NmsSlot *slot = &runtime->slots[(uint32_t)(result & ~NMS_DYNAMIC)];
+        for (uint32_t i = 0; i < slot->length; i++) {
+            unsigned char byte = slot->data[i];
+            slot->data[i] = upper ? (byte >= 'a' && byte <= 'z' ? byte - 32 : byte)
+                                  : (byte >= 'A' && byte <= 'Z' ? byte + 32 : byte);
+        }
+    }
+    NmsStatus released = nms_release(runtime, source);
+    if (status != NMS_OK) return status;
+    if (released != NMS_OK) { nms_release(runtime, result); return released; }
+    *out = result;
+    return NMS_OK;
+}
 static int trim_space(unsigned char byte) {
     return byte == ' ' || byte == '\t' || byte == '\n' || byte == '\r';
 }
