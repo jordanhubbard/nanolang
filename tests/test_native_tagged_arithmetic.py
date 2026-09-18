@@ -89,6 +89,17 @@ class TaggedArithmetic(unittest.TestCase):
                     for diagnostic in ('AddressSanitizer','LeakSanitizer','UndefinedBehaviorSanitizer','runtime error:'):
                         self.assertNotIn(diagnostic,result.stderr)
 
+    def test_typed_consumers_keep_exact_result_tag_guards(self):
+        for operand,consumer in [('PUSH_F64 2','I64_NEG'),('PUSH_I64 2','F64_NEG')]:
+            with self.subTest(consumer=consumer), tempfile.TemporaryDirectory(prefix='nano-numeric-consumer-') as tmp:
+                work=Path(tmp)
+                module=self.assemble(work,self.boxed(operand)+'PUSH_I64 1\nADD\n'+consumer+'\nPOP\n')
+                self.assertNotEqual(self.run_command([ROOT/'bin/nano_vm',module]).returncode,0)
+                result=self.run_command([self.native(work,module,sanitize=True)])
+                self.assertEqual(result.returncode,-signal.SIGABRT,result.stdout+result.stderr)
+                for diagnostic in ('AddressSanitizer','LeakSanitizer','UndefinedBehaviorSanitizer','runtime error:'):
+                    self.assertNotIn(diagnostic,result.stderr)
+
     def test_mixed_boxed_concrete_join_remains_refused(self):
         with tempfile.TemporaryDirectory(prefix='nano-numeric-shape-boundary-') as tmp:
             work=Path(tmp)
