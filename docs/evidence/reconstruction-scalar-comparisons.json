@@ -1,0 +1,57 @@
+{
+  "generator_checkpoint": "d77fad48",
+  "generator_sha256": "e1a212ad81645adcef754943d90b0ecdd068464311508f465ed162e3f9c160b7",
+  "local_tool_source": "dcd2c243",
+  "compiler_snapshot_source": "f38b6409",
+  "compiler_original_production": "ece241ba",
+  "host_libraries": [
+    {
+      "binary": "nanoc_stage2",
+      "original": "/home/jkh/Src/nanolang-nanoisa-only-product/obj/module_cache/v2-0235f6f969653561a8c4a232c11feea99134039c243b2d6fbd80adb8df77e626/.nano-gen-j7vQnN/libstd.so",
+      "copy": "/home/jkh/Src/nanolang-reconstruction-tool-pin/retained-host-libraries/obj/module_cache/v2-0235f6f969653561a8c4a232c11feea99134039c243b2d6fbd80adb8df77e626/.nano-gen-j7vQnN/libstd.so",
+      "sha256": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+    },
+    {
+      "binary": "nanoc_stage2",
+      "original": "/home/jkh/Src/nanolang-nanoisa-only-product/obj/module_cache/v2-942c498ca20af67c71e329713988347d1dbcb3ce0d9a824a774b6fcef27754b7/.nano-gen-97tecp/libnanoisa.so",
+      "copy": "/home/jkh/Src/nanolang-reconstruction-tool-pin/retained-host-libraries/obj/module_cache/v2-942c498ca20af67c71e329713988347d1dbcb3ce0d9a824a774b6fcef27754b7/.nano-gen-97tecp/libnanoisa.so",
+      "sha256": "7a132ed545584e2e398c5683f1a1648868b4bd138d1cbbec97a05289f5ce69d5"
+    },
+    {
+      "binary": "nanoc_stage2",
+      "original": "/home/jkh/Src/nanolang-nanoisa-only-product/obj/module_cache/v2-f1d0e474ecfd04edc42090c2a9e92ddc008b1ec275e18aa439bed78968abfe0f/.nano-gen-bsh6ni/libcompiler_support.so",
+      "copy": "/home/jkh/Src/nanolang-reconstruction-tool-pin/retained-host-libraries/obj/module_cache/v2-f1d0e474ecfd04edc42090c2a9e92ddc008b1ec275e18aa439bed78968abfe0f/.nano-gen-bsh6ni/libcompiler_support.so",
+      "sha256": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5"
+    }
+  ],
+  "local_tool_hashes": {
+    "bin/nvm2hl": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bin/nanoisa_hl_facts": "2a7e9c130812a0c8b5ab12df1860c56fad91c7309fc61d5a2d08f4fb77544933",
+    "bin/nanoisa": "a9dba12e4ae5d758eaacd92289a27112441473359c9b266844f4cc81981b0730",
+    "bin/nano_vm": "3749c2eb0a77cd5199c4de1ea9c33483ce8eaf707463ee91ba4be6414d5f9062",
+    "bin/nvm2c": "3536b96a0b96989b6d64cf72c922a2932b636393281f1619019918ca7cb7408a",
+    "bin/nano_aot_runtime.o": "16907850ef66380fea4fe4f23c7690adc9ee02e7dcd618eff59a959cf489c57a"
+  },
+  "compiler_hash_manifest": "d930f285ada81cc37f85e4024d115e47e07756ddb81af925f1a509317574935a  /home/jkh/Src/nanolang-reconstruction-tool-pin/bin/nanoc_c\nb299cb96cdbe66c7e1edb6f52539b2af1d9c1634f1d7fb5977fd6abd8f99f128  /home/jkh/Src/nanolang-reconstruction-tool-pin/bin/nanoc_stage1\ne31c7420c16f20b4557d117164e6054c434f5119136b159b878d9d871a2da195  /home/jkh/Src/nanolang-reconstruction-tool-pin/bin/nanoc_stage2\n",
+  "tests": [
+    {
+      "log": "/tmp/nanolang-reconstruct-comparison-corrected-gcc.log",
+      "methods": 4,
+      "seconds": 24.693,
+      "compiler": "GCC"
+    },
+    {
+      "log": "/tmp/nanolang-reconstruct-comparison-clang.log",
+      "methods": 7,
+      "seconds": 29.538,
+      "compiler": "Clang GCC13 header wrapper",
+      "scope": "four focused plus three adjacent snapshot/loop methods"
+    }
+  ],
+  "initial_refusal": {
+    "log": "/tmp/nanolang-reconstruct-comparison-gcc.log",
+    "task": "task_de7d1397f86940f8b759ae07eb46820f",
+    "scope": "copied f38 Cseed nested Boolean comparison warning; compiler unchanged"
+  },
+  "limits": "Original absolute host-library cache paths remain dependencies; no hermetic relocation, current-source bootstrap, wider scalar tags or full reconstruction claim."
+}
