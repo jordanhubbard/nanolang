@@ -97,7 +97,7 @@ class ScalarReconstruction(unittest.TestCase):
         source.unlink()  # My reconstructor has only the module.
         return module
 
-    def paired(self, text, expected, shadows, structured=False):
+    def paired(self, text, expected, shadows, structured=False, names=()):
         with tempfile.TemporaryDirectory(prefix='nano-reconstruct-') as d:
             directory=Path(d);module=self.assemble(directory,text)
             original=module.read_bytes()
@@ -109,6 +109,8 @@ class ScalarReconstruction(unittest.TestCase):
                 for forbidden in (r'\bgoto\b',r'nano_vm',r'nvm_blob',r'\bswitch\b',r'\bdispatch\b'):
                     self.assertNotRegex(source,forbidden)
                 self.assertIn('return',source)
+                for name in names:
+                    self.assertIn(name,source)
                 if structured:
                     self.assertIn('while',source);self.assertIn('if',source)
                     self.assertIn('nlr_l0_state',source);self.assertIn('nlr_l1_state',source)
@@ -157,6 +159,25 @@ RET
 '''
         self.paired(text,42,'shadow nlr_f0_main { assert (== (nlr_f0_main) 42) }')
 
+    def test_optional_names_do_not_alias_slots(self):
+        text=''' .string "nano.local.v99"
+.string "ignored"
+.metadata 0 1
+.function main 0 2 0 int 1
+PUSH_I64 42
+STORE_LOCAL 0
+.local_begin 0 "if return"
+PUSH_I64 7
+STORE_LOCAL 1
+.local_begin 1 "if return"
+LOAD_LOCAL 0
+RET
+.end
+.entry main
+'''
+        self.paired(text,42,'shadow nlr_f0_main { assert (== (nlr_f0_main) 42) }',
+                    names=('nlr_l0_if_return','nlr_l1_if_return'))
+
     def test_int_boundaries_and_boolean_call(self):
         text='''.entry main
 .function main 0 0 0 int 1
@@ -188,6 +209,7 @@ shadow nlr_f1_smaller { assert (nlr_f1_smaller -2 3) assert (not (nlr_f1_smaller
 
     def test_refusal_preserves_prior_outputs(self):
         cases={
+            'no_entry':'.function helper 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n',
             'arithmetic':'.function main 0 0 0 int 1\nPUSH_I64 1\nPUSH_I64 2\nI64_ADD\nRET\n.end\n.entry main\n',
             'unknown_parameter':DIAMOND.format(flag=0).replace('.parameters choose bool int int\n',''),
             'uninitialized':DIAMOND.format(flag=0).replace('LOAD_LOCAL 2\nSTORE_LOCAL 3\n',''),

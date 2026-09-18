@@ -19,7 +19,8 @@ instructions per module and region nesting depth 32. Expanded scalar expressions
 have at most 4,096 nodes and depth 128; shared stack operands cannot cause
 unbounded textual expansion. Functions have no upvalues,
 int/bool parameters with retained exact tags, and one explicit int/bool result.
-The entry has no parameters and returns int. Direct calls form an acyclic graph.
+I require the explicit HAS_MAIN entry flag; the entry has no parameters and
+returns int. An index-zero function alone does not establish an entry. Direct calls form an acyclic graph.
 I refuse unknown signatures rather than defaulting them to int.
 
 My opcode whitelist is NOP, PUSH_I64, PUSH_BOOL, LOAD_LOCAL, STORE_LOCAL, DUP,

@@ -18,7 +18,7 @@ int main(int argc,char **argv) {
     NanoisaErr error;NvmModule *m=nanoisa_load_file(argv[1],&error);
     if(!m){fprintf(stderr,"I cannot load this module: %s\n",error.message);return 1;}
     NvmVerifyResult verified=nvm_verify(m);
-    if(!verified.ok || !m->function_count || m->function_count>32 ||
+    if(!verified.ok || !(m->header.flags & NVM_FLAG_HAS_MAIN) || !m->function_count || m->function_count>32 ||
        m->import_count || m->module_ref_count || m->ownership_size || m->passive_size ||
        m->layout_size || m->struct_count || m->union_count || m->enum_count ||
        (m->header.flags & NVM_FLAG_NEEDS_EXTERN)) {
