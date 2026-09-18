@@ -9759,12 +9759,15 @@ Compiler product:
       fixture and all 2,390 structured-C checks pass on Darwin (2026-09-17).
 
 Module richness:
-- [ ] I retain ordered advisory v2 metadata through module conversion and
+- [x] I retain ordered advisory v2 metadata through module conversion and
       canonical text, with exact string bytes, explicit source precedence,
       metadata-bearing v1 refusal and owned lifetime. MAC
       `task_ba62a060883b468abffe6a3cdda49005`; contract
       `docs/NANOISA_ADVISORY_METADATA.md`. This transport prerequisite does not
-      complete local names, frontend facts or reconstruction.
+      complete local names, frontend facts or reconstruction. I pass 188
+      metadata checks, 18 allocation boundaries, paired VM/native execution,
+      sanitizer checks and the genuine canonical compiler host build.
+      [Evidence](evidence/nanoisa-advisory-metadata.md).
 - [ ] I store local names, not only slot numbers.
 - [ ] I preserve frontend purity, affine-use, generic, effect, and
       exhaustiveness facts as NanoISA metadata.
