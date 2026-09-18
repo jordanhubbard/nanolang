@@ -50,6 +50,11 @@ uint64_t nms_module_format_scalar(uint64_t bits, uint32_t tag) {
     nms_module_fail(nms_format_scalar(&nms_module_instance, bits, tag, &result));
     return result;
 }
+uint64_t nms_module_parse_f64(uint64_t source) {
+    uint64_t result = 0;
+    nms_module_fail(nms_parse_f64(&nms_module_instance, source, &result));
+    return result;
+}
 int64_t nms_module_parse_i64(uint64_t source) {
     int64_t result = 0;
     nms_module_fail(nms_parse_i64(&nms_module_instance, source, &result));

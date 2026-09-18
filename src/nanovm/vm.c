@@ -9,6 +9,7 @@
 #include "vm_ffi.h"
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
+#include "../nanoisa/binary64_parse.h"
 #include "../nanoisa/ownership_contracts.h"
 #include "../nanoisa/nvm_v2_sections.h"
 #include "../utf8.h"
@@ -3934,8 +3935,14 @@ vm_return_values: ;
                 case TAG_BOOL:  stack_push(vm, val_float(v.as.boolean ? 1.0 : 0.0)); break;
                 case TAG_STRING: {
                     const char *str = vmstring_cstr(v.as.string);
-                    double result = str ? strtod(str, NULL) : 0.0;
+                    uint64_t bits = 0;
+                    int parsed = nbp_parse((const unsigned char *)str,
+                                          str ? vmstring_len(v.as.string) : 0, &bits);
                     vm_release(&vm->heap, v);
+                    if (!parsed) return trap_error(vm, VM_ERR_TYPE_ERROR,
+                        "I could not finish the checked binary64 conversion.");
+                    double result;
+                    memcpy(&result, &bits, sizeof result);
                     stack_push(vm, val_float(result));
                     break;
                 }
