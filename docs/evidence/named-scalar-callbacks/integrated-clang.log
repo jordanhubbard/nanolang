@@ -1,0 +1,14 @@
+I retain named callback artifacts at /tmp/nano-named-callbacks-deorc2f0
+test_exact_binary64_results_and_unchanged_inputs (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_exact_binary64_results_and_unchanged_inputs) ... ok
+test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect) ... ok
+test_int_bool_results_and_typed_empty (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_int_bool_results_and_typed_empty) ... ok
+test_local_and_computed_callbacks_keep_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_local_and_computed_callbacks_keep_indirect_boundary) ... ok
+test_source_initializer_order_and_alias_length (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_source_initializer_order_and_alias_length) ... ok
+test_u8_keeps_existing_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_u8_keeps_existing_indirect_boundary) ... ok
+test_user_builtin_names_keep_route_specific_binding (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_user_builtin_names_keep_route_specific_binding) ... ok
+test_wrong_signatures_preserve_previous_output (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_wrong_signatures_preserve_previous_output) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 110.807s
+
+OK

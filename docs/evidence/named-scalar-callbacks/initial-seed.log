@@ -1,0 +1,14 @@
+I retain seed controls at /tmp/nano-named-seed-u3bcoukj
+bits PASS
+scalars PASS
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 56, in execute
+    self.command(ROOT/'bin/nvm2c', module, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 16, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nvm2c'), PosixPath('/tmp/nano-named-seed-u3bcoukj/order.nvm'), '-o', PosixPath('/tmp/nano-named-seed-u3bcoukj/order.c')): 1
+
+I cannot translate '/tmp/nano-named-seed-u3bcoukj/order.nvm': I require an array representation at return in function 0
+

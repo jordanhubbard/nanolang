@@ -1290,6 +1290,230 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
     return sig ? sig->return_fn_sig : NULL;
 }
 
+/* I retain explicit callable annotations with the AST in every let scope. */
+static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type declared) {
+    if (statement->as.let.type_info || declared != TYPE_FUNCTION ||
+        !statement->as.let.fn_sig) return true;
+    TypeInfo *info = calloc(1, sizeof *info);
+    if (!info) {
+        tc->has_error = true;
+        return false;
+    }
+    info->base_type = TYPE_FUNCTION;
+    info->fn_sig = statement->as.let.fn_sig;
+    statement->as.let.type_info = info;
+    return true;
+}
+
+/* I compare complete reduce identities without the general compatibility rules.
+ * These views borrow annotations; none escape this check. */
+static TypeInfo reduce_type_view(Type type, const char *name, const TypeInfo *info) {
+    if (info) return *info;
+    TypeInfo view = {.base_type = type, .generic_name = (char *)name};
+    return view;
+}
+
+/* I recover nominal annotations erased by the legacy declaration pass. */
+static Type reduce_identity_kind(const TypeInfo *info, Environment *env) {
+    if (info->generic_name) {
+        if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_INT ||
+             info->base_type == TYPE_ENUM) && env_get_enum(env, info->generic_name))
+            return TYPE_ENUM;
+        if (info->base_type == TYPE_STRUCT && env_get_union(env, info->generic_name))
+            return TYPE_UNION;
+    }
+    return info->base_type;
+}
+
+static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
+                               Environment *env, unsigned depth) {
+    if (!a || !b || depth > 128 || a->is_open_row || b->is_open_row ||
+        a->type_var_count || b->type_var_count) return false;
+    Type at = reduce_identity_kind(a, env);
+    Type bt = reduce_identity_kind(b, env);
+    if (at != bt) return false;
+    switch (at) {
+        case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL:
+        case TYPE_STRING: case TYPE_BSTRING:
+        case TYPE_LIST_INT: case TYPE_LIST_STRING: case TYPE_LIST_TOKEN:
+            return true;
+        case TYPE_ARRAY:
+            return reduce_types_exact(a->element_type, b->element_type, env, depth + 1);
+        case TYPE_STRUCT: case TYPE_ENUM: case TYPE_UNION: {
+            if (!a->generic_name || !b->generic_name) return false;
+            bool same = false;
+            if (at == TYPE_STRUCT) {
+                /* My record declarations have no generic parameter list. */
+                if (a->type_param_count || b->type_param_count) return false;
+                StructDef *left = env_get_struct(env, a->generic_name);
+                same = left && left == env_get_struct(env, b->generic_name);
+            } else if (at == TYPE_ENUM) {
+                if (a->type_param_count || b->type_param_count) return false;
+                EnumDef *left = env_get_enum(env, a->generic_name);
+                same = left && left == env_get_enum(env, b->generic_name);
+            } else {
+                UnionDef *left = env_get_union(env, a->generic_name);
+                same = left && left == env_get_union(env, b->generic_name);
+                if (left && left->generic_param_count != a->type_param_count) return false;
+            }
+            if (!same || a->type_param_count != b->type_param_count ||
+                a->type_param_count < 0) return false;
+            for (int i = 0; i < a->type_param_count; ++i)
+                if (!a->type_params || !b->type_params ||
+                    !reduce_types_exact(a->type_params[i], b->type_params[i], env, depth + 1))
+                    return false;
+            return true;
+        }
+        case TYPE_HASHMAP: case TYPE_LIST_GENERIC: {
+            int count = at == TYPE_HASHMAP ? 2 : 1;
+            if (a->type_param_count != count || b->type_param_count != count ||
+                !a->type_params || !b->type_params) return false;
+            for (int i = 0; i < count; ++i)
+                if (!reduce_types_exact(a->type_params[i], b->type_params[i], env, depth + 1))
+                    return false;
+            return true;
+        }
+        case TYPE_TUPLE:
+            if (a->tuple_element_count != b->tuple_element_count || a->tuple_element_count < 0)
+                return false;
+            for (int i = 0; i < a->tuple_element_count; ++i) {
+                if (!a->tuple_types || !b->tuple_types) return false;
+                TypeInfo left = reduce_type_view(a->tuple_types[i],
+                    a->tuple_type_names ? a->tuple_type_names[i] : NULL, NULL);
+                TypeInfo right = reduce_type_view(b->tuple_types[i],
+                    b->tuple_type_names ? b->tuple_type_names[i] : NULL, NULL);
+                if (!reduce_types_exact(&left, &right, env, depth + 1)) return false;
+            }
+            return true;
+        case TYPE_FUNCTION: {
+            FunctionSignature *left = a->fn_sig, *right = b->fn_sig;
+            if (!left || !right || left->param_count != right->param_count ||
+                left->param_count < 0) return false;
+            for (int i = 0; i < left->param_count; ++i) {
+                if (!left->param_types || !right->param_types) return false;
+                TypeInfo lp = reduce_type_view(left->param_types[i],
+                    left->param_struct_names ? left->param_struct_names[i] : NULL,
+                    left->param_type_info ? left->param_type_info[i] : NULL);
+                TypeInfo rp = reduce_type_view(right->param_types[i],
+                    right->param_struct_names ? right->param_struct_names[i] : NULL,
+                    right->param_type_info ? right->param_type_info[i] : NULL);
+                if (!reduce_types_exact(&lp, &rp, env, depth + 1)) return false;
+            }
+            TypeInfo lr = reduce_type_view(left->return_type, left->return_struct_name,
+                                            left->return_type_info);
+            TypeInfo rr = reduce_type_view(right->return_type, right->return_struct_name,
+                                            right->return_type_info);
+            if (!lr.fn_sig) lr.fn_sig = left->return_fn_sig;
+            if (!rr.fn_sig) rr.fn_sig = right->return_fn_sig;
+            if (lr.base_type == TYPE_VOID && rr.base_type == TYPE_VOID) return true;
+            return reduce_types_exact(&lr, &rr, env, depth + 1);
+        }
+        case TYPE_OPAQUE:
+            return a->opaque_type_name && b->opaque_type_name &&
+                !strcmp(a->opaque_type_name, b->opaque_type_name);
+        default:
+            return false;
+    }
+}
+
+static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expected,
+                                      Environment *env, unsigned depth) {
+    if (!expression || !expected || depth > 128) return false;
+    Type actual = check_expression(expression, env);
+    if (actual == TYPE_UNKNOWN || actual == TYPE_VOID) return false;
+    if (actual == TYPE_ARRAY && expression->type == AST_ARRAY_LITERAL) {
+        if (reduce_identity_kind(expected, env) != TYPE_ARRAY ||
+            !reduce_types_exact(expected, expected, env, depth + 1)) return false;
+        for (int i = 0; i < expression->as.array_literal.element_count; ++i)
+            if (!reduce_expression_matches(expression->as.array_literal.elements[i],
+                    expected->element_type, env, depth + 1)) return false;
+        return true;
+    }
+    const char *name = get_struct_type_name(expression, env);
+    if (actual == TYPE_ENUM && expression->type == AST_FIELD_ACCESS &&
+        expression->as.field_access.object->type == AST_IDENTIFIER)
+        name = expression->as.field_access.object->as.identifier;
+    TypeInfo view = reduce_type_view(actual, name, try_get_expr_type_info(expression, env));
+    return reduce_types_exact(&view, expected, env, depth + 1);
+}
+
+static Type check_reduce_call(ASTNode *call, Environment *env) {
+    if (call->as.call.arg_count != 3) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+            "I require exactly three operands for reduce.",
+            "Pass an array, an initializer and a binary callback.");
+        return TYPE_UNKNOWN;
+    }
+    ASTNode *array = call->as.call.args[0], *initial = call->as.call.args[1];
+    ASTNode *callback = call->as.call.args[2];
+    Type array_type = check_expression(array, env);
+    Type initial_type = check_expression(initial, env);
+    Type callback_type = check_expression(callback, env);
+    Function *function = NULL;
+    FunctionSignature *signature = NULL;
+    if (callback->type == AST_IDENTIFIER) {
+        Symbol *value = env_get_var_visible_at(env, callback->as.identifier,
+                                               callback->line, callback->column);
+        if (value) signature = value->type_info ? value->type_info->fn_sig : NULL;
+        else function = env_get_function(env, callback->as.identifier);
+    } else if (callback->type == AST_CALL) {
+        signature = function_result_signature(callback, env);
+    } else {
+        TypeInfo *info = try_get_expr_type_info(callback, env);
+        signature = info ? info->fn_sig : NULL;
+    }
+    TypeInfo parameters[2] = {{.base_type = TYPE_UNKNOWN}, {.base_type = TYPE_UNKNOWN}};
+    TypeInfo result = {.base_type = TYPE_UNKNOWN};
+    if (function && function->param_count == 2 && function->params) {
+        for (int i = 0; i < 2; ++i) {
+            Parameter *parameter = &function->params[i];
+            parameters[i] = reduce_type_view(parameter->type, parameter->struct_type_name,
+                                              parameter->type_info);
+            if (!parameters[i].fn_sig) parameters[i].fn_sig = parameter->fn_sig;
+        }
+        result = reduce_type_view(function->return_type, function->return_struct_type_name,
+                                  function->return_type_info);
+        if (!result.fn_sig) result.fn_sig = function->return_fn_sig;
+    } else if (signature && signature->param_count == 2 && signature->param_types) {
+        for (int i = 0; i < 2; ++i)
+            parameters[i] = reduce_type_view(signature->param_types[i],
+                signature->param_struct_names ? signature->param_struct_names[i] : NULL,
+                signature->param_type_info ? signature->param_type_info[i] : NULL);
+        result = reduce_type_view(signature->return_type, signature->return_struct_name,
+                                  signature->return_type_info);
+        if (!result.fn_sig) result.fn_sig = signature->return_fn_sig;
+    }
+    bool valid = array_type == TYPE_ARRAY && callback_type == TYPE_FUNCTION &&
+        initial_type != TYPE_UNKNOWN && initial_type != TYPE_VOID &&
+        reduce_types_exact(&parameters[0], &result, env, 0) &&
+        reduce_types_exact(&parameters[1], &parameters[1], env, 0) &&
+        reduce_expression_matches(initial, &parameters[0], env, 0);
+    if (valid && array->type == AST_ARRAY_LITERAL) {
+        Type element = infer_array_element_type(array, env);
+        Type wanted = reduce_identity_kind(&parameters[1], env);
+        /* I check nonempty leaves by identity: the container kind can still
+         * be the parser's unresolved nominal kind. Empty literals need facts. */
+        TypeInfo empty_element = {.base_type = element};
+        valid = array->as.array_literal.element_count > 0 ||
+            (element == wanted && reduce_types_exact(&empty_element, &parameters[1], env, 0));
+        for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
+            valid = reduce_expression_matches(array->as.array_literal.elements[i],
+                                               &parameters[1], env, 0);
+    } else if (valid) {
+        TypeInfo *array_info = try_get_expr_type_info(array, env);
+        TypeInfo element = reduce_type_view(infer_array_element_type(array, env), NULL,
+            array_info && array_info->base_type == TYPE_ARRAY ? array_info->element_type : NULL);
+        valid = reduce_types_exact(&element, &parameters[1], env, 0);
+    }
+    if (!valid) {
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+            "I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.",
+            "Retain complete types and match both callback parameters and its result exactly.");
+        return TYPE_UNKNOWN;
+    }
+    return initial_type;
+}
+
 /* I retain the union identity of the parser's dotted variant literals. */
 static const char *inline_variant_union(ASTNode *node, Environment *env) {
     if (!node || node->type != AST_STRUCT_LITERAL || !node->as.struct_literal.struct_name)
@@ -1938,17 +2162,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return TYPE_ARRAY;
             }
             
-            /* Special handling for reduce builtin - check before environment lookup */
-            if (strcmp(expr->as.call.name, "reduce") == 0) {
-                /* reduce(array, initial, combine_fn) -> type_of_initial */
-                if (expr->as.call.arg_count >= 3) {
-                    check_expression(expr->as.call.args[0], env);  /* Check array */
-                    Type initial_type = check_expression(expr->as.call.args[1], env);  /* Check initial value */
-                    check_expression(expr->as.call.args[2], env);  /* Check function */
-                    return initial_type;  /* Return same type as initial value */
-                }
-                return TYPE_UNKNOWN;
-            }
+            /* I validate the callback as one exact accumulator/element contract. */
+            if (strcmp(expr->as.call.name, "reduce") == 0)
+                return check_reduce_call(expr, env);
 
             /* Special handling for format builtin - variadic string interpolation */
             if (strcmp(expr->as.call.name, "format") == 0) {
@@ -4804,16 +5020,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Create TypeInfo for tuples or use existing from parser for generic types */
+            if (!retain_let_function_type(tc, stmt, declared_type)) return TYPE_UNKNOWN;
             TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
-            if (!type_info && declared_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
-                /* The AST owns this metadata; symbols borrow it. I keep the
-                 * direct signature alias for existing lowering consumers. */
-                type_info = calloc(1, sizeof(TypeInfo));
-                if (!type_info) { tc->has_error = true; return TYPE_UNKNOWN; }
-                type_info->base_type = TYPE_FUNCTION;
-                type_info->fn_sig = stmt->as.let.fn_sig;
-                stmt->as.let.type_info = type_info;
-            }
             if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
@@ -7529,6 +7737,8 @@ register_function_pass1:;
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
 
+            /* I preserve explicit function signatures just as in local bindings. */
+            if (!retain_let_function_type(&tc, item, item->as.let.var_type)) continue;
             /* Preserve element type / generic type info for arrays and other complex types */
             env_define_var_with_type_info(env,
                                          item->as.let.name,
@@ -8278,6 +8488,8 @@ register_function_pass2:;
             /* Add constant to environment */
             Value val = create_void();  /* Placeholder value for type checking */
 
+            /* I preserve explicit function signatures just as in local bindings. */
+            if (!retain_let_function_type(&tc, item, item->as.let.var_type)) continue;
             /* Preserve element type / generic type info for arrays and other complex types */
             env_define_var_with_type_info(env,
                                          item->as.let.name,
