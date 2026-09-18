@@ -117,6 +117,31 @@ int record_graphs(void) {
 }
 #ifdef NMS_TESTING
 int record_failures(void) {
+    {
+        NmsRuntime r; nms_init(&r,literals,1);
+        CHECK(nms_bind_records(&r,definitions,4)==NMS_OK);
+        NmsHandle child,record,output=123;
+        CHECK(nms_record_create(&r,0,NULL,0,&child)==NMS_OK);
+        NmsValue initial={1,1};
+        CHECK(nms_record_create(&r,2,&initial,1,&record)==NMS_OK);
+        NmsValue fields[]={{child,8},{child,8},{1,5}};
+        /* I exercise checked counter saturation, then restore the test owner. */
+        r.slots[(uint32_t)child].references=UINT64_MAX-1;
+        CHECK(nms_record_create(&r,1,fields,3,&output)==NMS_MEMORY && output==123);
+        CHECK(r.slots[(uint32_t)child].references==UINT64_MAX-1 && r.live_objects==2);
+        r.slots[(uint32_t)child].references=UINT64_MAX;
+        CHECK(nms_record_set(&r,record,0,(NmsValue){child,8})==NMS_MEMORY);
+        NmsValue value={99,1};
+        CHECK(nms_record_get(&r,record,0,&value)==NMS_OK && value.tag==1 && value.payload==1);
+        r.slots[(uint32_t)child].references=1;
+        CHECK(nms_record_set(&r,record,0,(NmsValue){child,8})==NMS_OK);
+        r.slots[(uint32_t)child].references=UINT64_MAX;
+        value=(NmsValue){99,1};
+        CHECK(nms_record_get(&r,record,0,&value)==NMS_MEMORY && value.tag==1 && value.payload==99);
+        r.slots[(uint32_t)child].references=2;
+        CHECK(nms_release(&r,record)==NMS_OK && nms_release(&r,child)==NMS_OK);
+        CHECK(!r.live_objects && !r.live_bytes && nms_dispose(&r)==NMS_OK);
+    }
     for(uint64_t budget=0;budget<4;budget++) {
         NmsRuntime r; nms_init(&r,literals,1);
         CHECK(nms_bind_records(&r,definitions,4)==NMS_OK);
