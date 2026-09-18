@@ -86,3 +86,12 @@ already reviewed snapshots/helpers. Mandatory helper shadows, explicit negative
 publication preservation and the unchanged positive arithmetic/order fixtures
 precede closure. A fresh corrected bootstrap is required. Integer neighbors
 establish source dispatch/order only; integer overflow policy is unchanged.
+
+I narrow the shared-checker selection after independent review: it changes only
+four-operation expressions containing a resolved flat numeric array operand.
+Within that selection I reject a mismatched scalar or array element kind. Other
+legacy array profiles retain their prior checker result, including string,
+nested and modulo expressions; I do not claim new support for them. Canonical
+emission independently refuses arithmetic arrays outside the exact numeric
+profile before choosing any scalar opcode. This keeps the new paired profile
+from silently rewriting unrelated legacy checker behavior.
