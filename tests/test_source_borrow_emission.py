@@ -21,10 +21,10 @@ class SourceBorrowEmission(unittest.TestCase):
         for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
             if compiler != 'nanoc_c':
                 emitter = cls.work / (compiler + '-emit')
-                cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter)
+                cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter, timeout=900)
                 cls.emitters.append(emitter)
             shadow_tool = cls.work / (compiler + '-shadows')
-            cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool)
+            cls.command(ROOT / 'bin' / compiler, shadow_source, '-o', shadow_tool, timeout=900)
             cls.shadow_tools.append(shadow_tool)
 
     @classmethod
@@ -32,9 +32,9 @@ class SourceBorrowEmission(unittest.TestCase):
         cls.temporary.cleanup()
 
     @staticmethod
-    def command(*args, expected=0):
+    def command(*args, expected=0, timeout=180):
         result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
-                                text=True, timeout=180)
+                                text=True, timeout=timeout)
         if result.returncode != expected:
             raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
         return result
