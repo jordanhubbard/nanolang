@@ -1108,6 +1108,13 @@ test-units: test-string-boundaries test-map-results
 test-map-results: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_map_results.py
 
+
+.PHONY: test-map-declared-tags
+test-map-declared-tags: nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_map_declared_tags tests.test_native_map_globals
+
+test-units: test-map-declared-tags
+
 .PHONY: test-selfhost-map-results
 test-selfhost-map-results: bootstrap3
 	@NANOLANG_MAP_SELFHOST=1 python3 tests/test_map_results.py
