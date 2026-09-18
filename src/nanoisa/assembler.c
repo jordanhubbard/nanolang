@@ -1475,6 +1475,7 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
     if (!state.mod || !state.fn_code) {
         result->error = ASM_ERR_MEMORY;
         snprintf(result->message, sizeof(result->message), "Out of memory");
+        nvm_module_free(state.mod);
         asm_state_cleanup(&state);
         return NULL;
     }
