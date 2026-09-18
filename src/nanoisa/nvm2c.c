@@ -357,6 +357,14 @@ static const Nvm2cHost artifact_adapters[] = {
     {"nl_nanoisa_assemble_save", "nhost_artifact", 2, TAG_STRING, TAG_INT},
     {"nl_nanoisa_assemble_text_save", "nhost_artifact", 2, TAG_STRING, TAG_INT},
     {"fs_walkdir", "nhost_walk", 1, TAG_STRING, TAG_ARRAY},
+    {"nl_fs_list_files", "nhost_walk", 2, TAG_STRING, TAG_ARRAY},
+    {"nl_fs_list_files_ci", "nhost_walk", 2, TAG_STRING, TAG_ARRAY},
+    {"nl_fs_list_dirs", "nhost_walk", 1, TAG_STRING, TAG_ARRAY},
+    {"nl_fs_parent_dir", "nhost_snapshot", 1, TAG_STRING, TAG_STRING},
+    {"nl_fs_join_path", "nhost_snapshot", 2, TAG_STRING, TAG_STRING},
+    {"nl_fs_is_directory", "nhost_artifact", 1, TAG_STRING, TAG_INT},
+    {"nl_fs_file_exists", "nhost_artifact", 1, TAG_STRING, TAG_INT},
+    {"nl_fs_file_size", "nhost_artifact", 1, TAG_STRING, TAG_INT},
     {"path_normalize", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
     {"path_canonical", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
     {"path_join", "nhost_artifact", 2, TAG_STRING, TAG_STRING},
@@ -4482,6 +4490,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 int left = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(s[%d], s[%d])", host->c_name, left, right);
+                if (host->result == TAG_ARRAY)
+                    snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d], s[%d])",
+                             ins.operands[0].u32, left, right);
             } else if (host->argc) {
                 uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR :
                                    host->parameter == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT;
@@ -5243,10 +5254,13 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "    nh_array=5, nh_struct=6, nh_pointer=7, nh_u8=8 } nh_element;\n"
             "typedef struct { int64_t length, capacity; nh_element type;\n"
             "    uint8_t width; void *data; } nh_array_value;\n");
-        nvm2c_printf(b, "static inline nsarr_t nhost_walk_%u(const char *root) {\n", i);
+        const char *parameters = host->argc == 2 ? "const char *root, const char *extension" : "const char *root";
+        const char *types = host->argc == 2 ? "const char *, const char *" : "const char *";
+        const char *release_name = !strcmp(host->name, "fs_walkdir") ? "fs_walkdir_release" : "nl_fs_list_release";
+        nvm2c_printf(b, "static inline nsarr_t nhost_walk_%u(%s) {\n", i, parameters);
+        nvm2c_puts(b, "    static void *library;\n");
+        nvm2c_printf(b, "    static nh_array_value *(*walk)(%s);\n", types);
         nvm2c_puts(b,
-            "    static void *library;\n"
-            "    static nh_array_value *(*walk)(const char *);\n"
             "    static bool (*release)(nh_array_value *);\n"
             "    if (!library) {\n"
             "        library = dlopen(");
@@ -5255,14 +5269,23 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
                           mod->string_lengths[imp->module_name_idx]);
         nvm2c_puts(b,
             ", RTLD_NOW | RTLD_LOCAL);\n"
-            "        if (!library) NVM2C_ABORT();\n"
-            "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"fs_walkdir__nano_array_abi\");\n"
+            "        if (!library) NVM2C_ABORT();\n");
+        nvm2c_printf(b,
+            "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"%s__nano_array_abi\");\n"
             "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
-            "        walk = (nh_array_value *(*)(const char *))dlsym(library, \"fs_walkdir\");\n"
-            "        release = (bool (*)(nh_array_value *))dlsym(library, \"fs_walkdir_release\");\n"
+            "        walk = (nh_array_value *(*)(%s))dlsym(library, \"%s\");\n"
+            "        release = (bool (*)(nh_array_value *))dlsym(library, \"%s\");\n",
+            host->name, types, host->name, release_name);
+        nvm2c_puts(b,
             "        if (!walk || !release) NVM2C_ABORT();\n"
-            "    }\n"
-            "    nh_array_value *foreign = walk(root);\n"
+            "        Dl_info producer, marker, companion;\n"
+            "        if (!dladdr((void *)walk, &producer) || !dladdr((void *)abi, &marker) ||\n"
+            "            !dladdr((void *)release, &companion) ||\n"
+            "            producer.dli_fbase != marker.dli_fbase ||\n"
+            "            producer.dli_fbase != companion.dli_fbase) NVM2C_ABORT();\n"
+            "    }\n");
+        nvm2c_printf(b, "    nh_array_value *foreign = walk(%s);\n", host->argc == 2 ? "root, extension" : "root");
+        nvm2c_puts(b,
             "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
             "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
             "        foreign->capacity < foreign->length ||\n"

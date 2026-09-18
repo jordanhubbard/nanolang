@@ -13,6 +13,21 @@ NANO_EXPORT_ARRAY_ABI(nl_fs_list_files);
 NANO_EXPORT_ARRAY_ABI(nl_fs_list_files_ci);
 NANO_EXPORT_ARRAY_ABI(nl_fs_list_dirs);
 
+/* I release an exclusive listing after its consumer copies the strings. */
+bool nl_fs_list_release(DynArray *result) {
+    if (!result || !gc_is_managed(result)) return false;
+    GCHeader *header = gc_get_header(result);
+    if (header->type != GC_TYPE_ARRAY || header->ref_count != 1 ||
+        !dyn_array_has_storage(result, ELEM_STRING, sizeof(char *), 0)) return false;
+    for (int64_t i = 0; i < result->length; i++) {
+        free(((char **)result->data)[i]);
+        ((char **)result->data)[i] = NULL;
+    }
+    result->length = 0;
+    gc_release(result);
+    return true;
+}
+
 static int cmp_cstr_ptr(const void *a, const void *b) {
     const char *sa = *(const char * const *)a;
     const char *sb = *(const char * const *)b;

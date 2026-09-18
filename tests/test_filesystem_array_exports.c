@@ -14,9 +14,7 @@ static void check(DynArray *a, int64_t count) {
         assert(strcmp(dyn_array_get_string(a, i - 1), dyn_array_get_string(a, i)) <= 0);
 }
 static void dispose(DynArray *a) {
-    /* I free known copied fixture elements; runtime ownership is separate. */
-    for (int64_t i = 0; i < a->length; ++i) free((void *)dyn_array_get_string(a, i));
-    gc_release(a);
+    assert(nl_fs_list_release(a));
 }
 static void paths(void) {
     assert(!nl_fs_is_directory(NULL));
@@ -57,6 +55,7 @@ static void paths(void) {
 int main(int argc, char **argv) {
     assert(argc == 3);
     gc_init();
+    assert(!nl_fs_list_release(NULL));
     paths();
     assert(nl_fs_is_directory(argv[1]));
     assert(nl_fs_file_exists(argv[1]));
@@ -66,6 +65,10 @@ int main(int argc, char **argv) {
     assert(nl_fs_list_dirs__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);
     DynArray *a = nl_fs_list_files(argv[1], ".txt");
     check(a, 2);
+    gc_retain(a);
+    assert(!nl_fs_list_release(a));
+    check(a, 2);
+    gc_release(a);
     assert(!strcmp(dyn_array_get_string(a, 0), "a.txt"));
     assert(!strcmp(dyn_array_get_string(a, 1), argv[2]));
     dispose(a);
