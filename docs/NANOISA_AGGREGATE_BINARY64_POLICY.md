@@ -58,3 +58,31 @@ and previously qualified scalar results cross-check element results; host libc
 NaN spelling is not an arithmetic oracle. Linux and Darwin claims remain tied
 to their actual frozen runs. Full3717 and release remain open until all required
 route/shape/target acceptance is measured; this checkpoint alone closes neither.
+
+## My paired source typing prerequisite
+
+I record task_90b473627cffdb98e69d5a5641937d30 before corrective code. The first
+frozen3087067f four-method gate passes C-seed/interpreter observations, but all
+eight Stage1/Stage2 legacy/canonical subcases refuse FLOAT broadcasts because
+check_binary_op chooses scalar FLOAT before recognizing an array. I retain all
+logs and unchanged source/tool hashes. Static follow-up also finds canonical
+binary emission chooses F64 operations when one operand is FLOAT and typed I64
+otherwise, without an array result path. I do not execute such invalid outputs.
+
+I add an exact resolved array arithmetic classifier before scalar promotion,
+limited to existing flat array<int>/INT and array<float>/FLOAT operands. Both
+arrays must have identical known element kind; one scalar must match that kind.
+The result preserves the array type. Four arithmetic operators reuse existing
+VM generic ADD/SUB/MUL/DIV execution; no typed scalar opcode consumes an array.
+Unknown, mixed element/scalar types, nested/nominal/bool/string arrays and modulo
+remain outside this new paired source slice and receive a checked refusal where
+this path is selected. I preserve comparison handling and scalar compatibility.
+I do not infer a missing element kind from an unrelated scalar.
+
+The checker reports incompatible array arithmetic before publication rather than
+letting an error-UNKNOWN pass an annotated let. Canonical expression type and
+emission use the same exact resolved profile, and legacy emission retains its
+already reviewed snapshots/helpers. Mandatory helper shadows, explicit negative
+publication preservation and the unchanged positive arithmetic/order fixtures
+precede closure. A fresh corrected bootstrap is required. Integer neighbors
+establish source dispatch/order only; integer overflow policy is unchanged.
