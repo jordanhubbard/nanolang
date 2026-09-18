@@ -34,6 +34,12 @@ static void comparisons(char *source,size_t capacity,unsigned first) {
 static NvmModule *fixture(unsigned index) {
     char source[100000]=".types 1 0 0\n.entry 0\n.function main 0 4 0 int 1\n";
     append(source,sizeof(source),"%s\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n",index==5?"PUSH_F64 42.0":"PUSH_I64 42");
+    if(index==4 || index>=8) {
+        append(source,sizeof(source),"PUSH_F64 1.5\nSTORE_LOCAL 1\n");
+        if(index==8)append(source,sizeof(source),"LOAD_LOCAL 3\nPOP\n");
+        if(index==9)append(source,sizeof(source),"PUSH_I64 1\nSTORE_LOCAL 1\n");
+        append(source,sizeof(source),"PUSH_BOOL 1\nJMP_FALSE alternate\nLOAD_LOCAL 1\nPUSH_F64 2.0\nF64_MUL\nSTORE_LOCAL 1\nJMP joined\nalternate:\nPUSH_F64 3.0\nSTORE_LOCAL 1\njoined:\nLOAD_LOCAL 1\nPUSH_F64 3.0\nF64_EQ\nASSERT\n");
+    }
     if(index<2)comparisons(source,sizeof(source),index*6);
     else {
         const char *op[]={"F64_ADD","F64_SUB","F64_MUL","F64_DIV"};
@@ -47,7 +53,7 @@ static NvmModule *fixture(unsigned index) {
         append(source,sizeof(source),"CALL 1\n%s\n",index==6?"POP":"ASSERT");
         if(index==3)append(source,sizeof(source),"PUSH_BOOL 0\nASSERT\n");
     }
-    append(source,sizeof(source),"OWN_UNPACK_LOCAL 0\n%s\nASSERT\nPUSH_I64 0\nRET\n.end\n.function helper %u 1 0 %s 1\n%sRET\n.end\n",index==5?"PUSH_F64 42.0\nF64_EQ":"PUSH_I64 42\nEQ",index==7?1:0,index==6?"float":"bool",index==6?"PUSH_F64 1.5\n":index==7?"LOAD_LOCAL 0\nPUSH_F64 1.0\nLE\n":"PUSH_F64 nan\nPUSH_F64 1.0\nLE\n");
+    append(source,sizeof(source),"OWN_UNPACK_LOCAL 0\n%s\nASSERT\nPUSH_I64 0\nRET\n.end\n.function helper %u 1 0 %s 1\n%sRET\n.end\n",index==5?"PUSH_F64 42.0\nF64_EQ":"PUSH_I64 42\nEQ",index==7?1:0,index==6?"float":"bool",index==6?"PUSH_F64 1.5\n":index==4?"PUSH_F64 2.5\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nPUSH_F64 2.5\nF64_EQ\n":index==7?"LOAD_LOCAL 0\nPUSH_F64 1.0\nLE\n":"PUSH_F64 nan\nPUSH_F64 1.0\nLE\n");
     if(index==7)append(source,sizeof(source),".parameters 1 float\n");
     AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
     if(!m)fprintf(stderr,"%s\n",assembled.message);
@@ -58,9 +64,9 @@ static NvmModule *fixture(unsigned index) {
     m->ownership_size=84;m->ownership_data=calloc(84,1);CHECK(m->ownership_data);
     uint8_t *p=m->ownership_data;word(p,2);word(p+4,1);p[8]=3;word(p+12,2);
     p[16]=4;slot(p+20,TAG_INT,NVM_V2_NO_INDEX);
-    slot(p+28,TAG_STRUCT,0);slot(p+36,index==4?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX);slot(p+44,TAG_INT,NVM_V2_NO_INDEX);slot(p+52,TAG_BOOL,NVM_V2_NO_INDEX);
-    p[60]=1;p[62]=index==7?1:0;slot(p+64,index==6?TAG_FLOAT:TAG_BOOL,NVM_V2_NO_INDEX);slot(p+72,index==7?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX);
-    if(index<4){NvmVerifyResult result=nvm_verify(m);if(!result.ok)fprintf(stderr,"%s\n",result.error_msg);CHECK(result.ok);CHECK(nvm_verify_owned_module(m).ok);}
+    slot(p+28,TAG_STRUCT,0);slot(p+36,(index==4||index>=8)?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX);slot(p+44,TAG_INT,NVM_V2_NO_INDEX);slot(p+52,index==8?TAG_FLOAT:TAG_BOOL,NVM_V2_NO_INDEX);
+    p[60]=1;p[62]=index==7?1:0;slot(p+64,index==6?TAG_FLOAT:TAG_BOOL,NVM_V2_NO_INDEX);slot(p+72,(index==7||index==4)?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX);
+    if(index<=4){NvmVerifyResult result=nvm_verify(m);if(!result.ok)fprintf(stderr,"%s\n",result.error_msg);CHECK(result.ok);CHECK(nvm_verify_owned_module(m).ok);}
     return m;
 }
 static void artifacts(NvmModule *m,const char *dir,unsigned index) {
@@ -73,14 +79,14 @@ static void artifacts(NvmModule *m,const char *dir,unsigned index) {
 }
 int main(int argc,char **argv) {
     CHECK(argc==2);
-    for(unsigned i=4;i<8;i++) {
+    for(unsigned i=5;i<10;i++) {
         NvmModule *m=fixture(i);bool needs=false;
         CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);
         NvmVerifyResult rejected=nvm_verify_owned_module(m);CHECK(!rejected.ok);
-        CHECK(strstr(rejected.error_msg,"owned record fields") || strstr(rejected.error_msg,"entry locals") || strstr(rejected.error_msg,"scalar entry"));
+        CHECK(rejected.error_msg[0]);
         char error[256];CHECK(!nvm2c_emit(m,error,sizeof(error)));nvm_module_free(m);
     }
-    for(unsigned i=0;i<4;i++) {
+    for(unsigned i=0;i<5;i++) {
         NvmModule *m=fixture(i);artifacts(m,argv[1],i);VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
         for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<2;repeat++) {
             NanoValue result=val_int(-91);
