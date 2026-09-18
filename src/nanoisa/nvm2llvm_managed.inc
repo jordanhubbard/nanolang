@@ -296,21 +296,30 @@ static void managed_literals(FILE *out, const NvmModule *m) {
         " %answer = call i64 @nms_module_order(i64 %av, i64 %bv)\n ret i64 %answer\nbad:\n ret i64 0\n}\n", out);
 }
 static void managed_entry(FILE *out, const NvmModule *m, const char *entry,
-                          uint32_t initializer, uint32_t global_count) {
+                          uint32_t initializer, uint32_t global_count, bool graph_arrays) {
+    const char *begin = graph_arrays ? "nms_module_graph_begin" : "nms_module_begin";
+    const char *finish = graph_arrays ? "nms_module_graph_finish" : "nms_module_finish";
     fprintf(out, "define i64 @nano_try_entry() {\nentry:\n"
-        " %%begin = call i32 @nms_module_begin(ptr @literal_strings, i32 %u)\n"
-        " %%started = icmp eq i32 %%begin, 0\n br i1 %%started, label %%initialize, label %%refused\n"
-        "refused:\n %%reason = zext i32 %%begin to i64\n %%packed = shl i64 %%reason, 32\n ret i64 %%packed\ninitialize:\n", m->string_count);
+        " %%begin = call i32 @%s(ptr @literal_strings, i32 %u)\n"
+        " %%started = icmp eq i32 %%begin, 0\n br i1 %%started, label %%initialize, label %%begin_failed\n"
+        "begin_failed:\n", begin, m->string_count);
+    if (graph_arrays) fputs(
+        " %acquired = icmp eq i32 %begin, 3\n"
+        " br i1 %acquired, label %prepare_failed, label %refused\n"
+        "prepare_failed:\n %prepare_result = call i64 @nms_module_graph_finish(i32 0)\n"
+        " ret i64 %prepare_result\n", out);
+    else fputs(" br label %refused\n", out);
+    fputs("refused:\n %reason = zext i32 %begin to i64\n %packed = shl i64 %reason, 32\n ret i64 %packed\ninitialize:\n", out);
     if (initializer < m->function_count) fprintf(out,
         " %%init = call %%R @f%u()\n %%init_value = extractvalue %%R %%init, 0\n"
         " call void @managed_release(%%V %%init_value)\n", initializer);
-    fputs(" %init_status = call i32 @nms_module_status()\n %init_ok = icmp eq i32 %init_status, 0\n"
-        " br i1 %init_ok, label %execute, label %failed\nfailed:\n"
-        " %failed_result = call i64 @nms_module_finish(i32 0)\n ret i64 %failed_result\nexecute:\n", out);
+    fprintf(out, " %%init_status = call i32 @nms_module_status()\n %%init_ok = icmp eq i32 %%init_status, 0\n"
+        " br i1 %%init_ok, label %%execute, label %%failed\nfailed:\n"
+        " %%failed_result = call i64 @%s(i32 0)\n ret i64 %%failed_result\nexecute:\n", finish);
     fprintf(out, " %%r = call %%R @f%u()\n %%v = extractvalue %%R %%r, 0\n"
         " %%bits = extractvalue %%V %%v, 0\n %%integer = trunc i64 %%bits to i32\n"
-        " call void @managed_release(%%V %%v)\n %%answer = call i64 @nms_module_finish(i32 %%integer)\n ret i64 %%answer\n}\n",
-        m->header.entry_point);
+        " call void @managed_release(%%V %%v)\n %%answer = call i64 @%s(i32 %%integer)\n ret i64 %%answer\n}\n",
+        m->header.entry_point, finish);
     fputs("define i32 @nano_dispose() {\nentry:\n %active = call i32 @nms_module_active()\n"
         " %busy = icmp ne i32 %active, 0\n br i1 %busy, label %refused, label %release\n"
         "refused:\n ret i32 4\nrelease:\n", out);

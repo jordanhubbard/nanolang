@@ -1,0 +1,27 @@
+{
+  "producer_source": "f87267c21a356424ce101060521ce841a5eb17bb",
+  "tools": {
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_c": "8c6c78de64845b723d2edf698e5639a5f22ba08254f3870cfc0394e5e6d8cb37",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage1": "7cb4f38745e77e9a9d84b0e58ae6df5395b91f4e5502fad48da026433b555941",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage2": "bae22e738d1bf2fb712870555e259d0985361ee2574e5d49d213b98ced0f2cba",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nano_virt": "e7ca539d3b741ccbb23f948e433de8d5c4145282db35aaef7c1d2f6535705d53"
+  },
+  "libraries": {
+    "/lib/ld-linux-aarch64.so.1": "49005ef8e9db9a45691ff875e6ca18dd8723c7ec5c1a863a276a1186dbf22774"
+  },
+  "reconstruction_production": "b03adaa2",
+  "tests": "ae53ca46",
+  "base": "55208c4710ee6bc6d7cf7f04098b72b95ce2e1be",
+  "local_tools": {
+    "/home/jkh/Src/nanolang-reconstruction-f64-comparisons/bin/nanoisa": "4d90241dcd36bba20e45188d237cca9ea269791710bf28e6df1260ceff001aa8",
+    "/home/jkh/Src/nanolang-reconstruction-f64-comparisons/bin/nanoisa_hl_facts": "4d57dab53843d7fb8c362e0769bef1c2b021e3ffdfecf62e80ae8a93a43ad1b1",
+    "/home/jkh/Src/nanolang-reconstruction-f64-comparisons/bin/nano_vm": "d7f76dc1d18a5bbebaf5ebe323081f79556d223c3b8c48dbc5e426ad76345a0d",
+    "/home/jkh/Src/nanolang-reconstruction-f64-comparisons/bin/nvm2c": "85dbae2b20e264e7bc22f22ef08338f840a07180ab49e1fffa7a8dbf4187f6bb"
+  },
+  "logs": {
+    "/tmp/nanolang-reconstruction-f64-comparisons-build.log": "a8f8234ed52ddee2cd75946bad71ac7be63a5ae5db3d9a688307308bdcb9cd06",
+    "/tmp/nanolang-reconstruction-f64-comparisons-gcc.log": "edfd22038647cc722e9cceaa6577338cc7b7d2cd049cd23a1aab1603d8d42d5d",
+    "/tmp/nanolang-reconstruction-f64-comparisons-adjacent.log": "e6af226d80b5735b966e883be437a501083e241b60561cba81bd34411380609e",
+    "/tmp/nanolang-reconstruction-f64-comparisons-clang.log": "c3f02bdc972ddb0c3b13aecacd9e3a66b3a988d98573b90817e33df7bb289ff6"
+  }
+}

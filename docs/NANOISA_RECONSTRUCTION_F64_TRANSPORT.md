@@ -6,6 +6,9 @@ My starting main is `cc0688f1`, containing reviewed PR720. My original contract 
 My implementation and acceptance are retained in [evidence](evidence/reconstruction-f64-transport.md);
 all exclusions below remain in force.
 
+My later [typed comparison contract](NANOISA_RECONSTRUCTION_F64_COMPARISONS.md)
+records a separate continuation; the exclusions below describe this original pin.
+
 ## My admitted operations
 
 I add only `PUSH_F64`, `F64_FROM_BITS` and `F64_TO_BITS` to my reconstruction

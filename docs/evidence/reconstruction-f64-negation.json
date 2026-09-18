@@ -1,0 +1,35 @@
+{
+  "producer_source": "f87267c21a356424ce101060521ce841a5eb17bb",
+  "tools": {
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_c": "8c6c78de64845b723d2edf698e5639a5f22ba08254f3870cfc0394e5e6d8cb37",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage1": "7cb4f38745e77e9a9d84b0e58ae6df5395b91f4e5502fad48da026433b555941",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage2": "bae22e738d1bf2fb712870555e259d0985361ee2574e5d49d213b98ced0f2cba",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nano_virt": "e7ca539d3b741ccbb23f948e433de8d5c4145282db35aaef7c1d2f6535705d53"
+  },
+  "libraries": {
+    "/lib/ld-linux-aarch64.so.1": "49005ef8e9db9a45691ff875e6ca18dd8723c7ec5c1a863a276a1186dbf22774"
+  },
+  "production": "131c23cf",
+  "frozen_harness": "be39b7772ec05487498b2eb864aa0b49829ced96",
+  "base": "a0a8fbcf",
+  "tested_files": {
+    "scripts/nanoisa_reconstruction.py": "75a3af9e36c28ba7499d9d355011cb079ff8570a9eb18b42f9c5e5bc3b58db2e",
+    "tests/test_reconstruction_f64_negation.py": "38ab2b05b1244f3b97da59d62b322de122369c6556d25de4f2fffe6362c6225c",
+    "tests/test_reconstruction_f64_transport.py": "379b09dab0d174e8dc801f91ae9f827f0cea99e1afcb8e4cdc0fb13908529aa8",
+    "tests/test_reconstruction_f64_comparisons.py": "b13e4c7fef4cd4f711a2ff06ab1029fa3f526dc68008f31405e0f200f2e0538a",
+    "tests/test_binary64_bit_transport.py": "14db159bb847d5ef15d426150841e7de2ab69ce04aa6a3dc9567f0f3cf0f7e5a",
+    "tests/test_reconstruction_binary64_facts.py": "8defb8f631178ee90f992fd73eb2c15a3c77b2a5d7acf7064fc51f769f05fe1c"
+  },
+  "local_tools": {
+    "/home/jkh/Src/nanolang-reconstruction-f64-negation/bin/nanoisa": "59c0a8f29ab0a43c145a984184347f362dcc826438f0863bc097ef8bba824f00",
+    "/home/jkh/Src/nanolang-reconstruction-f64-negation/bin/nanoisa_hl_facts": "803863b63d210003142e8039f300ae6907818809efafc6b5be409972325fe198",
+    "/home/jkh/Src/nanolang-reconstruction-f64-negation/bin/nano_vm": "cf2329f23b8d3df64a367b2b508d8fc79ed996d677c053658fc956968fcf4f82",
+    "/home/jkh/Src/nanolang-reconstruction-f64-negation/bin/nvm2c": "64363cf2fc8c38011b98b80aa2f0e2e6535e5aa39d2e6392b409fc683c9fa968"
+  },
+  "logs": {
+    "/tmp/nanolang-reconstruction-f64-negation-build.log": "434df7f43d5999b30c56c659be27e15b0f2597f82c2848e29780d141d4f7baef",
+    "/tmp/nanolang-reconstruction-f64-negation-gcc.log": "8fdcab692f59b21bef7439ba419753ffc6e32e176b8730ce9835ad0197fc0dd7",
+    "/tmp/nanolang-reconstruction-f64-negation-clang.log": "44afaebedc2fa526c5ec85bd98d765641c5adb766d1ae9f8d4f585b270eb27ee",
+    "/tmp/nanolang-reconstruction-f64-negation-adjacent.log": "ec71d2c1a9bb5e3edc41f9541ef59f7aadb089db6f69405982f32ce32e65d171"
+  }
+}

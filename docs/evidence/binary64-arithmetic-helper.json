@@ -1,0 +1,40 @@
+{
+  "production": "e0e31b9f",
+  "frozen_harness": "673392ceb991a62923fde981daa0a528e900c2f9",
+  "stage": "shared helper only; no backend admission",
+  "files": {
+    "src/binary64_arithmetic.h": "8d0423fb3536a8f77216bab3749341eb536b485121d41111b33cda752cf53e97",
+    "src/binary64_arithmetic_source.h": "420dc773d96f134b2edbd09c7a515b354dd04333d51164552eb81ff5dec6476f",
+    "scripts/embed_binary64_arithmetic.py": "fd5a0cf9abe76b161285e163aab3b81e3f1824d6fa799ccb77d095b6bdfb5376",
+    "tests/test_binary64_arithmetic.c": "66d324deb09779fe206f8e91e57baa058ad37ea7ce7ae0c76950757551bcee46",
+    "tests/test_binary64_arithmetic.py": "f66a6ba50523bae5f022b412b965db37de2691fd1c11547c3de38078ac65f4d1"
+  },
+  "logs": {
+    "/tmp/nanolang-binary64-arithmetic-gcc.log": "8b62f1f22c5a976550cc05ccead58581feabd2f4f764c9f616e52e19cfc2f223",
+    "/tmp/nanolang-binary64-arithmetic-clang.log": "46796ac02e07f8d3c7acfd524565d259c27435e27b905416790f87bfe592c527",
+    "/tmp/nanolang-binary64-arithmetic-final-gcc.log": "21ca64dc7822423c0db69e72ae9963104414f71ab6594ae0ef324e602fd0a5fd",
+    "/tmp/nanolang-binary64-arithmetic-final-clang.log": "6e2f4ce86f32d30f9afaba1ef0669659422a7668be9e164be3549649cfbbdea4",
+    "/tmp/nanolang-binary64-arithmetic-storage-gcc.log": "ba2a24e4a1ba6e5454a06494a8075e3ce77662b01f71ef715c6a397e97830e56",
+    "/tmp/nanolang-binary64-arithmetic-storage-clang.log": "844a6ab527e36a0acdc269cc34368da251672a22f82de9d6338a3f07a2bc7805"
+  },
+  "immutable_producers_verified_not_used": {
+    "producer_source": "f87267c21a356424ce101060521ce841a5eb17bb",
+    "tools": {
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_c": "8c6c78de64845b723d2edf698e5639a5f22ba08254f3870cfc0394e5e6d8cb37",
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage1": "7cb4f38745e77e9a9d84b0e58ae6df5395b91f4e5502fad48da026433b555941",
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage2": "bae22e738d1bf2fb712870555e259d0985361ee2574e5d49d213b98ced0f2cba",
+      "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nano_virt": "e7ca539d3b741ccbb23f948e433de8d5c4145282db35aaef7c1d2f6535705d53"
+    },
+    "libraries": {
+      "/lib/ld-linux-aarch64.so.1": "49005ef8e9db9a45691ff875e6ca18dd8723c7ec5c1a863a276a1186dbf22774"
+    }
+  },
+  "initial_production": "3345afdb",
+  "prior_files": {
+    "src/binary64_arithmetic.h": "abdfe5ed9d66c3a0610fe986058b4962a3fa294c33fd353c443649705688676c",
+    "src/binary64_arithmetic_source.h": "288852ebb32a1d6fbad9e139550af20692655f860b9c3d35410ca35a8ef4014a",
+    "scripts/embed_binary64_arithmetic.py": "fd5a0cf9abe76b161285e163aab3b81e3f1824d6fa799ccb77d095b6bdfb5376",
+    "tests/test_binary64_arithmetic.c": "66d324deb09779fe206f8e91e57baa058ad37ea7ce7ae0c76950757551bcee46",
+    "tests/test_binary64_arithmetic.py": "f66a6ba50523bae5f022b412b965db37de2691fd1c11547c3de38078ac65f4d1"
+  }
+}
