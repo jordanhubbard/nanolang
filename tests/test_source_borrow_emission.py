@@ -1457,7 +1457,7 @@ shadow main { assert (== (main) 0) }
                     self.assertGreater(result.returncode, 0, result.stderr)
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
-                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact owned call result')
                     if name == 'factory_nominal' and compiler in self.emitters:
                         self.assertIn('exact nominal owned call result', result.stdout + result.stderr)
                         self.assertNotIn('exact positional scalar argument', result.stdout + result.stderr)
