@@ -1,0 +1,31 @@
+resource struct Leaf { value: int, active: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+fn take(owner: Pair) -> int {
+ let first: int = owner.left.value
+ assert owner.right.active
+ let Pair { right, left } = owner
+ let Leaf { active, value } = left
+ assert active assert (== first value)
+ let saved: int = value
+ let Leaf { value, active } = right
+ assert active
+ return (+ saved value)
+}
+shadow take {
+ let left: Leaf = Leaf { value: 20, active: true }
+ let right: Leaf = Leaf { active: true, value: 22 }
+ let owner: Pair = Pair { right: right, left: left }
+ assert (== (take owner) 42)
+}
+fn main() -> int {
+ let left: Leaf = Leaf { value: 3, active: true }
+ let right: Leaf = Leaf { value: 4, active: true }
+ let owner: Pair = Pair { left: left, right: right }
+ assert (== (take owner) 7)
+ let second: Leaf = Leaf { value: 8, active: true }
+ let third: Leaf = Leaf { value: 9, active: true }
+ let owner: Pair = Pair { right: third, left: second }
+ assert (== (take owner) 17)
+ return 0
+}
+shadow main { assert true }

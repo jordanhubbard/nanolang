@@ -16,6 +16,7 @@ let mut nb_mutable: array<bool> = []
 let mut nb_strings: array<string> = []
 let mut nb_helper: int = -1
 let mut nb_arity: int = 0
+let mut nb_consuming: bool = false
 let mut nb_paths: array<string> = []
 let mut nb_depths: array<int> = []
 let mut nb_projection_parents: array<int> = []
@@ -459,6 +460,19 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let helper: ASTFunction = (parser_get_function parser nb_helper)
         if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.arg_count helper.param_count)) { return (nb_fail "the declared direct borrowed helper arity") }
         if (!= (parser_get_identifier parser call.function).name helper.name) { return (nb_fail "the exact declared borrowed helper") }
+        if nb_consuming {
+            let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+            if (or (!= call.borrow_mode 0) (!= argument.node_type ParseNodeType.PNODE_IDENTIFIER)) { return (nb_fail "one named whole owner for my consuming helper") }
+            let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
+            if (< local 0) { return (nb_fail "a live consuming argument") }
+            let parameter: ASTLet = (parser_get_let parser helper.param_start)
+            if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (!= (at nb_tags local) 8) (at nb_disposal_pending local)))) { return (nb_fail "a live unborrowed whole owner") }
+            if (!= (at nb_layouts local) (nb_record parser parameter.var_type)) { return (nb_fail "the exact nominal consuming argument") }
+            let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
+            (array_set nb_live local false)
+            let _: int = (nb_op1 "CALL" 1)
+            return (nb_tag helper.return_type)
+        }
         let mut caller_places: array<NBPlace> = []
         let mut caller_modes: array<int> = []
         let mut argument_index: int = 0
@@ -792,9 +806,12 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         let mut parameter_index: int = 0
         while (< parameter_index arity) {
             let parameter: ASTLet = (parser_get_let parser (+ function.param_start parameter_index))
-            let mut mode: int = 1
-            let mut nominal: string = (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1))
-            if (str_starts_with parameter.var_type "&mut ") { set mode 2 set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
+            let mut mode: int = 0
+            let mut nominal: string = parameter.var_type
+            if (not nb_consuming) {
+                set mode 1 set nominal (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1))
+                if (str_starts_with parameter.var_type "&mut ") { set mode 2 set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
+            }
             let _: int = (nb_slot parameter.name 8 (nb_record parser nominal) mode false)
             let _: int = (nb_name_begin parameter_index parameter.name)
             set parameter_index (+ parameter_index 1)
@@ -843,7 +860,10 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
         let function: ASTFunction = (parser_get_function parser i)
         let mut j: int = 0
         while (< j function.param_count) {
-            if (str_starts_with (parser_get_let parser (+ function.param_start j)).var_type "&") { return true }
+            let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
+            if (str_starts_with spelling "&") { return true }
+            let record: int = (nb_record parser spelling)
+            if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -851,7 +871,7 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
-    set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_paths [] set nb_depths []
+    set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
     if (or (!= (parser_get_function_count parser) 2) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (or (> parser.unions_count 0) (> parser.opaque_types_count 0)))))) { let _: int = (nb_fail "only resource records, main, one helper and selected shadows") return "" }
@@ -872,15 +892,20 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     let helper: ASTFunction = (parser_get_function parser nb_helper)
     if (or (!= main_function.param_count 0) (or (!= main_function.return_type "int") (or (or (< helper.param_count 1) (> helper.param_count 8)) (== (nb_tag helper.return_type) 0)))) { let _: int = (nb_fail "entry0 and one scalar-result borrowed helper") return "" }
     set nb_arity helper.param_count
+    if (== helper.param_count 1) {
+        let parameter: ASTLet = (parser_get_let parser helper.param_start)
+        set nb_consuming (>= (nb_record parser parameter.var_type) 0)
+    }
     let mut parameter_index: int = 0
     while (< parameter_index helper.param_count) {
         let parameter: ASTLet = (parser_get_let parser (+ helper.param_start parameter_index))
         let mut nominal: string = ""
+        if nb_consuming { set nominal parameter.var_type }
         if (str_starts_with parameter.var_type "&mut ") { set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
         else { if (str_starts_with parameter.var_type "&") { set nominal (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1)) } }
         let referent: int = (nb_record parser nominal)
         if (< referent 0) { let _: int = (nb_fail "an exact borrowed record parameter") return "" }
-        if (not (nb_leaf parser referent)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" }
+        if (not nb_consuming) { if (not (nb_leaf parser referent)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } }
         let mut prior: int = 0
         while (< prior parameter_index) {
             if (== parameter.name (parser_get_let parser (+ helper.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" }
@@ -966,7 +991,26 @@ fn nb_fixture() -> Parser {
 }
 shadow nb_fixture { assert (not (parser_has_error (nb_fixture))) }
 shadow nb_record { let parser: Parser = (nb_fixture) assert (== (nb_record parser "R") 0) assert (== (nb_record parser "Other") -1) }
-shadow nanoisa_has_borrows { assert (nanoisa_has_borrows (nb_fixture)) }
+fn nb_consuming_fixture() -> Parser {
+    let source: string = (+ "resource struct R { value: int, yes: bool } f" (+ "n take(owner: R) -> int { let R { value, yes } = owner assert yes return value } shadow take { let owner: R = R { yes: true, value: 7 } assert (== (take owner) 7) } f" "n main() -> int { let owner: R = R { value: 9, yes: true } assert (== (take owner) 9) return 0 } shadow main { assert true }"))
+    let tokens: List<LexerToken> = (tokenize_string source "source-consuming.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "source-consuming.nano")
+}
+shadow nb_consuming_fixture {
+    let parser: Parser = (nb_consuming_fixture)
+    assert (not (parser_has_error parser))
+    let output: string = (nanoisa_borrow_emit parser false 0)
+    assert (!= output "") assert (str_contains output "CALL 1")
+    assert (not (str_contains output "CALL_REF"))
+    assert (str_contains output "OWN_UNPACK_LOCAL")
+    let selected: string = (nanoisa_borrow_emit parser true 0)
+    assert (!= selected "") assert (str_contains selected "ASSERT")
+    let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
+}
+shadow nanoisa_has_borrows {
+    assert (nanoisa_has_borrows (nb_fixture))
+    assert (nanoisa_has_borrows (nb_consuming_fixture))
+}
 shadow nb_field { let _: int = (nb_reset_locals) let _: int = (nb_slot "owner" 8 0 0 false) assert (== (nb_field (nb_fixture) 0 "yes") 1) let _: int = (nb_reset_locals) }
 shadow nb_cleanup { set nb_error "" let _: int = (nb_reset_locals) let _: int = (nb_slot "owner" 8 0 0 false) let _: int = (nb_cleanup (nb_fixture) 0) assert (not (at nb_live 0)) assert (== nb_code "  OWN_UNPACK_LOCAL 0\n  POP\n  POP\n") let _: int = (nb_reset_locals) }
 shadow nb_expr { let parser: Parser = (nb_fixture) set nb_error "" let _: int = (nb_reset_locals) assert (== (nb_expr parser 0 ParseNodeType.PNODE_NUMBER) 1) assert (str_contains nb_code "PUSH_I64") }
