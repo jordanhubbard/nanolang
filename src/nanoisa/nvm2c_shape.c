@@ -15,7 +15,7 @@ struct NvmShapeNode {
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric"};
     return names[kind];
 }
 
@@ -58,7 +58,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_FLOAT)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_NUMERIC)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -238,6 +238,10 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             queue = next; queue[count++] = (FlowPair){source, payload, 1};
             continue;
         }
+        /* An explicitly declared union destination accepts either exact
+         * numeric member without changing the producer or OPTIONAL itself. */
+        if (to == NVM_SHAPE_NUMERIC &&
+            (from == NVM_SHAPE_INT || from == NVM_SHAPE_FLOAT)) continue;
         if (from != to) {
             snprintf(g->error_detail, sizeof g->error_detail,
                      "I cannot convert aggregate storage %s to %s at nodes %u/%u",

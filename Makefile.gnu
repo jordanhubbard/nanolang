@@ -4681,6 +4681,12 @@ test-native-tagged-arithmetic: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-tagged-arithmetic
 
+.PHONY: test-native-numeric-union
+test-native-numeric-union: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
+	python3 -m unittest -v tests.test_native_numeric_union
+
+test-units: test-native-numeric-union
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v

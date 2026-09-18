@@ -100,17 +100,13 @@ class TaggedArithmetic(unittest.TestCase):
                 for diagnostic in ('AddressSanitizer','LeakSanitizer','UndefinedBehaviorSanitizer','runtime error:'):
                     self.assertNotIn(diagnostic,result.stderr)
 
-    def test_mixed_boxed_concrete_join_remains_refused(self):
+    def test_mixed_boxed_concrete_join_keeps_numeric_value(self):
         with tempfile.TemporaryDirectory(prefix='nano-numeric-shape-boundary-') as tmp:
             work=Path(tmp)
             body='PUSH_BOOL 1\nJMP_FALSE concrete\n'+self.boxed('PUSH_I64 2')
-            body+='PUSH_F64 1.5\nADD\nJMP joined\nconcrete:\nPUSH_F64 3.5\njoined:\nPOP\n'
+            body+='PUSH_F64 1.5\nADD\nJMP joined\nconcrete:\nPUSH_F64 3.5\njoined:\nDUP\nTYPE_CHECK 3\nASSERT\nPUSH_F64 3.5\nF64_EQ\nASSERT\n'
             module=self.assemble(work,body);self.checked([ROOT/'bin/nano_vm',module])
-            output=work/'previous.c';output.write_text('previous')
-            result=self.run_command([ROOT/'bin/nvm2c',module,'-o',output])
-            self.assertNotEqual(result.returncode,0)
-            self.assertIn('join',result.stderr)
-            self.assertEqual(output.read_text(),'previous')
+            self.checked([self.native(work,module,sanitize=True)])
 
 
 if __name__ == '__main__':

@@ -9,12 +9,13 @@
  * Record edges are field indices; an array's edge zero is its element shape.
  * A map's edges zero and one are its key and value shapes respectively.
  * An optional's edge zero is the present value shape; absence remains tagged.
+ * NUMERIC is an explicit INT|FLOAT leaf, not an inferred exact-kind conflict.
  * Missing edges mean unconstrained, not absent fields or a proved width. */
 typedef uint32_t NvmShapeId;
 typedef enum {
     NVM_SHAPE_UNKNOWN, NVM_SHAPE_INT, NVM_SHAPE_STRING,
     NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_OPTIONAL,
-    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT
+    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; } NvmShapeConversion;
