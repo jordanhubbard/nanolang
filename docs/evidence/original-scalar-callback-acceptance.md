@@ -7,7 +7,7 @@ legacy `fn(float,float)->float` ABI selection, and reviewed canonical native
 callable transport **or named producer specialization**. General function-value
 support is not an additional condition on that original task.
 
-PR746's source child8618 supplies the checked inference and legacy selection;
+PR740's source child8618 supplies the checked inference and legacy selection;
 PR759 supplies named producer specialization and its checker prerequisites.
 I retain the failed worker's history and artifacts. I authored a new small
 [source](original-scalar-callback-acceptance/fresh_named_float_callbacks.nano)
