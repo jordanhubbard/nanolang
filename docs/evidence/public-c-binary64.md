@@ -53,3 +53,12 @@ GNU block/string expression behavior and option/closure scope remain under6ade.
 Canonical FUNCREF/d099, remaining scalar-policy5009 obligations, arrays and full
 release stay open. Cross-host public C nonfinite formatting is a separate continuation
 that must consume the shared formatting contract rather than infer libc behavior.
+
+I integrated actual main2ed1dc57 (including shared formatting PR745), resolving only
+additive roadmap rows. Reviewed optional variant-name metadata gets a defensive
+inner-row guard at15f05f92 and an isolated API control; generic fallback still
+refuses absent concrete substitution. My final integrated 22 source/tool/library
+hashes remain unchanged after GCC8/3.881s, Clang8/4.514s and all seven existing
+public C programs pass. The manifest retains those exact identities and four logs.
+Shared arithmetic helper bodies/providers remain identical to the earlier qualified
+source. This integration does not add public C nonfinite formatting admission.

@@ -88,5 +88,55 @@
   "compiler_versions": {
     "cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
     "/tmp/nanolang-truthiness-clang-bin/cc": "clang version 23.0.0git (https://github.com/llvm/llvm-project.git 11af80c3ec82dc1800c9fa80190c75cd3d69249f)"
+  },
+  "integrated": {
+    "head": "15f05f926259934a03f15dd7653e8d42ac6d3a35",
+    "sha256": {
+      "src/c_backend.c": "829d54c5361ee61c0960a6004681d6a76dcd75bcaa192b5297118d9b13543a0a",
+      "src/binary64_arithmetic.h": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+      "src/binary64_bits.h": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+      "src/binary64_arithmetic_source.h": "a10c6f741cdd4806ca57bf4a2abc676bc1d3869e4ec894c642cdb7768e95ba4c",
+      "src_nano/compiler/binary64_arithmetic_runtime.nano": "e69fa68e0dad46363655a7eeb7f0f343b4b27207cd9cfbe33a3831937d1cc5de",
+      "tests/test_public_c_api.c": "bf2e247bc88df06623a6abd28bb3752ddcf01514ba139117d4de6ba97b563222",
+      "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+      "bin/nanoc_c": "0843db1b82a97f49962b3f242390eb119942c68c2101e2e46f0a3684ec49035d",
+      "bin/nanoc_stage1": "8cd799f47cf72e2758768a406c150d8fc691cdc04c1b228ae78b27ce09f7de53",
+      "bin/nanoc_stage2": "93840b549cf034560734a5b12c5144b572a78ca45deb1c37fb3947529b6270e6",
+      "bin/nano": "e6ccf869ab874707112864fdc01e1bc54732b96023c9ddb038dab6e2960ae31c",
+      "bin/nano_virt": "be09bd6d842ae37058aa22a6895ff289c1e8f6c936ae4f2663972b7ac94335cc",
+      "bin/nano_vm": "ab120e58b1ebe5b9590ee8ccb73f65597a4849b3ac80336f2315fb05d5438735",
+      "bin/nvm2c": "6e6bc52d49a373026a2a361a15b4c70cabec511ff1cbebd7f99ef432211fd3e2",
+      "obj/module_cache/v2-a4babd4037d94f8e86d42d9e09d56095f536cf1b86896bbb9d1c0dcf4ff2aea6/.nano-gen-wvoq4p/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "obj/module_cache/v2-a4babd4037d94f8e86d42d9e09d56095f536cf1b86896bbb9d1c0dcf4ff2aea6/.nano-gen-wvoq4p/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+      "obj/module_cache/v2-eb725de73958728389093ff0a04a7249087b0876278ef727eb91907416e2000e/.nano-gen-WIEyfW/libnanoisa.so": "7e55b4bcc1a6afbbcc4d0d6cb889073202d3b9b74e83e8c55317d2adb830eb85",
+      "obj/module_cache/v2-eb725de73958728389093ff0a04a7249087b0876278ef727eb91907416e2000e/.nano-gen-WIEyfW/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "obj/module_cache/v2-1efc9b8f34aa0a636193532778c48fafdc8883e87e6a020cf5b0ecb14c350445/.nano-gen-XkyiWf/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "obj/module_cache/v2-1efc9b8f34aa0a636193532778c48fafdc8883e87e6a020cf5b0ecb14c350445/.nano-gen-XkyiWf/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "tests/test_binary64_arithmetic.py": "f9fcb64aeaf3e31ed48df1ca5f3ad67a81d6bb90f74304ff4655417126632afa",
+      "src/binary64_format.h": "597e34b1768b922c23427c1f64232c6fa95b59f2ad972000038afb1ddc0f6703"
+    },
+    "qualification": {
+      "gcc": "8 methods PASS 3.881s",
+      "clang": "8 methods PASS 4.514s",
+      "adjacent": "7 programs PASS"
+    },
+    "logs": {
+      "/tmp/nanolang-public-c-integrated-gcc.log": {
+        "sha256": "f78e231a4bad47281bc0aba7c16042025a336d780f01b73df2b26952eb83213d",
+        "bytes": 1558
+      },
+      "/tmp/nanolang-public-c-integrated-clang.log": {
+        "sha256": "b5cb18add495a93b91645a4e608e305ca5a87016f2edb0c6456e4497b471276a",
+        "bytes": 1558
+      },
+      "/tmp/nanolang-public-c-integrated-adjacent.log": {
+        "sha256": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933",
+        "bytes": 737
+      },
+      "/tmp/nanolang-public-c-integrated-final-build.log": {
+        "sha256": "ad28aadcf313e58f296780de724b945ed2cea17daa4cc85e9592c734d95416d9",
+        "bytes": 6248
+      }
+    }
   }
 }
