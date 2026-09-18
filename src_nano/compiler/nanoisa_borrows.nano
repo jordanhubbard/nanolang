@@ -57,6 +57,18 @@ fn nb_tag(name: string) -> int {
     return 0
 }
 shadow nb_tag { assert (== (nb_tag "int") 1) assert (== (nb_tag "bool") 4) assert (== (nb_tag "string") 0) }
+# I admit float locals without widening fields or helper signatures.
+fn nb_local_tag(name: string) -> int {
+    if (== name "float") { return 3 }
+    return (nb_tag name)
+}
+shadow nb_local_tag {
+    assert (== (nb_local_tag "float") 3)
+    assert (== (nb_descriptor (nb_local_tag "float") 0 4294967295) "03000000ffffffff")
+    assert (== (nb_local_tag "bool") 4)
+    assert (== (nb_tag "float") 0)
+    assert (== (nb_local_tag "array<float>") 0)
+}
 # I keep string parameters separate from scalar resource leaves and results.
 fn nb_parameter_tag(name: string) -> int {
     if (== name "string") { return 5 }
@@ -456,6 +468,19 @@ shadow nb_same_owners {
     set nb_error "" let _: int = (nb_reset_locals)
 }
 fn nb_binary(op: int, tag: int) -> string {
+    if (== tag 3) {
+        if (== op LexerTokenType.TOKEN_PLUS) { return "F64_ADD" }
+        if (== op LexerTokenType.TOKEN_MINUS) { return "F64_SUB" }
+        if (== op LexerTokenType.TOKEN_STAR) { return "F64_MUL" }
+        if (== op LexerTokenType.TOKEN_SLASH) { return "F64_DIV" }
+        if (== op LexerTokenType.TOKEN_EQ) { return "F64_EQ" }
+        if (== op LexerTokenType.TOKEN_NE) { return "F64_NE" }
+        if (== op LexerTokenType.TOKEN_LT) { return "F64_LT" }
+        if (== op LexerTokenType.TOKEN_LE) { return "F64_LE" }
+        if (== op LexerTokenType.TOKEN_GT) { return "F64_GT" }
+        if (== op LexerTokenType.TOKEN_GE) { return "F64_GE" }
+        return ""
+    }
     if (== tag 1) {
         if (== op LexerTokenType.TOKEN_PLUS) { return "ADD" }
         if (== op LexerTokenType.TOKEN_MINUS) { return "SUB" }
@@ -477,7 +502,13 @@ fn nb_binary(op: int, tag: int) -> string {
     }
     return ""
 }
-shadow nb_binary { assert (== (nb_binary LexerTokenType.TOKEN_PLUS 1) "ADD") assert (== (nb_binary LexerTokenType.TOKEN_PLUS 4) "") assert (== (nb_binary LexerTokenType.TOKEN_EQ 4) "EQ") }
+shadow nb_binary {
+    assert (== (nb_binary LexerTokenType.TOKEN_PLUS 1) "ADD")
+    assert (== (nb_binary LexerTokenType.TOKEN_PLUS 4) "")
+    assert (== (nb_binary LexerTokenType.TOKEN_EQ 4) "EQ")
+    assert (== (nb_binary LexerTokenType.TOKEN_LE 3) "F64_LE")
+    assert (== (nb_binary LexerTokenType.TOKEN_PERCENT 3) "")
+}
 fn nb_function_index(parser: Parser, name: string) -> int {
     let mut i: int = 0
     while (< i (array_length nb_functions)) {
@@ -502,6 +533,9 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     }
     if (== kind ParseNodeType.PNODE_NUMBER) {
         let _: int = (nb_emit (+ "PUSH_I64 " (parser_get_number parser id).value)) return 1
+    }
+    if (== kind ParseNodeType.PNODE_FLOAT) {
+        let _: int = (nb_emit (+ "PUSH_F64 " (parser_get_float parser id).value)) return 3
     }
     if (== kind ParseNodeType.PNODE_BOOL) {
         let mut value: int = 0
@@ -538,6 +572,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             let tag: int = (nb_expr parser op.right op.right_type)
             if (and (== op.op LexerTokenType.TOKEN_NOT) (== tag 4)) { let _: int = (nb_emit "NOT") return 4 }
             if (and (== op.op LexerTokenType.TOKEN_MINUS) (== tag 1)) { let _: int = (nb_emit "NEG") return 1 }
+            if (and (== op.op LexerTokenType.TOKEN_MINUS) (== tag 3)) { let _: int = (nb_emit "F64_NEG") return 3 }
             return (nb_fail "an exact scalar unary operator")
         }
         let left: int = (nb_expr parser op.left op.left_type)
@@ -546,7 +581,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let opcode: string = (nb_binary op.op left)
         if (== opcode "") { return (nb_fail "a supported scalar operator") }
         let _: int = (nb_emit opcode)
-        if (or (== opcode "EQ") (or (== opcode "NE") (or (== opcode "LT") (or (== opcode "LE") (or (== opcode "GT") (== opcode "GE")))))) { return 4 }
+        if (or (== op.op LexerTokenType.TOKEN_EQ) (or (== op.op LexerTokenType.TOKEN_NE) (or (== op.op LexerTokenType.TOKEN_LT) (or (== op.op LexerTokenType.TOKEN_LE) (or (== op.op LexerTokenType.TOKEN_GT) (== op.op LexerTokenType.TOKEN_GE)))))) { return 4 }
         return left
     }
     if (== kind ParseNodeType.PNODE_CALL) {
@@ -751,7 +786,7 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         return 0
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
-    if (or (and (!= binding.var_type "") (!= (nb_tag binding.var_type) tag)) (and (!= tag 1) (!= tag 4))) { return (nb_fail "int/bool scalar local types") }
+    if (or (and (!= binding.var_type "") (!= (nb_local_tag binding.var_type) tag)) (and (!= tag 1) (and (!= tag 4) (!= tag 3)))) { return (nb_fail "int/bool/float scalar local types") }
     if (!= nb_error "") { return 0 }
     let slot: int = (nb_slot binding.name tag 4294967295 0 binding.is_mut)
     let _: int = (nb_op1 "STORE_LOCAL" slot)
@@ -771,10 +806,22 @@ shadow nb_increment {
 fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     let block: ASTBlock = (parser_get_block parser body)
     if (or block.is_par block.is_flow) { return (nb_fail "an ordinary lexical body") }
+    return (nb_body_statements parser block.statements is_shadow)
+}
+fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: bool) -> int {
     let first: int = (array_length nb_names)
     let mut i: int = 0
-    while (and (== nb_error "") (and (not (or nb_returned nb_transferred)) (< i (list_ASTStmtRef_length block.statements)))) {
-        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+    while (and (== nb_error "") (and (not (or nb_returned nb_transferred)) (< i (list_ASTStmtRef_length statements)))) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get statements i)
+        if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
+            if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
+            let scope: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
+            set nb_control_depth (+ nb_control_depth 1)
+            let _: int = (nb_body_statements parser scope.statements is_shadow)
+            set nb_control_depth (- nb_control_depth 1)
+            set i (+ i 1)
+            continue
+        }
         if (or (== stmt.node_type ParseNodeType.PNODE_IF) (or (== stmt.node_type ParseNodeType.PNODE_WHILE) (== stmt.node_type ParseNodeType.PNODE_FOR))) {
             if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
             let top: string = (nb_label)
@@ -964,6 +1011,19 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
         while (< i (array_length nb_names)) { (array_set nb_names i "") set i (+ i 1) }
     }
     return 0
+}
+shadow nb_body_statements {
+    let tokens: List<LexerToken> = (tokenize_string "" "empty-scope.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "empty-scope.nano")
+    let _: int = (nb_reset_locals)
+    set nb_error "" set nb_control_depth 1
+    let outer: int = (nb_slot "outer" 3 4294967295 0 false)
+    let _: int = (nb_body_statements parser (list_ASTStmtRef_new) false)
+    assert (== nb_error "")
+    assert (== (nb_local "outer") outer)
+    assert (== (at nb_tags outer) 3)
+    set nb_control_depth 0
+    let _: int = (nb_reset_locals)
 }
 fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, helper: bool) -> string {
     let _: int = (nb_reset_locals)
@@ -1279,7 +1339,6 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         if nb_value_graph {
             if (and (== (nb_tag function.return_type) 0) (!= function.return_type "void")) {
                 if (< result_layout 0) { let _: int = (nb_fail "an exact declared result") return "" }
-                if (not (nb_leaf parser result_layout)) { let _: int = (nb_fail "a scalar-leaf owned result") return "" }
             }
         } else {
             if (or (< function.param_count 1) (== (nb_tag function.return_type) 0)) { let _: int = (nb_fail "a scalar-result borrowed helper") return "" }

@@ -67,7 +67,11 @@ bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
                              uint32_t reference);
 bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
-/* I inspect an exact mode-zero scalar, void, or scalar-leaf owned result.
+#define NVM_AFFINE_MAX_RESULT_DEPTH 32u
+#define NVM_AFFINE_MAX_RESULT_FIELDS 256u
+/* I inspect an exact mode-zero scalar, void, or owned result.
+ * Nested results contain bounded complete owned trees with INT/BOOL/U8 leaves;
+ * scalar/VOID and existing scalar-leaf queries add no allocations.
  * I require matching function count/tag and leave both outputs unchanged on refusal.
  * This declaration query alone grants no executable return authority. */
 bool nvm_affine_value_result(const NvmAffineState *state,NvmAffineType *type,

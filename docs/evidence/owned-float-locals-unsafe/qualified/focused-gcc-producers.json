@@ -1,0 +1,11 @@
+{
+  "work": "/tmp/nano-source-borrows-nw9hil3_",
+  "generated_producers": {
+    "/home/jkh/Src/nanolang-owned-float-locals-unsafe/bin/nanoisa_emit": "3b0eabff012c9f5f9c01aef3625d07693907ced4507bc2751388685418529b34",
+    "/tmp/nano-source-borrows-nw9hil3_/nanoc_stage1-emit": "1330e40e3fdd65200fe2e12ef9fcdef93c31211a09c1239e4ce7e2c119cdee58",
+    "/tmp/nano-source-borrows-nw9hil3_/nanoc_stage2-emit": "79868c42e431fb85444a8b9b2943ac6a8ebbc040d8048d0bf6dd7475bf03230c",
+    "/tmp/nano-source-borrows-nw9hil3_/nanoc_c-shadows": "9d8a9edf74006e4733adef1b01e70bdd4e1e33cfecddb7efaf5fe67f37a9581f",
+    "/tmp/nano-source-borrows-nw9hil3_/nanoc_stage1-shadows": "9d74a4b0a6f52dca7917bdc2797a103ed27a2932ab891e1e1bc9305df27e2a54",
+    "/tmp/nano-source-borrows-nw9hil3_/nanoc_stage2-shadows": "6bf626e75e4234ee8cf297fa711c14b604ff5644f841ffb991e431cb62a565b3"
+  }
+}

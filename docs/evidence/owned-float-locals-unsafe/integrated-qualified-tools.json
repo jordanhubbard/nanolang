@@ -1,0 +1,22 @@
+{
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nvm2c": "9f3a1fe8e897036041bfbb1d24e3ba137b6915cb90d9c4d7c7cc71af727741d7",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoc": "71dfe86828342b31acddb66202299c4ca7dc95ed86496dd7c31ea2a445ede122",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoc_stage1": "314281941afefb53471e70e24017432ca2b8c5331d86a09bbae8c531939bb1dd",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoisa": "792a237adabcd7f44702e4739c52e7371ac1a9f756dffc06392b6b1655946f0f",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nano_vm": "c0b79788bc3b828cdae306d58108d6835a56e6c85eeadbe519703cc19461f89d",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoisa_emit": "7011aaef85d1a5a1de9de17bbe214bd25a1da079306058a54e497c1ed16f6b5c",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nano_virt": "0804e05690fac532aa703522cd53da25429f62b0d69b0733b2185e96bd074e73",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoc_stage2": "71dfe86828342b31acddb66202299c4ca7dc95ed86496dd7c31ea2a445ede122",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoc_c": "50d93e787acd77b144b6bb2a84615b1a75203b2e1d579e8d4f10cbb64500489e",
+  "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+  "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage1-emit": "fe50f3d5ada18ed9fddcb4ddf2c9fae18acf58a6874e63d478e8cc3a05125c88",
+  "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage2-emit": "9792e7da7631df196337f5afb12a6f5b71c6a5cfc884100dab9fd4665daffe14",
+  "/tmp/nano-source-borrows-gbmjdh9l/nanoc_c-shadows": "0697afe04e969b70ff7284d4f277b9c0ca1312f9b08628a8bd328e3c675569e9",
+  "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage1-shadows": "a1b6607d94b04c96f7a68a92e70664fb207e972dbec616708df3e98e9e006776",
+  "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage2-shadows": "b744508565ad990192ea0a30494a7d3c6cd63f420223444f71f14615a58c143d",
+  "/tmp/nano-source-borrows-_l67nbdt/nanoc_stage1-emit": "90e9f538bafb37a9051be8a152db9eb9d88d5062587b5b3c425bc1bb91ac63c7",
+  "/tmp/nano-source-borrows-_l67nbdt/nanoc_stage2-emit": "90e9f538bafb37a9051be8a152db9eb9d88d5062587b5b3c425bc1bb91ac63c7",
+  "/tmp/nano-source-borrows-_l67nbdt/nanoc_c-shadows": "0c25cff83849e123b97f396cf7c324615242ecc21e18b61ceac1c290fff80784",
+  "/tmp/nano-source-borrows-_l67nbdt/nanoc_stage1-shadows": "9f3eb3197e1df497f7ed58161f680a44fc89b176e78d5856c89520181ddfeaed",
+  "/tmp/nano-source-borrows-_l67nbdt/nanoc_stage2-shadows": "9f3eb3197e1df497f7ed58161f680a44fc89b176e78d5856c89520181ddfeaed"
+}

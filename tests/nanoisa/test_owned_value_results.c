@@ -26,6 +26,8 @@ static NvmModule *result_fixture(unsigned index,unsigned refusal) {
         }
     } else {
         if(refusal==10)append(factory,sizeof(factory),"PUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 4\n");
+        /* Nested results can now be declared, but this case still assigns the
+         * different returned layout to an exact scalar-leaf caller local. */
         if(refusal==6)append(factory,sizeof(factory),"PUSH_I64 42\nOWN_PACK 0\nPUSH_I64 43\nOWN_PACK 0\nOWN_PACK 1\nRET\n");
         else {
             append(factory,sizeof(factory),"PUSH_BOOL %u\nJMP_FALSE alternate\n%s\nOWN_PACK %u\n",index==4?0:1,push,refusal==1?2:layout);
