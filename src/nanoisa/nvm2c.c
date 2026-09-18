@@ -2420,7 +2420,7 @@ static int stack_pop_scalar_condition(Nvm2cBuf *b, Nvm2cStack *st) {
         uint8_t kind = st->kinds[st->sp - 1];
         if (kind == NVM2C_VK_VALUE) {
             int slot = st->slots[st->sp - 1];
-            nvm2c_printf(b, "    if (v[%d].kind != 0 && v[%d].kind != 1 && v[%d].kind != 2 && v[%d].kind != 3 && v[%d].kind != 4) abort();\n",
+            nvm2c_printf(b, "    if (v[%d].kind != 0 && v[%d].kind != 1 && v[%d].kind != 2 && v[%d].kind != 3 && v[%d].kind != 4) NVM2C_ABORT();\n",
                         slot, slot, slot, slot, slot);
         } else if (kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL && kind != NVM2C_VK_FLOAT) {
             nvm2c_fail(b, "I support scalar truthiness only for void, int, u8, bool and float");
@@ -2790,7 +2790,7 @@ static int emit_scalar_return(Nvm2cBuf *b, Nvm2cStack *st,
     if (fn->result_count && fn->result_tag == TAG_U8) {
         int slot = stack_pop_expect(b, st, NVM2C_VK_VALUE, "RET");
         if (b->failed) return 0;
-        nvm2c_printf(b, "    if (v[%d].kind != 2) abort();\n    nresult = v[%d];\n", slot, slot);
+        nvm2c_printf(b, "    if (v[%d].kind != 2) NVM2C_ABORT();\n    nresult = v[%d];\n", slot, slot);
     } else if (fn->result_count) {
         uint8_t kind = fn->result_tag == TAG_FLOAT ? NVM2C_VK_FLOAT :
                        fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT;
@@ -2828,7 +2828,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (fn_local_kind(b, kinds, idx, i) == NVM2C_VK_REC) ++record_locals;
     if (record_locals) {
         nvm2c_printf(b, "    nrec_t *rl = calloc(%u, sizeof *rl);\n"
-                       "    if (!rl) abort();\n", record_locals);
+                       "    if (!rl) NVM2C_ABORT();\n", record_locals);
     }
     for (i = 0; i < fn->local_count; i++) {
         uint8_t lk = fn_local_kind(b, kinds, idx, i);
@@ -3130,7 +3130,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_ASSERT: {
             int cond = stack_pop_condition(b, &st, "ASSERT");
             if (b->failed) goto done;
-            nvm2c_printf(b, "    if (!t[%d]) abort();\n", cond);
+            nvm2c_printf(b, "    if (!t[%d]) NVM2C_ABORT();\n", cond);
             break;
         }
         case OP_SWAP: {
@@ -3150,7 +3150,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint32_t slot = ins.operands[0].u32;
             uint8_t kind = resolved_shape_kind(b, b->shape_globals[slot]);
             if (kind == NVM2C_VK_RARR) {
-                nvm2c_printf(b, "    if (nglobal[%u].kind != %u || nglobal[%u].integer != %u || !nglobal[%u].text) abort();\n",
+                nvm2c_printf(b, "    if (nglobal[%u].kind != %u || nglobal[%u].integer != %u || !nglobal[%u].text) NVM2C_ABORT();\n",
                              slot, TAG_ARRAY, slot, NVM2C_VK_RARR, slot);
                 char expression[64];
                 snprintf(expression, sizeof expression, "(nrarr_t)nglobal[%u].text", slot);
@@ -3916,16 +3916,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             nvm2c_printf(b,
-                "    if (!%s[%d] || t[%d] < 0 || (uint64_t)t[%d] >= %s[%d]->len) abort();\n",
+                "    if (!%s[%d] || t[%d] < 0 || (uint64_t)t[%d] >= %s[%d]->len) NVM2C_ABORT();\n",
                 array, arr, ix, ix, array, arr);
             if (ak == NVM2C_VK_RARR) {
-                nvm2c_printf(b, "    if (!ra[%d]->data) abort();\n", arr);
+                nvm2c_printf(b, "    if (!ra[%d]->data) NVM2C_ABORT();\n", arr);
                 /* Classifier field kinds do not encode the runtime width. */
                 nvm2c_printf(b,
-                    "    if (ra[%d]->data[t[%d]].n != r[%d].n || ra[%d]->data[t[%d]].kind != r[%d].kind) abort();\n",
+                    "    if (ra[%d]->data[t[%d]].n != r[%d].n || ra[%d]->data[t[%d]].kind != r[%d].kind) NVM2C_ABORT();\n",
                     arr, ix, val, arr, ix, val);
                 nvm2c_printf(b,
-                    "    for (size_t f = 0; f < r[%d].n; ++f) if (ra[%d]->data[t[%d]].k[f] != r[%d].k[f]) abort();\n",
+                    "    for (size_t f = 0; f < r[%d].n; ++f) if (ra[%d]->data[t[%d]].k[f] != r[%d].k[f]) NVM2C_ABORT();\n",
                     val, arr, ix, val);
             }
             if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_VALUE)
@@ -4054,7 +4054,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_AGG_TAG: {
             int aggregate = stack_pop_expect(b, &st, NVM2C_VK_REC, "AGG_TAG");
             if (b->failed) goto done;
-            nvm2c_printf(b, "    if (r[%d].kind != %u) abort();\n", aggregate, AGG_VARIANT);
+            nvm2c_printf(b, "    if (r[%d].kind != %u) NVM2C_ABORT();\n", aggregate, AGG_VARIANT);
             char expression[64];
             snprintf(expression, sizeof expression, "r[%d].tag", aggregate);
             stack_push_temp(b, &st, expression);
@@ -4074,8 +4074,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm_shape_kind(&b->shapes, b->shape_outputs[idx][start]) == NVM_SHAPE_ARRAY) {
                 /* I retain the record's runtime array storage tag instead of
                  * defaulting an unresolved element shape to integer storage. */
-                nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
-                nvm2c_printf(b, "    if (r[%d].k[%u] != 3 && r[%d].k[%u] != 10 && r[%d].k[%u] != 5 && r[%d].k[%u] != 6) abort();\n",
+                nvm2c_printf(b, "    if (%u >= r[%d].n) NVM2C_ABORT();\n", (unsigned)fi, rec);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != 3 && r[%d].k[%u] != 10 && r[%d].k[%u] != 5 && r[%d].k[%u] != 6) NVM2C_ABORT();\n",
                              rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
                 char expr[384];
                 snprintf(expr, sizeof expr,
@@ -4089,12 +4089,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (st.rec_k[rec][fi] == NVM2C_VK_UNK) {
                 /* I preserve an unconstrained scalar's runtime tag. Unknown
                  * is an inference marker, never a valid record storage tag. */
-                nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
-                nvm2c_printf(b, "    if (r[%d].k[%u] != 0 && r[%d].k[%u] != 9 && r[%d].k[%u] != 1 && r[%d].k[%u] != 11 && r[%d].k[%u] != 8) abort();\n",
+                nvm2c_printf(b, "    if (%u >= r[%d].n) NVM2C_ABORT();\n", (unsigned)fi, rec);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != 0 && r[%d].k[%u] != 9 && r[%d].k[%u] != 1 && r[%d].k[%u] != 11 && r[%d].k[%u] != 8) NVM2C_ABORT();\n",
                              rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
-                nvm2c_printf(b, "    if (r[%d].k[%u] == 8 && r[%d].vk[%u] != 0 && r[%d].vk[%u] != 1 && r[%d].vk[%u] != 3 && r[%d].vk[%u] != 4 && r[%d].vk[%u] != 5) abort();\n",
+                nvm2c_printf(b, "    if (r[%d].k[%u] == 8 && r[%d].vk[%u] != 0 && r[%d].vk[%u] != 1 && r[%d].vk[%u] != 3 && r[%d].vk[%u] != 4 && r[%d].vk[%u] != 5) NVM2C_ABORT();\n",
                              rec, fi, rec, fi, rec, fi, rec, fi, rec, fi, rec, fi);
-                nvm2c_printf(b, "    if ((r[%d].k[%u] == 1 || (r[%d].k[%u] == 8 && r[%d].vk[%u] == 5)) && !r[%d].s[%u]) abort();\n",
+                nvm2c_printf(b, "    if ((r[%d].k[%u] == 1 || (r[%d].k[%u] == 8 && r[%d].vk[%u] == 5)) && !r[%d].s[%u]) NVM2C_ABORT();\n",
                              rec, fi, rec, fi, rec, fi, rec, fi);
                 char expr[384];
                 snprintf(expr, sizeof expr,
@@ -4103,11 +4103,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_value(b, &st, expr);
                 break;
             }
-            nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
+            nvm2c_printf(b, "    if (%u >= r[%d].n) NVM2C_ABORT();\n", (unsigned)fi, rec);
             if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
-                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u) abort();\n",
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u) NVM2C_ABORT();\n",
                              rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR);
-            else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) abort();\n", rec, (unsigned)fi,
+            else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) NVM2C_ABORT();\n", rec, (unsigned)fi,
                               (unsigned)st.rec_k[rec][fi]);
             {
                 char expr[256];
@@ -4127,7 +4127,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     snprintf(expr, sizeof expr, "r[%d].m[%u]", rec, (unsigned)fi);
                     stack_push_map(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_REC) {
-                    nvm2c_printf(b, "    if (!r[%d].rec[%u]) abort();\n", rec, (unsigned)fi);
+                    nvm2c_printf(b, "    if (!r[%d].rec[%u]) NVM2C_ABORT();\n", rec, (unsigned)fi);
                     snprintf(expr, sizeof expr, "*r[%d].rec[%u]", rec, (unsigned)fi);
                     int nested = stack_push_rec(b, &st, expr);
                     if (nested >= 0) {
@@ -4301,7 +4301,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_fail(b, "I cannot return an aggregate with extra stack values");
                     goto done;
                 }
-                nvm2c_printf(b, "    if (r[%d].kind != %u) abort();\n    nresult = r[%d];\n    goto L_return;\n",
+                nvm2c_printf(b, "    if (r[%d].kind != %u) NVM2C_ABORT();\n    nresult = r[%d];\n    goto L_return;\n",
                              record, fn->result_tag == TAG_STRUCT ? AGG_RECORD : AGG_VARIANT, record);
             } else {
                 if (st.sp != 0) {
@@ -4416,7 +4416,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             "    narr_t a[%d] = {0}; (void)a;\n"
             "    nsarr_t sa[%d] = {0}; (void)sa;\n"
             "    nrec_t *r = %d ? calloc(%d, sizeof *r) : NULL;\n"
-            "    if (%d && !r) abort();\n"
+            "    if (%d && !r) NVM2C_ABORT();\n"
             "    nrarr_t ra[%d] = {0}; (void)ra;\n"
             "    nmap_t m[%d] = {0}; (void)m;\n",
             st.next_temp ? st.next_temp : 1, st.next_float ? st.next_float : 1,
@@ -4592,12 +4592,12 @@ static void emit_nstr_storage(Nvm2cBuf *b) {
         "    if (nstr_live_bytes > nstr_peak_bytes) nstr_peak_bytes = nstr_live_bytes;\n"
         "    owner->data[n] = 0; return owner->data;\n}\n"
         "static char *nstr_allocate(size_t n) {\n"
-        "    char *value = nstr_try_allocate(n); if (!value) abort(); return value;\n}\n"
+        "    char *value = nstr_try_allocate(n); if (!value) NVM2C_ABORT(); return value;\n}\n"
         "static inline const char *nstr_copy_release(const char *value, void (*release)(const char *)) {\n"
         "    size_t length = value ? strlen(value) : 0;\n"
         "    char *copy = value ? nstr_try_allocate(length) : NULL;\n"
         "    if (copy) memcpy(copy, value, length + 1);\n"
-        "    release(value); if (!copy) abort(); return copy;\n}\n"
+        "    release(value); if (!copy) NVM2C_ABORT(); return copy;\n}\n"
         "static inline const char *nstr_copy(const char *value) {\n"
         "    if (!value) value = \"\";\n"
         "    size_t length = strlen(value);\n"
@@ -4605,7 +4605,7 @@ static void emit_nstr_storage(Nvm2cBuf *b) {
         "    memcpy(copy, value, length + 1); return copy;\n}\n"
         "/* I consume only exact malloc-owned builtin temporaries. */\n"
         "static inline const char *nstr_take(char *value) {\n"
-        "    if (!value) abort();\n"
+        "    if (!value) NVM2C_ABORT();\n"
         "    const char *copy = nstr_copy(value); free(value); return copy;\n}\n"
         "static void nstr_release_owned(void) {\n"
         "    while (nstr_owners) { nstr_owned *owner = nstr_owners;\n"
@@ -4633,7 +4633,7 @@ static void emit_nstr_concat(Nvm2cBuf *b) {
         "static const char *nstr_concat(const char *a, const char *b) {\n"
         "    size_t na = strlen(a ? a : \"\");\n"
         "    size_t nb = strlen(b ? b : \"\");\n"
-        "    if (na > SIZE_MAX - nb) abort();\n"
+        "    if (na > SIZE_MAX - nb) NVM2C_ABORT();\n"
         "    char *p = nstr_allocate(na + nb);\n"
         "    memcpy(p, a ? a : \"\", na);\n"
         "    memcpy(p + na, b ? b : \"\", nb);\n"
@@ -4693,7 +4693,7 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
         "static const char *nstr_from_i64(int64_t v) {\n"
         "    char tmp[32];\n"
         "    int n = snprintf(tmp, sizeof tmp, \"%lld\", (long long)v);\n"
-        "    if (n < 0 || (size_t)n >= sizeof tmp) abort();\n"
+        "    if (n < 0 || (size_t)n >= sizeof tmp) NVM2C_ABORT();\n"
         "    char *p = nstr_allocate((size_t)n);\n"
         "    memcpy(p, tmp, (size_t)n + 1);\n"
         "    return p;\n"
@@ -4704,7 +4704,7 @@ static void emit_nstr_from_f64(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_from_f64(double value) {\n"
         "    char tmp[64]; int n = snprintf(tmp, sizeof tmp, \"%g\", value);\n"
-        "    if (n < 0 || (size_t)n >= sizeof tmp) abort();\n"
+        "    if (n < 0 || (size_t)n >= sizeof tmp) NVM2C_ABORT();\n"
         "    char *text = nstr_allocate((size_t)n);\n"
         "    memcpy(text, tmp, (size_t)n + 1); return text;\n}\n");
 }
@@ -4714,11 +4714,11 @@ static void emit_nagg_accounting(Nvm2cBuf *b) {
         "static size_t nagg_live_bytes, nagg_peak_bytes, nagg_allocation_debt;\n"
         "static size_t nagg_collection_budget = 65536;\n"
         "static inline void nagg_add(size_t bytes) {\n"
-        "    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) abort();\n"
+        "    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) NVM2C_ABORT();\n"
         "    nagg_live_bytes += bytes; nagg_allocation_debt += bytes;\n"
         "    if (nagg_live_bytes > nagg_peak_bytes) nagg_peak_bytes = nagg_live_bytes;\n}\n"
         "static inline void nagg_drop(size_t bytes) {\n"
-        "    if (bytes > nagg_live_bytes) abort();\n"
+        "    if (bytes > nagg_live_bytes) NVM2C_ABORT();\n"
         "    nagg_live_bytes -= bytes;\n}\n");
 }
 
@@ -4760,29 +4760,29 @@ static void emit_narr_storage(Nvm2cBuf *b) {
         "struct narr_owner { int64_t *data; size_t cap, bytes; narr_t handle; struct narr_owner *next; };\n"
         "static struct narr_owner *narr_owners;\n"
         "static inline struct narr_owner *narr_track(narr_t a, int own_handle) {\n"
-        "    struct narr_owner *owner = calloc(1, sizeof *owner); if (!owner) abort();\n"
+        "    struct narr_owner *owner = calloc(1, sizeof *owner); if (!owner) NVM2C_ABORT();\n"
         "    owner->bytes = sizeof *owner + (own_handle ? sizeof *a : 0); nagg_add(owner->bytes);\n"
         "    owner->handle = own_handle ? a : NULL; owner->next = narr_owners;\n"
         "    narr_owners = owner; a->owner = owner; return owner;\n}\n"
         "static inline narr_t narr_new(void) {\n"
-        "    narr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
+        "    narr_t a = calloc(1, sizeof *a); if (!a) NVM2C_ABORT();\n"
         "    narr_track(a, 1); return a;\n}\n"
         "static inline void narr_reserve(narr_t a, size_t n) {\n"
         "    size_t limit = SIZE_MAX / sizeof *a->data;\n"
-        "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) abort();\n"
+        "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) NVM2C_ABORT();\n"
         "    struct narr_owner *owner = a->owner;\n"
-        "    if (owner && (owner->data != a->data || a->len > owner->cap)) abort();\n"
+        "    if (owner && (owner->data != a->data || a->len > owner->cap)) NVM2C_ABORT();\n"
         "    if (owner && n <= owner->cap) return;\n"
         "    if (n < a->len) n = a->len;\n"
         "    size_t cap = owner && owner->cap ? owner->cap : 8;\n"
         "    while (cap < n) { if (cap > limit / 2) { cap = n; break; } cap *= 2; }\n"
         "    if (!owner) {\n"
-        "        int64_t *data = malloc(cap * sizeof *data); if (!data) abort();\n"
+        "        int64_t *data = malloc(cap * sizeof *data); if (!data) NVM2C_ABORT();\n"
         "        if (a->len) memcpy(data, a->data, a->len * sizeof *data);\n"
         "        owner = narr_track(a, 0); owner->data = data;\n"
         "    } else {\n"
         "        int64_t *data = realloc(owner->data, cap * sizeof *data);\n"
-        "        if (!data) { abort(); } owner->data = data;\n"
+        "        if (!data) { NVM2C_ABORT(); } owner->data = data;\n"
         "    }\n"
         "    size_t growth = (cap - owner->cap) * sizeof *owner->data;\n"
         "    nagg_add(growth); owner->bytes += growth;\n"
@@ -4795,7 +4795,7 @@ static void emit_narr_storage(Nvm2cBuf *b) {
 static void emit_narr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_lit(const int64_t *elems, size_t n) {\n"
-        "    if (n > 0 && !elems) abort();\n"
+        "    if (n > 0 && !elems) NVM2C_ABORT();\n"
         "    narr_t a = narr_new(); narr_reserve(a, n);\n"
         "    if (n) memcpy(a->data, elems, n * sizeof *a->data);\n"
         "    a->len = n; return a;\n}\n");
@@ -4804,14 +4804,14 @@ static void emit_narr_lit(Nvm2cBuf *b) {
 static void emit_narr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static int64_t narr_get(narr_t a, int64_t idx) {\n"
-        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) NVM2C_ABORT();\n"
         "    return a->data[idx];\n}\n");
 }
 
 static void emit_narr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static inline narr_t narr_push(narr_t a, int64_t v) {\n"
-        "    if (!a || a->len == SIZE_MAX) abort();\n"
+        "    if (!a || a->len == SIZE_MAX) NVM2C_ABORT();\n"
         "    narr_reserve(a, a->len + 1); a->data[a->len++] = v; return a;\n}\n");
 }
 
@@ -4824,38 +4824,38 @@ static void emit_nsarr_storage(Nvm2cBuf *b) {
         "static nsarr_string *nsarr_strings;\n"
         "static inline struct nsarr_owner *nsarr_track(nsarr_t a, int own_handle) {\n"
         "    struct nsarr_owner *owner = calloc(1, sizeof *owner);\n"
-        "    if (!owner) abort();\n"
+        "    if (!owner) NVM2C_ABORT();\n"
         "    owner->bytes = sizeof *owner + (own_handle ? sizeof *a : 0); nagg_add(owner->bytes);\n"
         "    owner->handle = own_handle ? a : NULL; owner->next = nsarr_owners;\n"
         "    nsarr_owners = owner; a->owner = owner; return owner;\n}\n"
         "static inline nsarr_t nsarr_new(void) {\n"
-        "    nsarr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
+        "    nsarr_t a = calloc(1, sizeof *a); if (!a) NVM2C_ABORT();\n"
         "    nsarr_track(a, 1); return a;\n}\n"
         "static inline void nsarr_reserve(nsarr_t a, size_t n) {\n"
         "    size_t limit = SIZE_MAX / sizeof *a->data;\n"
-        "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) abort();\n"
+        "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) NVM2C_ABORT();\n"
         "    struct nsarr_owner *owner = a->owner;\n"
-        "    if (owner && (owner->data != a->data || a->len > owner->cap)) abort();\n"
+        "    if (owner && (owner->data != a->data || a->len > owner->cap)) NVM2C_ABORT();\n"
         "    if (owner && n <= owner->cap) return;\n"
         "    if (n < a->len) n = a->len;\n"
         "    size_t cap = owner && owner->cap ? owner->cap : 8;\n"
         "    while (cap < n) { if (cap > limit / 2) { cap = n; break; } cap *= 2; }\n"
         "    if (!owner) {\n"
-        "        const char **data = malloc(cap * sizeof *data); if (!data) abort();\n"
+        "        const char **data = malloc(cap * sizeof *data); if (!data) NVM2C_ABORT();\n"
         "        if (a->len) memcpy(data, a->data, a->len * sizeof *data);\n"
         "        owner = nsarr_track(a, 0); owner->data = data;\n"
         "    } else {\n"
         "        const char **data = realloc(owner->data, cap * sizeof *data);\n"
-        "        if (!data) { abort(); } owner->data = data;\n"
+        "        if (!data) { NVM2C_ABORT(); } owner->data = data;\n"
         "    }\n"
         "    size_t growth = (cap - owner->cap) * sizeof *owner->data;\n"
         "    nagg_add(growth); owner->bytes += growth;\n"
         "    owner->cap = cap; a->data = owner->data;\n}\n"
         "static inline const char *nsarr_copy_string(const char *value) {\n"
-        "    if (!value) { abort(); } size_t n = strlen(value); if (n == SIZE_MAX) abort();\n"
-        "    if (n > SIZE_MAX - sizeof(nsarr_string) - 1) abort();\n"
-        "    nsarr_string *owner = malloc(sizeof *owner); if (!owner) abort();\n"
-        "    owner->data = malloc(n + 1); if (!owner->data) abort();\n"
+        "    if (!value) { NVM2C_ABORT(); } size_t n = strlen(value); if (n == SIZE_MAX) NVM2C_ABORT();\n"
+        "    if (n > SIZE_MAX - sizeof(nsarr_string) - 1) NVM2C_ABORT();\n"
+        "    nsarr_string *owner = malloc(sizeof *owner); if (!owner) NVM2C_ABORT();\n"
+        "    owner->data = malloc(n + 1); if (!owner->data) NVM2C_ABORT();\n"
         "    owner->bytes = sizeof *owner + n + 1; nagg_add(owner->bytes);\n"
         "    memcpy(owner->data, value, n + 1); owner->next = nsarr_strings;\n"
         "    nsarr_strings = owner; return owner->data;\n}\n"
@@ -4869,7 +4869,7 @@ static void emit_nsarr_storage(Nvm2cBuf *b) {
 static void emit_nsarr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_lit(const char *const *elems, size_t n) {\n"
-        "    if (n > 0 && !elems) abort();\n"
+        "    if (n > 0 && !elems) NVM2C_ABORT();\n"
         "    nsarr_t a = nsarr_new();\n"
         "    nsarr_reserve(a, n);\n"
         "    if (n) memcpy(a->data, elems, n * sizeof *a->data);\n"
@@ -4881,7 +4881,7 @@ static void emit_nsarr_lit(Nvm2cBuf *b) {
 static void emit_nsarr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nsarr_get(nsarr_t a, int64_t idx) {\n"
-        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) NVM2C_ABORT();\n"
         "    return a->data[idx] ? a->data[idx] : \"\";\n"
         "}\n\n");
 }
@@ -4889,7 +4889,7 @@ static void emit_nsarr_get(Nvm2cBuf *b) {
 static void emit_nsarr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static inline nsarr_t nsarr_push(nsarr_t a, const char *v) {\n"
-        "    if (!a || a->len == SIZE_MAX) abort();\n"
+        "    if (!a || a->len == SIZE_MAX) NVM2C_ABORT();\n"
         "    size_t n = a->len + 1;\n"
         "    nsarr_reserve(a, n);\n"
         "    a->data[a->len] = v ? v : \"\";\n"
@@ -4902,13 +4902,13 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
                                      int int_get, int string_get, int printing) {
     nvm2c_puts(b,
         "static inline int64_t nvalue_array_len(nmap_value a) {\n"
-        "    if (a.kind != 7 || !a.text) abort();\n"
+        "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n"
         "    if (a.integer == 3 || a.integer == 10) return (int64_t)((narr_t)a.text)->len;\n"
         "    if (a.integer == 5) return (int64_t)((nsarr_t)a.text)->len;\n"
         "    if (a.integer == 6) return (int64_t)((nrarr_t)a.text)->len;\n"
-        "    abort();\n}\n"
+        "    NVM2C_ABORT();\n}\n"
         "static inline nmap_value nvalue_array_get(nmap_value a, int64_t index) {\n"
-        "    if (a.integer == 6) abort();\n"
+        "    if (a.integer == 6) NVM2C_ABORT();\n"
         "    int64_t length = nvalue_array_len(a);\n"
         "    if (index < 0 || (uint64_t)index >= (uint64_t)length) return (nmap_value){0, 0, NULL};\n"
         "    size_t at = (size_t)index;\n");
@@ -4919,8 +4919,8 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         string_get ? "nsarr_get((nsarr_t)a.text, at)" : "((nsarr_t)a.text)->data[at]");
     nvm2c_puts(b,
         "static inline nmap_value nvalue_array_set(nmap_value a, int64_t index, nmap_value value) {\n"
-        "    if (a.integer == 6) abort();\n"
-        "    if (index < 0 || (uint64_t)index >= (uint64_t)nvalue_array_len(a)) abort();\n"
+        "    if (a.integer == 6) NVM2C_ABORT();\n"
+        "    if (index < 0 || (uint64_t)index >= (uint64_t)nvalue_array_len(a)) NVM2C_ABORT();\n"
         "    size_t at = (size_t)index;\n"
         "    if (a.integer == 3) ((narr_t)a.text)->data[at] = nvalue_require_int(value);\n"
         "    else if (a.integer == 10) ((narr_t)a.text)->data[at] = nvalue_require_bool(value);\n"
@@ -4933,10 +4933,10 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    if (a.integer == 10) { narr_push((narr_t)a.text, nvalue_require_bool(value)); return a; }\n");
     if (string_push) nvm2c_puts(b,
         "    if (a.integer == 5) { nsarr_push((nsarr_t)a.text, nvalue_require_string(value)); return a; }\n");
-    nvm2c_puts(b, "    abort();\n}\n");
+    nvm2c_puts(b, "    NVM2C_ABORT();\n}\n");
     if (printing) nvm2c_puts(b,
         "static inline void nvalue_array_print(nmap_value a) {\n"
-        "    if (a.integer == 6) abort();\n"
+        "    if (a.integer == 6) NVM2C_ABORT();\n"
         "    int64_t length = nvalue_array_len(a); fputc('[', stdout);\n"
         "    for (int64_t i = 0; i < length; ++i) {\n"
         "        if (i) fputs(\", \", stdout);\n"
@@ -4952,10 +4952,10 @@ static void emit_host_normalize(Nvm2cBuf *b) {
         "static inline const char *nhost_normalize(const char *path) {\n"
         "    if (!path) path = \"\";\n"
         "    size_t length = strlen(path), slots = length / 2 + 1;\n"
-        "    if (length > SIZE_MAX - 2 || slots > SIZE_MAX / sizeof(size_t)) abort();\n"
+        "    if (length > SIZE_MAX - 2 || slots > SIZE_MAX / sizeof(size_t)) NVM2C_ABORT();\n"
         "    char *out = nstr_allocate(length + 1);\n"
         "    size_t *bases = malloc(slots * sizeof *bases);\n"
-        "    if (!out || !bases) abort();\n"
+        "    if (!out || !bases) NVM2C_ABORT();\n"
         "    int absolute = path[0] == '/';\n"
         "    size_t used = 0, count = 0, cursor = 0;\n"
         "    if (absolute) out[used++] = '/';\n"
@@ -4975,7 +4975,7 @@ static void emit_host_normalize(Nvm2cBuf *b) {
         "            }\n"
         "            if (absolute) continue;\n"
         "        }\n"
-        "        if (count >= slots) abort();\n"
+        "        if (count >= slots) NVM2C_ABORT();\n"
         "        bases[count++] = used;\n"
         "        if (used && out[used - 1] != '/') out[used++] = '/';\n"
         "        memcpy(out + used, path + start, size); used += size;\n"
@@ -5038,7 +5038,7 @@ static void emit_host_file_read(Nvm2cBuf *b) {
         "    FILE *file = path ? fopen(path, \"rb\") : NULL;\n"
         "    size_t used = 0, capacity = 1;\n"
         "    char *text = malloc(capacity);\n"
-        "    if (!text) abort();\n"
+        "    if (!text) NVM2C_ABORT();\n"
         "    int invalid = 0;\n"
         "    if (file) {\n"
         "        char chunk[4096];\n"
@@ -5046,12 +5046,12 @@ static void emit_host_file_read(Nvm2cBuf *b) {
         "        while ((count = fread(chunk, 1, sizeof chunk, file)) != 0) {\n"
         "            if (memchr(chunk, 0, count)) invalid = 1;\n"
         "            if (invalid) continue;\n"
-        "            if (used > SIZE_MAX - count - 1) abort();\n"
+        "            if (used > SIZE_MAX - count - 1) NVM2C_ABORT();\n"
         "            size_t needed = used + count + 1;\n"
         "            if (needed > capacity) {\n"
         "                capacity = needed > SIZE_MAX / 2 ? needed : needed * 2;\n"
         "                char *grown = realloc(text, capacity);\n"
-        "                if (!grown) abort();\n"
+        "                if (!grown) NVM2C_ABORT();\n"
         "                text = grown;\n"
         "            }\n"
         "            memcpy(text + used, chunk, count); used += count;\n"
@@ -5081,15 +5081,15 @@ static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
         const NvmImportEntry *imp = &mod->imports[i];
         emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
-        nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) abort();\n");
+        nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n", result, types, host->name);
-        nvm2c_puts(b, "        if (!function) abort();\n");
+        nvm2c_puts(b, "        if (!function) NVM2C_ABORT();\n");
         if (host->result == TAG_STRING) {
             nvm2c_printf(b, "        void *cleanup = dlsym(library, \"%s__nano_string_release_v1\");\n", host->name);
             nvm2c_puts(b,
                 "        if (cleanup) {\n            Dl_info origin, companion;\n"
                 "            if (!dladdr((void *)function, &origin) || !dladdr(cleanup, &companion) ||\n"
-                "                origin.dli_fbase != companion.dli_fbase) abort();\n"
+                "                origin.dli_fbase != companion.dli_fbase) NVM2C_ABORT();\n"
                 "            release = (void (*)(const char *))cleanup;\n        }\n");
         }
         nvm2c_puts(b, "    }\n");
@@ -5097,7 +5097,7 @@ static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
                       host->argc == 2 ? "a, z" : host->argc == 1 ? "a" : "");
         if (host->result == TAG_STRING) nvm2c_puts(b,
             "    if (release) return nstr_copy_release(value, release);\n"
-            "    if (!value) abort();\n");
+            "    if (!value) NVM2C_ABORT();\n");
         if (!strcmp(host->c_name, "nhost_snapshot")) {
             nvm2c_puts(b, "    return nstr_copy(value);\n}\n");
         } else nvm2c_puts(b, "    return value;\n}\n");
@@ -5127,18 +5127,18 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
                           mod->string_lengths[imp->module_name_idx]);
         nvm2c_puts(b,
             ", RTLD_NOW | RTLD_LOCAL);\n"
-            "        if (!library) abort();\n"
+            "        if (!library) NVM2C_ABORT();\n"
             "        const uint32_t *abi = (const uint32_t *)dlsym(library, \"fs_walkdir__nano_array_abi\");\n"
-            "        if (!abi || *abi != 1) abort();\n"
+            "        if (!abi || *abi != 1) NVM2C_ABORT();\n"
             "        walk = (nh_array_value *(*)(const char *))dlsym(library, \"fs_walkdir\");\n"
             "        release = (bool (*)(nh_array_value *))dlsym(library, \"fs_walkdir_release\");\n"
-            "        if (!walk || !release) abort();\n"
+            "        if (!walk || !release) NVM2C_ABORT();\n"
             "    }\n"
             "    nh_array_value *foreign = walk(root);\n"
             "    if (!foreign || !foreign->data || foreign->type != nh_string ||\n"
             "        foreign->width != sizeof(char *) || foreign->length < 0 ||\n"
             "        foreign->capacity < foreign->length ||\n"
-            "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) abort();\n"
+            "        (uint64_t)foreign->length > SIZE_MAX / sizeof(char *)) NVM2C_ABORT();\n"
             "    nsarr_t result = nsarr_new();\n"
             "    nsarr_reserve(result, (size_t)foreign->length);\n"
             "    result->len = (size_t)foreign->length;\n"
@@ -5146,7 +5146,7 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             "        const char *value = ((const char **)foreign->data)[j];\n"
             "        result->data[j] = nsarr_copy_string(value);\n"
             "    }\n"
-            "    if (!release(foreign)) abort();\n"
+            "    if (!release(foreign)) NVM2C_ABORT();\n"
             "    return result;\n}\n");
     }
 }
@@ -5160,7 +5160,7 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
             "static struct nrarr_owner *nrarr_owners;\n"
             "static inline struct nrarr_owner *nrarr_track(nrarr_t a, int own_handle) {\n"
             "    struct nrarr_owner *owner = calloc(1, sizeof *owner);\n"
-            "    if (!owner) abort();\n"
+            "    if (!owner) NVM2C_ABORT();\n"
             "    owner->bytes = sizeof *owner + (own_handle ? sizeof *a : 0); nagg_add(owner->bytes);\n"
         "    owner->handle = own_handle ? a : NULL; owner->next = nrarr_owners;\n"
             "    nrarr_owners = owner; a->owner = owner; return owner;\n}\n"
@@ -5168,24 +5168,24 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
             "    while (nrarr_owners) { struct nrarr_owner *owner = nrarr_owners;\n"
             "        nrarr_owners = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner->handle); free(owner); }\n}\n"
             "static inline nrarr_t nrarr_new(void) {\n"
-            "    nrarr_t a = calloc(1, sizeof *a); if (!a) abort();\n"
+            "    nrarr_t a = calloc(1, sizeof *a); if (!a) NVM2C_ABORT();\n"
             "    nrarr_track(a, 1); return a;\n}\n"
             "static inline void nrarr_reserve(nrarr_t a, size_t n) {\n"
             "    size_t limit = SIZE_MAX / sizeof(nrec_t);\n"
-            "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) abort();\n"
+            "    if (!a || n > limit || a->len > limit || (a->len && !a->data)) NVM2C_ABORT();\n"
             "    struct nrarr_owner *owner = a->owner;\n"
-            "    if (owner && (owner->data != a->data || a->len > owner->cap)) abort();\n"
+            "    if (owner && (owner->data != a->data || a->len > owner->cap)) NVM2C_ABORT();\n"
             "    if (owner && n <= owner->cap) return;\n"
             "    if (n < a->len) n = a->len;\n"
             "    size_t cap = owner && owner->cap ? owner->cap : 8;\n"
             "    while (cap < n) { if (cap > limit / 2) { cap = n; break; } cap *= 2; }\n"
             "    if (!owner) {\n"
-            "        nrec_t *data = malloc(cap * sizeof *data); if (!data) abort();\n"
+            "        nrec_t *data = malloc(cap * sizeof *data); if (!data) NVM2C_ABORT();\n"
             "        if (a->len) memcpy(data, a->data, a->len * sizeof *data);\n"
             "        owner = nrarr_track(a, 0); owner->data = data;\n"
             "    } else {\n"
             "        nrec_t *data = realloc(owner->data, cap * sizeof *data);\n"
-            "        if (!data) abort();\n"
+            "        if (!data) NVM2C_ABORT();\n"
             "        owner->data = data;\n"
             "    }\n"
             "    size_t growth = (cap - owner->cap) * sizeof *owner->data;\n"
@@ -5194,7 +5194,7 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
     }
     if (need_push) nvm2c_puts(b,
         "static nrarr_t nrarr_push(nrarr_t a, nrec_t v) {\n"
-        "    if (!a || a->len >= SIZE_MAX / sizeof(nrec_t)) abort();\n"
+        "    if (!a || a->len >= SIZE_MAX / sizeof(nrec_t)) NVM2C_ABORT();\n"
         "    nrarr_reserve(a, a->len + 1);\n"
         "    a->data[a->len++] = v;\n"
         "    return a;\n"
@@ -5203,7 +5203,7 @@ static void emit_nrarr_helpers(Nvm2cBuf *b, int need_new, int need_push, int nee
         b->has_record_array_getter = 1;
         nvm2c_puts(b,
         "static nrec_t nrarr_get(nrarr_t a, int64_t idx) {\n"
-        "    if (!a || idx < 0 || (uint64_t)idx >= a->len || !a->data) abort();\n"
+        "    if (!a || idx < 0 || (uint64_t)idx >= a->len || !a->data) NVM2C_ABORT();\n"
         "    return a->data[idx];\n"
         "}\n\n");
     }
@@ -5814,7 +5814,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b,
             "/* Generated by nvm2c from NanoISA. Not a VM wrapper. */\n"
             "#include <stddef.h>\n"
-            "#include <stdint.h>\n#include <stdlib.h>\n");
+            "#include <stdint.h>\n#include <stdlib.h>\n#include <stdio.h>\n"
+            "/* I preserve invariant termination while naming its generated source. */\n"
+            "#define NVM2C_ABORT() do { fprintf(stderr, \"I stopped at a native invariant in %s at generated C line %d.\\n\", __func__, __LINE__); abort(); } while (0)\n");
         nvm2c_puts(&b,
             "/* I reconstruct wrapped bits without an out-of-range signed cast. */\n"
             "static inline int64_t ni64_from_bits(uint64_t bits) {\n"
@@ -5883,9 +5885,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (!root || !*root) root = \"/tmp\";\n"
                 "    if (!prefix) prefix = \"nano_\";\n"
                 "    size_t a = strlen(root), z = strlen(prefix);\n"
-                "    if (z > SIZE_MAX - 8 || a > SIZE_MAX - z - 8) abort();\n"
+                "    if (z > SIZE_MAX - 8 || a > SIZE_MAX - z - 8) NVM2C_ABORT();\n"
                 "    char *path = nstr_allocate(a + z + 7);\n"
-                "    if (!path) abort();\n"
+                "    if (!path) NVM2C_ABORT();\n"
                 "    memcpy(path, root, a); path[a] = '/';\n"
                 "    memcpy(path + a + 1, prefix, z);\n"
                 "    memcpy(path + a + z + 1, \"XXXXXX\", 7);\n"
@@ -5898,7 +5900,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "#include <stdio.h>\n"
                 "static inline const char *nhost_capture(const char *command) {\n"
                 "    char *output = malloc(65536);\n"
-                "    if (!output) abort();\n"
+                "    if (!output) NVM2C_ABORT();\n"
                 "    output[0] = 0;\n"
                 "    FILE *pipe = popen(command, \"r\");\n"
                 "    if (!pipe) return nstr_take(output);\n"
@@ -5993,7 +5995,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static nmap_value nmap_owned_get(nmap_t map, const char *key) {\n"
                 "    nmap_value value = nmap_get(map, key);\n"
                 "    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);\n"
-                "        if (!owner) { nmap_release_value(value); abort(); }\n"
+                "        if (!owner) { nmap_release_value(value); NVM2C_ABORT(); }\n"
                 "        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;\n"
                 "        nmap_bytes_add(sizeof *owner);\n"
                 "        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }\n"
@@ -6001,19 +6003,19 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static inline nmap_value nvalue_from_float(double value) {\n"
                 "    nmap_value result = {3, 0, NULL}; memcpy(&result.integer, &value, sizeof value); return result;\n}\n"
                 "static inline double nvalue_require_float(nmap_value value) {\n"
-                "    if (value.kind != 3) abort();\n"
+                "    if (value.kind != 3) NVM2C_ABORT();\n"
                 "    double result; memcpy(&result, &value.integer, sizeof result); return result;\n}\n"
                 "static inline nmap_value nvalue_numeric(nmap_value a, nmap_value b, char op) {\n"
-                "    if (a.kind != 1 && a.kind != 3) abort();\n"
+                "    if (a.kind != 1 && a.kind != 3) NVM2C_ABORT();\n"
                 "    if (op == '~') return a.kind == 3 ? nvalue_from_float(-nvalue_require_float(a)) : (nmap_value){1, ni64_from_bits(UINT64_C(0) - (uint64_t)a.integer), NULL};\n"
-                "    if (b.kind != 1 && b.kind != 3) abort();\n"
+                "    if (b.kind != 1 && b.kind != 3) NVM2C_ABORT();\n"
                 "    if (a.kind == 1 && b.kind == 1) {\n"
                 "        int64_t x = a.integer, y = b.integer, value;\n"
                 "        if (op == '+') value = ni64_from_bits((uint64_t)x + (uint64_t)y);\n"
                 "        else if (op == '-') value = ni64_from_bits((uint64_t)x - (uint64_t)y);\n"
                 "        else if (op == '*') value = ni64_from_bits((uint64_t)x * (uint64_t)y);\n"
                 "        else if (op == '/') value = y == 0 ? 0 : (x == INT64_MIN && y == -1) ? INT64_MIN : x / y;\n"
-                "        else abort();\n"
+                "        else NVM2C_ABORT();\n"
                 "        return (nmap_value){1, value, NULL};\n"
                 "    }\n"
                 "    double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;\n"
@@ -6022,15 +6024,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (op == '-') return nvalue_from_float(x - y);\n"
                 "    if (op == '*') return nvalue_from_float(x * y);\n"
                 "    if (op == '/') return nvalue_from_float(y == 0.0 ? 0.0 : x / y);\n"
-                "    abort();\n}\n"
+                "    NVM2C_ABORT();\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
-                "    if (value.kind != 1) abort();\n    return value.integer;\n}\n"
+                "    if (value.kind != 1) NVM2C_ABORT();\n    return value.integer;\n}\n"
                 "static inline int64_t nvalue_require_bool(nmap_value value) {\n"
-                "    if (value.kind != 4) abort();\n    return value.integer;\n}\n"
+                "    if (value.kind != 4) NVM2C_ABORT();\n    return value.integer;\n}\n"
                 "static inline const char *nvalue_require_string(nmap_value value) {\n"
-                "    if (value.kind != 5) abort();\n    return value.text;\n}\n"
+                "    if (value.kind != 5) NVM2C_ABORT();\n    return value.text;\n}\n"
                 "static inline nmap_t nvalue_require_map(nmap_value value) {\n"
-                "    if (value.kind != 13 || !value.text) abort();\n    return (nmap_t)value.text;\n}\n"
+                "    if (value.kind != 13 || !value.text) NVM2C_ABORT();\n    return (nmap_t)value.text;\n}\n"
                 "static inline double nvalue_cast_float(nmap_value value) {\n"
                 "    if (value.kind == 3) return nvalue_require_float(value);\n"
                 "    if (value.kind == 1 || value.kind == 2) return (double)value.integer;\n"
@@ -6061,7 +6063,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    return 0;\n}\n"
                 "static nmap_t nmap_owned_new(uint8_t kind) {\n"
                 "    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);\n"
-                "    if (!owner) { nmap_destroy(map); abort(); }\n"
+                "    if (!owner) { nmap_destroy(map); NVM2C_ABORT(); }\n"
                 "    *owner = (nmap_owned){map, nmap_owned_head, 0}; nmap_owned_head = owner;\n"
                 "    nmap_bytes_add(sizeof *owner);\n"
                 "    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;\n"
@@ -6089,7 +6091,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static nrec_owned *nrec_owned_head;\n"
             "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
             "    nrec_owned *node = malloc(sizeof *node);\n"
-            "    if (!node) abort();\n"
+            "    if (!node) NVM2C_ABORT();\n"
             "    nagg_add(sizeof *node);\n"
             "    node->value = value; node->next = nrec_owned_head; nrec_owned_head = node;\n"
             "    return &node->value;\n}\n"

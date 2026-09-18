@@ -4665,6 +4665,11 @@ test-native-generic-arithmetic: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-generic-arithmetic
 
+.PHONY: test-native-invariant-diagnostics
+test-native-invariant-diagnostics: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_invariant_diagnostics
+test-units: test-native-invariant-diagnostics
+
 .PHONY: test-native-tagged-arithmetic
 test-native-tagged-arithmetic: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_tagged_arithmetic
