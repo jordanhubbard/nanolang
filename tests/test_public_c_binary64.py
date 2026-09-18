@@ -1,6 +1,4 @@
 """I qualify the public standalone C route with integer binary64 observations."""
-import hashlib
-import json
 import os
 from pathlib import Path
 import subprocess
@@ -46,6 +44,7 @@ class PublicCBinary64(unittest.TestCase):
         self.portable(ORDER)
     def test_global_order_and_main_reentry(self):
         self.portable(GLOBALS)
+        self.portable(INITIALIZER_REENTRY)
     def test_exact_decimal_literal(self):
         self.portable('fn main()->int{assert (== (float_to_bits 1.0000000000000002) 4607182418800017409) return 0} shadow main{assert (== (main) 0)}')
     def test_wrong_transport_type_preserves_previous_source(self):
@@ -133,6 +132,17 @@ fn main()->int{
  assert (== (float_to_bits third) -4609434218613702656)
  set second (+ first 2.0)
  assert (== (float_to_bits second) 4617315517961601024)
+ return 0
+}
+shadow main{assert true}
+'''
+INITIALIZER_REENTRY='''let mut entered:int=0
+let trigger:int=(main)
+let late:float=(+ 1.0 2.0)
+fn main()->int{
+ if (== entered 0){set entered 1 return 0}
+ assert (== trigger 0)
+ assert (== (float_to_bits late) 4613937818241073152)
  return 0
 }
 shadow main{assert true}

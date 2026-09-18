@@ -1492,36 +1492,48 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
 
 int c_backend_emit_fp(ASTNode *root, FILE *out, const char *source_file,
                       const CBOptions *opts) {
-    if (!out) return 1;
+    if (!out) { fprintf(stderr, "[c_backend] I require an output stream.\n"); return 1; }
     FILE *staged = tmpfile();
     if (!staged) {
         fprintf(stderr, "[c_backend] I could not stage C source.\n");
         return 1;
     }
     int rc = render_source(root, staged, source_file, opts);
-    if (!rc && (fflush(staged) != 0 || fseek(staged, 0, SEEK_SET) != 0)) rc = 1;
+    if (!rc && (fflush(staged) != 0 || fseek(staged, 0, SEEK_SET) != 0)) {
+        fprintf(stderr, "[c_backend] I could not rewind staged source.\n"); rc = 1;
+    }
     char buffer[8192];
     while (!rc) {
         size_t count = fread(buffer, 1, sizeof buffer, staged);
-        if (count && fwrite(buffer, 1, count, out) != count) rc = 1;
+        if (count && fwrite(buffer, 1, count, out) != count) {
+            fprintf(stderr, "[c_backend] I could not write the output stream.\n"); rc = 1;
+        }
         if (count < sizeof buffer) {
-            if (ferror(staged)) rc = 1;
+            if (ferror(staged) && !rc) {
+                fprintf(stderr, "[c_backend] I could not read staged source.\n"); rc = 1;
+            }
             break;
         }
     }
-    if (!rc && fflush(out) != 0) rc = 1;
-    if (fclose(staged) != 0) rc = 1;
+    if (!rc && fflush(out) != 0) {
+        fprintf(stderr, "[c_backend] I could not flush the output stream.\n"); rc = 1;
+    }
+    if (fclose(staged) != 0 && !rc) {
+        fprintf(stderr, "[c_backend] I could not close staged source.\n"); rc = 1;
+    }
     return rc;
 }
 
 int c_backend_emit(ASTNode *root, const char *output_path,
                    const char *source_file, const CBOptions *opts) {
-    if (!output_path) return 1;
+    if (!output_path) { fprintf(stderr, "[c_backend] I require an output path.\n"); return 1; }
     size_t length = strlen(output_path);
     static const char suffix[] = ".tmp.XXXXXX";
-    if (length > SIZE_MAX - sizeof suffix) return 1;
+    if (length > SIZE_MAX - sizeof suffix) {
+        fprintf(stderr, "[c_backend] I cannot represent the staging path.\n"); return 1;
+    }
     char *temporary = malloc(length + sizeof suffix);
-    if (!temporary) return 1;
+    if (!temporary) { fprintf(stderr, "[c_backend] I could not allocate the staging path.\n"); return 1; }
     memcpy(temporary, output_path, length);
     memcpy(temporary + length, suffix, sizeof suffix);
     int descriptor = mkstemp(temporary);
@@ -1532,14 +1544,19 @@ int c_backend_emit(ASTNode *root, const char *output_path,
     }
     FILE *staged = fdopen(descriptor, "w");
     if (!staged) {
+        fprintf(stderr, "[c_backend] I could not open the staged output stream.\n");
         close(descriptor);
         unlink(temporary);
         free(temporary);
         return 1;
     }
     int rc = render_source(root, staged, source_file, opts);
-    if (fclose(staged) != 0) rc = 1;
-    if (!rc && rename(temporary, output_path) != 0) rc = 1;
+    if (fclose(staged) != 0 && !rc) {
+        fprintf(stderr, "[c_backend] I could not close staged output.\n"); rc = 1;
+    }
+    if (!rc && rename(temporary, output_path) != 0) {
+        fprintf(stderr, "[c_backend] I could not publish staged output.\n"); rc = 1;
+    }
     if (rc) unlink(temporary);
     free(temporary);
     return rc;
