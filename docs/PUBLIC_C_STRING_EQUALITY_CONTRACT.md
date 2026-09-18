@@ -38,3 +38,10 @@ formatting/arithmetic/backend gates and report source-tool identities accurately
 I do not silently close public C concatenation allocation, integer conversion's
 GNU block, other expression/options portability, full scalar policy or release.
 Those remain required separate dependencies under6ade and their existing parents.
+
+My storage audit qualifies value comparison over the existing NUL-terminated
+public C string representation, not arbitrary VM length-bearing byte strings.
+Canonical source currently decodes escapes then uses strlen; public C re-escapes
+raw parser text. I record that distinct literal-normalization task before code and
+keep it required under6ade. This child preserves the existing string transport;
+its ordinary equality fixtures use shared unescaped text/conversion outputs.
