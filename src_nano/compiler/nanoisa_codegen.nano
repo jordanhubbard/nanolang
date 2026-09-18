@@ -12,7 +12,7 @@ from "src_nano/compiler/declaration_ownership.nano" import declaration_local_let
  * literals, array_length, array_get, int-, bool-, and string-field records
  * (AGG_PACK/AGG_GET), flat-record results,
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
- * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
+ * short-circuit and/or (DUP/JMP_FALSE/JMP_TRUE/POP), cond as an if-expression (JMP_FALSE/JMP),
  * print (PRINT), println (PRINTLN), and assert (ASSERT).
  * Anything else fails closed. I do not emit C. I do not delete
  * transpiler.nano.
@@ -3571,6 +3571,41 @@ shadow nisa_emit_float_binary {
     assert (str_contains text "F64_ADD")
 }
 
+fn nisa_emit_logical_binary(parser: Parser, op: ASTBinaryOp, left_type: string, right_type: string) -> string {
+    if (or (!= left_type "bool") (!= right_type "bool")) {
+        return (nisa_fail "I require two bool operands for source and/or")
+    }
+    let mut jump: string = ""
+    if (== op.op LexerTokenType.TOKEN_AND) { set jump "JMP_FALSE" }
+    else {
+        if (== op.op LexerTokenType.TOKEN_OR) { set jump "JMP_TRUE" }
+        else { return (nisa_fail "I require a source and/or operator") }
+    }
+    let end: string = (nisa_fresh)
+    let left: string = (nisa_emit_expr parser op.left op.left_type)
+    let right: string = (nisa_emit_expr parser op.right op.right_type)
+    let mut out: string = (+ left (nisa_line "DUP"))
+    set out (+ out (nisa_line_imm jump end))
+    set out (+ out (nisa_line "POP"))
+    set out (+ out right)
+    return (+ out (nisa_label_line end))
+}
+shadow nisa_emit_logical_binary {
+    let both: string = (nanoisa_emit_nasm "fn main() -> bool { return (and false true) }")
+    assert (str_contains both "DUP")
+    assert (str_contains both "JMP_FALSE")
+    assert (str_contains both "POP")
+    assert (not (str_contains both "BOOL_AND"))
+    let either: string = (nanoisa_emit_nasm "fn main() -> bool { return (or true false) }")
+    assert (str_contains either "DUP")
+    assert (str_contains either "JMP_TRUE")
+    assert (str_contains either "POP")
+    assert (not (str_contains either "BOOL_OR"))
+    assert (== (nanoisa_emit_nasm "fn main() -> bool { return (and false 1) }") "")
+    assert (== (nanoisa_emit_nasm "fn main() -> bool { return (or 1 true) }") "")
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_MATCH) { return (nisa_emit_match_value parser node_id) }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (nisa_emit_union parser node_id) }
@@ -3622,6 +3657,9 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         if (== right_type "float") { return (+ operand (nisa_line "F64_NEG")) }
                         if (nisa_value_type_matches parser right_type "int") { return (+ operand (nisa_line "I64_NEG")) }
                         return (nisa_fail "I require a numeric unary operand")
+                    }
+                    if (or (== binop.op LexerTokenType.TOKEN_AND) (== binop.op LexerTokenType.TOKEN_OR)) {
+                        return (nisa_emit_logical_binary parser binop left_type right_type)
                     }
                     let array_operand: bool = (or (str_starts_with left_type "array<") (str_starts_with right_type "array<"))
                     let arithmetic: bool = (or (!= (nisa_array_arithmetic_mnemonic binop.op) "") (== binop.op LexerTokenType.TOKEN_PERCENT))
@@ -4790,7 +4828,10 @@ shadow nisa_emit_function {
     let both_fn: ASTFunction = (parser_get_function p9 0)
     let both_text: string = (nisa_emit_function p9 both_fn)
     assert (str_contains both_text ".function both 2 2 0 bool 1")
-    assert (str_contains both_text "BOOL_AND")
+    assert (str_contains both_text "DUP")
+    assert (str_contains both_text "JMP_FALSE")
+    assert (str_contains both_text "POP")
+    assert (not (str_contains both_text "BOOL_AND"))
     let src10: string = (+ "f" "n pick(c: int) -> int { return (cond ((> c 0) 1) (else 0)) } shadow pick { assert true }")
     let toks10: List<LexerToken> = (tokenize_string src10 "t.nano" diags)
     let p10: Parser = (parse_program toks10 (list_LexerToken_length toks10) "t.nano")

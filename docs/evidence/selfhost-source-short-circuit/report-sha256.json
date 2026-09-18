@@ -1,0 +1,17 @@
+{
+  "bootstrap-tools.json": "30c479417dcca940b2ebd0cc4621cf8197cefa20821253b0ba5f146eea168fa0",
+  "bootstrap.log": "71225ad7e26ead33967194ad01e8bf6cb7071d2ea7da8c6e4de43d8e304e05de",
+  "effects-0.nvm": "e748d8b64e91de73777ad717dcd3216a3e519ae58ca80774d8e8e22d59f3a49c",
+  "effects-1.nvm": "e748d8b64e91de73777ad717dcd3216a3e519ae58ca80774d8e8e22d59f3a49c",
+  "effects-2.nvm": "e748d8b64e91de73777ad717dcd3216a3e519ae58ca80774d8e8e22d59f3a49c",
+  "effects.nano.txt": "5eca6e22c2aa76afe1d85979d1e039628499fd0c51bc47c94aa45ab57e6b793e",
+  "fixture-artifact-identities.json": "fba81b376d036381a18d5521c8e661b1864037d4cf9caa91be4116354a07086b",
+  "focused-tools.json": "30c479417dcca940b2ebd0cc4621cf8197cefa20821253b0ba5f146eea168fa0",
+  "focused.log": "8a46d010e03b3c42dd88c3bb251f087a1e43f9b3ec1490cf3b37dc8103fafd92",
+  "ordinary-tools.json": "30c479417dcca940b2ebd0cc4621cf8197cefa20821253b0ba5f146eea168fa0",
+  "ordinary.log": "8f613731ea7c97413c4cae3ea9aebddae20e5e9a4494a5974940788d88491676",
+  "result.json": "7b84109050d544790c4ab126f05cb1a74ab7ce466ffdb741606b2dab63c8fd3e",
+  "results.json": "a9c44e0ee226f9386bea84a6cdf738f4288fc6afe8c2d2f8ba789b84d9539892",
+  "source-after.json": "1725879174e1d098f27e69eb0ee00b8f8846a6444c3982ea37b9bffcff9be5d8",
+  "source-before.json": "1725879174e1d098f27e69eb0ee00b8f8846a6444c3982ea37b9bffcff9be5d8"
+}

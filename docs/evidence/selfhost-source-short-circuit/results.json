@@ -1,0 +1,40 @@
+[
+  {
+    "name": "bootstrap",
+    "command": [
+      "make",
+      "-j4",
+      "bootstrap",
+      "nano_virt",
+      "nano_vm",
+      "nanoisa_dump",
+      "nvm2c",
+      "nvm2llvm",
+      "nvm2wasm",
+      "bin/nano"
+    ],
+    "status": 0,
+    "seconds": 251.2725842630025
+  },
+  {
+    "name": "focused",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_selfhost_short_circuit"
+    ],
+    "status": 0,
+    "seconds": 97.55065903498325
+  },
+  {
+    "name": "ordinary",
+    "command": [
+      "make",
+      "test-ordinary-record-producers"
+    ],
+    "status": 0,
+    "seconds": 189.30468422500417
+  }
+]
