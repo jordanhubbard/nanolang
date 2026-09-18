@@ -96,7 +96,7 @@ shadow main { assert (== (format "%g" -0.0) "-0") }
         path=self.work/'c-seed-array.nano';path.write_text(program)
         executable=self.work/'c-seed-array'
         self.command(ROOT/'bin/nanoc_c',path,'-o',executable)
-        expected=''.join('['+{'0.0':'0','-0.0':'-0','1.0':'1'}.get(text,text)+']|\n' for _,text in CASES)
+        expected=''.join('['+text+']|\n' for _,text in CASES)
         self.assertEqual(self.command(executable).stdout,expected)
 
     def test_generated_provider_identity(self):

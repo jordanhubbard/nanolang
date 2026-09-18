@@ -78,3 +78,10 @@ float-to-string conversion, retaining `.0`, whereas my interpreter and C-seed
 print use `%g`. I verified this lowering in the unchanged base before correcting
 the route-specific fixture. All signed nonfinite observations and provider
 identity passed in that run; I retain its failed status and qualify fresh outputs.
+
+My generated C-seed array print already routes through `nl_to_string_array`,
+whose float elements use `float_to_string` and retain `.0`; my interpreter
+array print uses `%g`. I retain the first array fixture's finite-only mismatch
+and preserve these existing route-specific expectations. My Darwin bootstrap
+passes independently; its first fixture setup lacks the separate `bin/nano`
+target, so I build that interpreter explicitly before freezing the complete toolset.
