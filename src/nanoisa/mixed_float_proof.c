@@ -305,6 +305,10 @@ static bool mf_step(MFAnalysis *a,uint32_t index) {
         break;
     case OP_LOAD_LOCAL:
         result=state[in->operands[0].u16];
+        if(a->checking && (af->locals[in->operands[0].u16].tag==TAG_ARRAY ||
+                          af->locals[in->operands[0].u16].tag==TAG_STRUCT) &&
+           (result.tags&MF_BIT(TAG_VOID)))
+            return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require initialized managed or owned local alternatives.");
         if(result.kind==1) {result.kind=2;result.root=in->operands[0].u16;}
         break;
     case OP_STORE_LOCAL: {
@@ -435,6 +439,7 @@ NvmMixedShapeResult nvm_analyze_mixed_float_origins(const NvmModule *m,NvmMixedF
     if(!a || !proof) {free(a);free(proof);nvm_mixed_layout_view_free(view);return (NvmMixedShapeResult){NVM_MIXED_SHAPE_MEMORY,0,0,"I could not allocate my bounded proof."};}
     a->module=m;a->proof=proof;proof->view=view;proof->requires_affine_verification=true;a->error=invalid;
     if(!mf_descriptors(a) || !mf_preflight(a))goto done;
+    a->cells=proof->field_count;
     if(proof->field_count) {
         proof->fields=calloc(proof->field_count,sizeof *proof->fields);
         if(!proof->fields) {mf_stop(a,NVM_MIXED_SHAPE_MEMORY,0,0,"I could not allocate field summaries.");goto done;}
