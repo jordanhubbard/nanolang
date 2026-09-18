@@ -577,8 +577,6 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             }
             if (t == TYPE_STRING) {
                 fprintf(c->out, "printf(\"%%s%s\", ", is_println ? "\\n" : "");
-            } else if (t == TYPE_FLOAT) {
-                fprintf(c->out, "printf(\"%%g%s\", ", is_println ? "\\n" : "");
             } else if (t == TYPE_BOOL) {
                 fprintf(c->out, "printf(\"%%d%s\", ", is_println ? "\\n" : "");
             } else {
@@ -902,8 +900,6 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         if (node->as.print.is_println) {
             if (t == TYPE_STRING)
                 fprintf(c->out, "printf(\"%%s\\n\", ");
-            else if (t == TYPE_FLOAT)
-                fprintf(c->out, "printf(\"%%g\\n\", ");
             else if (t == TYPE_BOOL)
                 fprintf(c->out, "printf(\"%%d\\n\", ");
             else
@@ -911,8 +907,6 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         } else {
             if (t == TYPE_STRING)
                 fprintf(c->out, "printf(\"%%s\", ");
-            else if (t == TYPE_FLOAT)
-                fprintf(c->out, "printf(\"%%g\", ");
             else if (t == TYPE_BOOL)
                 fprintf(c->out, "printf(\"%%d\", ");
             else
