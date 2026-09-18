@@ -36,6 +36,13 @@ class ManagedGraphs(unittest.TestCase):
             self.assertEqual('call i32 @nms_module_graph_begin' in entry,graph)
             self.assertEqual('prepare_failed:' in entry,graph)
 
+    def test_prepared_split_nested_append_and_set(self):
+        body=('ARR_NEW 7\nPOP\n'
+              'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_NEW 1\nARR_PUSH\nARR_POP\nARR_LEN\nPUSH_I64 0\nEQ\nASSERT\n'
+              'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_I64 0\nARR_NEW 1\nARR_SET\n'
+              'PUSH_I64 0\nARR_GET\nPUSH_I64 12\nARR_PUSH\nARR_POP\nPUSH_I64 12\nEQ\nASSERT\n')
+        self.paired(body)
+
     def test_self_mutual_cycles_and_bounded_live_loop(self):
         body=('PUSH_I64 0\nSTORE_LOCAL 3\nloop:\n'
               'ARR_NEW 7\nSTORE_LOCAL 0\nARR_NEW 5\nSTORE_LOCAL 1\n'
