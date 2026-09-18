@@ -2702,6 +2702,10 @@ test-doc-md: build
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(USERGUIDE_CHECK_TOOL)
 
+.PHONY: test-shared-match-policy-docs
+test-shared-match-policy-docs:
+	python3 -m unittest -v tests.test_shared_match_policy_docs
+
 .PHONY: test-performance-monitoring-docs
 test-performance-monitoring-docs:
 	@chmod +x tests/test_performance_monitoring_docs.sh
