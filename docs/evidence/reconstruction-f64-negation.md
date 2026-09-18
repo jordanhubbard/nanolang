@@ -44,3 +44,8 @@ does not establish every host or floating trap mode. Binary arithmetic, casts,
 float truthiness, generic FLOAT operations, heap reconstruction and full
 reconstruction remain open. Task `task_945d1fdcaaee499daddf1e0187e70a2b`
 awaits canonical integration before ledger closure.
+
+I integrated main `3057bec8` after gates. Its managed graph provenance changes
+are disjoint from this reconstruction production, frozen harness and the
+recorded local executable tools; all manifest hashes still match. I preserve
+the exact tested base above and do not relabel it a rebuilt integrated toolchain.
