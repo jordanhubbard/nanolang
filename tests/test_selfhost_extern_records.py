@@ -19,10 +19,10 @@ fn main() -> int {
     assert (nb_register parsed "__test_")
     (nb_rewrite parsed)
     assert (parser_get_struct_def parsed 0).is_extern
-    let other_tokens: List<LexerToken> = (tokenize_string "struct Foreign { fd: int }\nstruct Foreign { fd: int }" "other.nano" (list_CompilerDiagnostic_new))
+    let other_tokens: List<LexerToken> = (tokenize_string "struct Foreign { fd: int }\n\n\nstruct Foreign { fd: int }" "other.nano" (list_CompilerDiagnostic_new))
     let copied: Parser = (parse_program other_tokens (list_LexerToken_length other_tokens) "other.nano")
     (list_ASTStruct_set copied.structs 0 (parser_get_struct_def parsed 0))
-    (mb_reset [1, 2])
+    (mb_reset [1, 3])
     assert (not (nb_register copied "__test_"))
     (mb_reset [])
     return 0
