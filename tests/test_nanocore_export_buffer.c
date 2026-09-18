@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* I supply the ordinary CLI globals when linked with the common runtime. */
+int g_argc = 0;
+char **g_argv = NULL;
+
 static int allocation_budget = -1;
 static int format_budget = -1;
 static int allow_allocation(void) {
