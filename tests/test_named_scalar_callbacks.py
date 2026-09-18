@@ -176,21 +176,21 @@ fn main()->int{
 shadow main{assert (== (main) 0)}
 '''
 ORDER = '''let mut events:int=0
-let mut values:array<float> = []
-fn source()->array<float>{set events (+ (* events 10) 1) return values}
-shadow source{let saved:int=events let ignored:array<float> = (source) set events saved}
-fn initial()->float{set events (+ (* events 10) 2) set values (array_push values 3.0) return 4.0}
-shadow initial{let saved:int=events let old:array<float> = values set values [] assert (== (initial) 4.0) set values old set events saved}
+fn source(values:array<float>)->array<float>{set events (+ (* events 10) 1) return values}
+shadow source{let saved:int=events assert (== (array_length (source [1.0])) 1) set events saved}
+fn initial(values:array<float>)->float{set events (+ (* events 10) 2) let grown:array<float> = (array_push values 3.0) return 4.0}
+shadow initial{let saved:int=events let values:array<float> = [1.0] assert (== (initial values) 4.0) assert (== (array_length values) 2) set events saved}
 fn combine(a:float,b:float)->float{set events (+ (* events 10) 4) return (+ a b)}
 shadow combine{let saved:int=events assert (== (combine 1.0 2.0) 3.0) set events saved}
 fn main()->int{
- set events 0 set values [2.0]
- assert (== (reduce (source) (initial) combine) 9.0)
+ set events 0
+ let values:array<float> = [2.0]
+ assert (== (reduce (source values) (initial values) combine) 9.0)
  assert (== events 1244)
  assert (== (array_length values) 2)
  return 0
 }
-shadow main{let saved:int=events let old:array<float> = values assert (== (main) 0) set values old set events saved}
+shadow main{let saved:int=events assert (== (main) 0) set events saved}
 '''
 ALIASES = '''fn fold(a:float,b:float)->float{return (+ a b)}
 shadow fold{assert (== (fold 1.0 2.0) 3.0)}
