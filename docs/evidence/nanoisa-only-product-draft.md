@@ -9,6 +9,8 @@ including the formerly failing export shadows. I retain the logs at
 `/tmp/nanolang-product-aab9-acceptance.log`. Storage task497 and export-shadow
 taskdd74 are complete; their earlier failures remain in the history below.
 
+At clean pin `e563d0e3`, the full `make -j8 test-quick` exits 2 while building the retained transpiler. Parser and typechecker components compile first. Selected shadow lowering reports `I require the declared type for record field underscore_name`. I retain `/tmp/nanolang-product-complete-test-quick.log`; `task_e0a68123b4aa467fa8ed6b24161ced69` records missing conditional-expression type inference before repair. This is a checked refusal, not a replay or recurrence of a historical native abort.
+
 PR522 remains draft for integrated quality gates. The full roadmap release
 hold remains: these results do not establish full LLVM/Wasm, ownership,
 reconstruction or final current-source fixed-point acceptance. Canonical-main

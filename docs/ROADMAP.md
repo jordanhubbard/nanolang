@@ -9069,6 +9069,7 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I restore the common known type of conditional expressions and single-expression blocks during canonical lowering (`task_e0a68123b4aa467fa8ed6b24161ced69`). My full product gate at e563d0e3 stops on the declared `underscore_name` field in retained transpiler shadows; I retain the failed log and require focused acceptance before a fresh full gate.
 - [ ] I route my default native product and `--target c` through verified NanoISA and `nvm2c`, preserving shadow selection, staging, previous output on failure, and declared artifact linkage (`task_d76ae44a12fd4d27a2b4aa84c30d7bc6`).
   - I rename the generated compiler phase and diagnostic helper from transpiler to lowering, keeping numeric enum positions and making seed, canonical and retained legacy compiler consumers agree. I validate schema regeneration and diagnostic behavior before integration.
   - I make an unqualified source invocation publish a sibling `.nvm`; explicit `-o binary` keeps native translation, `--target native` defaults to `a.out`, and `--target c` keeps sibling C output. I test explicit bytecode selection and conflicting target options before publishing this default-policy change.
