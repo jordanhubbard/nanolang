@@ -39,3 +39,9 @@ logs, tool/source manifests, generated-fixture identities and actual three
 new modules in [my15-artifact manifest](selfhost-source-short-circuit/report-sha256.json).
 No historical failed artifact is executed. This is bounded Linux acceptance;
 Darwin and the final integrated product release still require their own pins.
+
+I integrated canonical main through PR775 at960e898b after the frozen run.
+No active Nano source, schema/generated AST or either focused/ordinary producer
+test changed during integration. Separately qualified C producer/interpreter
+and public C work is included; my sealed tools and bootstrap remain the actual
+3cf9c552 qualification, not a new final-head build claim.
