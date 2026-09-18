@@ -1,0 +1,9 @@
+# My range arity contract
+
+I define builtin range as `(range start end)` inside a for loop. I do not add a one-bound language form.
+
+At `dcd2c243`, my quick reference documents two bounds, the C builtin registry and checker register arity two, and the interpreter and both legacy transpilers recognize two-bound range loops. My current self-hosted raw emitter `nisa_emit_range` already rejects other arities and requires integer bounds. Both owned-source emitters require exactly two bounds. The earlier audit description claiming that both raw emitters still accepted one bound is stale.
+
+My raw C `compile_builtin_call` is the remaining arity mismatch: it accepts one or two arguments and invents zero as the start for one argument. Checked C compilation rejects that source before lowering. I remove the raw-only default and require two bounds there too. I preserve existing declaration resolution, ordered bound evaluation, exclusive end and empty/reversed ranges. This change concerns builtin arity, not broader range-value or bound-type policy.
+
+Before completion I require direct raw C lowering to refuse zero, one and three bounds without publishing a module, checked C arity refusals, existing valid codegen controls, and the existing paired range fixture through current corrected C lowering and the unchanged qualified self-hosted emitter. Rejected source is never executed. I preserve the original212a E003 evidence and do not replay historical failed compiler artifacts. The full ownership and product acceptance parents remain open.
