@@ -277,14 +277,14 @@ RET
     def test_nominal_metadata_and_nonscalar_signature_refused(self):
         for text in (
             '.types 1 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n',
-            '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function unused 1 1 0 int 1\n.parameters unused string\nPUSH_I64 0\nRET\n.end\n',
+            '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function unused 1 1 0 int 1\n.parameters unused array\nPUSH_I64 0\nRET\n.end\n',
         ):
             with self.subTest(text=text):
                 module = self.module(text)
                 self.run_cmd([VM, '--verify-only', module])
                 result = self.run_cmd([LLVM, module], success=False)
                 self.assertEqual(result.stdout, '')
-                self.assertIn('scalar', result.stderr)
+                self.assertIn('parameters' if '.parameters' in text else 'scalar', result.stderr)
 
     def test_nonzero_arity_initializer_refused(self):
         module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
