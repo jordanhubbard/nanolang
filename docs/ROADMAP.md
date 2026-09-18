@@ -9912,6 +9912,11 @@ Other translators:
       MAC `task_bfe3bb8672c04bcea56dede3f531aee7`; evidence in
       `docs/evidence/managed-string-core.md`. Parent allocation/lowering
       and all existing executable profile refusals remain open.
+- [ ] I implement consuming concatenation and matched LLVM/Wasm frame cleanup,
+      then admit string ADD and STR_CONCAT only after packaged-runtime and
+      paired lifetime/error gates. MAC `task_b1cc086f8cdf476cb0814f5ade9a15b1`;
+      contract `docs/NANOISA_MANAGED_CONCAT.md`. Substring and conversion
+      prerequisites remain separate; parent managed runtime remains open.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
       MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
       and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this
