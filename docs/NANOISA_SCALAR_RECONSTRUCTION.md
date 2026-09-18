@@ -29,6 +29,7 @@ JMP_TRUE and RET. The exact integer child now also admits I64_ADD, I64_SUB and
 I64_NEG through total cross-language helpers; see [the arithmetic contract](NANOISA_RECONSTRUCT_INTEGER_ADD.md).
 I64_MUL now uses the same typed tree with [bounded total multiplication](NANOISA_RECONSTRUCT_INTEGER_MUL.md).
 I64_DIV_S and I64_REM_S use [guarded signed division and remainder](NANOISA_RECONSTRUCT_INTEGER_DIV.md), including defined zero/overflow results.
+I64_SHL, I64_SHR_S and I64_SHR_U use [masked-count portable helpers](NANOISA_RECONSTRUCT_INTEGER_SHIFTS.md), keeping arithmetic and logical right shift distinct.
 Other arithmetic, generic tagged comparisons, implicit returns, multiple returns,
 tail calls and all other operations remain outside this slice.
 
