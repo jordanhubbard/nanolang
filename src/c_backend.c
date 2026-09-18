@@ -17,6 +17,7 @@
 #include "binary64_arithmetic_source.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
+#include "string_literal_decode.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -245,8 +246,17 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
             if (strcmp(name, "float_to_string") == 0)
                 return node->as.call.arg_count == 1 &&
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_FLOAT ? TYPE_STRING : TYPE_UNKNOWN;
-            if (strcmp(name, "int_to_string") == 0 ||
-                strcmp(name, "bool_to_string") == 0 || strcmp(name, "nano_strcat") == 0)
+            if (strcmp(name, "str_length") == 0)
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_STRING ? TYPE_INT : TYPE_UNKNOWN;
+            if (strcmp(name, "int_to_string") == 0)
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_INT ? TYPE_STRING : TYPE_UNKNOWN;
+            if (strcmp(name, "str_concat") == 0)
+                return node->as.call.arg_count == 2 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_STRING &&
+                    infer_expr_type(c, node->as.call.args[1]) == TYPE_STRING ? TYPE_STRING : TYPE_UNKNOWN;
+            if (strcmp(name, "bool_to_string") == 0)
                 return TYPE_STRING;
             if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0) return TYPE_VOID;
             return TYPE_UNKNOWN;
@@ -342,7 +352,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "  return left == right || (left && right && strcmp(left, right) == 0);\n"
             "}\n");
         emit_private_source(c,
-            "typedef struct nano_rt_float_text { struct nano_rt_float_text *next; char text[64]; } nano_rt_float_text;\n"
+            "typedef struct nano_rt_float_text { struct nano_rt_float_text *next; char text[]; } nano_rt_float_text;\n"
             "static nano_rt_float_text *nano_rt_float_text_head;\n"
             "static int nano_rt_float_text_registered;\n"
             "static void nano_rt_float_text_cleanup(void) {\n"
@@ -351,22 +361,53 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "    nano_rt_float_text_head = node->next; free(node);\n"
             "  }\n"
             "}\n"
+            "static char *nano_rt_text_allocate(size_t length) {\n"
+            "  if (length > SIZE_MAX - sizeof(nano_rt_float_text) - 1) {\n"
+            "    fputs(\"I exceeded my C string allocation size.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  nano_rt_float_text *node = (nano_rt_float_text *)malloc(sizeof *node + length + 1);\n"
+            "  if (!node) { fputs(\"I could not allocate my C scalar result.\\n\", stderr); exit(EXIT_FAILURE); }\n"
+            "  if (!nano_rt_float_text_registered) {\n"
+            "    if (atexit(nano_rt_float_text_cleanup) != 0) {\n"
+            "      free(node); fputs(\"I could not register my C scalar cleanup.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "    }\n"
+            "    nano_rt_float_text_registered = 1;\n"
+            "  }\n"
+            "  node->text[length] = 0;\n"
+            "  node->next = nano_rt_float_text_head; nano_rt_float_text_head = node;\n"
+            "  return node->text;\n"
+            "}\n"
+            "static const char *nano_rt_scalar_text_copy(const char *text, size_t length) {\n"
+            "  char *result = nano_rt_text_allocate(length);\n"
+            "  memcpy(result, text, length); return result;\n"
+            "}\n"
+            "static size_t nano_rt_string_length_sum(size_t left, size_t right) {\n"
+            "  if (right > SIZE_MAX - left) {\n"
+            "    fputs(\"I exceeded my C concatenation length.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  return left + right;\n"
+            "}\n"
+            "static const char *nano_rt_string_concat(const char *left, const char *right) {\n"
+            "  if (!left || !right) {\n"
+            "    fputs(\"I require nonnull C concatenation operands.\\n\", stderr); exit(EXIT_FAILURE);\n"
+            "  }\n"
+            "  size_t a = strlen(left), b = strlen(right);\n"
+            "  char *result = nano_rt_text_allocate(nano_rt_string_length_sum(a, b));\n"
+            "  memcpy(result, left, a); memcpy(result + a, right, b); return result;\n"
+            "}\n"
             "static const char *nano_rt_float_text_new(double value) {\n"
             "  char text[64]; int length = nano_rt_f64_format(text, sizeof text, value);\n"
             "  if (length < 0 || (size_t)length >= sizeof text) {\n"
             "    fputs(\"I could not format my C float result.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
-            "  nano_rt_float_text *node = (nano_rt_float_text *)malloc(sizeof *node);\n"
-            "  if (!node) { fputs(\"I could not allocate my C float result.\\n\", stderr); exit(EXIT_FAILURE); }\n"
-            "  if (!nano_rt_float_text_registered) {\n"
-            "    if (atexit(nano_rt_float_text_cleanup) != 0) {\n"
-            "      free(node); fputs(\"I could not register my C float cleanup.\\n\", stderr); exit(EXIT_FAILURE);\n"
-            "    }\n"
-            "    nano_rt_float_text_registered = 1;\n"
+            "  return nano_rt_scalar_text_copy(text, (size_t)length);\n"
+            "}\n"
+            "static const char *nano_rt_int_text_new(int64_t value) {\n"
+            "  char text[32]; int length = snprintf(text, sizeof text, \"%lld\", (long long)value);\n"
+            "  if (length < 0 || (size_t)length >= sizeof text) {\n"
+            "    fputs(\"I could not format my C integer result.\\n\", stderr); exit(EXIT_FAILURE);\n"
             "  }\n"
-            "  memcpy(node->text, text, (size_t)length + 1);\n"
-            "  node->next = nano_rt_float_text_head; nano_rt_float_text_head = node;\n"
-            "  return node->text;\n"
+            "  return nano_rt_scalar_text_copy(text, (size_t)length);\n"
             "}\n"
             "static int nano_rt_public_float_print(double value, int newline) {\n"
             "  const char *special = nano_rt_f64_nonfinite(value);\n"
@@ -374,15 +415,6 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
             "                 : printf(newline ? \"%g\\n\" : \"%g\", value);\n"
             "}\n");
     }
-
-    /* nano_strcat helper */
-    fprintf(c->out,
-        "static const char* nano_strcat(const char* a, const char* b) {\n"
-        "    size_t la = strlen(a), lb = strlen(b);\n"
-        "    char* r = (char*)malloc(la + lb + 1);\n"
-        "    memcpy(r, a, la); memcpy(r+la, b, lb); r[la+lb] = 0;\n"
-        "    return (const char*)r;\n"
-        "}\n\n");
 
     /* nano_bool_to_string helper */
     fprintf(c->out,
@@ -395,6 +427,26 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
         "/* Effect handler stubs */\n"
         "static jmp_buf _nano_effect_jmp;\n"
         "static int64_t _nano_effect_val;\n\n");
+}
+
+/* I reserve an outer slot before nested operands and sequence both evaluations. */
+static int emit_string_concat(CBCtx *c, ASTNode *left, ASTNode *right) {
+    if (infer_expr_type(c, left) != TYPE_STRING || infer_expr_type(c, right) != TYPE_STRING) {
+        ctx_error(c, "I require two exact STRING operands for C concatenation.");
+        return -1;
+    }
+    if (c->string_slots == SIZE_MAX) {
+        ctx_error(c, "I exceeded my string concatenation operand slot capacity.");
+        return -1;
+    }
+    size_t slot = c->string_slots++;
+    fprintf(c->out, "(%ssl[%zu] = (", c->prefix, slot);
+    if (emit_expr(c, left)) return -1;
+    fprintf(c->out, "), %ssr[%zu] = (", c->prefix, slot);
+    if (emit_expr(c, right)) return -1;
+    fprintf(c->out, "), %sstring_concat(%ssl[%zu], %ssr[%zu]))",
+            c->prefix, c->prefix, slot, c->prefix, slot);
+    return 0;
 }
 
 /* ── Expression emitter ───────────────────────────────────────────────────── */
@@ -428,20 +480,26 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         return 0;
 
     case AST_STRING: {
-        /* Emit as a C string literal with escaping */
+        /* I match canonical source decoding and its existing strlen boundary. */
+        char *decoded = nl_decode_string_literal(node->as.string_val ? node->as.string_val : "");
+        if (!decoded) {
+            ctx_error(c, "I could not decode my C string literal.");
+            return -1;
+        }
         fputc('"', c->out);
-        const char *s = node->as.string_val;
-        for (; s && *s; s++) {
+        for (const unsigned char *s = (const unsigned char *)decoded; *s; ++s) {
             switch (*s) {
                 case '"':  fputs("\\\"", c->out); break;
                 case '\\': fputs("\\\\", c->out); break;
-                case '\n': fputs("\\n",  c->out); break;
-                case '\r': fputs("\\r",  c->out); break;
-                case '\t': fputs("\\t",  c->out); break;
-                default:   fputc(*s, c->out);     break;
+                case '?':  fputs("\\?", c->out); break;
+                default:
+                    if (*s < 32 || *s >= 127) fprintf(c->out, "\\%03o", (unsigned int)*s);
+                    else fputc(*s, c->out);
+                    break;
             }
         }
         fputc('"', c->out);
+        free(decoded);
         return 0;
     }
 
@@ -475,14 +533,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         if (argc == 2 && op == TOKEN_PLUS) {
             Type lt = infer_expr_type(c, node->as.prefix_op.args[0]);
             Type rt = infer_expr_type(c, node->as.prefix_op.args[1]);
-            if (lt == TYPE_STRING || rt == TYPE_STRING) {
-                fputs("nano_strcat(", c->out);
-                if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
-                fputs(", ", c->out);
-                if (emit_expr(c, node->as.prefix_op.args[1])) return -1;
-                fputc(')', c->out);
-                return 0;
-            }
+            if (lt == TYPE_STRING || rt == TYPE_STRING)
+                return emit_string_concat(c, node->as.prefix_op.args[0], node->as.prefix_op.args[1]);
         }
 
         if (argc != 2) {
@@ -612,12 +664,22 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputc(')', c->out);
             return 0;
         }
-        /* Handle built-in int_to_string → snprintf pattern */
-        if (name && strcmp(name, "int_to_string") == 0 &&
-            node->as.call.arg_count == 1) {
-            fputs("({ static char _ibuf[32]; snprintf(_ibuf,sizeof(_ibuf),\"%lld\",(long long)(", c->out);
+        if (builtin && strcmp(name, "str_concat") == 0) {
+            if (node->as.call.arg_count != 2) {
+                ctx_error(c, "I require two exact STRING operands for C concatenation.");
+                return -1;
+            }
+            return emit_string_concat(c, node->as.call.args[0], node->as.call.args[1]);
+        }
+        if (builtin && strcmp(name, "int_to_string") == 0) {
+            if (node->as.call.arg_count != 1 ||
+                infer_expr_type(c, node->as.call.args[0]) != TYPE_INT) {
+                ctx_error(c, "I require one exact INT operand for C int_to_string.");
+                return -1;
+            }
+            fprintf(c->out, "%sint_text_new(", c->prefix);
             if (emit_expr(c, node->as.call.args[0])) return -1;
-            fputs(")); _ibuf; })", c->out);
+            fputc(')', c->out);
             return 0;
         }
         if (builtin && strcmp(name, "float_to_string") == 0) {
@@ -638,8 +700,12 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputc(')', c->out);
             return 0;
         }
-        if (name && strcmp(name, "str_length") == 0 &&
-            node->as.call.arg_count == 1) {
+        if (builtin && strcmp(name, "str_length") == 0) {
+            if (node->as.call.arg_count != 1 ||
+                infer_expr_type(c, node->as.call.args[0]) != TYPE_STRING) {
+                ctx_error(c, "I require one exact STRING operand for C str_length.");
+                return -1;
+            }
             fputs("(int64_t)strlen(", c->out);
             if (emit_expr(c, node->as.call.args[0])) return -1;
             fputc(')', c->out);

@@ -1,0 +1,75 @@
+{
+  "schema": "nanolang.bounded-evidence.v1",
+  "tested_head": "1ceed53a1fe107a44bc1d86f8fe30c0ddc5a66f8",
+  "production_checkpoints": [
+    "4269fa6d",
+    "c04ab8ea"
+  ],
+  "frozen": {
+    "head": "1ceed53a1fe107a44bc1d86f8fe30c0ddc5a66f8",
+    "files": {
+      "src/c_backend.c": "067a223bda7536811425609a50e3d4d10abfc88a45eb7fb8ec7df3aec49fc519",
+      "src/c_backend.h": "bbbd07891a05a725468460a521d876b8d65169ce78568fe88d47691a95e2dad4",
+      "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+      "src/binary64_arithmetic.h": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+      "src/binary64_bits.h": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+      "src/string_literal_decode.h": "82a0b629d83f92c7805bf6d2ad37f2b6cd6ed6ccaba54baf8213df67aeda6e14",
+      "tests/test_public_c_int_conversion.py": "08bacc41dae71968f7428b0335f7afe126e2d27ce280925035f85020c2ba315e",
+      "tests/test_public_c_int_api.c": "78623adeb70275d10bb7ba68fc53879ac069f85bb14e6707e634292219eba732",
+      "tests/test_public_c_nonfinite_format.py": "b90f22ac440cd80ed289762642e7d61838e04ae9bc173e0e47d961aa1fec0942",
+      "tests/test_public_c_format_api.c": "8dbaffccdc8d9fd58e3d3fd207ef51965ed17d3a94a42d1b4e3e6b3e8c125a32",
+      "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+      "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+      "tests/test_public_c_literal_normalization.py": "91a068b28891bffbe97a619cf1718e2a168d36b7bb8e63e9f09feb293b80a981",
+      "bin/nanoc_c": "696433090ecefd0c58d3bfa45aa068d277abfdbf949538582917c656b4fb368c",
+      "bin/nano": "0be34bb01ac82cebfc74fa5e6b4e4f0220192b2b58fb4ab29130769881a01d58",
+      "bin/nano_virt": "4d4f5e915f10ea3b2843b260e0ce0d38816e9e9806736f51e72624ac98e824e2",
+      "bin/nano_vm": "6d57651b4a4204cfcbbf312e20bef447b2683e445e2963e6a716be5b0b4e92a6",
+      "bin/nvm2c": "77f577fae45cba6b741c3787bf8f97a10c73b741406b0f7a0206defa6513f14d",
+      "tests/test_public_c_length_api.c": "04ff1199eacf1587f6af806ed26f355c680ed133a13e554ccf7cfd28379a4589"
+    },
+    "compilers": {
+      "/usr/bin/cc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+      "/tmp/nanolang-truthiness-clang-bin/cc": "0434facefba56a23f73b2a7ce18f968fe23b9e8aa9e48ac25d5998a2aeca6235"
+    }
+  },
+  "logs": {
+    "/tmp/nanolang-public-c-int-adjacent-clang.log": "b25d935a3609bac34c57c5e5d6099ea3c1faf4c679d8aea5d333319dd4823358",
+    "/tmp/nanolang-public-c-int-adjacent-gcc.log": "c44fccf635659188002e661369166127bda7cac502923d521247ebf70bb70ade",
+    "/tmp/nanolang-public-c-int-backend.log": "78b66188ac501945240cf7a289f4dcf464b5e318be57fe70d09eaabfe974a7bb",
+    "/tmp/nanolang-public-c-int-build.log": "7c0854c2b2b294dfc72613d548868d9902200ee59d0ec970d1cef2f9310bcd22",
+    "/tmp/nanolang-public-c-int-clang.log": "64370b3e40065fea117090df2198be22b3d97f896e5fafd30345bc8cb420b21c",
+    "/tmp/nanolang-public-c-int-final-clang.log": "5a6cc48616809762fdaa50a0fda8ce1c6e6331599d3207ad231372c05fbcd8c2",
+    "/tmp/nanolang-public-c-int-final-gcc.log": "fe595a5802886a05b54eddd1d42fab6fe8d9a1b9c0a9347143f0c0b81f291eb4",
+    "/tmp/nanolang-public-c-int-gcc.log": "1434aedcec92cbfbedb22fab7a169906f965480e38475560d4b0a090c972aca7",
+    "/tmp/nanolang-public-c-int-integrated-backend.log": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933",
+    "/tmp/nanolang-public-c-int-integrated-clang.log": "6f68a96f3c0034bffdf89854c06aca0e728b042736b94e75e46678f835f08b84",
+    "/tmp/nanolang-public-c-int-integrated-gcc.log": "c7e9b5fa12ebb44c145c60e5c8a205f227a0252c615aaaeade8f90e42e38ea36",
+    "/tmp/nanolang-public-c-int-length-build.log": "172c9bb3043e33e9ed773442dcf258fe313fb8fe048a3c12001ff6dda102917d"
+  },
+  "results": {
+    "integrated_gcc": {
+      "methods": 24,
+      "seconds": 10.49,
+      "status": "pass"
+    },
+    "integrated_clang": {
+      "methods": 24,
+      "seconds": 13.444,
+      "status": "pass"
+    },
+    "unchanged_backend": {
+      "programs": 7,
+      "status": "pass"
+    }
+  },
+  "historical_results": [
+    "First GCC/Clang gates each3/4: collision assertion matched declared user function; helper private namespace was correct; endpoint C not compiled.",
+    "Corrected intGCC4/Clang4 and adjacent18/18 passed; unchanged backend6/7 checked-refused missing str_length type inference."
+  ],
+  "limits": [
+    "No bootstrap or Darwin qualification.",
+    "Process-lifetime scalar snapshots, not early reclamation or bounded RSS.",
+    "Concat ownership/order, GNU blocks/match typeof/options/captures remain open under6ade."
+  ]
+}
