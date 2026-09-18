@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I qualify a fresh owned-source product integration under `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`, keeping c435 installed-product acceptance open despite focused PR761 success. My [new isolated build plan](PRODUCT_OWNED_INTEGRATION_PLAN.md) preserves all sealed e9 artifacts and requires reviewed exact-pin bootstrap/tool selection before the unchanged full quick gate.
+
 - [ ] I restore integrated affine-resource example shadow compilation (`task_c4351c720aee424ea9b90187e51a08f2`). Frozen e9a5f55f passes canonical component builds/entries but fails 1 of 244 eligible VM examples at `nl_affine_resource_demo.nano`: the source borrow profile refuses its shadow helper topology. I retain [the failed gate](evidence/product-acceptance-e9a5f55f.md), repair the compiler under a recorded contract, and preserve example eligibility and shadow requirements.
 
 - [ ] I qualify the frozen `e9a5f55f` combined product through PR712 after merged ownership, managed-array and optional-map-key repairs (parent `task_d76ae44a12fd4d27a2b4aa84c30d7bc6`). I retain the failed63c Linux gate and its separately passing fixed points, focused methods and fresh-tree Darwin gate. The next Linux/Darwin gates must explicitly install the canonical compiler before component compilation; prior results do not qualify this integration. [Active gate record](evidence/product-acceptance-e9a5f55f.md).
