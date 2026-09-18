@@ -3307,6 +3307,8 @@ vm_return_values: ;
                 vm_release(&vm->heap, new_v);
                 vm_release(&vm->heap, old_v);
                 vm_release(&vm->heap, s);
+                if (!copy)
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the replacement string.");
                 stack_push(vm, val_string(copy));
                 VM_NEXT();
             }
@@ -3319,10 +3321,16 @@ vm_return_values: ;
             while ((found = vm_mem_find(p, (size_t)(str_end - p), old_str, olen)) != NULL) {
                 count++; p = found + olen;
             }
-            /* out_len = slen + count*(nlen - olen); compute signed to be safe. */
-            long long out_len_signed = (long long)slen +
-                                       (long long)count * ((long long)nlen - (long long)olen);
-            size_t out_len = out_len_signed > 0 ? (size_t)out_len_signed : 0;
+            uint32_t checked_length;
+            if (!vm_string_replacement_length((uint32_t)slen, (uint32_t)olen,
+                                               (uint32_t)nlen, count, &checked_length) ||
+                (uint64_t)checked_length + 1 > SIZE_MAX) {
+                vm_release(&vm->heap, new_v);
+                vm_release(&vm->heap, old_v);
+                vm_release(&vm->heap, s);
+                return trap_error(vm, VM_ERR_MEMORY, "I cannot represent the replacement result size.");
+            }
+            size_t out_len = checked_length;
             char stackbuf[512];
             char *buf = (out_len < sizeof(stackbuf)) ? stackbuf : malloc(out_len + 1);
             if (!buf) {
@@ -3346,6 +3354,8 @@ vm_return_values: ;
             vm_release(&vm->heap, new_v);
             vm_release(&vm->heap, old_v);
             vm_release(&vm->heap, s);
+            if (!out)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the replacement string.");
             stack_push(vm, val_string(out));
             VM_NEXT();
         }

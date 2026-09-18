@@ -256,6 +256,10 @@ VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m);
 VmArray *vm_hashmap_values(VmHeap *heap, VmHashMap *m);
 
 /* String conversion helpers (for STR_FROM_INT, STR_FROM_FLOAT, CAST_STRING) */
+/* I publish a replacement size only when counted spans and uint32 growth fit. */
+bool vm_string_replacement_length(uint32_t source_length, uint32_t needle_length,
+                                  uint32_t replacement_length, uint64_t count,
+                                  uint32_t *out);
 VmString *vm_string_from_int(VmHeap *heap, int64_t v);
 VmString *vm_string_from_float(VmHeap *heap, double v);
 VmString *vm_string_from_bool(VmHeap *heap, bool v);
