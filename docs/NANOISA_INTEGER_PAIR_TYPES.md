@@ -27,3 +27,22 @@ recorded `task_ebf9bb417d9e4d6aa3b007c3fe868c92`; native execution is not a
 completed gate. This verifier slice requires explicit unsupported-opcode
 refusal with prior native output preserved. The separate native companion
 must later execute these same ordinary arithmetic cases.
+
+## My acceptance
+
+At production `bb09c377`, direct contract inspection passes 34 checks. The
+first three ordinary programs pass VM execution and expose the separate
+native refusal; that original log remains
+`/tmp/nanolang-integer-pair-verification.log`.
+
+After recording the boundary and correcting only the native expectation,
+`make -j4 test-verifier test-integer-pair-verification` passes all 96 existing
+verifier tests, verifier allocation/recovery controls, 34 pair-rule checks and
+three valid arithmetic methods. They cover carry low-bit inputs, both result
+positions, signed/unsigned high words, direct pair composition and loop
+locals, with prior native output preserved. The corrected log is
+`/tmp/nanolang-integer-pair-verification-corrected.log`. I did not change the
+positive arithmetic programs or execute a rejected native artifact.
+
+These checks establish the bounded rule repair, not native opcode coverage
+or a complete static type proof for unknown operands.
