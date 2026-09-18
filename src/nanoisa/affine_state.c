@@ -459,6 +459,33 @@ bool nvm_affine_parameter_at(const NvmAffineState *s,uint16_t parameter,
     *type=(NvmAffineType){param.tag,param.layout};*mode=(NvmReferenceMode)param.mode;
     return true;
 }
+bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
+                              uint16_t *field_count) {
+    if (!s || !type || !field_count) return false;
+    Slot result=s->facts->result;
+    const NvmFunctionEntry *fn=&s->facts->module->functions[s->facts->function];
+    if (result.mode || fn->result_tag!=result.tag ||
+        fn->result_count!=(result.tag==TAG_VOID?0:1)) return false;
+    uint16_t fields=0;
+    if (result.tag==TAG_STRUCT) {
+        if (result.layout>=s->facts->layouts.count ||
+            (s->facts->flags[result.layout]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
+                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) return false;
+        const NvmV2Layout *layout=&s->facts->layouts.items[result.layout];
+        if (layout->kind!=NVM_V2_LAYOUT_STRUCT) return false;
+        for (uint16_t i=0;i<layout->field_count;i++) {
+            const NvmV2LayoutField *field=&layout->fields[i];
+            if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
+                field->nested_idx!=NVM_V2_NO_INDEX) return false;
+        }
+        fields=layout->field_count;
+    } else if ((result.tag!=TAG_VOID && result.tag!=TAG_INT &&
+                result.tag!=TAG_BOOL && result.tag!=TAG_U8) ||
+               result.layout!=NVM_V2_NO_INDEX) return false;
+    *type=(NvmAffineType){result.tag,result.layout};*field_count=fields;
+    return true;
+}
+
 bool nvm_affine_value_parameters(const NvmAffineState *s,NvmAffineType *types,
                                   uint16_t capacity,uint16_t *count) {
     if (!s || !types || !count || s->facts->params>NVM_AFFINE_MAX_PARAMETERS ||
