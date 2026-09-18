@@ -29,6 +29,8 @@
 typedef struct {
     const char *name;
     Type        type;
+    const char *nominal;
+    const char *variant;
 } CBSym;
 
 /* ── Emit context ────────────────────────────────────────────────────────── */
@@ -73,9 +75,21 @@ static void ctx_add_sym(CBCtx *c, const char *name, Type t) {
     if (c->sym_count < CB_MAX_SYMS) {
         c->syms[c->sym_count].name = name;
         c->syms[c->sym_count].type = t;
+        c->syms[c->sym_count].nominal = NULL;
+        c->syms[c->sym_count].variant = NULL;
         c->sym_count++;
     } else {
         ctx_error(c, "I exceeded my C source binding capacity.");
+    }
+}
+
+static void ctx_add_nominal(CBCtx *c, const char *name, Type type,
+                            const char *nominal, const char *variant) {
+    int before = c->sym_count;
+    ctx_add_sym(c, name, type);
+    if (c->sym_count != before) {
+        c->syms[before].nominal = nominal;
+        c->syms[before].variant = variant;
     }
 }
 
@@ -134,6 +148,69 @@ static void emit_function_name(CBCtx *c, const char *name, bool lexical) {
     else if (name) fputs(name, c->out);
 }
 
+/* I resolve absent annotations only from exact scoped declaration identities. */
+static Type declared_field_type(CBCtx *c, ASTNode *node, const char **nominal,
+                                const char **variant) {
+    *nominal = NULL; *variant = NULL;
+    if (!node) return TYPE_UNKNOWN;
+    if (node->type == AST_IDENTIFIER) {
+        for (int i = c->sym_count - 1; i >= 0; --i)
+            if (strcmp(c->syms[i].name, node->as.identifier) == 0) {
+                *nominal = c->syms[i].nominal;
+                *variant = c->syms[i].variant;
+                return c->syms[i].type;
+            }
+    } else if (node->type == AST_STRUCT_LITERAL) {
+        *nominal = node->as.struct_literal.struct_name;
+        return TYPE_STRUCT;
+    } else if (node->type == AST_CALL && node->as.call.name &&
+               !node->as.call.func_expr && !ctx_has_binding(c, node->as.call.name)) {
+        ASTNode *function = ctx_function(c, node->as.call.name);
+        if (function) {
+            *nominal = function->as.function.return_struct_type_name;
+            return function->as.function.return_type;
+        }
+    } else if (node->type == AST_FIELD_ACCESS) {
+        TypeInfo *checked = node->as.field_access.resolved_type_info;
+        if (checked) { *nominal = checked->generic_name; return checked->base_type; }
+        const char *owner, *selected;
+        Type type = declared_field_type(c, node->as.field_access.object, &owner, &selected);
+        if (type != TYPE_STRUCT || !owner || !c->root) return TYPE_UNKNOWN;
+        ASTNode **items = c->root->type == AST_PROGRAM ? c->root->as.program.items : &c->root;
+        int count = c->root->type == AST_PROGRAM ? c->root->as.program.count : 1;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *item = items[i];
+            if (!item) continue;
+            if (!selected && item->type == AST_STRUCT_DEF &&
+                strcmp(item->as.struct_def.name, owner) == 0) {
+                for (int j = 0; j < item->as.struct_def.field_count; ++j)
+                    if (strcmp(item->as.struct_def.field_names[j], node->as.field_access.field_name) == 0) {
+                        if (item->as.struct_def.field_type_names)
+                            *nominal = item->as.struct_def.field_type_names[j];
+                        return item->as.struct_def.field_types[j];
+                    }
+                return TYPE_UNKNOWN;
+            }
+            if (selected && item->type == AST_UNION_DEF &&
+                strcmp(item->as.union_def.name, owner) == 0) {
+                /* I require checked annotations for generic substitutions. */
+                if (item->as.union_def.generic_param_count) return TYPE_UNKNOWN;
+                for (int v = 0; v < item->as.union_def.variant_count; ++v)
+                    if (strcmp(item->as.union_def.variant_names[v], selected) == 0) {
+                        for (int j = 0; j < item->as.union_def.variant_field_counts[v]; ++j)
+                            if (strcmp(item->as.union_def.variant_field_names[v][j], node->as.field_access.field_name) == 0) {
+                                if (item->as.union_def.variant_field_type_names)
+                                    *nominal = item->as.union_def.variant_field_type_names[v][j];
+                                return item->as.union_def.variant_field_types[v][j];
+                            }
+                        return TYPE_UNKNOWN;
+                    }
+            }
+        }
+    }
+    return TYPE_UNKNOWN;
+}
+
 /* I retain only resolved scalar types; UNKNOWN is not an integer promise. */
 static Type infer_expr_type(CBCtx *c, ASTNode *node) {
     if (!node) return TYPE_UNKNOWN;
@@ -143,10 +220,10 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
         case AST_BOOL:       return TYPE_BOOL;
         case AST_STRING:     return TYPE_STRING;
         case AST_IDENTIFIER: return ctx_lookup_type(c, node->as.identifier);
-        case AST_FIELD_ACCESS:
-            /* I consume the checker's concrete field identity, never a name guess. */
-            return node->as.field_access.resolved_type_info
-                ? node->as.field_access.resolved_type_info->base_type : TYPE_UNKNOWN;
+        case AST_FIELD_ACCESS: {
+            const char *nominal, *variant;
+            return declared_field_type(c, node, &nominal, &variant);
+        }
         case AST_LET:        return node->as.let.var_type;
         case AST_RETURN:     return infer_expr_type(c, node->as.return_stmt.value);
         case AST_CALL: {
@@ -703,7 +780,7 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
                 return -1;
             }
         }
-        ctx_add_sym(c, node->as.let.name, t);
+        ctx_add_nominal(c, node->as.let.name, t, node->as.let.type_name, NULL);
 
         if (t == TYPE_STRUCT && node->as.let.type_name) {
             fprintf(c->out, "NanoStruct_%s %s", node->as.let.type_name,
@@ -968,7 +1045,8 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
                         node->as.match_expr.pattern_variants[i],
                         node->as.match_expr.pattern_bindings[i],
                         node->as.match_expr.pattern_variants[i]);
-                ctx_add_sym(c, node->as.match_expr.pattern_bindings[i], TYPE_STRUCT);
+                ctx_add_nominal(c, node->as.match_expr.pattern_bindings[i], TYPE_STRUCT,
+                                utype, node->as.match_expr.pattern_variants[i]);
             }
 
             emit_indent(c);
@@ -1253,7 +1331,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     ctx_push_scope(c);
     for (int i = 0; i < node->as.function.param_count; i++) {
         Parameter *p = &node->as.function.params[i];
-        ctx_add_sym(c, p->name, p->type);
+        ctx_add_nominal(c, p->name, p->type, p->struct_type_name, NULL);
     }
 
     c->indent = 1;
