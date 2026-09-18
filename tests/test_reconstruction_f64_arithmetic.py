@@ -168,6 +168,41 @@ RET
                       source, '-o', self.work / 'contract'])
         self.command([self.work / 'contract'])
 
+    def test_discarded_calls_keep_order(self):
+        text = '''.entry main
+.function main 0 0 0 int 1
+PUSH_F64 bits:3ff0000000000000
+CALL relay
+PUSH_F64 bits:4000000000000000
+CALL relay
+F64_ADD
+POP
+PUSH_I64 0
+RET
+.end
+.function relay 1 1 0 float 1
+.parameters relay float
+LOAD_LOCAL 0
+RET
+.end
+'''
+        _, c = self.paired(text, 'shadow nlr_f1_relay { assert (== (float_to_bits (nlr_f1_relay (float_from_bits 1))) 1) }')
+        self.observe_call_count(c)
+        # I instrument source only: the first and second input must arrive in
+        # their original order even though the final arithmetic result is popped.
+        c = 'static int order;\n' + c.replace('double nlr_f1_relay(double nlr_a0) {',
+            'double nlr_f1_relay(double nlr_a0) { order = order * 10 + (int)nlr_a0;')
+        c = c.replace('return (int)nlr_f0_main();',
+            'int result=(int)nlr_f0_main(); return result ? result : order == 12 ? 0 : 98;')
+        source = self.work / 'ordered.c'
+        source.write_text(c)
+        import shlex
+        self.command(shlex.split(os.environ.get('CC', 'cc')) +
+                     ['-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+                      '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                      source, '-o', self.work / 'ordered'])
+        self.command([self.work / 'ordered'])
+
     def test_exact_tag_and_missing_operand_refusals(self):
         for op in FLOAT_ARITHMETIC:
             module = {'functions': [{'params': [], 'result': INT, 'locals': 0,
