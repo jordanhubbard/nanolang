@@ -73,7 +73,7 @@ class PublicCFormat(unittest.TestCase):
         self.run_cmd([exe,self.work/'previous.c'])
 
 SOURCE='''let mut count:int=0
-fn operand(bits:int)->float{set count=(+ count 1) return (float_from_bits bits)}
+fn operand(bits:int)->float{set count (+ count 1) return (float_from_bits bits)}
 shadow operand{assert (== (float_to_bits (operand 0)) 0)}
 fn nano_cb_0_float_text_new(x:int)->int{return x}
 shadow nano_cb_0_float_text_new{assert (== (nano_cb_0_float_text_new 1) 1)}
@@ -104,7 +104,7 @@ fn main()->int{
  let negative:string=(text (float_from_bits -2251799813685247))
  let alias:string=negative
  let mut i:int=0
- while (< i 300){let temporary:string=(text 3.0) assert (== temporary "3") set i=(+ i 1)}
+ while (< i 300){let temporary:string=(text 3.0) assert (== temporary "3") set i (+ i 1)}
  assert (== negative "-nan") assert (== alias "-nan") assert (== first "1")
  return 0
 }
