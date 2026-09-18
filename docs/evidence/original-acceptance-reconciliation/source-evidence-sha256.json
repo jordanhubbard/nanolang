@@ -1,0 +1,15 @@
+{
+  "docs/ORIGINAL_ACCEPTANCE_RECONCILIATION.md": "81493bd6ff9f69bb3dbe7dcb97ed18c09a82605450d56a24e4fcfe0f76612640",
+  "docs/evidence/original-acceptance-reconciliation/task-clauses.json": "4e4ea3d1fc5fcc328133d12f62a090ef78187dd00108100b0758e0479b5fb45e",
+  "docs/evidence/call-scoped-borrow-annotations.md": "9bb0638de1997134008b9c1a7c83447bcd7a4487cc3c76859bee4550c8529b74",
+  "docs/evidence/call-scoped-shared-borrows.md": "37ab23dc6bc3ef1417e9ae994c0fee7c78c709f989afb4d72ed3c6c07dc5dcbd",
+  "docs/evidence/call-scoped-exclusive-borrows.md": "f021a5ca0daa5d3cb6e1e52e1bd5e2b61fe1455233df1ada8a8dba3f1fb20700",
+  "docs/evidence/affine-c-seed-flow.md": "0a90938b88f45bf6435eb40bbb3174bbca9466125640e2ebda75b4b6f1f1c269",
+  "docs/evidence/affine-selfhost-flow.md": "2240696100d1abd0ffb0783ac9b7d49fb5def5df130920d3e3c902376f44b91f",
+  "docs/evidence/managed-record-plan.md": "63e732f7f71e342151c718c935de3f773b71fc5020b88b412459a3ae8c52c231",
+  "docs/evidence/managed-record-storage.md": "c7e84b2153d33461299637431dbe2d00ec60c51ae673e4d9f2212eaa9908a6ac",
+  "docs/evidence/native-full-fixedpoint-host-owned.md": "0d93aa7481a82bcdd93a3756ddb54461c6f8fa0601ce875b63b43e54e66d2fa1",
+  "docs/evidence/native-full-fixedpoint-host-owned.json": "9f5edd04a3090751ee63c3924c0bd2463bf3dd2fd7535095b10590a63cc03b34",
+  "tests/test_shared_borrows.py": "50ac75f3dee94d81fe8b99db587e7ac637deb78308955cec6a881852c7d19b74",
+  "tests/test_exclusive_borrows.py": "38e3ff3e544c3af43916e9a80f697e4c371c27c9460280201386625fe27ab9f2"
+}

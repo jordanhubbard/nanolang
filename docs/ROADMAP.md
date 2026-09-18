@@ -4,6 +4,7 @@
 
 - [x] I admit exact owned string parameters and printing in both source producers (`task_a4326d3ba9a74cdd938b97e777d10132`) after peer runtime task_badd6be9c31a6e2eac810b95913b4f84 qualified in PR750. My [source contract](NANOISA_SOURCE_OWNED_STRING_PRINT.md) keeps int/bool resource leaves separate from STRING parameter classification, preserves exact positional ownership, complete shadows and prior output, and requires unchanged affine-example VM/native acceptance. String fields/results/new locals, reference mixtures and general string operations stay refused; my fresh integrated bootstrap and unchanged42-method paired gate pass with [sealed evidence](evidence/source-owned-string-print.md); full product acceptance remains separate.
 
+- [x] I preserve interpreter logical operand return/break/continue completion before BOOL conversion (`task_5772f3b901a34463b0fd9c06b32a390d`), retaining first09074 interpreter failure and unchanged ordinary exit acceptance; contract in `docs/NANOVIRT_SOURCE_SHORT_CIRCUIT_CONTRACT.md`.
 - [ ] I preserve record-first tuple construction through canonical parsing (`task_d9730c3ab71e45b283e3c38094638d47`). In PR744 qualification at eda6e6cc, C-seed/raw emitters reach semantic ownership refusal for `(Leaf { value: 1 }, 2)`, while Stage1/Stage2 canonical emission reports a parse error at line2,column65. I retain the exact source/log, do not count parsing refusal as ownership proof, and keep this parser boundary separate from the bounded source graph admission.
 
 - [x] I require positive specialized owned-source admission and lexical resource routing (`task_9c2b62a5450c4fedace6b068c7f190d5`). Generic advisory metadata verification is not admission evidence; selected shadow-only owners must qualify, production without actual transfer must refuse with prior output retained, and local/global/shadow ownership uses must not depend on popped checker scopes. This is a static review correction within [source graph admission](NANOISA_SOURCE_OWNED_VALUE_GRAPHS.md), with no runtime widening. My bounded source acceptance passes at79a386f8: fresh bootstrap, all38 paired methods and runtime regressions; see [evidence](evidence/source-owned-value-graphs.md). Canonical reconciliation follows guarded merge.
@@ -9172,6 +9173,8 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 
 Ownership and proposal closure:
 
+- [x] I reconcile original frontend/borrow/private-record/AOT acceptance clauses against merged evidence without closing broader ownership or release parents (`task_9e43514b701c4869bf67c3d8d803662a`; [clause-to-evidence audit](ORIGINAL_ACCEPTANCE_RECONCILIATION.md)).
+
 - [x] I freeze one affine ownership contract before extending either compiler
       (`task_4ac22044ffda9f93b336a85573293bc2`). It resolves the current
       contradictions around at-most-once use versus mandatory cleanup,
@@ -9183,18 +9186,27 @@ Ownership and proposal closure:
       I superseded the cancelled task above with the merged growable
       `src/resource_flow.c` pass and its allocation/boundary corpus, rather
       than adopting the unmerged `c53e27a7` recovery prototype. I retain the
-      historical prototype defects in the evidence. The complete normative
-      matrix remains open under `task_c60a8d2e14b7494f8875e75b16e9b087` and
+      historical prototype defects in the evidence. The recovery ledger
+      `task_c60a8d2e14b7494f8875e75b16e9b087` is completed, but its broad
+      emitted-facts and full-matrix clauses remain under ownership ed702 and
       `task_28f2fb4b1f3c8a5ce93df628bb569d76`; partial frontend coverage does
-      not close it. [Checkpoint](evidence/affine-c-seed-flow.md),
+      not close that conjunction. [Checkpoint](evidence/affine-c-seed-flow.md),
       [subsequent paired flow](evidence/affine-selfhost-flow.md).
-- [ ] I implement the same resource syntax, analysis, and diagnostics in
-      `src_nano`; the self-hosted compiler does not inherit correctness from
-      the C seed (`task_20048de825616195b9f2bc492231a851`).
-      I first pin declaration, move, consuming-call, use-after-move, and
-      unresolved-scope decisions across the C seed and bootstrap stages in
-      `make test-affine-selfhost`; path-sensitive control flow follows the C
-      seed conformance corpus above rather than inventing a second contract.
+- [x] I qualify the original pinned resource syntax/analysis/diagnostic corpus
+      across the C seed and self-hosted bootstrap stages
+      (`task_20048de825616195b9f2bc492231a851`). The subsequent paired flow
+      checkpoint covers branches, loops, early returns and recursive nominal
+      classification; the [original-clause audit](ORIGINAL_ACCEPTANCE_RECONCILIATION.md)
+      preserves its supported-form and static-versus-runtime boundaries.
+      Full normative ownership acceptance remains under28/ed702 above.
+- [x] I qualify original call-scoped shared/exclusive nominal resource borrows
+      with actual caller identity, paired execution and the stated rejection
+      matrix (`task_71821d84befc46e198795122c1112a27`; [clause audit](ORIGINAL_ACCEPTANCE_RECONCILIATION.md#my-call-scoped-borrow-task718)).
+      Later IR/translator and full affine acceptance remain separate.
+- [x] I qualify the original native compiler AOT runtime milestone
+      (`task_707933e34e27f3bcd890a7664e21cf3e`) through the later complete
+      native self-generation [evidence](evidence/native-full-fixedpoint-host-owned.md).
+      Its old pinned fixed point does not close the current PR522 product gates.
 - [ ] I encode and verify ownership facts in `.nvm` v2, preserving them through
       serialization, linking, reconstruction, `nvm2c`, and every shipped
       translator (`task_ed70242ac4d83be7b2327da7ece387ad`).
@@ -10237,8 +10249,8 @@ Other translators:
   - [x] I connect shared leaf/graph eligibility, counted-owner pre-allocation safe points and acquired-entry preparation-failure cleanup under `docs/NANOISA_MANAGED_GRAPH_ADMISSION.md`, then qualify ordinary generated VM/native/Wasm cycles and pressure before closing task4070. I retain actual target artifacts and first failure logs.
   - [x] I prepare allocation-free collector workspace and qualify private graph lifecycle adapters before generated admission (task_c01fc72a78d74e108a5a55a417f4f9fc; checkpoints 1–2 of my graph-safe-point contract; reviewed production d05d4113, actual native/Wasm roots/rollback/pressure plus 61 managed and 27 shape methods pass; `docs/evidence/managed-graph-safepoints.md`).
 - [x] I guard ordinary VM STRUCT_NEW allocation before publication, using static repair followed by fresh ordinary lifecycle/fault acceptance (task_66983a5c5f9a4c869fc726824cf6a773). STRUCT_LITERAL/AGG_PACK already check allocation; I do not replay a failed artifact ([contract](NANOISA_STRUCT_NEW_ALLOCATION.md), [qualified evidence](evidence/vm-struct-new-allocation.md)).
-- [ ] I qualify authoritative ordinary-record descriptor mapping and private stable-handle fixed-field storage with exact child ownership and mixed record-array collection before opcode admission (task_2dcceeb7ef38459093baaf52cf642239; [contract](NANOISA_MANAGED_RECORD_CORE.md)). Global retained-layout indices and per-kind record ordinals remain distinct; source field provenance and matched lowering remain separate required steps under aggregate488.
-  - [x] I qualify the descriptive-only retained record plan, distinct global/per-kind identities, owned allocation rollback and canonical byte roundtrip; UNKNOWN authority and existing LLVM/Wasm refusals remain unchanged ([evidence](evidence/managed-record-plan.md)). Private storage/traversal remains open.
+- [x] I qualify authoritative ordinary-record descriptor mapping and private stable-handle fixed-field storage with exact child ownership and mixed record-array collection before opcode admission (task_2dcceeb7ef38459093baaf52cf642239; [contract](NANOISA_MANAGED_RECORD_CORE.md)). Global retained-layout indices and per-kind record ordinals remain distinct; source field provenance and matched lowering remain separate required steps under aggregate488.
+  - [x] I qualify the descriptive-only retained record plan, distinct global/per-kind identities, owned allocation rollback and canonical byte roundtrip; UNKNOWN authority and existing LLVM/Wasm refusals remain unchanged ([evidence](evidence/managed-record-plan.md)). The next completed checkpoint supplies private storage/traversal; nominal admission remains separate.
   - [x] I qualify the separate private record slot/descriptor binding, fixed-field ownership and mixed record-array traversal checkpoint before target admission; descriptor UNKNOWN authority remains unchanged ([checkpoint contract](NANOISA_MANAGED_RECORD_CORE.md#my-private-storage-api-checkpoint), [native/Wasm evidence](evidence/managed-record-storage.md)).
   - [ ] I establish explicit ordinary heap-bearing record authority before shared nominal admission; retained shape and absent ownership remain UNKNOWN, and existing affine/resource contracts are not weakened (task_15f955fae5cf402d92bf88794122e9a2; [staged contract](NANOISA_ORDINARY_RECORD_AUTHORITY.md)).
     - [x] I validate/query explicit ordinary scalar/string/prior-record declarations without relaxing transitive resource eligibility ([transport evidence](evidence/ordinary-record-authority.md)); no descriptor adapter or execution admission is implied.
@@ -11080,8 +11092,18 @@ I qualify both legacy formatting children with fresh Linux/Darwin bootstrap and 
 - [x] I retain explicit foreign declaration identity in my active self-hosted AST (`task_f366494d5921451eaf57128629eb9e4c`). My [contract](SELFHOST_EXTERN_RECORD_PROVENANCE.md) and [qualified evidence](evidence/selfhost-extern-record-provenance.md) cover parser storage, generated schema, nominal copies and optional ordinary metadata. Fresh bootstrap and direct C-seed/Stage1/Stage2 observations pass, together with all six existing paired ordinary producer methods. This repairs retained provenance; broader ordinary authority and full release gates remain separate.
 - [ ] I retain both existing selected-constructor AST representations during exact public C result resolution (task810698 prerequisite). My [recorded correction](PUBLIC_C_UNION_RESULTS_CONTRACT.md#i-retain-the-existing-dotted-constructor-representation) preserves first863d source refusals and requires full declared owner/variant matching for dotted struct-literal constructors, shared payload checks and no AST mutation or arbitrary struct coercion.
 
+- [ ] I lower bounded public C block/match values through statements (`task_33f74f663e994a28bcec721bc7549a8d`, required6ade, after exact union-result810698). My [preimplementation contract](PUBLIC_C_EXPRESSION_LIFTING_CONTRACT.md) preserves final-expression yields, enclosing return/break/continue, lexical payload scope, typed continuing joins and once/lazy evaluation without GNU expressions or wrapper control capture. Exact scalar/local-union function-body acceptance precedes closure; full expression/source scope remains required.
+- [ ] I complete public C lifted values in repeated loop headers and ordered global startup (`task_d0c6c784248b4716a1e3c215d5568793`, required6ade/33f74 continuation). I require correct insertion frequency, continue/update targets and once/reentry startup behavior; initial function-body lifting does not permit eager hoisting, GNU fallback or closure of these source contexts.
+- [ ] I propagate lifted-value completion through consuming statements (task33f74 prerequisite). Independent source review of480bc identifies a control-only let initializer followed by an undeclared unreachable C reference. My [recorded correction](PUBLIC_C_EXPRESSION_LIFTING_CONTRACT.md#i-propagate-completion-through-consuming-statements) requires statement-aware completion and tail suppression in all containing iterators without fabricated declarations; no failing artifact was executed.
 - [x] I restore standard-library bit-conversion reference coverage (`task_dc5edb6c84ec4a809f9b98900c2e4a81`). My frozen product cd72dab3 passes all 244 eligible examples, then its unchanged documentation gate reports an unrecognized combined `float_to_bits` heading and a stale conversion count. Before correction, I require separate exact-signature headings for both registered bit-copy builtins, a matching section count, unchanged semantics and registry/checker, and `make check-stdlib-docs` acceptance. I preserve the first full-gate failure; this bounded repair does not establish full product or release acceptance. My unchanged `make check-stdlib-docs` now passes with all 158 registered builtins documented and every section count accurate; canonical integration precedes MAC closure.
 
 - [x] I preserve source boolean short-circuit behavior in my self-hosted canonical emitter (`task_6e16a089a27a43af8703ff1610399a01`). My [preimplementation contract](SELFHOST_SOURCE_SHORT_CIRCUIT.md) requires exact BOOL facts, conditional RHS emission with the existing branch stack contract, fresh three-producer bootstrap/execution, and unchanged eager ISA operations. The NanoVirt-only repair does not qualify this separate producer.
 
 I qualify the self-hosted boolean producer at3cf9c552 with fresh bootstrap251.273s, two focused three-producer methods97.551s and six adjacent ordinary methods189.305s, all passing. My [sealed evidence](evidence/selfhost-source-short-circuit.md) keeps the independent NanoVirt repair and later product integration distinct.
+- [x] I preserve NanoVirt source boolean short-circuit semantics (`task_0b335beafefb4f25a6a28221fb0f18cf`, required33f74). My [preimplementation contract](NANOVIRT_SOURCE_SHORT_CIRCUIT_CONTRACT.md) follows SPECIFICATION8.5, changes only exactBOOL source CFG, preserves eager ISA operators and retains the first4/5 paired lifting failures. Fresh ordinary selected/skipped/nested controls and corrected-producer integration precede closure.
+- [x] I align selfhost canonical source short-circuit emission (`task_6e16a089a27a43af8703ff1610399a01`). I retain a separate static binary-mnemonic/operand audit and require fresh Stage1/Stage2 branch/effect qualification; no NanoVirt-only gate closes this producer obligation.
+
+I retain reviewed source short-circuit qualification in `docs/evidence/nanovirt-source-short-circuit.md`: corrected three focused methods pass and the codegen log reports90 passed/0 failed/90 total, plus external public C lifting five methods under GCC/Clang. Tasks0b335 and5772 are merged in PR774 and reconciled from canonical64301352; selfhost6e16 and public C lifting remain separate.
+
+
+I qualify public C value child33f74 at integrated436ea9c8 with44 GCC and44 Clang methods plus seven existing C programs; [sealed evidence](evidence/public-c-expression-lifting.md) retains first failures and exact local tools. Canonical merge precedes child closure. My [remaining original-scope inventory](PUBLIC_C_REMAINING_PROFILE_INVENTORY.md) keeps option behavior and advertised capture/effect boundaries open under6ade; portable support or checked refusal, not universal admission, is the acceptance criterion.

@@ -35,6 +35,14 @@ typedef struct {
     const char *variant;
 } CBSym;
 
+typedef struct CBLiftTemp {
+    struct CBLiftTemp *next;
+    char name[96];
+    ASTNode reference;
+    Type type;
+    ASTNode *owner;
+} CBLiftTemp;
+
 /* ── Emit context ────────────────────────────────────────────────────────── */
 typedef struct {
     FILE       *out;
@@ -46,6 +54,8 @@ typedef struct {
     size_t      match_labels;
     Type        return_type;
     ASTNode    *return_union;
+    CBLiftTemp *lift_temps;
+    size_t      lift_counter;
     bool        has_globals;
     int         indent;
     bool        verbose;
@@ -98,7 +108,15 @@ static void ctx_add_nominal(CBCtx *c, const char *name, Type type,
     }
 }
 
+static CBLiftTemp *ctx_lift_temp(CBCtx *c, const char *name) {
+    for (CBLiftTemp *t = c->lift_temps; t; t = t->next)
+        if (strcmp(t->name, name) == 0) return t;
+    return NULL;
+}
+
 static Type ctx_lookup_type(CBCtx *c, const char *name) {
+    CBLiftTemp *temporary = ctx_lift_temp(c, name);
+    if (temporary) return temporary->type;
     for (int i = c->sym_count - 1; i >= 0; i--) {
         if (strcmp(c->syms[i].name, name) == 0)
             return c->syms[i].type;
@@ -464,6 +482,8 @@ static ASTNode *ctx_union_value(CBCtx *c, ASTNode *value) {
         }
     }
     if (value->type == AST_IDENTIFIER) {
+        CBLiftTemp *temporary = ctx_lift_temp(c, value->as.identifier);
+        if (temporary && temporary->type == TYPE_UNION) return temporary->owner;
         for (int i = c->sym_count - 1; i >= 0; --i)
             if (strcmp(c->syms[i].name, value->as.identifier) == 0) {
                 if (c->syms[i].type == TYPE_UNION)
@@ -525,6 +545,7 @@ static const char *fmt_for_type(Type t) {
 
 /* Forward declarations */
 static int emit_expr(CBCtx *c, ASTNode *node);
+static bool cb_needs_lift(ASTNode *node);
 static int emit_stmt(CBCtx *c, ASTNode *node);
 static int emit_block_body(CBCtx *c, ASTNode *node);
 
@@ -683,6 +704,10 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         return -1;
     }
 
+    if (cb_needs_lift(node)) {
+        ctx_error(c, "I require a supported statement insertion context for this C value.");
+        return -1;
+    }
     switch (node->type) {
     case AST_NUMBER:
         emit_signed_bits(c, (uint64_t)node->as.number);
@@ -1134,6 +1159,8 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
     }
 }
 
+#include "c_backend_values.inc"
+
 /* ── Statement emitter ────────────────────────────────────────────────────── */
 /* Forward-only jumps preserve the enclosing function and loop control targets. */
 static int emit_guarded_union_match(CBCtx *c, ASTNode *node) {
@@ -1199,6 +1226,9 @@ failed:
 
 static int emit_stmt(CBCtx *c, ASTNode *node) {
     if (!node) return 0;
+    bool handled = false;
+    int lifted = cb_lift_statement(c, node, &handled);
+    if (handled || lifted) return lifted;
 
     switch (node->type) {
     case AST_LET: {
@@ -1400,10 +1430,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         ctx_push_scope(c);
         for (int i = 0; i < node->as.block.count; i++) {
             emit_indent(c);
+            bool exits = cb_statement_exits(c, node->as.block.statements[i]);
             if (emit_stmt(c, node->as.block.statements[i])) {
                 ctx_pop_scope(c); c->indent--;
                 return -1;
             }
+            if (exits) break;
         }
         ctx_pop_scope(c);
         c->indent--;
@@ -1565,10 +1597,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         ctx_push_scope(c);
         for (int i = 0; i < node->as.unsafe_block.count; i++) {
             emit_indent(c);
+            bool exits = cb_statement_exits(c, node->as.unsafe_block.statements[i]);
             if (emit_stmt(c, node->as.unsafe_block.statements[i])) {
                 ctx_pop_scope(c); c->indent--;
                 return -1;
             }
+            if (exits) break;
         }
         ctx_pop_scope(c);
         c->indent--;
@@ -1632,7 +1666,9 @@ static int emit_block_body(CBCtx *c, ASTNode *node) {
     if (node->type == AST_BLOCK) {
         for (int i = 0; i < node->as.block.count; i++) {
             emit_indent(c);
+            bool exits = cb_statement_exits(c, node->as.block.statements[i]);
             if (emit_stmt(c, node->as.block.statements[i])) return -1;
+            if (exits) break;
         }
         return 0;
     }
@@ -1779,6 +1815,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     c->operand_slots = 0;
     c->string_slots = 0;
     c->match_labels = 0;
+    c->lift_counter = 0;
 
     ctx_push_scope(c);
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -1793,11 +1830,13 @@ static int emit_function(CBCtx *c, ASTNode *node) {
         if (node->as.function.body->type == AST_BLOCK) {
             for (int i = 0; i < node->as.function.body->as.block.count; i++) {
                 emit_indent(c);
+                bool exits = cb_statement_exits(c, node->as.function.body->as.block.statements[i]);
                 if (emit_stmt(c, node->as.function.body->as.block.statements[i])) {
                     ctx_pop_scope(c);
                     fclose(body); c->out = destination;
                     return -1;
                 }
+                if (exits) break;
             }
         } else {
             emit_indent(c);
@@ -1865,6 +1904,7 @@ static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
     c->operand_slots = 0;
     c->string_slots = 0;
     c->match_labels = 0;
+    c->lift_counter = 0;
     c->return_type = TYPE_VOID;
     c->return_union = NULL;
     fprintf(c->out, "  static int %sinitialized;\n  if (%sinitialized) return;\n  %sinitialized = 1;\n",
@@ -2018,6 +2058,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.operand_slots = 0;
     c.string_slots = 0;
     c.match_labels = 0;
+    c.lift_counter = 0;
     c.return_type = TYPE_VOID;
     c.return_union = NULL;
     if (!c.error) {
