@@ -1,17 +1,18 @@
 # My NanoISA-only product draft
 
-My current tested integration is `b8f3b842`, with main through PR615 and
-optional-scalar storage `0cf55548` from PR601. Fresh bootstrap passes Stage1
-and hello, then builds Stage2; its ordinary hello smoke stops at a native
-invariant in `parse_function_definition`, generated C line 46847. I preserve
-the artifact, original log and SHA256 manifest in
-`/tmp/nanolang-product-startup-b8f3b842/evidence.json`. I have not replayed the
-failed artifact or attributed its cause. Static emitted-source review follows.
-PR522 and PR601 remain draft; startup, export-shadow and release holds remain.
-The checkpoints below retain earlier results and their original scope.
+My current tested integration is `aab9d30d`, with main through PR624 and the
+record-array field representation repair subsequently merged as PR625. Fresh
+bootstrap passes both compiler stages, hello and installed execution without
+the C seed. All 28 ordinary product acceptance methods pass in 13.533 seconds,
+including the formerly failing export shadows. I retain the logs at
+`/tmp/nanolang-product-record-array-bootstrap.log` and
+`/tmp/nanolang-product-aab9-acceptance.log`. Storage task497 and export-shadow
+taskdd74 are complete; their earlier failures remain in the history below.
 
-At held storage `0cf55548`, twelve optional/numeric methods and 1,269 shape
-checks pass. These bounded checks do not establish full compiler acceptance.
+PR522 remains draft for integrated quality gates. The full roadmap release
+hold remains: these results do not establish full LLVM/Wasm, ownership,
+reconstruction or final current-source fixed-point acceptance. Canonical-main
+regression results below retain their separate legacy-route scope.
 
 Held storage branch `1ad605a9` passes 21 optional-storage, numeric and diagnostic
 methods in 64.843 seconds after integration through PR613. It also translates
