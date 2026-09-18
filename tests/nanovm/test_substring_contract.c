@@ -4,13 +4,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 static bool reject_string_allocation;
 static void *substring_malloc(size_t size) {
     return reject_string_allocation ? NULL : malloc(size);
 }
+static unsigned format_status_override;
+static int format_snprintf(char *buffer, size_t capacity, const char *format, ...) {
+    if (format_status_override == 1) return -1;
+    if (format_status_override == 2) return (int)capacity;
+    va_list args;
+    va_start(args, format);
+    int result = vsnprintf(buffer, capacity, format, args);
+    va_end(args);
+    return result;
+}
+#define snprintf format_snprintf
 #define malloc substring_malloc
 #include "../../src/nanovm/heap.c"
 #undef malloc
+#undef snprintf
 #include "nanovm/vm.h"
 int g_argc;
 char **g_argv;
@@ -211,12 +224,65 @@ static void case_conversion_recovery(void) {
         nvm_module_free(module);
     }
 }
+static void primitive_format_lifetime(void) {
+    for (unsigned mode = 0; mode < 2; mode++) {
+        const uint8_t code[] = {OP_LOAD_LOCAL, 0, 0,
+                               mode ? OP_STR_FROM_FLOAT : OP_STR_FROM_INT, OP_RET};
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.arity=1, .local_count=1, .result_count=1, .result_tag=TAG_STRING};
+        fn.name_idx = nvm_add_string(module, "format", 6);
+        fn.code_offset = nvm_append_code(module, code, sizeof code);
+        fn.code_length = sizeof code;
+        nvm_add_function(module, &fn);
+        VmState vm;
+        vm_init(&vm, module);
+        uint64_t baseline = vm.heap.stats.num_objects;
+        VmString *owned = vm_string_new(&vm.heap, "owned-input", 11);
+        assert(owned);
+        NanoValue values[] = {val_int(INT64_MIN), val_int(INT64_MAX), val_int(-42),
+                              val_float(-0.0), val_float(1.25), val_bool(true),
+                              val_u8(255), val_void(), val_string(owned)};
+        const char *integers[] = {"-9223372036854775808", "9223372036854775807", "-42",
+                                  "0", "0", "0", "0", "0", "0"};
+        const char *floats[] = {"0", "0", "0", "-0", "1.25", "0", "0", "0", "0"};
+        for (unsigned i = 0; i < sizeof values / sizeof values[0]; i++) {
+            NanoValue output = val_void();
+            reject_string_allocation = true;
+            assert(vm_invoke(&vm, 0, &values[i], 1, &output) == VM_ERR_MEMORY);
+            reject_string_allocation = false;
+            assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+            assert(owned->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+            for (unsigned repeat = 0; repeat < 3; repeat++) {
+                assert(vm_invoke(&vm, 0, &values[i], 1, &output) == VM_OK);
+                const char *expected = mode ? floats[i] : integers[i];
+                assert(output.tag == TAG_STRING && output.as.string->length == strlen(expected));
+                assert(!memcmp(output.as.string->data, expected, strlen(expected)));
+                vm_release(&vm.heap, output);
+                assert(owned->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+            }
+        }
+        for (format_status_override = 1; format_status_override <= 2; format_status_override++) {
+            assert(!vm_string_from_int(&vm.heap, 42));
+            assert(!vm_string_from_float(&vm.heap, 1.25));
+            NanoValue input = val_string(owned), output = val_void();
+            assert(vm_invoke(&vm, 0, &input, 1, &output) == VM_ERR_MEMORY);
+            assert(output.tag == TAG_VOID && !vm.stack_size && !vm.frame_count);
+            assert(owned->header.ref_count == 1 && vm.heap.stats.num_objects == baseline + 1);
+        }
+        format_status_override = 0;
+        vm_release(&vm.heap, val_string(owned));
+        assert(vm.heap.stats.num_objects == baseline);
+        vm_destroy(&vm);
+        nvm_module_free(module);
+    }
+}
 int main(void) {
     heap_slices();
     opcode_recovery();
     trim_recovery();
     character_operand_lifetime();
     case_conversion_recovery();
+    primitive_format_lifetime();
     puts("I passed ordinary string bytes, operand ownership, allocation status and recovery.");
     return 0;
 }
