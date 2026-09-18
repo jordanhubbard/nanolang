@@ -32,7 +32,8 @@ static void comparisons(char *source,size_t capacity,unsigned first) {
     }
 }
 static NvmModule *fixture(unsigned index) {
-    char source[100000]=".types 1 0 0\n.entry 0\n.function main 0 4 0 int 1\nPUSH_I64 42\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n";
+    char source[100000]=".types 1 0 0\n.entry 0\n.function main 0 4 0 int 1\n";
+    append(source,sizeof(source),"%s\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n",index==5?"PUSH_F64 42.0":"PUSH_I64 42");
     if(index<2)comparisons(source,sizeof(source),index*6);
     else {
         const char *op[]={"F64_ADD","F64_SUB","F64_MUL","F64_DIV"};
@@ -40,22 +41,26 @@ static NvmModule *fixture(unsigned index) {
             double expected=i==0?nano_rt_f64_add(1.5,2.5):i==1?nano_rt_f64_sub(1.5,2.5):i==3?nano_rt_f64_mul(1.5,2.5):nano_rt_f64_div(1.5,2.5);
             append(source,sizeof(source),"PUSH_F64 1.5\nPUSH_F64 2.5\n%s\nPUSH_F64 %.17g\nF64_EQ\nASSERT\n",op[i],expected);
         }
-        append(source,sizeof(source),"PUSH_F64 -2.5\nF64_NEG\nDUP\nPUSH_F64 2.5\nSWAP\nF64_EQ\nASSERT\nPUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 3\nLT\nJMP_FALSE done\nPUSH_F64 1.0\nF64_ADD\nLOAD_LOCAL 2\nPUSH_I64 1\nADD\nSTORE_LOCAL 2\nJMP loop\ndone:\nPUSH_F64 5.5\nEQ\nASSERT\nCALL 1\nASSERT\n");
+        append(source,sizeof(source),"PUSH_F64 -2.5\nF64_NEG\nDUP\nPUSH_F64 2.5\nSWAP\nF64_EQ\nASSERT\nPUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 3\nLT\nJMP_FALSE done\nPUSH_F64 1.0\nF64_ADD\nLOAD_LOCAL 2\nPUSH_I64 1\nADD\nSTORE_LOCAL 2\nJMP loop\ndone:\nPUSH_F64 5.5\nEQ\nASSERT\n");
+        if(index==7)append(source,sizeof(source),"PUSH_F64 0.0\n");
+        append(source,sizeof(source),"CALL 1\n%s\n",index==6?"POP":"ASSERT");
         if(index==3)append(source,sizeof(source),"PUSH_BOOL 0\nASSERT\n");
     }
-    append(source,sizeof(source),"OWN_UNPACK_LOCAL 0\nPUSH_I64 42\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n.function helper 0 1 0 bool 1\nPUSH_F64 nan\nPUSH_F64 1.0\nLE\nRET\n.end\n");
+    append(source,sizeof(source),"OWN_UNPACK_LOCAL 0\n%s\nASSERT\nPUSH_I64 0\nRET\n.end\n.function helper %u 1 0 %s 1\n%sRET\n.end\n",index==5?"PUSH_F64 42.0\nF64_EQ":"PUSH_I64 42\nEQ",index==7?1:0,index==6?"float":"bool",index==6?"PUSH_F64 1.5\n":index==7?"LOAD_LOCAL 0\nPUSH_F64 1.0\nLE\n":"PUSH_F64 nan\nPUSH_F64 1.0\nLE\n");
+    if(index==7)append(source,sizeof(source),".parameters 1 float\n");
     AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
     if(!m)fprintf(stderr,"%s\n",assembled.message);
     CHECK(m);
-    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2LayoutField field={index==5?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2Layout row={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};NvmV2Layouts layouts={&row,1};
     CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
     m->ownership_size=84;m->ownership_data=calloc(84,1);CHECK(m->ownership_data);
     uint8_t *p=m->ownership_data;word(p,2);word(p+4,1);p[8]=3;word(p+12,2);
     p[16]=4;slot(p+20,TAG_INT,NVM_V2_NO_INDEX);
-    slot(p+28,TAG_STRUCT,0);slot(p+36,TAG_INT,NVM_V2_NO_INDEX);slot(p+44,TAG_INT,NVM_V2_NO_INDEX);slot(p+52,TAG_BOOL,NVM_V2_NO_INDEX);
-    p[60]=1;slot(p+64,TAG_BOOL,NVM_V2_NO_INDEX);slot(p+72,TAG_INT,NVM_V2_NO_INDEX);
-    NvmVerifyResult result=nvm_verify(m);if(!result.ok)fprintf(stderr,"%s\n",result.error_msg);CHECK(result.ok);CHECK(nvm_verify_owned_module(m).ok);return m;
+    slot(p+28,TAG_STRUCT,0);slot(p+36,index==4?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX);slot(p+44,TAG_INT,NVM_V2_NO_INDEX);slot(p+52,TAG_BOOL,NVM_V2_NO_INDEX);
+    p[60]=1;p[62]=index==7?1:0;slot(p+64,index==6?TAG_FLOAT:TAG_BOOL,NVM_V2_NO_INDEX);slot(p+72,index==7?TAG_FLOAT:TAG_INT,NVM_V2_NO_INDEX);
+    if(index<4){NvmVerifyResult result=nvm_verify(m);if(!result.ok)fprintf(stderr,"%s\n",result.error_msg);CHECK(result.ok);CHECK(nvm_verify_owned_module(m).ok);}
+    return m;
 }
 static void artifacts(NvmModule *m,const char *dir,unsigned index) {
     NvmV2Module v2={0};size_t length;CHECK(nvm_v2_from_nvm_module(m,&v2)==NVM_V2_OK);
@@ -67,6 +72,13 @@ static void artifacts(NvmModule *m,const char *dir,unsigned index) {
 }
 int main(int argc,char **argv) {
     CHECK(argc==2);
+    for(unsigned i=4;i<8;i++) {
+        NvmModule *m=fixture(i);bool needs=false;
+        CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);
+        NvmVerifyResult rejected=nvm_verify_owned_module(m);CHECK(!rejected.ok);
+        CHECK(strstr(rejected.error_msg,"owned record fields") || strstr(rejected.error_msg,"entry locals") || strstr(rejected.error_msg,"scalar entry"));
+        char error[256];CHECK(!nvm2c_emit(m,error,sizeof(error)));nvm_module_free(m);
+    }
     for(unsigned i=0;i<4;i++) {
         NvmModule *m=fixture(i);artifacts(m,argv[1],i);VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
         for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<2;repeat++) {
