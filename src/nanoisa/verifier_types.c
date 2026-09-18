@@ -50,7 +50,7 @@ typedef struct {
     uint8_t args[3];      /* expected tags, topmost operand last */
     uint8_t arg_count;
     uint8_t result;       /* tag pushed, or TYPE_UNKNOWN */
-    uint8_t result_count; /* 0 or 1; wider shapes are left unknown */
+    uint8_t result_count; /* number of results sharing the result tag */
 } TypeRule;
 
 static bool type_rule_for(uint8_t opcode, TypeRule *out) {
@@ -82,6 +82,15 @@ static bool type_rule_for(uint8_t opcode, TypeRule *out) {
         RULE2(TAG_INT, TAG_INT, TAG_INT);
     case OP_I64_NEG: case OP_I64_INVERT:
         RULE1(TAG_INT, TAG_INT);
+
+    /* I retain both integer results, including carry/borrow and high words. */
+    case OP_I64_ADD_CARRY: case OP_I64_SUB_BORROW:
+    case OP_I64_MUL_WIDE_S: case OP_I64_MUL_WIDE_U:
+        out->arg_count = (opcode == OP_I64_ADD_CARRY || opcode == OP_I64_SUB_BORROW) ? 3 : 2;
+        for (uint8_t i = 0; i < out->arg_count; ++i) out->args[i] = TAG_INT;
+        out->result = TAG_INT;
+        out->result_count = 2;
+        return true;
 
     /* Float arithmetic. */
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
@@ -271,7 +280,7 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
             if ((int32_t)nd >= pops) nd = (uint16_t)(nd - pops);
             else nd = 0;
             for (int32_t k = 0; k < pushes && nd < slots; k++) {
-                next[nd++] = (typed && rule.result_count == 1 && pushes == 1)
+                next[nd++] = (typed && rule.result_count == pushes)
                                ? rule.result : TYPE_UNKNOWN;
             }
         }

@@ -4922,3 +4922,10 @@ test-generic-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nano
 test-units: test-explicit-generic-constructors
 test-explicit-generic-constructors: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_explicit_generic_constructors
+
+.PHONY: test-integer-pair-verification
+test-units: test-integer-pair-verification
+test-integer-pair-verification: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nanoisa_dump nano_vm nvm2c
+	$(CC) $(CFLAGS) -o obj/test_integer_pair_type_rules tests/nanoisa/test_integer_pair_type_rules.c $(filter-out $(OBJ_DIR)/nanoisa/verifier_types.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	./obj/test_integer_pair_type_rules
+	python3 -m unittest -v tests.test_integer_pair_verification
