@@ -2907,17 +2907,17 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
-        if (left.is_return) return left;
+        if (left.is_return || left.is_break || left.is_continue) return left;
 
         if (op == TOKEN_AND) {
             if (!is_truthy(left)) return create_bool(false);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
-            if (right.is_return) return right;
+            if (right.is_return || right.is_break || right.is_continue) return right;
             return create_bool(is_truthy(right));
         } else { /* OR */
             if (is_truthy(left)) return create_bool(true);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
-            if (right.is_return) return right;
+            if (right.is_return || right.is_break || right.is_continue) return right;
             return create_bool(is_truthy(right));
         }
     }

@@ -1,0 +1,55 @@
+{
+  "head": "b1d8bfc5161eda473d94629aa20d36b88df1297a",
+  "files": {
+    "src/eval.c": "f063240bf78f83d138062d7218b400e87e704c028ab4acc4182f43e44125e561",
+    "src/nanovirt/codegen.c": "7efe90ff3647eaaa643e22fff7d42e5648864ea7b8d1fe9e70c34c17cb0a18e5",
+    "src/nanovm/vm.c": "b1c1094020ce4a777bae30dbcd652d94557c76e445779d045d73df7e92d05e45",
+    "tests/test_nanovirt_short_circuit.py": "770c2f1b11a1f6e1d5a1078ab44358ce0551cb0c90f83b6d81cb713f922db66e",
+    "tests/nanovirt/test_codegen.c": "18323a67b97882ad0b1098e84abe7a68fc4a995ad710973b584630c5bc751c23",
+    "bin/nano": "49bb8eea689b60cabb1b99a3537ca5e9774ca7e46a2a7c3c32c6c9000811aabf",
+    "bin/nano_virt": "b780691b6111aa6a14bb81f210aee18d601343237f0d80c7d7c97f26d0f90bde",
+    "bin/nano_vm": "482f5166aee5afa58105e15a8ebf0347a7f6322e4b1a2a3c23a4ef6e18adf294"
+  },
+  "tree": "/home/jkh/Src/nanolang-source-short-circuit",
+  "logs": {
+    "/tmp/nanolang-short-circuit-build.log": "1edd80a31b87bb48bd04e9086f63702aaee3247ba91db8bd39457a5a1951ba8d",
+    "/tmp/nanolang-short-circuit-focused.log": "8cf984a658daff601bb7311ac8b8c930087fde8dc1f009cd188302d7a36ca502",
+    "/tmp/nanolang-short-circuit-codegen.log": "8255cb151d1016c813cadcf3b714658df402ddbf14629cc623fe66ec6aef6d45",
+    "/tmp/nanolang-short-circuit-corrected-build.log": "6fb9c72319796edcb6af9066161d3fd072c26c9f06dc7e86c31c54457f4bf54f",
+    "/tmp/nanolang-short-circuit-corrected-focused.log": "b91a0acbb55f673cc16590fb198768265032dba6364e2d189238e0555f243962",
+    "/tmp/nanolang-short-circuit-corrected-codegen.log": "84cdd89730abc0f223d172dab18a33a25c73961407ddeeb1ef7d8d1bf033152d",
+    "/tmp/nanolang-public-c-lifting-external-gcc.log": "3f47859dc534a6a7a26a88546f22ecbf51b4a702844e8da6fcd18e01c8bb2a39",
+    "/tmp/nanolang-public-c-lifting-external-clang.log": "3ab6566ae50b806f92172bbd7db3dbdc0096dbdb32ef3143ed15a91600fe8990",
+    "/tmp/nanolang-public-c-lifting-external-clang-corrected.log": "5741f27729d5b306e80b4eb4ed82d2a52316f275ad954199ab749dc365a30c35"
+  },
+  "first_freeze": {
+    "head": "09074b9d97c5d5ea82978fad1568f7efa7505092",
+    "files": {
+      "src/nanovirt/codegen.c": "7efe90ff3647eaaa643e22fff7d42e5648864ea7b8d1fe9e70c34c17cb0a18e5",
+      "src/nanovm/vm.c": "b1c1094020ce4a777bae30dbcd652d94557c76e445779d045d73df7e92d05e45",
+      "tests/test_nanovirt_short_circuit.py": "770c2f1b11a1f6e1d5a1078ab44358ce0551cb0c90f83b6d81cb713f922db66e",
+      "tests/nanovirt/test_codegen.c": "05bdf17f311e7efdfc08a68adeaabb934c7bdbe9b980cf788af954d9f6fa17cd",
+      "bin/nano": "712707dd716c171918a5b8981986efd893484c0f36545561f977d9ae2a486e6f",
+      "bin/nano_virt": "596634f13f7c31758ad6b321783b43880f9fd1b7e743280bed22f9d4411134df",
+      "bin/nano_vm": "ff68ab34464a4b1b990bae82d0187f21a40617d4309aca7097f8ae3884aa1c50"
+    }
+  },
+  "external_consumer": {
+    "tree": "/home/jkh/Src/nanolang-public-c-expression-lifting",
+    "head": "425a9b01",
+    "files": {
+      "src/c_backend.c": "a673e4abf4dd79a7eeddebd87ef5fd37afd287af4226c3ec392a05420beaf643",
+      "src/c_backend_values.inc": "922765d8f35d3076ac2c1ffdd38919b0b22854604d5f59736e627a8b7e55e051",
+      "tests/test_public_c_expression_values.py": "dc548007451d17c94734c880d0e9a8cffe5bc03f8b89990ef0b248d86b6de226",
+      "tests/test_public_c_expression_values_api.c": "6982bf69d51d8f26b46ea1d19cf9faa8acb142ef594747ad0033bde7eed82eee",
+      "bin/nanoc_c": "c41916c7d2e0b2243da1188356d755571844956ffae88c6624a09734dc570c88",
+      "bin/nano": "96e9f4059e303948492ed431ca27013b246186128b857c5c5b30b93184310bd8",
+      "bin/nano_vm": "a1d4f16914978d327505d81705d40791a91f643d1f5cb907473a131020545f7d"
+    }
+  },
+  "compilers": {
+    "/usr/bin/gcc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "/usr/local/bin/clang": "3679c26d7a60727b11acba72366337f0e35853c9cd3cd342a463aa2f8fe10c9e",
+    "/tmp/nanolang-truthiness-clang-bin/cc": "0434facefba56a23f73b2a7ce18f968fe23b9e8aa9e48ac25d5998a2aeca6235"
+  }
+}
