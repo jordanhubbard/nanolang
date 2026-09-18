@@ -40,7 +40,7 @@ class MutableArrays(unittest.TestCase):
 
     def test_boxed_leaf_aliases_calls_and_split_mutation(self):
         body='ARR_NEW 5\nDUP\nSTORE_GLOBAL 0\nSTORE_LOCAL 0\n'
-        values=[('PUSH_VOID',0),('PUSH_I64 -9',1),('PUSH_U8 255',2),('PUSH_F64 0.5',3),('PUSH_BOOL 1',4),('PUSH_STR a',5)]
+        values=[('PUSH_VOID',0),('PUSH_I64 -9',1),('PUSH_U8 255',2),('PUSH_F64 0.5',3),('PUSH_BOOL 1',4),('PUSH_STR a',5),('ENUM_VAL 0 17',9)]
         for value,tag in values:
             body+=f'LOAD_LOCAL 0\n{value}\nARR_PUSH\nPOP\nLOAD_GLOBAL 0\nARR_POP\nDUP\nTYPE_CHECK {tag}\nASSERT\n{value}\nEQ\nASSERT\n'
         body+='LOAD_LOCAL 0\nCALL write\nLOAD_GLOBAL 0\nEQ\nASSERT\n'
@@ -49,7 +49,7 @@ class MutableArrays(unittest.TestCase):
         body+='PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nDUP\nSTORE_LOCAL 0\nPUSH_I64 1\nPUSH_I64 42\nARR_SET\nLOAD_LOCAL 0\nEQ\nASSERT\n'
         body+='LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nPUSH_I64 42\nEQ\nASSERT\nPUSH_VOID\nSTORE_LOCAL 0\n'
         suffix='.function write 1 1 0 array 1\n.parameters write array\nLOAD_LOCAL 0\nPUSH_STR a\nARR_PUSH\nRET\n.end\n'
-        self.paired(body,suffix)
+        self.paired(body,suffix,prefix='.types 0 1 0\n')
 
     def test_checked_errors_release_frames_and_preserve_alias_writes(self):
         for bad,status in [('LOAD_LOCAL 0\nPUSH_I64 -1\nPUSH_STR a\nARR_SET\nPOP\n',7),
