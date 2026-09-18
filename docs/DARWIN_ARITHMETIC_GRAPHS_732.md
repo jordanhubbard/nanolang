@@ -100,3 +100,8 @@ helper or expectation. A fresh detached qualification uses the corrected test
 commit, with production source still identical to25a685ad; I record both pins.
 All remaining backend/graph routes and deadlines remain required. This is a
 linker selection correction, not qualification of LLD against this newer SDK.
+
+At corrected harness b834e804, my unchanged Linux helper methods both pass
+with GCC in 1.120 seconds and Clang in 1.313 seconds. Each run retains direct
+and exact embedded-source O0/O2/O3-contraction/LTO sanitizer checks and target
+refusals. These host results do not establish Darwin acceptance.
