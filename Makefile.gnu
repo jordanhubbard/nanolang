@@ -602,6 +602,14 @@ test-nanovm: test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(
 	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
 
+.PHONY: test-vm-heap-allocation-sanitizers
+test-vm-heap-allocation-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -fsanitize=address,undefined -fno-sanitize-recover=all -o $(OBJ_DIR)/nanovm/test_heap_allocation_sanitized \
+		tests/nanovm/test_heap_allocation_failure.c src/nanovm/vm.c src/nanovm/heap_cycles.c src/nanovm/value.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/vm.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/nanovm/test_heap_allocation_sanitized
+
 .PHONY: test-vm-callback-allocation
 test-vm-callback-allocation: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/nanovm/test_callback_allocation \
