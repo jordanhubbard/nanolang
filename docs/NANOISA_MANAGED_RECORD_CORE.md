@@ -54,6 +54,28 @@ and must not embed host pointers into Wasm data. Host plan memory has explicit
 ownership/free; private runtime descriptor storage is borrowed for its entire
 instance lifetime and cannot be rebound after record objects are published.
 
+## My descriptor authority and allocation boundary
+
+Checkpoint1 returns DESCRIBED, not ELIGIBLE. Every published plan explicitly
+retains UNKNOWN ordinary/resource authority. Absence of ownership metadata is
+not evidence of ordinary storage. Any existing ownership payload conservatively
+returns UNRESOLVED without publishing a plan; I do not reinterpret its resource
+flags or local/parameter declarations. Authoritative versioned ownership flags
+are COMPLETE1 and RESOURCE2, but their current validator qualifies only finite
+scalar/record trees. I do not weaken it for heap-bearing record fields.
+
+Task_15f955fae5cf402d92bf88794122e9a2 requires an ordinary heap-bearing declaration
+and producer classification boundary before managed nominal admission. Neither
+this plan nor the future private storage API supplies that authority by shape.
+
+I bound checkpoint1 to256 retained layouts and65536 total fields. I validate
+canonical byte structure, names/counts and limits without allocating, then use
+the existing layout decoder to own the fields. After complete byte preflight,
+its allocation-related TRUNCATED result means MEMORY for this plan (the borrowed
+input must remain immutable during the call). My own plan allocation failures
+are MEMORY as well. Unsupported field shapes return UNRESOLVED; malformed
+structure returns INVALID. Every failure leaves the output untouched.
+
 ## My shared-table record checkpoint
 
 I add a distinct record slot kind with explicit definition identity and fixed
