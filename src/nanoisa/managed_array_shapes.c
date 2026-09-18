@@ -1,5 +1,8 @@
 /* I conservatively collect portable leaf-array facts; I do not admit execution. */
 #include "managed_array_shapes.h"
+#include "managed_record_shapes.h"
+#include "managed_record_plan.h"
+#include "ownership_contracts.h"
 #include "verifier.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,6 +13,7 @@
 #define ORIGINS 64u
 #define INSTRUCTIONS 65536u
 #define CELLS 1048576u
+#define FIELD_CELLS 65536u
 #define BIT(tag) ((uint16_t)(1u << (tag)))
 #define LEAVES (BIT(TAG_VOID)|BIT(TAG_INT)|BIT(TAG_U8)|BIT(TAG_FLOAT)|BIT(TAG_BOOL)|BIT(TAG_STRING)|BIT(TAG_ENUM))
 typedef struct { uint64_t origins; uint16_t tags; uint8_t unknown; } Value;
@@ -26,7 +30,13 @@ typedef struct {
     Function functions[FUNCTIONS];
     Value globals[SLOTS];
     Value children[ORIGINS];
-    int graph;
+    int graph, records;
+    NvmRecordPlan *plan;
+    Value *fields;
+    uint32_t field_count, checked_field_writes;
+    uint8_t origin_kind[ORIGINS];
+    uint32_t record_ordinal[ORIGINS], field_start[ORIGINS];
+    uint16_t record_fields[ORIGINS];
     NvmArrayEligibilityReport report;
     NvmArrayEligibilityResult result;
     uint32_t global_count;
@@ -43,6 +53,9 @@ static void *allocate(size_t n, size_t width) {
     if (allocation_budget != UINT64_MAX) allocation_budget--;
 #endif
     return calloc(n, width);
+}
+void nvm_record_eligibility_free(NvmRecordEligibilityReport *report) {
+    if (report) { free(report->fields); free(report); }
 }
 void nvm_array_eligibility_free(NvmArrayEligibilityReport *report) { free(report); }
 void nvm_array_graph_eligibility_free(NvmArrayGraphEligibilityReport *report) { free(report); }
@@ -110,6 +123,10 @@ static int fixed_result(uint8_t op) {
     default: return -1;
     }
 }
+static int record_operation(uint8_t op) {
+    return op == OP_STRUCT_NEW || op == OP_STRUCT_LITERAL || op == OP_STRUCT_GET ||
+           op == OP_STRUCT_SET || op == OP_AGG_PACK || op == OP_AGG_GET || op == OP_AGG_SET;
+}
 static int supported(uint8_t op) {
     if(fixed_result(op)>=0)return 1;
     switch(op) {
@@ -128,7 +145,7 @@ static uint16_t writes(uint8_t t) {
 static Value read_array(Analysis *a,Value receiver) {
     Value result=tag(TAG_VOID);
     result.unknown=receiver.unknown || ((receiver.tags&BIT(TAG_ARRAY)) && !receiver.origins);
-    for(uint32_t i=0;i<a->report.origin_count;i++) if(receiver.origins&(UINT64_C(1)<<i)) {
+    for(uint32_t i=0;i<a->report.origin_count;i++) if((receiver.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         NvmArrayOrigin *o=&a->report.origins[i];
         result.tags |= o->packed?BIT(o->declared_tag):o->child_tags;
         if(a->graph && !o->packed)merge(&result,a->children[i]);
@@ -136,7 +153,7 @@ static Value read_array(Analysis *a,Value receiver) {
     return result;
 }
 static void write_array(Analysis *a,Value receiver,Value value) {
-    for(uint32_t i=0;i<a->report.origin_count;i++) if(receiver.origins&(UINT64_C(1)<<i)) {
+    for(uint32_t i=0;i<a->report.origin_count;i++) if((receiver.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         NvmArrayOrigin *o=&a->report.origins[i];
         if(!o->packed) {
             uint16_t old=o->child_tags;o->child_tags|=value.tags;
@@ -154,12 +171,12 @@ static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Valu
      * tag-only fabricated ARRAY would poison later joins with unknown. */
     if(a->graph && !receiver.origins && !receiver.unknown && !(receiver.tags&BIT(TAG_ARRAY)))
         *result=(Value){0};
-    for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
+    for(uint32_t i=0;i<a->report.origin_count;i++)if((receiver.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         NvmArrayOrigin source=a->report.origins[i];
         uint32_t target=0;
         while(target<a->report.origin_count) {
             NvmArrayOrigin *o=&a->report.origins[target];
-            if(o->function==fi && o->pc==pc && o->declared_tag==source.declared_tag)break;
+            if(a->origin_kind[target]==NVM_HEAP_ORIGIN_ARRAY && o->function==fi && o->pc==pc && o->declared_tag==source.declared_tag)break;
             target++;
         }
         if(target==a->report.origin_count) {
@@ -184,13 +201,140 @@ static int check_write(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value 
             "I require proved scalar/string/array graph writes.":"I require proved scalar/string leaf writes.");
     if(a->graph && (value.tags&BIT(TAG_ARRAY)) && !value.origins)
         return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require authoritative child array origins.");
-    for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
+    for(uint32_t i=0;i<a->report.origin_count;i++)if((receiver.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
         NvmArrayOrigin *o=&a->report.origins[i];
         if(o->packed && (value.tags&~writes(o->declared_tag)))
             return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I cannot prove a portable packed write for every possible tag.");
     }
     return 1;
 }
+/* Record facts never enter the existing leaf/graph API. These identities are
+ * per-allocation-site, not strong facts about one particular live instance. */
+static int prepare_records(Analysis *a) {
+    NvmRecordPlanResult result=nvm_describe_managed_records(a->module,&a->plan);
+    if(result.status!=NVM_RECORD_DESCRIBED) {
+        NvmArrayEligibilityStatus status=result.status==NVM_RECORD_MEMORY?NVM_ARRAY_MEMORY:
+            result.status==NVM_RECORD_LIMIT?NVM_ARRAY_LIMIT:
+            result.status==NVM_RECORD_INVALID?NVM_ARRAY_INVALID:NVM_ARRAY_UNRESOLVED;
+        return stop(a,status,0,0,result.message);
+    }
+    if(a->plan->authority!=NVM_RECORD_AUTHORITY_ORDINARY)
+        return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require explicit ordinary record authority.");
+    bool requires_verifier=false;
+    if(nvm_ownership_contracts_validate(a->module,&requires_verifier)!=NVM_V2_OK || requires_verifier)
+        return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require ordinary declarations without affine/reference execution.");
+    for(uint32_t i=0;i<a->plan->record_count;i++) {
+        const NvmV2Layout *layout=&a->plan->layouts.items[a->plan->record_to_layout[i]];
+        for(uint16_t j=0;j<layout->field_count;j++) {
+            const NvmV2LayoutField *field=&layout->fields[j];
+            if(field->type_tag!=TAG_STRUCT && !(LEAVES&BIT(field->type_tag)))
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded scalar/string/prior-record field schema.");
+        }
+    }
+    return 1;
+}
+static int record_site(Analysis *a,uint32_t fi,uint32_t pc) {
+    Function *f=&a->functions[fi];VmDecodedInstruction *d=&f->decoded.instructions[pc];
+    const DecodedInstruction *in=&d->instruction;uint8_t op=in->opcode;
+    if(op==OP_AGG_PACK && (in->operands[0].u8!=AGG_RECORD || in->operands[2].u16))
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require neutral-variant record construction.");
+    uint32_t record=in->operands[op==OP_AGG_PACK?1:0].u32;
+    if(record>=a->plan->record_count)
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require an authoritative record ordinal.");
+    const NvmV2Layout *layout=&a->plan->layouts.items[a->plan->record_to_layout[record]];
+    uint16_t count=op==OP_STRUCT_NEW?0:in->operands[op==OP_AGG_PACK?3:1].u16;
+    if(count!=layout->field_count)
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require the actual constructed field count to match its record.");
+    if(a->report.origin_count==ORIGINS || count>FIELD_CELLS-a->field_count)
+        return stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my record origin or field-summary limit.");
+    uint32_t origin=a->report.origin_count++;f->origins[pc]=(int16_t)origin;
+    a->origin_kind[origin]=NVM_HEAP_ORIGIN_RECORD;
+    a->record_ordinal[origin]=record;a->record_fields[origin]=count;
+    a->field_start[origin]=a->field_count;a->field_count+=count;
+    a->report.origins[origin]=(NvmArrayOrigin){fi,d->byte_offset,0,TAG_STRUCT,0};
+    return 1;
+}
+static uint64_t origins_of_kind(const Analysis *a,Value value,uint8_t kind) {
+    uint64_t found=0;
+    for(uint32_t i=0;i<a->report.origin_count;i++)
+        if((value.origins&(UINT64_C(1)<<i)) && a->origin_kind[i]==kind)found|=UINT64_C(1)<<i;
+    return found;
+}
+static void write_record(Analysis *a,Value receiver,uint16_t field,Value value) {
+    uint64_t origins=origins_of_kind(a,receiver,NVM_HEAP_ORIGIN_RECORD);
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i)) {
+        /* Unsupported bounds are diagnosed after convergence, never indexed. */
+        if(field<a->record_fields[i])a->changed|=merge(&a->fields[a->field_start[i]+field],value);
+    }
+}
+static Value read_record(Analysis *a,Value receiver,uint16_t field) {
+    Value result={0};uint64_t origins=origins_of_kind(a,receiver,NVM_HEAP_ORIGIN_RECORD);
+    result.unknown=receiver.unknown || ((receiver.tags&BIT(TAG_STRUCT)) && !origins);
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i))
+        if(field<a->record_fields[i])merge(&result,a->fields[a->field_start[i]+field]);
+    return result;
+}
+static int record_value_matches(Analysis *a,uint32_t fi,uint32_t pc,
+                                const NvmV2LayoutField *field,Value value) {
+    a->checked_field_writes++;
+    if(value.unknown || value.tags!=BIT(field->type_tag))
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require exact known field-write tags.");
+    if(field->type_tag==TAG_STRUCT) {
+        uint64_t origins=origins_of_kind(a,value,NVM_HEAP_ORIGIN_RECORD);
+        if(!origins || origins!=value.origins)
+            return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require authoritative nested record origins.");
+        for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i))
+            if(a->plan->record_to_layout[a->record_ordinal[i]]!=field->nested_idx)
+                return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require the exact nested nominal identity for every field write.");
+    }
+    return 1;
+}
+static int check_record_access(Analysis *a,uint32_t fi,uint32_t pc,
+                               Value receiver,uint16_t field,const Value *write) {
+    uint64_t origins=origins_of_kind(a,receiver,NVM_HEAP_ORIGIN_RECORD);
+    if(receiver.unknown || !receiver.tags || ((receiver.tags&BIT(TAG_STRUCT)) && !origins))
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require authoritative record receiver origins.");
+    if(receiver.tags!=BIT(TAG_STRUCT))a->report.runtime_tag_checks++;
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(origins&(UINT64_C(1)<<i)) {
+        if(field>=a->record_fields[i])
+            return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require a valid field in every possible record receiver.");
+        const NvmV2Layout *layout=&a->plan->layouts.items[a->plan->record_to_layout[a->record_ordinal[i]]];
+        if(write && !record_value_matches(a,fi,pc,&layout->fields[field],*write))return 0;
+    }
+    return 1;
+}
+static int publish_records(Analysis *a,NvmRecordEligibilityReport **out) {
+    NvmRecordEligibilityReport *report=allocate(1,sizeof *report);
+    if(!report)return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not publish my record analysis report.");
+    if(a->field_count) {
+        report->fields=allocate(a->field_count,sizeof *report->fields);
+        if(!report->fields) {
+            nvm_record_eligibility_free(report);
+            return stop(a,NVM_ARRAY_MEMORY,0,0,"I could not publish my record field summaries.");
+        }
+    }
+    report->origin_count=a->report.origin_count;report->field_value_count=a->field_count;
+    report->checked_field_writes=a->checked_field_writes;
+    report->checked_array_writes=a->report.checked_writes;
+    report->runtime_tag_checks=a->report.runtime_tag_checks;
+    for(uint32_t i=0;i<a->report.origin_count;i++) {
+        NvmArrayOrigin *source=&a->report.origins[i];NvmRecordHeapOrigin *origin=&report->origins[i];
+        origin->function=source->function;origin->pc=source->pc;origin->kind=a->origin_kind[i];
+        origin->record_ordinal=origin->layout_index=NVM_V2_NO_INDEX;
+        origin->declared_tag=source->declared_tag;origin->packed=source->packed;
+        if(origin->kind==NVM_HEAP_ORIGIN_RECORD) {
+            origin->record_ordinal=a->record_ordinal[i];
+            origin->layout_index=a->plan->record_to_layout[origin->record_ordinal];
+            origin->field_start=a->field_start[i];origin->field_count=a->record_fields[i];
+        } else {
+            origin->children=(NvmRecordValueOrigins){a->children[i].origins,source->child_tags,a->children[i].unknown};
+        }
+    }
+    for(uint32_t i=0;i<a->field_count;i++)
+        report->fields[i]=(NvmRecordValueOrigins){a->fields[i].origins,a->fields[i].tags,a->fields[i].unknown};
+    *out=report;return 1;
+}
+
 static int walk(Analysis *a,uint32_t fi) {
     Function *f=&a->functions[fi];const NvmFunctionEntry *entry=&a->module->functions[fi];
     for(uint32_t i=0;i<=f->decoded.instruction_count;i++)if(f->seen[i])enqueue(f,i);
@@ -207,7 +351,8 @@ static int walk(Analysis *a,uint32_t fi) {
         VmDecodedInstruction *d=&f->decoded.instructions[index];DecodedInstruction *in=&d->instruction;
         uint8_t op=in->opcode;const InstructionInfo *info=isa_get_info(op);
         int pops=info->pop_count,pushes=info->push_count;
-        if(op==OP_ARR_LITERAL){pops=in->operands[1].u16;pushes=1;}
+        if(op==OP_ARR_LITERAL || op==OP_STRUCT_LITERAL){pops=in->operands[1].u16;pushes=1;}
+        if(op==OP_AGG_PACK){pops=in->operands[3].u16;pushes=1;}
         if(op==OP_CALL){pops=a->module->functions[in->operands[0].u32].arity;pushes=a->module->functions[in->operands[0].u32].result_count;}
         if(op==OP_RET){if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);continue;}
         if(pops<0 || pushes<0 || depth<pops || depth-pops+pushes>f->stack)
@@ -231,6 +376,19 @@ static int walk(Analysis *a,uint32_t fi) {
         case OP_ARR_PUSH: case OP_ARR_SET:
             write_array(a,stack[base],stack[depth-1]);result=stack[base];break;
         case OP_ARR_GET: case OP_ARR_POP: result=read_array(a,stack[base]);break;
+        case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_AGG_PACK: {
+            int ready=1;
+            for(uint32_t i=base;i<depth;i++)if(!stack[i].tags && !stack[i].unknown)ready=0;
+            if(ready) {
+                result=tag(TAG_STRUCT);result.origins=UINT64_C(1)<<f->origins[index];
+                for(uint32_t i=base;i<depth;i++)write_record(a,result,(uint16_t)(i-base),stack[i]);
+            }
+            break;
+        }
+        case OP_STRUCT_GET: case OP_AGG_GET:
+            result=read_record(a,stack[base],in->operands[0].u16);break;
+        case OP_STRUCT_SET: case OP_AGG_SET:
+            write_record(a,stack[base],in->operands[0].u16,stack[depth-1]);result=stack[base];break;
         case OP_CALL: {
             uint32_t callee=in->operands[0].u32;
             if(!seed(a,callee,stack+base))return 0;
@@ -261,6 +419,23 @@ static int final_check(Analysis *a) {
         for(uint32_t pc=0;pc<f->decoded.instruction_count;pc++) {
             if(!f->seen[pc])continue;
             VmDecodedInstruction *d=&f->decoded.instructions[pc];uint8_t op=d->instruction.opcode;
+            if(a->records && record_operation(op)) {
+                Value *stack=f->states+(size_t)pc*f->stride+f->locals;
+                uint16_t depth=f->depths[pc];
+                if(op==OP_STRUCT_NEW || op==OP_STRUCT_LITERAL || op==OP_AGG_PACK) {
+                    uint32_t origin=(uint32_t)f->origins[pc];
+                    uint16_t count=a->record_fields[origin];
+                    const NvmV2Layout *layout=&a->plan->layouts.items[a->plan->record_to_layout[a->record_ordinal[origin]]];
+                    for(uint16_t i=0;i<count;i++)
+                        if(!record_value_matches(a,fi,d->byte_offset,&layout->fields[i],stack[depth-count+i]))return 0;
+                } else {
+                    int writes=op==OP_STRUCT_SET || op==OP_AGG_SET;
+                    Value receiver=stack[depth-(writes?2:1)];
+                    if(!check_record_access(a,fi,d->byte_offset,receiver,d->instruction.operands[0].u16,
+                                            writes?&stack[depth-1]:NULL))return 0;
+                }
+                continue;
+            }
             if(op==OP_ARR_LITERAL) {
                 uint16_t count=d->instruction.operands[1].u16;
                 Value receiver=tag(TAG_ARRAY);receiver.origins=UINT64_C(1)<<f->origins[pc];
@@ -292,21 +467,26 @@ static void destroy(Analysis *a) {
         Function *f=&a->functions[i];vm_decoded_function_free(&f->decoded);
         free(f->states);free(f->depths);free(f->queue);free(f->seen);free(f->queued);free(f->origins);
     }
+    nvm_record_plan_free(a->plan);
+    free(a->fields);
     free(a);
 }
 static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
-                                          NvmArrayGraphEligibilityReport **graph_out) {
+                                          NvmArrayGraphEligibilityReport **graph_out,
+                                          NvmRecordEligibilityReport **record_out) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
-    if(!m || (!out && !graph_out))return early;
+    if(!m || (!out && !graph_out && !record_out))return early;
     Analysis *a=allocate(1,sizeof *a);
     if(!a){early.status=NVM_ARRAY_MEMORY;snprintf(early.message,sizeof early.message,"I could not allocate array analysis state.");return early;}
-    a->module=m;a->graph=graph_out!=NULL;
+    a->module=m;a->records=record_out!=NULL;a->graph=graph_out!=NULL || a->records;
     if(!verified(a,nvm_verify(m)))goto done;
     if(m->function_count>FUNCTIONS){stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my array analysis function limit.");goto done;}
     if(!(m->header.flags&NVM_FLAG_HAS_MAIN) || m->functions[m->header.entry_point].arity ||
-       m->import_count || m->module_ref_count || m->struct_count || m->union_count || m->ownership_size || m->passive_size || m->layout_size) {
+       m->import_count || m->module_ref_count || m->union_count || m->passive_size ||
+       (!a->records && (m->struct_count || m->ownership_size || m->layout_size))) {
         stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require a closed zero-argument entry without nominal, ownership or host contracts.");goto done;
     }
+    if(a->records && !prepare_records(a))goto done;
     uint64_t cells=0;uint32_t instructions=0;int initializer=-1;
     for(uint32_t fi=0;fi<m->function_count;fi++) {
         Function *f=&a->functions[fi];const NvmFunctionEntry *e=&m->functions[fi];
@@ -320,7 +500,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
             DecodedInstruction in={0};uint32_t width=isa_decode(m->code+e->code_offset+pc,e->code_length-pc,&in);
             if(!width){stop(a,NVM_ARRAY_INVALID,fi,pc,"I require decodable instructions.");goto done;}
             if(++instructions>INSTRUCTIONS){stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my decoded instruction limit.");goto done;}
-            if(!supported(in.opcode)){stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I have no proved transfer for this instruction.");goto done;}
+            if(!supported(in.opcode) && !(a->records && record_operation(in.opcode))){stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I have no proved transfer for this instruction.");goto done;}
             if(in.opcode==OP_LOAD_GLOBAL || in.opcode==OP_STORE_GLOBAL) {
                 uint32_t global=in.operands[0].u32;
                 if(global>=SLOTS){stop(a,NVM_ARRAY_LIMIT,fi,pc,"I reached my array analysis global limit.");goto done;}
@@ -342,6 +522,10 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         for(uint32_t i=0;i<f->decoded.instruction_count;i++) {
             VmDecodedInstruction *d=&f->decoded.instructions[i];uint8_t op=d->instruction.opcode;
             f->origins[i]=-1;
+            if(a->records && (op==OP_STRUCT_NEW || op==OP_STRUCT_LITERAL || op==OP_AGG_PACK)) {
+                if(!record_site(a,fi,i))goto done;
+                continue;
+            }
             if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL)continue;
             uint8_t declared=op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
             if(!((LEAVES|(a->graph?BIT(TAG_ARRAY):0))&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
@@ -350,6 +534,10 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
             a->report.origins[origin]=(NvmArrayOrigin){fi,d->byte_offset,op==OP_STR_SPLIT?BIT(TAG_STRING):0,declared,(uint8_t)packed(declared)};
             if(op==OP_STR_SPLIT)a->children[origin]=tag(TAG_STRING);
         }
+    }
+    if(a->field_count) {
+        a->fields=allocate(a->field_count,sizeof *a->fields);
+        if(!a->fields){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not allocate my record field summaries.");goto done;}
     }
     for(uint32_t i=0;i<a->global_count;i++)a->globals[i]=tag(TAG_VOID);
     if(initializer>=0 && !seed(a,(uint32_t)initializer,NULL))goto done;
@@ -368,7 +556,9 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         }
     } while(a->changed);
     if(!final_check(a))goto done;
-    if(graph_out) {
+    if(record_out) {
+        if(!publish_records(a,record_out))goto done;
+    } else if(graph_out) {
         NvmArrayGraphEligibilityReport *report=allocate(1,sizeof *report);
         if(!report){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not publish my graph analysis report.");goto done;}
         report->arrays=a->report;
@@ -389,10 +579,14 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
 }
 
 NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArrayEligibilityReport **out) {
-    return analyze(m,out,NULL);
+    return analyze(m,out,NULL,NULL);
 }
 NvmArrayEligibilityResult nvm_analyze_managed_array_graphs(const NvmModule *m,NvmArrayGraphEligibilityReport **out) {
-    return analyze(m,NULL,out);
+    return analyze(m,NULL,out,NULL);
+}
+
+NvmArrayEligibilityResult nvm_analyze_managed_records(const NvmModule *m,NvmRecordEligibilityReport **out) {
+    return analyze(m,NULL,NULL,out);
 }
 
 NvmArrayEligibilityResult nvm_select_managed_array_mode(const NvmModule *m,int *graph_required) {
