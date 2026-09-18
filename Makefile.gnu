@@ -1004,7 +1004,7 @@ $(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
 
 .PHONY: test-binary64-bit-transport test-binary64-source-transport test-binary64-bits-eval
-test-binary64-bit-transport: nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm test-binary64-bits-eval
+test-binary64-bit-transport: nvm2hl nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm test-binary64-bits-eval
 	python3 -m unittest -v tests.test_binary64_bit_transport tests.test_managed_binary64_bits
 
 test-binary64-source-transport: bootstrap nano_virt

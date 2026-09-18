@@ -18,7 +18,7 @@ class Binary64SourceTransport(unittest.TestCase):
                 with self.subTest(producer=name):
                     module=work/(name+'.nvm')
                     self.command(ROOT/'bin'/name,source,'--emit-nvm','-o',module)
-                    assembly=self.command(ROOT/'bin/nanoisa','disasm',module).stdout
+                    assembly=self.command(ROOT/'bin/nanoisa','dump',module).stdout
                     self.assertIn('F64_FROM_BITS',assembly)
                     self.assertIn('F64_TO_BITS',assembly)
                     self.command(ROOT/'bin/nano_vm','--verify-only',module)

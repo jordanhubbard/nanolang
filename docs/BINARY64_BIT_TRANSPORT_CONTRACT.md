@@ -130,3 +130,8 @@ I stopped that owned redundant build and retain
 `/tmp/nanolang-bit-interpreter.log`. The corrected object-only target passed all
 11 ordinary bit-pattern observations. This is independent of the two completed
 source bootstraps and the later final name-policy bootstrap.
+
+My completed bounded implementation and exact gate limits are recorded in
+[transport evidence](evidence/binary64-bit-transport.md). The proposal sections
+above preserve my preimplementation decision record; reconstruction is still
+not admitted.
