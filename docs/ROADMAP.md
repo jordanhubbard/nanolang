@@ -9973,11 +9973,14 @@ Other translators:
       `/tmp/nanolang-legacy-test-eval-failed-791a` and its log; no core
       was located. MAC `task_791a3d3d66b04c0caa892a3d5b99ccca`; this gate
       remains unproved until corrected acceptance establishes its result.
-- [ ] I propagate the portable parser policy to legacy AST routes while
+- [x] I propagate the portable parser policy to legacy AST routes while
       preserving strict endptr diagnostics and source bootstrap behavior.
       MAC `task_9e93c1badb1a4da093a737b3a2c15ef7`; separate from canonical admission.
       My pre-code [legacy route contract](NANOISA_LEGACY_BINARY64_PARSE.md)
       preserves prefix helpers versus strict AST cast endpoint validation.
+      My [bounded evidence](evidence/legacy-binary64-parse.md) retains the
+      separate unresolved full-evaluator gate791a; focused conversion controls
+      do not complete that broader gate.
 - [x] I match managed decimal string-to-int conversion across LLVM/Wasm.
       MAC `task_34ce900cad86496b876bdf262b46bdaf`; contract
       `docs/NANOISA_MANAGED_STRING_INT.md`; [evidence](evidence/managed-decimal.md).

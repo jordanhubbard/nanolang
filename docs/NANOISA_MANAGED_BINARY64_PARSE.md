@@ -56,8 +56,10 @@ frame cleanup. I lift target CAST_FLOAT refusal only after matched finite,
 subnormal/tie/overflow, syntax, NaN-policy and ownership gates pass.
 
 Legacy AST conversion routes in stdlib_runtime.c, transpiler.nano and eval.c
-remain explicit companion `task_9e93c1badb1a4da093a737b3a2c15ef7`; their strict
-endptr checks must be preserved before full source-route parity is claimed.
+use the [legacy companion](NANOISA_LEGACY_BINARY64_PARSE.md) under
+`task_9e93c1badb1a4da093a737b3a2c15ef7`. Only the evaluator cast requires a
+complete consumed prefix; string_to_float routes retain prefix conversion.
+The companion preserves that distinction and records separate gate limits.
 I test ordinary reference inputs and long precision/cancellation controls on
 native/Wasm and the actual VM/C target paths, preserving historical artifacts
 without executing them. I claim only measured target acceptance.

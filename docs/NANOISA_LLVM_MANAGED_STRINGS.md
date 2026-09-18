@@ -22,7 +22,8 @@ now adds exact closed C-locale/default-rounding `%g` output for floating operand
 the temporary floating-module formatting exclusion is removed. My
 [binary64 parser](NANOISA_MANAGED_BINARY64_PARSE.md) admits string CAST_FLOAT
 with exact decimal/hexadecimal rounding and an explicit cross-host NaN payload
-policy. Legacy AST conversion paths remain a separate required companion.
+policy. My [legacy companion](NANOISA_LEGACY_BINARY64_PARSE.md) shares that
+parser while preserving the evaluator strict-cast/prefix-helper distinction.
 
 ## My ownership and errors
 
