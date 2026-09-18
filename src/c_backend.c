@@ -158,6 +158,26 @@ static ASTNode *ctx_union_variant(CBCtx *c, const char *name, const char *varian
     return NULL;
 }
 
+/* Only unique, unguarded coverage of one exact declaration is exhaustive here. */
+static bool ctx_union_match_complete(CBCtx *c, ASTNode *node) {
+    if (!node->as.match_expr.union_type_name || node->as.match_expr.arm_count <= 0)
+        return false;
+    ASTNode *owner = NULL;
+    for (int i = 0; i < node->as.match_expr.arm_count; ++i) {
+        if (node->as.match_expr.guard_exprs && node->as.match_expr.guard_exprs[i]) return false;
+        int declaration_index, variant_index;
+        const char *variant = node->as.match_expr.pattern_variants[i];
+        ASTNode *declaration = ctx_union_variant(c, node->as.match_expr.union_type_name,
+                                                variant, &declaration_index, &variant_index);
+        if (!declaration || (owner && owner != declaration)) return false;
+        owner = declaration;
+        if (owner->as.union_def.variant_count != node->as.match_expr.arm_count) return false;
+        for (int j = 0; j < i; ++j)
+            if (strcmp(node->as.match_expr.pattern_variants[j], variant) == 0) return false;
+    }
+    return true;
+}
+
 static bool ctx_has_binding(CBCtx *c, const char *name) {
     if (!name) return false;
     for (int i = c->sym_count - 1; i >= 0; --i)
@@ -1208,6 +1228,14 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         }
         if (node->as.match_expr.arm_count > 0) {
             emit_indent(c);
+            if (ctx_union_match_complete(c, node)) {
+                fputs("} else {\n", c->out);
+                c->indent++;
+                emit_indent(c);
+                fputs("fputs(\"I require a declared C union tag for match.\\n\", stderr); exit(EXIT_FAILURE);\n", c->out);
+                c->indent--;
+                emit_indent(c);
+            }
             fputs("}\n", c->out);
         }
         c->indent--;
