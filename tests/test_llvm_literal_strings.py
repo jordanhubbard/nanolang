@@ -90,6 +90,14 @@ class LiteralStrings(unittest.TestCase):
         self.compare('PUSH_I64 1\nSTR_LEN\nPOP\n', trap=True)
         self.compare('PUSH_STR a\nPUSH_I64 1\nSTR_EQ\nPOP\n', trap=True)
 
+    def test_string_handles_never_become_numeric_operands(self):
+        for op,right in [('SUB','PUSH_I64 1'),('MUL','PUSH_I64 1'),
+                         ('DIV','PUSH_I64 1'),('MOD','PUSH_I64 1'),('NEG',''),
+                         ('I64_ADD','PUSH_I64 1'),('I64_EQ','PUSH_I64 1'),
+                         ('F64_ADD','PUSH_F64 1'),('BOOL_NOT','')]:
+            with self.subTest(op=op):
+                self.compare('PUSH_STR a\n'+(right+'\n' if right else '')+op+'\nPOP\n',trap=True)
+
     def test_computed_string_and_signature_refusals_preserve_output(self):
         cases = [self.program('PUSH_STR a\nPUSH_STR b\n'+op+'\nPOP\n') for op in ('ADD','STR_CONCAT')]
         cases += [self.program('PUSH_STR a\n'+op+'\nPOP\n') for op in ('CAST_INT','CAST_FLOAT')]
