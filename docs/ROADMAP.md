@@ -1,6 +1,7 @@
 # My Roadmap
 
 - [ ] I retain the non-immutable owned-result Clang qualification incident (`task_26c8ef718fbf4cb7834412950f4a510d`): case9 receives errno13 before starting nano_vm while another gate relinks that tool. I preserve the log without an exact cause claim, then qualify fresh source sequentially with unchanged before/after tool hashes. Later acceptance does not relabel this historical incident. [Evidence](evidence/owned-value-results.md).
+- [ ] I keep the owned-result generated-native sanitizer qualification portable on Darwin (`task_70893b77ecec8f6f8dfbc5a9be995116`). Linux retains leak detection; Apple Clang uses ASan/UBSan with leak detection disabled and the unchanged generated harness's explicit zero-live-allocation assertions. I preserve the original unsupported-option failure and require the exact focused gate to pass without production changes.
 
 - [x] I preserve existing scalar/CALL_REF return allocation behavior (`task_af6dac9228e54700b98a72d852db8969`) while adding owned helper results. The initial extension allocates return facts on unchanged scalar paths and reaches two existing allocation-test ceilings. I retain the failure log, restrict the new exact-layout query to STRUCT returns, and preserve scalar/VOID count/tag checks, capacity preflight and reference cleanup without raising ceilings.
 
