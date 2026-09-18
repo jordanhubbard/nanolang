@@ -81,3 +81,14 @@ I preserve the superseded partition as interrupted, with no passing claim.
 Both invocation-local reuse contracts are reviewed before their source edits. The main graph PR remains
 a draft until its qualification is resolved; the unchanged affine example and
 owned/void/string/source prerequisites remain open.
+
+My next diagnostic checkpoint keeps production at 246f1464 and preserves all
+previous runs. I timestamp each captured stderr line with the runner's monotonic
+elapsed time. A separate generated copy of vm.c adds only markers at API entry,
+frame preparation, dispatch entry, and around its owned/linked verifier calls.
+The wrappers return the original result unchanged. My fixtures, assertions,
+argument order, and production source remain unchanged. I run only ordinary
+case 0 once with a 60-second bound and preserve its source, binary, hashes, log,
+and status under /tmp/nanolang-owned-timed-diagnostic. This localizes phase cost
+and completed call counts; it does not establish a new proof-reuse contract or
+qualify the full instrumented corpus.
