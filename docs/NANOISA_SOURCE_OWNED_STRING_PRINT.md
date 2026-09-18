@@ -3,11 +3,9 @@
 I track `task_a4326d3ba9a74cdd938b97e777d10132` under unchanged affine-example
 `task_c4351c720aee424ea9b90187e51a08f2`. I depend on runtime task
 `task_badd6be9c31a6e2eac810b95913b4f84` and paired source graph PR744, merged
-at b147e9bb. This document precedes implementation. I await the runtime's
-reviewed qualification and canonical merge; I do not edit its branch or admit
-source through an unqualified runtime. My static review uses peer contract
-0209a4d6 and production checkpoint ae4b064c, without claiming that checkpoint
-has passed qualification.
+at b147e9bb. My initial contract preceded implementation. I now depend on the runtime's
+reviewed canonical PR750 merge at8b0fa1fd; my initial static review of
+ae4b064c was not qualification. I change no runtime authority.
 
 ## My separate type boundaries
 
@@ -129,3 +127,9 @@ A failed function prevents all pending name publication and releases the
 compiler context normally. My original exact-dump, strip/roundtrip, raw-byte
 VM/native and complete shadow assertions remain unchanged. I rerun the affected
 paired gate after correction and retain the first 40/42 outcome separately.
+
+My integrated implementation and unchanged42-method gate qualify at e56f75bf;
+I retain exact outcomes and the earlier40/42 result in my
+[source evidence](evidence/source-owned-string-print.md). My bounded source
+and ordering tasks await canonical ancestry reconciliation; c435 product
+acceptance and full ownership/release parents remain separate.
