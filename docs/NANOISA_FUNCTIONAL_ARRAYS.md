@@ -1,0 +1,13 @@
+# My canonical scalar array transformations
+
+I record this contract before implementation under existing task_c83543611db54102b1f75f7a94f9e93d. My float-array prerequisite is merged PR643; parent2578 remains open until the ordinary filter acceptance passes.
+
+I lower abs with the existing C-seed NanoISA comparison/conditional-negation semantics: I evaluate its int or float operand once, compare it with same-type zero, and negate only when less than zero. Typed I64 negation retains its defined wrap behavior; typed F64 comparison preserves negative zero and unordered NaN behavior. I do not infer a new mixed numeric conversion policy from the interpreter's C arithmetic.
+
+For map, filter and reduce, I initially resolve an ordinary declared function identifier with the existing module owner and lexical shadow rules. I reject unresolved, extern and indirect/computed callback targets explicitly. I require exact int/float/bool/string array elements, exact callback arity and parameter types, a supported scalar map result, a bool filter result, and an accumulator-preserving two-argument reduce signature. I do not coerce int arrays to float arrays or admit resource/heap callback payloads under this contract.
+
+I evaluate the source array once, then the reduce initializer once, in argument order. A declared callback identifier has no runtime evaluation effects. I capture the source length before invoking callbacks, read each element immediately before its invocation, and visit ascending indices. I invoke each callback once per original element. Map and filter produce fresh arrays, including empty results with the exact declared element type; filter preserves retained source values and order. Reduce returns the initializer unchanged when the input is empty. I retain aliases and rely on the existing native root/safepoint contract.
+
+I register direct callback dependencies in the canonical closure, so selected shadows and exported entry points keep their required callees. Ordinary user declarations with builtin spellings keep their own binding identity. I validate signatures before emitting code or mutating lowering state, preserving the first diagnostic and any previous published output.
+
+I require ordinary core operator, map/reduce and filter acceptance plus focused source-order, callback-side-effect, empty-result, type-changing map, signature refusal and owner/shadow controls. I compare executable VM/native behavior and use sanitizer cleanup checks. This source lowering uses NanoISA directly; the legacy C transpiler is not my implementation or acceptance substitute. I will record any remaining callable/profile boundary rather than close a broader task from a narrower test.
