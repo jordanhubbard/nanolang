@@ -2935,7 +2935,8 @@ fn is_builtin_function(fn_name: string) -> bool {
     
     /* NSType conversions */
     if (== fn_name "int_to_string") { return true } else { (print "") }
-    if (== fn_name "string_to_int") { return true } else { (print "") }
+    if (== fn_name "string_to_int") { return true }
+    if (== fn_name "string_to_float") { return true } else { (print "") }
     if (== fn_name "cast_int") { return true } else { (print "") }
     if (== fn_name "cast_float") { return true } else { (print "") }
     if (== fn_name "cast_bool") { return true } else { (print "") }
@@ -3049,6 +3050,7 @@ shadow is_builtin_function {
     assert (is_builtin_function "array_push")
     assert (is_builtin_function "at")
     assert (is_builtin_function "println")
+    assert (is_builtin_function "string_to_float")
     assert (not (is_builtin_function "my_custom_function"))
 }
 
@@ -3107,7 +3109,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
     
     /* NSType conversions */
     if (== fn_name "int_to_string") { return (type_string) } else { (print "") }
-    if (== fn_name "string_to_int") { return (type_int) } else { (print "") }
+    if (== fn_name "string_to_int") { return (type_int) }
+    if (== fn_name "string_to_float") { return (type_float) } else { (print "") }
     if (== fn_name "cast_int") { return (type_int) } else { (print "") }
     if (== fn_name "cast_float") { return (type_float) } else { (print "") }
     if (== fn_name "cast_bool") { return (type_bool) } else { (print "") }
@@ -3249,6 +3252,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    assert (== (check_builtin_function "string_to_float").kind TypeKind.TYPE_FLOAT)
     let t1: NSType = (check_builtin_function "println")
     assert (== t1.kind TypeKind.TYPE_VOID)
     
