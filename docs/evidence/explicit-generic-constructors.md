@@ -47,6 +47,16 @@ Commands: `make bootstrap`, then
 `make -j4 -o bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump` and
 `python3 -m unittest -v tests.test_explicit_generic_constructors`.
 
-This stacked result is not canonical task completion. Integration follows
-the generic lowering and native carrier prerequisites. Full product and
-release qualification remain separate.
+After PR666 and the native prerequisite reached canonical main, I cleanly
+restacked at `655fc22c`. Range comparison confirmed unchanged parser, checker
+and test patches. The integrated fresh bootstrap passed, followed by all
+15 paired methods in 46.611 seconds using my own rebuilt tools. The log is
+`/tmp/nanolang-explicit-generic-integrated.log`.
+The four distinct generic/context methods also pass in 47.377 seconds with
+my own translator, including the wrapper for all 25 unchanged affine
+module/generic identity methods. The adjacent log is
+`/tmp/nanolang-explicit-generic-integrated-adjacent.log`. No external tool
+override is used for either integrated gate.
+
+Task completion still requires this slice's canonical merge. Full product
+and release qualification remain separate.
