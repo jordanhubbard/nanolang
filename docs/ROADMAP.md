@@ -9900,6 +9900,11 @@ Other translators:
       propagation before admitting the shared managed substring path. Static
       review at `58e0353d`; no malformed crash reproduction.
       MAC `task_ce840367841a4bdb94ab69fd2446b635`.
+- [ ] I implement the non-admitting managed-string runtime core: portable
+      allocation, stable handles, reference/status/disposal helpers, checked
+      growth and deterministic native/Wasm reclamation/failure tests.
+      MAC `task_bfe3bb8672c04bcea56dede3f531aee7`; parent allocation/lowering
+      and all existing executable profile refusals remain open.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
       MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
       and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this

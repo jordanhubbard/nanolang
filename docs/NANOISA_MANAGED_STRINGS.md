@@ -193,3 +193,23 @@ I retain output publication checks, ordinary verifier behavior, current scalar
 and literal-profile gates, and rejection of unsupported heap/import/nominal,
 reference/passive and signature families. These are concrete evidence for
 existing equivalence and ownership obligations, not new release criteria.
+
+## My first implementation child
+
+Task `task_bfe3bb8672c04bcea56dede3f531aee7` implements the reusable runtime core
+in portable freestanding C, compiled for native and wasm32 in its own gate.
+This keeps allocator/refcount logic reviewable without hand-maintaining two
+implementations. It does not yet connect that core to emitted application IR;
+the later integration must incorporate its validated target IR/helpers in the
+published product and preserve the standalone/native/Wasm contract above.
+No external runtime object is silently made a requirement of current outputs.
+
+The core owns descriptor/byte allocations and exposes explicit status results,
+retain/release/view/creation and terminal disposal. Function-frame/global
+ownership remains a caller obligation until lowering is wired. Deterministic
+allocation-failure controls are test-build-only. The Wasm allocator is private
+to one Wasm module instance; multiple test contexts in that instance may share
+its free pool, while descriptor handles remain context-local. Independent Wasm
+instances own independent memory and free pools. Successful temporary page
+reservation before a later failure may raise memory high-water, but no failed
+operation publishes a live handle or changes a pre-existing descriptor.
