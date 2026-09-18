@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I qualify scalar arithmetic and generated array graphs on Darwin at canonical PR732 source `25a685ad` (`task_209f1e88044b4e29886228dc7357188d`). I use a fresh pinned checkout, actual helper/backend/graph routes, unchanged assertions and bounded phases, retaining tool identities and first-failure evidence. [Contract](DARWIN_ARITHMETIC_GRAPHS_732.md). This does not rerun or replace the held e9 product candidate.
+- [ ] I qualify scalar arithmetic and generated array graphs on Darwin at canonical PR732 source `25a685ad` (`task_209f1e88044b4e29886228dc7357188d`). I use a fresh pinned checkout, actual helper/backend/graph routes, unchanged assertions and bounded phases, retaining tool identities and first-failure evidence. [Contract](DARWIN_ARITHMETIC_GRAPHS_732.md). The first inventory stops before build/tests because both Wasmtime CLI and Python bindings are absent; I preserve it and qualify the documented prerequisite installation separately. This does not rerun or replace the held e9 product candidate.
 
 - [x] I qualify explicit canonical component shadow completion (`task_14c8ecbd8aaa484ea5e73f2aa43fa48b`) at product e9a5f55f: fresh bootstrap, unchanged imported selection, captured verified shadow modules, ordinary supervised VM completion and published driver entries. Parser315, checker513 and transpiler505 ordered calls complete; tool hashes and source remain unchanged. [Contract and evidence](CANONICAL_COMPONENT_SHADOW_COMPLETION.md). Later main changes and full release acceptance remain separate.
 

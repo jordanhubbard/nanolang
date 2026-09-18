@@ -43,3 +43,22 @@ I do not replay historical crash/timeout artifacts. This is neither a full
 quick suite nor a compiler bootstrap, new release candidate or release gate
 completion. Source-wide arithmetic policy, full aggregate/runtime scope and
 the unchanged affine-example blocker remain separate open obligations.
+
+## My recorded prerequisite correction
+
+The peer's first inventory finds neither the `wasmtime` executable on PATH nor
+the Python `wasmtime` module. It stops before build or tests. I preserve that
+terminal inventory report and hashes; it is not a passing qualification.
+
+I authorize the existing Homebrew toolchain to install its Wasmtime formula,
+after inspecting formula identity, and a dedicated temporary Python virtual
+environment to install the Python Wasmtime dependency. I record package
+versions, installation commands and logs. I do not modify shell startup files,
+project source, existing virtual environments or the frozen product tools.
+Per-command PATH selects the new environment and installed CLI explicitly.
+If either installation fails, I retain that outcome and stop the dependent gate.
+
+With both prerequisites verified, I start a new independently logged execution
+of the original ordered phases at the same source pin. All assertions, LTO,
+sanitizers, inner/outer deadlines and target routes remain required. The missing
+dependency outcome remains separate from the corrected qualification.
