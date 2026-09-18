@@ -97,7 +97,10 @@ class SourceBorrowEmission(unittest.TestCase):
 
     def test_borrowed_names_and_stripped_execution(self):
         for fixture in ('source_borrow_shared.nano', 'source_borrow_exclusive.nano'):
-            source = FIXTURES / fixture
+            source = self.work / ('names-' + fixture)
+            text = (FIXTURES / fixture).read_text()
+            text = text.replace('return view.value', 'let observed: int = view.value return observed')
+            source.write_text(text)
             baseline = None
             for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
                 module = self.work / (compiler + '-names.nvm')
@@ -109,6 +112,8 @@ class SourceBorrowEmission(unittest.TestCase):
                 self.assertFalse(any('__' in row[4] for row in records))
                 helper = [row for row in records if row[0] != 'main']
                 self.assertEqual(helper[0][1:3], ('0', '0'))
+                self.assertEqual(helper[1][4], 'observed')
+                self.assertGreater(int(helper[1][2]), 0)
                 owners = [row for row in records if row[0] == 'main' and row[4] == 'owner']
                 self.assertEqual(len(owners), 1)
                 self.assertGreater(int(owners[0][2]), 0)
