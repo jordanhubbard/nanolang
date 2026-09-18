@@ -21,8 +21,14 @@ canonical-publication methods pass in 12.039s. The audio example then exposes
 the separate direct-return classifier's missing trim case. I preserve
 `/tmp/nanolang-string-audio-integration.log` and record that path in the roadmap.
 Source `890e682d` adds the inline-return classification and an explicit direct
-return regression. Its final integrated acceptance is pending; task602 and
-allocation task88c3 remain open until the final checks and canonical merge.
+return regression. Fresh bootstrap passes both stages and installed execution;
+all 14 focused methods pass in 9.110s. Both unchanged audio default-argument
+examples pass verified VM execution and strict native C compilation/execution.
+I complete the bounded string and allocation contracts; full product acceptance
+remains a separate gate. Final logs are
+`/tmp/nanolang-string-direct-return-bootstrap.log`,
+`/tmp/nanolang-string-direct-return-focused.log`, and
+`/tmp/nanolang-string-direct-return-audio.log`.
 
 Additional logs: `/tmp/nanolang-string-builtins-final-bootstrap.log`,
 `/tmp/nanolang-string-trim-gcc-sanitizer.log`,
