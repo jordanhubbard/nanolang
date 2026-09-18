@@ -9,7 +9,8 @@ int main(int argc,char **argv){
  ASTNode fn={.type=AST_FUNCTION};fn.as.function.name="main";fn.as.function.return_type=TYPE_INT;fn.as.function.body=&body;
  ASTNode *items[]={&fn,NULL};ASTNode root={.type=AST_PROGRAM};root.as.program.items=items;root.as.program.count=1;
  ASTNode count={.type=AST_NUMBER};count.as.number=3;
- ASTNode loop={.type=AST_FOR};loop.as.for_stmt.var_name="value";loop.as.for_stmt.range_expr=&count;loop.as.for_stmt.body=&body;
+ ASTNode loop_body={.type=AST_BLOCK};
+ ASTNode loop={.type=AST_FOR};loop.as.for_stmt.var_name="value";loop.as.for_stmt.range_expr=&count;loop.as.for_stmt.body=&loop_body;
  CBCtx context={0};context.root=&root;context.out=tmpfile();assert(context.out);
  ctx_push_scope(&context);ctx_add_sym(&context,"value",TYPE_STRING);
  int symbols=context.sym_count,depth=context.scope_depth;
