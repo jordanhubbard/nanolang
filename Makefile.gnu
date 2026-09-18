@@ -4710,6 +4710,12 @@ test-native-typed-enum: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-typed-enum
 
+.PHONY: test-native-string-equality-guards
+test-native-string-equality-guards: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_string_equality_guards
+
+test-units: test-native-string-equality-guards
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
