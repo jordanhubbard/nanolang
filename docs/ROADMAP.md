@@ -82,7 +82,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I retain exact undeclared string builtin results for concat, trim and prefix/suffix predicates, and lower `str_trim` through VM and native C with my existing four-byte whitespace policy (`task_602f10d8e2b348eab8b7e230e12986fa`). I preserve declared function identity and test nested expressions, empty/all-space text, UTF-8 bytes, scalar refusal and current string-edge examples before full product reruns.
+- [ ] I retain exact undeclared string builtin results for concat, trim and prefix/suffix predicates, and lower `str_trim` through VM and native C with my existing four-byte whitespace policy (`task_602f10d8e2b348eab8b7e230e12986fa`). My first integrated audio gate exposed missing direct-return builtin classification; I include that path before completion. I preserve declared function identity and test nested expressions, empty/all-space text, UTF-8 bytes, scalar refusal and current string-edge examples before full product reruns.
 - [ ] I report VM trim allocation refusal after releasing the input and before publishing a string value (`task_88c3bcfa6f2041f9909718cf7715ed68`). I test corrected ordinary trim and deterministic allocation recovery; I do not replay historical failures.
 
 
