@@ -202,8 +202,11 @@ int64_t file_delete(const char *key) {
                 module = self.module(text)
                 result = self.command([ROOT/'bin/nano_vm',module], success=False)
                 self.assertIn('could not retain the provider string result', result.stderr)
-                self.command([self.native(module)], success=False,
-                             env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1'})
+                refused = self.command([self.native(module)], success=False,
+                                       env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1'})
+                self.assertNotIn('ERROR: AddressSanitizer', refused.stderr)
+                self.assertNotIn('LeakSanitizer', refused.stderr)
+                self.assertNotIn('runtime error:', refused.stderr)
 
     def test_null_provider_result_is_released_once_then_refused(self):
         lib = self.library('null_result', r'''
