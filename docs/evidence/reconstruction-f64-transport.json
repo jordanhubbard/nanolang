@@ -1,0 +1,31 @@
+{
+  "producer_source": "f87267c21a356424ce101060521ce841a5eb17bb",
+  "tools": {
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_c": "8c6c78de64845b723d2edf698e5639a5f22ba08254f3870cfc0394e5e6d8cb37",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage1": "7cb4f38745e77e9a9d84b0e58ae6df5395b91f4e5502fad48da026433b555941",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nanoc_stage2": "bae22e738d1bf2fb712870555e259d0985361ee2574e5d49d213b98ced0f2cba",
+    "/home/jkh/Src/nanolang-binary64-bit-transport/bin/nano_virt": "e7ca539d3b741ccbb23f948e433de8d5c4145282db35aaef7c1d2f6535705d53"
+  },
+  "libraries": {
+    "/lib/ld-linux-aarch64.so.1": "49005ef8e9db9a45691ff875e6ca18dd8723c7ec5c1a863a276a1186dbf22774"
+  },
+  "generator_production": "77653977",
+  "generator_base": "cc0688f1",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "reconstruction_tools": {
+    "bin/nanoisa": "fd7231e13cd972c7d01d4d7bc7ed793de43dc009b771443f7bfbd0bc04956c97",
+    "bin/nanoisa_hl_facts": "5efdcd46d7d48486c4a9204ea2aef93bfbb0b79bcbdb3a6676ce0a6aa7eb225f",
+    "bin/nvm2hl": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bin/nano_vm": "b3f7a4a4e419e830fb36947a57843fc9e4f73e33e8a513ef93de82121366e677",
+    "bin/nvm2c": "581a65e2bb0be05f61c2335cbb0ad983c736484f9741a48881f85b4dee74e1bf"
+  },
+  "logs": {
+    "/tmp/nanolang-reconstruction-f64-first.log": "2c2adefa34ee136afd7607a8242ed0970cdf2d7923621f5aa273759650aa27db",
+    "/tmp/nanolang-reconstruction-f64-clang.log": "2b58150e10963a43e96f98214ad8247c396ff24bb13b8cbeb01352feae0ac458",
+    "/tmp/nanolang-reconstruction-f64-observers-gcc.log": "7becacde0dc38960a8f9ae625e3bbb2cbe762c395635d0da2c0b48770e9796f3",
+    "/tmp/nanolang-reconstruction-f64-existing-scalar.log": "e19a1f2d35292a40f76d504652ab58a0e2b7f3f9ae476444b976d565af7547db",
+    "/tmp/nanolang-reconstruction-f64-final-gcc.log": "7fa2e201ab010724b8ee280490bdb52c3fb96240f0808cbea2cbd43cb3725843",
+    "/tmp/nanolang-reconstruction-f64-final-clang.log": "c75ab27461443edda993d9ba996b5920c7193662a9dcfdb94a66a59c601fb3f8",
+    "/tmp/nanolang-reconstruction-f64-refusal-integration.log": "a07bafca0c6fa51fa3a99711aa2481b04a93458a09963f7e43caa95d29d8dc8d"
+  }
+}

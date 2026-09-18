@@ -2,9 +2,9 @@
 
 I record `task_b6083f68f2cf4951a134da4ec82a1e17` before implementation,
 under full reconstruction parent `task_4bd034f6029b7458201db74e2c3aeb32`.
-My starting main is `cc0688f1`, containing reviewed PR720. This commit records
-my proposal only: executable float reconstruction remains refused until review
-and the acceptance below.
+My starting main is `cc0688f1`, containing reviewed PR720. My original contract commit `9a8ab1c2` recorded this proposal before admission.
+My implementation and acceptance are retained in [evidence](evidence/reconstruction-f64-transport.md);
+all exclusions below remain in force.
 
 ## My admitted operations
 
