@@ -18,13 +18,13 @@ My ordered phases are:
    linker. Missing prerequisites are an explicit incomplete outcome.
 2. Build `nano_vm nvm2c nvm2wasm nanoisa_dump` from this exact source with the
    supported Darwin build tools. Retain actual compiler flags and tool hashes.
-3. Run `python3 -m unittest -v tests.test_binary64_arithmetic`: two helper
+3. Run `python3 -m unittest -f -v tests.test_binary64_arithmetic`: two helper
    methods, including exact standalone generation, sanitizer/optimization/LTO
    modes and target guards.
-4. Run `python3 -m unittest -v tests.test_binary64_arithmetic_backends`: four
+4. Run `python3 -m unittest -f -v tests.test_binary64_arithmetic_backends`: four
    methods spanning scalar and managed paths, ordinary VM/native/LLVM/Wasm
    execution, exact arithmetic bits and unchanged operand transport.
-5. Run `python3 -m unittest -v tests.test_llvm_managed_graphs`: eight methods
+5. Run `python3 -m unittest -f -v tests.test_llvm_managed_graphs`: eight methods
    covering actual generated nested owners, cycles, finite-memory pressure,
    persistent globals, first errors and cleanup across normal target routes.
 6. Seal raw logs and a report with SHA256 hashes, elapsed times, selected tools,
