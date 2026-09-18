@@ -53,3 +53,10 @@ remain. I do not claim those initial runs passed.
 I changed no source-language compiler and claim no new compiler bootstrap.
 Parent488, parent51da, arbitrary collection shapes/cycles, Darwin sanitizer7ba
 and historical evaluator791a remain open. This child does not complete them.
+
+I restacked onto main `6e371b1d` after PR690's scalar reconstruction changes.
+Integrated implementation `02219481` retains identical runtime/lowering/profile,
+package inputs and LLVM/managed/profile test bytes to frozen `d0841511`.
+The inherited Makefile change only adds the reconstruction truthiness test to
+its reconstruction target. No affected runtime rebuild is needed;
+`git diff --check` passes and the completed gate remains applicable.
