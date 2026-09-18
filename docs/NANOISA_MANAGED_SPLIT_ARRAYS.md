@@ -52,3 +52,10 @@ three other focused groups passed, but this mixed-target result was not
 acceptance. I correct the private tag to7, add an explicit compiler-side ABI
 assertion and exact TYPE_CHECK7 controls before the next fresh gate. I retain
 `/tmp/nanolang-managed-split-focused.log` as the original failure evidence.
+
+The first full adjacent gate stopped at an old scalar-global CLI test that
+expected every STR_SPLIT/global module to be refused. That program is now in my
+explicit managed admission contract. I retain the log at
+`/tmp/nanolang-managed-split-full.log`, replace its refusal control with still
+unsupported ARR_NEW, and retain the original program as a positive native/Wasm
+case. I do not remove the output-preservation assertion or broaden other heaps.
