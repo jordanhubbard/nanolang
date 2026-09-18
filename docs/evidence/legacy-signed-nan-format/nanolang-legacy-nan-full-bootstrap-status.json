@@ -1,0 +1,11 @@
+{
+  "source": "cc6d474233bd39ae8798ee98af8e97c2217a5b04",
+  "command": [
+    "make",
+    "-j8",
+    "bootstrap"
+  ],
+  "status": 0,
+  "timed_out": false,
+  "seconds": 228.039
+}

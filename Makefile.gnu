@@ -5124,3 +5124,5 @@ $(OBJ_DIR)/eval.o: CFLAGS += -ffp-contract=off -fno-fast-math
 $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
 
 $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
+
+$(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h

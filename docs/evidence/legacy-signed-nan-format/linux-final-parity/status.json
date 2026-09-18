@@ -1,0 +1,26 @@
+{
+  "source": "f586bdb0d1707e6f67012346a84163a2d289d1d8",
+  "status": 0,
+  "seconds": 0.502,
+  "before": {
+    "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+    "src/c_backend.c": "508c045b1a066fbaa9aa3249f0ca228a5b0f6d195085d276d76eafa3abbb8f42",
+    "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+    "bin/nanoc_c": "2a8b91d7336045a4baef0dbc104ab7014a46d4caa2aee434f3766be815554cc7",
+    "bin/nano": "389e495cd2c935d63842de9e0ef906faf7fdf3cc55c91f5d75f5ebce2ee73559",
+    "bin/nano_virt": "ae85aa6edc20c09255adbfc90da79cb73d1e5020004261ac8170de0666d0837a",
+    "bin/nano_vm": "90ba301a295f1c1b591f7d2675bf9fe028b1c6c81cf72191e8143a40b0593bc0",
+    "bin/nvm2c": "2fe730b400e367138116cafbc643fd3e73acd0d60152027d24f3da8f4326afd6"
+  },
+  "after": {
+    "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+    "src/c_backend.c": "508c045b1a066fbaa9aa3249f0ca228a5b0f6d195085d276d76eafa3abbb8f42",
+    "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+    "bin/nanoc_c": "2a8b91d7336045a4baef0dbc104ab7014a46d4caa2aee434f3766be815554cc7",
+    "bin/nano": "389e495cd2c935d63842de9e0ef906faf7fdf3cc55c91f5d75f5ebce2ee73559",
+    "bin/nano_virt": "ae85aa6edc20c09255adbfc90da79cb73d1e5020004261ac8170de0666d0837a",
+    "bin/nano_vm": "90ba301a295f1c1b591f7d2675bf9fe028b1c6c81cf72191e8143a40b0593bc0",
+    "bin/nvm2c": "2fe730b400e367138116cafbc643fd3e73acd0d60152027d24f3da8f4326afd6"
+  },
+  "unchanged": true
+}

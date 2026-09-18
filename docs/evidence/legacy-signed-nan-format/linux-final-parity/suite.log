@@ -1,0 +1,7 @@
+test_distinct_allocations_fields_and_existing_source_routes (tests.test_public_c_string_equality.PublicCStringEquality.test_distinct_allocations_fields_and_existing_source_routes) ... I retain fresh equality evidence at /tmp/nano-public-c-equality-c477ouyd
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.401s
+
+OK
