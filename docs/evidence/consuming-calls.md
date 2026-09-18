@@ -76,3 +76,10 @@ I integrate canonical `66508fe4` at `525f3075`. The only conflict is the already
 completed helper-local source roadmap row; I preserve its merged evidence.
 All six consuming-call production files are byte-identical to reviewed
 `d6c8bd56`. The integrated focused and full native gates use rebuilt own tools.
+
+Final integrated `make -j4 test-consuming-calls test-nvm2c` passes: 3,091
+consuming-call lifecycle/refusal checks, 104 heap-fault checks, 90 frame/contract
+preflight checks, all seven generated-native sanitizer cases, 1,365 shape
+checks and 2,422 native checks with zero failures. The log is
+`/tmp/nanolang-consuming-call-integrated.log`. I leave task completion pending
+canonical merge; all broader source and ownership acceptance remains separate.
