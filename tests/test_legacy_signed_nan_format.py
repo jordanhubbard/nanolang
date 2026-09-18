@@ -53,7 +53,38 @@ class LegacySignedNan(unittest.TestCase):
             with self.subTest(compiler=compiler):
                 executable=self.work/compiler
                 self.command(ROOT/'bin'/compiler,path,'-o',executable)
-                self.assertEqual(self.command(executable).stdout,expected)
+                route_expected = expected if compiler == "nanoc_c" else "".join(text+"|\n" for _,text in CASES)
+                self.assertEqual(self.command(executable).stdout,route_expected)
+    def test_interpreter_array_and_generic_format(self):
+        calls=[]
+        for bits,text in CASES:
+            printed={'0.0':'0','-0.0':'-0','1.0':'1'}.get(text,text)
+            calls.append(f'    (check {signed(bits)} {json.dumps(text)} {json.dumps(printed)})')
+        program='''fn check(bits:int, scalar:string, raw:string)->void {
+    let value:float=(float_from_bits bits)
+    let values:array<float>=[value]
+    assert (== (to_string value) scalar)
+    assert (== (format "%g" value) raw)
+    assert (== (to_string values) (str_concat "[" (str_concat raw "]")))
+    assert (== (float_to_bits (array_get values 0)) bits)
+    (print values)
+    (println "|")
+}
+shadow check {
+    let value:float=(float_from_bits -2251799813685247)
+    assert (== (format "%g" value) "-nan")
+    assert (== (to_string value) "-nan")
+}
+fn main()->int {
+'''+ '\n'.join(calls)+'''
+    return 0
+}
+shadow main { assert (== (format "%g" -0.0) "-0") }
+'''
+        path=self.work/'array-format.nano';path.write_text(program)
+        expected=''.join('['+{'0.0':'0','-0.0':'-0','1.0':'1'}.get(text,text)+']|\n' for _,text in CASES)
+        self.assertEqual(self.command(ROOT/'bin/nano',path).stdout,expected)
+
     def test_generated_provider_identity(self):
         self.command('python3',ROOT/'scripts/embed_binary64_format.py','--check')
         path=self.work/'scalar.nano';path.write_text(source())

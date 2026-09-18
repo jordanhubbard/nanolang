@@ -71,3 +71,10 @@ I retain and separately report unsupported source routes rather than treating
 them as a pass. Public C-target work remains with its assigned agent and must
 consume this provider in a separately reviewed change. Parent e92 stays open
 until all required paths and both host qualifications are complete.
+
+My first fully bootstrapped scalar fixture retained two finite-output expectation
+failures: Stage1 and Stage2 print float identifiers through their existing
+float-to-string conversion, retaining `.0`, whereas my interpreter and C-seed
+print use `%g`. I verified this lowering in the unchanged base before correcting
+the route-specific fixture. All signed nonfinite observations and provider
+identity passed in that run; I retain its failed status and qualify fresh outputs.
