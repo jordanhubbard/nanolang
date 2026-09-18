@@ -440,6 +440,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_TO_LOWER: case OP_STR_TO_UPPER:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_case(%%V %%p%u_a, i32 %u)\n", pc, pc, ins.opcode == OP_STR_TO_UPPER ? 1u : 0u);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
         case OP_STR_TRIM:
             pop(&frame, pc, "a");
             fprintf(out, " %%p%u_value = call %%V @managed_trim(%%V %%p%u_a)\n", pc, pc);

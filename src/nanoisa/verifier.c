@@ -1100,7 +1100,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
             needs_string_runtime |= !managed_profile && (ins.opcode == OP_ADD || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT);
             bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
                               ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
-                              (managed_profile && (ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
+                              (managed_profile && (ins.opcode == OP_STR_TO_LOWER || ins.opcode == OP_STR_TO_UPPER || ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
                                ins.opcode == OP_STR_CONTAINS || ins.opcode == OP_STR_STARTS_WITH || ins.opcode == OP_STR_ENDS_WITH)));
             if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
