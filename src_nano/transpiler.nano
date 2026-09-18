@@ -5192,6 +5192,31 @@ shadow build_array_binop_expr {
  * 
  * Returns: C code string for the expression
  */
+/* I preserve identifier selection and retain exact unbound call array results. */
+fn legacy_array_operand_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) -> string {
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let id: ASTIdentifier = (parser_get_identifier parser node_id)
+        return (genenv_get env id.name)
+    }
+    if (!= node_type ParseNodeType.PNODE_CALL) { return "" }
+    let call: ASTCall = (parser_get_call parser node_id)
+    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
+    let callee: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (!= (genenv_get env callee.name) "") { return "" }
+    let result: string = (lookup_func_return_type_in_parser parser (mb_resolve callee.name callee.line env.names))
+    if (or (== result "array<int>") (== result "array<float>")) { return result }
+    return ""
+}
+shadow legacy_array_operand_type {
+    let tokens: List<LexerToken> = (tokenize_string "fn probe() -> array<float> { return (source) } fn source() -> array<float> { return [1.0] }" "array-call.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "array-call.nano")
+    let ret: ASTReturn = (parser_get_return parser 0)
+    let env: GenEnv = (genenv_new "test")
+    assert (== (legacy_array_operand_type parser ret.value ret.value_type env) "array<float>")
+    let bound: GenEnv = (genenv_put env "source" "fn()->float" false)
+    assert (== (legacy_array_operand_type parser ret.value ret.value_type bound) "")
+}
+
 fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv, expected_type: string) -> string {
     if (== node_type ParseNodeType.PNODE_NUMBER) {
         /* Number literal */
@@ -5265,17 +5290,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 let left_code: string = (generate_expression parser binop.left binop.left_type env operand_expected)
                 let right_code: string = (generate_expression parser binop.right binop.right_type env operand_expected)
 
-                /* Array arithmetic lowering for identifier operands */
-                let mut left_arr_t: string = ""
-                let mut right_arr_t: string = ""
-                if (== binop.left_type ParseNodeType.PNODE_IDENTIFIER) {
-                    let lid: ASTIdentifier = (parser_get_identifier parser binop.left)
-                    set left_arr_t (genenv_get env lid.name)
-                } else { (print "") }
-                if (== binop.right_type ParseNodeType.PNODE_IDENTIFIER) {
-                    let rid: ASTIdentifier = (parser_get_identifier parser binop.right)
-                    set right_arr_t (genenv_get env rid.name)
-                } else { (print "") }
+                /* I retain declared numeric array results as well as identifiers. */
+                let left_arr_t: string = (legacy_array_operand_type parser binop.left binop.left_type env)
+                let right_arr_t: string = (legacy_array_operand_type parser binop.right binop.right_type env)
 
                 let left_is_arr: bool = (is_array_type left_arr_t)
                 let right_is_arr: bool = (is_array_type right_arr_t)
