@@ -22,3 +22,26 @@ pattern products, carry chains, ordinary locals/calls/branches/loops and
 strict GCC/Clang sanitizer execution. Existing native/shape/verifier gates
 remain required. I do not execute malformed inputs or replay the unrelated
 held carry-reconstruction compiler failure.
+
+## My measured acceptance
+
+My production checkpoint `7d571af9` passed `make -j4
+test-integer-pair-verification`: 34 static type-rule checks and five positive
+VM/native methods (0.898 seconds). Every generated native fixture used strict
+C11 warnings plus ASan/UBSan. The same five methods passed with `CC=clang-18`
+in 1.758 seconds. They cover 200 signed/unsigned wide products, carry/borrow
+low-bit inputs, both result words, pair composition, calls, reaching joins
+and loop-carried scalar locals.
+
+My default `CC=clang` attempt stopped before C compilation on its installed
+GCC selection warning (`-Wgcc-install-dir-libstdcxx`). I retain that log at
+`/tmp/nanolang-native-integer-pairs-clang.log`; I used the installed Clang 18
+without suppressing warnings. My successful logs are
+`/tmp/nanolang-native-integer-pairs-focused.log` and
+`/tmp/nanolang-native-integer-pairs-clang18.log`.
+
+My existing `make -j4 test-nvm2c test-verifier` gate passed 2,422 native checks,
+1,317 shape checks, 96 verifier checks, opcode coverage, sanitizer-driver
+checks and verifier allocation cleanup. I retain its output at
+`/tmp/nanolang-native-integer-pairs-adjacent.log`. I changed no source frontend,
+wire authority, aggregate carrier or held compiler artifact.
