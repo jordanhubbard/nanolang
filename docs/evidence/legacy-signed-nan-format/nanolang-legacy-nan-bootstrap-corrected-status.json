@@ -1,0 +1,16 @@
+{
+  "source": "0e21f9a3ea79970fa9a923572351b3d6482b4b0a",
+  "command": [
+    "make",
+    "-j8",
+    "build",
+    "nano_vm",
+    "nvm2c",
+    "nanoisa_dump",
+    "NMS_RUNTIME_CLANG=clang-18",
+    "NMS_RUNTIME_OPT=opt-18"
+  ],
+  "status": 0,
+  "timed_out": false,
+  "seconds": 54.986
+}

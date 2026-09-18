@@ -1,3 +1,4 @@
+from "src_nano/compiler/binary64_format_runtime.nano" import gen_binary64_format_runtime
 from "src_nano/compiler/binary64_arithmetic_runtime.nano" import gen_binary64_arithmetic_runtime
 from "src_nano/compiler/passive_graph.nano" import passive_order
 /* =============================================================================
@@ -3792,6 +3793,7 @@ shadow gen_c_includes {
 fn gen_c_runtime() -> string {
     let mut sb: array<string> = []
     set sb (cg_append sb (gen_binary64_arithmetic_runtime))
+    set sb (cg_append sb (gen_binary64_format_runtime))
     
     set sb (cg_append sb "/* ========== Math and Utility Built-in Functions ========== */\n\n")
     
@@ -3831,11 +3833,11 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "}\n\n")
 
     set sb (cg_append sb "void nl_print_float(double v) {\n")
-    set sb (cg_append sb "    printf(\"%g\", v);\n")
+    set sb (cg_append sb "    nano_rt_f64_print(stdout, v);\n")
     set sb (cg_append sb "}\n\n")
 
     set sb (cg_append sb "void nl_println_float(double v) {\n")
-    set sb (cg_append sb "    printf(\"%g\\n\", v);\n")
+    set sb (cg_append sb "    nano_rt_f64_print(stdout, v); fputc('\\n', stdout);\n")
     set sb (cg_append sb "}\n\n")
     
     /* Type conversion functions */
@@ -3851,7 +3853,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "char* nl_float_to_string(double x) {\n")
     set sb (cg_append sb "    char* buffer = malloc(64);\n")
     set sb (cg_append sb "    if (!buffer) return \"\";\n")
-    set sb (cg_append sb "    snprintf(buffer, 64, \"%g\", x);\n")
+    set sb (cg_append sb "    nano_rt_f64_format(buffer, 64, x);\n")
     set sb (cg_append sb "    if (!strchr(buffer, '.') && !strchr(buffer, 'e') && !strchr(buffer, 'n') && !strchr(buffer, 'i')) {\n")
     set sb (cg_append sb "        size_t len = strlen(buffer);\n")
     set sb (cg_append sb "        if (len + 2 < 64) { buffer[len] = '.'; buffer[len + 1] = '0'; buffer[len + 2] = '\\0'; }\n")
