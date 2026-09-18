@@ -28,6 +28,24 @@ int main(int argc,char **argv){
  ASTNode function={.type=AST_FUNCTION};function.as.function.name="main";function.as.function.return_type=TYPE_INT;function.as.function.body=&body;
  ASTNode *items[]={&declaration,&function};ASTNode root={.type=AST_PROGRAM};root.as.program.count=2;root.as.program.items=items;
  CBOptions options={0};CBCtx context={0};context.root=&root;int d=-1,v=-1;
+ assert(ctx_union_match_complete(&context,&match));
+ ASTNode guard={.type=AST_BOOL};guard.as.bool_val=true;ASTNode *guards[]={&guard,NULL};
+ match.as.match_expr.guard_exprs=guards;assert(!ctx_union_match_complete(&context,&match));
+ context.out=tmpfile();assert(context.out);assert(emit_stmt(&context,&match)==0);
+ assert(fflush(context.out)==0);rewind(context.out);char guarded[4096]={0};
+ assert(fread(guarded,1,sizeof guarded-1,context.out)>0);assert(fclose(context.out)==0);
+ assert(!strstr(guarded,"I require a declared C union tag"));match.as.match_expr.guard_exprs=NULL;
+ char *two_variants[]={"Item","Other"};char *two_patterns[]={"Item","Item"};
+ declaration.as.union_def.variant_names=two_variants;declaration.as.union_def.variant_count=2;
+ assert(!ctx_union_match_complete(&context,&match));
+ match.as.match_expr.arm_count=2;match.as.match_expr.pattern_variants=two_patterns;
+ assert(!ctx_union_match_complete(&context,&match));
+ two_patterns[0]="Other";assert(ctx_union_match_complete(&context,&match));
+ two_patterns[0]="Unknown";assert(!ctx_union_match_complete(&context,&match));
+ two_patterns[0]="_";assert(!ctx_union_match_complete(&context,&match));
+ match.as.match_expr.arm_count=0;assert(!ctx_union_match_complete(&context,&match));
+ match.as.match_expr.arm_count=1;match.as.match_expr.pattern_variants=patterns;
+ declaration.as.union_def.variant_names=variants;declaration.as.union_def.variant_count=1;
  assert(ctx_union_variant(&context,"Choice","Item",&d,&v)==&declaration&&d==0&&v==0);
  assert(ctx_union_variant(&context,"Other","Item",&d,&v)==NULL);
  assert(ctx_union_variant(&context,"Choice","Other",&d,&v)==NULL);
@@ -47,5 +65,6 @@ int main(int argc,char **argv){
  FILE *f=fopen(argv[1],"r");assert(f);char text[32768]={0};assert(fread(text,1,sizeof text-1,f)>0);assert(fclose(f)==0);
  assert(strstr(text,"nano_cb_0_payload_0_0 p = nano_cb_0_match_value.as.Item"));
  assert(!strstr(text,"__typeof__"));
+ assert(strstr(text,"I require a declared C union tag for match."));
  return 0;
 }
