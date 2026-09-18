@@ -351,6 +351,18 @@ NmsStatus nms_parse_i64(const NmsRuntime *runtime, NmsHandle source, int64_t *ou
                     : (int64_t)value;
     return NMS_OK;
 }
+static int trim_space(unsigned char byte) {
+    return byte == ' ' || byte == '\t' || byte == '\n' || byte == '\r';
+}
+NmsStatus nms_trim_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle *out) {
+    NmsView view;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status != NMS_OK) { nms_release(runtime, source); return status; }
+    uint32_t start = 0, end = view.length;
+    while (start < end && trim_space(view.data[start])) start++;
+    while (end > start && trim_space(view.data[end - 1])) end--;
+    return nms_substr_owned(runtime, source, start, end - start, out);
+}
 NmsStatus nms_substr_owned(NmsRuntime *runtime, NmsHandle source,
                            uint32_t start, uint32_t length, NmsHandle *out) {
     NmsView view;
