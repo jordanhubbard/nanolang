@@ -4917,3 +4917,8 @@ test-units: test-canonical-prefix-conversion
 test-units: test-generic-union-emission
 test-generic-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	@python3 -m unittest -v tests.test_generic_union_emission
+
+.PHONY: test-explicit-generic-constructors
+test-units: test-explicit-generic-constructors
+test-explicit-generic-constructors: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_explicit_generic_constructors
