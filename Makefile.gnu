@@ -4599,6 +4599,11 @@ test-units: test-unreachable-warning
 test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
 	python3 -m unittest -v tests.test_underscore_payload
 test-units: test-underscore-payload
+.PHONY: test-source-borrow-emission
+test-units: test-source-borrow-emission
+test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest -v tests.test_source_borrow_emission
+
 .PHONY: test-owned-assertions
 test-units: test-owned-assertions
 test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
@@ -4664,8 +4669,3 @@ test-cseed-imported-unions: $(COMPILER_C)
 	@python3 -m unittest -v tests.test_cseed_imported_unions
 
 test-units: test-cseed-imported-unions
-
-.PHONY: test-source-borrow-emission
-test-units: test-source-borrow-emission
-test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
-	@python3 -m unittest -v tests.test_source_borrow_emission

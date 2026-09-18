@@ -48,7 +48,8 @@ class SourceBorrowEmission(unittest.TestCase):
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-o', native)
         result = subprocess.run([native], cwd=ROOT, capture_output=True, text=True, timeout=30,
                                 env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
-        self.assertEqual(result.returncode, 0 if expected == 0 else 2, result.stdout + result.stderr)
+        # My standalone wrapper maps internal assertion status 2 to exit status 1.
+        self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         self.assertNotIn('Sanitizer', result.stderr)
         if expected == 0:
             self.assertEqual(vm.stdout, result.stdout)
