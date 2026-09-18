@@ -23,3 +23,5 @@ the original product checkout. I copied those libraries separately, retain
 the original paths and verify their hashes before/after gates. This is not
 hermetic relocation. Local downstream translator/runtime tools are built
 and hashed separately; process system libraries remain host dependencies.
+
+My initial new fixture used unsupported `.param` syntax and was refused by the assembler before any module/compiler execution. I preserve `/tmp/nanolang-generic-reconstruction-first.log`; A first spelling correction to `.params` was also refused (`/tmp/nanolang-generic-reconstruction-corrected.log`). I inspected the existing paired fixture and used its `.parameters identity int` directive; neither setup attempt executed a module.
