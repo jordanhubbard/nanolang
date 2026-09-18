@@ -22,4 +22,6 @@ At implementation checkpoint `57e23817`, ten focused and adjacent methods pass w
 
 I retain initial development evidence separately: the first native check identified an omitted float constructor whitelist; the first source build identified an omitted type-admission branch; a source fixture incorrectly assigned the void result of `array_set`; and the expanded churn test initially lacked a Python concatenation operator. Corrected checks above pass. These observations do not characterize the historical product compiler failures.
 
-Full native/shape and emitter gates are pending. Inferred float-array literal admission also needs its explicit source branch and positive control before readiness. I do not close this child or parent2578 from the current focused results.
+My unchanged native implementation passes all 2,422 structured-C checks and 1,269 shape checks. The existing emitter comparison passes 86 checks. Its first 88-method run retained three failure records from two stale float-refusal controls, including a subsequent output-existence assertion after the newly valid fill case published output. I now use still-unsupported nested arrays in those controls.
+
+At source checkpoint `59d28b33`, I also admit inferred homogeneous float literals and require exact nonliteral float-array context, including the opposite int-array direction. Eleven focused/driver methods pass GCC in 2.924 seconds; four float methods pass Clang in 2.355 seconds. My final broader emitter gate remains pending. Parent2578 remains open for functional transformations.
