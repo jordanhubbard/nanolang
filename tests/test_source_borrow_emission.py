@@ -1500,6 +1500,76 @@ shadow main { assert (== (main) 0) }
                         self.assertIn('exact nominal owned call result', result.stdout + result.stderr)
                         self.assertNotIn('exact positional scalar argument', result.stdout + result.stderr)
 
+    def test_transitive_wrappers_restore_unchanged_affine_integration(self):
+        text = (ROOT / 'tests/test_affine_integration.nano').read_text()
+        baseline, shadows = self.graph_positive('transitive-original', text, b'File closed\n' * 5)
+        self.assertIn('Connection', baseline)
+        self.assertIn('OWN_PACK', baseline)
+        self.assertIn('OWN_UNPACK_LOCAL', shadows)
+
+    def transitive_wrapper_fixture(self):
+        return '''resource struct Leaf { value: int }
+struct Inner { leaf: Leaf, yes: bool }
+struct Outer { inner: Inner, extra: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn make() -> Outer {
+    return Outer { inner: Inner { leaf: Leaf { value: (scalar 7 "A") }, yes: true }, extra: (scalar 9 "B") }
+}
+shadow make { assert true }
+fn relay(owner: Outer) -> Outer { return owner }
+shadow relay { assert true }
+fn take(owner: Outer) -> int {
+    let Outer { inner, extra } = owner
+    let Inner { leaf, yes } = inner
+    let Leaf { value } = leaf
+    assert yes
+    return (+ value extra)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 2) { assert (== (take (relay (make))) 16) }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_transitive_wrapper_results_preserve_once_order_and_children(self):
+        baseline, shadows = self.graph_positive('transitive-results', self.transitive_wrapper_fixture(), b'ABAB', b'ABAB')
+        self.assertIn('.ownership', baseline)
+        self.assertIn('.parameters 2 struct', baseline)
+        self.assertGreaterEqual(shadows.count('OWN_UNPACK_LOCAL'), 3)
+
+    def test_transitive_wrapper_refusals_preserve_output(self):
+        base = self.transitive_wrapper_fixture()
+        cases = {
+            'wrong_nominal': base.replace('struct Outer', 'struct Other { leaf: Leaf, yes: bool }\nstruct Outer', 1)
+                .replace('inner: Inner { leaf:', 'inner: Other { leaf:'),
+            'missing_field': base.replace(', extra: (scalar 9 "B")', ''),
+            'duplicate_field': base.replace('yes: true', 'yes: true, yes: false'),
+            'managed_string': base.replace('extra: int', 'extra: string').replace('extra: (scalar 9 "B")', 'extra: "B"')
+                .replace('return (+ value extra)', 'return value'),
+            'managed_array': base.replace('extra: int', 'extra: array<float>').replace('extra: (scalar 9 "B")', 'extra: [1.5]')
+                .replace('return (+ value extra)', 'return value'),
+            'forward_child': base.replace('resource struct Leaf { value: int }\nstruct Inner { leaf: Leaf, yes: bool }',
+                'struct Inner { leaf: Leaf, yes: bool }\nresource struct Leaf { value: int }'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('transitive-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'transitive-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact|earlier')
+
 
 if __name__ == '__main__':
     unittest.main()
