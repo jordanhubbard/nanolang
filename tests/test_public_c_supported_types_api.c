@@ -27,6 +27,16 @@ int main(int argc,char **argv){
   if(type!=TYPE_VOID){TypeInfo inner={.base_type=type};TypeInfo *parts[]={&inner};TypeInfo outer={.base_type=TYPE_INT,.type_params=parts,.type_param_count=1};helper.as.function.return_type_info=&outer;refuse(&root,argv[1],&opts);helper.as.function.return_type_info=NULL;}
  }
  fields[0]=TYPE_INT;
+ /* Standalone constructors cannot bypass nominal checks without a typed consumer. */
+ ASTNode construct={.type=AST_UNION_CONSTRUCT};construct.as.union_construct.variant_name="Some";
+ ASTNode dotted={.type=AST_STRUCT_LITERAL};
+ items[2]=&record;root.as.program.count=3;
+ const char *bad_owners[]={"Missing","Record"};char dotted_name[64];
+ for(size_t i=0;i<2;i++){
+  construct.as.union_construct.union_name=(char *)bad_owners[i];statements[0]=&construct;refuse(&root,argv[1],&opts);
+  snprintf(dotted_name,sizeof dotted_name,"%s.Some",bad_owners[i]);dotted.as.struct_literal.struct_name=dotted_name;statements[0]=&dotted;refuse(&root,argv[1],&opts);
+ }
+ statements[0]=&ret;root.as.program.count=2;
  /* Missing/wrong nominal owner and declaration order never fabricate int64 storage. */
  for(int value=TYPE_STRUCT;value<=TYPE_UNION;value++){
   if(value==TYPE_ENUM)continue;
@@ -44,7 +54,12 @@ int main(int argc,char **argv){
  earlier.as.struct_def.is_resource=true;refuse(&root,argv[1],&opts);earlier.as.struct_def.is_resource=false;
  earlier.as.struct_def.field_count=0;refuse(&root,argv[1],&opts);earlier.as.struct_def.field_count=1;
  /* Recovery emits a prior-order complete record graph, or existing scalar carriers. */
- if(strcmp(argv[2],"record")){
+ if(!strcmp(argv[2],"union")){
+  counts[0]=0;items[0]=&un;items[1]=&main_fn;root.as.program.count=2;
+  construct.as.union_construct.union_name="Choice";statements[0]=&construct;statements[1]=&ret;body.as.block.count=2;
+  assert(c_backend_emit(&root,argv[1],"profile.nano",&opts)==0);
+  FILE *stream=tmpfile();assert(stream);assert(c_backend_emit_fp(&root,stream,"profile.nano",&opts)==0);assert(!fclose(stream));
+ }else if(strcmp(argv[2],"record")){
   Type type=!strcmp(argv[2],"u8")?TYPE_U8:!strcmp(argv[2],"enum")?TYPE_ENUM:TYPE_INT;
   ASTNode argument={.type=AST_IDENTIFIER};argument.as.identifier="argument";
   ASTNode relay_return={.type=AST_RETURN};relay_return.as.return_stmt.value=&argument;
