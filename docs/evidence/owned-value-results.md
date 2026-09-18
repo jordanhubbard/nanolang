@@ -91,14 +91,34 @@ Apple ASan does not support `detect_leaks=1`. I preserve
 48c7c01722073d9afb1b6480f96146189d1ce54395f636d25f8b3669ca3430eb.
 This is a harness-policy failure, not a runtime finding.
 
-At code checkpoint 497dd96d0f039c9867bcb9087c4a1b33854b99bc, Darwin
-selects `detect_leaks=0`; every other platform retains `detect_leaks=1`.
-ASan/UBSan, `halt_on_error=1` and every generated `live==0` assertion remain.
-The exact Darwin focused target passes 502 descriptor, 1552 lifecycle, 3485
-allocation checks across 312 budgets and 272 actual injected failures, 117
-return-preflight checks and all ten generated-native cases in 6 seconds. I
-retain /private/tmp/nanolang-owned-result-lsan-497dd96d-darwin.log with SHA256
-64171f8c08128a39b29eef0bfebdb3bf83f9a360deb62dba50a0173b26a85987.
+At code checkpoint 497dd96d0f039c9867bcb9087c4a1b33854b99bc, I first
+selected `detect_leaks=0` from the Darwin host platform. The exact focused
+target passes 502 descriptor, 1552 lifecycle, 3485 allocation checks across
+312 budgets and 272 actual injected failures, 117 return-preflight checks and
+all ten generated-native cases in 6 seconds. I retain
+/private/tmp/nanolang-owned-result-lsan-497dd96d-darwin.log with SHA256
+64171f8c08128a39b29eef0bfebdb3bf83f9a360deb62dba50a0173b26a85987. That
+OS-wide fallback was too broad: Homebrew LLVM on Darwin supports LeakSanitizer.
+
+At source dfbea5baf77ac96c8cec9afc0ed8d9ff2586fa4c, I select leak detection
+from the compiler runtime identity instead. `/usr/bin/clang` reports Apple
+Clang 21.0.0, so I use the narrow known-unsupported fallback
+`detect_leaks=0`. The complete focused target passes in 10 seconds with the
+same 502 descriptor, 1552 lifecycle, 3485 allocation, 312 budget, 272 injected
+failure, 117 preflight and ten generated-native case counts. I retain
+/private/tmp/nanolang-owned-result-apple-dfbea5ba.log with SHA256
+b20a6571cf0db2f2004539aec8a6cc2e773474bf0b750d4eb21c47762600773c.
+
+In a separate clean tree at the same source,
+`/opt/homebrew/opt/llvm/bin/clang` reports Clang 23.1.1 and keeps
+`detect_leaks=1`. The identical complete focused target passes in 13 seconds
+with the same counts. I retain
+/private/tmp/nanolang-owned-result-llvm23-dfbea5ba.log with SHA256
+fed07eda1154c762622e1b623fed84ad0d9c248a946387320f76d952ee845d34.
+ASan/UBSan, `halt_on_error=1` and every generated `live==0` assertion remain
+enabled in both runs. I do not claim unchanged leak-sanitizer coverage: Apple
+Clang uses the explicit zero-live-allocation boundary while Homebrew LLVM 23
+also executes LeakSanitizer.
 
 This portability correction changes only test policy and documentation; the
 qualified owned-result production remains unchanged. Full source admission,
