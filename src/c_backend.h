@@ -24,7 +24,8 @@
  *
  * Profile boundaries
  * ──────────────────
- *   I refuse anonymous/captured callables, tuple values, effects, async/await
+ *   I support direct declared calls. I refuse arrays, first-class callable values,
+ *   expression/local-bound callees, tuple values, effects, async/await
  *   and try propagation. I require hosted library support. Exact supported
  *   scalar/local-union block values use scoped statements; unsupported insertion
  *   contexts receive checked refusal before output publication.
