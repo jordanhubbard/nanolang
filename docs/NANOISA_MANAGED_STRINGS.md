@@ -70,7 +70,10 @@ The native LLVM backend declares the fixed platform libc malloc/free ABI and
 links it normally; these are documented runtime dependencies, not arbitrary
 module imports. My generated `.ll` contains the ownership/runtime helpers so
 `lli` and native Clang execution require no unpublished project object file.
-Sizes use checked conversion to the target size type. I avoid realloc: a grown
+Native allocator lowering pins the selected target size/alignment ABI (the
+initial native host builds are 64-bit); an unknown ABI is refused rather than
+assuming an arbitrary cross-target override matches host size_t. Sizes use
+checked conversion to that target size type. I avoid realloc: a grown
 descriptor table is allocated/copied first and committed only on success.
 
 My Wasm backend remains import-free. I emit a reclaiming allocator using its
