@@ -40,6 +40,10 @@ static void borrow_error(BorrowCG *b, ASTNode *n, const char *message) {
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
 }
+/* I keep parameter transport separate from resource-leaf eligibility. */
+static uint8_t borrow_parameter_tag(Type type) {
+    return type==TYPE_STRING?TAG_STRING:borrow_tag(type);
+}
 static void borrow_word(BorrowCG *b,uint32_t value,unsigned width) {
     if(b->cg->had_error)return;
     if(b->contract_size+width>b->contract_capacity) {
@@ -183,6 +187,18 @@ static uint8_t borrow_result_tag(ASTNode *function) {
 static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout);
 static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     CG *cg=b->cg;if(cg->had_error || !n)return TAG_VOID;
+    if(n->type==AST_STRING) {
+        if(!b->value_graph){borrow_error(b,n,"string literals only in a value-call graph");return TAG_VOID;}
+        const char *raw=n->as.string_val;
+        for(size_t i=0;raw[i];i++)if(raw[i]=='\\' && raw[i+1]) {
+            if(raw[++i]=='0'){borrow_error(b,n,"string literals without embedded NUL");return TAG_VOID;}
+        }
+        char *decoded=nl_unescape_string(raw);
+        if(!decoded){borrow_error(b,n,"available literal storage");return TAG_VOID;}
+        uint32_t index=nvm_add_string(cg->module,decoded,(uint32_t)strlen(decoded));free(decoded);
+        if(index==UINT32_MAX){borrow_error(b,n,"available literal storage");return TAG_VOID;}
+        emit_op(cg,OP_PUSH_STR,index);return TAG_STRING;
+    }
     if(n->type==AST_NUMBER){emit_op(cg,OP_PUSH_I64,(int64_t)n->as.number);return TAG_INT;}
     if(n->type==AST_BOOL){emit_op(cg,OP_PUSH_BOOL,(int)n->as.bool_val);return TAG_BOOL;}
     if(n->type==AST_IDENTIFIER) {
@@ -241,6 +257,15 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         }
         borrow_error(b,n,"supported exact-tag scalar operators");return TAG_VOID;
     }
+    if(n->type==AST_CALL && b->value_graph && !n->as.call.func_expr &&
+       !n->as.call.borrow_mode && n->as.call.name &&
+       (!strcmp(n->as.call.name,"print") || !strcmp(n->as.call.name,"println")) &&
+       borrow_function_index(b,n->as.call.name)<0 && borrow_local(b,n->as.call.name)<0) {
+        if(n->as.call.arg_count!=1 || borrow_expr(b,n->as.call.args[0])!=TAG_STRING) {
+            borrow_error(b,n,"one exact immutable string print operand");return TAG_VOID;
+        }
+        emit_op(cg,!strcmp(n->as.call.name,"println")?OP_PRINTLN:OP_PRINT);return TAG_VOID;
+    }
     if(n->type==AST_CALL && b->value_graph) {
         int target=n->as.call.func_expr?-1:borrow_function_index(b,n->as.call.name);
         if(target<=0 || n->as.call.borrow_mode || borrow_local(b,n->as.call.name)>=0) {
@@ -260,7 +285,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
                     borrow_error(b,argument,"a named live exact whole owner argument");return TAG_VOID;
                 }
                 emit_op(cg,OP_OWN_MOVE_LOCAL,local);b->live[local]=false;
-            } else if(borrow_expr(b,argument)!=borrow_tag(p->type)) {
+            } else if(borrow_expr(b,argument)!=borrow_parameter_tag(p->type)) {
                 borrow_error(b,argument,"the exact positional scalar argument");return TAG_VOID;
             }
         }
@@ -498,6 +523,13 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 emit_op(cg,OP_STORE_LOCAL,slot);
                 borrow_name_begin(b,(unsigned)slot,n->as.let.name);
             }
+        } else if(n->type==AST_PRINT) {
+            const char *name=n->as.print.is_println?"println":"print";
+            if(!b->value_graph || borrow_function_index(b,name)>=0 || borrow_local(b,name)>=0 ||
+               borrow_expr(b,n->as.print.expr)!=TAG_STRING) {
+                borrow_error(b,n,"an unshadowed immutable string print in a value-call graph");break;
+            }
+            emit_op(cg,n->as.print.is_println?OP_PRINTLN:OP_PRINT);
         } else if(n->type==AST_ASSERT) {
             if(borrow_expr(b,n->as.assert.condition)!=TAG_BOOL)borrow_error(b,n,"a Boolean assertion");
             emit_op(cg,OP_ASSERT);
@@ -557,7 +589,7 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
     if(index) {
         for(int i=0;i<function->as.function.param_count;i++) {
             Parameter *p=&function->as.function.params[i];
-            borrow_slot(b,p->name,b->value_graph && p->type!=TYPE_STRUCT?borrow_tag(p->type):TAG_STRUCT,
+            borrow_slot(b,p->name,b->value_graph && p->type!=TYPE_STRUCT?borrow_parameter_tag(p->type):TAG_STRUCT,
                 (uint32_t)borrow_record(b,p->struct_type_name),b->value_graph?0:p->type==TYPE_BORROW_MUT?2:1,false);
             borrow_name_begin(b,(unsigned)i,p->name);
         }
@@ -745,7 +777,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         } else if(h->as.function.param_count<1 || !borrow_tag(h->as.function.return_type))borrow_error(b,h,"a scalar-result borrowed helper");
         for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
             int layout=borrow_record(b,p[i].struct_type_name);
-            bool valid=b->value_graph?(borrow_tag(p[i].type) || (p[i].type==TYPE_STRUCT && layout>=0)):
+            bool valid=b->value_graph?(borrow_parameter_tag(p[i].type) || (p[i].type==TYPE_STRUCT && layout>=0)):
                 ((p[i].type==TYPE_BORROW_SHARED || p[i].type==TYPE_BORROW_MUT) && layout>=0 && borrow_leaf(b,(unsigned)layout));
             if(!valid)borrow_error(b,h,"exact mode-zero scalar/owner or separate borrowed parameters");
             for(int j=0;j<i;j++)if(!strcmp(p[i].name,p[j].name))borrow_error(b,h,"distinct parameter names");
@@ -785,7 +817,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
             f.result_tag=i?borrow_result_tag(source):TAG_INT;f.result_count=f.result_tag!=TAG_VOID;
             if(nvm_add_function(cg->module,&f)!=i)borrow_error(b,NULL,"available function storage");
             uint8_t parameters[8];
-            for(unsigned j=0;j<f.arity;j++)parameters[j]=b->value_graph && source->as.function.params[j].type!=TYPE_STRUCT?borrow_tag(source->as.function.params[j].type):TAG_STRUCT;
+            for(unsigned j=0;j<f.arity;j++)parameters[j]=b->value_graph && source->as.function.params[j].type!=TYPE_STRUCT?borrow_parameter_tag(source->as.function.params[j].type):TAG_STRUCT;
             if(!nvm_set_function_param_types(cg->module,i,parameters,f.arity))borrow_error(b,NULL,"exact positional parameter tags");
         }
         borrow_word(b,1,4);borrow_word(b,b->record_count,4);
