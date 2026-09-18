@@ -1,6 +1,6 @@
-"""I retain the open task_c117b20ef5d64339b79cf22e86b42ef7 acceptance failure.
+"""I retain task_c117b20ef5d64339b79cf22e86b42ef7's original positive control.
 
-I run this explicitly; it is not part of the bounded imported-kind gate.
+The naming repair includes this formerly failing case in its normal gate.
 """
 import unittest
 from tests import test_cseed_imported_unions as fixtures

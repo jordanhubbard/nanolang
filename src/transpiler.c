@@ -193,6 +193,9 @@ static bool conflicts_with_runtime(const char *name) {
     return is_runtime_typedef(name);
 }
 
+/* I snapshot declared one-letter unions for this emission only. */
+static _Thread_local uint32_t native_union_letters;
+
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
@@ -220,7 +223,8 @@ static const char *get_prefixed_type_name(const char *name) {
      * These are bare generic type parameters not yet monomorphized.
      * Emit void* so the generated C compiles; correctness is tested
      * via shadow tests (interpreter path) which handle generics natively. */
-    if (name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0') {
+    if (name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0' &&
+        !(native_union_letters & (UINT32_C(1) << (name[0] - 'A')))) {
         return "void*";
     }
 
@@ -4750,7 +4754,7 @@ static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Enviro
 }
 
 /* Transpile program to C */
-char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
+static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char *input_file) {
     if (!program || program->type != AST_PROGRAM) {
         return NULL;
     }
@@ -4932,5 +4936,19 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
     char *result = sb->buffer;
     free(sb);
+    return result;
+}
+
+/* I retain no borrowed declaration pointer and restore context on every exit. */
+char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
+    uint32_t previous = native_union_letters;
+    native_union_letters = 0;
+    for (int i = 0; env && i < env->union_count; ++i) {
+        const char *name = env->unions[i].name;
+        if (name && name[0] >= 'A' && name[0] <= 'Z' && name[1] == '\0')
+            native_union_letters |= UINT32_C(1) << (name[0] - 'A');
+    }
+    char *result = transpile_to_c_impl(program, env, input_file);
+    native_union_letters = previous;
     return result;
 }

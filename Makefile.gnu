@@ -4669,3 +4669,13 @@ test-cseed-imported-unions: $(COMPILER_C)
 	@python3 -m unittest -v tests.test_cseed_imported_unions
 
 test-units: test-cseed-imported-unions
+
+.PHONY: test-native-nominal-context test-cseed-single-letter-nominals
+test-native-nominal-context: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_native_nominal_context tests/test_native_nominal_context.c $(filter-out $(OBJ_DIR)/transpiler.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_native_nominal_context
+
+test-cseed-single-letter-nominals: $(COMPILER_C) test-native-nominal-context
+	@python3 -m unittest -v tests.test_cseed_single_letter_nominals tests.acceptance_cseed_single_letter_union
+
+test-units: test-cseed-single-letter-nominals
