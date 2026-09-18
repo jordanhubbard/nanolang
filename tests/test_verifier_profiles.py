@@ -20,6 +20,7 @@ class VerifierProfiles(unittest.TestCase):
             'managed_concat': ('.string text \"ordinary\"\n' + entry + 'PUSH_STR text\nDUP\nSTR_CONCAT\nPOP\n' + end, True, False),
             'managed_mutable': (entry + 'ARR_NEW 1\nPUSH_I64 4\nARR_PUSH\nARR_POP\nPOP\n' + end, True, False),
             'unresolved_mutable': ('.string text "ordinary"\n' + entry + 'ARR_NEW 1\nPUSH_STR text\nARR_PUSH\nPOP\n' + end, True, False),
+            'nested_packed_refusal': (entry + 'ARR_NEW 1\nARR_NEW 5\nARR_PUSH\nPOP\n' + end, True, False),
             'nested_mutable': (entry + 'ARR_NEW 5\nARR_NEW 1\nARR_PUSH\nPOP\n' + end, True, False),
             'managed_split': ('.string text \"a\"\n' + entry + 'PUSH_STR text\nDUP\nSTR_SPLIT\nDUP\nARR_LEN\nPOP\nPUSH_I64 0\nARR_GET\nPOP\n' + end, True, False),
             'managed_replace': ('.string text \"a\"\n' + entry + 'PUSH_STR text\nDUP\nDUP\nSTR_REPLACE\nPOP\n' + end, True, False),
@@ -48,7 +49,7 @@ class VerifierProfiles(unittest.TestCase):
             for name, (assembly, general, scalar) in cases.items():
                 with self.subTest(case=name):
                     literal_only = scalar or name in ('string_opcode', 'nonscalar_parameter')
-                    literal = literal_only or name in ('managed_mutable', 'managed_split', 'managed_replace', 'managed_primitive', 'managed_case', 'managed_char', 'managed_trim', 'managed_concat', 'managed_substring', 'managed_decimal', 'managed_format', 'managed_float_format', 'managed_float_parse', 'managed_contains', 'managed_starts', 'managed_ends')
+                    literal = literal_only or name in ('nested_mutable', 'managed_mutable', 'managed_split', 'managed_replace', 'managed_primitive', 'managed_case', 'managed_char', 'managed_trim', 'managed_concat', 'managed_substring', 'managed_decimal', 'managed_format', 'managed_float_format', 'managed_float_parse', 'managed_contains', 'managed_starts', 'managed_ends')
                     source, module = work/'input.nasm', work/'input.nvm'
                     source.write_text(assembly)
                     built = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module], capture_output=True, text=True, timeout=30)
