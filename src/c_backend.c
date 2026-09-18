@@ -236,9 +236,19 @@ static int cb_node_storage(CBCtx *c, const ASTNode *node) {
     }
 }
 
+/* I cannot discard a record spread base while spelling explicit fields. */
+static int cb_record_spread(CBCtx *c, const ASTNode *node) {
+    if (node && node->type == AST_STRUCT_LITERAL && node->as.struct_literal.spread_source) {
+        ctx_error(c, "I do not provide record spread lowering in this C profile.");
+        return -1;
+    }
+    return 0;
+}
+
 /* I refuse unimplemented semantics before publishing staged C. */
 static int ctx_profile_node(CBCtx *c, const ASTNode *node) {
     if (!node) return 0;
+    if (cb_record_spread(c, node)) return -1;
     if (cb_node_has_array(node)) return cb_array_refusal(c);
     if (cb_node_has_callable(node)) return cb_callable_refusal(c);
     if (cb_node_storage(c,node)) return -1;
