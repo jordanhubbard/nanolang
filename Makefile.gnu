@@ -4679,3 +4679,9 @@ test-cseed-single-letter-nominals: $(COMPILER_C) test-native-nominal-context
 	@python3 -m unittest -v tests.test_cseed_single_letter_nominals tests.acceptance_cseed_single_letter_union
 
 test-units: test-cseed-single-letter-nominals
+
+.PHONY: test-cseed-single-letter-enums
+test-cseed-single-letter-enums: $(COMPILER_C) test-native-nominal-context
+	@python3 -m unittest -v tests.test_cseed_single_letter_enums
+
+test-units: test-cseed-single-letter-enums
