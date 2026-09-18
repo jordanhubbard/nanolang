@@ -57,6 +57,7 @@ typedef struct {
     CBLiftTemp *lift_temps;
     size_t      lift_counter;
     bool        has_globals;
+    bool        no_main;
     int         indent;
     bool        verbose;
     const char *error;
@@ -72,6 +73,24 @@ typedef struct {
 
 static void ctx_error(CBCtx *c, const char *message) {
     if (!c->error) c->error = message;
+}
+
+/* I refuse unimplemented semantics before publishing staged C. */
+static int ctx_profile_node(CBCtx *c, const ASTNode *node) {
+    if (!node) return 0;
+    if (node->lambda_definition ||
+        (node->type == AST_FUNCTION && node->as.function.is_anonymous)) {
+        ctx_error(c, "I do not provide anonymous or captured callable C lowering.");
+        return -1;
+    }
+    switch (node->type) {
+    case AST_TUPLE_LITERAL: case AST_TUPLE_INDEX:
+    case AST_EFFECT_DECL: case AST_HANDLE_EXPR: case AST_EFFECT_HANDLER:
+    case AST_EFFECT_OP: case AST_ASYNC_FN: case AST_AWAIT: case AST_TRY_OP:
+        ctx_error(c, "I do not provide tuple, effect, async or try semantics in this C profile.");
+        return -1;
+    default: return 0;
+    }
 }
 
 static void ctx_push_scope(CBCtx *c) {
@@ -587,7 +606,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
     fprintf(c->out, "#include <stdlib.h>\n");
     fprintf(c->out, "#include <stdint.h>\n");
     fprintf(c->out, "#include <string.h>\n");
-    fprintf(c->out, "#include <setjmp.h>\n\n");
+    fputc('\n', c->out);
 
     if (!c->planning) {
         emit_private_source(c, nl_binary64_arithmetic_source);
@@ -668,11 +687,7 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
         "    return b ? \"true\" : \"false\";\n"
         "}\n\n");
 
-    /* Effect stub support */
-    fprintf(c->out,
-        "/* Effect handler stubs */\n"
-        "static jmp_buf _nano_effect_jmp;\n"
-        "static int64_t _nano_effect_val;\n\n");
+
 }
 
 /* I reserve an outer slot before nested operands and sequence both evaluations. */
@@ -708,6 +723,7 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         ctx_error(c, "I require a supported statement insertion context for this C value.");
         return -1;
     }
+    if (ctx_profile_node(c, node)) return -1;
     switch (node->type) {
     case AST_NUMBER:
         emit_signed_bits(c, (uint64_t)node->as.number);
@@ -1021,25 +1037,9 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         return 0;
     }
 
-    case AST_BLOCK: {
-        /* Inline block (GNU statement expression) */
-        fputs("({\n", c->out);
-        c->indent++;
-        ctx_push_scope(c);
-        for (int i = 0; i < node->as.block.count; i++) {
-            emit_indent(c);
-            if (emit_stmt(c, node->as.block.statements[i])) {
-                ctx_pop_scope(c);
-                c->indent--;
-                return -1;
-            }
-        }
-        ctx_pop_scope(c);
-        c->indent--;
-        emit_indent(c);
-        fputs("})", c->out);
-        return 0;
-    }
+    case AST_BLOCK:
+        ctx_error(c, "I require statement lifting for this C block value.");
+        return -1;
 
     case AST_RETURN:
         /* Should be handled as a statement; if used as expr: */
@@ -1125,31 +1125,6 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
         return 0;
     }
 
-    case AST_TUPLE_LITERAL: {
-        /* Tuples not fully supported; emit first element as fallback */
-        if (node->as.tuple_literal.element_count > 0) {
-            return emit_expr(c, node->as.tuple_literal.elements[0]);
-        }
-        fputs("0", c->out);
-        return 0;
-    }
-
-    case AST_EFFECT_OP: {
-        /* Simplified stub: longjmp to nearest handler */
-        fputs("(longjmp(_nano_effect_jmp, 1), 0)", c->out);
-        return 0;
-    }
-
-    case AST_AWAIT: {
-        /* Simplified stub: just evaluate the inner expression */
-        return emit_expr(c, node->as.await_expr.expr);
-    }
-
-    case AST_TRY_OP: {
-        /* Simplified stub: evaluate operand */
-        return emit_expr(c, node->as.try_op.operand);
-    }
-
     default:
         if (c->verbose)
             fprintf(stderr, "[c_backend] unsupported expr node type %d\n",
@@ -1225,6 +1200,7 @@ failed:
 }
 
 static int emit_stmt(CBCtx *c, ASTNode *node) {
+    if (ctx_profile_node(c, node)) return -1;
     if (!node) return 0;
     bool handled = false;
     int lifted = cb_lift_statement(c, node, &handled);
@@ -1537,23 +1513,6 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
         fputs("}\n", c->out);
         return 0;
     }
-
-    case AST_HANDLE_EXPR: {
-        fputs("/* handle */ if (setjmp(_nano_effect_jmp) == 0) {\n", c->out);
-        c->indent++;
-        if (emit_block_body(c, node->as.handle_expr.body)) {
-            c->indent--;
-            return -1;
-        }
-        c->indent--;
-        emit_indent(c);
-        fputs("}\n", c->out);
-        return 0;
-    }
-
-    case AST_EFFECT_DECL:
-        fputs("/* effect declaration (stub) */\n", c->out);
-        return 0;
 
     case AST_SHADOW:
         fputs("/* shadow test (skipped) */\n", c->out);
@@ -1947,6 +1906,7 @@ static int emit_program(CBCtx *c, ASTNode *root) {
     for (int i = 0; i < count; i++) {
         ASTNode *n = items[i];
         if (!n) continue;
+        if (ctx_profile_node(c, n)) return -1;
         switch (n->type) {
             case AST_STRUCT_DEF: emit_struct_def(c, n); break;
             case AST_ENUM_DEF:   emit_enum_def(c, n);   break;
@@ -1985,10 +1945,6 @@ static int emit_program(CBCtx *c, ASTNode *root) {
         ASTNode *n = items[i];
         if (!n) continue;
         switch (n->type) {
-            case AST_ASYNC_FN:
-                if (n->as.async_fn.function)
-                    n = n->as.async_fn.function;
-                /* fall through */
             case AST_FUNCTION:
                 if (emit_function(c, n)) return -1;
                 break;
@@ -1996,7 +1952,7 @@ static int emit_program(CBCtx *c, ASTNode *root) {
                 break;
         }
     }
-    if (main_function)
+    if (main_function && !c->no_main)
         fprintf(c->out, "int main(void) { return (int)%sentry(); }\n", c->prefix);
     return 0;
 }
@@ -2009,6 +1965,9 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.out = out;
     c.root = root;
     c.verbose = opts ? opts->verbose : false;
+    c.no_main = opts && opts->no_main;
+    if (opts && opts->no_stdlib)
+        ctx_error(&c, "I require hosted C library support for this C profile.");
     snprintf(c.prefix, sizeof c.prefix, "nano_cb_plan_");
     if (!root) ctx_error(&c, "I require a program AST.");
     FILE *plan = NULL;
