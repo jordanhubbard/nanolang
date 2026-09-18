@@ -123,3 +123,10 @@ initializers becoming zero through `global_init_literal`. I preserve the log
 exact-result-typed bit intrinsic initializers, preserving existing mutable guards
 and ordered initialization. General call initializers are not admitted by this
 change. I do not claim that first source gate passed.
+
+My interpreter unit target links its existing objects directly. Its first recipe
+inherited the `stage1` alias and unnecessarily launched another full bootstrap;
+I stopped that owned redundant build and retain
+`/tmp/nanolang-bit-interpreter.log`. The corrected object-only target passed all
+11 ordinary bit-pattern observations. This is independent of the two completed
+source bootstraps and the later final name-policy bootstrap.

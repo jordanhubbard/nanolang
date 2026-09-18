@@ -89,7 +89,7 @@ def validate(schema: dict) -> None:
     """
     primary = [_as_int(item["code"]) for item in schema["legacy_opcodes"]]
     if len(set(primary)) != len(primary) or any(code < 0 or code > 255 for code in primary):
-        raise ValueError("primary opcodes must have unique one-byte allocations")
+        raise ValueError("I require unique one-byte allocations for primary opcodes")
     declared_kinds = {kind["name"] for kind in schema["operand_kinds"]}
     families = [
         item
