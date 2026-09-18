@@ -52,6 +52,13 @@ class CanonicalF64Bits(unittest.TestCase):
                 with self.subTest(text=text):
                     self.roundtrip(Path(tmp), text, bits)
 
+    def test_existing_comment_and_whitespace_delimiters(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for suffix in ('; adjacent comment', '# adjacent comment',
+                           ' \t ; spaced comment', ' \t '):
+                with self.subTest(suffix=suffix):
+                    self.roundtrip(Path(tmp), 'bits:8000000000000000'+suffix, 1 << 63)
+
     def test_parser_refusals_preserve_output(self):
         invalid = ('bits:', 'bits:0', 'bits:000000000000000',
                    'bits:00000000000000000', 'bits:000000000000000g',
@@ -66,7 +73,9 @@ class CanonicalF64Bits(unittest.TestCase):
                     output.write_bytes(b'retained output')
                     result = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=30)
-                    self.assertNotEqual(result.returncode, 0)
+                    self.assertGreater(result.returncode, 0)
+                    self.assertNotIn('AddressSanitizer', result.stderr)
+                    self.assertNotIn('runtime error:', result.stderr)
                     self.assertEqual(output.read_bytes(), b'retained output')
 
 if __name__ == '__main__':
