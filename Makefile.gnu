@@ -67,7 +67,17 @@ ifneq ($(filter command line override,$(origin LDFLAGS)),)
 override LDFLAGS += -lcrypto
 endif
 # I use libffi for typed native calls in my interpreter, including doubles.
-LIBFFI_CFLAGS ?= $(shell pkg-config --cflags libffi 2>/dev/null)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+# Homebrew chooses its libffi.pc by the running macOS release. That can name an
+# older SDK than the compiler selected through DEVELOPER_DIR or SDKROOT. I use
+# the active SDK's matching system-libffi headers when they are present. The
+# public LIBFFI_CFLAGS override still wins unchanged.
+DARWIN_SDKROOT ?= $(if $(SDKROOT),$(SDKROOT),$(shell xcrun --sdk macosx --show-sdk-path 2>/dev/null))
+DARWIN_LIBFFI_INCLUDE := $(DARWIN_SDKROOT)/usr/include/ffi
+DARWIN_LIBFFI_CFLAGS := $(if $(wildcard $(DARWIN_LIBFFI_INCLUDE)/ffi.h),-I'$(DARWIN_LIBFFI_INCLUDE)')
+endif
+LIBFFI_CFLAGS ?= $(if $(DARWIN_LIBFFI_CFLAGS),$(DARWIN_LIBFFI_CFLAGS),$(shell pkg-config --cflags libffi 2>/dev/null))
 LIBFFI_LIBS ?= $(shell pkg-config --libs libffi 2>/dev/null || printf '%s' '-lffi')
 override CFLAGS += $(LIBFFI_CFLAGS)
 override LDFLAGS += $(LIBFFI_LIBS)
@@ -80,7 +90,6 @@ override LDFLAGS += $(LIBFFI_LIBS)
 # that is exactly what the sanitizer and coverage jobs do -- they pass their own
 # LDFLAGS and were losing -rdynamic, so every dlsym of a host symbol failed and
 # the FFI tests broke in those builds only.
-UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 EXPORT_DYNAMIC_LDFLAGS = -rdynamic
 override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
@@ -2758,6 +2767,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@$(MAKE) --no-print-directory test-build-toolchain
 	@$(MAKE) --no-print-directory test-bootstrap-dependencies
 	@$(MAKE) --no-print-directory test-parser-parenthesized
 	@$(MAKE) --no-print-directory test-transpiler-externs
@@ -2790,6 +2800,10 @@ else
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 endif
+
+.PHONY: test-build-toolchain
+test-build-toolchain:
+	@python3 -m unittest tests.test_make_toolchain
 
 .PHONY: test-bootstrap-dependencies
 test-bootstrap-dependencies:
