@@ -1561,7 +1561,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!shape_type(b, arr.shape, NVM_SHAPE_ARRAY)) return 0;
             NvmShapeId element_shape = shape_child(b, arr.shape, 0);
-            if (!shape_equal(b, shape_variable(b, b->shape_current), element_shape)) return 0;
+            bool optional_scalar = integer_array_storage(arr.kind) || arr.kind == NVM2C_VK_SARR;
+            NvmShapeId result_shape = shape_variable(b, b->shape_current);
+            if (optional_scalar) {
+                if (!shape_type(b, result_shape, NVM_SHAPE_OPTIONAL) ||
+                    !shape_equal(b, shape_child(b, result_shape, 0), element_shape)) return 0;
+            } else if (!shape_equal(b, result_shape, element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
@@ -1572,7 +1577,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             } else if (arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
             } else if (arr.kind == NVM2C_VK_UNK) {
                 Nvm2cSimSlot value = {0};
                 value.kind = NVM2C_VK_UNK;
@@ -1581,7 +1586,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!value.rec_k || !sim_push_slot(b, idx, stk, &sp, value)) return 0;
             } else {
                 mark_origin(local_kind, nloc, arr.origin, arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR);
-                if (!sim_push(b, idx, stk, &sp, arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BOOL : NVM2C_VK_INT, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                stk[sp - 1].scalar_tags = (1u << TAG_VOID) |
+                    (1u << (arr.kind == NVM2C_VK_BARR ? TAG_BOOL : TAG_INT));
             }
             break;
         }
@@ -3791,14 +3798,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 snprintf(expr, sizeof expr, "nvalue_array_get(v[%d], t[%d])", arr, ix);
                 stack_push_value(b, &st, expr);
             } else if (integer_array_storage(ak)) {
-                char expr[80];
-                snprintf(expr, sizeof expr, "narr_get(a[%d], t[%d])", arr, ix);
-                if (ak == NVM2C_VK_BARR) stack_push_bool(b, &st, expr);
-                else stack_push_temp(b, &st, expr);
+                char expr[128];
+                snprintf(expr, sizeof expr, "nvalue_array_get((nmap_value){7, %u, (char *)a[%d]}, t[%d])", ak, arr, ix);
+                stack_push_value(b, &st, expr);
             } else if (ak == NVM2C_VK_SARR) {
-                char expr[80];
-                snprintf(expr, sizeof expr, "nsarr_get(sa[%d], t[%d])", arr, ix);
-                stack_push_str(b, &st, expr);
+                char expr[128];
+                snprintf(expr, sizeof expr, "nvalue_array_get((nmap_value){7, %u, (char *)sa[%d]}, t[%d])", ak, arr, ix);
+                stack_push_value(b, &st, expr);
             } else if (ak == NVM2C_VK_RARR) {
                 char expr[80];
                 snprintf(expr, sizeof expr, "nrarr_get(ra[%d], t[%d])", arr, ix);
