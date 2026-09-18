@@ -107,3 +107,9 @@ Unmet scalar cases remain explicit prerequisites. Wider C expression/options
 portability6ade, canonical FUNCREF/d099, array arithmetic3717 and full release
 remain independent. Parent5009 stays open until all of its remaining source and
 callback criteria are met.
+
+My post-build publication audit keeps the first semantic failure and adds explicit
+first diagnostics to remaining allocator/stream/rename failure returns. I preserve
+owned temporary cleanup and the caller-stream partial-I/O limit. My final fresh
+gate also covers a global initializer calling main while initialization is in
+progress, alongside ordinary main reentry after initialization.
