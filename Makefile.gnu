@@ -5204,3 +5204,8 @@ test-owned-binary64: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RU
 test-units: test-mixed-layout-view
 test-mixed-layout-view: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MIXED_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_layout_view
+
+.PHONY: test-mixed-float-proof
+test-units: test-mixed-float-proof
+test-mixed-float-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_PROOF_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_float_proof
