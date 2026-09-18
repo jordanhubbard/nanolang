@@ -71,3 +71,13 @@ zero with 2,422 native checks and 1,139 shape checks passed; its log is
 `/tmp/nanolang-numeric-union-native-harness-fixed.log`. This establishes the
 combined bounded gate, not product compiler startup acceptance. Parent generic
 arithmetic and the full release obligations remain separate.
+
+I restack onto main `11adc257` after PR617 merges the harness correction.
+My native translator, shape solver, standalone native harness and numeric tests
+are byte-identical to the full-gate source `3e4d544c`. I retain the completed
+harness roadmap entry and the newer LLVM globals and nested-borrow entries.
+The integrated verifier changes justify rebuilding the focused tools and
+rerunning the seven ordinary numeric-union methods.
+I pass all seven methods in 0.853 seconds after that rebuild; I retain
+`/tmp/nanolang-numeric-union-restack-build.log` and
+`/tmp/nanolang-numeric-union-restack-gate.log`.
