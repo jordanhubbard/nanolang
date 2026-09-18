@@ -7,6 +7,7 @@
 
 #include "vm.h"
 #include "../binary64_bits.h"
+#include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
@@ -1981,11 +1982,11 @@ dynamic_add:
                 /* Compute the wrapped bits without signed C overflow. */
                 stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(a.as.f64 + b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_add(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(a.as.f64 + (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_add(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float((double)a.as.i64 + b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_add((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_STRING && b.tag == TAG_STRING) {
                 VmString *s = vm_string_concat(&vm->heap, a.as.string, b.as.string);
                 vm_release(&vm->heap, a);
@@ -2028,11 +2029,11 @@ dynamic_sub:
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
                 stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(a.as.f64 - b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_sub(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(a.as.f64 - (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_sub(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float((double)a.as.i64 - b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_sub((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
                 VmResult status = vm_array_arithmetic(vm, OP_SUB, a, b, &result);
@@ -2065,11 +2066,11 @@ dynamic_mul:
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
                 stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(a.as.f64 * b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_mul(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(a.as.f64 * (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_mul(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float((double)a.as.i64 * b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_mul((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
                 VmResult status = vm_array_arithmetic(vm, OP_MUL, a, b, &result);
@@ -2109,11 +2110,11 @@ dynamic_div:
                 else q = a.as.i64 / b.as.i64;
                 stack_push(vm, val_int(q));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_div(a.as.f64, b.as.f64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
-                stack_push(vm, val_float(b.as.i64 == 0 ? 0.0 : a.as.f64 / (double)b.as.i64));
+                stack_push(vm, val_float(nano_rt_f64_div(a.as.f64, (double)b.as.i64)));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
-                stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : (double)a.as.i64 / b.as.f64));
+                stack_push(vm, val_float(nano_rt_f64_div((double)a.as.i64, b.as.f64)));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
                 VmResult status = vm_array_arithmetic(vm, OP_DIV, a, b, &result);
@@ -2210,10 +2211,10 @@ dynamic_div:
                                   "%s requires two floats",
                                   isa_get_info(instr.opcode)->name);
             double result = 0.0;
-            if (instr.opcode == OP_F64_ADD) result = a.as.f64 + b.as.f64;
-            else if (instr.opcode == OP_F64_SUB) result = a.as.f64 - b.as.f64;
-            else if (instr.opcode == OP_F64_MUL) result = a.as.f64 * b.as.f64;
-            else result = b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64;
+            if (instr.opcode == OP_F64_ADD) result = nano_rt_f64_add(a.as.f64, b.as.f64);
+            else if (instr.opcode == OP_F64_SUB) result = nano_rt_f64_sub(a.as.f64, b.as.f64);
+            else if (instr.opcode == OP_F64_MUL) result = nano_rt_f64_mul(a.as.f64, b.as.f64);
+            else result = nano_rt_f64_div(a.as.f64, b.as.f64);
             stack_push(vm, val_float(result));
             VM_NEXT();
         }

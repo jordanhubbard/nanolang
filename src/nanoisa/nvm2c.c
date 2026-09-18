@@ -8,6 +8,7 @@
 
 #include "nvm2c.h"
 #include "../binary64_bits.h"
+#include "../binary64_arithmetic_source.h"
 #include "binary64_parse_source.h"
 #include "isa.h"
 #include "utf8.h"
@@ -3661,8 +3662,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expression[128];
             if (ins.opcode == OP_F64_NEG)
                 snprintf(expression, sizeof expression, "-f[%d]", rhs);
-            else if (ins.opcode == OP_F64_DIV)
-                snprintf(expression, sizeof expression, "(f[%d] == 0.0 ? 0.0 : f[%d] / f[%d])", rhs, lhs, rhs);
+            else if (ins.opcode == OP_F64_ADD || ins.opcode == OP_F64_SUB ||
+                     ins.opcode == OP_F64_MUL || ins.opcode == OP_F64_DIV)
+                snprintf(expression, sizeof expression, "nano_rt_f64_%s(f[%d], f[%d])",
+                         ins.opcode == OP_F64_ADD ? "add" : ins.opcode == OP_F64_SUB ? "sub" :
+                         ins.opcode == OP_F64_MUL ? "mul" : "div", lhs, rhs);
             else {
                 const char *op = ins.opcode == OP_F64_ADD ? "+" : ins.opcode == OP_F64_SUB ? "-" :
                     ins.opcode == OP_F64_MUL ? "*" : ins.opcode == OP_F64_EQ ? "==" :
@@ -3706,11 +3710,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char left[48], right[48], expression[192];
                 snprintf(left, sizeof left, lk == NVM2C_VK_FLOAT ? "f[%d]" : "(double)t[%d]", lhs);
                 snprintf(right, sizeof right, rk == NVM2C_VK_FLOAT ? "f[%d]" : "(double)t[%d]", rhs);
-                if (ins.opcode == OP_DIV)
-                    snprintf(expression, sizeof expression, "(%s == 0.0 ? 0.0 : %s / %s)", right, left, right);
-                else
-                    snprintf(expression, sizeof expression, "%s %s %s", left,
-                        ins.opcode == OP_ADD ? "+" : ins.opcode == OP_SUB ? "-" : "*", right);
+                snprintf(expression, sizeof expression, "nano_rt_f64_%s(%s, %s)",
+                    ins.opcode == OP_ADD ? "add" : ins.opcode == OP_SUB ? "sub" :
+                    ins.opcode == OP_MUL ? "mul" : "div", left, right);
                 stack_push_float(b, &st, expression);
                 break;
             }
@@ -6512,6 +6514,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.has_maps = 1;
             emit_nagg_accounting(&b);
         }
+        int need_float_arithmetic = b.has_maps ||
+            module_has_opcode(mod, OP_F64_ADD) || module_has_opcode(mod, OP_F64_SUB) ||
+            module_has_opcode(mod, OP_F64_MUL) || module_has_opcode(mod, OP_F64_DIV) ||
+            module_has_opcode(mod, OP_ADD) || module_has_opcode(mod, OP_SUB) ||
+            module_has_opcode(mod, OP_MUL) || module_has_opcode(mod, OP_DIV);
+        if (need_float_arithmetic) nvm2c_puts(&b, nl_binary64_arithmetic_source);
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT)) {
             nvm2c_puts(&b, nbp_parser_source);
             nvm2c_puts(&b,
@@ -6563,10 +6571,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    }\n"
                 "    double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;\n"
                 "    double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;\n"
-                "    if (op == '+') return nvalue_from_float(x + y);\n"
-                "    if (op == '-') return nvalue_from_float(x - y);\n"
-                "    if (op == '*') return nvalue_from_float(x * y);\n"
-                "    if (op == '/') return nvalue_from_float(y == 0.0 ? 0.0 : x / y);\n"
+                "    if (op == '+') return nvalue_from_float(nano_rt_f64_add(x, y));\n"
+                "    if (op == '-') return nvalue_from_float(nano_rt_f64_sub(x, y));\n"
+                "    if (op == '*') return nvalue_from_float(nano_rt_f64_mul(x, y));\n"
+                "    if (op == '/') return nvalue_from_float(nano_rt_f64_div(x, y));\n"
                 "    NVM2C_ABORT();\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
                 "    if (value.kind != 1) NVM2C_ABORT();\n    return value.integer;\n}\n"
@@ -6743,6 +6751,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (need_float_arithmetic) nvm2c_puts(&b,
+            "    (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;\n");
         if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
             nvm2c_puts(&b, "    (void)nl_float_from_bits; (void)nl_float_to_bits;\n");
         if (module_has_opcode(mod, OP_I64_ADD_CARRY) || module_has_opcode(mod, OP_I64_SUB_BORROW) ||
