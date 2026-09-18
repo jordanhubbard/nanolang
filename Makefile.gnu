@@ -4603,7 +4603,7 @@ test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runt
 
 .PHONY: test-managed-string-array-core
 test-managed-string-array-core:
-	python3 -m unittest -v tests.test_managed_string_arrays
+	python3 -m unittest -v tests.test_managed_string_arrays tests.test_managed_packed_scalars
 
 .PHONY: test-managed-string-core
 test-managed-string-core: test-managed-string-array-core
@@ -4755,6 +4755,10 @@ test-local-binding-metadata: test-local-marker-alloc
 test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_local_markers_alloc tests/nanoisa/test_local_markers_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_local_markers_alloc
+.PHONY: test-native-scalar-rot3
+test-native-scalar-rot3: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_scalar_rot3
+
 .PHONY: test-native-total-arithmetic
 test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic

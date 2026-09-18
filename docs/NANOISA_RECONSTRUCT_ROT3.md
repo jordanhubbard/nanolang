@@ -36,3 +36,9 @@ Generator/local-tool/compiler and original/copied host-library hashes remain
 unchanged. I record the external translator hash and exact evidence in
 [my manifest](evidence/reconstruction-scalar-rot3.json). No new compiler
 bootstrap or complete native tag/reconstruction coverage is claimed.
+
+I integrated canonical PR699 and main through `9700248a`. Native translator
+source matches the qualified external `ea05af7b` implementation byte-for-byte;
+my reconstruction generator and focused tests are unchanged. The only merge
+conflict was additive roadmap reconciliation. I retain the original local-tool
+and external-translator pins rather than claiming a rebuilt-main bootstrap.
