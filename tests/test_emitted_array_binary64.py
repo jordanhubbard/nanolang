@@ -14,6 +14,8 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(os.environ.get('NANO_EMITTED_ARRAY_REPORT', tempfile.mkdtemp(prefix='nano-emitted-array-')))
 OUT.mkdir(parents=True, exist_ok=True)
+ORDER = os.environ.get('NANO_PROVIDER_ORDER', 'string-first')
+assert ORDER in ['string-first','math-first']
 CC = shlex.split(os.environ.get('CC', 'cc'))
 records = []
 
@@ -24,7 +26,7 @@ files = ['src/stdlib_runtime.c', 'src/stdlib_runtime.h', 'tests/test_emitted_arr
          'tests/test_emitted_array_binary64.c', 'tests/test_aggregate_binary64_eval.c']
 files += [str(p.relative_to(ROOT)) for p in (ROOT/'src/runtime').glob('*.[ch]')]
 files += ['src/utf8.c', 'src/utf8.h', 'src/binary64_arithmetic_source.h',
-          'src/binary64_arithmetic.h', 'src/binary64_format.h']
+          'src/binary64_arithmetic.h', 'src/binary64_bits.h', 'src/binary64_format.h']
 identities = {str(ROOT/f): digest(ROOT/f) for f in files}
 identities[str(Path(shutil.which(CC[0])).resolve())] = digest(shutil.which(CC[0]))
 
@@ -45,12 +47,17 @@ try:
     generator.write_text('''#include <stdio.h>
 #include "stdlib_runtime.h"
 void sb_append(StringBuilder *sb, const char *s) { (void)sb; fputs(s,stdout); }
-int main(void) { StringBuilder sb={0}; generate_string_operations(&sb); return ferror(stdout); }
+int main(int argc, char **argv) { (void)argv; StringBuilder sb={0};
+if(argc>1) generate_math_utility_builtins(&sb);
+generate_string_operations(&sb);
+if(argc==1) generate_math_utility_builtins(&sb);
+return ferror(stdout); }
 ''')
     run('generator-build', CC+['-std=c11','-D_DEFAULT_SOURCE','-O2','-Wall','-Wextra','-Werror',
         '-Isrc',str(generator),'src/stdlib_runtime.c','-o',str(OUT/'generator')])
-    emitted = run('provider', [str(OUT/'generator')])
-    includes = '''#include <assert.h>
+    emitted = run('provider', [str(OUT/'generator')]+(['math-first'] if ORDER=='math-first' else []))
+    includes = '''#include <stdarg.h>
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -79,7 +86,7 @@ int main(void) { StringBuilder sb={0}; generate_string_operations(&sb); return f
         assert output.startswith('PASS: 272 fixed-bit results, 12 empty outputs'), output
 finally:
     unchanged=all(digest(f)==h for f,h in identities.items())
-    report=dict(source=str(ROOT),head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    report=dict(provider_order=ORDER,source=str(ROOT),head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
                 identities=identities,unchanged=unchanged,records=records)
     (OUT/'result.json').write_text(json.dumps(report,indent=2)+'\n')
     print(OUT)
