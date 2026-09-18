@@ -170,7 +170,7 @@ class Analyze:
                           'GE': left.tag > right.tag}[op]
                 expr = Expr(BOOL, 'constant', result)
             else:
-                if left.tag == BOOL and op not in ('EQ', 'NE'):
+                if left.tag == BOOL:
                     left = Expr(INT, 'bool_int', None, (left,))
                     right = Expr(INT, 'bool_int', None, (right,))
                 expr = Expr(BOOL, 'binary', GENERIC_COMPARE[op], (left, right))
