@@ -774,7 +774,7 @@ shadow main { assert true }
             'formal_write': text.replace('set target.value (+ target.value source.value)', 'set source.value 9'),
             'deeper_call': text.replace('return target.value', 'return (combine target source)'),
             'wrong_nominal': text.replace('let tree: Pair = Pair { right: second, left: first }', 'let tree: Pair = first'),
-            'hidden_owner': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = if true { Leaf { value: 100, active: true } } else { Leaf { value: 100, active: true } }'),
+            'hidden_owner': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = (cond (true Leaf { value: 100, active: true }) (else Leaf { value: 100, active: true }))'),
             'local_write': text.replace('assert (== first.value 100)', 'set first.value 100', 1).replace('let first: Leaf', 'let mut first: Leaf', 1),
         }
         for name, content in cases.items():
@@ -789,7 +789,7 @@ shadow main { assert true }
                 result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
                 self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
                 self.assertEqual(output.read_text(), 'accepted-output')
-                self.assertNotRegex(result.stderr + result.stdout, r'(?i)parse error|unexpected token')
+                self.assertNotRegex(result.stderr + result.stdout, r'(?i)parse (?:error|failed)|unexpected token')
                 self.assertRegex(result.stderr + result.stdout,
                                  r'(?i)borrow|owner|resource|consum|nominal|constructor|type mismatch|expected|helper|exclusive|mutable')
 
