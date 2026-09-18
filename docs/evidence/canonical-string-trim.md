@@ -35,3 +35,12 @@ Additional logs: `/tmp/nanolang-string-builtins-final-bootstrap.log`,
 `/tmp/nanolang-string-trim-clang-sanitizer.log`,
 `/tmp/nanolang-string-integrated-bootstrap.log`, and
 `/tmp/nanolang-string-integrated-focused.log`.
+
+At integrated source `8d3442bf`, I pass fresh bootstrap, all 21 focused
+string/filesystem/publication/union methods in 46.870s, and both audio examples
+in VM and native C. My first expanded attempt lacked the nano_virt and nanoisa
+helper binaries; I retain its setup-error log and rebuild the declared tools.
+No production source changed for that correction. Final logs:
+`/tmp/nanolang-string-final-main-bootstrap.log`,
+`/tmp/nanolang-string-final-main-focused-rebuilt.log`, and
+`/tmp/nanolang-string-final-main-audio.log`.
