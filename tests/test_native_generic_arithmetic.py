@@ -103,20 +103,17 @@ class NativeGenericArithmetic(unittest.TestCase):
                     self.assertNotEqual(self.run_command([ROOT/'bin/nano_vm',module]).returncode,0)
                     output=work/'previous.c'; output.write_text('previous')
                     result=self.run_command([ROOT/'bin/nvm2c',module,'-o',output])
-                    self.assertNotEqual(result.returncode,0)
-                    self.assertIn('known int or float',result.stderr)
-                    self.assertEqual(output.read_text(),'previous')
+                    if result.returncode:
+                        self.assertEqual(output.read_text(),'previous')
+                    else:
+                        refused=self.run_command([self.native(work,module,sanitize=True)])
+                        self.assertEqual(refused.returncode,-signal.SIGABRT,refused.stderr)
+                        for diagnostic in ('AddressSanitizer','LeakSanitizer','UndefinedBehaviorSanitizer','runtime error:'):
+                            self.assertNotIn(diagnostic,refused.stderr)
 
-    def test_unproved_mixed_promotion_preserves_previous_output(self):
-        with tempfile.TemporaryDirectory(prefix='nano-generic-unproved-') as tmp:
-            work=Path(tmp)
-            module=self.assemble(work,'PUSH_I64 2\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_F64 1.5\nADD\nPOP\n')
-            self.checked([ROOT/'bin/nano_vm',module])
-            output=work/'previous.c'; output.write_text('previous')
-            result=self.run_command([ROOT/'bin/nvm2c',module,'-o',output])
-            self.assertNotEqual(result.returncode,0)
-            self.assertIn('known int or float',result.stderr)
-            self.assertEqual(output.read_text(),'previous')
+    def test_tagged_numeric_promotion_keeps_exact_float_result(self):
+        self.paired('PUSH_I64 2\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nPUSH_F64 1.5\nADD\n'
+                    'DUP\nTYPE_CHECK 3\nASSERT\nPUSH_F64 3.5\nF64_EQ\nASSERT\n')
 
 
 if __name__ == '__main__':
