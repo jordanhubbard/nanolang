@@ -225,14 +225,50 @@ let result: Result = Result.Error { code: 1, message: "Failed" }
 
 **Pattern Matching:**
 
-I use the `match` expression to destructure unions.
+I use `match` to select a value or execute statements from a sequence of
+patterns. I evaluate the scrutinee once, then test arms in lexical source
+order. For each arm I test its pattern, bind its payload when that pattern
+matches, and evaluate its optional guard exactly once. The first matching arm
+whose guard is absent or `true` wins. I do not move a wildcard to the end or
+give a later named arm priority over it.
 
 ```nano
-match result {
-    Ok(r) => (println "Success"),
-    Error(e) => (println "Error")
+fn describe_result(result: Result, intercept: bool) -> string {
+    return match result {
+        _ if intercept => "intercepted",
+        Ok(r) if (> r.value 0) => "positive",
+        Ok(r) => "zero",
+        Error(e) => e.message
+    }
 }
 ```
+
+A guard has the exact checked type `bool`. Its pattern binding is visible in
+the guard and body, but not in sibling arms or after the match. A false guard
+ends that arm's scope before I try the next arm.
+
+A wildcard is an ordinary always-matching pattern at its written position. I
+allow early and repeated guarded wildcards because their guards may be false.
+An unguarded wildcard, or one guarded by the literal `true`, is unconditional;
+every later arm is unreachable and is a checked error.
+
+Every value and statement match is statically total. An unguarded named arm,
+an or-pattern arm, or one guarded by the literal `true` covers its named union
+variants. Other guards do not establish coverage. A reachable unconditional
+wildcard covers the remaining cases. Integer-literal matches require such a
+wildcard. If I cannot establish coverage for another pattern domain, I reject
+the match instead of inventing a default result.
+
+An accepted match cannot normally miss. Every runtime nevertheless retains a
+terminal invariant backstop for malformed values or a compiler/runtime defect.
+It reports a first-person match failure and stops; it does not return `void`,
+manufacture a zero value or continue after the match.
+
+This is my approved shared source rule. My compiler routes are being aligned
+to it. Until a route implements a supported part of this rule, it must issue a
+precise checked capability refusal rather than silently preserve an older
+wildcard order, accept an incomplete match or erase a guard. The implementation
+and all-route acceptance remain tracked in my [roadmap](ROADMAP.md).
 
 #### 3.4.4 Generic Types
 

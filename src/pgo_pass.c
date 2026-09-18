@@ -248,6 +248,8 @@ static ASTNode *clone_node(ASTNode *src) {
             if (src->as.match_expr.arm_count > 0) {
                 dst->as.match_expr.arm_bodies = clone_nodes(
                     src->as.match_expr.arm_bodies, src->as.match_expr.arm_count);
+                dst->as.match_expr.guard_exprs = clone_nodes(
+                    src->as.match_expr.guard_exprs, src->as.match_expr.arm_count);
             }
             break;
         case AST_HANDLE_EXPR:
@@ -274,12 +276,27 @@ static ASTNode *clone_node(ASTNode *src) {
  *
  * Mutates node in-place.
  */
-static void substitute_params(ASTNode *node, char **params, int pcount,
-                               ASTNode **args) {
+typedef struct SubstitutionScope {
+    const char *name;
+    const struct SubstitutionScope *parent;
+} SubstitutionScope;
+
+static bool substitution_scope_contains(const SubstitutionScope *scope,
+                                        const char *name) {
+    for (const SubstitutionScope *it = scope; it; it = it->parent) {
+        if (it->name && name && strcmp(it->name, name) == 0) return true;
+    }
+    return false;
+}
+
+static void substitute_params_scoped(ASTNode *node, char **params, int pcount,
+                                     ASTNode **args,
+                                     const SubstitutionScope *scope) {
     if (!node) return;
 
     /* If this is a parameter identifier, replace its content with the arg */
     if (node->type == AST_IDENTIFIER) {
+        if (substitution_scope_contains(scope, node->as.identifier)) return;
         for (int i = 0; i < pcount; i++) {
             if (params[i] && strcmp(node->as.identifier, params[i]) == 0) {
                 /* Replace in-place: copy arg node content into this slot */
@@ -296,47 +313,75 @@ static void substitute_params(ASTNode *node, char **params, int pcount,
     switch (node->type) {
         case AST_BLOCK:
             for (int i = 0; i < node->as.block.count; i++)
-                substitute_params(node->as.block.statements[i],
-                                   params, pcount, args);
+                substitute_params_scoped(node->as.block.statements[i],
+                                         params, pcount, args, scope);
             break;
         case AST_CALL:
-            substitute_params(node->as.call.func_expr, params, pcount, args);
+            substitute_params_scoped(node->as.call.func_expr,
+                                     params, pcount, args, scope);
             for (int i = 0; i < node->as.call.arg_count; i++)
-                substitute_params(node->as.call.args[i], params, pcount, args);
+                substitute_params_scoped(node->as.call.args[i],
+                                         params, pcount, args, scope);
             break;
         case AST_PREFIX_OP:
             for (int i = 0; i < node->as.prefix_op.arg_count; i++)
-                substitute_params(node->as.prefix_op.args[i],
-                                   params, pcount, args);
+                substitute_params_scoped(node->as.prefix_op.args[i],
+                                         params, pcount, args, scope);
             break;
         case AST_IF:
-            substitute_params(node->as.if_stmt.condition, params, pcount, args);
-            substitute_params(node->as.if_stmt.then_branch, params, pcount, args);
-            substitute_params(node->as.if_stmt.else_branch, params, pcount, args);
+            substitute_params_scoped(node->as.if_stmt.condition,
+                                     params, pcount, args, scope);
+            substitute_params_scoped(node->as.if_stmt.then_branch,
+                                     params, pcount, args, scope);
+            substitute_params_scoped(node->as.if_stmt.else_branch,
+                                     params, pcount, args, scope);
             break;
         case AST_LET:
-            substitute_params(node->as.let.value, params, pcount, args);
+            substitute_params_scoped(node->as.let.value,
+                                     params, pcount, args, scope);
             break;
         case AST_RETURN:
-            substitute_params(node->as.return_stmt.value, params, pcount, args);
+            substitute_params_scoped(node->as.return_stmt.value,
+                                     params, pcount, args, scope);
             break;
         case AST_WHILE:
-            substitute_params(node->as.while_stmt.condition, params, pcount, args);
-            substitute_params(node->as.while_stmt.body, params, pcount, args);
+            substitute_params_scoped(node->as.while_stmt.condition,
+                                     params, pcount, args, scope);
+            substitute_params_scoped(node->as.while_stmt.body,
+                                     params, pcount, args, scope);
             break;
         case AST_FOR:
-            substitute_params(node->as.for_stmt.range_expr, params, pcount, args);
-            substitute_params(node->as.for_stmt.body, params, pcount, args);
+            substitute_params_scoped(node->as.for_stmt.range_expr,
+                                     params, pcount, args, scope);
+            substitute_params_scoped(node->as.for_stmt.body,
+                                     params, pcount, args, scope);
             break;
         case AST_MATCH:
-            substitute_params(node->as.match_expr.expr, params, pcount, args);
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
-                substitute_params(node->as.match_expr.arm_bodies[i],
-                                   params, pcount, args);
+            substitute_params_scoped(node->as.match_expr.expr,
+                                     params, pcount, args, scope);
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                const char *binding = node->as.match_expr.pattern_bindings
+                    ? node->as.match_expr.pattern_bindings[i] : NULL;
+                SubstitutionScope arm_scope = { binding, scope };
+                const SubstitutionScope *arm_scope_ptr =
+                    binding && strcmp(binding, "_") != 0 ? &arm_scope : scope;
+                if (node->as.match_expr.guard_exprs)
+                    substitute_params_scoped(node->as.match_expr.guard_exprs[i],
+                                             params, pcount, args,
+                                             arm_scope_ptr);
+                substitute_params_scoped(node->as.match_expr.arm_bodies[i],
+                                         params, pcount, args,
+                                         arm_scope_ptr);
+            }
             break;
         default:
             break;
     }
+}
+
+static void substitute_params(ASTNode *node, char **params, int pcount,
+                              ASTNode **args) {
+    substitute_params_scoped(node, params, pcount, args, NULL);
 }
 
 /* ── Inline one call site ───────────────────────────────────────────────── */
@@ -482,8 +527,11 @@ static void walk_inline(InlineCtx *ctx, ASTNode *node) {
             break;
         case AST_MATCH:
             walk_inline(ctx, node->as.match_expr.expr);
-            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (node->as.match_expr.guard_exprs)
+                    walk_inline(ctx, node->as.match_expr.guard_exprs[i]);
                 walk_inline(ctx, node->as.match_expr.arm_bodies[i]);
+            }
             break;
         case AST_HANDLE_EXPR:
             walk_inline(ctx, node->as.handle_expr.body);
