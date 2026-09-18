@@ -2162,7 +2162,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
 
             let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
             if (not introspection.ok) { return 1 }
-            let c_code: string = (+ (transpile_parser parser) introspection.code)
+            let emitted: string = (transpile_parser parser)
+            if (== emitted "") { (println (transpile_last_error)) return 1 }
+            let c_code: string = (+ emitted introspection.code)
             
             if verbose {
                 (print "  ✓ Generated ")
@@ -2195,7 +2197,15 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if (== native_dir "") { (println "I could not create native compilation staging") return 1 }
             let c_file: string = (+ native_dir "/program.c")
             let mut staged_code: string = c_code
-            if has_shadows { set staged_code (+ (transpile_parser_shadows parser first_shadow) introspection.code) }
+            if has_shadows {
+                let shadow_code: string = (transpile_parser_shadows parser first_shadow)
+                if (== shadow_code "") {
+                    (println (transpile_last_error))
+                    (native_cleanup native_dir false)
+                    return 1
+                }
+                set staged_code (+ shadow_code introspection.code)
+            }
             let write_result: int = (file_write c_file staged_code)
             if (!= write_result 0) {
                 (native_cleanup native_dir false)
