@@ -1,0 +1,66 @@
+{
+  "source": "63c26ecd2723f8c480eaba4b25ebdf797f4764bd",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 189.669,
+      "log": "/tmp/nanolang-product-gates-63c26ecd/bootstrap.log",
+      "sha256": "0029304725da70442e69502d806345feabca240cfa5ddf5b1cddf6c1939dd23c"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j8",
+        "nanoisa_emit",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2c-runtime",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 25.129,
+      "log": "/tmp/nanolang-product-gates-63c26ecd/tools.log",
+      "sha256": "46f6a75ab0f81819195e181ca0805912fba721c8cca4c490ec19a046df32fb26"
+    },
+    {
+      "name": "focused",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_module_facts",
+        "tests.test_canonical_nvm_output",
+        "tests.test_canonical_vm_shadows",
+        "tests.test_conditional_field_types",
+        "tests.test_default_nanoisa_product",
+        "tests.test_nanoisa_only_product",
+        "tests.test_canonical_string_builtins",
+        "tests.test_canonical_filesystem",
+        "tests.test_canonical_prefix_conversion",
+        "tests.test_legacy_binary64_parse",
+        "tests.test_generic_union_emission",
+        "tests.test_source_borrow_emission",
+        "tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_explicit_instances_in_locals_calls_returns_and_shadows",
+        "tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_nested_explicit_type_arguments",
+        "tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_explicit_empty_instance_mismatches_preserve_output"
+      ],
+      "status": 1,
+      "seconds": 1357.081,
+      "log": "/tmp/nanolang-product-gates-63c26ecd/focused.log",
+      "sha256": "9601791a3cce0207870a6209b262892d3b2829b967954fbc7fc57db42a211183"
+    }
+  ],
+  "post_bootstrap_compilers": {
+    "bin/nanoc_stage1": "cb3d0117518b1beca36dc69445138da90683d9f50868dd06bce5ce7c36263986",
+    "bin/nanoc_stage2": "4743fcad623cfec07dff8079d5582c3765d66eb8496e9dd5c8e99f4d09c193a5"
+  }
+}

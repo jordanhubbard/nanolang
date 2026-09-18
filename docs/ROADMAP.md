@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [ ] I complete frozen63c26ecd candidate acceptance after a preserved source-borrow setup timeout (`task_ef9261a163f64e0397a93d377d623ed7`, product parentd76ae44). Bootstrap/tools and65executed methods pass, but26borrowed-source methods do not run and full quick gate has not started. Separate setup measurement and VM/native fixed points remain active. [Exact evidence](evidence/product-acceptance-63c26ecd.md).
+
+- [x] I complete the earlier-source corrected Darwin comparison at c9c747858ee4: full PTY quick gate passes985.04seconds with compiler/runtime source identical to ece241ba and only the deterministic Forth harness changed. I independently verified source equality and the sealed log hash. Current63c candidate platform acceptance remains separate. [Peer report](evidence/product-acceptance-ece241ba-darwin-corrected.txt).
+
 - [ ] I refresh my bounded Sail-to-Rocq model gate (`task_f3524c87530e4b49aa71b5bf50e287e5`) at the current product source. I retain exact model/script/dependency identities and require all nine named assumption reports plus independent checking through the execution-capable peer. This proof-only refresh does not execute decoder/VM corpora or establish ISA refinement.
 
 - [x] I refresh the exact candidate proof gate on an execution-capable host (`task_414caa6f28504b3ba47fdf7891d329f3`). At frozen product `ece241ba`, I preserve the Linux ARM64 image-execution failure. My Darwin peer completes the same pinned gate in 224.41 seconds: fresh Rocq 9.0.1 compilation, 43 closed-assumption reports, assumption audit and independent checker pass. [Evidence](evidence/product-formal-ece241ba.md). This validates my model, not production correspondence.
