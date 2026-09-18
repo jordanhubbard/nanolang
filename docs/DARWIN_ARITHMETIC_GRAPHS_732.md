@@ -84,3 +84,19 @@ I retain both terminal prerequisite outcomes and installation logs in
 The coordinator copied the sealed files over SSH and independently verified
 every SHA256 against the peer report. No test method passed in either run;
 the task remains open for the newly selected LLVM toolchain qualification.
+
+## My Darwin LTO linker correction
+
+My explicit LLVM build passes in 4.004839 seconds. The first helper method
+then fails in 0.891003 seconds because its unconditional Clang `-fuse-ld=lld`
+selects ld64.lld23, which rejects SDK27 arm64e.x1 TAPI targets. I preserve this
+terminal outcome under task_39536e6a885e47b88bed4445bb289e5e before repair.
+
+I retain the compiler's native default linker on Darwin and keep the existing
+explicit LLD selection on other Clang hosts. I qualify Darwin with Apple clang
+and Apple ld, retaining `-flto`, ASan/UBSan, all optimization modes and all 133
+bit assertions for both direct and embedded source. I change no production
+helper or expectation. A fresh detached qualification uses the corrected test
+commit, with production source still identical to25a685ad; I record both pins.
+All remaining backend/graph routes and deadlines remain required. This is a
+linker selection correction, not qualification of LLD against this newer SDK.
