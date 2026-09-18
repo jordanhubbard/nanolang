@@ -1,0 +1,38 @@
+{
+  "source": "cc45c646154f9abebd00130fd699fe1c3c4b6825",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j8",
+        "-f",
+        "Makefile.gnu",
+        "nano_vm",
+        "nvm2c",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 5.51,
+      "log_sha256": "d3e340d74434daf475ab06a8378d760120045858763f9061ce03b6952e3fee7a",
+      "tools_unchanged": false
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "make",
+        "test-owned-binary64",
+        "test-nested-owned-results",
+        "test-owned-value-results"
+      ],
+      "status": 0,
+      "seconds": 18.245,
+      "log_sha256": "13220b70505f991075eb6c366c9830ad2a7b78d5f2cbeaf919af2866e0a1c957",
+      "tools_unchanged": true
+    }
+  ],
+  "driver_status": 0,
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}
