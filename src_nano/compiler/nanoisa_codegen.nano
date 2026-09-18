@@ -364,6 +364,39 @@ shadow nisa_str_prelude {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_array_arithmetic_mnemonic(op: int) -> string {
+    if (== op LexerTokenType.TOKEN_PLUS) { return "ADD" }
+    if (== op LexerTokenType.TOKEN_MINUS) { return "SUB" }
+    if (== op LexerTokenType.TOKEN_STAR) { return "MUL" }
+    if (== op LexerTokenType.TOKEN_SLASH) { return "DIV" }
+    return ""
+}
+shadow nisa_array_arithmetic_mnemonic {
+    assert (== (nisa_array_arithmetic_mnemonic LexerTokenType.TOKEN_PLUS) "ADD")
+    assert (== (nisa_array_arithmetic_mnemonic LexerTokenType.TOKEN_SLASH) "DIV")
+    assert (== (nisa_array_arithmetic_mnemonic LexerTokenType.TOKEN_PERCENT) "")
+}
+fn nisa_array_arithmetic_type(op: int, left: string, right: string) -> string {
+    if (== (nisa_array_arithmetic_mnemonic op) "") { return "" }
+    let mut array_type: string = left
+    if (not (str_starts_with left "array<")) { set array_type right }
+    let mut scalar: string = ""
+    if (== array_type "array<int>") { set scalar "int" }
+    if (== array_type "array<float>") { set scalar "float" }
+    if (== scalar "") { return "" }
+    if (and (or (== left array_type) (== left scalar))
+            (or (== right array_type) (== right scalar))) { return array_type }
+    return ""
+}
+shadow nisa_array_arithmetic_type {
+    assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_PLUS "array<int>" "int") "array<int>")
+    assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_MINUS "float" "array<float>") "array<float>")
+    assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_STAR "array<float>" "array<float>") "array<float>")
+    assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_PLUS "array<float>" "int") "")
+    assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_PLUS "array<string>" "array<string>") "")
+    assert (== (nisa_array_arithmetic_type LexerTokenType.TOKEN_PERCENT "array<int>" "int") "")
+}
+
 fn nisa_binop_mnemonic(op: int) -> string {
     if (== op LexerTokenType.TOKEN_PLUS) {
         return "I64_ADD"
@@ -2439,6 +2472,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
                                        (== binary.op LexerTokenType.TOKEN_OR)))))))) { return "bool" }
         let left: string = (nisa_expr_type parser binary.left binary.left_type)
         let right: string = (nisa_expr_type parser binary.right binary.right_type)
+        let array_result: string = (nisa_array_arithmetic_type binary.op left right)
+        if (!= array_result "") { return array_result }
         if (and (== binary.op LexerTokenType.TOKEN_PLUS)
                 (and (== left "string") (== right "string"))) { return "string" }
         if (and (== left "float") (== right "float")) { return "float" }
@@ -3579,6 +3614,16 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         if (== right_type "float") { return (+ operand (nisa_line "F64_NEG")) }
                         if (nisa_value_type_matches parser right_type "int") { return (+ operand (nisa_line "I64_NEG")) }
                         return (nisa_fail "I require a numeric unary operand")
+                    }
+                    let array_operand: bool = (or (str_starts_with left_type "array<") (str_starts_with right_type "array<"))
+                    let arithmetic: bool = (or (!= (nisa_array_arithmetic_mnemonic binop.op) "") (== binop.op LexerTokenType.TOKEN_PERCENT))
+                    if (and array_operand arithmetic) {
+                        if (== (nisa_array_arithmetic_type binop.op left_type right_type) "") {
+                            return (nisa_fail "I require matching flat numeric array and scalar element types for arithmetic")
+                        }
+                        let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                        let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                        return (+ (+ left right) (nisa_line (nisa_array_arithmetic_mnemonic binop.op)))
                     }
                     if (or (== left_type "float") (== right_type "float")) {
                         return (nisa_emit_float_binary parser binop left_type right_type)
