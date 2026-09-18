@@ -19,10 +19,10 @@ class ManagedPrimitiveFormat(unittest.TestCase):
             strings+=f'.string int{i} "{value}"\n'
             body+=f'PUSH_I64 {value}\nCALL integer\nPUSH_STR int{i}\nEQ\nASSERT\n'
             body+=f'PUSH_I64 {value}\nSTR_FROM_FLOAT\nPUSH_STR zero\nEQ\nASSERT\n'
-        for i,(_,expected,literal) in enumerate(self.reference()[:64]):
+        for i,(bits,expected,literal) in enumerate(self.reference()[:64]):
             strings+=f'.string float{i} "{expected}"\n'
-            body+=f'PUSH_F64 {literal}\nCALL floating\nPUSH_STR float{i}\nEQ\nASSERT\n'
-            body+=f'PUSH_F64 {literal}\nSTR_FROM_INT\nPUSH_STR zero\nEQ\nASSERT\n'
+            body+=f'PUSH_F64 bits:{bits}\nCALL floating\nPUSH_STR float{i}\nEQ\nASSERT\n'
+            body+=f'PUSH_F64 bits:{bits}\nSTR_FROM_INT\nPUSH_STR zero\nEQ\nASSERT\n'
         for op in ('STR_FROM_INT','STR_FROM_FLOAT'):
             for value in ('PUSH_BOOL 1','PUSH_BOOL 0','PUSH_U8 255','PUSH_VOID','ENUM_VAL 0 42','PUSH_STR a'):
                 body+=f'{value}\n{op}\nPUSH_STR zero\nEQ\nASSERT\n'
