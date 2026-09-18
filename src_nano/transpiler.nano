@@ -2178,6 +2178,19 @@ shadow lookup_union_payload_type {
     assert (== (lookup_union_payload_type parser "Box" "None" "values" "Box<int>") "")
 }
 
+fn function_value_argument_type(signature: string, index: int) -> string {
+    if (not (is_fn_type signature)) { return "" }
+    let parameters: array<string> = (parse_fn_type_params signature)
+    if (or (< index 0) (>= index (array_length parameters))) { return "" }
+    return (at parameters index)
+}
+shadow function_value_argument_type {
+    assert (== (function_value_argument_type "fn(Box<int>,Choice)->int" 0) "Box<int>")
+    assert (== (function_value_argument_type "fn(Box<int>,Choice)->int" 1) "Choice")
+    assert (== (function_value_argument_type "int" 0) "")
+    assert (== (function_value_argument_type "fn()->int" 0) "")
+}
+
 fn declared_call_argument_type(parser: Parser, name: string, index: int) -> string {
     let mut i: int = 0
     while (< i (parser_get_function_count parser)) {
@@ -5284,6 +5297,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                     if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
                         let callee_code: string = (generate_expression parser call.function call.function_type env "")
+                        let callee_signature: string = (infer_expr_type parser call.function call.function_type env)
                         let suffix: string = (int_to_string node_id)
                         let fn_temp: string = (+ "_nl_call_fn_" suffix)
                         let mut parts: array<string> = []
@@ -5295,7 +5309,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         let mut i: int = 0
                         while (< i call.arg_count) {
                             let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env "")
+                            let arg_expected: string = (function_value_argument_type callee_signature i)
+                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
                             let arg_temp: string = (+ "_nl_call_arg_" (+ suffix (+ "_" (int_to_string i))))
                             set parts (cg_append parts "__auto_type ")
                             set parts (cg_append parts arg_temp)
@@ -5925,6 +5940,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
                         let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
                         let mut arg_expected: string = (declared_call_argument_type parser func_name i)
+                        let function_value_type: string = (genenv_get env func_id.name)
+                        if (is_fn_type function_value_type) { set arg_expected (function_value_argument_type function_value_type i) }
                         if (or (== func_name "print") (== func_name "println")) {
                             set arg_expected "string"
                         } else { (print "") }
@@ -6096,7 +6113,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             }
                             
                             let aref: ASTStmtRef = (parser_get_call_arg parser (+ mqc.arg_start i))
-                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env "")
+                            let arg_expected: string = (declared_call_argument_type parser qualified_name i)
+                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
                             set parts (cg_append parts arg_code)
                             set i (+ i 1)
                         }

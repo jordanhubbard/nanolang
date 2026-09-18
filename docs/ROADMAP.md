@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [x] I check direct selected-union constructor arguments against their declared nominal context (MAC `task_6961296c51014326bb3a532c33fab2e0`). I normalize exact already-declared union variants in brace parsing, recognize actual constructor AST nodes only, validate the selected variant and exact payload fields/types with concrete generic substitution, and preserve nominal identity across direct, computed/function-value and supported qualified calls. I retain explicit unresolved-shape refusals, existing ownership guards, native emitter context, and ordinary positive/mismatch/shadow/output-preservation tests before completion. I do not apply broad return-type coercion to calls. My integrated bootstrap, thirteen both-stage constructor methods, ten explicit shared C controls and adjacent ownership/function-value gates pass; [evidence and separate C refusals](evidence/selfhost-constructor-call-context.md) retain the exact scope.
+- [ ] I preserve nongeneric union identity in C-seed function-value signatures (`task_f00d97409c26413781ff85f06993e66d`). My ordinary fn(Choice)->int local/computed control is refused while the concrete generic callback control passes; I retain the distinct C failure rather than count it as selfhost parity.
+- [ ] I retain nongeneric union parameter identity when checking imported C-seed module functions (`task_a2f464df8ba84a4ab4fc52c509e96904`). The module-local match on Choice is currently rejected as non-union; Stage1 accepts the same source. This does not weaken the constructor-context acceptance boundary.
+
 - [x] I index native root membership and mark each owner once per collection (MAC `task_869e7e8e12e946d2a3ffc9cac6e16882`), preserving traversal order, collection points and lifetime guarantees. My [scaling and sanitizer evidence](evidence/native-root-tracking-cost.md) separates this lookup repair from full bootstrap convergence.
 - [x] I guard native loop collection with collectible-owner allocation debt (MAC `task_5928905033844a4a8fb498d63cb68c39`), preserving fresh mutable-root tracing, forced collection and bounded retention. My [measured scan and lifetime evidence](evidence/native-collection-debt.md) records 9998 scans reduced to two and the distinct record-capacity boundary below.
 - [x] I grow native AOT record arrays beyond 256 elements with checked allocation, alias preservation and complete teardown (MAC `task_617006c46f9746da9694c6a4e0a0ceaf`). The full native compiler now reaches this existing limit while tokenizing; my retained 257-record fixture passes VM and emits byte-identical failing native C with unchanged and debt-scheduled translators. The 50-method functional/sanitizer suite passes; full native self-compilation remains blocked by the separate parser stack task.
@@ -52,6 +56,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [ ] I repair canonical product export-shadow acceptance (`task_dd74b033c3984805bc27ce5017096c3c`). At `b10a1dd3`, fresh bootstrap passes both compiler stages, hello and installed execution without the C seed. The ordinary product gate passes 26 of 27 methods, but existing `test_module_introspection_exports.nano` compilation aborts without a diagnostic. I preserve the binary, hashes and original log in `/tmp/nanolang-product-exports-b10a1dd3`; static correctness review precedes repair. I keep this separate from the earlier startup incident and retain the product publication hold. My fresh post-PR558 product run at `1fae65ef` again passes bootstrap and 26 of 27 methods; the export-shadow compile abort remains, with immutable evidence in `/tmp/nanolang-product-exports-1fae65ef`. I make no cause attribution and retain the publication hold. The post-worklist run at `bd4a2428` has the same 26/27 result; evidence remains separate in `/tmp/nanolang-product-exports-bd4a2428`.
 
 - [x] I verify product bootstrap after PR #551 adds exact record-array global transport (transport task `task_1e569db4d8f1486abdd7d5ed3ca00bc1` is complete; full product acceptance remains open). At earlier product pin `599d7558`, Stage 1 and hello passed, but Stage 2 translation explicitly refused an aggregate global store. I preserve that bootstrap log and keep the product draft open until the integrated compiler passes its gates. My fresh `1fae65ef` bootstrap passes both stages, hello and installed execution without the C seed; the distinct export-shadow acceptance task dd74 still blocks the product PR.
+- [x] I preserve optional int/bool/string results from ordinary native array reads (`task_438ff01101234d6cb3cad5dfeaa0e9f2`). I replace cancelled task ed0f and stale PR307/331/343/349/356 against current signed-64-bit index semantics: no uint32 wrap. Valid reads retain payload tags; missing indices retain void through ignored, tag-tested, local/call/join consumers; typed consumers check before unboxing. Existing record-array and ownership contracts stay separate. My corrected-source VM/native and GCC/Clang sanitizer acceptance passes, alongside 2,422 native and 1,092 shape checks. Evidence: `docs/evidence/native-optional-array-reads.md`.
+
+- [x] I emit total integer arithmetic in standalone native C (`task_9af23845cec040b6955340ab23de4c91`, parent66a6). Unsigned add/sub/mul/neg plus exact signed reconstruction avoid signed overflow; division/remainder guard zero and minimum-integer overflow. Thirty-eight typed/generic integer cases pass GCC/Clang UBSan at O0/O2, shared VM/LLVM/Wasm boundaries pass, and 2,422 native plus 1,092 shape checks pass. Generic float/tag promotion remains separate. See `docs/evidence/native-total-integer-arithmetic.md`.
+
 - [x] I execute verified owned-profile assertions before admitting mandatory source shadows (MAC `task_f259c8fa53c945e6a990f112dc9415c1`, parents ed702/718). True conditions preserve affine/reference state; false conditions unwind actual owners and clear both activation contexts, with native helper failure propagation. I pass 959 entry/helper assertion, four public VM entry APIs, resume and cleanup checks, paired supervised VM/native and instrumented lifetime gates; ordinary ASSERT semantics remain unchanged. See `docs/evidence/owned-shadow-assertions.md`.
 - [ ] I emit checked scalar-resource borrowed calls from both ordinary-source NanoISA frontends (MAC `task_5057848888b246f686fd2b8e48d2c19a`, parents ed702/718). My [bounded source contract](NANOISA_SOURCE_BORROWS.md) requires exact nominal layouts, root/parameter ownership, OWN/REF/CALL_REF, complete selected shadows and paired VM/native execution. Initial int/bool scalar-leaf roots, one borrowed helper and explicit unsupported-shadow graph refusal do not complete broader source or affine acceptance.
 
@@ -2297,12 +2305,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
                       required before I complete globals. Normal and fresh
                       ASan/UBSan suites pass 1,294 AOT and 994 shape checks.
                       Evidence: `docs/evidence/aot-array-globals.md`.
-                    - [ ] I preserve void-valued out-of-range reads from
-                      ordinary native arrays too. Existing untagged helpers
-                      abort at lookup; NanoVM yields void and lets consumers
-                      decide. I test ignored results, tag inspection, casts,
-                      typed consumers and index narrowing. MAC
-                      `task_ed0f455484d04f13818362fd857d2889`.
+                    - [x] I preserve void-valued ordinary scalar array reads,
+                      including signed 64-bit missing indices, tag tests,
+                      local/call/branch consumers and checked typed writes.
+                      Current task `task_438ff01101234d6cb3cad5dfeaa0e9f2`
+                      replaces cancelled `task_ed0f455484d04f13818362fd857d2889`;
+                      I do not narrow indices to uint32.
+                      Evidence: `docs/evidence/native-optional-array-reads.md`.
                     - [x] I first carry tagged scalar global loads and stores
                       through initialization, cross-function mutation and
                       saved values. I check slot bounds and retain void before
@@ -9771,6 +9780,15 @@ Compiler product:
       fixture and all 2,390 structured-C checks pass on Darwin (2026-09-17).
 
 Module richness:
+- [x] I free the assembler module when its initial code-buffer allocation fails.
+      My local-marker allocation sweep exposed the existing missing teardown;
+      MAC `task_d2326e6883ed4cbe93728cd1393024c2`. I retain the sanitizer
+      failure; the unchanged 20-boundary allocation sweep now passes ASan/UBSan
+      with leak checks. [Evidence](evidence/nanoisa-local-bindings.md).
+- [ ] I preserve DEBUG source maps through canonical text; real source output
+      currently loses them during disassembly/reassembly. MAC `task_1466d452d48c4a558c3be8a51765dd8f`.
+      Local-name comparisons retain exact metadata/code and separately require
+      canonical-cycle byte stability; full original-byte transport remains open.
 - [x] I retain ordered advisory v2 metadata through module conversion and
       canonical text, with exact string bytes, explicit source precedence,
       metadata-bearing v1 refusal and owned lifetime. MAC
@@ -9781,6 +9799,12 @@ Module richness:
       sanitizer checks and the genuine canonical compiler host build.
       [Evidence](evidence/nanoisa-advisory-metadata.md).
 - [ ] I store local names, not only slot numbers.
+  - [x] I retain optional function/slot/PC-interval local names through a
+        versioned advisory convention, assembler markers and paired ordinary
+        parameter/scalar-let producers, with lexical shadow/reused-slot tests.
+        MAC `task_d62e26f741bf47b9810a7cfa43fca44a`; contract
+        `docs/NANOISA_LOCAL_BINDINGS.md`. Other producer families remain open.
+        [Evidence](evidence/nanoisa-local-bindings.md).
 - [ ] I preserve frontend purity, affine-use, generic, effect, and
       exhaustiveness facts as NanoISA metadata.
 - [ ] I recover structured `if`/`while`/`return` from `JMP` for
@@ -10514,4 +10538,4 @@ Next Review: the exact release candidate and its published artifacts.
 
 - [x] I lower indexed module function/struct names in my C NanoISA frontend, retaining empty-string out-of-range results, exact intrinsic signatures without foreign imports, and all eight introspection operations across VM/native products (`task_6940de98b2a9468bac246ad10e221939`). Four VM/native methods pass, including sanitizer execution, empty exports, one-time index evaluation, exact signature refusal and ordinary same-prefix functions; my NanoVirt core passes 89 checks. Canonical source-fact retention remains separate under `task_faa47ec22a2545348aa9c9d705580321`.
 
-- [ ] I preserve union constructor context in direct selfhost call arguments (`task_6961296c51014326bb3a532c33fab2e0`). Fresh Stage1/Stage2 reject a selected `Choice.Some` constructor where C seed/interpreter/VM accept the declared `Choice` parameter. I retain `/tmp/nanolang-underscore-payload-tests-with-interpreter.log` and use explicit typed union locals as the current control; this is separate from underscore payload discards.
+- [x] I preserve union constructor context in direct selfhost call arguments (`task_6961296c51014326bb3a532c33fab2e0`). My uniquely declared parser normalization, exact payload/context checks and native argument type handoff pass both selfhost stages, including function-value and qualified calls. [Measured evidence](evidence/selfhost-constructor-call-context.md) preserves the original refusal and distinct C-seed signature/import limitations; this is separate from underscore payload discards.

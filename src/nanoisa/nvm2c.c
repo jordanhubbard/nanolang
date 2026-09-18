@@ -1561,7 +1561,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!shape_type(b, arr.shape, NVM_SHAPE_ARRAY)) return 0;
             NvmShapeId element_shape = shape_child(b, arr.shape, 0);
-            if (!shape_equal(b, shape_variable(b, b->shape_current), element_shape)) return 0;
+            bool optional_scalar = integer_array_storage(arr.kind) || arr.kind == NVM2C_VK_SARR;
+            NvmShapeId result_shape = shape_variable(b, b->shape_current);
+            if (optional_scalar) {
+                if (!shape_type(b, result_shape, NVM_SHAPE_OPTIONAL) ||
+                    !shape_equal(b, shape_child(b, result_shape, 0), element_shape)) return 0;
+            } else if (!shape_equal(b, result_shape, element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
@@ -1572,7 +1577,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
             } else if (arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
             } else if (arr.kind == NVM2C_VK_UNK) {
                 Nvm2cSimSlot value = {0};
                 value.kind = NVM2C_VK_UNK;
@@ -1581,7 +1586,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!value.rec_k || !sim_push_slot(b, idx, stk, &sp, value)) return 0;
             } else {
                 mark_origin(local_kind, nloc, arr.origin, arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR);
-                if (!sim_push(b, idx, stk, &sp, arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BOOL : NVM2C_VK_INT, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                stk[sp - 1].scalar_tags = (1u << TAG_VOID) |
+                    (1u << (arr.kind == NVM2C_VK_BARR ? TAG_BOOL : TAG_INT));
             }
             break;
         }
@@ -1618,6 +1625,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_ARR_SET && arr.kind != NVM2C_VK_UNK &&
                 val.kind != NVM2C_VK_UNK) {
                 uint8_t expected = val.kind == NVM2C_VK_REC ? NVM2C_VK_RARR :
+                    val.kind == NVM2C_VK_VALUE && integer_array_storage(arr.kind) ? arr.kind :
                     val.kind == NVM2C_VK_VALUE && arr.kind == NVM2C_VK_SARR ? NVM2C_VK_SARR :
                     val.kind == NVM2C_VK_STR ? NVM2C_VK_SARR :
                     val.kind == NVM2C_VK_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
@@ -1660,13 +1668,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else {
-                uint8_t kind = val.kind == NVM2C_VK_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
+                uint8_t kind = val.kind == NVM2C_VK_BOOL || arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR;
                 mark_origin(local_kind, nloc, arr.origin, kind);
                 if (!sim_push(b, idx, stk, &sp, kind, -1)) return 0;
             }
             /* A tagged scalar is checked and unboxed at the typed write.
-             * Its present payload, not its optional wrapper, is a string. */
-            NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE && arr.kind == NVM2C_VK_SARR
+             * I constrain its present payload, not its optional wrapper. */
+            NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE &&
+                (arr.kind == NVM2C_VK_SARR || integer_array_storage(arr.kind))
                 ? shape_child(b, val.shape, 0) : val.shape;
             if (!shape_equal(b, shape_child(b, arr.shape, 0), written_shape) ||
                 !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
@@ -2460,8 +2469,10 @@ static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
     int rhs = stack_pop_expect(b, st, input_kind, "binary op rhs");
     int lhs = stack_pop_expect(b, st, input_kind, "binary op lhs");
     if (b->failed) return;
-    char expr[80];
-    snprintf(expr, sizeof expr, "(t[%d] %s t[%d])", lhs, op, rhs);
+    char expr[128];
+    if (!strcmp(op, "+") || !strcmp(op, "-") || !strcmp(op, "*"))
+        snprintf(expr, sizeof expr, "ni64_from_bits((uint64_t)t[%d] %s (uint64_t)t[%d])", lhs, op, rhs);
+    else snprintf(expr, sizeof expr, "(t[%d] %s t[%d])", lhs, op, rhs);
     stack_push_temp(b, st, expr);
 }
 
@@ -2469,7 +2480,9 @@ static void emit_unop(Nvm2cBuf *b, Nvm2cStack *st, const char *prefix) {
     int x = stack_pop_expect(b, st, strcmp(prefix, "!") == 0 ? NVM2C_VK_BOOL : NVM2C_VK_INT, "unary op");
     if (b->failed) return;
     char expr[64];
-    snprintf(expr, sizeof expr, "(%s t[%d])", prefix, x);
+    if (!strcmp(prefix, "-"))
+        snprintf(expr, sizeof expr, "ni64_from_bits(UINT64_C(0) - (uint64_t)t[%d])", x);
+    else snprintf(expr, sizeof expr, "(%s t[%d])", prefix, x);
     stack_push_temp(b, st, expr);
 }
 
@@ -2794,7 +2807,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_printf(b, "%s a%u", c_local_type(fn_local_kind(b, kinds, idx, i)), (unsigned)i);
         }
     }
-    nvm2c_puts(b, ") {\n");
+    nvm2c_puts(b, ") {\n    (void)ni64_from_bits;\n");
 
     unsigned record_locals = 0;
     for (i = 0; i < fn->local_count; i++)
@@ -3281,9 +3294,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int rhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "div rhs");
             int lhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "div lhs");
             if (b->failed) goto done;
-            char expr[96];
-            snprintf(expr, sizeof expr, "(t[%d] == 0 ? (int64_t)0 : t[%d] / t[%d])",
-                     rhs, lhs, rhs);
+            char expr[192];
+            snprintf(expr, sizeof expr, "(t[%d] == 0 ? INT64_C(0) : (t[%d] == INT64_MIN && t[%d] == -1) ? INT64_MIN : t[%d] / t[%d])",
+                     rhs, lhs, rhs, lhs, rhs);
             stack_push_temp(b, &st, expr);
             break;
         }
@@ -3292,9 +3305,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int rhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "mod rhs");
             int lhs = stack_pop_expect(b, &st, NVM2C_VK_INT, "mod lhs");
             if (b->failed) goto done;
-            char expr[96];
-            snprintf(expr, sizeof expr, "(t[%d] == 0 ? (int64_t)0 : t[%d] %% t[%d])",
-                     rhs, lhs, rhs);
+            char expr[192];
+            snprintf(expr, sizeof expr, "(t[%d] == 0 || (t[%d] == INT64_MIN && t[%d] == -1) ? INT64_C(0) : t[%d] %% t[%d])",
+                     rhs, lhs, rhs, lhs, rhs);
             stack_push_temp(b, &st, expr);
             break;
         }
@@ -3787,14 +3800,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 snprintf(expr, sizeof expr, "nvalue_array_get(v[%d], t[%d])", arr, ix);
                 stack_push_value(b, &st, expr);
             } else if (integer_array_storage(ak)) {
-                char expr[80];
-                snprintf(expr, sizeof expr, "narr_get(a[%d], t[%d])", arr, ix);
-                if (ak == NVM2C_VK_BARR) stack_push_bool(b, &st, expr);
-                else stack_push_temp(b, &st, expr);
+                char expr[128];
+                snprintf(expr, sizeof expr, "nvalue_array_get((nmap_value){7, %u, (char *)a[%d]}, t[%d])", ak, arr, ix);
+                stack_push_value(b, &st, expr);
             } else if (ak == NVM2C_VK_SARR) {
-                char expr[80];
-                snprintf(expr, sizeof expr, "nsarr_get(sa[%d], t[%d])", arr, ix);
-                stack_push_str(b, &st, expr);
+                char expr[128];
+                snprintf(expr, sizeof expr, "nvalue_array_get((nmap_value){7, %u, (char *)sa[%d]}, t[%d])", ak, arr, ix);
+                stack_push_value(b, &st, expr);
             } else if (ak == NVM2C_VK_RARR) {
                 char expr[80];
                 snprintf(expr, sizeof expr, "nrarr_get(ra[%d], t[%d])", arr, ix);
@@ -3821,8 +3833,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 break;
             }
             const char *array = NULL, *value = NULL;
-            if ((ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) ||
-                (ak == NVM2C_VK_BARR && vk == NVM2C_VK_BOOL)) { array = "a"; value = "t"; }
+            if ((ak == NVM2C_VK_ARR && (vk == NVM2C_VK_INT || vk == NVM2C_VK_VALUE)) ||
+                (ak == NVM2C_VK_BARR && (vk == NVM2C_VK_BOOL || vk == NVM2C_VK_VALUE))) { array = "a"; value = "t"; }
             else if (ak == NVM2C_VK_SARR && (vk == NVM2C_VK_STR || vk == NVM2C_VK_VALUE)) { array = "sa"; value = "s"; }
             else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) { array = "ra"; value = "r"; }
             else {
@@ -3844,6 +3856,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_VALUE)
                 nvm2c_printf(b, "    sa[%d]->data[t[%d]] = nvalue_require_string(v[%d]);\n", arr, ix, val);
+            else if (integer_array_storage(ak) && vk == NVM2C_VK_VALUE)
+                nvm2c_printf(b, "    a[%d]->data[t[%d]] = nvalue_require_%s(v[%d]);\n",
+                             arr, ix, ak == NVM2C_VK_BARR ? "bool" : "int", val);
             else nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
             /* The result is the same handle, not a copy: aliases see the write. */
             st.slots[st.sp] = arr;
@@ -3862,6 +3877,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 snprintf(expr, sizeof expr, "nvalue_array_push(v[%d], %s)", arr, boxed);
                 stack_push_value(b, &st, expr);
+            } else if (integer_array_storage(ak) && vk == NVM2C_VK_VALUE) {
+                char expr[96];
+                snprintf(expr, sizeof expr, "narr_push(a[%d], nvalue_require_%s(v[%d]))",
+                         arr, ak == NVM2C_VK_BARR ? "bool" : "int", val);
+                stack_push_iarray(b, &st, expr, ak);
             } else if ((ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) ||
                        (ak == NVM2C_VK_BARR && vk == NVM2C_VK_BOOL)) {
                 char expr[80];
@@ -5721,6 +5741,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "/* Generated by nvm2c from NanoISA. Not a VM wrapper. */\n"
             "#include <stddef.h>\n"
             "#include <stdint.h>\n#include <stdlib.h>\n");
+        nvm2c_puts(&b,
+            "/* I reconstruct wrapped bits without an out-of-range signed cast. */\n"
+            "static inline int64_t ni64_from_bits(uint64_t bits) {\n"
+            "    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);\n}\n");
         if (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_AGG_GET))
             nvm2c_puts(&b, "#include <string.h>\n");
         if (module_has_opcode(mod, OP_AGG_GET)) nvm2c_puts(&b,

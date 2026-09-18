@@ -7,6 +7,7 @@
  */
 
 #include "assembler.h"
+#include "local_bindings.h"
 #include "isa.h"
 #include "verifier.h"
 #include <stdio.h>
@@ -60,8 +61,17 @@ typedef struct {
 
 typedef struct { uint32_t offset, length; } FlowMarker;
 
+typedef struct LocalMarker {
+    uint16_t slot;
+    uint32_t begin,end,length;
+    char *name;
+    bool closed;
+    struct LocalMarker *next;
+} LocalMarker;
+
 typedef struct {
     NvmModule *mod;
+    LocalMarker *local_markers, *local_tail;
 
     Label *labels;
     uint32_t label_count, label_capacity;
@@ -100,6 +110,11 @@ static void asm_state_init(AsmState *state) {
 }
 
 static void asm_state_cleanup(AsmState *state) {
+    while (state->local_markers) {
+        LocalMarker *next=state->local_markers->next;
+        free(state->local_markers->name);free(state->local_markers);state->local_markers=next;
+    }
+
     free(state->fn_code);
     free(state->labels);
     free(state->symbols);
@@ -839,6 +854,33 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return false;
         }
 
+        if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0) {
+            uint16_t slot;
+            if(!state->in_function || !parse_uint16(&p,&slot) ||
+               slot>=state->mod->functions[state->current_function].local_count)
+                return par_error(result,"I require a declared local slot inside a function.");
+            LocalMarker *active=NULL;
+            for(LocalMarker *m=state->local_markers;m;m=m->next)
+                if(m->slot==slot && !m->closed)active=m;
+            if(strcmp(directive,"local_end")==0) {
+                if(!active || !require_line_end(p,result))
+                    return par_error(result,"I require an open local-name marker before its end.");
+                active->end=state->fn_code_size;active->closed=true;return true;
+            }
+            if(active)return par_error(result,"I require disjoint local-name markers for one slot.");
+            size_t available=strlen(p)+1;uint32_t length=0;
+            char *name=malloc(available);
+            if(!name)return par_error(result,"I cannot allocate a local-name marker.");
+            if(!parse_quoted_string(&p,name,available,&length) || !length || !require_line_end(p,result)) {
+                free(name);return par_error(result,"I require one nonempty quoted local name.");
+            }
+            LocalMarker *m=calloc(1,sizeof *m);
+            if(!m){free(name);return par_error(result,"I cannot allocate a local-name marker.");}
+            m->slot=slot;m->begin=state->fn_code_size;m->name=name;m->length=length;
+            if(state->local_tail)state->local_tail->next=m;else state->local_markers=m;
+            state->local_tail=m;return true;
+        }
+
         if (strcmp(directive, "metadata") == 0) {
             uint32_t key, value;
             if (state->in_function || !parse_uint32(&p, &key) ||
@@ -1237,6 +1279,16 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             state->mod->functions[state->current_function].code_offset = code_off;
             state->mod->functions[state->current_function].code_length = state->fn_code_size;
 
+            while(state->local_markers) {
+                LocalMarker *m=state->local_markers;
+                NvmLocalBinding binding={.function=state->current_function,.slot=m->slot,
+                    .begin=m->begin,.end=m->closed?m->end:state->fn_code_size,
+                    .name=(const uint8_t *)m->name,.name_size=m->length};
+                if(!nvm_add_local_binding(state->mod,&binding))
+                    return par_error(result,"I cannot retain this lexical local name.");
+                state->local_markers=m->next;free(m->name);free(m);
+            }
+            state->local_tail=NULL;
             state->in_function = false;
 
             /* Clear patches for this function */
@@ -1423,6 +1475,7 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
     if (!state.mod || !state.fn_code) {
         result->error = ASM_ERR_MEMORY;
         snprintf(result->message, sizeof(result->message), "Out of memory");
+        nvm_module_free(state.mod);
         asm_state_cleanup(&state);
         return NULL;
     }

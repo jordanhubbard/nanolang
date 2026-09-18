@@ -26,6 +26,7 @@ from "src_nano/compiler/diagnostics.nano" import diag_list_new
 let mut nisa_module_facts: array<ModuleIntrospection> = []
 let mut nisa_names: array<string> = []
 let mut nisa_types: array<string> = []
+let mut nisa_named_slots: array<int> = []
 let mut nisa_str_vals: array<string> = []
 let mut nisa_str_names: array<string> = []
 let mut nisa_ok: bool = true
@@ -53,6 +54,7 @@ fn nisa_reset() -> int {
     set nisa_module_facts []
     set nisa_names []
     set nisa_types []
+    set nisa_named_slots []
     set nisa_str_vals []
     set nisa_str_names []
     set nisa_ok true
@@ -948,6 +950,7 @@ fn nisa_emit_globals(parser: Parser) -> string {
     }
     set nisa_names []
     set nisa_types []
+    set nisa_named_slots []
     let mut body: string = ""
     set i 0
     while (and nisa_ok (< i (array_length nisa_global_nodes))) {
@@ -959,6 +962,7 @@ fn nisa_emit_globals(parser: Parser) -> string {
     let locals: int = (array_length nisa_names)
     set nisa_names []
     set nisa_types []
+    set nisa_named_slots []
     if (not nisa_ok) { return "" }
     let header: string = (+ ".function __init__ 0 " (+ (int_to_string locals) " 0 void 0\n"))
     return (+ header (+ body "  RET\n.end\n\n"))
@@ -3052,6 +3056,25 @@ shadow nisa_par_reads {
     assert (not (nisa_par_reads parser 0 ParseNodeType.PNODE_NUMBER "x"))
 }
 
+# I attach optional scalar names without changing a local's authority.
+fn nisa_named_scalar(t: string) -> bool {
+    return (or (or (== t "int") (== t "bool")) (or (== t "u8") (or (== t "float") (== t "string"))))
+}
+shadow nisa_named_scalar {
+    assert (nisa_named_scalar "int")
+    assert (nisa_named_scalar "string")
+    assert (not (nisa_named_scalar "array<int>"))
+}
+fn nisa_local_name_begin(slot: int, name: string, t: string) -> string {
+    if (or (== name "") (not (nisa_named_scalar t))) { return "" }
+    return (+ ".local_begin " (+ (int_to_string slot) (+ " \"" (+ (nisa_escape_string name) "\"\n"))))
+}
+shadow nisa_local_name_begin {
+    assert (== (nisa_local_name_begin 2 "answer" "int") ".local_begin 2 \"answer\"\n")
+    assert (== (nisa_local_name_begin 0 "" "int") "")
+    assert (== (nisa_local_name_begin 1 "items" "array<int>") "")
+}
+
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
     if (not nisa_ok) { return "" }
     if (not (nisa_type_ok parser value_type)) {
@@ -3062,7 +3085,10 @@ fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> s
     set nisa_names (array_push nisa_names binding.name)
     set nisa_types (array_push nisa_types value_type)
     let slot: int = (- (array_length nisa_names) 1)
-    return (+ value (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+    if (and (!= binding.name "") (nisa_named_scalar value_type)) {
+        set nisa_named_slots (array_push nisa_named_slots slot)
+    }
+    return (+ value (+ (nisa_line_imm "STORE_LOCAL" (int_to_string slot)) (nisa_local_name_begin slot binding.name value_type)))
 }
 shadow nisa_emit_typed_let {
     let _: int = (nisa_reset)
@@ -3409,6 +3435,18 @@ fn nisa_emit_statements(parser: Parser, statements: List<ASTStmtRef>) -> string 
         if (nisa_stmt_terminates parser stmt) { break }
         set i (+ i 1)
     }
+    let mut active_names: array<int> = []
+    let mut named_index: int = 0
+    while (< named_index (array_length nisa_named_slots)) {
+        let named_slot: int = (at nisa_named_slots named_index)
+        if (>= named_slot first_slot) {
+            set out (+ out (+ ".local_end " (+ (int_to_string named_slot) "\n")))
+        } else {
+            set active_names (array_push active_names named_slot)
+        }
+        set named_index (+ named_index 1)
+    }
+    set nisa_named_slots active_names
     # I retain allocated slots but hide names that leave this lexical block.
     let mut names: array<string> = []
     let mut slot: int = 0
@@ -3513,6 +3551,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_has_par false
     set nisa_names []
     set nisa_types []
+    set nisa_named_slots []
     let result_tag: string = (nisa_result_tag parser func.return_type)
     set nisa_void_return (== func.return_type "void")
     set nisa_return_type func.return_type
@@ -3577,7 +3616,14 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         } else {
             set header (+ header " 1\n")
         }
-        return (+ (+ (+ header parameters) body) ".end\n")
+        let mut parameter_names: string = ""
+        let mut named_parameter: int = 0
+        while (< named_parameter func.param_count) {
+            let declared: ASTLet = (parser_get_let parser (+ func.param_start named_parameter))
+            set parameter_names (+ parameter_names (nisa_local_name_begin named_parameter declared.name declared.var_type))
+            set named_parameter (+ named_parameter 1)
+        }
+        return (+ (+ (+ header parameters) (+ parameter_names body)) ".end\n")
     }
 }
 
