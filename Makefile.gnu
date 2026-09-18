@@ -4564,13 +4564,13 @@ test-named-scalar-callbacks: bootstrap $(INTERPRETER) nano_virt nano_vm nanoisa_
 
 .PHONY: test-ordinary-record-producers
 test-units: test-ordinary-record-producers
-test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm
+test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm nvm2c
 	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_ordinary_record_producers
 
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
-test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm
+test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
 	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
 
 .PHONY: test-ownership-contracts
