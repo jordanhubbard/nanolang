@@ -9851,6 +9851,13 @@ Reconstruction:
       supplied assertions, not recovered original tests.
 
 Other translators:
+- [ ] I lower generic numeric ADD/SUB/MUL/DIV/MOD/NEG through my shared
+      closed-scalar LLVM/Wasm profile with VM-matched promotion, wrapping,
+      total division, runtime tag errors and paired execution. MAC
+      `task_fd74e0169a1c4be0ae328ead691bde23`, parent
+      `task_66a6dd8ca51d415f9efb0f2904f85b49`; contract
+      `docs/NANOISA_LLVM_GENERIC_NUMERIC.md`. Heap/enum operands and full
+      native tagged-value promotion remain separate boundaries.
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
