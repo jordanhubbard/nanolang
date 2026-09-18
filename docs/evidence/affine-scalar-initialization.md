@@ -69,3 +69,11 @@ product failure.
 I rebased cleanly onto main `58e0353d` after PR #622, at `dde5dced`. The two
 production analysis files are unchanged from reviewed `b3fc3e87`. My runtime,
 wire format, opcode inventory and source producers remain unchanged throughout.
+
+The complete integrated gate passed at `dde5dced`:
+`/tmp/nanolang-affine-init-integrated.log`. It reruns state and bytecode ordinary/
+allocation checks, owned transfers, the twelve-case owned runtime, same-frame
+references, nested references, caller analysis, caller references, multi-caller
+references and owned assertions. The final owned-runtime method took 34.950
+seconds. Its independent authority and allocation checks retain all refusals.
+Only evidence and roadmap status changed afterward.
