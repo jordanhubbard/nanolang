@@ -254,6 +254,15 @@ static void fn_c_name(const NvmModule *mod, uint32_t idx, char *out, size_t n) {
     }
 }
 
+static int aggregate_value_tag(uint8_t tag) {
+    return tag == TAG_STRUCT || tag == TAG_UNION || tag == TAG_TUPLE;
+}
+
+static uint8_t aggregate_kind_for_tag(uint8_t tag) {
+    return tag == TAG_STRUCT ? AGG_RECORD :
+           tag == TAG_UNION ? AGG_VARIANT : AGG_TUPLE;
+}
+
 static const char *c_result_type(const Nvm2cBuf *b, const NvmFunctionEntry *fn, uint32_t idx) {
     if (fn->result_count == 0 || fn->result_tag == TAG_VOID) return "void";
     if (fn->result_count != 1) return NULL;
@@ -268,7 +277,7 @@ static const char *c_result_type(const Nvm2cBuf *b, const NvmFunctionEntry *fn, 
         return NULL;
     }
     if (fn->result_tag == TAG_HASHMAP) return "nmap_t";
-    if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) return "nrec_t";
+    if (aggregate_value_tag(fn->result_tag)) return "nrec_t";
     return NULL;
 }
 
@@ -1773,9 +1782,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             break;
         }
         case OP_AGG_PACK: {
+            uint8_t aggregate_kind = ins.operands[0].u8;
             uint16_t count = ins.operands[3].u16;
             Nvm2cSimSlot packed;
             uint16_t ai;
+            if (aggregate_kind != AGG_RECORD && aggregate_kind != AGG_VARIANT &&
+                aggregate_kind != AGG_TUPLE) {
+                nvm2c_fail(b, "function %u: I support record, variant or tuple packing, not aggregate kind %u",
+                           idx, aggregate_kind);
+                return 0;
+            }
             memset(&packed, 0, sizeof packed);
             packed.kind = NVM2C_VK_REC;
             packed.origin = -1;
@@ -1931,7 +1947,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 } else if (result_is_i64(cf)) {
                     if (!sim_push(b, idx, stk, &sp, cf->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT, -1)) return 0;
                 } else if (cf->result_count == 1 &&
-                           (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION || cf->result_tag == TAG_HASHMAP)) {
+                           (aggregate_value_tag(cf->result_tag) || cf->result_tag == TAG_HASHMAP)) {
                     Nvm2cSimSlot result;
                     memset(&result, 0, sizeof result);
                     result.kind = cf->result_tag == TAG_HASHMAP ? NVM2C_VK_MAP : NVM2C_VK_REC;
@@ -1940,7 +1956,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!result.rec_k) return 0;
                     if (!sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 }
-            } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
+            } else if (aggregate_value_tag(cf->result_tag)) {
                 if (!merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
                                           facts->results + (size_t)callee * b->record_width)) return 0;
             } else if (cf->result_tag == TAG_ARRAY || cf->result_tag == TAG_HASHMAP) {
@@ -1955,7 +1971,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_CALL && cf->result_count == 1 && sp > 0) {
                 if (!shape_equal(b, stk[sp - 1].shape, shape_variable(b, &b->shape_results[callee]))) return 0;
             } else if (ins.opcode == OP_TAIL_CALL && cf->result_count == 1) {
-                if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
+                if (aggregate_value_tag(cf->result_tag)) {
                     if (!shape_record_return(b, shape_variable(b, &b->shape_results[callee]),
                                              shape_variable(b, &b->shape_results[idx]),
                                              facts->results + (size_t)callee * b->record_width,
@@ -2015,7 +2031,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (fn->result_count == 1 &&
                 (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM) || fn->result_tag == TAG_FLOAT ||
                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY ||
-                 fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP) &&
+                 aggregate_value_tag(fn->result_tag) || fn->result_tag == TAG_HASHMAP) &&
                 sp > 0) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -2036,7 +2052,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (v.kind == NVM2C_VK_RARR &&
                         !merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
                                       v.rec_k)) return 0;
-                } else if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP) {
+                } else if (aggregate_value_tag(fn->result_tag) || fn->result_tag == TAG_HASHMAP) {
                     mark_origin(local_kind, nloc, v.origin, fn->result_tag == TAG_HASHMAP ? NVM2C_VK_MAP : NVM2C_VK_REC);
                     if (v.kind == NVM2C_VK_REC &&
                         !merge_record_results(b, facts, facts->results + (size_t)idx * b->record_width,
@@ -2051,7 +2067,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     fn->result_tag == TAG_FLOAT ? NVM_SHAPE_FLOAT :
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
                     fn->result_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
-                    (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
+                    aggregate_value_tag(fn->result_tag) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
                 /* RET checks and unboxes a scalar or tagged map at emission.
                  * An inferred scalar projection may become optional later;
                  * its declared result never rewrites source storage. */
@@ -4144,8 +4160,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int *elems = literal_elems;
             uint8_t *fkind = aggregate_kinds;
             int ei;
-            if (kind != AGG_RECORD && kind != AGG_VARIANT) {
-                nvm2c_fail(b, "I support record and variant packing, not aggregate kind %u", kind);
+            if (kind != AGG_RECORD && kind != AGG_VARIANT && kind != AGG_TUPLE) {
+                nvm2c_fail(b, "I support record, variant or tuple packing, not aggregate kind %u", kind);
                 goto done;
             }
             if (count > b->record_width) {
@@ -4366,8 +4382,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     if (result >= 0) memcpy(st.rarr_k[result], result_fields + (size_t)callee * b->record_width,
                                            b->record_width);
                 }
-            } else if (cf->result_count == 1 &&
-                       (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION)) {
+            } else if (cf->result_count == 1 && aggregate_value_tag(cf->result_tag)) {
                 int result = stack_push_rec(b, &st, call);
                 if (result >= 0) memcpy(st.rec_k[result], result_fields + (size_t)callee * b->record_width,
                                         b->record_width);
@@ -4405,7 +4420,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (fn->result_count == 1 &&
                 (result_is_i64(fn) || fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || fn->result_tag == TAG_FLOAT || fn->result_tag == TAG_STRING ||
-                 fn->result_tag == TAG_ARRAY || fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION || fn->result_tag == TAG_HASHMAP)) {
+                 fn->result_tag == TAG_ARRAY || aggregate_value_tag(fn->result_tag) || fn->result_tag == TAG_HASHMAP)) {
                 nvm2c_printf(b, "    nresult = %s;\n    goto L_return;\n", call);
             } else {
                 nvm2c_printf(b, "    %s;\n    goto L_return;\n", call);
@@ -4468,8 +4483,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     goto done;
                 }
                 nvm2c_printf(b, "    nresult = %s[%d];\n    goto L_return;\n", stack_array_name(b->array_results[idx]), a);
-            } else if (fn->result_count == 1 &&
-                       (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION)) {
+            } else if (fn->result_count == 1 && aggregate_value_tag(fn->result_tag)) {
                 int record = stack_pop_expect(b, &st, NVM2C_VK_REC, "RET");
                 if (b->failed) goto done;
                 if (st.sp != 0) {
@@ -4477,7 +4491,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     goto done;
                 }
                 nvm2c_printf(b, "    if (r[%d].kind != %u) NVM2C_ABORT();\n    nresult = r[%d];\n    goto L_return;\n",
-                             record, fn->result_tag == TAG_STRUCT ? AGG_RECORD : AGG_VARIANT, record);
+                             record, aggregate_kind_for_tag(fn->result_tag), record);
             } else {
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: void RET leaves extra stack values", idx);
@@ -5842,7 +5856,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                         tags[p] == TAG_BOOL ? NVM2C_VK_BOOL :
                         tags[p] == TAG_FLOAT ? NVM2C_VK_FLOAT :
                         tags[p] == TAG_STRING ? NVM2C_VK_STR :
-                        (tags[p] == TAG_STRUCT || tags[p] == TAG_UNION) ? NVM2C_VK_REC : NVM2C_VK_UNK;
+                        aggregate_value_tag(tags[p]) ? NVM2C_VK_REC : NVM2C_VK_UNK;
                     if (declared != NVM2C_VK_UNK) { *kind = declared; facts.changed = 1; }
                 }
             }
