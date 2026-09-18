@@ -50,12 +50,14 @@ print-toolchain-flags:
     @unittest.skipUnless(sys.platform == "darwin", "I select an Apple SDK only on Darwin")
     def test_default_darwin_headers_belong_to_the_active_sdk(self):
         cflags, _ = self.flags()
-        developer = os.environ.get("DEVELOPER_DIR")
-        env = dict(os.environ, **({"DEVELOPER_DIR": developer} if developer else {}))
-        sdk = subprocess.check_output(
-            ["xcrun", "--sdk", "macosx", "--show-sdk-path"],
-            env=env, text=True, timeout=10,
-        ).strip()
+        sdk = os.environ.get("SDKROOT", "").strip()
+        if not sdk:
+            developer = os.environ.get("DEVELOPER_DIR")
+            env = dict(os.environ, **({"DEVELOPER_DIR": developer} if developer else {}))
+            sdk = subprocess.check_output(
+                ["xcrun", "--sdk", "macosx", "--show-sdk-path"],
+                env=env, text=True, timeout=10,
+            ).strip()
         self.assertEqual(cflags, f"-I'{sdk}/usr/include/ffi'")
 
 
