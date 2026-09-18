@@ -10020,6 +10020,12 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [x] I match managed STR_CHAR_AT byte results, signed bounds and existing
+      non-integer fallback with allocation-free borrowed views and exact
+      two-operand cleanup. MAC `task_32b265f80d604826adc9ac29716598ab`;
+      my [character contract](NANOISA_MANAGED_CHARACTER.md) depends on reviewed
+      VM operand-lifetime62caf. My [paired evidence](evidence/managed-string-character.md)
+      records exact byte/fallback/alias controls and all 31 managed methods.
 - [x] I match managed STR_TRIM stored-byte whitespace, fresh-result allocation
       and consuming-owner failure cleanup across LLVM/Wasm and the VM. MAC
       `task_bc2bd84520124b17aa4dfad09fb663dd`; my pre-code

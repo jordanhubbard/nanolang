@@ -43,8 +43,11 @@ NmsStatus nms_format_scalar(NmsRuntime *, uint64_t, uint32_t, NmsHandle *);
 /* I borrow the handle, parse C-locale decimal bytes, and allocate nothing. */
 NmsStatus nms_parse_f64(const NmsRuntime *, NmsHandle, uint64_t *);
 NmsStatus nms_parse_i64(const NmsRuntime *, NmsHandle, int64_t *);
-/* I borrow both handles and allocate nothing; output changes only on success. */
 typedef enum { NMS_CONTAINS = 0, NMS_STARTS_WITH = 1, NMS_ENDS_WITH = 2 } NmsPredicate;
+/* I borrow the source, allocate nothing, and publish only on success.
+ * Non-integer indices use zero; signed negative/out-of-range returns -1. */
+NmsStatus nms_char_at(const NmsRuntime *, NmsHandle, uint64_t, uint32_t, int64_t *);
+/* I borrow both handles and allocate nothing; output changes only on success. */
 NmsStatus nms_predicate(const NmsRuntime *, NmsHandle, NmsHandle, uint32_t, uint32_t *);
 NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
 NmsStatus nms_retain(NmsRuntime *, NmsHandle);
