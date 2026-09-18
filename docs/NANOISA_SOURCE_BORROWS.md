@@ -1,6 +1,6 @@
 # My first source-produced reference calls
 
-I implement a first paired ordinary-source NanoISA borrow producer under task_ed70242ac4d83be7b2327da7ece387ad and task_71821d84befc46e198795122c1112a27. Retained metadata alone does not admit source borrows. Both existing rejection guards remain until complete checked lowering is installed.
+I implement a first paired ordinary-source NanoISA borrow producer under task_ed70242ac4d83be7b2327da7ece387ad and task_71821d84befc46e198795122c1112a27. Retained metadata alone does not admit source borrows. Both producers now route only my complete closed profile through checked lowering; unsupported shapes still refuse publication. My [measured acceptance](evidence/source-borrow-emission.md) keeps the broader parents open.
 
 ## My bounded source profile
 

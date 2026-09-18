@@ -52,6 +52,42 @@ retains my test's incorrect expectation that an empty owned entry would be
 admitted. The corrected contract keeps the verifier's refusal and adds a
 positive suffix with actual owner transfer.
 
+## My integrated checks
+
+I restacked through main `1686172a` (PRs #593, #595, #597, #598, #596 and
+#602), preserving their optional metadata, native and compiler changes.
+My specialized producer sources are unchanged across the final restack.
+The integrated three-stage bootstrap passed before the final C-only name
+allocation checks; the later main changes did not change my self-hosted
+compiler source. At final source `251abb08`:
+
+- The existing NanoISA gate passed 86 exact comparison checks and 88 methods
+  (116.235 seconds). My integrated source suite passed all five methods
+  (135.897 seconds), and the unchanged borrow suites passed 25 methods
+  (92.834 seconds).
+- I then checked C name-interning failures explicitly and strengthened false
+  assertion tests to require the exact process status. The retained first
+  attempt expected internal status 2; my existing standalone wrapper maps
+  that status to process exit 1. Both corrected assertion methods passed
+  in 132.952 seconds. I changed no runtime behavior and accept no signal
+  termination as an expected assertion failure.
+- After the final restack I rebuilt the current tools. All four fixtures
+  produce equal complete dumps through NanoVirt, the raw self-hosted emitter
+  and both canonical stages: 16 modules verify and run in VM. Their 32
+  standalone native runs pass strict GCC/Clang compilation with
+  ASan/UBSan/unsuppressed LSan. My Clang is Ubuntu Clang 18.1.3.
+- Current `test-nanovirt` passed 89 checks; `test-owned-assertions` passed
+  its five artifacts and 959 lifecycle checks.
+
+My integrated logs are `/tmp/nanolang-source-borrow-integrated-bootstrap.log`,
+`/tmp/nanolang-source-borrow-emitter-gate.log`,
+`/tmp/nanolang-source-borrow-integrated-paired.log`,
+`/tmp/nanolang-source-borrow-integrated-adjacent.log`,
+`/tmp/nanolang-source-borrow-exact-status.log`,
+`/tmp/nanolang-source-borrow-tip-positive.log` and
+`/tmp/nanolang-source-borrow-tip-core.log`. The standalone-status expectation
+failure remains in `/tmp/nanolang-source-borrow-final-paired.log`.
+
 ## My remaining boundaries
 
 I do not admit imports, globals/initializers, branches/loops, deeper or
