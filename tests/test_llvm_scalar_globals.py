@@ -116,7 +116,7 @@ class ScalarGlobals(unittest.TestCase):
 
     def test_initializer_and_heap_refusals_preserve_output(self):
         cases = [self.program('', '.function __init__ 1 1 0 void 0\n.parameters __init__ int\nRET\n.end\n'),
-                 '.string text "ordinary"\n'+self.program('PUSH_STR text\nPUSH_STR text\nSTR_CONTAINS\nSTORE_GLOBAL 0\n'),
+                 '.string text "ordinary"\n'+self.program('PUSH_STR text\nSTR_TRIM\nSTORE_GLOBAL 0\n'),
                  '.types 1 0 0\n'+self.program(''),
                  '.import "" "get_argc" int\n'+self.program('')]
         for text in cases:

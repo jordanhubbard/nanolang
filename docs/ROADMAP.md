@@ -10012,11 +10012,19 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [x] I match managed byte-string CONTAINS/STARTS_WITH/ENDS_WITH across
+      VM, LLVM and import-free Wasm with exact stored lengths, no allocations,
+      aliases and existing operand/frame error cleanup. MAC
+      `task_b9a83a6b239b4c858ca6324d3066ac33`; my pre-code
+      [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) and
+      [paired evidence](evidence/managed-string-predicates.md) retain
+      all other full-coverage and platform obligations.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
-      MAC `task_51da49b39230468784da3481b893563b`; proposed allocator, lifetime
-      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. I review this
-      contract before runtime implementation and preserve current admission
-      until matched execution and cleanup are tested.
+      MAC `task_51da49b39230468784da3481b893563b`; allocator, lifetime
+      and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. Core, emitted
+      cleanup, concat, substring and portable conversions are implemented in
+      the checked children above. Darwin managed acceptance7ba and broader
+      required target coverage remain open; old design prose is historical.
 - [ ] I preserve authoritative aggregate/collection identity and mutation on that managed runtime, including heap-bearing fields and an explicit cycle policy.
       MAC `task_488a05eb5e2a417caf83a8353363a30d`.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
