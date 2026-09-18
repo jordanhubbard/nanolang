@@ -4631,3 +4631,6 @@ test-debug-text: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@$(OBJ_DIR)/test_debug_text
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_alloc tests/nanoisa/test_debug_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_debug_alloc
+
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_debug_asm_alloc tests/nanoisa/test_debug_asm_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_debug_asm_alloc
