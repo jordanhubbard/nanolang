@@ -40,11 +40,13 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   `NANOISA_MANAGED_GRAPH_ADMISSION.md` defines the matched LLVM/Wasm boundary.
   Deferred analysis transfers and unsupported packed coercions still refuse
   publication; runtime type, bounds and ownership checks remain mandatory.
-  My ordinary-record extension requires both checked ORDINARY prior-order
-  COMPLETE descriptors and the unchanged field-origin query. Only that selected
+  My ordinary-record extension requires both checked ORDINARY
+  COMPLETE acyclic descriptors and the unchanged field-origin query. Only that selected
   mode admits STRUCT signatures and matched record constructors/GET/SET, with
   descriptor binding, counted temporaries and prepared collection. Unknown,
-  resource, forward and mixed record-array layouts remain refused. I specify
+  resource and mixed record-array layouts remain refused. Exact all-record
+  forward DAGs additionally follow `NANOISA_MANAGED_FORWARD_RECORDS.md`; mixed-kind
+  forward tables retain refusal. I specify
   this conjunction in `NANOISA_MANAGED_RECORD_EXECUTION.md`; advisory metadata
   alone grants no admission. Other heap/import exclusions remain.
   Details are in `NANOISA_MANAGED_MUTABLE_ARRAYS.md`. Ownership and

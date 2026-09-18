@@ -28,7 +28,8 @@ typedef struct {
  * owns its fields/maps; name indices are facts, not borrowed string pointers.
  * Every failure leaves *out unchanged. A present payload must explicitly declare
  * all records ordinary; unknown/resource records and validation failures remain
- * unresolved. An absent payload preserves descriptive UNKNOWN authority. */
+ * unresolved. An absent payload preserves descriptive UNKNOWN authority only
+ * for the original prior-only path; forward DAG plans require ORDINARY facts. */
 NvmRecordPlanResult nvm_describe_managed_records(const NvmModule *, NvmRecordPlan **);
 void nvm_record_plan_free(NvmRecordPlan *);
 #endif

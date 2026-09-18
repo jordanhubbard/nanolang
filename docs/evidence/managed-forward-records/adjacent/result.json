@@ -1,0 +1,14 @@
+{
+  "head": "596206c661a66f8b4cd7a0ffd903eae314525dc8",
+  "tests": [
+    "tests.test_llvm_managed_records",
+    "tests.test_managed_array_shapes",
+    "tests.test_managed_graph_origins",
+    "tests.test_managed_records",
+    "tests.test_managed_record_adapters",
+    "tests.test_managed_graph_safepoints",
+    "tests.test_managed_runtime_package"
+  ],
+  "status": 0,
+  "seconds": 41.071565650985576
+}

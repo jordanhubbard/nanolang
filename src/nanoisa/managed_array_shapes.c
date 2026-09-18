@@ -229,7 +229,7 @@ static int prepare_records(Analysis *a) {
         for(uint16_t j=0;j<layout->field_count;j++) {
             const NvmV2LayoutField *field=&layout->fields[j];
             if(field->type_tag!=TAG_STRUCT && !(LEAVES&BIT(field->type_tag)))
-                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded scalar/string/prior-record field schema.");
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded scalar/string/acyclic-record field schema.");
         }
     }
     return 1;

@@ -1,0 +1,84 @@
+{
+  "source": "5fc9d176e1adf876726e606577ebeddb7709ac74",
+  "reviewed_production": "df4589b9219ef7555c125586745a5fa500557aea",
+  "current_inputs": {
+    "src/nanoisa/retained_layouts.c": "b99badfa767a6237aa5116577d8e609c2c91a7e5d0e2ad07391ed81dd9aa23fe",
+    "src/nanoisa/managed_record_plan.h": "c30beccb47c344e6cd47621a3a13d2a130070c3b1f5d7f0ac94079da9b6c8461",
+    "src/nanoisa/managed_array_shapes.c": "4f35e1b74d72e4e529f485acd8b5ea493ee6e9fbb012bbf34b8a722aeb65303f",
+    "tests/nanoisa/test_managed_record_plan.c": "b6d73efdb8072004024920106870e1a338471cdfa31fa982706db3c1b44d403c",
+    "tests/nanoisa/test_ordinary_record_authority.c": "6b035a2b708ba7b5807277248a3fbcbde793d37ca3ba92adff83b30ef63a6771",
+    "tests/test_ordinary_record_authority.py": "b480ecd1afa2bbd501d29f27534fd7abc73cc914247fc7697e6fa6d348519936",
+    "tests/test_llvm_managed_records.py": "c12fd814c3a90f4f9924bd8f50a721cfa023bd6e6b9aab41aa94f4f194bcd42d",
+    "tests/test_llvm_managed_forward_records.py": "115c2f264674c83c748ab491dd6841d9ec3dcf28b19a07c104fa3561326aca32",
+    "tests/test_managed_record_shapes.py": "21c724f2cdbfa61039745322488e0c86a6d395e82cd870680faa58e076e99227",
+    "Makefile.gnu": "071689176f11ab7793c1666006dd83d1ee471b98683bee8da93ec07981d28799",
+    "bin/nvm2c": "5c86ce748819c8d48284a6bea299abd31d6b5da9ca9aff421da6846de1830f8d",
+    "bin/nvm2llvm": "9cae1282ef36d448ad429afac63fe4aa9bee75af83f3c7b197ea44712da8241e",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bin/nanoisa": "a660b0810587e7ddddbeb98b7791b8eb03e6e78c2a2e931bd2e7b7c36dcb5e2a",
+    "bin/nano_vm": "a983ed6107de9486e4b398a39435e9c332be5704f96e8b1936b538e209b62ee7",
+    "obj/nanoisa/managed_runtime_ir.h": "8ee4a7320f46ca7c14ef9d07a37b1fb0ba835a65b1d8b13ffabac4389ac3eda5",
+    "obj/nanoisa/managed_runtime_ir.json": "3ce954dd94fb777b510daa1b8bf92003277db673d3f8ff14ac3f7ff38d8714a6",
+    "obj/test_verifier_profiles": "1ff2c092797c3d64a8eefefd68e4104abaa4b19448b3bccd3c7f038dbd6e5c4b",
+    "obj/managed_record_reentry": "4c04e2fae1af77cfc51e3cbd67fbaac8c9721b481c9eb1bed138d687ee28b52e"
+  },
+  "final_inventory": "integrated/after.json",
+  "results": {
+    "first-stale-refusal": {
+      "head": "14c37b835f75e24fe444ceeb9f2aa98e0643adc3",
+      "tests": [
+        "tests.test_llvm_managed_forward_records",
+        "tests.test_managed_record_plan",
+        "tests.test_ordinary_record_authority",
+        "tests.test_managed_record_shapes",
+        "tests.test_verifier_profiles"
+      ],
+      "status": 1,
+      "seconds": 14.55103302403586
+    },
+    "corrected": {
+      "head": "596206c661a66f8b4cd7a0ffd903eae314525dc8",
+      "tests": [
+        "tests.test_llvm_managed_forward_records",
+        "tests.test_managed_record_plan",
+        "tests.test_ordinary_record_authority",
+        "tests.test_managed_record_shapes",
+        "tests.test_verifier_profiles"
+      ],
+      "status": 0,
+      "seconds": 16.600702969008125
+    },
+    "adjacent": {
+      "head": "596206c661a66f8b4cd7a0ffd903eae314525dc8",
+      "tests": [
+        "tests.test_llvm_managed_records",
+        "tests.test_managed_array_shapes",
+        "tests.test_managed_graph_origins",
+        "tests.test_managed_records",
+        "tests.test_managed_record_adapters",
+        "tests.test_managed_graph_safepoints",
+        "tests.test_managed_runtime_package"
+      ],
+      "status": 0,
+      "seconds": 41.071565650985576
+    },
+    "integrated": {
+      "head": "5fc9d176e1adf876726e606577ebeddb7709ac74",
+      "tests": [
+        "tests.test_llvm_managed_forward_records",
+        "tests.test_managed_record_plan",
+        "tests.test_ordinary_record_authority",
+        "tests.test_managed_record_shapes",
+        "tests.test_verifier_profiles"
+      ],
+      "status": 0,
+      "seconds": 16.42803372599883
+    }
+  },
+  "artifact_directories": {
+    "first-stale-refusal": "/tmp/nanolang-managed-forward-14c-focused",
+    "corrected": "/tmp/nanolang-managed-forward-corrected-focused",
+    "adjacent": "/tmp/nanolang-managed-forward-adjacent",
+    "integrated": "/tmp/nanolang-managed-forward-integrated"
+  }
+}
