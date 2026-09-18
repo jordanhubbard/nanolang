@@ -62,7 +62,7 @@ class LegacySignedNan(unittest.TestCase):
             calls.append(f'    (check {signed(bits)} {json.dumps(text)} {json.dumps(printed)})')
         program='''fn check(bits:int, scalar:string, raw:string)->void {
     let value:float=(float_from_bits bits)
-    let values:array<float>=[value]
+    let values: array<float> = [value]
     assert (== (to_string value) scalar)
     assert (== (format "%g" value) raw)
     assert (== (to_string values) (str_concat "[" (str_concat raw "]")))
