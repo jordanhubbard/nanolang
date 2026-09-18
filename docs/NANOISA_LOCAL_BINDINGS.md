@@ -75,3 +75,19 @@ I test allocation cleanup, normal v1 modules, metadata-bearing v1 refusal,
 existing ownership/passive metadata, mandatory source shadows and the genuine
 canonical compiler host build. I close only this bounded child from merged proof;
 Phase20's full producer and high-level reconstruction acceptance remains open.
+
+## Specialized source borrows
+
+I implement MAC `task_0178be8daf554a69969144b6657e7756` using the same advisory
+convention. My borrowed helper parameter begins at offset zero. Its physical
+value slot remains non-authoritative: only the ownership contract and reference
+context describe borrowed authority. A source let begins after its initialization
+store, including named owners and named destructuring projections. I omit
+constructor temporaries and the parser-generated hidden destructuring owner.
+
+I end function bindings after the emitted return and shadow bindings after that
+shadow's cleanup, before the next selected shadow. Slots remain distinct even
+when names repeat. Moving an owner does not shorten its lexical name interval;
+these intervals never promise runtime liveness. A failed lowering publishes no
+module or partial table. Stripping names leaves instructions, layouts and
+ownership unchanged and must preserve verified VM/native execution.
