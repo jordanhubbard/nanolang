@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I preserve U8 results across non-self native tail calls (`task_9eb8a1d54fc441f582b180b398ac0a08`). My result-assignment whitelist omits the existing boxed U8 carrier and discards the returned value; I need an ordinary tag/value regression and scoped transport correction. This static finding is separate from new enum support.
+- [x] I preserve U8 results across non-self native tail calls (`task_9eb8a1d54fc441f582b180b398ac0a08`). I add the existing boxed U8 carrier to the result-assignment whitelist while retaining exact return checks and cleanup. All 256 values pass two tail relays in both declaration orders, with self-tail and wrong-tag controls; three GCC and 24 Clang sanitizer methods pass. [Contract and evidence](NATIVE_U8_TAIL_RESULTS.md).
 
 - [ ] I match operation-specific enum coercion in typed integer instructions (`task_a77ca354773245f9a8b5f490fe336c06`). My VM coerces enums in typed binary arithmetic/comparisons while native exact integer extraction currently rejects them. I preserve typed unary and generic MOD/NEG distinctions; I do not weaken every integer consumer to admit enums.
 

@@ -4693,6 +4693,12 @@ test-native-enum-scalars: nvm2c nanoisa_dump nano_vm
 
 test-units: test-native-enum-scalars
 
+.PHONY: test-native-u8-tail-results
+test-native-u8-tail-results: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_u8_tail_results
+
+test-units: test-native-u8-tail-results
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
