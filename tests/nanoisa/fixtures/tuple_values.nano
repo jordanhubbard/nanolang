@@ -1,0 +1,83 @@
+fn first_value() -> int {
+    (println "first")
+    return 7
+}
+
+shadow first_value {
+    assert (== (first_value) 7)
+}
+
+fn second_value() -> string {
+    (println "second")
+    return "value"
+}
+
+shadow second_value {
+    assert (== (second_value) "value")
+}
+
+fn third_value() -> bool {
+    (println "third")
+    return true
+}
+
+shadow third_value {
+    assert (third_value)
+}
+
+fn make_tuple() -> (int, string, bool) {
+    return ((first_value), (second_value), (third_value))
+}
+
+shadow make_tuple {
+    let value: (int, string, bool) = (make_tuple)
+    assert (== value.0 7)
+    assert (== value.1 "value")
+    assert value.2
+}
+
+fn relay_tuple(value: (int, string, bool)) -> (int, string, bool) {
+    return value
+}
+
+shadow relay_tuple {
+    let value: (int, string, bool) = (relay_tuple (7, "value", true))
+    assert (== value.0 7)
+    assert (== value.1 "value")
+    assert value.2
+}
+
+fn forward_tuple() -> (int, string, bool) {
+    return (relay_tuple (make_tuple))
+}
+
+shadow forward_tuple {
+    let value: (int, string, bool) = (forward_tuple)
+    assert (== value.0 7)
+    assert (== value.1 "value")
+    assert value.2
+}
+
+fn tuple_score(value: (int, string, bool)) -> int {
+    if value.2 {
+        return (+ value.0 5)
+    } else {
+        return 0
+    }
+}
+
+shadow tuple_score {
+    assert (== (tuple_score (7, "value", true)) 12)
+    assert (== (tuple_score (7, "value", false)) 0)
+}
+
+fn main() -> int {
+    let value: (int, string, bool) = (forward_tuple)
+    (println value.1)
+    (println (tuple_score value))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
