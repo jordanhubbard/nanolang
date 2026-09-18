@@ -33,3 +33,8 @@ Logs are `/tmp/nanolang-vm-array-slice-normal.log` (first fixture assertion),
 `/tmp/nanolang-vm-array-slice-switch.log`. Task1e89 is bounded by this prerequisite;
 managed literal/slice childb702, source convention efa11, aggregate488 and
 managed51da remain open.
+
+My clean restack onto main53b43377 (PR712/714) retains identical VM and fixture
+files. The focused ordinary gate passed again on801df526; its log is
+`/tmp/nanolang-vm-array-slice-integrated.log`. I did not repeat the unrelated
+compiler bootstrap or claim full managed target acceptance.
