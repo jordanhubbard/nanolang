@@ -112,3 +112,104 @@ claim all numeric routes from only scalar dispatch changes.
 
 I retain the first failure of any fresh gate. I preserve historical PR679 and
 frozen product artifacts. Full reconstruction and release remain open.
+
+## My selected policy and exact rollout inventory
+
+Independent review selected option 2 after `baa865b4`: I canonicalize every
+scalar binary arithmetic NaN result to `0x7ff8000000000000`. The following
+inventory and staging remain subject to review before production. Line numbers
+refer to my `29ad4b9f` base; symbols remain the durable source pointers.
+
+| Route | Exact production sites | Required change or preserved boundary |
+| --- | --- | --- |
+| VM typed scalar | `src/nanovm/vm.c:2202`, F64_ADD/SUB/MUL/DIV group | Shared four-operation policy helper after exact tag checks |
+| VM generic scalar | `src/nanovm/vm.c:1984`, `2031`, `2068`, `2112`, all FLOAT/FLOAT and mixed INT/FLOAT arms | Same helper after existing enum/int promotion; integer branches unchanged |
+| Native typed | `src/nanoisa/nvm2c.c:3654`, F64 binary emission | Emit standalone policy helpers and calls; keep NEG/comparisons separate |
+| Native known generic | `src/nanoisa/nvm2c.c:3695`, known FLOAT numeric branch | Same helper after existing exact conversion checks |
+| Native boxed generic | `src/nanoisa/nvm2c.c:6549`, emitted nvalue_numeric | Same helper only for four binary FLOAT results; integer and unary paths unchanged |
+| LLVM and Wasm typed | `src/nanoisa/nvm2llvm.c:600`, F64 emission | Four shared strict arithmetic helpers, integer-bit NaN normalization; no fast-math flags |
+| LLVM and Wasm generic | `src/nanoisa/nvm2llvm.c:72`, float_divide and numeric binary helper loop | Reuse strict helpers after current tag/promotion checks; Wasm uses this IR |
+| Main interpreter scalar | `src/eval.c:2736`, FLOAT/FLOAT prefix arithmetic | C policy helper; preserve operand evaluation and other tags |
+| Optimized interpreter callbacks | `src/eval.c:1772` eval_pure_expr_float2 and `1806` eval_pure_expr_float | Same helper at each binary node; callers at `1970` and `2332` are map/reduce callback optimization, so these scalar operators are included |
+| C-seed legacy C | `src/transpiler_iterative_v3_twopass.c:1433` and ordinary binary emission | Detect exact scalar float expressions before generic operator fallback; emit helper calls with once-evaluated operands and total division |
+| Selfhost legacy C | `src_nano/transpiler.nano:5297`, generate_expression binary fallback; gen_c_runtime | Exact scalar float helper selection plus emitted standalone helpers; preserve unary/array/string paths |
+| Canonical C-seed/selfhost producers | `src/nanovirt/codegen.c:2360`; `src_nano/compiler/nanoisa_codegen.nano:3374` | Existing typed opcode selection stays; inspect emitted modules, no new opcode or version |
+| Owned native profile | `src/nanoisa/nvm2c_owned.h:158`, integer arithmetic only | No float admission; preserve verifier/profile refusal and exact integer implementation |
+| Managed scalar consumers | Existing scalar verifier/emitter delegation in LLVM | Same scalar helper policy, no new heap/opcode admission |
+
+Static review identifies a concrete total-division inconsistency: both optimized
+interpreter float helpers return raw `a / b`, unlike the main scalar interpreter
+and VM. C-seed legacy emission explicitly says float division remains plain `/`;
+selfhost legacy binary fallback also renders `/`. Correcting these scalar routes
+is a required prerequisite, not merely NaN canonicalization. I have not executed
+an old failing case or claimed its observed impact.
+
+## My per-operation rounding controls
+
+My shared C implementation will require `sizeof(double)==8`, `FLT_RADIX==2`,
+`DBL_MANT_DIG==53`, `DBL_MAX_EXP==1024`, `DBL_MIN_EXP==-1021` and
+`FLT_EVAL_METHOD==0`. I reject unsupported storage/evaluation targets at compile
+time rather than call extended-precision rounding equivalent. I reject
+`__FAST_MATH__` and nonzero `__FINITE_MATH_ONLY__` in the helper contract.
+
+Each helper computes exactly one binary operation into a volatile double local,
+then loads that stored binary64 value and inspects its integer representation.
+That observable volatile store/load prevents an outer operation from contracting
+with this operation even if helpers inline. I also qualify C paths with explicit
+`-ffp-contract=off` and `-fno-fast-math`, and inspect supported compiler controls
+in generated/driver builds. A helper name or noinline attribute alone is not my
+rounding argument. I preserve existing operand snapshots and do not reevaluate
+operand expressions to normalize the result. A bitwise zero-divisor test can
+select exact positive zero before division without touching NaN operand bits.
+
+LLVM helpers use plain fadd/fsub/fmul/fdiv without fast, reassoc or contract flags,
+followed by a bitcast and integer exponent/fraction test. Normalization selects
+canonical bits; it never selects an operand's payload. A result bitcast/normalize
+boundary and absence of contraction permission preserve separate operations.
+Wasm lowering inherits the binary64 operations and explicit result normalization;
+Node and Wasmtime both remain required qualification routes.
+
+I require the ordinary default round-to-nearest/ties-even environment with
+gradual underflow. Tests check that environment rather than silently resetting a
+caller's mode. Host-changed modes/traps/flush-to-zero remain outside this scoped
+contract. Direct helper tests use runtime operands and include O0/O2 plus LTO
+where supported, halfway ties, minimum-subnormal halving, three-subnormal
+halving, signed-zero multiplication/division, and a contraction-sensitive
+`(1+2^-52)*(1-2^-52)-1` chain. Each operation rounds separately; the last example
+must yield positive zero rather than a fused negative `2^-104` result.
+
+## My precise aggregate and foreign scope
+
+Scalar callback operators remain included even when map/reduce invokes them.
+Array *operators* are separate: `vm_array_arithmetic` at vm.c:74/136, interpreter
+array and broadcast branches in eval.c, C array runtime helpers selected by the
+legacy emitter, and selfhost `build_array_binop_expr` loops. I record
+`task_3717eda847a74122916571444478ee0f` for their explicit policy/qualification.
+I do not incidentally alter those loops or claim their results are canonicalized
+by this scalar rollout. External math/FFI results retain provider contracts;
+merely transporting a NaN from a provider must not normalize it. A subsequent
+admitted scalar binary operation normalizes its own result.
+
+## My implementation and acceptance stages
+
+1. I add one reviewed C scalar policy implementation and standalone emission
+   mechanism, target guards and exact helper tests. I qualify the four operations,
+   zero precedence, canonical result bits and untouched input/transport/negation.
+   I retain independent arrays/external semantics in normative documentation.
+2. I apply the helper to VM typed/generic, native typed/known/boxed, and LLVM
+   typed/generic sites. Same-module exact-bit tests run VM, GCC/Clang native,
+   LLVM unoptimized/optimized/native, Wasmtime and Node. Managed scalar wrappers
+   and unsupported owned-profile refusal get focused controls; no heap widening.
+3. I apply the same scalar policy to main/optimized interpreter and both legacy
+   C emitters, repairing raw scalar division. Ordinary callback, once-evaluation,
+   mutable source, exact tag and full source-producer parity gates follow. I use
+   a fresh isolated bootstrap with reviewed source; immutable PR720 tools remain
+   historical qualified artifacts, not rewritten inputs. Normative policy cannot
+   be reported complete before this source stage passes.
+4. I freeze each complete staged production/harness checkpoint before its gates,
+   retain first failures and publish exact evidence for review. I do not claim a
+   cross-route policy from only the first stage. Array follow-up and broader
+   language/release parents remain open until their distinct acceptance passes.
+5. After policy completion I return to a separate reconstruction arithmetic
+   contract. Existing F64_TO_BITS, transport, negation and comparison admission
+   remains intact throughout; no workaround bans are introduced.
