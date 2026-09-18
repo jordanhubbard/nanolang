@@ -97,3 +97,29 @@ evidence, not exhaustive proof over all 2^64 patterns.
 I preserve historical compiler-failure evidence without replay. The full
 reconstruction parent remains open, and its current executable whitelist stays
 unchanged throughout this transport task.
+
+## Implementation boundaries and audit
+
+I allocate 0x8d and 0x8e in my primary opcode schema, regenerate decoder metadata,
+and retain ISA/container version 2. My decoder rejects a primary byte without
+metadata; an older runtime therefore refuses these operations instead of
+interpreting them as casts. My VM computed-goto table has 256 entries and now
+registers both handlers; the switch shares their bodies. I update exact verifier
+rules, the common scalar profile, the version-2 passive allowlist and managed
+array result-tag analysis. No opcode ceiling increases or extension-byte change
+is needed. Schema generation checks duplicate allocations and generated drift.
+
+I reserve the two names against ordinary function redeclaration, matching my
+C-seed builtin-name rule. My strict type checks require precisely one operand;
+numeric conversion remains explicit. I explicitly refuse calls through local/global bindings using these two names
+in this bounded transport profile. I do not substitute intrinsic behavior for
+a bound callable or claim general callback resolution parity. Other callable
+paths remain unchanged.
+
+My initial legacy self-hosted C source gate exposed call-based primitive global
+initializers becoming zero through `global_init_literal`. I preserve the log
+`/tmp/nanolang-bit-transport-source-first.log`. The bounded prerequisite
+`task_aafecef0efca4d8f8115df1487e93a6d` adds startup expressions only for direct,
+exact-result-typed bit intrinsic initializers, preserving existing mutable guards
+and ordered initialization. General call initializers are not admitted by this
+change. I do not claim that first source gate passed.

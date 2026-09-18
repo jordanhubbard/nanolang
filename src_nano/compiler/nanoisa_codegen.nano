@@ -3126,6 +3126,9 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     } else { (print "") }
     let function_name: string = (nisa_call_name parser call)
     let declared_index: int = (nisa_call_index parser call)
+    if (and (or (== function_name "float_from_bits") (== function_name "float_to_bits")) (or (>= (nisa_local_find function_name) 0) (>= (nisa_global_find function_name call.line) 0))) {
+        return (nisa_fail "I cannot use a bound value as a binary64 bit intrinsic")
+    }
     if (< declared_index 0) {
         if (== function_name "abs") { return (nisa_emit_abs parser call) }
         if (nisa_functional_name function_name) { return (nisa_emit_functional_array parser call function_name) }

@@ -87,6 +87,9 @@ def validate(schema: dict) -> None:
     Every v2 family instruction must carry one comprehensible ``meaning`` and
     reference only declared operand kinds so operand forms stay symmetric.
     """
+    primary = [_as_int(item["code"]) for item in schema["legacy_opcodes"]]
+    if len(set(primary)) != len(primary) or any(code < 0 or code > 255 for code in primary):
+        raise ValueError("primary opcodes must have unique one-byte allocations")
     declared_kinds = {kind["name"] for kind in schema["operand_kinds"]}
     families = [
         item

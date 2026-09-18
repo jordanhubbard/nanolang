@@ -1884,6 +1884,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Representation copies never use implicit numeric promotion. */
             if (strcmp(expr->as.call.name, "float_from_bits") == 0 ||
                 strcmp(expr->as.call.name, "float_to_bits") == 0) {
+                if (env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column)) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I cannot use a bound value as a binary64 bit intrinsic.",
+                        "Use an unshadowed intrinsic name.");
+                    return TYPE_UNKNOWN;
+                }
                 bool from = strcmp(expr->as.call.name, "float_from_bits") == 0;
                 if (expr->as.call.arg_count != 1 ||
                     check_expression(expr->as.call.args[0], env) != (from ? TYPE_INT : TYPE_FLOAT)) {

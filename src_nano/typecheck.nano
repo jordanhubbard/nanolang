@@ -4370,6 +4370,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             } else { (print "") }
         } else { (print "") }
         /* Check if it's a builtin function/operator */
+        if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (>= (env_lookup symbols fn_name) 0)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I cannot use a bound value as a binary64 bit intrinsic." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            return (type_unknown_named fn_name)
+        }
         if (and (or (== fn_name "float_from_bits") (== fn_name "float_to_bits")) (< (env_lookup symbols fn_name) 0)) {
             let mut valid_bits: bool = (== call_node.arg_count 1)
             if valid_bits {

@@ -15,6 +15,20 @@ class Binary64BitTransport(unittest.TestCase):
     module=wasm.ScalarWasm.module
     compare=wasm.ScalarWasm.compare
 
+    def test_schema_rejects_opcode_collisions(self):
+        import copy
+        import yaml
+        from scripts.gen_nanoisa_schema import validate
+        schema=yaml.safe_load((wasm.ROOT/'spec/nanoisa.yaml').read_text())
+        validate(schema)
+        by_name={item['name']:item for item in schema['legacy_opcodes']}
+        self.assertEqual(by_name['F64_FROM_BITS']['code'],0x8d)
+        self.assertEqual(by_name['F64_TO_BITS']['code'],0x8e)
+        duplicate=copy.deepcopy(schema)
+        duplicate['legacy_opcodes'].append(copy.deepcopy(by_name['F64_FROM_BITS']))
+        with self.assertRaisesRegex(ValueError,'unique one-byte'):
+            validate(duplicate)
+
     def test_all_bit_classes_and_two_inverse_directions(self):
         rng=random.Random(0x8d8e)
         values=list(dict.fromkeys(PATTERNS+tuple(1<<i for i in range(64))+
