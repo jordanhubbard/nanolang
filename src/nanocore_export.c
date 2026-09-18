@@ -25,43 +25,65 @@ typedef struct {
     char *data;
     size_t len;
     size_t cap;
+    bool failed;
 } SBuf;
 
 static SBuf sbuf_new(void) {
-    SBuf b = { .data = malloc(256), .len = 0, .cap = 256 };
-    b.data[0] = '\0';
+    SBuf b = { .data = malloc(256), .len = 0, .cap = 256, .failed = false };
+    if (!b.data) b.failed = true;
+    else b.data[0] = '\0';
     return b;
 }
 
-static void sbuf_ensure(SBuf *b, size_t extra) {
-    while (b->len + extra + 1 > b->cap) {
-        b->cap *= 2;
-        b->data = realloc(b->data, b->cap);
+static bool sbuf_ensure(SBuf *b, size_t extra) {
+    if (b->failed) return false;
+    if (b->len == SIZE_MAX || extra > SIZE_MAX - b->len - 1) {
+        b->failed = true;
+        return false;
     }
+    size_t needed = b->len + extra + 1;
+    if (needed <= b->cap) return true;
+    size_t capacity = b->cap;
+    while (capacity < needed) {
+        if (capacity > SIZE_MAX / 2) { capacity = needed; break; }
+        capacity *= 2;
+    }
+    char *grown = realloc(b->data, capacity);
+    if (!grown) { b->failed = true; return false; }
+    b->data = grown;
+    b->cap = capacity;
+    return true;
 }
 
 static void sbuf_append(SBuf *b, const char *s) {
+    if (b->failed) return;
+    if (!s) { b->failed = true; return; }
     size_t n = strlen(s);
-    sbuf_ensure(b, n);
+    if (!sbuf_ensure(b, n)) return;
     memcpy(b->data + b->len, s, n);
     b->len += n;
     b->data[b->len] = '\0';
 }
 
 static void sbuf_appendf(SBuf *b, const char *fmt, ...) {
+    if (b->failed) return;
+    if (!fmt) { b->failed = true; return; }
     va_list ap;
     va_start(ap, fmt);
     int n = vsnprintf(NULL, 0, fmt, ap);
     va_end(ap);
-    sbuf_ensure(b, (size_t)n);
+    if (n < 0) { b->failed = true; return; }
+    if (!sbuf_ensure(b, (size_t)n)) return;
     va_start(ap, fmt);
-    vsnprintf(b->data + b->len, (size_t)n + 1, fmt, ap);
+    int written = vsnprintf(b->data + b->len, (size_t)n + 1, fmt, ap);
     va_end(ap);
+    if (written != n) { b->failed = true; return; }
     b->len += (size_t)n;
 }
 
 static char *sbuf_finish(SBuf *b) {
-    return b->data;  /* caller owns the memory */
+    if (b->failed) { free(b->data); b->data = NULL; return NULL; }
+    return b->data;  /* I transfer the allocation to my caller. */
 }
 
 /* ── Operator mapping ─────────────────────────────────────────────────── */

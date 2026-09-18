@@ -1047,6 +1047,13 @@ test-opt-passes: stage1 test-native-tco
 	@rm -f tests/test_opt_passes
 
 .PHONY: test-nanocore
+.PHONY: test-nanocore-export-buffer
+test-nanocore-export-buffer: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nanocore_export_buffer tests/test_nanocore_export_buffer.c $(filter-out $(OBJ_DIR)/nanocore_export.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_nanocore_export_buffer
+
+test-nanocore: test-nanocore-export-buffer
+
 test-nanocore: stage1
 	@echo "Running nanocore_export and emit_typed_ast unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_nanocore tests/test_nanocore.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
