@@ -59,5 +59,12 @@ The integration checkout remains separate from both owners' source trees.
 I retain logs under `/tmp/nanolang-numeric-union-`, including `gcc.log`,
 `clang.log`, `final-gcc.log`, `final-clang.log`, `adjacent-gcc.log`,
 `solver-asan.log`, `601-build.log`, `601-gates.log` and `601-callorder.log`.
-Full native results are recorded with the final PR evidence. Parent generic
+My full native run reports 2,418 passed and four failed. All four failures
+compile the standalone map-runtime harness after merged PR613 changed its
+runtime text to invoke NVM2C_ABORT. The harness supplies no definition for that
+macro; strict C reports an implicit function declaration before execution.
+I record this integration prerequisite as
+`task_02182f5f162a4bbf9f14803f29d533f3`. I retain the failed full gate and keep
+this PR in draft until the repaired harness passes. This is not a passing
+full-native claim or an attribution to numeric shape inference. Parent generic
 arithmetic and the full release obligations remain separate.
