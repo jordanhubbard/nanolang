@@ -27,8 +27,8 @@ int nms_leaf_tests(void) {
     CHECK(nms_value_array_set(&r,array,7,string)==NMS_OK);
     CHECK(r.slots[(uint32_t)child].references==3);
     CHECK(nms_value_array_set(&r,array,UINT64_MAX,string)==NMS_STATE);
-    CHECK(nms_value_array_set(&r,array,0,(NmsValue){array,7})==NMS_TYPE);
-    CHECK(nms_value_array_append(&r,array,(NmsValue){array,7})==NMS_TYPE);
+    CHECK(nms_value_array_set(&r,array,0,(NmsValue){array,6})==NMS_TYPE);
+    CHECK(nms_value_array_append(&r,array,(NmsValue){array,6})==NMS_TYPE);
     CHECK(nms_value_release(&r,(NmsValue){array,5})==NMS_TYPE);
     CHECK(r.slots[(uint32_t)array].references==2);
     for(unsigned i=0;i<20;i++) CHECK(nms_create(&r,bytes,3,&extra[i])==NMS_OK);

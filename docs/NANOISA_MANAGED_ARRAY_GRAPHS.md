@@ -94,7 +94,7 @@ mutation's commit. Stable external owners remain valid across collection.
 1. Implement exact graph-tag validation, iterative zero-reference release and
    transactional nested edges/copies, with source review before widening any
    public profile. Retain the current scalar/string regression suite.
-2. Implement the explicit collector and prove its operational invariants through
+2. Implement the explicit collector and test its operational invariants through
    ordinary graph controls: rooted/unrooted self and mutual cycles, duplicate
    edges, live shared children, cycles reached by globals/API owners, long chains,
    shallow copies and transferred POP owners. Deterministic scratch failures

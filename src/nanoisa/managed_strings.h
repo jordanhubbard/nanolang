@@ -13,7 +13,7 @@ typedef uint64_t NmsHandle;
 #define NMS_ARRAY_TAG 7
 #define NMS_DYNAMIC (UINT64_C(1) << 63)
 typedef struct { const unsigned char *data; uint32_t length; } NmsView;
-typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_LEAF_ARRAY = 3, NMS_SLOT_PACKED_SCALAR_ARRAY = 4 } NmsSlotKind;
+typedef enum { NMS_SLOT_FREE = 0, NMS_SLOT_STRING = 1, NMS_SLOT_STRING_ARRAY = 2, NMS_SLOT_BOXED_ARRAY = 3, NMS_SLOT_BOXED_LEAF_ARRAY = NMS_SLOT_BOXED_ARRAY, NMS_SLOT_PACKED_SCALAR_ARRAY = 4 } NmsSlotKind;
 typedef struct {
     unsigned char *data;
     uint64_t references;
@@ -43,8 +43,8 @@ NmsStatus nms_string_array_create(NmsRuntime *, NmsHandle *);
 NmsStatus nms_string_array_append(NmsRuntime *, NmsHandle, NmsHandle);
 NmsStatus nms_string_array_get(NmsRuntime *, NmsHandle, uint64_t, NmsHandle *);
 NmsStatus nms_string_array_length(const NmsRuntime *, NmsHandle, uint32_t *);
-/* My leaf-value API preserves scalar payload bits and owns string handles.
- * Other heap/callable tags are not admitted by this private foundation. */
+/* My boxed-value API preserves scalar bits and owns string/array handles.
+ * Other heap/callable tags remain outside this private graph foundation. */
 typedef struct { uint64_t payload; uint32_t tag; } NmsValue;
 NmsStatus nms_value_retain(NmsRuntime *, NmsValue);
 NmsStatus nms_value_release(NmsRuntime *, NmsValue);
