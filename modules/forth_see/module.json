@@ -28,6 +28,7 @@
     "../../src/nanoisa/nvm_v2_imports.c",
     "../../src/nanoisa/nvm_v2_module.c",
     "../../src/nanoisa/nvm_v2_convert.c",
+    "../../src/nanoisa/local_bindings.c",
     "../../src/nanoisa/assembler.c",
     "../../src/nanoisa/disassembler.c",
     "../../src/nanoisa/verifier.c",
