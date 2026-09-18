@@ -54,9 +54,9 @@ The record describes lexical bytecode positions, not path-sensitive liveness.
 My C producer uses its current function index and code offsets; my selfhosted
 text producer uses the assembler markers rather than duplicating opcode widths.
 I preserve source ownership task505's specialized producer and entry dispatch.
-Pattern binders, closures/upvalues, effects, specialized borrowed profiles and
-other declaration forms remain explicit later producer work unless independently
-implemented and tested. No existing executable source is refused just because
+Closures/upvalues, effects and other declaration forms remain explicit later
+producer work unless independently implemented and tested. My specialized
+borrowed profile and its scalar pattern projections are described below. No existing executable source is refused just because
 its original local names are absent.
 
 ## Required acceptance
