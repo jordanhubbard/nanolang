@@ -218,15 +218,19 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (!flow_kind(g, target, from, changed)) break;
             to = from;
         }
-        if (!pair.exact && from == NVM_SHAPE_OPTIONAL && to == NVM_SHAPE_STRING) {
+        if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
+            (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
             if (!g->nodes[target - 1].conversion_kind) {
-                fail(g, "I cannot widen an exactly constrained string destination"); break;
+                snprintf(g->error_detail, sizeof g->error_detail,
+                         "I cannot widen an exactly constrained %s destination at nodes %u/%u (conversion %u/%u)",
+                         kind_name(to), source, target, conversion.source, conversion.target);
+                fail(g, g->error_detail); break;
             }
-            /* I widen only destination storage. Its old string is a fresh
-             * payload node, never the destination wrapper itself. */
+            /* I widen only inferred destination storage. Its old scalar kind
+             * belongs to a fresh payload, never to the wrapper itself. */
             if (!flow_kind(g, target, NVM_SHAPE_OPTIONAL, changed)) break;
             NvmShapeId payload = nvm_shape_child(g, target, 0);
-            if (!payload || !flow_kind(g, payload, NVM_SHAPE_STRING, changed)) break;
+            if (!payload || !flow_kind(g, payload, to, changed)) break;
             to = NVM_SHAPE_OPTIONAL;
         }
         if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||

@@ -660,18 +660,20 @@ static int shape_numeric_box(Nvm2cBuf *b, NvmShapeId id) {
            shape_type(b, shape_child(b, id, 0), NVM_SHAPE_NUMERIC);
 }
 
-/* A flat string fact can omit a nested caller's optional representation.
- * I seed inferred string storage with a directed flow, not an exact type.
+/* A flat scalar fact can omit a nested caller's optional representation.
+ * I seed inferred scalar storage with a directed flow, not an exact type.
  * Constructors and native array/map payload constraints remain exact. */
 static int shape_field_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     if (!b->track_shapes) return 1;
-    if (kind != NVM2C_VK_STR) return shape_kind(b, id, kind);
-    NvmShapeId source = nvm_shape_new(&b->shapes, NVM_SHAPE_STRING);
+    if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT && kind != NVM2C_VK_BOOL)
+        return shape_kind(b, id, kind);
+    NvmShapeId source = nvm_shape_new(&b->shapes, kind == NVM2C_VK_STR ? NVM_SHAPE_STRING :
+                                     kind == NVM2C_VK_BOOL ? NVM_SHAPE_BOOL : NVM_SHAPE_INT);
     return source && nvm_shape_convert(&b->shapes, source, id) && shape_ok(b);
 }
 
-/* Returning a present string into optional record storage is a conversion,
- * not equality between the source string and an optional shape. */
+/* Returning a present scalar into optional record storage is a conversion,
+ * not equality between the source scalar and an optional shape. */
 static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result,
                                const uint8_t *source_fields, const uint8_t *result_fields) {
     if (!b->track_shapes) return 1;
@@ -693,7 +695,8 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     }
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
     if (b->shape_opcode == OP_AGG_GET ||
-        (b->shape_opcode == OP_LOAD_LOCAL && slot.kind == NVM2C_VK_STR)) {
+        (b->shape_opcode == OP_LOAD_LOCAL &&
+         (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL))) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
     if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
@@ -817,7 +820,8 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 }
                 if (!b->track_shapes) continue;
                 uint8_t kind = join->slots[i].kind;
-                if (kind != NVM2C_VK_STR && kind != NVM2C_VK_VALUE) continue;
+                if (kind != NVM2C_VK_STR && kind != NVM2C_VK_INT &&
+                    kind != NVM2C_VK_BOOL && kind != NVM2C_VK_VALUE) continue;
                 /* Destination storage never rewrites the exact producer. */
                 NvmShapeId storage = 0;
                 storage = shape_variable(b, &storage);
@@ -1225,6 +1229,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 /* A local joins incoming record storage; it does not redefine
                  * the producer's exact field representation. */
                 if (!shape_type(b, destination, NVM_SHAPE_RECORD)) return 0;
+                if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
+            } else if (v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL || v.kind == NVM2C_VK_STR) {
+                /* Local storage can later receive an optional projection.
+                 * It must not equate that projection to an earlier literal. */
                 if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, destination)) return 0;
             } else if (!shape_equal(b, v.shape, destination)) return 0;
             if (v.kind == NVM2C_VK_BOOL) {
@@ -1721,13 +1729,25 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, arr.origin, kind);
                 if (!sim_push(b, idx, stk, &sp, kind, -1)) return 0;
             }
-            /* A tagged scalar is checked and unboxed at the typed write.
-             * I constrain its present payload, not its optional wrapper. */
-            NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE &&
-                (arr.kind == NVM2C_VK_SARR || integer_array_storage(arr.kind))
-                ? shape_child(b, val.shape, 0) : val.shape;
-            if (!shape_equal(b, shape_child(b, arr.shape, 0), written_shape) ||
-                !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+            /* A scalar write checks and unboxes its source at emission.
+             * I keep the array payload exact without constraining a projected
+             * source which can resolve to optional storage later. */
+            uint8_t written_array = stk[sp - 1].kind;
+            if (written_array == NVM2C_VK_SARR || integer_array_storage(written_array)) {
+                uint8_t expected = written_array == NVM2C_VK_SARR ? NVM2C_VK_STR :
+                    written_array == NVM2C_VK_BARR ? NVM2C_VK_BOOL : NVM2C_VK_INT;
+                if (val.kind != NVM2C_VK_UNK && val.kind != NVM2C_VK_VALUE && val.kind != expected) {
+                    nvm2c_fail(b, "I require the matching scalar shape at this array write");
+                    return 0;
+                }
+                NvmShapeKind payload = written_array == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
+                    written_array == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
+                if (!shape_type(b, shape_child(b, arr.shape, 0), payload)) return 0;
+                /* An already tagged value retains its known payload contract. */
+                if (val.kind == NVM2C_VK_VALUE &&
+                    !shape_equal(b, shape_child(b, arr.shape, 0), shape_child(b, val.shape, 0))) return 0;
+            } else if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
+            if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
         }
         case OP_AGG_PACK: {
@@ -1845,12 +1865,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
                         !shape_record_return(b, shape_child(b, arg.shape, 0),
                                              shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
-                } else if (facts->parameters[at] == NVM2C_VK_STR &&
-                           (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_UNK)) {
-                    /* A projected string can resolve to tagged storage later.
+                } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
+                            facts->parameters[at] == NVM2C_VK_BOOL) &&
+                           (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {
+                    /* A projected scalar can resolve to tagged storage later.
                      * I convert into parameter storage without equating it to
                      * a producer's exact constructor or array element shape. */
-                    if (!shape_field_kind(b, parameter, NVM2C_VK_STR)) return 0;
+                    if (!shape_field_kind(b, parameter, facts->parameters[at])) return 0;
                     if (b->track_shapes && !nvm_shape_convert(&b->shapes, arg.shape, parameter)) return 0;
                 } else if (facts->parameters[at] == NVM2C_VK_VALUE &&
                            (arg.kind == NVM2C_VK_STR || arg.kind == NVM2C_VK_INT ||
@@ -2006,11 +2027,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     fn->result_tag == TAG_HASHMAP ? NVM_SHAPE_MAP :
                     fn->result_tag == TAG_ARRAY ? NVM_SHAPE_ARRAY :
                     (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) ? NVM_SHAPE_RECORD : NVM_SHAPE_INT;
-                /* RET consumes a tagged scalar or map with a runtime tag check. It
-                 * does not change the representation of the source value. */
-                if (v.kind == NVM2C_VK_VALUE &&
-                    (declared == NVM_SHAPE_INT || declared == NVM_SHAPE_BOOL || declared == NVM_SHAPE_FLOAT ||
-                     declared == NVM_SHAPE_STRING || declared == NVM_SHAPE_MAP)) {
+                /* RET checks and unboxes a scalar or tagged map at emission.
+                 * An inferred scalar projection may become optional later;
+                 * its declared result never rewrites source storage. */
+                if (((v.kind == NVM2C_VK_VALUE || v.kind == NVM2C_VK_UNK ||
+                      v.kind == NVM2C_VK_INT || v.kind == NVM2C_VK_BOOL ||
+                      v.kind == NVM2C_VK_FLOAT || v.kind == NVM2C_VK_STR) &&
+                     (declared == NVM_SHAPE_INT || declared == NVM_SHAPE_BOOL ||
+                      declared == NVM_SHAPE_FLOAT || declared == NVM_SHAPE_STRING)) ||
+                    (v.kind == NVM2C_VK_VALUE && declared == NVM_SHAPE_MAP)) {
                     if (!shape_type(b, shape_variable(b, &b->shape_results[idx]), declared)) return 0;
                     break;
                 }
@@ -4166,10 +4191,24 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             nvm2c_printf(b, "    if (%u >= r[%d].n) NVM2C_ABORT();\n", (unsigned)fi, rec);
             if (st.rec_k[rec][fi] == NVM2C_VK_VALUE)
-                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u) NVM2C_ABORT();\n",
-                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR);
-            else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) NVM2C_ABORT();\n", rec, (unsigned)fi,
-                              (unsigned)st.rec_k[rec][fi]);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u && r[%d].k[%u] != %u) NVM2C_ABORT();\n",
+                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, NVM2C_VK_STR,
+                             rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL);
+            else if (st.rec_k[rec][fi] == NVM2C_VK_STR ||
+                     st.rec_k[rec][fi] == NVM2C_VK_INT ||
+                     st.rec_k[rec][fi] == NVM2C_VK_BOOL) {
+                /* Inferred storage can retain a boxed present scalar even
+                 * when this projection has an exact scalar consumer. I check
+                 * its payload tag before reading the same record slot. */
+                unsigned tag = st.rec_k[rec][fi] == NVM2C_VK_STR ? TAG_STRING :
+                               st.rec_k[rec][fi] == NVM2C_VK_BOOL ? TAG_BOOL : TAG_INT;
+                nvm2c_printf(b, "    if (r[%d].k[%u] != %u && !(r[%d].k[%u] == %u && r[%d].vk[%u] == %u)) NVM2C_ABORT();\n",
+                             rec, (unsigned)fi, (unsigned)st.rec_k[rec][fi],
+                             rec, (unsigned)fi, NVM2C_VK_VALUE, rec, (unsigned)fi, tag);
+                if (st.rec_k[rec][fi] == NVM2C_VK_STR)
+                    nvm2c_printf(b, "    if (!r[%d].s[%u]) NVM2C_ABORT();\n", rec, (unsigned)fi);
+            } else nvm2c_printf(b, "    if (r[%d].k[%u] != %u) NVM2C_ABORT();\n", rec, (unsigned)fi,
+                               (unsigned)st.rec_k[rec][fi]);
             {
                 char expr[256];
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
@@ -4180,9 +4219,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     stack_push_float(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_VALUE) {
                     snprintf(expr, sizeof expr,
-                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
-                             rec, (unsigned)fi, NVM2C_VK_STR, rec, (unsigned)fi,
-                             rec, (unsigned)fi, rec, (unsigned)fi);
+                             "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].k[%u] == %u ? 1 : r[%d].k[%u] == %u ? 4 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",
+                             rec, (unsigned)fi, NVM2C_VK_STR,
+                             rec, (unsigned)fi, NVM2C_VK_INT, rec, (unsigned)fi, NVM2C_VK_BOOL,
+                             rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
                     stack_push_value(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_MAP) {
                     snprintf(expr, sizeof expr, "r[%d].m[%u]", rec, (unsigned)fi);
