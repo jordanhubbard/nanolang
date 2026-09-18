@@ -79,6 +79,71 @@ class SourceBorrowEmission(unittest.TestCase):
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
                 self.execute_pair(module)
 
+    def names_and_strip(self, module):
+        # My existing codec probe checks every PC boundary, metadata and exact
+        # wire preservation through two canonical text cycles.
+        records = self.command(ROOT / 'obj/test_local_bindings', module).stdout.splitlines()
+        text = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+        self.assertIn('.metadata', text)
+        stripped_text = '\n'.join(line for line in text.splitlines()
+                                  if not line.startswith('.metadata')) + '\n'
+        assembly, stripped = self.work / 'without-names.nasm', self.work / 'without-names.nvm'
+        assembly.write_text(stripped_text)
+        self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', stripped)
+        self.assertEqual([line for line in self.command(ROOT / 'bin/nanoisa', 'dump', stripped).stdout.splitlines() if line],
+                         [line for line in stripped_text.splitlines() if line])
+        self.execute_pair(module)
+        self.execute_pair(stripped)
+        return [tuple(line.split()) for line in records]
+
+    def test_borrowed_names_and_stripped_execution(self):
+        for fixture in ('source_borrow_shared.nano', 'source_borrow_exclusive.nano'):
+            source = self.work / ('names-' + fixture)
+            text = (FIXTURES / fixture).read_text()
+            text = text.replace('return view.value', 'let observed: int = view.value return observed')
+            source.write_text(text)
+            baseline = None
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-names.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                records = self.names_and_strip(module)
+                if baseline is None:
+                    baseline = records
+                self.assertEqual(records, baseline)
+                self.assertFalse(any('__' in row[4] for row in records))
+                helper = [row for row in records if row[0] != 'main']
+                self.assertEqual(helper[0][1:3], ('0', '0'))
+                self.assertEqual(helper[1][4], 'observed')
+                self.assertGreater(int(helper[1][2]), 0)
+                owners = [row for row in records if row[0] == 'main' and row[4] == 'owner']
+                self.assertEqual(len(owners), 1)
+                self.assertGreater(int(owners[0][2]), 0)
+                self.assertEqual(int(owners[0][1]), 2)  # two unnamed field temporaries
+                if fixture == 'source_borrow_shared.nano':
+                    self.assertEqual([r[4] for r in records if r[0] == 'main'],
+                                     ['owner', 'value', 'active'])
+
+    def test_shadow_names_close_before_next_selected_scope(self):
+        source = self.work / 'named-shadows.nano'
+        text = (FIXTURES / 'source_borrow_shared.nano').read_text()
+        body = text.split('shadow read {', 1)[1].split('\n}', 1)[0]
+        source.write_text(text.replace('shadow main { assert true }', 'shadow main {' + body + '\n}'))
+        baseline = None
+        for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+            assembly, module = self.work / 'named-shadows.nasm', self.work / 'named-shadows.nvm'
+            args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+            assembly.write_text(self.command(tool, *args).stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            records = self.names_and_strip(module)
+            if baseline is None:
+                baseline = records
+            self.assertEqual(records, baseline)
+            owners = [row for row in records if row[4] == 'owner']
+            self.assertEqual(len(owners), 2)
+            self.assertNotEqual(owners[0][1], owners[1][1])
+            self.assertLessEqual(int(owners[0][3]), int(owners[1][2]))
+            self.assertFalse(any('__' in row[4] for row in records))
+
     def test_selected_shadows_execute_and_preserve_suffix_identity(self):
         source = self.work / 'selected.nano'
         source.write_text((FIXTURES / 'source_borrow_exclusive.nano').read_text())

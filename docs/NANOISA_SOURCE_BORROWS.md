@@ -49,3 +49,11 @@ an empty or scalar-only selected shadow entry before publication; I do not
 insert a dummy owner or change verifier admission. A selected nonempty suffix
 with real owner transfer retains its source order. My synthetic entry name
 stays distinct from the original user helper name.
+
+My specialized producers now retain advisory local names using the existing
+[lexical convention](NANOISA_LOCAL_BINDINGS.md). Named owners, borrowed parameters
+and scalar bindings/projections retain source spelling and lexical intervals;
+constructor and hidden destructuring temporaries remain unnamed. Stripping these
+facts preserves execution and grants no reference authority. My
+[paired name evidence](evidence/source-borrow-local-names.md) remains separate
+from full source reconstruction.

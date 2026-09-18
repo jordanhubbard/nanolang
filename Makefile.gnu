@@ -4622,7 +4622,8 @@ test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
 test-units: test-underscore-payload
 .PHONY: test-source-borrow-emission
 test-units: test-source-borrow-emission
-test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@python3 -m unittest -v tests.test_source_borrow_emission
 
 .PHONY: test-owned-assertions
