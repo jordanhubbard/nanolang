@@ -10020,17 +10020,19 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
-- [ ] I reconcile case/trim allocation wording with VM string interning:
+- [x] I reconcile case/trim allocation wording with VM string interning:
       empty/unchanged VM results can reuse an existing object before allocation;
       managed fresh-handle tests do not establish matching allocation events.
       Discovered by a fresh ordinary case test assertion, statically confirmed
       in vm_string_new. I preserve that evidence and correct the test contract
       under `task_543fe0e46aa34404b5cae96935267d10` before continuing.
-- [ ] I check VM ASCII case-conversion scratch size and final allocation before
+- [x] I check VM ASCII case-conversion scratch size and final allocation before
       publishing output, preserving input aliases and correcting ordinary
       failure/recovery behavior. MAC `task_543fe0e46aa34404b5cae96935267d10`;
       my [allocation contract](NANOISA_CASE_ALLOCATION.md) precedes managed
       STR_TO_LOWER/UPPER admission and retains full runtime obligations.
+      My [corrected-source evidence](evidence/vm-case-allocation.md) records
+      focused sanitizer controls and all 274493 VM checks passing.
 - [x] I match managed STR_CHAR_AT byte results, signed bounds and existing
       non-integer fallback with allocation-free borrowed views and exact
       two-operand cleanup. MAC `task_32b265f80d604826adc9ac29716598ab`;
