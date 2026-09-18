@@ -1,0 +1,114 @@
+Darwin native-linker arithmetic and array-graph qualification report
+
+Task: task_209f1e88044b4e29886228dc7357188d
+LTO compatibility task retained separately: task_39536e6a885e47b88bed4445bb289e5e
+Outcome: FAILED — stopped at first phase-5 graph failure
+Corrected report commit: b834e8042db6378fe83d1afa4484406b61d28807
+Corrected tree: c2798b98475d1c116380254ccf20874f2b95c1f0
+Production source base: 25a685adfb4f9bf32c68c9e6de04eb0298673c45
+Checkout: /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj
+Checkout state: detached HEAD; tracked source clean before and after
+
+The executable diff from the production base is limited to the Darwin test
+harness retaining the native linker for Clang LTO. Production source is
+unchanged. The preceding Homebrew LLD/SDK incompatibility remains preserved
+and is not claimed qualified.
+
+Selected environment
+- CC=/usr/bin/clang: Apple clang 21.0.0.
+- Darwin LTO driver selection: Apple ld-27037.1 with Xcode LLVM/TAPI 21.0.0.
+- Explicit PATH begins with Homebrew LLVM 23.1.1, the dedicated Python venv,
+  and Homebrew. It selects clang/opt/llvm-link 23.1.1, Python 3.14.6 with
+  wasmtime 48.0.0, Node v26.8.2 and Wasmtime CLI 48.0.2.
+- SDK: macOS 27.0 at the active Xcode SDK path.
+
+Phase 1 — prerequisite inventory
+Started: 2026-09-18T14:04:31Z
+Finished: 2026-09-18T14:04:32Z
+Elapsed: 0.956535 seconds
+Result: PASS
+
+Phase 2 — requested build
+Command: make -j8 nano_vm nvm2c nvm2wasm nanoisa_dump
+Started: 2026-09-18T14:04:51.272656+00:00
+Finished: 2026-09-18T14:04:54.443437+00:00
+Elapsed: 3.170812 seconds
+Outer bound: 900 seconds
+Result: PASS, exit 0
+
+Built artifacts
+- bin/nano_vm
+  SHA256 63bbf8f737aa61e300e0fe51dd3462a05f2e8681d8bde573ee11639dc6ebfc1b
+- bin/nvm2c
+  SHA256 992fd13c797e0488f74f419e1d8784b75ffc721bfda8486b9d7c286952a75f0e
+- bin/nvm2wasm
+  SHA256 13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a
+- nanoisa_dump target output bin/nanoisa
+  SHA256 b32b78da0f19151765010dff902b650534529f0e75f70cd24609dbc6cfe979f9
+
+Phase 3 — helper2
+Command: python3 -m unittest -f -v tests.test_binary64_arithmetic
+Started: 2026-09-18T14:05:20.713628+00:00
+Finished: 2026-09-18T14:05:21.931792+00:00
+Elapsed: 1.218206 seconds
+Outer bound: 900 seconds
+Result: PASS, 2/2 methods, exit 0
+The direct and embedded sources retained all four optimization modes, ASan,
+UBSan, -flto and all 133 arithmetic-bit assertions. Darwin LTO used Apple ld.
+
+Phase 4 — backend4
+Command: python3 -m unittest -f -v tests.test_binary64_arithmetic_backends
+Started: 2026-09-18T14:05:40.180944+00:00
+Finished: 2026-09-18T14:05:52.977535+00:00
+Elapsed: 12.796606 seconds
+Outer bound: 900 seconds
+Result: PASS, 4/4 methods, exit 0
+The VM, native, LLVM, Node/Wasm and Wasmtime routes completed.
+
+Phase 5 — graph8
+Command: python3 -m unittest -f -v tests.test_llvm_managed_graphs
+Started: 2026-09-18T14:06:13.913530+00:00
+Finished: 2026-09-18T14:06:20.537136+00:00
+Elapsed: 6.623618 seconds
+Outer bound: 900 seconds
+Result: FAIL, exit 1
+Methods passed: 5/8. The sixth method failed; fail-fast left two unrun.
+
+First failure
+ManagedGraphs.test_preparation_growth_failures_and_nested_entry invoked its
+unchanged native allocation-failure harness through Homebrew clang with
+-Wl,--wrap=malloc. The selected native Darwin linker reported:
+
+ld: unknown options: --wrap=malloc
+clang: error: linker command failed with exit code 1
+
+The complete failing command and traceback are in the graph8 raw log. The
+test's temporary directory was empty after Python runner teardown, so no inner
+artifact survived to copy; the raw phase log retains the command and failure.
+I did not replace the allocation-failure mechanism, change linkers, weaken the
+assertions, alter a deadline, or rerun.
+
+Retained evidence
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-prerequisites.log
+  SHA256 738383efb65e8f53f3409af7bcbdb79a689fe01ac69b34f207f1c848022330d2
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-build.log
+  SHA256 0784e28fb95ae76d4cdbec436a86772d7f247a9a184b3fe07a574b915fd3f8f6
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-build-artifacts.log
+  SHA256 047f2b32bb9b9c88137ab7cb26a7bdda1faa37490b57592ace00ee65ef0fa00c
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-helper2.log
+  SHA256 c078341b6af76ff38ce1c3b8dffdb4d5f0a4ae453f2fca3740a30aadbb1eec2d
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-backend4.log
+  SHA256 7da642c46e21029f3f5cfd0f72f7284b90ca50e00580c11163f820578f4aa1b6
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-graph8.log
+  SHA256 e0af5f05881f9b08c894eb0c62d182df59aae8443ec80a05178b5837cb55bbb1
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-failure-inventory.log
+  SHA256 8653e97e0a300d310262ee003d128afe4a6f21da235a9e2ea88103128d4b7dfa
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-source-manifest-before.txt
+  SHA256 0b40a317dbbca3f43c84f2a332277e185fea7b2aed37de4ad2fb1e2b4a4bf724
+- /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-source-manifest-after.txt
+  SHA256 0b40a317dbbca3f43c84f2a332277e185fea7b2aed37de4ad2fb1e2b4a4bf724
+
+The tracked manifests are byte-identical and final git porcelain is empty.
+All prior reports and frozen e9 artifacts remain unchanged. This is not a
+product quick run, bootstrap, release candidate or release permission. PR522
+and publication remain held.

@@ -225,3 +225,42 @@ nl_f64_* user symbols beside the new helper names; source integration requires
 paired ordinary named-function execution through both producer implementations.
 Foreign explicit ABI symbols remain subject to the existing runtime namespace
 boundary and must not be inferred to be ordinary prefixed source functions.
+
+## My stage-3 source initialization and evaluation boundary
+
+I begin source integration on `c8db7cc5` after merged PR731. C-seed
+is_c_constant_initializer accepts literals only; arithmetic already belongs to
+its ordered, once-only runtime initializer. I preserve that decision.
+Selfhost global_init_literal otherwise falls back to zero for arithmetic. I add
+an exact FLOAT arithmetic-root case to its existing startup list for both plain
+and guarded globals, preserving declaration order and the separate bit-intrinsic
+case. I do not use bit-intrinsic detection as permission for arbitrary global
+expressions. Paired tests cover mutable/immutable globals, references to earlier
+globals, nested arithmetic and effectful operands initialized once.
+
+I emit each scalar operand once into an ordered left/right statement-expression
+snapshot before the helper call, following existing GNU C expression machinery.
+C-seed fresh temporary names avoid environment-visible source names; selfhost
+private temporary identifiers stay outside its nl_ source-variable mapping.
+Ordinary f64_add/sub/mul/div functions remain callable alongside nano_rt_ runtime
+helpers. I generate both embedded C text and a Nano runtime-string provider from
+one canonical header; regeneration checks prevent independent helper drift.
+
+## My additional public C-source target prerequisite
+
+My stage-3 identity test exposed a missing inventory route: C-seed `--target c`
+uses `src/c_backend.c`, not the native legacy emitter. Its file-level contract
+advertises scalar numeric arithmetic and self-contained C output; current ordinary
+source output still contains raw arithmetic and unresolved bit intrinsic calls.
+I did not compile or execute that output. Task `task_070dbdb1d2e04a36b09a5eab25ddddb3`
+requires exact typing/transport and arithmetic-policy qualification for this
+public route. I retain parent500906 open until this prerequisite is resolved.
+My native legacy helper identity test instead uses C-seed `--keep-c`; selfhost
+`--target c` already selects its legacy transpiler. These route names are not
+interchangeable.
+
+My [bounded stage-3 source evidence](evidence/binary64-arithmetic-source.md)
+qualifies the reviewed interpreter and legacy arithmetic operators, exact helper
+text and ordered global initialization. Its explicit route matrix retains failed
+legacy reduce ABI acceptance, other callback refusals and the separate public
+C-source target prerequisite. I do not report source-wide policy completion.

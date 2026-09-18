@@ -1,0 +1,102 @@
+inspected_utc=2026-09-18T13:45:01Z
+brew_path=/opt/homebrew/bin/brew
+Homebrew 7.0.1-5-g66413cb
+{
+  "formulae": [
+    {
+      "name": "wasmtime",
+      "full_name": "wasmtime",
+      "tap": "homebrew/core",
+      "oldnames": [],
+      "aliases": [],
+      "versioned_formulae": [],
+      "desc": "Standalone JIT-style runtime for WebAssembly, using Cranelift",
+      "license": "Apache-2.0 WITH LLVM-exception",
+      "homepage": "https://wasmtime.dev/",
+      "versions": {
+        "stable": "48.0.2",
+        "head": "HEAD",
+        "bottle": true
+      },
+      "urls": {
+        "stable": {
+          "url": "https://github.com/bytecodealliance/wasmtime.git",
+          "tag": "v48.0.2",
+          "revision": "e9f1ea232fd245aea338ab3eb7d73487ae75cab1",
+          "using": null,
+          "checksum": null
+        },
+        "head": {
+          "url": "https://github.com/bytecodealliance/wasmtime.git",
+          "branch": "main",
+          "using": null
+        }
+      },
+      "patches": [],
+      "revision": 0,
+      "version_scheme": 0,
+      "compatibility_version": null,
+      "autobump": true,
+      "no_autobump_message": null,
+      "skip_livecheck": false,
+      "bottle": {
+        "stable": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "arm64_tahoe": {
+              "cellar": ":any",
+              "url": "https://ghcr.io/v2/homebrew/core/wasmtime/blobs/sha256:21c95b527f0ad047e78afe4cccaefe3814ee2b70c67212ae8bcd93b14b22a253",
+              "sha256": "21c95b527f0ad047e78afe4cccaefe3814ee2b70c67212ae8bcd93b14b22a253"
+            }
+          }
+        }
+      },
+      "pour_bottle_only_if": null,
+      "keg_only": false,
+      "keg_only_reason": null,
+      "options": [],
+      "build_dependencies": [
+        "cmake",
+        "rust"
+      ],
+      "dependencies": [],
+      "test_dependencies": [],
+      "recommended_dependencies": [],
+      "optional_dependencies": [],
+      "uses_from_macos": [],
+      "uses_from_macos_bounds": [],
+      "requirements": [],
+      "conflicts_with": [],
+      "conflicts_with_reasons": [],
+      "link_overwrite": [],
+      "caveats": null,
+      "installed": [],
+      "linked_keg": null,
+      "pinned": false,
+      "outdated": false,
+      "deprecated": false,
+      "deprecation_date": null,
+      "deprecation_reason": null,
+      "deprecation_replacement_formula": null,
+      "deprecation_replacement_cask": null,
+      "deprecate_args": null,
+      "disabled": false,
+      "disable_date": null,
+      "disable_reason": null,
+      "disable_replacement_formula": null,
+      "disable_replacement_cask": null,
+      "disable_args": null,
+      "post_install_steps": [],
+      "post_install_defined": false,
+      "service": null,
+      "tap_git_head": "a598016ddd78c42321b269b175d7df5a92b88a50",
+      "ruby_source_path": "Formula/w/wasmtime.rb",
+      "ruby_source_checksum": {
+        "sha256": "918641ef57940728a4627e409d3387eeb94cc5d34dd141961759656dfae11b50"
+      }
+    }
+  ],
+  "casks": []
+}
+inspection_exit=0

@@ -106,6 +106,45 @@ self replacement and dead-to-live edges preserve counts, and disposal frees each
 object once. Invalid tags/handles remain checked API failures, not raw memory
 interpretation. No union/tuple/map/callable slot kind is implied.
 
+## My private storage API checkpoint
+
+After descriptor733, I implement checkpoint2 independently of its host plan.
+The private runtime borrows a fixed array of `{global_layout_index, field_count}`
+descriptors indexed by record ordinal. I bind it once on a fresh runtime before
+any dynamic object exists; disposal/reinitialization is the only rebinding path.
+Binding validates finite counts, distinct increasing global layout indices and
+field widths without changing runtime state on failure. The descriptor storage
+remains immutable and alive through disposal. No borrowed host plan pointer
+crosses the native/Wasm boundary. UNKNOWN ordinary/resource authority remains
+UNKNOWN: this private API does not authorize source or bytecode admission.
+
+I give record slots a dedicated definition-index member and kind. Field count
+is fixed at construction and stored as both length and capacity. Ordered boxed
+values preserve exact tags/payloads; the private core checks supported dynamic
+kinds/handles, not a claimed proof that runtime values match source annotations.
+Construction borrows input values, prepares their buffer, retains children and
+publishes only a complete slot. Failure rolls back prepared references/buffer
+without changing input owners or output. Slot growth/workspace replacement
+retain their existing transactional contract. Empty records require no field
+buffer. GET returns one retained value; SET retains first and publishes the new
+edge before releasing the previous value. Both preserve exact record identity.
+
+I extend shared value validation and traversal to TAG_STRUCT8 and the new record
+kind. Array APIs still reject record receivers. Iterative zero-reference release
+and both collectors enumerate actual record/array edges, including duplicate
+edges and mixed cycles. Collector preflight checks each record against the bound
+identity/count before mutating any references. Record storage accounting uses
+fixed boxed-field bytes, independent of array element coercion or growth policy.
+A private identity query returns both the ordinal and retained global identity.
+
+I review this combined core checkpoint before target execution. Its focused
+controls cover native/Wasm descriptor binding, empty/distinct records, exact
+float bits and strings, retained GET, shared SET, invalid-output stability,
+allocation/retain rollback, descriptor-table growth, prepared workspace failure,
+iterative chains and mixed cycles/dead-to-live edges. Existing array/string and
+public profile gates remain required. Generated IR packaging must rebuild for
+runtime struct/API changes. No nominal instruction is enabled in this checkpoint.
+
 ## My ordered acceptance and later obligations
 
 1. Review and qualify the non-admitting descriptor plan: interleaved layout

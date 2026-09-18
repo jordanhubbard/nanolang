@@ -3629,6 +3629,7 @@ vm_return_values: ;
         VM_CASE(OP_STRUCT_NEW) {
             uint32_t def_idx = instr.operands[0].u32;
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
+            if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             stack_push(vm, val_struct(s));
             VM_NEXT();
         }

@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import shlex
 import subprocess
+import sys
 import tempfile
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
@@ -30,7 +31,8 @@ class Binary64Arithmetic(unittest.TestCase):
         standalone.write_text(header+'\n'+fixture.replace('#include "binary64_arithmetic.h"',''))
         for source in (ROOT/'tests/test_binary64_arithmetic.c',standalone):
             modes=[['-O0'],['-O2'],['-O3','-ffp-contract=fast'],['-O2','-flto']]
-            if 'clang' in self.run_command(self.cc+['--version']).stdout.lower():
+            # I keep Darwin's native linker for its SDK and Apple LTO format.
+            if sys.platform != 'darwin' and 'clang' in self.run_command(self.cc+['--version']).stdout.lower():
                 modes[-1].append('-fuse-ld=lld')
             for mode in modes:
                 exe=self.work/('run'+str(self.sequence))
