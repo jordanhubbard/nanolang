@@ -25,6 +25,18 @@ class VariantScalarCarriers(unittest.TestCase):
                         '.function relay 1 2 0 union 1\nLOAD_LOCAL 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nRET\n.end\n'+
                         '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
 
+    def test_optional_variant_payload_preserves_absence_and_present_tags(self):
+        for tag,value in ((1, 'PUSH_I64 7'), (4, 'PUSH_BOOL 1'),
+                          (3, 'PUSH_F64 1.5'), (5, 'PUSH_STR kept')):
+            for missing in (0, 1):
+                for reverse in (False, True):
+                    with self.subTest(tag=tag, missing=missing, reverse=reverse):
+                        exact = value+f'\nAGG_PACK 1 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK {tag}\nASSERT\n'
+                        optional = value+f'\nARR_LITERAL {tag} 1\nPUSH_I64 {missing}\nARR_GET\nAGG_PACK 1 0 0 1\nCALL relay\nAGG_GET 0\nTYPE_CHECK {0 if missing else tag}\nASSERT\n'
+                        body = optional+exact if reverse else exact+optional
+                        self.paired(HEADER+'.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+
+                            '.function relay 1 1 0 union 1\nLOAD_LOCAL 0\nRET\n.end\n')
+
     def test_branch_checked_consumers_and_empty_padding(self):
         producers = (('PUSH_I64 7', 'seven'), ('PUSH_STR kept', 'kept'),
                      ('PUSH_BOOL 1', 'truth'), ('PUSH_F64 1.5', 'real'))

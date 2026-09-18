@@ -69,15 +69,17 @@ static bool contains_vm_wrapper_code(const char *source) {
 /* Classifier-only field facts: the low bits retain observed scalar members.
  * These codes never appear in generated runtime record tags. */
 #define NVM2C_FIELD_VARIANT_BASE 0x40
+#define NVM2C_FIELD_VARIANT_OPTIONAL 0x10
 #define NVM2C_SCALAR_VARIANT UINT16_C(0x4000)
 static int variant_field(uint8_t kind) {
-    return kind > NVM2C_FIELD_VARIANT_BASE && kind < NVM2C_FIELD_VARIANT_BASE + 16;
+    return kind > NVM2C_FIELD_VARIANT_BASE && kind < NVM2C_FIELD_VARIANT_BASE + 32;
 }
 static uint8_t variant_field_for(uint8_t kind) {
     return NVM2C_FIELD_VARIANT_BASE | (kind == NVM2C_VK_INT ? 1 :
         kind == NVM2C_VK_BOOL ? 2 : kind == NVM2C_VK_FLOAT ? 4 : 8);
 }
 static uint16_t variant_field_tags(uint8_t kind) {
+    if (kind & NVM2C_FIELD_VARIANT_OPTIONAL) return 0;
     return NVM2C_SCALAR_VARIANT | ((kind & 1) ? 1u << TAG_INT : 0) |
         ((kind & 2) ? 1u << TAG_BOOL : 0) | ((kind & 4) ? 1u << TAG_FLOAT : 0) |
         ((kind & 8) ? 1u << TAG_STRING : 0);
@@ -605,6 +607,13 @@ static int merge_record_results(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, c
         if (variant_field(dest[i]) && variant_field(fields[i])) {
             uint8_t joined = dest[i] | fields[i];
             if (joined != dest[i]) { dest[i] = joined; facts->changed = 1; }
+        } else if ((variant_field(dest[i]) && fields[i] == NVM2C_VK_VALUE) ||
+                   (dest[i] == NVM2C_VK_VALUE && variant_field(fields[i]))) {
+            /* Keep the explicit scalar-set destination, but discard projected
+             * tag provenance until every optional producer is checked. */
+            uint8_t joined = (variant_field(dest[i]) ? dest[i] : fields[i]) |
+                             NVM2C_FIELD_VARIANT_OPTIONAL;
+            if (dest[i] != joined) { dest[i] = joined; facts->changed = 1; }
         } else if (!merge_parameter(b, facts, &dest[i], fields[i])) return 0;
     }
     return 1;
@@ -743,6 +752,10 @@ static int shape_record_return(Nvm2cBuf *b, NvmShapeId source, NvmShapeId result
         NvmShapeId from = shape_child(b, source, (uint32_t)i);
         NvmShapeId to = shape_child(b, result, (uint32_t)i);
         if (!shape_field_kind(b, from, source_fields[i]) || !shape_field_kind(b, to, result_fields[i])) return 0;
+        /* A present boxed field is not absent variant padding. Materialize
+         * its payload obligation even when the producer has no known tag. */
+        if (source_fields[i] == NVM2C_VK_VALUE && variant_field(result_fields[i]) &&
+            !shape_child(b, from, 0)) return 0;
     }
     return nvm_shape_convert(&b->shapes, source, result) && shape_ok(b);
 }
