@@ -54,3 +54,9 @@ I preserve the first 2,421/1 outcome, do not reinterpret it as a pass, and
 verify label production plus range-tool hashes unchanged afterward.
 This is not a new compiler bootstrap or completion of the root-owned range
 source contract. That lane will integrate my canonical translator separately.
+
+I integrated main `c9e2a16f` additively after qualification. Native translator,
+shape solver and focused/full native test sources are unchanged; the new
+managed eligibility and specialized borrow-source work is separate. I retain
+the original measured source/tool pins rather than claiming rebuilt-main
+product acceptance.
