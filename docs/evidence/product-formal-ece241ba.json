@@ -1,0 +1,12 @@
+{
+  "source": "ece241ba56c34ae6e47639cd7d618f43f20ba25d",
+  "command": "timeout 900 bash scripts/check_proofs_container.sh",
+  "exit_code": 255,
+  "status": "environment_execution_unavailable",
+  "log": "/tmp/nanolang-product-ece241ba-formal.log",
+  "sha256": "947c2d18ea3e2ea789524a47dc9dd31cb04d43952d1673cfcc330ed20edfaa67",
+  "failure": "exec /usr/local/bin/opam: exec format error",
+  "proof_compilation_started": false,
+  "pinned_image": "rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2",
+  "peer_status": "queued"
+}
