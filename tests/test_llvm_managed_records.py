@@ -104,6 +104,26 @@ class ManagedRecords(unittest.TestCase):
         self.node(wasm,'for(let i=0;i<20;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===0n);}check(e.nano_dispose()===0);')
         self.native_harness(ir,'if(nano_dispose())return 1;return nano_try_entry()!=((uint64_t)5<<32);')
 
+    def test_receiver_error_families_and_counted_failure_inputs(self):
+        for op,status in [('STRUCT_GET',1),('AGG_GET',7),('STRUCT_SET',1),('AGG_SET',7)]:
+            value='PUSH_STR text\nPUSH_STR empty\nSTR_CONCAT\n' if op.endswith('SET') else ''
+            body=('PUSH_STR text\nPUSH_STR empty\nSTR_CONCAT\nSTRUCT_LITERAL 0 1\nSTORE_GLOBAL 0\n'
+                  'PUSH_BOOL 1\nSTORE_GLOBAL 1\nLOAD_GLOBAL 1\n'+value+op+' 0\nPOP\n')
+            _,ir,wasm=self.compile(program(body,[(0,[(5,NO)])]),vm_ok=False)
+            self.native_harness(ir,f'for(int i=0;i<3;i++)if(nano_try_entry()!=((uint64_t){status}<<32)||nms_module_live_objects()!=2)return 1;if(nano_dispose())return 2;return nms_module_live_objects()!=0;')
+            self.node(wasm,f'for(let i=0;i<3;i++){{check(e.nano_try_entry()===({status}n<<32n));check(e.nms_module_live_objects()===2n);}}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
+
+    def test_committed_global_survives_allocation_failure_reentry(self):
+        body=('LOAD_GLOBAL 0\nTYPE_CHECK 0\nJMP_FALSE existing\nPUSH_I64 42\nSTRUCT_LITERAL 0 1\nSTORE_GLOBAL 0\n'
+              'existing:\nLOAD_GLOBAL 0\nAGG_GET 0\nPUSH_I64 42\nEQ\nASSERT\n'
+              'PUSH_I64 19\nSTRUCT_LITERAL 0 1\nPOP\n'
+              'LOAD_GLOBAL 0\nPUSH_I64 42\nSTRUCT_SET 0\nLOAD_GLOBAL 0\nEQ\nASSERT\n')
+        _,ir,wasm=self.compile(program(body))
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
+        for budget in (0,1,2,3):
+            self.native_harness(ir,f'if(nano_try_entry()||nms_module_live_objects()!=1)return 1;budget={budget};uint64_t s=nano_try_entry();if(s && s!=((uint64_t)3<<32))return 2;if({budget}==0 && s!=((uint64_t)3<<32))return 3;if(nms_module_live_objects()!=1)return 4;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 5;return nano_dispose();',extra,allocation_control=True)
+        self.node(wasm,'for(let i=0;i<20;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
+
     def test_unknown_wrong_nominal_and_mixed_edges_preserve_output(self):
         cases=[program('PUSH_I64 1\nSTRUCT_LITERAL 0 1\nPOP',authority=False),
                program('STRUCT_NEW 0\nPOP'),
