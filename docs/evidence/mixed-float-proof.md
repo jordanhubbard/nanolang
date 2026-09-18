@@ -11,7 +11,7 @@ in1.367s with ASan/UBSan and leak detection. Five adjacent suites passed16.508s:
 mixed descriptor, retained layouts, ownership contracts, verifier and managed
 record plans. The broad evidence runner then returned1 because adjacent builds
 added four new objects to its scanned directory. Its before/after maps establish
-that all original43 tool/object inputs and1,606 native-source/test/build inputs
+that all original39 tool/object inputs and1,606 native-source/test/build inputs
 remained unchanged. I preserve that runner failure; I do not relabel it as passed.
 
 The focused proof, descriptor reader, layout decoder, cursor and fixture were
@@ -23,3 +23,36 @@ wrong parent nominal, unused invalid functions/opcodes, bounded origin/instructi
 state/local limits and allocation-failure output preservation reaching success.
 It calls old shared validators to check unchanged refusal; it executes no pending
 module and grants no source/runtime/affine authority. Full parent4be remains open.
+
+## My integrated terminal and retained runner boundaries
+
+I integrated canonical main4351b43f in a separate tree. Incoming changes affect
+C-seed match-totality headers/parser/checker/native transpiler and its tests/docs;
+the reviewed proof source and focused fixtures are unchanged fromae07f575. I
+performed no source-compiler bootstrap or historical failed-artifact replay.
+
+I retain both managed-runtime preparation refusals: unpinned Clang's native GCC
+selection warning (37e767ca,0.315s), then a native-only option incorrectly applied
+to wasm32 by the generic wrapper (d4dcc614,0.515s). The existing package script's
+NMS_NATIVE_CLANG_FLAGS mechanism correctly scopes that option; strict warnings
+remain enabled. Preparation then passed18.524s at5547da07, but the evidence runner
+used a Make target name as an executable path and stopped before queries. I
+inspected all actual built paths before the final run; these separate runner
+terminals are preserved, not reclassified as successful original runs.
+
+At frozen3f996e72 the complete corrected runner passed: preparation1.167s,
+GCC339 query checks0.618s, Clang339 checks1.267s, and all five adjacent suites3.024s
+(including138 descriptive checks and96 verifier tests). All49 resolved tool,
+wrapper, linked-object and binary hashes match before/after, as do1,607 inventoried
+native-source/test/build inputs. No additional objects appeared. The manifest
+includes actual compiler selection, exact native-versus-wasm package flags and the
+complete runner. I do not claim an operating-system shared-library inventory.
+Temporary focused query executables are removed by their harness; their exact
+source/flags/outcomes are retained, not a surviving-executable hash claim.
+
+My first failed suite, corrected query successes, broad-directory inventory
+failure, two preparation failures and executable-path runner failure remain
+separate evidence. Only the last runner has complete integrated identity success.
+No pending module executed. This PR completes a private shape-proof child after
+canonical merge; it does not complete mixed affine/scalar/runtime admission or
+unchanged Samples/PREFIX source execution.
