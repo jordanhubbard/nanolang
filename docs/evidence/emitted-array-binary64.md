@@ -1,0 +1,13 @@
+# My direct emitted array helper evidence
+
+I qualify task_2e5b259d7c6144ed86493d3f24164ef2 under aggregate parent3717, following PR762. My [contract](../EMITTED_ARRAY_BINARY64_QUALIFICATION.md) distinguishes actual emitted helper execution from typed source loops.
+
+My first harness9ca6a633 failed compilation under GCC and Clang: it omitted stdarg.h and the actual math provider containing nl_str_concat. Neither fixture executed. I retain both failures and unchanged identity manifests. Corrected harnessbc6414fe includes both real providers without copying their helper bodies and tests both provider orders.
+
+At bc6414fe, Linux GCC and Clang and Darwin Homebrew Clang each pass string-first and math-first provider generation, strict C11 O0/O2 compilation and execution under ASan/UBSan with leak checks enabled. Each execution observes 272 exact-bit results (68 fixed cases times pair/right-broadcast/left-broadcast/recursive pair), 12 empty outputs, four ordinary integer and three string neighbors. Original float input bits and ordinary inputs remain unchanged. The fixed oracle includes signed quiet/signaling NaNs, zero-divisor precedence, infinities, subnormal and nearest-even rounding. It does not calculate expected answers with host arithmetic.
+
+I preserve my emitted pair helper's equal-length/equal-element-type assertions. The VM minimum-length rule is a separate route; this test does not disable assertions or invent a shared shape rule. Nested containers and leaves are separately released under existing non-owning references. I make no new allocation-fault completeness claim.
+
+My [sealed reports](emitted-array-binary64/report-sha256.json) cover 51 reports: source/tool identities, commands, statuses, exact generated provider text and output logs. All six corrected configurations have six successful commands; all measured sources/compiler binaries remain unchanged. Darwin report bytes were hash-checked during SSH transfer after current remote source/tool identity verification. The retained driver log identifies its isolated source worktree and exact commit. Linux Clang explicitly selects the GCC13 installation; Darwin uses Homebrew LLVM Clang with leak detection enabled.
+
+Combined with PR762's direct evaluator, VM, paired source and Linux/Darwin bootstrap evidence, this covers the existing routes listed by original3717: VM, interpreter representations/broadcasts, emitted C runtime helpers and both legacy compiler element loops. It adds no native/LLVM/Wasm aggregate-module admission. Original scalar5009 and callbackd099 were independently accepted through PR763; full reconstruction and the release remain open. Parent3717 ledger closure follows independent review and canonical merge of this evidence.

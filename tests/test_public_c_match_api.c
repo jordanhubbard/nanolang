@@ -51,7 +51,7 @@ int main(int argc,char **argv){
  assert(ctx_union_variant(&context,"Choice","Other",&d,&v)==NULL);
  for(int mode=0;mode<3;++mode){
   match.as.match_expr.union_type_name=mode==0?"Other":"Choice";
-  patterns[0]=mode==1?"Other":mode==2?"_":"Item";
+  patterns[0]=mode==1?"Other":mode==2?"OR:Item":"Item";
   save(argv[1]);assert(c_backend_emit(&root,argv[1],"ordinary.nano",&options)!=0);retained(argv[1]);
   FILE *stream=tmpfile();assert(stream);assert(fputs("previous",stream)>=0);
   assert(c_backend_emit_fp(&root,stream,"ordinary.nano",&options)!=0);assert(ftell(stream)==8);assert(fclose(stream)==0);
