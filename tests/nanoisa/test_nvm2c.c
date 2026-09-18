@@ -4700,6 +4700,71 @@ static void test_record_array_alias_shapes(void) {
     }
 }
 
+/* I append the first diagnostic through a copied record's empty list field. */
+static void test_empty_diagnostic_record_fields(void) {
+    const unsigned fields[] = {2, 5};
+    for (size_t scenario = 0; scenario < sizeof fields / sizeof fields[0]; ++scenario) {
+        unsigned field = fields[scenario];
+        char source[8192], fragment[1024];
+        strcpy(source, ".types 3 0 0\n.string code \"E_TEST\"\n"
+            ".string message \"ordinary diagnostic\"\n.string file \"fixture.nano\"\n"
+            ".entry main\n.function make 0 0 0 struct 1\nPUSH_I64 41\nPUSH_BOOL 1\n");
+        if (field == 5) strcat(source, "PUSH_STR file\nPUSH_I64 17\nPUSH_BOOL 0\n");
+        snprintf(fragment, sizeof fragment,
+            "ARR_NEW 8\nAGG_PACK 0 0 0 %u\nRET\n.end\n"
+            ".function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n"
+            ".function append 1 1 0 void 0\nLOAD_LOCAL 0\nAGG_GET %u\n"
+            "PUSH_I64 1\nPUSH_I64 2\nPUSH_STR code\nPUSH_STR message\n"
+            "PUSH_STR file\nPUSH_I64 42\nPUSH_I64 7\nAGG_PACK 0 2 0 3\n"
+            "AGG_PACK 0 1 0 5\nARR_PUSH\nPOP\nRET\n.end\n"
+            ".function main 0 3 0 int 1\nCALL make\nSTORE_LOCAL 0\n"
+            "LOAD_LOCAL 0\nCALL relay\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nAGG_GET %u\n"
+            "ARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\nLOAD_LOCAL 1\nCALL append\n",
+            field + 1, field, field);
+        strcat(source, fragment);
+        /* Both record copies still see the first append; scalar neighbors survive. */
+        for (unsigned copy = 0; copy < 2; ++copy) {
+            snprintf(fragment, sizeof fragment,
+                "LOAD_LOCAL %u\nAGG_GET %u\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+                "LOAD_LOCAL %u\nAGG_GET 0\nPUSH_I64 41\nI64_EQ\nASSERT\n"
+                "LOAD_LOCAL %u\nAGG_GET 1\nDUP\nTYPE_CHECK 4\nASSERT\nASSERT\n",
+                copy, field, copy, copy);
+            strcat(source, fragment);
+            if (field == 5) {
+                snprintf(fragment, sizeof fragment,
+                    "LOAD_LOCAL %u\nAGG_GET 2\nPUSH_STR file\nEQ\nASSERT\n"
+                    "LOAD_LOCAL %u\nAGG_GET 3\nPUSH_I64 17\nI64_EQ\nASSERT\n"
+                    "LOAD_LOCAL %u\nAGG_GET 4\nBOOL_NOT\nASSERT\n", copy, copy, copy);
+                strcat(source, fragment);
+            }
+        }
+        snprintf(fragment, sizeof fragment,
+            "LOAD_LOCAL 0\nAGG_GET %u\nPUSH_I64 0\nARR_GET\nSTORE_LOCAL 2\n"
+            "LOAD_LOCAL 2\nAGG_GET 0\nPUSH_I64 1\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 1\nPUSH_I64 2\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 2\nPUSH_STR code\nEQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 3\nPUSH_STR message\nEQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 4\nAGG_GET 0\nPUSH_STR file\nEQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 4\nAGG_GET 1\nPUSH_I64 42\nI64_EQ\nASSERT\n"
+            "LOAD_LOCAL 2\nAGG_GET 4\nAGG_GET 2\nPUSH_I64 7\nI64_EQ\nASSERT\n"
+            "PUSH_I64 0\nRET\n.end\n", field);
+        strcat(source, fragment);
+        NvmModule *module = assemble_ok(source, "first diagnostic append into an empty record field");
+        if (!module) continue;
+        char *c = emit_or_fail(module, "empty diagnostic field representation");
+        if (c) {
+            snprintf(fragment, sizeof fragment, ".ra[%u] = ra[", field);
+            CHECK(strstr(c, fragment) != NULL, "I pack the diagnostic field as a record-array handle");
+            CHECK(strstr(c, "nrarr_new()") != NULL, "I allocate the empty diagnostic record array explicitly");
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "I preserve first diagnostic append, aliases, payload and scalar neighbors");
+            free(c);
+        }
+        nvm_module_free(module);
+    }
+}
+
 static void test_record_array_fields(void) {
     for (int empty = 0; empty < 2; ++empty) {
         char source[4096];
@@ -4870,6 +4935,7 @@ static void test_array_valued_record_fields(void) {
     test_record_array_return_fields();
     test_delayed_array_element_facts();
     test_record_array_fields();
+    test_empty_diagnostic_record_fields();
     for (int strings = 0; strings < 2; ++strings) {
         for (int empty = 0; empty < 2; ++empty) {
             char source[4096], line[256];

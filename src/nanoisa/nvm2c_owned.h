@@ -89,7 +89,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
         switch(op) {
         case OP_CALL_REF:
-            nvm2c_printf(&b," if(nown_helper(l,&refs[%u],&t[%d].scalar)){status=1;goto cleanup;}\n",in->operands[1].u16,n);break;
+            nvm2c_printf(&b," status=nown_helper(l,&refs[%u],&t[%d].scalar); if(status)goto cleanup;\n",in->operands[1].u16,n);break;
         case OP_REGION_BEGIN:nvm2c_puts(&b," ++region;\n");break;
         case OP_REGION_END:
             nvm2c_puts(&b," for(unsigned r=0;r<256;r++) if(refs[r].region==region) refs[r].region=0;\n --region;\n");break;
@@ -155,6 +155,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
         case OP_JMP:nvm2c_printf(&b," goto L%u;\n",d->resolved_target-fn->code_offset);continue;
         case OP_JMP_TRUE: case OP_JMP_FALSE:
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(%sa.scalar) {a=(nown_value){0};goto L%u;} a=(nown_value){0};\n",n-1,n-1,op==OP_JMP_TRUE?"":"!",d->resolved_target-fn->code_offset);break;
+        case OP_ASSERT:
+            nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(!a.scalar){status=2;goto cleanup;} a=(nown_value){0};\n",n-1,n-1);break;
         case OP_RET:nvm2c_puts(&b," *result=t[0].scalar; goto cleanup;\n");continue;
         default:goto fail;
         }

@@ -898,7 +898,7 @@ static bool owned_runtime_opcode(uint8_t op) {
     case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
-    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET:
+    case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     default: return false;
     }

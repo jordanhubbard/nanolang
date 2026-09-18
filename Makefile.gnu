@@ -4576,3 +4576,13 @@ test-advisory-metadata: test-advisory-metadata-alloc
 test-advisory-metadata-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_advisory_metadata_alloc tests/nanoisa/test_advisory_metadata_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_advisory_metadata_alloc
+.PHONY: test-unreachable-warning
+test-unreachable-warning: bootstrap
+	python3 -m unittest -v tests.test_unreachable_warning
+test-units: test-unreachable-warning
+
+.PHONY: test-owned-assertions
+test-units: test-owned-assertions
+test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_assertions tests/nanoisa/test_owned_assertions.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_assertions
