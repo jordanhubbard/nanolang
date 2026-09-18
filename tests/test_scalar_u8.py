@@ -1,4 +1,5 @@
 """I preserve byte identity and exact unsigned conversions across scalar backends."""
+import signal
 import unittest
 from tests import test_nvm2llvm as llvm
 from tests import test_nvm2wasm as wasm
@@ -70,11 +71,16 @@ class ScalarU8(unittest.TestCase):
         self.run_cmd(['lli', ir], success=False)
         self.run_cmd([wasm.WASM, module, '-o', target])
         self.run_cmd(['wasmtime', 'run', '--invoke', 'nano_entry', target], success=False)
-        c = self.work/'wrong.c'
-        c.write_text('previous')
-        refusal = self.run_cmd([llvm.C, module, '-o', c], success=False)
-        self.assertIn('shape', refusal.stderr)
-        self.assertEqual(c.read_text(), 'previous')
+        c, native = self.work/'wrong.c', self.work/'wrong-native'
+        self.run_cmd([llvm.C, module, '-o', c])
+        self.run_cmd(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+                      '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                      c, '-o', native])
+        refusal = self.run_cmd([native], success=False)
+        self.assertEqual(refusal.returncode, -signal.SIGABRT, refusal.stderr)
+        self.assertIn('I stopped at a native invariant', refusal.stderr)
+        self.assertNotIn('Sanitizer', refusal.stderr)
+        self.assertNotIn('runtime error:', refusal.stderr)
 
     def test_typed_integer_instruction_still_checks_byte_tag(self):
         suffix = '.function add_one 1 1 0 int 1\n.parameters add_one int\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nRET\n.end\n'
