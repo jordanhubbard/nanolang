@@ -50,7 +50,125 @@ let mut nisa_global_types: array<string> = []
 let mut nisa_global_owners: array<int> = []
 let mut nisa_global_nodes: array<int> = []
 
+# I retain optional declaration authority independently from instruction flow.
+let mut nisa_ordinary_ok: bool = true
+let mut nisa_ordinary_functions: string = ""
+let mut nisa_ordinary_count: int = 0
+let mut nisa_ordinary_init: string = ""
+let mut nisa_ordinary_parameters: string = ""
+
+fn nisa_ordinary_hex(value: int, width: int) -> string {
+    let digits: string = "0123456789abcdef"
+    let mut remaining: int = value
+    let mut result: string = ""
+    let mut i: int = 0
+    while (< i width) {
+        let octet: int = (% remaining 256)
+        set result (+ result (+ (str_substring digits (/ octet 16) 1) (str_substring digits (% octet 16) 1)))
+        set remaining (/ remaining 256)
+        set i (+ i 1)
+    }
+    return result
+}
+shadow nisa_ordinary_hex {
+    assert (== (nisa_ordinary_hex 258 2) "0201")
+    assert (== (nisa_ordinary_hex 4294967295 4) "ffffffff")
+}
+fn nisa_ordinary_tag(parser: Parser, t: string) -> int {
+    if (== t "void") { return 0 }
+    if (== t "int") { return 1 }
+    if (== t "u8") { return 2 }
+    if (== t "float") { return 3 }
+    if (== t "bool") { return 4 }
+    if (== t "string") { return 5 }
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        if (== (parser_get_struct_def parser i).name t) { return 8 }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow nisa_ordinary_tag {
+    let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
+    assert (== (nisa_ordinary_tag p "string") 5)
+    assert (== (nisa_ordinary_tag p "array<int>") -1)
+}
+fn nisa_ordinary_contract(parser: Parser, result_type: string, parameters: int, types: array<string>) -> string {
+    let result: int = (nisa_ordinary_tag parser result_type)
+    let locals: int = (array_length types)
+    if (or (< result 0) (or (> locals 65535) (> parameters locals))) { set nisa_ordinary_ok false return "" }
+    let mut out: string = (+ (nisa_ordinary_hex locals 2) (nisa_ordinary_hex parameters 2))
+    set out (+ out (+ (nisa_ordinary_hex result 1) "000000ffffffff"))
+    let mut i: int = 0
+    while (< i locals) {
+        let tag: int = (nisa_ordinary_tag parser (at types i))
+        if (<= tag 0) { set nisa_ordinary_ok false return "" }
+        set out (+ out (+ (nisa_ordinary_hex tag 1) "000000ffffffff"))
+        set i (+ i 1)
+    }
+    return out
+}
+shadow nisa_ordinary_contract {
+    let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
+    set nisa_ordinary_ok true
+    assert (== (nisa_ordinary_contract p "int" 1 ["string"]) "0100010001000000ffffffff05000000ffffffff")
+    assert (== (nisa_ordinary_contract p "int" 0 [""]) "")
+    assert (not nisa_ordinary_ok)
+    set nisa_ordinary_ok true
+}
+fn nisa_ordinary_publication(parser: Parser) -> string {
+    let count: int = (parser_get_struct_def_count parser)
+    if (or (<= parser.token_count 0) (> (array_length nisa_import_names) 0)) { return "" }
+    let mut token_index: int = 0
+    while (< token_index parser.token_count) {
+        if (== (list_LexerToken_get parser.tokens token_index).token_type LexerTokenType.TOKEN_EXTERN) { return "" }
+        set token_index (+ token_index 1)
+    }
+    if (or (not nisa_ordinary_ok) (or (<= count 0) (or (> count 128) (or (> parser.imports_count 0) (or (> (parser_get_enum_count parser) 0) (> (parser_get_union_count parser) 0)))))) { return "" }
+    let mut layouts: string = (nisa_ordinary_hex count 4)
+    let mut flags: string = ""
+    let mut i: int = 0
+    while (< i count) {
+        let record: ASTStruct = (parser_get_struct_def parser i)
+        if (or record.is_resource (or (str_contains record.name "<") (> record.field_count 65535))) { return "" }
+        set layouts (+ layouts (+ "0000" (+ (nisa_ordinary_hex record.field_count 2) "ffffffff")))
+        let mut field: int = 0
+        while (< field record.field_count) {
+            let t: string = (at record.field_types field)
+            let tag: int = (nisa_ordinary_tag parser t)
+            if (<= tag 0) { return "" }
+            let mut nested: int = 4294967295
+            if (== tag 8) {
+                let mut child: int = 0
+                while (< child i) {
+                    if (== (parser_get_struct_def parser child).name t) { set nested child }
+                    set child (+ child 1)
+                }
+                if (== nested 4294967295) { return "" }
+            }
+            set layouts (+ layouts (+ (nisa_ordinary_hex tag 1) (+ "000000" (+ (nisa_ordinary_hex nested 4) "ffffffff"))))
+            set field (+ field 1)
+        }
+        set flags (+ flags "01")
+        set i (+ i 1)
+    }
+    while (!= (% (str_length flags) 8) 0) { set flags (+ flags "00") }
+    let mut functions: int = nisa_ordinary_count
+    if (!= nisa_ordinary_init "") { set functions (+ functions 1) }
+    let ownership: string = (+ "01000000" (+ (nisa_ordinary_hex count 4) (+ flags (+ (nisa_ordinary_hex functions 4) (+ nisa_ordinary_functions nisa_ordinary_init)))))
+    return (+ (+ ".layouts \"" (+ layouts "\"\n.ownership \"")) (+ ownership (+ "\"\n" nisa_ordinary_parameters)))
+}
+shadow nisa_ordinary_publication {
+    let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
+    assert (== (nisa_ordinary_publication p) "")
+}
+
 fn nisa_reset() -> int {
+    set nisa_ordinary_ok true
+    set nisa_ordinary_functions ""
+    set nisa_ordinary_count 0
+    set nisa_ordinary_init ""
+    set nisa_ordinary_parameters ""
     set nisa_names []
     set nisa_types []
     set nisa_named_slots []
@@ -1553,6 +1671,7 @@ fn nisa_emit_globals(parser: Parser) -> string {
         set i (+ i 1)
     }
     let locals: int = (array_length nisa_names)
+    set nisa_ordinary_init (nisa_ordinary_contract parser "void" 0 nisa_types)
     set nisa_names []
     set nisa_types []
     set nisa_named_slots []
@@ -4532,6 +4651,19 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
             set parameter_names (+ parameter_names (nisa_local_name_begin named_parameter declared.name declared.var_type))
             set named_parameter (+ named_parameter 1)
         }
+        if nisa_has_par { set nisa_ordinary_ok false }
+        set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser func.return_type func.param_count nisa_types))
+        set nisa_ordinary_count (+ nisa_ordinary_count 1)
+        if (and (not nisa_has_par) (> func.param_count 0)) {
+            set nisa_ordinary_parameters (+ nisa_ordinary_parameters (+ ".parameters " func.name))
+            let mut param: int = 0
+            while (< param func.param_count) {
+                let t: string = (parser_get_let parser (+ func.param_start param)).var_type
+                set nisa_ordinary_parameters (+ nisa_ordinary_parameters (+ " " (nisa_result_tag parser t)))
+                set param (+ param 1)
+            }
+            set nisa_ordinary_parameters (+ nisa_ordinary_parameters "\n")
+        }
         return (+ (+ (+ header parameters) (+ parameter_names body)) ".end\n")
     }
 }
@@ -4850,6 +4982,8 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     let entry_index: int = (- count first_shadow)
     set out (+ out (+ ".function " (+ entry_name " 0 0 0 int 1\n")))
     set out (+ out (+ entry_body "  PUSH_I64 0\n  RET\n.end\n"))
+    set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser "int" 0 []))
+    set nisa_ordinary_count (+ nisa_ordinary_count 1)
     set i 0
     while (and nisa_ok (< i (array_length nisa_function_queue))) {
         let function: ASTFunction = (parser_get_function parser (at nisa_function_queue i))
@@ -4865,7 +4999,7 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     set prelude (+ prelude (+ "\n.entry " (int_to_string entry_index)))
     set prelude (+ prelude (+ "\n\n" nisa_import_text))
     set prelude (+ prelude (nisa_str_prelude))
-    return (+ prelude out)
+    return (+ prelude (+ out (nisa_ordinary_publication parser)))
 }
 shadow nanoisa_emit_shadows_nasm {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
@@ -4957,7 +5091,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
                 } else {
                     (print "")
                 }
-                return (+ prelude out)
+                return (+ prelude (+ out (nisa_ordinary_publication parser)))
             }
         }
     }

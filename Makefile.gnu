@@ -4545,6 +4545,12 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_calculator_host_abi
 test-units: test-calculator-host-abi
+.PHONY: test-ordinary-record-producers
+test-units: test-ordinary-record-producers
+test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_ordinary_record_producers
+
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
 test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm

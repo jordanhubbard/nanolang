@@ -41,6 +41,7 @@ typedef struct {
     bool        planning;
     char        prefix[64];
     size_t      operand_slots;
+    size_t      string_slots;
     Type        return_type;
     bool        has_globals;
     int         indent;
@@ -337,6 +338,10 @@ static void emit_preamble(CBCtx *c, const char *source_file) {
         emit_private_source(c, NL_BINARY64_BITS_SOURCE);
         emit_private_source(c, NL_BINARY64_FORMAT_SOURCE);
         emit_private_source(c,
+            "static int nano_rt_string_equal(const char *left, const char *right) {\n"
+            "  return left == right || (left && right && strcmp(left, right) == 0);\n"
+            "}\n");
+        emit_private_source(c,
             "typedef struct nano_rt_float_text { struct nano_rt_float_text *next; char text[64]; } nano_rt_float_text;\n"
             "static nano_rt_float_text *nano_rt_float_text_head;\n"
             "static int nano_rt_float_text_registered;\n"
@@ -487,6 +492,25 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
 
         Type left_type = infer_expr_type(c, node->as.prefix_op.args[0]);
         Type right_type = infer_expr_type(c, node->as.prefix_op.args[1]);
+        if ((op == TOKEN_EQ || op == TOKEN_NE) &&
+            (left_type == TYPE_STRING || right_type == TYPE_STRING)) {
+            if (left_type != TYPE_STRING || right_type != TYPE_STRING) {
+                ctx_error(c, "I require two exact STRING operands for C string equality.");
+                return -1;
+            }
+            if (c->string_slots == SIZE_MAX) {
+                ctx_error(c, "I exceeded my string comparison operand slot capacity.");
+                return -1;
+            }
+            size_t slot = c->string_slots++;
+            fprintf(c->out, "(%ssl[%zu] = (", c->prefix, slot);
+            if (emit_expr(c, node->as.prefix_op.args[0])) return -1;
+            fprintf(c->out, "), %ssr[%zu] = (", c->prefix, slot);
+            if (emit_expr(c, node->as.prefix_op.args[1])) return -1;
+            fprintf(c->out, "), %s%sstring_equal(%ssl[%zu], %ssr[%zu]))",
+                    op == TOKEN_NE ? "!" : "", c->prefix, c->prefix, slot, c->prefix, slot);
+            return 0;
+        }
         if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH) {
             if (left_type == TYPE_UNKNOWN || right_type == TYPE_UNKNOWN) {
                 ctx_error(c, "I require resolved scalar arithmetic operand types.");
@@ -1325,6 +1349,8 @@ static void emit_union_def(CBCtx *c, ASTNode *node) {
 static int emit_staged_body(CBCtx *c, FILE *body, FILE *destination) {
     if (c->operand_slots) fprintf(c->out, "  double %sl[%zu], %sr[%zu];\n",
                                   c->prefix, c->operand_slots, c->prefix, c->operand_slots);
+    if (c->string_slots) fprintf(c->out, "  const char *%ssl[%zu], *%ssr[%zu];\n",
+                                 c->prefix, c->string_slots, c->prefix, c->string_slots);
     if (fflush(body) != 0 || fseek(body, 0, SEEK_SET) != 0) {
         ctx_error(c, "I could not rewind a C function body."); fclose(body); return -1;
     }
@@ -1377,6 +1403,7 @@ static int emit_function(CBCtx *c, ASTNode *node) {
     if (!body) { ctx_error(c, "I could not stage a C function body."); return -1; }
     c->out = body;
     c->operand_slots = 0;
+    c->string_slots = 0;
 
     ctx_push_scope(c);
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -1470,6 +1497,7 @@ static int emit_global_initializer(CBCtx *c, ASTNode **items, int count) {
     if (!body) { ctx_error(c, "I could not stage scalar global initialization."); return -1; }
     c->out = body;
     c->operand_slots = 0;
+    c->string_slots = 0;
     c->return_type = TYPE_VOID;
     fprintf(c->out, "  static int %sinitialized;\n  if (%sinitialized) return;\n  %sinitialized = 1;\n",
             c->prefix, c->prefix, c->prefix);
@@ -1620,6 +1648,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
     c.sym_count = 0;
     c.scope_depth = 0;
     c.operand_slots = 0;
+    c.string_slots = 0;
     if (!c.error) {
         emit_preamble(&c, source_file);
         if (emit_program(&c, root) != 0 && !c.error)
