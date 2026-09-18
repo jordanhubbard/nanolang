@@ -1432,8 +1432,14 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
             let source: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
             return (full_array_element_type (infer_expr_type parser source.node_id source.node_type env))
         }
+        let bound: string = (genenv_get env if_id.name)
+        if (and (or (== if_id.name "reduce") (== if_id.name "array_fold")) (is_fn_type bound)) { return (parse_fn_type_return bound) }
         let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
         if (!= declared "") { return declared }
+        if (and (legacy_reduce_builtin parser if_id env) (== ic.arg_count 3)) {
+            let initial: ASTStmtRef = (parser_get_call_arg parser (+ ic.arg_start 1))
+            return (infer_expr_type parser initial.node_id initial.node_type env)
+        }
         if (func_returns_string if_id.name) { return "string" } else { (print "") }
         if (func_returns_float if_id.name) { return "float" } else { (print "") }
         return "int"
@@ -2217,6 +2223,116 @@ shadow declared_call_argument_type {
     assert (== (declared_call_argument_type parser "names" 0) "array<string>")
     assert (== (declared_call_argument_type parser "names" 1) "")
     assert (== (declared_call_argument_type parser "missing" 0) "")
+}
+
+let mut reduce_emission_error: string = ""
+
+fn reduce_emission_fail(message: string) -> string {
+    if (== reduce_emission_error "") { set reduce_emission_error message }
+    return "0"
+}
+shadow reduce_emission_fail {
+    let saved: string = reduce_emission_error
+    set reduce_emission_error ""
+    let first: string = (reduce_emission_fail "first")
+    let second: string = (reduce_emission_fail "second")
+    assert (== first "0")
+    assert (== second "0")
+    assert (== reduce_emission_error "first")
+    set reduce_emission_error saved
+}
+
+pub fn transpile_last_error() -> string { return reduce_emission_error }
+shadow transpile_last_error {
+    let saved: string = reduce_emission_error
+    set reduce_emission_error "I require the exact reduce ABI."
+    assert (== (transpile_last_error) "I require the exact reduce ABI.")
+    set reduce_emission_error saved
+}
+
+fn legacy_reduce_builtin(parser: Parser, identifier: ASTIdentifier, env: GenEnv) -> bool {
+    if (!= (genenv_get env identifier.name) "") { return false }
+    let name: string = (mb_resolve identifier.name identifier.line env.names)
+    if (not (or (== name "reduce") (== name "array_fold"))) { return false }
+    return (== (lookup_func_return_type_in_parser parser name) "")
+}
+shadow legacy_reduce_builtin {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { return (reduce [1] 0 combine) }" "reduce.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reduce.nano")
+    let call: ASTCall = (parser_get_call parser 0)
+    let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
+    let env: GenEnv = (genenv_new "main")
+    assert (legacy_reduce_builtin parser identifier env)
+    assert (not (legacy_reduce_builtin parser identifier (genenv_put env "reduce" "fn(int)->int" false)))
+}
+
+fn generate_scalar_reduce(parser: Parser, call: ASTCall, env: GenEnv) -> string {
+    if (!= call.arg_count 3) { return (reduce_emission_fail "I require three operands for legacy reduce.") }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+    let accumulator: string = (infer_expr_type parser initial.node_id initial.node_type env)
+    let container: string = (+ "array<" (+ accumulator ">"))
+    let source_type: string = (infer_expr_type parser source.node_id source.node_type env)
+    let mut source_matches: bool = (== source_type container)
+    if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+        if (== (parser_get_array_literal parser source.node_id).element_count 0) {
+            set source_matches (or source_matches (== source_type "array<unknown>"))
+        }
+    }
+    let signature: string = (infer_expr_type parser callback.node_id callback.node_type env)
+    let mut parameters: array<string> = []
+    let mut result: string = ""
+    if (is_fn_type signature) {
+        set parameters (parse_fn_type_params signature)
+        set result (parse_fn_type_return signature)
+    } else {
+        if (== callback.node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let identifier: ASTIdentifier = (parser_get_identifier parser callback.node_id)
+            if (== (genenv_get env identifier.name) "") {
+                let name: string = (mb_resolve identifier.name identifier.line env.names)
+                let mut i: int = 0
+                while (< i (parser_get_function_count parser)) {
+                    let function: ASTFunction = (parser_get_function parser i)
+                    if (== function.name name) {
+                        let mut parameter_index: int = 0
+                        while (< parameter_index function.param_count) {
+                            set parameters (array_push parameters (parser_get_let parser (+ function.param_start parameter_index)).var_type)
+                            set parameter_index (+ parameter_index 1)
+                        }
+                        set result function.return_type
+                    }
+                    set i (+ i 1)
+                }
+            }
+        }
+    }
+    let mut exact: bool = (and source_matches (== (array_length parameters) 2))
+    if exact {
+        set exact (and (== result accumulator) (and (== (at parameters 0) accumulator) (== (at parameters 1) accumulator)))
+    }
+    let mut helper: string = ""
+    if (== accumulator "int") { set helper "nano_rt_reduce_int" }
+    if (== accumulator "float") { set helper "nano_rt_reduce_float" }
+    if (== accumulator "string") { set helper "nano_rt_reduce_str" }
+    if (or (not exact) (== helper "")) { return (reduce_emission_fail "I require a supported exact homogeneous int, float or string callback ABI for legacy reduce.") }
+    let source_code: string = (generate_expression parser source.node_id source.node_type env container)
+    let initial_code: string = (generate_expression parser initial.node_id initial.node_type env accumulator)
+    let callback_code: string = (generate_expression parser callback.node_id callback.node_type env "")
+    let mut parts: array<string> = []
+    set parts (cg_append parts (+ "({ DynArray* nano_rt_reduce_source = " (+ source_code "; ")))
+    set parts (cg_append parts (+ (type_to_c accumulator) (+ " nano_rt_reduce_initial = " (+ initial_code "; "))))
+    set parts (cg_append parts (+ "__auto_type nano_rt_reduce_callback = " (+ callback_code "; ")))
+    set parts (cg_append parts (+ helper "(nano_rt_reduce_source, nano_rt_reduce_initial, nano_rt_reduce_callback); })"))
+    return (cg_build parts)
+}
+shadow generate_scalar_reduce {
+    let tokens: List<LexerToken> = (tokenize_string "fn combine(a:float,b:float)->float{return (+ a b)} fn main()->int{let value:float=(reduce xs 0.0 combine) return 0}" "reduce.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reduce.nano")
+    let env: GenEnv = (genenv_put (genenv_new "main") "xs" "array<float>" false)
+    let code: string = (generate_scalar_reduce parser (parser_get_call parser (- parser.calls_count 1)) env)
+    assert (str_contains code "nano_rt_reduce_float(")
+    assert (str_contains code "nano_rt_reduce_source = ")
 }
 
 fn generate_scalar_map(parser: Parser, call: ASTCall, env: GenEnv) -> string {
@@ -4003,7 +4119,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return result;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static int64_t nl_reduce(DynArray* arr, int64_t initial, int64_t (*fn)(int64_t, int64_t)) {\n")
+    set sb (cg_append sb "static int64_t nano_rt_reduce_int(DynArray* arr, int64_t initial, int64_t (*fn)(int64_t, int64_t)) {\n")
     set sb (cg_append sb "    int64_t acc = initial;\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -4030,7 +4146,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return result;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static const char* nl_reduce_str(DynArray* arr, const char* initial, const char* (*fn)(const char*, const char*)) {\n")
+    set sb (cg_append sb "static const char* nano_rt_reduce_str(DynArray* arr, const char* initial, const char* (*fn)(const char*, const char*)) {\n")
     set sb (cg_append sb "    const char* acc = initial;\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -4057,7 +4173,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return result;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static double nl_reduce_float(DynArray* arr, double initial, double (*fn)(double, double)) {\n")
+    set sb (cg_append sb "static double nano_rt_reduce_float(DynArray* arr, double initial, double (*fn)(double, double)) {\n")
     set sb (cg_append sb "    double acc = initial;\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -5785,38 +5901,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         } else { (print "") }
                     } else { (print "") }
 
-                    /* array_fold: (array_fold arr initial fn) -> folded value */
-                    if (== func_name "array_fold") {
-                        if (== call.arg_count 3) {
-                            let afo_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-                            let afo_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-                            let afo_a2: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
-                            let afo_a0_code: string = (generate_expression parser afo_a0.node_id afo_a0.node_type env "")
-                            let afo_a1_code: string = (generate_expression parser afo_a1.node_id afo_a1.node_type env "")
-                            let afo_a2_code: string = (generate_expression parser afo_a2.node_id afo_a2.node_type env "")
-                            let mut afo_elem_t: string = ""
-                            if (== afo_a0.node_type ParseNodeType.PNODE_IDENTIFIER) {
-                                let afo_id0: ASTIdentifier = (parser_get_identifier parser afo_a0.node_id)
-                                let afo_arr_t: string = (genenv_get env afo_id0.name)
-                                let afo_inferred: string = (array_elem_type_from_array_type afo_arr_t)
-                                if (!= afo_inferred "") { set afo_elem_t afo_inferred } else { set afo_elem_t "int" }
-                            } else { set afo_elem_t "int" }
-                            let mut afo_helper: string = "nl_reduce"
-                            if (== afo_elem_t "string") { set afo_helper "nl_reduce_str" } else {
-                                if (== afo_elem_t "float") { set afo_helper "nl_reduce_float" } else { (print "") }
-                            }
-                            let mut afo_parts: array<string> = []
-                            set afo_parts (cg_append afo_parts afo_helper)
-                            set afo_parts (cg_append afo_parts "(")
-                            set afo_parts (cg_append afo_parts afo_a0_code)
-                            set afo_parts (cg_append afo_parts ", ")
-                            set afo_parts (cg_append afo_parts afo_a1_code)
-                            set afo_parts (cg_append afo_parts ", ")
-                            set afo_parts (cg_append afo_parts afo_a2_code)
-                            set afo_parts (cg_append afo_parts ")")
-                            return (cg_build afo_parts)
-                        } else { (print "") }
-                    } else { (print "") }
+                    if (legacy_reduce_builtin parser func_id env) {
+                        return (generate_scalar_reduce parser call env)
+                    }
 
                     /* HashMap<string,string> type-aware dispatch */
                     /* map_new: use expected_type to pick constructor */
@@ -5936,7 +6023,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                      * Check builtin map first - this lets extern fn calls be routed through
                      * nl_ wrappers (e.g. nl_path_normalize for const char*→char* cast). */
                     let mut c_func_name: string = func_name
-                    let extern_builtin_map: string = (map_builtin_func_name func_name)
+                    let mut extern_builtin_map: string = (map_builtin_func_name func_name)
+                    if (and (or (== func_name "reduce") (== func_name "array_fold")) (not (legacy_reduce_builtin parser func_id env))) { set extern_builtin_map "" }
                     if (!= extern_builtin_map "") {
                         set c_func_name extern_builtin_map
                     } else {
@@ -8374,6 +8462,7 @@ shadow parser_has_peg2_import {
 }
 
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
+    set reduce_emission_error ""
     (build_module_alias_map parser)
     (reset_fn_types)
 
@@ -8468,6 +8557,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     let all_functions: string = (cg_build sb)
 
     let product: string = (gen_c_program_with_modules parser all_functions)
+    if (!= reduce_emission_error "") { return "" }
     if (< first_shadow 0) { return product }
 
     # I keep NanoLang main callable; only the C process entry is renamed.
@@ -8495,6 +8585,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     }
     set tests (cg_append tests "    return 0;\n}\n")
     set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n    return nl_run_shadow_entry(__nano_shadow_entry, 10);\n}\n")
+    if (!= reduce_emission_error "") { return "" }
     return (cg_build tests)
 }
 
@@ -8503,6 +8594,20 @@ shadow transpile_parser_mode {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "shadow.nano")
     assert (not (str_contains (transpile_parser_mode p -1) "__nano_shadow_"))
     assert (str_contains (transpile_parser_mode p 0) "__nano_shadow_0();")
+    assert (== (transpile_last_error) "")
+    let bad_tokens: List<LexerToken> = (tokenize_string "fn both(a:bool,b:bool)->bool{return (and a b)} fn main()->int{let value:bool=(reduce [true] true both) return 0}" "reduce-refusal.nano" (list_CompilerDiagnostic_new))
+    let bad: Parser = (parse_program bad_tokens (list_LexerToken_length bad_tokens) "reduce-refusal.nano")
+    assert (== (transpile_parser_mode bad -1) "")
+    assert (str_contains (transpile_last_error) "exact homogeneous")
+    assert (!= (transpile_parser_mode p -1) "")
+    assert (== (transpile_last_error) "")
+    let shadow_tokens: List<LexerToken> = (tokenize_string "fn both(a:bool,b:bool)->bool{return (and a b)} fn main()->int{return 0} shadow main{let value:bool=(reduce [true] true both) assert value}" "reduce-shadow-refusal.nano" (list_CompilerDiagnostic_new))
+    let shadow_parser: Parser = (parse_program shadow_tokens (list_LexerToken_length shadow_tokens) "reduce-shadow-refusal.nano")
+    assert (!= (transpile_parser_mode shadow_parser -1) "")
+    assert (== (transpile_parser_mode shadow_parser 0) "")
+    assert (str_contains (transpile_last_error) "exact homogeneous")
+    assert (!= (transpile_parser_mode p 0) "")
+    assert (== (transpile_last_error) "")
 }
 
 pub fn transpile_parser(parser: Parser) -> string {
@@ -8512,7 +8617,10 @@ pub fn transpile_parser(parser: Parser) -> string {
 # I accept an explicit suffix of shadows; the driver owns root/import policy.
 # An invalid selection fails without emitting a misleading empty test program.
 pub fn transpile_parser_shadows(parser: Parser, first_shadow: int) -> string {
-    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) { return "" }
+    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) {
+        set reduce_emission_error "I require a valid shadow selection."
+        return ""
+    }
     return (transpile_parser_mode parser first_shadow)
 }
 
@@ -8539,12 +8647,15 @@ pub fn transpile_phase(parser: Parser, output_path: string, file_name: string) -
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
     # Check if parser has errors before proceeding
-    let had_err: bool = (parser_has_error parser)
-    if had_err {
-        let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "TR0001" "Cannot transpile: parser has errors" (Diagnostics.diag_location file_name 0 0))
-        (Diagnostics.diag_list_add diagnostics diag)
-    } else { (print "") }
-
+    let had_err: bool = (or (parser_has_error parser) (!= (transpile_last_error) ""))
+    if (!= (transpile_last_error) "") {
+        (Diagnostics.diag_list_add diagnostics (Diagnostics.diag_transpiler_error "TR0002" (transpile_last_error) (Diagnostics.diag_location file_name 0 0)))
+    } else {
+        if had_err {
+            let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "TR0001" "Cannot transpile: parser has errors" (Diagnostics.diag_location file_name 0 0))
+            (Diagnostics.diag_list_add diagnostics diag)
+        }
+    }
     return TranspilePhaseOutput {
         c_source: c_source,
         diagnostics: diagnostics,

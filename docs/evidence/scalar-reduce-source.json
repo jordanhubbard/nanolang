@@ -1,0 +1,95 @@
+{
+  "head": "b9271595accccc47a534c9ec29095c1f19ca4322",
+  "sha256": {
+    "Makefile": "6044c1cdf25c85506a9ab1e614cd7fd95761293efafb3ee53d58a8552d0036a2",
+    "bin/nano": "96f38aff472170171238dbde8ecb933f48f7d6db6e0a2c23961c430a5d3b1663",
+    "bin/nano_virt": "45c5beee1d6860d244013d628ac78f62fa193bd1caaf50952dde607d254995c0",
+    "bin/nano_vm": "d1089eea3335274820f06cc9e7fc71e68201e14441376f6b2f97af317cc34d69",
+    "bin/nanoc_c": "7cebe245d2517c9080cf984c9502386a11764dd6f234fd1669619a8cb450d993",
+    "bin/nanoc_stage1": "d8751131c91a398b8038e368172761eeca6808e2f26b6c6bbfc23c453d093eed",
+    "bin/nanoc_stage2": "733f643bf0f63b54b7f9f164b6ef7364063e5e2af435bd45fe1c4bd5dbee5050",
+    "bin/nanoisa": "05440b4019c754dafc72fc8c3a19594289211a9608ad1feeee20f5f2aa5bcd69",
+    "bin/nvm2c": "331345de111bf04664156197993ded96e3b5ca6d8d5d258967dc78e979a48fa0",
+    "obj/module_cache/v2-14a9dffb9c7dbecd14efa9d7ed9a8cc5d67b6abb6b86adc1ac4638c0b8e419b0/.nano-gen-kx5x1S/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "obj/module_cache/v2-14a9dffb9c7dbecd14efa9d7ed9a8cc5d67b6abb6b86adc1ac4638c0b8e419b0/.nano-gen-kx5x1S/libnanoisa.so": "a6c83f5a85b80ca43b2152ee19e22599840abd3db7b96f233f645b01f6c3b6cd",
+    "obj/module_cache/v2-225fa4124f8300f4ae2e201312c26189bf9bba10c2eda7638bd5dd3c782827e9/.nano-gen-ROwjSS/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "obj/module_cache/v2-225fa4124f8300f4ae2e201312c26189bf9bba10c2eda7638bd5dd3c782827e9/.nano-gen-ROwjSS/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+    "obj/module_cache/v2-c9a7d3489bd12942fd5ddc41110389106a6e7a289d2a784e839ecfc681529323/.nano-gen-ygvZ6D/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "obj/module_cache/v2-c9a7d3489bd12942fd5ddc41110389106a6e7a289d2a784e839ecfc681529323/.nano-gen-ygvZ6D/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "src/binary64_arithmetic.h": "8d0423fb3536a8f77216bab3749341eb536b485121d41111b33cda752cf53e97",
+    "src_nano/nanoc_v06.nano": "89fe1decf5306ded083d3da79605b6635e3e50a7ff81fd44693185a2faa7863f",
+    "src_nano/transpiler.nano": "d7e5ffd9db1f581c9262647af6a435f00a4afdafcbdbce67447da781bb127405",
+    "src_nano/typecheck.nano": "f98043c12f52d96da814eb6723d11bfc1014c19e7645c661a278a9a083c0e140",
+    "tests/test_scalar_reduce_source.py": "b0870ec848a907ba60ad09ddfa95285feefcbfda8f1383d80584aeabede3c6ef",
+    "tests/test_binary64_arithmetic_source.py": "d9babd549ea4c9313c9033ebf34e2e93a9ca5539f7d93798748bd22c064e6388"
+  },
+  "scope": "I qualify source reduce checker/legacy homogeneous ABI only; Cseed native FUNCREF and public C-target remain open.",
+  "gates": [
+    {
+      "name": "fresh bootstrap",
+      "log": "/tmp/nanolang-scalar-reduce-bootstrap.log",
+      "result": "pass",
+      "source": "ff7d4048d85ead3615d4875d6e98b80c18fd31f8",
+      "log_sha256": "19598ca9b222847afd7df358c459867c57147fe6180f904b6a53f8c2bf09efec"
+    },
+    {
+      "name": "six GCC source methods",
+      "log": "/tmp/nanolang-scalar-reduce-gcc.log",
+      "seconds": 81.64,
+      "result": "pass",
+      "source": "ff7d4048d85ead3615d4875d6e98b80c18fd31f8",
+      "log_sha256": "bec343807b197f4a1a226c900d0d1b4919b825c2a4ba7b25d40e517088fbd8e6"
+    },
+    {
+      "name": "six Clang source methods",
+      "log": "/tmp/nanolang-scalar-reduce-clang.log",
+      "seconds": 56.765,
+      "result": "pass",
+      "source": "b9271595accccc47a534c9ec29095c1f19ca4322",
+      "log_sha256": "664067d729242822e698faa1ffcbb3ece498bd962d9b93d03615aa687785bd7b"
+    },
+    {
+      "name": "three adjacent source methods",
+      "log": "/tmp/nanolang-scalar-reduce-adjacent.log",
+      "seconds": 25.556,
+      "result": "pass",
+      "source": "b9271595accccc47a534c9ec29095c1f19ca4322",
+      "log_sha256": "3eb792c9e2fd3871c8758ab51c55904f8d043f85de35e46c8e2deabf60993bfb"
+    }
+  ],
+  "compiler_flags": {
+    "legacy": "NANO_CFLAGS=-O2 -ffp-contract=fast -fsanitize=undefined -fno-sanitize-recover=all",
+    "native": "-std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all",
+    "clang_wrapper": "/tmp/nanolang-truthiness-clang-bin/cc"
+  },
+  "integrated": {
+    "head": "2b050a71734f80ab6f4f4225d6da718e3d060e73",
+    "sha256": {
+      "Makefile": "6044c1cdf25c85506a9ab1e614cd7fd95761293efafb3ee53d58a8552d0036a2",
+      "bin/nano": "96f38aff472170171238dbde8ecb933f48f7d6db6e0a2c23961c430a5d3b1663",
+      "bin/nano_virt": "6dfdd988a8af2120141ec76622b14c27ff26d7d0a83951b23c2de681f60e582d",
+      "bin/nano_vm": "67ba8c936f8b864dda4ee713d589be5007a2044c6d5cb912ef9243d1c3434c29",
+      "bin/nanoc_c": "7cebe245d2517c9080cf984c9502386a11764dd6f234fd1669619a8cb450d993",
+      "bin/nanoc_stage1": "d8751131c91a398b8038e368172761eeca6808e2f26b6c6bbfc23c453d093eed",
+      "bin/nanoc_stage2": "733f643bf0f63b54b7f9f164b6ef7364063e5e2af435bd45fe1c4bd5dbee5050",
+      "bin/nanoisa": "05440b4019c754dafc72fc8c3a19594289211a9608ad1feeee20f5f2aa5bcd69",
+      "bin/nvm2c": "331345de111bf04664156197993ded96e3b5ca6d8d5d258967dc78e979a48fa0",
+      "obj/module_cache/v2-14a9dffb9c7dbecd14efa9d7ed9a8cc5d67b6abb6b86adc1ac4638c0b8e419b0/.nano-gen-kx5x1S/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "obj/module_cache/v2-14a9dffb9c7dbecd14efa9d7ed9a8cc5d67b6abb6b86adc1ac4638c0b8e419b0/.nano-gen-kx5x1S/libnanoisa.so": "a6c83f5a85b80ca43b2152ee19e22599840abd3db7b96f233f645b01f6c3b6cd",
+      "obj/module_cache/v2-225fa4124f8300f4ae2e201312c26189bf9bba10c2eda7638bd5dd3c782827e9/.nano-gen-ROwjSS/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "obj/module_cache/v2-225fa4124f8300f4ae2e201312c26189bf9bba10c2eda7638bd5dd3c782827e9/.nano-gen-ROwjSS/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+      "obj/module_cache/v2-c9a7d3489bd12942fd5ddc41110389106a6e7a289d2a784e839ecfc681529323/.nano-gen-ygvZ6D/__as_helper.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "obj/module_cache/v2-c9a7d3489bd12942fd5ddc41110389106a6e7a289d2a784e839ecfc681529323/.nano-gen-ygvZ6D/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "src/binary64_arithmetic.h": "8d0423fb3536a8f77216bab3749341eb536b485121d41111b33cda752cf53e97",
+      "src_nano/nanoc_v06.nano": "89fe1decf5306ded083d3da79605b6635e3e50a7ff81fd44693185a2faa7863f",
+      "src_nano/transpiler.nano": "d7e5ffd9db1f581c9262647af6a435f00a4afdafcbdbce67447da781bb127405",
+      "src_nano/typecheck.nano": "f98043c12f52d96da814eb6723d11bfc1014c19e7645c661a278a9a083c0e140",
+      "tests/test_scalar_reduce_source.py": "b0870ec848a907ba60ad09ddfa95285feefcbfda8f1383d80584aeabede3c6ef",
+      "tests/test_binary64_arithmetic_source.py": "d9babd549ea4c9313c9033ebf34e2e93a9ca5539f7d93798748bd22c064e6388"
+    },
+    "log": "/tmp/nanolang-scalar-reduce-integrated.log",
+    "log_sha256": "8bcf78109c8ecd1690a60a9fc621cd946ea49b9f6618502eadc77900ed79e6c5",
+    "result": "2 methods pass, 23.222s",
+    "tool_scope": "I rebuilt VM/bytecode tools after main integration; source compiler binaries remain the qualified bootstrap products because their source is unchanged."
+  }
+}

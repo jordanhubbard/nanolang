@@ -4539,6 +4539,11 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_calculator_host_abi
 test-units: test-calculator-host-abi
+.PHONY: test-ordinary-record-authority
+test-units: test-ordinary-record-authority
+test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm
+	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
+
 .PHONY: test-ownership-contracts
 test-units: test-ownership-contracts
 test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
@@ -5105,3 +5110,5 @@ test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 $(OBJ_DIR)/eval.o: src/binary64_arithmetic.h
 $(OBJ_DIR)/eval.o: CFLAGS += -ffp-contract=off -fno-fast-math
 $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
+
+$(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h

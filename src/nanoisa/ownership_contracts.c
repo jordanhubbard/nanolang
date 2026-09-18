@@ -2,13 +2,14 @@
 #include "retained_layouts.h"
 #include "reference_places.h"
 #include "isa.h"
+#include <stdlib.h>
 
 static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT || tag == TAG_BOOL;
 }
 
-static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *flags,
-                                bool *needs) {
+static NvmV2Result check_layout_facts(const NvmV2Layouts *layouts, const uint8_t *flags,
+                                     uint8_t *scalar_trees, bool *needs) {
     for (uint32_t i = 0; i < layouts->count; i++) {
         unsigned flag = flags[i];
         if (flag & ~(NVM_LAYOUT_COMPLETE | NVM_LAYOUT_RESOURCE))
@@ -17,23 +18,35 @@ static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *fla
             return NVM_V2_ERR_SECTION_TYPE;
         if (!(flag & NVM_LAYOUT_COMPLETE)) continue;
         const NvmV2Layout *layout = &layouts->items[i];
-        /* My first complete contracts cover finite scalar/record trees.
-         * Other shapes retain their layouts without this completeness claim. */
         if (layout->kind != NVM_V2_LAYOUT_STRUCT) return NVM_V2_ERR_SECTION_TYPE;
+        bool scalar_tree = true;
         for (uint16_t j = 0; j < layout->field_count; j++) {
             const NvmV2LayoutField *field = &layout->fields[j];
-            if (scalar(field->type_tag)) {
+            if (scalar(field->type_tag) || field->type_tag == TAG_STRING) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
+                if (field->type_tag == TAG_STRING) scalar_tree = false;
             } else if (field->type_tag == TAG_STRUCT && field->nested_idx < i) {
                 unsigned nested = flags[field->nested_idx];
                 if (!(nested & NVM_LAYOUT_COMPLETE)) return NVM_V2_ERR_SECTION_TYPE;
                 if ((nested & NVM_LAYOUT_RESOURCE) && !(flag & NVM_LAYOUT_RESOURCE))
                     return NVM_V2_ERR_SECTION_TYPE;
+                if (!scalar_trees[field->nested_idx]) scalar_tree = false;
             } else return NVM_V2_ERR_SECTION_TYPE;
         }
+        /* Ordinary strings do not relax the existing affine scalar-tree boundary. */
+        if ((flag & NVM_LAYOUT_RESOURCE) && !scalar_tree) return NVM_V2_ERR_SECTION_TYPE;
+        scalar_trees[i] = scalar_tree;
         if (flag & NVM_LAYOUT_RESOURCE) *needs = true;
     }
     return NVM_V2_OK;
+}
+static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *flags,
+                                bool *needs) {
+    uint8_t *scalar_trees = layouts->count ? calloc(layouts->count, 1) : NULL;
+    if (layouts->count && !scalar_trees) return NVM_V2_ERR_TRUNCATED;
+    NvmV2Result result = check_layout_facts(layouts, flags, scalar_trees, needs);
+    free(scalar_trees);
+    return result;
 }
 
 static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
@@ -177,4 +190,51 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
 done:
     nvm_v2_layouts_free(&layouts);
     return result;
+}
+
+NvmV2Result nvm_ownership_layout_authority(const NvmModule *module, uint32_t layout,
+                                          NvmLayoutAuthority *out) {
+    if (!module || !out || layout == NVM_V2_NO_INDEX) return NVM_V2_ERR_INDEX_RANGE;
+    bool needs;
+    NvmV2Result result = nvm_ownership_contracts_validate(module, &needs);
+    if (result != NVM_V2_OK) return result;
+    NvmLayoutAuthority authority = NVM_LAYOUT_AUTHORITY_UNKNOWN;
+    if (module->ownership_size) {
+        NvmV2Cursor cursor;
+        uint32_t version, count;
+        const uint8_t *flags;
+        nvm_v2_cursor_init(&cursor, module->ownership_data, module->ownership_size);
+        if ((result = nvm_v2_u32(&cursor, &version)) != NVM_V2_OK ||
+            (result = nvm_v2_u32(&cursor, &count)) != NVM_V2_OK ||
+            (result = nvm_v2_take(&cursor, count, &flags)) != NVM_V2_OK) return result;
+        if (layout >= count) return NVM_V2_ERR_INDEX_RANGE;
+        if (flags[layout] & NVM_LAYOUT_COMPLETE)
+            authority = flags[layout] & NVM_LAYOUT_RESOURCE ?
+                NVM_LAYOUT_AUTHORITY_RESOURCE : NVM_LAYOUT_AUTHORITY_ORDINARY;
+    }
+    *out = authority;
+    return NVM_V2_OK;
+}
+
+NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t count,
+                                            NvmLayoutAuthority *out) {
+    if (!module || (count && !out)) return NVM_V2_ERR_INDEX_RANGE;
+    bool needs;
+    NvmV2Result result = nvm_ownership_contracts_validate(module, &needs);
+    if (result != NVM_V2_OK) return result;
+    const uint8_t *flags = NULL;
+    if (module->ownership_size) {
+        NvmV2Cursor cursor;
+        uint32_t version, declared_count;
+        nvm_v2_cursor_init(&cursor, module->ownership_data, module->ownership_size);
+        if ((result = nvm_v2_u32(&cursor, &version)) != NVM_V2_OK ||
+            (result = nvm_v2_u32(&cursor, &declared_count)) != NVM_V2_OK) return result;
+        if (declared_count != count) return NVM_V2_ERR_INDEX_RANGE;
+        if ((result = nvm_v2_take(&cursor, count, &flags)) != NVM_V2_OK) return result;
+    }
+    for (uint32_t i = 0; i < count; i++)
+        out[i] = flags && (flags[i] & NVM_LAYOUT_COMPLETE) ?
+            (flags[i] & NVM_LAYOUT_RESOURCE ? NVM_LAYOUT_AUTHORITY_RESOURCE :
+             NVM_LAYOUT_AUTHORITY_ORDINARY) : NVM_LAYOUT_AUTHORITY_UNKNOWN;
+    return NVM_V2_OK;
 }

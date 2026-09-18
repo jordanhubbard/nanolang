@@ -77,16 +77,16 @@ class ArithmeticSource(unittest.TestCase):
         source=self.work/'callbacks.nano'
         source.write_text(CALLBACKS)
         self.routes(source,callback=True,legacy_names=('nanoc_c',))
-    def test_direct_reduce_observer_retains_checked_refusal(self):
-        source=self.work/'reduce-refusal.nano'
-        source.write_text(CALLBACKS.replace('let result:float = (reduce values 0.0 combine)\n    assert (== (float_to_bits result)', 'assert (== (float_to_bits (reduce values 0.0 combine))'))
+    def test_direct_reduce_observer_exact_result(self):
+        # I use the newly qualified fixture; retained prior failed inputs stay untouched.
+        from test_scalar_reduce_source import FLOAT
+        source=self.work/'reduce-exact-result.nano'
+        source.write_text(FLOAT)
         for name in ('nanoc_stage1','nanoc_stage2'):
-            output=self.work/(name+'.nvm');output.write_bytes(b'retained')
-            args=[ROOT/'bin'/name,source,'--emit-nvm','-o',output]
-            refused=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=120)
-            self.assertGreater(refused.returncode,0,str(args))
-            self.assertIn('one exactly typed operand',refused.stdout+refused.stderr)
-            self.assertEqual(output.read_bytes(),b'retained')
+            output=self.work/(name+'.nvm')
+            self.command(ROOT/'bin'/name,source,'--emit-nvm','-o',output)
+            self.command(ROOT/'bin/nano_vm','--verify-only',output)
+            self.command(ROOT/'bin/nano_vm',output)
 GLOBALS='''let mut calls:int = 0
 fn operand(id:int,x:float)->float { set calls (+ (* calls 10) id) return x }
 shadow operand { let saved:int=calls set calls 0 assert (== (operand 2 2.0) 2.0) assert (== calls 2) set calls saved }
