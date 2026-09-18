@@ -246,6 +246,39 @@ native execution, including same-line blocks, loop exits and returned local
 strings. These checks do not establish stored-closure lifetime safety or
 complete scope identity for generated nodes.
 
+### Match Selection And Totality
+
+Write match arms in the order I should try them. I evaluate the scrutinee once
+and select the first arm whose pattern matches and whose optional guard is
+`true`. I bind a payload before its guard, keep that binding in the arm only,
+and do not evaluate later guards or bodies after selection.
+
+```nano
+return match result {
+    _ if intercept => "intercepted"
+    Ok(value) if (> value.score 0) => "positive"
+    Ok(value) => "zero"
+    Error(error) => error.message
+}
+```
+
+A wildcard stays at its written position. Early and repeated guarded
+wildcards are useful fallback stages. Put an unconditional wildcard last: an
+unguarded wildcard, or `_ if true`, makes every later arm unreachable.
+
+Make every value and statement match total. Cover each finite union variant
+with an unguarded arm or an arm guarded by literal `true`, or finish with a
+reachable unconditional wildcard. Other guards do not prove coverage. Finish
+integer-literal matches with an unconditional wildcard. Guards have the exact
+checked type `bool`; write `if (> count 0)`, not `if count`.
+
+This is the approved source rule for the next release. Until all routes are
+aligned, an unsupported route may reject a valid shared-policy form with a
+precise capability diagnostic. It must not silently reorder arms, accept a
+partial match or drop a guard. See my
+[shared policy contract](SHARED_MATCH_POLICY_CONTRACT.md) for the implementation
+and qualification boundary.
+
 ### Match Values In 5.0
 
 I use `return` to leave the enclosing function, including inside a match arm.

@@ -80,7 +80,7 @@
         "kind": "union",
         "syntax": "union Name { Variant1 { fields }, Variant2 { fields } }",
         "description": "Tagged union (sum type) with variants",
-        "pattern_matching": "match expression { Variant(binding) => body }",
+        "pattern_matching": "match expression { pattern [if bool_guard] => body, ... }",
         "c_transpilation": "typedef struct with tag and union of variant structs"
       },
       "generic": {
@@ -177,8 +177,44 @@
       "description": "Return statement"
     },
     "match": {
-      "syntax": "match expression { Variant(binding) => body, ... }",
-      "description": "Pattern matching on union types"
+      "syntax": "match expression { pattern [if guard] => body, ... }",
+      "description": "Ordered, statically total pattern selection",
+      "selection": {
+        "order": "lexical_first_success",
+        "scrutinee_evaluation": "exactly_once_before_arms",
+        "arm_sequence": ["pattern", "payload_binding", "optional_guard_once", "body"],
+        "later_arms_after_success": "not_evaluated"
+      },
+      "guards": {
+        "type": "exact_bool",
+        "evaluation": "only_after_pattern_match",
+        "binding_scope": "matching_arm_guard_and_body",
+        "false_result": "discard_arm_scope_and_continue"
+      },
+      "wildcards": {
+        "position": "source_order",
+        "conditional": "early_and_repeated_allowed",
+        "unconditional": "unguarded_or_literal_true_guard",
+        "after_unconditional": "checked_unreachable_error"
+      },
+      "totality": {
+        "value_matches": "required",
+        "statement_matches": "required",
+        "finite_union_coverage": "unguarded_or_literal_true_named_or_or_pattern_arms_plus_reachable_unconditional_wildcard",
+        "integer_literal_coverage": "reachable_unconditional_wildcard_required",
+        "other_domains": "reject_when_coverage_cannot_be_established"
+      },
+      "control_flow": {
+        "arm_value": "final_expression",
+        "return": "exits_enclosing_function",
+        "break_and_continue": "retain_enclosing_loop_targets"
+      },
+      "no_success": {
+        "accepted_source": "statically_unreachable",
+        "runtime_backstop": "first_person_terminal_failure",
+        "forbidden_results": ["void", "zero_value", "fallthrough"]
+      },
+      "implementation_status": "approved source policy; routes without support must issue a precise checked capability refusal"
     },
     "unsafe": {
       "syntax": "unsafe { statements }",
@@ -241,7 +277,7 @@
     "unions": {
       "description": "Tagged unions (sum types) with pattern matching",
       "variants": "Each variant can have named fields",
-      "pattern_matching": "match expression destructures unions safely"
+      "pattern_matching": "match tests arms in lexical source order, requires exact bool guards and requires static totality"
     },
     "garbage_collection": {
       "description": "Automatic memory management for dynamic arrays and strings",
@@ -604,7 +640,7 @@
         {"name": "AST_ENUM_DEF", "description": "Enum type definition"},
         {"name": "AST_UNION_DEF", "description": "Union type definition"},
         {"name": "AST_UNION_CONSTRUCT", "description": "Union variant construction"},
-        {"name": "AST_MATCH", "description": "Pattern matching on unions"},
+        {"name": "AST_MATCH", "description": "Ordered match with per-arm patterns, optional guards and arm-local bindings"},
         {"name": "AST_IMPORT", "description": "Module import"},
         {"name": "AST_MODULE_DECL", "description": "Module declaration"},
         {"name": "AST_OPAQUE_TYPE", "description": "Opaque type declaration"},
