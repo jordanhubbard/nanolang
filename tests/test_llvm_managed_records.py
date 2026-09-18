@@ -133,7 +133,8 @@ class ManagedRecords(unittest.TestCase):
         self.node(wasm,'for(let i=0;i<20;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
 
     def test_unknown_wrong_nominal_and_mixed_edges_preserve_output(self):
-        cases=[program('PUSH_I64 1\nSTRUCT_LITERAL 0 1\nPOP',authority=False),
+        cases=[program('PUSH_I64 1\nSTRUCT_LITERAL 1 1\nSTRUCT_LITERAL 0 1\nPOP',[(0,[(8,1)]),(0,[(1,NO)])]),
+               program('PUSH_I64 1\nSTRUCT_LITERAL 0 1\nPOP',authority=False),
                program('STRUCT_NEW 0\nPOP'),
                program('PUSH_I64 1\nSTRUCT_LITERAL 1 1\nSTRUCT_LITERAL 2 1\nPOP',[(0,[(1,NO)]),(0,[(1,NO)]),(0,[(8,0)])]),
                program('ARR_NEW 1\nSTRUCT_LITERAL 0 1\nPOP',[(0,[(7,NO)])],authority=False),
