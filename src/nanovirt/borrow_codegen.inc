@@ -384,7 +384,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 ASTNode *value=n->as.set.value;
                 int source=value->type==AST_IDENTIFIER?borrow_local(b,value->as.identifier):-1;
                 if(!b->mutable[local] || b->live[local] || b->modes[local] ||
-                   source<0 || !b->live[source] || b->modes[source] ||
+                   source<0 || !b->live[source] || b->modes[source] || b->disposal_pending[source] ||
                    b->tags[source]!=TAG_STRUCT || b->layouts[source]!=b->layouts[local]) {
                     borrow_error(b,n,"an exact live owner assigned to a consumed mutable owner");break;
                 }

@@ -319,7 +319,11 @@ shadow main { assert true }
         text = text.replace('let mut moved: Leaf = leaf',
                             'let mut moved: Leaf = leaf set leaf moved set moved leaf')
         # I restore an incoming owner on each backedge; zero iterations retain it.
-        carry = """let mut owner: Leaf = Leaf { value: 8, active: true }
+        carry = """let mut owner: Leaf = Leaf { value: 3, active: false }
+ let Leaf { value, active } = owner
+ assert (== value 3) assert (not active)
+ let replacement: Leaf = Leaf { value: 8, active: true }
+ set owner replacement
  let mut turns: int = 0
  while (< turns LIMIT) {
   let carried: Leaf = owner
@@ -377,6 +381,10 @@ shadow main { assert true }
         cases = {
             'immutable': text.replace('let mut owner:', 'let owner:'),
             'moved_source': text.replace('set owner moved', 'set owner owner'),
+            'join_then': text.replace('set owner moved', 'if true { set owner moved }'),
+            'join_else': text.replace('set owner moved', 'if true { assert true } else { set owner moved }'),
+            'loop_changed': text.replace('set owner moved', 'while false { set owner moved }'),
+            'borrowed_destination': text.replace('return view.value', 'let owner: Counter = Counter { value: 1, active: true } set view owner return 0'),
             'live_overwrite': text.replace('set owner moved', 'set owner moved set owner owner'),
             'wrong_nominal': text.replace('let moved: Counter = owner', 'let Counter { value, active } = owner let moved: Other = Other { value: 2, active: false }'),
             'constructor': text.replace('set owner moved', 'set owner Counter { value: 2, active: false }'),

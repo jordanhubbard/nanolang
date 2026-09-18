@@ -4,7 +4,8 @@ MAC `task_227b7b89a64d4e768705a9bd2c56430e`, after my exact resource-path joins.
 
 I admit `set destination source` only when destination is an explicitly
 mutable, consumed, nonborrowed resource local and source is a live nonborrowed
-whole owner with the identical nominal layout. I evaluate the source move
+whole owner with the identical nominal layout. A hidden holder already marked
+for disposal is logically consumed and cannot be an assignment source. I evaluate the source move
 before restoring destination liveness, using existing `OWN_MOVE_LOCAL` and
 `OWN_STORE_LOCAL`. The source stays moved; neither slot retains pending
 terminal-disposal provenance. I reuse the destination's physical slot and
