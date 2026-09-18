@@ -1,0 +1,12 @@
+test_direct_vm_display_and_shared_helper (tests.test_signed_nan_format.SignedNanFormat.test_direct_vm_display_and_shared_helper) ... ok
+test_exact_bit_vm_native_and_managed_conversion (tests.test_signed_nan_format.SignedNanFormat.test_exact_bit_vm_native_and_managed_conversion) ... ok
+test_vm_and_generated_print (tests.test_signed_nan_format.SignedNanFormat.test_vm_and_generated_print) ... ok
+test_private_records_native_and_wasm (tests.test_managed_records.ManagedRecords.test_private_records_native_and_wasm) ... ok
+test_separate_target_ir_linkage (tests.test_managed_records.ManagedRecords.test_separate_target_ir_linkage) ... ok
+test_fallback_allocation_failure_releases_input_and_recovers (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_fallback_allocation_failure_releases_input_and_recovers) ... ok
+test_numeric_boundaries_reference_bytes_and_exact_tag_fallback (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_numeric_boundaries_reference_bytes_and_exact_tag_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.777s
+
+OK

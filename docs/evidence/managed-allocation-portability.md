@@ -48,3 +48,5 @@ caller, including private record/native/Node/Wasmtime paths selected by the
 unchanged corpus. Signed nonfinite formatting uses the independently reviewed
 merged PR745 policy. Parent e92 remains open for legacy/source formatting routes.
 Product PR522 and full release acceptance remain held.
+
+After the qualified gates ended, I integrated merged PR747 atb0ff5c26, resolving only the additive roadmap conflict. Portability production/tests remain unchanged; I rebuilt tools and passed seven scoped signed-format, primitive-format and private-record methods. This is Linux integration evidence; the full71 Linux/Darwin claims remain assigned to79485.

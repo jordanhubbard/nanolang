@@ -1,6 +1,8 @@
 {
   "nanolang-signed-nan-linux.txt": "dfb55d52627cee5c068bf45c938a327d1f01e698893182efb099f15691df21b4",
   "nanolang-signed-nan-darwin.txt": "36d050f816e50624287735a6b72d7dfa9f133d0cbd70661e8b4e360f94a08d8a",
+  "linux-final-integration-build.log": "4ff45714e3e02abcea4ca4851540a147d78747a07a71d39a4d909ac2ac675163",
+  "linux-final-integration.log": "fae415606a237c52252988c5fe8517d53b368d1cba24268cddabbc4ad8e436f8",
   "nanolang-signed-nan-host-diagnostic.c": "8f7c20c4b5ab9a2793657e16dda0a615488cf6cd5b3869eddbf38d835bd066d7",
   "darwin-qualified/inventory.log": "c3d8165fd18efa7a74613dcf25791d489219c22a26d082e1177498d6b3307eb6",
   "darwin-qualified/status.json": "b5e818bf7d667275e19ef968cfca3ae93ba27bc641f473146bcedad16f47f509",
