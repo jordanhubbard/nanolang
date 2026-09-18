@@ -499,6 +499,77 @@ static int equal_bytes(const unsigned char *left, const unsigned char *right, ui
         if (left[i] != right[i]) return 0;
     return 1;
 }
+static int find_bytes(NmsView source, NmsView needle, uint32_t start, uint32_t *found) {
+    if (!needle.length || start > source.length || needle.length > source.length - start)
+        return 0;
+    uint32_t last = source.length - needle.length;
+    for (uint32_t position = start; position <= last; position++) {
+        if (equal_bytes(source.data + position, needle.data, needle.length)) {
+            *found = position;
+            return 1;
+        }
+    }
+    return 0;
+}
+NmsStatus nms_replace_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle needle,
+                            NmsHandle replacement, NmsHandle *out) {
+    NmsView a, b, c;
+    NmsHandle result = 0;
+    unsigned char *scratch = NULL;
+    NmsStatus status = out ? nms_view(runtime, source, &a) : NMS_STATE;
+    if (status == NMS_OK) status = nms_view(runtime, needle, &b);
+    if (status == NMS_OK) status = nms_view(runtime, replacement, &c);
+    if (status == NMS_OK && !b.length) {
+        status = nms_create(runtime, a.data, a.length, &result);
+    } else if (status == NMS_OK) {
+        uint64_t count = 0;
+        uint32_t position = 0, found;
+        while (find_bytes(a, b, position, &found)) {
+            count++;
+            position = found + b.length;
+        }
+        uint32_t length = 0;
+        if (count > a.length / b.length) status = NMS_STATE;
+        else {
+            uint32_t remaining = a.length - (uint32_t)count * b.length;
+            if (c.length && count > (UINT32_MAX - remaining) / c.length) status = NMS_MEMORY;
+            else length = remaining + (uint32_t)count * c.length;
+        }
+        if (status == NMS_OK && (uint64_t)length + 1 > SIZE_MAX) status = NMS_MEMORY;
+        if (status == NMS_OK) {
+            scratch = allocate(runtime, (uint64_t)length + 1);
+            if (!scratch) status = NMS_MEMORY;
+        }
+        if (status == NMS_OK) {
+            uint32_t written = 0;
+            position = 0;
+            while (find_bytes(a, b, position, &found)) {
+                uint32_t segment = found - position;
+                copy_bytes(scratch + written, a.data + position, segment);
+                written += segment;
+                copy_bytes(scratch + written, c.data, c.length);
+                written += c.length;
+                position = found + b.length;
+            }
+            copy_bytes(scratch + written, a.data + position, a.length - position);
+            scratch[length] = 0;
+            /* All three immutable byte views remain owned through this copy;
+             * descriptor-table relocation cannot invalidate their storage. */
+            status = nms_create(runtime, scratch, length, &result);
+        }
+    }
+    deallocate(scratch);
+    NmsStatus sa = nms_release(runtime, source);
+    NmsStatus sb = nms_release(runtime, needle);
+    NmsStatus sc = nms_release(runtime, replacement);
+    if (status != NMS_OK) return status;
+    if (sa != NMS_OK || sb != NMS_OK || sc != NMS_OK) {
+        nms_release(runtime, result);
+        return sa != NMS_OK ? sa : sb != NMS_OK ? sb : sc;
+    }
+    *out = result;
+    return NMS_OK;
+}
 NmsStatus nms_char_at(const NmsRuntime *runtime, NmsHandle source,
                       uint64_t index_bits, uint32_t is_integer, int64_t *out) {
     if (!out || is_integer > 1) return NMS_STATE;

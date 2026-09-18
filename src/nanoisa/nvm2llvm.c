@@ -440,6 +440,12 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_REPLACE:
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_replace(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b"); transferred(&frame, "c");
+            push(&frame, pc, "value");
+            break;
         case OP_STR_TO_LOWER: case OP_STR_TO_UPPER:
             pop(&frame, pc, "a");
             fprintf(out, " %%p%u_value = call %%V @managed_case(%%V %%p%u_a, i32 %u)\n", pc, pc, ins.opcode == OP_STR_TO_UPPER ? 1u : 0u);
