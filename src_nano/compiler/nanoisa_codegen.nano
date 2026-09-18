@@ -1535,6 +1535,20 @@ shadow nisa_push_container_type {
 }
 
 fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser node_id)
+        if (!= (list_ASTStmtRef_length block.statements) 1) { return "" }
+        let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+        return (nisa_expr_type parser value.node_id value.node_type)
+    }
+    if (== node_type ParseNodeType.PNODE_IF) {
+        let choice: ASTIf = (parser_get_if parser node_id)
+        if (< choice.else_body 0) { return "" }
+        let left: string = (nisa_expr_type parser choice.then_body ParseNodeType.PNODE_BLOCK)
+        let right: string = (nisa_expr_type parser choice.else_body ParseNodeType.PNODE_BLOCK)
+        if (and (!= left "") (== left right)) { return left }
+        return ""
+    }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
         return literal.struct_name
@@ -1669,6 +1683,20 @@ shadow nisa_expr_type {
     let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
     let result: ASTReturn = (parser_get_return parser statement.node_id)
     assert (== (nisa_expr_type parser result.value result.value_type) "string")
+    let choices: array<string> = ["(cond (true \"yes\") (else \"no\"))", "(cond (true \"yes\") (else 7))", "(cond (true \"yes\") (else (cond (false \"no\") (else \"last\"))))"]
+    let expected: array<string> = ["string", "", "string"]
+    let mut i: int = 0
+    while (< i (array_length choices)) {
+        let text: string = (+ "fn probe() -> string { return " (+ (at choices i) " }"))
+        let parsed_tokens: List<LexerToken> = (tokenize_string text "choice.nano" diagnostics)
+        let parsed: Parser = (parse_program parsed_tokens (list_LexerToken_length parsed_tokens) "choice.nano")
+        let chosen_function: ASTFunction = (parser_get_function parsed 0)
+        let chosen_block: ASTBlock = (parser_get_block parsed chosen_function.body)
+        let chosen_statement: ASTStmtRef = (list_ASTStmtRef_get chosen_block.statements 0)
+        let chosen_result: ASTReturn = (parser_get_return parsed chosen_statement.node_id)
+        assert (== (nisa_expr_type parsed chosen_result.value chosen_result.value_type) (at expected i))
+        set i (+ i 1)
+    }
     let _2: int = (nisa_reset)
 }
 

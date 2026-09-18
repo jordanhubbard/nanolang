@@ -3219,8 +3219,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 for (int i = 1; i < expr->as.cond_expr.clause_count; i++) {
                     Type val_type = check_expression(expr->as.cond_expr.values[i], env);
                     if (val_type != result_type && result_type != TYPE_UNKNOWN && val_type != TYPE_UNKNOWN) {
-                        fprintf(stderr, "Error at line %d, column %d: All cond clause values must have the same type\n",
-                                expr->line, expr->column);
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require all cond clause values to have the same type.",
+                            "Use the same type in every cond value arm.");
                     }
                 }
             }
@@ -3228,8 +3229,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* Type check else value (must match clause values) */
             Type else_type = check_expression(expr->as.cond_expr.else_value, env);
             if (else_type != result_type && result_type != TYPE_UNKNOWN && else_type != TYPE_UNKNOWN) {
-                fprintf(stderr, "Error at line %d, column %d: Cond else value must have the same type as clause values\n",
-                        expr->line, expr->column);
+                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                    "I require the cond else value to match the clause value type.",
+                    "Use the same type in every cond value arm.");
             }
             
             return result_type != TYPE_UNKNOWN ? result_type : else_type;
