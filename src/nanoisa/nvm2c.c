@@ -491,7 +491,7 @@ static void emit_c_string_lit(Nvm2cBuf *b, const char *s, uint32_t len) {
     nvm2c_puts(b, "\"");
     for (i = 0; i < len; i++) {
         unsigned char c = (unsigned char)s[i];
-        if (c == '\\' || c == '"') {
+        if (c == '\\' || c == '"' || c == '?') {
             nvm2c_printf(b, "\\%c", (char)c);
         } else if (c == '\n') {
             nvm2c_puts(b, "\\n");
