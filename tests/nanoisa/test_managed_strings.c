@@ -49,6 +49,56 @@ int nms_core_tests(void) {
     CHECK(!nms_reserved_entry("nano_entry") && !nms_reserved_entry("nano_try_entry_other"));
     return 0;
 }
+int nms_substr_tests(void) {
+    NmsRuntime runtime;
+    nms_init(&runtime, literals, 2);
+    NmsHandle source, out = 123;
+    NmsView view;
+    CHECK(nms_create(&runtime, bytes, 3, &source) == NMS_OK);
+    CHECK(nms_retain(&runtime, source) == NMS_OK);
+    CHECK(nms_substr_owned(&runtime, source, 1, 20, &out) == NMS_OK);
+    CHECK(nms_view(&runtime, out, &view) == NMS_OK && view.length == 2);
+    CHECK(view.data[0] == bytes[1] && view.data[1] == bytes[2]);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+    CHECK(nms_view(&runtime, source, &view) == NMS_OK && view.length == 3);
+#ifdef NMS_TESTING
+    nms_test_fail_after(&runtime, 0);
+    out = 123;
+    CHECK(nms_substr_owned(&runtime, source, 0, 1, &out) == NMS_MEMORY);
+    CHECK(out == 123 && runtime.live_objects == 0);
+    nms_test_fail_after(&runtime, UINT64_MAX);
+#else
+    CHECK(nms_release(&runtime, source) == NMS_OK);
+#endif
+    CHECK(nms_substr_owned(&runtime, 1, 3, 20, &out) == NMS_OK);
+    CHECK(nms_view(&runtime, out, &view) == NMS_OK && view.length == 0);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+    CHECK(nms_dispose(&runtime) == NMS_OK);
+#ifdef NMS_TESTING
+    nms_init(&runtime, literals, 2);
+    NmsHandle full[8];
+    for (unsigned i = 0; i < 8; i++) CHECK(nms_create(&runtime, bytes, 3, &full[i]) == NMS_OK);
+    NmsSlot *old = runtime.slots;
+    for (unsigned fail = 0; fail < 2; fail++) {
+        CHECK(nms_retain(&runtime, full[0]) == NMS_OK);
+        nms_test_fail_after(&runtime, fail);
+        out = 123;
+        CHECK(nms_substr_owned(&runtime, full[0], 0, 2, &out) == NMS_MEMORY);
+        CHECK(out == 123 && runtime.slots == old && runtime.capacity == 8);
+        CHECK(runtime.live_objects == 8 && runtime.live_bytes == 24);
+        CHECK(nms_view(&runtime, full[0], &view) == NMS_OK && view.length == 3);
+        CHECK(runtime.slots[full[0] & ~NMS_DYNAMIC].references == 1);
+    }
+    nms_test_fail_after(&runtime, UINT64_MAX);
+    CHECK(nms_retain(&runtime, full[0]) == NMS_OK);
+    CHECK(nms_substr_owned(&runtime, full[0], 0, 2, &out) == NMS_OK);
+    CHECK(runtime.capacity == 16 && runtime.live_objects == 9);
+    CHECK(nms_release(&runtime, out) == NMS_OK);
+    for (unsigned i = 0; i < 8; i++) CHECK(nms_release(&runtime, full[i]) == NMS_OK);
+    CHECK(nms_dispose(&runtime) == NMS_OK && nms_test_live_allocations() == 0);
+#endif
+    return 0;
+}
 int nms_concat_tests(void) {
     NmsRuntime runtime;
     nms_init(&runtime, literals, 2);
@@ -217,6 +267,7 @@ int nms_pressure_tests(void) {
 int main(void) {
     int result = nms_core_tests();
     if (!result) result = nms_concat_tests();
+    if (!result) result = nms_substr_tests();
     if (!result) result = nms_failure_tests();
     if (!result) result = nms_reuse_tests();
     if (result) { fprintf(stderr,"I failed managed-string check at line %d\n",result); return 1; }

@@ -9927,6 +9927,10 @@ Other translators:
       cleanup, allocation-status propagation and fresh ordinary recovery gates.
       [Bounded evidence](evidence/vm-substring-contract.md); translator admission
       and the managed-runtime parent remain open.
+- [x] I implement matched managed substring ownership and LLVM/Wasm lowering.
+      MAC `task_2d21632d4d5241299c5a0e9967948efd`; contract
+      `docs/NANOISA_MANAGED_SUBSTRING.md`; [evidence](evidence/managed-substring.md).
+      My broader managed parent stays open.
 - [x] I implement the non-admitting managed-string runtime core: portable
       allocation, stable handles, reference/status/disposal helpers, checked
       growth and deterministic native/Wasm reclamation/failure tests.

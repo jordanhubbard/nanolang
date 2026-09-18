@@ -18,6 +18,7 @@ class VerifierProfiles(unittest.TestCase):
             'advisory_does_not_select': ('.string key "profile"\n.string value "gpu"\n.metadata 0 1\n' + entry + end, True, True),
             'string_opcode': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPOP\n' + end, True, False),
             'managed_concat': ('.string text \"ordinary\"\n' + entry + 'PUSH_STR text\nDUP\nSTR_CONCAT\nPOP\n' + end, True, False),
+            'managed_substring': ('.string text "ordinary"\n' + entry + 'PUSH_STR text\nPUSH_I64 1\nPUSH_I64 3\nSTR_SUBSTR\nPOP\n' + end, True, False),
             'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, True),
             'import': ('.import "" "get_argc" int\n' + entry + end, True, False),
             'nominal_table': ('.types 1 0 0\n' + entry + end, True, False),
@@ -30,14 +31,15 @@ class VerifierProfiles(unittest.TestCase):
             work = Path(tmp)
             for name, (assembly, general, scalar) in cases.items():
                 with self.subTest(case=name):
-                    literal = scalar or name in ('string_opcode', 'nonscalar_parameter', 'managed_concat')
+                    literal_only = scalar or name in ('string_opcode', 'nonscalar_parameter')
+                    literal = literal_only or name in ('managed_concat', 'managed_substring')
                     source, module = work/'input.nasm', work/'input.nvm'
                     source.write_text(assembly)
                     built = subprocess.run([ROOT/'bin/nanoisa', 'asm', source, '-o', module], capture_output=True, text=True, timeout=30)
                     self.assertEqual(built.returncode, 0, built.stderr)
                     probe = subprocess.run([ROOT/'obj/test_verifier_profiles', module], capture_output=True, text=True, timeout=30)
                     self.assertEqual(probe.returncode, 0, probe.stdout + probe.stderr)
-                    self.assertEqual(probe.stdout.splitlines()[0], f'{int(general)} {int(scalar)} {int(literal)} 1 1 1')
+                    self.assertEqual(probe.stdout.splitlines()[0], f'{int(general)} {int(scalar)} {int(literal)} 1 1 1 {int(literal_only)} {int(literal)}')
                     # Successful Wasm execution belongs to test-nvm2wasm.
                     # Refused inputs must stop before requiring external LLVM tools.
                     tools = [('nvm2llvm', 'll')]
