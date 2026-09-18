@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I qualify the source-emitter setup deadline for canonical compilation (`task_3d46381f10bd4dfcb313c2697024191f`). At product `e46c425b`, the existing 180-second setup deadline expires; a separate bounded measurement completes the same build in 440.639 seconds with unchanged compiler hash, and the resulting emitter publishes a verified executable program. I give only this compiler-building setup a 900-second deadline, preserving every producer/shadow assertion and ordinary 180-second command deadline. Full affected acceptance remains required.
+
 - [ ] I audit legacy C parentheses for nested boolean comparisons (`task_de7d1397f86940f8b759ae07eb46820f`). Pinned Cseed4a75f984 rejects valid nested sign comparison with GCC `-Werror=parentheses`; I retain `/tmp/nanolang-reconstruct-ucompare-first.log`. Current-main behavior needs separate qualification. Reconstruction uses named boolean intermediates without changing compiler policy.
 
 - [x] I reconstruct typed unsigned comparisons (`task_d4c7fd42960d4f218249555b7e268a70`, parent4bd034): exact int bit-pattern ordering with bool results, portable C/Nano helpers, calls/branches/loops and tag/output refusal. Twenty-five GCC/Clang methods pass including484 unsigned pairs; corrected tool hashes match. Initial pinned-compiler warning and negative-test expectation are retained separately. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
