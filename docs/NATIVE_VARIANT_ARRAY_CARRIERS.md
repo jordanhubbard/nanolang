@@ -85,9 +85,11 @@ I identify the actual binaries by their hashes rather than claiming a fresh
 bootstrap from that checkout. My translator hash is
 `e1e9d1b6b505a13d40f793c41ce36cf73b7afc6638589da507328f9fbd274170`.
 The tool manifest and verification are retained at
-`/tmp/nanolang-variant-array-tools{,-verified}.log` (the manifest itself is
-`/tmp/nanolang-variant-array-tools.sha256`). Focused logs are
+`/tmp/nanolang-variant-array-tools.sha256` and
+`/tmp/nanolang-variant-array-tools-final-verified.log`. Focused logs are
 `/tmp/nanolang-variant-array-{gcc-final,clang-final,generic-existing}.log`.
 
 This is finite native payload acceptance. I do not claim a current-main
 bootstrap, a new compiler fixed point, or general heap/array-kind unions.
+
+I also passed the complete 2,422-check native gate with zero failures at this implementation checkpoint (`/tmp/nanolang-variant-array-full-native.log`). The final tool-hash verification passes after all gates. I reconcile the task only after reviewed canonical merge.
