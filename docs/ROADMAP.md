@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I preserve exact float payloads across concrete and optional native call storage (`task_0a49d074fc174478a57d76a698a7f3eb`). I require directed FLOAT injection, exact payload/absence checks, both call orders, local copies, and paired sanitizer acceptance; c835/2578 filter acceptance depends on this repair. [Contract](NATIVE_OPTIONAL_FLOAT_CALLS.md).
+- [x] I preserve exact float payloads across concrete and optional native call storage (`task_0a49d074fc174478a57d76a698a7f3eb`). I retain directed FLOAT injection and exact payload/absence checks. My 2,422 native checks, 1,269 shape checks and 13 GCC/Clang sanitizer methods pass; eight integrated functional methods include unchanged filter acceptance. c835/2578 still require their merged source acceptance. [Contract](NATIVE_OPTIONAL_FLOAT_CALLS.md).
 
 - [x] I preserve exact float-array source/native transport (`task_ef670a36b03a4df388594c8f1500bd85`, prerequisite of `task_2578ab8cd0e2406786ba38bde307f4a4`). I keep float element identity distinct from integer/bool arrays through constructors, reads/writes, locals, calls, returns and roots. I retain double payloads, aliases, checked bounds and cleanup; My native/shape gates pass 2,422/1,269 checks; emitter comparison passes 86 checks and 88 methods; rebuilt focused GCC/Clang sanitizer and sole-record-root controls pass. Functional filter/map/reduce lowering remains under `task_c83543611db54102b1f75f7a94f9e93d`; parent2578 stays open until its core filter criterion passes. [Contract](NATIVE_FLOAT_ARRAYS.md).
 
