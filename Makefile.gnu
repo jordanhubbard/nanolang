@@ -4568,3 +4568,9 @@ test-native-underscore-bindings: bootstrap $(INTERPRETER) nano_virt nano_vm
 test-unreachable-warning: bootstrap
 	python3 -m unittest -v tests.test_unreachable_warning
 test-units: test-unreachable-warning
+
+.PHONY: test-owned-assertions
+test-units: test-owned-assertions
+test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_assertions tests/nanoisa/test_owned_assertions.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_assertions

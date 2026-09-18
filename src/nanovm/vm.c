@@ -4430,6 +4430,8 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
+    uint32_t base = vm->stack_size, frames = vm->frame_count;
+    bool owned = nvm_uses_owned_transfers(vm->module);
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
@@ -4437,6 +4439,17 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     if (result!=VM_OK) {
         memset(&vm->references,0,sizeof(vm->references));
         memset(&vm->callee_references,0,sizeof(vm->callee_references));
+        if (owned) {
+            /* I unwind actual owners after an owned entry/helper failure.
+             * Direct execution has no outer vm_invoke cleanup wrapper. */
+            while (vm->stack_size > base) vm_release(&vm->heap,stack_pop(vm));
+            for (uint32_t i = frames; i < vm->frame_count; ++i) {
+                vm_release(&vm->heap,vm->frames[i].owned_callable);
+                vm->frames[i].owned_callable = val_void();
+            }
+            vm->frame_count = frames;
+            effect_prune(vm,frames);
+        }
     }
     return result;
 }
