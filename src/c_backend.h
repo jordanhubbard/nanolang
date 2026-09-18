@@ -1,9 +1,9 @@
 /*
- * c_backend.h — nanolang → readable C transpiler (seL4 / bare-metal target)
+ * c_backend.h — my bounded hosted C99/C11 source target
  *
- * Emits clean, portable C99 from the nanolang AST. Designed for embedding
- * in agentOS Protection Domain (PD) code on seL4/Microkit without any
- * WASM interpreter, LLVM toolchain, or GC runtime dependency.
+ * I emit a bounded hosted C99/C11 profile from the checked AST.
+ * I preserve output on semantic refusal; I do not promise whole-language
+ * or freestanding lowering.
  *
  * Type mappings
  * ─────────────
@@ -22,25 +22,20 @@
  *   return     → C return
  *   let        → local variable declaration
  *
- * Effects (algebraic / error handling)
- * ─────────────────────────────────────
- *   raise      → longjmp (via NL_EFFECT_RAISE macro)
- *   handle     → setjmp  (via NL_EFFECT_HANDLE macro)
- *   A minimal effects.h header is emitted in the output preamble.
- *
- * Closures
- * ────────
- *   Anonymous functions / lambdas are emitted as static helper functions
- *   with a captured environment struct passed as an extra void* parameter.
+ * Profile boundaries
+ * ──────────────────
+ *   I refuse anonymous/captured callables, tuple values, effects, async/await
+ *   and try propagation. I require hosted library support. Exact supported
+ *   scalar/local-union block values use scoped statements; unsupported insertion
+ *   contexts receive checked refusal before output publication.
  *
  * Usage
  * ─────
  *   nanoc --target c input.nano -o output.c
  *   cc -std=c99 -I. output.c -o output
  *
- * For seL4 / Microkit:
- *   nanoc --target c --no-stdlib input.nano -o pd_nano.c
- *   # Include pd_nano.c in your PD build; no external runtime required.
+ * My API no_main option omits the hosted wrapper; it refuses global startup.
+ * I do not expose no-stdlib/no-main CLI flags or a freestanding runtime ABI.
  */
 #pragma once
 #ifndef C_BACKEND_H
@@ -52,9 +47,9 @@
 
 /* Options for C backend emission */
 typedef struct {
-    bool no_stdlib;      /* Omit #include <stdio.h> etc. (for seL4 bare-metal) */
-    bool no_main;        /* Omit the main() entry point wrapper */
-    bool static_strings; /* Emit string literals as static const char* (default) */
+    bool no_stdlib;      /* True is refused: my generated support is hosted. */
+    bool no_main;        /* Omit hosted wrapper; globals require an entry and are refused. */
+    bool static_strings; /* Compatibility alias: both values retain static literal storage. */
     bool verbose;
 } CBOptions;
 

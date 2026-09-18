@@ -1,0 +1,55 @@
+[
+  {
+    "name": "host-closure",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_nanoisa_host_closure"
+    ],
+    "status": 0,
+    "seconds": 7.831057503994089
+  },
+  {
+    "name": "canonical-seed",
+    "command": [
+      "/home/jkh/Src/nanolang-managed-record-field-origins/bin/nanoc_c",
+      "/home/jkh/Src/nanolang-managed-record-field-origins/src_nano/nanoc_v06.nano",
+      "-o",
+      "/tmp/nanolang-record-field-origins-qualified/canonical-seed"
+    ],
+    "status": 0,
+    "seconds": 40.77732208103407
+  },
+  {
+    "name": "canonical-help",
+    "command": [
+      "/tmp/nanolang-record-field-origins-qualified/canonical-seed",
+      "--help"
+    ],
+    "status": 0,
+    "seconds": 0.015896907018031925
+  },
+  {
+    "name": "hello-emission",
+    "command": [
+      "/tmp/nanolang-record-field-origins-qualified/canonical-seed",
+      "/home/jkh/Src/nanolang-managed-record-field-origins/examples/language/nl_hello.nano",
+      "--emit-nvm",
+      "-o",
+      "/tmp/nanolang-record-field-origins-qualified/hello.nvm"
+    ],
+    "status": 0,
+    "seconds": 0.03187429497484118
+  },
+  {
+    "name": "hello-execution",
+    "command": [
+      "/home/jkh/Src/nanolang-managed-record-field-origins/bin/nano_vm",
+      "/tmp/nanolang-record-field-origins-qualified/hello.nvm"
+    ],
+    "status": 0,
+    "seconds": 0.0036537660052999854
+  }
+]
