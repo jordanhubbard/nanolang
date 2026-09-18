@@ -310,6 +310,44 @@ shadow main { assert true }
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
 
+    def test_loop_exits_preserve_exact_owners_and_innermost_targets(self):
+        text = (FIXTURES / 'source_borrow_loop_exits.nano').read_text()
+        variants = {'break': text, 'continue': text.replace('if true {', 'if false {').replace('assert (== j 1)', 'assert (== j 3)')}
+        for fixture, content in variants.items():
+            source = self.work / ('resource-path-' + fixture + '.nano')
+            source.write_text(content)
+            seed = self.work / 'nested-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.ownership', baseline)
+            self.assertIn('JMP_FALSE', baseline)
+            self.assertIn('JMP ', baseline)
+            expected = 'BORROW_LOCAL_EXCLUSIVE'
+            self.assertIn(expected, baseline)
+            self.names_and_strip(seed)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-nested.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'nested-shadow.nasm', self.work / 'nested-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
     def test_consumed_owner_reassignment_preserves_paths_and_names(self):
         text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
         text = text.replace('let tree: Pair =', 'let mut tree: Pair =')
@@ -547,8 +585,8 @@ shadow main { assert true }
             'loop_destructure': text.replace('set j 0', 'let Pair { left, right } = root'),
             'branch_return': text.replace('set total (+ total 2)', 'return 0'),
             'loop_return': text.replace('set j 0', 'return 0'),
-            'break': text.replace('set j 0', 'break'),
-            'continue': text.replace('set j 0', 'continue'),
+            'break_changed_owner': text.replace('set j 0', 'let moved: Pair = root break'),
+            'continue_changed_owner': text.replace('set j 0', 'let moved: Pair = root continue'),
             'integer_condition': text.replace('while (< i 3)', 'while 1'),
             'changed_scalar_type': text.replace('set j 0', 'set j true'),
             'failed_shadow': text.replace('shadow main { if true { assert true }', 'shadow main { if true { assert false }'),
