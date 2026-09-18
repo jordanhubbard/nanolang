@@ -14,7 +14,9 @@
 #if !defined(FLT_EVAL_METHOD) || FLT_EVAL_METHOD != 0
 #error "I require operations evaluated in their binary64 type."
 #endif
-_Static_assert(sizeof(double) == 8 && sizeof(uint64_t) == 8, "I require eight-byte binary64 storage.");
+/* I retain a compile-time storage check in both C99 and C11 output. */
+typedef char nano_rt_binary64_storage_guard[
+    sizeof(double) == 8 && sizeof(uint64_t) == 8 ? 1 : -1];
 
 /* I inspect a rounded result with integer operations, not another FP operation. */
 static inline double nano_rt_f64_arithmetic_result(double value) {

@@ -51,11 +51,11 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
     }
     if (!function) nvm2c_puts(&b,
         "/* I transfer unique owners; field observations retain only their shell. */\n"
-        "#include <stdint.h>\n#include <stdlib.h>\n#include <stddef.h>\n#include <limits.h>\n"
+        "#include <stdint.h>\n#include <stdlib.h>\n#include <stddef.h>\n#include <limits.h>\n#include <stdio.h>\n"
         "#ifndef NOWN_ALLOC\n#define NOWN_ALLOC calloc\n#endif\n"
         "#ifndef NOWN_FREE\n#define NOWN_FREE free\n#endif\n"
         "typedef struct nown_record nown_record;\n"
-        "typedef struct { int64_t scalar; nown_record *record; } nown_value;\n"
+        "typedef struct { int64_t scalar; nown_record *record; const unsigned char *string; size_t length; } nown_value;\n"
         "struct nown_record { size_t refs, count; uint32_t layout; nown_value fields[]; };\n"
         "typedef struct { unsigned root,region,exclusive,parent,depth,origin; uint64_t generation; uint16_t fields[32]; } nown_reference;\n"
         "static nown_record *nown_referent(nown_value *const origins[2],const uint64_t generations[2],const nown_reference *ref) {\n"
@@ -146,9 +146,20 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
             nvm2c_printf(&b," { nown_record *record=nown_referent(origins,generations,&refs[%u]); if(!record){status=3;goto cleanup;} record->fields[%u]=t[%d]; t[%d]=(nown_value){0}; }\n",local,in->operands[1].u16,n-1,n-1);break;
         case OP_NOP: break;
         case OP_PUSH_I64:
-            nvm2c_printf(&b," t[%d]=(nown_value){(int64_t)UINT64_C(%llu),NULL};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64);break;
+            nvm2c_printf(&b," t[%d]=(nown_value){.scalar=(int64_t)UINT64_C(%llu)};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64);break;
         case OP_PUSH_U8: case OP_PUSH_BOOL:
-            nvm2c_printf(&b," t[%d]=(nown_value){%u,NULL};\n",n,in->operands[0].u8);break;
+            nvm2c_printf(&b," t[%d]=(nown_value){.scalar=%u};\n",n,in->operands[0].u8);break;
+        case OP_PUSH_STR: {
+            if(!value_graph) goto fail;
+            uint32_t index=in->operands[0].u32;
+            if(index>=mod->string_count || !mod->strings || !mod->string_lengths ||
+               !mod->strings[index] ||
+               memchr(mod->strings[index],'\0',mod->string_lengths[index])) goto fail;
+            nvm2c_printf(&b," t[%d]=(nown_value){.string=(const unsigned char *)",n);
+            emit_c_string_lit(&b,mod->strings[index],mod->string_lengths[index]);
+            nvm2c_printf(&b,",.length=%u};\n",mod->string_lengths[index]);
+            break;
+        }
         case OP_LOAD_LOCAL:
             nvm2c_printf(&b," t[%d]=l[%u]; nown_retain(t[%d]);\n",n,local,n);break;
         case OP_STORE_LOCAL: case OP_OWN_STORE_LOCAL:
@@ -190,6 +201,11 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,char *er
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(%sa.scalar) {a=(nown_value){0};goto L%u;} a=(nown_value){0};\n",n-1,n-1,op==OP_JMP_TRUE?"":"!",d->resolved_target-fn->code_offset);break;
         case OP_ASSERT:
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(!a.scalar){status=2;goto cleanup;} a=(nown_value){0};\n",n-1,n-1);break;
+        case OP_PRINT: case OP_PRINTLN:
+            if(!value_graph) goto fail;
+            nvm2c_printf(&b," (void)fwrite(t[%d].string,1,t[%d].length,stdout);",n-1,n-1);
+            if(op==OP_PRINTLN) nvm2c_puts(&b," (void)fputc('\\n',stdout);");
+            nvm2c_printf(&b," t[%d]=(nown_value){0};\n",n-1);break;
         case OP_RET:
             if(result_type.tag==TAG_STRUCT)
                 nvm2c_printf(&b," if(!t[0].record || t[0].record->layout!=%u || t[0].record->count!=%u){status=3;goto cleanup;}\n",result_type.layout,result_fields);

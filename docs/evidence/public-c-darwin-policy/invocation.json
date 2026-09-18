@@ -1,0 +1,10 @@
+{
+  "runner_sha256": "7eb1d60deab74aab176844c2e351df2dc0bca902be3c237b73258243aafc93c3",
+  "transport": "ssh jordanh@CXWWHGGJX0.local python3 -u -; exact runner supplied on stdin",
+  "suite_environment": {
+    "CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  },
+  "build_make_argument": "CC=/usr/bin/clang",
+  "provenance": "Exact locally retained runner used for the recorded invocation; original remote status and report hashes remain unchanged."
+}

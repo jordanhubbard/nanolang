@@ -198,13 +198,23 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
  * VM falls back to the checked handlers. */
 /* Checked stack handlers do not implement declared reference semantics.
  * I refuse these contracts even when a caller bypasses the CLI verifier. */
-static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
-    if (!module) return false;
+/* I distinguish valid advisory declarations from instructions that actually
+ * require my private owned-transfer execution path. Every public entry uses
+ * this classification before it asks whether instantiated constants are ready. */
+static bool vm_module_ownership_required(const NvmModule *module, bool *required) {
+    if (required) *required=false;
+    if (!module || !required) return false;
     if (!module->ownership_data && !module->ownership_size) return true;
-    bool needs = false;
-    return nvm_ownership_contracts_validate(module, &needs) == NVM_V2_OK &&
-        ((!needs && !nvm_uses_owned_transfers(module)) ||
-         (standalone && nvm_verify_owned_module(module).ok));
+    bool needs=false;
+    if (nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK) return false;
+    *required=needs || nvm_uses_owned_transfers(module);
+    return true;
+}
+
+static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
+    bool required=false;
+    return vm_module_ownership_required(module,&required) &&
+        (!required || (standalone && nvm_verify_owned_module(module).ok));
 }
 
 static bool vm_ownership_supported(const VmState *vm) {
@@ -227,18 +237,38 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
         !vm->callbacks && !vm->opcode_trace;
 }
 
+static bool vm_owned_constants_ready(const VmState *vm) {
+    if (!vm || !vm->module) return false;
+    const VmModuleConstants *constants = NULL;
+    if (vm->module==vm->root_module) constants=&vm->module_constants;
+    else for (uint32_t i=0;i<vm->linked_module_count;i++)
+        if (vm->linked_modules[i]==vm->module) {
+            constants=&vm->linked_module_constants[i];break;
+        }
+    if (!constants || constants->count!=vm->module->string_count)
+        return false;
+    for (uint32_t i=0;i<constants->count;i++)
+        if (!constants->strings || !constants->strings[i]) return false;
+    return true;
+}
+
+static bool vm_owned_runtime_ready(const VmState *vm, bool *required) {
+    if (required) *required=false;
+    if (!vm || !required ||
+        !vm_module_ownership_required(vm->module,required)) return false;
+    return !*required || vm_owned_constants_ready(vm);
+}
+
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
     proof->module=NULL;
+    bool required=false;
+    if (!vm_owned_runtime_ready(vm,&required)) return false;
     if (vm && vm->module && vm->module==vm->root_module &&
         !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
-        !vm->references.active && vm->module->ownership_size) {
-        bool needs=false;
-        if (nvm_ownership_contracts_validate(vm->module,&needs)!=NVM_V2_OK) return false;
-        if (needs || nvm_uses_owned_transfers(vm->module)) {
-            if (!nvm_verify_owned_module(vm->module).ok) return false;
-            proof->module=vm->module;
-            return true;
-        }
+        !vm->references.active && required) {
+        if (!nvm_verify_owned_module(vm->module).ok) return false;
+        proof->module=vm->module;
+        return true;
     }
     return vm_ownership_supported(vm);
 }
@@ -1238,10 +1268,12 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
     bool admitted=vm_owned_proof_matches(vm,proof);
+    bool required=false;
+    if (!vm_owned_runtime_ready(vm,&required))
+        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (!admitted && !vm_ownership_supported(vm))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
-    const bool owned_execution = admitted || (vm->module->ownership_size &&
-        nvm_verify_owned_module(vm->module).ok);
+    const bool owned_execution = admitted || required;
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)

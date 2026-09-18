@@ -1,0 +1,47 @@
+test_aliases_globals_returns_and_loop_snapshots (tests.test_public_c_nonfinite_format.PublicCFormat.test_aliases_globals_returns_and_loop_snapshots) ... I retain public C formatting evidence at /tmp/nano-public-c-format-4mmhaytf
+ok
+test_exact_output_input_bits_and_once_evaluation (tests.test_public_c_nonfinite_format.PublicCFormat.test_exact_output_input_bits_and_once_evaluation) ... I retain public C formatting evidence at /tmp/nano-public-c-format-t4_w9x3r
+ok
+test_generated_cleanup_and_allocation_registration_refusals (tests.test_public_c_nonfinite_format.PublicCFormat.test_generated_cleanup_and_allocation_registration_refusals) ... I retain public C formatting evidence at /tmp/nano-public-c-format-hv4ybhzu
+ok
+test_scoped_builtin_resolution_and_previous_output (tests.test_public_c_nonfinite_format.PublicCFormat.test_scoped_builtin_resolution_and_previous_output) ... I retain public C formatting evidence at /tmp/nano-public-c-format-l5hn_weu
+ok
+test_distinct_allocations_fields_and_existing_source_routes (tests.test_public_c_string_equality.PublicCStringEquality.test_distinct_allocations_fields_and_existing_source_routes) ... I retain fresh equality evidence at /tmp/nano-public-c-equality-bknrvfxo
+ERROR
+test_exact_refusal_prior_output_and_same_process_recovery (tests.test_public_c_string_equality.PublicCStringEquality.test_exact_refusal_prior_output_and_same_process_recovery) ... I retain fresh equality evidence at /tmp/nano-public-c-equality-wjzxyg0d
+ok
+test_order_nested_slots_scopes_globals_and_loops (tests.test_public_c_string_equality.PublicCStringEquality.test_order_nested_slots_scopes_globals_and_loops) ... I retain fresh equality evidence at /tmp/nano-public-c-equality-sm6sp9jq
+ok
+test_private_helper_pointer_and_null_boundary (tests.test_public_c_string_equality.PublicCStringEquality.test_private_helper_pointer_and_null_boundary) ... I retain fresh equality evidence at /tmp/nano-public-c-equality-yvomb5y2
+ok
+
+======================================================================
+ERROR: test_distinct_allocations_fields_and_existing_source_routes (tests.test_public_c_string_equality.PublicCStringEquality.test_distinct_allocations_fields_and_existing_source_routes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_public_c_string_equality.py", line 40, in test_distinct_allocations_fields_and_existing_source_routes
+    module=self.work/'ordinary.nvm';self.run_cmd([ROOT/'bin/nano_virt',source,'--emit-nvm','-o',module])
+                                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_public_c_string_equality.py", line 14, in run_cmd
+    r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-legacy-format-qualified/bin/nano_virt'
+
+----------------------------------------------------------------------
+Ran 8 tests in 2.376s
+
+FAILED (errors=1)

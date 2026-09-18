@@ -123,3 +123,51 @@ absent-metadata rule. Normal ordinary/resource/unknown controls, exact canonical
 transport, query/plan output preservation, bounded existing allocator controls,
 and unchanged executable profile refusals qualify this adapter. Paired source
 producers remain the next separate production checkpoint.
+
+## My paired producer publication boundary
+
+I base this checkpoint on merged PR743. I publish only after ordinary emission
+has fixed the complete function table and local counts. I preserve exact
+parameter/result tags, including the selfhost ordinary parameter signatures that
+previously appeared only on its `par` path. I do not infer nominal identity from
+names or assign VOID as a surrogate for unknown local types.
+
+I retain conservative producer-side slot tags. If a compiler temporary has no
+known type, a reused slot has conflicting types, or any function cannot supply
+truthful descriptors, I omit both optional tables for the whole module. This
+preserves existing source acceptance and leaves authority UNKNOWN. It is not a
+claim that only these source programs belong in the full release. Broader slot
+and nominal provenance remains required under15f.
+
+My first paired schema is local plain non-resource records containing scalar,
+string or earlier plain record fields. Imports, generic declarations, enums,
+unions and forward references omit this optional checkpoint together rather
+than produce incomplete count tables. I check all declarations even when the
+entry emitter prunes unused functions. Each producer keeps existing definition
+ordinals and serializes every actually emitted function, initializer, selected
+shadow and synthetic entry. Allocation failure cannot publish half a pair.
+
+I test positive nested string records, empty and identical-shaped definitions,
+ordinary parameter/result signatures and multiple selected shadows. Controls
+for unsupported schemas, unknown local slots and conflicting types retain the
+ordinary executable behavior and absent optional authority. Canonical raw
+layout/authority roundtrips and projected declaration facts must agree across
+Cseed and fresh selfhost stages, while LLVM/Wasm record admission still refuses
+with prior output preserved. Specialized borrowed emission remains unchanged.
+
+My current selfhost physical slot allocator appends `nisa_types` for parameters,
+lets, match bindings, loops and compiler temporaries. Lexical exits hide names
+without deleting type entries or reusing physical slots. The one temporary type
+array replacement is in match-result inference and restores the saved array
+without emitting instructions. Function and initializer boundaries reset the
+array. I test nested lexical shadowing against these exact emitted slot tags;
+a later slot-reuse optimization must preserve this authority invariant or omit
+publication. My C collector allocates slot facts only when records exist.
+
+My selfhost AST currently discards the `extern` qualifier on record declarations
+(task_f366494d5921451eaf57128629eb9e4c). Before that representation is repaired,
+I require a retained source token stream and conservatively omit authority when
+it contains any extern token. Foreign import tables and passive parallel/flow
+functions also remain outside this first producer checkpoint. This lexical
+exclusion supplies no positive authority; checked record fields still determine
+every emitted complete declaration.
