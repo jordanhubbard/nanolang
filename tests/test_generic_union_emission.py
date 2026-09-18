@@ -64,6 +64,8 @@ shadow main { assert (== (main) 0) }
         cases = {
             'wrong_local': 'let value: Box<int> = Box.Some { value: "bad" }',
             'wrong_call': 'let wrong: Box<string> = Box.None {} let result: int = (accept wrong)',
+            'wrong_return_call': 'let value: Box<int> = (wrong_route)',
+            'wrong_return_value': 'let value: Box<int> = (wrong_route)',
             'wrong_declaration': 'let value: Box<int> = Other.Some { value: 1 }',
             'missing_arguments': 'let value: Box = Box.Some { value: 1 }',
             'extra_arguments': 'let value: Box<int,string> = Box.Some { value: 1 }',
@@ -73,7 +75,12 @@ shadow main { assert (== (main) 0) }
         }
         for name, body in cases.items():
             source = self.work / ('bad-generic-' + name + '.nano')
-            source.write_text(prefix + 'fn accept(value: Box<int>) -> int { return 0 } shadow accept { assert true } fn main() -> int { ' + body + ' return 0 } shadow main { assert true }')
+            extra = ''
+            if name == 'wrong_return_call':
+                extra = 'fn wrong_result() -> Box<string> { return Box.None {} } shadow wrong_result { assert true } fn wrong_route() -> Box<int> { return (wrong_result) } shadow wrong_route { assert true } '
+            if name == 'wrong_return_value':
+                extra = 'fn wrong_route() -> Box<int> { let wrong: Box<string> = Box.None {} return wrong } shadow wrong_route { assert true } '
+            source.write_text(prefix + extra + 'fn accept(value: Box<int>) -> int { return 0 } shadow accept { assert true } fn main() -> int { ' + body + ' return 0 } shadow main { assert true }')
             for tool in [*self.raw, ROOT/'bin/nanoc_stage1', ROOT/'bin/nanoc_stage2']:
                 output = self.work/'prior-generic-output'
                 output.write_text('retained')
@@ -84,7 +91,7 @@ shadow main { assert (== (main) 0) }
                 self.assertGreater(result.returncode, 0, (name, tool, result.stdout, result.stderr))
                 self.assertEqual(output.read_text(), 'retained')
                 self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse error')
-                self.assertRegex(result.stdout + result.stderr, r'(?i)(union|generic|type|field|argument)')
+                self.assertRegex(result.stdout + result.stderr, r'(?i)(union|generic|type|field|argument|constructor declaration)')
 
     def test_unchanged_affine_suites_through_explicit_nanoisa(self):
         # I retain every existing source and assertion. This test-only adapter
