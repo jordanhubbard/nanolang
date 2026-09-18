@@ -1289,7 +1289,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                  ins.opcode == OP_MUL || ins.opcode == OP_DIV) &&
                 (rhs.kind == NVM2C_VK_FLOAT || lhs.kind == NVM2C_VK_FLOAT))
                 result = NVM2C_VK_FLOAT;
+            if ((ins.opcode == OP_ADD || ins.opcode == OP_SUB ||
+                 ins.opcode == OP_MUL || ins.opcode == OP_DIV) &&
+                (rhs.kind == NVM2C_VK_VALUE || lhs.kind == NVM2C_VK_VALUE))
+                result = NVM2C_VK_VALUE;
             if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
+            if (result == NVM2C_VK_VALUE)
+                stk[sp - 1].scalar_tags = (1u << TAG_INT) | (1u << TAG_FLOAT);
             break;
         }
         case OP_NEG:
@@ -1304,7 +1310,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             uint8_t result = ins.opcode == OP_NEG && x.kind == NVM2C_VK_FLOAT ?
                 NVM2C_VK_FLOAT : NVM2C_VK_INT;
+            if (ins.opcode == OP_NEG && x.kind == NVM2C_VK_VALUE)
+                result = NVM2C_VK_VALUE;
             if (!sim_push(b, idx, stk, &sp, result, -1)) return 0;
+            if (result == NVM2C_VK_VALUE)
+                stk[sp - 1].scalar_tags = (1u << TAG_INT) | (1u << TAG_FLOAT);
             break;
         }
         case OP_STR_LEN: {
@@ -3282,6 +3292,24 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: {
+            if (st.sp >= 2 && (st.kinds[st.sp - 1] == NVM2C_VK_VALUE ||
+                              st.kinds[st.sp - 2] == NVM2C_VK_VALUE)) {
+                uint8_t rk, lk;
+                int rhs = stack_pop_kind(b, &st, &rk);
+                int lhs = stack_pop_kind(b, &st, &lk);
+                if ((lk != NVM2C_VK_VALUE && lk != NVM2C_VK_INT && lk != NVM2C_VK_FLOAT) ||
+                    (rk != NVM2C_VK_VALUE && rk != NVM2C_VK_INT && rk != NVM2C_VK_FLOAT)) {
+                    nvm2c_fail(b, "I require numeric or tagged operands for generic arithmetic");
+                    goto done;
+                }
+                char left[96], right[96], expression[256];
+                scalar_value_expression(b, left, sizeof left, lk, lhs);
+                scalar_value_expression(b, right, sizeof right, rk, rhs);
+                snprintf(expression, sizeof expression, "nvalue_numeric(%s, %s, '%c')", left, right,
+                         ins.opcode == OP_ADD ? '+' : ins.opcode == OP_SUB ? '-' : ins.opcode == OP_MUL ? '*' : '/');
+                stack_push_value(b, &st, expression);
+                break;
+            }
             if (st.sp >= 2 && (st.kinds[st.sp - 1] == NVM2C_VK_FLOAT ||
                               st.kinds[st.sp - 2] == NVM2C_VK_FLOAT)) {
                 uint8_t rk, lk;
@@ -3342,6 +3370,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_NEG:
+            if (st.sp > 0 && st.kinds[st.sp - 1] == NVM2C_VK_VALUE) {
+                int value = stack_pop(b, &st);
+                char expression[96];
+                snprintf(expression, sizeof expression, "nvalue_numeric(v[%d], (nmap_value){0}, '~')", value);
+                stack_push_value(b, &st, expression);
+                break;
+            }
             if (st.sp > 0 && st.kinds[st.sp - 1] == NVM2C_VK_FLOAT) {
                 int value = stack_pop_expect(b, &st, NVM2C_VK_FLOAT, "generic NEG");
                 char expression[48];
@@ -5970,6 +6005,26 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static inline double nvalue_require_float(nmap_value value) {\n"
                 "    if (value.kind != 3) NVM2C_ABORT();\n"
                 "    double result; memcpy(&result, &value.integer, sizeof result); return result;\n}\n"
+                "static inline nmap_value nvalue_numeric(nmap_value a, nmap_value b, char op) {\n"
+                "    if (a.kind != 1 && a.kind != 3) abort();\n"
+                "    if (op == '~') return a.kind == 3 ? nvalue_from_float(-nvalue_require_float(a)) : (nmap_value){1, ni64_from_bits(UINT64_C(0) - (uint64_t)a.integer), NULL};\n"
+                "    if (b.kind != 1 && b.kind != 3) abort();\n"
+                "    if (a.kind == 1 && b.kind == 1) {\n"
+                "        int64_t x = a.integer, y = b.integer, value;\n"
+                "        if (op == '+') value = ni64_from_bits((uint64_t)x + (uint64_t)y);\n"
+                "        else if (op == '-') value = ni64_from_bits((uint64_t)x - (uint64_t)y);\n"
+                "        else if (op == '*') value = ni64_from_bits((uint64_t)x * (uint64_t)y);\n"
+                "        else if (op == '/') value = y == 0 ? 0 : (x == INT64_MIN && y == -1) ? INT64_MIN : x / y;\n"
+                "        else abort();\n"
+                "        return (nmap_value){1, value, NULL};\n"
+                "    }\n"
+                "    double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;\n"
+                "    double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;\n"
+                "    if (op == '+') return nvalue_from_float(x + y);\n"
+                "    if (op == '-') return nvalue_from_float(x - y);\n"
+                "    if (op == '*') return nvalue_from_float(x * y);\n"
+                "    if (op == '/') return nvalue_from_float(y == 0.0 ? 0.0 : x / y);\n"
+                "    abort();\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
                 "    if (value.kind != 1) NVM2C_ABORT();\n    return value.integer;\n}\n"
                 "static inline int64_t nvalue_require_bool(nmap_value value) {\n"
@@ -6141,7 +6196,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
-            "    (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_float; (void)nvalue_equal;\n"
+            "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_float; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"

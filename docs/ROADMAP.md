@@ -1,5 +1,8 @@
 # My Roadmap
 
+- [x] I retain boxed numeric arithmetic tags through native locals, calls and boxed-to-boxed joins (`task_bbf36d05756945d7869a0b93e35ea42e`, parent66a6). I check int/float operands, return int only for two integer operands, preserve float promotion and integer totality, and retain exact consumer guards. MOD stays integer-only. I test ordinary VM/native GCC/Clang sanitizer parity and refusal without widening heap or enum arithmetic. Combined GCC/Clang gates, exact typed-consumer guards and 2,422 native/1,092 shape checks pass. [Evidence](evidence/native-tagged-numeric-arithmetic.md).
+- [ ] I define explicit numeric-union shape/provenance before joining boxed int|float results with concrete scalar edges (`task_87a7b44d10e240e999485d12aeecaca2`). My current OPTIONAL shape has one exact payload child; I do not erase INT/FLOAT constraints or broaden heap/optional storage merely to admit these joins. I retain refusal/output-preservation controls while this dependency is open.
+
 - [x] I reconcile stale bounded v5.1 milestones against merged evidence (`task_0f0655717d984eae8bf6c82a109b1229`): executable HLL spike/finding, ordinary qualified callback signatures and the closed scalar passive contract. I update historical C-seed ownership wording while preserving full affine, reconstruction, target and release obligations. [Evidence](evidence/v51-bounded-acceptance-reconciliation.md).
 - [x] I preserve statically known int/float generic arithmetic in native C (`task_ec1b78703b0f49cbb4e05d8e8b7779df`). I match VM promotion for ADD/SUB/MUL/DIV and NEG, retain integer-only MOD and existing wrapped/total integer rules, and test tags, calls, rounding, signed zero and invalid operands with paired GCC/Clang sanitizers. Existing tagged operands retain checked-int behavior; full dynamic promotion, enums, heap arithmetic and LLVM/Wasm remain separate obligations. Seven paired GCC/Clang sanitizer methods, strengthened guard controls, the wrapped-integer gate and 2,422 native/1,092 shape checks pass. [Evidence](evidence/native-generic-numeric-arithmetic.md).
 
@@ -9853,6 +9856,14 @@ Reconstruction:
       supplied assertions, not recovered original tests.
 
 Other translators:
+- [x] I lower generic numeric ADD/SUB/MUL/DIV/MOD/NEG through my shared
+      closed-scalar LLVM/Wasm profile with VM-matched promotion, wrapping,
+      total division, runtime tag errors and paired execution. MAC
+      `task_fd74e0169a1c4be0ae328ead691bde23`, parent
+      `task_66a6dd8ca51d415f9efb0f2904f85b49`; contract
+      `docs/NANOISA_LLVM_GENERIC_NUMERIC.md`. Heap/enum operands and full
+      native tagged-value promotion remain separate boundaries.
+      [Evidence](evidence/llvm-generic-numeric.md).
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full

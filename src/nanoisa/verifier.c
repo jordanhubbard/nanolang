@@ -1032,6 +1032,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
 static int profile_scalar(uint8_t tag) { return tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_VOID || tag == TAG_FLOAT; }
 static int profile_supported(uint8_t op) {
     switch (op) {
+    case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
     case OP_F64_NEG: case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT:
     case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: case OP_PUSH_F64:

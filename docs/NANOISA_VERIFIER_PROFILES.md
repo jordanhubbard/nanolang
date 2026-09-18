@@ -8,7 +8,10 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
 
 - `NVM_PROFILE_GENERAL` returns exactly my ordinary `nvm_verify` decision.
 - `NVM_PROFILE_CLOSED_SCALAR` first performs ordinary verification, then applies
-  the existing LLVM translator's module, signature and opcode checks unchanged.
+  the LLVM translator's shared module, signature and opcode checks. My initial
+  extraction preserved eligibility unchanged; later matched lowering extends
+  the explicit opcode list. Generic numeric arithmetic is specified in
+  `NANOISA_LLVM_GENERIC_NUMERIC.md`.
   I require an explicit zero-argument integer/bool entry. I refuse imports,
   module references, nominal declarations, retained layouts, ownership/passive
   contracts, captures and initializer functions. I retain existing numeric,
