@@ -13,7 +13,7 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   the explicit opcode list. Generic numeric arithmetic is specified in
   `NANOISA_LLVM_GENERIC_NUMERIC.md`.
   I require an explicit zero-argument integer/bool entry. I refuse imports,
-  module references, nominal declarations, retained layouts, ownership/passive
+  module references, record/union declarations, retained layouts, ownership/passive
   contracts and captures. My scalar global/initializer extension follows
   `NANOISA_LLVM_SCALAR_GLOBALS.md`. I retain existing numeric,
   bool and void signatures and the explicit existing instruction whitelist.
@@ -37,3 +37,8 @@ an existing output artifact when LLVM or Wasm refuses a module. I rerun the
 existing integer, float, U8, truthiness and implicit-return translator gates.
 Unknown profiles refuse; ordinary verification failures remain failures.
 My complete applicable-language LLVM/Wasm coverage remains open.
+
+I admit enum-count metadata and ENUM_VAL in both closed profiles with the
+matched [enum scalar contract](NANOISA_LLVM_ENUM_SCALARS.md). This adds an
+ordinal tag carrier, not nominal heap layouts. Existing literal-string
+ADD/CAST_INT/CAST_FLOAT restrictions and CAST_STRING/TAIL_CALL refusals remain.
