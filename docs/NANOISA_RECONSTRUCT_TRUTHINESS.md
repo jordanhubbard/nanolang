@@ -65,3 +65,23 @@ records my rebuilt facts reader, reconstructor CLI, assembler and VM.
 My Cseed-produced Nano-C check has UBSan enabled; reconstructed C checks use
 ASan/UBSan with strict warnings. Fixture shadows validate output but do not
 claim recovery of original source shadows.
+
+## My combined acceptance
+
+At unchanged generator `4bca6f0f`, all 38 reconstruction methods pass with
+GCC (352.460s) and Clang (335.044s). This includes the five new methods,
+existing scalar region/loop/call tests, total integer arithmetic, shifts,
+bitwise operations, unsigned comparisons/division, indexed stack snapshots,
+and compiler-stage failure reporting. The blocked carry679 tests are not
+part of this gate and were not executed.
+
+Logs are `/tmp/nanolang-reconstruct-truthiness-{gcc,clang}.log`. After both
+gates, generator, compiler and tool hashes all match their manifests;
+`/tmp/nanolang-reconstruct-truthiness-{pins,tools}-verified.log` retains that
+check. Cseed-produced Nano-C compilation/execution completed with UBSan
+enabled; no required sanitizer check remains running.
+
+I tested executable behavior and retained the bounded refusal controls. I
+do not claim current-main bootstrap, full ISA reconstruction, original-source
+recovery or normative semantic equivalence. Canonical task reconciliation
+follows reviewed merge.
