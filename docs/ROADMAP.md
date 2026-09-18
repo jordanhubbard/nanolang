@@ -86,7 +86,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I keep the module-introspection acceptance program bound to the shared module-facts declarations it calls (`task_3f0ced012cde4f6eb73f6fdd1279d482`). At product `84e04f5d`, bootstrap, 39 focused methods and all 17 core examples pass; the later C-seed introspection gate reports missing emitted scanner declarations. I distinguish direct import ownership from backend closure, preserve every scanner assertion, and qualify the corrected fixture before resuming full acceptance.
+- [x] I keep the module-introspection acceptance program bound to the shared module-facts declarations it calls (`task_3f0ced012cde4f6eb73f6fdd1279d482`). At product `84e04f5d`, bootstrap, 39 focused methods and all 17 core examples pass; the later C-seed introspection gate reports missing emitted scanner declarations. I distinguish direct import ownership from backend closure, preserve every scanner assertion, and qualify the corrected fixture before resuming full acceptance.
 
 - [x] I record the product compiler VM fixed point at `ae63b248`: initial and two VM generations match raw bytes and host closure, and the second generation compiles verified hello. [Pinned evidence](evidence/product-vm-fixedpoint-ae63b248.md). This bounded check does not close product task d76ae, export-shadow task dd74, or the full release.
 
