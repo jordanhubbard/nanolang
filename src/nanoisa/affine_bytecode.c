@@ -57,7 +57,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference);
 static bool supported(uint8_t op) {
     switch(op) {
-    case OP_CALL_REF:
+    case OP_CALL: case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
@@ -80,6 +80,26 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     uint16_t local;
     switch(op) {
     case OP_NOP: case OP_JMP: return NULL;
+    case OP_CALL: {
+        if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1 || !f->count)
+            return "I require an entry-to-helper consuming call";
+        NvmAffineState *callee=nvm_affine_state_create(module,1,module->functions[1].local_count);
+        NvmAffineType parameter={0};
+        bool valid=nvm_affine_owned_parameter_type(callee,&parameter);
+        nvm_affine_state_free(callee);
+        Value argument=f->stack[f->count-1];
+        if (!valid || !argument.owned || argument.observation ||
+            argument.tag!=parameter.tag || argument.layout!=parameter.layout)
+            return "I require one exact owned argument for my consuming helper";
+        NvmAffineAnalysis call=analyze(module,1,NULL,0);
+        if (!call.ok) return "I require complete consuming-helper owner resolution";
+        tag=module->functions[1].result_tag;
+        if (module->functions[1].result_count!=1 ||
+            (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8))
+            return "I require a single scalar consuming-call result";
+        f->count--;
+        break;
+    }
     case OP_CALL_REF: {
         if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1)
             return "I require entry-to-helper reference calls without recursion";
