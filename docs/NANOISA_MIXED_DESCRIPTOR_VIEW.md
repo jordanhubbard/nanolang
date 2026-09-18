@@ -155,3 +155,8 @@ may both source producers lower the unchanged Samples/PREFIX program and full
 selected-shadow graph. False mandatory shadows must still fail, and rejected
 compilation must preserve previous output. Bundle managed fields inside affine
 owners remain a separate required contract. Historical950f failures remain sealed.
+
+My first reader bounds its owned transport copy to 16 MiB before materialization.
+Exceeding that private budget returns LIMIT; it changes no shared wire-format
+acceptance. I reuse the existing allocation-free retained preflight unchanged,
+including its exact forward-layout family, and leave nonrecord rows UNKNOWN.
