@@ -12,7 +12,7 @@ then commit; replacement publishes before releasing the old child. Retained get
 and transferring pop have distinct ownership. Legacy string-only accessors refuse
 promoted descriptors; current admitted split modules never perform promotion.
 Capacity never shrinks during a write, and each promoted element grows from an
-8-byte handle to a16-byte value, so the checked byte-accounting delta is nonnegative.
+8-byte handle to a 16-byte value, so the checked byte-accounting delta is nonnegative.
 
 I passed this frozen Linux ARM64 gate:
 
@@ -49,3 +49,10 @@ and retain no testing hooks. I changed no source-language compiler and claim no
 new bootstrap. Parent488 retains required packed coercion, shape eligibility,
 nested/nominal child traversal, cycle collection and mutable opcode lowering.
 Parent51da, Darwin sanitizer7ba and evaluator791a remain open.
+
+I restacked onto main `d1d3c9a6` after reconstruction/component-entry changes.
+Integrated implementation `b548aec7` retains identical managed source/header,
+package inputs and array fixtures/harness to frozen `3ec6e10b`. Inherited Makefile
+changes affect reconstruction and component entry checks, not this runtime gate.
+No affected rebuild is needed; `git diff --check` passes and the completed gate
+remains applicable.
