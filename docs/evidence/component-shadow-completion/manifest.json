@@ -1,0 +1,155 @@
+{
+  "head": "945f21227b8a72995b142f8aad6a4db067afcc8a",
+  "production": "fdec4ffd812b696debe90e37bf6d55cacb4e019e",
+  "source_clean_before": true,
+  "steps": [
+    {
+      "name": "build",
+      "args": [
+        "make",
+        "-j8",
+        "bin/nanoc_c",
+        "nano_vm",
+        "nanoisa_dump"
+      ],
+      "limit": 900,
+      "status": 0,
+      "seconds": 6.285,
+      "log": "/tmp/nanolang-component-shadow-completion/build.log",
+      "sha256": "76927a8c2d12fc1c8542e374031133b5f2264a5e19d5fe187c0955b3a10557cd"
+    },
+    {
+      "name": "parser-compile",
+      "args": [
+        "/home/jkh/Src/nanolang-component-shadow-completion/bin/nanoc_c",
+        "/home/jkh/Src/nanolang-component-shadow-completion/src_nano/parser_driver.nano",
+        "--test-imports",
+        "--verbose",
+        "--llm-shadow-json",
+        "/tmp/nanolang-component-shadow-completion/parser-shadows.json",
+        "-o",
+        "/tmp/nanolang-component-shadow-completion/parser"
+      ],
+      "limit": 600,
+      "status": 0,
+      "seconds": 10.386,
+      "log": "/tmp/nanolang-component-shadow-completion/parser-compile.log",
+      "sha256": "41bc61b24396aefd1086f570950128033c47d90c966e05d7c681172b91105974"
+    },
+    {
+      "name": "parser-entry",
+      "args": [
+        "/tmp/nanolang-component-shadow-completion/parser"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.008,
+      "log": "/tmp/nanolang-component-shadow-completion/parser-entry.log",
+      "sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed"
+    },
+    {
+      "name": "typecheck-compile",
+      "args": [
+        "/home/jkh/Src/nanolang-component-shadow-completion/bin/nanoc_c",
+        "/home/jkh/Src/nanolang-component-shadow-completion/src_nano/typecheck_driver.nano",
+        "--test-imports",
+        "--verbose",
+        "--llm-shadow-json",
+        "/tmp/nanolang-component-shadow-completion/typecheck-shadows.json",
+        "-o",
+        "/tmp/nanolang-component-shadow-completion/typecheck"
+      ],
+      "limit": 600,
+      "status": 0,
+      "seconds": 19.209,
+      "log": "/tmp/nanolang-component-shadow-completion/typecheck-compile.log",
+      "sha256": "602f48291e569fd6591396ec385484974a1f8e3d253d11c2f7a4653f33a2c74f"
+    },
+    {
+      "name": "typecheck-entry",
+      "args": [
+        "/tmp/nanolang-component-shadow-completion/typecheck"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.016,
+      "log": "/tmp/nanolang-component-shadow-completion/typecheck-entry.log",
+      "sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5"
+    },
+    {
+      "name": "transpiler-compile",
+      "args": [
+        "/home/jkh/Src/nanolang-component-shadow-completion/bin/nanoc_c",
+        "/home/jkh/Src/nanolang-component-shadow-completion/src_nano/transpiler_driver.nano",
+        "--test-imports",
+        "--verbose",
+        "--llm-shadow-json",
+        "/tmp/nanolang-component-shadow-completion/transpiler-shadows.json",
+        "-o",
+        "/tmp/nanolang-component-shadow-completion/transpiler"
+      ],
+      "limit": 600,
+      "status": 0,
+      "seconds": 17.003,
+      "log": "/tmp/nanolang-component-shadow-completion/transpiler-compile.log",
+      "sha256": "3c83c73c068ee7136d4f0ac5c76e0dfed0ebb3c6a44cc79c7c2afadeaa1860d2"
+    },
+    {
+      "name": "transpiler-entry",
+      "args": [
+        "/tmp/nanolang-component-shadow-completion/transpiler"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.016,
+      "log": "/tmp/nanolang-component-shadow-completion/transpiler-entry.log",
+      "sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58"
+    }
+  ],
+  "tools_before": {
+    "bin/nanoc_c": "e7c41bc70f783be324dff0638ddb25e14e9c3b41727e23de1dbfa4bc995c1b35",
+    "bin/nano_vm": "51cf925e3b70d1d64cbdff03bd3369ef1c7d7e2ec00311366147cd3bb6200bd6",
+    "bin/nanoisa": "8671982444dbf7c9f52288e6e9f6dec671aeab43003deb85886dc454f1952c3b"
+  },
+  "sources": {
+    "src_nano/parser_driver.nano": "f5b4d222d33733d52d252a0a652261bfb2599e84f5617364621158436c010ea5",
+    "src_nano/typecheck_driver.nano": "49bc5dfae3814680dee5fd484e541cbdedea944e1931bdefe53acb5608bf26d0",
+    "src_nano/transpiler_driver.nano": "bb62116e039ae2d4eb4091f4f008d789819de26d57b33d674403139ef7524163"
+  },
+  "shadow_reports": {
+    "parser": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 315,
+      "failures": []
+    },
+    "typecheck": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 513,
+      "failures": []
+    },
+    "transpiler": {
+      "tool": "nanoc_c",
+      "success": true,
+      "completed": true,
+      "test_count": 505,
+      "failures": []
+    }
+  },
+  "outputs": {
+    "parser": "472314c7f777ba199b898f4b996727e5380c9d8154d55d9b8775745429ecacdf",
+    "typecheck": "8760361d9d41cde63ed70612126db8bff74a9e1c37d2950d9599443a7b153fbd",
+    "transpiler": "8c53ea14d7ab506c8208ce86213bc814926524fd4260c16de7081c77c9e007ca"
+  },
+  "tools_after": {
+    "bin/nanoc_c": "e7c41bc70f783be324dff0638ddb25e14e9c3b41727e23de1dbfa4bc995c1b35",
+    "bin/nano_vm": "51cf925e3b70d1d64cbdff03bd3369ef1c7d7e2ec00311366147cd3bb6200bd6",
+    "bin/nanoisa": "8671982444dbf7c9f52288e6e9f6dec671aeab43003deb85886dc454f1952c3b"
+  },
+  "tools_unchanged": true,
+  "source_clean_after": true,
+  "complete": true
+}
