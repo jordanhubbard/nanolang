@@ -9275,6 +9275,14 @@ Compiler product:
       and pass a fresh three-stage native bootstrap, 24 metadata C methods,
       three import methods and the foreign compiler-path regression
       (`task_402e6b8289fc4f58b79ef5559a68dce3`).
+- [ ] I make my NanoCore export-buffer fault fixture compatible with the active
+      Darwin SDK's fortified `vsnprintf` macro without suppressing strict warnings
+      (`task_43dea95525b24546b4b3e259a3148205`). I preserve the ordinary SDK call
+      inside the wrapper, undefine the existing macro only before my test-local
+      redirection, and retain every allocation/format failure assertion. I qualify
+      corrected source on Darwin and Linux with strict compiler and sanitizer
+      controls; my shared-match production and reference-evaluator leak remain
+      separate. Contract: `docs/NANOCORE_EXPORT_BUFFER_DARWIN.md`.
 - [x] I resolve GCC 13's strict `-O1` sanitizer-build diagnostic for
       `nanocore_export.c` `sbuf_appendf` with an explicit nonnull format guard.
       I retain the original compiler diagnostic and pass the corrected strict
