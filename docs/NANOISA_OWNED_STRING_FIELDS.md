@@ -56,13 +56,43 @@ it: an accepted descriptor is not permission for a borrowed, linked, LLVM/Wasm
 or other unqualified execution profile. I retain those profiles' explicit
 refusals unless separately qualified. I need no new tag, opcode or wire version.
 
+## My shared-authority consumers and retained refusals
+
+I enumerated actual calls and downstream selectors at d6cacdb9:
+
+| Consumer | My intended boundary after descriptor widening |
+| --- | --- |
+| `nvm_v2_convert.c`, both conversion directions | Validate and transport exact complete STRING-bearing resource facts; no execution permission follows. |
+| `retained_layouts.c` through `nvm_ownership_layout_authorities` | Preserve RESOURCE identity and exact leaf tags; never classify the new owner as an ordinary copyable record. |
+| `affine_state.c` state construction, result closure and field queries | Admit STRING only in the reviewed value graph operations; preserve exact owner authority and root liveness. |
+| `ownership_contracts.c` borrowed parameter descriptors | Reject borrowed roots whose reachable layout contains STRING, even if the requested path ends at an INT leaf; retain existing scalar-only borrowed root behavior. |
+| `reference_places.c` and path users in affine bytecode, VM and native | Preserve STRING leaf/projection/write refusal; valid path transport does not grant reference authority. |
+| `verifier.c` structural and owned-module selection | Run complete owned admission after authority validation; STRING-field execution requires the value-call graph profile. Preserve linked ownership refusal and non-value-graph refusal. |
+| `vm.c` invocation classification and result activation | Keep needs-ownership true and require full module proof, instantiated constants, exact result layout and existing cleanup. No ordinary VM fallback for an unsupported owned module. |
+| `nvm2c.c` ordinary eligibility and `nvm2c_owned.h` | Keep ordinary native path refusal when ownership is required; only independently validated owned graph uses the new carrier. |
+| `managed_array_shapes.c` managed shape selection | Preserve rejection when authority validation reports requires-verifier/ownership. No graph or array promotion of resource shells. |
+| `verifier.c` closed/managed target profiles and `nvm2llvm.c` managed selector | Scalar profiles retain nominal/ownership refusal; managed record/array selection still rejects resource-bearing graphs. LLVM and Wasm gain no owned STRING admission. |
+| `nanovirt/ordinary_authority.inc` | Preserve RESOURCE facts and ordinary-versus-owned selection; no false ordinary declaration from newly valid STRING fields. |
+| C `borrow_codegen.inc` and Nano `nanoisa_borrows.nano` | Keep source field guards unchanged during runtime qualification, then admit only the reviewed exact source profile. |
+| Nano `owner_selection.nano` and program dispatch | Keep resource-bearing wrappers on specialized routing; no scalar owner-free closure classification of these layouts. STRING support is not a reason to bypass owner selection. |
+
+I keep the borrowed-root exclusion in shared descriptor validation so it
+also protects disconnected helper descriptors and paths to otherwise scalar
+siblings. I compute reachable STRING information with bounded prior-index
+layout traversal, not recursive repeated expansion. I verify each downstream
+profile's actual guard at implementation review; if a listed refusal is not
+already enforced, I add the narrow guard before widening authority. I do not
+remove ordinary complete nonresource STRING record support.
+
 ## My exact supported values
 
 I retain the existing bounded acyclic owned value-call graph, complete exact
 nominal layouts, prior-index child edges, mode-zero value parameters, selected
 shadows, scalar public entry and existing frame/stack/layout bounds. I preserve
-all currently qualified scalar leaves, including independently integrated FLOAT
-support; I add only STRING with no nested layout. A string field does not make
+currently admitted INT/BOOL/U8 owner leaves; I add only STRING with no nested
+layout. PR804 adds nonparameter FLOAT locals and operand operations, not FLOAT
+owner fields or signatures. I preserve those FLOAT field/signature refusals
+and keep its independently qualified local/operand behavior unchanged. A string field does not make
 an otherwise ordinary record into a unique resource. A resource root and every
 owned child keep their exact affine authority.
 
