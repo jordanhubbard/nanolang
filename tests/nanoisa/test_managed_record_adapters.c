@@ -26,7 +26,9 @@ static uint64_t begin(void){return nms_module_record_begin(literals,1,definition
 #ifndef NMS_RECORD_ADAPTER_LINKED
 static void reset_module(void) {
     if(nms_module_ready)nms_dispose(&nms_module_instance);
-    nms_module_instance=(NmsRuntime){0};nms_module_ready=0;nms_module_error=NMS_OK;
+    volatile unsigned char *bytes=(volatile unsigned char *)&nms_module_instance;
+    for(size_t i=0;i<sizeof nms_module_instance;i++)bytes[i]=0;
+    nms_module_ready=0;nms_module_error=NMS_OK;
 }
 #endif
 int record_adapter_values(void) {
