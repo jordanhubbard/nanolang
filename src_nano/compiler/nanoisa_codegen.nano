@@ -375,6 +375,76 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "array<float>")
 }
 
+# I compare tuple types by structure, not by incidental source whitespace.
+fn nisa_compact_type(t: string) -> string {
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length t)) {
+        let ch: int = (char_at t i)
+        if (and (!= ch 32) (and (!= ch 9) (and (!= ch 10) (!= ch 13)))) {
+            set output (+ output (str_substring t i 1))
+        } else { (print "") }
+        set i (+ i 1)
+    }
+    return output
+}
+
+shadow nisa_compact_type {
+    assert (== (nisa_compact_type "(int, string,\tbool)") "(int,string,bool)")
+}
+
+# I split only commas at the tuple's outer level. Nested tuples and generic
+# arguments keep their own commas.
+fn nisa_tuple_elements(t: string) -> array<string> {
+    let compact: string = (nisa_compact_type t)
+    let length: int = (str_length compact)
+    if (< length 5) { return [] }
+    if (or (!= (str_substring compact 0 1) "(")
+            (!= (str_substring compact (- length 1) 1) ")")) { return [] }
+    let mut elements: array<string> = []
+    let mut current: string = ""
+    let mut paren_depth: int = 0
+    let mut angle_depth: int = 0
+    let mut saw_comma: bool = false
+    let mut i: int = 1
+    while (< i (- length 1)) {
+        let ch: string = (str_substring compact i 1)
+        if (== ch "(") { set paren_depth (+ paren_depth 1) }
+        if (== ch ")") {
+            set paren_depth (- paren_depth 1)
+            if (< paren_depth 0) { return [] }
+        }
+        if (== ch "<") { set angle_depth (+ angle_depth 1) }
+        if (== ch ">") {
+            set angle_depth (- angle_depth 1)
+            if (< angle_depth 0) { return [] }
+        }
+        if (and (== ch ",") (and (== paren_depth 0) (== angle_depth 0))) {
+            if (== current "") { return [] }
+            set elements (array_push elements current)
+            set current ""
+            set saw_comma true
+        } else {
+            set current (+ current ch)
+        }
+        set i (+ i 1)
+    }
+    if (or (!= paren_depth 0) (!= angle_depth 0)) { return [] }
+    if (or (not saw_comma) (== current "")) { return [] }
+    return (array_push elements current)
+}
+
+shadow nisa_tuple_elements {
+    let pair: array<string> = (nisa_tuple_elements "(int, string)")
+    assert (== (array_length pair) 2)
+    assert (== (at pair 0) "int")
+    assert (== (at pair 1) "string")
+    let nested: array<string> = (nisa_tuple_elements "(array<int>,(string,bool))")
+    assert (== (array_length nested) 2)
+    assert (== (at nested 1) "(string,bool)")
+    assert (== (array_length (nisa_tuple_elements "(int)")) 0)
+}
+
 fn nisa_is_arr_builtin(name: string) -> bool {
     return (or (== name "array_new") (or (== name "array_set") (or (== name "array_length")
                (or (== name "array_get")
@@ -634,7 +704,7 @@ shadow nisa_enum_receiver {
 }
 
 fn nisa_value_type_matches(parser: Parser, actual: string, expected: string) -> bool {
-    if (== actual expected) { return true }
+    if (== (nisa_compact_type actual) (nisa_compact_type expected)) { return true }
     if (== expected "int") { return (>= (nisa_enum_index parser actual) 0) }
     if (== actual "int") { return (>= (nisa_enum_index parser expected) 0) }
     return false
@@ -644,6 +714,7 @@ shadow nisa_value_type_matches {
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "enum.nano")
     assert (nisa_value_type_matches parser "Mode" "int")
     assert (nisa_value_type_matches parser "int" "Mode")
+    assert (nisa_value_type_matches parser "(int, string)" "(int,string)")
     assert (not (nisa_value_type_matches parser "Mode" "bool"))
 }
 
@@ -987,7 +1058,37 @@ shadow nisa_is_pin_record {
     assert (not (nisa_is_int_record p "Tok"))
 }
 
+# I admit tuple elements only when I can preserve their exact scalar or nested
+# tuple representation. Records, arrays and resources keep their own contracts.
+fn nisa_tuple_type_ok(parser: Parser, t: string) -> bool {
+    let elements: array<string> = (nisa_tuple_elements t)
+    if (< (array_length elements) 2) { return false }
+    let mut i: int = 0
+    while (< i (array_length elements)) {
+        let element: string = (at elements i)
+        if (not (or (or (== element "int") (== element "bool"))
+                    (or (== element "string")
+                        (or (== element "float")
+                            (or (>= (nisa_enum_index parser element) 0)
+                                (nisa_tuple_type_ok parser element)))))) {
+            return false
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow nisa_tuple_type_ok {
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low }" "tuple.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "tuple.nano")
+    assert (nisa_tuple_type_ok parser "(int,string,bool)")
+    assert (nisa_tuple_type_ok parser "((int,string),float)")
+    assert (not (nisa_tuple_type_ok parser "(int,array<int>)"))
+    assert (not (nisa_tuple_type_ok parser "(int)"))
+}
+
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
+    if (nisa_tuple_type_ok parser t) { return true }
     if (nisa_union_supported parser t) { return true }
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
@@ -1022,6 +1123,8 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "List<Tok>")
     assert (nisa_type_ok p "List<Box>")
     assert (nisa_type_ok p "array<bool>")
+    assert (nisa_type_ok p "(int,string,bool)")
+    assert (not (nisa_type_ok p "(int,array<int>)"))
 }
 
 fn nisa_fresh() -> string {
@@ -1846,6 +1949,29 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
         return literal.struct_name
     }
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+        let literal: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+        if (< literal.element_count 2) { return "" }
+        let mut result: string = "("
+        let mut i: int = 0
+        while (< i literal.element_count) {
+            let actual: string = (nisa_expr_type parser (at literal.element_ids i) (at literal.element_types i))
+            if (or (== actual "") (not (nisa_type_ok parser actual))) { return "" }
+            if (> i 0) { set result (+ result ",") }
+            set result (+ result (nisa_compact_type actual))
+            set i (+ i 1)
+        }
+        set result (+ result ")")
+        if (nisa_tuple_type_ok parser result) { return result }
+        return ""
+    }
+    if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
+        let access: ASTTupleIndex = (parser_get_tuple_index parser node_id)
+        let tuple_type: string = (nisa_expr_type parser access.tuple access.tuple_type)
+        let elements: array<string> = (nisa_tuple_elements tuple_type)
+        if (or (< access.index 0) (>= access.index (array_length elements))) { return "" }
+        return (at elements access.index)
+    }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
         let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
         let mut element: string = "int"
@@ -1994,6 +2120,20 @@ shadow nisa_expr_type {
         assert (== (nisa_expr_type parsed chosen_result.value chosen_result.value_type) (at expected i))
         set i (+ i 1)
     }
+    let tuple_tokens: List<LexerToken> = (tokenize_string "fn pair() -> (int,string) { let value: (int,string) = (7, \"seven\") return value } fn first() -> int { let value: (int,string) = (pair) return value.0 }" "tuple.nano" diagnostics)
+    let tuple_parser: Parser = (parse_program tuple_tokens (list_LexerToken_length tuple_tokens) "tuple.nano")
+    let tuple_function: ASTFunction = (parser_get_function tuple_parser 0)
+    let tuple_block: ASTBlock = (parser_get_block tuple_parser tuple_function.body)
+    let tuple_statement: ASTStmtRef = (list_ASTStmtRef_get tuple_block.statements 0)
+    let tuple_binding: ASTLet = (parser_get_let tuple_parser tuple_statement.node_id)
+    assert (== (nisa_expr_type tuple_parser tuple_binding.value tuple_binding.value_type) "(int,string)")
+    let first_function: ASTFunction = (parser_get_function tuple_parser 1)
+    let first_block: ASTBlock = (parser_get_block tuple_parser first_function.body)
+    set nisa_names ["value"]
+    set nisa_types ["(int,string)"]
+    let first_statement: ASTStmtRef = (list_ASTStmtRef_get first_block.statements 1)
+    let first_return: ASTReturn = (parser_get_return tuple_parser first_statement.node_id)
+    assert (== (nisa_expr_type tuple_parser first_return.value first_return.value_type) "int")
     let _2: int = (nisa_reset)
 }
 
@@ -2030,8 +2170,65 @@ shadow nisa_is_map_constructor {
     assert (not (nisa_is_map_constructor parser 0 ParseNodeType.PNODE_NUMBER))
 }
 
+# I pack tuple fields in source order and keep the declared element contract
+# for each field. AGG_TUPLE remains distinct from records at runtime.
+fn nisa_emit_tuple_literal(parser: Parser, node_id: int, expected: string) -> string {
+    let literal: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+    let mut tuple_type: string = expected
+    if (== tuple_type "") {
+        set tuple_type (nisa_expr_type parser node_id ParseNodeType.PNODE_TUPLE_LITERAL)
+    }
+    let elements: array<string> = (nisa_tuple_elements tuple_type)
+    if (!= literal.element_count (array_length elements)) {
+        return (nisa_fail "I require the declared tuple arity")
+    }
+    if (not (nisa_tuple_type_ok parser tuple_type)) {
+        return (nisa_fail "I require supported scalar tuple element types")
+    }
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i literal.element_count) {
+        let value_id: int = (at literal.element_ids i)
+        let value_type: int = (at literal.element_types i)
+        let actual: string = (nisa_expr_type parser value_id value_type)
+        let required: string = (at elements i)
+        if (not (nisa_value_type_matches parser actual required)) {
+            return (nisa_fail (+ "tuple element " (+ (int_to_string i) " does not match my declared type")))
+        }
+        set output (+ output (nisa_emit_expected_expr parser value_id value_type required))
+        if (not nisa_ok) { return "" }
+        set i (+ i 1)
+    }
+    return (+ output (nisa_line_imm "AGG_PACK" (+ "2 0 0 " (int_to_string literal.element_count))))
+}
+
+shadow nisa_emit_tuple_literal {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn pair() -> (int,string,bool) { return (7, \"seven\", true) }" "tuple.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "tuple.nano")
+    let function: ASTFunction = (parser_get_function parser 0)
+    let block: ASTBlock = (parser_get_block parser function.body)
+    let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let result: ASTReturn = (parser_get_return parser statement.node_id)
+    let text: string = (nisa_emit_tuple_literal parser result.value function.return_type)
+    assert (str_contains text "PUSH_I64 7")
+    assert (str_contains text "PUSH_STR")
+    assert (str_contains text "PUSH_BOOL 1")
+    assert (str_contains text "AGG_PACK 2 0 0 3")
+    let _2: int = (nisa_reset)
+}
+
 # I carry declared constructor context without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (nisa_tuple_type_ok parser expected) {
+        if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+            return (nisa_emit_tuple_literal parser node_id expected)
+        }
+        let actual_tuple: string = (nisa_expr_type parser node_id node_type)
+        if (not (nisa_value_type_matches parser actual_tuple expected)) {
+            return (nisa_fail "I require the declared tuple value type")
+        }
+    }
     if (!= expected "") {
         let actual: string = (nisa_expr_type parser node_id node_type)
         if (or (>= (nisa_union_index parser expected) 0) (>= (nisa_union_index parser actual) 0)) {
@@ -2087,6 +2284,14 @@ shadow nisa_emit_expected_expr {
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<bool>") "  ARR_LITERAL 4 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>") "  ARR_LITERAL 3 0\n")
+    let tuple_tokens: List<LexerToken> = (tokenize_string "fn pair() -> (int,string) { return (1, \"one\") }" "tuple.nano" diagnostics)
+    let tuple_parser: Parser = (parse_program tuple_tokens (list_LexerToken_length tuple_tokens) "tuple.nano")
+    let tuple_function: ASTFunction = (parser_get_function tuple_parser 0)
+    let tuple_block: ASTBlock = (parser_get_block tuple_parser tuple_function.body)
+    let tuple_statement: ASTStmtRef = (list_ASTStmtRef_get tuple_block.statements 0)
+    let tuple_return: ASTReturn = (parser_get_return tuple_parser tuple_statement.node_id)
+    let tuple_text: string = (nisa_emit_expected_expr tuple_parser tuple_return.value tuple_return.value_type "(int,string)")
+    assert (str_contains tuple_text "AGG_PACK 2 0 0 2")
 }
 
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
@@ -2740,6 +2945,19 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (nisa_emit_union parser node_id) }
     if (== node_type ParseNodeType.PNODE_FLOAT) {
         return (nisa_line_imm "PUSH_F64" (parser_get_float parser node_id).value)
+    }
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+        return (nisa_emit_tuple_literal parser node_id "")
+    }
+    if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
+        let access: ASTTupleIndex = (parser_get_tuple_index parser node_id)
+        let tuple_type: string = (nisa_expr_type parser access.tuple access.tuple_type)
+        let elements: array<string> = (nisa_tuple_elements tuple_type)
+        if (or (< access.index 0) (>= access.index (array_length elements))) {
+            return (nisa_fail "tuple projection is outside my declared arity")
+        }
+        let receiver: string = (nisa_emit_expr parser access.tuple access.tuple_type)
+        return (+ receiver (nisa_line_imm "AGG_GET" (int_to_string access.index)))
     }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         return (nisa_emit_call parser (nisa_get_call parser node_id node_type))
@@ -3501,6 +3719,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             if (and (or (== nisa_return_type "float") (== result_type "float")) (!= result_type nisa_return_type)) {
                 return (nisa_fail "I require the declared float return type")
             }
+            if (and (nisa_tuple_type_ok parser nisa_return_type)
+                    (not (nisa_value_type_matches parser result_type nisa_return_type))) {
+                return (nisa_fail "I require the declared tuple return type")
+            }
             if (== nisa_void_return (nisa_call_has_result parser result_call)) {
                 return (nisa_fail "return call result count does not match my function")
             }
@@ -3720,6 +3942,7 @@ shadow nisa_emit_block {
 fn nisa_result_tag(parser: Parser, t: string) -> string {
     if (nisa_union_supported parser t) { return "union" }
     if (== t "float") { return "float" }
+    if (nisa_tuple_type_ok parser t) { return "tuple" }
     if (>= (nisa_enum_index parser t) 0) { return "int" }
     if (and (str_starts_with t "array<") (nisa_type_ok parser t)) { return "array" }
     if (!= (nisa_map_value_type t) "") { return "hashmap" }
@@ -3754,6 +3977,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "Box") "struct")
     assert (== (nisa_result_tag p "List<Tok>") "array")
     assert (== (nisa_result_tag p "List<Box>") "array")
+    assert (== (nisa_result_tag p "(int,string,bool)") "tuple")
 }
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
