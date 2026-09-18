@@ -62,3 +62,19 @@ With both prerequisites verified, I start a new independently logged execution
 of the original ordered phases at the same source pin. All assertions, LTO,
 sanitizers, inner/outer deadlines and target routes remain required. The missing
 dependency outcome remains separate from the corrected qualification.
+
+## My explicit LLVM tool selection correction
+
+My first corrected build stops after 0.821661 seconds with exit 2 because
+`scripts/embed_managed_runtime.py` cannot execute `opt`. The peer confirms
+that `/opt/homebrew/opt/llvm/bin/opt` exists outside the selected PATH. No test
+method ran. I retain the separate build log and inventory; installing Wasmtime
+did not qualify my build.
+
+For a new logged qualification I prepend the existing Homebrew LLVM bin
+directory to the dedicated venv and Homebrew PATH. I inventory the selected
+clang, opt, llvm-link and linkers, including exact versions and executable
+hashes, before starting. I use this explicit PATH for every phase; I do not
+change shell startup files or install another LLVM. My source pin, test methods,
+assertions, sanitizer/LTO requirements and deadlines remain unchanged. I stop
+on the first new failure and preserve all previous terminal reports.
