@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I admit bounded owned value-call source graphs (`task_46122ab40a234b6787d0de2927fd5bf2`) after runtime PR725/738. My [preimplementation contract](NANOISA_SOURCE_OWNED_VALUE_GRAPHS.md) includes exact multi-argument transfers from open task_d54033e921f24e279e53e8ed4cf50d17, zero-argument factories, exact owned/VOID results, multiple helpers and synthetic shadow entry calling ordinary main. I preserve complete checked graph metadata and source ownership; string/PRINT admission depends on the peer runtime prerequisite, and unchanged c435 example/full ownership acceptance remains open. No source implementation is claimed.
+
 - [ ] I retain the non-immutable owned-result Clang qualification incident (`task_26c8ef718fbf4cb7834412950f4a510d`): case9 receives errno13 before starting nano_vm while another gate relinks that tool. I preserve the log without an exact cause claim, then qualify fresh source sequentially with unchanged before/after tool hashes. Later acceptance does not relabel this historical incident. [Evidence](evidence/owned-value-results.md).
 
 - [x] I preserve existing scalar/CALL_REF return allocation behavior (`task_af6dac9228e54700b98a72d852db8969`) while adding owned helper results. The initial extension allocates return facts on unchanged scalar paths and reaches two existing allocation-test ceilings. I retain the failure log, restrict the new exact-layout query to STRUCT returns, and preserve scalar/VOID count/tag checks, capacity preflight and reference cleanup without raising ceilings.
