@@ -1,0 +1,22 @@
+{
+  "initial_production": "553a57bb",
+  "integrated_source": "baa69c430a7ade9803b882de161c9193d990e4e5",
+  "codegen_checks": 90,
+  "paired_methods": 2,
+  "paired_seconds": 2.19,
+  "logs": {
+    "/tmp/nanolang-range-arity-codegen.log": "e4bdb5935c12b53919127e5516d557c65d9d3eb71d06cc05a51fa09960acd5e7",
+    "/tmp/nanolang-range-arity-paired.log": "1991d4783bfb08ab30681644291b0a675fcc84c00b1b50af1fb5ecedc2d064dd",
+    "/tmp/nanolang-range-arity-integrated-paired.log": "c06ad7db869252ca4e4d20b2f6b9f2c251246f53cdce4be1f182b44777bbe741"
+  },
+  "tools": {
+    "bin/nanoc_c": "34cc04574510301cac20918dc6221c5948885adc52c5144536b467d5c8b31992",
+    "bin/nanoisa_emit": "a01737beb3e96366e757b3bea615032228ea98f06c4a5021130115ff066c6530",
+    "bin/nano_virt": "8d4d27c5a8679aeaef86ea9e97d977a6e877a5c7ac79a1620b83a2dd8d3ec1d1",
+    "bin/nano_vm": "8e52c483094d8d73d2e25cece37c5640a6007c06e2365d0d89ff4a7c5a08581b",
+    "bin/nvm2c": "7045640339fc95fe1a560c5cf384229a46e5ee0710cc99bcbfcc56d5d8c43972",
+    "bin/nanoisa": "df12a31298355e532f3153307a6a5322ba355237f1f1240f2ab603a3174c8249",
+    "tests/nanoisa/test_nanoisa_src_nano": "7683fa50e29d38d5e690cdf31c54d55b01cfe7e59faf591c270b385d70789d06"
+  },
+  "boundary": "I retain initial native unused-label failure separately. Integrated local translator includes merged PR704. No full bootstrap or broader release claim."
+}

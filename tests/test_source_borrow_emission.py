@@ -724,6 +724,75 @@ shadow main { assert true }
                                             capture_output=True, text=True, timeout=60)
                     self.assertGreater(result.returncode, 0, (tool, result.stdout, result.stderr))
 
+    def test_helper_owned_locals_preserve_formals_and_shadows(self):
+        text = (FIXTURES / 'source_borrow_helper_owners.nano').read_text()
+        prior = (FIXTURES / 'source_borrow_resource_paths.nano').read_text().replace(
+            'set view.value (+ view.value 1)',
+            'let owner: Leaf = Leaf { value: 1, active: true } let Leaf { value, active } = owner set view.value (+ view.value 1)')
+        variants = {'normal': text, 'alternate': text.replace('if true {', 'if false {').replace('while (< index 2)', 'while (< index 0)'),
+                    'former_refusal': prior}
+        for name, content in variants.items():
+            source = self.work / ('helper-owners-' + name + '.nano')
+            source.write_text(content)
+            baseline = None
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-helper.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if baseline is None:
+                    baseline = actual
+                self.assertEqual(actual, baseline)
+                records = self.names_and_strip(module)
+                if name != 'former_refusal':
+                    self.assertIn('BORROW_PATH_SHARED 2 ', actual)
+                    helper = [row for row in records if row[0] == 'combine']
+                    self.assertEqual([row[4] for row in helper[:2]], ['target', 'source'])
+                    self.assertGreaterEqual(sum(row[4] == 'source' for row in helper), 3)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'helper.nasm', self.work / 'helper.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'helper-shadow.nasm', self.work / 'helper-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
+    def test_helper_owner_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_helper_owners.nano').read_text()
+        cases = {
+            'unconsumed': text.replace('return target.value', 'let extra: Leaf = Leaf { value: 1, active: true } return target.value'),
+            'formal_move': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = source'),
+            'formal_write': text.replace('set target.value (+ target.value source.value)', 'set source.value 9'),
+            'deeper_call': text.replace('return target.value', 'return (combine target source)'),
+            'wrong_nominal': text.replace('let tree: Pair = Pair { right: second, left: first }', 'let tree: Pair = first'),
+            'hidden_owner': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = (cond (true Leaf { value: 100, active: true }) (else Leaf { value: 100, active: true }))'),
+            'local_write': text.replace('assert (== first.value 100)', 'set first.value 100', 1).replace('let first: Leaf', 'let mut first: Leaf', 1),
+        }
+        for name, content in cases.items():
+            source = self.work / ('helper-refusal-' + name + '.nano')
+            source.write_text(content)
+            for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                output = self.work / 'helper-preserved.output'
+                output.write_text('accepted-output')
+                args = [compiler, source]
+                if compiler not in self.emitters:
+                    args.append('--emit-nvm')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_text(), 'accepted-output')
+                self.assertNotRegex(result.stderr + result.stdout, r'(?i)parse (?:error|failed)|unexpected token')
+                self.assertRegex(result.stderr + result.stdout,
+                                 r'(?i)borrow|owner|resource|consum|nominal|constructor|type mismatch|expected|helper|exclusive|mutable')
+
     def test_resource_path_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_resource_paths.nano').read_text()
         cases = {
@@ -734,7 +803,6 @@ shadow main { assert true }
             'moved_use': text.replace('let mut moved: Pair = tree', 'let mut moved: Pair = tree let again: Pair = tree'),
             'assignment': text.replace('let mut moved: Leaf = leaf', 'let mut moved: Leaf = leaf set moved Leaf { value: 1, active: true }'),
             'partial_move': text.replace('let Pair { right, left } = moved', 'let right: Leaf = moved.right let left: Leaf = moved.left'),
-            'helper_owner': text.replace('set view.value (+ view.value 1)', 'let owner: Leaf = Leaf { value: 1, active: true } let Leaf { value, active } = owner set view.value (+ view.value 1)'),
             'wrong_nominal': text.replace('let mut moved: Pair = tree', 'let moved: Leaf = tree'),
         }
         for name, content in cases.items():

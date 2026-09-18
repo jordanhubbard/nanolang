@@ -115,6 +115,10 @@ the checked module format rather than an agreement hidden in host code.
 **Stack & Constants (0x00-0x0F):**
 `NOP`, `PUSH_I64`, `PUSH_F64`, `PUSH_BOOL`, `PUSH_STR`, `PUSH_VOID`, `PUSH_U8`, `DUP`, `POP`, `SWAP`, `ROT3`
 
+I spell canonical F64 operands as `bits:` plus 16 hexadecimal digits, preserving
+every binary64 encoding. I still accept legacy decimal assembly input; see
+[my exact F64 text contract](NANOISA_F64_TEXT.md).
+
 **Variable Access (0x10-0x1F):**
 `LOAD_LOCAL`, `STORE_LOCAL` (FP-relative), `LOAD_GLOBAL`, `STORE_GLOBAL`, `LOAD_UPVALUE`, `STORE_UPVALUE` (closure captures)
 

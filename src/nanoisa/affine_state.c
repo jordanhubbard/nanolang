@@ -459,6 +459,13 @@ bool nvm_affine_parameter_at(const NvmAffineState *s,uint16_t parameter,
     *type=(NvmAffineType){param.tag,param.layout};*mode=(NvmReferenceMode)param.mode;
     return true;
 }
+bool nvm_affine_owned_parameter_type(const NvmAffineState *s,NvmAffineType *type) {
+    if (!s || !type || s->facts->params!=1 || !s->facts->count ||
+        s->facts->locals[0].mode || !resource(s->facts,s->facts->locals[0]) ||
+        !(s->facts->flags[s->facts->locals[0].layout]&NVM_LAYOUT_COMPLETE)) return false;
+    *type=(NvmAffineType){s->facts->locals[0].tag,s->facts->locals[0].layout};
+    return type->tag==TAG_STRUCT;
+}
 bool nvm_affine_parameter_type(const NvmAffineState *s,NvmAffineType *type,
                                  NvmReferenceMode *mode) {
     return s && s->facts->params==1 && nvm_affine_parameter_at(s,0,type,mode);

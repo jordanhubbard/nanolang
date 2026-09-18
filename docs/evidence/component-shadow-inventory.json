@@ -1,0 +1,2240 @@
+{
+  "source_commit": "3373f01bc6e0a272c78a442372b182fd14bc8b71",
+  "method": "Lexical declaration inventory: mask quoted strings and comments while preserving newlines, then collect line-leading shadow declarations. These are not AST, selection or execution counts.",
+  "components": [
+    {
+      "path": "src_nano/parser.nano",
+      "sha256": "6b9915d746d7d42510ba1c23e495e204710ead12dc0031c3c247753102ec6d6e",
+      "declarations": 240,
+      "shadows": [
+        {
+          "name": "parser_init_ast_lists",
+          "line": 140
+        },
+        {
+          "name": "parser_new",
+          "line": 235
+        },
+        {
+          "name": "parser_allocate_id",
+          "line": 249
+        },
+        {
+          "name": "parser_is_at_end",
+          "line": 267
+        },
+        {
+          "name": "parser_with_position",
+          "line": 353
+        },
+        {
+          "name": "parser_advance",
+          "line": 373
+        },
+        {
+          "name": "parser_position",
+          "line": 385
+        },
+        {
+          "name": "parser_current",
+          "line": 406
+        },
+        {
+          "name": "parser_match",
+          "line": 424
+        },
+        {
+          "name": "parser_expect",
+          "line": 439
+        },
+        {
+          "name": "parser_peek",
+          "line": 459
+        },
+        {
+          "name": "parser_with_error",
+          "line": 547
+        },
+        {
+          "name": "parser_has_error",
+          "line": 557
+        },
+        {
+          "name": "token_number",
+          "line": 567
+        },
+        {
+          "name": "token_identifier",
+          "line": 570
+        },
+        {
+          "name": "token_string",
+          "line": 573
+        },
+        {
+          "name": "token_true",
+          "line": 576
+        },
+        {
+          "name": "token_false",
+          "line": 579
+        },
+        {
+          "name": "token_lparen",
+          "line": 582
+        },
+        {
+          "name": "token_rparen",
+          "line": 585
+        },
+        {
+          "name": "token_plus",
+          "line": 588
+        },
+        {
+          "name": "token_minus",
+          "line": 591
+        },
+        {
+          "name": "token_star",
+          "line": 594
+        },
+        {
+          "name": "token_slash",
+          "line": 597
+        },
+        {
+          "name": "token_eq",
+          "line": 600
+        },
+        {
+          "name": "token_ne",
+          "line": 603
+        },
+        {
+          "name": "token_lt",
+          "line": 606
+        },
+        {
+          "name": "token_le",
+          "line": 609
+        },
+        {
+          "name": "token_gt",
+          "line": 612
+        },
+        {
+          "name": "token_ge",
+          "line": 615
+        },
+        {
+          "name": "token_and",
+          "line": 618
+        },
+        {
+          "name": "token_or",
+          "line": 621
+        },
+        {
+          "name": "token_comma",
+          "line": 624
+        },
+        {
+          "name": "token_lbrace",
+          "line": 627
+        },
+        {
+          "name": "token_rbrace",
+          "line": 630
+        },
+        {
+          "name": "token_let",
+          "line": 633
+        },
+        {
+          "name": "token_if",
+          "line": 636
+        },
+        {
+          "name": "token_else",
+          "line": 639
+        },
+        {
+          "name": "token_while",
+          "line": 642
+        },
+        {
+          "name": "token_return",
+          "line": 645
+        },
+        {
+          "name": "token_colon",
+          "line": 648
+        },
+        {
+          "name": "token_mut",
+          "line": 651
+        },
+        {
+          "name": "token_assign",
+          "line": 654
+        },
+        {
+          "name": "token_arrow",
+          "line": 657
+        },
+        {
+          "name": "token_fn",
+          "line": 660
+        },
+        {
+          "name": "token_extern",
+          "line": 663
+        },
+        {
+          "name": "token_set",
+          "line": 666
+        },
+        {
+          "name": "token_struct",
+          "line": 669
+        },
+        {
+          "name": "token_enum",
+          "line": 672
+        },
+        {
+          "name": "token_union",
+          "line": 675
+        },
+        {
+          "name": "token_for",
+          "line": 679
+        },
+        {
+          "name": "token_in",
+          "line": 682
+        },
+        {
+          "name": "token_assert",
+          "line": 685
+        },
+        {
+          "name": "token_requires",
+          "line": 688
+        },
+        {
+          "name": "token_ensures",
+          "line": 691
+        },
+        {
+          "name": "token_unsafe",
+          "line": 694
+        },
+        {
+          "name": "token_shadow",
+          "line": 697
+        },
+        {
+          "name": "token_match",
+          "line": 700
+        },
+        {
+          "name": "token_import",
+          "line": 703
+        },
+        {
+          "name": "token_as",
+          "line": 706
+        },
+        {
+          "name": "token_pub",
+          "line": 709
+        },
+        {
+          "name": "token_pure",
+          "line": 712
+        },
+        {
+          "name": "token_opaque",
+          "line": 715
+        },
+        {
+          "name": "token_lbracket",
+          "line": 718
+        },
+        {
+          "name": "token_rbracket",
+          "line": 721
+        },
+        {
+          "name": "token_dot",
+          "line": 724
+        },
+        {
+          "name": "token_double_colon",
+          "line": 727
+        },
+        {
+          "name": "token_percent",
+          "line": 730
+        },
+        {
+          "name": "token_not",
+          "line": 733
+        },
+        {
+          "name": "token_pipe",
+          "line": 736
+        },
+        {
+          "name": "token_grammar",
+          "line": 739
+        },
+        {
+          "name": "token_larrow",
+          "line": 742
+        },
+        {
+          "name": "token_question",
+          "line": 745
+        },
+        {
+          "name": "token_array",
+          "line": 748
+        },
+        {
+          "name": "token_type_int",
+          "line": 751
+        },
+        {
+          "name": "token_type_float",
+          "line": 754
+        },
+        {
+          "name": "token_type_bool",
+          "line": 757
+        },
+        {
+          "name": "token_type_string",
+          "line": 760
+        },
+        {
+          "name": "token_type_bstring",
+          "line": 763
+        },
+        {
+          "name": "token_type_void",
+          "line": 766
+        },
+        {
+          "name": "parse_qualified_name",
+          "line": 811
+        },
+        {
+          "name": "parse_call_name",
+          "line": 882
+        },
+        {
+          "name": "is_type_start_token_type",
+          "line": 929
+        },
+        {
+          "name": "parse_type_string",
+          "line": 1135
+        },
+        {
+          "name": "parser_store_number",
+          "line": 1241
+        },
+        {
+          "name": "parser_store_string",
+          "line": 1336
+        },
+        {
+          "name": "parser_store_bool",
+          "line": 1430
+        },
+        {
+          "name": "parser_store_identifier",
+          "line": 1524
+        },
+        {
+          "name": "parser_store_binary_op",
+          "line": 1624
+        },
+        {
+          "name": "parser_mark_unary",
+          "line": 1639
+        },
+        {
+          "name": "parser_store_call",
+          "line": 1740
+        },
+        {
+          "name": "parser_store_module_qualified_call",
+          "line": 1836
+        },
+        {
+          "name": "name_contains_dot",
+          "line": 1855
+        },
+        {
+          "name": "parser_store_call_arg",
+          "line": 1948
+        },
+        {
+          "name": "parser_store_array_element",
+          "line": 2039
+        },
+        {
+          "name": "parse_named_literal",
+          "line": 2067
+        },
+        {
+          "name": "parse_union_construct",
+          "line": 2134
+        },
+        {
+          "name": "parse_struct_literal",
+          "line": 2204
+        },
+        {
+          "name": "parse_cond_expression",
+          "line": 2304
+        },
+        {
+          "name": "parse_cond_clauses",
+          "line": 2308
+        },
+        {
+          "name": "parse_match",
+          "line": 2528
+        },
+        {
+          "name": "parse_primary",
+          "line": 3114
+        },
+        {
+          "name": "parenthesized_call_start",
+          "line": 3172
+        },
+        {
+          "name": "is_binary_op",
+          "line": 3193
+        },
+        {
+          "name": "parse_expression_recursive",
+          "line": 3374
+        },
+        {
+          "name": "parse_expression",
+          "line": 3379
+        },
+        {
+          "name": "parser_store_let",
+          "line": 3484
+        },
+        {
+          "name": "parser_store_set",
+          "line": 3582
+        },
+        {
+          "name": "parser_store_if",
+          "line": 3686
+        },
+        {
+          "name": "parser_store_while",
+          "line": 3783
+        },
+        {
+          "name": "parser_finish_array_literal",
+          "line": 3892
+        },
+        {
+          "name": "parser_always_returns",
+          "line": 4038
+        },
+        {
+          "name": "parser_is_value_expression",
+          "line": 4046
+        },
+        {
+          "name": "parser_decode_import_path",
+          "line": 4076
+        },
+        {
+          "name": "parser_store_return",
+          "line": 4642
+        },
+        {
+          "name": "parser_store_assert",
+          "line": 4737
+        },
+        {
+          "name": "parser_store_block",
+          "line": 4834
+        },
+        {
+          "name": "parser_wrap_if_in_block",
+          "line": 4847
+        },
+        {
+          "name": "expr_kind_to_pnode",
+          "line": 4864
+        },
+        {
+          "name": "parser_starts_owned_pattern",
+          "line": 4883
+        },
+        {
+          "name": "parser_mark_owned",
+          "line": 4899
+        },
+        {
+          "name": "parse_owned_pattern",
+          "line": 4954
+        },
+        {
+          "name": "parse_block_recursive",
+          "line": 5066
+        },
+        {
+          "name": "parse_block",
+          "line": 5070
+        },
+        {
+          "name": "parser_store_unsafe_block",
+          "line": 5163
+        },
+        {
+          "name": "parse_unsafe_block_recursive",
+          "line": 5199
+        },
+        {
+          "name": "parse_unsafe_block",
+          "line": 5228
+        },
+        {
+          "name": "parse_let_body",
+          "line": 5232
+        },
+        {
+          "name": "parse_tuple_destructure",
+          "line": 5393
+        },
+        {
+          "name": "parse_let_statement",
+          "line": 5428
+        },
+        {
+          "name": "parse_if_statement",
+          "line": 5503
+        },
+        {
+          "name": "parse_while_statement",
+          "line": 5538
+        },
+        {
+          "name": "parse_return_statement",
+          "line": 5578
+        },
+        {
+          "name": "parse_assert_statement",
+          "line": 5600
+        },
+        {
+          "name": "parse_for_statement",
+          "line": 5661
+        },
+        {
+          "name": "parser_with_node",
+          "line": 5746
+        },
+        {
+          "name": "parser_with_statement",
+          "line": 5755
+        },
+        {
+          "name": "parser_mark_passive",
+          "line": 5771
+        },
+        {
+          "name": "parser_mark_par",
+          "line": 5782
+        },
+        {
+          "name": "parse_statement",
+          "line": 5878
+        },
+        {
+          "name": "parser_mark_pure",
+          "line": 5898
+        },
+        {
+          "name": "parser_store_function",
+          "line": 6001
+        },
+        {
+          "name": "parser_store_struct",
+          "line": 6101
+        },
+        {
+          "name": "parser_store_enum",
+          "line": 6199
+        },
+        {
+          "name": "parser_store_union",
+          "line": 6307
+        },
+        {
+          "name": "parse_parameter_type",
+          "line": 6802
+        },
+        {
+          "name": "parse_function_params",
+          "line": 6893
+        },
+        {
+          "name": "parse_extern_function_definition",
+          "line": 6956
+        },
+        {
+          "name": "parse_function_definition",
+          "line": 7135
+        },
+        {
+          "name": "parse_struct_fields",
+          "line": 7204
+        },
+        {
+          "name": "parse_struct_definition",
+          "line": 7256
+        },
+        {
+          "name": "parse_enum_variants",
+          "line": 7326
+        },
+        {
+          "name": "parse_enum_definition",
+          "line": 7377
+        },
+        {
+          "name": "parse_union_variants",
+          "line": 7511
+        },
+        {
+          "name": "parse_union_definition",
+          "line": 7582
+        },
+        {
+          "name": "parse_module_import",
+          "line": 7673
+        },
+        {
+          "name": "parse_import",
+          "line": 7677
+        },
+        {
+          "name": "parse_from_import",
+          "line": 7766
+        },
+        {
+          "name": "parse_opaque_type",
+          "line": 7801
+        },
+        {
+          "name": "parse_shadow",
+          "line": 7830
+        },
+        {
+          "name": "parse_definition",
+          "line": 7967
+        },
+        {
+          "name": "parse_program",
+          "line": 8005
+        },
+        {
+          "name": "create_number_node",
+          "line": 8031
+        },
+        {
+          "name": "create_identifier_node",
+          "line": 8046
+        },
+        {
+          "name": "test_parser_structure",
+          "line": 8066
+        },
+        {
+          "name": "parser_get_function_count",
+          "line": 8083
+        },
+        {
+          "name": "parser_set_let_var_type",
+          "line": 8124
+        },
+        {
+          "name": "parser_get_for",
+          "line": 8213
+        },
+        {
+          "name": "parser_get_struct_def_count",
+          "line": 8351
+        },
+        {
+          "name": "parser_get_struct_def",
+          "line": 8367
+        },
+        {
+          "name": "parser_get_enum_count",
+          "line": 8393
+        },
+        {
+          "name": "parser_get_enum",
+          "line": 8405
+        },
+        {
+          "name": "parser_get_union_count",
+          "line": 8417
+        },
+        {
+          "name": "parser_get_union",
+          "line": 8434
+        },
+        {
+          "name": "parser_store_array_literal",
+          "line": 8498
+        },
+        {
+          "name": "parser_store_field_access",
+          "line": 8505
+        },
+        {
+          "name": "parser_store_float",
+          "line": 8512
+        },
+        {
+          "name": "parser_store_for",
+          "line": 8519
+        },
+        {
+          "name": "parser_store_import",
+          "line": 8526
+        },
+        {
+          "name": "parser_store_match",
+          "line": 8535
+        },
+        {
+          "name": "parser_store_opaque_type",
+          "line": 8546
+        },
+        {
+          "name": "parser_store_shadow",
+          "line": 8553
+        },
+        {
+          "name": "parser_store_struct_literal",
+          "line": 8560
+        },
+        {
+          "name": "parser_store_tuple_index",
+          "line": 8573
+        },
+        {
+          "name": "parser_store_tuple_literal",
+          "line": 8580
+        },
+        {
+          "name": "parser_store_union_construct",
+          "line": 8591
+        },
+        {
+          "name": "parser_get_function",
+          "line": 8601
+        },
+        {
+          "name": "parser_get_let_count",
+          "line": 8608
+        },
+        {
+          "name": "parser_get_let",
+          "line": 8615
+        },
+        {
+          "name": "parser_get_identifier_count",
+          "line": 8622
+        },
+        {
+          "name": "parser_get_identifier",
+          "line": 8629
+        },
+        {
+          "name": "parser_get_number_count",
+          "line": 8636
+        },
+        {
+          "name": "parser_get_number",
+          "line": 8643
+        },
+        {
+          "name": "parser_get_float_count",
+          "line": 8650
+        },
+        {
+          "name": "parser_get_float",
+          "line": 8657
+        },
+        {
+          "name": "parser_get_binary_op_count",
+          "line": 8664
+        },
+        {
+          "name": "parser_get_binary_op",
+          "line": 8674
+        },
+        {
+          "name": "parser_get_return_count",
+          "line": 8684
+        },
+        {
+          "name": "parser_get_return",
+          "line": 8692
+        },
+        {
+          "name": "parser_get_block_count",
+          "line": 8700
+        },
+        {
+          "name": "parser_get_block",
+          "line": 8708
+        },
+        {
+          "name": "parser_get_if_count",
+          "line": 8716
+        },
+        {
+          "name": "parser_get_if",
+          "line": 8727
+        },
+        {
+          "name": "parser_get_while_count",
+          "line": 8738
+        },
+        {
+          "name": "parser_get_while",
+          "line": 8749
+        },
+        {
+          "name": "parser_get_unsafe_block",
+          "line": 8760
+        },
+        {
+          "name": "parser_get_call_count",
+          "line": 8768
+        },
+        {
+          "name": "parser_get_call",
+          "line": 8777
+        },
+        {
+          "name": "parser_get_module_qualified_call_count",
+          "line": 8786
+        },
+        {
+          "name": "parser_get_module_qualified_call",
+          "line": 8793
+        },
+        {
+          "name": "parser_get_call_arg_count",
+          "line": 8800
+        },
+        {
+          "name": "parser_get_call_arg",
+          "line": 8807
+        },
+        {
+          "name": "parser_get_set_count",
+          "line": 8814
+        },
+        {
+          "name": "parser_get_set",
+          "line": 8822
+        },
+        {
+          "name": "parser_get_string_count",
+          "line": 8830
+        },
+        {
+          "name": "parser_get_string",
+          "line": 8837
+        },
+        {
+          "name": "parser_get_bool_count",
+          "line": 8844
+        },
+        {
+          "name": "parser_get_bool",
+          "line": 8851
+        },
+        {
+          "name": "parser_get_assert_count",
+          "line": 8858
+        },
+        {
+          "name": "parser_get_assert",
+          "line": 8866
+        },
+        {
+          "name": "parser_get_field_access_count",
+          "line": 8874
+        },
+        {
+          "name": "parser_get_field_access",
+          "line": 8881
+        },
+        {
+          "name": "parser_get_array_literal_count",
+          "line": 8888
+        },
+        {
+          "name": "parser_get_array_literal",
+          "line": 8895
+        },
+        {
+          "name": "parser_set_array_literal_element_type",
+          "line": 8902
+        },
+        {
+          "name": "parser_get_array_element_count",
+          "line": 8910
+        },
+        {
+          "name": "parser_get_array_element",
+          "line": 8917
+        },
+        {
+          "name": "parser_get_struct_literal_count",
+          "line": 8924
+        },
+        {
+          "name": "parser_get_struct_literal",
+          "line": 8937
+        },
+        {
+          "name": "parser_get_union_construct_count",
+          "line": 8950
+        },
+        {
+          "name": "parser_get_union_construct",
+          "line": 8960
+        },
+        {
+          "name": "parser_get_match_count",
+          "line": 8970
+        },
+        {
+          "name": "parser_get_match",
+          "line": 8981
+        },
+        {
+          "name": "parser_get_tuple_literal_count",
+          "line": 8992
+        },
+        {
+          "name": "parser_get_tuple_literal",
+          "line": 9003
+        },
+        {
+          "name": "parser_get_tuple_index_count",
+          "line": 9014
+        },
+        {
+          "name": "parser_get_tuple_index",
+          "line": 9021
+        },
+        {
+          "name": "parser_get_import_count",
+          "line": 9028
+        },
+        {
+          "name": "parser_get_import",
+          "line": 9037
+        },
+        {
+          "name": "parse_phase_run",
+          "line": 9090
+        }
+      ]
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "sha256": "eba6a115ab04d694a71799c40eecd2634eea0b9b8d8766b7330703d49d7e9218",
+      "declarations": 148,
+      "shadows": [
+        {
+          "name": "resource_name_in",
+          "line": 92
+        },
+        {
+          "name": "resource_variant_key",
+          "line": 100
+        },
+        {
+          "name": "resource_concrete_identity",
+          "line": 165
+        },
+        {
+          "name": "resource_type_identity",
+          "line": 172
+        },
+        {
+          "name": "resource_fixed_payload_bearing",
+          "line": 193
+        },
+        {
+          "name": "resource_concrete_payload_fact",
+          "line": 246
+        },
+        {
+          "name": "resource_classify",
+          "line": 359
+        },
+        {
+          "name": "resource_has_collection_payload",
+          "line": 375
+        },
+        {
+          "name": "resource_type_is_declared",
+          "line": 382
+        },
+        {
+          "name": "resource_find",
+          "line": 404
+        },
+        {
+          "name": "resource_test_parser",
+          "line": 421
+        },
+        {
+          "name": "resource_copy",
+          "line": 434
+        },
+        {
+          "name": "resource_place_root",
+          "line": 449
+        },
+        {
+          "name": "resource_place_path",
+          "line": 461
+        },
+        {
+          "name": "resource_path_prefix",
+          "line": 470
+        },
+        {
+          "name": "resource_place_conflict",
+          "line": 486
+        },
+        {
+          "name": "resource_place_hold",
+          "line": 511
+        },
+        {
+          "name": "resource_restore_holds",
+          "line": 533
+        },
+        {
+          "name": "resource_replace",
+          "line": 554
+        },
+        {
+          "name": "resource_flow_error",
+          "line": 567
+        },
+        {
+          "name": "resource_resolve_exit",
+          "line": 584
+        },
+        {
+          "name": "resource_join",
+          "line": 605
+        },
+        {
+          "name": "resource_loop_edge",
+          "line": 624
+        },
+        {
+          "name": "resource_value_type",
+          "line": 739
+        },
+        {
+          "name": "tc_generic_arguments",
+          "line": 759
+        },
+        {
+          "name": "tc_substitute_generic",
+          "line": 769
+        },
+        {
+          "name": "resource_instantiated_classify",
+          "line": 833
+        },
+        {
+          "name": "resource_generic_contains",
+          "line": 852
+        },
+        {
+          "name": "resource_transfer_supported",
+          "line": 898
+        },
+        {
+          "name": "resource_callback_unsupported",
+          "line": 925
+        },
+        {
+          "name": "resource_check_annotation",
+          "line": 971
+        },
+        {
+          "name": "resource_flow_block",
+          "line": 995
+        },
+        {
+          "name": "resource_union_index",
+          "line": 1010
+        },
+        {
+          "name": "resource_selected_identity",
+          "line": 1023
+        },
+        {
+          "name": "resource_owned_union_index",
+          "line": 1036
+        },
+        {
+          "name": "resource_match_supported",
+          "line": 1061
+        },
+        {
+          "name": "resource_parameter_type",
+          "line": 1080
+        },
+        {
+          "name": "resource_flow_value",
+          "line": 1148
+        },
+        {
+          "name": "resource_flow_node",
+          "line": 1465
+        },
+        {
+          "name": "resource_check_global",
+          "line": 1495
+        },
+        {
+          "name": "resource_check_function",
+          "line": 1528
+        },
+        {
+          "name": "type_int",
+          "line": 1553
+        },
+        {
+          "name": "type_float",
+          "line": 1567
+        },
+        {
+          "name": "type_bool",
+          "line": 1581
+        },
+        {
+          "name": "type_string",
+          "line": 1595
+        },
+        {
+          "name": "type_void",
+          "line": 1609
+        },
+        {
+          "name": "type_unknown_named",
+          "line": 1623
+        },
+        {
+          "name": "type_from_kind",
+          "line": 1646
+        },
+        {
+          "name": "init_struct_metadata",
+          "line": 1990
+        },
+        {
+          "name": "capitalize_first",
+          "line": 2032
+        },
+        {
+          "name": "extract_user_struct_metadata",
+          "line": 2073
+        },
+        {
+          "name": "merge_struct_metadata",
+          "line": 2091
+        },
+        {
+          "name": "field_metadata_key",
+          "line": 2097
+        },
+        {
+          "name": "field_metadata_type_string",
+          "line": 2135
+        },
+        {
+          "name": "build_field_metadata_index",
+          "line": 2158
+        },
+        {
+          "name": "lookup_field_type_kind",
+          "line": 2183
+        },
+        {
+          "name": "lookup_field_type",
+          "line": 2208
+        },
+        {
+          "name": "option_type_some",
+          "line": 2221
+        },
+        {
+          "name": "option_type_none",
+          "line": 2235
+        },
+        {
+          "name": "type_kind_from_string",
+          "line": 2250
+        },
+        {
+          "name": "type_array",
+          "line": 2264
+        },
+        {
+          "name": "type_array_of",
+          "line": 2277
+        },
+        {
+          "name": "type_list_generic",
+          "line": 2292
+        },
+        {
+          "name": "type_union",
+          "line": 2308
+        },
+        {
+          "name": "type_tuple",
+          "line": 2324
+        },
+        {
+          "name": "strip_spaces",
+          "line": 2344
+        },
+        {
+          "name": "types_equal",
+          "line": 2416
+        },
+        {
+          "name": "fn_type_return_type",
+          "line": 2493
+        },
+        {
+          "name": "fn_type_param_types",
+          "line": 2552
+        },
+        {
+          "name": "split_tuple_type_names",
+          "line": 2622
+        },
+        {
+          "name": "tuple_type_string_from_literal",
+          "line": 2647
+        },
+        {
+          "name": "base_type_name",
+          "line": 2660
+        },
+        {
+          "name": "is_union_name",
+          "line": 2678
+        },
+        {
+          "name": "is_enum_name",
+          "line": 2693
+        },
+        {
+          "name": "tc_is_opaque_name",
+          "line": 2711
+        },
+        {
+          "name": "type_from_string_with_parser",
+          "line": 2743
+        },
+        {
+          "name": "fn_type_params_with_parser",
+          "line": 2762
+        },
+        {
+          "name": "tc_str_index_of",
+          "line": 2790
+        },
+        {
+          "name": "extract_list_element_type",
+          "line": 2812
+        },
+        {
+          "name": "tc_str_starts_with",
+          "line": 2828
+        },
+        {
+          "name": "tc_str_last_index_of",
+          "line": 2851
+        },
+        {
+          "name": "check_list_function_call",
+          "line": 2893
+        },
+        {
+          "name": "is_builtin_function",
+          "line": 3049
+        },
+        {
+          "name": "check_builtin_function",
+          "line": 3254
+        },
+        {
+          "name": "extract_list_type_from_function",
+          "line": 3280
+        },
+        {
+          "name": "type_from_element_name",
+          "line": 3314
+        },
+        {
+          "name": "type_from_string",
+          "line": 3323
+        },
+        {
+          "name": "type_kind_to_string",
+          "line": 3414
+        },
+        {
+          "name": "type_to_string",
+          "line": 3422
+        },
+        {
+          "name": "env_new",
+          "line": 3447
+        },
+        {
+          "name": "symbol_new",
+          "line": 3467
+        },
+        {
+          "name": "empty_param_types",
+          "line": 3479
+        },
+        {
+          "name": "env_add_symbol",
+          "line": 3489
+        },
+        {
+          "name": "env_copy_symbols",
+          "line": 3505
+        },
+        {
+          "name": "typecheck_local_lets",
+          "line": 3518
+        },
+        {
+          "name": "last_index_of_dot",
+          "line": 3562
+        },
+        {
+          "name": "module_qualified_suffix",
+          "line": 3588
+        },
+        {
+          "name": "tc_str_ends_with",
+          "line": 3610
+        },
+        {
+          "name": "env_lookup",
+          "line": 3616
+        },
+        {
+          "name": "env_has_symbol",
+          "line": 3626
+        },
+        {
+          "name": "env_get_type",
+          "line": 3665
+        },
+        {
+          "name": "check_number_literal",
+          "line": 3686
+        },
+        {
+          "name": "check_string_literal",
+          "line": 3698
+        },
+        {
+          "name": "check_bool_literal",
+          "line": 3708
+        },
+        {
+          "name": "check_binary_op",
+          "line": 3775
+        },
+        {
+          "name": "op_token_to_string",
+          "line": 3839
+        },
+        {
+          "name": "ensure_known_expr_node",
+          "line": 3882
+        },
+        {
+          "name": "check_constructor_argument",
+          "line": 3955
+        },
+        {
+          "name": "check_union_construct",
+          "line": 3991
+        },
+        {
+          "name": "check_match_expr",
+          "line": 4087
+        },
+        {
+          "name": "check_variant_field_type",
+          "line": 4114
+        },
+        {
+          "name": "tc_bound_name",
+          "line": 4131
+        },
+        {
+          "name": "check_map_call",
+          "line": 4177
+        },
+        {
+          "name": "check_expr_node",
+          "line": 4694
+        },
+        {
+          "name": "typecheck_return_expr",
+          "line": 4751
+        },
+        {
+          "name": "array_elem_type_from_array_decl",
+          "line": 4766
+        },
+        {
+          "name": "owned_pattern_complete",
+          "line": 4826
+        },
+        {
+          "name": "check_let_statement",
+          "line": 4931
+        },
+        {
+          "name": "check_return_statement",
+          "line": 4995
+        },
+        {
+          "name": "check_set_statement",
+          "line": 5049
+        },
+        {
+          "name": "expr_kind_from_pnode",
+          "line": 5066
+        },
+        {
+          "name": "par_scalar_expr",
+          "line": 5125
+        },
+        {
+          "name": "check_flow_statement",
+          "line": 5155
+        },
+        {
+          "name": "check_par_statement",
+          "line": 5201
+        },
+        {
+          "name": "check_block_value",
+          "line": 5343
+        },
+        {
+          "name": "check_statement_list",
+          "line": 5353
+        },
+        {
+          "name": "check_statement_list",
+          "line": 5364
+        },
+        {
+          "name": "check_block",
+          "line": 5379
+        },
+        {
+          "name": "scalar_borrow_shape",
+          "line": 5415
+        },
+        {
+          "name": "check_function",
+          "line": 5472
+        },
+        {
+          "name": "typecheck_output",
+          "line": 5491
+        },
+        {
+          "name": "apply_return_type_hint",
+          "line": 5525
+        },
+        {
+          "name": "typecheck_phase",
+          "line": 5546
+        },
+        {
+          "name": "purity_join",
+          "line": 5571
+        },
+        {
+          "name": "purity_local",
+          "line": 5585
+        },
+        {
+          "name": "purity_add",
+          "line": 5598
+        },
+        {
+          "name": "purity_type",
+          "line": 5624
+        },
+        {
+          "name": "purity_input_value",
+          "line": 5657
+        },
+        {
+          "name": "purity_identifier",
+          "line": 5698
+        },
+        {
+          "name": "purity_call",
+          "line": 5724
+        },
+        {
+          "name": "purity_node",
+          "line": 5871
+        },
+        {
+          "name": "purity_function",
+          "line": 5917
+        },
+        {
+          "name": "purity_summary",
+          "line": 5933
+        },
+        {
+          "name": "typecheck_phase_with_symbols",
+          "line": 6099
+        },
+        {
+          "name": "typecheck_phase_with_shadows",
+          "line": 6101
+        },
+        {
+          "name": "typecheck_parser",
+          "line": 6136
+        },
+        {
+          "name": "typecheck_with_count",
+          "line": 6154
+        },
+        {
+          "name": "typecheck",
+          "line": 6165
+        }
+      ]
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "sha256": "908dd98240b5d586c5b34e073ad9604d362057b98e8585fb93b226addb50af84",
+      "declarations": 165,
+      "shadows": [
+        {
+          "name": "register_extern_names",
+          "line": 62
+        },
+        {
+          "name": "would_collide_with_extern",
+          "line": 82
+        },
+        {
+          "name": "is_opaque_type",
+          "line": 118
+        },
+        {
+          "name": "reset_module_aliases",
+          "line": 137
+        },
+        {
+          "name": "reset_func_aliases",
+          "line": 148
+        },
+        {
+          "name": "add_module_alias",
+          "line": 159
+        },
+        {
+          "name": "add_func_alias",
+          "line": 173
+        },
+        {
+          "name": "resolve_module_alias",
+          "line": 193
+        },
+        {
+          "name": "resolve_func_alias",
+          "line": 212
+        },
+        {
+          "name": "reset_fn_types",
+          "line": 225
+        },
+        {
+          "name": "register_fn_type",
+          "line": 266
+        },
+        {
+          "name": "parse_fn_type_params",
+          "line": 342
+        },
+        {
+          "name": "parse_fn_type_return",
+          "line": 407
+        },
+        {
+          "name": "generate_fn_type_typedefs",
+          "line": 451
+        },
+        {
+          "name": "is_fn_type",
+          "line": 466
+        },
+        {
+          "name": "codegen_new",
+          "line": 481
+        },
+        {
+          "name": "gen_indent",
+          "line": 499
+        },
+        {
+          "name": "cg_append",
+          "line": 546
+        },
+        {
+          "name": "cg_build",
+          "line": 557
+        },
+        {
+          "name": "gen_temp_var",
+          "line": 572
+        },
+        {
+          "name": "codegen_next_temp",
+          "line": 587
+        },
+        {
+          "name": "mangle_name",
+          "line": 627
+        },
+        {
+          "name": "transp_str_starts_with",
+          "line": 649
+        },
+        {
+          "name": "transp_str_index_of",
+          "line": 672
+        },
+        {
+          "name": "transp_extract_list_element_type",
+          "line": 693
+        },
+        {
+          "name": "is_generic_type",
+          "line": 704
+        },
+        {
+          "name": "extract_base_type_name",
+          "line": 720
+        },
+        {
+          "name": "extract_type_args",
+          "line": 777
+        },
+        {
+          "name": "monomorphize_type_name",
+          "line": 810
+        },
+        {
+          "name": "hashset_new_string",
+          "line": 821
+        },
+        {
+          "name": "hashset_has_string",
+          "line": 832
+        },
+        {
+          "name": "hashset_add_string",
+          "line": 846
+        },
+        {
+          "name": "transp_str_ends_with",
+          "line": 864
+        },
+        {
+          "name": "last_double_colon_index",
+          "line": 886
+        },
+        {
+          "name": "last_dot_index",
+          "line": 905
+        },
+        {
+          "name": "last_slash_index",
+          "line": 924
+        },
+        {
+          "name": "module_name_from_path",
+          "line": 953
+        },
+        {
+          "name": "build_module_alias_map",
+          "line": 1001
+        },
+        {
+          "name": "mangle_module_ident",
+          "line": 1047
+        },
+        {
+          "name": "is_unprefixed_list_runtime_fn",
+          "line": 1060
+        },
+        {
+          "name": "is_generic_list_runtime_fn",
+          "line": 1071
+        },
+        {
+          "name": "c_name_for_qualified_function",
+          "line": 1112
+        },
+        {
+          "name": "map_builtin_func_name",
+          "line": 1238
+        },
+        {
+          "name": "c_func_name_for_call",
+          "line": 1281
+        },
+        {
+          "name": "c_func_name_for_definition",
+          "line": 1299
+        },
+        {
+          "name": "type_is_float",
+          "line": 1322
+        },
+        {
+          "name": "infer_binary_expr_type",
+          "line": 1374
+        },
+        {
+          "name": "infer_expr_type",
+          "line": 1438
+        },
+        {
+          "name": "func_returns_string",
+          "line": 1457
+        },
+        {
+          "name": "func_returns_float",
+          "line": 1467
+        },
+        {
+          "name": "is_schema_struct_name",
+          "line": 1492
+        },
+        {
+          "name": "parse_type_c_from_tokens",
+          "line": 1589
+        },
+        {
+          "name": "generate_enum_definitions_from_tokens",
+          "line": 1704
+        },
+        {
+          "name": "native_nominal_field_type",
+          "line": 1716
+        },
+        {
+          "name": "collect_native_structs",
+          "line": 1843
+        },
+        {
+          "name": "generate_struct_definitions_from_tokens",
+          "line": 1862
+        },
+        {
+          "name": "has_function_named",
+          "line": 1881
+        },
+        {
+          "name": "is_runtime_declared_extern",
+          "line": 2002
+        },
+        {
+          "name": "generate_function_prototypes",
+          "line": 2108
+        },
+        {
+          "name": "lookup_struct_field_type",
+          "line": 2135
+        },
+        {
+          "name": "lookup_union_payload_type",
+          "line": 2172
+        },
+        {
+          "name": "function_value_argument_type",
+          "line": 2187
+        },
+        {
+          "name": "declared_call_argument_type",
+          "line": 2206
+        },
+        {
+          "name": "generate_scalar_map",
+          "line": 2250
+        },
+        {
+          "name": "is_extern_function",
+          "line": 2274
+        },
+        {
+          "name": "extern_has_native_array",
+          "line": 2298
+        },
+        {
+          "name": "guard_native_array_reference",
+          "line": 2323
+        },
+        {
+          "name": "genenv_new",
+          "line": 2334
+        },
+        {
+          "name": "genenv_copy",
+          "line": 2358
+        },
+        {
+          "name": "genenv_put",
+          "line": 2380
+        },
+        {
+          "name": "genenv_put_global",
+          "line": 2403
+        },
+        {
+          "name": "genenv_with_underscore",
+          "line": 2416
+        },
+        {
+          "name": "genenv_c_name",
+          "line": 2430
+        },
+        {
+          "name": "genenv_get",
+          "line": 2453
+        },
+        {
+          "name": "genenv_get_mut",
+          "line": 2474
+        },
+        {
+          "name": "genenv_get_global",
+          "line": 2495
+        },
+        {
+          "name": "transp_is_ident_start_str",
+          "line": 2510
+        },
+        {
+          "name": "transp_is_ident_char_str",
+          "line": 2523
+        },
+        {
+          "name": "interp_to_str_expr",
+          "line": 2549
+        },
+        {
+          "name": "expand_string_interp",
+          "line": 2625
+        },
+        {
+          "name": "is_array_type",
+          "line": 2641
+        },
+        {
+          "name": "full_array_element_type",
+          "line": 2656
+        },
+        {
+          "name": "array_elem_type_from_array_type",
+          "line": 2666
+        },
+        {
+          "name": "elem_enum_from_elem_type",
+          "line": 2685
+        },
+        {
+          "name": "get_fn_from_elem_type",
+          "line": 2704
+        },
+        {
+          "name": "is_array_of_struct",
+          "line": 2734
+        },
+        {
+          "name": "push_fn_from_elem_type",
+          "line": 2741
+        },
+        {
+          "name": "set_fn_from_elem_type",
+          "line": 2758
+        },
+        {
+          "name": "box_struct_expr",
+          "line": 2808
+        },
+        {
+          "name": "type_is_struct",
+          "line": 2815
+        },
+        {
+          "name": "c_type_from_elem_type",
+          "line": 2832
+        },
+        {
+          "name": "is_tuple_type",
+          "line": 2854
+        },
+        {
+          "name": "mangle_type_name",
+          "line": 2897
+        },
+        {
+          "name": "tuple_typedef_name",
+          "line": 2924
+        },
+        {
+          "name": "type_to_c",
+          "line": 3020
+        },
+        {
+          "name": "tuple_split_types",
+          "line": 3079
+        },
+        {
+          "name": "collect_tuple_types_from_type",
+          "line": 3108
+        },
+        {
+          "name": "gen_tuple_typedef",
+          "line": 3140
+        },
+        {
+          "name": "gen_tuple_typedefs",
+          "line": 3182
+        },
+        {
+          "name": "gen_number",
+          "line": 3202
+        },
+        {
+          "name": "gen_string",
+          "line": 3228
+        },
+        {
+          "name": "gen_bool",
+          "line": 3244
+        },
+        {
+          "name": "gen_identifier",
+          "line": 3255
+        },
+        {
+          "name": "gen_binary_op",
+          "line": 3300
+        },
+        {
+          "name": "gen_call",
+          "line": 3333
+        },
+        {
+          "name": "gen_let",
+          "line": 3367
+        },
+        {
+          "name": "gen_if",
+          "line": 3398
+        },
+        {
+          "name": "gen_while",
+          "line": 3418
+        },
+        {
+          "name": "gen_return",
+          "line": 3435
+        },
+        {
+          "name": "gen_function_signature",
+          "line": 3482
+        },
+        {
+          "name": "gen_function",
+          "line": 3504
+        },
+        {
+          "name": "gen_c_includes",
+          "line": 3661
+        },
+        {
+          "name": "gen_c_runtime",
+          "line": 4132
+        },
+        {
+          "name": "generate_module_forward_declarations",
+          "line": 4176
+        },
+        {
+          "name": "parser_has_guarded_globals",
+          "line": 4213
+        },
+        {
+          "name": "gen_c_program_with_modules",
+          "line": 4277
+        },
+        {
+          "name": "gen_c_program",
+          "line": 4287
+        },
+        {
+          "name": "detect_list_types",
+          "line": 4322
+        },
+        {
+          "name": "scan_block_for_lists",
+          "line": 4386
+        },
+        {
+          "name": "generate_list_specializations",
+          "line": 4430
+        },
+        {
+          "name": "generate_list_for_type",
+          "line": 4521
+        },
+        {
+          "name": "substitute_union_field_type",
+          "line": 4535
+        },
+        {
+          "name": "collect_native_union_instances",
+          "line": 4569
+        },
+        {
+          "name": "find_union_instantiations",
+          "line": 4622
+        },
+        {
+          "name": "emit_union_typedefs",
+          "line": 4715
+        },
+        {
+          "name": "native_union_definition",
+          "line": 4734
+        },
+        {
+          "name": "generate_native_nominal_definitions",
+          "line": 4826
+        },
+        {
+          "name": "generate_union_definitions",
+          "line": 4882
+        },
+        {
+          "name": "operator_to_string",
+          "line": 4929
+        },
+        {
+          "name": "build_array_binop_expr",
+          "line": 5040
+        },
+        {
+          "name": "generate_expression",
+          "line": 6502
+        },
+        {
+          "name": "generate_return_stmt",
+          "line": 6561
+        },
+        {
+          "name": "guarded_type_name",
+          "line": 6593
+        },
+        {
+          "name": "is_guarded_primitive",
+          "line": 6612
+        },
+        {
+          "name": "generate_let_stmt",
+          "line": 6646
+        },
+        {
+          "name": "generate_assert_stmt",
+          "line": 6670
+        },
+        {
+          "name": "generate_match_arm_value",
+          "line": 6707
+        },
+        {
+          "name": "generate_match_expr",
+          "line": 6838
+        },
+        {
+          "name": "get_variant_field_type",
+          "line": 6896
+        },
+        {
+          "name": "get_variant_first_field_access",
+          "line": 6948
+        },
+        {
+          "name": "gen_match_variant_binding",
+          "line": 7081
+        },
+        {
+          "name": "generate_match_stmt",
+          "line": 7255
+        },
+        {
+          "name": "get_stmt_line",
+          "line": 7327
+        },
+        {
+          "name": "generate_statement",
+          "line": 7463
+        },
+        {
+          "name": "generate_block",
+          "line": 7501
+        },
+        {
+          "name": "generate_set_stmt",
+          "line": 7550
+        },
+        {
+          "name": "generate_if_stmt",
+          "line": 7606
+        },
+        {
+          "name": "generate_for_stmt",
+          "line": 7768
+        },
+        {
+          "name": "generate_while_stmt",
+          "line": 7806
+        },
+        {
+          "name": "is_expr_pnode",
+          "line": 7838
+        },
+        {
+          "name": "generate_block_tail_return",
+          "line": 7918
+        },
+        {
+          "name": "generate_function_body",
+          "line": 7938
+        },
+        {
+          "name": "is_let_in_block",
+          "line": 8029
+        },
+        {
+          "name": "is_let_in_function",
+          "line": 8073
+        },
+        {
+          "name": "global_init_literal",
+          "line": 8124
+        },
+        {
+          "name": "generate_global_constants",
+          "line": 8222
+        },
+        {
+          "name": "lookup_func_return_type_in_parser",
+          "line": 8250
+        },
+        {
+          "name": "parser_uses_grammar_literal",
+          "line": 8274
+        },
+        {
+          "name": "parser_has_peg2_import",
+          "line": 8309
+        },
+        {
+          "name": "transpile_parser_mode",
+          "line": 8440
+        },
+        {
+          "name": "transpile_parser_shadows",
+          "line": 8458
+        },
+        {
+          "name": "transpile_parser",
+          "line": 8468
+        },
+        {
+          "name": "transpile_phase",
+          "line": 8495
+        },
+        {
+          "name": "transpile_with_count",
+          "line": 8545
+        },
+        {
+          "name": "transpile",
+          "line": 8556
+        }
+      ]
+    }
+  ],
+  "total_declarations": 553
+}

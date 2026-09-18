@@ -1,0 +1,82 @@
+{
+  "production": "b9827aa7",
+  "local_base": "fc03b56c",
+  "range_source_pin": "37888716",
+  "range_production": "553a57bb",
+  "range_adapter": "/tmp/nanolang-native-label-range-adapter.py",
+  "range_qualification": {
+    "GCC": {
+      "directory": "/tmp/nanolang-native-label-range",
+      "tools": {
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nanoc_c": "d3b65f3665d3504d9de2ffc0dfc22d194e0c7b9b96c3408e954b1b4a216b6275",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nano_virt": "466b5f7f37a554b50e9cc822567ff7585ef721b6ce2d69239d0381e802c9e35a",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nanoisa_emit": "482b04d7686d392b3d40a5f98b408f589399f4b878e05e2f064b027a9523f6e0",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nanoisa": "9ce7ff9e336421bd47efb33e848e34f3ade5007a7c1628c51dd9ff0b2cd4b3fd",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nano_vm": "349043eae39ed9aa5eb2d4663930b7d94c59e2f6feecf159dbcda83d8bd2c09f",
+        "/home/jkh/Src/nanolang-range-arity-parity/tests/nanoisa/test_nanoisa_src_nano": "7683fa50e29d38d5e690cdf31c54d55b01cfe7e59faf591c270b385d70789d06",
+        "/home/jkh/Src/nanolang-native-reachable-labels/bin/nvm2c": "4787a723e4927327bd0698a9bafcb30de586acfaa486d512bec00b911b4ebc41"
+      },
+      "artifacts": {
+        "seed.nvm": "09a259dfc6e9400969351ee600dd356a02f1a3e054b5a08e7c6707fc7d0f57a3",
+        "emitter.nvm": "4bb402fce9b676c67ab8e8774219ccca25b07b842602ab03c1eec8faeb502f19",
+        "emitter.c": "103b215bbdf3bb7da80165d9b04dbe39906c647fb9a74b1a9fa6f30534965632",
+        "seed.c": "103b215bbdf3bb7da80165d9b04dbe39906c647fb9a74b1a9fa6f30534965632"
+      }
+    },
+    "Clang": {
+      "directory": "/tmp/nanolang-native-label-range-clang",
+      "tools": {
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nanoc_c": "d3b65f3665d3504d9de2ffc0dfc22d194e0c7b9b96c3408e954b1b4a216b6275",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nano_virt": "466b5f7f37a554b50e9cc822567ff7585ef721b6ce2d69239d0381e802c9e35a",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nanoisa_emit": "482b04d7686d392b3d40a5f98b408f589399f4b878e05e2f064b027a9523f6e0",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nanoisa": "9ce7ff9e336421bd47efb33e848e34f3ade5007a7c1628c51dd9ff0b2cd4b3fd",
+        "/home/jkh/Src/nanolang-range-arity-parity/bin/nano_vm": "349043eae39ed9aa5eb2d4663930b7d94c59e2f6feecf159dbcda83d8bd2c09f",
+        "/home/jkh/Src/nanolang-range-arity-parity/tests/nanoisa/test_nanoisa_src_nano": "7683fa50e29d38d5e690cdf31c54d55b01cfe7e59faf591c270b385d70789d06",
+        "/home/jkh/Src/nanolang-native-reachable-labels/bin/nvm2c": "4787a723e4927327bd0698a9bafcb30de586acfaa486d512bec00b911b4ebc41"
+      },
+      "artifacts": {
+        "seed.nvm": "09a259dfc6e9400969351ee600dd356a02f1a3e054b5a08e7c6707fc7d0f57a3",
+        "emitter.nvm": "4bb402fce9b676c67ab8e8774219ccca25b07b842602ab03c1eec8faeb502f19",
+        "emitter.c": "103b215bbdf3bb7da80165d9b04dbe39906c647fb9a74b1a9fa6f30534965632",
+        "seed.c": "103b215bbdf3bb7da80165d9b04dbe39906c647fb9a74b1a9fa6f30534965632"
+      }
+    }
+  },
+  "source_sha256": "7d344cc1c3e779e73f54ef002d680d8f16bc08fddff950b51aaa6dd607d8859d",
+  "tests": [
+    {
+      "log": "/tmp/nanolang-native-label-corrected-gcc.log",
+      "methods": 4,
+      "seconds": 0.815
+    },
+    {
+      "log": "/tmp/nanolang-native-label-clang.log",
+      "methods": 8,
+      "seconds": 1.83
+    },
+    {
+      "log": "/tmp/nanolang-native-label-range-gcc.log",
+      "methods": 2,
+      "seconds": 1.997
+    },
+    {
+      "log": "/tmp/nanolang-native-label-range-clang.log",
+      "methods": 2,
+      "seconds": 1.713
+    }
+  ],
+  "full_native": {
+    "log": "/tmp/nanolang-native-label-corrected-full.log",
+    "status": "pass",
+    "native_checks": 2422,
+    "shape_checks": 1365,
+    "test_correction": "248fd407"
+  },
+  "limits": "Range producer tools are externally pinned; only translator redirected. No fresh product bootstrap or range-source task completion claimed.",
+  "first_full_native": {
+    "log": "/tmp/nanolang-native-label-full.log",
+    "passed": 2421,
+    "failed": 1,
+    "boundary": "stale unsupported ROT3 diagnostic expectation, child71ebb"
+  }
+}

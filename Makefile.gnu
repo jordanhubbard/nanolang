@@ -525,8 +525,20 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
 	chmod +x $(BIN_DIR)/nvm2hl
 
+test-reconstruction-binary64-facts: nvm2hl nanoisa_dump
+	python3 -m unittest -v tests.test_reconstruction_binary64_facts
+
+test-units: test-reconstruction-binary64-facts
+
+test-canonical-f64-bits: nvm2hl nanoisa_dump
+	python3 -m unittest -v tests.test_canonical_f64_bits tests.test_reconstruction_binary64_facts
+
+test-units: test-canonical-f64-bits
+
+.PHONY: test-canonical-f64-bits
+.PHONY: test-reconstruction-binary64-facts
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -4548,6 +4560,11 @@ nvm2llvm: $(OBJ_DIR)/nanoisa/nvm2llvm.o $(OBJ_DIR)/nanoisa/nvm2llvm_main.o $(NAN
 test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_nvm2llvm tests.test_nvm2llvm_floats
 
+.PHONY: test-managed-array-eligibility
+test-units: test-managed-array-eligibility
+test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	NMA_LINK_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes
+
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
 test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
@@ -4601,8 +4618,12 @@ test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format tests.test_llvm_managed_replace tests.test_llvm_managed_split
 
+.PHONY: test-managed-mutable-runtime
+test-managed-mutable-runtime:
+	python3 -m unittest -v tests.test_managed_mutable_runtime
+
 .PHONY: test-managed-string-array-core
-test-managed-string-array-core:
+test-managed-string-array-core: test-managed-mutable-runtime
 	python3 -m unittest -v tests.test_managed_string_arrays tests.test_managed_packed_scalars
 
 .PHONY: test-managed-string-core
@@ -4755,6 +4776,11 @@ test-local-binding-metadata: test-local-marker-alloc
 test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_local_markers_alloc tests/nanoisa/test_local_markers_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_local_markers_alloc
+.PHONY: test-native-referenced-labels
+test-native-referenced-labels: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_referenced_labels
+test-units: test-native-referenced-labels
+
 .PHONY: test-native-scalar-rot3
 test-native-scalar-rot3: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_scalar_rot3
@@ -4955,3 +4981,14 @@ test-helper-local-owners: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_helper_local_owner_alloc tests/nanoisa/test_helper_local_owner_alloc.c obj/test_helper_local_owner_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_helper_local_owner_alloc
 	python3 -m unittest -v tests.test_helper_local_owners
+
+.PHONY: test-consuming-calls
+test-units: test-consuming-calls
+test-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_consuming_calls tests/nanoisa/test_consuming_calls.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=helper_heap_malloc -Dcalloc=helper_heap_calloc -Drealloc=helper_heap_realloc -c src/nanovm/heap.c -o obj/test_consuming_call_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_consuming_call_alloc tests/nanoisa/test_consuming_call_alloc.c obj/test_consuming_call_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_consuming_call_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_consuming_call_preflight tests/nanoisa/test_consuming_call_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_consuming_call_preflight
+	python3 -m unittest -v tests.test_consuming_calls

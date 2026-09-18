@@ -67,6 +67,8 @@ bool nvm_affine_bind_caller(NvmAffineState *callee,const NvmAffineState *caller,
                              uint32_t reference);
 bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
+/* I identify the separate single consuming-parameter contract. */
+bool nvm_affine_owned_parameter_type(const NvmAffineState *state,NvmAffineType *type);
 bool nvm_affine_parameter_type(const NvmAffineState *state,NvmAffineType *type,
                                  NvmReferenceMode *mode);
 #endif
