@@ -1,5 +1,13 @@
 # My NanoISA-only product draft
 
+My current integration is `a32a476f`, with main through PR606 and the final
+optional-scalar storage correction from PR601. The ordinary compiler, NanoVirt,
+VM, native translator, NanoISA and reconstruction tools build successfully
+(`/tmp/nanolang-product-through606-build.log`). This is compilation evidence;
+I have no new full product or fixed-point acceptance at this source. PR522 and
+PR601 remain draft, and the startup and export-shadow holds remain open. The
+checkpoints below retain the earlier results and their original scope.
+
 I route explicit native and C-source products through the same verified NanoISA lowering as bytecode. My driver no longer imports `transpiler.nano`; native and bytecode products execute selected shadows through NanoVM. Source-only C emission keeps its existing no-execution behavior. I stage native products beside their destination and publish only after translation and host compilation succeed.
 
 My C-seed-built driver passes all 14 canonical publication and VM-shadow methods in 8.358 seconds. Two new product methods pass in 0.299 seconds: native and source routes invoke `nvm2c`, rebuilt C executes, paths with spaces work, temporary staging is cleaned, and failures of the VM runner, translator, runtime lookup or C compiler preserve prior output. Logs: `/tmp/nanolang-only-product-{existing,routes}.log`.
