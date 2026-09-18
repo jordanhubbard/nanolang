@@ -58,8 +58,8 @@ My initial six focused GCC methods passed in 29.080 seconds. The combined
 thirteen tagged/concrete Clang sanitizer methods passed in 11.966 seconds.
 The added typed-consumer method passed GCC in 7.769 seconds and Clang in
 0.385 seconds. The expanded combined GCC gate, including the wrapped-integer
-method, passed 14 methods in 149.689 seconds. Final native results are retained
-with the PR.
+method, passed 14 methods in 149.689 seconds. My full native suite passed
+2,422 checks and the shape suite passed 1,092 checks.
 Logs use `/tmp/nanolang-tagged-arithmetic-`, including `focused.log`,
 `clang.log`, `final-gcc.log`, `consumers-gcc.log`, `consumers-clang.log` and
 `native.log`. Parent source review found no blocker in this bounded runtime
