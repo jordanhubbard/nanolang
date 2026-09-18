@@ -129,6 +129,8 @@ void nms_init(NmsRuntime *runtime, const NmsView *literals, uint32_t count) {
     runtime->literals = literals;
     runtime->literal_count = count;
     runtime->slots = NULL;
+    runtime->collection_workspace = NULL;
+    runtime->collection_capacity = runtime->collection_prepared = 0;
     runtime->capacity = runtime->free_head = 0;
     runtime->live_bytes = runtime->live_objects = 0;
     runtime->active = runtime->disposed = 0;
@@ -164,6 +166,34 @@ NmsStatus nms_view(const NmsRuntime *runtime, NmsHandle handle, NmsView *out) {
     }
     return NMS_OK;
 }
+/* uint64 trial counts, byte marks, then aligned uint32 queue. All arithmetic
+ * is widened before checking the target size_t limit. */
+static int collection_layout(uint32_t capacity, uint64_t *mark_offset,
+                             uint64_t *queue_offset, uint64_t *bytes) {
+    uint64_t count = (uint64_t)capacity + 1;
+    uint64_t marks = count * sizeof(uint64_t);
+    uint64_t queue = (marks + count + 3) & ~UINT64_C(3);
+    uint64_t total = queue + count * sizeof(uint32_t);
+    if (total > SIZE_MAX) return 0;
+    *mark_offset = marks; *queue_offset = queue; *bytes = total;
+    return 1;
+}
+static void *collection_allocate(NmsRuntime *runtime, uint32_t capacity) {
+    uint64_t marks, queue, bytes;
+    if (!collection_layout(capacity, &marks, &queue, &bytes)) return NULL;
+    return allocate(runtime, bytes);
+}
+NmsStatus nms_prepare_collection(NmsRuntime *runtime) {
+    if (!runtime) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (runtime->collection_prepared) return NMS_OK;
+    void *workspace = collection_allocate(runtime, runtime->capacity);
+    if (!workspace) return NMS_MEMORY;
+    runtime->collection_workspace = workspace;
+    runtime->collection_capacity = runtime->capacity;
+    runtime->collection_prepared = 1;
+    return NMS_OK;
+}
 /* Publication borrows prepared storage until success; I never publish a
  * partial table or consume that storage on allocation failure. */
 static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
@@ -181,6 +211,11 @@ static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
     if (new_capacity != runtime->capacity) {
         slots = allocate(runtime, ((uint64_t)new_capacity + 1) * sizeof(NmsSlot));
         if (!slots) return NMS_MEMORY;
+        void *workspace = NULL;
+        if (runtime->collection_prepared) {
+            workspace = collection_allocate(runtime, new_capacity);
+            if (!workspace) { deallocate(slots); return NMS_MEMORY; }
+        }
         for (uint64_t i = 0; i <= new_capacity; i++) {
             if (runtime->slots && i <= runtime->capacity) {
                 slots[i].data = runtime->slots[i].data;
@@ -198,6 +233,12 @@ static NmsStatus publish_slot(NmsRuntime *runtime, unsigned char *bytes,
             }
         }
         NmsSlot *old = runtime->slots;
+        if (runtime->collection_prepared) {
+            void *old_workspace = runtime->collection_workspace;
+            runtime->collection_workspace = workspace;
+            runtime->collection_capacity = new_capacity;
+            deallocate(old_workspace);
+        }
         runtime->slots = slots;
         runtime->free_head = runtime->capacity + 1;
         runtime->capacity = new_capacity;
@@ -872,21 +913,11 @@ NmsStatus nms_release(NmsRuntime *runtime, NmsHandle handle) {
 }
 /* I complete validation and scratch allocation before changing any owner.
  * Trial counts identify external roots; graph edges do not become roots. */
-NmsStatus nms_collect(NmsRuntime *runtime) {
-    if (!runtime) return NMS_STATE;
-    if (runtime->disposed) return NMS_DISPOSED;
-    if (!runtime->capacity)
-        return !runtime->slots && !runtime->live_objects && !runtime->live_bytes ? NMS_OK : NMS_STATE;
-    if (!runtime->slots) return NMS_STATE;
+static NmsStatus collect_with_workspace(NmsRuntime *runtime, uint64_t *trial,
+                                        unsigned char *marked, uint32_t *queue) {
     uint64_t count = (uint64_t)runtime->capacity + 1;
-    if (count > SIZE_MAX / sizeof(uint64_t) || count > SIZE_MAX / sizeof(uint32_t)) return NMS_MEMORY;
-    uint64_t *trial = allocate(runtime, count * sizeof(uint64_t));
-    unsigned char *marked = allocate(runtime, count);
-    uint32_t *queue = allocate(runtime, count * sizeof(uint32_t));
-    NmsStatus status = NMS_MEMORY;
-    if (!trial || !marked || !queue) goto done;
     uint64_t bytes = 0, objects = 0;
-    status = NMS_STATE;
+    NmsStatus status = NMS_STATE;
     for (uint64_t i = 0; i < count; i++) {
         const NmsSlot *slot = &runtime->slots[i];
         trial[i] = slot->references; marked[i] = 0;
@@ -961,8 +992,38 @@ NmsStatus nms_collect(NmsRuntime *runtime) {
     }
     status = NMS_OK;
  done:
+    return status;
+}
+static NmsStatus collection_ready(const NmsRuntime *runtime) {
+    if (!runtime) return NMS_STATE;
+    if (runtime->disposed) return NMS_DISPOSED;
+    if (!runtime->capacity)
+        return !runtime->slots && !runtime->live_objects && !runtime->live_bytes ? NMS_OK : NMS_STATE;
+    return runtime->slots ? NMS_OK : NMS_STATE;
+}
+NmsStatus nms_collect(NmsRuntime *runtime) {
+    NmsStatus status = collection_ready(runtime);
+    if (status != NMS_OK || !runtime->capacity) return status;
+    uint64_t count = (uint64_t)runtime->capacity + 1;
+    if (count > SIZE_MAX / sizeof(uint64_t) || count > SIZE_MAX / sizeof(uint32_t)) return NMS_MEMORY;
+    uint64_t *trial = allocate(runtime, count * sizeof(uint64_t));
+    unsigned char *marked = allocate(runtime, count);
+    uint32_t *queue = allocate(runtime, count * sizeof(uint32_t));
+    status = trial && marked && queue ? collect_with_workspace(runtime, trial, marked, queue) : NMS_MEMORY;
     deallocate(queue); deallocate(marked); deallocate(trial);
     return status;
+}
+NmsStatus nms_collect_prepared(NmsRuntime *runtime) {
+    NmsStatus status = collection_ready(runtime);
+    if (status != NMS_OK) return status;
+    if (!runtime->collection_prepared || !runtime->collection_workspace ||
+        runtime->collection_capacity < runtime->capacity) return NMS_STATE;
+    if (!runtime->capacity) return NMS_OK;
+    uint64_t marks, queue, bytes;
+    if (!collection_layout(runtime->collection_capacity, &marks, &queue, &bytes)) return NMS_STATE;
+    unsigned char *workspace = runtime->collection_workspace;
+    return collect_with_workspace(runtime, (uint64_t *)workspace, workspace + marks,
+                                  (uint32_t *)(workspace + queue));
 }
 NmsStatus nms_begin(NmsRuntime *runtime) {
     if (!runtime) return NMS_STATE;
@@ -986,6 +1047,9 @@ NmsStatus nms_dispose(NmsRuntime *runtime) {
     for (uint64_t i = 1; i <= runtime->capacity; i++)
         if (runtime->slots[i].references) deallocate(runtime->slots[i].data);
     deallocate(runtime->slots);
+    deallocate(runtime->collection_workspace);
+    runtime->collection_workspace = NULL;
+    runtime->collection_capacity = runtime->collection_prepared = 0;
     runtime->slots = NULL; runtime->capacity = runtime->free_head = 0;
     runtime->live_bytes = runtime->live_objects = 0;
     runtime->disposed = 1;

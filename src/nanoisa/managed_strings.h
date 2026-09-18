@@ -22,6 +22,9 @@ typedef struct {
 typedef struct {
     const NmsView *literals; /* Borrowed immutable storage, alive until disposal. */
     NmsSlot *slots;
+    void *collection_workspace;
+    uint32_t collection_capacity;
+    unsigned collection_prepared;
     uint64_t live_bytes, live_objects;
     uint32_t literal_count, capacity, free_head;
     unsigned active, disposed;
@@ -95,6 +98,10 @@ NmsStatus nms_release(NmsRuntime *, NmsHandle);
 /* I reclaim unreachable array graphs explicitly; failure leaves owners intact.
  * This synchronous private operation grants no emitted collection safe point. */
 NmsStatus nms_collect(NmsRuntime *);
+/* I reserve reusable workspace transactionally; prepared collection allocates
+ * nothing. These private operations do not admit generated graph execution. */
+NmsStatus nms_prepare_collection(NmsRuntime *);
+NmsStatus nms_collect_prepared(NmsRuntime *);
 /* These guard exported entry; generated frames own their separate cleanup. */
 NmsStatus nms_begin(NmsRuntime *);
 uint64_t nms_finish(NmsRuntime *, NmsStatus, int32_t);

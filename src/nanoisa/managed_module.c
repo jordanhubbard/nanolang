@@ -29,6 +29,28 @@ uint32_t nms_module_begin(const NmsView *literals, uint32_t count) {
 uint64_t nms_module_finish(int32_t result) {
     return nms_finish(&nms_module_instance, nms_module_error, result);
 }
+/* Private graph adapters: I keep the ordinary leaf entry ABI unchanged. */
+uint32_t nms_module_graph_begin(const NmsView *literals, uint32_t count) {
+    NmsStatus status = (NmsStatus)nms_module_begin(literals, count);
+    if (status != NMS_OK) return status;
+    status = nms_prepare_collection(&nms_module_instance);
+    nms_module_fail(status);
+    return status;
+}
+uint32_t nms_module_graph_collect(void) {
+    if (!nms_module_ready || !nms_module_instance.active) return NMS_STATE;
+    nms_module_fail(nms_collect_prepared(&nms_module_instance));
+    return nms_module_error;
+}
+uint64_t nms_module_graph_finish(int32_t result) {
+    if (!nms_module_ready || !nms_module_instance.active) return (uint64_t)NMS_STATE << 32;
+    /* Preparation may have failed; there can be no graph allocation in that
+     * failed entry. Preserve its error while ending the active entry. */
+    if (nms_module_instance.collection_prepared)
+        nms_module_fail(nms_collect_prepared(&nms_module_instance));
+    else nms_module_fail(NMS_STATE);
+    return nms_module_finish(result);
+}
 uint32_t nms_module_active(void) { return nms_module_instance.active; }
 uint32_t nms_module_dispose(void) {
     if (!nms_module_ready) {
