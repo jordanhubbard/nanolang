@@ -10,6 +10,12 @@ static void expression(CBCtx *context,ASTNode *node,char *text,size_t size){
  assert(fflush(context->out)==0);rewind(context->out);size_t n=fread(text,1,size-1,context->out);text[n]=0;
  assert(fclose(context->out)==0);
 }
+static void callable_refusal(CBCtx *context,ASTNode *node){
+ context->out=tmpfile();assert(context->out);context->error=NULL;
+ assert(emit_expr(context,node)!=0);
+ assert(strstr(context->error,"first-class callable values or indirect calls"));
+ assert(ftell(context->out)==0);assert(fclose(context->out)==0);context->error=NULL;
+}
 int main(int argc,char **argv){
  assert(argc==2);
  ASTNode integer={.type=AST_NUMBER};integer.as.number=1;
@@ -19,13 +25,13 @@ int main(int argc,char **argv){
  expression(&context,&call,text,sizeof text);assert(strstr(text,"nano_fixture_int_text_new(")==text);
  assert(infer_expr_type(&context,&call)==TYPE_STRING);
  ctx_push_scope(&context);ctx_add_sym(&context,"int_to_string",TYPE_FUNCTION);
- expression(&context,&call,text,sizeof text);assert(strstr(text,"int_to_string(")==text);
+ callable_refusal(&context,&call);
  assert(infer_expr_type(&context,&call)==TYPE_UNKNOWN);ctx_pop_scope(&context);
  FunctionSignature signature={0};signature.return_type=TYPE_STRING;call.as.call.checked_signature=&signature;
  expression(&context,&call,text,sizeof text);assert(strstr(text,"int_to_string(")==text);
  call.as.call.checked_signature=NULL;
  ASTNode callee={.type=AST_IDENTIFIER};callee.as.identifier="callback";call.as.call.func_expr=&callee;
- expression(&context,&call,text,sizeof text);assert(strstr(text,"(callback)(")==text);
+ callable_refusal(&context,&call);
  assert(infer_expr_type(&context,&call)==TYPE_UNKNOWN);call.as.call.func_expr=NULL;
  ASTNode declared={.type=AST_FUNCTION};declared.as.function.name="int_to_string";declared.as.function.return_type=TYPE_STRING;
  ASTNode *declarations[]={&declared};ASTNode declaration_root={.type=AST_PROGRAM};declaration_root.as.program.items=declarations;declaration_root.as.program.count=1;
