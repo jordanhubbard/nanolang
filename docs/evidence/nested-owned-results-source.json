@@ -1,0 +1,179 @@
+{
+  "frozen_source": "d190b367152b2beb05a4b4ca6e5c14178d44fffe",
+  "files": {
+    "src/nanoisa/affine_state.c": "8d77e2b9160def1daad1271e7de1a469c198058b11ca159ace9df2f921ff0307",
+    "src/nanoisa/affine_state.h": "fc0597132b9ac3c43ad5b0e27b0c81e021c76682d6862d3a37056c490f71eecb",
+    "src/nanovirt/borrow_codegen.inc": "40dc371b19be5b443efeb97db2e7d5a8fb4f70174a79924b143e561d90e5d937",
+    "src_nano/compiler/nanoisa_borrows.nano": "c6f119af4818add04e6baec4c0f213b63067f79345ec811c49f512b3f9f71227",
+    "tests/test_source_borrow_emission.py": "0beff146ce899f70b97769c817184e2843f4a54503331320982f1dce050a7230",
+    "tests/nanoisa/test_nested_owned_results.c": "7e3e18aeceb1a0bf101bd270160cdc00a548fe185e6c23c27fcbd8db5309d61b",
+    "tests/nanoisa/test_nested_result_alloc.c": "689e6283af7c4bb4279e185d1ba54b96e27a28383aa872a25f5a8ea92d51aac4",
+    "tests/nanoisa/test_nested_result_descriptors.c": "b3febeac0185c90eee598cabdfbfa0c87cceade4a1e9dca355a615972989d915",
+    "tests/test_nested_owned_results.py": "56fb3f6da14dbdb147d603ca33cddeba8171981b6c2b57a9e376fd49aa6bf1cc",
+    "Makefile.gnu": "095f7b272743448f08900d7ec7d7937baf4c348691da8fff963256c9bce4a450"
+  },
+  "tools": {
+    "bin/nvm2c": "9d9195adb5607d017d813c4e0e29495e2f4971c311f72eaf1ce4fbc0a20d5367",
+    "bin/nanoc": "5a98ea4a72017262ee91e61f7ab09ff6d618ffed0e939e2ef46655a17248eff6",
+    "bin/nanoc_stage1": "b9295c0eb8576bca540f24876ac5321bee389fdd1457558d906692d3e0932853",
+    "bin/nanoisa": "dd23978450fb8a63ad591f9035b70e7dba184275da1e9b352a8b5dcfc6567deb",
+    "bin/nano_vm": "01230a287e0f4fb53eded2ce8a31120be53edd06c7b355b40666058eeca826ac",
+    "bin/nanoisa_emit": "413ba9cd4b2187b28e81b8f8c64da9d4db9d464eebee2a7cde5a5f5bfa81f6f3",
+    "bin/nano_virt": "e8ebbcb9cb945c1dc967f4ea02612fd084235a91864fe2448a710f7968c8343b",
+    "bin/nanoc_stage2": "5a98ea4a72017262ee91e61f7ab09ff6d618ffed0e939e2ef46655a17248eff6",
+    "bin/nanoc_c": "f1dcf689fe2df679253cee2d8c0dce254801cdd485f4d7e8c4e5259c1089bd12",
+    "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6"
+  },
+  "generated_producers": {
+    "/home/jkh/Src/nanolang-nested-owned-results/bin/nanoisa_emit": "413ba9cd4b2187b28e81b8f8c64da9d4db9d464eebee2a7cde5a5f5bfa81f6f3",
+    "/tmp/nano-source-borrows-xdu3o794/nanoc_stage1-emit": "bbab4700149f5f986ef6cdbe983eb47a97c239e0d504f0b51a44667f47c73c25",
+    "/tmp/nano-source-borrows-xdu3o794/nanoc_stage2-emit": "72b89184e6ca3da8db2f0dd9ebda1c0c4509fecd2a1057a0edc354941c283865",
+    "/tmp/nano-source-borrows-xdu3o794/nanoc_c-shadows": "965c2f214ee80ea0b1e4456d83b25df4df1d82a3dbe309cd4a1085413d73b628",
+    "/tmp/nano-source-borrows-xdu3o794/nanoc_stage1-shadows": "662aab535c387015ba5e5d422bac4030ae3122f251ee524e6ab2502ac804ae7a",
+    "/tmp/nano-source-borrows-xdu3o794/nanoc_stage2-shadows": "425f809529624108d14838ae67eea61cd64610c3eccb8875c41e4fa819402e60",
+    "/tmp/nano-source-borrows-qs3h34y6/nanoc_stage1-emit": "44b9e1a8320bf7f193e588b78b6edb4a16aafc21183d15b578f2945fe962ff72",
+    "/tmp/nano-source-borrows-qs3h34y6/nanoc_stage2-emit": "44b9e1a8320bf7f193e588b78b6edb4a16aafc21183d15b578f2945fe962ff72",
+    "/tmp/nano-source-borrows-qs3h34y6/nanoc_c-shadows": "f1818555c044638739d4a7e1933de1c53520a399e130f8af565620fc22adf6c1",
+    "/tmp/nano-source-borrows-qs3h34y6/nanoc_stage1-shadows": "6a16c7e85dd645b4c706ea3fc5ae0458650726c41f14b488def8e11ac58e63b1",
+    "/tmp/nano-source-borrows-qs3h34y6/nanoc_stage2-shadows": "6a16c7e85dd645b4c706ea3fc5ae0458650726c41f14b488def8e11ac58e63b1",
+    "/tmp/nano-source-borrows-x95cveh7/nanoc_stage1-emit": "a1162661addc82c76e6ba2df39d75cb5cab46fa192d92df0d424b2d05e2f1dbb",
+    "/tmp/nano-source-borrows-x95cveh7/nanoc_stage2-emit": "9ddd2088b5c6bf436a4d00525d1f1fcd3b1abe061b8ff86190447f8d1ba051f6",
+    "/tmp/nano-source-borrows-x95cveh7/nanoc_c-shadows": "45ba8d3a29e99863f362d1678d8b2ee6942e802e0116cbe90cc2f2198c1b53ab",
+    "/tmp/nano-source-borrows-x95cveh7/nanoc_stage1-shadows": "0bd87c6dc559bb8c4ff6f66d7de51a9a565fc5868294747154e402decc200a7b",
+    "/tmp/nano-source-borrows-x95cveh7/nanoc_stage2-shadows": "75243f02fae8b26f5fa3b8760dc31ca50ee14d365dd5c3db8c12074492e6df7f"
+  },
+  "reports": {
+    "/tmp/nanolang-nested-result-source-d190/runtime.log": "a5e58b37c9f46b8543d13bb4d38f6e2345e31e4bce022aa5812275fc4747ec20",
+    "/tmp/nanolang-nested-result-source-d190/nanolang-transitive-wrapper-setup.mk": "d1d5a92fe011e3c31131f3b05fdcb75bc221f76c5b503584f3fcfc76fa44a987",
+    "/tmp/nanolang-nested-result-source-d190/bootstrap.log": "ebb95a6965a14eed5f6bb949c070b9aef2c3d0303b20c41330d50f69f28f9620",
+    "/tmp/nanolang-nested-result-source-d190/focused-gcc-producers.json": "4d0c2b50f88ab9bad6d42727d88e76975ef4081e133b17bc87e18f2b4d7b2687",
+    "/tmp/nanolang-nested-result-source-d190/nanolang-transitive-wrapper-unittest.py": "cb195cd2ac510c66ffe7cc1283ba47f982e578f064c13825a5d55187fe168f2a",
+    "/tmp/nanolang-nested-result-source-d190/focused-clang-producers.json": "5b8d560c65856616be198d5e9ce4ffb4e7cca2b1ad7a17a5a9d8b26c91c803b3",
+    "/tmp/nanolang-nested-result-source-d190/nanolang-nested-result-source-gate.py": "f35689f18c01ad59d7e3553d3501f721b8fc55654e5c5ef21cbfcb6e75548a21",
+    "/tmp/nanolang-nested-result-source-d190/focused-gcc-tools-before.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/full-source.log": "53ee4490ba9f6663d23d4fa77034246e2257bca4ab477618754f5452cb8a0e78",
+    "/tmp/nanolang-nested-result-source-d190/setup.log": "7c147f6b0015e09b207d758eebd7e07148b585991813e172b2a9152aaf987946",
+    "/tmp/nanolang-nested-result-source-d190/setup-tools-before.json": "1c6d1d51145d28a3e852b8b4ade540b79a0c024c6d45a57ba86812ea3ba36442",
+    "/tmp/nanolang-nested-result-source-d190/full-source-tools-after.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/manifest.json": "eeb23609427a9d89c23ffce07ee673e6f464ba24409c31a660295ab5b8b11c75",
+    "/tmp/nanolang-nested-result-source-d190/setup-tools-after.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/bootstrap-tools-before.json": "428626287be241fba4804a6147664082a2e111cd150baacfeb5568ac770ec932",
+    "/tmp/nanolang-nested-result-source-d190/focused-clang.log": "26814e65adffe64173f725426ec45efaef65427c322300a5b2479d0816cd95d8",
+    "/tmp/nanolang-nested-result-source-d190/full-source-producers.json": "2828c02cad9fa19f5b1e6299571b65d7b22def27e463aa77465a575d680d9f89",
+    "/tmp/nanolang-nested-result-source-d190/source-after.json": "5b2fcc50637d44a68715ed535a3ee1d9469b569eb3fa565fb2b8607e41ac55ed",
+    "/tmp/nanolang-nested-result-source-d190/focused-gcc-tools-after.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/full-source-tools-before.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "/tmp/nanolang-nested-result-source-d190/focused-gcc.log": "f4e755f58e2619453d257adbeeafead3b6aab0dad22994617c9033e3eac7f534",
+    "/tmp/nanolang-nested-result-source-d190/source-before.json": "5b2fcc50637d44a68715ed535a3ee1d9469b569eb3fa565fb2b8607e41ac55ed",
+    "/tmp/nanolang-nested-result-source-d190/focused-clang-tools-before.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/runtime-tools-after.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/focused-clang-tools-after.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/runtime-tools-before.json": "5ee1fcd917e99c631a5e38f463b7cdd779c7b0ff8c8c5eac4ea12606be68160f",
+    "/tmp/nanolang-nested-result-source-d190/bootstrap-tools-after.json": "1c6d1d51145d28a3e852b8b4ade540b79a0c024c6d45a57ba86812ea3ba36442"
+  },
+  "source_count": 1719,
+  "manifest": {
+    "source": "d190b367152b2beb05a4b4ca6e5c14178d44fffe",
+    "steps": [
+      {
+        "name": "bootstrap",
+        "command": [
+          "make",
+          "-j2",
+          "bootstrap"
+        ],
+        "status": 0,
+        "seconds": 249.842,
+        "log_sha256": "ebb95a6965a14eed5f6bb949c070b9aef2c3d0303b20c41330d50f69f28f9620",
+        "tools_unchanged": false
+      },
+      {
+        "name": "setup",
+        "command": [
+          "make",
+          "-j2",
+          "-f",
+          "Makefile.gnu",
+          "-f",
+          "/tmp/nanolang-transitive-wrapper-setup.mk",
+          "transitive-wrapper-setup"
+        ],
+        "status": 0,
+        "seconds": 25.63,
+        "log_sha256": "7c147f6b0015e09b207d758eebd7e07148b585991813e172b2a9152aaf987946",
+        "tools_unchanged": false
+      },
+      {
+        "name": "focused-gcc",
+        "command": [
+          "python3",
+          "/tmp/nanolang-transitive-wrapper-unittest.py",
+          "/tmp/nanolang-nested-result-source-d190/focused-gcc-producers.json",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrappers_restore_unchanged_affine_integration",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_arguments_preserve_once_order_and_children",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_refusals_preserve_output",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_owner_results_preserve_exact_transfer_and_order",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_owner_result_refusals_preserve_output"
+        ],
+        "status": 0,
+        "seconds": 182.254,
+        "log_sha256": "f4e755f58e2619453d257adbeeafead3b6aab0dad22994617c9033e3eac7f534",
+        "tools_unchanged": true,
+        "CC": "/usr/bin/gcc",
+        "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+      },
+      {
+        "name": "focused-clang",
+        "command": [
+          "python3",
+          "/tmp/nanolang-transitive-wrapper-unittest.py",
+          "/tmp/nanolang-nested-result-source-d190/focused-clang-producers.json",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrappers_restore_unchanged_affine_integration",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_arguments_preserve_once_order_and_children",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_refusals_preserve_output",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_owner_results_preserve_exact_transfer_and_order",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_nested_owner_result_refusals_preserve_output"
+        ],
+        "status": 0,
+        "seconds": 177.912,
+        "log_sha256": "26814e65adffe64173f725426ec45efaef65427c322300a5b2479d0816cd95d8",
+        "tools_unchanged": true,
+        "CC": "/usr/bin/clang-18",
+        "compiler_sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d"
+      },
+      {
+        "name": "full-source",
+        "command": [
+          "python3",
+          "/tmp/nanolang-transitive-wrapper-unittest.py",
+          "/tmp/nanolang-nested-result-source-d190/full-source-producers.json",
+          "tests.test_source_borrow_emission"
+        ],
+        "status": 0,
+        "seconds": 400.416,
+        "log_sha256": "53ee4490ba9f6663d23d4fa77034246e2257bca4ab477618754f5452cb8a0e78",
+        "tools_unchanged": true,
+        "CC": "/usr/bin/gcc",
+        "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+      },
+      {
+        "name": "runtime",
+        "command": [
+          "make",
+          "test-nested-owned-results",
+          "test-owned-value-results"
+        ],
+        "status": 0,
+        "seconds": 14.344,
+        "log_sha256": "a5e58b37c9f46b8543d13bb4d38f6e2345e31e4bce022aa5812275fc4747ec20",
+        "tools_unchanged": true
+      }
+    ],
+    "source_unchanged": true,
+    "unchanged_head": true,
+    "tracked_tree_clean": true
+  },
+  "archive": "/tmp/nanolang-nested-source-qualified-tools",
+  "source_archive": "/home/jkh/Src/nanolang-nested-owned-results-source-qualified"
+}
