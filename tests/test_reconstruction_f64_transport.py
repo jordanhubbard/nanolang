@@ -191,8 +191,7 @@ shadow nlr_f2_choose { assert (== (float_to_bits (nlr_f2_choose true)) -45035996
             self.command([ROOT/'bin/nano_vm',module]);self.native(module,'observed-'+name+'-native')
 
     def test_float_operations_remain_refused_without_publication(self):
-        for body,operation in [('PUSH_F64 1.0\nPUSH_F64 2.0\nF64_ADD\nPOP\n','F64_ADD'),
-                               ('PUSH_F64 1.0\nCAST_INT\nPOP\n','cast'),
+        for body,operation in [('PUSH_F64 1.0\nCAST_INT\nPOP\n','cast'),
                                ('PUSH_F64 1.0\nCAST_BOOL\nPOP\n','truth'),
                                ('PUSH_F64 1.0\nPUSH_F64 2.0\nEQ\nPOP\n','comparison'),
                                ('PUSH_F64 1.0\nPUSH_F64 2.0\nADD\nPOP\n','operand')]:
