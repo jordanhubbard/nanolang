@@ -34,6 +34,7 @@ typedef struct {
     NvmRecordPlan *plan;
     Value *fields;
     uint32_t field_count, checked_field_writes;
+    uint64_t state_cells;
     uint8_t origin_kind[ORIGINS];
     uint32_t record_ordinal[ORIGINS], field_start[ORIGINS];
     uint16_t record_fields[ORIGINS];
@@ -245,7 +246,8 @@ static int record_site(Analysis *a,uint32_t fi,uint32_t pc) {
     uint16_t count=op==OP_STRUCT_NEW?0:in->operands[op==OP_AGG_PACK?3:1].u16;
     if(count!=layout->field_count)
         return stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I require the actual constructed field count to match its record.");
-    if(a->report.origin_count==ORIGINS || count>FIELD_CELLS-a->field_count)
+    if(a->report.origin_count==ORIGINS || count>FIELD_CELLS-a->field_count ||
+       a->state_cells+(uint64_t)a->field_count+count>CELLS)
         return stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my record origin or field-summary limit.");
     uint32_t origin=a->report.origin_count++;f->origins[pc]=(int16_t)origin;
     a->origin_kind[origin]=NVM_HEAP_ORIGIN_RECORD;
@@ -487,7 +489,7 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require a closed zero-argument entry without nominal, ownership or host contracts.");goto done;
     }
     if(a->records && !prepare_records(a))goto done;
-    uint64_t cells=0;uint32_t instructions=0;int initializer=-1;
+    uint32_t instructions=0;int initializer=-1;
     for(uint32_t fi=0;fi<m->function_count;fi++) {
         Function *f=&a->functions[fi];const NvmFunctionEntry *e=&m->functions[fi];
         if(e->local_count>SLOTS){stop(a,NVM_ARRAY_LIMIT,fi,0,"I reached my array analysis local limit.");goto done;}
@@ -514,8 +516,8 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
         if(!vm_decode_function(m,fi,&f->decoded,error)){stop(a,NVM_ARRAY_MEMORY,fi,0,error);goto done;}
         f->locals=e->local_count;f->stride=(uint32_t)f->locals+f->stack;if(!f->stride)f->stride=1;
         uint32_t count=f->decoded.instruction_count+1;
-        cells+=(uint64_t)count*f->stride;
-        if(cells>CELLS){stop(a,NVM_ARRAY_LIMIT,fi,0,"I reached my stored abstract-state cell limit.");goto done;}
+        a->state_cells+=(uint64_t)count*f->stride;
+        if(a->state_cells+a->field_count>CELLS){stop(a,NVM_ARRAY_LIMIT,fi,0,"I reached my stored abstract-state cell limit.");goto done;}
         f->states=allocate((size_t)count*f->stride,sizeof(Value));f->depths=allocate(count,sizeof(uint16_t));
         f->queue=allocate(count,sizeof(uint32_t));f->seen=allocate(count,1);f->queued=allocate(count,1);f->origins=allocate(count,sizeof(int16_t));
         if(!f->states || !f->depths || !f->queue || !f->seen || !f->queued || !f->origins){stop(a,NVM_ARRAY_MEMORY,fi,0,"I could not allocate my bounded function analysis.");goto done;}
